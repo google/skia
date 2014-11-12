@@ -186,7 +186,6 @@ public:
 
     unsigned currentOp() const { return fCurrentOp; }
     const SkMatrix& ctm() const { return *fCTM; }
-    const Bounds& currentClipBounds() const { return fCurrentClipBounds; }
     const Bounds& getBounds(unsigned index) const { return fBounds[index]; }
 
     // Adjust rect for all paints that may affect its geometry, then map it to identity space.
@@ -602,20 +601,17 @@ public:
 private:
     struct SaveLayerInfo {
         SaveLayerInfo() { }
-        SaveLayerInfo(int opIndex, bool isSaveLayer, const SkPaint* paint, 
-                      const FillBounds::Bounds& clipBound)
+        SaveLayerInfo(int opIndex, bool isSaveLayer, const SkPaint* paint)
             : fStartIndex(opIndex)
             , fIsSaveLayer(isSaveLayer)
             , fHasNestedSaveLayer(false)
-            , fPaint(paint)
-            , fClipBound(clipBound) {
+            , fPaint(paint) {
         }
 
         int                fStartIndex;
         bool               fIsSaveLayer;
         bool               fHasNestedSaveLayer;
         const SkPaint*     fPaint;
-        FillBounds::Bounds fClipBound;
     };
 
     template <typename T> void trackSaveLayers(const T& op) {
@@ -645,9 +641,8 @@ private:
         for (int i = 0; i < childData->numSaveLayers(); ++i) {
             const GrAccelData::SaveLayerInfo& src = childData->saveLayerInfo(i);
 
-            FillBounds::Bounds newClip(fFillBounds.currentClipBounds());
-
-            if (!newClip.intersect(fFillBounds.adjustAndMap(src.fBounds, dp.paint))) {
+            FillBounds::Bounds newBound = fFillBounds.adjustAndMap(src.fBounds, dp.paint);
+            if (newBound.isEmpty()) {
                 continue;
             }
 
@@ -659,7 +654,7 @@ private:
             // it belongs to a sub-picture.
             dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
             dst.fPicture->ref();
-            dst.fBounds = newClip;
+            dst.fBounds = newBound;
             dst.fLocalMat = src.fLocalMat;
             dst.fPreMat = src.fPreMat;
             dst.fPreMat.postConcat(fFillBounds.ctm());
@@ -693,8 +688,7 @@ private:
             ++fSaveLayersInStack;
         }
 
-        fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, paint, 
-                                           fFillBounds.currentClipBounds()));
+        fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, paint));
     }
 
     void popSaveLayerInfo() {
@@ -717,7 +711,6 @@ private:
         SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
 
         slInfo.fBounds = fFillBounds.getBounds(sli.fStartIndex);
-        slInfo.fBounds.intersect(sli.fClipBound);
         slInfo.fLocalMat = fFillBounds.ctm();
         slInfo.fPreMat = SkMatrix::I();
         if (sli.fPaint) {
