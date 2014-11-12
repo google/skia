@@ -11,6 +11,7 @@
 
 #include "SkCanvas.h"
 #include "SkGrPixelRef.h"
+#include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkSurface.h"
 
@@ -18,7 +19,7 @@
 // required texture/render target resources.
 static void prepare_for_hoisting(GrLayerCache* layerCache, 
                                  const SkPicture* topLevelPicture,
-                                 const GrAccelData::SaveLayerInfo& info,
+                                 const SkLayerInfo::BlockInfo& info,
                                  const SkIRect& layerRect,
                                  SkTDArray<GrHoistedLayer>* needRendering,
                                  SkTDArray<GrHoistedLayer>* recycled,
@@ -93,22 +94,22 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
 
     layerCache->processDeletedPictures();
 
-    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+    SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
     const SkPicture::AccelData* topLevelData = topLevelPicture->EXPERIMENTAL_getAccelData(key);
     if (!topLevelData) {
         return;
     }
 
-    const GrAccelData *topLevelGPUData = static_cast<const GrAccelData*>(topLevelData);
-    if (0 == topLevelGPUData->numSaveLayers()) {
+    const SkLayerInfo *topLevelGPUData = static_cast<const SkLayerInfo*>(topLevelData);
+    if (0 == topLevelGPUData->numBlocks()) {
         return;
     }
 
-    atlased->setReserve(atlased->count() + topLevelGPUData->numSaveLayers());
+    atlased->setReserve(atlased->count() + topLevelGPUData->numBlocks());
 
-    for (int i = 0; i < topLevelGPUData->numSaveLayers(); ++i) {
-        const GrAccelData::SaveLayerInfo& info = topLevelGPUData->saveLayerInfo(i);
+    for (int i = 0; i < topLevelGPUData->numBlocks(); ++i) {
+        const SkLayerInfo::BlockInfo& info = topLevelGPUData->block(i);
 
         // TODO: ignore perspective projected layers here?
         bool disallowAtlasing = info.fHasNestedLayers || info.fIsNested ||
@@ -145,21 +146,21 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
 
     layerCache->processDeletedPictures();
 
-    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+    SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
     const SkPicture::AccelData* topLevelData = topLevelPicture->EXPERIMENTAL_getAccelData(key);
     if (!topLevelData) {
         return;
     }
 
-    const GrAccelData *topLevelGPUData = static_cast<const GrAccelData*>(topLevelData);
-    if (0 == topLevelGPUData->numSaveLayers()) {
+    const SkLayerInfo *topLevelGPUData = static_cast<const SkLayerInfo*>(topLevelData);
+    if (0 == topLevelGPUData->numBlocks()) {
         return;
     }
 
     // Find and prepare for hoisting all the layers that intersect the query rect
-    for (int i = 0; i < topLevelGPUData->numSaveLayers(); ++i) {
-        const GrAccelData::SaveLayerInfo& info = topLevelGPUData->saveLayerInfo(i);
+    for (int i = 0; i < topLevelGPUData->numBlocks(); ++i) {
+        const SkLayerInfo::BlockInfo& info = topLevelGPUData->block(i);
         if (info.fIsNested) {
             // Parent layers are currently hoisted while nested layers are not.
             continue;

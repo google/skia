@@ -5,12 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkPatchUtils.h"
-
-#if SK_SUPPORT_GPU
-#include "GrPictureUtils.h"
-#endif
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -570,11 +567,10 @@ private:
     SkTDArray<unsigned>   fControlIndices;
 };
 
-#if SK_SUPPORT_GPU
 // SkRecord visitor to gather saveLayer/restore information.
 class CollectLayers : SkNoncopyable {
 public:
-    CollectLayers(const SkRect& cullRect, const SkRecord& record, GrAccelData* accelData)
+    CollectLayers(const SkRect& cullRect, const SkRecord& record, SkLayerInfo* accelData)
         : fSaveLayersInStack(0)
         , fAccelData(accelData)
         , fFillBounds(cullRect, record) {
@@ -624,10 +620,10 @@ private:
     void trackSaveLayers(const DrawPicture& dp) {
         // For sub-pictures, we wrap their layer information within the parent
         // picture's rendering hierarchy
-        SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+        SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
-        const GrAccelData* childData =
-            static_cast<const GrAccelData*>(dp.picture->EXPERIMENTAL_getAccelData(key));
+        const SkLayerInfo* childData =
+            static_cast<const SkLayerInfo*>(dp.picture->EXPERIMENTAL_getAccelData(key));
         if (!childData) {
             // If the child layer hasn't been generated with saveLayer data we
             // assume the worst (i.e., that it does contain layers which nest
@@ -638,8 +634,8 @@ private:
             return;
         }
 
-        for (int i = 0; i < childData->numSaveLayers(); ++i) {
-            const GrAccelData::SaveLayerInfo& src = childData->saveLayerInfo(i);
+        for (int i = 0; i < childData->numBlocks(); ++i) {
+            const SkLayerInfo::BlockInfo& src = childData->block(i);
 
             FillBounds::Bounds newBound = fFillBounds.adjustAndMap(src.fBounds, dp.paint);
             if (newBound.isEmpty()) {
@@ -648,7 +644,7 @@ private:
 
             this->updateStackForSaveLayer();
 
-            GrAccelData::SaveLayerInfo& dst = fAccelData->addSaveLayerInfo();
+            SkLayerInfo::BlockInfo& dst = fAccelData->addBlock();
 
             // If src.fPicture is NULL the layer is in dp.picture; otherwise
             // it belongs to a sub-picture.
@@ -706,30 +702,29 @@ private:
 
         --fSaveLayersInStack;
 
-        GrAccelData::SaveLayerInfo& slInfo = fAccelData->addSaveLayerInfo();
+        SkLayerInfo::BlockInfo& block = fAccelData->addBlock();
 
-        SkASSERT(NULL == slInfo.fPicture);  // This layer is in the top-most picture
+        SkASSERT(NULL == block.fPicture);  // This layer is in the top-most picture
 
-        slInfo.fBounds = fFillBounds.getBounds(sli.fStartIndex);
-        slInfo.fLocalMat = fFillBounds.ctm();
-        slInfo.fPreMat = SkMatrix::I();
+        block.fBounds = fFillBounds.getBounds(sli.fStartIndex);
+        block.fLocalMat = fFillBounds.ctm();
+        block.fPreMat = SkMatrix::I();
         if (sli.fPaint) {
-            slInfo.fPaint = SkNEW_ARGS(SkPaint, (*sli.fPaint));
+            block.fPaint = SkNEW_ARGS(SkPaint, (*sli.fPaint));
         }
-        slInfo.fSaveLayerOpID = sli.fStartIndex;
-        slInfo.fRestoreOpID = fFillBounds.currentOp();
-        slInfo.fHasNestedLayers = sli.fHasNestedSaveLayer;
-        slInfo.fIsNested = fSaveLayersInStack > 0;
+        block.fSaveLayerOpID = sli.fStartIndex;
+        block.fRestoreOpID = fFillBounds.currentOp();
+        block.fHasNestedLayers = sli.fHasNestedSaveLayer;
+        block.fIsNested = fSaveLayersInStack > 0;
     }
 
     // Used to collect saveLayer information for layer hoisting
     int                   fSaveLayersInStack;
     SkTDArray<SaveLayerInfo> fSaveLayerStack;
-    GrAccelData*          fAccelData;
+    SkLayerInfo*          fAccelData;
 
     SkRecords::FillBounds fFillBounds;
 };
-#endif
 
 }  // namespace SkRecords
 
@@ -744,9 +739,8 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHi
     visitor.cleanUp(bbh);
 }
 
-#if SK_SUPPORT_GPU
 void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
-                           SkBBoxHierarchy* bbh, GrAccelData* data) {
+                           SkBBoxHierarchy* bbh, SkLayerInfo* data) {
     SkRecords::CollectLayers visitor(cullRect, record, data);
 
     for (unsigned curOp = 0; curOp < record.count(); curOp++) {
@@ -756,5 +750,4 @@ void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
 
     visitor.cleanUp(bbh);
 }
-#endif
 

@@ -123,8 +123,6 @@
       '<(skia_src_path)/gpu/GrProgramElement.cpp',
       '<(skia_src_path)/gpu/GrProcessor.cpp',
       '<(skia_src_path)/gpu/GrGpuResourceRef.cpp',
-      '<(skia_src_path)/gpu/GrPictureUtils.h',
-      '<(skia_src_path)/gpu/GrPictureUtils.cpp',
       '<(skia_src_path)/gpu/GrPlotMgr.h',
       '<(skia_src_path)/gpu/GrRecordReplaceDraw.cpp',
       '<(skia_src_path)/gpu/GrRecordReplaceDraw.h',

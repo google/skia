@@ -15,9 +15,7 @@
 #include "GrContext.h"
 #include "GrBitmapTextContext.h"
 #include "GrDistanceFieldTextContext.h"
-#include "GrLayerCache.h"
 #include "GrLayerHoister.h"
-#include "GrPictureUtils.h"
 #include "GrRecordReplaceDraw.h"
 #include "GrStrokeInfo.h"
 #include "GrTracing.h"
@@ -29,6 +27,7 @@
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
+#include "SkLayerInfo.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
@@ -1796,7 +1795,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+    SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
     const SkPicture::AccelData* data = mainPicture->EXPERIMENTAL_getAccelData(key);
     if (!data) {

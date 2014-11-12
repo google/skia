@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPictureUtils_DEFINED
-#define GrPictureUtils_DEFINED
+#ifndef SkLayerInfo_DEFINED
+#define SkLayerInfo_DEFINED
 
 #include "SkPicture.h"
 #include "SkTArray.h"
 
-// This class encapsulates the GPU-backend-specific acceleration data
-// for a single SkPicture
-class GrAccelData : public SkPicture::AccelData {
+// This class stores information about the saveLayer/restore pairs found
+// within an SkPicture. It is used by Ganesh to perform layer hoisting.
+class SkLayerInfo : public SkPicture::AccelData {
 public:
-    // Information about a given saveLayer in an SkPicture
-    class SaveLayerInfo {
+    // Information about a given saveLayer/restore block in an SkPicture
+    class BlockInfo {
     public:
-        SaveLayerInfo() : fPicture(NULL), fPaint(NULL) {}
-        ~SaveLayerInfo() { SkSafeUnref(fPicture); SkDELETE(fPaint); }
+        BlockInfo() : fPicture(NULL), fPaint(NULL) {}
+        ~BlockInfo() { SkSafeUnref(fPicture); SkDELETE(fPaint); }
 
         // The picture owning the layer. If the owning picture is the top-most
-        // one (i.e., the picture for which this GrAccelData was created) then
+        // one (i.e., the picture for which this SkLayerInfo was created) then
         // this pointer is NULL. If it is a nested picture then the pointer
         // is non-NULL and owns a ref on the picture.
         const SkPicture* fPicture;
@@ -41,9 +41,9 @@ public:
         SkMatrix fLocalMat;
         // The paint to use on restore. Can be NULL since it is optional.
         const SkPaint* fPaint;
-        // The ID of this saveLayer in the picture. 0 is an invalid ID.
+        // The index of this saveLayer in the picture.
         size_t  fSaveLayerOpID;
-        // The ID of the matching restore in the picture. 0 is an invalid ID.
+        // The index of the matching restore in the picture.
         size_t  fRestoreOpID;
         // True if this saveLayer has at least one other saveLayer nested within it.
         // False otherwise.
@@ -52,28 +52,26 @@ public:
         bool    fIsNested;
     };
 
-    GrAccelData(Key key) : INHERITED(key) { }
+    SkLayerInfo(Key key) : INHERITED(key) { }
 
-    virtual ~GrAccelData() { }
+    BlockInfo& addBlock() { return fBlocks.push_back(); }
 
-    SaveLayerInfo& addSaveLayerInfo() { return fSaveLayerInfo.push_back(); }
+    int numBlocks() const { return fBlocks.count(); }
 
-    int numSaveLayers() const { return fSaveLayerInfo.count(); }
+    const BlockInfo& block(int index) const {
+        SkASSERT(index < fBlocks.count());
 
-    const SaveLayerInfo& saveLayerInfo(int index) const {
-        SkASSERT(index < fSaveLayerInfo.count());
-
-        return fSaveLayerInfo[index];
+        return fBlocks[index];
     }
 
     // We may, in the future, need to pass in the GPUDevice in order to
     // incorporate the clip and matrix state into the key
-    static SkPicture::AccelData::Key ComputeAccelDataKey();
+    static SkPicture::AccelData::Key ComputeKey();
 
 private:
-    SkTArray<SaveLayerInfo, true> fSaveLayerInfo;
+    SkTArray<BlockInfo, true> fBlocks;
 
     typedef SkPicture::AccelData INHERITED;
 };
 
-#endif // GrPictureUtils_DEFINED
+#endif // SkLayerInfo_DEFINED

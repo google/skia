@@ -5,18 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkLayerInfo.h"
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkRecordOpts.h"
 #include "SkTypes.h"
-
-// Must place SK_SUPPORT_GPU after other includes so it is defined in the
-// Android framework build.
-#if SK_SUPPORT_GPU
-#include "GrPictureUtils.h"
-#endif
 
 SkPictureRecorder::SkPictureRecorder() {}
 
@@ -47,37 +42,29 @@ SkPicture* SkPictureRecorder::endRecording() {
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord);
 
-#if SK_SUPPORT_GPU
-    SkAutoTUnref<GrAccelData> saveLayerData;
+    SkAutoTUnref<SkLayerInfo> saveLayerData;
 
     if (fBBH && (fFlags & kComputeSaveLayerInfo_RecordFlag)) {
-        SkPicture::AccelData::Key key = GrAccelData::ComputeAccelDataKey();
+        SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
-        saveLayerData.reset(SkNEW_ARGS(GrAccelData, (key)));
+        saveLayerData.reset(SkNEW_ARGS(SkLayerInfo, (key)));
     }
-#endif
 
     if (fBBH.get()) {
         SkRect cullRect = SkRect::MakeWH(fCullWidth, fCullHeight);
 
-#if SK_SUPPORT_GPU
         if (saveLayerData) {
             SkRecordComputeLayers(cullRect, *fRecord, fBBH.get(), saveLayerData);
         } else {
-#endif
             SkRecordFillBounds(cullRect, *fRecord, fBBH.get());
-#if SK_SUPPORT_GPU
         }
-#endif
     }
 
     SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, fRecord.detach(), fBBH.get()));
 
-#if SK_SUPPORT_GPU
     if (saveLayerData) {
         pict->EXPERIMENTAL_addAccelData(saveLayerData);
     }
-#endif
 
     return pict;
 }

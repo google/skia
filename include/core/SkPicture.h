@@ -46,8 +46,7 @@ public:
     SK_DECLARE_INST_COUNT(SkPicture)
 
     // AccelData provides a base class for device-specific acceleration
-    // data. It is added to the picture via a call to a device's optimize
-    // method.
+    // data. It is added to the picture via EXPERIMENTAL_addAccelData.
     class AccelData : public SkRefCnt {
     public:
         typedef uint8_t Domain;

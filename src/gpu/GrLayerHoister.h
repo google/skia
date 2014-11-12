@@ -11,7 +11,6 @@
 #include "SkPicture.h"
 #include "SkTDArray.h"
 
-class GrAccelData;
 struct GrCachedLayer;
 class GrReplacements;
 struct SkRect;

@@ -9,14 +9,12 @@
 #define GrLayerCache_DEFINED
 
 #include "GrAtlas.h"
-#include "GrPictureUtils.h"
 #include "GrRect.h"
 
 #include "SkChecksum.h"
 #include "SkMessageBus.h"
+#include "SkPicture.h"
 #include "SkTDynamicHash.h"
-
-class SkPicture;
 
 // Set to 0 to disable caching of hoisted layers
 #define GR_CACHE_HOISTED_LAYERS 0

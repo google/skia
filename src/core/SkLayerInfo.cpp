@@ -5,15 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrPictureUtils.h"
+#include "SkLayerInfo.h"
 
-#include "SkBBoxHierarchy.h"
-#include "SkPaintPriv.h"
-#include "SkPatchUtils.h"
-#include "SkRecord.h"
-#include "SkRecords.h"
-
-SkPicture::AccelData::Key GrAccelData::ComputeAccelDataKey() {
+SkPicture::AccelData::Key SkLayerInfo::ComputeKey() {
     static const SkPicture::AccelData::Key gGPUID = SkPicture::AccelData::GenerateDomain();
 
     return gGPUID;
