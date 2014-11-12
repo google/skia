@@ -2722,11 +2722,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16628817470554933537
+          11260702539770515825
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_rrect_aa_565.png": {
       "allowed-digests": [
@@ -2750,7 +2750,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12795866211978733736
+          8207603413123076437
         ]
       ], 
       "reviewed-by-human": true
@@ -2970,7 +2970,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11432946954654704028
+          1490078855479156780
         ]
       ], 
       "reviewed-by-human": true

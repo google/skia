@@ -48,13 +48,5 @@ dropshadowimagefilter
 # quality improvements to imagemagnifier GM
 imagemagnifier
 
-#joshualitt
-hairmodes
-complexclip_aa
-complexclip2_rect_aa
-complexclip2_rrect_aa
-convex_poly_clip
-verttext
-
 #reed
 modecolorfilters
