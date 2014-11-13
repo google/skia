@@ -111,8 +111,8 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     fBitmap.lockPixels();
 }
 
-SkBaseDevice* SkBitmapDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
-    return SkBitmapDevice::Create(cinfo.fInfo);// &this->getDeviceProperties());
+SkBaseDevice* SkBitmapDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
+    return SkBitmapDevice::Create(info);// &this->getDeviceProperties());
 }
 
 void SkBitmapDevice::lockPixels() {

@@ -340,17 +340,6 @@ protected:
 
     void setPixelGeometry(SkPixelGeometry geo);
 
-    struct CreateInfo {
-        CreateInfo(const SkImageInfo& info, Usage usage) : fInfo(info), fUsage(usage) {}
-
-        SkImageInfo fInfo;
-        Usage       fUsage;
-    };
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo& cinfo) {
-        // call deprecated method until we can update chrome's subclasses
-        return this->onCreateDevice(cinfo.fInfo, cinfo.fUsage);
-    }
-
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -377,7 +366,6 @@ private:
     // just called by SkCanvas for imagefilter
     SkBaseDevice* createCompatibleDeviceForImageFilter(const SkImageInfo&);
 
-    // DEPRECATED -- override onCreateCompatibleDevice instead.
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) {
         return NULL;
     }
