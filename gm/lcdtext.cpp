@@ -137,12 +137,16 @@ class LcdTextProps : public skiagm::GM {
         canvas->restore();
     }
 
-public:
+protected:
     SkString onShortName() SK_OVERRIDE {
         return SkString("lcdtextprops");
     }
 
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(230, 120); }
+
+    uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkip565_Flag;
+    }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const SkPixelGeometry geos[] = {
