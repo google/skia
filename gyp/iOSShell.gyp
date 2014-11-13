@@ -67,7 +67,6 @@
             '../experimental/iOSSampleApp/Shared',
             '../include/utils/ios',
             '../src/views/mac',
-            '../bench',
           ],
           'xcode_settings' : {
             'INFOPLIST_FILE' : '../experimental/iOSShell/iOSShell-Info.plist',
