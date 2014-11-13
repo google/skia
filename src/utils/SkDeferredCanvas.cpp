@@ -168,11 +168,6 @@ protected:
     virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) SK_OVERRIDE;
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y) SK_OVERRIDE;
 
-    // The following methods are no-ops on a deferred device
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
-        return false;
-    }
-
     // None of the following drawing methods should ever get called on the
     // deferred device
     virtual void clear(SkColor color) SK_OVERRIDE
@@ -466,6 +461,7 @@ const SkBitmap& SkDeferredDevice::onAccessBitmap() {
 SkBaseDevice* SkDeferredDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
     // Save layer usage not supported, and not required by SkDeferredCanvas.
     SkASSERT(cinfo.fUsage != kSaveLayer_Usage);
+
     // Create a compatible non-deferred device.
     // We do not create a deferred device because we know the new device
     // will not be used with a deferred canvas (there is no API for that).

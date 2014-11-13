@@ -85,8 +85,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
         // We call createCompatibleDevice because it uses the texture cache. This isn't
         // necessarily correct (http://skbug.com/2252), but never using the cache causes
         // a Chromium regression. (http://crbug.com/344020)
-        SkGpuDevice* newDevice = static_cast<SkGpuDevice*>(
-            fDevice->createCompatibleDevice(fDevice->imageInfo()));
+        SkGpuDevice* newDevice = fDevice->cloneDevice(this->props());
         SkAutoTUnref<SkGpuDevice> aurd(newDevice);
         if (kRetain_ContentChangeMode == mode) {
             fDevice->context()->copySurface(newDevice->accessRenderTarget(), rt->asTexture());

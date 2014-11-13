@@ -405,10 +405,6 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::setupDevice(SkBaseDevice* device) {
-    device->setPixelGeometry(fProps.pixelGeometry());
-}
-
 SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fConservativeRasterClip = SkToBool(flags & kConservativeRasterClip_InitFlag);
     fCachedLocalClipBounds.setEmpty();
@@ -429,7 +425,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fSurfaceBase = NULL;
 
     if (device) {
-        this->setupDevice(device);
+        device->initForRootLayer(fProps.pixelGeometry());
         if (device->forceConservativeRasterClip()) {
             fConservativeRasterClip = true;
         }
@@ -601,6 +597,7 @@ SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
 
     if (device) {
         device->onAttachToCanvas(this);
+        device->initForRootLayer(fProps.pixelGeometry());
     }
     if (rootDevice) {
         rootDevice->onDetachFromCanvas();
@@ -608,7 +605,6 @@ SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
 
     SkRefCnt_SafeAssign(rec->fLayer->fDevice, device);
     rootDevice = device;
-    this->setupDevice(device);
 
     fDeviceCMDirty = true;
 
@@ -931,20 +927,22 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
     SkImageInfo info = SkImageInfo::MakeN32(ir.width(), ir.height(),
                         isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 
-    SkBaseDevice* device;
-    if (paint && paint->getImageFilter()) {
-        device = this->getDevice();
-        if (device) {
-            device = device->createCompatibleDeviceForImageFilter(info);
-        }
-    } else {
-        device = this->createLayerDevice(info);
+    SkBaseDevice* device = this->getTopDevice();
+    if (NULL == device) {
+        SkDebugf("Unable to find device for layer.");
+        return count;
     }
+
+    SkBaseDevice::Usage usage = SkBaseDevice::kSaveLayer_Usage;
+    if (paint && paint->getImageFilter()) {
+        usage = SkBaseDevice::kImageFilter_Usage;
+    }
+    device = device->onCreateCompatibleDevice(SkBaseDevice::CreateInfo(info, usage,
+                                                                       fProps.pixelGeometry()));
     if (NULL == device) {
         SkDebugf("Unable to create device for layer.");
         return count;
     }
-    this->setupDevice(device);
 
     device->setOrigin(ir.fLeft, ir.fTop);
     DeviceCM* layer = SkNEW_ARGS(DeviceCM,
@@ -1665,11 +1663,6 @@ GrRenderTarget* SkCanvas::internal_private_accessTopLayerRenderTarget() {
     return dev ? dev->accessRenderTarget() : NULL;
 }
 
-SkBaseDevice* SkCanvas::createLayerDevice(const SkImageInfo& info) {
-    SkBaseDevice* device = this->getTopDevice();
-    return device ? device->createCompatibleDeviceForSaveLayer(info) : NULL;
-}
-
 GrContext* SkCanvas::getGrContext() {
 #if SK_SUPPORT_GPU
     SkBaseDevice* device = this->getTopDevice();
@@ -2062,10 +2055,12 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
 class SkDeviceFilteredPaint {
 public:
     SkDeviceFilteredPaint(SkBaseDevice* device, const SkPaint& paint) {
-        SkBaseDevice::TextFlags flags;
-        if (device->filterTextFlags(paint, &flags)) {
+        if (device->shouldDisableLCD(paint)) {
+            uint32_t flags = paint.getFlags();
+            flags &= ~SkPaint::kLCDRenderText_Flag;
+            flags |= SkPaint::kGenA8FromLCD_Flag;
             SkPaint* newPaint = fLazy.set(paint);
-            newPaint->setFlags(flags.fFlags);
+            newPaint->setFlags(flags);
             fPaint = newPaint;
         } else {
             fPaint = &paint;

@@ -1342,8 +1342,6 @@ private:
     // needs gettotalclip()
     friend class SkCanvasStateUtils;
 
-    SkBaseDevice* createLayerDevice(const SkImageInfo&);
-
     // call this each time we attach ourselves to a device
     //  - constructor
     //  - internalSaveLayer

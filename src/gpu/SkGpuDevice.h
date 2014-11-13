@@ -56,6 +56,13 @@ public:
 
     virtual ~SkGpuDevice();
 
+    SkGpuDevice* cloneDevice(const SkSurfaceProps& props) {
+        SkBaseDevice* dev = this->onCreateCompatibleDevice(CreateInfo(this->imageInfo(),
+                                                                      kGeneral_Usage,
+                                                                      props.pixelGeometry()));
+        return static_cast<SkGpuDevice*>(dev);
+    }
+
     GrContext* context() const { return fContext; }
 
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
@@ -102,7 +109,6 @@ public:
                               const SkPaint&) SK_OVERRIDE;
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
-    virtual bool filterTextFlags(const SkPaint&, TextFlags*) SK_OVERRIDE;
 
     virtual void flush() SK_OVERRIDE;
 
@@ -119,6 +125,7 @@ public:
 protected:
     virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
+    bool onShouldDisableLCD(const SkPaint&) const SK_OVERRIDE;
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     virtual bool EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture,

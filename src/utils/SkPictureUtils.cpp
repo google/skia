@@ -62,9 +62,6 @@ public:
         return SkImageInfo::MakeUnknown(fSize.width(), fSize.height());
     }
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
-        return false;
-    }
     // TODO: allow this call to return failure, or move to SkBitmapDevice only.
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
         return fEmptyBitmap;

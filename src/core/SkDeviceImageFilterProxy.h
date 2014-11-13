@@ -15,7 +15,10 @@ public:
     SkDeviceImageFilterProxy(SkBaseDevice* device) : fDevice(device) {}
 
     virtual SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
-        return fDevice->createCompatibleDeviceForImageFilter(SkImageInfo::MakeN32Premul(w, h));
+        SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
+                                       SkBaseDevice::kImageFilter_Usage,
+                                       kUnknown_SkPixelGeometry);
+        return fDevice->onCreateCompatibleDevice(cinfo);
     }
     virtual bool canHandleImageFilter(const SkImageFilter* filter) SK_OVERRIDE {
         return fDevice->canHandleImageFilter(filter);

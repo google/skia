@@ -31,9 +31,8 @@ public:
      *  Construct a new device.
     */
     SkBaseDevice();
+    explicit SkBaseDevice(const SkDeviceProperties&);
     virtual ~SkBaseDevice();
-
-    SkBaseDevice* createCompatibleDevice(const SkImageInfo&);
 
     SkMetaData& getMetaData();
 
@@ -118,6 +117,8 @@ public:
 #endif
     };
 
+    bool shouldDisableLCD(const SkPaint&) const;
+
 protected:
     enum Usage {
        kGeneral_Usage,
@@ -129,13 +130,7 @@ protected:
         uint32_t    fFlags;     // SkPaint::getFlags()
     };
 
-    /**
-     *  Device may filter the text flags for drawing text here. If it wants to
-     *  make a change to the specified values, it should write them into the
-     *  textflags parameter (output) and return true. If the paint is fine as
-     *  is, then ignore the textflags parameter and return false.
-     */
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) { return false; }
+    virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
 
     /**
      *
@@ -338,17 +333,26 @@ protected:
     virtual bool EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const SkMatrix*,
                                           const SkPaint*);
 
-    void setPixelGeometry(SkPixelGeometry geo);
-
     struct CreateInfo {
-        CreateInfo(const SkImageInfo& info, Usage usage) : fInfo(info), fUsage(usage) {}
+        static SkPixelGeometry AdjustGeometry(const SkImageInfo&, Usage, SkPixelGeometry geo);
 
-        SkImageInfo fInfo;
-        Usage       fUsage;
+        // The construct may change the pixel geometry based on usage as needed.
+        CreateInfo(const SkImageInfo& info, Usage usage, SkPixelGeometry geo)
+            : fInfo(info)
+            , fUsage(usage)
+            , fPixelGeometry(AdjustGeometry(info, usage, geo))
+        {}
+
+        const SkImageInfo     fInfo;
+        const Usage           fUsage;
+        const SkPixelGeometry fPixelGeometry;
     };
+
     virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo& cinfo) {
         return NULL;
     }
+
+    virtual void initForRootLayer(SkPixelGeometry geo);
 
 private:
     friend class SkCanvas;
@@ -371,10 +375,6 @@ private:
 
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
-    // just called by SkCanvas for saveLayer
-    SkBaseDevice* createCompatibleDeviceForSaveLayer(const SkImageInfo&);
-    // just called by SkCanvas for imagefilter
-    SkBaseDevice* createCompatibleDeviceForImageFilter(const SkImageInfo&);
 
     /** Causes any deferred drawing to the device to be completed.
      */

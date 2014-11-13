@@ -38,7 +38,7 @@ public:
     virtual SkImageInfo imageInfo() const SK_OVERRIDE;
 
 protected:
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE;
+    bool onShouldDisableLCD(const SkPaint&) const SK_OVERRIDE;
 
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.

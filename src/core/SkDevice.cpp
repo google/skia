@@ -23,21 +23,19 @@ SkBaseDevice::SkBaseDevice()
     fMetaData = NULL;
 }
 
+SkBaseDevice::SkBaseDevice(const SkDeviceProperties& dp)
+    : fLeakyProperties(SkNEW_ARGS(SkDeviceProperties, (dp)))
+#ifdef SK_DEBUG
+    , fAttachedToCanvas(false)
+#endif
+{
+    fOrigin.setZero();
+    fMetaData = NULL;
+}
+
 SkBaseDevice::~SkBaseDevice() {
     SkDELETE(fLeakyProperties);
     SkDELETE(fMetaData);
-}
-
-SkBaseDevice* SkBaseDevice::createCompatibleDevice(const SkImageInfo& info) {
-    return this->onCreateCompatibleDevice(CreateInfo(info, kGeneral_Usage));
-}
-
-SkBaseDevice* SkBaseDevice::createCompatibleDeviceForSaveLayer(const SkImageInfo& info) {
-    return this->onCreateCompatibleDevice(CreateInfo(info, kSaveLayer_Usage));
-}
-
-SkBaseDevice* SkBaseDevice::createCompatibleDeviceForImageFilter(const SkImageInfo& info) {
-    return this->onCreateCompatibleDevice(CreateInfo(info, kImageFilter_Usage));
 }
 
 SkMetaData& SkBaseDevice::getMetaData() {
@@ -61,8 +59,31 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     return bitmap;
 }
 
-void SkBaseDevice::setPixelGeometry(SkPixelGeometry geo) {
-    fLeakyProperties->setPixelGeometry(geo);
+SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
+                                                         Usage usage,
+                                                         SkPixelGeometry geo) {
+    switch (usage) {
+        case kGeneral_Usage:
+            break;
+        case kSaveLayer_Usage:
+            if (info.alphaType() != kOpaque_SkAlphaType) {
+                geo = kUnknown_SkPixelGeometry;
+            }
+            break;
+        case kImageFilter_Usage:
+            geo = kUnknown_SkPixelGeometry;
+            break;
+    }
+    return geo;
+}
+
+void SkBaseDevice::initForRootLayer(SkPixelGeometry geo) {
+    // For now we don't expect to change the geometry for the root-layer, but we make the call
+    // anyway to document logically what is going on.
+    //
+    fLeakyProperties->setPixelGeometry(CreateInfo::AdjustGeometry(this->imageInfo(),
+                                                                  kGeneral_Usage,
+                                                                  geo));
 }
 
 SkSurface* SkBaseDevice::newSurface(const SkImageInfo&, const SkSurfaceProps&) { return NULL; }
@@ -187,3 +208,18 @@ bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const S
     // The base class doesn't perform any accelerated picture rendering
     return false;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkBaseDevice::shouldDisableLCD(const SkPaint& paint) const {
+    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
+        return false;
+    }
+
+    if (kUnknown_SkPixelGeometry == fLeakyProperties->pixelGeometry()) {
+        return true;
+    }
+
+    return this->onShouldDisableLCD(paint);
+}
+

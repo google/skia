@@ -130,8 +130,13 @@ SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, const SkSurfaceProps& props
     return SkNEW_ARGS(SkGpuDevice, (surface, props, flags));
 }
 
-SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsigned flags) {
+static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps& props) {
+    return SkDeviceProperties(props.pixelGeometry());
+}
 
+SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsigned flags)
+    : INHERITED(surfaceprops_to_deviceprops(props))
+{
     fDrawProcs = NULL;
 
     fContext = SkRef(surface->getContext());
@@ -144,8 +149,6 @@ SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsign
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface));
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
-
-    this->setPixelGeometry(props.pixelGeometry());
 
     bool useDFT = SkToBool(flags & kDFText_Flag);
     fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFT);
@@ -1721,26 +1724,18 @@ void SkGpuDevice::drawTextOnPath(const SkDraw& draw, const void* text,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
-    if (!paint.isLCDRenderText()) {
-        // we're cool with the paint as is
-        return false;
-    }
-
+bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
     if (paint.getShader() ||
-        paint.getXfermode() || // unless its srcover
+        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode) ||
         paint.getMaskFilter() ||
         paint.getRasterizer() ||
         paint.getColorFilter() ||
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||
-        paint.getStyle() != SkPaint::kFill_Style) {
-        // turn off lcd, but turn on kGenA8
-        flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
-        flags->fFlags |= SkPaint::kGenA8FromLCD_Flag;
+        paint.getStyle() != SkPaint::kFill_Style)
+    {
         return true;
     }
-    // we're cool with the paint as is
     return false;
 }
 
@@ -1776,7 +1771,7 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
     texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
 #endif
     if (texture.get()) {
-        return SkGpuDevice::Create(texture, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags);
+        return SkGpuDevice::Create(texture, SkSurfaceProps(0, cinfo.fPixelGeometry), flags);
     } else {
         SkDebugf("---- failed to create compatible device texture [%d %d]\n",
                  cinfo.fInfo.width(), cinfo.fInfo.height());

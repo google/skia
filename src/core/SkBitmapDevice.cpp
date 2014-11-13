@@ -7,6 +7,7 @@
 
 #include "SkBitmapDevice.h"
 #include "SkConfig8888.h"
+#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkRasterClip.h"
 #include "SkShader.h"
@@ -61,14 +62,12 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
-#if 0
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)
     : SkBaseDevice(deviceProperties)
     , fBitmap(bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
-#endif
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                        const SkDeviceProperties* props) {
@@ -93,8 +92,8 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    if (props && false) {
-//        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *props));
+    if (props) {
+        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *props));
     } else {
         return SkNEW_ARGS(SkBitmapDevice, (bitmap));
     }
@@ -112,7 +111,8 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 }
 
 SkBaseDevice* SkBitmapDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
-    return SkBitmapDevice::Create(cinfo.fInfo);// &this->getDeviceProperties());
+    SkDeviceProperties leaky(cinfo.fPixelGeometry);
+    return SkBitmapDevice::Create(cinfo.fInfo, &leaky);
 }
 
 void SkBitmapDevice::lockPixels() {
@@ -383,23 +383,15 @@ SkImageFilter::Cache* SkBitmapDevice::getImageFilterCache() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkBitmapDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
-    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
-        // we're cool with the paint as is
-        return false;
-    }
-
+bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
     if (kN32_SkColorType != fBitmap.colorType() ||
         paint.getRasterizer() ||
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||
         paint.getStyle() != SkPaint::kFill_Style ||
-        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode)) {
-        // turn off lcd, but turn on kGenA8
-        flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
-        flags->fFlags |= SkPaint::kGenA8FromLCD_Flag;
+        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode))
+    {
         return true;
     }
-    // we're cool with the paint as is
     return false;
 }
