@@ -7,6 +7,7 @@
 
 #include "GrDrawState.h"
 
+#include "GrBlend.h"
 #include "GrInvariantOutput.h"
 #include "GrOptDrawState.h"
 #include "GrPaint.h"
@@ -749,15 +750,17 @@ bool GrDrawState::willBlendWithDst() const {
         return true;
     }
 
-    bool srcAIsOne = this->srcAlphaWillBeOne();
-    GrBlendCoeff srcCoeff = this->getSrcBlendCoeff();
-    GrBlendCoeff dstCoeff = this->getDstBlendCoeff();
-    if (kISA_GrBlendCoeff == dstCoeff && srcAIsOne) {
-        dstCoeff = kZero_GrBlendCoeff;
+    if (this->willEffectReadDstColor()) {
+        return true;
     }
-    if (kOne_GrBlendCoeff != srcCoeff ||
-        kZero_GrBlendCoeff != dstCoeff ||
-        this->willEffectReadDstColor()) {
+
+    if (GrBlendCoeffRefsDst(this->getSrcBlendCoeff())) {
+        return true;
+    }
+
+    GrBlendCoeff dstCoeff = this->getDstBlendCoeff();
+    if (!(kZero_GrBlendCoeff == dstCoeff ||
+         (kISA_GrBlendCoeff == dstCoeff && this->srcAlphaWillBeOne()))) {
         return true;
     }
 
