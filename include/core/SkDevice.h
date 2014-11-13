@@ -117,8 +117,6 @@ public:
 #endif
     };
 
-    bool shouldDisableLCD(const SkPaint&) const;
-
 protected:
     enum Usage {
        kGeneral_Usage,
@@ -129,6 +127,12 @@ protected:
     struct TextFlags {
         uint32_t    fFlags;     // SkPaint::getFlags()
     };
+
+    /**
+     * Returns the text-related flags, possibly modified based on the state of the
+     * device (e.g. support for LCD).
+     */
+    uint32_t filterTextFlags(const SkPaint&) const;
 
     virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
 

@@ -129,6 +129,7 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint.
         it.applyFontToPaint(&runPaint);
+        runPaint.setFlags(this->filterTextFlags(runPaint));
 
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
@@ -211,15 +212,20 @@ bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const S
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkBaseDevice::shouldDisableLCD(const SkPaint& paint) const {
+uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
+    uint32_t flags = paint.getFlags();
+
     if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
-        return false;
+        return flags;
     }
 
-    if (kUnknown_SkPixelGeometry == fLeakyProperties->pixelGeometry()) {
-        return true;
+    if (kUnknown_SkPixelGeometry == fLeakyProperties->pixelGeometry()
+        || this->onShouldDisableLCD(paint)) {
+
+        flags &= ~SkPaint::kLCDRenderText_Flag;
+        flags |= SkPaint::kGenA8FromLCD_Flag;
     }
 
-    return this->onShouldDisableLCD(paint);
+    return flags;
 }
 

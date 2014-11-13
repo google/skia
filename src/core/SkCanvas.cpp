@@ -2055,12 +2055,10 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
 class SkDeviceFilteredPaint {
 public:
     SkDeviceFilteredPaint(SkBaseDevice* device, const SkPaint& paint) {
-        if (device->shouldDisableLCD(paint)) {
-            uint32_t flags = paint.getFlags();
-            flags &= ~SkPaint::kLCDRenderText_Flag;
-            flags |= SkPaint::kGenA8FromLCD_Flag;
+        uint32_t filteredFlags = device->filterTextFlags(paint);
+        if (filteredFlags != paint.getFlags()) {
             SkPaint* newPaint = fLazy.set(paint);
-            newPaint->setFlags(flags);
+            newPaint->setFlags(filteredFlags);
             fPaint = newPaint;
         } else {
             fPaint = &paint;
