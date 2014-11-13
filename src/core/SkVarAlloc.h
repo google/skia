@@ -28,7 +28,7 @@ private:
 
     char* fByte;
     unsigned fRemaining;
-    unsigned fLgMinSize;
+    unsigned fLgSize;  // This is always in the range [4, 16], so it really only needs 4 bits.
 
     struct Block;
     Block* fBlock;

@@ -7,6 +7,11 @@
     #include <malloc.h>
 #endif
 
+enum {
+    kMinLgSize =  4,  // The smallest block we'd ever want to allocate is 16B,
+    kMaxLgSize = 16,  // and we see no benefit allocating blocks larger than 64K.
+};
+
 struct SkVarAlloc::Block {
     Block* prev;
     char* data() { return (char*)(this + 1); }
@@ -22,7 +27,7 @@ struct SkVarAlloc::Block {
 SkVarAlloc::SkVarAlloc()
     : fByte(NULL)
     , fRemaining(0)
-    , fLgMinSize(4)
+    , fLgSize(kMinLgSize)
     , fBlock(NULL) {}
 
 SkVarAlloc::~SkVarAlloc() {
@@ -37,13 +42,17 @@ SkVarAlloc::~SkVarAlloc() {
 void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
     SkASSERT(SkIsAlignPtr(bytes));
 
-    size_t alloc = 1<<(fLgMinSize++);
+    size_t alloc = 1<<fLgSize;
     while (alloc < bytes + sizeof(Block)) {
         alloc *= 2;
     }
     fBlock = Block::Alloc(fBlock, alloc, flags);
     fByte = fBlock->data();
     fRemaining = alloc - sizeof(Block);
+
+    if (fLgSize < kMaxLgSize) {
+        fLgSize++;
+    }
 
 #if defined(SK_BUILD_FOR_MAC)
     SkASSERT(alloc == malloc_good_size(alloc));
