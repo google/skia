@@ -9,7 +9,6 @@
 #ifndef SkWriteBuffer_DEFINED
 #define SkWriteBuffer_DEFINED
 
-#include "SkBitmapHeap.h"
 #include "SkData.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -17,6 +16,7 @@
 #include "SkWriter32.h"
 
 class SkBitmap;
+class SkBitmapHeap;
 class SkFactorySet;
 class SkFlattenable;
 class SkNamedFactorySet;

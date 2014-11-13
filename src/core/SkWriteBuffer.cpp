@@ -8,6 +8,7 @@
 
 #include "SkWriteBuffer.h"
 #include "SkBitmap.h"
+#include "SkBitmapHeap.h"
 #include "SkData.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"

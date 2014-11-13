@@ -15,7 +15,7 @@
 #include "SkWindow.h"
 
 #include <jni.h>
-#include "android/AndroidKeyToSkKey.h"
+#include "AndroidKeyToSkKey.h"
 
 
 ///////////////////////////////////////////
