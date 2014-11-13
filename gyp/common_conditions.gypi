@@ -129,6 +129,12 @@
             'configurations': {
               'Debug_x64': {
                 'inherit_from': ['Debug'],
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                     # /ZI is not supported on 64bit
+                    'DebugInformationFormat': '3', # programDatabase (/Zi)
+                  },
+                },
               },
               'Release_x64': {
                 'inherit_from': ['Release'],
