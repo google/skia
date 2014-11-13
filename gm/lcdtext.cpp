@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -122,7 +121,50 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+#include "SkSurface.h"
+
+// ensure that we respect the SkPixelGeometry in SurfaceProps
+class LcdTextProps : public skiagm::GM {
+    static void DrawText(SkCanvas* canvas) {
+        canvas->drawColor(SK_ColorWHITE);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setLCDRenderText(true);
+        paint.setTextSize(30);
+        canvas->drawText("Base", 4, 4, 30, paint);
+        canvas->saveLayer(NULL, NULL);
+        canvas->drawText("Layer", 5, 4, 70, paint);
+        canvas->restore();
+    }
+
+public:
+    SkString onShortName() SK_OVERRIDE {
+        return SkString("lcdtextprops");
+    }
+
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(230, 120); }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        const SkPixelGeometry geos[] = {
+            kRGB_H_SkPixelGeometry,
+            kUnknown_SkPixelGeometry,
+        };
+
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(geos); ++i) {
+            SkSurfaceProps props = SkSurfaceProps(0, geos[i]);
+            SkAutoTUnref<SkSurface> surf(canvas->newSurface(info, &props));
+            if (!surf) {
+                surf.reset(SkSurface::NewRaster(info, &props));
+            }
+            DrawText(surf->getCanvas());
+            surf->draw(canvas, SkIntToScalar(i * (info.width() + 10)), 0, NULL);
+        }
+    }
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new LcdTextGM; )
 DEF_GM( return new LcdTextSizeGM; )
+DEF_GM( return new LcdTextProps; )
