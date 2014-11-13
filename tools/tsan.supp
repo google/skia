@@ -17,10 +17,6 @@ race:liblcms2.so
 # Maybe because it's diagnosed as a use-after-free, not as a race?
 race:SkGLContextHelper
 
-# Threadsafe, should be ported to SkLazyPtr.
-race:SkFontHost_FreeType
-race:is_lcd_supported
-
 # Not threadsafe, should be fixed.
 race:RefFCI
 race:SkString
