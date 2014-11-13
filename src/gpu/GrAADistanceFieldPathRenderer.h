@@ -15,7 +15,6 @@
 #include "GrRect.h"
 
 #include "SkChecksum.h"
-#include "SkTDynamicHash.h"
 
 class GrContext;
 class GrPlot;

@@ -68,11 +68,6 @@ static inline GrColor SkColor2GrColorJustAlpha(SkColor c) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// The cache listens for these messages to purge junk resources proactively.
-struct GrResourceInvalidatedMessage {
-    GrResourceKey key;
-};
-
 bool GrIsBitmapInCache(const GrContext*, const SkBitmap&, const GrTextureParams*);
 
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams*);

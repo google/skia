@@ -12,6 +12,7 @@
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
 #include "SkTextureCompressor.h"
+#include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "effects/GrDitherEffect.h"
 #include "GrDrawTargetCaps.h"

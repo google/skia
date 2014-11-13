@@ -13,6 +13,7 @@
 #include "GrGpuResource.h"
 #include "GrContext.h"
 #include "GrGpu.h"
+#include "GrResourceCache.h"
 #include "GrResourceCache2.h"
 #include "GrStencilBuffer.h"
 #include "GrTexture.h"
@@ -88,20 +89,22 @@ static void get_stencil(int i, int* w, int* h, int* s) {
 }
 
 static void get_texture_desc(int i, GrSurfaceDesc* desc) {
-    desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc->fFlags = kRenderTarget_GrSurfaceFlag |
+        kNoStencil_GrSurfaceFlag;
     desc->fWidth  = i % 1024;
     desc->fHeight = i * 2 % 1024;
     desc->fConfig = static_cast<GrPixelConfig>(i % (kLast_GrPixelConfig + 1));
-    desc->fSampleCnt = ((i % 2) == 0) ? 0 : 4;
+    desc->fSampleCnt = i % 1 == 0 ? 0 : 4;
 }
 
-static void populate_cache(GrGpu* gpu, int resourceCount) {
+static void populate_cache(GrResourceCache* cache, GrGpu* gpu, int resourceCount) {
     for (int i = 0; i < resourceCount; ++i) {
         int w, h, s;
         get_stencil(i, &w, &h, &s);
         GrResourceKey key = GrStencilBuffer::ComputeKey(w, h, s);
         GrGpuResource* resource = SkNEW_ARGS(StencilResource, (gpu, i));
-        resource->cacheAccess().setContentKey(key);
+        cache->purgeAsNeeded(1, resource->gpuMemorySize());
+        cache->addResource(key, resource);
         resource->unref();
     }
 
@@ -110,7 +113,8 @@ static void populate_cache(GrGpu* gpu, int resourceCount) {
         get_texture_desc(i, &desc);
         GrResourceKey key =  TextureResource::ComputeKey(desc);
         GrGpuResource* resource = SkNEW_ARGS(TextureResource, (gpu, i));
-        resource->cacheAccess().setContentKey(key);
+        cache->purgeAsNeeded(1, resource->gpuMemorySize());
+        cache->addResource(key, resource);
         resource->unref();
     }
 }
@@ -194,24 +198,25 @@ protected:
         // Set the cache budget to be very large so no purging occurs.
         context->setResourceCacheLimits(2 * RESOURCE_COUNT, 1 << 30);
 
+        GrResourceCache* cache = context->getResourceCache();
         GrResourceCache2* cache2 = context->getResourceCache2();
 
         // Make sure the cache is empty.
-        cache2->purgeAllUnlocked();
-        SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
         GrGpu* gpu = context->getGpu();
 
         for (int i = 0; i < loops; ++i) {
-            SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
+            SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
-            populate_cache(gpu, RESOURCE_COUNT);
+            populate_cache(cache, gpu, RESOURCE_COUNT);
 
             // Check that cache works.
             for (int k = 0; k < RESOURCE_COUNT; k += 33) {
                 check_cache_contents_or_die(cache2, k);
             }
-            cache2->purgeAllUnlocked();
+            cache->purgeAllUnlocked();
         }
     }
 
@@ -242,15 +247,16 @@ protected:
         // Set the cache budget to be very large so no purging occurs.
         context->setResourceCacheLimits(2 * RESOURCE_COUNT, 1 << 30);
 
+        GrResourceCache* cache = context->getResourceCache();
         GrResourceCache2* cache2 = context->getResourceCache2();
 
         // Make sure the cache is empty.
-        cache2->purgeAllUnlocked();
-        SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getCachedResourceCount() && 0 == cache->getCachedResourceBytes());
 
         GrGpu* gpu = context->getGpu();
 
-        populate_cache(gpu, RESOURCE_COUNT);
+        populate_cache(cache, gpu, RESOURCE_COUNT);
 
         for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < RESOURCE_COUNT; ++k) {

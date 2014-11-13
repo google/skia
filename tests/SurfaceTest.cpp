@@ -321,6 +321,33 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
 }
 
 #if SK_SUPPORT_GPU
+static void TestSurfaceInCache(skiatest::Reporter* reporter,
+                               SurfaceType surfaceType,
+                               GrContext* context) {
+    context->freeGpuResources();
+    int resourceCount;
+
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, 0 == resourceCount);
+    SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
+    // Note: the stencil buffer is always cached, so kGpu_SurfaceType uses
+    // one cached resource, and kGpuScratch_SurfaceType uses two.
+    int expectedCachedResources = surfaceType == kGpuScratch_SurfaceType ? 2 : 1;
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, expectedCachedResources == resourceCount);
+
+    // Verify that all the cached resources are locked in cache.
+    context->freeGpuResources();
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, expectedCachedResources == resourceCount);
+
+    // Verify that all the cached resources are unlocked upon surface release
+    surface.reset(0);
+    context->freeGpuResources();
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, 0 == resourceCount);
+}
+
 static void Test_crbug263329(skiatest::Reporter* reporter,
                              SurfaceType surfaceType,
                              GrContext* context) {
@@ -426,6 +453,8 @@ DEF_GPUTEST(Surface, reporter, factory) {
             }
             GrContext* context = factory->get(glCtxType);
             if (context) {
+                TestSurfaceInCache(reporter, kGpu_SurfaceType, context);
+                TestSurfaceInCache(reporter, kGpuScratch_SurfaceType, context);
                 Test_crbug263329(reporter, kGpu_SurfaceType, context);
                 Test_crbug263329(reporter, kGpuScratch_SurfaceType, context);
                 TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
