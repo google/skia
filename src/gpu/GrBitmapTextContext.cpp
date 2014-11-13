@@ -588,7 +588,6 @@ void GrBitmapTextContext::flush() {
                 drawState->setAlpha(fSkPaint.getAlpha());
                 break;
                 // LCD text
-            case kA888_GrMaskFormat:
             case kA565_GrMaskFormat: {
                 if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
                     kISA_GrBlendCoeff != fPaint.getDstBlendCoeff() ||

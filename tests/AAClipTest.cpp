@@ -34,7 +34,6 @@ static bool operator==(const SkMask& a, const SkMask& b) {
         case SkMask::kLCD16_Format:
             wbytes <<= 1;
             break;
-        case SkMask::kLCD32_Format:
         case SkMask::kARGB32_Format:
             wbytes <<= 2;
             break;

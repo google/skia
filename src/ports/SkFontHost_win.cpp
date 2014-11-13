@@ -58,8 +58,7 @@ typedef uint32_t SkGdiRGB;
 //#define SK_ENFORCE_ROTATED_TEXT_AA_ON_WINDOWS
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
-    return SkMask::kLCD16_Format == rec.fMaskFormat ||
-           SkMask::kLCD32_Format == rec.fMaskFormat;
+    return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
 static bool bothZero(SkScalar a, SkScalar b) {
@@ -590,7 +589,6 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
         case SkMask::kBW_Format:
             return NONANTIALIASED_QUALITY;
         case SkMask::kLCD16_Format:
-        case SkMask::kLCD32_Format:
             return CLEARTYPE_QUALITY;
         default:
             if (rec.fFlags & SkScalerContext::kGenA8FromLCD_Flag) {
@@ -1133,19 +1131,6 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
     return SkPack888ToRGB16(r, g, b);
 }
 
-template<bool APPLY_PREBLEND>
-static inline SkPMColor rgb_to_lcd32(SkGdiRGB rgb, const uint8_t* tableR,
-                                                   const uint8_t* tableG,
-                                                   const uint8_t* tableB) {
-    U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
-    U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
-    U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
-#if SK_SHOW_TEXT_BLIT_COVERAGE
-    r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
-#endif
-    return SkPackARGB32(0xFF, r, g, b);
-}
-
 // Is this GDI color neither black nor white? If so, we have to keep this
 // image as is, rather than smashing it down to a BW mask.
 //
@@ -1258,22 +1243,6 @@ static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const Sk
     }
 }
 
-template<bool APPLY_PREBLEND>
-static void rgb_to_lcd32(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
-                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
-    const size_t dstRB = glyph.rowBytes();
-    const int width = glyph.fWidth;
-    uint32_t* SK_RESTRICT dst = (uint32_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-
-    for (int y = 0; y < glyph.fHeight; y++) {
-        for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_lcd32<APPLY_PREBLEND>(src[i], tableR, tableG, tableB);
-        }
-        src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
-        dst = (uint32_t*)((char*)dst - dstRB);
-    }
-}
-
 static inline unsigned clamp255(unsigned x) {
     SkASSERT(x <= 256);
     return x - (x >> 8);
@@ -1356,23 +1325,13 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
             rgb_to_bw(src, srcRB, glyph);
             ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
         } else {
-            if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                if (fPreBlend.isApplicable()) {
-                    rgb_to_lcd16<true>(src, srcRB, glyph,
-                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-                } else {
-                    rgb_to_lcd16<false>(src, srcRB, glyph,
-                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-                }
+            SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
+            if (fPreBlend.isApplicable()) {
+                rgb_to_lcd16<true>(src, srcRB, glyph,
+                                   fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                SkASSERT(SkMask::kLCD32_Format == glyph.fMaskFormat);
-                if (fPreBlend.isApplicable()) {
-                    rgb_to_lcd32<true>(src, srcRB, glyph,
-                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-                } else {
-                    rgb_to_lcd32<false>(src, srcRB, glyph,
-                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-                }
+                rgb_to_lcd16<false>(src, srcRB, glyph,
+                                    fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         }
     }

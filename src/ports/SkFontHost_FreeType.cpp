@@ -87,7 +87,6 @@ using namespace skia_advanced_typeface_metrics_utils;
 static bool isLCD(const SkScalerContext::Rec& rec) {
     switch (rec.fMaskFormat) {
         case SkMask::kLCD16_Format:
-        case SkMask::kLCD32_Format:
             return true;
         default:
             return false;

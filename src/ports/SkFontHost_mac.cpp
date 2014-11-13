@@ -254,7 +254,7 @@ static bool isMountainLion() {
 }
 
 static bool isLCDFormat(unsigned format) {
-    return SkMask::kLCD16_Format == format || SkMask::kLCD32_Format == format;
+    return SkMask::kLCD16_Format == format;
 }
 
 static CGFloat ScalarToCG(SkScalar scalar) {
@@ -1143,30 +1143,6 @@ static void rgb_to_lcd16(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowByt
     }
 }
 
-template<bool APPLY_PREBLEND>
-static inline uint32_t rgb_to_lcd32(CGRGBPixel rgb, const uint8_t* tableR,
-                                                    const uint8_t* tableG,
-                                                    const uint8_t* tableB) {
-    U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>((rgb >> 16) & 0xFF, tableR);
-    U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
-    U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
-    return SkPackARGB32(0xFF, r, g, b);
-}
-template<bool APPLY_PREBLEND>
-static void rgb_to_lcd32(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes, const SkGlyph& glyph,
-                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
-    const int width = glyph.fWidth;
-    size_t dstRB = glyph.rowBytes();
-    uint32_t* SK_RESTRICT dst = (uint32_t*)glyph.fImage;
-    for (int y = 0; y < glyph.fHeight; y++) {
-        for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_lcd32<APPLY_PREBLEND>(cgPixels[i], tableR, tableG, tableB);
-        }
-        cgPixels = (CGRGBPixel*)((char*)cgPixels + cgRowBytes);
-        dst = (uint32_t*)((char*)dst + dstRB);
-    }
-}
-
 #ifdef HACK_COLORGLYPHS
 // hack to colorize the output for testing kARGB32_Format
 static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb, const SkGlyph& glyph,
@@ -1229,15 +1205,6 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 
     // Convert glyph to mask
     switch (glyph.fMaskFormat) {
-        case SkMask::kLCD32_Format: {
-            if (fPreBlend.isApplicable()) {
-                rgb_to_lcd32<true>(cgPixels, cgRowBytes, glyph,
-                                   fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-            } else {
-                rgb_to_lcd32<false>(cgPixels, cgRowBytes, glyph,
-                                    fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-            }
-        } break;
         case SkMask::kLCD16_Format: {
             if (fPreBlend.isApplicable()) {
                 rgb_to_lcd16<true>(cgPixels, cgRowBytes, glyph,

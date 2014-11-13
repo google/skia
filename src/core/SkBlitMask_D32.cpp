@@ -112,117 +112,6 @@ static void D32_LCD16_Proc(void* SK_RESTRICT dst, size_t dstRB,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void blit_lcd32_opaque_row(SkPMColor* SK_RESTRICT dst,
-                                  const SkPMColor* SK_RESTRICT src,
-                                  SkColor color, int width) {
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
-
-    for (int i = 0; i < width; i++) {
-        SkPMColor mask = src[i];
-        if (0 == mask) {
-            continue;
-        }
-
-        SkPMColor d = dst[i];
-
-        int maskR = SkGetPackedR32(mask);
-        int maskG = SkGetPackedG32(mask);
-        int maskB = SkGetPackedB32(mask);
-
-        // Now upscale them to 0..256, so we can use SkAlphaBlend
-        maskR = SkAlpha255To256(maskR);
-        maskG = SkAlpha255To256(maskG);
-        maskB = SkAlpha255To256(maskB);
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // LCD blitting is only supported if the dst is known/required
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              SkAlphaBlend(srcR, dstR, maskR),
-                              SkAlphaBlend(srcG, dstG, maskG),
-                              SkAlphaBlend(srcB, dstB, maskB));
-    }
-}
-
-static void blit_lcd32_row(SkPMColor* SK_RESTRICT dst,
-                           const SkPMColor* SK_RESTRICT src,
-                           SkColor color, int width) {
-    int srcA = SkColorGetA(color);
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
-
-    srcA = SkAlpha255To256(srcA);
-
-    for (int i = 0; i < width; i++) {
-        SkPMColor mask = src[i];
-        if (0 == mask) {
-            continue;
-        }
-
-        SkPMColor d = dst[i];
-
-        int maskR = SkGetPackedR32(mask);
-        int maskG = SkGetPackedG32(mask);
-        int maskB = SkGetPackedB32(mask);
-
-        // Now upscale them to 0..256, so we can use SkAlphaBlend
-        maskR = SkAlpha255To256(maskR);
-        maskG = SkAlpha255To256(maskG);
-        maskB = SkAlpha255To256(maskB);
-
-        maskR = maskR * srcA >> 8;
-        maskG = maskG * srcA >> 8;
-        maskB = maskB * srcA >> 8;
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // LCD blitting is only supported if the dst is known/required
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              SkAlphaBlend(srcR, dstR, maskR),
-                              SkAlphaBlend(srcG, dstG, maskG),
-                              SkAlphaBlend(srcB, dstB, maskB));
-    }
-}
-
-static void D32_LCD32_Blend(void* SK_RESTRICT dst, size_t dstRB,
-                            const void* SK_RESTRICT mask, size_t maskRB,
-                            SkColor color, int width, int height) {
-    SkASSERT(height > 0);
-    SkPMColor* SK_RESTRICT dstRow = (SkPMColor*)dst;
-    const SkPMColor* SK_RESTRICT srcRow = (const SkPMColor*)mask;
-
-    do {
-        blit_lcd32_row(dstRow, srcRow, color, width);
-        dstRow = (SkPMColor*)((char*)dstRow + dstRB);
-        srcRow = (const SkPMColor*)((const char*)srcRow + maskRB);
-    } while (--height != 0);
-}
-
-static void D32_LCD32_Opaque(void* SK_RESTRICT dst, size_t dstRB,
-                             const void* SK_RESTRICT mask, size_t maskRB,
-                             SkColor color, int width, int height) {
-    SkASSERT(height > 0);
-    SkPMColor* SK_RESTRICT dstRow = (SkPMColor*)dst;
-    const SkPMColor* SK_RESTRICT srcRow = (const SkPMColor*)mask;
-
-    do {
-        blit_lcd32_opaque_row(dstRow, srcRow, color, width);
-        dstRow = (SkPMColor*)((char*)dstRow + dstRB);
-        srcRow = (const SkPMColor*)((const char*)srcRow + maskRB);
-    } while (--height != 0);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static SkBlitMask::ColorProc D32_A8_Factory(SkColor color) {
     if (SK_ColorBLACK == color) {
         return D32_A8_Black;
@@ -231,10 +120,6 @@ static SkBlitMask::ColorProc D32_A8_Factory(SkColor color) {
     } else {
         return D32_A8_Color;
     }
-}
-
-static SkBlitMask::ColorProc D32_LCD32_Factory(SkColor color) {
-    return (0xFF == SkColorGetA(color)) ? D32_LCD32_Opaque : D32_LCD32_Blend;
 }
 
 SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkColorType ct,
@@ -252,8 +137,6 @@ SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkColorType ct,
                     return D32_A8_Factory(color);
                 case SkMask::kLCD16_Format:
                     return D32_LCD16_Proc;
-                case SkMask::kLCD32_Format:
-                    return D32_LCD32_Factory(color);
                 default:
                     break;
             }
@@ -476,85 +359,6 @@ static void LCD16_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void LCD32_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
-                                const SkPMColor* SK_RESTRICT mask,
-                                const SkPMColor* SK_RESTRICT src, int count) {
-    for (int i = 0; i < count; ++i) {
-        SkPMColor m = mask[i];
-        if (0 == m) {
-            continue;
-        }
-
-        SkPMColor s = src[i];
-        int srcA = SkGetPackedA32(s);
-        int srcR = SkGetPackedR32(s);
-        int srcG = SkGetPackedG32(s);
-        int srcB = SkGetPackedB32(s);
-
-        srcA = SkAlpha255To256(srcA);
-
-        SkPMColor d = dst[i];
-
-        int maskR = SkGetPackedR32(m);
-        int maskG = SkGetPackedG32(m);
-        int maskB = SkGetPackedB32(m);
-
-        // Now upscale them to 0..256
-        maskR = SkAlpha255To256(maskR);
-        maskG = SkAlpha255To256(maskG);
-        maskB = SkAlpha255To256(maskB);
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // LCD blitting is only supported if the dst is known/required
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              src_alpha_blend(srcR, dstR, srcA, maskR),
-                              src_alpha_blend(srcG, dstG, srcA, maskG),
-                              src_alpha_blend(srcB, dstB, srcA, maskB));
-    }
-}
-
-static void LCD32_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
-                                 const SkPMColor* SK_RESTRICT mask,
-                                 const SkPMColor* SK_RESTRICT src, int count) {
-    for (int i = 0; i < count; ++i) {
-        SkPMColor m = mask[i];
-        if (0 == m) {
-            continue;
-        }
-
-        SkPMColor s = src[i];
-        SkPMColor d = dst[i];
-
-        int maskR = SkGetPackedR32(m);
-        int maskG = SkGetPackedG32(m);
-        int maskB = SkGetPackedB32(m);
-
-        int srcR = SkGetPackedR32(s);
-        int srcG = SkGetPackedG32(s);
-        int srcB = SkGetPackedB32(s);
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // Now upscale them to 0..256, so we can use SkAlphaBlend
-        maskR = SkAlpha255To256(maskR);
-        maskG = SkAlpha255To256(maskG);
-        maskB = SkAlpha255To256(maskB);
-
-        // LCD blitting is only supported if the dst is known/required
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              SkAlphaBlend(srcR, dstR, maskR),
-                              SkAlphaBlend(srcG, dstG, maskG),
-                              SkAlphaBlend(srcB, dstB, maskB));
-    }
-}
-
 SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
                                            SkMask::Format format,
                                            RowFlags flags) {
@@ -570,7 +374,6 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
         false ? (RowProc)BW_RowProc_Opaque : NULL, // suppress unused warning
         (RowProc)A8_RowProc_Blend,      (RowProc)A8_RowProc_Opaque,
         (RowProc)LCD16_RowProc_Blend,   (RowProc)LCD16_RowProc_Opaque,
-        (RowProc)LCD32_RowProc_Blend,   (RowProc)LCD32_RowProc_Opaque,
     };
 
     int index;
@@ -580,7 +383,6 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
                 case SkMask::kBW_Format:    index = 0; break;
                 case SkMask::kA8_Format:    index = 2; break;
                 case SkMask::kLCD16_Format: index = 4; break;
-                case SkMask::kLCD32_Format: index = 6; break;
                 default:
                     return NULL;
             }

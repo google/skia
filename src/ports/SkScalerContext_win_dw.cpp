@@ -31,8 +31,7 @@
 #endif
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
-    return SkMask::kLCD16_Format == rec.fMaskFormat ||
-           SkMask::kLCD32_Format == rec.fMaskFormat;
+    return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
 static bool is_hinted_without_gasp(DWriteFontTypeface* typeface) {
@@ -637,24 +636,6 @@ static void rgb_to_lcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
     }
 }
 
-template<bool APPLY_PREBLEND>
-static void rgb_to_lcd32(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
-                         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
-    const size_t dstRB = glyph.rowBytes();
-    const U16CPU width = glyph.fWidth;
-    SkPMColor* SK_RESTRICT dst = static_cast<SkPMColor*>(glyph.fImage);
-
-    for (U16CPU y = 0; y < glyph.fHeight; y++) {
-        for (U16CPU i = 0; i < width; i++) {
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableB);
-            dst[i] = SkPackARGB32(0xFF, r, g, b);
-        }
-        dst = (SkPMColor*)((char*)dst + dstRB);
-    }
-}
-
 const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
                                            DWRITE_RENDERING_MODE renderingMode,
                                            DWRITE_TEXTURE_TYPE textureType)
@@ -742,18 +723,12 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
         } else {
             rgb_to_a8<false>(src, glyph, fPreBlend.fG);
         }
-    } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+    } else {
+        SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
         if (fPreBlend.isApplicable()) {
             rgb_to_lcd16<true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
             rgb_to_lcd16<false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-        }
-    } else {
-        SkASSERT(SkMask::kLCD32_Format == glyph.fMaskFormat);
-        if (fPreBlend.isApplicable()) {
-            rgb_to_lcd32<true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-        } else {
-            rgb_to_lcd32<false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     }
 }

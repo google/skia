@@ -2046,6 +2046,7 @@ static void small_bzero(void* dst, size_t n) {
 static inline uint8_t mergeOne(uint8_t value, unsigned alpha) {
     return SkMulDiv255Round(value, alpha);
 }
+
 static inline uint16_t mergeOne(uint16_t value, unsigned alpha) {
     unsigned r = SkGetPackedR16(value);
     unsigned g = SkGetPackedG16(value);
@@ -2053,16 +2054,6 @@ static inline uint16_t mergeOne(uint16_t value, unsigned alpha) {
     return SkPackRGB16(SkMulDiv255Round(r, alpha),
                        SkMulDiv255Round(g, alpha),
                        SkMulDiv255Round(b, alpha));
-}
-static inline SkPMColor mergeOne(SkPMColor value, unsigned alpha) {
-    unsigned a = SkGetPackedA32(value);
-    unsigned r = SkGetPackedR32(value);
-    unsigned g = SkGetPackedG32(value);
-    unsigned b = SkGetPackedB32(value);
-    return SkPackARGB32(SkMulDiv255Round(a, alpha),
-                        SkMulDiv255Round(r, alpha),
-                        SkMulDiv255Round(g, alpha),
-                        SkMulDiv255Round(b, alpha));
 }
 
 template <typename T> void mergeT(const T* SK_RESTRICT src, int srcN,
@@ -2110,10 +2101,6 @@ static MergeAAProc find_merge_aa_proc(SkMask::Format format) {
         case SkMask::kLCD16_Format: {
             void (*proc16)(const uint16_t*, int, const uint8_t*, int, uint16_t*) = mergeT;
             return (MergeAAProc)proc16;
-        }
-        case SkMask::kLCD32_Format: {
-            void (*proc32)(const SkPMColor*, int, const uint8_t*, int, SkPMColor*) = mergeT;
-            return (MergeAAProc)proc32;
         }
         default:
             SkDEBUGFAIL("unsupported");

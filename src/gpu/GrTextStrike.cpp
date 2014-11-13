@@ -58,7 +58,6 @@ static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
     static const GrPixelConfig sPixelConfigs[] = {
         kAlpha_8_GrPixelConfig,
         kRGB_565_GrPixelConfig,
-        kSkia8888_GrPixelConfig,
         kSkia8888_GrPixelConfig
     };
     SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sPixelConfigs) == kMaskFormatCount, array_size_mismatch);
@@ -70,7 +69,6 @@ static int mask_format_to_atlas_index(GrMaskFormat format) {
     static const int sAtlasIndices[] = {
         GrFontCache::kA8_AtlasType,
         GrFontCache::k565_AtlasType,
-        GrFontCache::k8888_AtlasType,
         GrFontCache::k8888_AtlasType
     };
     SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, array_size_mismatch);

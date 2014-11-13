@@ -127,7 +127,7 @@ public:
         kHintingBit2_Flag         = 0x0100,
 
         // Pixel geometry information.
-        // only meaningful if fMaskFormat is LCD16 or LCD32
+        // only meaningful if fMaskFormat is kLCD16
         kLCD_Vertical_Flag        = 0x0200,    // else Horizontal
         kLCD_BGROrder_Flag        = 0x0400,    // else RGB order
 

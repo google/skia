@@ -68,8 +68,6 @@ GrMaskFormat GrFontScaler::getMaskFormat() const {
             return kA8_GrMaskFormat;
         case SkMask::kLCD16_Format:
             return kA565_GrMaskFormat;
-        case SkMask::kLCD32_Format:
-            return kA888_GrMaskFormat;
         case SkMask::kARGB32_Format:
             return kARGB_GrMaskFormat;
         default:
@@ -97,8 +95,6 @@ GrMaskFormat GrFontScaler::getPackedGlyphMaskFormat(GrGlyph::PackedID packed) co
             return kA8_GrMaskFormat;
         case SkMask::kLCD16_Format:
             return kA565_GrMaskFormat;
-        case SkMask::kLCD32_Format:
-            return kA888_GrMaskFormat;
         case SkMask::kARGB32_Format:
             return kARGB_GrMaskFormat;
         default:
@@ -181,11 +177,6 @@ bool GrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
             case kA565_GrMaskFormat: {
                 uint16_t* rgb565 = reinterpret_cast<uint16_t*>(dst);
                 expand_bits(rgb565, bits, width, height, dstRB, srcRB);
-                break;
-            }
-            case kA888_GrMaskFormat: {
-                uint32_t* rgba8888 = reinterpret_cast<uint32_t*>(dst);
-                expand_bits(rgba8888, bits, width, height, dstRB, srcRB);
                 break;
             }
             default:

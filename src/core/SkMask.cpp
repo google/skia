@@ -52,7 +52,6 @@ static const int gMaskFormatToShift[] = {
     0,  // 3D
     2,  // ARGB32
     1,  // LCD16
-    2   // LCD32
 };
 
 static int maskFormatToShift(SkMask::Format format) {

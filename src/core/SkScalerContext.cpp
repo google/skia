@@ -181,7 +181,6 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             if (glyph->fWidth > 0) {
                 switch (fRec.fMaskFormat) {
                 case SkMask::kLCD16_Format:
-                case SkMask::kLCD32_Format:
                     glyph->fWidth += 2;
                     glyph->fLeft -= 1;
                     break;
@@ -325,31 +324,6 @@ static void pack4xHToLCD16(const SkBitmap& src, const SkMask& dst,
     }
 }
 
-template<bool APPLY_PREBLEND>
-static void pack4xHToLCD32(const SkBitmap& src, const SkMask& dst,
-                           const SkMaskGamma::PreBlend& maskPreBlend) {
-    SkASSERT(kAlpha_8_SkColorType == src.colorType());
-    SkASSERT(SkMask::kLCD32_Format == dst.fFormat);
-
-    const int width = dst.fBounds.width();
-    const int height = dst.fBounds.height();
-    SkPMColor* dstP = (SkPMColor*)dst.fImage;
-    size_t dstRB = dst.fRowBytes;
-
-    for (int y = 0; y < height; ++y) {
-        const uint8_t* srcP = src.getAddr8(0, y);
-
-        // TODO: need to use fir filter here as well.
-        for (int x = 0; x < width; ++x) {
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fB);
-            dstP[x] = SkPackARGB32(0xFF, r, g, b);
-        }
-        dstP = (SkPMColor*)((char*)dstP + dstRB);
-    }
-}
-
 static inline int convert_8_to_1(unsigned byte) {
     SkASSERT(byte <= 0xFF);
     return byte >> 7;
@@ -418,7 +392,6 @@ static void generateMask(const SkMask& mask, const SkPath& path,
         case SkMask::kA8_Format:
             break;
         case SkMask::kLCD16_Format:
-        case SkMask::kLCD32_Format:
             // TODO: trigger off LCD orientation
             dstW = 4*dstW - 8;
             matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft + 1),
@@ -468,13 +441,6 @@ static void generateMask(const SkMask& mask, const SkPath& path,
                 pack4xHToLCD16<true>(bm, mask, maskPreBlend);
             } else {
                 pack4xHToLCD16<false>(bm, mask, maskPreBlend);
-            }
-            break;
-        case SkMask::kLCD32_Format:
-            if (maskPreBlend.isApplicable()) {
-                pack4xHToLCD32<true>(bm, mask, maskPreBlend);
-            } else {
-                pack4xHToLCD32<false>(bm, mask, maskPreBlend);
             }
             break;
         default:
