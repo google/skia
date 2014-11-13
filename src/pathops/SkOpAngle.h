@@ -50,6 +50,14 @@ public:
 
     SkOpAngle* previous() const;
 
+    int sectorEnd() const {
+        return fSectorEnd;
+    }
+
+    int sectorStart() const {
+        return fSectorStart;
+    }
+
     void set(const SkOpSegment* segment, int start, int end);
 
     void setLastMarked(SkOpSpan* marked) {

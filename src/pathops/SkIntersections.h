@@ -16,6 +16,7 @@ class SkIntersections {
 public:
     SkIntersections()
         : fSwap(0)
+        , fFlatMeasure(false)
 #ifdef SK_DEBUG
         , fDepth(0)
 #endif
@@ -38,6 +39,10 @@ public:
         const double* fTArray;
     };
     TArray operator[](int n) const { return TArray(fT[n]); }
+
+    void allowFlatMeasure(bool flatAllowed) {
+        fFlatMeasure = flatAllowed;
+    }
 
     void allowNear(bool nearAllowed) {
         fAllowNear = nearAllowed;
@@ -88,8 +93,12 @@ public:
         cubic.set(a);
         SkDQuad quad;
         quad.set(b);
-        fMax = 6;
+        fMax = 7;
         return intersect(cubic, quad);
+    }
+
+    bool flatMeasure() const {
+        return fFlatMeasure;
     }
 
     bool hasT(double t) const {
@@ -201,7 +210,7 @@ public:
     bool swapped() const {
         return fSwap;
     }
-
+    
     int used() const {
         return fUsed;
     }
@@ -214,8 +223,9 @@ public:
         SkASSERT(++fDepth < 16);
     }
 
+    void alignQuadPts(const SkPoint a[3], const SkPoint b[3]);
     void append(const SkIntersections& );
-    void cleanUpCoincidence();
+    int cleanUpCoincidence();
     int coincidentUsed() const;
     void cubicInsert(double one, double two, const SkDPoint& pt, const SkDCubic& c1,
                      const SkDCubic& c2);
@@ -282,6 +292,7 @@ private:
     unsigned char fMax;
     bool fAllowNear;
     bool fSwap;
+    bool fFlatMeasure;  // backwards-compatibility when cubics uses quad intersection
 #ifdef SK_DEBUG
     int fDepth;
 #endif

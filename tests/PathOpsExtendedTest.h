@@ -30,11 +30,13 @@ extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap);
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths);
 extern void showOp(const SkPathOp op);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                        const SkPathOp , const char* testName);
+                       const SkPathOp , const char* testName);
+extern bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                            const SkPathOp , const char* testName, bool checkFail);
 extern bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                        const SkPathOp , const char* testName);
+                           const SkPathOp , const char* testName);
 extern bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                        const SkPathOp , const char* testName);
+                               const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename);

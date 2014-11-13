@@ -79,6 +79,8 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
                     || (precisely_equal(one, 1) && !precisely_equal(oldOne, 1))
                     || (precisely_zero(two) && !precisely_zero(oldTwo))
                     || (precisely_equal(two, 1) && !precisely_equal(oldTwo, 1))) {
+                SkASSERT(one >= 0 && one <= 1);
+                SkASSERT(two >= 0 && two <= 1);
                 fT[0][index] = one;
                 fT[1][index] = two;
                 fPt[index] = pt;
@@ -111,6 +113,8 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
         fIsCoincident[1] += fIsCoincident[1] & clearMask;
     }
     fPt[index] = pt;
+    SkASSERT(one >= 0 && one <= 1);
+    SkASSERT(two >= 0 && two <= 1);
     fT[0][index] = one;
     fT[1][index] = two;
     ++fUsed;
@@ -171,7 +175,7 @@ void SkIntersections::removeOne(int index) {
     memmove(&fPt2[index], &fPt2[index + 1], sizeof(fPt2[0]) * remaining);
     memmove(&fT[0][index], &fT[0][index + 1], sizeof(fT[0][0]) * remaining);
     memmove(&fT[1][index], &fT[1][index + 1], sizeof(fT[1][0]) * remaining);
-    SkASSERT(fIsCoincident[0] == 0);
+//    SkASSERT(fIsCoincident[0] == 0);
     int coBit = fIsCoincident[0] & (1 << index);
     fIsCoincident[0] -= ((fIsCoincident[0] >> 1) & ~((1 << index) - 1)) + coBit;
     SkASSERT(!(coBit ^ (fIsCoincident[1] & (1 << index))));

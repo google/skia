@@ -19,6 +19,9 @@ inline void DebugDumpFloat(float x) {
     }
 }
 
+inline void DebugDumpHexFloat(float x) {
+    SkDebugf("SkBits2Float(0x%08x)", SkFloat2Bits(x));
+}
 
 #if DEBUG_SHOW_TEST_NAME
 
@@ -413,6 +416,17 @@ void SkDPoint::Dump(const SkPoint& pt) {
     SkDebugf("}");
 }
 
+void SkDPoint::DumpHex(const SkPoint& pt) {
+    SkDebugf("{");
+    DebugDumpHexFloat(pt.fX);
+    SkDebugf(", ");
+    DebugDumpHexFloat(pt.fY);
+    SkDebugf("}");
+}
+
+void SkDQuad::dump() const {
+    dumpComma("");
+}
 
 void SkDQuad::dumpComma(const char* comma) const {
     SkDebugf("{{");
@@ -423,10 +437,6 @@ void SkDQuad::dumpComma(const char* comma) const {
     } while (++index < 2);
     fPts[index].dump();
     SkDebugf("}}%s\n", comma ? comma : "");
-}
-
-void SkDQuad::dump() const {
-    dumpComma("");
 }
 
 void SkIntersectionHelper::dump() const {
@@ -489,6 +499,18 @@ void SkOpSegment::dumpPts() const {
         SkDebugf(", ");
     } while (++index < last);
     SkDPoint::Dump(fPts[index]);
+    SkDebugf("}}\n");
+}
+
+void SkOpSegment::dumpHexPts() const {
+    int last = SkPathOpsVerbToPoints(fVerb);
+    SkDebugf("((SkOpSegment*) 0x%p) [%d] {{", this, debugID());
+    int index = 0;
+    do {
+        SkDPoint::DumpHex(fPts[index]);
+        SkDebugf(", ");
+    } while (++index < last);
+    SkDPoint::DumpHex(fPts[index]);
     SkDebugf("}}\n");
 }
 

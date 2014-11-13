@@ -26,19 +26,24 @@ SkDPoint SkIntersections::Line(const SkDLine& a, const SkDLine& b) {
     return p;
 }
 
-void SkIntersections::cleanUpCoincidence() {
-    SkASSERT(fUsed == 2);
-    // both t values are good
-    bool startMatch = fT[0][0] == 0 && (fT[1][0] == 0 || fT[1][0] == 1);
-    bool endMatch = fT[0][1] == 1 && (fT[1][1] == 0 || fT[1][1] == 1);
-    if (startMatch || endMatch) {
-        removeOne(startMatch);
-        return;
-    }
-    // either t value is good
-    bool pStartMatch = fT[0][0] == 0 || fT[1][0] == 0 || fT[1][0] == 1;
-    bool pEndMatch = fT[0][1] == 1 || fT[1][1] == 0 || fT[1][1] == 1;
-    removeOne(pStartMatch || !pEndMatch);
+int SkIntersections::cleanUpCoincidence() {
+    do {
+        int last = fUsed - 1;
+        for (int index = 0; index < last; ++index) {
+            if (fT[0][index] == fT[0][index + 1]) {
+                removeOne(index + (int) (fT[1][index] == 0 || fT[1][index] == 1));
+                goto tryAgain;
+            }
+        }
+        for (int index = 0; index < last; ++index) {
+            if (fT[1][index] == fT[1][index + 1]) {
+                removeOne(index + (int) (fT[0][index] == 0 || fT[0][index] == 1));
+                goto tryAgain;
+            }
+        }
+        return fUsed;
+tryAgain: ;
+    } while (true);
 }
 
 void SkIntersections::cleanUpParallelLines(bool parallel) {

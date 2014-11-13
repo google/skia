@@ -8,8 +8,6 @@
 
 #define TEST(name) { name, #name }
 
-#define TEST_NEW_FAILURES 0
-
 static void skpcheeseandburger_com225(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3590,7 +3588,6 @@ static void skpwww_googleventures_com_32(skiatest::Reporter* reporter, const cha
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TEST_NEW_FAILURES
 static void skpwww_devbridge_com_22(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3616,10 +3613,14 @@ static void skpwww_devbridge_com_22(skiatest::Reporter* reporter, const char* fi
     pathB.quadTo(4942.75146f, 1523, 4962.375f, 1542.6239f);
     pathB.quadTo(4981.99902f, 1562.24768f, 4981.99902f, 1590);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+    if (FLAGS_runFail) {
+        testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+    } else {
+        // INVESTIGATE : why this normal test takes fail case (test has never worked)
+        testPathFailOp(reporter, path, pathB, kIntersect_PathOp, filename);
+    }
 }
 
-// cubic/quad intersection
 static void skpwww_alamdi_com_3(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3652,7 +3653,6 @@ static void skpwww_alamdi_com_3(skiatest::Reporter* reporter, const char* filena
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-// bumpSpan failed assertion "span->fOppValue >= 0"
 static void skpwww_familysurvivalprotocol_wordpress_com_61(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3670,7 +3670,6 @@ static void skpwww_familysurvivalprotocol_wordpress_com_61(skiatest::Reporter* r
     pathB.lineTo(165, 14557);
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
 static void skpwww_firstunitedbank_com_19(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
@@ -3761,8 +3760,6 @@ static void skpwww_lptemp_com_3(skiatest::Reporter* reporter, const char* filena
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TEST_NEW_FAILURES
-// SkOpSegment.cpp:3915: failed assertion "otherEnd >= 0"
 static void skpwww_shinydemos_com_15(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3786,6 +3783,9 @@ static void skpwww_shinydemos_com_15(skiatest::Reporter* reporter, const char* f
 
 // SkOpSegment.cpp:4398: failed assertion "!span->fDone"
 static void skpwww_lptemp_com_5(skiatest::Reporter* reporter, const char* filename) {
+    if (/* 0 && */ !FLAGS_runFail) {  // has never worked MUST BE FIXED BEFORE NEXT CHECKIN
+        return;
+    }
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(78.6429825f, 3150.97632f);
@@ -3814,22 +3814,19 @@ static void skpwww_lptemp_com_5(skiatest::Reporter* reporter, const char* filena
     pathB.lineTo(77.6666718f, 3153.3335f);
     pathB.cubicTo(77.6666718f, 3151.49268f, 79.15905f, 3150, 81, 3150);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+    testPathOpCheck(reporter, path, pathB, kIntersect_PathOp, filename, FLAGS_runFail);
 }
-#endif
 
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
     TEST(skpwww_lptemp_com_3),
     TEST(skpwww_shinydemos_com_5),
-#if TEST_NEW_FAILURES
     TEST(skpwww_lptemp_com_5),
     TEST(skpwww_shinydemos_com_15),
     TEST(skpwww_familysurvivalprotocol_wordpress_com_61),
     TEST(skpwww_alamdi_com_3),
     TEST(skpwww_devbridge_com_22),
-#endif
     TEST(skpwww_firstunitedbank_com_19),
     TEST(skpwww_googleventures_com_32),
     TEST(skpwww_9to5mac_com_64),

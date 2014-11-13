@@ -88,12 +88,12 @@ int SkReduceOrder::reduce(const SkDQuad& quad) {
         }
     }
     if (minXSet == 0x7) {  // test for vertical line
-        if (minYSet == 0x7) {  // return 1 if all four are coincident
+        if (minYSet == 0x7) {  // return 1 if all three are coincident
             return coincident_line(quad, fQuad);
         }
         return vertical_line(quad, fQuad);
     }
-    if (minYSet == 0xF) {  // test for horizontal line
+    if (minYSet == 0x7) {  // test for horizontal line
         return horizontal_line(quad, fQuad);
     }
     int result = check_linear(quad, minX, maxX, minY, maxY, fQuad);

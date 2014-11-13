@@ -45,22 +45,28 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int* tIndex, int* e
             continue;
         }
         const SkOpAngle* firstAngle = angle;
-        SkDEBUGCODE(bool loop = false);
-        int winding;
+        bool loop = false;
+        int winding = SK_MinS32;
         do {
             angle = angle->next();
-            SkASSERT(angle != firstAngle || !loop);
-            SkDEBUGCODE(loop |= angle == firstAngle);
+            if (angle == firstAngle && loop) {
+                break;    // if we get here, there's no winding, loop is unorderable
+            }
+            loop |= angle == firstAngle;
             segment = angle->segment();
             winding = segment->windSum(angle);
         } while (winding == SK_MinS32);
+        if (winding == SK_MinS32) {
+            continue;
+        }
         int sumMiWinding = segment->updateWindingReverse(angle);
         int sumSuWinding = segment->updateOppWindingReverse(angle);
         if (segment->operand()) {
             SkTSwap<int>(sumMiWinding, sumSuWinding);
         }
         SkOpSegment* first = NULL;
-        while ((angle = angle->next()) != firstAngle) {
+        bool badData = false;
+        while ((angle = angle->next()) != firstAngle && !badData) {
             segment = angle->segment();
             int start = angle->start();
             int end = angle->end();
@@ -73,10 +79,18 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int* tIndex, int* e
                     *tIndex = start;
                     *endIndex = end;
                 }
+                if (segment->inconsistentAngle(maxWinding, sumWinding, oppMaxWinding,
+                        oppSumWinding, angle)) {
+                    badData = true;
+                    break;
+                }
                 // OPTIMIZATION: should this also add to the chase?
                 (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
                     oppSumWinding, angle);
             }
+        }
+        if (badData) {
+            continue;
         }
         if (first) {
        #if TRY_ROTATE
@@ -245,7 +259,47 @@ static const bool gOutInverse[kReverseDifference_PathOp + 1][2][2] = {
     {{ false, true }, { false, false }},  // rev diff
 };
 
+#define DEBUGGING_PATHOPS_FROM_HOST 0  // enable to debug svg in chrome -- note path hardcoded below
+#if DEBUGGING_PATHOPS_FROM_HOST
+#include "SkData.h"
+#include "SkStream.h"
+
+static void dump_path(FILE* file, const SkPath& path, bool force, bool dumpAsHex) {
+    SkDynamicMemoryWStream wStream;
+    path.dump(&wStream, force, dumpAsHex);
+    SkAutoDataUnref data(wStream.copyToData());
+    fprintf(file, "%.*s\n", (int) data->size(), data->data());
+}
+
+static int dumpID = 0;
+
+static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
+#if SK_BUILD_FOR_MAC
+    FILE* file = fopen("/Users/caryclark/Documents/svgop.txt", "w");
+#else
+    FILE* file = fopen("/usr/local/google/home/caryclark/Documents/svgop.txt", "w");
+#endif
+    fprintf(file,
+            "\nstatic void fuzz763_%d(skiatest::Reporter* reporter, const char* filename) {\n",
+            ++dumpID);
+    fprintf(file, "    SkPath path;\n");
+    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", one.getFillType());
+    dump_path(file, one, false, true);
+    fprintf(file, "    SkPath path1(path);\n");
+    fprintf(file, "    path.reset();\n");
+    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", two.getFillType());
+    dump_path(file, two, false, true);
+    fprintf(file, "    SkPath path2(path);\n");
+    fprintf(file, "    testPathOp(reporter, path1, path2, (SkPathOp) %d, filename);\n", op);
+    fprintf(file, "}\n");	
+    fclose(file);
+}
+#endif
+
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+#if DEBUGGING_PATHOPS_FROM_HOST
+    dump_op(one, two, op);
+#endif	
 #if DEBUG_SHOW_TEST_NAME
     char* debugName = DEBUG_FILENAME_STRING;
     if (debugName && debugName[0]) {

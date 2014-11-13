@@ -161,7 +161,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>* chase, int* tIndex, int* endIndex) 
         if (!sortable) {
             continue;
         }
-        // find first angle, initialize winding to computed fWindSum
+        // find first angle, initialize winding to computed wind sum
         const SkOpAngle* angle = segment->spanToAngle(*tIndex, *endIndex);
         const SkOpAngle* firstAngle;
         SkDEBUGCODE(firstAngle = angle);
@@ -208,7 +208,8 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpan*>* chase, int* tIndex, int* endIndex) 
                 if (SkOpSegment::UseInnerWinding(maxWinding, winding)) {
                     maxWinding = winding;
                 }
-                (void) segment->markAndChaseWinding(angle, maxWinding, 0);
+                // allowed to do nothing
+                (void) segment->markAndChaseWinding(angle, maxWinding, 0, NULL);
                 break;
             }
         }
@@ -315,6 +316,12 @@ static void skipVertical(const SkTArray<SkOpContour*, true>& contourList,
     return;
 }
 
+struct SortableTop {  // error if local in pre-C++11
+    SkOpSegment* fSegment;
+    int fIndex;
+    int fEndIndex;
+};
+
 SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
         SkOpAngle::IncludeType angleIncludeType, bool* firstContour, int* indexPtr,
         int* endIndexPtr, SkPoint* topLeft, bool* unsortable, bool* done, bool* onlyVertical,
@@ -356,6 +363,8 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
     double tHit;
     SkScalar hitDx = 0;
     SkScalar hitOppDx = 0;
+    // keep track of subsequent returns to detect infinite loops
+    SkTDArray<SortableTop> sortableTops;
     do {
         // if current is vertical, find another candidate which is not
         // if only remaining candidates are vertical, then they can be marked done
@@ -366,6 +375,35 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
         tryAgain = false;
         contourWinding = rightAngleWinding(contourList, &current, indexPtr, endIndexPtr, &tHit,
                 &hitDx, &tryAgain, onlyVertical, false);
+        if (tryAgain) {
+            bool giveUp = false;
+            int count = sortableTops.count();
+            for (int index = 0; index < count; ++index) {
+                const SortableTop& prev = sortableTops[index];
+                if (giveUp) {
+                    prev.fSegment->markDoneFinal(prev.fIndex);
+                } else if (prev.fSegment == current
+                        && (prev.fIndex == *indexPtr || prev.fEndIndex == *endIndexPtr)) {
+                    // remaining edges are non-vertical and cannot have their winding computed
+                    // mark them as done and return, and hope that assembly can fill the holes
+                    giveUp = true;
+                    index = -1;
+                }
+            }
+            if (giveUp) {
+                *done = true;
+                return NULL;
+            }
+        }
+        SortableTop* sortableTop = sortableTops.append();
+        sortableTop->fSegment = current;
+        sortableTop->fIndex = *indexPtr;
+        sortableTop->fEndIndex = *endIndexPtr;
+#if DEBUG_SORT
+        SkDebugf("%s current=%d index=%d endIndex=%d tHit=%1.9g hitDx=%1.9g try=%d vert=%d\n",
+                __FUNCTION__, current->debugID(), *indexPtr, *endIndexPtr, tHit, hitDx, tryAgain,
+                *onlyVertical);
+#endif
         if (*onlyVertical) {
             return current;
         }
@@ -378,10 +416,16 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
         oppContourWinding = rightAngleWinding(contourList, &current, indexPtr, endIndexPtr, &tHit,
                 &hitOppDx, &tryAgain, NULL, true);
     } while (tryAgain);
-    current->initWinding(*indexPtr, *endIndexPtr, tHit, contourWinding, hitDx, oppContourWinding,
-            hitOppDx);
+    bool success = current->initWinding(*indexPtr, *endIndexPtr, tHit, contourWinding, hitDx,
+            oppContourWinding, hitOppDx);
     if (current->done()) {
         return NULL;
+    } else if (!success) {  // check if the span has a valid winding
+        int min = SkTMin(*indexPtr, *endIndexPtr);
+        const SkOpSpan& span = current->span(min);
+        if (span.fWindSum == SK_MinS32) {
+            return NULL;
+        }
     }
     return current;
 }
@@ -405,14 +449,17 @@ static void checkDuplicates(SkTArray<SkOpContour*, true>* contourList) {
     }
 }
 
-static void checkEnds(SkTArray<SkOpContour*, true>* contourList) {
+static bool checkEnds(SkTArray<SkOpContour*, true>* contourList) {
     // it's hard to determine if the end of a cubic or conic nearly intersects another curve.
     // instead, look to see if the connecting curve intersected at that same end.
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
-        contour->checkEnds();
+        if (!contour->checkEnds()) {
+            return false;
+        }
     }
+    return true;
 }
 
 static bool checkMultiples(SkTArray<SkOpContour*, true>* contourList) {
@@ -706,7 +753,9 @@ bool HandleCoincidence(SkTArray<SkOpContour*, true>* contourList, int total) {
     SkOpContour::debugShowWindingValues(contourList);
 #endif
     fixOtherTIndex(contourList);
-    checkEnds(contourList);  // check if connecting curve intersected at the same end
+    if (!checkEnds(contourList)) {  // check if connecting curve intersected at the same end
+        return false;
+    }
     bool hasM = checkMultiples(contourList);  // check if intersections agree on t and point values
     SkTDArray<SkOpSegment::AlignedSpan> aligned;
     if (hasM) {

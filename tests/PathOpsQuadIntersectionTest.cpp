@@ -53,6 +53,28 @@ static void standardTestCases(skiatest::Reporter* reporter) {
 }
 
 static const SkDQuad testSet[] = {
+{{{-37.3484879,10.0192947}, {-36.4966316,13.2140198}, {-38.1506348,16.0788383}}},
+{{{-38.1462746,16.08918}, {-36.4904327,13.2193804}, {-37.3484879,10.0192947}}},
+
+{{{-37.3513985,10.0082998}, {-36.4938011,13.2090998}, {-38.1506004,16.0788002}}},
+{{{-37.3508987,10.0102997}, {-36.4930992,13.2110004}, {-38.1497993,16.0809002}}},
+
+{{{-37.3508987,10.0102997}, {-37.3510017,10.0098}, {-37.3512001,10.0093002}}},
+{{{-49.0778008,19.0097008}, {-38.2086983,6.80954981}, {-37.3508987,10.0102997}}},
+
+{{{SkBits2Float(0xc22423b2), SkBits2Float(0x40afae2c)},
+        {SkBits2Float(0xc2189b24), SkBits2Float(0x40e3f058)},
+        {SkBits2Float(0xc21511d9), SkBits2Float(0x41251125)}}},
+{{{SkBits2Float(0xc2153d2f), SkBits2Float(0x412299db)},
+        {SkBits2Float(0xc2153265), SkBits2Float(0x41233845)},
+        {SkBits2Float(0xc21527fc), SkBits2Float(0x4123d684)}}},
+
+{{{-37.3097496, 10.1625624}, {-37.2992134, 10.2012377}, {-37.2890472, 10.239872}}},
+{{{-41.0348587, 5.49001122}, {-38.1515045, 7.12308884}, {-37.2674294, 10.3166857}}},
+
+{{{-52.8062439,14.1493912}, {-53.6638947,10.948595}, {-52.0070419,8.07883835}}},
+{{{-52.8054848,14.1522331}, {-53.6633072,10.9514809}, {-52.0066071,8.08163643}}},
+
 {{{441.853149, 308.209106}, {434.672272, 315.389984}, {424.516998, 315.389984}}},
 {{{385.207275, 334.241272}, {406.481598, 312.96698}, {436.567993, 312.96698}}},
 
@@ -289,10 +311,6 @@ static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner
     }
 }
 
-DEF_TEST(PathOpsQuadIntersectionOneOff, reporter) {
-    oneOffTest1(reporter, 0, 1);
-}
-
 static void oneOffTests(skiatest::Reporter* reporter) {
     for (size_t outer = 0; outer < testSetCount - 1; ++outer) {
         for (size_t inner = outer + 1; inner < testSetCount; ++inner) {
@@ -336,10 +354,6 @@ static void coincidentTest(skiatest::Reporter* reporter) {
     for (int testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
         coincidentTestOne(reporter, testIndex, testIndex + 1);
     }
-}
-
-DEF_TEST(PathOpsQuadIntersectionCoincidenceOneOff, reporter) {
-    coincidentTestOne(reporter, 0, 1);
 }
 
 static int floatSign(double x) {
@@ -511,4 +525,12 @@ DEF_TEST(PathOpsQuadIntersection, reporter) {
     standardTestCases(reporter);
     if (false) QuadraticIntersection_IntersectionFinder();
     if (false) QuadraticIntersection_PointFinder();
+}
+
+DEF_TEST(PathOpsQuadIntersectionCoincidenceOneOff, reporter) {
+    coincidentTestOne(reporter, 0, 1);
+}
+
+DEF_TEST(PathOpsQuadIntersectionOneOff, reporter) {
+    oneOffTest1(reporter, 0, 1);
 }

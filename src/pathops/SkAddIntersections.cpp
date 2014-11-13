@@ -307,6 +307,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                         }
                         case SkIntersectionHelper::kQuad_Segment: {
                             pts = ts.quadQuad(wt.pts(), wn.pts());
+                            ts.alignQuadPts(wt.pts(), wn.pts());
                             debugShowQuadIntersection(pts, wt, wn, ts);
                             break;
                         }
@@ -366,8 +367,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                     if (wt.addCoincident(wn, ts, swap)) {
                         continue;
                     }
-                    ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
-                    pts = 1;
+                    pts = ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
                 } else if (wn.segmentType() >= SkIntersectionHelper::kQuad_Segment
                         && wt.segmentType() >= SkIntersectionHelper::kQuad_Segment
                         && ts.isCoincident(0)) {
@@ -375,8 +375,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                     if (wt.addCoincident(wn, ts, swap)) {
                         continue;
                     }
-                    ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
-                    pts = 1;
+                    pts = ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
                 }
             }
             if (pts >= 2) {
@@ -387,8 +386,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                             && wn.isPartial(ts[!swap][pt], ts[!swap][pt + 1], point, next)) {
                         if (!wt.addPartialCoincident(wn, ts, pt, swap)) {
                             // remove extra point if two map to same float values
-                            ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
-                            pts = 1;
+                            pts = ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
                         }
                     }
                 }

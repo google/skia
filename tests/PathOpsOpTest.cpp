@@ -1719,17 +1719,10 @@ static void skphealth_com76(skiatest::Reporter* reporter, const char* filename) 
     SkPath pathB;
     pathB.setFillType(SkPath::kWinding_FillType);
     pathB.moveTo(704.000000f, 3.00000000f);
-#if 0
-    pathB.lineTo(719.500000f, 3.00000000f);
-    pathB.lineTo(705.000000f, 33.0000000f);
-    pathB.lineTo(704.000000f, 33.0000000f);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
-#else
     pathB.lineTo(704.000000f, 33.0000000f);
     pathB.lineTo(705.000000f, 33.0000000f);
     pathB.lineTo(719.500000f, 3.00000000f);
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
-#endif
 }
 
 static void skpahrefs_com88(skiatest::Reporter* reporter, const char* filename) {
@@ -2733,9 +2726,6 @@ static void skpcarpetplanet_ru22(skiatest::Reporter* reporter, const char* filen
 
 // this fails because cubic/quad misses an intersection (failure is isolated in c/q int test)
 static void skpcarrot_is24(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(945, 597);
@@ -2758,7 +2748,7 @@ static void skpcarrot_is24(skiatest::Reporter* reporter, const char* filename) {
     pathB.cubicTo(1019.77502f, 679.955017f, 1020.08099f, 676.094971f, 1020.08099f, 672.161987f);
     pathB.cubicTo(1020.08002f, 630.73999f, 986.502014f, 597.161987f, 945.080994f, 597.161987f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+    testPathOpCheck(reporter, path, pathB, kIntersect_PathOp, filename, FLAGS_runFail);
 }
 
 static void skpbangalorenest_com4(skiatest::Reporter* reporter, const char* filename) {
@@ -3283,9 +3273,6 @@ static void cubicOp113(skiatest::Reporter* reporter, const char* filename) {
 }
 
 static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(0, 1);
@@ -3295,7 +3282,7 @@ static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 3);
     pathB.cubicTo(-1, 2, 3.5f, 1.33333337f, 0, 1);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+    testPathOpCheck(reporter, path, pathB, kIntersect_PathOp, filename, FLAGS_runFail);
 }
 
 static void cubicOp114asQuad(skiatest::Reporter* reporter, const char* filename) {
@@ -3461,9 +3448,6 @@ static void rects4(skiatest::Reporter* reporter, const char* filename) {
 }
 
 static void issue2753(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path1;
     path1.moveTo(142.701f, 110.568f);
     path1.lineTo(142.957f, 100);
@@ -3480,7 +3464,7 @@ static void issue2753(skiatest::Reporter* reporter, const char* filename) {
     path2.cubicTo(188.201f, 117.601f, 174.801f, 93, 39, 124.001f);
     path2.close();
 
-    testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
+    testPathOpCheck(reporter, path1, path2, kUnion_PathOp, filename, FLAGS_runFail);
 }
 
 static void issue2808(skiatest::Reporter* reporter, const char* filename) {
@@ -3511,10 +3495,25 @@ static void issue2808(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
 }
 
+static void cubicOp115(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,4, 2,1, 5,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(3,5, 1,0, 4,3);
+    pathB.close();
+    SkPath path2(path);
+    testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(cubicOp115),
     TEST(issue2753),  // FIXME: pair of cubics miss intersection
     TEST(cubicOp114),  // FIXME: curve with inflection is ordered the wrong way
     TEST(issue2808),

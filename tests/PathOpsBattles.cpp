@@ -1273,9 +1273,6 @@ path.close();
 // op end success 1
 
 static void battleOp46(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x3697ff52), SkBits2Float(0xc26fffff));
@@ -1299,7 +1296,7 @@ path.lineTo(SkBits2Float(0x4285e672), SkBits2Float(0xc2443b5f));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -1490,9 +1487,6 @@ path.close();
 // op end success 1
 
 static void battleOp54(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0xc2700000));
@@ -1518,7 +1512,7 @@ path.lineTo(SkBits2Float(0x42a3a81d), SkBits2Float(0xc15e595e));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -1632,9 +1626,6 @@ path.close();
 // op end success 1
 
 static void battleOp59(skiatest::Reporter* reporter, const char* filename) {  // hung
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -1736,9 +1727,6 @@ path.close();
 // op end success 1
 
 static void battleOp63(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0xc2700000));
@@ -1766,7 +1754,7 @@ path.lineTo(SkBits2Float(0x4039d102), SkBits2Float(0xc2a5e5fe));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -1896,7 +1884,11 @@ path.lineTo(SkBits2Float(0x3ee8b040), SkBits2Float(0xc2a5ff5d));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    if (FLAGS_runFail) {
+        testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    } else {
+        testPathFailOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    }
 }
 // op end success 1
 
@@ -2314,9 +2306,6 @@ path.close();
 // op end success 1
 
 static void battleOp85(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0xc2700000));
@@ -3973,9 +3962,6 @@ path.close();
 // op end success 1
 
 static void battleOp148(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -3996,7 +3982,7 @@ path.lineTo(SkBits2Float(0x42a38b52), SkBits2Float(0xc1639578));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -4084,9 +4070,6 @@ path.close();
 // op end success 1
 
 static void battleOp152(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -4109,7 +4092,7 @@ path.lineTo(SkBits2Float(0x42a5fe22), SkBits2Float(0x3f4744a1));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -4229,9 +4212,6 @@ path.close();
 // op end success 1
 
 static void battleOp157(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0xc2700000));
@@ -4260,7 +4240,7 @@ path.lineTo(SkBits2Float(0x429c4e4c), SkBits2Float(0x41df969b));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -4408,9 +4388,6 @@ path.close();
 // op end success 1
 
 static void battleOp163(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x3697ff52), SkBits2Float(0xc2700000));
@@ -4437,7 +4414,7 @@ path.lineTo(SkBits2Float(0x428cfdb5), SkBits2Float(0x422f3e36));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -4951,9 +4928,6 @@ path.close();
 // op end success 1
 
 static void battleOp181(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0xb7060057), SkBits2Float(0xc2700000));
@@ -4982,7 +4956,7 @@ path.lineTo(SkBits2Float(0x424f88ba), SkBits2Float(0x428191f0));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -5014,9 +4988,6 @@ path.close();
 // op end success 1
 
 static void battleOp183(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x36d3ff52), SkBits2Float(0xc2700000));
@@ -5045,7 +5016,7 @@ path.lineTo(SkBits2Float(0x424b624a), SkBits2Float(0x42833479));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -5376,9 +5347,6 @@ path.close();
 // op end success 1
 
 static void battleOp195(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -5399,7 +5367,7 @@ path.lineTo(SkBits2Float(0x3fc9081a), SkBits2Float(0xc2a5f864));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -5451,9 +5419,6 @@ path.close();
 // op end success 1
 
 static void battleOp198(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x369bbf59), SkBits2Float(0xc2700000));
@@ -5478,7 +5443,7 @@ path.lineTo(SkBits2Float(0x40848cae), SkBits2Float(0xc2a5cb0c));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -6308,9 +6273,6 @@ path.close();
 // op end success 1
 
 static void battleOp230(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0xc2700000));
@@ -6335,7 +6297,7 @@ path.lineTo(SkBits2Float(0x429ff91f), SkBits2Float(0xc1b14b8a));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -6505,9 +6467,6 @@ path.close();
 // op end success 1
 
 static void battleOp237(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -7066,9 +7025,6 @@ path.close();
 // op end success 1
 
 static void battleOp256(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0xb69400ae), SkBits2Float(0xc2700000));
@@ -7098,7 +7054,7 @@ path.lineTo(SkBits2Float(0x4273ad4f), SkBits2Float(0x42617d52));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -7465,9 +7421,6 @@ path.close();
 // op end success 1
 
 static void battleOp269(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -7490,7 +7443,7 @@ path.lineTo(SkBits2Float(0x427e3109), SkBits2Float(0x42559108));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -7585,9 +7538,6 @@ path.close();
 // op end success 1
 
 static void battleOp273(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -7610,7 +7560,7 @@ path.lineTo(SkBits2Float(0x4279eebd), SkBits2Float(0x425a890e));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -7891,9 +7841,6 @@ path.close();
 // op end success 1
 
 static void battleOp283(skiatest::Reporter* reporter, const char* filename) {
-    if (!FLAGS_runFail) {
-        return;  // draws wrong
-    }
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x27b71bcd), SkBits2Float(0xc2a60000));
@@ -7916,7 +7863,7 @@ path.lineTo(SkBits2Float(0x42759f2b), SkBits2Float(0x425f5e9b));
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 // op end success 1
 
@@ -10739,7 +10686,7 @@ path.close();
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp6001;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp68;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
@@ -10792,8 +10739,6 @@ static struct TestDesc tests[] = {
     TEST(battleOp43),
     TEST(battleOp44),
     TEST(battleOp45),
-    TEST(battleOp46),  // draws wrong : dropped an outer cubic incorrectly
-    // if assembly rewrite was done, the error would be hidden
     TEST(battleOp47),
     TEST(battleOp48),
     TEST(battleOp49),
@@ -10802,17 +10747,15 @@ static struct TestDesc tests[] = {
     TEST(battleOp51),
     TEST(battleOp52),
     TEST(battleOp53),
-    TEST(battleOp54),  // draws wrong
     TEST(battleOp55),
     TEST(battleOp56),
     TEST(battleOp57),
     TEST(battleOp58),
-    TEST(battleOp59),  // draws wrong
+    TEST(battleOp59),
     TEST(battleOp60),
 
     TEST(battleOp61),
     TEST(battleOp62),
-    TEST(battleOp63),  // draws wrong
     TEST(battleOp64),
     TEST(battleOp65),
     TEST(battleOp66),
@@ -10836,7 +10779,7 @@ static struct TestDesc tests[] = {
     TEST(battleOp82),
     TEST(battleOp83),
     TEST(battleOp84),
-    TEST(battleOp85),  // draws wrong
+    TEST(battleOp85),
     TEST(battleOp86),
     TEST(battleOp87),
     TEST(battleOp88),
@@ -10905,24 +10848,20 @@ static struct TestDesc tests[] = {
     TEST(battleOp145),
     TEST(battleOp146),
     TEST(battleOp147),
-    TEST(battleOp148),  // draws wrong
     TEST(battleOp149),
     TEST(battleOp150),
 
     TEST(battleOp151),
-    TEST(battleOp152),
     TEST(battleOp153),
     TEST(battleOp154),
     TEST(battleOp155),
     TEST(battleOp156),
-    TEST(battleOp157),
     TEST(battleOp158),
     TEST(battleOp159),
     TEST(battleOp160),
 
     TEST(battleOp161),
     TEST(battleOp162),
-    TEST(battleOp163),
     TEST(battleOp164),
     TEST(battleOp165),
     TEST(battleOp166),
@@ -10942,9 +10881,7 @@ static struct TestDesc tests[] = {
     TEST(battleOp179),
     TEST(battleOp180),
 
-    TEST(battleOp181),
     TEST(battleOp182),
-    TEST(battleOp183),
     TEST(battleOp184),
     TEST(battleOp185),
     TEST(battleOp186),
@@ -10957,10 +10894,8 @@ static struct TestDesc tests[] = {
     TEST(battleOp192),
     TEST(battleOp193),
     TEST(battleOp194),
-    TEST(battleOp195),
     TEST(battleOp196),
     TEST(battleOp197),
-    TEST(battleOp198),
     TEST(battleOp199),
     TEST(battleOp200),
 
@@ -10995,7 +10930,6 @@ static struct TestDesc tests[] = {
     TEST(battleOp227),
     TEST(battleOp228),
     TEST(battleOp229),
-    TEST(battleOp230),
 
     TEST(battleOp231),
     TEST(battleOp232),
@@ -11024,7 +10958,6 @@ static struct TestDesc tests[] = {
     TEST(battleOp253),
     TEST(battleOp254),
     TEST(battleOp255),
-    TEST(battleOp256),
     TEST(battleOp257),
     TEST(battleOp258),
     TEST(battleOp259),
@@ -11038,12 +10971,10 @@ static struct TestDesc tests[] = {
     TEST(battleOp266),
     TEST(battleOp267),
     TEST(battleOp268),
-    TEST(battleOp269),
     TEST(battleOp270),
 
     TEST(battleOp271),
     TEST(battleOp272),
-    TEST(battleOp273),
     TEST(battleOp274),
     TEST(battleOp275),
     TEST(battleOp276),
@@ -11054,7 +10985,6 @@ static struct TestDesc tests[] = {
 
     TEST(battleOp281),
     TEST(battleOp282),
-    TEST(battleOp283),
     TEST(battleOp284),
     TEST(battleOp285),
     TEST(battleOp286),
@@ -11168,6 +11098,25 @@ static struct TestDesc tests[] = {
     TEST(issue414409c),
     TEST(issue414409b),
     TEST(issue414409),
+
+    // these draw wrong
+    TEST(battleOp46),  // dropped an outer cubic incorrectly
+                       // if assembly rewrite was done, the error would be hidden
+    TEST(battleOp54),
+    TEST(battleOp63),
+    TEST(battleOp152),
+    TEST(battleOp157),
+    TEST(battleOp163),
+    TEST(battleOp181),
+    TEST(battleOp183),
+    TEST(battleOp195),
+    TEST(battleOp198),
+    TEST(battleOp230),
+    TEST(battleOp256),
+    TEST(battleOp269),
+    TEST(battleOp273),
+    TEST(battleOp148),
+    TEST(battleOp283),
 };
 
 
