@@ -85,21 +85,15 @@ static bool is_aligned(const T* p) {
 
 DEF_TEST(Record_Alignment, r) {
     SkRecord record;
-
-    // Of course a byte's always aligned.
     REPORTER_ASSERT(r, is_aligned(record.alloc<uint8_t>()));
-
-    // (If packed tightly, the rest below here would be off by one.)
-
-    // It happens that the first implementation always aligned to 4 bytes,
-    // so these two were always correct.
     REPORTER_ASSERT(r, is_aligned(record.alloc<uint16_t>()));
     REPORTER_ASSERT(r, is_aligned(record.alloc<uint32_t>()));
-
-    // These two are regression tests (void* only on 64-bit machines).
-    REPORTER_ASSERT(r, is_aligned(record.alloc<uint64_t>()));
     REPORTER_ASSERT(r, is_aligned(record.alloc<void*>()));
 
-    // We're not testing beyond sizeof(void*), which is where the current implementation will break.
+    // It's not clear if we care that 8-byte values are aligned on 32-bit machines.
+    if (sizeof(void*) == 8) {
+        REPORTER_ASSERT(r, is_aligned(record.alloc<double>()));
+        REPORTER_ASSERT(r, is_aligned(record.alloc<uint64_t>()));
+    }
 }
 

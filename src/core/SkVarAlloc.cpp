@@ -1,5 +1,4 @@
 #include "SkVarAlloc.h"
-#include "SkScalar.h"
 
 // We use non-standard malloc diagnostic methods to make sure our allocations are sized well.
 #if defined(SK_BUILD_FOR_MAC)
@@ -20,11 +19,10 @@ struct SkVarAlloc::Block {
     }
 };
 
-SkVarAlloc::SkVarAlloc(size_t smallest, float growth)
+SkVarAlloc::SkVarAlloc()
     : fByte(NULL)
-    , fLimit(NULL)
-    , fSmallest(SkToUInt(smallest))
-    , fGrowth(growth)
+    , fRemaining(0)
+    , fLgMinSize(4)
     , fBlock(NULL) {}
 
 SkVarAlloc::~SkVarAlloc() {
@@ -39,14 +37,13 @@ SkVarAlloc::~SkVarAlloc() {
 void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
     SkASSERT(SkIsAlignPtr(bytes));
 
-    size_t alloc = fSmallest;
+    size_t alloc = 1<<(fLgMinSize++);
     while (alloc < bytes + sizeof(Block)) {
         alloc *= 2;
     }
     fBlock = Block::Alloc(fBlock, alloc, flags);
     fByte = fBlock->data();
-    fLimit = fByte + alloc - sizeof(Block);
-    fSmallest = SkToUInt(SkScalarTruncToInt(fSmallest * fGrowth));
+    fRemaining = alloc - sizeof(Block);
 
 #if defined(SK_BUILD_FOR_MAC)
     SkASSERT(alloc == malloc_good_size(alloc));
