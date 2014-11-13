@@ -30,7 +30,7 @@ class SkRecord : SkNoncopyable {
         kFirstReserveCount = 64 / sizeof(void*),
     };
 public:
-    SkRecord() : fCount(0), fReserved(0) {}
+    SkRecord() : fAlloc(1024, 2.0f), fCount(0), fReserved(0) {}
 
     ~SkRecord() {
         Destroyer destroyer;

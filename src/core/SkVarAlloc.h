@@ -5,21 +5,22 @@
 
 class SkVarAlloc : SkNoncopyable {
 public:
-    SkVarAlloc();
+    // SkVarAlloc will never allocate less than smallest bytes at a time.
+    // When it allocates a new block, it will be at least growth times bigger than the last.
+    SkVarAlloc(size_t smallest, float growth);
     ~SkVarAlloc();
 
     // Returns contiguous bytes aligned at least for pointers.  You may pass SK_MALLOC_THROW, etc.
     char* alloc(size_t bytes, unsigned sk_malloc_flags) {
         bytes = SkAlignPtr(bytes);
 
-        if (bytes > fRemaining) {
+        if (fByte + bytes > fLimit) {
             this->makeSpace(bytes, sk_malloc_flags);
         }
-        SkASSERT(bytes <= fRemaining);
+        SkASSERT(fByte + bytes <= fLimit);
 
         char* ptr = fByte;
         fByte += bytes;
-        fRemaining -= bytes;
         return ptr;
     }
 
@@ -27,8 +28,10 @@ private:
     void makeSpace(size_t bytes, unsigned flags);
 
     char* fByte;
-    unsigned fRemaining;
-    unsigned fLgMinSize;
+    const char* fLimit;
+
+    unsigned fSmallest;
+    const float fGrowth;
 
     struct Block;
     Block* fBlock;
