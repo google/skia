@@ -171,4 +171,5 @@ protected:
 
 DEF_GM( return new LcdTextGM; )
 DEF_GM( return new LcdTextSizeGM; )
-DEF_GM( return new LcdTextProps; )
+// Temporarily disabled (dftext interference)
+// DEF_GM( return new LcdTextProps; )
