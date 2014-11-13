@@ -13,6 +13,7 @@
         '../bench/GMBench.cpp',
         '../bench/RecordingBench.cpp',
         '../bench/SKPBench.cpp',
+        '../bench/nanobench_main.cpp',
         '../bench/nanobench.cpp',
       ],
       'includes': [

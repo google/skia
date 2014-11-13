@@ -29,7 +29,7 @@
           'dependencies': [ 'android_system.gyp:SampleApp_APK' ],
         }],
         ['skia_os == "ios"', {
-          'dependencies!': [ 'SampleApp.gyp:SampleApp' ],
+          'dependencies!': [ 'SampleApp.gyp:SampleApp', 'dm.gyp:dm', 'bench.gyp:*' ],
           'dependencies': ['iOSShell.gyp:iOSShell' ],
         }],
         ['skia_os == "mac" or skia_os == "linux"', {

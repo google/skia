@@ -572,9 +572,7 @@ private:
     int fCurrentSKP;
 };
 
-int nanobench_main();
 int nanobench_main() {
-    SetupCrashHandler();
     SkAutoGraphics ag;
 
 #if SK_SUPPORT_GPU
@@ -752,9 +750,3 @@ int nanobench_main() {
     return 0;
 }
 
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-    return nanobench_main();
-}
-#endif
