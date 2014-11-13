@@ -136,8 +136,6 @@
       '<(skia_src_path)/gpu/GrRenderTarget.cpp',
       '<(skia_src_path)/gpu/GrReducedClip.cpp',
       '<(skia_src_path)/gpu/GrReducedClip.h',
-      '<(skia_src_path)/gpu/GrResourceCache.cpp',
-      '<(skia_src_path)/gpu/GrResourceCache.h',
       '<(skia_src_path)/gpu/GrResourceCache2.cpp',
       '<(skia_src_path)/gpu/GrResourceCache2.h',
       '<(skia_src_path)/gpu/GrStencil.cpp',

@@ -9,7 +9,6 @@
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
-#include "GrResourceCache.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 
