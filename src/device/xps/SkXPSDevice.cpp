@@ -2247,10 +2247,10 @@ void SkXPSDevice::drawDevice(const SkDraw& d, SkBaseDevice* dev,
          "Could not add layer to current visuals.");
 }
 
-SkBaseDevice* SkXPSDevice::onCreateDevice(const SkImageInfo&, Usage) {
+SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(const CreateInfo& info) {
 //Conditional for bug compatibility with PDF device.
 #if 0
-    if (SkBaseDevice::kGeneral_Usage == usage) {
+    if (SkBaseDevice::kGeneral_Usage == info.fUsage) {
         return NULL;
         SK_CRASH();
         //To what stream do we write?

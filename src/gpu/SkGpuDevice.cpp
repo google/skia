@@ -1751,24 +1751,24 @@ void SkGpuDevice::flush() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
+SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
     GrSurfaceDesc desc;
     desc.fConfig = fRenderTarget->config();
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = info.width();
-    desc.fHeight = info.height();
+    desc.fWidth = cinfo.fInfo.width();
+    desc.fHeight = cinfo.fInfo.height();
     desc.fSampleCnt = fRenderTarget->numSamples();
 
     SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
-    unsigned flags = info.isOpaque() ? 0 : kNeedClear_Flag;
+    unsigned flags = cinfo.fInfo.isOpaque() ? 0 : kNeedClear_Flag;
     // If we're using distance field text, enable in the new device
     flags |= (fFlags & kDFText_Flag) ? kDFText_Flag : 0;
 
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
-    const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == usage) ?
+    const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == cinfo.fUsage) ?
                                                 GrContext::kApprox_ScratchTexMatch :
                                                 GrContext::kExact_ScratchTexMatch;
     texture.reset(fContext->refScratchTexture(desc, match));
@@ -1779,7 +1779,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) 
         return SkGpuDevice::Create(texture, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags);
     } else {
         SkDebugf("---- failed to create compatible device texture [%d %d]\n",
-                 info.width(), info.height());
+                 cinfo.fInfo.width(), cinfo.fInfo.height());
         return NULL;
     }
 }

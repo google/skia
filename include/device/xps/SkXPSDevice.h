@@ -319,7 +319,7 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
+    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);

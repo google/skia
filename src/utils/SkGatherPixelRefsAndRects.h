@@ -302,11 +302,11 @@ private:
         NotSupported();
     }
 
-    virtual SkBaseDevice* onCreateDevice(const SkImageInfo& info, Usage usage) SK_OVERRIDE {
+    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo& info) SK_OVERRIDE {
         // we expect to only get called via savelayer, in which case it is fine.
-        SkASSERT(kSaveLayer_Usage == usage);
+        SkASSERT(kSaveLayer_Usage == info.fUsage);
         return SkNEW_ARGS(SkGatherPixelRefsAndRectsDevice,
-                          (info.width(), info.height(), fPRCont));
+                          (info.fInfo.width(), info.fInfo.height(), fPRCont));
     }
 
     static void NotSupported() {

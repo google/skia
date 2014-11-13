@@ -107,7 +107,7 @@ protected:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
     /** The SkBaseDevice passed will be an SkBaseDevice which was returned by a call to
-        onCreateDevice on this device with kSaveLayer_Usage.
+        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
      */
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
@@ -153,7 +153,7 @@ private:
     // any clip information.
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE;
 
-    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
+    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;

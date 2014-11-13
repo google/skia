@@ -236,7 +236,7 @@ protected:
     virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
     /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateDevice on this device with kSaveLayer_Usage.
+        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
      */
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
@@ -340,6 +340,16 @@ protected:
 
     void setPixelGeometry(SkPixelGeometry geo);
 
+    struct CreateInfo {
+        CreateInfo(const SkImageInfo& info, Usage usage) : fInfo(info), fUsage(usage) {}
+
+        SkImageInfo fInfo;
+        Usage       fUsage;
+    };
+    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo& cinfo) {
+        return NULL;
+    }
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -365,10 +375,6 @@ private:
     SkBaseDevice* createCompatibleDeviceForSaveLayer(const SkImageInfo&);
     // just called by SkCanvas for imagefilter
     SkBaseDevice* createCompatibleDeviceForImageFilter(const SkImageInfo&);
-
-    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) {
-        return NULL;
-    }
 
     /** Causes any deferred drawing to the device to be completed.
      */
