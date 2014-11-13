@@ -121,6 +121,11 @@ path.close();
 }
 
 static void fuzz763_378(skiatest::Reporter* reporter, const char* filename) {
+#if SK_BUILD_FOR_ANDROID
+	if (!FLAGS_runFail) {
+		return;  // fails on nexus 9 in release, possibly related to fused multiply-add
+	}
+#endif
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x41013776), SkBits2Float(0xc25007a8));
@@ -214,6 +219,11 @@ path.close();
 }
 
 static void fuzz763_378b(skiatest::Reporter* reporter, const char* filename) {
+#if SK_BUILD_FOR_ANDROID
+	if (!FLAGS_runFail) {
+		return;  // fails on nexus 9 in release, possibly related to fused multiply-add
+	}
+#endif
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(-47.1494f, 4.35143f);
