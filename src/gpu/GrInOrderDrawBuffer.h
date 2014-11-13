@@ -110,7 +110,7 @@ private:
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrGpu*, const GrOptDrawState*) = 0;
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) = 0;
 
         uint8_t fType;
     };
@@ -129,7 +129,7 @@ private:
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         DrawInfo     fInfo;
         ScissorState fScissorState;
@@ -144,7 +144,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         ScissorState      fScissorState;
         GrStencilSettings fStencilSettings;
@@ -158,7 +158,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         GrDeviceCoordTexture    fDstCopy;
         ScissorState            fScissorState;
@@ -172,12 +172,12 @@ private:
         DrawPaths(const GrPathRange* pathRange) : Cmd(kDrawPaths_Cmd), fPathRange(pathRange) {}
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
-        uint32_t* indices() { return reinterpret_cast<uint32_t*>(CmdBuffer::GetDataForItem(this)); }
-        float* transforms() { return reinterpret_cast<float*>(&this->indices()[fCount]); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
+        int                     fIndicesLocation;
         size_t                  fCount;
+        int                     fTransformsLocation;
         PathTransformType       fTransformsType;
         GrDeviceCoordTexture    fDstCopy;
         ScissorState            fScissorState;
@@ -193,7 +193,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         SkIRect fRect;
         GrColor fColor;
@@ -209,7 +209,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -224,7 +224,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -237,7 +237,7 @@ private:
     struct SetState : public Cmd {
         SetState(const GrDrawState& state) : Cmd(kSetState_Cmd), fState(state) {}
 
-        virtual void execute(GrGpu*, const GrOptDrawState*);
+        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         GrDrawState fState;
         GrGpu::DrawType fDrawType;
@@ -301,6 +301,8 @@ private:
     // TODO: Use a single allocator for commands and records
     enum {
         kCmdBufferInitialSizeInBytes = 8 * 1024,
+        kPathIdxBufferMinReserve     = 64,
+        kPathXformBufferMinReserve   = 2 * kPathIdxBufferMinReserve,
         kGeoPoolStatePreAllocCnt     = 4,
     };
 
@@ -310,6 +312,8 @@ private:
     GrGpu*                            fDstGpu;
     GrVertexBufferAllocPool&          fVertexPool;
     GrIndexBufferAllocPool&           fIndexPool;
+    SkTDArray<uint32_t>               fPathIndexBuffer;
+    SkTDArray<float>                  fPathTransformBuffer;
 
     struct GeometryPoolState {
         const GrVertexBuffer*   fPoolVertexBuffer;

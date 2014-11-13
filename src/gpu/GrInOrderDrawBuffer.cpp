@@ -33,6 +33,9 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     SkASSERT(vertexPool);
     SkASSERT(indexPool);
 
+    fPathIndexBuffer.setReserve(kPathIdxBufferMinReserve);
+    fPathTransformBuffer.setReserve(kPathXformBufferMinReserve);
+
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fUsedPoolIndexBytes = 0;
@@ -99,6 +102,32 @@ static void set_vertex_attributes(GrDrawState* drawState, bool hasLocalCoords, G
     }
     if (0xFF == GrColorUnpackA(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
+    }
+}
+
+static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettings) {
+    static const GrStencilSettings::Face pathFace = GrStencilSettings::kFront_Face;
+    bool isWinding = kInvert_StencilOp != pathStencilSettings.passOp(pathFace);
+    if (isWinding) {
+        // Double check that it is in fact winding.
+        SkASSERT(kIncClamp_StencilOp == pathStencilSettings.passOp(pathFace));
+        SkASSERT(kIncClamp_StencilOp == pathStencilSettings.failOp(pathFace));
+        SkASSERT(0x1 != pathStencilSettings.writeMask(pathFace));
+        SkASSERT(!pathStencilSettings.isTwoSided());
+    }
+    return isWinding;
+}
+
+template<typename T> static void reset_data_buffer(SkTDArray<T>* buffer, int minReserve) {
+    // Assume the next time this buffer fills up it will use approximately the same amount
+    // of space as last time. Only resize if we're using less than a third of the
+    // allocated space, and leave enough for 50% growth over last time.
+    if (3 * buffer->count() < buffer->reserved() && buffer->reserved() > minReserve) {
+        int reserve = SkTMax(minReserve, buffer->count() * 3 / 2);
+        buffer->reset();
+        buffer->setReserve(reserve);
+    } else {
+        buffer->rewind();
     }
 }
 
@@ -335,15 +364,35 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathRange* pathRange,
 
     this->recordStateIfNecessary(GrGpu::kDrawPaths_DrawType, dstCopy);
 
-    int sizeOfIndices = sizeof(uint32_t) * count;
-    int sizeOfTransforms = sizeof(float) * count *
-                           GrPathRendering::PathTransformSize(transformsType);
+    uint32_t* savedIndices = fPathIndexBuffer.append(count, indices);
+    float* savedTransforms = fPathTransformBuffer.append(count *
+                                 GrPathRendering::PathTransformSize(transformsType), transforms);
 
-    DrawPaths* dp = GrNEW_APPEND_WITH_DATA_TO_RECORDER(fCmdBuffer, DrawPaths, (pathRange),
-                                                       sizeOfIndices + sizeOfTransforms);
-    memcpy(dp->indices(), indices, sizeOfIndices);
+    if (kDrawPaths_Cmd == strip_trace_bit(fCmdBuffer.back().fType)) {
+        // The previous command was also DrawPaths. Try to collapse this call into the one
+        // before. Note that stencilling all the paths at once, then covering, may not be
+        // equivalent to two separate draw calls if there is overlap. Blending won't work,
+        // and the combined calls may also cancel each other's winding numbers in some
+        // places. For now the winding numbers are only an issue if the fill is even/odd,
+        // because DrawPaths is currently only used for glyphs, and glyphs in the same
+        // font tend to all wind in the same direction.
+        DrawPaths* previous = static_cast<DrawPaths*>(&fCmdBuffer.back());
+        if (pathRange == previous->pathRange() &&
+            transformsType == previous->fTransformsType &&
+            scissorState == previous->fScissorState &&
+            stencilSettings == previous->fStencilSettings &&
+            path_fill_type_is_winding(stencilSettings) &&
+            !this->getDrawState().willBlendWithDst()) {
+            // Fold this DrawPaths call into the one previous.
+            previous->fCount += count;
+            return;
+        }
+    }
+
+    DrawPaths* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPaths, (pathRange));
+    dp->fIndicesLocation = savedIndices - fPathIndexBuffer.begin();
     dp->fCount = count;
-    memcpy(dp->transforms(), transforms, sizeOfTransforms);
+    dp->fTransformsLocation = savedTransforms - fPathTransformBuffer.begin();
     dp->fTransformsType = transformsType;
     dp->fScissorState = scissorState;
     dp->fStencilSettings = stencilSettings;
@@ -408,6 +457,8 @@ void GrInOrderDrawBuffer::reset() {
     fLastState = NULL;
     fVertexPool.reset();
     fIndexPool.reset();
+    reset_data_buffer(&fPathIndexBuffer, kPathIdxBufferMinReserve);
+    reset_data_buffer(&fPathTransformBuffer, kPathXformBufferMinReserve);
     fGpuCmdMarkers.reset();
 }
 
@@ -457,7 +508,7 @@ void GrInOrderDrawBuffer::flush() {
                                                          &ss->fDstCopy,
                                                          ss->fDrawType));
         } else {
-            iter->execute(fDstGpu, currentOptState.get());
+            iter->execute(this, currentOptState.get());
         }
 
         if (cmd_has_trace_marker(iter->fType)) {
@@ -472,58 +523,64 @@ void GrInOrderDrawBuffer::flush() {
     ++fDrawID;
 }
 
-void GrInOrderDrawBuffer::Draw::execute(GrGpu* gpu, const GrOptDrawState* optState) {
+void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState* optState) {
     if (!optState) {
         return;
     }
-    gpu->setVertexSourceToBuffer(this->vertexBuffer(), optState->getVertexStride());
+    GrGpu* dstGpu = buf->fDstGpu;
+    dstGpu->setVertexSourceToBuffer(this->vertexBuffer(), optState->getVertexStride());
     if (fInfo.isIndexed()) {
-        gpu->setIndexSourceToBuffer(this->indexBuffer());
+        dstGpu->setIndexSourceToBuffer(this->indexBuffer());
     }
-    gpu->draw(*optState, fInfo, fScissorState);
+    dstGpu->draw(*optState, fInfo, fScissorState);
 }
 
-void GrInOrderDrawBuffer::StencilPath::execute(GrGpu* gpu, const GrOptDrawState* optState) {
+void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf,
+                                               const GrOptDrawState* optState) {
     if (!optState) {
         return;
     }
-    gpu->stencilPath(*optState, this->path(), fScissorState, fStencilSettings);
+    buf->fDstGpu->stencilPath(*optState, this->path(), fScissorState, fStencilSettings);
 }
 
-void GrInOrderDrawBuffer::DrawPath::execute(GrGpu* gpu, const GrOptDrawState* optState) {
+void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf,
+                                            const GrOptDrawState* optState) {
     if (!optState) {
         return;
     }
-    gpu->drawPath(*optState, this->path(), fScissorState, fStencilSettings,
-                  fDstCopy.texture() ? &fDstCopy : NULL);
+    buf->fDstGpu->drawPath(*optState, this->path(), fScissorState, fStencilSettings,
+                           fDstCopy.texture() ? &fDstCopy : NULL);
 }
 
-void GrInOrderDrawBuffer::DrawPaths::execute(GrGpu* gpu, const GrOptDrawState* optState) {
+void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
+                                             const GrOptDrawState* optState) {
     if (!optState) {
         return;
     }
-    gpu->drawPaths(*optState, this->pathRange(), this->indices(), fCount, this->transforms(),
-                   fTransformsType, fScissorState, fStencilSettings,
-                   fDstCopy.texture() ? &fDstCopy : NULL);
+    buf->fDstGpu->drawPaths(*optState, this->pathRange(),
+                            &buf->fPathIndexBuffer[fIndicesLocation], fCount,
+                            &buf->fPathTransformBuffer[fTransformsLocation], fTransformsType,
+                            fScissorState, fStencilSettings, fDstCopy.texture() ? &fDstCopy : NULL);
 }
 
-void GrInOrderDrawBuffer::SetState::execute(GrGpu* gpu, const GrOptDrawState*) {
+void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const GrOptDrawState*) {
 }
 
-void GrInOrderDrawBuffer::Clear::execute(GrGpu* gpu, const GrOptDrawState*) {
+void GrInOrderDrawBuffer::Clear::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
     if (GrColor_ILLEGAL == fColor) {
-        gpu->discard(this->renderTarget());
+        buf->fDstGpu->discard(this->renderTarget());
     } else {
-        gpu->clear(&fRect, fColor, fCanIgnoreRect, this->renderTarget());
+        buf->fDstGpu->clear(&fRect, fColor, fCanIgnoreRect, this->renderTarget());
     }
 }
 
-void GrInOrderDrawBuffer::ClearStencilClip::execute(GrGpu* gpu, const GrOptDrawState*) {
-    gpu->clearStencilClip(fRect, fInsideClip, this->renderTarget());
+void GrInOrderDrawBuffer::ClearStencilClip::execute(GrInOrderDrawBuffer* buf,
+                                                    const GrOptDrawState*) {
+    buf->fDstGpu->clearStencilClip(fRect, fInsideClip, this->renderTarget());
 }
 
-void GrInOrderDrawBuffer::CopySurface::execute(GrGpu* gpu, const GrOptDrawState*){
-    gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
+void GrInOrderDrawBuffer::CopySurface::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
+    buf->fDstGpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
 bool GrInOrderDrawBuffer::copySurface(GrSurface* dst,

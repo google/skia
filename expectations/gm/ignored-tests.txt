@@ -50,3 +50,7 @@ imagemagnifier
 
 #reed
 modecolorfilters
+
+# cdalton https://codereview.chromium.org/712223002
+# Pixels off by one from covering gradient fills with different bounding boxes
+textblobshader

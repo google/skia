@@ -50,11 +50,11 @@ public:
     struct ScissorState {
         ScissorState() : fEnabled(false) {}
         void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
-        bool operator==(const ScissorState& other) {
+        bool operator==(const ScissorState& other) const {
             return fEnabled == other.fEnabled &&
                     (false == fEnabled || fRect == other.fRect);
         }
-        bool operator!=(const ScissorState& other) { return !(*this == other); }
+        bool operator!=(const ScissorState& other) const { return !(*this == other); }
         bool    fEnabled;
         SkIRect fRect;
     };
