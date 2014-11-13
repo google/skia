@@ -11,7 +11,7 @@
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
-#include "GrInvariantOutput.h"
+#include "GrProcOptInfo.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                BlendOptFlags blendOptFlags,
@@ -239,23 +239,14 @@ void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds,
             color = 0;
         }
     }
-    GrInvariantOutput inout(color, flags, false);
-
-    for (int i = 0; i < ds.numColorStages(); ++i) {
-        const GrFragmentProcessor* fp = ds.getColorStage(i).getProcessor();
-        fp->computeInvariantOutput(&inout);
-        if (!inout.willUseInputColor()) {
-            *firstColorStageIdx = i;
-            descInfo->fInputColorIsUsed = false;
-        }
-        if (kRGBA_GrColorComponentFlags == inout.validFlags()) {
-            *firstColorStageIdx = i + 1;
-            fColor = inout.color();
-            descInfo->fInputColorIsUsed = true;
+    GrProcOptInfo poi;
+    if (ds.numColorStages() > 0) {
+        poi.calcWithInitialValues(&ds.getColorStage(0), ds.numColorStages(), color, flags, false);
+        *firstColorStageIdx = poi.firstEffectiveStageIndex();
+        descInfo->fInputColorIsUsed = poi.inputColorIsUsed();
+        fColor = poi.inputColorToEffectiveStage();
+        if (poi.removeVertexAttrib()) {
             *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
-            // Since we are clearing all previous color stages we are in a state where we have found
-            // zero stages that don't multiply the inputColor.
-            inout.resetNonMulStageFound();
         }
     }
 }

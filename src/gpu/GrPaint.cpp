@@ -9,7 +9,7 @@
 #include "GrPaint.h"
 
 #include "GrBlend.h"
-#include "GrInvariantOutput.h"
+#include "GrProcOptInfo.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
@@ -37,8 +37,8 @@ bool GrPaint::isOpaque() const {
 }
 
 bool GrPaint::isOpaqueAndConstantColor(GrColor* color) const {
-    GrColor tempColor;
-    uint32_t colorComps;
+    GrColor tempColor = 0;
+    uint32_t colorComps = 0;
     if (this->getOpaqueAndKnownColor(&tempColor, &colorComps)) {
         if (kRGBA_GrColorComponentFlags == colorComps) {
             *color = tempColor;
@@ -52,29 +52,24 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
                                      uint32_t* solidColorKnownComponents) const {
 
     // TODO: Share this implementation with GrDrawState
+    
+    GrProcOptInfo coverageProcInfo;
+    coverageProcInfo.calcWithInitialValues(fCoverageStages.begin(), this->numCoverageStages(),
+                                           0xFFFFFFFF, kRGBA_GrColorComponentFlags, true);
 
-    GrInvariantOutput inoutCoverage(0xFFFFFFFF,
-                                    kRGBA_GrColorComponentFlags,
-                                    true);
-    int count = fCoverageStages.count();
-    for (int i = 0; i < count; ++i) {
-        fCoverageStages[i].getProcessor()->computeInvariantOutput(&inoutCoverage);
-    }
-    if (!inoutCoverage.isSolidWhite()) {
+    if (!coverageProcInfo.isSolidWhite()) {
         return false;
     }
 
-    GrInvariantOutput inout(fColor, kRGBA_GrColorComponentFlags, false);
-    count = fColorStages.count();
-    for (int i = 0; i < count; ++i) {
-        fColorStages[i].getProcessor()->computeInvariantOutput(&inout);
-    }
+    GrProcOptInfo colorProcInfo;
+    colorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), fColor,
+                                        kRGBA_GrColorComponentFlags, false);
 
     SkASSERT((NULL == solidColor) == (NULL == solidColorKnownComponents));
 
     GrBlendCoeff srcCoeff = fSrcBlendCoeff;
     GrBlendCoeff dstCoeff = fDstBlendCoeff;
-    GrSimplifyBlend(&srcCoeff, &dstCoeff, inout.color(), inout.validFlags(),
+    GrSimplifyBlend(&srcCoeff, &dstCoeff, colorProcInfo.color(), colorProcInfo.validFlags(),
                     0, 0, 0);
 
     bool opaque = kZero_GrBlendCoeff == dstCoeff && !GrBlendCoeffRefsDst(srcCoeff);
@@ -87,8 +82,8 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
                     break;
 
                 case kOne_GrBlendCoeff:
-                    *solidColor = inout.color();
-                    *solidColorKnownComponents = inout.validFlags();
+                    *solidColor = colorProcInfo.color();
+                    *solidColorKnownComponents = colorProcInfo.validFlags();
                     break;
 
                 // The src coeff should never refer to the src and if it refers to dst then opaque

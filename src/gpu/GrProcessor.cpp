@@ -130,11 +130,7 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
 }
 
 void GrProcessor::computeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->resetWillUseInputColor();
     this->onComputeInvariantOutput(inout);
-#ifdef SK_DEBUG
-    inout->validate();
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

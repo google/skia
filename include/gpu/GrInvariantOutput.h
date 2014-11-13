@@ -92,21 +92,8 @@ public:
         }
     }
 
-    bool isOpaque() const {
-        return ((fValidFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(fColor));
-    }
-
-    bool isSolidWhite() const {
-        return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
-    }
-
     GrColor color() const { return fColor; }
     uint8_t validFlags() const { return fValidFlags; }
-
-    bool willUseInputColor() const { return fWillUseInputColor; }
-    void resetWillUseInputColor() { fWillUseInputColor = true; }
-
-    void resetNonMulStageFound() { fNonMulStageFound = false; }
 
     /**
      * If isSingleComponent is true, then the flag values for r, g, b, and a must all be the
@@ -122,6 +109,16 @@ protected:
     bool fWillUseInputColor;
 
 private:
+    friend class GrProcOptInfo;
+
+    void reset(GrColor color, GrColorComponentFlags flags, bool isSingleComponent) {
+        fColor = color;
+        fValidFlags = flags;
+        fIsSingleComponent = isSingleComponent;
+        fNonMulStageFound = false;
+        fWillUseInputColor = true;
+    }
+
     void internalSetToTransparentBlack() {
         fValidFlags = kRGBA_GrColorComponentFlags;
         fColor = 0;
@@ -136,6 +133,19 @@ private:
     bool hasZeroAlpha() const {
         return ((fValidFlags & kA_GrColorComponentFlag) && 0 == GrColorUnpackA(fColor));
     }
+
+    bool isOpaque() const {
+        return ((fValidFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(fColor));
+    }
+
+    bool isSolidWhite() const {
+        return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
+    }
+
+    bool willUseInputColor() const { return fWillUseInputColor; }
+    void resetWillUseInputColor() { fWillUseInputColor = true; }
+
+    void resetNonMulStageFound() { fNonMulStageFound = false; }
 
     SkDEBUGCODE(bool colorComponentsAllEqual() const;)
     /**

@@ -14,6 +14,7 @@
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceRef.h"
 #include "GrProcessorStage.h"
+#include "GrProcOptInfo.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
 #include "SkMatrix.h"
@@ -181,6 +182,7 @@ public:
     void setColor(GrColor color) {
         if (color != fColor) {
             fColor = color;
+            fColorProcInfoValid = false;
         }
     }
 
@@ -212,6 +214,7 @@ public:
     void setCoverage(uint8_t coverage) {
         if (coverage != fCoverage) {
             fCoverage = coverage;
+            fCoverageProcInfoValid = false;
         }
     }
 
@@ -227,6 +230,7 @@ public:
         SkASSERT(geometryProcessor);
         SkASSERT(!this->hasGeometryProcessor());
         fGeometryProcessor.reset(SkRef(geometryProcessor));
+        fCoverageProcInfoValid = false;
         return geometryProcessor;
     }
 
@@ -270,12 +274,14 @@ public:
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (effect));
+        fColorProcInfoValid = false;
         return effect;
     }
 
     const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (effect));
+        fCoverageProcInfoValid = false;
         return effect;
     }
 
@@ -802,6 +808,18 @@ private:
      */
     bool srcAlphaWillBeOne() const;
 
+    /**
+     * If fColorProcInfoValid is false, function calculates the invariant output for the color
+     * stages and results are stored in fColorProcInfo.
+     */
+    void calcColorInvariantOutput() const;
+
+    /**
+     * If fCoverageProcInfoValid is false, function calculates the invariant output for the coverage
+     * stages and results are stored in fCoverageProcInfo.
+     */
+    void calcCoverageInvariantOutput() const;
+
     void onReset(const SkMatrix* initialViewMatrix);
 
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
@@ -837,6 +855,11 @@ private:
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.
     int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
+
+    mutable GrProcOptInfo fColorProcInfo;
+    mutable GrProcOptInfo fCoverageProcInfo;
+    mutable bool fColorProcInfoValid;
+    mutable bool fCoverageProcInfoValid;
 
     friend class GrOptDrawState;
 

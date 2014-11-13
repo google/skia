@@ -52,5 +52,6 @@ bool GrInvariantOutput::validPreMulColor() const {
     }
     return true;
 }
+
 #endif // end DEBUG
 

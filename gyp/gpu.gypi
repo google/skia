@@ -122,6 +122,8 @@
       '<(skia_src_path)/gpu/GrProgramDesc.h',
       '<(skia_src_path)/gpu/GrProgramElement.cpp',
       '<(skia_src_path)/gpu/GrProcessor.cpp',
+      '<(skia_src_path)/gpu/GrProcOptInfo.cpp',
+      '<(skia_src_path)/gpu/GrProcOptInfo.h',
       '<(skia_src_path)/gpu/GrGpuResourceRef.cpp',
       '<(skia_src_path)/gpu/GrPlotMgr.h',
       '<(skia_src_path)/gpu/GrRecordReplaceDraw.cpp',
