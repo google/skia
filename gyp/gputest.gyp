@@ -20,6 +20,8 @@
         ],
       },
       'sources': [
+        '<(skia_src_path)/gpu/GrContextFactory.cpp',
+        '<(skia_src_path)/gpu/GrContextFactory.h',
         '<(skia_src_path)/gpu/GrTest.cpp',
         '<(skia_src_path)/gpu/GrTest.h',
       ],

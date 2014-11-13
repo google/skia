@@ -8,7 +8,7 @@
 
 #include <GL/osmesa.h>
 
-#include "gl/SkMesaGLContext.h"
+#include "gl/mesa/SkMesaGLContext.h"
 #include "gl/GrGLDefines.h"
 
 static const GrGLint gBOGUS_SIZE = 16;

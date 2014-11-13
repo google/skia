@@ -8,7 +8,7 @@
 #ifndef SkDebugGLContext_DEFINED
 #define SkDebugGLContext_DEFINED
 
-#include "SkGLContext.h"
+#include "gl/SkGLContext.h"
 
 class SkDebugGLContext : public SkGLContext {
 public:

@@ -473,6 +473,9 @@
             'dependencies': [
               'gputest.gyp:skgputest',
             ],
+            'export_dependent_settings': [
+                'gputest.gyp:skgputest',
+            ],
           },
         ],
       ],

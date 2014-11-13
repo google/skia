@@ -10,7 +10,7 @@
 
 #if SK_ANGLE
 
-#include "SkGLContext.h"
+#include "gl/SkGLContext.h"
 
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>

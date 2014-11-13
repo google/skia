@@ -8,17 +8,9 @@
 #ifndef GrContextFactory_DEFINED
 #define GrContextFactory_DEFINED
 
-#if SK_ANGLE
-    #include "gl/SkANGLEGLContext.h"
-#endif
-#include "gl/SkDebugGLContext.h"
-#if SK_MESA
-    #include "gl/SkMesaGLContext.h"
-#endif
-#include "gl/SkGLContext.h"
-#include "gl/SkNullGLContext.h"
-
 #include "GrContext.h"
+
+#include "gl/SkGLContext.h"
 #include "SkTArray.h"
 
 /**
@@ -119,74 +111,8 @@ public:
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard) {
-        for (int i = 0; i < fContexts.count(); ++i) {
-            if (forcedGpuAPI != kNone_GrGLStandard &&
-                forcedGpuAPI != fContexts[i].fGLContext->gl()->fStandard)
-                continue;
+    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard);
 
-            if (fContexts[i].fType == type) {
-                fContexts[i].fGLContext->makeCurrent();
-                return fContexts[i].fGrContext;
-            }
-        }
-        SkAutoTUnref<SkGLContext> glCtx;
-        SkAutoTUnref<GrContext> grCtx;
-        switch (type) {
-            case kNVPR_GLContextType: // fallthru
-            case kNative_GLContextType:
-                glCtx.reset(SkCreatePlatformGLContext(forcedGpuAPI));
-                break;
-#ifdef SK_ANGLE
-            case kANGLE_GLContextType:
-                glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI));
-                break;
-#endif
-#ifdef SK_MESA
-            case kMESA_GLContextType:
-                glCtx.reset(SkMesaGLContext::Create(forcedGpuAPI));
-                break;
-#endif
-            case kNull_GLContextType:
-                glCtx.reset(SkNullGLContext::Create(forcedGpuAPI));
-                break;
-            case kDebug_GLContextType:
-                glCtx.reset(SkDebugGLContext::Create(forcedGpuAPI));
-                break;
-        }
-        if (NULL == glCtx.get()) {
-            return NULL;
-        }
-
-        SkASSERT(glCtx->isValid());
-
-        // Ensure NVPR is available for the NVPR type and block it from other types.
-        SkAutoTUnref<const GrGLInterface> glInterface(SkRef(glCtx->gl()));
-        if (kNVPR_GLContextType == type) {
-            if (!glInterface->hasExtension("GL_NV_path_rendering")) {
-                return NULL;
-            }
-        } else {
-            glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface));
-            if (!glInterface) {
-                return NULL;
-            }
-        }
-
-        glCtx->makeCurrent();
-        GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
-        grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, &fGlobalOptions));
-        if (!grCtx.get()) {
-            return NULL;
-        }
-        GPUContext& ctx = fContexts.push_back();
-        ctx.fGLContext = glCtx.get();
-        ctx.fGLContext->ref();
-        ctx.fGrContext = grCtx.get();
-        ctx.fGrContext->ref();
-        ctx.fType = type;
-        return ctx.fGrContext;
-    }
 
     // Returns the GLContext of the given type. If it has not been created yet,
     // NULL is returned instead.

@@ -8,7 +8,7 @@
 #ifndef SkMesaGLContext_DEFINED
 #define SkMesaGLContext_DEFINED
 
-#include "SkGLContext.h"
+#include "gl/SkGLContext.h"
 
 #if SK_MESA
 

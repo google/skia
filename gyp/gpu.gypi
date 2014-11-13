@@ -14,7 +14,6 @@
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
       '<(skia_include_path)/gpu/GrContext.h',
-      '<(skia_include_path)/gpu/GrContextFactory.h',
       '<(skia_include_path)/gpu/GrCoordTransform.h',
       '<(skia_include_path)/gpu/GrFontScaler.h',
       '<(skia_include_path)/gpu/GrFragmentProcessor.h',
@@ -322,15 +321,15 @@
       '<(skia_src_path)/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
 
       # Sk files
-      '<(skia_include_path)/gpu/gl/SkMesaGLContext.h',
       '<(skia_src_path)/gpu/gl/mesa/SkMesaGLContext.cpp',
+      '<(skia_src_path)/gpu/gl/mesa/SkMesaGLContext.h',
     ],
     'skgpu_angle_gl_sources': [
       '<(skia_src_path)/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
 
       # Sk files
-      '<(skia_include_path)/gpu/gl/SkANGLEGLContext.h',
       '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.cpp',
+      '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.h',
     ],
     'skgpu_debug_gl_sources': [
       '<(skia_src_path)/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
@@ -354,15 +353,15 @@
       '<(skia_src_path)/gpu/gl/debug/GrVertexArrayObj.h',
 
       # Sk files
-      '<(skia_include_path)/gpu/gl/SkDebugGLContext.h',
       '<(skia_src_path)/gpu/gl/debug/SkDebugGLContext.cpp',
+      '<(skia_src_path)/gpu/gl/debug/SkDebugGLContext.h',
     ],
     'skgpu_null_gl_sources': [
       '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',
 
       # Sk files
-      '<(skia_include_path)/gpu/gl/SkNullGLContext.h',
       '<(skia_src_path)/gpu/gl/SkNullGLContext.cpp',
+      '<(skia_src_path)/gpu/gl/SkNullGLContext.h',
     ],
   },
 }

@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "gl/SkANGLEGLContext.h"
+#include "gl/angle/SkANGLEGLContext.h"
 
 SkANGLEGLContext::SkANGLEGLContext()
     : fContext(EGL_NO_CONTEXT)
