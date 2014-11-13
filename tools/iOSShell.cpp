@@ -13,8 +13,6 @@
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkWindow.h"
-#include "dm.h"
-#include "nanobench.h"
 #include "sk_tool_utils.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -57,6 +55,9 @@ void ShellWindow::onSizeChange() {
 
 DEFINE_bool(dm, false, "run dm");
 DEFINE_bool(nanobench, false, "run nanobench");
+
+int nanobench_main();
+int dm_main();
 
 IOS_launch_type set_cmd_line_args(int argc, char *argv[], const char* resourceDir) {
     SkCommandLineFlags::Parse(argc, argv);

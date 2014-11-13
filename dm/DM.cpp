@@ -1,6 +1,7 @@
 // Main binary for DM.
 // For a high-level overview, please see dm/README.
 
+#include "CrashHandler.h"
 #include "LazyDecodeBitmap.h"
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
@@ -186,7 +187,9 @@ static void append_matching_factories(Registry* head, SkTDArray<typename Registr
     }
 }
 
+int dm_main();
 int dm_main() {
+    SetupCrashHandler();
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
@@ -241,3 +244,10 @@ int dm_main() {
     report_failures(failures);
     return failures.count() > 0;
 }
+
+#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+    return dm_main();
+}
+#endif

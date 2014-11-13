@@ -8,9 +8,6 @@
         'includes': [
           'dm.gypi',
         ],
-        'sources': [
-          '../dm/dm_main.cpp',
-        ],
         'conditions': [
           ['skia_android_framework', {
               'libraries': [ '-lskia' ],
