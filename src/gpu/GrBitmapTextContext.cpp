@@ -239,14 +239,10 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
         SkFixed fyMask = ~0;
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
-#ifndef SK_IGNORE_SUBPIXEL_AXIS_ALIGN_FIX
             halfSampleY = SK_FixedHalf;
-#endif
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
-#ifndef SK_IGNORE_SUBPIXEL_AXIS_ALIGN_FIX
             halfSampleX = SK_FixedHalf;
-#endif
         }
 
         if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {
