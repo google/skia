@@ -3435,7 +3435,11 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
     path.dump(&wStream, force, dumpAsHex);
     SkAutoDataUnref data(wStream.copyToData());
     REPORTER_ASSERT(reporter, data->size() == strlen(str));
-    REPORTER_ASSERT(reporter, !memcmp(data->data(), str, strlen(str)));
+    if (strlen(str) > 0) {
+        REPORTER_ASSERT(reporter, !memcmp(data->data(), str, strlen(str)));
+    } else {
+        REPORTER_ASSERT(reporter, data->data() == NULL || !memcmp(data->data(), str, strlen(str)));
+    }
 }
 
 static void test_dump(skiatest::Reporter* reporter) {

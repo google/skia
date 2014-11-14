@@ -193,12 +193,18 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
         SkASSERT(!genIDMatch);
         return false;
     }
+    if (0 == ref.fVerbCnt) {
+        SkASSERT(0 == ref.fPointCnt);
+        return true;
+    }
+    SkASSERT(this->verbsMemBegin() && ref.verbsMemBegin());
     if (0 != memcmp(this->verbsMemBegin(),
                     ref.verbsMemBegin(),
                     ref.fVerbCnt * sizeof(uint8_t))) {
         SkASSERT(!genIDMatch);
         return false;
     }
+    SkASSERT(this->points() && ref.points());
     if (0 != memcmp(this->points(),
                     ref.points(),
                     ref.fPointCnt * sizeof(SkPoint))) {
