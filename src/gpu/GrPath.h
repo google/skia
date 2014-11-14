@@ -9,7 +9,6 @@
 #define GrPath_DEFINED
 
 #include "GrGpuResource.h"
-#include "GrResourceCache.h"
 #include "SkPath.h"
 #include "SkRect.h"
 #include "SkStrokeRec.h"

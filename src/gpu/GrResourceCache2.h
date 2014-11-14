@@ -17,27 +17,65 @@
 #include "SkTMultiMap.h"
 
 /**
- *  Eventual replacement for GrResourceCache. Currently it simply holds a list
- *  of all GrGpuResource objects for a GrContext. It is used to invalidate all
- *  the resources when necessary.
+ * Manages the lifetime of all GrGpuResource instances.
+ *
+ * Resources may have optionally have two types of keys:
+ *      1) A scratch key. This is for resources whose allocations are cached but not their contents.
+ *         Multiple resources can share the same scratch key. This is so a caller can have two
+ *         resource instances with the same properties (e.g. multipass rendering that ping pongs
+ *         between two temporary surfaces. The scratch key is set at resource creation time and
+ *         should never change. Resources need not have a scratch key.
+ *      2) A content key. This key represents the contents of the resource rather than just its
+ *         allocation properties. They may not collide. The content key can be set after resource
+ *         creation. Currently it may only be set once and cannot be cleared. This restriction will
+ *         be removed.
+ * If a resource has neither key type then it will be deleted as soon as the last reference to it
+ * is dropped. If a key has both keys the content key takes precedence.
  */
 class GrResourceCache2 {
 public:
-    GrResourceCache2() : fCount(0) {};
+    GrResourceCache2();
     ~GrResourceCache2();
 
-    void insertResource(GrGpuResource*);
+    /** Used to access functionality needed by GrGpuResource for lifetime management. */
+    class ResourceAccess;
+    ResourceAccess resourceAccess();
 
-    void removeResource(GrGpuResource*);
+    /**
+     * Sets the cache limits in terms of number of resources and max gpu memory byte size.
+     */
+    void setLimits(int count, size_t bytes);
 
-    // This currently returns a bool and fails when an existing resource has a key that collides
-    // with the new content key. In the future it will null out the content key for the existing
-    // resource. The failure is a temporary measure taken because duties are split between two
-    // cache objects currently.
-    bool didSetContentKey(GrGpuResource*);
+    /**
+     * Returns the number of cached resources.
+     */
+    int getResourceCount() const { return fCount; }
 
+    /**
+     * Returns the number of bytes consumed by cached resources.
+     */
+    size_t getResourceBytes() const { return fBytes; }
+
+    /**
+     * Returns the cached resources count budget.
+     */
+    int getMaxResourceCount() const { return fMaxCount; }
+
+    /**
+     * Returns the number of bytes consumed by cached resources.
+     */
+    size_t getMaxResourceBytes() const { return fMaxBytes; }
+
+    /**
+     * Abandons the backend API resources owned by all GrGpuResource objects and removes them from
+     * the cache.
+     */
     void abandonAll();
 
+    /**
+     * Releases the backend API resources owned by all GrGpuResource objects and removes them from
+     * the cache.
+     */
     void releaseAll();
 
     enum {
@@ -46,6 +84,10 @@ public:
         /** Will not return any resources that match but have pending IO. */
         kRequireNoPendingIO_ScratchFlag = 0x2,
     };
+
+    /**
+     * Find a resource that matches a scratch key.
+     */
     GrGpuResource* findAndRefScratchResource(const GrResourceKey& scratchKey, uint32_t flags = 0);
     
 #ifdef SK_DEBUG
@@ -56,20 +98,79 @@ public:
     }
 #endif
 
+    /**
+     * Find a resource that matches a content key.
+     */
     GrGpuResource* findAndRefContentResource(const GrResourceKey& contentKey) {
         SkASSERT(!contentKey.isScratch());
-        return SkSafeRef(fContentHash.find(contentKey));
+        GrGpuResource* resource = fContentHash.find(contentKey);
+        if (resource) {
+            resource->ref();
+            this->makeResourceMRU(resource);
+        }
+        return resource;
     }
 
+    /**
+     * Query whether a content key exists in the cache.
+     */
     bool hasContentKey(const GrResourceKey& contentKey) const {
         SkASSERT(!contentKey.isScratch());
         return SkToBool(fContentHash.find(contentKey));
     }
 
+    /** Purges all resources that don't have external owners. */
+    void purgeAllUnlocked();
+
+    /**
+     * The callback function used by the cache when it is still over budget after a purge. The
+     * passed in 'data' is the same 'data' handed to setOverbudgetCallback.
+     */
+    typedef void (*PFOverBudgetCB)(void* data);
+
+    /**
+     * Set the callback the cache should use when it is still over budget after a purge. The 'data'
+     * provided here will be passed back to the callback. Note that the cache will attempt to purge
+     * any resources newly freed by the callback.
+     */
+    void setOverBudgetCallback(PFOverBudgetCB overBudgetCB, void* data) {
+        fOverBudgetCB = overBudgetCB;
+        fOverBudgetData = data;
+    }
+
+#if GR_GPU_STATS
+    void printStats() const;
+#endif
+
 private:
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Methods accessible via ResourceAccess
+    ////
+    void insertResource(GrGpuResource*);
+    void removeResource(GrGpuResource*);
+    void notifyPurgable(const GrGpuResource*);
+    void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
+    bool didSetContentKey(GrGpuResource*);
+    void makeResourceMRU(GrGpuResource*);
+    /// @}
+
+    void purgeAsNeeded() {
+        if (fPurging || (fCount <= fMaxCount && fBytes < fMaxBytes)) {
+            return;
+        }
+        this->internalPurgeAsNeeded();
+    }
+
+    void internalPurgeAsNeeded();
+
 #ifdef SK_DEBUG
     bool isInCache(const GrGpuResource* r) const { return fResources.isInList(r); }
+    void validate() const;
+#else
+    void validate() const {}
 #endif
+
+    class AutoValidate;
 
     class AvailableForScratchUse;
 
@@ -91,12 +192,86 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrResourceKey, ContentHashTraits> ContentHash;
 
-    int                                 fCount;
-    SkTInternalLList<GrGpuResource>     fResources;
+    typedef SkTInternalLList<GrGpuResource> ResourceList;
+
+    ResourceList                        fResources;
     // This map holds all resources that can be used as scratch resources.
     ScratchMap                          fScratchMap;
     // This holds all resources that have content keys.
     ContentHash                         fContentHash;
+
+    // our budget, used in purgeAsNeeded()
+    int                                 fMaxCount;
+    size_t                              fMaxBytes;
+
+#if GR_CACHE_STATS
+    int                                 fHighWaterCount;
+    size_t                              fHighWaterBytes;
+#endif
+
+    // our current stats, related to our budget
+    int                                 fCount;
+    size_t                              fBytes;
+
+    // prevents recursive purging
+    bool                                fPurging;
+    bool                                fNewlyPurgableResourceWhilePurging;
+
+    PFOverBudgetCB                      fOverBudgetCB;
+    void*                               fOverBudgetData;
+
 };
+
+class GrResourceCache2::ResourceAccess {
+private:
+    ResourceAccess(GrResourceCache2* cache) : fCache(cache) { }
+    ResourceAccess(const ResourceAccess& that) : fCache(that.fCache) { }
+    ResourceAccess& operator=(const ResourceAccess&); // unimpl
+
+    /**
+     * Insert a resource into the cache.
+     */
+    void insertResource(GrGpuResource* resource) { fCache->insertResource(resource); }
+
+    /**
+     * Removes a resource from the cache.
+     */
+    void removeResource(GrGpuResource* resource) { fCache->removeResource(resource); }
+
+    /**
+     * Called by GrGpuResources when they detects that they are newly purgable.
+     */
+    void notifyPurgable(const GrGpuResource* resource) { fCache->notifyPurgable(resource); }
+
+    /**
+     * Called by GrGpuResources when their sizes change.
+     */
+    void didChangeGpuMemorySize(const GrGpuResource* resource, size_t oldSize) {
+        fCache->didChangeGpuMemorySize(resource, oldSize);
+    }
+
+    /**
+     * Called by GrGpuResources when their content keys change.
+     *
+     * This currently returns a bool and fails when an existing resource has a key that collides
+     * with the new content key. In the future it will null out the content key for the existing
+     * resource. The failure is a temporary measure taken because duties are split between two
+     * cache objects currently.
+     */
+    bool didSetContentKey(GrGpuResource* resource) { return fCache->didSetContentKey(resource); }
+
+    // No taking addresses of this type.
+    const ResourceAccess* operator&() const;
+    ResourceAccess* operator&();
+
+    GrResourceCache2* fCache;
+
+    friend class GrGpuResource; // To access all the proxy inline methods.
+    friend class GrResourceCache2; // To create this type.
+};
+
+inline GrResourceCache2::ResourceAccess GrResourceCache2::resourceAccess() {
+    return ResourceAccess(this);
+}
 
 #endif

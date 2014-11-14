@@ -9,7 +9,7 @@
 #include "GrTest.h"
 
 #include "GrInOrderDrawBuffer.h"
-#include "GrResourceCache.h"
+#include "GrResourceCache2.h"
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
     SkASSERT(!fContext);
@@ -38,7 +38,7 @@ void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
 }
 
 void GrContext::purgeAllUnlockedResources() {
-    fResourceCache->purgeAllUnlocked();
+    fResourceCache2->purgeAllUnlocked();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,6 @@ class GrOvalRenderer;
 class GrPath;
 class GrPathRenderer;
 class GrResourceEntry;
-class GrResourceCache;
 class GrResourceCache2;
 class GrStencilBuffer;
 class GrTestTarget;
@@ -883,7 +882,6 @@ public:
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
     GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
-    GrResourceCache* getResourceCache() { return fResourceCache; }
     GrResourceCache2* getResourceCache2() { return fResourceCache2; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
@@ -948,7 +946,6 @@ private:
     const GrClipData*               fClip;  // TODO: make this ref counted
     GrDrawState*                    fDrawState;
 
-    GrResourceCache*                fResourceCache;
     GrResourceCache2*               fResourceCache2;
     GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
@@ -962,7 +959,6 @@ private:
 
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
     bool                            fFlushToReduceCacheSize;
-
     GrAARectRenderer*               fAARectRenderer;
     GrOvalRenderer*                 fOvalRenderer;
 
@@ -1003,8 +999,6 @@ private:
                                     size_t rowBytes,
                                     bool filter);
 
-    GrTexture* createNewScratchTexture(const GrSurfaceDesc& desc);
-
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
@@ -1015,9 +1009,9 @@ private:
 
     /**
      *  This callback allows the resource cache to callback into the GrContext
-     *  when the cache is still overbudget after a purge.
+     *  when the cache is still over budget after a purge.
      */
-    static bool OverbudgetCB(void* data);
+    static void OverBudgetCB(void* data);
 
     typedef SkRefCnt INHERITED;
 };

@@ -29,25 +29,6 @@ public:
     }
 
     /**
-     * Used by legacy cache to attach a cache entry. This is to be removed soon.
-     */
-    void setCacheEntry(GrResourceCacheEntry* cacheEntry) {
-        // GrResourceCache never changes the cacheEntry once one has been added.
-        SkASSERT(NULL == cacheEntry || NULL == fResource->fCacheEntry);
-        fResource->fCacheEntry = cacheEntry;
-    }
-
-    /**
-     * Is the resource in the legacy cache? This is to be removed soon.
-     */
-    bool isInCache() const { return SkToBool(fResource->fCacheEntry); }
-
-    /**
-     * Returns the cache entry for the legacy cache. This is to be removed soon.
-     */
-    GrResourceCacheEntry* getCacheEntry() const { return fResource->fCacheEntry; }
-
-    /**
      * Is the resource currently cached as scratch? This means it has a valid scratch key and does
      * not have a content key.
      */
