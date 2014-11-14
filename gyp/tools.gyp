@@ -666,7 +666,6 @@
           '<(skia_include_path)/views/SkOSWindow_Unix.h',
           '<(skia_include_path)/views/SkOSWindow_Win.h',
           '<(skia_include_path)/views/SkWindow.h',
-          '<(skia_include_path)/xml/SkJS.h',
         ],
       },
       'include_dirs': [

@@ -32,7 +32,6 @@
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
         'views.gyp:views',
-        'xml.gyp:xml',
       ],
       'conditions' : [
         [ 'skia_gpu == 1', {

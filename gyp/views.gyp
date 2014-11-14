@@ -13,7 +13,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'xml.gyp:*',
+        'xml.gyp:xml',
       ],
       'include_dirs': [
         '../include/views',
@@ -134,6 +134,9 @@
           '../include/views',
         ],
       },
+      'export_dependent_settings': [
+        'xml.gyp:xml',
+      ],
     },
   ],
 }

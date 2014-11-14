@@ -39,7 +39,6 @@
             'include_dirs' : [
               '../experimental/iOSSampleApp/Shared',
               '../include/views',
-              '../include/xml',
               '../include/utils/mac',
               '../src/views/mac',
             ],
@@ -55,7 +54,6 @@
         ],
         'dependencies': [
           'views.gyp:views',
-          'xml.gyp:xml',
         ],
         'link_settings': {
           'libraries': [
