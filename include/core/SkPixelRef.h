@@ -247,7 +247,7 @@ public:
      *          not be created with the given config), or this PixelRef does not support deep
      *          copies.
      */
-    virtual SkPixelRef* deepCopy(SkColorType colortype, const SkIRect* subset) {
+    virtual SkPixelRef* deepCopy(SkColorType, const SkIRect* /*subset*/) {
         return NULL;
     }
 

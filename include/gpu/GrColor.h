@@ -66,7 +66,7 @@ static inline GrColor GrColorPackRGBA(unsigned r, unsigned g,
 /**
  * Assert in debug builds that a GrColor is premultiplied.
  */
-static inline void GrColorIsPMAssert(GrColor c) {
+static inline void GrColorIsPMAssert(GrColor SkDEBUGCODE(c)) {
 #ifdef SK_DEBUG
     unsigned a = GrColorUnpackA(c);
     unsigned r = GrColorUnpackR(c);

@@ -84,8 +84,8 @@ public:
     }
 
     // deprecated, but still here for animator (for now)
-    void rotate(SkScalar x, SkScalar y, SkScalar z) {}
-    void rotateDegrees(SkScalar x, SkScalar y, SkScalar z) {}
+    void rotate(SkScalar /*x*/, SkScalar /*y*/, SkScalar /*z*/) {}
+    void rotateDegrees(SkScalar /*x*/, SkScalar /*y*/, SkScalar /*z*/) {}
 
 private:
 public: // make public for SkDraw3D for now

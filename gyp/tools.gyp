@@ -628,7 +628,9 @@
     {
       'target_name': 'test_public_includes',
       'type': 'static_library',
-      #'cflags!': [ '-Wno-unused-parameter' ],
+      # Ensure that our public headers don't have unused params so that clients
+      # (e.g. Android) that include us can build with these warnings enabled
+      'cflags!': [ '-Wno-unused-parameter' ],
       'variables': {
         'includes_to_test': [
           '<(skia_include_path)/animator',

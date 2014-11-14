@@ -105,8 +105,8 @@ public:
     // New APIS, which have default impls for now (which do nothing)
 
     virtual SkDataTable* getFamilyNames() { return SkDataTable::NewEmpty(); }
-    virtual bool matchFamilySet(const char inFamilyName[],
-                                SkString* outFamilyName,
+    virtual bool matchFamilySet(const char[] /*inFamilyName*/,
+                                SkString* /*outFamilyName*/,
                                 SkTArray<FontIdentity>*) {
         return false;
     }

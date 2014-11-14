@@ -222,8 +222,7 @@ public:
          *  @param newAllocatedStorage same value as would be returned by
          *      storageAllocatedForRecording(), for convenience.
          */
-        virtual void storageAllocatedForRecordingChanged(
-            size_t newAllocatedStorage) {}
+        virtual void storageAllocatedForRecordingChanged(size_t /*newAllocatedStorage*/) {}
 
         /**
          *  Called after pending draw commands have been flushed

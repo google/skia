@@ -337,12 +337,12 @@ protected:
     //! called once before all of the children are drawn (or clipped/translated)
     virtual SkCanvas* beforeChildren(SkCanvas* c) { return c; }
     //! called once after all of the children are drawn (or clipped/translated)
-    virtual void afterChildren(SkCanvas* orig) {}
+    virtual void afterChildren(SkCanvas*) {}
 
     //! called right before this child's onDraw is called
-    virtual void beforeChild(SkView* child, SkCanvas* canvas) {}
+    virtual void beforeChild(SkView* /*child*/, SkCanvas*) {}
     //! called right after this child's onDraw is called
-    virtual void afterChild(SkView* child, SkCanvas* canvas) {}
+    virtual void afterChild(SkView* /*child*/, SkCanvas*) {}
 
     /** Override this if you might handle the click
     */

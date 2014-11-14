@@ -464,7 +464,7 @@ private:
 
 // Use the below macro (SkNEW_APPEND_TO_TARRAY) rather than calling this directly
 template <typename T, bool MEM_COPY>
-void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int atIndex) {
+void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int SkDEBUGCODE(atIndex)) {
     // Currently, we only support adding to the end of the array. When the array class itself
     // supports random insertion then this should be updated.
     // SkASSERT(atIndex >= 0 && atIndex <= array->count());
@@ -476,7 +476,7 @@ void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int atIndex) {
 // to match the op new silences warnings about missing op delete when a constructor throws an
 // exception.
 template <typename T, bool MEM_COPY>
-void operator delete(void*, SkTArray<T, MEM_COPY>* array, int atIndex) {
+void operator delete(void*, SkTArray<T, MEM_COPY>* /*array*/, int /*atIndex*/) {
     SK_CRASH();
 }
 

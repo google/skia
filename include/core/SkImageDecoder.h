@@ -348,13 +348,13 @@ protected:
 
     // If the decoder wants to support tiled based decoding,
     // this method must be overridden. This guy is called by buildTileIndex(...)
-    virtual bool onBuildTileIndex(SkStreamRewindable*, int *width, int *height) {
+    virtual bool onBuildTileIndex(SkStreamRewindable*, int* /*width*/, int* /*height*/) {
         return false;
     }
 
     // If the decoder wants to support tiled based decoding,
     // this method must be overridden. This guy is called by decodeRegion(...)
-    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) {
+    virtual bool onDecodeSubset(SkBitmap*, const SkIRect&) {
         return false;
     }
 
@@ -364,8 +364,9 @@ protected:
         updates componentSizes to the final image size.
         Returns whether the decoding was successful.
     */
-    virtual bool onDecodeYUV8Planes(SkStream* stream, SkISize componentSizes[3], void* planes[3],
-                                    size_t rowBytes[3], SkYUVColorSpace*) {
+    virtual bool onDecodeYUV8Planes(SkStream*, SkISize[3] /*componentSizes*/,
+                                    void*[3] /*planes*/, size_t[3] /*rowBytes*/,
+                                    SkYUVColorSpace*) {
         return false;
     }
 

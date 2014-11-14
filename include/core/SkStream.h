@@ -102,13 +102,13 @@ public:
      *  If an attempt is made to seek past the end of the stream, the position will be set
      *  to the end of the stream.
      */
-    virtual bool seek(size_t position) { return false; }
+    virtual bool seek(size_t /*position*/) { return false; }
 
     /** Seeks to an relative offset in the stream. If this cannot be done, returns false.
      *  If an attempt is made to move to a position outside the stream, the position will be set
      *  to the closest point within the stream (beginning or end).
      */
-    virtual bool move(long offset) { return false; }
+    virtual bool move(long /*offset*/) { return false; }
 
     /** Duplicates this stream. If this cannot be done, returns NULL.
      *  The returned stream will be positioned the same as this stream.
