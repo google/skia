@@ -119,15 +119,16 @@ public:
                                                      2.3f))->unref();
 
         SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100, 100);
-        SkRect inner = SkRect::MakeXYWH(20, 20, 80, 80);
+        SkRect inner = SkRect::MakeXYWH(20.125f, 20.125f, 80, 80);
         SkPath path;
         path.addRect(outer, SkPath::kCW_Direction);
         path.addRect(inner, SkPath::kCCW_Direction);
 
         canvas->drawPath(path, paint);
-        // important to translate by a factional amount (.25) to exercise a different "phase"
+        // important to translate by a factional amount to exercise a different "phase"
         // of the same path w.r.t. the pixel grid
-        canvas->translate(SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.25f, 0);
+        SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.125f;
+        canvas->translate(dx, 0);
         canvas->drawPath(path, paint);
     }
 };
