@@ -10,6 +10,8 @@
 
 #include <emmintrin.h>
 
+#define ASSERT_EQ(a,b) SkASSERT(0xffff == _mm_movemask_epi8(_mm_cmpeq_epi8((a), (b))))
+
 // Because no _mm_mul_epi32() in SSE2, we emulate it here.
 // Multiplies 4 32-bit integers from a by 4 32-bit intergers from b.
 // The 4 multiplication results should be represented within 32-bit
@@ -52,11 +54,11 @@ static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const __m128i& scale) {
 
     // uint32_t ag = ((c >> 8) & mask) * scale
     __m128i ag = _mm_srli_epi16(c, 8);
-    ag = _mm_and_si128(ag, mask);
+    ASSERT_EQ(ag, _mm_and_si128(mask, ag));  // ag = _mm_srli_epi16(c, 8) did this for us.
     ag = _mm_mullo_epi16(ag, s);
 
     // (rb & mask) | (ag & ~mask)
-    rb = _mm_and_si128(mask, rb);
+    ASSERT_EQ(rb, _mm_and_si128(mask, rb));  // rb = _mm_srli_epi16(rb, 8) did this for us.
     ag = _mm_andnot_si128(mask, ag);
     return _mm_or_si128(rb, ag);
 }
@@ -183,4 +185,5 @@ static inline __m128i SkPixel32ToPixel16_ToU16_SSE2(const __m128i& src_pixel1,
     return d_pixel;
 }
 
+#undef ASSERT_EQ
 #endif // SkColor_opts_SSE2_DEFINED
