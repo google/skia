@@ -25,7 +25,6 @@
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
-#include "GrResourceCache.h"
 #include "GrResourceCache2.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
@@ -51,9 +50,6 @@
 #else
     #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
 #endif
-
-static const size_t MAX_RESOURCE_CACHE_COUNT = GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT;
-static const size_t MAX_RESOURCE_CACHE_BYTES = GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT * 1024 * 1024;
 
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
@@ -103,7 +99,6 @@ GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fClip = NULL;
     fPathRendererChain = NULL;
     fSoftwarePathRenderer = NULL;
-    fResourceCache = NULL;
     fResourceCache2 = NULL;
     fFontCache = NULL;
     fDrawBuffer = NULL;
@@ -130,11 +125,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 void GrContext::initCommon() {
     fDrawState = SkNEW(GrDrawState);
 
-    fResourceCache = SkNEW_ARGS(GrResourceCache, (fGpu->caps(),
-                                                  MAX_RESOURCE_CACHE_COUNT,
-                                                  MAX_RESOURCE_CACHE_BYTES));
-    fResourceCache->setOverbudgetCallback(OverbudgetCB, this);
     fResourceCache2 = SkNEW(GrResourceCache2);
+    fResourceCache2->setOverBudgetCallback(OverBudgetCB, this);
 
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
@@ -160,9 +152,6 @@ GrContext::~GrContext() {
     }
 
     SkDELETE(fResourceCache2);
-    fResourceCache2 = NULL;
-    SkDELETE(fResourceCache);
-    fResourceCache = NULL;
     SkDELETE(fFontCache);
     SkDELETE(fDrawBuffer);
     SkDELETE(fDrawBufferVBAllocPool);
@@ -201,8 +190,6 @@ void GrContext::abandonContext() {
     fAARectRenderer->reset();
     fOvalRenderer->reset();
 
-    fResourceCache->purgeAllUnlocked();
-
     fFontCache->freeAll();
     fLayerCache->freeAll();
 }
@@ -221,7 +208,6 @@ void GrContext::freeGpuResources() {
     fAARectRenderer->reset();
     fOvalRenderer->reset();
 
-    fResourceCache->purgeAllUnlocked();
     fFontCache->freeAll();
     fLayerCache->freeAll();
     // a path renderer may be holding onto resources
@@ -230,12 +216,12 @@ void GrContext::freeGpuResources() {
 }
 
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
-  if (resourceCount) {
-    *resourceCount = fResourceCache->getCachedResourceCount();
-  }
-  if (resourceBytes) {
-    *resourceBytes = fResourceCache->getCachedResourceBytes();
-  }
+    if (resourceCount) {
+        *resourceCount = fResourceCache2->getResourceCount();
+    }
+    if (resourceBytes) {
+        *resourceBytes = fResourceCache2->getResourceBytes();
+    }
 }
 
 GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
@@ -273,12 +259,13 @@ bool GrContext::isTextureInCache(const GrSurfaceDesc& desc,
 }
 
 void GrContext::addStencilBuffer(GrStencilBuffer* sb) {
+    // TODO: Make GrStencilBuffers use the scratch mechanism rather than content keys.
     ASSERT_OWNED_RESOURCE(sb);
 
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(sb->width(),
                                                             sb->height(),
                                                             sb->numSamples());
-    fResourceCache->addResource(resourceKey, sb);
+    SkAssertResult(sb->cacheAccess().setContentKey(resourceKey));
 }
 
 GrStencilBuffer* GrContext::findAndRefStencilBuffer(int width, int height, int sampleCnt) {
@@ -420,22 +407,16 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     }
 
     if (texture) {
-        fResourceCache->addResource(resourceKey, texture);
-
-        if (cacheKey) {
-            *cacheKey = resourceKey;
+        if (texture->cacheAccess().setContentKey(resourceKey)) {
+            if (cacheKey) {
+                *cacheKey = resourceKey;
+            }
+        } else {
+            texture->unref();
+            texture = NULL;
         }
     }
 
-    return texture;
-}
-
-GrTexture* GrContext::createNewScratchTexture(const GrSurfaceDesc& desc) {
-    GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
-    if (!texture) {
-        return NULL;
-    }
-    fResourceCache->addResource(texture->cacheAccess().getScratchKey(), texture);
     return texture;
 }
 
@@ -473,7 +454,6 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
             }
             GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key, scratchFlags);
             if (resource) {
-                fResourceCache->makeResourceMRU(resource);
                 return static_cast<GrSurface*>(resource)->asTexture();
             }
 
@@ -496,21 +476,19 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
         desc.writable()->fFlags = origFlags;
     }
 
-    GrTexture* texture = this->createNewScratchTexture(*desc);
+    GrTexture* texture = fGpu->createTexture(*desc, NULL, 0);
     SkASSERT(NULL == texture || 
              texture->cacheAccess().getScratchKey() == GrTexturePriv::ComputeScratchKey(*desc));
     return texture;
 }
 
-bool GrContext::OverbudgetCB(void* data) {
+void GrContext::OverBudgetCB(void* data) {
     SkASSERT(data);
 
     GrContext* context = reinterpret_cast<GrContext*>(data);
 
     // Flush the InOrderDrawBuffer to possibly free up some textures
     context->fFlushToReduceCacheSize = true;
-
-    return true;
 }
 
 
@@ -522,11 +500,16 @@ GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& descIn,
 }
 
 void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
-    fResourceCache->getLimits(maxTextures, maxTextureBytes);
+    if (maxTextures) {
+        *maxTextures = fResourceCache2->getMaxResourceCount();
+    }
+    if (maxTextureBytes) {
+        *maxTextureBytes = fResourceCache2->getMaxResourceBytes();
+    }
 }
 
 void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
-    fResourceCache->setLimits(maxTextures, maxTextureBytes);
+    fResourceCache2->setLimits(maxTextures, maxTextureBytes);
 }
 
 int GrContext::getMaxTextureSize() const {
@@ -1242,7 +1225,6 @@ void GrContext::flush(int flagsBitfield) {
     } else {
         fDrawBuffer->flush();
     }
-    fResourceCache->purgeAsNeeded();
     fFlushToReduceCacheSize = false;
 }
 
@@ -1746,15 +1728,11 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
 }
 
 void GrContext::addResourceToCache(const GrResourceKey& resourceKey, GrGpuResource* resource) {
-    fResourceCache->addResource(resourceKey, resource);
+    resource->cacheAccess().setContentKey(resourceKey);
 }
 
 GrGpuResource* GrContext::findAndRefCachedResource(const GrResourceKey& resourceKey) {
-    GrGpuResource* resource = fResourceCache2->findAndRefContentResource(resourceKey);
-    if (resource) {
-        fResourceCache->makeResourceMRU(resource);
-    }
-    return resource;
+    return fResourceCache2->findAndRefContentResource(resourceKey);
 }
 
 void GrContext::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
@@ -1774,7 +1752,7 @@ void GrContext::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 ///////////////////////////////////////////////////////////////////////////////
 #if GR_CACHE_STATS
 void GrContext::printCacheStats() const {
-    fResourceCache->printStats();
+    fResourceCache2->printStats();
 }
 #endif
 

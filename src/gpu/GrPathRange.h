@@ -9,7 +9,6 @@
 #define GrPathRange_DEFINED
 
 #include "GrGpuResource.h"
-#include "GrResourceCache.h"
 #include "SkRefCnt.h"
 #include "SkStrokeRec.h"
 #include "SkTArray.h"

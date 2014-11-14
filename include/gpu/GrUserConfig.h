@@ -19,16 +19,4 @@
  */
 //#define GR_GEOM_BUFFER_MAP_THRESHOLD (1<<15)
 
-/**
- * This gives a threshold in megabytes for the maximum size of the texture cache
- * in vram. The value is only a default and can be overridden at runtime.
- */
-//#define GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT 96
-
-/**
- * This specifies the maximum number of textures the texture cache can hold
- * in vram. The value is only a default and can be overridden at runtime.
- */
-//#define GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT 2048
-
 #endif
