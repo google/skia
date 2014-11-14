@@ -121,7 +121,7 @@ path.close();
 }
 
 static void fuzz763_378(skiatest::Reporter* reporter, const char* filename) {
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 	if (!FLAGS_runFail) {
 		return;  // fails on nexus 9 in release, possibly related to fused multiply-add
 	}
@@ -219,7 +219,7 @@ path.close();
 }
 
 static void fuzz763_378b(skiatest::Reporter* reporter, const char* filename) {
-#if SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID
 	if (!FLAGS_runFail) {
 		return;  // fails on nexus 9 in release, possibly related to fused multiply-add
 	}
