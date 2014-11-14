@@ -1428,6 +1428,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         return false;
     }
 
+    SkAutoTUnref<GrTexture> tempTexture;
+
     // If the src is a texture and we would have to do conversions after read pixels, we instead
     // do the conversions by drawing the src to a scratch texture. If we handle any of the
     // conversions in the draw we set the corresponding bool to false so that we don't reapply it
@@ -1454,8 +1456,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             fGpu->fullReadPixelsIsFasterThanPartial()) {
             match = kExact_ScratchTexMatch;
         }
-        SkAutoTUnref<GrTexture> texture(this->refScratchTexture(desc, match));
-        if (texture) {
+        tempTexture.reset(this->refScratchTexture(desc, match));
+        if (tempTexture) {
             // compute a matrix to perform the draw
             SkMatrix textureMatrix;
             textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
@@ -1488,13 +1490,13 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                     SkASSERT(fp);
                     drawState->addColorProcessor(fp);
 
-                    drawState->setRenderTarget(texture->asRenderTarget());
+                    drawState->setRenderTarget(tempTexture->asRenderTarget());
                     SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                     fDrawBuffer->drawSimpleRect(rect);
                     // we want to read back from the scratch's origin
                     left = 0;
                     top = 0;
-                    target = texture->asRenderTarget();
+                    target = tempTexture->asRenderTarget();
                 }
                 this->flushSurfaceWrites(target);
             }
