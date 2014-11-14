@@ -2153,6 +2153,12 @@ protected:
         return NULL;
     }
 
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                    const char* bcp47[], int bcp47Count,
+                                                    SkUnichar character) const SK_OVERRIDE {
+        return NULL;
+    }
+
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle&) const SK_OVERRIDE {
         return NULL;

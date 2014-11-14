@@ -270,6 +270,9 @@ protected:
     virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontstyle) const SK_OVERRIDE;
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                    const char* bcp47[], int bcp47Count,
+                                                    SkUnichar character) const SK_OVERRIDE;
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontstyle) const SK_OVERRIDE;
     virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
@@ -481,6 +484,13 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyle(const char familyName[],
                                                       const SkFontStyle& fontstyle) const {
     SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
     return sset->matchStyle(fontstyle);
+}
+
+SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char familyName[],
+                                                               const SkFontStyle&,
+                                                               const char* bcp47[], int bcp47Count,
+                                                               SkUnichar character) const {
+    return NULL;
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onMatchFaceStyle(const SkTypeface* familyMember,

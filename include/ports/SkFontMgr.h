@@ -121,11 +121,9 @@ protected:
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) const = 0;
-    // TODO: pure virtual, implement on all impls.
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                     const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const
-    { return NULL; }
+                                                    SkUnichar character) const = 0;
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;
 

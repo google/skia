@@ -2494,6 +2494,12 @@ protected:
         return sset->matchStyle(fontstyle);
     }
 
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                    const char* bcp47[], int bcp47Count,
+                                                    SkUnichar character) const SK_OVERRIDE {
+        return NULL;
+    }
+
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontstyle) const SK_OVERRIDE {
         // could be in base impl
