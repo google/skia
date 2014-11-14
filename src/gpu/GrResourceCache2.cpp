@@ -95,9 +95,11 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
     fResources.addToHead(resource);
 
     ++fCount;
-    SkDEBUGCODE(fHighWaterCount = SkTMax(fCount, fHighWaterCount));
     fBytes += resource->gpuMemorySize();
-    SkDEBUGCODE(fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes));
+#if GR_CACHE_STATS
+    fHighWaterCount = SkTMax(fCount, fHighWaterCount);
+    fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
+#endif
     if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
         // TODO(bsalomon): Make this assertion possible.
         // SkASSERT(!resource->isWrapped());
@@ -256,7 +258,9 @@ void GrResourceCache2::didChangeGpuMemorySize(const GrGpuResource* resource, siz
     SkASSERT(this->isInCache(resource));
 
     fBytes += resource->gpuMemorySize() - oldSize;
-    SkDEBUGCODE(fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes));
+#if GR_CACHE_STATS
+    fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
+#endif
 
     this->purgeAsNeeded();
     this->validate();
