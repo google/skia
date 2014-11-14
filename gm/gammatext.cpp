@@ -95,7 +95,8 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new GammaTextGM; )
+// TEMP disable to see if nothing else flakes <reed>
+//DEF_GM( return new GammaTextGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
