@@ -16,6 +16,7 @@
 class GrContext;
 class GrGpu;
 class GrResourceCache2;
+class GrResourceCacheEntry;
 
 /**
  * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base
@@ -125,7 +126,7 @@ private:
 };
 
 /**
- * Base class for objects that can be kept in the GrResourceCache2.
+ * Base class for objects that can be kept in the GrResourceCache.
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
@@ -256,6 +257,7 @@ private:
 
     uint32_t                fFlags;
 
+    GrResourceCacheEntry*   fCacheEntry;  // NULL if not in cache
     mutable size_t          fGpuMemorySize;
     const uint32_t          fUniqueID;
 

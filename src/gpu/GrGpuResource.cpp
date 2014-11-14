@@ -18,8 +18,16 @@ static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
     return gpu->getContext()->getResourceCache2();
 }
 
+static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
+    SkASSERT(gpu);
+    SkASSERT(gpu->getContext());
+    SkASSERT(gpu->getContext()->getResourceCache());
+    return gpu->getContext()->getResourceCache();
+}
+
 GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
     : fGpu(gpu)
+    , fCacheEntry(NULL)
     , fGpuMemorySize(kInvalidGpuMemorySize)
     , fUniqueID(CreateUniqueID())
     , fScratchKey(GrResourceKey::NullScratchKey())
@@ -32,7 +40,7 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
 }
 
 void GrGpuResource::registerWithCache() {
-    get_resource_cache2(fGpu)->resourceAccess().insertResource(this);
+    get_resource_cache2(fGpu)->insertResource(this);
 }
 
 GrGpuResource::~GrGpuResource() {
@@ -43,18 +51,16 @@ GrGpuResource::~GrGpuResource() {
 void GrGpuResource::release() { 
     if (fGpu) {
         this->onRelease();
-        get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
+        get_resource_cache2(fGpu)->removeResource(this);
         fGpu = NULL;
-        fGpuMemorySize = 0;
     }
 }
 
 void GrGpuResource::abandon() {
     if (fGpu) {
         this->onAbandon();
-        get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
+        get_resource_cache2(fGpu)->removeResource(this);
         fGpu = NULL;
-        fGpuMemorySize = 0;
     }
 }
 
@@ -74,17 +80,6 @@ GrContext* GrGpuResource::getContext() {
     }
 }
 
-void GrGpuResource::didChangeGpuMemorySize() const {
-    if (this->wasDestroyed()) {
-        return;
-    }
-
-    size_t oldSize = fGpuMemorySize;
-    SkASSERT(kInvalidGpuMemorySize != oldSize);
-    fGpuMemorySize = kInvalidGpuMemorySize;
-    get_resource_cache2(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
-}
-
 bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
     // Currently this can only be called once and can't be called when the resource is scratch.
     SkASSERT(!contentKey.isScratch());
@@ -97,7 +92,7 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
     fContentKey = contentKey;
     fContentKeySet = true;
 
-    if (!get_resource_cache2(fGpu)->resourceAccess().didSetContentKey(this)) {
+    if (!get_resource_cache2(fGpu)->didSetContentKey(this)) {
         fContentKeySet = false;
         return false;
     }
@@ -105,8 +100,8 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
 }
 
 void GrGpuResource::notifyIsPurgable() const {
-    if (!this->wasDestroyed()) {
-        get_resource_cache2(fGpu)->resourceAccess().notifyPurgable(this);
+    if (fCacheEntry && !this->wasDestroyed()) {
+        get_resource_cache(fGpu)->notifyPurgable(this);
     }
 }
 

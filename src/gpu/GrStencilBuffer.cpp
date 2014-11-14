@@ -13,6 +13,8 @@
 #include "GrResourceCache2.h"
 
 void GrStencilBuffer::transferToCache() {
+    SkASSERT(!this->cacheAccess().isInCache());
+
     this->getGpu()->getContext()->addStencilBuffer(this);
 }
 
