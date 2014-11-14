@@ -28,7 +28,6 @@ public:
                                const SkStrokeRec&);
 
     GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke);
-    virtual ~GrGLPath();
     GrGLuint pathID() const { return fPathID; }
 
 protected:

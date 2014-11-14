@@ -33,8 +33,6 @@ public:
 
     GrGLTexture(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&);
 
-    virtual ~GrGLTexture() { this->release(); }
-
     virtual GrBackendObject getTextureHandle() const SK_OVERRIDE;
 
     virtual void textureParamsModified() SK_OVERRIDE { fTexParams.invalidate(); }

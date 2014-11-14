@@ -93,7 +93,6 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
     SkASSERT(!this->isInCache(resource));
     SkASSERT(!fPurging);
     fResources.addToHead(resource);
-    resource->ref();
 
     ++fCount;
     SkDEBUGCODE(fHighWaterCount = SkTMax(fCount, fHighWaterCount));
@@ -129,8 +128,7 @@ void GrResourceCache2::abandonAll() {
     SkASSERT(!fPurging);
     while (GrGpuResource* head = fResources.head()) {
         SkASSERT(!head->wasDestroyed());
-        head->abandon();
-        head->unref();
+        head->cacheAccess().abandon();
         // abandon should have already removed this from the list.
         SkASSERT(head != fResources.head());
     }
@@ -145,8 +143,7 @@ void GrResourceCache2::releaseAll() {
     SkASSERT(!fPurging);
     while (GrGpuResource* head = fResources.head()) {
         SkASSERT(!head->wasDestroyed());
-        head->release();
-        head->unref();
+        head->cacheAccess().release();
         // release should have already removed this from the list.
         SkASSERT(head != fResources.head());
     }
@@ -159,7 +156,7 @@ public:
     AvailableForScratchUse(bool rejectPendingIO) : fRejectPendingIO(rejectPendingIO) { }
 
     bool operator()(const GrGpuResource* resource) const {
-        if (!resource->reffedOnlyByCache() || !resource->cacheAccess().isScratch()) {
+        if (resource->internalHasRef() || !resource->cacheAccess().isScratch()) {
             return false;
         }
 
@@ -224,7 +221,7 @@ void GrResourceCache2::makeResourceMRU(GrGpuResource* resource) {
     fResources.addToHead(resource);    
 }
 
-void GrResourceCache2::notifyPurgable(const GrGpuResource* resource) {
+void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
     SkASSERT(resource->isPurgable());
@@ -239,25 +236,14 @@ void GrResourceCache2::notifyPurgable(const GrGpuResource* resource) {
     // Purge the resource if we're over budget
     bool overBudget = fCount > fMaxCount || fBytes > fMaxBytes;
 
-    // We should not be over budget here unless all resources are unpuragble.
-#ifdef SK_DEBUG
-    if (overBudget) {
-        ResourceList::Iter iter;
-        GrGpuResource* r = iter.init(fResources, ResourceList::Iter::kHead_IterStart);
-        for ( ; r; r = iter.next()) {
-            SkASSERT(r == resource || !r->isPurgable());
-        }
-    }
-#endif
-
     // Also purge if the resource has neither a valid scratch key nor a content key.
     bool noKey = !resource->cacheAccess().isScratch() &&
                  (NULL == resource->cacheAccess().getContentKey());
 
     if (overBudget || noKey) {
         SkDEBUGCODE(int beforeCount = fCount;)
-        resource->unref();
-        // We should at least have freed resource. It may have in turn freed other resources.
+        resource->cacheAccess().release();
+        // We should at least free this resource, perhaps dependent resources as well.
         SkASSERT(fCount < beforeCount);
     }
 
@@ -295,7 +281,7 @@ void GrResourceCache2::internalPurgeAsNeeded() {
         while (resource) {
             GrGpuResource* prev = resourceIter.prev();
             if (resource->isPurgable()) {
-                resource->unref();
+                resource->cacheAccess().release();
             }
             resource = prev;
             if (fCount <= fMaxCount && fBytes <= fMaxBytes) {
@@ -331,8 +317,8 @@ void GrResourceCache2::purgeAllUnlocked() {
         while (resource) {
             GrGpuResource* prev = resourceIter.prev();
             if (resource->isPurgable()) {
-                resource->unref();
-            } 
+                resource->cacheAccess().release();
+            }
             resource = prev;
         }
 
@@ -387,8 +373,10 @@ void GrResourceCache2::validate() const {
     SkASSERT(content == fContentHash.count());
     SkASSERT(scratch + couldBeScratch == fScratchMap.count());
 
-    bool overBudget = bytes > fMaxBytes || count > fMaxCount;
-    SkASSERT(!overBudget || locked == count || fPurging);
+    // This assertion is not currently valid because we can be in recursive notifyIsPurgable()
+    // calls. This will be fixed when subresource registration is explicit.
+    // bool overBudget = bytes > fMaxBytes || count > fMaxCount;
+    // SkASSERT(!overBudget || locked == count || fPurging);
 }
 #endif
 

@@ -54,6 +54,26 @@ public:
         return NULL;
     }
 
+    /**
+     * Called by the cache to delete the resource under normal circumstances.
+     */
+    void release() {
+        fResource->release();
+        if (fResource->isPurgable()) {            
+            SkDELETE(fResource);
+        }
+    }
+
+    /**
+     * Called by the cache to delete the resource when the backend 3D context is no longer valid.
+     */
+    void abandon() {
+        fResource->abandon();
+        if (fResource->isPurgable()) {            
+            SkDELETE(fResource);
+        }
+    }
+
 private:
     CacheAccess(GrGpuResource* resource) : fResource(resource) { }
     CacheAccess(const CacheAccess& that) : fResource(that.fResource) { }

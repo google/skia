@@ -39,8 +39,6 @@ public:
                   size_t gpuMemorySize,
                   const SkStrokeRec&);
 
-    virtual ~GrGLPathRange();
-
     GrGLuint basePathID() const { return fBasePathID; }
 
 protected:

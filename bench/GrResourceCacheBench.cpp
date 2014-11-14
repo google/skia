@@ -33,8 +33,6 @@ public:
         this->registerWithCache();
     }
 
-    virtual ~StencilResource() { this->release(); }
-
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt) {
         return GrStencilBuffer::ComputeKey(width, height, sampleCnt);
     }
@@ -57,8 +55,6 @@ public:
         , fID(id) {
         this->registerWithCache();
     }
-
-    virtual ~TextureResource() { this->release(); }
 
     static GrResourceKey ComputeKey(const GrSurfaceDesc& desc) {
         GrCacheID::Key key;

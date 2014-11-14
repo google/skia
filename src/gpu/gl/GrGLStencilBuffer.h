@@ -35,8 +35,6 @@ public:
         this->registerWithCache();
     }
 
-    virtual ~GrGLStencilBuffer();
-
     GrGLuint renderbufferID() const {
         return fRenderbufferID;
     }

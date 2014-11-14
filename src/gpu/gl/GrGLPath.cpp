@@ -143,10 +143,6 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     this->registerWithCache();
 }
 
-GrGLPath::~GrGLPath() {
-    this->release();
-}
-
 void GrGLPath::onRelease() {
     if (0 != fPathID && !this->isWrapped()) {
         static_cast<GrGpuGL*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);

@@ -148,7 +148,7 @@ private:
     ////
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
-    void notifyPurgable(const GrGpuResource*);
+    void notifyPurgable(GrGpuResource*);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     bool didSetContentKey(GrGpuResource*);
     void makeResourceMRU(GrGpuResource*);
@@ -241,7 +241,7 @@ private:
     /**
      * Called by GrGpuResources when they detects that they are newly purgable.
      */
-    void notifyPurgable(const GrGpuResource* resource) { fCache->notifyPurgable(resource); }
+    void notifyPurgable(GrGpuResource* resource) { fCache->notifyPurgable(resource); }
 
     /**
      * Called by GrGpuResources when their sizes change.

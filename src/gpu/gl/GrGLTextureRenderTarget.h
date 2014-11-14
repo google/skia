@@ -34,8 +34,6 @@ public:
         this->registerWithCache();
     }
 
-    virtual ~GrGLTextureRenderTarget() { this->release(); }
-
 protected:
     virtual void onAbandon() SK_OVERRIDE {
         GrGLRenderTarget::onAbandon();

@@ -86,7 +86,6 @@ public:
     ~TestResource() {
         --fNumAlive;
         SkSafeUnref(fToDelete);
-        this->release();
     }
 
     void setSize(size_t size) {

@@ -20,7 +20,6 @@ public:
     typedef GrGLBufferImpl::Desc Desc;
 
     GrGLVertexBuffer(GrGpuGL* gpu, const Desc& desc);
-    virtual ~GrGLVertexBuffer() { this->release(); }
 
     GrGLuint bufferID() const { return fImpl.bufferID(); }
     size_t baseOffset() const { return fImpl.baseOffset(); }

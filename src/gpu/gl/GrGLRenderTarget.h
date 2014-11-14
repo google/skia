@@ -30,8 +30,6 @@ public:
 
     GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&);
 
-    virtual ~GrGLRenderTarget() { this->release(); }
-
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }
 

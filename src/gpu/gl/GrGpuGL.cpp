@@ -1131,21 +1131,22 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
     SkASSERT(height >= rt->height());
 
     int samples = rt->numSamples();
-    GrGLuint sbID;
-    GL_CALL(GenRenderbuffers(1, &sbID));
-    if (!sbID) {
-        return false;
-    }
+    GrGLuint sbID = 0;
 
     int stencilFmtCnt = this->glCaps().stencilFormats().count();
     for (int i = 0; i < stencilFmtCnt; ++i) {
+        if (!sbID) {
+            GL_CALL(GenRenderbuffers(1, &sbID));
+        }
+        if (!sbID) {
+            return false;
+        }
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbID));
         // we start with the last stencil format that succeeded in hopes
         // that we won't go through this loop more than once after the
         // first (painful) stencil creation.
         int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
-        const GrGLCaps::StencilFormat& sFmt =
-                this->glCaps().stencilFormats()[sIdx];
+        const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[sIdx];
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
@@ -1156,12 +1157,10 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                                 sFmt.fInternalFormat,
                                                 width, height);
         } else {
-            GL_ALLOC_CALL(this->glInterface(),
-                          RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                              sFmt.fInternalFormat,
-                                              width, height));
-            created =
-                (GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
+            GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
+                                                                   sFmt.fInternalFormat,
+                                                                   width, height));
+            created = (GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
         }
         if (created) {
             // After sized formats we attempt an unsized format and take
@@ -1172,13 +1171,15 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
                                                   (this, kIsWrapped, sbID, width, height,
                                                   samples, format)));
+            // If we fail we have to create a new render buffer ID since we gave this one to the
+            // GrGLStencilBuffer object.
+            sbID = 0; 
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 sb->transferToCache();
                 rt->setStencilBuffer(sb);
                 return true;
-           }
-           sb->abandon(); // otherwise we lose sbID
+            }
         }
     }
     GL_CALL(DeleteRenderbuffers(1, &sbID));

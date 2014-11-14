@@ -36,26 +36,24 @@ void GrGpuResource::registerWithCache() {
 }
 
 GrGpuResource::~GrGpuResource() {
-    // subclass should have released this.
+    // The cache should have released or destroyed this resource.
     SkASSERT(this->wasDestroyed());
 }
 
 void GrGpuResource::release() { 
-    if (fGpu) {
-        this->onRelease();
-        get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
-        fGpu = NULL;
-        fGpuMemorySize = 0;
-    }
+    SkASSERT(fGpu);
+    this->onRelease();
+    get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
+    fGpu = NULL;
+    fGpuMemorySize = 0;
 }
 
 void GrGpuResource::abandon() {
-    if (fGpu) {
-        this->onAbandon();
-        get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
-        fGpu = NULL;
-        fGpuMemorySize = 0;
-    }
+    SkASSERT(fGpu);
+    this->onAbandon();
+    get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
+    fGpu = NULL;
+    fGpuMemorySize = 0;
 }
 
 const GrContext* GrGpuResource::getContext() const {
@@ -90,7 +88,7 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
     SkASSERT(!contentKey.isScratch());
     SkASSERT(this->internalHasRef());
     
-    if (fContentKeySet) {
+    if (fContentKeySet || this->wasDestroyed()) {
         return false;
     }
 
@@ -105,8 +103,12 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
 }
 
 void GrGpuResource::notifyIsPurgable() const {
-    if (!this->wasDestroyed()) {
-        get_resource_cache2(fGpu)->resourceAccess().notifyPurgable(this);
+    if (this->wasDestroyed()) {
+        // We've already been removed from the cache. Goodbye cruel world!
+        SkDELETE(this);
+    } else {
+        GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
+        get_resource_cache2(fGpu)->resourceAccess().notifyPurgable(mutableThis);
     }
 }
 

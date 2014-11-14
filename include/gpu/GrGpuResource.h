@@ -56,20 +56,19 @@ public:
         this->didUnref();
     }
 
-    bool isPurgable() const { return this->reffedOnlyByCache() && !this->internalHasPendingIO(); }
-    bool reffedOnlyByCache() const { return 1 == fRefCnt; }
-
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);
         SkASSERT(fPendingReads >= 0);
         SkASSERT(fPendingWrites >= 0);
-        SkASSERT(fRefCnt + fPendingReads + fPendingWrites > 0);
+        SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 0);
 #endif
     }
 
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
+
+    bool isPurgable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
 
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
@@ -102,14 +101,8 @@ private:
 
 private:
     void didUnref() const {
-        if (0 == fPendingReads && 0 == fPendingWrites) {
-            if (0 == fRefCnt) {
-                // Must call derived destructor since this is not a virtual class.
-                SkDELETE(static_cast<const DERIVED*>(this));
-            } else if (1 == fRefCnt) {
-                // The one ref is the cache's
-                static_cast<const DERIVED*>(this)->notifyIsPurgable();
-            }
+        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
+            static_cast<const DERIVED*>(this)->notifyIsPurgable();
         }
     }
 
@@ -130,18 +123,6 @@ private:
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
     SK_DECLARE_INST_COUNT(GrGpuResource)
-
-    /**
-     * Frees the object in the underlying 3D API. It must be safe to call this
-     * when the object has been previously abandoned.
-     */
-    void release();
-
-    /**
-     * Removes references to objects in the underlying 3D API without freeing
-     * them. Used when the API context has been torn down before the GrContext.
-     */
-    void abandon();
 
     /**
      * Tests whether a object has been abandoned or released. All objects will
@@ -203,10 +184,12 @@ protected:
 
     GrGpu* getGpu() const { return fGpu; }
 
-    // Derived classes should always call their parent class' onRelease
-    // and onAbandon methods in their overrides.
-    virtual void onRelease() {};
-    virtual void onAbandon() {};
+    /** Overridden to free GPU resources in the backend API. */
+    virtual void onRelease() { }
+    /** Overridden to abandon any internal handles, ptrs, etc to backend API resources.
+        This may be called when the underlying 3D context is no longer valid and so no
+        backend API calls should be made. */
+    virtual void onAbandon() { }
 
     bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
 
@@ -223,6 +206,17 @@ protected:
     void setScratchKey(const GrResourceKey& scratchKey);
 
 private:
+    /**
+     * Frees the object in the underlying 3D API. Called by CacheAccess.
+     */
+    void release();
+
+    /**
+     * Removes references to objects in the underlying 3D API without freeing them. 
+     * Called by CacheAccess.
+     */
+    void abandon();
+
     virtual size_t onGpuMemorySize() const = 0;
 
     // See comments in CacheAccess.

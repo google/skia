@@ -29,10 +29,6 @@ GrGLPathRange::GrGLPathRange(GrGpuGL* gpu,
     this->registerWithCache();
 }
 
-GrGLPathRange::~GrGLPathRange() {
-    this->release();
-}
-
 void GrGLPathRange::onInitPath(int index, const SkPath& skPath) const {
     GrGpuGL* gpu = static_cast<GrGpuGL*>(this->getGpu());
     if (NULL == gpu) {
