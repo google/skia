@@ -656,7 +656,6 @@
           '<(skia_include_path)/utils/win',
           '<(skia_include_path)/utils/SkDebugUtils.h',
           '<(skia_include_path)/utils/SkJSONCPP.h',
-          '<(skia_include_path)/utils/SkWGL.h',
           '<(skia_include_path)/views/animated',
           '<(skia_include_path)/views/SkOSWindow_Android.h',
           '<(skia_include_path)/views/SkOSWindow_iOS.h',

@@ -10,7 +10,7 @@
 
 #include <windows.h>
 #include <GL/GL.h>
-#include "SkWGL.h"
+#include "win/SkWGL.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

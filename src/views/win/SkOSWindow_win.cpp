@@ -11,7 +11,7 @@
 
 #include <GL/gl.h>
 #include <WindowsX.h>
-#include "SkWGL.h"
+#include "win/SkWGL.h"
 #include "SkWindow.h"
 #include "SkCanvas.h"
 #include "SkOSMenu.h"
