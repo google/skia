@@ -134,5 +134,8 @@
         '<(skia_src_path)/fonts/SkGScalerContext.h',
         '<(skia_src_path)/fonts/SkTestScalerContext.cpp',
         '<(skia_src_path)/fonts/SkTestScalerContext.h',
+
+        # TODO(halcanary): delete this http://skbug.com/3130
+        '<(skia_include_path)/utils/SkWGL.h',
     ],
 }
