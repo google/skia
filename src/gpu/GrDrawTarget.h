@@ -808,10 +808,6 @@ protected:
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
 
-    // A subclass may override this function if it wishes to be notified when the clip is changed.
-    // The override should call INHERITED::clipWillBeSet().
-    virtual void clipWillBeSet(const GrClipData* clipData);
-
     // subclasses must call this in their destructors to ensure all vertex
     // and index sources have been released (including those held by
     // pushGeometrySource())
@@ -855,15 +851,10 @@ private:
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
     virtual void onDraw(const DrawInfo&, const GrClipMaskManager::ScissorState&) = 0;
-    // Implementation of drawRect. The geometry src and vertex attribs will already
-    // be saved before this is called and restored afterwards. A subclass may override
-    // this to perform more optimal rect rendering. Its draws should be funneled through
-    // one of the public GrDrawTarget draw methods (e.g. drawNonIndexed,
-    // drawIndexedInstances, ...). The base class draws a two triangle fan using
-    // drawNonIndexed from reserved vertex space.
+    // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(const SkRect& rect,
                             const SkRect* localRect,
-                            const SkMatrix* localMatrix);
+                            const SkMatrix* localMatrix) = 0;
 
     virtual void onStencilPath(const GrPath*,
                                const GrClipMaskManager::ScissorState&,

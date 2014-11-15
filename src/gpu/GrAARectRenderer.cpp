@@ -6,24 +6,19 @@
  */
 
 #include "GrAARectRenderer.h"
+#include "GrDefaultGeoProcFactory.h"
+#include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "GrInvariantOutput.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/GrGLGeometryProcessor.h"
 #include "GrTBackendProcessorFactory.h"
 #include "SkColorPriv.h"
-#include "GrGeometryProcessor.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/GrGLGeometryProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
-extern const GrVertexAttrib gAARectAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
-    {kFloat_GrVertexAttribType, sizeof(SkPoint) + sizeof(SkColor),  kCoverage_GrVertexAttribBinding},
-};
-
 // Should the coverage be multiplied into the color attrib or use a separate attrib.
 enum CoverageAttribType {
     kUseColor_CoverageAttribType,
@@ -33,11 +28,17 @@ enum CoverageAttribType {
 
 static CoverageAttribType set_rect_attribs(GrDrawState* drawState) {
     if (drawState->canTweakAlphaForCoverage()) {
-        drawState->setVertexAttribs<gAARectAttribs>(2, sizeof(SkPoint) + sizeof(SkColor));
+        drawState->setGeometryProcessor(
+                GrDefaultGeoProcFactory::CreateAndSetAttribs(
+                        drawState,
+                        GrDefaultGeoProcFactory::kColor_GPType))->unref();
         return kUseColor_CoverageAttribType;
     } else {
-        drawState->setVertexAttribs<gAARectAttribs>(3, sizeof(SkPoint) + sizeof(SkColor) +
-                                                       sizeof(float));
+        drawState->setGeometryProcessor(
+                GrDefaultGeoProcFactory::CreateAndSetAttribs(
+                        drawState,
+                        GrDefaultGeoProcFactory::kColor_GPType |
+                        GrDefaultGeoProcFactory::kCoverage_GPType))->unref();
         return kUseCoverage_CoverageAttribType;
     }
 }
@@ -180,6 +181,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           const SkMatrix& combinedMatrix,
                                           const SkRect& devRect) {
     GrDrawState* drawState = target->drawState();
+    GrDrawState::AutoRestoreEffects are(drawState);
 
     GrColor color = drawState->getColor();
 
@@ -377,6 +379,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             const SkRect& devInside,
                                             bool miterStroke) {
     GrDrawState* drawState = target->drawState();
+    GrDrawState::AutoRestoreEffects are(drawState);
 
     CoverageAttribType covAttribType = set_rect_attribs(drawState);
 

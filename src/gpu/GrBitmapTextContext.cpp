@@ -7,6 +7,7 @@
 
 #include "GrBitmapTextContext.h"
 #include "GrAtlas.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTarget.h"
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
@@ -14,8 +15,6 @@
 #include "GrTexturePriv.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
-#include "effects/GrCustomCoordsTextureEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
 
 #include "SkAutoKern.h"
 #include "SkColorPriv.h"
@@ -28,6 +27,9 @@
 #include "SkRTConf.h"
 #include "SkStrokeRec.h"
 #include "SkTextMapStateProc.h"
+
+#include "effects/GrCustomCoordsTextureEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
@@ -42,11 +44,6 @@ extern const GrVertexAttrib gLCDVertexAttribs[] = {
 static const size_t kLCDTextVASize = 2 * sizeof(SkPoint);
 
 // position + local coord
-extern const GrVertexAttrib gColorVertexAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding}
-};
-
 static const size_t kColorTextVASize = 2 * sizeof(SkPoint);
 
 // position + color + texture coord
@@ -360,8 +357,8 @@ static void* alloc_vertices(GrDrawTarget* drawTarget, int numVertices, GrMaskFor
         drawTarget->drawState()->setVertexAttribs<gGrayVertexAttribs>(
                                     SK_ARRAY_COUNT(gGrayVertexAttribs), kGrayTextVASize);
     } else if (kARGB_GrMaskFormat == maskFormat) {
-        drawTarget->drawState()->setVertexAttribs<gColorVertexAttribs>(
-                                    SK_ARRAY_COUNT(gColorVertexAttribs), kColorTextVASize);
+        GrDefaultGeoProcFactory::SetAttribs(drawTarget->drawState(),
+                                            GrDefaultGeoProcFactory::kLocalCoord_GPType);
     } else {
         drawTarget->drawState()->setVertexAttribs<gLCDVertexAttribs>(
                                     SK_ARRAY_COUNT(gLCDVertexAttribs), kLCDTextVASize);
@@ -564,6 +561,7 @@ void GrBitmapTextContext::flush() {
 
         // This effect could be stored with one of the cache objects (atlas?)
         if (kARGB_GrMaskFormat == fCurrMaskFormat) {
+            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(true))->unref();
             GrFragmentProcessor* fragProcessor = GrSimpleTextureEffect::Create(fCurrTexture,
                                                                                SkMatrix::I(),
                                                                                params);

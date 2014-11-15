@@ -439,7 +439,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
                                                       GrGpu::kDrawPoints_DrawType;
 
         // twiddle drawstate knobs randomly
-        bool hasGeometryProcessor = usePathRendering ? false : random.nextBool();
+        bool hasGeometryProcessor = !usePathRendering;
         if (hasGeometryProcessor) {
             set_random_gp(fContext, gpu->glCaps(), ds, &random, dummyTextures);
         }

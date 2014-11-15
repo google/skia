@@ -13,6 +13,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
 #include "SkColorPriv.h"
@@ -132,23 +133,21 @@ protected:
                 if (!fp) {
                     continue;
                 }
+                drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
                 drawState->addCoverageProcessor(fp);
                 drawState->setIdentityViewMatrix();
                 drawState->setRenderTarget(rt);
                 drawState->setColor(0xff000000);
 
-                // TODO hack
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
                 SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
 
-                //SkPoint verts[4];
                 SkRect bounds = p.getBounds();
                 // Make sure any artifacts around the exterior of path are visible by using overly
                 // conservative bounding geometry.
                 bounds.outset(5.f, 5.f);
                 bounds.toQuad(verts);
 
-                //tt.target()->setVertexSourceToArray(verts, 4);
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
                 tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 
@@ -190,21 +189,19 @@ protected:
                 }
 
                 GrDrawState* drawState = tt.target()->drawState();
+                drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
                 drawState->addCoverageProcessor(fp);
                 drawState->setIdentityViewMatrix();
                 drawState->setRenderTarget(rt);
                 drawState->setColor(0xff000000);
 
-                // TODO hack
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
                 SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
 
-                //SkPoint verts[4];
                 SkRect bounds = rect;
                 bounds.outset(5.f, 5.f);
                 bounds.toQuad(verts);
 
-                //tt.target()->setVertexSourceToArray(verts, 4);
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
                 tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 

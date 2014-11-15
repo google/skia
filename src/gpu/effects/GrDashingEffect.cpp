@@ -10,20 +10,20 @@
 #include "../GrAARectRenderer.h"
 
 #include "GrGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/GrGLGeometryProcessor.h"
-#include "gl/GrGLSL.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
-#include "GrGpu.h"
 #include "GrStrokeInfo.h"
 #include "GrTBackendProcessorFactory.h"
 #include "SkGr.h"
+#include "gl/GrGLGeometryProcessor.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/GrGLSL.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -68,10 +68,6 @@ namespace {
 struct DashLineVertex {
     SkPoint fPos;
     SkPoint fDashPos;
-};
-
-extern const GrVertexAttrib gDashLineNoAAVertexAttribs[] = {
-    { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding }
 };
 
 extern const GrVertexAttrib gDashLineVertexAttribs[] = {
@@ -150,7 +146,6 @@ static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const Sk
 
 static void setup_dashed_rect(const SkRect& rect, DashLineVertex* verts, int idx, const SkMatrix& matrix,
                        SkScalar offset, SkScalar bloat, SkScalar len, SkScalar stroke) {
-
         SkScalar startDashX = offset - bloat;
         SkScalar endDashX = offset + len + bloat;
         SkScalar startDashY = -stroke - bloat;
@@ -159,15 +154,21 @@ static void setup_dashed_rect(const SkRect& rect, DashLineVertex* verts, int idx
         verts[idx + 1].fDashPos = SkPoint::Make(startDashX, endDashY);
         verts[idx + 2].fDashPos = SkPoint::Make(endDashX, endDashY);
         verts[idx + 3].fDashPos = SkPoint::Make(endDashX, startDashY);
-
         verts[idx].fPos = SkPoint::Make(rect.fLeft, rect.fTop);
         verts[idx + 1].fPos = SkPoint::Make(rect.fLeft, rect.fBottom);
         verts[idx + 2].fPos = SkPoint::Make(rect.fRight, rect.fBottom);
         verts[idx + 3].fPos = SkPoint::Make(rect.fRight, rect.fTop);
-
         matrix.mapPointsWithStride(&verts[idx].fPos, sizeof(DashLineVertex), 4);
 }
 
+static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& matrix,
+                                  SkPoint* verts) {
+    verts[idx] = SkPoint::Make(rect.fLeft, rect.fTop);
+    verts[idx + 1] = SkPoint::Make(rect.fLeft, rect.fBottom);
+    verts[idx + 2] = SkPoint::Make(rect.fRight, rect.fBottom);
+    verts[idx + 3] = SkPoint::Make(rect.fRight, rect.fTop);
+    matrix.mapPoints(&verts[idx], 4);
+}
 
 bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
                                    const GrStrokeInfo& strokeInfo, GrGpu* gpu,
@@ -340,7 +341,8 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
         }
         devIntervals[0] = lineLength;
     }
-    if (devIntervals[1] > 0.f || useAA) {
+    bool fullDash = devIntervals[1] > 0.f || useAA;
+    if (fullDash) {
         SkPathEffect::DashInfo devInfo;
         devInfo.fPhase = devPhase;
         devInfo.fCount = 2;
@@ -358,8 +360,10 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
                                                             sizeof(DashLineVertex));
     } else {
         // Set up the vertex data for the line and start/end dashes
-        drawState->setVertexAttribs<gDashLineNoAAVertexAttribs>(
-                SK_ARRAY_COUNT(gDashLineNoAAVertexAttribs), sizeof(DashLineVertex));
+        drawState->setGeometryProcessor(
+                GrDefaultGeoProcFactory::CreateAndSetAttribs(
+                        drawState,
+                        GrDefaultGeoProcFactory::kPosition_GPType))->unref();
     }
 
     int totalRectCnt = 0;
@@ -373,8 +377,6 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
         SkDebugf("Failed to get space for vertices!\n");
         return false;
     }
-
-    DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(geo.vertices());
 
     int curVIdx = 0;
 
@@ -395,24 +397,44 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
         SkRect bounds;
         bounds.set(ptsRot[0].fX, ptsRot[0].fY, ptsRot[1].fX, ptsRot[1].fY);
         bounds.outset(bloatX + strokeAdj, bloatY + halfSrcStroke);
-        setup_dashed_rect(bounds, verts, curVIdx, combinedMatrix, startOffset, devBloat,
-                          lineLength, halfDevStroke);
+        if (fullDash) {
+            DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(geo.vertices());
+            setup_dashed_rect(bounds, verts, curVIdx, combinedMatrix, startOffset, devBloat,
+                                      lineLength, halfDevStroke);
+        } else {
+            SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
+            setup_dashed_rect_pos(bounds, curVIdx, combinedMatrix, verts);
+        }
         curVIdx += 4;
     }
 
     if (hasStartRect) {
         SkASSERT(useAA);  // so that we know bloatX and bloatY have been set
         startRect.outset(bloatX, bloatY);
-        setup_dashed_rect(startRect, verts, curVIdx, combinedMatrix, startOffset, devBloat,
-                          devIntervals[0], halfDevStroke);
+        if (fullDash) {
+            DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(geo.vertices());
+            setup_dashed_rect(startRect, verts, curVIdx, combinedMatrix, startOffset, devBloat,
+                              devIntervals[0], halfDevStroke);
+        } else {
+            SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
+            setup_dashed_rect_pos(startRect, curVIdx, combinedMatrix, verts);
+        }
+
         curVIdx += 4;
     }
 
     if (hasEndRect) {
         SkASSERT(useAA);  // so that we know bloatX and bloatY have been set
         endRect.outset(bloatX, bloatY);
-        setup_dashed_rect(endRect, verts, curVIdx, combinedMatrix, startOffset, devBloat,
-                          devIntervals[0], halfDevStroke);
+        if (fullDash) {
+            DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(geo.vertices());
+            setup_dashed_rect(endRect, verts, curVIdx, combinedMatrix, startOffset, devBloat,
+                              devIntervals[0], halfDevStroke);
+        } else {
+            SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
+            setup_dashed_rect_pos(endRect, curVIdx, combinedMatrix, verts);
+        }
+
     }
 
     target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());

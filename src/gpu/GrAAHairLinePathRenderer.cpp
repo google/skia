@@ -8,12 +8,13 @@
 #include "GrAAHairLinePathRenderer.h"
 
 #include "GrContext.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
-#include "GrProcessor.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
+#include "GrProcessor.h"
 #include "GrTBackendProcessorFactory.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
@@ -642,19 +643,11 @@ void add_line(const SkPoint p[2],
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
-
 // position + edge
 extern const GrVertexAttrib gHairlineBezierAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
     {kVec4f_GrVertexAttribType, sizeof(SkPoint),    kGeometryProcessor_GrVertexAttribBinding}
 };
-
-// position + coverage
-extern const GrVertexAttrib gHairlineLineAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kFloat_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
-};
-
 };
 
 bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
@@ -669,8 +662,8 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
 
     int vertCnt = kLineSegNumVertices * lineCnt;
 
-    drawState->setVertexAttribs<gHairlineLineAttribs>(SK_ARRAY_COUNT(gHairlineLineAttribs),
-                                                      sizeof(LineVertex));
+    GrDefaultGeoProcFactory::SetAttribs(drawState, GrDefaultGeoProcFactory::kPosition_GPType |
+                                                   GrDefaultGeoProcFactory::kCoverage_GPType);
 
     if (!arg->set(target, vertCnt, 0)) {
         return false;
@@ -884,6 +877,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
         {
             GrDrawState::AutoRestoreEffects are(drawState);
+            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
             target->setIndexSourceToBuffer(fLinesIndexBuffer);
             int lines = 0;
             while (lines < lineCnt) {

@@ -8,6 +8,7 @@
 #include "GrDefaultPathRenderer.h"
 
 #include "GrContext.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawState.h"
 #include "GrPathUtils.h"
 #include "SkString.h"
@@ -496,6 +497,8 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             if (passCount > 1) {
                 drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
             }
+            GrDrawState::AutoRestoreEffects are(drawState);
+            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
             if (indexCnt) {
                 target->drawIndexed(primType, 0, 0,
                                     vertexCnt, indexCnt, &devBounds);

@@ -126,7 +126,6 @@ void GrDrawTarget::releaseGeometry() {
 }
 
 void GrDrawTarget::setClip(const GrClipData* clip) {
-    clipWillBeSet(clip);
     fClip = clip;
 }
 
@@ -754,59 +753,6 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace {
-
-// position + (optional) texture coord
-extern const GrVertexAttrib gBWRectPosUVAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding}
-};
-
-void set_vertex_attributes(GrDrawState* drawState, bool hasUVs) {
-    if (hasUVs) {
-        drawState->setVertexAttribs<gBWRectPosUVAttribs>(2, 2 * sizeof(SkPoint));
-    } else {
-        drawState->setVertexAttribs<gBWRectPosUVAttribs>(1, sizeof(SkPoint));
-    }
-}
-
-};
-
-void GrDrawTarget::onDrawRect(const SkRect& rect,
-                              const SkRect* localRect,
-                              const SkMatrix* localMatrix) {
-
-    set_vertex_attributes(this->drawState(), SkToBool(localRect));
-
-    AutoReleaseGeometry geo(this, 4, 0);
-    if (!geo.succeeded()) {
-        SkDebugf("Failed to get space for vertices!\n");
-        return;
-    }
-
-    size_t vstride = this->drawState()->getVertexStride();
-    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
-    if (localRect) {
-        SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) +
-                                            sizeof(SkPoint));
-        coords->setRectFan(localRect->fLeft, localRect->fTop,
-                           localRect->fRight, localRect->fBottom,
-                           vstride);
-        if (localMatrix) {
-            localMatrix->mapPointsWithStride(coords, vstride, 4);
-        }
-    }
-    SkRect bounds;
-    this->getDrawState().getViewMatrix().mapRect(&bounds, rect);
-
-    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4, &bounds);
-}
-
-void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////

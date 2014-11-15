@@ -8,17 +8,14 @@
 
 #include "GrContext.h"
 
-#include "effects/GrConfigConversionEffect.h"
-#include "effects/GrDashingEffect.h"
-#include "effects/GrSingleTextureEffect.h"
-
 #include "GrAARectRenderer.h"
 #include "GrBufferAllocPool.h"
-#include "GrGpu.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrDistanceFieldTextContext.h"
 #include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrLayerCache.h"
@@ -43,6 +40,10 @@
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTraceEvent.h"
+
+#include "effects/GrConfigConversionEffect.h"
+#include "effects/GrDashingEffect.h"
+#include "effects/GrSingleTextureEffect.h"
 
 #ifdef SK_DEBUG
     // change this to a 1 to see notifications when partial coverage fails
@@ -299,16 +300,6 @@ static void stretch_image(void* dst,
     }
 }
 
-namespace {
-
-// position + local coordinate
-extern const GrVertexAttrib gVertexAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding}
-};
-
-};
-
 // The desired texture is NPOT and tiled but that isn't supported by
 // the current hardware. Resize the texture to be a POT
 GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
@@ -347,8 +338,11 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
                                         GrTextureParams::kNone_FilterMode);
         drawState->addColorTextureProcessor(clampedTexture, SkMatrix::I(), params);
 
-        drawState->setVertexAttribs<gVertexAttribs>(SK_ARRAY_COUNT(gVertexAttribs),
-                                                    2 * sizeof(SkPoint));
+        drawState->setGeometryProcessor(
+                GrDefaultGeoProcFactory::CreateAndSetAttribs(
+                        drawState,
+                        GrDefaultGeoProcFactory::kPosition_GPType |
+                        GrDefaultGeoProcFactory::kLocalCoord_GPType))->unref();
 
         GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, 0);
 
@@ -772,6 +766,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
         static const int worstCaseVertCount = 10;
         target->drawState()->setDefaultVertexAttribs();
+        target->drawState()->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
         GrDrawTarget::AutoReleaseGeometry geo(target, worstCaseVertCount, 0);
 
         if (!geo.succeeded()) {
@@ -821,25 +816,6 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     target->drawRect(dstRect, &localRect, localMatrix);
 }
 
-namespace {
-
-extern const GrVertexAttrib gPosUVColorAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0, kPosition_GrVertexAttribBinding },
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding },
-    {kVec4ub_GrVertexAttribType, 2*sizeof(SkPoint), kColor_GrVertexAttribBinding}
-};
-
-static const size_t kPosUVAttribsSize = 2 * sizeof(SkPoint);
-static const size_t kPosUVColorAttribsSize = 2 * sizeof(SkPoint) + sizeof(GrColor);
-
-extern const GrVertexAttrib gPosColorAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0, kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kColor_GrVertexAttribBinding},
-};
-
-static const size_t kPosAttribsSize = sizeof(SkPoint);
-static const size_t kPosColorAttribsSize = sizeof(SkPoint) + sizeof(GrColor);
-
 static void set_vertex_attributes(GrDrawState* drawState,
                                   const SkPoint* texCoords,
                                   const GrColor* colors,
@@ -848,22 +824,22 @@ static void set_vertex_attributes(GrDrawState* drawState,
     *texOffset = -1;
     *colorOffset = -1;
 
+    uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
     if (texCoords && colors) {
-        *texOffset = sizeof(SkPoint);
-        *colorOffset = 2*sizeof(SkPoint);
-        drawState->setVertexAttribs<gPosUVColorAttribs>(3, kPosUVColorAttribsSize);
+        *colorOffset = sizeof(SkPoint);
+        *texOffset = sizeof(SkPoint) + sizeof(GrColor);
+        flags |= GrDefaultGeoProcFactory::kColor_GPType |
+                 GrDefaultGeoProcFactory::kLocalCoord_GPType;
     } else if (texCoords) {
         *texOffset = sizeof(SkPoint);
-        drawState->setVertexAttribs<gPosUVColorAttribs>(2, kPosUVAttribsSize);
+        flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
     } else if (colors) {
         *colorOffset = sizeof(SkPoint);
-        drawState->setVertexAttribs<gPosColorAttribs>(2, kPosColorAttribsSize);
-    } else {
-        drawState->setVertexAttribs<gPosColorAttribs>(1, kPosAttribsSize);
+        flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::CreateAndSetAttribs(drawState,
+                                                                                 flags))->unref();
 }
-
-};
 
 void GrContext::drawVertices(const GrPaint& paint,
                              GrPrimitiveType primitiveType,

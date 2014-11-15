@@ -8,6 +8,7 @@
 #include "GrInOrderDrawBuffer.h"
 
 #include "GrBufferAllocPool.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrOptDrawState.h"
@@ -74,16 +75,6 @@ void get_vertex_bounds(const void* vertices,
 }
 }
 
-
-namespace {
-
-extern const GrVertexAttrib kRectAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,                               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                 kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint)+sizeof(GrColor), kLocalCoord_GrVertexAttribBinding},
-};
-}
-
 /** We always use per-vertex colors so that rects can be batched across color changes. Sometimes we
     have explicit local coords and sometimes not. We *could* always provide explicit local coords
     and just duplicate the positions when the caller hasn't provided a local coord rect, but we
@@ -95,11 +86,11 @@ extern const GrVertexAttrib kRectAttribs[] = {
     The vertex attrib order is always pos, color, [local coords].
  */
 static void set_vertex_attributes(GrDrawState* drawState, bool hasLocalCoords, GrColor color) {
-    if (hasLocalCoords) {
-        drawState->setVertexAttribs<kRectAttribs>(3, 2 * sizeof(SkPoint) + sizeof(SkColor));
-    } else {
-        drawState->setVertexAttribs<kRectAttribs>(2, sizeof(SkPoint) + sizeof(SkColor));
-    }
+    uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
+                     GrDefaultGeoProcFactory::kColor_GPType;
+    flags |= hasLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::CreateAndSetAttribs(drawState,
+                                                                                 flags))->unref();
     if (0xFF == GrColorUnpackA(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
@@ -146,6 +137,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
     GrDrawState* drawState = this->drawState();
+    GrDrawState::AutoRestoreEffects are(drawState);
 
     GrColor color = drawState->getColor();
 
@@ -272,7 +264,6 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info,
 
 void GrInOrderDrawBuffer::onDraw(const DrawInfo& info,
                                  const GrClipMaskManager::ScissorState& scissorState) {
-
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
     const GrDrawState& drawState = this->getDrawState();
 

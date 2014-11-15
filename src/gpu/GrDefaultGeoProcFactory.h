@@ -75,9 +75,16 @@ public:
         kLastGPType = kCoverage_GPType
     };
 
-    // YOU MUST UNREF
-    static const GrGeometryProcessor* CreateAndSetAttribs(GrDrawState*, uint32_t GPTypeFlags);
-    static const GrGeometryProcessor* Create();
+    /*
+     * The following functions are used to create default GPs.  If you just need to create
+     * attributes seperately from creating the default GP, use the SetAttribs function followed
+     * by the Create function.  Otherwise use CreateAndSetAttribs to do both at once.
+     *
+     * You must unref the return from Create.
+     */
+    static void SetAttribs(GrDrawState*, uint32_t GPTypeFlags = 0);
+    static const GrGeometryProcessor* CreateAndSetAttribs(GrDrawState*, uint32_t GPTypeFlags = 0);
+    static const GrGeometryProcessor* Create(bool hasAttributeCoverage);
 };
 
 #endif

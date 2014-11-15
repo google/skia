@@ -20,8 +20,8 @@
  */
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create() {
-        GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProc, DefaultGeoProc, ());
+    static GrGeometryProcessor* Create(bool hasCoverage) {
+        GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProc, DefaultGeoProc, (hasCoverage));
         return SkRef(gDefaultGeoProc);
     }
 
@@ -57,17 +57,23 @@ public:
     };
 
 private:
-    DefaultGeoProc() {}
+    DefaultGeoProc(bool hasCoverageAttribute) : fHasCoverageAttribute(hasCoverageAttribute) {}
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         return true;
     }
 
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
-        inout->mulByUnknownAlpha();
+        if (fHasCoverageAttribute) {
+            inout->mulByUnknownAlpha();
+        } else {
+            inout->mulByKnownAlpha(255);
+        }
     }
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+
+    bool fHasCoverageAttribute;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -78,33 +84,33 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
                                                 GrContext*,
                                                 const GrDrawTargetCaps& caps,
                                                 GrTexture*[]) {
-    return DefaultGeoProc::Create();
+    return DefaultGeoProc::Create(random->nextBool());
 }
 
 // We use these arrays to customize our default GP.  We only need 4 because we omit coverage if
 // coverage is not requested in the flags to the create function.
 GrVertexAttrib kDefaultPositionGeoProc[] = {
-    { kVec2f_GrVertexAttribType, 0,                kPosition_GrVertexAttribBinding },
-    { kVec4ub_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding },
+    { kFloat_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding },
 };
 
 GrVertexAttrib kDefaultPosColorGeoProc[] = {
-    { kVec2f_GrVertexAttribType, 0,                                  kPosition_GrVertexAttribBinding },
-    { kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding },
-    { kVec4ub_GrVertexAttribType, sizeof(SkPoint) + sizeof(GrColor), kCoverage_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 0,                                 kPosition_GrVertexAttribBinding },
+    { kVec4ub_GrVertexAttribType, sizeof(SkPoint),                  kColor_GrVertexAttribBinding },
+    { kFloat_GrVertexAttribType, sizeof(SkPoint) + sizeof(GrColor), kCoverage_GrVertexAttribBinding },
 };
 
-GrVertexAttrib kDefaultPosUVGeoProc[] = {
-    { kVec2f_GrVertexAttribType, 0,                    kPosition_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, sizeof(SkPoint),      kLocalCoord_GrVertexAttribBinding },
-    { kVec4ub_GrVertexAttribType, 2 * sizeof(SkPoint), kCoverage_GrVertexAttribBinding },
+GrVertexAttrib kDefaultPosLocalCoordGeoProc[] = {
+    { kVec2f_GrVertexAttribType, 0,                   kPosition_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, sizeof(SkPoint),     kLocalCoord_GrVertexAttribBinding },
+    { kFloat_GrVertexAttribType, 2 * sizeof(SkPoint), kCoverage_GrVertexAttribBinding },
 };
 
-GrVertexAttrib kDefaultPosColUVGeoProc[] = {
-    { kVec2f_GrVertexAttribType, 0,                                      kPosition_GrVertexAttribBinding },
-    { kVec4ub_GrVertexAttribType, sizeof(SkPoint),                       kColor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, sizeof(SkPoint) + sizeof(GrColor),      kLocalCoord_GrVertexAttribBinding },
-    { kVec4ub_GrVertexAttribType, 2 * sizeof(SkPoint) + sizeof(GrColor), kCoverage_GrVertexAttribBinding },
+GrVertexAttrib kDefaultPosColLocalCoordGeoProc[] = {
+    { kVec2f_GrVertexAttribType, 0,                                     kPosition_GrVertexAttribBinding },
+    { kVec4ub_GrVertexAttribType, sizeof(SkPoint),                      kColor_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, sizeof(SkPoint) + sizeof(GrColor),     kLocalCoord_GrVertexAttribBinding },
+    { kFloat_GrVertexAttribType, 2 * sizeof(SkPoint) + sizeof(GrColor), kCoverage_GrVertexAttribBinding },
 };
 
 static size_t get_size(GrDefaultGeoProcFactory::GPType flag) {
@@ -116,15 +122,14 @@ static size_t get_size(GrDefaultGeoProcFactory::GPType flag) {
         case GrDefaultGeoProcFactory::kLocalCoord_GPType:
             return GrVertexAttribTypeSize(kVec2f_GrVertexAttribType);
         case GrDefaultGeoProcFactory::kCoverage_GPType:
-            return GrVertexAttribTypeSize(kVec4ub_GrVertexAttribType);
+            return GrVertexAttribTypeSize(kFloat_GrVertexAttribType);
         default:
             SkFAIL("Should never get here");
             return 0;
     }
 }
 
-const GrGeometryProcessor*
-GrDefaultGeoProcFactory::CreateAndSetAttribs(GrDrawState* ds, uint32_t gpTypeFlags) {
+void GrDefaultGeoProcFactory::SetAttribs(GrDrawState* ds, uint32_t gpTypeFlags) {
     SkASSERT(ds);
     // always atleast position in the GP
     size_t size = get_size(kPosition_GPType);
@@ -143,9 +148,9 @@ GrDefaultGeoProcFactory::CreateAndSetAttribs(GrDrawState* ds, uint32_t gpTypeFla
             if (hasCoverage) {
                 size += get_size(kCoverage_GPType);
                 count++;
-                ds->setVertexAttribs<kDefaultPosColUVGeoProc>(count, size);
+                ds->setVertexAttribs<kDefaultPosColLocalCoordGeoProc>(count, size);
             } else {
-                ds->setVertexAttribs<kDefaultPosColUVGeoProc>(count, size);
+                ds->setVertexAttribs<kDefaultPosColLocalCoordGeoProc>(count, size);
 
             }
         } else {
@@ -163,9 +168,9 @@ GrDefaultGeoProcFactory::CreateAndSetAttribs(GrDrawState* ds, uint32_t gpTypeFla
         if (hasCoverage) {
             size += get_size(kCoverage_GPType);
             count++;
-            ds->setVertexAttribs<kDefaultPosUVGeoProc>(count, size);
+            ds->setVertexAttribs<kDefaultPosLocalCoordGeoProc>(count, size);
         } else {
-            ds->setVertexAttribs<kDefaultPosUVGeoProc>(count, size);
+            ds->setVertexAttribs<kDefaultPosLocalCoordGeoProc>(count, size);
         }
     } else if (hasCoverage) {
         size += get_size(kCoverage_GPType);
@@ -175,9 +180,16 @@ GrDefaultGeoProcFactory::CreateAndSetAttribs(GrDrawState* ds, uint32_t gpTypeFla
         // Just position
         ds->setVertexAttribs<kDefaultPositionGeoProc>(count, size);
     }
-    return DefaultGeoProc::Create();
 }
 
-const GrGeometryProcessor* GrDefaultGeoProcFactory::Create() {
-    return DefaultGeoProc::Create();
+const GrGeometryProcessor*
+GrDefaultGeoProcFactory::CreateAndSetAttribs(GrDrawState* ds, uint32_t gpTypeFlags) {
+    SetAttribs(ds, gpTypeFlags);
+
+    bool hasCoverage = SkToBool(gpTypeFlags & kCoverage_GPType);
+    return DefaultGeoProc::Create(hasCoverage);
+}
+
+const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(bool hasAttributeCoverage) {
+    return DefaultGeoProc::Create(hasAttributeCoverage);
 }

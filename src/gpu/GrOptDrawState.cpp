@@ -60,12 +60,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, &descInfo);
 
     // Copy GeometryProcesssor from DS or ODS
+    SkASSERT(GrGpu::IsPathRenderingDrawType(drawType) ||
+             GrGpu::kStencilPath_DrawType ||
+             drawState.hasGeometryProcessor());
     if (drawState.hasGeometryProcessor()) {
         fGeometryProcessor.initAndRef(drawState.fGeometryProcessor);
-    } else if (!GrGpu::IsPathRenderingDrawType(drawType)) {
-        // Install default GP, this will be ignored if we are rendering with fragment shader only
-        // TODO(joshualitt) rendering code should do this
-        fGeometryProcessor.reset(GrDefaultGeoProcFactory::Create());
     } else {
         fGeometryProcessor.reset(NULL);
     }
