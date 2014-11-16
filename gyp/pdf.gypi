@@ -10,6 +10,8 @@
         '<(skia_include_path)/pdf/SkPDFDevice.h',
         '<(skia_include_path)/pdf/SkPDFDocument.h',
 
+        '<(skia_src_path)/doc/SkDocument_PDF.cpp',
+
         '<(skia_src_path)/pdf/SkPDFCatalog.cpp',
         '<(skia_src_path)/pdf/SkPDFCatalog.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',

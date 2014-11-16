@@ -21,8 +21,6 @@
       ],
       'sources': [
         'pdf.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
-
-        '../src/doc/SkDocument_PDF.cpp', # Chromium does use this file
       ],
       'conditions': [
         [ 'skia_android_framework', {
