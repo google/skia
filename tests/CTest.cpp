@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "sk_canvas.h"
+#include "sk_paint.h"
 #include "sk_surface.h"
+
 #include "Test.h"
 
 static void test_c(skiatest::Reporter* reporter) {

@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "sk_canvas.h"
+#include "sk_image.h"
+#include "sk_paint.h"
+#include "sk_path.h"
 #include "sk_surface.h"
 
 #include "SkCanvas.h"
@@ -87,8 +91,32 @@ static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     return true;
 }
 
+const struct {
+    sk_path_direction_t fC;
+    SkPath::Direction   fSk;
+} gPathDirMap[] = {
+    { CW_SK_PATH_DIRECTION,  SkPath::kCW_Direction },
+    { CCW_SK_PATH_DIRECTION, SkPath::kCCW_Direction },
+};
+
+static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* dir) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPathDirMap); ++i) {
+        if (gPathDirMap[i].fC == cdir) {
+            if (dir) {
+                *dir = gPathDirMap[i].fSk;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 static const SkRect& AsRect(const sk_rect_t& crect) {
     return reinterpret_cast<const SkRect&>(crect);
+}
+
+static SkRect* as_rect(sk_rect_t* crect) {
+    return reinterpret_cast<SkRect*>(crect);
 }
 
 static const SkPath& AsPath(const sk_path_t& cpath) {
@@ -208,8 +236,46 @@ void sk_path_quad_to(sk_path_t* cpath, float x0, float y0, float x1, float y1) {
     as_path(cpath)->quadTo(x0, y0, x1, y1);
 }
 
+void sk_path_conic_to(sk_path_t* cpath, float x0, float y0, float x1, float y1, float w) {
+    as_path(cpath)->conicTo(x0, y0, x1, y1, w);
+}
+
+void sk_path_cubic_to(sk_path_t* cpath, float x0, float y0, float x1, float y1, float x2, float y2) {
+    as_path(cpath)->cubicTo(x0, y0, x1, y1, x2, y2);
+}
+
 void sk_path_close(sk_path_t* cpath) {
     as_path(cpath)->close();
+}
+
+void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
+    SkPath::Direction dir;
+    if (!from_c_path_direction(cdir, &dir)) {
+        return;
+    }
+    as_path(cpath)->addRect(AsRect(*crect), dir);
+}
+
+void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
+    SkPath::Direction dir;
+    if (!from_c_path_direction(cdir, &dir)) {
+        return;
+    }
+    as_path(cpath)->addOval(AsRect(*crect), dir);
+}
+
+bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
+    const SkPath& path = AsPath(*cpath);
+    SkRect* rect = as_rect(crect);
+
+    if (path.isEmpty()) {
+        if (rect) {
+            rect->setEmpty();
+        }
+        return false;
+    }
+    *rect = path.getBounds();
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
