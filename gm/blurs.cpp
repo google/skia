@@ -118,8 +118,8 @@ public:
         paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                                      2.3f))->unref();
 
-        SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100, 100);
-        SkRect inner = SkRect::MakeXYWH(20.125f, 20.125f, 80, 80);
+        SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100.125f, 100);
+        SkRect inner = SkRect::MakeXYWH(20.25f, 20.125f, 80, 80);
         SkPath path;
         path.addRect(outer, SkPath::kCW_Direction);
         path.addRect(inner, SkPath::kCCW_Direction);
@@ -127,7 +127,7 @@ public:
         canvas->drawPath(path, paint);
         // important to translate by a factional amount to exercise a different "phase"
         // of the same path w.r.t. the pixel grid
-        SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.125f;
+        SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.25f;
         canvas->translate(dx, 0);
         canvas->drawPath(path, paint);
     }
