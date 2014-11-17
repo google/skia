@@ -81,8 +81,6 @@ protected:
             return;
         }
 
-        GrDrawState* drawState = tt.target()->drawState();
-
         SkAutoTUnref<GrTexture> texture[3];
         texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], NULL));
         texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], NULL));
@@ -117,11 +115,11 @@ protected:
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    drawState->reset(viewMatrix);
-                    drawState->setRenderTarget(rt);
-                    drawState->setColor(0xffffffff);
-                    drawState->addColorProcessor(fp);
-                    tt.target()->drawSimpleRect(renderRect);
+                    GrDrawState drawState(viewMatrix);
+                    drawState.setRenderTarget(rt);
+                    drawState.setColor(0xffffffff);
+                    drawState.addColorProcessor(fp);
+                    tt.target()->drawSimpleRect(&drawState, renderRect);
                 }
                 x += renderRect.width() + kTestPad;
             }

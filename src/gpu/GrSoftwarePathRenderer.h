@@ -23,18 +23,21 @@ public:
         : fContext(context) {
     }
 
-    virtual bool canDrawPath(const SkPath&,
+    virtual bool canDrawPath(const GrDrawTarget*,
+                             const GrDrawState*,
+                             const SkPath&,
                              const SkStrokeRec&,
-                             const GrDrawTarget*,
                              bool antiAlias) const SK_OVERRIDE;
 protected:
-    virtual StencilSupport onGetStencilSupport(const SkPath&,
-                                               const SkStrokeRec&,
-                                               const GrDrawTarget*) const SK_OVERRIDE;
+    virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
+                                               const GrDrawState*,
+                                               const SkPath&,
+                                               const SkStrokeRec&) const SK_OVERRIDE;
 
-    virtual bool onDrawPath(const SkPath&,
+    virtual bool onDrawPath(GrDrawTarget*,
+                            GrDrawState*,
+                            const SkPath&,
                             const SkStrokeRec&,
-                            GrDrawTarget*,
                             bool antiAlias) SK_OVERRIDE;
 
 private:

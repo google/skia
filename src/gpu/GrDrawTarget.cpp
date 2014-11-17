@@ -93,9 +93,6 @@ GrDrawTarget::GrDrawTarget(GrContext* context)
     , fContext(context)
     , fGpuTraceMarkerCount(0) {
     SkASSERT(context);
-    fDrawState = &fDefaultDrawState;
-    // We assume that fDrawState always owns a ref to the object it points at.
-    fDefaultDrawState.ref();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.push_back();
 #ifdef SK_DEBUG
     geoSrc.fVertexCount = DEBUG_INVAL_START_IDX;
@@ -112,7 +109,6 @@ GrDrawTarget::~GrDrawTarget() {
     SkDEBUGCODE(GeometrySrcState& geoSrc = fGeoSrcStateStack.back());
     SkASSERT(kNone_GeometrySrcType == geoSrc.fIndexSrc);
     SkASSERT(kNone_GeometrySrcType == geoSrc.fVertexSrc);
-    fDrawState->unref();
 }
 
 void GrDrawTarget::releaseGeometry() {
@@ -131,18 +127,6 @@ void GrDrawTarget::setClip(const GrClipData* clip) {
 
 const GrClipData* GrDrawTarget::getClip() const {
     return fClip;
-}
-
-void GrDrawTarget::setDrawState(GrDrawState*  drawState) {
-    SkASSERT(fDrawState);
-    if (NULL == drawState) {
-        drawState = &fDefaultDrawState;
-    }
-    if (fDrawState != drawState) {
-        fDrawState->unref();
-        drawState->ref();
-        fDrawState = drawState;
-    }
 }
 
 bool GrDrawTarget::reserveVertexSpace(size_t vertexSize,
@@ -191,11 +175,11 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
 }
 
 bool GrDrawTarget::reserveVertexAndIndexSpace(int vertexCount,
+                                              size_t vertexStride,
                                               int indexCount,
                                               void** vertices,
                                               void** indices) {
-    size_t vertexStride = this->drawState()->getVertexStride();
-    this->willReserveVertexAndIndexSpace(vertexCount, indexCount);
+    this->willReserveVertexAndIndexSpace(vertexCount, vertexStride, indexCount);
     if (vertexCount) {
         if (!this->reserveVertexSpace(vertexStride, vertexCount, vertices)) {
             if (indexCount) {
@@ -215,7 +199,8 @@ bool GrDrawTarget::reserveVertexAndIndexSpace(int vertexCount,
     return true;
 }
 
-bool GrDrawTarget::geometryHints(int32_t* vertexCount,
+bool GrDrawTarget::geometryHints(size_t vertexStride,
+                                 int32_t* vertexCount,
                                  int32_t* indexCount) const {
     if (vertexCount) {
         *vertexCount = -1;
@@ -266,13 +251,13 @@ void GrDrawTarget::releasePreviousIndexSource() {
     }
 }
 
-void GrDrawTarget::setVertexSourceToBuffer(const GrVertexBuffer* buffer) {
+void GrDrawTarget::setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride) {
     this->releasePreviousVertexSource();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     geoSrc.fVertexSrc    = kBuffer_GeometrySrcType;
     geoSrc.fVertexBuffer = buffer;
     buffer->ref();
-    geoSrc.fVertexSize = this->drawState()->getVertexStride();
+    geoSrc.fVertexSize = vertexStride;
 }
 
 void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
@@ -320,10 +305,12 @@ void GrDrawTarget::popGeometrySource() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
-                             int startIndex, int vertexCount,
+bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
+                             GrPrimitiveType type,
+                             int startVertex,
+                             int startIndex,
+                             int vertexCount,
                              int indexCount) const {
-    const GrDrawState& drawState = this->getDrawState();
 #ifdef SK_DEBUG
     const GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     int maxVertex = startVertex + vertexCount;
@@ -395,13 +382,15 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     return true;
 }
 
-bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const SkRect* drawBounds) {
-    if (this->caps()->dstReadInShaderSupport() || !this->getDrawState().willEffectReadDstColor()) {
+bool GrDrawTarget::setupDstReadIfNecessary(GrDrawState* ds,
+                                           GrDeviceCoordTexture* dstCopy,
+                                           const SkRect* drawBounds) {
+    if (this->caps()->dstReadInShaderSupport() || !ds->willEffectReadDstColor()) {
         return true;
     }
-    GrRenderTarget* rt = this->drawState()->getRenderTarget();
     SkIRect copyRect;
     const GrClipData* clip = this->getClip();
+    GrRenderTarget* rt = ds->getRenderTarget();
     clip->getConservativeBounds(rt, &copyRect);
 
     if (drawBounds) {
@@ -443,18 +432,22 @@ bool GrDrawTarget::setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const 
     }
 }
 
-void GrDrawTarget::drawIndexed(GrPrimitiveType type,
+void GrDrawTarget::drawIndexed(GrDrawState* ds,
+                               GrPrimitiveType type,
                                int startVertex,
                                int startIndex,
                                int vertexCount,
                                int indexCount,
                                const SkRect* devBounds) {
-    if (indexCount > 0 && this->checkDraw(type, startVertex, startIndex, vertexCount, indexCount)) {
+    SkASSERT(ds);
+    if (indexCount > 0 &&
+        this->checkDraw(*ds, type, startVertex, startIndex, vertexCount, indexCount)) {
+
         // Setup clip
         GrClipMaskManager::ScissorState scissorState;
         GrDrawState::AutoRestoreEffects are;
         GrDrawState::AutoRestoreStencil ars;
-        if (!this->setupClip(devBounds, &are, &ars, &scissorState)) {
+        if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
             return;
         }
 
@@ -473,23 +466,26 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type,
             info.setDevBounds(*devBounds);
         }
         // TODO: We should continue with incorrect blending.
-        if (!this->setupDstReadIfNecessary(&info)) {
+        if (!this->setupDstReadIfNecessary(ds, &info)) {
             return;
         }
-        this->onDraw(info, scissorState);
+        this->onDraw(*ds, info, scissorState);
     }
 }
 
-void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
+void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
+                                  GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount,
                                   const SkRect* devBounds) {
-    if (vertexCount > 0 && this->checkDraw(type, startVertex, -1, vertexCount, -1)) {
+    SkASSERT(ds);
+    if (vertexCount > 0 && this->checkDraw(*ds, type, startVertex, -1, vertexCount, -1)) {
+
         // Setup clip
         GrClipMaskManager::ScissorState scissorState;
         GrDrawState::AutoRestoreEffects are;
         GrDrawState::AutoRestoreStencil ars;
-        if (!this->setupClip(devBounds, &are, &ars, &scissorState)) {
+        if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
             return;
         }
 
@@ -509,10 +505,10 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
         }
 
         // TODO: We should continue with incorrect blending.
-        if (!this->setupDstReadIfNecessary(&info)) {
+        if (!this->setupDstReadIfNecessary(ds, &info)) {
             return;
         }
-        this->onDraw(info, scissorState);
+        this->onDraw(*ds, info, scissorState);
     }
 }
 
@@ -535,6 +531,7 @@ static const GrStencilSettings& even_odd_path_stencil_settings() {
 }
 
 void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType fill,
+                                                     const GrStencilBuffer* sb,
                                                      GrStencilSettings* outStencilSettings) {
 
     switch (fill) {
@@ -547,94 +544,112 @@ void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType f
             *outStencilSettings = even_odd_path_stencil_settings();
             break;
     }
-    this->clipMaskManager()->adjustPathStencilParams(outStencilSettings);
+    this->clipMaskManager()->adjustPathStencilParams(sb, outStencilSettings);
 }
 
-void GrDrawTarget::stencilPath(const GrPath* path, GrPathRendering::FillType fill) {
+void GrDrawTarget::stencilPath(GrDrawState* ds,
+                               const GrPath* path,
+                               GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(ds);
 
     // Setup clip
     GrClipMaskManager::ScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClip(NULL, &are, &ars, &scissorState)) {
+    if (!this->setupClip(NULL, &are, &ars, ds, &scissorState)) {
         return;
     }
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    this->getPathStencilSettingsForFilltype(fill, &stencilSettings);
+    this->getPathStencilSettingsForFilltype(fill,
+                                            ds->getRenderTarget()->getStencilBuffer(),
+                                            &stencilSettings);
 
-    this->onStencilPath(path, scissorState, stencilSettings);
+    this->onStencilPath(*ds, path, scissorState, stencilSettings);
 }
 
-void GrDrawTarget::drawPath(const GrPath* path, GrPathRendering::FillType fill) {
+void GrDrawTarget::drawPath(GrDrawState* ds,
+                            const GrPath* path,
+                            GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path rendering.
     SkASSERT(path);
     SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(ds);
 
     SkRect devBounds = path->getBounds();
-    SkMatrix viewM = this->drawState()->getViewMatrix();
+    SkMatrix viewM = ds->getViewMatrix();
     viewM.mapRect(&devBounds);
 
     // Setup clip
     GrClipMaskManager::ScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClip(&devBounds, &are, &ars, &scissorState)) {
+    if (!this->setupClip(&devBounds, &are, &ars, ds, &scissorState)) {
        return;
     }
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    this->getPathStencilSettingsForFilltype(fill, &stencilSettings);
+    this->getPathStencilSettingsForFilltype(fill,
+                                            ds->getRenderTarget()->getStencilBuffer(),
+                                            &stencilSettings);
 
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(&dstCopy, &devBounds)) {
+    if (!this->setupDstReadIfNecessary(ds, &dstCopy, &devBounds)) {
         return;
     }
 
-    this->onDrawPath(path, scissorState, stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
+    this->onDrawPath(*ds, path, scissorState, stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
 }
 
-void GrDrawTarget::drawPaths(const GrPathRange* pathRange,
-                             const uint32_t indices[], int count,
-                             const float transforms[], PathTransformType transformsType,
+void GrDrawTarget::drawPaths(GrDrawState* ds,
+                             const GrPathRange* pathRange,
+                             const uint32_t indices[],
+                             int count,
+                             const float transforms[],
+                             PathTransformType transformsType,
                              GrPathRendering::FillType fill) {
     SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(pathRange);
     SkASSERT(indices);
     SkASSERT(transforms);
+    SkASSERT(ds);
 
     // Setup clip
     GrClipMaskManager::ScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
 
-    if (!this->setupClip(NULL, &are, &ars, &scissorState)) {
+    if (!this->setupClip(NULL, &are, &ars, ds, &scissorState)) {
         return;
     }
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    this->getPathStencilSettingsForFilltype(fill, &stencilSettings);
+    this->getPathStencilSettingsForFilltype(fill,
+                                            ds->getRenderTarget()->getStencilBuffer(),
+                                            &stencilSettings);
 
     // Don't compute a bounding box for setupDstReadIfNecessary(), we'll opt
     // instead for it to just copy the entire dst. Realistically this is a moot
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(&dstCopy, NULL)) {
+    if (!this->setupDstReadIfNecessary(ds, &dstCopy, NULL)) {
         return;
     }
 
-    this->onDrawPaths(pathRange, indices, count, transforms, transformsType, scissorState,
+    this->onDrawPaths(*ds, pathRange, indices, count, transforms, transformsType, scissorState,
                       stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
 }
 
-void GrDrawTarget::clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+void GrDrawTarget::clear(const SkIRect* rect,
+                         GrColor color,
+                         bool canIgnoreRect,
                          GrRenderTarget* renderTarget) {
     if (fCaps->useDrawInsteadOfClear()) {
         // This works around a driver bug with clear by drawing a rect instead.
@@ -646,14 +661,13 @@ void GrDrawTarget::clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
             // We first issue a discard() since that may help tilers.
             this->discard(renderTarget);
         }
-        AutoStateRestore asr(this, kReset_ASRInit, &SkMatrix::I());
 
-        this->drawState()->setColor(color);
-        this->drawState()->disableState(GrDrawState::kClip_StateBit);
-        this->drawState()->disableState(GrDrawState::kHWAntialias_StateBit);
-        this->drawState()->setRenderTarget(renderTarget);
+        GrDrawState drawState;
 
-        this->drawSimpleRect(*rect);
+        drawState.setColor(color);
+        drawState.setRenderTarget(renderTarget);
+
+        this->drawSimpleRect(&drawState, *rect);
     } else {       
         this->onClear(rect, color, canIgnoreRect, renderTarget);
     }
@@ -700,11 +714,14 @@ void GrDrawTarget::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
+void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
+                                        GrPrimitiveType type,
                                         int instanceCount,
                                         int verticesPerInstance,
                                         int indicesPerInstance,
                                         const SkRect* devBounds) {
+    SkASSERT(ds);
+
     if (!verticesPerInstance || !indicesPerInstance) {
         return;
     }
@@ -718,7 +735,7 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
     GrClipMaskManager::ScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClip(devBounds, &are, &ars, &scissorState)) {
+    if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
         return;
     }
 
@@ -734,21 +751,21 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
         info.setDevBounds(*devBounds);
     }
     // TODO: We should continue with incorrect blending.
-    if (!this->setupDstReadIfNecessary(&info)) {
+    if (!this->setupDstReadIfNecessary(ds, &info)) {
         return;
     }
-
     while (instanceCount) {
         info.fInstanceCount = SkTMin(instanceCount, maxInstancesPerDraw);
         info.fVertexCount = info.fInstanceCount * verticesPerInstance;
         info.fIndexCount = info.fInstanceCount * indicesPerInstance;
 
-        if (this->checkDraw(type,
+        if (this->checkDraw(*ds,
+                            type,
                             info.fStartVertex,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
-            this->onDraw(info, scissorState);
+            this->onDraw(*ds, info, scissorState);
         }
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;
@@ -757,82 +774,13 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::AutoStateRestore::AutoStateRestore() {
-    fDrawTarget = NULL;
-}
-
-GrDrawTarget::AutoStateRestore::AutoStateRestore(GrDrawTarget* target,
-                                                 ASRInit init,
-                                                 const SkMatrix* vm) {
-    fDrawTarget = NULL;
-    this->set(target, init, vm);
-}
-
-GrDrawTarget::AutoStateRestore::~AutoStateRestore() {
-    if (fDrawTarget) {
-        fDrawTarget->setDrawState(fSavedState);
-        fSavedState->unref();
-    }
-}
-
-void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target, ASRInit init, const SkMatrix* vm) {
-    SkASSERT(NULL == fDrawTarget);
-    fDrawTarget = target;
-    fSavedState = target->drawState();
-    SkASSERT(fSavedState);
-    fSavedState->ref();
-    if (kReset_ASRInit == init) {
-        if (NULL == vm) {
-            // calls the default cons
-            fTempState.init();
-        } else {
-            SkNEW_IN_TLAZY(&fTempState, GrDrawState, (*vm));
-        }
-    } else {
-        SkASSERT(kPreserve_ASRInit == init);
-        if (NULL == vm) {
-            fTempState.set(*fSavedState);
-        } else {
-            SkNEW_IN_TLAZY(&fTempState, GrDrawState, (*fSavedState, *vm));
-        }
-    }
-    target->setDrawState(fTempState.get());
-}
-
-bool GrDrawTarget::AutoStateRestore::setIdentity(GrDrawTarget* target, ASRInit init) {
-    SkASSERT(NULL == fDrawTarget);
-    fDrawTarget = target;
-    fSavedState = target->drawState();
-    SkASSERT(fSavedState);
-    fSavedState->ref();
-    if (kReset_ASRInit == init) {
-        // calls the default cons
-        fTempState.init();
-    } else {
-        SkASSERT(kPreserve_ASRInit == init);
-        // calls the copy cons
-        fTempState.set(*fSavedState);
-        if (!fTempState.get()->setIdentityViewMatrix()) {
-            // let go of any resources held by the temp
-            fTempState.get()->reset();
-            fDrawTarget = NULL;
-            fSavedState->unref();
-            fSavedState = NULL;
-            return false;
-        }
-    }
-    target->setDrawState(fTempState.get());
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry(
                                          GrDrawTarget*  target,
                                          int vertexCount,
+                                         size_t vertexStride,
                                          int indexCount) {
     fTarget = NULL;
-    this->set(target, vertexCount, indexCount);
+    this->set(target, vertexCount, vertexStride, indexCount);
 }
 
 GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry() {
@@ -845,12 +793,14 @@ GrDrawTarget::AutoReleaseGeometry::~AutoReleaseGeometry() {
 
 bool GrDrawTarget::AutoReleaseGeometry::set(GrDrawTarget*  target,
                                             int vertexCount,
+                                            size_t vertexStride,
                                             int indexCount) {
     this->reset();
     fTarget = target;
     bool success = true;
     if (fTarget) {
         success = target->reserveVertexAndIndexSpace(vertexCount,
+                                                     vertexStride,
                                                      indexCount,
                                                      &fVertices,
                                                      &fIndices);
@@ -966,23 +916,23 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
     GrRenderTarget* rt = dst->asRenderTarget();
     GrTexture* tex = src->asTexture();
 
-    GrDrawTarget::AutoStateRestore asr(this, kReset_ASRInit);
-    this->drawState()->setRenderTarget(rt);
+    GrDrawState drawState;
+    drawState.setRenderTarget(rt);
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(clippedSrcRect.fLeft - clippedDstPoint.fX),
                         SkIntToScalar(clippedSrcRect.fTop - clippedDstPoint.fY));
     matrix.postIDiv(tex->width(), tex->height());
-    this->drawState()->addColorTextureProcessor(tex, matrix);
+    drawState.addColorTextureProcessor(tex, matrix);
     SkIRect dstRect = SkIRect::MakeXYWH(clippedDstPoint.fX,
                                         clippedDstPoint.fY,
                                         clippedSrcRect.width(),
                                         clippedSrcRect.height());
-    this->drawSimpleRect(dstRect);
+    this->drawSimpleRect(&drawState, dstRect);
     return true;
 }
 
-bool GrDrawTarget::canCopySurface(GrSurface* dst,
-                                  GrSurface* src,
+bool GrDrawTarget::canCopySurface(const GrSurface* dst,
+                                  const GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     SkASSERT(dst);
@@ -1187,10 +1137,12 @@ uint32_t GrDrawTargetCaps::CreateUniqueID() {
 bool GrClipTarget::setupClip(const SkRect* devBounds,
                              GrDrawState::AutoRestoreEffects* are,
                              GrDrawState::AutoRestoreStencil* ars,
+                             GrDrawState* ds,
                              GrClipMaskManager::ScissorState* scissorState) {
-    return fClipMaskManager.setupClipping(this->getClip(),
-                                          devBounds,
+    return fClipMaskManager.setupClipping(ds,
                                           are,
                                           ars,
-                                          scissorState);
+                                          scissorState,
+                                          this->getClip(),
+                                          devBounds);
 }

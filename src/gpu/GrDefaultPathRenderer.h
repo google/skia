@@ -19,39 +19,45 @@ class SK_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
     GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
 
-    virtual bool canDrawPath(const SkPath&,
+    virtual bool canDrawPath(const GrDrawTarget*,
+                             const GrDrawState*,
+                             const SkPath&,
                              const SkStrokeRec&,
-                             const GrDrawTarget*,
                              bool antiAlias) const SK_OVERRIDE;
 
 private:
 
-    virtual StencilSupport onGetStencilSupport(const SkPath&,
-                                               const SkStrokeRec&,
-                                               const GrDrawTarget*) const SK_OVERRIDE;
+    virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
+                                               const GrDrawState*,
+                                               const SkPath&,
+                                               const SkStrokeRec&) const SK_OVERRIDE;
 
-    virtual bool onDrawPath(const SkPath&,
+    virtual bool onDrawPath(GrDrawTarget*,
+                            GrDrawState*,
+                            const SkPath&,
                             const SkStrokeRec&,
-                            GrDrawTarget*,
                             bool antiAlias) SK_OVERRIDE;
 
-    virtual void onStencilPath(const SkPath&,
-                               const SkStrokeRec&,
-                               GrDrawTarget*) SK_OVERRIDE;
+    virtual void onStencilPath(GrDrawTarget*,
+                               GrDrawState*,
+                               const SkPath&,
+                               const SkStrokeRec&) SK_OVERRIDE;
 
-    bool internalDrawPath(const SkPath&,
+    bool internalDrawPath(GrDrawTarget*,
+                          GrDrawState*,
+                          const SkPath&,
                           const SkStrokeRec&,
-                          GrDrawTarget*,
                           bool stencilOnly);
 
-    bool createGeom(const SkPath&,
-                    const SkStrokeRec&,
-                    SkScalar srcSpaceTol,
-                    GrDrawTarget*,
+    bool createGeom(GrDrawTarget*,
+                    GrDrawState*,
                     GrPrimitiveType*,
                     int* vertexCnt,
                     int* indexCnt,
-                    GrDrawTarget::AutoReleaseGeometry*);
+                    GrDrawTarget::AutoReleaseGeometry*,
+                    const SkPath&,
+                    const SkStrokeRec&,
+                    SkScalar srcSpaceTol);
 
     bool    fSeparateStencil;
     bool    fStencilWrapOps;

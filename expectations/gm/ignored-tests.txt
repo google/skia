@@ -54,3 +54,12 @@ modecolorfilters
 # cdalton https://codereview.chromium.org/712223002
 # Pixels off by one from covering gradient fills with different bounding boxes
 textblobshader
+
+# joshualitt nvprmsaa4
+simpleaaclip_path
+complexclip2_rrect_bw
+complexclip2_path_aa
+pathopsskpclip
+complexclip2_rrect_aa
+circular-clips
+complexclip2_path_bw

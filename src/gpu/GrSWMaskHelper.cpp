@@ -347,9 +347,8 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
 void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               GrDrawTarget* target,
+                                              GrDrawState* drawState,
                                               const SkIRect& rect) {
-    GrDrawState* drawState = target->drawState();
-
     GrDrawState::AutoViewMatrixRestore avmr;
     if (!avmr.setIdentity(drawState)) {
         return;
@@ -376,5 +375,5 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                                        GrTextureParams::kNone_FilterMode,
                                                        kPosition_GrCoordSet))->unref();
 
-    target->drawSimpleRect(dstRect);
+    target->drawSimpleRect(drawState, dstRect);
 }

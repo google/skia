@@ -92,6 +92,7 @@ public:
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,
+                                         GrDrawState* drawState,
                                          const SkIRect& rect);
 
 private:

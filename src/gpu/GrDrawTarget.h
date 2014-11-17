@@ -67,34 +67,6 @@ public:
     const GrClipData* getClip() const;
 
     /**
-     * Sets the draw state object for the draw target. Note that this does not
-     * make a copy. The GrDrawTarget will take a reference to passed object.
-     * Passing NULL will cause the GrDrawTarget to use its own internal draw
-     * state object rather than an externally provided one.
-     */
-    void setDrawState(GrDrawState*  drawState);
-
-    /**
-     * Read-only access to the GrDrawTarget's current draw state.
-     */
-    const GrDrawState& getDrawState() const { return *fDrawState; }
-
-    /**
-     * Read-write access to the GrDrawTarget's current draw state. Note that
-     * this doesn't ref.
-     */
-    GrDrawState* drawState() { return fDrawState; }
-
-    /** When we're using coverage AA but the blend is incompatible (given gpu
-     * limitations) we should disable AA. */
-    bool shouldDisableCoverageAAForBlend() const {
-        // Enable below if we should draw with AA even when it produces
-        // incorrect blending.
-        // return false;
-        return !this->getDrawState().couldApplyCoverage(*this->caps());
-    }
-
-    /**
      * There are three types of "sources" of geometry (vertices and indices) for
      * draw calls made on the target. When performing an indexed draw, the
      * indices and vertices can use different source types. Once a source is
@@ -168,6 +140,7 @@ public:
      *                     non-zero. Illegal to pass NULL if indexCount > 0.
      */
      bool reserveVertexAndIndexSpace(int vertexCount,
+                                     size_t vertexStride,
                                      int indexCount,
                                      void** vertices,
                                      void** indices);
@@ -194,8 +167,7 @@ public:
      *
      * @return  true if target should be flushed based on the input values.
      */
-    virtual bool geometryHints(int* vertexCount,
-                               int* indexCount) const;
+    virtual bool geometryHints(size_t vertexStride, int* vertexCount, int* indexCount) const;
 
     /**
      * Sets source of vertex data for the next draw. Data does not have to be
@@ -205,7 +177,7 @@ public:
      *                      unlocked before draw call. Vertex size is queried
      *                      from current GrDrawState.
      */
-    void setVertexSourceToBuffer(const GrVertexBuffer* buffer);
+    void setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride);
 
     /**
      * Sets source of index data for the next indexed draw. Data does not have
@@ -267,7 +239,8 @@ public:
      * @param devBounds    optional bounds hint. This is a promise from the caller,
      *                     not a request for clipping.
      */
-    void drawIndexed(GrPrimitiveType type,
+    void drawIndexed(GrDrawState*,
+                     GrPrimitiveType type,
                      int startVertex,
                      int startIndex,
                      int vertexCount,
@@ -285,7 +258,8 @@ public:
      * @param devBounds    optional bounds hint. This is a promise from the caller,
      *                     not a request for clipping.
      */
-    void drawNonIndexed(GrPrimitiveType type,
+    void drawNonIndexed(GrDrawState*,
+                        GrPrimitiveType type,
                         int startVertex,
                         int vertexCount,
                         const SkRect* devBounds = NULL);
@@ -296,13 +270,13 @@ public:
      * on the draw state (if possible in the 3D API).  Note, we will never have an inverse fill
      * with stencil path
      */
-    void stencilPath(const GrPath*, GrPathRendering::FillType fill);
+    void stencilPath(GrDrawState*, const GrPath*, GrPathRendering::FillType fill);
 
     /**
      * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the draw state (if possible in the 3D API).
      */
-    void drawPath(const GrPath*, GrPathRendering::FillType fill);
+    void drawPath(GrDrawState*, const GrPath*, GrPathRendering::FillType fill);
 
     /**
      * Draws many paths. It will respect the HW
@@ -316,9 +290,11 @@ public:
                               PathTransformSize(transformsType) * count elements
      * @param fill            Fill type for drawing all the paths
      */
-    void drawPaths(const GrPathRange* pathRange,
-                   const uint32_t indices[], int count,
-                   const float transforms[], PathTransformType transformsType,
+    void drawPaths(GrDrawState*, const GrPathRange* pathRange,
+                   const uint32_t indices[],
+                   int count,
+                   const float transforms[],
+                   PathTransformType transformsType,
                    GrPathRendering::FillType fill);
 
     /**
@@ -333,22 +309,23 @@ public:
      *                    then srcRect will be transformed by srcMatrix.
      *                    srcMatrix can be NULL when no srcMatrix is desired.
      */
-    void drawRect(const SkRect& rect,
+    void drawRect(GrDrawState* ds,
+                  const SkRect& rect,
                   const SkRect* localRect,
                   const SkMatrix* localMatrix) {
         AutoGeometryPush agp(this);
-        this->onDrawRect(rect, localRect, localMatrix);
+        this->onDrawRect(ds, rect, localRect, localMatrix);
     }
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(const SkRect& rect) {
-        this->drawRect(rect, NULL, NULL);
+    void drawSimpleRect(GrDrawState* ds, const SkRect& rect) {
+        this->drawRect(ds, rect, NULL, NULL);
     }
-    void drawSimpleRect(const SkIRect& irect) {
+    void drawSimpleRect(GrDrawState* ds, const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawRect(rect, NULL, NULL);
+        this->drawRect(ds, rect, NULL, NULL);
     }
 
     /**
@@ -381,7 +358,8 @@ public:
      * @param devBounds    optional bounds hint. This is a promise from the caller,
      *                     not a request for clipping.
      */
-    void drawIndexedInstances(GrPrimitiveType type,
+    void drawIndexedInstances(GrDrawState*,
+                              GrPrimitiveType type,
                               int instanceCount,
                               int verticesPerInstance,
                               int indicesPerInstance,
@@ -392,7 +370,9 @@ public:
      * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
      * can be optionally cleared.
      */
-    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
+    void clear(const SkIRect* rect,
+               GrColor color,
+               bool canIgnoreRect,
                GrRenderTarget* renderTarget);
 
     /**
@@ -438,8 +418,8 @@ public:
      * Function that determines whether a copySurface call would succeed without
      * performing the copy.
      */
-    virtual bool canCopySurface(GrSurface* dst,
-                                GrSurface* src,
+    virtual bool canCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint);
 
@@ -457,136 +437,19 @@ public:
      */
     virtual void purgeResources() {};
 
-    class DrawInfo;
-    /**
-     * For subclass internal use to invoke a call to onDraw(). See DrawInfo below.
-     */
-    void executeDraw(const DrawInfo& info,
-                     const GrClipMaskManager::ScissorState& scissorState) {
-        this->onDraw(info, scissorState);
-    }
-
-    /**
-     * For subclass internal use to invoke a call to onStencilPath().
-     */
-    void executeStencilPath(const GrPath* path,
-                            const GrClipMaskManager::ScissorState& scissorState,
-                            const GrStencilSettings& stencilSettings) {
-        this->onStencilPath(path, scissorState, stencilSettings);
-    }
-
-    /**
-     * For subclass internal use to invoke a call to onDrawPath().
-     */
-    void executeDrawPath(const GrPath* path,
-                         const GrClipMaskManager::ScissorState& scissorState,
-                         const GrStencilSettings& stencilSettings,
-                         const GrDeviceCoordTexture* dstCopy) {
-        this->onDrawPath(path, scissorState, stencilSettings, dstCopy);
-    }
-
-    /**
-     * For subclass internal use to invoke a call to onDrawPaths().
-     */
-    void executeDrawPaths(const GrPathRange* pathRange,
-                          const uint32_t indices[],
-                          int count,
-                          const float transforms[],
-                          PathTransformType transformsType,
-                          const GrClipMaskManager::ScissorState& scissorState,
-                          const GrStencilSettings& stencilSettings,
-                          const GrDeviceCoordTexture* dstCopy) {
-        this->onDrawPaths(pathRange, indices, count, transforms, transformsType,
-                          scissorState, stencilSettings, dstCopy);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * See AutoStateRestore below.
-     */
-    enum ASRInit {
-        kPreserve_ASRInit,
-        kReset_ASRInit
-    };
-
-    /**
-     * Saves off the current state and restores it in the destructor. It will
-     * install a new GrDrawState object on the target (setDrawState) and restore
-     * the previous one in the destructor. The caller should call drawState() to
-     * get the new draw state after the ASR is installed.
-     *
-     * GrDrawState* state = target->drawState();
-     * AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit).
-     * state->setRenderTarget(rt); // state refers to the GrDrawState set on
-     *                             // target before asr was initialized.
-     *                             // Therefore, rt is set on the GrDrawState
-     *                             // that will be restored after asr's
-     *                             // destructor rather than target's current
-     *                             // GrDrawState.
-     */
-    class AutoStateRestore : public ::SkNoncopyable {
-    public:
-        /**
-         * Default ASR will have no effect unless set() is subsequently called.
-         */
-        AutoStateRestore();
-
-        /**
-         * Saves the state on target. The state will be restored when the ASR
-         * is destroyed. If this constructor is used do not call set().
-         *
-         * @param init  Should the newly installed GrDrawState be a copy of the
-         *              previous state or a default-initialized GrDrawState.
-         * @param viewMatrix Optional view matrix. If init = kPreserve then the draw state's
-         *                   matrix will be preconcat'ed with the param. All stages will be
-                             updated to compensate for the matrix change. If init == kReset
-                             then the draw state's matrix will be this matrix.
-         */
-        AutoStateRestore(GrDrawTarget* target, ASRInit init, const SkMatrix* viewMatrix = NULL);
-
-        ~AutoStateRestore();
-
-        /**
-         * Saves the state on target. The state will be restored when the ASR
-         * is destroyed. This should only be called once per ASR object and only
-         * when the default constructor was used. For nested saves use multiple
-         * ASR objects.
-         *
-         * @param init  Should the newly installed GrDrawState be a copy of the
-         *              previous state or a default-initialized GrDrawState.
-         * @param viewMatrix Optional view matrix. If init = kPreserve then the draw state's
-         *                   matrix will be preconcat'ed with the param. All stages will be
-                             updated to compensate for the matrix change. If init == kReset
-                             then the draw state's matrix will be this matrix.
-         */
-        void set(GrDrawTarget* target, ASRInit init, const SkMatrix* viewMatrix = NULL);
-
-        /**
-         * Like set() but makes the view matrix identity. When init is kReset it is as though
-         * NULL was passed to set's viewMatrix param. When init is kPreserve it is as though
-         * the inverse view matrix was passed. If kPreserve is passed and the draw state's matrix
-         * is not invertible then this may fail.
-         */
-        bool setIdentity(GrDrawTarget* target, ASRInit init);
-
-    private:
-        GrDrawTarget*                       fDrawTarget;
-        SkTLazy<GrDrawState>                fTempState;
-        GrDrawState*                        fSavedState;
-    };
-
     ////////////////////////////////////////////////////////////////////////////
 
     class AutoReleaseGeometry : public ::SkNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,
                             int            vertexCount,
+                            size_t         vertexStride,
                             int            indexCount);
         AutoReleaseGeometry();
         ~AutoReleaseGeometry();
         bool set(GrDrawTarget*  target,
                  int            vertexCount,
+                 size_t         vertexStride,
                  int            indexCount);
         bool succeeded() const { return SkToBool(fTarget); }
         void* vertices() const { SkASSERT(this->succeeded()); return fVertices; }
@@ -632,8 +495,7 @@ public:
      */
     class AutoGeometryPush : public ::SkNoncopyable {
     public:
-        AutoGeometryPush(GrDrawTarget* target)
-            : fAttribRestore(target->drawState()) {
+        AutoGeometryPush(GrDrawTarget* target) {
             SkASSERT(target);
             fTarget = target;
             target->pushGeometrySource();
@@ -643,32 +505,6 @@ public:
 
     private:
         GrDrawTarget*                           fTarget;
-        GrDrawState::AutoVertexAttribRestore    fAttribRestore;
-    };
-
-    /**
-     * Combination of AutoGeometryPush and AutoStateRestore. The vertex attribs will be in default
-     * state regardless of ASRInit value.
-     */
-    class AutoGeometryAndStatePush : public ::SkNoncopyable {
-    public:
-        AutoGeometryAndStatePush(GrDrawTarget* target,
-                                 ASRInit init,
-                                 const SkMatrix* viewMatrix = NULL)
-            : fState(target, init, viewMatrix) {
-            SkASSERT(target);
-            fTarget = target;
-            target->pushGeometrySource();
-            if (kPreserve_ASRInit == init) {
-                target->drawState()->setDefaultVertexAttribs();
-            }
-        }
-
-        ~AutoGeometryAndStatePush() { fTarget->popGeometrySource(); }
-
-    private:
-        AutoStateRestore fState;
-        GrDrawTarget*    fTarget;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -830,15 +666,19 @@ protected:
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(DrawInfo* info) {
-        return this->setupDstReadIfNecessary(&info->fDstCopy, info->getDevBounds());
+    bool setupDstReadIfNecessary(GrDrawState* ds, DrawInfo* info) {
+        return this->setupDstReadIfNecessary(ds, &info->fDstCopy, info->getDevBounds());
     }
-    bool setupDstReadIfNecessary(GrDeviceCoordTexture* dstCopy, const SkRect* drawBounds);
+    bool setupDstReadIfNecessary(GrDrawState*,
+                                 GrDeviceCoordTexture* dstCopy,
+                                 const SkRect* drawBounds);
 
 private:
     // A subclass can optionally overload this function to be notified before
     // vertex and index space is reserved.
-    virtual void willReserveVertexAndIndexSpace(int vertexCount, int indexCount) {}
+    virtual void willReserveVertexAndIndexSpace(int vertexCount,
+                                                size_t vertexStride,
+                                                int indexCount) {}
 
     // implemented by subclass to allocate space for reserved geom
     virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) = 0;
@@ -850,20 +690,26 @@ private:
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
-    virtual void onDraw(const DrawInfo&, const GrClipMaskManager::ScissorState&) = 0;
+    virtual void onDraw(const GrDrawState&,
+                        const DrawInfo&,
+                        const GrClipMaskManager::ScissorState&) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
-    virtual void onDrawRect(const SkRect& rect,
+    virtual void onDrawRect(GrDrawState*,
+                            const SkRect& rect,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) = 0;
 
-    virtual void onStencilPath(const GrPath*,
+    virtual void onStencilPath(const GrDrawState&,
+                               const GrPath*,
                                const GrClipMaskManager::ScissorState&,
                                const GrStencilSettings&) = 0;
-    virtual void onDrawPath(const GrPath*,
+    virtual void onDrawPath(const GrDrawState&,
+                            const GrPath*,
                             const GrClipMaskManager::ScissorState&,
                             const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) = 0;
-    virtual void onDrawPaths(const GrPathRange*,
+    virtual void onDrawPaths(const GrDrawState&,
+                             const GrPathRange*,
                              const uint32_t indices[],
                              int count,
                              const float transforms[],
@@ -884,8 +730,11 @@ private:
 
     // called by drawIndexed and drawNonIndexed. Use a negative indexCount to
     // indicate non-indexed drawing.
-    bool checkDraw(GrPrimitiveType type, int startVertex,
-                   int startIndex, int vertexCount,
+    bool checkDraw(const GrDrawState&,
+                   GrPrimitiveType type,
+                   int startVertex,
+                   int startIndex,
+                   int vertexCount,
                    int indexCount) const;
     // called when setting a new vert/idx source to unref prev vb/ib
     void releasePreviousVertexSource();
@@ -893,11 +742,14 @@ private:
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
-    void getPathStencilSettingsForFilltype(GrPathRendering::FillType, GrStencilSettings*);
+    void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
+                                           const GrStencilBuffer*,
+                                           GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
     virtual bool setupClip(const SkRect* devBounds,
                            GrDrawState::AutoRestoreEffects* are,
                            GrDrawState::AutoRestoreStencil* ars,
+                           GrDrawState*,
                            GrClipMaskManager::ScissorState* scissorState) = 0;
 
     enum {
@@ -905,8 +757,6 @@ private:
     };
     SkSTArray<kPreallocGeoSrcStateStackCnt, GeometrySrcState, true> fGeoSrcStateStack;
     const GrClipData*                                               fClip;
-    GrDrawState*                                                    fDrawState;
-    GrDrawState                                                     fDefaultDrawState;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
     // To keep track that we always have at least as many debug marker adds as removes
@@ -959,6 +809,7 @@ private:
     virtual bool setupClip(const SkRect* devBounds,
                            GrDrawState::AutoRestoreEffects* are,
                            GrDrawState::AutoRestoreStencil* ars,
+                           GrDrawState*,
                            GrClipMaskManager::ScissorState* scissorState) SK_OVERRIDE;
 
     typedef GrDrawTarget INHERITED;

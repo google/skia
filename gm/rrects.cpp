@@ -112,7 +112,7 @@ protected:
                             SkDEBUGFAIL("Couldn't get Gr test target.");
                             return;
                         }
-                        GrDrawState* drawState = tt.target()->drawState();
+                        GrDrawState drawState;
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
@@ -120,15 +120,15 @@ protected:
                         SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
                                                                                    rrect));
                         if (fp) {
-                            drawState->addCoverageProcessor(fp);
-                            drawState->setIdentityViewMatrix();
-                            drawState->setRenderTarget(rt);
-                            drawState->setColor(0xff000000);
+                            drawState.addCoverageProcessor(fp);
+                            drawState.setIdentityViewMatrix();
+                            drawState.setRenderTarget(rt);
+                            drawState.setColor(0xff000000);
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            tt.target()->drawSimpleRect(bounds);
+                            tt.target()->drawSimpleRect(&drawState, bounds);
                         } else {
                             drew = false;
                         }

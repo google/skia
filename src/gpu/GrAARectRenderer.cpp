@@ -177,10 +177,10 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
 }
 
 void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
+                                          GrDrawState* drawState,
                                           const SkRect& rect,
                                           const SkMatrix& combinedMatrix,
                                           const SkRect& devRect) {
-    GrDrawState* drawState = target->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
 
     GrColor color = drawState->getColor();
@@ -190,7 +190,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, 8, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 8, drawState->getVertexStride(),  0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -300,13 +300,16 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1,
+    target->drawIndexedInstances(drawState,
+                                 kTriangles_GrPrimitiveType,
+                                 1,
                                  kVertsPerAAFillRect,
                                  kIndicesPerAAFillRect);
     target->resetIndexSource();
 }
 
 void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
+                                    GrDrawState* drawState,
                                     const SkRect& rect,
                                     const SkMatrix& combinedMatrix,
                                     const SkRect& devRect,
@@ -353,7 +356,7 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, drawState, devOutside, SkMatrix::I(), devOutside);
         return;
     }
 
@@ -370,17 +373,17 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(target, devOutside, devOutsideAssist, devInside, miterStroke);
+    this->geometryStrokeAARect(target, drawState, devOutside, devOutsideAssist, devInside,
+                               miterStroke);
 }
 
 void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
+                                            GrDrawState* drawState,
                                             const SkRect& devOutside,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
                                             bool miterStroke) {
-    GrDrawState* drawState = target->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
-
     CoverageAttribType covAttribType = set_rect_attribs(drawState);
 
     GrColor color = drawState->getColor();
@@ -392,7 +395,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     int outerVertexNum = miterStroke ? 4 : 8;
     int totalVertexNum = (outerVertexNum + innerVertexNum) * 2;
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, totalVertexNum, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, totalVertexNum,  drawState->getVertexStride(), 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -499,12 +502,16 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1,
-                                 totalVertexNum, aa_stroke_rect_index_count(miterStroke));
+    target->drawIndexedInstances(drawState,
+                                 kTriangles_GrPrimitiveType,
+                                 1,
+                                 totalVertexNum,
+                                 aa_stroke_rect_index_count(miterStroke));
     target->resetIndexSource();
 }
 
 void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
+                                         GrDrawState* drawState,
                                          const SkRect rects[2],
                                          const SkMatrix& combinedMatrix) {
     SkASSERT(combinedMatrix.rectStaysRect());
@@ -516,9 +523,9 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     combinedMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, drawState, devOutside, SkMatrix::I(), devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(target, devOutside, devOutsideAssist, devInside, true);
+    this->geometryStrokeAARect(target, drawState, devOutside, devOutsideAssist, devInside, true);
 }

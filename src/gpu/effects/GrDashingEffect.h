@@ -13,6 +13,7 @@
 #include "SkPathEffect.h"
 
 class GrGpu;
+class GrDrawState;
 class GrDrawTarget;
 class GrGeometryProcessor;
 class GrPaint;
@@ -22,8 +23,9 @@ class GrGLDashingEffect;
 class SkPath;
 
 namespace GrDashingEffect {
-    bool DrawDashLine(const SkPoint pts[2], const GrPaint& paint, const GrStrokeInfo& strokeInfo,
-                      GrGpu* gpu, GrDrawTarget* target, const SkMatrix& vm);
+    bool DrawDashLine(GrGpu*, GrDrawTarget*, GrDrawState*, const SkPoint pts[2],
+                      const GrPaint& paint, const GrStrokeInfo& strokeInfo,
+                      const SkMatrix& vm);
 
     enum DashCap {
         kRound_DashCap,

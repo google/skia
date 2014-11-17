@@ -73,7 +73,8 @@ public:
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, fDrawID); }
 
     // overrides from GrDrawTarget
-    virtual bool geometryHints(int* vertexCount,
+    virtual bool geometryHints(size_t vertexStride,
+                               int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
 
     virtual bool copySurface(GrSurface* dst,
@@ -81,8 +82,8 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint)  SK_OVERRIDE;
 
-    virtual bool canCopySurface(GrSurface* dst,
-                                GrSurface* src,
+    virtual bool canCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) SK_OVERRIDE;
 
@@ -248,19 +249,25 @@ private:
     typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
 
     // overrides from GrDrawTarget
-    virtual void onDraw(const DrawInfo&, const GrClipMaskManager::ScissorState&) SK_OVERRIDE;
-    virtual void onDrawRect(const SkRect& rect,
+    virtual void onDraw(const GrDrawState&,
+                        const DrawInfo&,
+                        const GrClipMaskManager::ScissorState&) SK_OVERRIDE;
+    virtual void onDrawRect(GrDrawState*,
+                            const SkRect& rect,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) SK_OVERRIDE;
 
-    virtual void onStencilPath(const GrPath*,
+    virtual void onStencilPath(const GrDrawState&,
+                               const GrPath*,
                                const GrClipMaskManager::ScissorState&,
                                const GrStencilSettings&) SK_OVERRIDE;
-    virtual void onDrawPath(const GrPath*,
+    virtual void onDrawPath(const GrDrawState&,
+                            const GrPath*,
                             const GrClipMaskManager::ScissorState&,
                             const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    virtual void onDrawPaths(const GrPathRange*,
+    virtual void onDrawPaths(const GrDrawState&,
+                             const GrPathRange*,
                              const uint32_t indices[],
                              int count,
                              const float transforms[],
@@ -283,14 +290,17 @@ private:
     virtual void geometrySourceWillPush() SK_OVERRIDE;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
     virtual void willReserveVertexAndIndexSpace(int vertexCount,
+                                                size_t vertexStride,
                                                 int indexCount) SK_OVERRIDE;
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
-    int concatInstancedDraw(const DrawInfo& info, const GrClipMaskManager::ScissorState&);
+    int concatInstancedDraw(const GrDrawState&,
+                            const DrawInfo&,
+                            const GrClipMaskManager::ScissorState&);
 
     // Determines whether the current draw operation requieres a new drawstate and if so records it.
-    void recordStateIfNecessary(GrGpu::DrawType, const GrDeviceCoordTexture*);
+    void recordStateIfNecessary(const GrDrawState&, GrGpu::DrawType, const GrDeviceCoordTexture*);
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();
     // Records any trace markers for a command after adding it to the buffer.

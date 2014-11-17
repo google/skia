@@ -2490,8 +2490,8 @@ bool GrGpuGL::copySurface(GrSurface* dst,
     return copied;
 }
 
-bool GrGpuGL::canCopySurface(GrSurface* dst,
-                             GrSurface* src,
+bool GrGpuGL::canCopySurface(const GrSurface* dst,
+                             const GrSurface* src,
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) {
     // This mirrors the logic in onCopySurface.  We prefer our base makes the copy if we need to

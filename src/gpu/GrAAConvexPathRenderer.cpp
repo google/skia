@@ -610,9 +610,10 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
+bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
+                                         const GrDrawState*,
+                                         const SkPath& path,
                                          const SkStrokeRec& stroke,
-                                         const GrDrawTarget* target,
                                          bool antiAlias) const {
     return (target->caps()->shaderDerivativeSupport() && antiAlias &&
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
@@ -628,9 +629,10 @@ extern const GrVertexAttrib gPathAttribs[] = {
 
 };
 
-bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
+bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
+                                        GrDrawState* drawState,
+                                        const SkPath& origPath,
                                         const SkStrokeRec&,
-                                        GrDrawTarget* target,
                                         bool antiAlias) {
 
     const SkPath* path = &origPath;
@@ -638,12 +640,11 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         return true;
     }
 
-    SkMatrix viewMatrix = target->getDrawState().getViewMatrix();
-    GrDrawTarget::AutoStateRestore asr;
-    if (!asr.setIdentity(target, GrDrawTarget::kPreserve_ASRInit)) {
+    SkMatrix viewMatrix = drawState->getViewMatrix();
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (!avmr.setIdentity(drawState)) {
         return false;
     }
-    GrDrawState* drawState = target->drawState();
 
     // We use the fact that SkPath::transform path does subdivision based on
     // perspective. Otherwise, we apply the view matrix when copying to the
@@ -682,7 +683,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Create();
     drawState->setGeometryProcessor(quadProcessor)->unref();
 
-    GrDrawTarget::AutoReleaseGeometry arg(target, vCount, iCount);
+    GrDrawTarget::AutoReleaseGeometry arg(target, vCount, drawState->getVertexStride(), iCount);
     if (!arg.succeeded()) {
         return false;
     }
@@ -707,7 +708,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     int vOffset = 0;
     for (int i = 0; i < draws.count(); ++i) {
         const Draw& draw = draws[i];
-        target->drawIndexed(kTriangles_GrPrimitiveType,
+        target->drawIndexed(drawState,
+                            kTriangles_GrPrimitiveType,
                             vOffset,  // start vertex
                             0,        // start index
                             draw.fVertexCnt,

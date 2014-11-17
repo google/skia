@@ -20,7 +20,7 @@ class GrBitmapTextContext : public GrTextContext {
 public:
     static GrBitmapTextContext* Create(GrContext*, const SkDeviceProperties&);
 
-    virtual ~GrBitmapTextContext();
+    virtual ~GrBitmapTextContext() {}
 
 private:
     GrTextStrike*                     fStrike;
@@ -50,7 +50,6 @@ private:
     void appendGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
     void flush();                 // automatically called by destructor
     void finish();
-
 };
 
 #endif

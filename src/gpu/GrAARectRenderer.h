@@ -14,6 +14,7 @@
 #include "SkStrokeRec.h"
 
 class GrGpu;
+class GrDrawState;
 class GrDrawTarget;
 class GrIndexBuffer;
 
@@ -41,32 +42,37 @@ public:
     // between them by passing in stroke (==NULL means fill).
 
     void fillAARect(GrDrawTarget* target,
+                    GrDrawState* ds,
                     const SkRect& rect,
                     const SkMatrix& combinedMatrix,
                     const SkRect& devRect) {
-        this->geometryFillAARect(target, rect, combinedMatrix, devRect);
+        this->geometryFillAARect(target, ds, rect, combinedMatrix, devRect);
     }
 
-    void strokeAARect(GrDrawTarget* target,
+    void strokeAARect(GrDrawTarget*,
+                      GrDrawState*,
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
                       const SkStrokeRec& stroke);
 
     // First rect is outer; second rect is inner
-    void fillAANestedRects(GrDrawTarget* target,
+    void fillAANestedRects(GrDrawTarget*,
+                           GrDrawState*,
                            const SkRect rects[2],
                            const SkMatrix& combinedMatrix);
 
 private:
     GrIndexBuffer* aaStrokeRectIndexBuffer(bool miterStroke);
 
-    void geometryFillAARect(GrDrawTarget* target,
+    void geometryFillAARect(GrDrawTarget*,
+                            GrDrawState*,
                             const SkRect& rect,
                             const SkMatrix& combinedMatrix,
                             const SkRect& devRect);
 
-    void geometryStrokeAARect(GrDrawTarget* target,
+    void geometryStrokeAARect(GrDrawTarget*,
+                              GrDrawState*,
                               const SkRect& devOutside,
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,

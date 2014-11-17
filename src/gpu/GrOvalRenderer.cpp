@@ -481,12 +481,16 @@ void GrOvalRenderer::reset() {
     SkSafeSetNull(fStrokeRRectIndexBuffer);
 }
 
-bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
-                              const SkRect& oval, const SkStrokeRec& stroke)
+bool GrOvalRenderer::drawOval(GrDrawTarget* target,
+                              GrDrawState* drawState,
+                              const GrContext* context,
+                              bool useAA,
+                              const SkRect& oval,
+                              const SkStrokeRec& stroke)
 {
     bool useCoverageAA = useAA &&
-        !target->getDrawState().getRenderTarget()->isMultisampled() &&
-        !target->shouldDisableCoverageAAForBlend();
+        !drawState->getRenderTarget()->isMultisampled() &&
+        drawState->couldApplyCoverage(*target->caps());
 
     if (!useCoverageAA) {
         return false;
@@ -497,13 +501,13 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bo
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
-        this->drawCircle(target, context, useCoverageAA, oval, stroke);
+        this->drawCircle(target, drawState, context, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, context, useCoverageAA, oval, stroke);
+        return this->drawDIEllipse(target, drawState, context, useCoverageAA, oval, stroke);
     // otherwise axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        return this->drawEllipse(target, context, useCoverageAA, oval, stroke);
+        return this->drawEllipse(target, drawState, context, useCoverageAA, oval, stroke);
     } else {
         return false;
     }
@@ -520,13 +524,12 @@ extern const GrVertexAttrib gCircleVertexAttribs[] = {
 };
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
+                                GrDrawState* drawState,
                                 const GrContext* context,
                                 bool useCoverageAA,
                                 const SkRect& circle,
                                 const SkStrokeRec& stroke)
 {
-    GrDrawState* drawState = target->drawState();
-
     const SkMatrix& vm = drawState->getViewMatrix();
     SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
     vm.mapPoints(&center, 1);
@@ -541,7 +544,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs),
                                                       sizeof(CircleVertex));
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 4, drawState->getVertexStride(),  0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -608,7 +611,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     verts[3].fInnerRadius = innerRadius;
 
     target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 }
 
@@ -629,12 +632,12 @@ extern const GrVertexAttrib gDIEllipseVertexAttribs[] = {
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
+                                 GrDrawState* drawState,
                                  const GrContext* context,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
                                  const SkStrokeRec& stroke)
 {
-    GrDrawState* drawState = target->drawState();
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
@@ -704,7 +707,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     drawState->setVertexAttribs<gEllipseVertexAttribs>(SK_ARRAY_COUNT(gEllipseVertexAttribs),
                                                        sizeof(EllipseVertex));
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 4, drawState->getVertexStride(),  0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return false;
@@ -757,19 +760,19 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
     target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
     return true;
 }
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
+                                   GrDrawState* drawState,
                                    const GrContext* context,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
                                    const SkStrokeRec& stroke)
 {
-    GrDrawState* drawState = target->drawState();
     const SkMatrix& vm = drawState->getViewMatrix();
 
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
@@ -824,7 +827,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     drawState->setVertexAttribs<gDIEllipseVertexAttribs>(SK_ARRAY_COUNT(gDIEllipseVertexAttribs),
                                                          sizeof(DIEllipseVertex));
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 4, drawState->getVertexStride(),  0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return false;
@@ -871,7 +874,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
     target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
     return true;
@@ -922,11 +925,15 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu) {
     }
 }
 
-bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool useAA,
-                                const SkRRect& origOuter, const SkRRect& origInner) {
+bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
+                                GrDrawState* drawState,
+                                GrContext* context,
+                                bool useAA,
+                                const SkRRect& origOuter,
+                                const SkRRect& origInner) {
     bool applyAA = useAA &&
-                   !target->getDrawState().getRenderTarget()->isMultisampled() &&
-                   !target->shouldDisableCoverageAAForBlend();
+                   !drawState->getRenderTarget()->isMultisampled() &&
+                   drawState->couldApplyCoverage(*target->caps());
     GrDrawState::AutoRestoreEffects are;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
@@ -942,12 +949,12 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool u
         if (NULL == fp) {
             return false;
         }
-        are.set(target->drawState());
-        target->drawState()->addCoverageProcessor(fp)->unref();
+        are.set(drawState);
+        drawState->addCoverageProcessor(fp)->unref();
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (this->drawRRect(target, context, useAA, origOuter, fillRec)) {
+    if (this->drawRRect(target, drawState, context, useAA, origOuter, fillRec)) {
         return true;
     }
 
@@ -965,30 +972,34 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target, GrContext* context, bool u
         return false;
     }
     if (!are.isSet()) {
-        are.set(target->drawState());
+        are.set(drawState);
     }
     GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(target->drawState())) {
+    if (!avmr.setIdentity(drawState)) {
         return false;
     }
-    target->drawState()->addCoverageProcessor(effect)->unref();
+    drawState->addCoverageProcessor(effect)->unref();
     SkRect bounds = outer->getBounds();
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(bounds, NULL, NULL);
+    target->drawRect(drawState, bounds, NULL, NULL);
     return true;
 }
 
-bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool useAA,
-                               const SkRRect& rrect, const SkStrokeRec& stroke) {
+bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
+                               GrDrawState* drawState,
+                               GrContext* context,
+                               bool useAA,
+                               const SkRRect& rrect,
+                               const SkStrokeRec& stroke) {
     if (rrect.isOval()) {
-        return this->drawOval(target, context, useAA, rrect.getBounds(), stroke);
+        return this->drawOval(target, drawState, context, useAA, rrect.getBounds(), stroke);
     }
 
     bool useCoverageAA = useAA &&
-        !target->getDrawState().getRenderTarget()->isMultisampled() &&
-        !target->shouldDisableCoverageAAForBlend();
+        !drawState->getRenderTarget()->isMultisampled() &&
+        drawState->couldApplyCoverage(*target->caps());
 
     // only anti-aliased rrects for now
     if (!useCoverageAA) {
@@ -1048,7 +1059,6 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
     }
 
     // reset to device coordinates
-    GrDrawState* drawState = target->drawState();
     GrDrawState::AutoViewMatrixRestore avmr;
     if (!avmr.setIdentity(drawState)) {
         return false;
@@ -1065,7 +1075,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         drawState->setVertexAttribs<gCircleVertexAttribs>(SK_ARRAY_COUNT(gCircleVertexAttribs),
                                                           sizeof(CircleVertex));
 
-        GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
+        GrDrawTarget::AutoReleaseGeometry geo(target, 16, drawState->getVertexStride(),  0);
         if (!geo.succeeded()) {
             SkDebugf("Failed to get space for vertices!\n");
             return false;
@@ -1146,7 +1156,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 16, indexCnt, &bounds);
+        target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
+                                     &bounds);
 
     // otherwise we use the ellipse renderer
     } else {
@@ -1187,7 +1198,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
-        GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
+        GrDrawTarget::AutoReleaseGeometry geo(target, 16, drawState->getVertexStride(),  0);
         if (!geo.succeeded()) {
             SkDebugf("Failed to get space for vertices!\n");
             return false;
@@ -1253,7 +1264,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target, GrContext* context, bool us
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 16, indexCnt, &bounds);
+        target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
+                                     &bounds);
     }
 
     target->resetIndexSource();

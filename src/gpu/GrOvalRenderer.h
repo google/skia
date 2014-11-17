@@ -31,21 +31,42 @@ public:
 
     void reset();
 
-    bool drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
-                  const SkRect& oval, const SkStrokeRec& stroke);
-    bool drawRRect(GrDrawTarget* target, GrContext* context, bool useAA,
-                   const SkRRect& rrect, const SkStrokeRec& stroke);
-    bool drawDRRect(GrDrawTarget* target, GrContext* context, bool useAA,
-                    const SkRRect& outer, const SkRRect& inner);
+    bool drawOval(GrDrawTarget*,
+                  GrDrawState*,
+                  const GrContext*,
+                  bool useAA,
+                  const SkRect& oval,
+                  const SkStrokeRec& stroke);
+    bool drawRRect(GrDrawTarget*,
+                   GrDrawState*,
+                   GrContext*,
+                   bool useAA,
+                   const SkRRect& rrect,
+                   const SkStrokeRec& stroke);
+    bool drawDRRect(GrDrawTarget* target,
+                    GrDrawState*,
+                    GrContext* context,
+                    bool useAA,
+                    const SkRRect& outer,
+                    const SkRRect& inner);
 
 private:
-    bool drawEllipse(GrDrawTarget* target, const GrContext* context, bool useCoverageAA,
+    bool drawEllipse(GrDrawTarget* target,
+                     GrDrawState*,
+                     const GrContext* context,
+                     bool useCoverageAA,
                      const SkRect& ellipse,
                      const SkStrokeRec& stroke);
-    bool drawDIEllipse(GrDrawTarget* target, const GrContext* context, bool useCoverageAA,
+    bool drawDIEllipse(GrDrawTarget* target,
+                       GrDrawState*,
+                       const GrContext* context,
+                       bool useCoverageAA,
                        const SkRect& ellipse,
                        const SkStrokeRec& stroke);
-    void drawCircle(GrDrawTarget* target, const GrContext* context, bool useCoverageAA,
+    void drawCircle(GrDrawTarget* target,
+                    GrDrawState*,
+                    const GrContext* context,
+                    bool useCoverageAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
 

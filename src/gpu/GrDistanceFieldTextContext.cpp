@@ -96,7 +96,6 @@ GrDistanceFieldTextContext* GrDistanceFieldTextContext::Create(GrContext* contex
 }
 
 GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
-    this->finish();
     SkSafeSetNull(fGammaTexture);
 }
 
@@ -382,21 +381,21 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
     return GrColorPackRGBA(r, g, b, 0xff);
 }
 
-static void* alloc_vertices(GrDrawTarget* drawTarget, int numVertices, bool useColorVerts) {
+static size_t get_vertex_stride(bool useColorVerts) {
+    return useColorVerts ? (2 * sizeof(SkPoint) + sizeof(GrColor)) :
+                           (2 * sizeof(SkPoint));
+}
+
+static void* alloc_vertices(GrDrawTarget* drawTarget,
+                            int numVertices,
+                            bool useColorVerts) {
     if (numVertices <= 0) {
         return NULL;
     }
 
-    // set up attributes
-    if (useColorVerts) {
-        drawTarget->drawState()->setVertexAttribs<gTextVertexWithColorAttribs>(
-                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
-    } else {
-        drawTarget->drawState()->setVertexAttribs<gTextVertexAttribs>(
-                                    SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
-    }
     void* vertices = NULL;
     bool success = drawTarget->reserveVertexAndIndexSpace(numVertices,
+                                                          get_vertex_stride(useColorVerts),
                                                           0,
                                                           &vertices,
                                                           NULL);
@@ -578,7 +577,9 @@ HAS_ATLAS:
     if (NULL == fVertices) {
         int maxQuadVertices = kVerticesPerGlyph * fContext->getQuadIndexBuffer()->maxQuads();
         fAllocVertexCount = SkMin32(fTotalVertexCount, maxQuadVertices);
-        fVertices = alloc_vertices(fDrawTarget, fAllocVertexCount, useColorVerts);
+        fVertices = alloc_vertices(fDrawTarget,
+                                   fAllocVertexCount,
+                                   useColorVerts);
     }
 
     SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX + SK_DistanceFieldInset);
@@ -588,10 +589,7 @@ HAS_ATLAS:
 
     fVertexBounds.joinNonEmptyArg(glyphRect);
 
-    size_t vertSize = fUseLCDText ? (2 * sizeof(SkPoint))
-                                  : (2 * sizeof(SkPoint) + sizeof(GrColor));
-    
-    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexStride());
+    size_t vertSize = get_vertex_stride(useColorVerts);
 
     SkPoint* positions = reinterpret_cast<SkPoint*>(
                                reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
@@ -607,9 +605,6 @@ HAS_ATLAS:
                               SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
                               vertSize);
     if (useColorVerts) {
-        if (0xFF == GrColorUnpackA(fPaint.getColor())) {
-            fDrawTarget->drawState()->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
-        }
         // color comes after position.
         GrColor* colors = reinterpret_cast<GrColor*>(positions + 1);
         for (int i = 0; i < 4; ++i) {
@@ -623,15 +618,27 @@ HAS_ATLAS:
     return true;
 }
 
+// We use color vertices if we aren't drawing LCD text
+static void set_vertex_attributes(GrDrawState* drawState, bool useColorVerts) {
+    // set up attributes
+    if (useColorVerts) {
+        drawState->setVertexAttribs<gTextVertexWithColorAttribs>(
+                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
+    } else {
+        drawState->setVertexAttribs<gTextVertexAttribs>(
+                                    SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
+    }
+}
+
 void GrDistanceFieldTextContext::flush() {
     if (NULL == fDrawTarget) {
         return;
     }
 
-    GrDrawState* drawState = fDrawTarget->drawState();
-    GrDrawState::AutoRestoreEffects are(drawState);
-
-    drawState->setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
+    GrDrawState drawState;
+    drawState.setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
+    bool useColorVerts = !fUseLCDText;
+    set_vertex_attributes(&drawState, useColorVerts);
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
@@ -648,7 +655,7 @@ void GrDistanceFieldTextContext::flush() {
         this->setupCoverageEffect(filteredColor);
 
         // Effects could be stored with one of the cache objects (atlas?)
-        drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
+        drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
 
         // Set draw state
         if (fUseLCDText) {
@@ -658,28 +665,34 @@ void GrDistanceFieldTextContext::flush() {
                 fPaint.numColorStages()) {
                 SkDebugf("LCD Text will not draw correctly.\n");
             }
-            SkASSERT(!drawState->hasColorVertexAttribute());
+            SkASSERT(!drawState.hasColorVertexAttribute());
             // We don't use the GrPaint's color in this case because it's been premultiplied by
             // alpha. Instead we feed in a non-premultiplied color, and multiply its alpha by
             // the mask texture color. The end result is that we get
             //            mask*paintAlpha*paintColor + (1-mask*paintAlpha)*dstColor
             int a = SkColorGetA(fSkPaint.getColor());
             // paintAlpha
-            drawState->setColor(SkColorSetARGB(a, a, a, a));
+            drawState.setColor(SkColorSetARGB(a, a, a, a));
             // paintColor
-            drawState->setBlendConstant(colorNoPreMul);
-            drawState->setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
+            drawState.setBlendConstant(colorNoPreMul);
+            drawState.setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
         } else {
+            if (0xFF == GrColorUnpackA(fPaint.getColor())) {
+                drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
+            }
             // set back to normal in case we took LCD path previously.
-            drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
+            drawState.setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
             // We're using per-vertex color.
-            SkASSERT(drawState->hasColorVertexAttribute());
+            SkASSERT(drawState.hasColorVertexAttribute());
         }
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-        fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
+        fDrawTarget->drawIndexedInstances(&drawState,
+                                          kTriangles_GrPrimitiveType,
                                           nGlyphs,
-                                          kVerticesPerGlyph, kIndicesPerGlyph, &fVertexBounds);
+                                          kVerticesPerGlyph,
+                                          kIndicesPerGlyph,
+                                          &fVertexBounds);
         fDrawTarget->resetVertexSource();
         fVertices = NULL;
         fTotalVertexCount -= fCurrVertex;

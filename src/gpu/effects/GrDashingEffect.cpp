@@ -29,8 +29,9 @@
 
 // Returns whether or not the gpu can fast path the dash line effect.
 static bool can_fast_path_dash(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
-                               const GrDrawTarget& target, const SkMatrix& viewMatrix) {
-    if (target.getDrawState().getRenderTarget()->isMultisampled()) {
+                               const GrDrawTarget& target, const GrDrawState& ds,
+                               const SkMatrix& viewMatrix) {
+    if (ds.getRenderTarget()->isMultisampled()) {
         return false;
     }
 
@@ -170,11 +171,11 @@ static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& m
     matrix.mapPoints(&verts[idx], 4);
 }
 
-bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
-                                   const GrStrokeInfo& strokeInfo, GrGpu* gpu,
-                                   GrDrawTarget* target, const SkMatrix& vm) {
+bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState* drawState,
+                                   const SkPoint pts[2], const GrPaint& paint,
+                                   const GrStrokeInfo& strokeInfo, const SkMatrix& vm) {
 
-    if (!can_fast_path_dash(pts, strokeInfo, *target, vm)) {
+    if (!can_fast_path_dash(pts, strokeInfo, *target, *drawState, vm)) {
         return false;
     }
 
@@ -319,7 +320,6 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
 
     SkScalar devBloat = useAA ? 0.5f : 0.f;
 
-    GrDrawState* drawState = target->drawState();
     if (devIntervals[1] <= 0.f && useAA) {
         // Case when we end up drawing a solid AA rect
         // Reset the start rect to draw this single solid rect
@@ -372,7 +372,9 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
     totalRectCnt += hasStartRect ? 1 : 0;
     totalRectCnt += hasEndRect ? 1 : 0;
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, totalRectCnt * 4, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target,
+                                          totalRectCnt * 4,
+                                          drawState->getVertexStride(), 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return false;
@@ -438,7 +440,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const GrPaint& paint,
     }
 
     target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, totalRectCnt, 4, 6);
+    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, totalRectCnt, 4, 6);
     target->resetIndexSource();
     return true;
 }

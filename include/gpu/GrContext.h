@@ -898,9 +898,10 @@ public:
     GrStencilBuffer* findAndRefStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(
+                    const GrDrawTarget* target,
+                    const GrDrawState*,
                     const SkPath& path,
                     const SkStrokeRec& stroke,
-                    const GrDrawTarget* target,
                     bool allowSW,
                     GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);
@@ -944,7 +945,6 @@ private:
     SkMatrix                        fViewMatrix;
     SkAutoTUnref<GrRenderTarget>    fRenderTarget;
     const GrClipData*               fClip;  // TODO: make this ref counted
-    GrDrawState*                    fDrawState;
 
     GrResourceCache2*               fResourceCache2;
     GrFontCache*                    fFontCache;
@@ -984,14 +984,16 @@ private:
 
     void setupDrawBuffer();
 
-    class AutoRestoreEffects;
     class AutoCheckFlush;
     /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
     /// draw state is left unmodified.
-    GrDrawTarget* prepareToDraw(const GrPaint*, AutoRestoreEffects*, AutoCheckFlush*);
+    GrDrawTarget* prepareToDraw(GrDrawState* ds, const GrPaint* paint, const AutoCheckFlush*);
 
-    void internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
-                          const GrStrokeInfo& stroke);
+    void internalDrawPath(GrDrawTarget*,
+                          GrDrawState*,
+                          bool useAA,
+                          const SkPath&,
+                          const GrStrokeInfo&);
 
     GrTexture* createResizedTexture(const GrSurfaceDesc& desc,
                                     const GrCacheID& cacheID,

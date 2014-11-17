@@ -9,7 +9,6 @@
 #define GrStencilAndCoverTextContext_DEFINED
 
 #include "GrTextContext.h"
-#include "GrDrawState.h"
 #include "GrDrawTarget.h"
 #include "SkStrokeRec.h"
 
@@ -52,6 +51,7 @@ private:
         kMaxPerformance_RenderMode,
     };
 
+    GrDrawState                     fDrawState;
     GrDrawState::AutoRestoreEffects fStateRestore;
     SkScalar                        fTextRatio;
     float                           fTextInverseRatio;

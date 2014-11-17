@@ -121,8 +121,6 @@ protected:
                     SkDEBUGFAIL("Couldn't get Gr test target.");
                     return;
                 }
-                GrDrawState* drawState = tt.target()->drawState();
-
                 SkMatrix m;
                 SkPath p;
                 m.setTranslate(x, y);
@@ -133,13 +131,15 @@ protected:
                 if (!fp) {
                     continue;
                 }
-                drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
-                drawState->addCoverageProcessor(fp);
-                drawState->setIdentityViewMatrix();
-                drawState->setRenderTarget(rt);
-                drawState->setColor(0xff000000);
 
-                GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
+                GrDrawState ds;
+                ds.setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
+                ds.addCoverageProcessor(fp);
+                ds.setIdentityViewMatrix();
+                ds.setRenderTarget(rt);
+                ds.setColor(0xff000000);
+
+                GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
                 SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
 
                 SkRect bounds = p.getBounds();
@@ -149,7 +149,7 @@ protected:
                 bounds.toQuad(verts);
 
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
@@ -188,14 +188,14 @@ protected:
                     continue;
                 }
 
-                GrDrawState* drawState = tt.target()->drawState();
-                drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
-                drawState->addCoverageProcessor(fp);
-                drawState->setIdentityViewMatrix();
-                drawState->setRenderTarget(rt);
-                drawState->setColor(0xff000000);
+                GrDrawState ds;
+                ds.setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
+                ds.addCoverageProcessor(fp);
+                ds.setIdentityViewMatrix();
+                ds.setRenderTarget(rt);
+                ds.setColor(0xff000000);
 
-                GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
+                GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
                 SkPoint* verts = reinterpret_cast<SkPoint*>(geo.vertices());
 
                 SkRect bounds = rect;
@@ -203,7 +203,7 @@ protected:
                 bounds.toQuad(verts);
 
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 
                 x += SkScalarCeilToScalar(rect.width() + 10.f);
             }

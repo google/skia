@@ -158,10 +158,10 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(tt.target());
 
-                    GrDrawState* drawState = tt.target()->drawState();
-                    drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
+                    GrDrawState ds;
+                    ds.setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
+                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
                     Vertex* verts = reinterpret_cast<Vertex*>(geo.vertices());
 
                     verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop,
@@ -173,12 +173,12 @@ protected:
                         verts[v].fKLM[2] = eval_line(verts[v].fPosition, klmEqs + 6, 1.f);
                     }
 
-                    drawState->setGeometryProcessor(gp);
-                    drawState->setRenderTarget(rt);
-                    drawState->setColor(0xff000000);
+                    ds.setGeometryProcessor(gp);
+                    ds.setRenderTarget(rt);
+                    ds.setColor(0xff000000);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                    tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {
@@ -315,10 +315,10 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(tt.target());
 
-                    GrDrawState* drawState = tt.target()->drawState();
-                    drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
+                    GrDrawState ds;
+                    ds.setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
+                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
                     Vertex* verts = reinterpret_cast<Vertex*>(geo.vertices());
 
                     verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop,
@@ -330,12 +330,12 @@ protected:
                         verts[v].fKLM[2] = eval_line(verts[v].fPosition, klmEqs + 6, 1.f);
                     }
 
-                    drawState->setGeometryProcessor(gp);
-                    drawState->setRenderTarget(rt);
-                    drawState->setColor(0xff000000);
+                    ds.setGeometryProcessor(gp);
+                    ds.setRenderTarget(rt);
+                    ds.setColor(0xff000000);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                    tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {
@@ -503,10 +503,10 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(tt.target());
 
-                    GrDrawState* drawState = tt.target()->drawState();
-                    drawState->setVertexAttribs<kAttribs>(2, sizeof(Vertex));
+                    GrDrawState ds;
+                    ds.setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, 0);
+                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
                     Vertex* verts = reinterpret_cast<Vertex*>(geo.vertices());
 
                     verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop,
@@ -516,12 +516,12 @@ protected:
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
                     DevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
 
-                    drawState->setGeometryProcessor(gp);
-                    drawState->setRenderTarget(rt);
-                    drawState->setColor(0xff000000);
+                    ds.setGeometryProcessor(gp);
+                    ds.setRenderTarget(rt);
+                    ds.setColor(0xff000000);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 4, 6);
+                    tt.target()->drawIndexed(&ds, kTriangles_GrPrimitiveType, 0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {

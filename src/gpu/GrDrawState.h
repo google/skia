@@ -25,10 +25,8 @@ class GrOptDrawState;
 class GrPaint;
 class GrTexture;
 
-class GrDrawState : public SkRefCnt {
+class GrDrawState {
 public:
-    SK_DECLARE_INST_COUNT(GrDrawState)
-
     GrDrawState() {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         this->reset();
@@ -42,7 +40,7 @@ public:
     /**
      * Copies another draw state.
      **/
-    GrDrawState(const GrDrawState& state) : INHERITED() {
+    GrDrawState(const GrDrawState& state) {
         SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
         *this = state;
     }
@@ -872,8 +870,6 @@ private:
     mutable bool fCoverageProcInfoValid;
 
     friend class GrOptDrawState;
-
-    typedef SkRefCnt INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrDrawState::BlendOptFlags);

@@ -80,10 +80,6 @@ GrBitmapTextContext* GrBitmapTextContext::Create(GrContext* context,
     return SkNEW_ARGS(GrBitmapTextContext, (context, props));
 }
 
-GrBitmapTextContext::~GrBitmapTextContext() {
-    this->finish();
-}
-
 bool GrBitmapTextContext::canDraw(const SkPaint& paint) {
     return !SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix());
 }
@@ -102,8 +98,8 @@ inline void GrBitmapTextContext::init(const GrPaint& paint, const SkPaint& skPai
 }
 
 void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPaint,
-                                   const char text[], size_t byteLength,
-                                   SkScalar x, SkScalar y) {
+                                     const char text[], size_t byteLength,
+                                     SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
 
     // nothing to draw
@@ -196,9 +192,9 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
 }
 
 void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skPaint,
-                                      const char text[], size_t byteLength,
-                                      const SkScalar pos[], int scalarsPerPosition,
-                                      const SkPoint& offset) {
+                                        const char text[], size_t byteLength,
+                                        const SkScalar pos[], int scalarsPerPosition,
+                                        const SkPoint& offset) {
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -347,24 +343,41 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
     this->finish();
 }
 
-static void* alloc_vertices(GrDrawTarget* drawTarget, int numVertices, GrMaskFormat maskFormat) {
+static size_t get_vertex_stride(GrMaskFormat maskFormat) {
+    switch (maskFormat) {
+        case kA8_GrMaskFormat:
+            return kGrayTextVASize;
+        case kARGB_GrMaskFormat:
+            return kColorTextVASize;
+        default:
+            return kLCDTextVASize;
+    }
+}
+
+static void set_vertex_attributes(GrDrawState* drawState, GrMaskFormat maskFormat) {
+    if (kA8_GrMaskFormat == maskFormat) {
+        drawState->setVertexAttribs<gGrayVertexAttribs>(
+                                    SK_ARRAY_COUNT(gGrayVertexAttribs), kGrayTextVASize);
+    } else if (kARGB_GrMaskFormat == maskFormat) {
+        GrDefaultGeoProcFactory::SetAttribs(drawState,
+                                            GrDefaultGeoProcFactory::kLocalCoord_GPType);
+    } else {
+        drawState->setVertexAttribs<gLCDVertexAttribs>(
+                                    SK_ARRAY_COUNT(gLCDVertexAttribs), kLCDTextVASize);
+    }
+}
+
+static void* alloc_vertices(GrDrawTarget* drawTarget,
+                            int numVertices,
+                            GrMaskFormat maskFormat) {
     if (numVertices <= 0) {
         return NULL;
     }
 
     // set up attributes
-    if (kA8_GrMaskFormat == maskFormat) {
-        drawTarget->drawState()->setVertexAttribs<gGrayVertexAttribs>(
-                                    SK_ARRAY_COUNT(gGrayVertexAttribs), kGrayTextVASize);
-    } else if (kARGB_GrMaskFormat == maskFormat) {
-        GrDefaultGeoProcFactory::SetAttribs(drawTarget->drawState(),
-                                            GrDefaultGeoProcFactory::kLocalCoord_GPType);
-    } else {
-        drawTarget->drawState()->setVertexAttribs<gLCDVertexAttribs>(
-                                    SK_ARRAY_COUNT(gLCDVertexAttribs), kLCDTextVASize);
-    }
     void* vertices = NULL;
     bool success = drawTarget->reserveVertexAndIndexSpace(numVertices,
+                                                          get_vertex_stride(maskFormat),
                                                           0,
                                                           &vertices,
                                                           NULL);
@@ -498,18 +511,7 @@ HAS_ATLAS:
 
     fVertexBounds.joinNonEmptyArg(r);
 
-    size_t vertSize;
-    switch (fCurrMaskFormat) {
-        case kA8_GrMaskFormat:
-            vertSize = kGrayTextVASize;
-            break;
-        case kARGB_GrMaskFormat:
-            vertSize = kColorTextVASize;
-        default:
-            vertSize = kLCDTextVASize;
-    }
-
-    SkASSERT(vertSize == fDrawTarget->getDrawState().getVertexStride());
+    size_t vertSize = get_vertex_stride(fCurrMaskFormat);
 
     SkPoint* positions = reinterpret_cast<SkPoint*>(
         reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
@@ -524,9 +526,6 @@ HAS_ATLAS:
                               SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + height)),
                               vertSize);
     if (kA8_GrMaskFormat == fCurrMaskFormat) {
-        if (0xFF == GrColorUnpackA(fPaint.getColor())) {
-            fDrawTarget->drawState()->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
-        }
         // color comes after position.
         GrColor* colors = reinterpret_cast<GrColor*>(positions + 1);
         for (int i = 0; i < 4; ++i) {
@@ -549,9 +548,10 @@ void GrBitmapTextContext::flush() {
         return;
     }
 
-    GrDrawState* drawState = fDrawTarget->drawState();
-    GrDrawState::AutoRestoreEffects are(drawState);
-    drawState->setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
+    GrDrawState drawState;
+    drawState.setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
+
+    set_vertex_attributes(&drawState, fCurrMaskFormat);
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
@@ -561,11 +561,11 @@ void GrBitmapTextContext::flush() {
 
         // This effect could be stored with one of the cache objects (atlas?)
         if (kARGB_GrMaskFormat == fCurrMaskFormat) {
-            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(true))->unref();
+            drawState.setGeometryProcessor(GrDefaultGeoProcFactory::Create(true))->unref();
             GrFragmentProcessor* fragProcessor = GrSimpleTextureEffect::Create(fCurrTexture,
                                                                                SkMatrix::I(),
                                                                                params);
-            drawState->addColorProcessor(fragProcessor)->unref();
+            drawState.addColorProcessor(fragProcessor)->unref();
         } else {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID) {
@@ -574,16 +574,16 @@ void GrBitmapTextContext::flush() {
                 fEffectTextureUniqueID = textureUniqueID;
             }
 
-            drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
+            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
         }
 
         SkASSERT(fStrike);
         switch (fCurrMaskFormat) {
                 // Color bitmap text
             case kARGB_GrMaskFormat:
-                SkASSERT(!drawState->hasColorVertexAttribute());
-                drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
-                drawState->setAlpha(fSkPaint.getAlpha());
+                SkASSERT(!drawState.hasColorVertexAttribute());
+                drawState.setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
+                drawState.setAlpha(fSkPaint.getAlpha());
                 break;
                 // LCD text
             case kA565_GrMaskFormat: {
@@ -592,34 +592,39 @@ void GrBitmapTextContext::flush() {
                     fPaint.numColorStages()) {
                     SkDebugf("LCD Text will not draw correctly.\n");
                 }
-                SkASSERT(!drawState->hasColorVertexAttribute());
+                SkASSERT(!drawState.hasColorVertexAttribute());
                 // We don't use the GrPaint's color in this case because it's been premultiplied by
                 // alpha. Instead we feed in a non-premultiplied color, and multiply its alpha by
                 // the mask texture color. The end result is that we get
                 //            mask*paintAlpha*paintColor + (1-mask*paintAlpha)*dstColor
                 int a = SkColorGetA(fSkPaint.getColor());
                 // paintAlpha
-                drawState->setColor(SkColorSetARGB(a, a, a, a));
+                drawState.setColor(SkColorSetARGB(a, a, a, a));
                 // paintColor
-                drawState->setBlendConstant(skcolor_to_grcolor_nopremultiply(fSkPaint.getColor()));
-                drawState->setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
+                drawState.setBlendConstant(skcolor_to_grcolor_nopremultiply(fSkPaint.getColor()));
+                drawState.setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
                 break;
             }
                 // Grayscale/BW text
             case kA8_GrMaskFormat:
+                drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint,
+                                   0xFF == GrColorUnpackA(fPaint.getColor()));
                 // set back to normal in case we took LCD path previously.
-                drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
+                drawState.setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
                 // We're using per-vertex color.
-                SkASSERT(drawState->hasColorVertexAttribute());
+                SkASSERT(drawState.hasColorVertexAttribute());
                 break;
             default:
                 SkFAIL("Unexpected mask format.");
         }
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-        fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
+        fDrawTarget->drawIndexedInstances(&drawState,
+                                          kTriangles_GrPrimitiveType,
                                           nGlyphs,
-                                          kVerticesPerGlyph, kIndicesPerGlyph, &fVertexBounds);
+                                          kVerticesPerGlyph,
+                                          kIndicesPerGlyph,
+                                          &fVertexBounds);
 
         fDrawTarget->resetVertexSource();
         fVertices = NULL;

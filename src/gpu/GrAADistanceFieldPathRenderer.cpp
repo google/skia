@@ -65,9 +65,10 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrAADistanceFieldPathRenderer::canDrawPath(const SkPath& path,
+bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
+                                                const GrDrawState* drawState,
+                                                const SkPath& path,
                                                 const SkStrokeRec& stroke,
-                                                const GrDrawTarget* target,
                                                 bool antiAlias) const {
     
     // TODO: Support inverse fill
@@ -78,8 +79,7 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const SkPath& path,
     }
 
     // currently don't support perspective
-    const GrDrawState& drawState = target->getDrawState();
-    const SkMatrix& vm = drawState.getViewMatrix();
+    const SkMatrix& vm = drawState->getViewMatrix();
     if (vm.hasPerspective()) {
         return false;
     }
@@ -93,10 +93,11 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const SkPath& path,
 }
 
 
-GrPathRenderer::StencilSupport GrAADistanceFieldPathRenderer::onGetStencilSupport(
-                                                                       const SkPath&,
-                                                                       const SkStrokeRec&,
-                                                                       const GrDrawTarget*) const {
+GrPathRenderer::StencilSupport
+GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
+                                                   const GrDrawState*,
+                                                   const SkPath&,
+                                                   const SkStrokeRec&) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
 
@@ -109,9 +110,10 @@ extern const GrVertexAttrib gSDFPathVertexAttribs[] = {
 };
 static const size_t kSDFPathVASize = 2 * sizeof(SkPoint);
 
-bool GrAADistanceFieldPathRenderer::onDrawPath(const SkPath& path,
+bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
+                                               GrDrawState* drawState,
+                                               const SkPath& path,
                                                const SkStrokeRec& stroke,
-                                               GrDrawTarget* target,
                                                bool antiAlias) {
     // we've already bailed on inverse filled paths, so this is safe
     if (path.isEmpty()) {
@@ -121,8 +123,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const SkPath& path,
     SkASSERT(fContext);
 
     // get mip level
-    const GrDrawState& drawState = target->getDrawState();
-    const SkMatrix& vm = drawState.getViewMatrix();
+    const SkMatrix& vm = drawState->getViewMatrix();
     SkScalar maxScale = vm.getMaxScale();
     const SkRect& bounds = path.getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
@@ -149,7 +150,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const SkPath& path,
     }
 
     // use signed distance field to render
-    return this->internalDrawPath(path, pathData, target);
+    return this->internalDrawPath(target, drawState, path, pathData);
 }
 
 // padding around path bounds to allow for antialiased pixels
@@ -310,11 +311,11 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
     return true;
 }
 
-bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
-                                                     const PathData* pathData,
-                                                     GrDrawTarget* target) {
+bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
+                                                     GrDrawState* drawState,
+                                                     const SkPath& path,
+                                                     const PathData* pathData) {
     GrTexture* texture = fAtlas->getTexture();
-    GrDrawState* drawState = target->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
     
     SkASSERT(pathData->fPlot);
@@ -325,7 +326,8 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
     drawState->setVertexAttribs<gSDFPathVertexAttribs>(SK_ARRAY_COUNT(gSDFPathVertexAttribs),
                                                        kSDFPathVASize);
     void* vertices = NULL;
-    bool success = target->reserveVertexAndIndexSpace(4, 0, &vertices, NULL);
+    bool success = target->reserveVertexAndIndexSpace(4, drawState->getVertexStride(), 0, &vertices,
+                                                      NULL);
     GrAlwaysAssert(success);
     
     SkScalar dx = pathData->fBounds.fLeft;
@@ -375,7 +377,7 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(const SkPath& path,
 
     vm.mapRect(&r);
     target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &r);
+    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &r);
     target->resetVertexSource();
     
     return true;

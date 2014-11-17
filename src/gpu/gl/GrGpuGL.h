@@ -100,8 +100,8 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) SK_OVERRIDE;
 
-    virtual bool canCopySurface(GrSurface* dst,
-                                GrSurface* src,
+    virtual bool canCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) SK_OVERRIDE;
 

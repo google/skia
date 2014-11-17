@@ -30,8 +30,10 @@ public:
      * Returns a snapshot of the current optimized state. The GrOptDrawState is reffed and ownership
      * is given to the caller.
      */
-    static GrOptDrawState* Create(const GrDrawState& drawState, GrGpu*,
-                                  const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType);
+    static GrOptDrawState* Create(const GrDrawState& drawState,
+                                  GrGpu*,
+                                  const GrDeviceCoordTexture* dstCopy,
+                                  GrGpu::DrawType drawType);
 
     bool operator== (const GrOptDrawState& that) const;
 

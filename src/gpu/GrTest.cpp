@@ -17,7 +17,6 @@ void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
     fContext.reset(SkRef(ctx));
     fDrawTarget.reset(SkRef(target));
 
-    SkNEW_IN_TLAZY(&fASR, GrDrawTarget::AutoStateRestore, (target, GrDrawTarget::kReset_ASRInit));
     SkNEW_IN_TLAZY(&fACR, GrDrawTarget::AutoClipRestore, (target));
     SkNEW_IN_TLAZY(&fAGP, GrDrawTarget::AutoGeometryPush, (target));
 }
@@ -73,8 +72,8 @@ public:
 
     virtual void discard(GrRenderTarget*) SK_OVERRIDE { }
 
-    virtual bool canCopySurface(GrSurface* dst,
-                                GrSurface* src,
+    virtual bool canCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) SK_OVERRIDE { return false; };
 

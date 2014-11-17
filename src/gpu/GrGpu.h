@@ -360,8 +360,8 @@ public:
     // classes must keep this consistent with their implementation of onCopySurface(). The inputs
     // are the same as onCopySurface(), i.e. srcRect and dstPoint are clipped to be inside the src
     // and dst bounds.
-    virtual bool canCopySurface(GrSurface* dst,
-                                GrSurface* src,
+    virtual bool canCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) = 0;
 

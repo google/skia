@@ -429,8 +429,8 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
             return false;
         }
 
-        GrDrawState* ds = this->drawState();
-        ds->setRenderTarget(rt.get());
+        GrDrawState ds;
+        ds.setRenderTarget(rt.get());
 
         // if path rendering we have to setup a couple of things like the draw type
         bool usePathRendering = gpu->glCaps().pathRenderingSupport() && random.nextBool();
@@ -441,36 +441,35 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         // twiddle drawstate knobs randomly
         bool hasGeometryProcessor = !usePathRendering;
         if (hasGeometryProcessor) {
-            set_random_gp(fContext, gpu->glCaps(), ds, &random, dummyTextures);
+            set_random_gp(fContext, gpu->glCaps(), &ds, &random, dummyTextures);
         }
         set_random_color_coverage_stages(gpu,
-                                         ds,
+                                         &ds,
                                          maxStages - hasGeometryProcessor,
                                          usePathRendering,
                                          &random,
                                          dummyTextures);
-        set_random_color(ds, &random);
-        set_random_coverage(ds, &random);
-        set_random_hints(ds, &random);
-        set_random_state(ds, &random);
-        set_random_blend_func(ds, &random);
-        set_random_stencil(ds, &random);
+        set_random_color(&ds, &random);
+        set_random_coverage(&ds, &random);
+        set_random_hints(&ds, &random);
+        set_random_state(&ds, &random);
+        set_random_blend_func(&ds, &random);
+        set_random_stencil(&ds, &random);
 
         GrDeviceCoordTexture dstCopy;
 
-        if (!this->setupDstReadIfNecessary(&dstCopy, NULL)) {
+        if (!this->setupDstReadIfNecessary(&ds, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(this->getDrawState(),
+        SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(ds,
                                                                 gpu,
                                                                 &dstCopy,
                                                                 drawType));
         if (!ods.get()) {
-            ds->reset();
             continue;
         }
         SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(*ods, drawType, gpu));
@@ -478,9 +477,6 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
             SkDebugf("Failed to create program!");
             return false;
         }
-
-        // We have to reset the drawstate because we might have added a gp
-        ds->reset();
 
         // because occasionally optimized drawstate creation will fail for valid reasons, we only
         // want to increment on success
