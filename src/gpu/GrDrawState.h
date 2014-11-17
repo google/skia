@@ -803,6 +803,16 @@ private:
                                GrBlendCoeff* srcCoeff = NULL,
                                GrBlendCoeff* dstCoeff = NULL) const;
 
+    const GrProcOptInfo& colorProcInfo() const { 
+        this->calcColorInvariantOutput();
+        return fColorProcInfo;
+    }
+
+    const GrProcOptInfo& coverageProcInfo() const {
+        this->calcCoverageInvariantOutput();
+        return fCoverageProcInfo;
+    }
+
     /**
      * Determines whether src alpha is guaranteed to be one for all src pixels
      */

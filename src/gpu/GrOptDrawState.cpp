@@ -21,8 +21,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                const GrDeviceCoordTexture* dstCopy,
                                GrGpu::DrawType drawType) {
     fRenderTarget.set(SkSafeRef(drawState.getRenderTarget()), kWrite_GrIOType);
-    fColor = drawState.getColor();
-    fCoverage = drawState.getCoverage();
     fViewMatrix = drawState.getViewMatrix();
     fBlendConstant = drawState.getBlendConstant();
     fFlagBits = drawState.getFlagBits();
@@ -40,17 +38,22 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
            drawState.getFixedFunctionVertexAttribIndices(),
            sizeof(descInfo.fFixedFunctionVertexAttribIndices));
 
-    descInfo.fInputColorIsUsed = true;
-    descInfo.fInputCoverageIsUsed = true;
-
-    int firstColorStageIdx = 0;
-    int firstCoverageStageIdx = 0;
-
     uint8_t fixedFunctionVAToRemove = 0;
 
-    this->computeEffectiveColorStages(drawState, &descInfo, &firstColorStageIdx,
-                                      &fixedFunctionVAToRemove);
-    this->computeEffectiveCoverageStages(drawState, &descInfo, &firstCoverageStageIdx);
+    const GrProcOptInfo& colorPOI = drawState.colorProcInfo();
+    int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
+    descInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
+    fColor = colorPOI.inputColorToEffectiveStage();
+    if (colorPOI.removeVertexAttrib()) {
+        fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
+    }
+
+    // TODO: Once we can handle single or four channel input into coverage stages then we can use
+    // drawState's coverageProcInfo (like color above) to set this initial information.
+    int firstCoverageStageIdx = 0;
+    descInfo.fInputCoverageIsUsed = true;
+    fCoverage = drawState.getCoverage();
+
     this->adjustFromBlendOpts(drawState, &descInfo, &firstColorStageIdx, &firstCoverageStageIdx,
                               &fixedFunctionVAToRemove);
     // Should not be setting any more FFVA to be removed at this point
@@ -216,60 +219,6 @@ void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag,
     }
     fVACount -= numToRemove;
     fVAPtr = fOptVA.get();
-}
-
-void GrOptDrawState::computeEffectiveColorStages(const GrDrawState& ds,
-                                                 GrProgramDesc::DescInfo* descInfo,
-                                                 int* firstColorStageIdx,
-                                                 uint8_t* fixedFunctionVAToRemove) {
-    // Set up color and flags for ConstantColorComponent checks
-    GrColor color;
-    GrColorComponentFlags flags;
-    if (!descInfo->hasColorVertexAttribute()) {
-        color = ds.getColor();
-        flags = kRGBA_GrColorComponentFlags;
-    } else {
-        if (ds.vertexColorsAreOpaque()) {
-            color = 0xFF << GrColor_SHIFT_A;
-            flags = kA_GrColorComponentFlag;
-        } else {
-            flags = static_cast<GrColorComponentFlags>(0);
-            // not strictly necessary but we get false alarms from tools about uninit.
-            color = 0;
-        }
-    }
-    GrProcOptInfo poi;
-    if (ds.numColorStages() > 0) {
-        poi.calcWithInitialValues(&ds.getColorStage(0), ds.numColorStages(), color, flags, false);
-        *firstColorStageIdx = poi.firstEffectiveStageIndex();
-        descInfo->fInputColorIsUsed = poi.inputColorIsUsed();
-        fColor = poi.inputColorToEffectiveStage();
-        if (poi.removeVertexAttrib()) {
-            *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
-        }
-    }
-}
-
-void GrOptDrawState::computeEffectiveCoverageStages(const GrDrawState& ds,
-                                                    GrProgramDesc::DescInfo* descInfo,
-                                                    int* firstCoverageStageIdx) {
-    // We do not try to optimize out constantColor coverage effects here. It is extremely rare
-    // to have a coverage effect that returns a constant value for all four channels. Thus we
-    // save having to make extra virtual calls by not checking for it.
-
-    // Don't do any optimizations on coverage stages. It should not be the case where we do not use
-    // input coverage in an effect
-#ifdef OptCoverageStages
-    GrInvariantOutput inout;
-    for (int i = 0; i < ds.numCoverageStages(); ++i) {
-        const GrFragmentProcessor* fp = ds.getCoverageStage(i).getProcessor();
-        fp->computeInvariantOutput(&inout);
-        if (!inout.fWillUseInputColor) {
-            *firstCoverageStageIdx = i;
-            descInfo->fInputCoverageIsUsed = false;
-        }
-    }
-#endif
 }
 
 static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* readsFragPosition) {
