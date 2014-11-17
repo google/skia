@@ -168,8 +168,9 @@ public:
         }
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
-        SkASSERT(bbh);
-        bbh->insert(&fBounds, fNumRecords);
+        if (bbh) {
+            bbh->insert(&fBounds, fNumRecords);
+        }
     }
 
     template <typename T> void operator()(const T& op) {
