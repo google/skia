@@ -90,8 +90,6 @@ void GrResourceCache2::setLimits(int count, size_t bytes) {
 }
 
 void GrResourceCache2::insertResource(GrGpuResource* resource) {
-    AutoValidate av(this);
-
     SkASSERT(resource);
     SkASSERT(!resource->wasDestroyed());
     SkASSERT(!this->isInCache(resource));
@@ -122,8 +120,6 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
 }
 
 void GrResourceCache2::removeResource(GrGpuResource* resource) {
-    AutoValidate av(this);
-
     SkASSERT(this->isInCache(resource));
 
     size_t size = resource->gpuMemorySize();
@@ -141,6 +137,7 @@ void GrResourceCache2::removeResource(GrGpuResource* resource) {
     if (const GrResourceKey* contentKey = resource->cacheAccess().getContentKey()) {
         fContentHash.remove(*contentKey);
     }
+    this->validate();
 }
 
 void GrResourceCache2::abandonAll() {
@@ -195,8 +192,6 @@ private:
 
 GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& scratchKey,
                                                            uint32_t flags) {
-    AutoValidate av(this);
-
     SkASSERT(!fPurging);
     SkASSERT(scratchKey.isScratch());
 
@@ -204,8 +199,10 @@ GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& 
     if (flags & (kPreferNoPendingIO_ScratchFlag | kRequireNoPendingIO_ScratchFlag)) {
         resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
         if (resource) {
+            resource->ref();
             this->makeResourceMRU(resource);
-            return SkRef(resource);
+            this->validate();
+            return resource;
         } else if (flags & kRequireNoPendingIO_ScratchFlag) {
             return NULL;
         }
@@ -216,6 +213,7 @@ GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& 
     if (resource) {
         resource->ref();
         this->makeResourceMRU(resource);
+        this->validate();
     }
     return resource;
 }
@@ -238,13 +236,11 @@ bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
 }
 
 void GrResourceCache2::makeResourceMRU(GrGpuResource* resource) {
-    AutoValidate av(this);
-
     SkASSERT(!fPurging);
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
     fResources.remove(resource);    
-    fResources.addToHead(resource);    
+    fResources.addToHead(resource);
 }
 
 void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
@@ -329,8 +325,6 @@ void GrResourceCache2::internalPurgeAsNeeded() {
 
     fPurging = true;
 
-    AutoValidate av(this); // Put this after setting fPurging so we're allowed to be over budget.
-
     bool overBudget = true;
     do {
         fNewlyPurgableResourceWhilePurging = false;
@@ -358,6 +352,7 @@ void GrResourceCache2::internalPurgeAsNeeded() {
 
     fNewlyPurgableResourceWhilePurging = false;
     fPurging = false;
+    this->validate();
 }
 
 void GrResourceCache2::purgeAllUnlocked() {
@@ -365,8 +360,6 @@ void GrResourceCache2::purgeAllUnlocked() {
     SkASSERT(!fNewlyPurgableResourceWhilePurging);
 
     fPurging = true;
-
-    AutoValidate av(this); // Put this after setting fPurging so we're allowed to be over budget.
 
     do {
         fNewlyPurgableResourceWhilePurging = false;
@@ -387,6 +380,7 @@ void GrResourceCache2::purgeAllUnlocked() {
         }
     } while (fNewlyPurgableResourceWhilePurging);
     fPurging = false;
+    this->validate();
 }
 
 #ifdef SK_DEBUG
