@@ -29,6 +29,11 @@ public:
     }
 
     /**
+     * Changes whether the resource counts against the resource cache budget.
+     */
+    void setBudgeted(bool countsAgainstBudget) { fResource->setBudgeted(countsAgainstBudget); }
+
+    /**
      * Is the resource currently cached as scratch? This means it has a valid scratch key and does
      * not have a content key.
      */
@@ -48,13 +53,25 @@ public:
      * If the resource is currently cached by a content key, the key is returned, otherwise NULL.
      */
     const GrResourceKey* getContentKey() const {
-        if (fResource->fContentKeySet) {
+        if (fResource->fFlags & GrGpuResource::kContentKeySet_Flag) {
             return &fResource->fContentKey;
         }
         return NULL;
     }
 
+    /**
+     * Is the resource object wrapping an externally allocated GPU resource?
+     */
     bool isWrapped() const { return fResource->isWrapped(); }
+
+    /**
+     * Does the resource count against the resource budget?
+     */
+    bool isBudgeted() const { 
+        bool ret = SkToBool(GrGpuResource::kBudgeted_Flag & fResource->fFlags);
+        SkASSERT(!(ret && fResource->isWrapped()));
+        return ret;
+    }
 
     /**
      * Called by the cache to delete the resource under normal circumstances.

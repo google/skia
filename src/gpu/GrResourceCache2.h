@@ -22,7 +22,7 @@
  * Resources may have optionally have two types of keys:
  *      1) A scratch key. This is for resources whose allocations are cached but not their contents.
  *         Multiple resources can share the same scratch key. This is so a caller can have two
- *         resource instances with the same properties (e.g. multipass rendering that ping pongs
+ *         resource instances with the same properties (e.g. multipass rendering that ping-pongs
  *         between two temporary surfaces. The scratch key is set at resource creation time and
  *         should never change. Resources need not have a scratch key.
  *      2) A content key. This key represents the contents of the resource rather than just its
@@ -161,6 +161,7 @@ private:
     void notifyPurgable(GrGpuResource*);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     bool didSetContentKey(GrGpuResource*);
+    void didChangeBudgetStatus(GrGpuResource*);
     void makeResourceMRU(GrGpuResource*);
     /// @}
 
@@ -275,6 +276,12 @@ private:
      * cache objects currently.
      */
     bool didSetContentKey(GrGpuResource* resource) { return fCache->didSetContentKey(resource); }
+
+
+    /**
+     * Called by GrGpuResources when they change from budgeted to unbudgeted or vice versa.
+     */
+    void didChangeBudgetStatus(GrGpuResource* resource) { fCache->didChangeBudgetStatus(resource); }
 
     // No taking addresses of this type.
     const ResourceAccess* operator&() const;

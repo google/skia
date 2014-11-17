@@ -191,7 +191,7 @@ protected:
         backend API calls should be made. */
     virtual void onAbandon() { }
 
-    bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
+    bool isWrapped() const { return SkToBool(kWrapped_Flag & fFlags); }
 
     /**
      * This entry point should be called whenever gpuMemorySize() should report a different size.
@@ -221,7 +221,7 @@ private:
 
     // See comments in CacheAccess.
     bool setContentKey(const GrResourceKey& contentKey);
-
+    void setBudgeted(bool countsAgainstBudget);
     void notifyIsPurgable() const;
 
 #ifdef SK_DEBUG
@@ -233,31 +233,39 @@ private:
     // We're in an internal doubly linked list owned by GrResourceCache2
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuResource);
 
-    // This is not ref'ed but abandon() or release() will be called before the GrGpu object
-    // is destroyed. Those calls set will this to NULL.
-    GrGpu* fGpu;
-
-    enum Flags {
-        /**
-         * This object wraps a GPU object given to us by the user.
-         * Lifetime management is left up to the user (i.e., we will not
-         * free it).
-         */
-        kWrapped_FlagBit         = 0x1,
-    };
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
+    enum Flags {
+        /**
+         * The resource counts against the resource cache's budget.
+         */
+        kBudgeted_Flag      = 0x1,
 
-    uint32_t                fFlags;
+        /**
+         * This object wraps a GPU object given to us by Skia's client. Skia will not free the
+         * underlying backend API GPU resources when the GrGpuResource is destroyed. This also
+         * implies that kBudgeted_Flag is not set.
+         */
+        kWrapped_Flag       = 0x2,
 
-    mutable size_t          fGpuMemorySize;
-    const uint32_t          fUniqueID;
+        /**
+         * If set then fContentKey is valid and the resource is cached based on its content.
+         */
+        kContentKeySet_Flag = 0x4,
+    };
 
     // TODO(bsalomon): Remove GrResourceKey and use different simpler types for content and scratch
     // keys.
     GrResourceKey           fScratchKey;
     GrResourceKey           fContentKey;
-    bool                    fContentKeySet;
+
+    // This is not ref'ed but abandon() or release() will be called before the GrGpu object
+    // is destroyed. Those calls set will this to NULL.
+    GrGpu*                  fGpu;
+    mutable size_t          fGpuMemorySize;
+
+    uint32_t                fFlags;
+    const uint32_t          fUniqueID;
 
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyIsPurgable.

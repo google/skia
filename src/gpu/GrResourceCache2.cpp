@@ -100,12 +100,12 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
 
     size_t size = resource->gpuMemorySize();
     ++fCount;
-    fBytes += resource->gpuMemorySize();
+    fBytes += size;
 #if GR_CACHE_STATS
     fHighWaterCount = SkTMax(fCount, fHighWaterCount);
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (!resource->cacheAccess().isWrapped()) {
+    if (resource->cacheAccess().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
 #if GR_CACHE_STATS
@@ -114,8 +114,7 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
 #endif
     }
     if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
-        // TODO(bsalomon): Make this assertion possible.
-        // SkASSERT(!resource->isWrapped());
+        SkASSERT(!resource->cacheAccess().isWrapped());
         fScratchMap.insert(resource->cacheAccess().getScratchKey(), resource);
     }
     
@@ -130,7 +129,7 @@ void GrResourceCache2::removeResource(GrGpuResource* resource) {
     size_t size = resource->gpuMemorySize();
     --fCount;
     fBytes -= size;
-    if (!resource->cacheAccess().isWrapped()) {
+    if (resource->cacheAccess().isBudgeted()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
     }
@@ -187,7 +186,6 @@ public:
         if (resource->internalHasRef() || !resource->cacheAccess().isScratch()) {
             return false;
         }
-
         return !fRejectPendingIO || !resource->internalHasPendingIO();
     }
 
@@ -293,7 +291,7 @@ void GrResourceCache2::didChangeGpuMemorySize(const GrGpuResource* resource, siz
 #if GR_CACHE_STATS
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (!resource->cacheAccess().isWrapped()) {
+    if (resource->cacheAccess().isBudgeted()) {
         fBudgetedBytes += delta;
 #if GR_CACHE_STATS
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
@@ -303,6 +301,26 @@ void GrResourceCache2::didChangeGpuMemorySize(const GrGpuResource* resource, siz
     this->purgeAsNeeded();
     this->validate();
 }
+
+void GrResourceCache2::didChangeBudgetStatus(GrGpuResource* resource) {
+    SkASSERT(!fPurging);
+    SkASSERT(resource);
+    SkASSERT(this->isInCache(resource));
+
+    size_t size = resource->gpuMemorySize();
+
+    if (resource->cacheAccess().isBudgeted()) {
+        ++fBudgetedCount;
+        fBudgetedBytes += size;
+        this->purgeAsNeeded();
+    } else {
+        --fBudgetedCount;
+        fBudgetedBytes -= size;
+    }
+
+    this->validate();
+}
+
 
 void GrResourceCache2::internalPurgeAsNeeded() {
     SkASSERT(!fPurging);
@@ -410,7 +428,7 @@ void GrResourceCache2::validate() const {
             SkASSERT(!resource->cacheAccess().isWrapped());
         }
 
-        if (!resource->cacheAccess().isWrapped()) {
+        if (resource->cacheAccess().isBudgeted()) {
             ++budgetedCount;
             budgetedBytes += resource->gpuMemorySize();
         }
@@ -446,6 +464,8 @@ void GrResourceCache2::printStats() const {
 
     int locked = 0;
     int scratch = 0;
+    int wrapped = 0;
+    size_t unbudgetedSize = 0;
 
     ResourceList::Iter iter;
     GrGpuResource* resource = iter.init(fResources, ResourceList::Iter::kHead_IterStart);
@@ -457,17 +477,23 @@ void GrResourceCache2::printStats() const {
         if (resource->cacheAccess().isScratch()) {
             ++scratch;
         }
+        if (resource->cacheAccess().isWrapped()) {
+            ++wrapped;
+        }
+        if (!resource->cacheAccess().isBudgeted()) {
+            unbudgetedSize += resource->gpuMemorySize();
+        }
     }
 
     float countUtilization = (100.f * fBudgetedCount) / fMaxCount;
     float byteUtilization = (100.f * fBudgetedBytes) / fMaxBytes;
 
     SkDebugf("Budget: %d items %d bytes\n", fMaxCount, fMaxBytes);
-    SkDebugf(
-        "\t\tEntry Count: current %d (%d budgeted, %d locked, %d scratch %.2g%% full), high %d\n",
-        fCount, fBudgetedCount, locked, scratch, countUtilization, fHighWaterCount);
-    SkDebugf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full) high %d\n",
-                fBytes, fBudgetedBytes, byteUtilization, fHighWaterBytes);
+    SkDebugf("\t\tEntry Count: current %d"
+             " (%d budgeted, %d wrapped, %d locked, %d scratch %.2g%% full), high %d\n",
+        fCount, fBudgetedCount, wrapped, locked, scratch, countUtilization, fHighWaterCount);
+    SkDebugf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
+                fBytes, fBudgetedBytes, byteUtilization, unbudgetedSize, fHighWaterBytes);
 }
 
 #endif

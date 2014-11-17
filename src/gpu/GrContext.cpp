@@ -490,7 +490,13 @@ GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& descIn,
                                             void* srcData,
                                             size_t rowBytes) {
     GrSurfaceDesc descCopy = descIn;
-    return fGpu->createTexture(descCopy, srcData, rowBytes);
+    GrTexture* texture = fGpu->createTexture(descCopy, srcData, rowBytes);
+    if (texture) {
+        // TODO: It'd be nice to be able to do this before creation so we don't boot something
+        // out of the cache. We could temporarily boost the cache budget.
+        texture->cacheAccess().setBudgeted(false);
+    }
+    return texture;
 }
 
 void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {

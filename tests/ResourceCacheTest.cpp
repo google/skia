@@ -173,7 +173,7 @@ static void test_no_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache2->getResourceBytes());
 }
 
-static void test_wrapped(skiatest::Reporter* reporter) {
+static void test_budgeting(skiatest::Reporter* reporter) {
     SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
     REPORTER_ASSERT(reporter, SkToBool(context));
     if (NULL == context) {
@@ -199,6 +199,9 @@ static void test_wrapped(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, content->cacheAccess().setContentKey(contentKey));
     TestResource* wrapped = new TestResource(context->getGpu(), true);
     scratch->setSize(12);
+    TestResource* unbudgeted = new TestResource(context->getGpu());
+    unbudgeted->setSize(13);
+    unbudgeted->cacheAccess().setBudgeted(false);
 
     // Make sure we can't add a content key to the wrapped resource
     keyData.fData8[0] = 1;
@@ -207,49 +210,60 @@ static void test_wrapped(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, NULL == cache2->findAndRefContentResource(contentKey2));
 
     // Make sure sizes are as we expect
-    REPORTER_ASSERT(reporter, 3 == cache2->getResourceCount());
+    REPORTER_ASSERT(reporter, 4 == cache2->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() +
-                              wrapped->gpuMemorySize() == cache2->getResourceBytes());
+                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
+                              cache2->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache2->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() ==
                               cache2->getBudgetedResourceBytes());
 
     // Our refs mean that the resources are non purgable.
     cache2->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 3 == cache2->getResourceCount());
+    REPORTER_ASSERT(reporter, 4 == cache2->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() +
-                              wrapped->gpuMemorySize() == cache2->getResourceBytes());
+                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
+                              cache2->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache2->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() ==
                               cache2->getBudgetedResourceBytes());
 
     // Unreffing the wrapped resource should free it right away.
     wrapped->unref();
-    REPORTER_ASSERT(reporter, 2 == cache2->getResourceCount());
-    REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() ==
-                              cache2->getResourceBytes());
+    REPORTER_ASSERT(reporter, 3 == cache2->getResourceCount());
+    REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() +
+                              unbudgeted->gpuMemorySize() == cache2->getResourceBytes());
 
-    // Now try freeing the other two resources first
+    // Now try freeing the budgeted resources first
     wrapped = new TestResource(context->getGpu(), true);
     scratch->setSize(12);
     content->unref();
     cache2->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 2 == cache2->getResourceCount());
-    REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() ==
-                              cache2->getResourceBytes());
+    REPORTER_ASSERT(reporter, 3 == cache2->getResourceCount());
+    REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() +
+                              unbudgeted->gpuMemorySize() == cache2->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == cache2->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() == cache2->getBudgetedResourceBytes());
 
     scratch->unref();
     cache2->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 1 == cache2->getResourceCount());
-    REPORTER_ASSERT(reporter, wrapped->gpuMemorySize() == cache2->getResourceBytes());
+    REPORTER_ASSERT(reporter, 2 == cache2->getResourceCount());
+    REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() + wrapped->gpuMemorySize() ==
+                              cache2->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache2->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache2->getBudgetedResourceBytes());
 
     wrapped->unref();
+    REPORTER_ASSERT(reporter, 1 == cache2->getResourceCount());
+    REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() == cache2->getResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache2->getBudgetedResourceCount());
+    REPORTER_ASSERT(reporter, 0 == cache2->getBudgetedResourceBytes());
+
+    unbudgeted->unref();
     REPORTER_ASSERT(reporter, 0 == cache2->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache2->getResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache2->getBudgetedResourceCount());
+    REPORTER_ASSERT(reporter, 0 == cache2->getBudgetedResourceBytes());
 }
 
 static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
@@ -578,7 +592,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
 
     // The below tests create their own mock contexts.
     test_no_key(reporter);
-    test_wrapped(reporter);
+    test_budgeting(reporter);
     test_duplicate_content_key(reporter);
     test_duplicate_scratch_key(reporter);
     test_purge_invalidated(reporter);
