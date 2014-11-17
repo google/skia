@@ -24,7 +24,6 @@ class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
 class SkPictureData;
-class SkPictureRecord;
 class SkStream;
 class SkWStream;
 
@@ -254,47 +253,24 @@ private:
     static const uint32_t MIN_PICTURE_VERSION = 19;
     static const uint32_t CURRENT_PICTURE_VERSION = 37;
 
-    mutable uint32_t      fUniqueID;
-
-    SkAutoTDelete<const SkPictureData>    fData;
-    const SkScalar                        fCullWidth;
-    const SkScalar                        fCullHeight;
-    mutable SkAutoTUnref<const AccelData> fAccelData;
-
-    mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
-
     void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
     void callDeletionListeners();
-
-    // Create a new SkPicture from an existing SkPictureData. The new picture
-    // takes ownership of 'data'.
-    SkPicture(SkPictureData* data, SkScalar width, SkScalar height);
-
-    SkPicture(SkScalar width, SkScalar height, const SkPictureRecord& record, bool deepCopyOps);
 
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    friend class SkPictureRecorder;            // SkRecord-based constructor.
-    friend class SkGpuDevice;                  // for fData access
-    friend class GrLayerHoister;               // access to fRecord
-    friend class SkPicturePlayback;            // to get fData
-    friend class ReplaceDraw;
-
-    typedef SkRefCnt INHERITED;
-
     // Takes ownership of the SkRecord, refs the (optional) BBH.
     SkPicture(SkScalar width, SkScalar height, SkRecord*, SkBBoxHierarchy*);
-    // Return as a new SkPicture that's backed by SkRecord.
-    static SkPicture* Forwardport(const SkPicture&);
-    // Return as a new SkPicture that's backed by the old backend.
-    static SkPicture* Backport(const SkRecord& src, const SkRect& cullRect);
 
+    static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
+    static SkPictureData* Backport(const SkRecord&, const SkPictInfo&);
+
+    const SkScalar                        fCullWidth;
+    const SkScalar                        fCullHeight;
+    mutable SkAutoTUnref<const AccelData> fAccelData;
+    mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
-
-    struct PathCounter;
-
     struct Analysis {
         Analysis() {}  // Only used by SkPictureData codepath.
         explicit Analysis(const SkRecord&);
@@ -309,6 +285,15 @@ private:
         int         fNumAAHairlineConcavePaths;
         int         fNumAADFEligibleConcavePaths;
     } fAnalysis;
+    mutable uint32_t fUniqueID;
+
+    struct PathCounter;
+
+    friend class SkPictureRecorder;            // SkRecord-based constructor.
+    friend class GrLayerHoister;               // access to fRecord
+    friend class ReplaceDraw;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
