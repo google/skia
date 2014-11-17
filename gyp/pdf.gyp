@@ -14,6 +14,7 @@
         'pdf.gypi',
       ],
       'include_dirs': [
+        '../include/pdf',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
         '../src/pdf',
         '../src/utils', # needed to get SkBitSet.h
@@ -42,7 +43,7 @@
           'SK_SUPPORT_PDF',
         ],
         'include_dirs': [
-          '../include/core',  # SkDocument.h
+          '../include/pdf',
         ],
       },
     },
