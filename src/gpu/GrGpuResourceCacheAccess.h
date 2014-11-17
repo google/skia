@@ -54,6 +54,8 @@ public:
         return NULL;
     }
 
+    bool isWrapped() const { return fResource->isWrapped(); }
+
     /**
      * Called by the cache to delete the resource under normal circumstances.
      */

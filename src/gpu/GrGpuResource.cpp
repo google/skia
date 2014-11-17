@@ -87,6 +87,11 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
     // Currently this can only be called once and can't be called when the resource is scratch.
     SkASSERT(!contentKey.isScratch());
     SkASSERT(this->internalHasRef());
+
+    // Wrapped resources can never have a key.
+    if (this->isWrapped()) {
+        return false;
+    }
     
     if (fContentKeySet || this->wasDestroyed()) {
         return false;
@@ -116,6 +121,10 @@ void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
     SkASSERT(fScratchKey.isNullScratch());
     SkASSERT(scratchKey.isScratch());
     SkASSERT(!scratchKey.isNullScratch());
+    // Wrapped resources can never have a key.
+    if (this->isWrapped()) {
+        return;
+    }
     fScratchKey = scratchKey;
 }
 

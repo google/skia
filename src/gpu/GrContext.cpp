@@ -218,10 +218,10 @@ void GrContext::freeGpuResources() {
 
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
     if (resourceCount) {
-        *resourceCount = fResourceCache2->getResourceCount();
+        *resourceCount = fResourceCache2->getBudgetedResourceCount();
     }
     if (resourceBytes) {
-        *resourceBytes = fResourceCache2->getResourceBytes();
+        *resourceBytes = fResourceCache2->getBudgetedResourceBytes();
     }
 }
 

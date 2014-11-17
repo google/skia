@@ -47,14 +47,24 @@ public:
     void setLimits(int count, size_t bytes);
 
     /**
-     * Returns the number of cached resources.
+     * Returns the number of resources.
      */
     int getResourceCount() const { return fCount; }
 
     /**
-     * Returns the number of bytes consumed by cached resources.
+     * Returns the number of resources that count against the budget.
+     */
+    int getBudgetedResourceCount() const { return fBudgetedCount; }
+
+    /**
+     * Returns the number of bytes consumed by resources.
      */
     size_t getResourceBytes() const { return fBytes; }
+
+    /**
+     * Returns the number of bytes consumed by budgeted resources.
+     */
+    size_t getBudgetedResourceBytes() const { return fBudgetedBytes; }
 
     /**
      * Returns the cached resources count budget.
@@ -155,7 +165,7 @@ private:
     /// @}
 
     void purgeAsNeeded() {
-        if (fPurging || (fCount <= fMaxCount && fBytes < fMaxBytes)) {
+        if (fPurging || (fBudgetedCount <= fMaxCount && fBudgetedBytes < fMaxBytes)) {
             return;
         }
         this->internalPurgeAsNeeded();
@@ -207,11 +217,17 @@ private:
 #if GR_CACHE_STATS
     int                                 fHighWaterCount;
     size_t                              fHighWaterBytes;
+    int                                 fBudgetedHighWaterCount;
+    size_t                              fBudgetedHighWaterBytes;
 #endif
 
-    // our current stats, related to our budget
+    // our current stats for all resources
     int                                 fCount;
     size_t                              fBytes;
+
+    // our current stats for resources that count against the budget
+    int                                 fBudgetedCount;
+    size_t                              fBudgetedBytes;
 
     // prevents recursive purging
     bool                                fPurging;

@@ -66,9 +66,13 @@ GrResourceCache2::GrResourceCache2()
 #if GR_CACHE_STATS
     , fHighWaterCount(0)
     , fHighWaterBytes(0)
+    , fBudgetedHighWaterCount(0)
+    , fBudgetedHighWaterBytes(0)
 #endif
     , fCount(0)
     , fBytes(0)
+    , fBudgetedCount(0)
+    , fBudgetedBytes(0)
     , fPurging(false)
     , fNewlyPurgableResourceWhilePurging(false)
     , fOverBudgetCB(NULL)
@@ -94,12 +98,21 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
     SkASSERT(!fPurging);
     fResources.addToHead(resource);
 
+    size_t size = resource->gpuMemorySize();
     ++fCount;
     fBytes += resource->gpuMemorySize();
 #if GR_CACHE_STATS
     fHighWaterCount = SkTMax(fCount, fHighWaterCount);
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
+    if (!resource->cacheAccess().isWrapped()) {
+        ++fBudgetedCount;
+        fBudgetedBytes += size;
+#if GR_CACHE_STATS
+        fBudgetedHighWaterCount = SkTMax(fBudgetedCount, fBudgetedHighWaterCount);
+        fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
+#endif
+    }
     if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
         // TODO(bsalomon): Make this assertion possible.
         // SkASSERT(!resource->isWrapped());
@@ -112,10 +125,17 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
 void GrResourceCache2::removeResource(GrGpuResource* resource) {
     AutoValidate av(this);
 
-    --fCount;
-    fBytes -= resource->gpuMemorySize();
     SkASSERT(this->isInCache(resource));
-    fResources.remove(resource);    
+
+    size_t size = resource->gpuMemorySize();
+    --fCount;
+    fBytes -= size;
+    if (!resource->cacheAccess().isWrapped()) {
+        --fBudgetedCount;
+        fBudgetedBytes -= size;
+    }
+
+    fResources.remove(resource);
     if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
         fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
     }
@@ -137,6 +157,9 @@ void GrResourceCache2::abandonAll() {
     SkASSERT(!fScratchMap.count());
     SkASSERT(!fContentHash.count());
     SkASSERT(!fCount);
+    SkASSERT(!fBytes);
+    SkASSERT(!fBudgetedCount);
+    SkASSERT(!fBudgetedBytes);
 }
 
 void GrResourceCache2::releaseAll() {
@@ -151,6 +174,9 @@ void GrResourceCache2::releaseAll() {
     }
     SkASSERT(!fScratchMap.count());
     SkASSERT(!fCount);
+    SkASSERT(!fBytes);
+    SkASSERT(!fBudgetedCount);
+    SkASSERT(!fBudgetedBytes);
 }
 
 class GrResourceCache2::AvailableForScratchUse {
@@ -236,12 +262,16 @@ void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
     }
 
     // Purge the resource if we're over budget
-    bool overBudget = fCount > fMaxCount || fBytes > fMaxBytes;
+    bool overBudget = fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes;
 
     // Also purge if the resource has neither a valid scratch key nor a content key.
     bool noKey = !resource->cacheAccess().isScratch() &&
                  (NULL == resource->cacheAccess().getContentKey());
 
+    // Wrapped resources should never have a key.
+    SkASSERT(noKey || !resource->cacheAccess().isWrapped());
+
+    // And purge if the resource is wrapped
     if (overBudget || noKey) {
         SkDEBUGCODE(int beforeCount = fCount;)
         resource->cacheAccess().release();
@@ -257,10 +287,18 @@ void GrResourceCache2::didChangeGpuMemorySize(const GrGpuResource* resource, siz
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
 
-    fBytes += resource->gpuMemorySize() - oldSize;
+    ptrdiff_t delta = resource->gpuMemorySize() - oldSize;
+
+    fBytes += delta;
 #if GR_CACHE_STATS
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
+    if (!resource->cacheAccess().isWrapped()) {
+        fBudgetedBytes += delta;
+#if GR_CACHE_STATS
+        fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
+#endif
+    }
 
     this->purgeAsNeeded();
     this->validate();
@@ -269,7 +307,7 @@ void GrResourceCache2::didChangeGpuMemorySize(const GrGpuResource* resource, siz
 void GrResourceCache2::internalPurgeAsNeeded() {
     SkASSERT(!fPurging);
     SkASSERT(!fNewlyPurgableResourceWhilePurging);
-    SkASSERT(fCount > fMaxCount || fBytes > fMaxBytes);
+    SkASSERT(fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes);
 
     fPurging = true;
 
@@ -288,7 +326,7 @@ void GrResourceCache2::internalPurgeAsNeeded() {
                 resource->cacheAccess().release();
             }
             resource = prev;
-            if (fCount <= fMaxCount && fBytes <= fMaxBytes) {
+            if (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes) {
                 overBudget = false;
                 resource = NULL;
             }
@@ -337,6 +375,8 @@ void GrResourceCache2::purgeAllUnlocked() {
 void GrResourceCache2::validate() const {
     size_t bytes = 0;
     int count = 0;
+    int budgetedCount = 0;
+    size_t budgetedBytes = 0;
     int locked = 0;
     int scratch = 0;
     int couldBeScratch = 0;
@@ -356,30 +396,46 @@ void GrResourceCache2::validate() const {
             SkASSERT(NULL == resource->cacheAccess().getContentKey());
             ++scratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
+            SkASSERT(!resource->cacheAccess().isWrapped());
         } else if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
             SkASSERT(NULL != resource->cacheAccess().getContentKey());
             ++couldBeScratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
+            SkASSERT(!resource->cacheAccess().isWrapped());
         }
 
         if (const GrResourceKey* contentKey = resource->cacheAccess().getContentKey()) {
             ++content;
             SkASSERT(fContentHash.find(*contentKey) == resource);
+            SkASSERT(!resource->cacheAccess().isWrapped());
+        }
+
+        if (!resource->cacheAccess().isWrapped()) {
+            ++budgetedCount;
+            budgetedBytes += resource->gpuMemorySize();
         }
     }
 
+    SkASSERT(fBudgetedCount <= fCount);
+    SkASSERT(fBudgetedBytes <= fBudgetedBytes);
     SkASSERT(bytes == fBytes);
     SkASSERT(count == fCount);
+    SkASSERT(budgetedBytes == fBudgetedBytes);
+    SkASSERT(budgetedCount == fBudgetedCount);
 #if GR_CACHE_STATS
+    SkASSERT(fBudgetedHighWaterCount <= fHighWaterCount);
+    SkASSERT(fBudgetedHighWaterBytes <= fHighWaterBytes);
     SkASSERT(bytes <= fHighWaterBytes);
     SkASSERT(count <= fHighWaterCount);
+    SkASSERT(budgetedBytes <= fBudgetedHighWaterBytes);
+    SkASSERT(budgetedCount <= fBudgetedHighWaterCount);
 #endif
     SkASSERT(content == fContentHash.count());
     SkASSERT(scratch + couldBeScratch == fScratchMap.count());
 
     // This assertion is not currently valid because we can be in recursive notifyIsPurgable()
     // calls. This will be fixed when subresource registration is explicit.
-    // bool overBudget = bytes > fMaxBytes || count > fMaxCount;
+    // bool overBudget = budgetedBytes > fMaxBytes || budgetedCount > fMaxCount;
     // SkASSERT(!overBudget || locked == count || fPurging);
 }
 #endif
@@ -403,14 +459,15 @@ void GrResourceCache2::printStats() const {
         }
     }
 
-    float countUtilization = (100.f * fCount) / fMaxCount;
-    float byteUtilization = (100.f * fBytes) / fMaxBytes;
+    float countUtilization = (100.f * fBudgetedCount) / fMaxCount;
+    float byteUtilization = (100.f * fBudgetedBytes) / fMaxBytes;
 
     SkDebugf("Budget: %d items %d bytes\n", fMaxCount, fMaxBytes);
-    SkDebugf("\t\tEntry Count: current %d (%d locked, %d scratch %.2g%% full), high %d\n",
-                fCount, locked, scratch, countUtilization, fHighWaterCount);
-    SkDebugf("\t\tEntry Bytes: current %d (%.2g%% full) high %d\n",
-                fBytes, byteUtilization, fHighWaterBytes);
+    SkDebugf(
+        "\t\tEntry Count: current %d (%d budgeted, %d locked, %d scratch %.2g%% full), high %d\n",
+        fCount, fBudgetedCount, locked, scratch, countUtilization, fHighWaterCount);
+    SkDebugf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full) high %d\n",
+                fBytes, fBudgetedBytes, byteUtilization, fHighWaterBytes);
 }
 
 #endif
