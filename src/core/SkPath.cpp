@@ -2242,7 +2242,7 @@ struct Convexicator {
             ++fPtCount;
         } else {
             SkVector vec = pt - fCurrPt;
-            if (vec.fX || vec.fY) {
+            if (!SkScalarNearlyZero(vec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
                 fLastPt = fCurrPt;
                 fCurrPt = pt;
                 if (++fPtCount == 2) {
