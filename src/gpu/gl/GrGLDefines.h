@@ -799,116 +799,40 @@
 // commands
 #define GR_GL_CLOSE_PATH                                    0x00
 #define GR_GL_MOVE_TO                                       0x02
-#define GR_GL_RELATIVE_MOVE_TO                              0x03
 #define GR_GL_LINE_TO                                       0x04
-#define GR_GL_RELATIVE_LINE_TO                              0x05
-#define GR_GL_HORIZONTAL_LINE_TO                            0x06
-#define GR_GL_RELATIVE_HORIZONTAL_LINE_TO                   0x07
-#define GR_GL_VERTICAL_LINE_TO                              0x08
-#define GR_GL_RELATIVE_VERTICAL_LINE_TO                     0x09
 #define GR_GL_QUADRATIC_CURVE_TO                            0x0A
-#define GR_GL_RELATIVE_QUADRATIC_CURVE_TO                   0x0B
 #define GR_GL_CUBIC_CURVE_TO                                0x0C
-#define GR_GL_RELATIVE_CUBIC_CURVE_TO                       0x0D
-#define GR_GL_SMOOTH_QUADRATIC_CURVE_TO                     0x0E
-#define GR_GL_RELATIVE_SMOOTH_QUADRATIC_CURVE_TO            0x0F
-#define GR_GL_SMOOTH_CUBIC_CURVE_TO                         0x10
-#define GR_GL_RELATIVE_SMOOTH_CUBIC_CURVE_TO                0x11
-#define GR_GL_SMALL_CCW_ARC_TO                              0x12
-#define GR_GL_RELATIVE_SMALL_CCW_ARC_TO                     0x13
-#define GR_GL_SMALL_CW_ARC_TO                               0x14
-#define GR_GL_RELATIVE_SMALL_CW_ARC_TO                      0x15
-#define GR_GL_LARGE_CCW_ARC_TO                              0x16
-#define GR_GL_RELATIVE_LARGE_CCW_ARC_TO                     0x17
-#define GR_GL_LARGE_CW_ARC_TO                               0x18
-#define GR_GL_RELATIVE_LARGE_CW_ARC_TO                      0x19
-#define GR_GL_CIRCULAR_CCW_ARC_TO                           0xF8
-#define GR_GL_CIRCULAR_CW_ARC_TO                            0xFA
-#define GR_GL_CIRCULAR_TANGENT_ARC_TO                       0xFC
-#define GR_GL_ARC_TO                                        0xFE
-#define GR_GL_RELATIVE_ARC_TO                               0xFF
 
 // path parameters
 #define GR_GL_PATH_STROKE_WIDTH                             0x9075
-#define GR_GL_PATH_INITIAL_END_CAP                          0x9077
-#define GR_GL_PATH_TERMINAL_END_CAP                         0x9078
+#define GR_GL_PATH_END_CAPS                                 0x9076
 #define GR_GL_PATH_JOIN_STYLE                               0x9079
 #define GR_GL_PATH_MITER_LIMIT                              0x907A
-#define GR_GL_PATH_INITIAL_DASH_CAP                         0x907C
-#define GR_GL_PATH_TERMINAL_DASH_CAP                        0x907D
-#define GR_GL_PATH_DASH_OFFSET                              0x907E
-#define GR_GL_PATH_CLIENT_LENGTH                            0x907F
-#define GR_GL_PATH_DASH_OFFSET_RESET                        0x90B4
-#define GR_GL_PATH_FILL_MODE                                0x9080
-#define GR_GL_PATH_FILL_MASK                                0x9081
-#define GR_GL_PATH_FILL_COVER_MODE                          0x9082
-#define GR_GL_PATH_STROKE_COVER_MODE                        0x9083
-#define GR_GL_PATH_STROKE_MASK                              0x9084
-#define GR_GL_PATH_END_CAPS                                 0x9076
-#define GR_GL_PATH_DASH_CAPS                                0x907B
-#define GR_GL_PATH_COMMAND_COUNT                            0x909D
-#define GR_GL_PATH_COORD_COUNT                              0x909E
-#define GR_GL_PATH_DASH_ARRAY_COUNT                         0x909F
-#define GR_GL_PATH_FILL_BOUNDING_BOX                        0x90A1
-#define GR_GL_PATH_STROKE_BOUNDING_BOX                      0x90A2
 
 // fill modes
-/*      GL_INVERT */
 #define GR_GL_COUNT_UP                                      0x9088
-#define GR_GL_COUNT_DOWN                                    0x9089
-/*      GL_PATH_FILL_MODE_NV */
-
-// gen mode
-/*      GL_NONE */
-/*      GL_EYE_LINEAR */
-/*      GL_OBJECT_LINEAR */
-#define GR_GL_PATH_OBJECT_BOUNDING_BOX                      0x908A
 
 // cover mode
-#define GR_GL_CONVEX_HULL                                   0x908B
 #define GR_GL_BOUNDING_BOX                                  0x908D
 #define GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES                0x909C
-/*      GL_PATH_FILL_COVER_MODE_NV */
 
 // transform type
-/*      GL_NONE */
 #define GR_GL_TRANSLATE_X                                   0x908E
 #define GR_GL_TRANSLATE_Y                                   0x908F
 #define GR_GL_TRANSLATE_2D                                  0x9090
-#define GR_GL_TRANSLATE_3D                                  0x9091
-#define GR_GL_AFFINE_2D                                     0x9092
-#define GR_GL_AFFINE_3D                                     0x9094
 #define GR_GL_TRANSPOSE_AFFINE_2D                           0x9096
-#define GR_GL_TRANSPOSE_AFFINE_3D                           0x9098
-
 
 // cap/dash values
-/*      GL_FLAT */
 #define GR_GL_SQUARE                                        0x90A3
 #define GR_GL_ROUND                                         0x90A4
-#define GR_GL_TRIANGULAR                                    0x90A5
 
 // join values
-/*      GL_NONE */
-/*      GL_ROUND_NV  */
 #define GR_GL_BEVEL                                         0x90A6
 #define GR_GL_MITER_REVERT                                  0x90A7
-#define GR_GL_MITER_TRUNCATE                                0x90A8
 
 // glyph loading values
-#define GR_GL_STANDARD_FONT_NAME                            0x9072
-#define GR_GL_SYSTEM_FONT_NAME                              0x9073
-#define GR_GL_FILE_NAME                                     0x9074
 #define GR_GL_STANDARD_FONT_FORMAT                          0x936C
-#define GR_GL_SKIP_MISSING_GLYPH                            0x90A9
-#define GR_GL_USE_MISSING_GLYPH                             0x90AA
 #define GR_GL_FONT_GLYPHS_AVAILABLE                         0x9368
-#define GR_GL_FONT_TARGET_UNAVAILABLE                       0x9369
-#define GR_GL_FONT_UNAVAILABLE                              0x936A
-#define GR_GL_FONT_UNINTELLIGIBLE                           0x936B
-/*      GL_INVALID_ENUM */
-/*      GL_INVALID_VALUE */
-/*      GL_OUT_OF_MEMORY */
 
 // NV_path_rendering extension to ARB_program_interface_query:
 // .. corresponds to the set of active input variables used by the fragment

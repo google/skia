@@ -120,13 +120,9 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
         GR_GL_CALL(gpu->glInterface(),
             PathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter())));
         GrGLenum join = join_to_gl_join(stroke.getJoin());
-        GR_GL_CALL(gpu->glInterface(),
-            PathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join));
+        GR_GL_CALL(gpu->glInterface(), PathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join));
         GrGLenum cap = cap_to_gl_cap(stroke.getCap());
-        GR_GL_CALL(gpu->glInterface(),
-            PathParameteri(pathID, GR_GL_PATH_INITIAL_END_CAP, cap));
-        GR_GL_CALL(gpu->glInterface(),
-            PathParameteri(pathID, GR_GL_PATH_TERMINAL_END_CAP, cap));
+        GR_GL_CALL(gpu->glInterface(), PathParameteri(pathID, GR_GL_PATH_END_CAPS, cap));
     }
 }
 
