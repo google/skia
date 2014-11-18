@@ -117,27 +117,15 @@ private:
     };
 
     struct Draw : public Cmd {
-        Draw(const DrawInfo& info,
-             const ScissorState& scissorState,
-             const GrVertexBuffer* vb,
-             const GrIndexBuffer* ib)
+        Draw(const DrawInfo& info, const ScissorState& scissorState)
             : Cmd(kDraw_Cmd)
             , fInfo(info)
-            , fScissorState(scissorState)
-            , fVertexBuffer(vb)
-            , fIndexBuffer(ib) {}
-
-        const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
-        const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
+            , fScissorState(scissorState){}
 
         virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
         DrawInfo     fInfo;
         ScissorState fScissorState;
-
-    private:
-        GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType>    fVertexBuffer;
-        GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>     fIndexBuffer;
     };
 
     struct StencilPath : public Cmd {
@@ -279,6 +267,7 @@ private:
                          GrColor color,
                          bool canIgnoreRect,
                          GrRenderTarget* renderTarget) SK_OVERRIDE;
+    virtual void setDrawBuffers(DrawInfo*) SK_OVERRIDE;
 
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,

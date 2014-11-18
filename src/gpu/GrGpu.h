@@ -356,25 +356,6 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
 
-    /**
-     * Sets source of vertex data for the next draw. Data does not have to be
-     * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
-     *
-     * @param buffer        vertex buffer containing vertex data. Must be
-     *                      unlocked before draw call. Vertex size is queried
-     *                      from current GrDrawState.
-     */
-    void setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride);
-
-    /**
-     * Sets source of index data for the next indexed draw. Data does not have
-     * to be in the buffer until drawIndexed.
-     *
-     * @param buffer index buffer containing indices. Must be unlocked
-     *               before indexed draw call.
-     */
-    void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
-
     virtual void draw(const GrOptDrawState&,
                       const GrDrawTarget::DrawInfo&,
                       const GrClipMaskManager::ScissorState&);
@@ -425,23 +406,6 @@ protected:
                                           unsigned int userBits,
                                           unsigned int* ref,
                                           unsigned int* mask);
-
-    struct GeometrySrcState {
-        GeometrySrcState() : fVertexBuffer(NULL), fIndexBuffer(NULL), fVertexSize(0) {}
-        const GrVertexBuffer*   fVertexBuffer;
-        const GrIndexBuffer*    fIndexBuffer;
-        size_t                  fVertexSize;
-    };
-
-    // accessors for derived classes
-    const GeometrySrcState& getGeomSrc() const { return fGeoSrcState; }
-
-    // it is preferable to call this rather than getGeomSrc()->fVertexSize because of the assert.
-    size_t getVertexSize() const {
-        // the vertex layout is only valid if a vertex source has been specified.
-        SkASSERT(this->getGeomSrc().fVertexBuffer);
-        return this->getGeomSrc().fVertexSize;
-    }
 
     const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
 
@@ -536,7 +500,6 @@ private:
         }
     }
 
-    GeometrySrcState                                                    fGeoSrcState;
     ResetTimestamp                                                      fResetTimestamp;
     uint32_t                                                            fResetBits;
     // these are mutable so they can be created on-demand

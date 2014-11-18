@@ -264,7 +264,7 @@ void GrGpuGL::setupGeometry(const GrOptDrawState& optState,
     size_t vertexOffsetInBytes = stride * info.startVertex();
 
     GrGLVertexBuffer* vbuf;
-    vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
+    vbuf = (GrGLVertexBuffer*) info.vertexBuffer();
 
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
@@ -275,7 +275,7 @@ void GrGpuGL::setupGeometry(const GrOptDrawState& optState,
         SkASSERT(indexOffsetInBytes);
 
         *indexOffsetInBytes = 0;
-        ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
+        ibuf = (GrGLIndexBuffer*)info.indexBuffer();
 
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());

@@ -43,6 +43,9 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
 
     fDstCopy = di.fDstCopy;
 
+    this->setVertexBuffer(di.vertexBuffer());
+    this->setIndexBuffer(di.indexBuffer());
+
     return *this;
 }
 
@@ -469,6 +472,9 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
         if (!this->setupDstReadIfNecessary(ds, &info)) {
             return;
         }
+
+        this->setDrawBuffers(&info);
+
         this->onDraw(*ds, info, scissorState);
     }
 }
@@ -508,6 +514,9 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
         if (!this->setupDstReadIfNecessary(ds, &info)) {
             return;
         }
+
+        this->setDrawBuffers(&info);
+
         this->onDraw(*ds, info, scissorState);
     }
 }
@@ -754,10 +763,13 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
     if (!this->setupDstReadIfNecessary(ds, &info)) {
         return;
     }
+
     while (instanceCount) {
         info.fInstanceCount = SkTMin(instanceCount, maxInstancesPerDraw);
         info.fVertexCount = info.fInstanceCount * verticesPerInstance;
         info.fIndexCount = info.fInstanceCount * indicesPerInstance;
+
+        this->setDrawBuffers(&info);
 
         if (this->checkDraw(*ds,
                             type,

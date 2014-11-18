@@ -159,43 +159,53 @@ private:
  */
 template <typename T, GrIOType IO_TYPE> class GrPendingIOResource : SkNoncopyable {
 public:
-    GrPendingIOResource(T* resource) : fResource(resource) {
-        if (NULL != fResource) {
+    GrPendingIOResource(T* resource = NULL) : fResource(NULL) {
+        this->reset(resource);
+    }
+
+    void reset(T* resource) {
+        if (resource) {
             switch (IO_TYPE) {
                 case kRead_GrIOType:
-                    fResource->addPendingRead();
+                    resource->addPendingRead();
                     break;
                 case kWrite_GrIOType:
-                    fResource->addPendingWrite();
+                    resource->addPendingWrite();
                     break;
                 case kRW_GrIOType:
-                    fResource->addPendingRead();
-                    fResource->addPendingWrite();
+                    resource->addPendingRead();
+                    resource->addPendingWrite();
                     break;
             }
         }
+        this->release();
+        fResource = resource;
     }
 
     ~GrPendingIOResource() {
-        if (NULL != fResource) {
-            switch (IO_TYPE) {
-                case kRead_GrIOType:
-                    fResource->completedRead();
-                    break;
-                case kWrite_GrIOType:
-                    fResource->completedWrite();
-                    break;
-                case kRW_GrIOType:
-                    fResource->completedRead();
-                    fResource->completedWrite();
-                    break;
-            }
-        }
+        this->release();
     }
 
     T* get() const { return fResource; }
 
 private:
+    void release() {
+        if (fResource) {
+            switch (IO_TYPE) {
+                case kRead_GrIOType:
+                    fResource->completedRead();
+                    break;
+                case kWrite_GrIOType:
+                    fResource->completedWrite();
+                    break;
+                case kRW_GrIOType:
+                    fResource->completedRead();
+                    fResource->completedWrite();
+                    break;
+            }
+        }
+    }
+
     T* fResource;
 };
 #endif

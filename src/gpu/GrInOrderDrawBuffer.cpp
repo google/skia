@@ -219,8 +219,8 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds,
     if (!draw->fInfo.isInstanced() ||
         draw->fInfo.verticesPerInstance() != info.verticesPerInstance() ||
         draw->fInfo.indicesPerInstance() != info.indicesPerInstance() ||
-        draw->vertexBuffer() != vertexBuffer ||
-        draw->indexBuffer() != geomSrc.fIndexBuffer ||
+        draw->fInfo.vertexBuffer() != vertexBuffer ||
+        draw->fInfo.indexBuffer() != geomSrc.fIndexBuffer ||
         draw->fScissorState != scissorState) {
         return 0;
     }
@@ -260,39 +260,25 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds,
 void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
                                  const DrawInfo& info,
                                  const GrClipMaskManager::ScissorState& scissorState) {
+    SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
+
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
     this->recordStateIfNecessary(ds,
                                  GrGpu::PrimTypeToDrawType(info.primitiveType()),
                                  info.getDstCopy());
 
-    const GrVertexBuffer* vb;
-    if (kBuffer_GeometrySrcType == this->getGeomSrc().fVertexSrc) {
-        vb = this->getGeomSrc().fVertexBuffer;
-    } else {
-        vb = poolState.fPoolVertexBuffer;
-    }
-
-    const GrIndexBuffer* ib = NULL;
-    if (info.isIndexed()) {
-        if (kBuffer_GeometrySrcType == this->getGeomSrc().fIndexSrc) {
-            ib = this->getGeomSrc().fIndexBuffer;
-        } else {
-            ib = poolState.fPoolIndexBuffer;
-        }
-    }
-
     Draw* draw;
     if (info.isInstanced()) {
         int instancesConcated = this->concatInstancedDraw(ds, info, scissorState);
         if (info.instanceCount() > instancesConcated) {
-            draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info, scissorState, vb, ib));
+            draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info, scissorState));
             draw->fInfo.adjustInstanceCount(-instancesConcated);
         } else {
             return;
         }
     } else {
-        draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info, scissorState, vb, ib));
+        draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info, scissorState));
     }
     this->recordTraceMarkersIfNecessary();
 
@@ -432,6 +418,23 @@ void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
     this->recordTraceMarkersIfNecessary();
 }
 
+void GrInOrderDrawBuffer::setDrawBuffers(DrawInfo* info) {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    if (kBuffer_GeometrySrcType == this->getGeomSrc().fVertexSrc) {
+        info->setVertexBuffer(this->getGeomSrc().fVertexBuffer);
+    } else {
+        info->setVertexBuffer(poolState.fPoolVertexBuffer);
+    }
+
+    if (info->isIndexed()) {
+        if (kBuffer_GeometrySrcType == this->getGeomSrc().fIndexSrc) {
+            info->setIndexBuffer(this->getGeomSrc().fIndexBuffer);
+        } else {
+            info->setIndexBuffer(poolState.fPoolIndexBuffer);
+        }
+    }
+}
+
 void GrInOrderDrawBuffer::reset() {
     SkASSERT(1 == fGeoPoolStateStack.count());
     this->resetVertexSource();
@@ -511,12 +514,7 @@ void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const GrOptDra
     if (!optState) {
         return;
     }
-    GrGpu* dstGpu = buf->fDstGpu;
-    dstGpu->setVertexSourceToBuffer(this->vertexBuffer(), optState->getVertexStride());
-    if (fInfo.isIndexed()) {
-        dstGpu->setIndexSourceToBuffer(this->indexBuffer());
-    }
-    dstGpu->draw(*optState, fInfo, fScissorState);
+    buf->fDstGpu->draw(*optState, fInfo, fScissorState);
 }
 
 void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf,

@@ -30,8 +30,6 @@ GrGpu::GrGpu(GrContext* context)
 
 GrGpu::~GrGpu() {
     SkSafeSetNull(fQuadIndexBuffer);
-    SkSafeUnref(fGeoSrcState.fVertexBuffer);
-    SkSafeUnref(fGeoSrcState.fIndexBuffer);
 }
 
 void GrGpu::contextAbandoned() {}
@@ -258,19 +256,6 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
         this->didRemoveGpuTraceMarker();
         --fGpuTraceMarkerCount;
     }
-}
-
-void GrGpu::setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride) {
-    SkSafeUnref(fGeoSrcState.fVertexBuffer);
-    fGeoSrcState.fVertexBuffer = buffer;
-    buffer->ref();
-    fGeoSrcState.fVertexSize = vertexStride;
-}
-
-void GrGpu::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
-    SkSafeUnref(fGeoSrcState.fIndexBuffer);
-    fGeoSrcState.fIndexBuffer = buffer;
-    buffer->ref();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

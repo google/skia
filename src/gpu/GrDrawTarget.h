@@ -15,6 +15,7 @@
 #include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
 #include "GrTraceMarker.h"
+#include "GrVertexBuffer.h"
 
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -29,7 +30,6 @@ class GrClipData;
 class GrDrawTargetCaps;
 class GrPath;
 class GrPathRange;
-class GrVertexBuffer;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -559,6 +559,14 @@ public:
             fDevBoundsStorage = bounds;
             fDevBounds = &fDevBoundsStorage;
         }
+        const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
+        const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
+        void setVertexBuffer(const GrVertexBuffer* vb) {
+            fVertexBuffer.reset(vb);
+        }
+        void setIndexBuffer(const GrIndexBuffer* ib) {
+            fIndexBuffer.reset(ib);
+        }
         const SkRect* getDevBounds() const { return fDevBounds; }
 
         // NULL if no copy of the dst is needed for the draw.
@@ -589,9 +597,13 @@ public:
         SkRect                  fDevBoundsStorage;
         SkRect*                 fDevBounds;
 
+        GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType> fVertexBuffer;
+        GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;
+
         GrDeviceCoordTexture    fDstCopy;
     };
 
+    virtual void setDrawBuffers(DrawInfo*) = 0;;
     bool programUnitTest(int maxStages);
 
 protected:
