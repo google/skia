@@ -212,6 +212,7 @@
     '../tests/TypefaceTest.cpp',
     '../tests/UnicodeTest.cpp',
     '../tests/UtilsTest.cpp',
+    '../tests/VarAllocTest.cpp',
     '../tests/WArrayTest.cpp',
     '../tests/WritePixelsTest.cpp',
     '../tests/Writer32Test.cpp',
