@@ -548,12 +548,12 @@ void GrBitmapTextContext::flush() {
         return;
     }
 
-    GrDrawState drawState;
-    drawState.setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
-
-    set_vertex_attributes(&drawState, fCurrMaskFormat);
-
     if (fCurrVertex > 0) {
+        GrDrawState drawState;
+        drawState.setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
+
+        set_vertex_attributes(&drawState, fCurrMaskFormat);
+
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
         SkASSERT(fCurrTexture);

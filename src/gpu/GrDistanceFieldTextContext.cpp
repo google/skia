@@ -635,12 +635,12 @@ void GrDistanceFieldTextContext::flush() {
         return;
     }
 
-    GrDrawState drawState;
-    drawState.setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
-    bool useColorVerts = !fUseLCDText;
-    set_vertex_attributes(&drawState, useColorVerts);
-
     if (fCurrVertex > 0) {
+        GrDrawState drawState;
+        drawState.setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
+        bool useColorVerts = !fUseLCDText;
+        set_vertex_attributes(&drawState, useColorVerts);
+
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
 
