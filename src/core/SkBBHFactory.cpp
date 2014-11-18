@@ -11,17 +11,8 @@
 
 
 SkBBoxHierarchy* SkRTreeFactory::operator()(int width, int height) const {
-    // These values were empirically determined to produce reasonable
-    // performance in most cases.
-    static const int kRTreeMinChildren = 6;
-    static const int kRTreeMaxChildren = 11;
-
-    SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width),
-                                       SkIntToScalar(height));
-    bool sortDraws = false;  // Do not sort draw calls when bulk loading.
-
-    return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
-                           aspectRatio, sortDraws);
+    SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width), SkIntToScalar(height));
+    return SkNEW_ARGS(SkRTree, (aspectRatio));
 }
 
 SkBBoxHierarchy* SkTileGridFactory::operator()(int width, int height) const {
