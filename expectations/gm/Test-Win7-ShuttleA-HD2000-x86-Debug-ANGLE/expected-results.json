@@ -1224,6 +1224,15 @@
         ]
       ]
     }, 
+    "blur2rects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11856641444220064075
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "blurcircles_angle.png": {
       "allowed-digests": [
         [
