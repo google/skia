@@ -83,20 +83,10 @@ public:
     void unimpl(const char[]);
 
     /**
-     * Creates a texture object. If desc width or height is not a power of
-     * two but underlying API requires a power of two texture then srcData
-     * will be embedded in a power of two texture. The extra width and height
-     * is filled as though srcData were rendered clamped into the texture.
-     * The exception is when using compressed data formats. In this case, the
-     * desc width and height must be a multiple of the compressed format block
-     * size otherwise this function returns NULL. Similarly, if the underlying
-     * API requires a power of two texture and the source width and height are not
-     * a power of two, then this function returns NULL.
-     *
-     * If kRenderTarget_TextureFlag is specified the GrRenderTarget is
-     * accessible via GrTexture::asRenderTarget(). The texture will hold a ref
-     * on the render target until the texture is destroyed. Compressed textures
-     * cannot have the kRenderTarget_TextureFlag set.
+     * Creates a texture object. If kRenderTarget_GrSurfaceFlag the texture can
+     * be used as a render target by calling GrTexture::asRenderTarget(). Not all
+     * pixel configs can be used as render targets. Support for configs as textures
+     * or render targets can be checked using GrDrawTargetCaps.
      *
      * @param desc        describes the texture to be created.
      * @param srcData     texel data to load texture. Begins with full-size
@@ -110,8 +100,7 @@ public:
      *
      * @return    The texture object if successful, otherwise NULL.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc,
-                             const void* srcData, size_t rowBytes);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, const void* srcData, size_t rowBytes);
 
     /**
      * Implements GrContext::wrapBackendTexture
@@ -275,15 +264,10 @@ public:
      * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
      * can be optionally cleared.
      */
-    void clear(const SkIRect* rect,
-               GrColor color,
-               bool canIgnoreRect,
-               GrRenderTarget* renderTarget);
+    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,GrRenderTarget* renderTarget);
 
 
-    void clearStencilClip(const SkIRect& rect,
-                          bool insideClip,
-                          GrRenderTarget* renderTarget);
+    void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
 
     /**
      * Discards the contents render target. NULL indicates that the current render target should
@@ -311,9 +295,7 @@ public:
     // Returns a timestamp based on the number of times the context was reset.
     // This timestamp can be used to lazily detect when cached 3D context state
     // is dirty.
-    ResetTimestamp getResetTimestamp() const {
-        return fResetTimestamp;
-    }
+    ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
     enum DrawType {
         kDrawPoints_DrawType,
