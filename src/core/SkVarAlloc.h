@@ -23,6 +23,10 @@ public:
         return ptr;
     }
 
+    // Returns our best estimate of the number of bytes we've allocated.
+    // (We intentionally do not track this precisely to save space.)
+    size_t approxBytesAllocated() const;
+
 private:
     void makeSpace(size_t bytes, unsigned flags);
 
