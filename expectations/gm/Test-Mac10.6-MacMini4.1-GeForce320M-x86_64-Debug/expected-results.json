@@ -10699,10 +10699,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7794526201102406487
+          2480454820470402989
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "gradients_local_perspective_pdf-poppler.png": {
       "allowed-digests": [
