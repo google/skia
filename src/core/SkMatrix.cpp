@@ -569,10 +569,12 @@ static inline float rowcol3(const float row[], const float col[]) {
 }
 
 static void normalize_perspective(SkScalar mat[9]) {
-    if (SkScalarAbs(mat[SkMatrix::kMPersp2]) > 1) {
-        for (int i = 0; i < 9; i++)
-            mat[i] = SkScalarHalf(mat[i]);
-    }
+    // If it was interesting to never store the last element, we could divide all 8 other
+    // elements here by the 9th, making it 1.0...
+    //
+    // When SkScalar was SkFixed, we would sometimes rescale the entire matrix to keep its
+    // component values from getting too large. This is not a concern when using floats/doubles,
+    // so we do nothing now.
 }
 
 static bool only_scale_and_translate(unsigned mask) {
