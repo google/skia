@@ -259,11 +259,13 @@ private:
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    // Takes ownership of the SkRecord, refs the (optional) BBH.
-    SkPicture(SkScalar width, SkScalar height, SkRecord*, SkBBoxHierarchy*);
+    // Takes ownership of the SkRecord, refs the (optional) drawablePicts and BBH.
+    SkPicture(SkScalar width, SkScalar height, SkRecord*, SkData* drawablePicts,
+              SkBBoxHierarchy*);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
-    static SkPictureData* Backport(const SkRecord&, const SkPictInfo&);
+    static SkPictureData* Backport(const SkRecord&, const SkPictInfo&,
+                                   SkPicture const* const drawablePics[], int drawableCount);
 
     const SkScalar                        fCullWidth;
     const SkScalar                        fCullHeight;
@@ -271,6 +273,15 @@ private:
     mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
     SkAutoTDelete<SkRecord>       fRecord;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
+    SkAutoTUnref<SkData>          fDrawablePicts;
+
+    // helpers for fDrawablePicts
+    int drawableCount() const;
+    // will return NULL if drawableCount() returns 0
+    SkPicture const* const* drawablePicts() const;
+
+    struct PathCounter;
+
     struct Analysis {
         Analysis() {}  // Only used by SkPictureData codepath.
         explicit Analysis(const SkRecord&);
@@ -286,8 +297,6 @@ private:
         int         fNumAADFEligibleConcavePaths;
     } fAnalysis;
     mutable uint32_t fUniqueID;
-
-    struct PathCounter;
 
     friend class SkPictureRecorder;            // SkRecord-based constructor.
     friend class GrLayerHoister;               // access to fRecord

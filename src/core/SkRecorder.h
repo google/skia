@@ -19,6 +19,11 @@ class SkRecorder : public SkCanvas {
 public:
     // Does not take ownership of the SkRecord.
     SkRecorder(SkRecord*, int width, int height);
+    virtual ~SkRecorder() SK_OVERRIDE;
+
+    // return a (new or ref'd) data containing the array of pictures that were
+    // snapped from our drawables.
+    SkData* newDrawableSnapshot(SkBBHFactory*, uint32_t recordFlags);
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
@@ -77,6 +82,7 @@ public:
     void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    void onDrawDrawable(SkCanvasDrawable*) SK_OVERRIDE;
     void onDrawText(const void* text,
                     size_t byteLength,
                     SkScalar x,
@@ -139,6 +145,7 @@ private:
 
     int fSaveLayerCount;
     SkTDArray<SkBool8> fSaveIsSaveLayer;
+    SkTDArray<SkCanvasDrawable*> fDrawableList;
 };
 
 #endif//SkRecorder_DEFINED

@@ -257,6 +257,21 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+int SkPicture::drawableCount() const {
+    if (fDrawablePicts.get()) {
+        return SkToInt(fDrawablePicts->size() / sizeof(SkPicture*));
+    } else {
+        return 0;
+    }
+}
+
+SkPicture const* const* SkPicture::drawablePicts() const {
+    if (fDrawablePicts) {
+        return reinterpret_cast<SkPicture* const*>(fDrawablePicts->data());
+    }
+    return NULL;
+}
+
 SkPicture::~SkPicture() {
     this->callDeletionListeners();
 }
@@ -294,7 +309,8 @@ void SkPicture::playback(SkCanvas* canvas, SkDrawPictureCallback* callback) cons
     (void)canvas->getClipBounds(&clipBounds);
     const bool useBBH = !clipBounds.contains(this->cullRect());
 
-    SkRecordDraw(*fRecord, canvas, useBBH ? fBBH.get() : NULL, callback);
+    SkRecordDraw(*fRecord, canvas, this->drawablePicts(), this->drawableCount(),
+                 useBBH ? fBBH.get() : NULL, callback);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -444,19 +460,20 @@ void SkPicture::createHeader(SkPictInfo* info) const {
 }
 
 // This for compatibility with serialization code only.  This is not cheap.
-SkPictureData* SkPicture::Backport(const SkRecord& src, const SkPictInfo& info) {
+SkPictureData* SkPicture::Backport(const SkRecord& src, const SkPictInfo& info,
+                                   SkPicture const* const drawablePicts[], int drawableCount) {
     SkPictureRecord rec(SkISize::Make(info.fCullRect.width(), info.fCullRect.height()), 0/*flags*/);
     rec.beginRecording();
-        SkRecordDraw(src, &rec, NULL/*bbh*/, NULL/*callback*/);
+        SkRecordDraw(src, &rec, drawablePicts, drawableCount, NULL/*bbh*/, NULL/*callback*/);
     rec.endRecording();
     return SkNEW_ARGS(SkPictureData, (rec, info, false/*deep copy ops?*/));
 }
 
-
 void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     SkPictInfo info;
     this->createHeader(&info);
-    SkAutoTDelete<SkPictureData> data(Backport(*fRecord, info));
+    SkAutoTDelete<SkPictureData> data(Backport(*fRecord, info, this->drawablePicts(),
+                                               this->drawableCount()));
 
     stream->write(&info, sizeof(info));
     if (data) {
@@ -470,7 +487,8 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
     SkPictInfo info;
     this->createHeader(&info);
-    SkAutoTDelete<SkPictureData> data(Backport(*fRecord, info));
+    SkAutoTDelete<SkPictureData> data(Backport(*fRecord, info, this->drawablePicts(),
+                                               this->drawableCount()));
 
     buffer.writeByteArray(&info.fMagic, sizeof(info.fMagic));
     buffer.writeUInt(info.fVersion);
@@ -512,11 +530,13 @@ uint32_t SkPicture::uniqueID() const {
     return fUniqueID;
 }
 
-SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkBBoxHierarchy* bbh)
+SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkData* drawablePicts,
+                     SkBBoxHierarchy* bbh)
     : fCullWidth(width)
     , fCullHeight(height)
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
+    , fDrawablePicts(SkSafeRef(drawablePicts))
     , fAnalysis(*fRecord) {
     this->needsNewGenID();
 }

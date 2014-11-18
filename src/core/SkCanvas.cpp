@@ -2299,11 +2299,8 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 }
 
 void SkCanvas::EXPERIMENTAL_drawDrawable(SkCanvasDrawable* dr) {
-    if (dr) {
-        SkRect bounds;
-        if (!dr->getBounds(&bounds) || !this->quickReject(bounds)) {
-            this->onDrawDrawable(dr);
-        }
+    if (dr && !this->quickReject(dr->getBounds())) {
+        this->onDrawDrawable(dr);
     }
 }
 

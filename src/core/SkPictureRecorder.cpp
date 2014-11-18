@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
 #include "SkLayerInfo.h"
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"
@@ -60,7 +61,12 @@ SkPicture* SkPictureRecorder::endRecording() {
         }
     }
 
-    SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, fRecord.detach(), fBBH.get()));
+    // TODO: we should remember these from our caller
+    SkBBHFactory* factory = NULL;
+    uint32_t recordFlags = 0;
+    SkAutoDataUnref drawablePicts(fRecorder->newDrawableSnapshot(factory, recordFlags));
+    SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, fRecord.detach(),
+                                             drawablePicts, fBBH.get()));
 
     if (saveLayerData) {
         pict->EXPERIMENTAL_addAccelData(saveLayerData);
@@ -73,5 +79,7 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     if (NULL == canvas) {
         return;
     }
-    SkRecordDraw(*fRecord, canvas, NULL/*bbh*/, NULL/*callback*/);
+
+    int drawableCount = 0;
+    SkRecordDraw(*fRecord, canvas, NULL, drawableCount, NULL/*bbh*/, NULL/*callback*/);
 }

@@ -11,6 +11,7 @@
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
+                  SkPicture const* const drawablePicts[], int drawableCount,
                   const SkBBoxHierarchy* bbh,
                   SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
@@ -29,7 +30,7 @@ void SkRecordDraw(const SkRecord& record,
         SkTDArray<unsigned> ops;
         bbh->search(query, &ops);
 
-        SkRecords::Draw draw(canvas);
+        SkRecords::Draw draw(canvas, drawablePicts, drawableCount);
         for (int i = 0; i < ops.count(); i++) {
             if (callback && callback->abortDrawing()) {
                 return;
@@ -41,7 +42,7 @@ void SkRecordDraw(const SkRecord& record,
         }
     } else {
         // Draw all ops.
-        SkRecords::Draw draw(canvas);
+        SkRecords::Draw draw(canvas, drawablePicts, drawableCount);
         for (unsigned i = 0; i < record.count(); i++) {
             if (callback && callback->abortDrawing()) {
                 return;
@@ -54,15 +55,15 @@ void SkRecordDraw(const SkRecord& record,
     }
 }
 
-void SkRecordPartialDraw(const SkRecord& record,
-                         SkCanvas* canvas,
+void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
+                         SkPicture const* const drawablePicts[], int drawableCount,
                          const SkRect& clearRect,
                          unsigned start, unsigned stop,
                          const SkMatrix& initialCTM) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     stop = SkTMin(stop, record.count());
-    SkRecords::PartialDraw draw(canvas, clearRect, initialCTM);
+    SkRecords::PartialDraw draw(canvas, NULL, 0, clearRect, initialCTM);
     for (unsigned i = start; i < stop; i++) {
         record.visit<void>(i, draw);
     }
@@ -122,6 +123,12 @@ DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.co
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 DRAW(DrawData, drawData(r.data, r.length));
 #undef DRAW
+
+template <> void Draw::draw(const DrawDrawable& r) {
+    SkASSERT(r.index >= 0);
+    SkASSERT(r.index < fDrawableCount);
+    fCanvas->drawPicture(fDrawablePicts[r.index]);
+}
 
 // This is an SkRecord visitor that fills an SkBBoxHierarchy.
 //
@@ -500,6 +507,10 @@ private:
         SkRect dst = op.blob->bounds();
         dst.offset(op.x, op.y);
         return this->adjustAndMap(dst, &op.paint);
+    }
+
+    Bounds bounds(const DrawDrawable& op) const {
+        return this->adjustAndMap(op.worstCaseBounds, NULL);
     }
 
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {

@@ -266,8 +266,9 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
             atlasCanvas->setMatrix(initialCTM);
             atlasCanvas->concat(atlased[i].fLocalMat);
 
-            SkRecordPartialDraw(*pict->fRecord.get(), atlasCanvas, bound,
-                                layer->start() + 1, layer->stop(), initialCTM);
+            SkRecordPartialDraw(*pict->fRecord.get(), atlasCanvas,
+                                pict->drawablePicts(), pict->drawableCount(),
+                                bound, layer->start() + 1, layer->stop(), initialCTM);
 
             atlasCanvas->restore();
         }
@@ -308,8 +309,9 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
         layerCanvas->setMatrix(initialCTM);
         layerCanvas->concat(layers[i].fLocalMat);
 
-        SkRecordPartialDraw(*pict->fRecord.get(), layerCanvas, bound,
-                            layer->start()+1, layer->stop(), initialCTM);
+        SkRecordPartialDraw(*pict->fRecord.get(), layerCanvas,
+                            pict->drawablePicts(), pict->drawableCount(),
+                            bound, layer->start()+1, layer->stop(), initialCTM);
 
         layerCanvas->flush();
     }

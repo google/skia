@@ -56,11 +56,12 @@ static inline void draw_replacement_bitmap(const GrReplacements::ReplacementInfo
 class ReplaceDraw : public SkRecords::Draw {
 public:
     ReplaceDraw(SkCanvas* canvas,
+                SkPicture const* const drawablePicts[], int drawableCount,
                 const SkPicture* picture,
                 const GrReplacements* replacements,
                 const SkMatrix& initialMatrix,
                 SkDrawPictureCallback* callback)
-        : INHERITED(canvas)
+        : INHERITED(canvas, drawablePicts, drawableCount)
         , fCanvas(canvas)
         , fPicture(picture)
         , fReplacements(replacements)
@@ -121,7 +122,8 @@ public:
         SkAutoCanvasMatrixPaint acmp(fCanvas, dp.matrix, dp.paint, dp.picture->cullRect());
 
         // Draw sub-pictures with the same replacement list but a different picture
-        ReplaceDraw draw(fCanvas, dp.picture, fReplacements, fInitialMatrix, fCallback);
+        ReplaceDraw draw(fCanvas, this->drawablePicts(), this->drawableCount(),
+                         dp.picture, fReplacements, fInitialMatrix, fCallback);
 
         fNumReplaced += draw.draw();
     }
@@ -182,7 +184,8 @@ int GrRecordReplaceDraw(const SkPicture* picture,
                         SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
-    ReplaceDraw draw(canvas, picture, replacements, initialMatrix, callback);
+    // TODO: drawablePicts?
+    ReplaceDraw draw(canvas, NULL, 0, picture, replacements, initialMatrix, callback);
 
     return draw.draw();
 }

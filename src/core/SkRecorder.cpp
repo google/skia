@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
 #include "SkRecorder.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
@@ -15,8 +16,52 @@ SkRecorder::SkRecorder(SkRecord* record, int width, int height)
     , fRecord(record)
     , fSaveLayerCount(0) {}
 
+SkRecorder::~SkRecorder() {
+    fDrawableList.unrefAll();
+}
+
 void SkRecorder::forgetRecord() {
+    fDrawableList.unrefAll();
+    fDrawableList.reset();
     fRecord = NULL;
+}
+
+// ReleaseProc for SkData, assuming the data was allocated via sk_malloc, and its contents are an
+// array of SkRefCnt* which need to be unref'd.
+//
+static void unref_all_malloc_releaseProc(const void* ptr, size_t length, void* context) {
+    SkASSERT(ptr == context);   // our context is our ptr, allocated via sk_malloc
+    int count = SkToInt(length / sizeof(SkRefCnt*));
+    SkASSERT(count * sizeof(SkRefCnt*) == length);  // our length is snug for the array
+
+    SkRefCnt* const* array = reinterpret_cast<SkRefCnt* const*>(ptr);
+    for (int i = 0; i < count; ++i) {
+        SkSafeUnref(array[i]);
+    }
+    sk_free(context);
+}
+
+// Return an uninitialized SkData sized for "count" SkRefCnt pointers. They will be unref'd when
+// the SkData is destroyed.
+//
+static SkData* new_uninitialized_refcnt_ptrs(int count) {
+    size_t length = count * sizeof(SkRefCnt*);
+    void* array = sk_malloc_throw(length);
+    void* context = array;
+    return SkData::NewWithProc(array, length, unref_all_malloc_releaseProc, context);
+}
+
+SkData* SkRecorder::newDrawableSnapshot(SkBBHFactory* factory, uint32_t recordFlags) {
+    const int count = fDrawableList.count();
+    if (0 == count) {
+        return NULL;
+    }
+    SkData* data = new_uninitialized_refcnt_ptrs(count);
+    SkPicture** pics = reinterpret_cast<SkPicture**>(data->writable_data());
+    for (int i = 0; i < count; ++i) {
+        pics[i] = fDrawableList[i]->newPictureSnapshot(factory, recordFlags);
+    }
+    return data;
 }
 
 // To make appending to fRecord a little less verbose.
@@ -120,6 +165,11 @@ void SkRecorder::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
 void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     APPEND(DrawDRRect, delay_copy(paint), outer, inner);
+}
+
+void SkRecorder::onDrawDrawable(SkCanvasDrawable* drawable) {
+    *fDrawableList.append() = SkRef(drawable);
+    APPEND(DrawDrawable, drawable->getBounds(), fDrawableList.count() - 1);
 }
 
 void SkRecorder::drawPath(const SkPath& path, const SkPaint& paint) {

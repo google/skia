@@ -9,6 +9,7 @@
 #define SkRecords_DEFINED
 
 #include "SkCanvas.h"
+#include "SkCanvasDrawable.h"
 #include "SkPicture.h"
 #include "SkTextBlob.h"
 
@@ -44,6 +45,7 @@ namespace SkRecords {
     M(DrawBitmapMatrix)                                             \
     M(DrawBitmapNine)                                               \
     M(DrawBitmapRectToRect)                                         \
+    M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageRect)                                                \
     M(DrawDRRect)                                                   \
@@ -236,6 +238,7 @@ RECORD5(DrawBitmapRectToRect, Optional<SkPaint>, paint,
                               SkRect, dst,
                               SkCanvas::DrawBitmapRectFlags, flags);
 RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
+RECORD2(DrawDrawable, SkRect, worstCaseBounds, int32_t, index);
 RECORD4(DrawImage, Optional<SkPaint>, paint,
                    RefBox<const SkImage>, image,
                    SkScalar, left,

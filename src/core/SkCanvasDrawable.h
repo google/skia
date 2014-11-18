@@ -10,6 +10,7 @@
 
 #include "SkRefCnt.h"
 
+class SkBBHFactory;
 class SkCanvas;
 struct SkRect;
 
@@ -31,6 +32,11 @@ public:
      */
     void draw(SkCanvas*);
 
+    SkPicture* newPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags);
+    SkPicture* newPictureSnapshot() {
+        return this->newPictureSnapshot(NULL, 0);
+    }
+
     /**
      *  Return a unique value for this instance. If two calls to this return the same value,
      *  it is presumed that calling the draw() method will render the same thing as well.
@@ -41,11 +47,11 @@ public:
     uint32_t getGenerationID();
 
     /**
-     *  If the drawable knows a bounds that will contains all of its drawing, return true and
-     *  set the parameter to that rectangle. If one is not known, ignore the parameter and
-     *  return false.
+     *  Return the (conservative) bounds of what the drawable will draw. If the drawable can
+     *  change what it draws (e.g. animation or in response to some external change), then this
+     *  must return a bounds that is always valid for all possible states.
      */
-    bool getBounds(SkRect*);
+    SkRect getBounds();
 
     /**
      *  Calling this invalidates the previous generation ID, and causes a new one to be computed
@@ -55,9 +61,9 @@ public:
     void notifyDrawingChanged();
 
 protected:
+    virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-
-    virtual bool onGetBounds(SkRect*) { return false; }
+    virtual SkPicture* onNewPictureSnapshot(SkBBHFactory*, uint32_t recordFlags);
 
 private:
     int32_t fGenerationID;

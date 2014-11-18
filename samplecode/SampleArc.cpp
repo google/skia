@@ -72,6 +72,12 @@ class ArcsView : public SampleView {
             paint.setColor(SK_ColorBLUE);
             canvas->drawArc(fR, 0, fSweep, false, paint);
         }
+
+        SkRect onGetBounds() SK_OVERRIDE {
+            SkRect r(fR);
+            r.outset(2, 2);
+            return r;
+        }
     };
 
 public:

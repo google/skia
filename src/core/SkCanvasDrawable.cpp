@@ -28,6 +28,10 @@ void SkCanvasDrawable::draw(SkCanvas* canvas) {
     this->onDraw(canvas);
 }
 
+SkPicture* SkCanvasDrawable::newPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags) {
+    return this->onNewPictureSnapshot(bbhFactory, recordFlags);
+}
+
 uint32_t SkCanvasDrawable::getGenerationID() {
     if (0 == fGenerationID) {
         fGenerationID = next_generation_id();
@@ -35,16 +39,21 @@ uint32_t SkCanvasDrawable::getGenerationID() {
     return fGenerationID;
 }
 
-bool SkCanvasDrawable::getBounds(SkRect* boundsPtr) {
-    SkRect bounds;
-    if (!boundsPtr) {
-        boundsPtr = &bounds;
-    }
-    return this->onGetBounds(boundsPtr);
+SkRect SkCanvasDrawable::getBounds() {
+    return this->onGetBounds();
 }
 
 void SkCanvasDrawable::notifyDrawingChanged() {
     fGenerationID = 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkPictureRecorder.h"
+
+SkPicture* SkCanvasDrawable::onNewPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags) {
+    const SkRect bounds = this->getBounds();
+    SkPictureRecorder recorder;
+    this->draw(recorder.beginRecording(bounds.width(), bounds.height(), bbhFactory, recordFlags));
+    return recorder.endRecording();
+}
