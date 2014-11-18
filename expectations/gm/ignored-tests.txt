@@ -54,3 +54,6 @@ modecolorfilters
 # cdalton https://codereview.chromium.org/712223002
 # Pixels off by one from covering gradient fills with different bounding boxes
 textblobshader
+
+#humper skia:2049
+dashcubics
