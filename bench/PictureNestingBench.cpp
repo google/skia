@@ -14,17 +14,17 @@
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 
+#include <math.h>
+
 class PictureNesting : public Benchmark {
 public:
     PictureNesting(const char* name, int maxLevel, int maxPictureLevel)
         : fMaxLevel(maxLevel)
         , fMaxPictureLevel(maxPictureLevel) {
-
+        fName.printf("picture_nesting_%s_%d", name, this->countPics());
         fPaint.setColor(SK_ColorRED);
         fPaint.setAntiAlias(true);
         fPaint.setStyle(SkPaint::kStroke_Style);
-        SkAutoTUnref<SkCanvas> nullCanvas(SkCreateNullCanvas());
-        fName.printf("picture_nesting_%s_%d", name, this->sierpinsky(nullCanvas, 0, fPaint));
     }
 
 protected:
@@ -37,7 +37,8 @@ protected:
         canvas->save();
         canvas->scale(SkIntToScalar(canvasSize.x()), SkIntToScalar(canvasSize.y()));
 
-        this->sierpinsky(canvas, 0, fPaint);
+        SkDEBUGCODE(int pics = ) this->sierpinsky(canvas, 0, fPaint);
+        SkASSERT(pics == this->countPics());
 
         canvas->restore();
     }
@@ -86,6 +87,15 @@ protected:
     int fMaxPictureLevel;
 
 private:
+    int countPics() const {
+        // Solve: pics from sierpinsky
+        // f(m) = 1 + 3*f(m - 1)
+        // f(0) = 0
+        //   via "recursive function to closed form" tricks
+        // f(m) = 1/2 (3^m - 1)
+        return static_cast<int>((pow(3.0, fMaxPictureLevel) - 1.0) / 2.0);
+    }
+
     SkString fName;
     SkPaint  fPaint;
 
@@ -123,6 +133,10 @@ class PictureNestingPlayback : public PictureNesting {
 public:
     PictureNestingPlayback(int maxLevel, int maxPictureLevel)
         : INHERITED("playback", maxLevel, maxPictureLevel) {
+    }
+protected:
+    virtual void onPreDraw() SK_OVERRIDE {
+        this->INHERITED::onPreDraw();
 
         SkIPoint canvasSize = onGetSize();
         SkPictureRecorder recorder;
@@ -133,7 +147,6 @@ public:
         fPicture.reset(recorder.endRecording());
     }
 
-protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) {
         for (int i = 0; i < loops; i++) {
             canvas->drawPicture(fPicture);
