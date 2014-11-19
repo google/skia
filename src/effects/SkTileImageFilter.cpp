@@ -36,8 +36,7 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
-    SkIRect dstIRect;
-    dstRect.roundOut(&dstIRect);
+    const SkIRect dstIRect = dstRect.roundOut();
     int w = dstIRect.width();
     int h = dstIRect.height();
     if (!fSrcRect.width() || !fSrcRect.height() || !w || !h) {

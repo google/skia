@@ -854,8 +854,7 @@ void SkScan::AntiFillRect(const SkRect& origR, const SkRegion* clip,
             return;
         }
 
-        SkIRect outerBounds;
-        newR.roundOut(&outerBounds);
+        const SkIRect outerBounds = newR.roundOut();
 
         if (clip->isRect()) {
             antifillrect(newR, blitter);

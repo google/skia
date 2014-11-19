@@ -76,9 +76,6 @@ bool SkRasterClip::setRect(const SkIRect& rect) {
 /////////////////////////////////////////////////////////////////////////////////////
 
 bool SkRasterClip::setConservativeRect(const SkRect& r, const SkIRect& clipR, bool isInverse) {
-    SkIRect ir;
-    r.roundOut(&ir);
-
     SkRegion::Op op;
     if (isInverse) {
         op = SkRegion::kDifference_Op;
@@ -86,7 +83,7 @@ bool SkRasterClip::setConservativeRect(const SkRect& r, const SkIRect& clipR, bo
         op = SkRegion::kIntersect_Op;
     }
     fBW.setRect(clipR);
-    fBW.op(ir, op);
+    fBW.op(r.roundOut(), op);
     return this->updateCacheAndReturnNonEmpty();
 }
 
@@ -178,7 +175,7 @@ bool SkRasterClip::op(const SkPath& path, const SkISize& size, SkRegion::Op op, 
                 ir = SkIRect::MakeSize(size);
                 break;
             case kContinue_MutateResult:
-                path.getBounds().roundOut(&ir);
+                ir = path.getBounds().roundOut();
                 break;
         }
         return this->op(ir, op);
@@ -287,7 +284,7 @@ bool SkRasterClip::op(const SkRect& r, const SkISize& size, SkRegion::Op op, boo
                 ir = SkIRect::MakeSize(size);
                 break;
             case kContinue_MutateResult:
-                r.roundOut(&ir);
+                ir = r.roundOut();
                 break;
         }
         return this->op(ir, op);

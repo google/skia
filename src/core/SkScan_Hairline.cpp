@@ -377,14 +377,12 @@ void SkScan::HairLine(const SkPoint& p0, const SkPoint& p1,
     } else {
         const SkRegion* clipRgn = NULL;
         SkRect r;
-        SkIRect ir;
         r.set(p0.fX, p0.fY, p1.fX, p1.fY);
         r.sort();
         r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
-        r.roundOut(&ir);
 
         SkAAClipBlitterWrapper wrap;
-        if (!clip.quickContains(ir)) {
+        if (!clip.quickContains(r.roundOut())) {
             wrap.init(clip, blitter);
             blitter = wrap.getBlitter();
             clipRgn = &wrap.getRgn();

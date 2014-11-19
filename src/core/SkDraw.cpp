@@ -813,8 +813,7 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     devRect.sort();
 
     // look for the quick exit, before we build a blitter
-    SkIRect ir;
-    devRect.roundOut(&ir);
+    SkIRect ir = devRect.roundOut();
     if (paint.getStyle() != SkPaint::kFill_Style) {
         // extra space for hairlines
         if (paint.getStrokeWidth() == 0) {
@@ -1210,11 +1209,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
 static bool clipped_out(const SkMatrix& m, const SkRasterClip& c,
                         const SkRect& srcR) {
     SkRect  dstR;
-    SkIRect devIR;
-
     m.mapRect(&dstR, srcR);
-    dstR.roundOut(&devIR);
-    return c.quickReject(devIR);
+    return c.quickReject(dstR.roundOut());
 }
 
 static bool clipped_out(const SkMatrix& matrix, const SkRasterClip& clip,
@@ -2282,7 +2278,7 @@ void SkDraw::validate() const {
 #include "SkBlitter.h"
 
 static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
-                       const SkMaskFilter* filter, const SkMatrix* filterMatrix,
+                           const SkMaskFilter* filter, const SkMatrix* filterMatrix,
                            SkIRect* bounds) {
     if (devPath.isEmpty()) {
         return false;

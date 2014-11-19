@@ -187,7 +187,7 @@ bool SkBlurMaskFilterImpl::filterRRectMask(SkMask* dst, const SkRRect& r,
 static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
     SkASSERT(mask != NULL);
 
-    bounds.roundOut(&mask->fBounds);
+    mask->fBounds = bounds.roundOut();
     mask->fRowBytes = SkAlign4(mask->fBounds.width());
     mask->fFormat = SkMask::kA8_Format;
     const size_t size = mask->computeImageSize();
@@ -360,7 +360,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
 
     SkIPoint margin;
     SkMask  srcM, dstM;
-    rrect.rect().roundOut(&srcM.fBounds);
+    srcM.fBounds = rrect.rect().roundOut();
     srcM.fImage = NULL;
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;
@@ -476,7 +476,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
 
     SkIPoint margin;
     SkMask  srcM, dstM;
-    rects[0].roundOut(&srcM.fBounds);
+    srcM.fBounds = rects[0].roundOut();
     srcM.fImage = NULL;
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;

@@ -81,9 +81,8 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
     }
 
     SkRect floatBounds;
-    SkIRect bounds;
     ctx.ctm().mapRect(&floatBounds, fCropRect);
-    floatBounds.roundOut(&bounds);
+    SkIRect bounds = floatBounds.roundOut();
     if (!bounds.intersect(ctx.clipBounds())) {
         return false;
     }

@@ -42,8 +42,7 @@ SkDebugCanvas::SkDebugCanvas(int windowWidth, int windowHeight)
     largeIRect.inset(1024, 1024);
     SkRect large = SkRect::Make(largeIRect);
 #ifdef SK_DEBUG
-    large.roundOut(&largeIRect);
-    SkASSERT(!largeIRect.isEmpty());
+    SkASSERT(!large.roundOut().isEmpty());
 #endif
     // call the base class' version to avoid adding a draw command
     this->INHERITED::onClipRect(large, SkRegion::kReplace_Op, kHard_ClipEdgeStyle);

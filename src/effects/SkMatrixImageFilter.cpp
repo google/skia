@@ -127,8 +127,7 @@ bool SkMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm
     matrix.postConcat(ctm);
     SkRect floatBounds;
     matrix.mapRect(&floatBounds, SkRect::Make(src));
-    SkIRect bounds;
-    floatBounds.roundOut(&bounds);
+    SkIRect bounds = floatBounds.roundOut();
     if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
         return false;
     }

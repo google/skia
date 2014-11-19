@@ -290,8 +290,7 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
     srcBounds.offset(srcOffset);
     SkRect cropRect;
     ctx.ctm().mapRect(&cropRect, fCropRect.rect());
-    SkIRect cropRectI;
-    cropRect.roundOut(&cropRectI);
+    const SkIRect cropRectI = cropRect.roundOut();
     uint32_t flags = fCropRect.flags();
     if (flags & CropRect::kHasLeft_CropEdge) srcBounds.fLeft = cropRectI.fLeft;
     if (flags & CropRect::kHasTop_CropEdge) srcBounds.fTop = cropRectI.fTop;
@@ -311,8 +310,7 @@ bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitm
     srcBounds.offset(*srcOffset);
     SkRect cropRect;
     ctx.ctm().mapRect(&cropRect, fCropRect.rect());
-    SkIRect cropRectI;
-    cropRect.roundOut(&cropRectI);
+    const SkIRect cropRectI = cropRect.roundOut();
     uint32_t flags = fCropRect.flags();
     *bounds = srcBounds;
     if (flags & CropRect::kHasLeft_CropEdge) bounds->fLeft = cropRectI.fLeft;

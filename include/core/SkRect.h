@@ -803,9 +803,8 @@ public:
     }
 
     /**
-     *  Expand this rectangle by rounding its coordinates "out", choosing the
-     *  floor of top and left, and the ceil of right and bottom. If this rect
-     *  is already on integer coordinates, then it will be unchanged.
+     *  Set the dst rectangle by rounding "out" this rectangle, choosing the
+     *  SkScalarFloorToScalar of top and left, and the SkScalarCeilToScalar of right and bottom.
      *
      *  It is safe for this == dst
      */
@@ -828,16 +827,20 @@ public:
                  SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom));
     }
 
-    /**
-     *  Return a new SkIRect which is contains the rounded coordinates of this
-     *  rect using SkScalarRoundToInt.
-     */
+    //! Returns the result of calling round(&dst)
     SkIRect round() const {
         SkIRect ir;
         this->round(&ir);
         return ir;
     }
-
+    
+    //! Returns the result of calling roundOut(&dst)
+    SkIRect roundOut() const {
+        SkIRect ir;
+        this->roundOut(&ir);
+        return ir;
+    }
+    
     /**
      *  Swap top/bottom or left/right if there are flipped (i.e. if width()
      *  or height() would have returned a negative value.) This should be called

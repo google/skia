@@ -226,8 +226,7 @@ GrTexture* GaussianBlur(GrContext* context,
         SkTSwap(dstTexture, tempTexture);
     }
 
-    SkIRect srcIRect;
-    srcRect.roundOut(&srcIRect);
+    const SkIRect srcIRect = srcRect.roundOut();
 
     // For really small blurs(Certainly no wider than 5x5 on desktop gpus) it is faster to just
     // launch a single non separable kernel vs two launches

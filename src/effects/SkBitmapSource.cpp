@@ -67,9 +67,8 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
         offset->fX = offset->fY = 0;
         return true;
     }
-    SkIRect dstIRect;
-    dstRect.roundOut(&dstIRect);
 
+    const SkIRect dstIRect = dstRect.roundOut();
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstIRect.width(), dstIRect.height()));
     if (NULL == device.get()) {
         return false;

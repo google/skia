@@ -167,8 +167,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             }
         } else {
             // just use devPath
-            SkIRect ir;
-            devPath.getBounds().roundOut(&ir);
+            const SkIRect ir = devPath.getBounds().roundOut();
 
             if (ir.isEmpty() || !ir.is16Bit()) {
                 goto SK_ERROR;

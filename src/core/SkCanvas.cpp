@@ -1586,9 +1586,7 @@ bool SkCanvas::quickReject(const SkRect& rect) const {
     if (fMCRec->fMatrix.hasPerspective()) {
         SkRect dst;
         fMCRec->fMatrix.mapRect(&dst, rect);
-        SkIRect idst;
-        dst.roundOut(&idst);
-        return !SkIRect::Intersects(idst, fMCRec->fRasterClip.getBounds());
+        return !SkIRect::Intersects(dst.roundOut(), fMCRec->fRasterClip.getBounds());
     } else {
         const SkRect& clipR = this->getLocalClipBounds();
 
