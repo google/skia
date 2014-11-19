@@ -17,23 +17,14 @@ public:
     SkTDArray() {
         fReserve = fCount = 0;
         fArray = NULL;
-#ifdef SK_DEBUG
-        fData = NULL;
-#endif
     }
     SkTDArray(const T src[], int count) {
         SkASSERT(src || count == 0);
 
         fReserve = fCount = 0;
         fArray = NULL;
-#ifdef SK_DEBUG
-        fData = NULL;
-#endif
         if (count) {
             fArray = (T*)sk_malloc_throw(count * sizeof(T));
-#ifdef SK_DEBUG
-            fData = (ArrayT*)fArray;
-#endif
             memcpy(fArray, src, sizeof(T) * count);
             fReserve = fCount = count;
         }
@@ -41,9 +32,6 @@ public:
     SkTDArray(const SkTDArray<T>& src) {
         fReserve = fCount = 0;
         fArray = NULL;
-#ifdef SK_DEBUG
-        fData = NULL;
-#endif
         SkTDArray<T> tmp(src.fArray, src.fCount);
         this->swap(tmp);
     }
@@ -75,9 +63,6 @@ public:
 
     void swap(SkTDArray<T>& other) {
         SkTSwap(fArray, other.fArray);
-#ifdef SK_DEBUG
-        SkTSwap(fData, other.fData);
-#endif
         SkTSwap(fReserve, other.fReserve);
         SkTSwap(fCount, other.fCount);
     }
@@ -89,7 +74,6 @@ public:
         T* array = fArray;
         fArray = NULL;
         fReserve = fCount = 0;
-        SkDEBUGCODE(fData = NULL;)
         return array;
     }
 
@@ -137,9 +121,6 @@ public:
         if (fArray) {
             sk_free(fArray);
             fArray = NULL;
-#ifdef SK_DEBUG
-            fData = NULL;
-#endif
             fReserve = fCount = 0;
         } else {
             SkASSERT(fReserve == 0 && fCount == 0);
@@ -343,7 +324,6 @@ public:
         SkASSERT((fReserve == 0 && fArray == NULL) ||
                  (fReserve > 0 && fArray != NULL));
         SkASSERT(fCount <= fReserve);
-        SkASSERT(fData == (ArrayT*)fArray);
     }
 #endif
 
@@ -353,13 +333,6 @@ public:
     }
 
 private:
-#ifdef SK_DEBUG
-    enum {
-        kDebugArraySize = 16
-    };
-    typedef T ArrayT[kDebugArraySize];
-    ArrayT* fData;
-#endif
     T*      fArray;
     int     fReserve;
     int     fCount;
@@ -385,9 +358,6 @@ private:
         fReserve = count + 4;
         fReserve += fReserve / 4;
         fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
-#ifdef SK_DEBUG
-        fData = (ArrayT*)fArray;
-#endif
     }
 };
 
