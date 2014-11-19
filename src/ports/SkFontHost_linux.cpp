@@ -12,6 +12,7 @@
 #include "SkDescriptor.h"
 #include "SkOSFile.h"
 #include "SkPaint.h"
+#include "SkRTConf.h"
 #include "SkString.h"
 #include "SkStream.h"
 #include "SkThread.h"
@@ -101,6 +102,13 @@ private:
     typedef SkTypeface_Custom INHERITED;
 };
 
+// This configuration option is useful if we need to open and hold handles to
+// all found system font data (e.g., for skfiddle, where the application can't
+// access the filesystem to read fonts on demand)
+
+SK_CONF_DECLARE(bool, c_CustomTypefaceRetain, "fonts.customFont.retainAllData", false,
+                "Retain the open stream for each found font on the system.");
+
 /** The file SkTypeface implementation for the custom font manager. */
 class SkTypeface_File : public SkTypeface_Custom {
 public:
@@ -108,6 +116,7 @@ public:
                     const SkString familyName, const char path[], int index)
         : INHERITED(style, isFixedPitch, sysFont, familyName, index)
         , fPath(path)
+        , fStream(c_CustomTypefaceRetain ? SkStream::NewFromFile(fPath.c_str()) : NULL)
     { }
 
     virtual const char* getUniqueString() const SK_OVERRIDE {
@@ -121,11 +130,16 @@ public:
 protected:
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = this->getIndex();
-        return SkStream::NewFromFile(fPath.c_str());
+        if (fStream.get()) {
+            return fStream->duplicate();
+        } else {
+            return SkStream::NewFromFile(fPath.c_str());
+        }
     }
 
 private:
     SkString fPath;
+    const SkAutoTUnref<SkStreamAsset> fStream;
 
     typedef SkTypeface_Custom INHERITED;
 };
