@@ -11,7 +11,7 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
-#include "GrProcessorStage.h"
+#include "GrFragmentStage.h"
 
 #include "SkXfermode.h"
 

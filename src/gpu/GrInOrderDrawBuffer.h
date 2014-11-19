@@ -9,13 +9,12 @@
 #define GrInOrderDrawBuffer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrAllocPool.h"
-#include "GrAllocator.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
-#include "GrRenderTarget.h"
+#include "GrOptDrawState.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
+#include "GrRenderTarget.h"
 #include "GrSurface.h"
 #include "GrTRecorder.h"
 #include "GrVertexBuffer.h"
@@ -224,63 +223,60 @@ private:
     };
 
     struct SetState : public Cmd {
-        SetState(const GrDrawState& state) : Cmd(kSetState_Cmd), fState(state) {}
+        SetState(const GrOptDrawState* state) : Cmd(kSetState_Cmd), fState(SkRef(state)) {}
 
         virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
-        GrDrawState fState;
-        GrGpu::DrawType fDrawType;
-        GrDeviceCoordTexture fDstCopy;
+        SkAutoTUnref<const GrOptDrawState>  fState;
+        GrGpu::DrawType                     fDrawType;
+        GrDeviceCoordTexture                fDstCopy;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
     typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
 
     // overrides from GrDrawTarget
-    virtual void onDraw(const GrDrawState&,
-                        const DrawInfo&,
-                        const GrClipMaskManager::ScissorState&) SK_OVERRIDE;
-    virtual void onDrawRect(GrDrawState*,
-                            const SkRect& rect,
-                            const SkRect* localRect,
-                            const SkMatrix* localMatrix) SK_OVERRIDE;
+    void onDraw(const GrDrawState&,
+                const DrawInfo&,
+                const GrClipMaskManager::ScissorState&) SK_OVERRIDE;
+    void onDrawRect(GrDrawState*,
+                    const SkRect& rect,
+                    const SkRect* localRect,
+                    const SkMatrix* localMatrix) SK_OVERRIDE;
 
-    virtual void onStencilPath(const GrDrawState&,
-                               const GrPath*,
-                               const GrClipMaskManager::ScissorState&,
-                               const GrStencilSettings&) SK_OVERRIDE;
-    virtual void onDrawPath(const GrDrawState&,
-                            const GrPath*,
-                            const GrClipMaskManager::ScissorState&,
-                            const GrStencilSettings&,
-                            const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    virtual void onDrawPaths(const GrDrawState&,
-                             const GrPathRange*,
-                             const uint32_t indices[],
-                             int count,
-                             const float transforms[],
-                             PathTransformType,
-                             const GrClipMaskManager::ScissorState&,
-                             const GrStencilSettings&,
-                             const GrDeviceCoordTexture*) SK_OVERRIDE;
-    virtual void onClear(const SkIRect* rect,
-                         GrColor color,
-                         bool canIgnoreRect,
-                         GrRenderTarget* renderTarget) SK_OVERRIDE;
-    virtual void setDrawBuffers(DrawInfo*) SK_OVERRIDE;
+    void onStencilPath(const GrDrawState&,
+                       const GrPath*,
+                       const GrClipMaskManager::ScissorState&,
+                       const GrStencilSettings&) SK_OVERRIDE;
+    void onDrawPath(const GrDrawState&,
+                    const GrPath*,
+                    const GrClipMaskManager::ScissorState&,
+                    const GrStencilSettings&,
+                    const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    void onDrawPaths(const GrDrawState&,
+                     const GrPathRange*,
+                     const uint32_t indices[],
+                     int count,
+                     const float transforms[],
+                     PathTransformType,
+                     const GrClipMaskManager::ScissorState&,
+                     const GrStencilSettings&,
+                     const GrDeviceCoordTexture*) SK_OVERRIDE;
+    void onClear(const SkIRect* rect,
+                 GrColor color,
+                 bool canIgnoreRect,
+                 GrRenderTarget* renderTarget) SK_OVERRIDE;
+    void setDrawBuffers(DrawInfo*) SK_OVERRIDE;
 
-    virtual bool onReserveVertexSpace(size_t vertexSize,
-                                      int vertexCount,
-                                      void** vertices) SK_OVERRIDE;
-    virtual bool onReserveIndexSpace(int indexCount,
-                                     void** indices) SK_OVERRIDE;
-    virtual void releaseReservedVertexSpace() SK_OVERRIDE;
-    virtual void releaseReservedIndexSpace() SK_OVERRIDE;
-    virtual void geometrySourceWillPush() SK_OVERRIDE;
-    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-    virtual void willReserveVertexAndIndexSpace(int vertexCount,
-                                                size_t vertexStride,
-                                                int indexCount) SK_OVERRIDE;
+    bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) SK_OVERRIDE;
+    bool onReserveIndexSpace(int indexCount, void** indices) SK_OVERRIDE;
+    void releaseReservedVertexSpace() SK_OVERRIDE;
+    void releaseReservedIndexSpace() SK_OVERRIDE;
+    void geometrySourceWillPush() SK_OVERRIDE;
+    void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
+    void willReserveVertexAndIndexSpace(int vertexCount,
+                                        size_t vertexStride,
+                                        int indexCount) SK_OVERRIDE;
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
@@ -288,8 +284,12 @@ private:
                             const DrawInfo&,
                             const GrClipMaskManager::ScissorState&);
 
-    // Determines whether the current draw operation requieres a new drawstate and if so records it.
-    void recordStateIfNecessary(const GrDrawState&, GrGpu::DrawType, const GrDeviceCoordTexture*);
+    // Determines whether the current draw operation requires a new GrOptDrawState and if so
+    // records it. If the draw can be skipped false is returned and no new GrOptDrawState is
+    // recorded.
+    bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrDrawState&,
+                                                        GrGpu::DrawType,
+                                                        const GrDeviceCoordTexture*);
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();
     // Records any trace markers for a command after adding it to the buffer.
@@ -305,15 +305,6 @@ private:
         kGeoPoolStatePreAllocCnt     = 4,
     };
 
-    CmdBuffer                         fCmdBuffer;
-    GrDrawState*                      fLastState;
-    SkTArray<GrTraceMarkerSet, false> fGpuCmdMarkers;
-    GrGpu*                            fDstGpu;
-    GrVertexBufferAllocPool&          fVertexPool;
-    GrIndexBufferAllocPool&           fIndexPool;
-    SkTDArray<uint32_t>               fPathIndexBuffer;
-    SkTDArray<float>                  fPathTransformBuffer;
-
     struct GeometryPoolState {
         const GrVertexBuffer*   fPoolVertexBuffer;
         int                     fPoolStartVertex;
@@ -328,9 +319,17 @@ private:
 
     typedef SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> GeoPoolStateStack;
 
-    GeoPoolStateStack                                   fGeoPoolStateStack;
-    bool                                                fFlushing;
-    uint32_t                                            fDrawID;
+    CmdBuffer                           fCmdBuffer;
+    SkAutoTUnref<const GrOptDrawState>  fLastState;
+    SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
+    GrGpu*                              fDstGpu;
+    GrVertexBufferAllocPool&            fVertexPool;
+    GrIndexBufferAllocPool&             fIndexPool;
+    SkTDArray<uint32_t>                 fPathIndexBuffer;
+    SkTDArray<float>                    fPathTransformBuffer;
+    GeoPoolStateStack                   fGeoPoolStateStack;
+    bool                                fFlushing;
+    uint32_t                            fDrawID;
 
     typedef GrClipTarget INHERITED;
 };

@@ -607,11 +607,6 @@ public:
     bool programUnitTest(int maxStages);
 
 protected:
-    // Extend access to GrDrawState::convertToPEndeingExec to subclasses.
-    void convertDrawStateToPendingExec(GrDrawState* ds) {
-        ds->convertToPendingExec();
-    }
-
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
         kReserved_GeometrySrcType, //<! src was set using reserve*Space

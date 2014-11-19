@@ -172,7 +172,7 @@ static void set_random_gp(GrContext* context,
                           GrDrawState* ds,
                           SkRandom* random,
                           GrTexture* dummyTextures[]) {
-    GrProgramElementRef<const GrGeometryProcessor> gp(
+    SkAutoTUnref<const GrGeometryProcessor> gp(
             GrProcessorTestFactory<GrGeometryProcessor>::CreateStage(random,
                                                                      context,
                                                                      caps,
@@ -228,7 +228,7 @@ static void set_random_color_coverage_stages(GrGpuGL* gpu,
 
     int currTextureCoordSet = 0;
     for (int s = 0; s < numProcs;) {
-        GrProgramElementRef<GrFragmentProcessor> fp(
+        SkAutoTUnref<const GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(random,
                                                                          gpu->getContext(),
                                                                          *gpu->caps(),

@@ -17,38 +17,9 @@ uint32_t GrProgramElement::CreateUniqueID() {
     return id;
 }
 
-void GrProgramElement::convertRefToPendingExecution() const {
-    // This function makes it so that all the GrGpuResourceRefs own a single ref to their
-    // underlying GrGpuResource if there are any refs to the GrProgramElement and a single
-    // pending read/write if there are any pending executions of the GrProgramElement. The
-    // GrGpuResourceRef will give up its single ref and/or pending read/write in its destructor.
-    SkASSERT(fRefCnt > 0);
-    if (0 == fPendingExecutions) {
-        for (int i = 0; i < fGpuResources.count(); ++i) {
-            fGpuResources[i]->markPendingIO();
-        }
-    }
-    ++fPendingExecutions;
-    this->unref();
-    if (0 == fRefCnt) {
-        this->removeRefs();
-    }
-}
-
-void GrProgramElement::completedExecution() const {
-    this->validate();
-    --fPendingExecutions;
-    if (0 == fPendingExecutions) {
-        if (0 == fRefCnt) {
-            SkDELETE(this);
-        } else {
-            // Now our pending executions have ocurred and we still have refs. Convert
-            // ownership of our resources back to regular refs.
-            for (int i = 0; i < fGpuResources.count(); ++i) {
-                fGpuResources[i]->pendingIOComplete();
-            }
-
-        }
+void GrProgramElement::addPendingIOs() const {
+    for (int i = 0; i < fGpuResources.count(); ++i) {
+        fGpuResources[i]->markPendingIO();
     }
 }
 
@@ -57,3 +28,10 @@ void GrProgramElement::removeRefs() const {
         fGpuResources[i]->removeRef();
     }
 }
+
+void GrProgramElement::pendingIOComplete() const {
+    for (int i = 0; i < fGpuResources.count(); ++i) {
+        fGpuResources[i]->pendingIOComplete();
+    }
+}
+

@@ -28,7 +28,7 @@ public:
     virtual GrGLProgram* createProgram(GrGLuint programID);
 
 private:
-    virtual void emitTransforms(const GrFragmentStage&,
+    virtual void emitTransforms(const GrPendingFragmentStage&,
                                 GrGLProcessor::TransformedCoordsArray* outCoords,
                                 GrGLInstalledFragProc*) SK_OVERRIDE;
 

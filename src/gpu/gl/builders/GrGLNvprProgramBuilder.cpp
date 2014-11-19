@@ -17,7 +17,7 @@ GrGLNvprProgramBuilder::GrGLNvprProgramBuilder(GrGpuGL* gpu,
         , fSeparableVaryingInfos(kVarsPerBlock) {
 }
 
-void GrGLNvprProgramBuilder::emitTransforms(const GrFragmentStage& processorStage,
+void GrGLNvprProgramBuilder::emitTransforms(const GrPendingFragmentStage& processorStage,
                                             GrGLProcessor::TransformedCoordsArray* outCoords,
                                             GrGLInstalledFragProc* ifp) {
     const GrFragmentProcessor* effect = processorStage.getProcessor();
@@ -27,7 +27,7 @@ void GrGLNvprProgramBuilder::emitTransforms(const GrFragmentStage& processorStag
 
     for (int t = 0; t < numTransforms; t++) {
         GrSLType varyingType =
-                processorStage.isPerspectiveCoordTransform(t, false) ?
+                processorStage.isPerspectiveCoordTransform(t) ?
                         kVec3f_GrSLType :
                         kVec2f_GrSLType;
 

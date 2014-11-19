@@ -14,6 +14,7 @@
 #include "../GrGLProgramDataManager.h"
 #include "../GrGLUniformHandle.h"
 #include "../GrGLGeometryProcessor.h"
+#include "../../GrPendingFragmentStage.h"
 
 /*
  * This is the base class for a series of interfaces.  This base class *MUST* remain abstract with
@@ -252,7 +253,7 @@ protected:
                             GrGLSLExpr4* output);
 
     // these emit functions help to keep the createAndEmitProcessors template general
-    void emitAndInstallProc(const GrFragmentStage&,
+    void emitAndInstallProc(const GrPendingFragmentStage&,
                             const GrProcessorKey&,
                             const char* outColor,
                             const char* inColor);
@@ -267,7 +268,7 @@ protected:
                       GrGLInstalledProc*);
 
     // each specific program builder has a distinct transform and must override this function
-    virtual void emitTransforms(const GrFragmentStage&,
+    virtual void emitTransforms(const GrPendingFragmentStage&,
                                 GrGLProcessor::TransformedCoordsArray* outCoords,
                                 GrGLInstalledFragProc*);
     GrGLProgram* finalize();

@@ -73,19 +73,19 @@ static uint32_t gen_attrib_key(const GrGeometryProcessor& proc) {
     return key;
 }
 
-static uint32_t gen_transform_key(const GrFragmentStage& effectStage,
+static uint32_t gen_transform_key(const GrPendingFragmentStage& stage,
                                   bool useExplicitLocalCoords) {
     uint32_t totalKey = 0;
-    int numTransforms = effectStage.getProcessor()->numTransforms();
+    int numTransforms = stage.getProcessor()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
         uint32_t key = 0;
-        if (effectStage.isPerspectiveCoordTransform(t, useExplicitLocalCoords)) {
+        if (stage.isPerspectiveCoordTransform(t)) {
             key |= kGeneral_MatrixType;
         } else {
             key |= kNoPersp_MatrixType;
         }
 
-        const GrCoordTransform& coordTransform = effectStage.getProcessor()->coordTransform(t);
+        const GrCoordTransform& coordTransform = stage.getProcessor()->coordTransform(t);
         if (kLocal_GrCoordSet != coordTransform.sourceCoords() && useExplicitLocalCoords) {
             key |= kPositionCoords_Flag;
         }
@@ -161,8 +161,8 @@ struct GeometryProcessorKeyBuilder {
 };
 
 struct FragmentProcessorKeyBuilder {
-    typedef GrFragmentStage StagedProcessor;
-    static bool GetProcessorKey(const GrFragmentStage& fps,
+    typedef GrPendingFragmentStage StagedProcessor;
+    static bool GetProcessorKey(const GrPendingFragmentStage& fps,
                                 const GrGLCaps& caps,
                                 bool useLocalCoords,
                                 GrProcessorKeyBuilder* b,

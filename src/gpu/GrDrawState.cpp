@@ -72,43 +72,6 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
     return true;
 }
 
-GrDrawState::CombinedState GrDrawState::CombineIfPossible(
-    const GrDrawState& a, const GrDrawState& b, const GrDrawTargetCaps& caps) {
-
-    if (!a.isEqual(b)) {
-        return kIncompatible_CombinedState;
-    }
-
-    // If the general draw states are equal (from check above) we know hasColorVertexAttribute()
-    // is equivalent for both a and b
-    if (a.hasColorVertexAttribute()) {
-        // If one is opaque and the other is not then the combined state is not opaque. Moreover,
-        // if the opaqueness affects the ability to get color/coverage blending correct then we
-        // don't combine the draw states.
-        bool aIsOpaque = (kVertexColorsAreOpaque_Hint & a.fHints);
-        bool bIsOpaque = (kVertexColorsAreOpaque_Hint & b.fHints);
-        if (aIsOpaque != bIsOpaque) {
-            const GrDrawState* opaque;
-            const GrDrawState* nonOpaque;
-            if (aIsOpaque) {
-                opaque = &a;
-                nonOpaque = &b;
-            } else {
-                opaque = &b;
-                nonOpaque = &a;
-            }
-            if (!opaque->hasSolidCoverage() && opaque->couldApplyCoverage(caps)) {
-                SkASSERT(!nonOpaque->hasSolidCoverage());
-                if (!nonOpaque->couldApplyCoverage(caps)) {
-                    return kIncompatible_CombinedState;
-                }
-            }
-            return aIsOpaque ? kB_CombinedState : kA_CombinedState;
-        }
-    }
-    return kAOrB_CombinedState;
-}
-
 //////////////////////////////////////////////////////////////////////////////s
 
 GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix) {
@@ -125,10 +88,7 @@ GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatr
 }
 
 GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
-    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
-    SkASSERT(!that.fRenderTarget.ownsPendingIO());
-    SkASSERT(!this->fRenderTarget.ownsPendingIO());
-    this->setRenderTarget(that.getRenderTarget());
+    fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
     fColor = that.fColor;
     fViewMatrix = that.fViewMatrix;
     fSrcBlend = that.fSrcBlend;
@@ -141,11 +101,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fStencilSettings = that.fStencilSettings;
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
-    if (that.hasGeometryProcessor()) {
-        fGeometryProcessor.initAndRef(that.fGeometryProcessor);
-    } else {
-        fGeometryProcessor.reset(NULL);
-    }
+    fGeometryProcessor.reset(SkSafeRef(that.fGeometryProcessor.get()));
     fColorStages = that.fColorStages;
     fCoverageStages = that.fCoverageStages;
 
@@ -168,13 +124,12 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
 
 void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
-    SkASSERT(!fRenderTarget.ownsPendingIO());
+    fRenderTarget.reset(NULL);
 
     fGeometryProcessor.reset(NULL);
     fColorStages.reset();
     fCoverageStages.reset();
 
-    fRenderTarget.reset();
 
     this->setDefaultVertexAttribs();
 
@@ -572,22 +527,6 @@ void GrDrawState::AutoViewMatrixRestore::doEffectCoordChanges(const SkMatrix& co
     for (int s = 0; s < numCoverageStages; ++s, ++i) {
         fDrawState->getCoverageStage(s).saveCoordChange(&fSavedCoordChanges[i]);
         fDrawState->fCoverageStages[s].localCoordChange(coordChangeMatrix);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrDrawState::convertToPendingExec() {
-    fRenderTarget.markPendingIO();
-    fRenderTarget.removeRef();
-    for (int i = 0; i < fColorStages.count(); ++i) {
-        fColorStages[i].convertToPendingExec();
-    }
-    if (fGeometryProcessor) {
-        fGeometryProcessor.convertToPendingExec();
-    }
-    for (int i = 0; i < fCoverageStages.count(); ++i) {
-        fCoverageStages[i].convertToPendingExec();
     }
 }
 

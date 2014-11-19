@@ -21,7 +21,7 @@ int GrGLLegacyNvprProgramBuilder::addTexCoordSets(int count) {
     return firstFreeCoordSet;
 }
 
-void GrGLLegacyNvprProgramBuilder::emitTransforms(const GrFragmentStage& processorStage,
+void GrGLLegacyNvprProgramBuilder::emitTransforms(const GrPendingFragmentStage& processorStage,
                                             GrGLProcessor::TransformedCoordsArray* outCoords,
                                             GrGLInstalledFragProc* ifp) {
     int numTransforms = processorStage.getProcessor()->numTransforms();
@@ -35,8 +35,8 @@ void GrGLLegacyNvprProgramBuilder::emitTransforms(const GrFragmentStage& process
 
     SkString name;
     for (int t = 0; t < numTransforms; ++t) {
-        GrSLType type = processorStage.isPerspectiveCoordTransform(t, false) ? kVec3f_GrSLType :
-                                                                               kVec2f_GrSLType;
+        GrSLType type = processorStage.isPerspectiveCoordTransform(t) ? kVec3f_GrSLType :
+                                                                        kVec2f_GrSLType;
 
         name.printf("%s(gl_TexCoord[%i])", GrGLSLTypeString(type), texCoordIndex++);
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords, (name, type));

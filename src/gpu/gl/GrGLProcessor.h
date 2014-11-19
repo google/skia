@@ -72,11 +72,9 @@ public:
 
     /** A GrGLProcessor instance can be reused with any GrProcessor that produces the same stage
         key; this function reads data from a GrProcessor and uploads any uniform variables required
-        by the shaders created in emitCode(). The GrProcessor installed in the GrDrawEffect is
-        guaranteed to be of the same type that created this GrGLProcessor and to have an identical
-        effect key as the one that created this GrGLProcessor. Effects that use local coords have
-        to consider whether the GrProcessorStage's coord change matrix should be used. When explicit
-        local coordinates are used it can be ignored. */
+        by the shaders created in emitCode(). The GrProcessor parameter is guaranteed to be of the
+        same type that created this GrGLProcessor and to have an identical effect key as the one
+        that created this GrGLProcessor.  */
     virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) {}
 
     const char* name() const { return fFactory.name(); }

@@ -19,8 +19,8 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                GrBlendCoeff optDstCoeff,
                                GrGpu* gpu,
                                const GrDeviceCoordTexture* dstCopy,
-                               GrGpu::DrawType drawType) {
-    fRenderTarget.set(SkSafeRef(drawState.getRenderTarget()), kWrite_GrIOType);
+                               GrGpu::DrawType drawType)
+: fRenderTarget(drawState.fRenderTarget.get()) {
     fViewMatrix = drawState.getViewMatrix();
     fBlendConstant = drawState.getBlendConstant();
     fFlagBits = drawState.getFlagBits();
@@ -66,26 +66,21 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     SkASSERT(GrGpu::IsPathRenderingDrawType(drawType) ||
              GrGpu::kStencilPath_DrawType ||
              drawState.hasGeometryProcessor());
-    if (drawState.hasGeometryProcessor()) {
-        fGeometryProcessor.initAndRef(drawState.fGeometryProcessor);
-    } else {
-        fGeometryProcessor.reset(NULL);
-    }
+    fGeometryProcessor.reset(drawState.getGeometryProcessor());
 
-    // Copy Color Stages from DS to ODS
-    if (firstColorStageIdx < drawState.numColorStages()) {
-        fFragmentStages.reset(&drawState.getColorStage(firstColorStageIdx),
-                              drawState.numColorStages() - firstColorStageIdx);
-    } else {
-        fFragmentStages.reset();
-    }
+    // Copy Stages from DS to ODS
+    bool explicitLocalCoords = descInfo.hasLocalCoordAttribute();
 
+    for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
+        SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
+                               GrPendingFragmentStage,
+                               (drawState.fColorStages[i], explicitLocalCoords));
+    }
     fNumColorStages = fFragmentStages.count();
-
-    // Copy Coverage Stages from DS to ODS
-    if (firstCoverageStageIdx < drawState.numCoverageStages()) {
-        fFragmentStages.push_back_n(drawState.numCoverageStages() - firstCoverageStageIdx,
-                                    &drawState.getCoverageStage(firstCoverageStageIdx));
+    for (int i = firstCoverageStageIdx; i < drawState.numCoverageStages(); ++i) {
+        SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
+                               GrPendingFragmentStage,
+                               (drawState.fCoverageStages[i], explicitLocalCoords));
     }
 
     this->setOutputStateInfo(drawState, *gpu->caps(), &descInfo);
@@ -257,10 +252,6 @@ void GrOptDrawState::getStageStats(const GrDrawState& ds, int firstColorStageIdx
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
-    return this->isEqual(that);
-}
-
-bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
     if (this->fDesc != that.fDesc) {
         return false;
     }
@@ -298,10 +289,11 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
         return false;
     }
 
-    bool explicitLocalCoords = this->fDesc.header().fLocalCoordAttributeIndex != -1;
+    // The program desc comparison should have already assured that the stage counts match.
+    SkASSERT(this->numFragmentStages() == that.numFragmentStages());
     for (int i = 0; i < this->numFragmentStages(); i++) {
-        if (!GrFragmentStage::AreCompatible(this->getFragmentStage(i), that.getFragmentStage(i),
-                                            explicitLocalCoords)) {
+
+        if (this->getFragmentStage(i) != that.getFragmentStage(i)) {
             return false;
         }
     }

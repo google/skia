@@ -8,7 +8,7 @@
 #include "GrProcOptInfo.h"
 
 #include "GrGeometryProcessor.h"
-#include "GrProcessorStage.h"
+#include "GrFragmentStage.h"
 
 void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
                                           int stageCount,

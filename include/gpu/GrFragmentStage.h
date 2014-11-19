@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,23 +5,17 @@
  * found in the LICENSE file.
  */
 
+#ifndef GrFragmentStage_DEFINED
+#define GrFragmentStage_DEFINED
 
-
-#ifndef GrProcessorStage_DEFINED
-#define GrProcessorStage_DEFINED
-
-#include "GrBackendProcessorFactory.h"
-#include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrProgramElementRef.h"
 #include "SkMatrix.h"
-#include "SkShader.h"
 
-// TODO: Make two variations on this class: One for GrDrawState that only owns regular refs
-// and supports compatibility checks and changing local coords. The second is for GrOptDrawState,
-// is immutable, and only owns pending execution refs. This requries removing the common base
-// class from GrDrawState and GrOptDrawState called GrRODrawState and converting to GrOptDrawState
-// when draws are enqueued in the GrInOrderDrawBuffer.
+/**
+ * Wraps a GrFragmentProcessor. It also contains a coord change matrix. This matrix should be
+ * concat'ed with all the processor's coord transforms that apply to local coords, unless
+ * explicit local coords are provided with the draw.
+ */
 class GrFragmentStage {
 public:
     explicit GrFragmentStage(const GrFragmentProcessor* proc)
@@ -35,9 +28,9 @@ public:
         if (other.fCoordChangeMatrixSet) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
-        fProc.initAndRef(other.fProc);
+        fProc.reset(SkRef(other.fProc.get()));
     }
-    
+
     static bool AreCompatible(const GrFragmentStage& a, const GrFragmentStage& b,
                               bool usingExplicitLocalCoords) {
         SkASSERT(a.fProc.get());
@@ -129,33 +122,12 @@ public:
         }
     }
 
-    bool isPerspectiveCoordTransform(int matrixIndex, bool useExplicitLocalCoords) const {
-        const GrCoordTransform& coordTransform = this->getProcessor()->coordTransform(matrixIndex);
-        SkMatrix::TypeMask type0 = coordTransform.getMatrix().getType();
-        SkMatrix::TypeMask type1 = SkMatrix::kIdentity_Mask;
-        if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
-          type1 = useExplicitLocalCoords ?
-                  SkMatrix::kIdentity_Mask : this->getCoordChangeMatrix().getType();
-        }
-
-        int combinedTypes = type0 | type1;
-        if (SkMatrix::kPerspective_Mask & combinedTypes) {
-          return true;
-        } else {
-          return false;
-        }
-    }
-
-    const char* name() const { return fProc->name(); }
-
     const GrFragmentProcessor* getProcessor() const { return fProc.get(); }
 
-    void convertToPendingExec() { fProc.convertToPendingExec(); }
-
 protected:
-    bool                                           fCoordChangeMatrixSet;
-    SkMatrix                                       fCoordChangeMatrix;
-    GrProgramElementRef<const GrFragmentProcessor> fProc;
+    bool                                    fCoordChangeMatrixSet;
+    SkMatrix                                fCoordChangeMatrix;
+    SkAutoTUnref<const GrFragmentProcessor> fProc;
 };
 
 #endif

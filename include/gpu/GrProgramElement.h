@@ -35,10 +35,11 @@ public:
     }
 
     void ref() const {
+        this->validate();
         // Once the ref cnt reaches zero it should never be ref'ed again.
         SkASSERT(fRefCnt > 0);
-        this->validate();
         ++fRefCnt;
+        this->validate();
     }
 
     void unref() const {
@@ -47,10 +48,12 @@ public:
         if (0 == fRefCnt) {
             if (0 == fPendingExecutions) {
                 SkDELETE(this);
+                return;
             } else {
                 this->removeRefs();
             }
         }
+        this->validate();
     }
 
     /**
@@ -80,11 +83,33 @@ protected:
 private:
     static uint32_t CreateUniqueID();
 
-    void convertRefToPendingExecution() const;
+    void addPendingExecution() const {
+        this->validate();
+        SkASSERT(fRefCnt > 0);
+        if (0 == fPendingExecutions) {
+            this->addPendingIOs();
+        }
+        ++fPendingExecutions;
+        this->validate();
+    }
 
-    void completedExecution() const;
+    void completedExecution() const {
+        this->validate();
+        --fPendingExecutions;
+        if (0 == fPendingExecutions) {
+            if (0 == fRefCnt) {
+                SkDELETE(this);
+                return;
+            } else {
+                this->pendingIOComplete();
+            }
+        }
+        this->validate();
+    }
 
     void removeRefs() const;
+    void addPendingIOs() const;
+    void pendingIOComplete() const;
 
     mutable int32_t fRefCnt;
     // Count of deferred executions not yet issued to the 3D API.
@@ -93,8 +118,8 @@ private:
 
     SkSTArray<4, const GrGpuResourceRef*, true> fGpuResources;
 
-    // Only this class can access convertRefToPendingExecution() and completedExecution().
-    template <typename T> friend class GrProgramElementRef;
+    // Only this class can access addPendingExecution() and completedExecution().
+    template <typename T> friend class GrPendingProgramElement;
 
     typedef SkNoncopyable INHERITED;
 };

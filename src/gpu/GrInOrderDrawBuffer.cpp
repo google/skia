@@ -11,7 +11,6 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
-#include "GrOptDrawState.h"
 #include "GrTemplates.h"
 #include "GrTextStrike.h"
 #include "GrTexture.h"
@@ -264,9 +263,10 @@ void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
 
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
-    this->recordStateIfNecessary(ds,
-                                 GrGpu::PrimTypeToDrawType(info.primitiveType()),
-                                 info.getDstCopy());
+    if (!this->recordStateAndShouldDraw(ds, GrGpu::PrimTypeToDrawType(info.primitiveType()),
+                                        info.getDstCopy())) {
+        return;
+    }
 
     Draw* draw;
     if (info.isInstanced()) {
@@ -302,7 +302,9 @@ void GrInOrderDrawBuffer::onStencilPath(const GrDrawState& ds,
                                         const GrClipMaskManager::ScissorState& scissorState,
                                         const GrStencilSettings& stencilSettings) {
     // Only compare the subset of GrDrawState relevant to path stenciling?
-    this->recordStateIfNecessary(ds, GrGpu::kStencilPath_DrawType, NULL);
+    if (!this->recordStateAndShouldDraw(ds, GrGpu::kStencilPath_DrawType, NULL)) {
+        return;
+    }
     StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath, (path));
     sp->fScissorState = scissorState;
     sp->fStencilSettings = stencilSettings;
@@ -315,7 +317,9 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
-    this->recordStateIfNecessary(ds, GrGpu::kDrawPath_DrawType, dstCopy);
+    if (!this->recordStateAndShouldDraw(ds, GrGpu::kDrawPath_DrawType, dstCopy)) {
+        return;
+    }
     DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
     if (dstCopy) {
         dp->fDstCopy = *dstCopy;
@@ -338,7 +342,9 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     SkASSERT(indices);
     SkASSERT(transforms);
 
-    this->recordStateIfNecessary(ds, GrGpu::kDrawPaths_DrawType, dstCopy);
+    if (!this->recordStateAndShouldDraw(ds, GrGpu::kDrawPath_DrawType, dstCopy)) {
+        return;
+    }
 
     uint32_t* savedIndices = fPathIndexBuffer.append(count, indices);
     float* savedTransforms = fPathTransformBuffer.append(count *
@@ -441,7 +447,7 @@ void GrInOrderDrawBuffer::reset() {
     this->resetIndexSource();
 
     fCmdBuffer.reset();
-    fLastState = NULL;
+    fLastState.reset(NULL);
     fVertexPool.reset();
     fIndexPool.reset();
     reset_data_buffer(&fPathIndexBuffer, kPathIdxBufferMinReserve);
@@ -474,8 +480,8 @@ void GrInOrderDrawBuffer::flush() {
     int currCmdMarker = 0;
     fDstGpu->saveActiveTraceMarkers();
 
-    // Gpu no longer maintains the current drawstate, so we track the setstate calls below.
-    // NOTE: we always record a new drawstate at flush boundaries
+    // Updated every time we find a set state cmd to reflect the current state in the playback
+    // stream.
     SkAutoTUnref<const GrOptDrawState> currentOptState;
 
     while (iter.next()) {
@@ -490,10 +496,7 @@ void GrInOrderDrawBuffer::flush() {
 
         if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
-            currentOptState.reset(GrOptDrawState::Create(ss->fState,
-                                                         fDstGpu,
-                                                         &ss->fDstCopy,
-                                                         ss->fDrawType));
+            currentOptState.reset(SkRef(ss->fState.get()));
         } else {
             iter->execute(this, currentOptState.get());
         }
@@ -511,34 +514,22 @@ void GrInOrderDrawBuffer::flush() {
 }
 
 void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState* optState) {
-    if (!optState) {
-        return;
-    }
     buf->fDstGpu->draw(*optState, fInfo, fScissorState);
 }
 
 void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf,
                                                const GrOptDrawState* optState) {
-    if (!optState) {
-        return;
-    }
     buf->fDstGpu->stencilPath(*optState, this->path(), fScissorState, fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf,
                                             const GrOptDrawState* optState) {
-    if (!optState) {
-        return;
-    }
     buf->fDstGpu->drawPath(*optState, this->path(), fScissorState, fStencilSettings,
                            fDstCopy.texture() ? &fDstCopy : NULL);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
                                              const GrOptDrawState* optState) {
-    if (!optState) {
-        return;
-    }
     buf->fDstGpu->drawPaths(*optState, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fCount,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformsType,
@@ -745,45 +736,23 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(const GeometrySrcState& restored
     }
 }
 
-void GrInOrderDrawBuffer::recordStateIfNecessary(const GrDrawState& ds,
-                                                 GrGpu::DrawType drawType,
-                                                 const GrDeviceCoordTexture* dstCopy) {
-    if (!fLastState) {
-        SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (ds));
-        fLastState = &ss->fState;
+bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
+                                                   GrGpu::DrawType drawType,
+                                                   const GrDeviceCoordTexture* dstCopy) {
+    SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(ds, fDstGpu, dstCopy, drawType));
+    if (!optState) {
+        return false;
+    }
+    if (!fLastState || *optState != *fLastState) {
+        SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (optState));
+        fLastState.reset(SkRef(optState.get()));
         if (dstCopy) {
             ss->fDstCopy = *dstCopy;
         }
         ss->fDrawType = drawType;
-        this->convertDrawStateToPendingExec(fLastState);
         this->recordTraceMarkersIfNecessary();
-        return;
     }
-    switch (GrDrawState::CombineIfPossible(*fLastState, ds, *this->caps())) {
-        case GrDrawState::kIncompatible_CombinedState: {
-            SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (ds));
-            fLastState = &ss->fState;
-            if (dstCopy) {
-                ss->fDstCopy = *dstCopy;
-            }
-            ss->fDrawType = drawType;
-            this->convertDrawStateToPendingExec(fLastState);
-            this->recordTraceMarkersIfNecessary();
-            break;
-        }
-        case GrDrawState::kA_CombinedState:
-        case GrDrawState::kAOrB_CombinedState: // Treat the same as kA.
-            break;
-        case GrDrawState::kB_CombinedState:
-            // prev has already been converted to pending execution. That is a one-way ticket.
-            // So here we just destruct the previous state and reinit with a new copy of curr.
-            // Note that this goes away when we move GrIODB over to taking optimized snapshots
-            // of draw states.
-            fLastState->~GrDrawState();
-            SkNEW_PLACEMENT_ARGS(fLastState, GrDrawState, (ds));
-            this->convertDrawStateToPendingExec(fLastState);
-            break;
-    }
+    return true;
 }
 
 void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {

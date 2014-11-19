@@ -10,7 +10,7 @@
 
 #include "GrColor.h"
 #include "GrGpu.h"
-#include "GrProcessorStage.h"
+#include "GrPendingFragmentStage.h"
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
 #include "GrTypesPriv.h"
@@ -26,6 +26,8 @@ class GrDrawState;
  */
 class GrOptDrawState : public SkRefCnt {
 public:
+    SK_DECLARE_INST_COUNT(GrOptDrawState)
+
     /**
      * Returns a snapshot of the current optimized state. The GrOptDrawState is reffed and ownership
      * is given to the caller.
@@ -36,6 +38,7 @@ public:
                                   GrGpu::DrawType drawType);
 
     bool operator== (const GrOptDrawState& that) const;
+    bool operator!= (const GrOptDrawState& that) const { return !(*this == that); }
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Vertex Attributes
@@ -87,9 +90,6 @@ public:
     /// The input color to the first color-stage is either the constant color or interpolated
     /// per-vertex colors. The input to the first coverage stage is either a constant coverage
     /// (usually full-coverage) or interpolated per-vertex coverage.
-    ///
-    /// See the documentation of kCoverageDrawing_StateBit for information about disabling the
-    /// the color / coverage distinction.
     ////
 
     int numColorStages() const { return fNumColorStages; }
@@ -101,15 +101,17 @@ public:
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
-    const GrFragmentStage& getColorStage(int idx) const {
+    const GrPendingFragmentStage& getColorStage(int idx) const {
         SkASSERT(idx < this->numColorStages());
         return fFragmentStages[idx];
     }
-    const GrFragmentStage& getCoverageStage(int idx) const {
+    const GrPendingFragmentStage& getCoverageStage(int idx) const {
         SkASSERT(idx < this->numCoverageStages());
         return fFragmentStages[fNumColorStages + idx];
     }
-    const GrFragmentStage& getFragmentStage(int idx) const { return fFragmentStages[idx]; }
+    const GrPendingFragmentStage& getFragmentStage(int idx) const {
+        return fFragmentStages[idx];
+    }
 
     /// @}
 
@@ -138,26 +140,6 @@ public:
      */
     const SkMatrix& getViewMatrix() const { return fViewMatrix; }
 
-    /**
-     *  Retrieves the inverse of the current view matrix.
-     *
-     *  If the current view matrix is invertible, return true, and if matrix
-     *  is non-null, copy the inverse into it. If the current view matrix is
-     *  non-invertible, return false and ignore the matrix parameter.
-     *
-     * @param matrix if not null, will receive a copy of the current inverse.
-     */
-    bool getViewInverse(SkMatrix* matrix) const {
-        SkMatrix inverse;
-        if (fViewMatrix.invert(&inverse)) {
-            if (matrix) {
-                *matrix = inverse;
-            }
-            return true;
-        }
-        return false;
-    }
-
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -185,10 +167,41 @@ public:
     /// @name State Flags
     ////
 
+    bool isDitherState() const { return 0 != (fFlagBits & kDither_StateBit); }
+    bool isHWAntialiasState() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
+    bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
+    bool isCoverageDrawing() const { return 0 != (fFlagBits & kCoverageDrawing_StateBit); }
+
+    /// @}
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Face Culling
+    ////
+
+    enum DrawFace {
+        kInvalid_DrawFace = -1,
+
+        kBoth_DrawFace,
+        kCCW_DrawFace,
+        kCW_DrawFace,
+    };
+
     /**
-     *  Flags that affect rendering. Controlled using enable/disableState(). All
-     *  default to disabled.
+     * Gets whether the target is drawing clockwise, counterclockwise,
+     * or both faces.
+     * @return the current draw face(s).
      */
+    DrawFace getDrawFace() const { return fDrawFace; }
+
+    /// @}
+
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    const GrProgramDesc& programDesc() const { return fDesc; }
+
+private:
+    // This is lifted from GrDrawState. This should be revised and made specific to this class/
     enum StateBits {
         /**
          * Perform dithering. TODO: Re-evaluate whether we need this bit
@@ -218,63 +231,9 @@ public:
          * control over the blend coeffs. When set, there will be a single blend step controlled by
          * setBlendFunc() which will use coverage*color as the src color.
          */
-         kCoverageDrawing_StateBit = 0x10,
-
-        // Users of the class may add additional bits to the vector
-        kDummyStateBit,
-        kLastPublicStateBit = kDummyStateBit-1,
+         kCoverageDrawing_StateBit = 0x10
     };
-
-    bool isStateFlagEnabled(uint32_t stateBit) const { return 0 != (stateBit & fFlagBits); }
-
-    bool isDitherState() const { return 0 != (fFlagBits & kDither_StateBit); }
-    bool isHWAntialiasState() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
-    bool isClipState() const { return 0 != (fFlagBits & kClip_StateBit); }
-    bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
-    bool isCoverageDrawing() const { return 0 != (fFlagBits & kCoverageDrawing_StateBit); }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Face Culling
-    ////
-
-    enum DrawFace {
-        kInvalid_DrawFace = -1,
-
-        kBoth_DrawFace,
-        kCCW_DrawFace,
-        kCW_DrawFace,
-    };
-
-    /**
-     * Gets whether the target is drawing clockwise, counterclockwise,
-     * or both faces.
-     * @return the current draw face(s).
-     */
-    DrawFace getDrawFace() const { return fDrawFace; }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    /** Return type for CombineIfPossible. */
-    enum CombinedState {
-        /** The GrDrawStates cannot be combined. */
-        kIncompatible_CombinedState,
-        /** Either draw state can be used in place of the other. */
-        kAOrB_CombinedState,
-        /** Use the first draw state. */
-        kA_CombinedState,
-        /** Use the second draw state. */
-        kB_CombinedState,
-    };
-
-    /// @}
-
-    const GrProgramDesc& programDesc() const { return fDesc; }
-
-private:
+      
     /**
      * Optimizations for blending / coverage to that can be applied based on the current state.
      */
@@ -358,11 +317,10 @@ private:
     void setOutputStateInfo(const GrDrawState& ds, const GrDrawTargetCaps&,
                             GrProgramDesc::DescInfo*);
 
-    bool isEqual(const GrOptDrawState& that) const;
-
-    // These fields are roughly sorted by decreasing likelihood of being different in op==
-    typedef GrTGpuResourceRef<GrRenderTarget> ProgramRenderTarget;
-    ProgramRenderTarget                 fRenderTarget;
+    typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
+    typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
+    typedef GrPendingProgramElement<const GrGeometryProcessor> ProgramGeometryProcessor;
+    RenderTarget                        fRenderTarget;
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
     GrColor                             fBlendConstant;
@@ -376,8 +334,6 @@ private:
     GrBlendCoeff                        fSrcBlend;
     GrBlendCoeff                        fDstBlend;
 
-    typedef SkSTArray<8, GrFragmentStage> FragmentStageArray;
-    typedef GrProgramElementRef<const GrGeometryProcessor> ProgramGeometryProcessor;
     ProgramGeometryProcessor            fGeometryProcessor;
     FragmentStageArray                  fFragmentStages;
 

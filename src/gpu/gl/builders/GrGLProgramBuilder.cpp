@@ -266,8 +266,8 @@ void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, G
                                 GrGLProgramDescBuilder::kProcessorKeyOffsetsAndLengthOffset);
     for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
-        const GrFragmentStage& stage = fOptState.getFragmentStage(e);
-        this->emitAndInstallProc<GrFragmentStage>(stage, e, keyProvider, *inOut, &output);
+        const GrPendingFragmentStage& stage = fOptState.getFragmentStage(e);
+        this->emitAndInstallProc<GrPendingFragmentStage>(stage, e, keyProvider, *inOut, &output);
         *inOut = output;
     }
 }
@@ -305,7 +305,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
     fFS.codeAppend("}");
 }
 
-void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentStage& fs,
+void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
                                             const GrProcessorKey& key,
                                             const char* outColor,
                                             const char* inColor) {
@@ -358,20 +358,17 @@ void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
     SkASSERT(fFS.hasReadDstColor() == fp.willReadDstColor());
 }
 
-void GrGLProgramBuilder::emitTransforms(const GrFragmentStage& effectStage,
+void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
                                         GrGLProcessor::TransformedCoordsArray* outCoords,
                                         GrGLInstalledFragProc* ifp) {
-    const GrFragmentProcessor* effect = effectStage.getProcessor();
-    int numTransforms = effect->numTransforms();
+    const GrFragmentProcessor* processor = stage.getProcessor();
+    int numTransforms = processor->numTransforms();
     ifp->fTransforms.push_back_n(numTransforms);
 
     for (int t = 0; t < numTransforms; t++) {
         const char* uniName = "StageMatrix";
-        GrSLType varyingType =
-                effectStage.isPerspectiveCoordTransform(t, fVS.hasLocalCoords()) ?
-                        kVec3f_GrSLType :
-                        kVec2f_GrSLType;
-
+        GrSLType varyingType = stage.isPerspectiveCoordTransform(t) ? kVec3f_GrSLType :
+                                                                      kVec2f_GrSLType;
         SkString suffixedUniName;
         if (0 != t) {
             suffixedUniName.append(uniName);
@@ -390,7 +387,7 @@ void GrGLProgramBuilder::emitTransforms(const GrFragmentStage& effectStage,
             suffixedVaryingName.appendf("_%i", t);
             varyingName = suffixedVaryingName.c_str();
         }
-        const char* coords = kPosition_GrCoordSet == effect->coordTransform(t).sourceCoords() ?
+        const char* coords = kPosition_GrCoordSet == processor->coordTransform(t).sourceCoords() ?
                                                      fVS.positionAttribute().c_str() :
                                                      fVS.localCoordsAttribute().c_str();
         GrGLVertToFrag v(varyingType);

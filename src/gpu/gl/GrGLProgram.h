@@ -159,7 +159,7 @@ protected:
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrOptDrawState&);
-    virtual void setTransformData(const GrFragmentStage& effectStage, GrGLInstalledFragProc* pe);
+    virtual void setTransformData(const GrPendingFragmentStage&, GrGLInstalledFragProc*);
     void bindTextures(const GrGLInstalledProc*, const GrProcessor&);
 
     /*
@@ -215,7 +215,7 @@ protected:
 
 class GrGLNvprProgram : public GrGLNvprProgramBase {
 public:
-      virtual bool hasVertexShader() const SK_OVERRIDE { return true; }
+    virtual bool hasVertexShader() const SK_OVERRIDE { return true; }
 
 private:
     typedef GrGLNvprProgramBuilder::SeparableVaryingInfo SeparableVaryingInfo;
@@ -228,7 +228,8 @@ private:
                     GrGLInstalledFragProcs* fragmentProcessors,
                     const SeparableVaryingInfoArray& separableVaryings);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrFragmentStage&, GrGLInstalledFragProc*) SK_OVERRIDE;
+    virtual void setTransformData(const GrPendingFragmentStage&,
+                                  GrGLInstalledFragProc*) SK_OVERRIDE;
 
     struct Varying {
         GrGLint     fLocation;
@@ -256,7 +257,8 @@ private:
                           GrGLInstalledFragProcs* fragmentProcessors,
                           int texCoordSetCnt);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrFragmentStage&, GrGLInstalledFragProc*) SK_OVERRIDE;
+    virtual void setTransformData(const GrPendingFragmentStage&,
+                                  GrGLInstalledFragProc*) SK_OVERRIDE;
 
     int fTexCoordSetCnt;
 

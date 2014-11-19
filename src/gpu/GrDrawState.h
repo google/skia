@@ -13,7 +13,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceRef.h"
-#include "GrProcessorStage.h"
+#include "GrFragmentStage.h"
 #include "GrProcOptInfo.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
@@ -540,9 +540,7 @@ public:
      *
      * @param target  The render target to set.
      */
-    void setRenderTarget(GrRenderTarget* target) {
-        fRenderTarget.set(SkSafeRef(target), kWrite_GrIOType);
-    }
+    void setRenderTarget(GrRenderTarget* target) { fRenderTarget.reset(SkSafeRef(target)); }
 
     /// @}
 
@@ -719,40 +717,9 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Return type for CombineIfPossible. */
-    enum CombinedState {
-        /** The GrDrawStates cannot be combined. */
-        kIncompatible_CombinedState,
-        /** Either draw state can be used in place of the other. */
-        kAOrB_CombinedState,
-        /** Use the first draw state. */
-        kA_CombinedState,
-        /** Use the second draw state. */
-        kB_CombinedState,
-    };
-
-    /** This function determines whether the GrDrawStates used for two draws can be combined into
-        a single GrDrawState. This is used to avoid storing redundant GrDrawStates and to determine
-        if draws can be batched. The return value indicates whether combining is possible and, if
-        so, which of the two inputs should be used. */
-    static CombinedState CombineIfPossible(const GrDrawState& a, const GrDrawState& b,
-                                           const GrDrawTargetCaps& caps);
-
     GrDrawState& operator= (const GrDrawState& that);
 
 private:
-    /**
-     * Converts refs on GrGpuResources owned directly or indirectly by this GrDrawState into
-     * pending reads and writes. This should be called when a GrDrawState is recorded into
-     * a GrDrawTarget for later execution. Subclasses of GrDrawState may add setters. However,
-     * once this call has been made the GrDrawState is immutable. It is also no longer copyable.
-     * In the future this conversion will automatically happen when converting a GrDrawState into
-     * an optimized draw state.
-     */
-    void convertToPendingExec();
-
-    friend class GrDrawTarget;
-
     bool isEqual(const GrDrawState& that) const;
 
     /**
@@ -836,29 +803,25 @@ private:
 
     void internalSetVertexAttribs(const GrVertexAttrib attribs[], int count, size_t stride);
 
-    typedef GrTGpuResourceRef<GrRenderTarget> ProgramRenderTarget;
-    // These fields are roughly sorted by decreasing likelihood of being different in op==
-    ProgramRenderTarget                 fRenderTarget;
-    GrColor                             fColor;
-    SkMatrix                            fViewMatrix;
-    GrColor                             fBlendConstant;
-    uint32_t                            fFlagBits;
-    const GrVertexAttrib*               fVAPtr;
-    int                                 fVACount;
-    size_t                              fVAStride;
-    GrStencilSettings                   fStencilSettings;
-    uint8_t                             fCoverage;
-    DrawFace                            fDrawFace;
-    GrBlendCoeff                        fSrcBlend;
-    GrBlendCoeff                        fDstBlend;
-
     typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
-    typedef GrProgramElementRef<const GrGeometryProcessor> ProgramGeometryProcessor;
-    ProgramGeometryProcessor            fGeometryProcessor;
-    FragmentStageArray                  fColorStages;
-    FragmentStageArray                  fCoverageStages;
 
-    uint32_t                            fHints;
+    SkAutoTUnref<GrRenderTarget>            fRenderTarget;
+    GrColor                                 fColor;
+    SkMatrix                                fViewMatrix;
+    GrColor                                 fBlendConstant;
+    uint32_t                                fFlagBits;
+    const GrVertexAttrib*                   fVAPtr;
+    int                                     fVACount;
+    size_t                                  fVAStride;
+    GrStencilSettings                       fStencilSettings;
+    uint8_t                                 fCoverage;
+    DrawFace                                fDrawFace;
+    GrBlendCoeff                            fSrcBlend;
+    GrBlendCoeff                            fDstBlend;
+    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
+    FragmentStageArray                      fColorStages;
+    FragmentStageArray                      fCoverageStages;
+    uint32_t                                fHints;
 
     // This is simply a different representation of info in fVertexAttribs and thus does
     // not need to be compared in op==.

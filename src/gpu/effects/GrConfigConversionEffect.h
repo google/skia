@@ -35,7 +35,6 @@ public:
         kPMConversionCnt
     };
 
-    // Installs an effect in the GrProcessorStage to perform a config conversion.
     static const GrFragmentProcessor* Create(GrTexture*, bool swapRedAndBlue, PMConversion,
                                              const SkMatrix&);
 

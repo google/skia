@@ -18,9 +18,9 @@ public:
 
 private:
     int addTexCoordSets(int count);
-    void emitTransforms(const GrFragmentStage&,
+    void emitTransforms(const GrPendingFragmentStage&,
                         GrGLProcessor::TransformedCoordsArray* outCoords,
-                        GrGLInstalledFragProc*);
+                        GrGLInstalledFragProc*) SK_OVERRIDE;
 
     int fTexCoordSetCnt;
 
