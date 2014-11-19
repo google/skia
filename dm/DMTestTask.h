@@ -16,7 +16,7 @@ class TestReporter : public skiatest::Reporter {
 public:
   TestReporter() {}
 
-  const char* failure() const { return fFailure.c_str(); }
+  const SkTArray<SkString>& failures() const { return fFailures; }
 
 private:
   virtual bool allowExtendedTest() const SK_OVERRIDE;
@@ -27,14 +27,10 @@ private:
 
       SkString newFailure;
       failure.getFailureString(&newFailure);
-      // TODO: Better to store an array of failures?
-      if (!fFailure.isEmpty()) {
-          fFailure.append("\n\t\t");
-      }
-      fFailure.append(newFailure);
+      fFailures.push_back(newFailure);
   }
 
-  SkString fFailure;
+  SkTArray<SkString> fFailures;
 };
 
 class CpuTestTask : public CpuTask {

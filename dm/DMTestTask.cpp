@@ -35,7 +35,10 @@ void CpuTestTask::draw() {
     fTest->setReporter(&fTestReporter);
     fTest->run();
     if (!fTest->passed()) {
-        this->fail(fTestReporter.failure());
+        const SkTArray<SkString>& failures = fTestReporter.failures();
+        for (int i = 0; i < failures.count(); i++) {
+            this->fail(failures[i].c_str());
+        }
     }
 }
 
@@ -44,7 +47,10 @@ void GpuTestTask::draw(GrContextFactory* grFactory) {
     fTest->setReporter(&fTestReporter);
     fTest->run();
     if (!fTest->passed()) {
-        this->fail(fTestReporter.failure());
+        const SkTArray<SkString>& failures = fTestReporter.failures();
+        for (int i = 0; i < failures.count(); i++) {
+            this->fail(failures[i].c_str());
+        }
     }
 }
 
