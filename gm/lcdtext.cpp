@@ -11,6 +11,11 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkPicture.h"
+#include "SkPictureImageFilter.h"
+#include "SkPictureRecorder.h"
+#include "SkSurface.h"
+
 
 class LcdTextGM : public skiagm::GM {
 public:
@@ -121,8 +126,6 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-#include "SkSurface.h"
-
 // ensure that we respect the SkPixelGeometry in SurfaceProps
 class LcdTextProps : public skiagm::GM {
     static void DrawText(SkCanvas* canvas) {
@@ -137,15 +140,36 @@ class LcdTextProps : public skiagm::GM {
         canvas->restore();
     }
 
+    static SkSurface* MakeSurface(SkCanvas* canvas, const SkImageInfo& info, SkPixelGeometry geo) {
+        SkSurfaceProps props = SkSurfaceProps(0, geo);
+        SkSurface* surface = canvas->newSurface(info, &props);
+
+        if (!surface) {
+            surface = SkSurface::NewRaster(info, &props);
+        }
+
+        return surface;
+    }
+
 protected:
     SkString onShortName() SK_OVERRIDE {
         return SkString("lcdtextprops");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(230, 120); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(230, 230); }
 
     uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkip565_Flag;
+    }
+
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        fInfo = SkImageInfo::MakeN32Premul(100, 100);
+        SkPictureRecorder recorder;
+        DrawText(recorder.beginRecording(SkIntToScalar(fInfo.width()),
+                                         SkIntToScalar(fInfo.height())));
+        SkAutoTUnref<SkPicture> pic(recorder.endRecording());
+        SkAutoTUnref<SkImageFilter> filter(SkPictureImageFilter::Create(pic.get()));
+        fFilterPaint.setImageFilter(filter.get());
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -154,17 +178,28 @@ protected:
             kUnknown_SkPixelGeometry,
         };
 
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
         for (size_t i = 0; i < SK_ARRAY_COUNT(geos); ++i) {
-            SkSurfaceProps props = SkSurfaceProps(0, geos[i]);
-            SkAutoTUnref<SkSurface> surf(canvas->newSurface(info, &props));
-            if (!surf) {
-                surf.reset(SkSurface::NewRaster(info, &props));
-            }
+            SkAutoTUnref<SkSurface> surf(MakeSurface(canvas, fInfo, geos[i]));
             DrawText(surf->getCanvas());
-            surf->draw(canvas, SkIntToScalar(i * (info.width() + 10)), 0, NULL);
+            surf->draw(canvas, SkIntToScalar(i * (fInfo.width() + 10)), 0, NULL);
+        }
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(geos); ++i) {
+            SkAutoTUnref<SkSurface> surf(MakeSurface(canvas, fInfo, geos[i]));
+            surf->getCanvas()->saveLayer(NULL, &fFilterPaint);
+            surf->getCanvas()->restore();
+            surf->draw(canvas,
+                       SkIntToScalar(i * (fInfo.width() + 10)),
+                       SkIntToScalar(fInfo.height() + 10),
+                       NULL);
         }
     }
+
+private:
+    SkPaint     fFilterPaint;
+    SkImageInfo fInfo;
+
+    typedef skiagm::GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
