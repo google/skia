@@ -194,7 +194,7 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     fBlendConstant = 0x0;
     fDrawFace = kBoth_DrawFace;
     fStencilSettings.setDisabled();
-    this->resetStateFlags();
+    fFlagBits = 0;
     fHints = 0;
 
     // Enable the clip bit
@@ -341,8 +341,8 @@ bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
     // or c) the src, dst blend coeffs are 1,0 and we will read Dst Color
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
-    BlendOptFlags flag = this->getBlendOpts(true, &srcCoeff, &dstCoeff);
-    return GrDrawState::kNone_BlendOpt != flag ||
+    BlendOpt opt = this->getBlendOpt(true, &srcCoeff, &dstCoeff);
+    return GrDrawState::kNone_BlendOpt != opt ||
            (this->willEffectReadDstColor() &&
             kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff);
 }
@@ -538,9 +538,9 @@ GrDrawState::~GrDrawState() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
-                                                     GrBlendCoeff* srcCoeff,
-                                                     GrBlendCoeff* dstCoeff) const {
+GrDrawState::BlendOpt GrDrawState::getBlendOpt(bool forceCoverage,
+                                               GrBlendCoeff* srcCoeff,
+                                               GrBlendCoeff* dstCoeff) const {
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
     if (NULL == srcCoeff) {
         srcCoeff = &bogusSrcCoeff;
@@ -568,10 +568,10 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
     // (0,1).
     if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne)) {
         if (this->getStencil().doesWrite()) {
-            return kEmitCoverage_BlendOptFlag;
+            return kEmitCoverage_BlendOpt;
         } else {
             *dstCoeff = kOne_GrBlendCoeff;
-            return kSkipDraw_BlendOptFlag;
+            return kSkipDraw_BlendOpt;
         }
     }
 
@@ -591,17 +591,17 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
                 // or blend, just write transparent black into the dst.
                 *srcCoeff = kOne_GrBlendCoeff;
                 *dstCoeff = kZero_GrBlendCoeff;
-                return kEmitTransBlack_BlendOptFlag;
+                return kEmitTransBlack_BlendOpt;
             }
         }
     } else if (this->isCoverageDrawing()) {
         // we have coverage but we aren't distinguishing it from alpha by request.
-        return kCoverageAsAlpha_BlendOptFlag;
+        return kCoverageAsAlpha_BlendOpt;
     } else {
         // check whether coverage can be safely rolled into alpha
         // of if we can skip color computation and just emit coverage
         if (this->canTweakAlphaForCoverage()) {
-            return kCoverageAsAlpha_BlendOptFlag;
+            return kCoverageAsAlpha_BlendOpt;
         }
         if (dstCoeffIsZero) {
             if (kZero_GrBlendCoeff == *srcCoeff) {
@@ -609,20 +609,20 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
                 // the dst coeff is effectively zero so blend works out to:
                 // (c)(0)D + (1-c)D = (1-c)D.
                 *dstCoeff = kISA_GrBlendCoeff;
-                return  kEmitCoverage_BlendOptFlag;
+                return  kEmitCoverage_BlendOpt;
             } else if (srcAIsOne) {
                 // the dst coeff is effectively zero so blend works out to:
                 // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
                 // If Sa is 1 then we can replace Sa with c
                 // and set dst coeff to 1-Sa.
                 *dstCoeff = kISA_GrBlendCoeff;
-                return  kCoverageAsAlpha_BlendOptFlag;
+                return  kCoverageAsAlpha_BlendOpt;
             }
         } else if (dstCoeffIsOne) {
             // the dst coeff is effectively one so blend works out to:
             // cS + (c)(1)D + (1-c)D = cS + D.
             *dstCoeff = kOne_GrBlendCoeff;
-            return  kCoverageAsAlpha_BlendOptFlag;
+            return  kCoverageAsAlpha_BlendOpt;
         }
     }
 

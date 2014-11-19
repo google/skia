@@ -241,7 +241,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         GL_CALL(Disable(GR_GL_DEPTH_TEST));
         GL_CALL(DepthMask(GR_GL_FALSE));
 
-        fHWDrawFace = GrOptDrawState::kInvalid_DrawFace;
+        fHWDrawFace = GrDrawState::kInvalid_DrawFace;
         fHWDitherEnabled = kUnknown_TriState;
 
         if (kGL_GrGLStandard == this->glStandard()) {

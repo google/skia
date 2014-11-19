@@ -14,7 +14,7 @@
 #include "GrProcOptInfo.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
-                               BlendOptFlags blendOptFlags,
+                               GrDrawState::BlendOpt blendOpt,
                                GrBlendCoeff optSrcCoeff,
                                GrBlendCoeff optDstCoeff,
                                GrGpu* gpu,
@@ -25,16 +25,25 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fScissorState = scissorState;
     fViewMatrix = drawState.getViewMatrix();
     fBlendConstant = drawState.getBlendConstant();
-    fFlagBits = drawState.getFlagBits();
     fVAPtr = drawState.getVertexAttribs();
     fVACount = drawState.getVertexAttribCount();
     fVAStride = drawState.getVertexStride();
     fStencilSettings = drawState.getStencil();
-    fDrawFace = (DrawFace)drawState.getDrawFace();
-    fBlendOptFlags = blendOptFlags;
+    fDrawFace = drawState.getDrawFace();
     fSrcBlend = optSrcCoeff;
     fDstBlend = optDstCoeff;
     GrProgramDesc::DescInfo descInfo;
+
+    fFlags = 0;
+    if (drawState.isHWAntialias()) {
+        fFlags |= kHWAA_Flag;
+    }
+    if (drawState.isColorWriteDisabled()) {
+        fFlags |= kDisableColorWrite_Flag;
+    }
+    if (drawState.isDither()) {
+        fFlags |= kDither_Flag;
+    }
 
     memcpy(descInfo.fFixedFunctionVertexAttribIndices,
            drawState.getFixedFunctionVertexAttribIndices(),
@@ -56,8 +65,8 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     descInfo.fInputCoverageIsUsed = true;
     fCoverage = drawState.getCoverage();
 
-    this->adjustFromBlendOpts(drawState, &descInfo, &firstColorStageIdx, &firstCoverageStageIdx,
-                              &fixedFunctionVAToRemove);
+    this->adjustProgramForBlendOpt(drawState, blendOpt, &descInfo, &firstColorStageIdx,
+                                   &firstCoverageStageIdx, &fixedFunctionVAToRemove);
     // Should not be setting any more FFVA to be removed at this point
     if (0 != fixedFunctionVAToRemove) {
         this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove, &descInfo);
@@ -85,7 +94,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                (drawState.fCoverageStages[i], explicitLocalCoords));
     }
 
-    this->setOutputStateInfo(drawState, *gpu->caps(), &descInfo);
+    this->setOutputStateInfo(drawState, blendOpt, *gpu->caps(), &descInfo);
 
     // now create a key
     gpu->buildProgramDesc(*this, descInfo, drawType, dstCopy, &fDesc);
@@ -98,9 +107,7 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
                                        GrGpu::DrawType drawType) {
     GrBlendCoeff srcCoeff;
     GrBlendCoeff dstCoeff;
-    BlendOptFlags blendFlags = (BlendOptFlags) drawState.getBlendOpts(false,
-                                                                      &srcCoeff,
-                                                                      &dstCoeff);
+    GrDrawState::BlendOpt blendOpt = drawState.getBlendOpt(false, &srcCoeff, &dstCoeff);
 
     // If our blend coeffs are set to 0,1 we know we will not end up drawing unless we are
     // stenciling. When path rendering the stencil settings are not always set on the draw state
@@ -111,23 +118,23 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
         return NULL;
     }
 
-    return SkNEW_ARGS(GrOptDrawState, (drawState, blendFlags, srcCoeff,
+    return SkNEW_ARGS(GrOptDrawState, (drawState, blendOpt, srcCoeff,
                                        dstCoeff, gpu, scissorState, dstCopy, drawType));
 }
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
+                                        GrDrawState::BlendOpt blendOpt,
                                         const GrDrawTargetCaps& caps,
                                         GrProgramDesc::DescInfo* descInfo) {
     // Set this default and then possibly change our mind if there is coverage.
     descInfo->fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
     descInfo->fSecondaryOutputType = GrProgramDesc::kNone_SecondaryOutputType;
 
-    // If we do have coverage determine whether it matters.  Dual source blending is expensive so
-    // we don't do it if we are doing coverage drawing.  If we aren't then We always do dual source
-    // blending if we have any effective coverage stages OR the geometry processor doesn't emits
-    // solid coverage.
-    // TODO move the gp logic into the GP base class
-    if (!this->isCoverageDrawing() && !ds.hasSolidCoverage()) {
+    // Determine whether we should use dual source blending or shader code to keep coverage
+    // separate from color.
+    bool keepCoverageSeparate = !(GrDrawState::kCoverageAsAlpha_BlendOpt == blendOpt ||
+                                  GrDrawState::kEmitCoverage_BlendOpt == blendOpt);
+    if (keepCoverageSeparate && !ds.hasSolidCoverage()) {
         if (caps.dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color
@@ -150,25 +157,24 @@ void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
     }
 }
 
-void GrOptDrawState::adjustFromBlendOpts(const GrDrawState& ds,
-                                         GrProgramDesc::DescInfo* descInfo,
-                                         int* firstColorStageIdx,
-                                         int* firstCoverageStageIdx,
-                                         uint8_t* fixedFunctionVAToRemove) {
-    switch (fBlendOptFlags) {
-        case kNone_BlendOpt:
-        case kSkipDraw_BlendOptFlag:
+void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
+                                              GrDrawState::BlendOpt blendOpt,
+                                              GrProgramDesc::DescInfo* descInfo,
+                                              int* firstColorStageIdx,
+                                              int* firstCoverageStageIdx,
+                                              uint8_t* fixedFunctionVAToRemove) {
+    switch (blendOpt) {
+        case GrDrawState::kNone_BlendOpt:
+        case GrDrawState::kSkipDraw_BlendOpt:
+        case GrDrawState::kCoverageAsAlpha_BlendOpt:
             break;
-        case kCoverageAsAlpha_BlendOptFlag:
-            fFlagBits |= kCoverageDrawing_StateBit;
-            break;
-        case kEmitCoverage_BlendOptFlag:
+        case GrDrawState::kEmitCoverage_BlendOpt:
             fColor = 0xffffffff;
             descInfo->fInputColorIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
             *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
             break;
-        case kEmitTransBlack_BlendOptFlag:
+        case GrDrawState::kEmitTransBlack_BlendOpt:
             fColor = 0;
             fCoverage = 0xff;
             descInfo->fInputColorIsUsed = true;
@@ -178,8 +184,6 @@ void GrOptDrawState::adjustFromBlendOpts(const GrDrawState& ds,
             *fixedFunctionVAToRemove |= (0x1 << kColor_GrVertexAttribBinding |
                                          0x1 << kCoverage_GrVertexAttribBinding);
             break;
-        default:
-            SkFAIL("Unknown BlendOptFlag");
     }
 }
 
@@ -269,7 +273,7 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
         this->fSrcBlend != that.fSrcBlend ||
         this->fDstBlend != that.fDstBlend ||
         this->fBlendConstant != that.fBlendConstant ||
-        this->fFlagBits != that.fFlagBits ||
+        this->fFlags != that.fFlags ||
         this->fVACount != that.fVACount ||
         this->fVAStride != that.fVAStride ||
         memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||

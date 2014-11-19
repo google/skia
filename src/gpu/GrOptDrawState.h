@@ -176,34 +176,21 @@ public:
 
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name State Flags
+    /// @name Boolean Queries
     ////
 
-    bool isDitherState() const { return 0 != (fFlagBits & kDither_StateBit); }
-    bool isHWAntialiasState() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
-    bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
-    bool isCoverageDrawing() const { return 0 != (fFlagBits & kCoverageDrawing_StateBit); }
+    bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
+    bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
+    bool isColorWriteDisabled() const { return SkToBool(fFlags & kDisableColorWrite_Flag); }
 
     /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Face Culling
-    ////
-
-    enum DrawFace {
-        kInvalid_DrawFace = -1,
-
-        kBoth_DrawFace,
-        kCCW_DrawFace,
-        kCW_DrawFace,
-    };
 
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,
      * or both faces.
      * @return the current draw face(s).
      */
-    DrawFace getDrawFace() const { return fDrawFace; }
+    GrDrawState::DrawFace getDrawFace() const { return fDrawFace; }
 
     /// @}
 
@@ -213,72 +200,10 @@ public:
     const GrProgramDesc& programDesc() const { return fDesc; }
 
 private:
-    // This is lifted from GrDrawState. This should be revised and made specific to this class/
-    enum StateBits {
-        /**
-         * Perform dithering. TODO: Re-evaluate whether we need this bit
-         */
-        kDither_StateBit        = 0x01,
-        /**
-         * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
-         * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
-         * the 3D API.
-         */
-        kHWAntialias_StateBit   = 0x02,
-        /**
-         * Draws will respect the clip, otherwise the clip is ignored.
-         */
-        kClip_StateBit          = 0x04,
-        /**
-         * Disables writing to the color buffer. Useful when performing stencil
-         * operations.
-         */
-        kNoColorWrites_StateBit = 0x08,
-
-        /**
-         * Usually coverage is applied after color blending. The color is blended using the coeffs
-         * specified by setBlendFunc(). The blended color is then combined with dst using coeffs
-         * of src_coverage, 1-src_coverage. Sometimes we are explicitly drawing a coverage mask. In
-         * this case there is no distinction between coverage and color and the caller needs direct
-         * control over the blend coeffs. When set, there will be a single blend step controlled by
-         * setBlendFunc() which will use coverage*color as the src color.
-         */
-         kCoverageDrawing_StateBit = 0x10
-    };
-      
-    /**
-     * Optimizations for blending / coverage to that can be applied based on the current state.
-     */
-    enum BlendOptFlags {
-        /**
-         * No optimization
-         */
-        kNone_BlendOpt                  = 0,
-        /**
-         * Don't draw at all
-         */
-        kSkipDraw_BlendOptFlag          = 0x1,
-        /**
-         * The coverage value does not have to be computed separately from alpha, the the output
-         * color can be the modulation of the two.
-         */
-        kCoverageAsAlpha_BlendOptFlag   = 0x2,
-        /**
-         * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
-         * "don't cares".
-         */
-        kEmitCoverage_BlendOptFlag      = 0x4,
-        /**
-         * Emit transparent black instead of the src color, no need to compute coverage.
-         */
-        kEmitTransBlack_BlendOptFlag    = 0x8,
-    };
-    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
-
     /**
      * Constructs and optimized drawState out of a GrRODrawState.
      */
-    GrOptDrawState(const GrDrawState& drawState, BlendOptFlags blendOptFlags,
+    GrOptDrawState(const GrDrawState& drawState, GrDrawState::BlendOpt,
                    GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff,
                    GrGpu*, const ScissorState&, const GrDeviceCoordTexture* dstCopy,
                    GrGpu::DrawType);
@@ -308,12 +233,12 @@ private:
     void removeFixedFunctionVertexAttribs(uint8_t removeVAFlags, GrProgramDesc::DescInfo*);
 
     /**
-     * Alter the OptDrawState (adjusting stages, vertex attribs, flags, etc.) based on the
-     * BlendOptFlags.
+     * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
-    void adjustFromBlendOpts(const GrDrawState& ds, GrProgramDesc::DescInfo*,
-                             int* firstColorStageIdx, int* firstCoverageStageIdx,
-                             uint8_t* fixedFunctionVAToRemove);
+    void adjustProgramForBlendOpt(const GrDrawState& ds, GrDrawState::BlendOpt,
+                                  GrProgramDesc::DescInfo*,
+                                  int* firstColorStageIdx, int* firstCoverageStageIdx,
+                                  uint8_t* fixedFunctionVAToRemove);
 
     /**
      * Loop over the effect stages to determine various info like what data they will read and what
@@ -327,8 +252,14 @@ private:
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawState& ds, const GrDrawTargetCaps&,
+    void setOutputStateInfo(const GrDrawState& ds, GrDrawState::BlendOpt, const GrDrawTargetCaps&,
                             GrProgramDesc::DescInfo*);
+
+    enum Flags {
+        kDither_Flag            = 0x1,
+        kHWAA_Flag              = 0x2,
+        kDisableColorWrite_Flag = 0x4,
+    };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
     typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
@@ -338,16 +269,15 @@ private:
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
     GrColor                             fBlendConstant;
-    uint32_t                            fFlagBits;
     const GrVertexAttrib*               fVAPtr;
     int                                 fVACount;
     size_t                              fVAStride;
     GrStencilSettings                   fStencilSettings;
     uint8_t                             fCoverage;
-    DrawFace                            fDrawFace;
+    GrDrawState::DrawFace               fDrawFace;
     GrBlendCoeff                        fSrcBlend;
     GrBlendCoeff                        fDstBlend;
-
+    uint32_t                            fFlags;
     ProgramGeometryProcessor            fGeometryProcessor;
     FragmentStageArray                  fFragmentStages;
 
@@ -356,14 +286,9 @@ private:
 
     SkAutoSTArray<4, GrVertexAttrib> fOptVA;
 
-    BlendOptFlags   fBlendOptFlags;
-
     GrProgramDesc fDesc;
 
     typedef SkRefCnt INHERITED;
 };
 
-GR_MAKE_BITFIELD_OPS(GrOptDrawState::BlendOptFlags);
-
 #endif
-

@@ -14,6 +14,7 @@
 #include "../GrGLProgramDataManager.h"
 #include "../GrGLUniformHandle.h"
 #include "../GrGLGeometryProcessor.h"
+#include "../../GrOptDrawState.h"
 #include "../../GrPendingFragmentStage.h"
 
 /*

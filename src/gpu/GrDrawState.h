@@ -21,7 +21,6 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 class GrDrawTargetCaps;
-class GrOptDrawState;
 class GrPaint;
 class GrTexture;
 
@@ -417,10 +416,8 @@ public:
      * @param dstCoef coefficient applied to the dst color.
      */
     void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-        if (srcCoeff != fSrcBlend || dstCoeff != fDstBlend) {
-            fSrcBlend = srcCoeff;
-            fDstBlend = dstCoeff;
-        }
+        fSrcBlend = srcCoeff;
+        fDstBlend = dstCoeff;
     #ifdef SK_DEBUG
         if (GrBlendCoeffRefsDst(dstCoeff)) {
             SkDebugf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
@@ -441,11 +438,7 @@ public:
      *
      * @param constant the constant to set
      */
-    void setBlendConstant(GrColor constant) {
-        if (constant != fBlendConstant) {
-            fBlendConstant = constant;
-        }
-    }
+    void setBlendConstant(GrColor constant) { fBlendConstant = constant; }
 
     /// @}
 
@@ -557,20 +550,12 @@ public:
      * using stencil should not change the clip between passes.
      * @param settings  the stencil settings to use.
      */
-    void setStencil(const GrStencilSettings& settings) {
-        if (settings != fStencilSettings) {
-            fStencilSettings = settings;
-        }
-    }
+    void setStencil(const GrStencilSettings& settings) { fStencilSettings = settings; }
 
     /**
      * Shortcut to disable stencil testing and ops.
      */
-    void disableStencil() {
-        if (!fStencilSettings.isDisabled()) {
-            fStencilSettings.setDisabled();
-        }
-    }
+    void disableStencil() { fStencilSettings.setDisabled(); }
 
     GrStencilSettings* stencil() { return &fStencilSettings; }
 
@@ -617,41 +602,25 @@ public:
          kLast_StateBit = kCoverageDrawing_StateBit,
     };
 
-    uint32_t getFlagBits() const { return fFlagBits; }
-
-    bool isStateFlagEnabled(uint32_t stateBit) const { return 0 != (stateBit & fFlagBits); }
-
     bool isClipState() const { return 0 != (fFlagBits & kClip_StateBit); }
     bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
     bool isCoverageDrawing() const { return 0 != (fFlagBits & kCoverageDrawing_StateBit); }
-
-    void resetStateFlags() {
-        if (0 != fFlagBits) {
-            fFlagBits = 0;
-        }
-    }
+    bool isDither() const { return 0 != (fFlagBits & kDither_StateBit); }
+    bool isHWAntialias() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
 
     /**
      * Enable render state settings.
      *
      * @param stateBits bitfield of StateBits specifying the states to enable
      */
-    void enableState(uint32_t stateBits) {
-        if (stateBits & ~fFlagBits) {
-            fFlagBits |= stateBits;
-        }
-    }
+    void enableState(uint32_t stateBits) { fFlagBits |= stateBits; }
 
     /**
      * Disable render state settings.
      *
      * @param stateBits bitfield of StateBits specifying the states to disable
      */
-    void disableState(uint32_t stateBits) {
-        if (stateBits & fFlagBits) {
-            fFlagBits &= ~(stateBits);
-        }
-    }
+    void disableState(uint32_t stateBits) { fFlagBits &= ~(stateBits); }
 
     /**
      * Enable or disable stateBits based on a boolean.
@@ -725,31 +694,30 @@ private:
     /**
      * Optimizations for blending / coverage to that can be applied based on the current state.
      */
-    enum BlendOptFlags {
+    enum BlendOpt {
         /**
          * No optimization
          */
-        kNone_BlendOpt                  = 0,
+        kNone_BlendOpt,
         /**
          * Don't draw at all
          */
-        kSkipDraw_BlendOptFlag          = 0x1,
+        kSkipDraw_BlendOpt,
         /**
          * The coverage value does not have to be computed separately from alpha, the the output
          * color can be the modulation of the two.
          */
-        kCoverageAsAlpha_BlendOptFlag   = 0x2,
+        kCoverageAsAlpha_BlendOpt,
         /**
          * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
          * "don't cares".
          */
-        kEmitCoverage_BlendOptFlag      = 0x4,
+        kEmitCoverage_BlendOpt,
         /**
          * Emit transparent black instead of the src color, no need to compute coverage.
          */
-        kEmitTransBlack_BlendOptFlag    = 0x8,
+        kEmitTransBlack_BlendOpt
     };
-    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
 
     /**
      * Determines what optimizations can be applied based on the blend. The coefficients may have
@@ -758,15 +726,11 @@ private:
      * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
      * determine the blend optimizations that would be used if there was partial pixel coverage.
      *
-     * Subclasses of GrDrawTarget that actually draw (as opposed to those that just buffer for
-     * playback) must call this function and respect the flags that replace the output color.
-     *
-     * If the cached BlendOptFlags does not have the invalidate bit set, then getBlendOpts will
-     * simply returned the cached flags and coefficients. Otherwise it will calculate the values. 
+     * This is used internally and when constructing a GrOptDrawState.
      */
-    BlendOptFlags getBlendOpts(bool forceCoverage = false,
-                               GrBlendCoeff* srcCoeff = NULL,
-                               GrBlendCoeff* dstCoeff = NULL) const;
+    BlendOpt getBlendOpt(bool forceCoverage = false,
+                         GrBlendCoeff* srcCoeff = NULL,
+                         GrBlendCoeff* dstCoeff = NULL) const;
 
     const GrProcOptInfo& colorProcInfo() const { 
         this->calcColorInvariantOutput();
@@ -834,7 +798,5 @@ private:
 
     friend class GrOptDrawState;
 };
-
-GR_MAKE_BITFIELD_OPS(GrDrawState::BlendOptFlags);
 
 #endif

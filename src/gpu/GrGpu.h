@@ -15,6 +15,7 @@
 
 class GrContext;
 class GrIndexBufferAllocPool;
+class GrOptDrawState;
 class GrPath;
 class GrPathRange;
 class GrPathRenderer;
