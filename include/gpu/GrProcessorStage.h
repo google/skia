@@ -146,6 +146,8 @@ public:
         }
     }
 
+    const char* name() const { return fProc->name(); }
+
     const GrFragmentProcessor* getProcessor() const { return fProc.get(); }
 
     void convertToPendingExec() { fProc.convertToPendingExec(); }

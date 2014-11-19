@@ -296,7 +296,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
 
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
-    openBrace.printf("{ // Stage %d\n", fStageIndex);
+    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
     fFS.codeAppend(openBrace.c_str());
 
     this->emitAndInstallProc(proc, keyProvider.get(index), output->c_str(),
