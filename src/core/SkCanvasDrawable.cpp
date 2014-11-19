@@ -23,9 +23,22 @@ static int32_t next_generation_id() {
 
 SkCanvasDrawable::SkCanvasDrawable() : fGenerationID(0) {}
 
+static void draw_bbox(SkCanvas* canvas, const SkRect& r) {
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setColor(0xFFFF7088);
+    canvas->drawRect(r, paint);
+    canvas->drawLine(r.left(), r.top(), r.right(), r.bottom(), paint);
+    canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
+}
+
 void SkCanvasDrawable::draw(SkCanvas* canvas) {
     SkAutoCanvasRestore acr(canvas, true);
     this->onDraw(canvas);
+
+    if (false) {
+        draw_bbox(canvas, this->getBounds());
+    }
 }
 
 SkPicture* SkCanvasDrawable::newPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags) {
@@ -52,8 +65,13 @@ void SkCanvasDrawable::notifyDrawingChanged() {
 #include "SkPictureRecorder.h"
 
 SkPicture* SkCanvasDrawable::onNewPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags) {
-    const SkRect bounds = this->getBounds();
     SkPictureRecorder recorder;
-    this->draw(recorder.beginRecording(bounds.width(), bounds.height(), bbhFactory, recordFlags));
+
+    const SkRect bounds = this->getBounds();
+    SkCanvas* canvas = recorder.beginRecording(bounds, bbhFactory, recordFlags);
+    this->draw(canvas);
+    if (false) {
+        draw_bbox(canvas, bounds);
+    }
     return recorder.endRecording();
 }

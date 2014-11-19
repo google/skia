@@ -1842,7 +1842,7 @@ struct CountingBBH : public SkBBoxHierarchy {
 class SpoonFedBBHFactory : public SkBBHFactory {
 public:
     explicit SpoonFedBBHFactory(SkBBoxHierarchy* bbh) : fBBH(bbh) {}
-    virtual SkBBoxHierarchy* operator()(int width, int height) const {
+    SkBBoxHierarchy* operator()(const SkRect&) const SK_OVERRIDE {
         return SkRef(fBBH);
     }
 private:

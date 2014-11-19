@@ -44,15 +44,21 @@ public:
     };
 
     /** Returns the canvas that records the drawing commands.
-        @param width the width of the cull rect used when recording this picture.
-        @param height the height of the cull rect used when recording this picture.
+        @param bounds the cull rect used when recording this picture. Any drawing the falls outside
+                      of this rect is undefined, and may be drawn or it may not.
         @param bbhFactory factory to create desired acceleration structure
         @param recordFlags optional flags that control recording.
         @return the canvas.
     */
-    SkCanvas* beginRecording(SkScalar width, SkScalar height,
+    SkCanvas* beginRecording(const SkRect& bounds,
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0);
+
+    SkCanvas* beginRecording(SkScalar width, SkScalar height,
+                             SkBBHFactory* bbhFactory = NULL,
+                             uint32_t recordFlags = 0) {
+        return this->beginRecording(SkRect::MakeWH(width, height), bbhFactory, recordFlags);
+    }
 
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
@@ -79,8 +85,7 @@ private:
     void partialReplay(SkCanvas* canvas) const;
 
     uint32_t                      fFlags;
-    SkScalar                      fCullWidth;
-    SkScalar                      fCullHeight;
+    SkRect                        fCullRect;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
     SkAutoTUnref<SkRecorder>      fRecorder;
     SkAutoTDelete<SkRecord>       fRecord;

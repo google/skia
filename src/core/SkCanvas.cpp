@@ -431,7 +431,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
         }
         device->onAttachToCanvas(this);
         fMCRec->fLayer->fDevice = SkRef(device);
-        fMCRec->fRasterClip.setRect(SkIRect::MakeWH(device->width(), device->height()));
+        fMCRec->fRasterClip.setRect(device->getGlobalBounds());
     }
     return device;
 }
@@ -453,7 +453,11 @@ static SkBitmap make_nopixels(int width, int height) {
 
 class SkNoPixelsBitmapDevice : public SkBitmapDevice {
 public:
-    SkNoPixelsBitmapDevice(int width, int height) : INHERITED(make_nopixels(width, height)) {}
+    SkNoPixelsBitmapDevice(const SkIRect& bounds)
+        : INHERITED(make_nopixels(bounds.width(), bounds.height()))
+    {
+        this->setOrigin(bounds.x(), bounds.y());
+    }
 
 private:
 
@@ -466,16 +470,17 @@ SkCanvas::SkCanvas(int width, int height)
 {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (width, height)), kDefault_InitFlags)->unref();
+    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice,
+                          (SkIRect::MakeWH(width, height))), kDefault_InitFlags)->unref();
 }
 
-SkCanvas::SkCanvas(int width, int height, InitFlags flags)
+SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
 {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (width, height)), flags)->unref();
+    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (bounds)), flags)->unref();
 }
 
 SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags flags)
