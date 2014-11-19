@@ -22,10 +22,8 @@ void SkRecordDraw(const SkRecord& record,
         // is not necessarily in that same space.  getClipBounds() returns us
         // this canvas' clip bounds transformed back into identity space, which
         // lets us query the BBH.
-        SkRect query;
-        if (!canvas->getClipBounds(&query)) {
-            return;
-        }
+        SkRect query = { 0, 0, 0, 0 };
+        (void)canvas->getClipBounds(&query);
 
         SkTDArray<unsigned> ops;
         bbh->search(query, &ops);
