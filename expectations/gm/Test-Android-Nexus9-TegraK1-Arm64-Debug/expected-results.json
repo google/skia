@@ -10008,6 +10008,7 @@
           9634696801788021578
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "path-reverse_565.png": {
