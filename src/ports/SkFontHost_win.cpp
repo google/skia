@@ -884,7 +884,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
                      -SkFIXEDToScalar(fMat22.eM12), SkFIXEDToScalar(fMat22.eM22), 0,
                      0,  0, SkScalarToPersp(SK_Scalar1));
             m.mapRect(&bounds);
-            bounds.roundOut();
+            bounds.roundOut(&bounds);
             glyph->fLeft = SkScalarTruncToInt(bounds.fLeft);
             glyph->fTop = SkScalarTruncToInt(bounds.fTop);
             glyph->fWidth = SkScalarTruncToInt(bounds.width());

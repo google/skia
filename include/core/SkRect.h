@@ -806,12 +806,14 @@ public:
      *  Expand this rectangle by rounding its coordinates "out", choosing the
      *  floor of top and left, and the ceil of right and bottom. If this rect
      *  is already on integer coordinates, then it will be unchanged.
+     *
+     *  It is safe for this == dst
      */
-    void roundOut() {
-        this->set(SkScalarFloorToScalar(fLeft),
-                  SkScalarFloorToScalar(fTop),
-                  SkScalarCeilToScalar(fRight),
-                  SkScalarCeilToScalar(fBottom));
+    void roundOut(SkRect* dst) const {
+        dst->set(SkScalarFloorToScalar(fLeft),
+                 SkScalarFloorToScalar(fTop),
+                 SkScalarCeilToScalar(fRight),
+                 SkScalarCeilToScalar(fBottom));
     }
 
     /**

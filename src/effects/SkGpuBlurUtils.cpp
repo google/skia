@@ -162,7 +162,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
     SkRect srcRect(rect);
     scale_rect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
-    srcRect.roundOut();
+    srcRect.roundOut(&srcRect);
     scale_rect(&srcRect, static_cast<float>(scaleFactorX),
                          static_cast<float>(scaleFactorY));
 
