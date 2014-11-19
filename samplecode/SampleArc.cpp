@@ -37,6 +37,27 @@ static void testparse() {
     SkParsePath::ToSVGString(p2, &str2);
 }
 
+#include "SkPictureRecorder.h"
+static void test_pictbounds(SkCanvas* canvas) {
+    SkRect r = SkRect::MakeXYWH(100, 50, 100, 100);
+    SkPictureRecorder recorder;
+    {
+        SkCanvas* c = recorder.beginRecording(r, NULL, 0);
+        c->drawOval(r, SkPaint());
+
+        SkIRect ir;
+        c->getClipDeviceBounds(&ir);
+        SkDebugf("devbounds [%d %d %d %d]\n", ir.left(), ir.top(), ir.right(), ir.bottom());
+
+        SkASSERT(!c->quickReject(r));
+    }
+    SkPicture* pic = recorder.endRecording();
+
+    canvas->drawPicture(pic);
+    SkASSERT(pic->cullRect() == r);
+    pic->unref();
+}
+
 class ArcsView : public SampleView {
     class MyDrawable : public SkCanvasDrawable {
         SkRect   fR;
@@ -176,6 +197,8 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
+        if (true) { test_pictbounds(canvas); return; }
+
         fDrawable->setSweep(SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
                                                       SkIntToScalar(360)));
 

@@ -50,9 +50,15 @@ public:
         @param recordFlags optional flags that control recording.
         @return the canvas.
     */
-    SkCanvas* beginRecording(SkScalar width, SkScalar height,
+    SkCanvas* beginRecording(const SkRect& bounds,
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0);
+
+    SkCanvas* beginRecording(SkScalar width, SkScalar height,
+                             SkBBHFactory* bbhFactory = NULL,
+                             uint32_t recordFlags = 0) {
+        return this->beginRecording(SkRect::MakeWH(width, height), bbhFactory, recordFlags);
+    }
 
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
@@ -79,8 +85,7 @@ private:
     void partialReplay(SkCanvas* canvas) const;
 
     uint32_t                      fFlags;
-    SkScalar                      fCullWidth;
-    SkScalar                      fCullHeight;
+    SkRect                        fCullRect;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
     SkAutoTUnref<SkRecorder>      fRecorder;
     SkAutoTDelete<SkRecord>       fRecord;

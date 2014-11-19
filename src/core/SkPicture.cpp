@@ -530,10 +530,9 @@ uint32_t SkPicture::uniqueID() const {
     return fUniqueID;
 }
 
-SkPicture::SkPicture(SkScalar width, SkScalar height, SkRecord* record, SkData* drawablePicts,
+SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SkData* drawablePicts,
                      SkBBoxHierarchy* bbh)
-    : fCullWidth(width)
-    , fCullHeight(height)
+    : fCullRect(cullRect)
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
     , fDrawablePicts(SkSafeRef(drawablePicts))

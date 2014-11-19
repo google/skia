@@ -9,15 +9,20 @@
 #include "SkRTree.h"
 #include "SkTileGrid.h"
 
-
-SkBBoxHierarchy* SkRTreeFactory::operator()(int width, int height) const {
-    SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width), SkIntToScalar(height));
+SkBBoxHierarchy* SkRTreeFactory::operator()(const SkRect& bounds) const {
+    SkScalar aspectRatio = bounds.width() / bounds.height();
     return SkNEW_ARGS(SkRTree, (aspectRatio));
 }
 
-SkBBoxHierarchy* SkTileGridFactory::operator()(int width, int height) const {
+SkBBoxHierarchy* SkTileGridFactory::operator()(const SkRect& bounds) const {
     SkASSERT(fInfo.fMargin.width() >= 0);
     SkASSERT(fInfo.fMargin.height() >= 0);
+
+    // We want a conservative answer for the size...
+    const SkIRect ibounds = bounds.roundOut();
+    const int width = ibounds.width();
+    const int height = ibounds.height();
+
     // Note: SkIRects are non-inclusive of the right() column and bottom() row.
     // For example, an SkIRect at 0,0 with a size of (1,1) will only have
     // content at pixel (0,0) and will report left=0 and right=1, hence the
