@@ -138,9 +138,21 @@
               },
               'Release_x64': {
                 'inherit_from': ['Release'],
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                     # Don't specify /arch. SSE2 is implied by 64bit and specifying it warns.
+                    'EnableEnhancedInstructionSet': '0', #
+                  },
+                },
               },
               'Release_Developer_x64': {
                 'inherit_from': ['Release_Developer'],
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                     # Don't specify /arch. SSE2 is implied by 64bit and specifying it warns.
+                    'EnableEnhancedInstructionSet': '0', #
+                  },
+                },
               },
             },
           }],
