@@ -159,7 +159,6 @@ private:
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
     virtual bool flushGraphicsState(const GrOptDrawState&,
                                     DrawType,
-                                    const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
     // GrDrawTarget overrides

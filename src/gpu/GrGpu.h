@@ -356,16 +356,12 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
 
-    virtual void draw(const GrOptDrawState&,
-                      const GrDrawTarget::DrawInfo&,
-                      const GrClipMaskManager::ScissorState&);
+    virtual void draw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&);
     virtual void stencilPath(const GrOptDrawState&,
                              const GrPath*,
-                             const GrClipMaskManager::ScissorState&,
                              const GrStencilSettings&);
     virtual void drawPath(const GrOptDrawState&,
                           const GrPath*,
-                          const GrClipMaskManager::ScissorState&,
                           const GrStencilSettings&,
                           const GrDeviceCoordTexture* dstCopy);
     virtual void drawPaths(const GrOptDrawState&,
@@ -374,7 +370,6 @@ public:
                            int count,
                            const float transforms[],
                            GrDrawTarget::PathTransformType,
-                           const GrClipMaskManager::ScissorState&,
                            const GrStencilSettings&,
                            const GrDeviceCoordTexture*);
 
@@ -476,7 +471,6 @@ private:
     // returns false if current state is unsupported.
     virtual bool flushGraphicsState(const GrOptDrawState&,
                                     DrawType,
-                                    const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy) = 0;
 
     // clears target's entire stencil buffer to 0

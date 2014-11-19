@@ -399,6 +399,9 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
     GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
+    // dummy scissor state
+    GrClipMaskManager::ScissorState scissor;
+
     // Setup texture cache id key
     const GrCacheID::Domain glProgramsDomain = GrCacheID::GenerateDomain();
     GrCacheID::Key key;
@@ -467,6 +470,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         // and program.  ODS creation can fail, so we have to check
         SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(ds,
                                                                 gpu,
+                                                                scissor,
                                                                 &dstCopy,
                                                                 drawType));
         if (!ods.get()) {

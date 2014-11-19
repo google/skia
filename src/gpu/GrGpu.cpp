@@ -283,13 +283,10 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::draw(const GrOptDrawState& ds,
-                 const GrDrawTarget::DrawInfo& info,
-                 const GrClipMaskManager::ScissorState& scissorState) {
+void GrGpu::draw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
     this->handleDirtyContext();
     if (!this->flushGraphicsState(ds,
                                   PrimTypeToDrawType(info.primitiveType()),
-                                  scissorState,
                                   info.getDstCopy())) {
         return;
     }
@@ -298,11 +295,10 @@ void GrGpu::draw(const GrOptDrawState& ds,
 
 void GrGpu::stencilPath(const GrOptDrawState& ds,
                         const GrPath* path,
-                        const GrClipMaskManager::ScissorState& scissorState,
                         const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kStencilPath_DrawType, scissorState, NULL)) {
+    if (!this->flushGraphicsState(ds, kStencilPath_DrawType, NULL)) {
         return;
     }
 
@@ -312,12 +308,11 @@ void GrGpu::stencilPath(const GrOptDrawState& ds,
 
 void GrGpu::drawPath(const GrOptDrawState& ds,
                      const GrPath* path,
-                     const GrClipMaskManager::ScissorState& scissorState,
                      const GrStencilSettings& stencilSettings,
                      const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kDrawPath_DrawType, scissorState, dstCopy)) {
+    if (!this->flushGraphicsState(ds, kDrawPath_DrawType, dstCopy)) {
         return;
     }
 
@@ -330,12 +325,11 @@ void GrGpu::drawPaths(const GrOptDrawState& ds,
                       int count,
                       const float transforms[],
                       GrDrawTarget::PathTransformType transformsType,
-                      const GrClipMaskManager::ScissorState& scissorState,
                       const GrStencilSettings& stencilSettings,
                       const GrDeviceCoordTexture* dstCopy) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kDrawPaths_DrawType, scissorState, dstCopy)) {
+    if (!this->flushGraphicsState(ds, kDrawPaths_DrawType, dstCopy)) {
         return;
     }
 

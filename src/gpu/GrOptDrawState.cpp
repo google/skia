@@ -18,9 +18,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                GrBlendCoeff optSrcCoeff,
                                GrBlendCoeff optDstCoeff,
                                GrGpu* gpu,
+                               const ScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
                                GrGpu::DrawType drawType)
 : fRenderTarget(drawState.fRenderTarget.get()) {
+    fScissorState = scissorState;
     fViewMatrix = drawState.getViewMatrix();
     fBlendConstant = drawState.getBlendConstant();
     fFlagBits = drawState.getFlagBits();
@@ -91,6 +93,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
 GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
                                        GrGpu* gpu,
+                                       const ScissorState& scissorState,
                                        const GrDeviceCoordTexture* dstCopy,
                                        GrGpu::DrawType drawType) {
     GrBlendCoeff srcCoeff;
@@ -109,7 +112,7 @@ GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
     }
 
     return SkNEW_ARGS(GrOptDrawState, (drawState, blendFlags, srcCoeff,
-                                       dstCoeff, gpu, dstCopy, drawType));
+                                       dstCoeff, gpu, scissorState, dstCopy, drawType));
 }
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
@@ -261,6 +264,7 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
     }
 
     if (this->getRenderTarget() != that.getRenderTarget() ||
+        this->fScissorState != that.fScissorState ||
         !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
         this->fSrcBlend != that.fSrcBlend ||
         this->fDstBlend != that.fDstBlend ||

@@ -28,12 +28,15 @@ class GrOptDrawState : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrOptDrawState)
 
+    typedef GrClipMaskManager::ScissorState ScissorState;
+
     /**
      * Returns a snapshot of the current optimized state. The GrOptDrawState is reffed and ownership
      * is given to the caller.
      */
     static GrOptDrawState* Create(const GrDrawState& drawState,
                                   GrGpu*,
+                                  const ScissorState&,
                                   const GrDeviceCoordTexture* dstCopy,
                                   GrGpu::DrawType drawType);
 
@@ -164,6 +167,15 @@ public:
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
+    /// @name ScissorState
+    ////
+
+    const ScissorState& getScissorState() const { return fScissorState; }
+
+    /// @}
+
+
+    ///////////////////////////////////////////////////////////////////////////
     /// @name State Flags
     ////
 
@@ -268,7 +280,8 @@ private:
      */
     GrOptDrawState(const GrDrawState& drawState, BlendOptFlags blendOptFlags,
                    GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff,
-                   GrGpu*, const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
+                   GrGpu*, const ScissorState&, const GrDeviceCoordTexture* dstCopy,
+                   GrGpu::DrawType);
 
     /**
      * Loops through all the color stage effects to check if the stage will ignore color input or
@@ -321,6 +334,7 @@ private:
     typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
     typedef GrPendingProgramElement<const GrGeometryProcessor> ProgramGeometryProcessor;
     RenderTarget                        fRenderTarget;
+    ScissorState                        fScissorState;
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
     GrColor                             fBlendConstant;

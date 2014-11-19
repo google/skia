@@ -203,7 +203,6 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState, D
 
 bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState,
                                  DrawType type,
-                                 const GrClipMaskManager::ScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
     SkASSERT(optState.getRenderTarget());
@@ -246,7 +245,7 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState,
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
     this->flushStencil(optState.getStencil(), type);
-    this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
+    this->flushScissor(optState.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushAAState(optState, type);
 
     // This must come after textures are flushed because a texture may need

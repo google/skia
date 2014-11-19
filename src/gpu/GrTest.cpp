@@ -150,7 +150,6 @@ private:
 
     virtual bool flushGraphicsState(const GrOptDrawState&,
                                     DrawType,
-                                    const GrClipMaskManager::ScissorState&,
                                     const GrDeviceCoordTexture* dstCopy)  SK_OVERRIDE {
         return false;
     }
