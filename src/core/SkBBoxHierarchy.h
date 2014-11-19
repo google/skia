@@ -33,6 +33,8 @@ public:
      */
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const = 0;
 
+    virtual size_t bytesUsed() const = 0;
+
     SK_DECLARE_INST_COUNT(SkBBoxHierarchy)
 private:
     typedef SkRefCnt INHERITED;

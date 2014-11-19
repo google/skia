@@ -300,6 +300,7 @@ private:
     friend class SkPictureRecorder;            // SkRecord-based constructor.
     friend class GrLayerHoister;               // access to fRecord
     friend class ReplaceDraw;
+    friend class SkPictureUtils;
 
     typedef SkRefCnt INHERITED;
 };

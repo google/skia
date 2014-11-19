@@ -43,6 +43,7 @@ public:
 
     virtual void insert(SkAutoTMalloc<SkRect>* boundsArray, int N) SK_OVERRIDE;
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
+    virtual size_t bytesUsed() const SK_OVERRIDE;
 
     // Methods and constants below here are only public for tests.
 
@@ -54,6 +55,7 @@ public:
     // These values were empirically determined to produce reasonable performance in most cases.
     static const int kMinChildren = 6,
                      kMaxChildren = 11;
+
 private:
     struct Node;
 

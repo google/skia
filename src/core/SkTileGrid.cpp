@@ -175,3 +175,14 @@ void SkTileGrid::search(const SkRect& originalQuery, SkTDArray<unsigned>* result
     }
 }
 
+size_t SkTileGrid::bytesUsed() const {
+    size_t byteCount = sizeof(SkTileGrid);
+
+    size_t opCount = 0;
+    for (int i = 0; i < fXTiles * fYTiles; i++) {
+        opCount += fTiles[i].reserved();
+    }
+    byteCount += opCount * sizeof(unsigned);
+
+    return byteCount;
+}

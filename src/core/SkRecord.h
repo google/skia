@@ -113,6 +113,12 @@ public:
         return fRecords[i].set(this->allocCommand<T>());
     }
 
+    // Does not return the bytes in any pointers embedded in the Records; callers
+    // need to iterate with a visitor to measure those they care for.
+    size_t bytesUsed() const { return fAlloc.approxBytesAllocated() +
+                                      fReserved * (sizeof(Record) + sizeof(Type8)) +
+                                      sizeof(SkRecord); }
+
 private:
     // Implementation notes!
     //

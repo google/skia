@@ -27,6 +27,8 @@ public:
     // For testing.
     int tileCount(int x, int y) { return fTiles[y * fXTiles + x].count(); }
 
+    virtual size_t bytesUsed() const SK_OVERRIDE;
+
 private:
     void reserve(int);
     void shrinkToFit();

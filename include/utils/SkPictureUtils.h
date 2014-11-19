@@ -78,6 +78,14 @@ public:
      *  and rect information.
      */
     static void GatherPixelRefsAndRects(SkPicture* pict, SkPixelRefContainer* prCont);
+
+    /**
+     *  How many bytes are allocated to hold the SkPicture.
+     *  Includes operations, parameters, bounding data, deletion listeners;
+     *  includes nested SkPictures, but does not include large objects that
+     *  SkRecord holds a reference to (e.g. paths, or pixels backing bitmaps).
+     */
+    static size_t ApproximateBytesUsed(const SkPicture* pict);
 };
 
 #endif

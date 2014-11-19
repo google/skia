@@ -109,6 +109,7 @@ struct TestBBH : public SkBBoxHierarchy {
     }
 
     virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {}
+    virtual size_t bytesUsed() const SK_OVERRIDE { return 0; }
 
     struct Entry {
         unsigned opIndex;

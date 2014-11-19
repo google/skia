@@ -24,6 +24,7 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
+#include "SkRecord.h"
 #include "SkShader.h"
 #include "SkStream.h"
 
@@ -1721,6 +1722,29 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, hasData->uniqueID() != empty->uniqueID());
 }
 
+static void test_bytes_used(skiatest::Reporter* reporter) {
+    SkPictureRecorder recorder;
+
+    recorder.beginRecording(0, 0);
+    SkAutoTUnref<SkPicture> empty(recorder.endRecording());
+
+    // Sanity check to make sure we aren't under-measuring.
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) >=
+                              sizeof(SkPicture) + sizeof(SkRecord));
+
+    // Protect against any unintentional bloat.
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) <= 184);
+
+    // Sanity check of nested SkPictures.
+    SkPictureRecorder r2;
+    r2.beginRecording(0, 0);
+    r2.getRecordingCanvas()->drawPicture(empty.get());
+    SkAutoTUnref<SkPicture> nested(r2.endRecording());
+
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(nested.get()) >
+                              SkPictureUtils::ApproximateBytesUsed(empty.get()));
+}
+
 DEF_TEST(Picture, reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_picture();
@@ -1743,6 +1767,7 @@ DEF_TEST(Picture, reporter) {
     test_hierarchical(reporter);
     test_gen_id(reporter);
     test_savelayer_extraction(reporter);
+    test_bytes_used(reporter);
 }
 
 static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
@@ -1837,6 +1862,7 @@ struct CountingBBH : public SkBBoxHierarchy {
     }
 
     virtual void insert(SkAutoTMalloc<SkRect>*, int) SK_OVERRIDE {}
+    virtual size_t bytesUsed() const { return 0; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {
