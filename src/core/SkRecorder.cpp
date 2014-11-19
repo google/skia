@@ -10,13 +10,9 @@
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 
+// SkCanvas will fail in mysterious ways if it doesn't know the real width and height.
 SkRecorder::SkRecorder(SkRecord* record, int width, int height)
-    : SkCanvas(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag)
-    , fRecord(record)
-    , fSaveLayerCount(0) {}
-
-SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds)
-    : SkCanvas(bounds.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
+    : SkCanvas(width, height, SkCanvas::kConservativeRasterClip_InitFlag)
     , fRecord(record)
     , fSaveLayerCount(0) {}
 

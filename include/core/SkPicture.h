@@ -130,7 +130,7 @@ public:
         It does not necessarily reflect the bounds of what has been recorded into the picture.
         @return the cull rect used to create this picture
     */
-    SkRect cullRect() const { return fCullRect; }
+    const SkRect cullRect() const { return SkRect::MakeWH(fCullWidth, fCullHeight); }
 
     /** Return a non-zero, unique value representing the picture. This call is
         only valid when not recording. Between a beginRecording/endRecording
@@ -260,14 +260,15 @@ private:
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     // Takes ownership of the SkRecord, refs the (optional) drawablePicts and BBH.
-    SkPicture(const SkRect& cullRect, SkRecord*, SkData* drawablePicts,
+    SkPicture(SkScalar width, SkScalar height, SkRecord*, SkData* drawablePicts,
               SkBBoxHierarchy*);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
     static SkPictureData* Backport(const SkRecord&, const SkPictInfo&,
                                    SkPicture const* const drawablePics[], int drawableCount);
 
-    const SkRect                          fCullRect;
+    const SkScalar                        fCullWidth;
+    const SkScalar                        fCullHeight;
     mutable SkAutoTUnref<const AccelData> fAccelData;
     mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
     SkAutoTDelete<SkRecord>       fRecord;

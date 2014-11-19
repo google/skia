@@ -9,7 +9,7 @@
 #define SkBBHFactory_DEFINED
 
 #include "SkSize.h"
-#include "SkRect.h"
+#include "SkPoint.h"
 
 class SkBBoxHierarchy;
 
@@ -18,13 +18,13 @@ public:
     /**
      *  Allocate a new SkBBoxHierarchy. Return NULL on failure.
      */
-    virtual SkBBoxHierarchy* operator()(const SkRect& bounds) const = 0;
+    virtual SkBBoxHierarchy* operator()(int width, int height) const = 0;
     virtual ~SkBBHFactory() {};
 };
 
 class SK_API SkRTreeFactory : public SkBBHFactory {
 public:
-    virtual SkBBoxHierarchy* operator()(const SkRect& bounds) const SK_OVERRIDE;
+    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
 private:
     typedef SkBBHFactory INHERITED;
 };
@@ -50,7 +50,7 @@ public:
 
     SkTileGridFactory(const TileGridInfo& info) : fInfo(info) { }
 
-    virtual SkBBoxHierarchy* operator()(const SkRect& bounds) const SK_OVERRIDE;
+    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
 
 private:
     TileGridInfo fInfo;

@@ -18,19 +18,20 @@ SkPictureRecorder::SkPictureRecorder() {}
 
 SkPictureRecorder::~SkPictureRecorder() {}
 
-SkCanvas* SkPictureRecorder::beginRecording(const SkRect& cullRect,
+SkCanvas* SkPictureRecorder::beginRecording(SkScalar width, SkScalar height,
                                             SkBBHFactory* bbhFactory /* = NULL */,
                                             uint32_t recordFlags /* = 0 */) {
-    fCullRect = cullRect;
     fFlags = recordFlags;
+    fCullWidth = width;
+    fCullHeight = height;
 
     if (bbhFactory) {
-        fBBH.reset((*bbhFactory)(cullRect));
+        fBBH.reset((*bbhFactory)(width, height));
         SkASSERT(fBBH.get());
     }
 
     fRecord.reset(SkNEW(SkRecord));
-    fRecorder.reset(SkNEW_ARGS(SkRecorder, (fRecord.get(), cullRect)));
+    fRecorder.reset(SkNEW_ARGS(SkRecorder, (fRecord.get(), width, height)));
     return this->getRecordingCanvas();
 }
 
@@ -51,10 +52,12 @@ SkPicture* SkPictureRecorder::endRecording() {
     }
 
     if (fBBH.get()) {
+        SkRect cullRect = SkRect::MakeWH(fCullWidth, fCullHeight);
+
         if (saveLayerData) {
-            SkRecordComputeLayers(fCullRect, *fRecord, fBBH.get(), saveLayerData);
+            SkRecordComputeLayers(cullRect, *fRecord, fBBH.get(), saveLayerData);
         } else {
-            SkRecordFillBounds(fCullRect, *fRecord, fBBH.get());
+            SkRecordFillBounds(cullRect, *fRecord, fBBH.get());
         }
     }
 
@@ -62,7 +65,7 @@ SkPicture* SkPictureRecorder::endRecording() {
     SkBBHFactory* factory = NULL;
     uint32_t recordFlags = 0;
     SkAutoDataUnref drawablePicts(fRecorder->newDrawableSnapshot(factory, recordFlags));
-    SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullRect, fRecord.detach(),
+    SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullWidth, fCullHeight, fRecord.detach(),
                                              drawablePicts, fBBH.get()));
 
     if (saveLayerData) {

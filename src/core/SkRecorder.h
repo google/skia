@@ -18,8 +18,7 @@
 class SkRecorder : public SkCanvas {
 public:
     // Does not take ownership of the SkRecord.
-    SkRecorder(SkRecord*, int width, int height);   // legacy version
-    SkRecorder(SkRecord*, const SkRect& bounds);
+    SkRecorder(SkRecord*, int width, int height);
     virtual ~SkRecorder() SK_OVERRIDE;
 
     // return a (new or ref'd) data containing the array of pictures that were

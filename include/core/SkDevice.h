@@ -53,12 +53,6 @@ public:
         bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
     }
 
-    SkIRect getGlobalBounds() const {
-        SkIRect bounds;
-        this->getGlobalBounds(&bounds);
-        return bounds;
-    }
-
     int width() const {
         return this->imageInfo().width();
     }
@@ -372,7 +366,6 @@ private:
     friend class SkDeviceFilteredPaint;
     friend class SkDeviceImageFilterProxy;
     friend class SkDeferredDevice;    // for newSurface
-    friend class SkNoPixelsBitmapDevice;
 
     friend class SkSurface_Raster;
 

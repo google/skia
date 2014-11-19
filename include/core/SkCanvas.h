@@ -1335,7 +1335,7 @@ private:
         kDefault_InitFlags                  = 0,
         kConservativeRasterClip_InitFlag    = 1 << 0,
     };
-    SkCanvas(const SkIRect& bounds, InitFlags);
+    SkCanvas(int width, int height, InitFlags);
     SkCanvas(SkBaseDevice*, const SkSurfaceProps*, InitFlags);
     SkCanvas(const SkBitmap&, const SkSurfaceProps&);
 
