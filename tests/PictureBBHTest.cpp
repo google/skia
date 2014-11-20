@@ -49,7 +49,9 @@ private:
         SkCanvas playbackCanvas(fResultBitmap);
         playbackCanvas.clear(SK_ColorGREEN);
         SkPictureRecorder recorder;
-        SkCanvas* recordCanvas = recorder.beginRecording(SkIntToScalar(fPictureWidth), SkIntToScalar(fPictureHeight), factory);
+        SkCanvas* recordCanvas = recorder.beginRecording(SkIntToScalar(fPictureWidth),
+                                                         SkIntToScalar(fPictureHeight),
+                                                         factory);
         this->doTest(playbackCanvas, *recordCanvas);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
         playbackCanvas.drawPicture(picture);
@@ -98,4 +100,35 @@ DEF_TEST(PictureBBH, reporter) {
 
     EmptyClipPictureBBHTest emptyClipPictureTest;
     emptyClipPictureTest.run(reporter);
+}
+
+static void test_clear(skiatest::Reporter* r, SkBBHFactory* factory) {
+    // SkPicture should always call clear()s on the target canvas, even if its clip is empty.
+    SkPictureRecorder src, dst;
+
+    // A picture that's just clear().
+    src.beginRecording(1,1, factory)
+        ->clear(SK_ColorGREEN);
+    SkAutoTDelete<SkPicture> srcPic(src.endRecording());
+
+    // A target canvas with an empty clip.
+    SkCanvas* c = dst.beginRecording(1,1, NULL);
+        c->clipRect(SkRect::MakeEmpty());
+        srcPic->playback(c);
+    SkAutoTDelete<SkPicture> dstPic(dst.endRecording());
+
+    // Should be Clip - Save - Clear - Restore.
+    // Buggy implementations might return 1 (just Clip) or 3 (Clip - Save - Restore).
+    REPORTER_ASSERT(r, dstPic->approximateOpCount() == 4);
+}
+
+DEF_TEST(PictureBBH_Clear, r) {
+    test_clear(r, NULL);
+
+    SkTileGridFactory::TileGridInfo grid = { {1,1}, {0,0}, {0,0} };
+    SkTileGridFactory tilegrid(grid);
+    test_clear(r, &tilegrid);
+
+    SkRTreeFactory rtree;
+    test_clear(r, &rtree);
 }

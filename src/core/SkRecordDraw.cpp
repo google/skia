@@ -22,8 +22,12 @@ void SkRecordDraw(const SkRecord& record,
         // is not necessarily in that same space.  getClipBounds() returns us
         // this canvas' clip bounds transformed back into identity space, which
         // lets us query the BBH.
-        SkRect query = { 0, 0, 0, 0 };
-        (void)canvas->getClipBounds(&query);
+        SkRect query;
+        if (!canvas->getClipBounds(&query)) {
+            // We want to make sure our query rectangle is never totally empty.
+            // Clear ignores the clip, so it must draw even if the clip is logically empty.
+            query = SkRect::MakeWH(SK_ScalarNearlyZero, SK_ScalarNearlyZero);
+        }
 
         SkTDArray<unsigned> ops;
         bbh->search(query, &ops);
