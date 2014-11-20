@@ -1101,10 +1101,10 @@ public:
             setLumBody.appendf("\tfloat outLum = %s(outColor);\n", getFunction.c_str());
             setLumBody.append("\tfloat minComp = min(min(outColor.r, outColor.g), outColor.b);\n"
                               "\tfloat maxComp = max(max(outColor.r, outColor.g), outColor.b);\n"
-                              "\tif (minComp < 0.0) {\n"
+                              "\tif (minComp < 0.0 && outLum != minComp) {\n"
                               "\t\toutColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * outLum) / (outLum - minComp);\n"
                               "\t}\n"
-                              "\tif (maxComp > alpha) {\n"
+                              "\tif (maxComp > alpha && maxComp != outLum) {\n"
                               "\t\toutColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * (alpha - outLum)) / (maxComp - outLum);\n"
                               "\t}\n"
                               "\treturn outColor;\n");
