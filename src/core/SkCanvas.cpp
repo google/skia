@@ -1219,7 +1219,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !dstDev->canHandleImageFilter(filter)) {
-            SkDeviceImageFilterProxy proxy(dstDev);
+            SkDeviceImageFilterProxy proxy(dstDev, fProps);
             SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
             const SkBitmap& src = srcDev->accessBitmap(false);
@@ -1261,7 +1261,7 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !iter.fDevice->canHandleImageFilter(filter)) {
-            SkDeviceImageFilterProxy proxy(iter.fDevice);
+            SkDeviceImageFilterProxy proxy(iter.fDevice, fProps);
             SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
             SkMatrix matrix = *iter.fMatrix;

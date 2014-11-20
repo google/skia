@@ -8,11 +8,19 @@
 #ifndef SkDeviceImageFilterProxy_DEFINED
 #define SkDeviceImageFilterProxy_DEFINED
 
+#include "SkDevice.h"
 #include "SkImageFilter.h"
+#include "SkSurfaceProps.h"
 
 class SkDeviceImageFilterProxy : public SkImageFilter::Proxy {
 public:
-    SkDeviceImageFilterProxy(SkBaseDevice* device) : fDevice(device) {}
+    SkDeviceImageFilterProxy(SkBaseDevice* device, const SkSurfaceProps& props)
+        : fDevice(device)
+        , fProps(props.flags(),
+                 SkBaseDevice::CreateInfo::AdjustGeometry(SkImageInfo(),
+                                                          SkBaseDevice::kImageFilter_Usage,
+                                                          props.pixelGeometry()))
+    {}
 
     virtual SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
         SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
@@ -29,8 +37,13 @@ public:
         return fDevice->filterImage(filter, src, ctx, result, offset);
     }
 
+    virtual const SkSurfaceProps* surfaceProps() const SK_OVERRIDE {
+        return &fProps;
+    }
+
 private:
-    SkBaseDevice* fDevice;
+    SkBaseDevice*  fDevice;
+    const SkSurfaceProps fProps;
 };
 
 #endif

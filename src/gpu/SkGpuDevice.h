@@ -202,6 +202,10 @@ private:
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
+    bool filterTexture(GrContext*, GrTexture*, const SkImageFilter*,
+                       const SkImageFilter::Context&,
+                       SkBitmap* result, SkIPoint* offset);
+
     static SkPicture::AccelData::Key ComputeAccelDataKey();
 
     typedef SkBaseDevice INHERITED;

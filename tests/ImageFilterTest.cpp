@@ -235,7 +235,7 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
     SkBitmap bitmap;
     bitmap.allocN32Pixels(100, 100);
     bitmap.eraseARGB(0, 0, 0, 0);
-    SkDeviceImageFilterProxy proxy(device);
+    SkDeviceImageFilterProxy proxy(device, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
 
     SkImageFilter::CropRect inputCropRect(SkRect::MakeXYWH(8, 13, 80, 80));
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 30, 60, 60));
@@ -315,7 +315,7 @@ static void test_negative_blur_sigma(SkBaseDevice* device, skiatest::Reporter* r
     // Check that SkBlurImageFilter will accept a negative sigma, either in
     // the given arguments or after CTM application.
     int width = 32, height = 32;
-    SkDeviceImageFilterProxy proxy(device);
+    SkDeviceImageFilterProxy proxy(device, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
     SkScalar five = SkIntToScalar(5);
 
     SkAutoTUnref<SkBlurImageFilter> positiveFilter(
@@ -825,7 +825,7 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(2, 2);
     SkBitmapDevice device(bitmap);
-    SkDeviceImageFilterProxy proxy(&device);
+    SkDeviceImageFilterProxy proxy(&device, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
     REPORTER_ASSERT(reporter, !imageFilter->filterImage(&proxy, bitmap, ctx, &result, &offset));
 }
 

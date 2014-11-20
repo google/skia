@@ -9,6 +9,7 @@
 #include "SkDevice.h"
 #include "SkCanvas.h"
 #include "SkReadBuffer.h"
+#include "SkSurfaceProps.h"
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
@@ -97,8 +98,10 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
         return false;
     }
 
-    SkCanvas canvas(device.get());
-    SkPaint paint;
+    // Pass explicit surface props, as the simplified canvas constructor discards device properties.
+    // FIXME: switch back to the public constructor (and unfriend) after
+    //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
+    SkCanvas canvas(device.get(), proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
 
     canvas.translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
     canvas.concat(ctx.ctm());
