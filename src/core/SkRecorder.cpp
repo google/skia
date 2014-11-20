@@ -31,25 +31,25 @@ void SkRecorder::forgetRecord() {
 }
 
 // ReleaseProc for SkData, assuming the data was allocated via sk_malloc, and its contents are an
-// array of SkRefCnt* which need to be unref'd.
+// array of SkPicture* which need to be unref'd.
 //
 static void unref_all_malloc_releaseProc(const void* ptr, size_t length, void* context) {
     SkASSERT(ptr == context);   // our context is our ptr, allocated via sk_malloc
-    int count = SkToInt(length / sizeof(SkRefCnt*));
-    SkASSERT(count * sizeof(SkRefCnt*) == length);  // our length is snug for the array
+    int count = SkToInt(length / sizeof(SkPicture*));
+    SkASSERT(count * sizeof(SkPicture*) == length);  // our length is snug for the array
 
-    SkRefCnt* const* array = reinterpret_cast<SkRefCnt* const*>(ptr);
+    SkPicture* const* array = reinterpret_cast<SkPicture* const*>(ptr);
     for (int i = 0; i < count; ++i) {
         SkSafeUnref(array[i]);
     }
     sk_free(context);
 }
 
-// Return an uninitialized SkData sized for "count" SkRefCnt pointers. They will be unref'd when
+// Return an uninitialized SkData sized for "count" SkPicture pointers. They will be unref'd when
 // the SkData is destroyed.
 //
-static SkData* new_uninitialized_refcnt_ptrs(int count) {
-    size_t length = count * sizeof(SkRefCnt*);
+static SkData* new_uninitialized_picture_ptrs(int count) {
+    size_t length = count * sizeof(SkPicture*);
     void* array = sk_malloc_throw(length);
     void* context = array;
     return SkData::NewWithProc(array, length, unref_all_malloc_releaseProc, context);
@@ -60,7 +60,7 @@ SkData* SkRecorder::newDrawableSnapshot(SkBBHFactory* factory, uint32_t recordFl
     if (0 == count) {
         return NULL;
     }
-    SkData* data = new_uninitialized_refcnt_ptrs(count);
+    SkData* data = new_uninitialized_picture_ptrs(count);
     SkPicture** pics = reinterpret_cast<SkPicture**>(data->writable_data());
     for (int i = 0; i < count; ++i) {
         pics[i] = fDrawableList[i]->newPictureSnapshot(factory, recordFlags);

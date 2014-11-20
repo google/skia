@@ -247,4 +247,23 @@ public:
 };
 #define SkAutoUnref(...) SK_REQUIRE_LOCAL_VAR(SkAutoUnref)
 
+// This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.
+// There's only benefit to using this if the deriving class does not otherwise need a vtable.
+template <typename Derived>
+class SkNVRefCnt : SkNoncopyable {
+public:
+    SkNVRefCnt() : fRefCnt(1) {}
+
+    // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
+    //   - unique() needs acquire when it returns true, and no barrier if it returns false;
+    //   - ref() doesn't need any barrier;
+    //   - unref() needs a release barrier, and an acquire if it's going to call delete.
+
+    bool unique() const { return 1 == sk_acquire_load(&fRefCnt); }
+    void    ref() const { sk_atomic_inc(&fRefCnt); }
+    void  unref() const { if (1 == sk_atomic_dec(&fRefCnt)) { SkDELETE((const Derived*)this); } }
+private:
+    mutable int32_t fRefCnt;
+};
+
 #endif

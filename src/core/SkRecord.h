@@ -231,12 +231,15 @@ private:
     // fRecords and fTypes need to be data structures that can append fixed length data, and need to
     // support efficient random access and forward iteration.  (They don't need to be contiguous.)
 
-    SkVarAlloc fAlloc;
-    SkAutoTMalloc<Record> fRecords;
-    SkAutoTMalloc<Type8> fTypes;
     // fCount and fReserved measure both fRecords and fTypes, which always grow in lock step.
     unsigned fCount;
     unsigned fReserved;
+    SkAutoTMalloc<Record> fRecords;
+    SkAutoTMalloc<Type8> fTypes;
+    SkVarAlloc fAlloc;
+    // Strangely the order of these fields matters.  If the unsigneds don't go first we're 56 bytes.
+    // tomhudson and mtklein have no idea why.
 };
+SK_COMPILE_ASSERT(sizeof(SkRecord) <= 48, SkRecordSize);
 
 #endif//SkRecord_DEFINED

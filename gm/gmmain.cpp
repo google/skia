@@ -1581,7 +1581,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
                                                                            compareConfig.fName);
 
     SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
-    SkAutoUnref aur(pict);
+    SkAutoTUnref<SkPicture> aur(pict);
     if (FLAGS_replay) {
         const char renderModeDescriptor[] = "-replay";
         if (gmFlags & GM::kSkipPicture_Flag) {
@@ -1605,7 +1605,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             errorsForAllModes.add(kIntentionallySkipped_ErrorType);
         } else {
             SkPicture* repict = gmmain.stream_to_new_picture(*pict);
-            SkAutoUnref aurr(repict);
+            SkAutoTUnref<SkPicture> aurr(repict);
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, repict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
@@ -1638,7 +1638,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             errorsForAllModes.add(kIntentionallySkipped_ErrorType);
         } else {
             SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType, 0);
-            SkAutoUnref aur(pict);
+            SkAutoTUnref<SkPicture> aur(pict);
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
@@ -1668,7 +1668,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
                 SkScalar recordScale = SkScalarInvert(replayScale);
                 SkPicture* pict = gmmain.generate_new_picture(
                     gm, kTileGrid_BbhType, 0, recordScale);
-                SkAutoUnref aur(pict);
+                SkAutoTUnref<SkPicture> aur(pict);
                 SkBitmap bitmap;
                 // We cannot yet pass 'true' to generate_image_from_picture to
                 // perform actual tiled rendering (see Issue 1198 -

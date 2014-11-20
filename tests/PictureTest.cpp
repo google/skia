@@ -1503,7 +1503,7 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkSetErrorCallback(assert_one_parse_error_cb, &context);
     SkMemoryStream pictureStream(picture1);
     SkClearLastError();
-    SkAutoUnref pictureFromStream(SkPicture::CreateFromStream(&pictureStream, NULL));
+    SkAutoTUnref<SkPicture> pictureFromStream(SkPicture::CreateFromStream(&pictureStream, NULL));
     REPORTER_ASSERT(reporter, pictureFromStream.get() != NULL);
     SkClearLastError();
     SkSetErrorCallback(NULL, NULL);
@@ -1733,7 +1733,7 @@ static void test_bytes_used(skiatest::Reporter* reporter) {
                               sizeof(SkPicture) + sizeof(SkRecord));
 
     // Protect against any unintentional bloat.
-    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) <= 184);
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) <= 144);
 
     // Sanity check of nested SkPictures.
     SkPictureRecorder r2;

@@ -37,5 +37,6 @@ private:
     struct Block;
     Block* fBlock;
 };
+SK_COMPILE_ASSERT(sizeof(SkVarAlloc) <= 24, SkVarAllocSize);
 
 #endif//SkVarAlloc_DEFINED

@@ -40,10 +40,8 @@ namespace SkRecords {
     The SkPicture class records the drawing commands made to a canvas, to
     be played back at a later time.
 */
-class SK_API SkPicture : public SkRefCnt {
+class SK_API SkPicture : public SkNVRefCnt<SkPicture> {
 public:
-    SK_DECLARE_INST_COUNT(SkPicture)
-
     // AccelData provides a base class for device-specific acceleration
     // data. It is added to the picture via EXPERIMENTAL_addAccelData.
     class AccelData : public SkRefCnt {
@@ -60,8 +58,6 @@ public:
         static Domain GenerateDomain();
     private:
         Key fKey;
-
-        typedef SkRefCnt INHERITED;
     };
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
@@ -104,7 +100,7 @@ public:
      */
     static SkPicture* CreateFromBuffer(SkReadBuffer&);
 
-    virtual ~SkPicture();
+    ~SkPicture();
 
     /** Replays the drawing commands on the specified canvas. Note that
         this has the effect of unfurling this picture into the destination
@@ -267,6 +263,8 @@ private:
     static SkPictureData* Backport(const SkRecord&, const SkPictInfo&,
                                    SkPicture const* const drawablePics[], int drawableCount);
 
+    // uint32_t fRefCnt; from SkNVRefCnt<SkPicture>
+    mutable uint32_t fUniqueID;
     const SkRect                          fCullRect;
     mutable SkAutoTUnref<const AccelData> fAccelData;
     mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
@@ -295,14 +293,12 @@ private:
         int         fNumAAHairlineConcavePaths;
         int         fNumAADFEligibleConcavePaths;
     } fAnalysis;
-    mutable uint32_t fUniqueID;
 
     friend class SkPictureRecorder;            // SkRecord-based constructor.
     friend class GrLayerHoister;               // access to fRecord
     friend class ReplaceDraw;
     friend class SkPictureUtils;
-
-    typedef SkRefCnt INHERITED;
 };
+SK_COMPILE_ASSERT(sizeof(SkPicture) <= 96, SkPictureSize);
 
 #endif
