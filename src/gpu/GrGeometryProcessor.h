@@ -8,6 +8,7 @@
 #ifndef GrGeometryProcessor_DEFINED
 #define GrGeometryProcessor_DEFINED
 
+#include "GrGeometryData.h"
 #include "GrProcessor.h"
 #include "GrShaderVar.h"
 
