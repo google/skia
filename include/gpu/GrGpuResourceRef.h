@@ -186,6 +186,8 @@ public:
         this->release();
     }
 
+    operator bool() const { return SkToBool(fResource); }
+
     T* get() const { return fResource; }
 
 private:

@@ -30,15 +30,8 @@ public:
 
     typedef GrClipMaskManager::ScissorState ScissorState;
 
-    /**
-     * Returns a snapshot of the current optimized state. The GrOptDrawState is reffed and ownership
-     * is given to the caller.
-     */
-    static GrOptDrawState* Create(const GrDrawState& drawState,
-                                  GrGpu*,
-                                  const ScissorState&,
-                                  const GrDeviceCoordTexture* dstCopy,
-                                  GrGpu::DrawType drawType);
+    GrOptDrawState(const GrDrawState& drawState, GrGpu*, const ScissorState&,
+                   const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
     bool operator== (const GrOptDrawState& that) const;
     bool operator!= (const GrOptDrawState& that) const { return !(*this == that); }
@@ -182,6 +175,7 @@ public:
     bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool isColorWriteDisabled() const { return SkToBool(fFlags & kDisableColorWrite_Flag); }
+    bool mustSkip() const { return NULL == this->getRenderTarget(); }
 
     /// @}
 
@@ -201,14 +195,6 @@ public:
     const GrProgramDesc& programDesc() const { return fDesc; }
 
 private:
-    /**
-     * Constructs and optimized drawState out of a GrRODrawState.
-     */
-    GrOptDrawState(const GrDrawState& drawState, GrDrawState::BlendOpt,
-                   GrBlendCoeff optSrcCoeff, GrBlendCoeff optDstCoeff,
-                   GrGpu*, const ScissorState&, const GrDeviceCoordTexture* dstCopy,
-                   GrGpu::DrawType);
-
     /**
      * Loops through all the color stage effects to check if the stage will ignore color input or
      * always output a constant color. In the ignore color input case we can ignore all previous

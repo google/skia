@@ -468,12 +468,9 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        SkAutoTUnref<GrOptDrawState> ods(GrOptDrawState::Create(ds,
-                                                                gpu,
-                                                                scissor,
-                                                                &dstCopy,
-                                                                drawType));
-        if (!ods.get()) {
+        SkAutoTUnref<GrOptDrawState> ods
+            SkNEW_ARGS(GrOptDrawState, (ds, gpu, scissor, &dstCopy, drawType));
+        if (ods->mustSkip()) {
             continue;
         }
         SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(*ods, drawType, gpu));

@@ -727,9 +727,9 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                                    GrGpu::DrawType drawType,
                                                    const GrClipMaskManager::ScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
-    SkAutoTUnref<GrOptDrawState> optState(GrOptDrawState::Create(ds, fDstGpu, scissor, dstCopy,
-                                                                 drawType));
-    if (!optState) {
+    SkAutoTUnref<GrOptDrawState> optState(
+        SkNEW_ARGS(GrOptDrawState, (ds, fDstGpu, scissor, dstCopy, drawType)));
+    if (optState->mustSkip()) {
         return false;
     }
     if (!fLastState || *optState != *fLastState) {

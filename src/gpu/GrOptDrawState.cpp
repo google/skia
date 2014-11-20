@@ -14,14 +14,35 @@
 #include "GrProcOptInfo.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
-                               GrDrawState::BlendOpt blendOpt,
-                               GrBlendCoeff optSrcCoeff,
-                               GrBlendCoeff optDstCoeff,
                                GrGpu* gpu,
                                const ScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
-                               GrGpu::DrawType drawType)
-: fRenderTarget(drawState.fRenderTarget.get()) {
+                               GrGpu::DrawType drawType) {
+
+    GrBlendCoeff optSrcCoeff;
+    GrBlendCoeff optDstCoeff;
+    GrDrawState::BlendOpt blendOpt = drawState.getBlendOpt(false, &optSrcCoeff, &optDstCoeff);
+
+    // When path rendering the stencil settings are not always set on the draw state
+    // so we must check the draw type. In cases where we will skip drawing we simply return a
+    // null GrOptDrawState.
+    if (GrDrawState::kSkipDraw_BlendOpt == blendOpt && GrGpu::kStencilPath_DrawType != drawType) {
+        // Set the fields that don't default init and return. The lack of a render target will
+        // indicate that this can be skipped.
+        fFlags = 0;
+        fVAPtr = NULL;
+        fVACount = 0;
+        fVAStride = 0;
+        fDrawFace = GrDrawState::kInvalid_DrawFace;
+        fSrcBlend = kZero_GrBlendCoeff;
+        fDstBlend = kZero_GrBlendCoeff;
+        fBlendConstant = 0x0;
+        fViewMatrix.reset();
+        return;
+    }
+
+    fRenderTarget.reset(drawState.fRenderTarget.get());
+    SkASSERT(fRenderTarget);
     fScissorState = scissorState;
     fViewMatrix = drawState.getViewMatrix();
     fBlendConstant = drawState.getBlendConstant();
@@ -105,28 +126,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     // now create a key
     gpu->buildProgramDesc(*this, descInfo, drawType, &fDesc);
 };
-
-GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
-                                       GrGpu* gpu,
-                                       const ScissorState& scissorState,
-                                       const GrDeviceCoordTexture* dstCopy,
-                                       GrGpu::DrawType drawType) {
-    GrBlendCoeff srcCoeff;
-    GrBlendCoeff dstCoeff;
-    GrDrawState::BlendOpt blendOpt = drawState.getBlendOpt(false, &srcCoeff, &dstCoeff);
-
-    // If our blend coeffs are set to 0,1 we know we will not end up drawing unless we are
-    // stenciling. When path rendering the stencil settings are not always set on the draw state
-    // so we must check the draw type. In cases where we will skip drawing we simply return a
-    // null GrOptDrawState.
-    if (kZero_GrBlendCoeff == srcCoeff && kOne_GrBlendCoeff == dstCoeff &&
-        !drawState.getStencil().doesWrite() && GrGpu::kStencilPath_DrawType != drawType) {
-        return NULL;
-    }
-
-    return SkNEW_ARGS(GrOptDrawState, (drawState, blendOpt, srcCoeff,
-                                       dstCoeff, gpu, scissorState, dstCopy, drawType));
-}
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
                                         GrDrawState::BlendOpt blendOpt,
