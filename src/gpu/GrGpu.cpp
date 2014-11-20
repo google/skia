@@ -285,9 +285,7 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 void GrGpu::draw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
     this->handleDirtyContext();
-    if (!this->flushGraphicsState(ds,
-                                  PrimTypeToDrawType(info.primitiveType()),
-                                  info.getDstCopy())) {
+    if (!this->flushGraphicsState(ds, PrimTypeToDrawType(info.primitiveType()))) {
         return;
     }
     this->onDraw(ds, info);
@@ -298,7 +296,7 @@ void GrGpu::stencilPath(const GrOptDrawState& ds,
                         const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kStencilPath_DrawType, NULL)) {
+    if (!this->flushGraphicsState(ds, kStencilPath_DrawType)) {
         return;
     }
 
@@ -308,11 +306,10 @@ void GrGpu::stencilPath(const GrOptDrawState& ds,
 
 void GrGpu::drawPath(const GrOptDrawState& ds,
                      const GrPath* path,
-                     const GrStencilSettings& stencilSettings,
-                     const GrDeviceCoordTexture* dstCopy) {
+                     const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kDrawPath_DrawType, dstCopy)) {
+    if (!this->flushGraphicsState(ds, kDrawPath_DrawType)) {
         return;
     }
 
@@ -325,11 +322,10 @@ void GrGpu::drawPaths(const GrOptDrawState& ds,
                       int count,
                       const float transforms[],
                       GrDrawTarget::PathTransformType transformsType,
-                      const GrStencilSettings& stencilSettings,
-                      const GrDeviceCoordTexture* dstCopy) {
+                      const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kDrawPaths_DrawType, dstCopy)) {
+    if (!this->flushGraphicsState(ds, kDrawPaths_DrawType)) {
         return;
     }
 

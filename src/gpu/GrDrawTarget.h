@@ -569,15 +569,6 @@ public:
         }
         const SkRect* getDevBounds() const { return fDevBounds; }
 
-        // NULL if no copy of the dst is needed for the draw.
-        const GrDeviceCoordTexture* getDstCopy() const {
-            if (fDstCopy.texture()) {
-                return &fDstCopy;
-            } else {
-                return NULL;
-            }
-        }
-
     private:
         DrawInfo() { fDevBounds = NULL; }
 
@@ -599,8 +590,6 @@ public:
 
         GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType> fVertexBuffer;
         GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;
-
-        GrDeviceCoordTexture    fDstCopy;
     };
 
     virtual void setDrawBuffers(DrawInfo*) = 0;;
@@ -673,9 +662,6 @@ protected:
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(GrDrawState* ds, DrawInfo* info) {
-        return this->setupDstReadIfNecessary(ds, &info->fDstCopy, info->getDevBounds());
-    }
     bool setupDstReadIfNecessary(GrDrawState*,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
@@ -699,7 +685,8 @@ private:
     // subclass called to perform drawing
     virtual void onDraw(const GrDrawState&,
                         const DrawInfo&,
-                        const GrClipMaskManager::ScissorState&) = 0;
+                        const GrClipMaskManager::ScissorState&,
+                        const GrDeviceCoordTexture* dstCopy) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrDrawState*,
                             const SkRect& rect,

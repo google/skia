@@ -32,6 +32,12 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fDrawFace = drawState.getDrawFace();
     fSrcBlend = optSrcCoeff;
     fDstBlend = optDstCoeff;
+
+    // TODO move this out of optDrawState
+    if (dstCopy) {
+        fDstCopy = *dstCopy;
+    }
+
     GrProgramDesc::DescInfo descInfo;
 
     fFlags = 0;
@@ -97,7 +103,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->setOutputStateInfo(drawState, blendOpt, *gpu->caps(), &descInfo);
 
     // now create a key
-    gpu->buildProgramDesc(*this, descInfo, drawType, dstCopy, &fDesc);
+    gpu->buildProgramDesc(*this, descInfo, drawType, &fDesc);
 };
 
 GrOptDrawState* GrOptDrawState::Create(const GrDrawState& drawState,
@@ -278,7 +284,8 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
         this->fVAStride != that.fVAStride ||
         memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||
         this->fStencilSettings != that.fStencilSettings ||
-        this->fDrawFace != that.fDrawFace) {
+        this->fDrawFace != that.fDrawFace ||
+        this->fDstCopy.texture() != that.fDstCopy.texture()) {
         return false;
     }
 

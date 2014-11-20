@@ -143,7 +143,6 @@ private:
 
         virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
 
-        GrDeviceCoordTexture    fDstCopy;
         GrStencilSettings       fStencilSettings;
 
     private:
@@ -161,7 +160,6 @@ private:
         size_t                  fCount;
         int                     fTransformsLocation;
         PathTransformType       fTransformsType;
-        GrDeviceCoordTexture    fDstCopy;
         GrStencilSettings       fStencilSettings;
 
     private:
@@ -222,7 +220,6 @@ private:
 
         SkAutoTUnref<const GrOptDrawState>  fState;
         GrGpu::DrawType                     fDrawType;
-        GrDeviceCoordTexture                fDstCopy;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -231,7 +228,8 @@ private:
     // overrides from GrDrawTarget
     void onDraw(const GrDrawState&,
                 const DrawInfo&,
-                const ScissorState&) SK_OVERRIDE;
+                const ScissorState&,
+                const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawRect(GrDrawState*,
                     const SkRect& rect,
                     const SkRect* localRect,

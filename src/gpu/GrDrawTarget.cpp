@@ -41,8 +41,6 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
         fDevBounds = NULL;
     }
 
-    fDstCopy = di.fDstCopy;
-
     this->setVertexBuffer(di.vertexBuffer());
     this->setIndexBuffer(di.indexBuffer());
 
@@ -468,14 +466,15 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
         if (devBounds) {
             info.setDevBounds(*devBounds);
         }
+
         // TODO: We should continue with incorrect blending.
-        if (!this->setupDstReadIfNecessary(ds, &info)) {
+        GrDeviceCoordTexture dstCopy;
+        if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
             return;
         }
-
         this->setDrawBuffers(&info);
 
-        this->onDraw(*ds, info, scissorState);
+        this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
 }
 
@@ -511,13 +510,14 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
         }
 
         // TODO: We should continue with incorrect blending.
-        if (!this->setupDstReadIfNecessary(ds, &info)) {
+        GrDeviceCoordTexture dstCopy;
+        if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
             return;
         }
 
         this->setDrawBuffers(&info);
 
-        this->onDraw(*ds, info, scissorState);
+        this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
 }
 
@@ -759,8 +759,10 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
     if (devBounds) {
         info.setDevBounds(*devBounds);
     }
+
     // TODO: We should continue with incorrect blending.
-    if (!this->setupDstReadIfNecessary(ds, &info)) {
+    GrDeviceCoordTexture dstCopy;
+    if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
         return;
     }
 
@@ -777,7 +779,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
-            this->onDraw(*ds, info, scissorState);
+            this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
         }
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;

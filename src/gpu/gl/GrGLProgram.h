@@ -129,9 +129,7 @@ public:
      * GrGpuGL object to bind the textures required by the GrGLProcessors. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
-    void setData(const GrOptDrawState&,
-                 GrGpu::DrawType,
-                 const GrDeviceCoordTexture* dstCopy /* can be NULL*/);
+    void setData(const GrOptDrawState&, GrGpu::DrawType);
 
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;

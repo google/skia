@@ -201,9 +201,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState, D
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState,
-                                 DrawType type,
-                                 const GrDeviceCoordTexture* dstCopy) {
+bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState, DrawType type) {
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
     SkASSERT(optState.getRenderTarget());
 
@@ -240,7 +238,7 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState,
 
         this->flushBlend(optState, kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(optState, type, dstCopy);
+        fCurrentProgram->setData(optState, type);
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
@@ -309,9 +307,8 @@ void GrGpuGL::setupGeometry(const GrOptDrawState& optState,
 void GrGpuGL::buildProgramDesc(const GrOptDrawState& optState,
                                const GrProgramDesc::DescInfo& descInfo,
                                GrGpu::DrawType drawType,
-                               const GrDeviceCoordTexture* dstCopy,
                                GrProgramDesc* desc) {
-    if (!GrGLProgramDescBuilder::Build(optState, descInfo, drawType, this, dstCopy, desc)) {
+    if (!GrGLProgramDescBuilder::Build(optState, descInfo, drawType, this, desc)) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }

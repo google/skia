@@ -62,7 +62,6 @@ public:
                       const GrProgramDesc::DescInfo&,
                       GrGpu::DrawType,
                       GrGpuGL*,
-                      const GrDeviceCoordTexture*,
                       GrProgramDesc*);
 
     static const GLKeyHeader& GetHeader(const GrProgramDesc& desc) {

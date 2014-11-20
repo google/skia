@@ -204,7 +204,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
                                    const GrProgramDesc::DescInfo& descInfo,
                                    GrGpu::DrawType drawType,
                                    GrGpuGL* gpu,
-                                   const GrDeviceCoordTexture* dstCopy,
                                    GrProgramDesc* desc) {
     bool inputColorIsUsed = descInfo.fInputColorIsUsed;
     bool inputCoverageIsUsed = descInfo.fInputCoverageIsUsed;
@@ -294,6 +293,7 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     }
 
     if (descInfo.fReadsDst) {
+        const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
         SkASSERT(dstCopy || gpu->caps()->dstReadInShaderSupport());
         const GrTexture* dstCopyTexture = NULL;
         if (dstCopy) {

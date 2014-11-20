@@ -67,7 +67,6 @@ public:
     virtual void buildProgramDesc(const GrOptDrawState&,
                                   const GrProgramDesc::DescInfo&,
                                   GrGpu::DrawType,
-                                  const GrDeviceCoordTexture* dstCopy,
                                   GrProgramDesc* desc) SK_OVERRIDE { }
 
     virtual void discard(GrRenderTarget*) SK_OVERRIDE { }
@@ -148,9 +147,7 @@ private:
         return false;
     }
 
-    virtual bool flushGraphicsState(const GrOptDrawState&,
-                                    DrawType,
-                                    const GrDeviceCoordTexture* dstCopy)  SK_OVERRIDE {
+    virtual bool flushGraphicsState(const GrOptDrawState&, DrawType)  SK_OVERRIDE {
         return false;
     }
 

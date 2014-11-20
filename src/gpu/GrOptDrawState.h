@@ -196,6 +196,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    const GrDeviceCoordTexture* getDstCopy() const { return fDstCopy.texture() ? &fDstCopy : NULL; }
 
     const GrProgramDesc& programDesc() const { return fDesc; }
 
@@ -275,6 +276,7 @@ private:
     GrStencilSettings                   fStencilSettings;
     uint8_t                             fCoverage;
     GrDrawState::DrawFace               fDrawFace;
+    GrDeviceCoordTexture                fDstCopy;
     GrBlendCoeff                        fSrcBlend;
     GrBlendCoeff                        fDstBlend;
     uint32_t                            fFlags;

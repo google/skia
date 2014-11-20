@@ -316,7 +316,6 @@ public:
     virtual void buildProgramDesc(const GrOptDrawState&,
                                   const GrProgramDesc::DescInfo&,
                                   GrGpu::DrawType,
-                                  const GrDeviceCoordTexture* dstCopy,
                                   GrProgramDesc*) = 0;
 
     /**
@@ -363,16 +362,14 @@ public:
                              const GrStencilSettings&);
     virtual void drawPath(const GrOptDrawState&,
                           const GrPath*,
-                          const GrStencilSettings&,
-                          const GrDeviceCoordTexture* dstCopy);
+                          const GrStencilSettings&);
     virtual void drawPaths(const GrOptDrawState&,
                            const GrPathRange*,
                            const uint32_t indices[],
                            int count,
                            const float transforms[],
                            GrDrawTarget::PathTransformType,
-                           const GrStencilSettings&,
-                           const GrDeviceCoordTexture*);
+                           const GrStencilSettings&);
 
     static DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
@@ -470,9 +467,7 @@ private:
     // deltas from previous state at draw time. This function does the
     // backend-specific flush of the state.
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(const GrOptDrawState&,
-                                    DrawType,
-                                    const GrDeviceCoordTexture* dstCopy) = 0;
+    virtual bool flushGraphicsState(const GrOptDrawState&, DrawType) = 0;
 
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;

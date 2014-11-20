@@ -109,7 +109,6 @@ protected:
     virtual void buildProgramDesc(const GrOptDrawState&,
                                   const GrProgramDesc::DescInfo&,
                                   GrGpu::DrawType,
-                                  const GrDeviceCoordTexture* dstCopy,
                                   GrProgramDesc*) SK_OVERRIDE;
 
 private:
@@ -157,9 +156,7 @@ private:
 
 
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
-    virtual bool flushGraphicsState(const GrOptDrawState&,
-                                    DrawType,
-                                    const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    virtual bool flushGraphicsState(const GrOptDrawState&, DrawType) SK_OVERRIDE;
 
     // GrDrawTarget overrides
     virtual void didAddGpuTraceMarker() SK_OVERRIDE;

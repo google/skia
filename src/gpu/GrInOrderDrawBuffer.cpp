@@ -255,13 +255,14 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds, const DrawIn
 
 void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
                                  const DrawInfo& info,
-                                 const ScissorState& scissorState) {
+                                 const ScissorState& scissorState,
+                                 const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
     if (!this->recordStateAndShouldDraw(ds, GrGpu::PrimTypeToDrawType(info.primitiveType()),
-                                        scissorState, info.getDstCopy())) {
+                                        scissorState, dstCopy)) {
         return;
     }
 
@@ -317,9 +318,6 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
         return;
     }
     DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
-    if (dstCopy) {
-        dp->fDstCopy = *dstCopy;
-    }
     dp->fStencilSettings = stencilSettings;
     this->recordTraceMarkersIfNecessary();
 }
@@ -371,9 +369,6 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     dp->fTransformsLocation = savedTransforms - fPathTransformBuffer.begin();
     dp->fTransformsType = transformsType;
     dp->fStencilSettings = stencilSettings;
-    if (dstCopy) {
-        dp->fDstCopy = *dstCopy;
-    }
 
     this->recordTraceMarkersIfNecessary();
 }
@@ -517,8 +512,7 @@ void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf,
 
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf,
                                             const GrOptDrawState* optState) {
-    buf->fDstGpu->drawPath(*optState, this->path(), fStencilSettings,
-                           fDstCopy.texture() ? &fDstCopy : NULL);
+    buf->fDstGpu->drawPath(*optState, this->path(), fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
@@ -526,7 +520,7 @@ void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
     buf->fDstGpu->drawPaths(*optState, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fCount,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformsType,
-                            fStencilSettings, fDstCopy.texture() ? &fDstCopy : NULL);
+                            fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const GrOptDrawState*) {
@@ -741,9 +735,6 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
     if (!fLastState || *optState != *fLastState) {
         SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (optState));
         fLastState.reset(SkRef(optState.get()));
-        if (dstCopy) {
-            ss->fDstCopy = *dstCopy;
-        }
         ss->fDrawType = drawType;
         this->recordTraceMarkersIfNecessary();
     }

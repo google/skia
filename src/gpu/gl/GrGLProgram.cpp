@@ -126,9 +126,7 @@ void GrGLProgram::bindTextures(const GrGLInstalledProc* ip, const GrProcessor& p
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(const GrOptDrawState& optState,
-                          GrGpu::DrawType drawType,
-                          const GrDeviceCoordTexture* dstCopy) {
+void GrGLProgram::setData(const GrOptDrawState& optState, GrGpu::DrawType drawType) {
     GrColor color = optState.getColor();
     uint8_t coverage = optState.getCoverage();
 
@@ -136,6 +134,7 @@ void GrGLProgram::setData(const GrOptDrawState& optState,
     this->setCoverage(optState, coverage);
     this->setMatrixAndRenderTargetHeight(drawType, optState);
 
+    const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
     if (dstCopy) {
         if (fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid()) {
             fProgramDataManager.set2f(fBuiltinUniformHandles.fDstCopyTopLeftUni,
