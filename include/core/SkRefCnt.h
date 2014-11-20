@@ -263,6 +263,8 @@ public:
     void    ref() const { sk_atomic_inc(&fRefCnt); }
     void  unref() const { if (1 == sk_atomic_dec(&fRefCnt)) { SkDELETE((const Derived*)this); } }
     void  deref() const { this->unref(); }  // Chrome prefers to call deref().
+    int32_t getRefCnt() const { return fRefCnt; } // Used by Chrome unit tests.
+
 private:
     mutable int32_t fRefCnt;
 };
