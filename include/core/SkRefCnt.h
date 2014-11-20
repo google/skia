@@ -262,6 +262,7 @@ public:
     bool unique() const { return 1 == sk_acquire_load(&fRefCnt); }
     void    ref() const { sk_atomic_inc(&fRefCnt); }
     void  unref() const { if (1 == sk_atomic_dec(&fRefCnt)) { SkDELETE((const Derived*)this); } }
+    void  deref() const { this->unref(); }  // Chrome prefers to call deref().
 private:
     mutable int32_t fRefCnt;
 };
