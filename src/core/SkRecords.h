@@ -211,10 +211,17 @@ RECORD0(PopCull);
 
 RECORD1(SetMatrix, SkMatrix, matrix);
 
-RECORD4(ClipPath,   SkIRect, devBounds, SkPath,   path,   SkRegion::Op, op, bool, doAA);
-RECORD4(ClipRRect,  SkIRect, devBounds, SkRRect,  rrect,  SkRegion::Op, op, bool, doAA);
-RECORD4(ClipRect,   SkIRect, devBounds, SkRect,   rect,   SkRegion::Op, op, bool, doAA);
-RECORD3(ClipRegion, SkIRect, devBounds, SkRegion, region, SkRegion::Op, op);
+struct RegionOpAndAA {
+    RegionOpAndAA(SkRegion::Op op, bool aa) : op(op), aa(aa) {}
+    SkRegion::Op op : 31;  // This really only needs to be 3, but there's no win today to do so.
+    unsigned     aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
+};
+SK_COMPILE_ASSERT(sizeof(RegionOpAndAA) == 4, RegionOpAndAASize);
+
+RECORD3(ClipPath,   SkIRect, devBounds, SkPath,   path,   RegionOpAndAA, opAA);
+RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,  rrect,  RegionOpAndAA, opAA);
+RECORD3(ClipRect,   SkIRect, devBounds, SkRect,   rect,   RegionOpAndAA, opAA);
+RECORD3(ClipRegion, SkIRect, devBounds, SkRegion, region, SkRegion::Op,    op);
 
 RECORD1(Clear, SkColor, color);
 

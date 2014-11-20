@@ -90,9 +90,9 @@ DRAW(PushCull, pushCull(r.rect));
 DRAW(Clear, clear(r.color));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 
-DRAW(ClipPath, clipPath(r.path, r.op, r.doAA));
-DRAW(ClipRRect, clipRRect(r.rrect, r.op, r.doAA));
-DRAW(ClipRect, clipRect(r.rect, r.op, r.doAA));
+DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
+DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
+DRAW(ClipRect, clipRect(r.rect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
 DRAW(BeginCommentGroup, beginCommentGroup(r.description));
