@@ -802,6 +802,7 @@
 #define GR_GL_LINE_TO                                       0x04
 #define GR_GL_QUADRATIC_CURVE_TO                            0x0A
 #define GR_GL_CUBIC_CURVE_TO                                0x0C
+#define GR_GL_CONIC_CURVE_TO                                0x1A
 
 // path parameters
 #define GR_GL_PATH_STROKE_WIDTH                             0x9075
