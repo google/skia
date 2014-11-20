@@ -122,13 +122,6 @@ SkTextBlob::~SkTextBlob() {
     }
 }
 
-void SkTextBlob::internal_dispose() const {
-    // SkTextBlobs use externally-managed storage.
-    this->internal_dispose_restore_refcnt_to_1();
-    this->~SkTextBlob();
-    sk_free(const_cast<SkTextBlob*>(this));
-}
-
 uint32_t SkTextBlob::uniqueID() const {
     static int32_t  gTextBlobGenerationID; // = 0;
 

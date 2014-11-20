@@ -79,7 +79,15 @@ private:
     SkTextBlob(int runCount, const SkRect& bounds);
 
     virtual ~SkTextBlob();
-    virtual void internal_dispose() const SK_OVERRIDE;
+
+    // Memory for objects of this class is created with sk_malloc rather than operator new and must
+    // be freed with sk_free.
+    void operator delete(void* p) { sk_free(p); }
+    void* operator new(size_t) {
+        SkFAIL("All blobs are created by placement new.");
+        return sk_malloc_throw(0);
+    }
+    void* operator new(size_t, void* p) { return p; }
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 

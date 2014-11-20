@@ -12,11 +12,6 @@
 #include "SkStream.h"
 #include "SkWriteBuffer.h"
 
-static void sk_inplace_sentinel_releaseproc(const void*, size_t, void*) {
-    // we should never get called, as we are just a sentinel
-    sk_throw();
-}
-
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
     fPtr = const_cast<void*>(ptr);
     fSize = size;
@@ -31,27 +26,13 @@ SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
 SkData::SkData(size_t size) {
     fPtr = (char*)(this + 1);   // contents are immediately after this
     fSize = size;
-    fReleaseProc = sk_inplace_sentinel_releaseproc;
+    fReleaseProc = NULL;
     fReleaseProcContext = NULL;
 }
 
 SkData::~SkData() {
     if (fReleaseProc) {
         fReleaseProc(fPtr, fSize, fReleaseProcContext);
-    }
-}
-
-void SkData::internal_dispose() const {
-    if (sk_inplace_sentinel_releaseproc == fReleaseProc) {
-        const_cast<SkData*>(this)->fReleaseProc = NULL;    // so we don't call it in our destructor
-
-        this->internal_dispose_restore_refcnt_to_1();
-        this->~SkData();        // explicitly call this for refcnt bookkeeping
-
-        sk_free(const_cast<SkData*>(this));
-    } else {
-        this->internal_dispose_restore_refcnt_to_1();
-        SkDELETE(this);
     }
 }
 
