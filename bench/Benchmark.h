@@ -70,6 +70,11 @@ public:
     // before the initial draw.
     void preDraw();
 
+    // Called once before and after a series of draw calls to a single canvas.
+    // The setup/break down in these calls is not timed.
+    void perCanvasPreDraw(SkCanvas*);
+    void perCanvasPostDraw(SkCanvas*);
+
     // Bench framework can tune loops to be large enough for stable timing.
     void draw(const int loops, SkCanvas*);
 
@@ -101,6 +106,8 @@ protected:
     virtual const char* onGetName() = 0;
     virtual const char* onGetUniqueName() { return this->onGetName(); }
     virtual void onPreDraw() {}
+    virtual void onPerCanvasPreDraw(SkCanvas*) {}
+    virtual void onPerCanvasPostDraw(SkCanvas*) {}
     // Each bench should do its main work in a loop like this:
     //   for (int i = 0; i < loops; i++) { <work here> }
     virtual void onDraw(const int loops, SkCanvas*) = 0;

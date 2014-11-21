@@ -1323,7 +1323,6 @@ void SkBitmap::validate() const {
 
     if (fPixels) {
         SkASSERT(fPixelRef);
-        SkASSERT(fPixelLockCount > 0);
         SkASSERT(fPixelRef->isLocked());
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
         SkASSERT(fPixelRefOrigin.fX >= 0);
