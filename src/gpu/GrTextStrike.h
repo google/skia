@@ -11,12 +11,12 @@
 #ifndef GrTextStrike_DEFINED
 #define GrTextStrike_DEFINED
 
-#include "GrAllocPool.h"
-#include "GrFontScaler.h"
-#include "SkTDynamicHash.h"
-#include "GrGlyph.h"
-#include "GrDrawTarget.h"
 #include "GrAtlas.h"
+#include "GrDrawTarget.h"
+#include "GrFontScaler.h"
+#include "GrGlyph.h"
+#include "SkTDynamicHash.h"
+#include "SkVarAlloc.h"
 
 class GrFontCache;
 class GrGpu;
@@ -62,7 +62,7 @@ public:
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
     const GrFontDescKey* fFontScalerKey;
-    GrTAllocPool<GrGlyph> fPool;
+    SkVarAlloc fPool;
 
     GrFontCache*    fFontCache;
     bool            fUseDistanceField;

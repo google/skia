@@ -9,7 +9,6 @@
 #ifndef GrAADistanceFieldPathRenderer_DEFINED
 #define GrAADistanceFieldPathRenderer_DEFINED
 
-#include "GrAllocPool.h"
 #include "GrAtlas.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"

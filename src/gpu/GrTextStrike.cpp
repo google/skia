@@ -227,7 +227,7 @@ void GrFontCache::dump() const {
     atlas and a position within that texture.
  */
 
-GrTextStrike::GrTextStrike(GrFontCache* cache, const GrFontDescKey* key) : fPool(64) {
+GrTextStrike::GrTextStrike(GrFontCache* cache, const GrFontDescKey* key) {
     fFontScalerKey = key;
     fFontScalerKey->ref();
 
@@ -267,7 +267,7 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
     }
     GrMaskFormat format = scaler->getPackedGlyphMaskFormat(packed);
     
-    GrGlyph* glyph = fPool.alloc();
+    GrGlyph* glyph = (GrGlyph*)fPool.alloc(sizeof(GrGlyph), SK_MALLOC_THROW);
     glyph->init(packed, bounds, format);
     fCache.add(glyph);
     return glyph;
