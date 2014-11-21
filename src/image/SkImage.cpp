@@ -9,14 +9,7 @@
 #include "SkCanvas.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
-
-static SkImage_Base* as_IB(SkImage* image) {
-    return static_cast<SkImage_Base*>(image);
-}
-
-static const SkImage_Base* as_IB(const SkImage* image) {
-    return static_cast<const SkImage_Base*>(image);
-}
+#include "SkSurface.h"
 
 uint32_t SkImage::NextUniqueID() {
     static int32_t gUniqueID;
@@ -89,6 +82,13 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
         return SkImageEncoder::EncodeData(bm, type, quality);
     }
     return NULL;
+}
+
+SkSurface* SkImage::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) const {
+    if (NULL == props) {
+        props = &as_IB(this)->props();
+    }
+    return as_IB(this)->onNewSurface(info, *props);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

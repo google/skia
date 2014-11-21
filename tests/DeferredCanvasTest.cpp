@@ -65,7 +65,7 @@ public:
     }
 
     virtual SkImage* onNewImageSnapshot() SK_OVERRIDE {
-        return SkNewImageFromBitmap(fBitmap, true);
+        return SkNewImageFromBitmap(fBitmap, true, &this->props());
     }
 
     virtual void onCopyOnWrite(ContentChangeMode mode) SK_OVERRIDE {

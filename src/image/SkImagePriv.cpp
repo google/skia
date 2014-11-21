@@ -6,10 +6,12 @@
  */
 
 #include "SkImagePriv.h"
+#include "SkImage_Base.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
 
-SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
+SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef,
+                              const SkSurfaceProps* props) {
     const SkImageInfo info = bm.info();
     if (kUnknown_SkColorType == info.colorType()) {
         return NULL;
@@ -17,13 +19,18 @@ SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
 
     SkImage* image = NULL;
     if (canSharePixelRef || bm.isImmutable()) {
-        image = SkNewImageFromPixelRef(info, bm.pixelRef(), bm.rowBytes());
+        image = SkNewImageFromPixelRef(info, bm.pixelRef(), bm.rowBytes(), props);
     } else {
         bm.lockPixels();
         if (bm.getPixels()) {
             image = SkImage::NewRasterCopy(info, bm.getPixels(), bm.rowBytes());
         }
         bm.unlockPixels();
+
+        // we don't expose props to NewRasterCopy (need a private vers) so post-init it here
+        if (image && props) {
+            as_IB(image)->initWithProps(*props);
+        }
     }
     return image;
 }

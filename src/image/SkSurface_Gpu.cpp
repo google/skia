@@ -7,6 +7,7 @@
 
 #include "SkSurface_Base.h"
 #include "SkImagePriv.h"
+#include "SkImage_Base.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
 
@@ -66,7 +67,12 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 SkImage* SkSurface_Gpu::onNewImageSnapshot() {
-    return SkImage::NewTexture(fDevice->accessBitmap(false));
+    const int sampleCount = fDevice->accessRenderTarget()->numSamples();
+    SkImage* image = SkNewImageFromBitmapTexture(fDevice->accessBitmap(false), sampleCount);
+    if (image) {
+        as_IB(image)->initWithProps(this->props());
+    }
+    return image;
 }
 
 void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,

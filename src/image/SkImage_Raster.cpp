@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
+#include "SkSurface.h"
 
 class SkImage_Raster : public SkImage_Base {
 public:
@@ -50,18 +51,18 @@ public:
 
     static SkImage* NewEmpty();
 
-    SkImage_Raster(const SkImageInfo&, SkData*, size_t rb);
+    SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, const SkSurfaceProps*);
     virtual ~SkImage_Raster();
 
-    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const SK_OVERRIDE;
-    virtual void onDrawRect(SkCanvas*, const SkRect*, const SkRect&,
-                                  const SkPaint*) const SK_OVERRIDE;
-    virtual bool onReadPixels(SkBitmap*, const SkIRect&) const SK_OVERRIDE;
-    virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
-    virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
+    void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const SK_OVERRIDE;
+    void onDrawRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) const SK_OVERRIDE;
+    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const SK_OVERRIDE;
+    bool onReadPixels(SkBitmap*, const SkIRect&) const SK_OVERRIDE;
+    const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
+    bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
-    SkImage_Raster(const SkImageInfo&, SkPixelRef*, size_t rowBytes);
+    SkImage_Raster(const SkImageInfo&, SkPixelRef*, size_t rowBytes, const SkSurfaceProps*);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -71,12 +72,12 @@ public:
 
     virtual bool isOpaque() const SK_OVERRIDE;
 
-    SkImage_Raster(const SkBitmap& bm)
-        : INHERITED(bm.width(), bm.height())
+    SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props)
+        : INHERITED(bm.width(), bm.height(), props)
         , fBitmap(bm) {}
 
 private:
-    SkImage_Raster() : INHERITED(0, 0) {}
+    SkImage_Raster() : INHERITED(0, 0, NULL) {}
 
     SkBitmap    fBitmap;
 
@@ -100,8 +101,9 @@ static void release_data(void* addr, void* context) {
     data->unref();
 }
 
-SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
-    : INHERITED(info.width(), info.height())
+SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes,
+                               const SkSurfaceProps* props)
+    : INHERITED(info.width(), info.height(), props)
 {
     data->ref();
     void* addr = const_cast<void*>(data->data());
@@ -112,8 +114,9 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
     fBitmap.lockPixels();
 }
 
-SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
-    : INHERITED(info.width(), info.height())
+SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes,
+                               const SkSurfaceProps* props)
+    : INHERITED(info.width(), info.height(), props)
 {
     fBitmap.setInfo(info, rowBytes);
     fBitmap.setPixelRef(pr);
@@ -134,6 +137,10 @@ void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPa
 void SkImage_Raster::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint) const {
     canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
+}
+
+SkSurface* SkImage_Raster::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
+    return SkSurface::NewRaster(info, &props);
 }
 
 bool SkImage_Raster::onReadPixels(SkBitmap* dst, const SkIRect& subset) const {
@@ -179,7 +186,7 @@ SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, siz
 
     // Here we actually make a copy of the caller's pixel data
     SkAutoDataUnref data(SkData::NewWithCopy(pixels, info.height() * rowBytes));
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes));
+    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, NULL));
 }
 
 
@@ -201,7 +208,7 @@ SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t ro
         return NULL;
     }
 
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes));
+    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, NULL));
 }
 
 SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator) {
@@ -209,12 +216,12 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator) {
     if (!SkInstallDiscardablePixelRef(generator, &bitmap)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkImage_Raster, (bitmap));
+    return SkNEW_ARGS(SkImage_Raster, (bitmap, NULL));
 }
 
-SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
-                                size_t rowBytes) {
-    return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes));
+SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr, size_t rowBytes,
+                                const SkSurfaceProps* props) {
+    return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes, props));
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {

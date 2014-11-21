@@ -18,6 +18,8 @@ class SkData;
 class SkCanvas;
 class SkImageGenerator;
 class SkPaint;
+class SkSurface;
+class SkSurfaceProps;
 class GrContext;
 class GrTexture;
 
@@ -91,6 +93,15 @@ public:
      */
     SkData* encode(SkImageEncoder::Type t = SkImageEncoder::kPNG_Type,
                    int quality = 80) const;
+
+    /**
+     *  Return a new surface that is compatible with this image's internal representation
+     *  (e.g. raster or gpu).
+     *
+     *  If no surfaceprops are specified, the image will attempt to match the props of when it
+     *  was created (if it came from a surface).
+     */
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL) const;
 
 protected:
     SkImage(int width, int height) :
