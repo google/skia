@@ -1228,7 +1228,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             tmpM.setTranslate(offset.fX - srcRect.fLeft, offset.fY - srcRect.fTop);
             am.setPreConcat(fContext, tmpM);
 
-            if (SkPaint::kNone_FilterLevel != paint.getFilterLevel() || bicubic) {
+            if (GrTextureParams::kNone_FilterMode != params.filterMode() || bicubic) {
                 SkIRect iClampRect;
 
                 if (SkCanvas::kBleed_DrawBitmapRectFlag & flags) {
