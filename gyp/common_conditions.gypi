@@ -414,7 +414,6 @@
             'ldflags': ['--coverage'],
           },
           'Debug': {
-            'cflags': ['-ftrapv'],  # Crash on signed integer over/underflow.
           },
           'Release': {
             'cflags': [
@@ -595,7 +594,7 @@
         ],
         'configurations': {
           'Debug': {
-            'cflags': ['-g', '-ftrapv']
+            'cflags': ['-g']
           },
           'Release': {
             'cflags': ['-O2'],
