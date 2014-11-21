@@ -228,7 +228,11 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
 //static int gCounter;
 
 static SkFixed compute_level(SkScalar scale) {
-    SkFixed s = SkAbs32(SkScalarToFixed(SkScalarInvert(scale)));
+    SkScalar inv = SkScalarAbs(SkScalarInvert(scale));
+    if (inv > 32767) {  // Watch out for SkFixed overflow.
+        inv = 32767;
+    }
+    SkFixed s = SkScalarToFixed(inv);
 
     if (s < SK_Fixed1) {
         return 0;

@@ -352,6 +352,7 @@ template <typename T> inline void SkTSwap(T& a, T& b) {
 }
 
 static inline int32_t SkAbs32(int32_t value) {
+    SkASSERT(value != SK_NaN32);  // The most negative int32_t can't be negated.
     if (value < 0) {
         value = -value;
     }
