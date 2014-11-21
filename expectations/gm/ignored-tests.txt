@@ -53,3 +53,6 @@ modecolorfilters
 
 #humper skia:2049
 dashcubics
+
+#mtklein
+verylargebitmap
