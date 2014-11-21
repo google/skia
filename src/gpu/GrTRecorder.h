@@ -54,7 +54,7 @@ public:
                                   and after calls to reset().
      */
     GrTRecorder(int initialSizeInBytes)
-        : fHeadBlock(MemBlock::Alloc(LengthOf(initialSizeInBytes))),
+        : fHeadBlock(MemBlock::Alloc(LengthOf(initialSizeInBytes), NULL)),
           fTailBlock(fHeadBlock),
           fLastItem(NULL) {}
 
@@ -69,6 +69,12 @@ public:
         SkASSERT(!this->empty());
         return *fLastItem;
     }
+
+    /**
+     * Removes and destroys the last block added to the recorder. It may not be called when the
+     * recorder is empty.
+     */
+    void pop_back();
 
     /**
      * Destruct all items in the list and reset to empty.
@@ -100,35 +106,49 @@ private:
     static int LengthOf(int bytes) { return (bytes + sizeof(TAlign) - 1) / sizeof(TAlign); }
 
     struct Header {
-        int fTotalLength;
+        int fTotalLength; // The length of an entry including header, item, and data in TAligns.
+        int fPrevLength;  // Same but for the previous entry. Used for iterating backwards.
     };
     template<typename TItem> TItem* alloc_back(int dataLength);
 
     struct MemBlock : SkNoncopyable {
-        static MemBlock* Alloc(int length) {
+        /** Allocates a new block and appends it to prev if not NULL. The length param is in units
+            of TAlign. */
+        static MemBlock* Alloc(int length, MemBlock* prev) {
             MemBlock* block = reinterpret_cast<MemBlock*>(
                 sk_malloc_throw(sizeof(TAlign) * (length_of<MemBlock>::kValue + length)));
             block->fLength = length;
             block->fBack = 0;
             block->fNext = NULL;
+            block->fPrev = prev;
+            if (prev) {
+                SkASSERT(NULL == prev->fNext);
+                prev->fNext = block;
+            }
             return block;
         }
 
+        // Frees from this block forward. Also adjusts prev block's next ptr.
         static void Free(MemBlock* block) {
-            if (!block) {
-                return;
+            if (block && block->fPrev) {
+                SkASSERT(block->fPrev->fNext == block);
+                block->fPrev->fNext = NULL;
             }
-            Free(block->fNext);
-            sk_free(block);
+            while (block) {
+                MemBlock* next = block->fNext;
+                sk_free(block);
+                block = next;
+            }
         }
 
         TAlign& operator [](int i) {
             return reinterpret_cast<TAlign*>(this)[length_of<MemBlock>::kValue + i];
         }
 
-        int       fLength;
-        int       fBack;
+        int       fLength; // Length in units of TAlign of the block.
+        int       fBack;   // Offset, in TAligns, to unused portion of the memory block.
         MemBlock* fNext;
+        MemBlock* fPrev;
     };
     MemBlock* const fHeadBlock;
     MemBlock* fTailBlock;
@@ -147,15 +167,54 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename TBase, typename TAlign>
+void GrTRecorder<TBase, TAlign>::pop_back() {
+    SkASSERT(fLastItem);
+    Header* header = reinterpret_cast<Header*>(
+        reinterpret_cast<TAlign*>(fLastItem) - length_of<Header>::kValue);
+    fTailBlock->fBack -= header->fTotalLength;
+    fLastItem->~TBase();
+
+    int lastItemLength = header->fPrevLength;
+
+    if (!header->fPrevLength) {
+        // We popped the first entry in the recorder.
+        SkASSERT(0 == fTailBlock->fBack);
+        fLastItem = NULL;
+        return;
+    }
+    if (!fTailBlock->fBack) {
+        // We popped the last entry in a block that isn't the head block. Move back a block but
+        // don't free it since we'll probably grow into it shortly.
+        fTailBlock = fTailBlock->fPrev;
+        SkASSERT(fTailBlock);
+    }
+    fLastItem = reinterpret_cast<TBase*>(
+        &(*fTailBlock)[fTailBlock->fBack - lastItemLength + length_of<Header>::kValue]);
+}
+
+template<typename TBase, typename TAlign>
 template<typename TItem>
 TItem* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
+    // Find the header of the previous entry and get its length. We need to store that in the new
+    // header for backwards iteration (pop_back()).
+    int prevLength = 0;
+    if (fLastItem) {
+        Header* lastHeader = reinterpret_cast<Header*>(
+            reinterpret_cast<TAlign*>(fLastItem) - length_of<Header>::kValue);
+        prevLength = lastHeader->fTotalLength;
+    }
+
     const int totalLength = length_of<Header>::kValue + length_of<TItem>::kValue + dataLength;
 
+    // Check if there is room in the current block and if not walk to next (allocating if
+    // necessary). Note that pop_back() and reset() can leave the recorder in a state where it
+    // has preallocated blocks hanging off the tail that are currently unused.
     while (fTailBlock->fBack + totalLength > fTailBlock->fLength) {
         if (!fTailBlock->fNext) {
-            fTailBlock->fNext = MemBlock::Alloc(SkTMax(2 * fTailBlock->fLength, totalLength));
+            fTailBlock = MemBlock::Alloc(SkTMax(2 * fTailBlock->fLength, totalLength), fTailBlock);
+        } else {
+            fTailBlock = fTailBlock->fNext;
         }
-        fTailBlock = fTailBlock->fNext;
         SkASSERT(0 == fTailBlock->fBack);
     }
 
@@ -164,6 +223,7 @@ TItem* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
                         &(*fTailBlock)[fTailBlock->fBack + length_of<Header>::kValue]);
 
     header->fTotalLength = totalLength;
+    header->fPrevLength = prevLength;
     fLastItem = rawPtr;
     fTailBlock->fBack += totalLength;
 
@@ -225,7 +285,6 @@ void GrTRecorder<TBase, TAlign>::reset() {
     // everything else.
     if (fTailBlock->fBack <= fTailBlock->fLength / 2) {
         MemBlock::Free(fTailBlock->fNext);
-        fTailBlock->fNext = NULL;
     } else if (fTailBlock->fNext) {
         MemBlock::Free(fTailBlock->fNext->fNext);
         fTailBlock->fNext->fNext = NULL;

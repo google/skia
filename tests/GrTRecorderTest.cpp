@@ -7,9 +7,10 @@
 
 #if SK_SUPPORT_GPU
 
-#include "SkMatrix.h"
-#include "SkString.h"
 #include "GrTRecorder.h"
+#include "SkMatrix.h"
+#include "SkRandom.h"
+#include "SkString.h"
 #include "Test.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,22 +26,43 @@ private:
     int fValue;
 };
 
-static void test_empty_back(skiatest::Reporter* reporter) {
-    GrTRecorder<IntWrapper, int> recorder(0);
+static void test_empty_back_and_pop(skiatest::Reporter* reporter) {
+    SkRandom rand;
+    for (int data = 0; data < 2; ++data) {
+        // Do this with different starting sizes to have different alignment between blocks and pops.
+        // pops. We want to test poping the first guy off, guys in the middle of the block, and the
+        // first guy on a non-head block.
+        for (int j = 0; j < 8; ++j) {
+            GrTRecorder<IntWrapper, int> recorder(j);
 
-    REPORTER_ASSERT(reporter, recorder.empty());
+            REPORTER_ASSERT(reporter, recorder.empty());
 
-    for (int i = 0; i < 100; ++i) {
-        REPORTER_ASSERT(reporter, i == *GrNEW_APPEND_TO_RECORDER(recorder, IntWrapper, (i)));
-        REPORTER_ASSERT(reporter, !recorder.empty());
-        REPORTER_ASSERT(reporter, i == recorder.back());
+            for (int i = 0; i < 100; ++i) {
+                if (data) {
+                    REPORTER_ASSERT(reporter, i == *GrNEW_APPEND_TO_RECORDER(recorder, 
+                                                                             IntWrapper, (i)));
+                } else {
+                    REPORTER_ASSERT(reporter, i ==
+                                    *GrNEW_APPEND_WITH_DATA_TO_RECORDER(recorder,
+                                                                        IntWrapper, (i),
+                                                                        rand.nextULessThan(10)));
+                }
+                REPORTER_ASSERT(reporter, !recorder.empty());
+                REPORTER_ASSERT(reporter, i == recorder.back());
+                if (0 == (i % 7)) {
+                    recorder.pop_back();
+                    if (i > 0) {
+                        REPORTER_ASSERT(reporter, !recorder.empty());
+                        REPORTER_ASSERT(reporter, i-1 == recorder.back());
+                    }
+                }
+            }
+
+            REPORTER_ASSERT(reporter, !recorder.empty());
+            recorder.reset();
+            REPORTER_ASSERT(reporter, recorder.empty());
+        }
     }
-
-    REPORTER_ASSERT(reporter, !recorder.empty());
-
-    recorder.reset();
-
-    REPORTER_ASSERT(reporter, recorder.empty());
 }
 
 struct ExtraData {
@@ -233,7 +255,7 @@ static void test_subclasses(skiatest::Reporter* reporter) {
 }
 
 DEF_GPUTEST(GrTRecorder, reporter, factory) {
-    test_empty_back(reporter);
+    test_empty_back_and_pop(reporter);
 
     test_extra_data(reporter);
     REPORTER_ASSERT(reporter, 0 == activeRecorderItems); // test_extra_data should call reset().
