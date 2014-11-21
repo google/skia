@@ -270,18 +270,11 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkPicture::drawableCount() const {
-    if (fDrawablePicts.get()) {
-        return SkToInt(fDrawablePicts->size() / sizeof(SkPicture*));
-    } else {
-        return 0;
-    }
+    return fDrawablePicts.get() ? fDrawablePicts->count() : 0;
 }
 
 SkPicture const* const* SkPicture::drawablePicts() const {
-    if (fDrawablePicts) {
-        return reinterpret_cast<SkPicture* const*>(fDrawablePicts->data());
-    }
-    return NULL;
+    return fDrawablePicts.get() ? fDrawablePicts->begin() : NULL;
 }
 
 SkPicture::~SkPicture() {
@@ -524,7 +517,7 @@ bool SkPicture::hasText()             const { return fAnalysis.fHasText; }
 bool SkPicture::willPlayBackBitmaps() const { return fAnalysis.fWillPlaybackBitmaps; }
 int  SkPicture::approximateOpCount()  const { return fRecord->count(); }
 
-SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SkData* drawablePicts,
+SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* drawablePicts,
                      SkBBoxHierarchy* bbh)
     : fUniqueID(next_picture_generation_id())
     , fCullRect(cullRect)

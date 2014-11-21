@@ -199,6 +199,18 @@ public:
      */
     bool hasText() const;
 
+    // A refcounted array of refcounted const SkPicture pointers.
+    struct SnapshotArray : public SkNVRefCnt {
+        SnapshotArray(const SkPicture* pics[], size_t count) : fPics(pics), fCount(count) {}
+        ~SnapshotArray() { for (size_t i = 0; i < fCount; i++) { fPics[i]->unref(); } }
+
+        const SkPicture* const* begin() const { return fPics; }
+        size_t count() const { return fCount; }
+    private:
+        SkAutoTMalloc<const SkPicture*> fPics;
+        size_t fCount;
+    };
+
 private:
     // V2 : adds SkPixelRef's generation ID.
     // V3 : PictInfo tag at beginning, and EOF tag at the end
@@ -251,9 +263,8 @@ private:
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    // Takes ownership of the SkRecord, refs the (optional) drawablePicts and BBH.
-    SkPicture(const SkRect& cullRect, SkRecord*, SkData* drawablePicts,
-              SkBBoxHierarchy*);
+    // Takes ownership of the SkRecord, refs the (optional) SnapshotArray and BBH.
+    SkPicture(const SkRect& cullRect, SkRecord*, SnapshotArray*, SkBBoxHierarchy*);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
     static SkPictureData* Backport(const SkRecord&, const SkPictInfo&,
@@ -266,7 +277,7 @@ private:
     mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
     SkAutoTDelete<const SkRecord>       fRecord;
     SkAutoTUnref<const SkBBoxHierarchy> fBBH;
-    SkAutoTUnref<SkData>          fDrawablePicts;
+    SkAutoTUnref<const SnapshotArray>   fDrawablePicts;
 
     // helpers for fDrawablePicts
     int drawableCount() const;

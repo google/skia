@@ -22,9 +22,8 @@ public:
     SkRecorder(SkRecord*, const SkRect& bounds);
     virtual ~SkRecorder() SK_OVERRIDE;
 
-    // return a (new or ref'd) data containing the array of pictures that were
-    // snapped from our drawables.
-    SkData* newDrawableSnapshot(SkBBHFactory*, uint32_t recordFlags);
+    // Return a new or ref'd array of pictures that were snapped from our drawables.
+    SkPicture::SnapshotArray* newDrawableSnapshot(SkBBHFactory*, uint32_t recordFlags);
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();

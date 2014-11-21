@@ -61,9 +61,10 @@ SkPicture* SkPictureRecorder::endRecording() {
     // TODO: we should remember these from our caller
     SkBBHFactory* factory = NULL;
     uint32_t recordFlags = 0;
-    SkAutoDataUnref drawablePicts(fRecorder->newDrawableSnapshot(factory, recordFlags));
+    SkAutoTUnref<SkPicture::SnapshotArray> drawablePicts(
+            fRecorder->newDrawableSnapshot(factory, recordFlags));
     SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullRect, fRecord.detach(),
-                                             drawablePicts, fBBH.get()));
+                                             drawablePicts.detach(), fBBH.get()));
 
     if (saveLayerData) {
         pict->EXPERIMENTAL_addAccelData(saveLayerData);
