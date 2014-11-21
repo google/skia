@@ -26,6 +26,7 @@
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "SkTaskGroup.h"
 
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
@@ -70,6 +71,7 @@ DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
+DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 
 static SkString humanize(double ms) {
@@ -215,14 +217,16 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
 }
 
 #if SK_SUPPORT_GPU
+static void setup_gl(SkGLContext* gl) {
+    gl->makeCurrent();
+    // Make sure we're done with whatever came before.
+    SK_GL(*gl, Finish());
+}
+
 static int gpu_bench(SkGLContext* gl,
                      Benchmark* bench,
                      SkCanvas* canvas,
                      double* samples) {
-    gl->makeCurrent();
-    // Make sure we're done with whatever came before.
-    SK_GL(*gl, Finish());
-
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = FLAGS_loops;
     if (kAutoTuneLoops == loops) {
@@ -437,7 +441,8 @@ public:
                       , fGMs(skiagm::GMRegistry::Head())
                       , fCurrentRecording(0)
                       , fCurrentScale(0)
-                      , fCurrentSKP(0) {
+                      , fCurrentSKP(0)
+                      , fCurrentUseMPD(0) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
             if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
                 fSKPs.push_back() = FLAGS_skps[i];
@@ -461,6 +466,11 @@ public:
                 SkDebugf("Can't parse %s from --scales as an SkScalar.\n", FLAGS_scales[i]);
                 exit(1);
             }
+        }
+
+        fUseMPDs.push_back() = false;
+        if (FLAGS_mpd) {
+            fUseMPDs.push_back() = true;
         }
     }
 
@@ -520,25 +530,33 @@ public:
         // Then once each for each scale as SKPBenches (playback).
         while (fCurrentScale < fScales.count()) {
             while (fCurrentSKP < fSKPs.count()) {
-                const SkString& path = fSKPs[fCurrentSKP++];
+                const SkString& path = fSKPs[fCurrentSKP];
                 SkAutoTUnref<SkPicture> pic;
                 if (!ReadPicture(path.c_str(), &pic)) {
+                    fCurrentSKP++;
                     continue;
                 }
-                if (FLAGS_bbh) {
-                    // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
-                    SkRTreeFactory factory;
-                    SkPictureRecorder recorder;
-                    pic->playback(recorder.beginRecording(pic->cullRect().width(),
-                                                          pic->cullRect().height(),
-                                                          &factory));
-                    pic.reset(recorder.endRecording());
+
+                while (fCurrentUseMPD < fUseMPDs.count()) {
+                    if (FLAGS_bbh) {
+                        // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
+                        SkRTreeFactory factory;
+                        SkPictureRecorder recorder;
+                        static const int kFlags = SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag;
+                        pic->playback(recorder.beginRecording(pic->cullRect().width(),
+                                                              pic->cullRect().height(),
+                                                              &factory, kFlags));
+                        pic.reset(recorder.endRecording());
+                    }
+                    SkString name = SkOSPath::Basename(path.c_str());
+                    fSourceType = "skp";
+                    fBenchType = "playback";
+                    return SkNEW_ARGS(SKPBench,
+                            (name.c_str(), pic.get(), fClip,
+                             fScales[fCurrentScale], fUseMPDs[fCurrentUseMPD++]));
                 }
-                SkString name = SkOSPath::Basename(path.c_str());
-                fSourceType = "skp";
-                fBenchType  = "playback";
-                return SkNEW_ARGS(SKPBench,
-                        (name.c_str(), pic.get(), fClip, fScales[fCurrentScale]));
+                fCurrentUseMPD = 0;
+                fCurrentSKP++;
             }
             fCurrentSKP = 0;
             fCurrentScale++;
@@ -555,6 +573,10 @@ public:
                     SkStringPrintf("%d %d %d %d", fClip.fLeft, fClip.fTop,
                                                   fClip.fRight, fClip.fBottom).c_str());
             log->configOption("scale", SkStringPrintf("%.2g", fScales[fCurrentScale]).c_str());
+            if (fCurrentUseMPD > 0) {
+                SkASSERT(1 == fCurrentUseMPD || 2 == fCurrentUseMPD);
+                log->configOption("multi_picture_draw", fUseMPDs[fCurrentUseMPD-1] ? "true" : "false");
+            }
         }
     }
 
@@ -564,18 +586,22 @@ private:
     SkIRect            fClip;
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
+    SkTArray<bool>     fUseMPDs;
 
     const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...
     int fCurrentRecording;
     int fCurrentScale;
     int fCurrentSKP;
+    int fCurrentUseMPD;
 };
 
 int nanobench_main();
 int nanobench_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
+    // Multithreading is disabled pending resolution of skia:3149
+    //SkTaskGroup::Enabler enabled;
 
 #if SK_SUPPORT_GPU
     GrContext::Options grContextOpts;
@@ -659,6 +685,14 @@ int nanobench_main() {
             SkCanvas* canvas = targets[j]->surface.get() ? targets[j]->surface->getCanvas() : NULL;
             const char* config = targets[j]->config.name;
 
+#if SK_SUPPORT_GPU
+            if (Benchmark::kGPU_Backend == targets[j]->config.backend) {
+                setup_gl(targets[j]->gl);
+            }
+#endif
+
+            bench->perCanvasPreDraw(canvas);
+
             const int loops =
 #if SK_SUPPORT_GPU
                 Benchmark::kGPU_Backend == targets[j]->config.backend
@@ -666,6 +700,8 @@ int nanobench_main() {
                 :
 #endif
                  cpu_bench(       overhead, bench.get(), canvas, samples.get());
+
+            bench->perCanvasPostDraw(canvas);
 
             if (canvas && !FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
                 SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], config);
