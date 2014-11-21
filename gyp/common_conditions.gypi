@@ -298,7 +298,7 @@
                   'SK_ARM_HAS_OPTIONAL_NEON',
                 ],
               }],
-              [ 'skia_os != "chromeos"', {
+              [ 'skia_os != "chromeos" and skia_os != "linux"', {
                 'cflags': [
                   '-mfloat-abi=softfp',
                 ],

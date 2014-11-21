@@ -13,11 +13,17 @@
 
 #include "Test.h"
 
+struct AlignedKey {
+    uint32_t align;
+    char key[8];
+};
+
 template<typename KeyType> static void TestHash(skiatest::Reporter* reporter) {
-    const char* testStringA_ = "abcdABCD";
-    const char* testStringB_ = "abcdBBCD";
-    const uint32_t* testStringA = reinterpret_cast<const uint32_t*>(testStringA_);
-    const uint32_t* testStringB = reinterpret_cast<const uint32_t*>(testStringB_);
+    AlignedKey a, b;
+    memcpy(&a.key, "abcdABCD", 8);
+    memcpy(&b.key, "abcdBBCD", 8);
+    const uint32_t* testStringA = reinterpret_cast<const uint32_t*>(&a.key);
+    const uint32_t* testStringB = reinterpret_cast<const uint32_t*>(&b.key);
 
     KeyType keyA;
     keyA.setKeyData(testStringA);
