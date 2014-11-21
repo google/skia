@@ -17,7 +17,7 @@ class SkImage_Gpu : public SkImage_Base {
 public:
     SK_DECLARE_INST_COUNT(SkImage_Gpu)
 
-    SkImage_Gpu(const SkBitmap&, int sampleCount);
+    SkImage_Gpu(const SkBitmap&, int sampleCountForNewSurfaces);
 
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const SK_OVERRIDE;
     void onDrawRect(SkCanvas*, const SkRect* src, const SkRect& dst,
@@ -36,17 +36,17 @@ public:
 
 private:
     SkBitmap    fBitmap;
-    const int   fSampleCount;   // 0 if we weren't built from a surface
+    const int   fSampleCountForNewSurfaces;   // 0 if we don't know
 
     typedef SkImage_Base INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap, int sampleCount)
+SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap, int sampleCountForNewSurfaces)
     : INHERITED(bitmap.width(), bitmap.height(), NULL)
     , fBitmap(bitmap)
-    , fSampleCount(sampleCount)
+    , fSampleCountForNewSurfaces(sampleCountForNewSurfaces)
 {
     SkASSERT(fBitmap.getTexture());
 }
@@ -69,7 +69,7 @@ void SkImage_Gpu::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& 
 
 SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
     GrContext* ctx = this->getTexture()->getContext();
-    return SkSurface::NewRenderTarget(ctx, info, fSampleCount, &props);
+    return SkSurface::NewRenderTarget(ctx, info, fSampleCountForNewSurfaces, &props);
 }
 
 GrTexture* SkImage_Gpu::onGetTexture() const {
@@ -86,11 +86,11 @@ bool SkImage_Gpu::isOpaque() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage* SkNewImageFromBitmapTexture(const SkBitmap& bitmap, int sampleCount) {
+SkImage* SkNewImageFromBitmapTexture(const SkBitmap& bitmap, int sampleCountForNewSurfaces) {
     if (NULL == bitmap.getTexture()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkImage_Gpu, (bitmap, sampleCount));
+    return SkNEW_ARGS(SkImage_Gpu, (bitmap, sampleCountForNewSurfaces));
 }
 
 SkImage* SkImage::NewTexture(const SkBitmap& bitmap) {

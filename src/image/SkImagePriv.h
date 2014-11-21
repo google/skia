@@ -45,6 +45,6 @@ extern GrTexture* SkTextureImageGetTexture(SkImage* textureImage);
 // surface needs to perform a copy-on-write
 extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
 
-extern SkImage* SkNewImageFromBitmapTexture(const SkBitmap&, int sampleCount);
+extern SkImage* SkNewImageFromBitmapTexture(const SkBitmap&, int sampleCountForNewSurfaces);
 
 #endif
