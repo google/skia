@@ -152,7 +152,7 @@ void SkRecorder::drawPoints(PointMode mode,
                             size_t count,
                             const SkPoint pts[],
                             const SkPaint& paint) {
-    APPEND(DrawPoints, delay_copy(paint), mode, count, this->copy(pts, count));
+    APPEND(DrawPoints, delay_copy(paint), mode, SkToUInt(count), this->copy(pts, count));
 }
 
 void SkRecorder::drawRect(const SkRect& rect, const SkPaint& paint) {
@@ -192,8 +192,14 @@ void SkRecorder::drawBitmapRectToRect(const SkBitmap& bitmap,
                                       const SkRect& dst,
                                       const SkPaint* paint,
                                       DrawBitmapRectFlags flags) {
+    if (kBleed_DrawBitmapRectFlag == flags) {
+        APPEND(DrawBitmapRectToRectBleed,
+               this->copy(paint), delay_copy(bitmap), this->copy(src), dst);
+        return;
+    }
+    SkASSERT(kNone_DrawBitmapRectFlag == flags);
     APPEND(DrawBitmapRectToRect,
-           this->copy(paint), delay_copy(bitmap), this->copy(src), dst, flags);
+           this->copy(paint), delay_copy(bitmap), this->copy(src), dst);
 }
 
 void SkRecorder::drawBitmapMatrix(const SkBitmap& bitmap,
@@ -246,9 +252,9 @@ void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
     APPEND(DrawPosTextH,
            delay_copy(paint),
            this->copy((const char*)text, byteLength),
-           byteLength,
-           this->copy(xpos, points),
-           constY);
+           SkToUInt(byteLength),
+           constY,
+           this->copy(xpos, points));
 }
 
 void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,

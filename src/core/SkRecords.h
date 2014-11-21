@@ -45,6 +45,7 @@ namespace SkRecords {
     M(DrawBitmapMatrix)                                             \
     M(DrawBitmapNine)                                               \
     M(DrawBitmapRectToRect)                                         \
+    M(DrawBitmapRectToRectBleed)                                    \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageRect)                                                \
@@ -239,11 +240,14 @@ RECORD4(DrawBitmapNine, Optional<SkPaint>, paint,
                         ImmutableBitmap, bitmap,
                         SkIRect, center,
                         SkRect, dst);
-RECORD5(DrawBitmapRectToRect, Optional<SkPaint>, paint,
+RECORD4(DrawBitmapRectToRect, Optional<SkPaint>, paint,
                               ImmutableBitmap, bitmap,
                               Optional<SkRect>, src,
-                              SkRect, dst,
-                              SkCanvas::DrawBitmapRectFlags, flags);
+                              SkRect, dst);
+RECORD4(DrawBitmapRectToRectBleed, Optional<SkPaint>, paint,
+                                   ImmutableBitmap, bitmap,
+                                   Optional<SkRect>, src,
+                                   SkRect, dst);
 RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
 RECORD2(DrawDrawable, SkRect, worstCaseBounds, int32_t, index);
 RECORD4(DrawImage, Optional<SkPaint>, paint,
@@ -260,16 +264,16 @@ RECORD2(DrawPath, SkPaint, paint, SkPath, path);
 RECORD3(DrawPicture, Optional<SkPaint>, paint,
                      RefBox<const SkPicture>, picture,
                      Optional<SkMatrix>, matrix);
-RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
+RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, unsigned, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
                      PODArray<char>, text,
                      size_t, byteLength,
                      PODArray<SkPoint>, pos);
 RECORD5(DrawPosTextH, SkPaint, paint,
                       PODArray<char>, text,
-                      size_t, byteLength,
-                      PODArray<SkScalar>, xpos,
-                      SkScalar, y);
+                      unsigned, byteLength,
+                      SkScalar, y,
+                      PODArray<SkScalar>, xpos);
 RECORD2(DrawRRect, SkPaint, paint, SkRRect, rrect);
 RECORD2(DrawRect, SkPaint, paint, SkRect, rect);
 RECORD4(DrawSprite, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, int, left, int, top);

@@ -103,7 +103,11 @@ DRAW(DrawBitmap, drawBitmap(shallow_copy(r.bitmap), r.left, r.top, r.paint));
 DRAW(DrawBitmapMatrix, drawBitmapMatrix(shallow_copy(r.bitmap), r.matrix, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(shallow_copy(r.bitmap), r.center, r.dst, r.paint));
 DRAW(DrawBitmapRectToRect,
-        drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint, r.flags));
+        drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint,
+                             SkCanvas::kNone_DrawBitmapRectFlag));
+DRAW(DrawBitmapRectToRectBleed,
+        drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint,
+                             SkCanvas::kBleed_DrawBitmapRectFlag));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
 DRAW(DrawImageRect, drawImageRect(r.image, r.src, r.dst, r.paint));
@@ -413,6 +417,9 @@ private:
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawBitmapRectToRect& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
+    Bounds bounds(const DrawBitmapRectToRectBleed& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawBitmapNine& op) const {
