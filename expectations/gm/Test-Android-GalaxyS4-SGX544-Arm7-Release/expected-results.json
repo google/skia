@@ -6768,9 +6768,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1590589046044193468
+          14238278001031354382
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "multipicturedraw_noclip_simple_565.png": {
@@ -6876,9 +6877,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17738722464731208969
+          11421268981470572116
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "multipicturedraw_rectclip_simple_565.png": {
@@ -6984,9 +6986,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14378727049363969286
+          6155843118742094327
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "multipicturedraw_sierpinski_simple_565.png": {
