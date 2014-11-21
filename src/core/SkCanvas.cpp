@@ -1707,7 +1707,7 @@ void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clear(SkColor color) {
-    SkDrawIter  iter(this, false/*clear can affect empty clips*/);
+    SkDrawIter  iter(this);
     this->predrawNotify();
     while (iter.next()) {
         iter.fDevice->clear(color);

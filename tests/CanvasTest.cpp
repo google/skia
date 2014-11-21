@@ -795,17 +795,3 @@ DEF_TEST(Canvas, reporter) {
 
     test_newraster(reporter);
 }
-
-// Make sure SkCanvas passes clear() calls down to its devices even when they're clipped out.
-DEF_TEST(Canvas_clear, reporter) {
-    SkBitmap bm;
-    bm.allocN32Pixels(1,1);
-
-    SkCanvas canvas(bm);
-    canvas.clear(SK_ColorRED);
-    REPORTER_ASSERT(reporter, SK_ColorRED == bm.getColor(0,0));
-
-    canvas.clipRect(SkRect::MakeEmpty());
-    canvas.clear(SK_ColorGREEN);
-    REPORTER_ASSERT(reporter, SK_ColorGREEN == bm.getColor(0,0));
-}
