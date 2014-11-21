@@ -45,6 +45,18 @@ template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
 }
 
+static int32_t gPictureGenerationID;
+
+// never returns a 0
+static int32_t next_picture_generation_id() {
+    // Loop in case our global wraps around.
+    int32_t genID;
+    do {
+        genID = sk_atomic_inc(&gPictureGenerationID) + 1;
+    } while (0 == genID);
+    return genID;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -512,33 +524,15 @@ bool SkPicture::hasText()             const { return fAnalysis.fHasText; }
 bool SkPicture::willPlayBackBitmaps() const { return fAnalysis.fWillPlaybackBitmaps; }
 int  SkPicture::approximateOpCount()  const { return fRecord->count(); }
 
-static int32_t gPictureGenerationID = SK_InvalidGenID;  // This will be set at link time.
-
-static int32_t next_picture_generation_id() {
-    // Loop in case our global wraps around.
-    int32_t genID;
-    do {
-        genID = sk_atomic_inc(&gPictureGenerationID) + 1;
-    } while (SK_InvalidGenID == genID);
-    return genID;
-}
-
-uint32_t SkPicture::uniqueID() const {
-    if (SK_InvalidGenID == fUniqueID) {
-        fUniqueID = next_picture_generation_id();
-    }
-    return fUniqueID;
-}
-
 SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SkData* drawablePicts,
                      SkBBoxHierarchy* bbh)
-    : fCullRect(cullRect)
+    : fUniqueID(next_picture_generation_id())
+    , fCullRect(cullRect)
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
     , fDrawablePicts(SkSafeRef(drawablePicts))
-    , fAnalysis(*fRecord) {
-    this->needsNewGenID();
-}
+    , fAnalysis(*fRecord)
+{}
 
 // Note that we are assuming that this entry point will only be called from
 // one thread. Currently the only client of this method is

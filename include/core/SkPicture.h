@@ -128,12 +128,9 @@ public:
     */
     SkRect cullRect() const { return fCullRect; }
 
-    /** Return a non-zero, unique value representing the picture. This call is
-        only valid when not recording. Between a beginRecording/endRecording
-        pair it will just return 0 (the invalid ID). Each beginRecording/
-        endRecording pair will cause a different generation ID to be returned.
-    */
-    uint32_t uniqueID() const;
+    /** Return a non-zero, unique value representing the picture.
+     */
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /**
      *  Function to encode an SkBitmap to an SkData. A function with this
@@ -249,7 +246,6 @@ private:
     static const uint32_t MIN_PICTURE_VERSION = 19;
     static const uint32_t CURRENT_PICTURE_VERSION = 37;
 
-    void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
     void callDeletionListeners();
 
     void createHeader(SkPictInfo* info) const;
@@ -264,12 +260,12 @@ private:
                                    SkPicture const* const drawablePics[], int drawableCount);
 
     // uint32_t fRefCnt; from SkNVRefCnt<SkPicture>
-    mutable uint32_t fUniqueID;
+    const uint32_t                        fUniqueID;
     const SkRect                          fCullRect;
     mutable SkAutoTUnref<const AccelData> fAccelData;
     mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
-    SkAutoTDelete<SkRecord>       fRecord;
-    SkAutoTUnref<SkBBoxHierarchy> fBBH;
+    SkAutoTDelete<const SkRecord>       fRecord;
+    SkAutoTUnref<const SkBBoxHierarchy> fBBH;
     SkAutoTUnref<SkData>          fDrawablePicts;
 
     // helpers for fDrawablePicts
