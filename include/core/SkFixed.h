@@ -140,14 +140,14 @@ SkFixed SkFixedMul_portable(SkFixed, SkFixed);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef int64_t SkFixed48;
+typedef int64_t SkFixed3232;   // 32.32
 
-#define SkIntToFixed48(x)       ((SkFixed48)(x) << 48)
-#define SkFixed48ToInt(x)       ((int)((x) >> 48))
-#define SkFixedToFixed48(x)     ((SkFixed48)(x) << 32)
-#define SkFixed48ToFixed(x)     ((SkFixed)((x) >> 32))
-#define SkFloatToFixed48(x)     ((SkFixed48)((x) * (65536.0f * 65536.0f * 65536.0f)))
+#define SkIntToFixed3232(x)       ((SkFixed3232)(x) << 32)
+#define SkFixed3232ToInt(x)       ((int)((x) >> 32))
+#define SkFixedToFixed3232(x)     ((SkFixed3232)(x) << 16)
+#define SkFixed3232ToFixed(x)     ((SkFixed)((x) >> 16))
+#define SkFloatToFixed3232(x)     ((SkFixed3232)((x) * (65536.0f * 65536.0f)))
 
-#define SkScalarToFixed48(x)    SkFloatToFixed48(x)
+#define SkScalarToFixed3232(x)    SkFloatToFixed3232(x)
 
 #endif
