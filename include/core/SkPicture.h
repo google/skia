@@ -200,7 +200,7 @@ public:
     bool hasText() const;
 
     // A refcounted array of refcounted const SkPicture pointers.
-    struct SnapshotArray : public SkNVRefCnt {
+    struct SnapshotArray : public SkNVRefCnt<SnapshotArray> {
         SnapshotArray(const SkPicture* pics[], size_t count) : fPics(pics), fCount(count) {}
         ~SnapshotArray() { for (size_t i = 0; i < fCount; i++) { fPics[i]->unref(); } }
 
