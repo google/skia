@@ -5852,7 +5852,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1289253105785603704
+          17492314805851855065
         ]
       ], 
       "reviewed-by-human": true
@@ -5970,7 +5970,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9298514044054867967
+          571194008531839949
         ]
       ], 
       "ignore-failure": false, 
@@ -6600,11 +6600,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3837254050080957005
+          5444522657787181251
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "mixed_xfermodes_msaa4.png": {
       "allowed-digests": [
@@ -9929,7 +9929,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6159703484894621115
+          1390330092071930285
         ]
       ], 
       "reviewed-by-human": true
@@ -9956,7 +9956,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5427202237673970177
+          12228316544823599008
         ]
       ], 
       "reviewed-by-human": true
