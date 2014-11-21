@@ -199,8 +199,9 @@ public:
      */
     bool hasText() const;
 
-    // A refcounted array of refcounted const SkPicture pointers.
-    struct SnapshotArray : public SkNVRefCnt<SnapshotArray> {
+    // An array of refcounted const SkPicture pointers.
+    class SnapshotArray : ::SkNoncopyable {
+    public:
         SnapshotArray(const SkPicture* pics[], size_t count) : fPics(pics), fCount(count) {}
         ~SnapshotArray() { for (size_t i = 0; i < fCount; i++) { fPics[i]->unref(); } }
 
@@ -263,7 +264,7 @@ private:
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    // Takes ownership of the SkRecord, refs the (optional) SnapshotArray and BBH.
+    // Takes ownership of the SkRecord and (optional) SnapshotArray, refs the (optional) BBH.
     SkPicture(const SkRect& cullRect, SkRecord*, SnapshotArray*, SkBBoxHierarchy*);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
@@ -277,7 +278,7 @@ private:
     mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
     SkAutoTDelete<const SkRecord>       fRecord;
     SkAutoTUnref<const SkBBoxHierarchy> fBBH;
-    SkAutoTUnref<const SnapshotArray>   fDrawablePicts;
+    SkAutoTDelete<const SnapshotArray>  fDrawablePicts;
 
     // helpers for fDrawablePicts
     int drawableCount() const;

@@ -523,7 +523,7 @@ SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* dr
     , fCullRect(cullRect)
     , fRecord(record)
     , fBBH(SkSafeRef(bbh))
-    , fDrawablePicts(SkSafeRef(drawablePicts))
+    , fDrawablePicts(drawablePicts)
     , fAnalysis(*fRecord)
 {}
 

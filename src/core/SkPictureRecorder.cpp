@@ -61,7 +61,7 @@ SkPicture* SkPictureRecorder::endRecording() {
     // TODO: we should remember these from our caller
     SkBBHFactory* factory = NULL;
     uint32_t recordFlags = 0;
-    SkAutoTUnref<SkPicture::SnapshotArray> drawablePicts(
+    SkAutoTDelete<SkPicture::SnapshotArray> drawablePicts(
             fRecorder->newDrawableSnapshot(factory, recordFlags));
     SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullRect, fRecord.detach(),
                                              drawablePicts.detach(), fBBH.get()));
