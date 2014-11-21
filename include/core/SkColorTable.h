@@ -65,7 +65,7 @@ public:
     */
     void unlock16BitCache() {
         SkASSERT(f16BitCacheLockCount > 0);
-        SkDEBUGCODE(sk_atomic_dec(&f16BitCacheLockCount);)
+        SkDEBUGCODE(f16BitCacheLockCount -= 1);
     }
 
     explicit SkColorTable(SkReadBuffer&);

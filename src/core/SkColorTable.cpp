@@ -70,7 +70,7 @@ const uint16_t* SkColorTable::lock16BitCache() {
         build_16bitcache(f16BitCache, fColors, fCount);
     }
 
-    SkDEBUGCODE(sk_atomic_inc(&f16BitCacheLockCount));
+    SkDEBUGCODE(f16BitCacheLockCount += 1);
     return f16BitCache;
 }
 
