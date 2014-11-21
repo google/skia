@@ -41,9 +41,9 @@
                       ],
                     },
                     'defines': [
-                      # The font host requires at least FreeType 2.3.0
-                      # at runtime.
-                      'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',
+                      # Skia's FreeType port requires at least FreeType 2.3.8
+                      # for building and at runtime.
+                      'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020308',
                       'SK_CAN_USE_DLOPEN=1',
                     ],
                   }

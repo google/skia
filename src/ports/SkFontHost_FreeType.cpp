@@ -31,36 +31,15 @@
 #include <dlfcn.h>
 #endif
 #include <ft2build.h>
+#include FT_ADVANCES_H
+#include FT_BITMAP_H
 #include FT_FREETYPE_H
+#include FT_LCD_FILTER_H
 #include FT_OUTLINE_H
 #include FT_SIZES_H
 #include FT_TRUETYPE_TABLES_H
 #include FT_TYPE1_TABLES_H
-#include FT_BITMAP_H
-// In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
-#include FT_SYNTHESIS_H
 #include FT_XFREE86_H
-#ifdef FT_LCD_FILTER_H
-#include FT_LCD_FILTER_H
-#endif
-
-// Defined in FreeType 2.3.8 and later.
-// This is a silly build time check, we would need a runtime check if we really cared.
-#ifdef   FT_ADVANCES_H
-#include FT_ADVANCES_H
-#endif
-
-#if 0
-// Also include the files by name for build tools which require this.
-#include <freetype/freetype.h>
-#include <freetype/ftoutln.h>
-#include <freetype/ftsizes.h>
-#include <freetype/tttables.h>
-#include <freetype/ftadvanc.h>
-#include <freetype/ftlcdfil.h>
-#include <freetype/ftbitmap.h>
-#include <freetype/ftsynth.h>
-#endif
 
 // FT_LOAD_COLOR and the corresponding FT_Pixel_Mode::FT_PIXEL_MODE_BGRA
 // were introduced in FreeType 2.5.0.
@@ -79,7 +58,8 @@
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
-
+//#define SK_FONTHOST_FREETYPE_USE_NORMAL_LCD_FILTER
+//#define SK_FONTHOST_FREETYPE_RUNTIME_VERSION
 //#define SK_GAMMA_APPLY_TO_A8
 
 using namespace skia_advanced_typeface_metrics_utils;
@@ -118,13 +98,14 @@ typedef FT_Error (*FT_Library_SetLcdFilterWeightsProc)(FT_Library, unsigned char
 
 // Caller must lock gFTMutex before calling this function.
 static bool InitFreetype() {
+    gFTMutex.assertHeld();
+
     FT_Error err = FT_Init_FreeType(&gFTLibrary);
     if (err) {
         return false;
     }
 
     // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
-#ifdef FT_LCD_FILTER_H
     // Use default { 0x10, 0x40, 0x70, 0x40, 0x10 }, as it adds up to 0x110, simulating ink spread.
     // SetLcdFilter must be called before SetLcdFilterWeights.
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
@@ -136,10 +117,9 @@ static bool InitFreetype() {
         // This also adds to 0x110 simulating ink spread, but provides better results than default.
         static unsigned char gGaussianLikeHeavyWeights[] = { 0x1A, 0x43, 0x56, 0x43, 0x1A, };
 
-#if defined(SK_FONTHOST_FREETYPE_RUNTIME_VERSION) && \
-            SK_FONTHOST_FREETYPE_RUNTIME_VERSION > 0x020400
+#if SK_FONTHOST_FREETYPE_RUNTIME_VERSION > 0x020400
         err = FT_Library_SetLcdFilterWeights(gFTLibrary, gGaussianLikeHeavyWeights);
-#elif defined(SK_CAN_USE_DLOPEN) && SK_CAN_USE_DLOPEN == 1
+#elif SK_CAN_USE_DLOPEN == 1
         //The FreeType library is already loaded, so symbols are available in process.
         void* self = dlopen(NULL, RTLD_LAZY);
         if (self) {
@@ -155,9 +135,6 @@ static bool InitFreetype() {
 #endif
 #endif
     }
-#else
-    gLCDSupport = false;
-#endif
     gLCDSupportValid = true;
 
     return true;
@@ -291,6 +268,8 @@ SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
 // Will return 0 on failure
 // Caller must lock gFTMutex before calling this function.
 static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
+    gFTMutex.assertHeld();
+
     const SkFontID fontID = typeface->uniqueID();
     SkFaceRec* rec = gFaceRecHead;
     while (rec) {
@@ -316,24 +295,21 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
     const void* memoryBase = strm->getMemoryBase();
 
     if (memoryBase) {
-//printf("mmap(%s)\n", keyString.c_str());
         args.flags = FT_OPEN_MEMORY;
         args.memory_base = (const FT_Byte*)memoryBase;
         args.memory_size = strm->getLength();
     } else {
-//printf("fopen(%s)\n", keyString.c_str());
         args.flags = FT_OPEN_STREAM;
         args.stream = &rec->fFTStream;
     }
 
     FT_Error err = FT_Open_Face(gFTLibrary, &args, face_index, &rec->fFace);
     if (err) {    // bad filename, try the default font
-        fprintf(stderr, "ERROR: unable to open font '%x'\n", fontID);
+        SkDEBUGF(("ERROR: unable to open font '%x'\n", fontID));
         SkDELETE(rec);
         return NULL;
     } else {
         SkASSERT(rec->fFace);
-        //fprintf(stderr, "Opened font '%s'\n", filename.c_str());
         rec->fNext = gFaceRecHead;
         gFaceRecHead = rec;
         return rec;
@@ -342,6 +318,8 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
 
 // Caller must lock gFTMutex before calling this function.
 static void unref_ft_face(FT_Face face) {
+    gFTMutex.assertHeld();
+
     SkFaceRec*  rec = gFaceRecHead;
     SkFaceRec*  prev = NULL;
     while (rec) {
@@ -399,57 +377,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 
-// Work around for old versions of freetype.
-static FT_Error getAdvances(FT_Face face, FT_UInt start, FT_UInt count,
-                           FT_Int32 loadFlags, FT_Fixed* advances) {
-#ifdef FT_ADVANCES_H
-    return FT_Get_Advances(face, start, count, loadFlags, advances);
-#else
-    if (!face || start >= face->num_glyphs ||
-            start + count > face->num_glyphs || loadFlags != FT_LOAD_NO_SCALE) {
-        return 6;  // "Invalid argument."
-    }
-    if (count == 0)
-        return 0;
-
-    for (int i = 0; i < count; i++) {
-        FT_Error err = FT_Load_Glyph(face, start + i, FT_LOAD_NO_SCALE);
-        if (err)
-            return err;
-        advances[i] = face->glyph->advance.x;
-    }
-
-    return 0;
-#endif
-}
-
 static bool canEmbed(FT_Face face) {
-#ifdef FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING
     FT_UShort fsType = FT_Get_FSType_Flags(face);
     return (fsType & (FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING |
                       FT_FSTYPE_BITMAP_EMBEDDING_ONLY)) == 0;
-#else
-    // No embedding is 0x2 and bitmap embedding only is 0x200.
-    TT_OS2* os2_table;
-    if ((os2_table = (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) {
-        return (os2_table->fsType & 0x202) == 0;
-    }
-    return false;  // We tried, fail safe.
-#endif
 }
 
 static bool canSubset(FT_Face face) {
-#ifdef FT_FSTYPE_NO_SUBSETTING
     FT_UShort fsType = FT_Get_FSType_Flags(face);
     return (fsType & FT_FSTYPE_NO_SUBSETTING) == 0;
-#else
-    // No subset is 0x100.
-    TT_OS2* os2_table;
-    if ((os2_table = (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) {
-        return (os2_table->fsType & 0x100) == 0;
-    }
-    return false;  // We tried, fail safe.
-#endif
 }
 
 static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
@@ -464,7 +400,7 @@ static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
 
 static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
     FT_Fixed advance = 0;
-    if (getAdvances(face, gId, 1, FT_LOAD_NO_SCALE, &advance)) {
+    if (FT_Get_Advances(face, gId, 1, FT_LOAD_NO_SCALE, &advance)) {
         return false;
     }
     SkASSERT(data);
@@ -472,8 +408,7 @@ static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
     return true;
 }
 
-static void populate_glyph_to_unicode(FT_Face& face,
-                                      SkTDArray<SkUnichar>* glyphToUnicode) {
+static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyphToUnicode) {
     // Check and see if we have Unicode cmaps.
     for (int i = 0; i < face->num_charmaps; ++i) {
         // CMaps known to support Unicode:
@@ -666,10 +601,10 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
             for (int gID = 0; gID < face->num_glyphs; gID += 128) {
                 FT_Fixed advances[128];
                 int advanceCount = 128;
-                if (gID + advanceCount > face->num_glyphs)
+                if (gID + advanceCount > face->num_glyphs) {
                     advanceCount = face->num_glyphs - gID;
-                getAdvances(face, gID, advanceCount, FT_LOAD_NO_SCALE,
-                            advances);
+                }
+                FT_Get_Advances(face, gID, advanceCount, FT_LOAD_NO_SCALE, advances);
                 for (int i = 0; i < advanceCount; i++) {
                     int16_t advance = advances[i];
                     info->fGlyphWidths->fAdvance.append(1, &advance);
@@ -1103,7 +1038,6 @@ SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
 }
 
 void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
-#ifdef FT_ADVANCES_H
    /* unhinted and light hinted text have linearly scaled advances
     * which are very cheap to compute with some font formats...
     */
@@ -1129,7 +1063,7 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
             return;
         }
     }
-#endif /* FT_ADVANCES_H */
+
     /* otherwise, we need to load/hint the glyph, which is slower */
     this->generateMetrics(glyph);
     return;
@@ -1176,10 +1110,12 @@ void SkScalerContext_FreeType::getBBoxForCurrentGlyph(SkGlyph* glyph,
 
 bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
     const FT_UInt glyph_id = FT_Get_Char_Index(fFace, letter);
-    if (!glyph_id)
+    if (!glyph_id) {
         return false;
-    if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags) != 0)
+    }
+    if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags) != 0) {
         return false;
+    }
     emboldenIfNeeded(fFace, fFace->glyph);
     FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
     return true;
@@ -1314,22 +1250,23 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 #endif
 }
 
+static void clear_glyph_image(const SkGlyph& glyph) {
+    sk_bzero(glyph.fImage, glyph.rowBytes() * glyph.fHeight);
+}
 
 void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
-    FT_Error    err;
-
     if (this->setupSize()) {
-        goto ERROR;
+        clear_glyph_image(glyph);
+        return;
     }
 
-    err = FT_Load_Glyph( fFace, glyph.getGlyphID(), fLoadGlyphFlags);
+    FT_Error err = FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags);
     if (err != 0) {
         SkDEBUGF(("SkScalerContext_FreeType::generateImage: FT_Load_Glyph(glyph:%d width:%d height:%d rb:%d flags:%d) returned 0x%x\n",
-                    glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(), fLoadGlyphFlags, err));
-    ERROR:
-        memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
+                  glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(), fLoadGlyphFlags, err));
+        clear_glyph_image(glyph);
         return;
     }
 
@@ -1338,8 +1275,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 }
 
 
-void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph,
-                                            SkPath* path) {
+void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     SkASSERT(path);
