@@ -19,6 +19,7 @@
 // required texture/render target resources.
 static void prepare_for_hoisting(GrLayerCache* layerCache, 
                                  const SkPicture* topLevelPicture,
+                                 const SkMatrix& matrix,
                                  const SkLayerInfo::BlockInfo& info,
                                  const SkIRect& layerRect,
                                  SkTDArray<GrHoistedLayer>* needRendering,
@@ -27,7 +28,9 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
                                  int numSamples) {
     const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
 
-    SkMatrix combined = SkMatrix::Concat(info.fPreMat, info.fLocalMat);
+    SkMatrix combined = matrix;
+    combined.preConcat(info.fPreMat);
+    combined.preConcat(info.fLocalMat);
 
     GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
                                                          info.fSaveLayerOpID,
@@ -73,7 +76,8 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     hl->fPicture = pict;
     hl->fOffset = SkIPoint::Make(layerRect.fLeft, layerRect.fTop);
     hl->fLocalMat = info.fLocalMat;
-    hl->fPreMat = info.fPreMat;
+    hl->fPreMat = matrix;
+    hl->fPreMat.preConcat(info.fPreMat);
 }
 
 // Atlased layers must be small enough to fit in the atlas, not have a
@@ -81,6 +85,7 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
 // TODO: allow leaf nested layers to appear in the atlas.
 void GrLayerHoister::FindLayersToAtlas(GrContext* context,
                                        const SkPicture* topLevelPicture,
+                                       const SkMatrix& initialMat,
                                        const SkRect& query,
                                        SkTDArray<GrHoistedLayer>* atlased,
                                        SkTDArray<GrHoistedLayer>* recycled,
@@ -119,25 +124,27 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
             continue;
         }
 
-        SkRect layerRect = info.fBounds;
+        SkRect layerRect;
+        initialMat.mapRect(&layerRect, info.fBounds);
         if (!layerRect.intersect(query)) {
             continue;
         }
 
-        SkIRect ir;
-        layerRect.roundOut(&ir);
+        const SkIRect ir = layerRect.roundOut();
 
         if (!GrLayerCache::PlausiblyAtlasable(ir.width(), ir.height())) {
             continue;
         }
 
-        prepare_for_hoisting(layerCache, topLevelPicture, info, ir, atlased, recycled, true, 0);
+        prepare_for_hoisting(layerCache, topLevelPicture, initialMat,
+                             info, ir, atlased, recycled, true, 0);
     }
 
 }
 
 void GrLayerHoister::FindLayersToHoist(GrContext* context,
                                        const SkPicture* topLevelPicture,
+                                       const SkMatrix& initialMat,
                                        const SkRect& query,
                                        SkTDArray<GrHoistedLayer>* needRendering,
                                        SkTDArray<GrHoistedLayer>* recycled,
@@ -166,15 +173,15 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
             continue;
         }
 
-        SkRect layerRect = info.fBounds;
+        SkRect layerRect;
+        initialMat.mapRect(&layerRect, info.fBounds);
         if (!layerRect.intersect(query)) {
             continue;
         }
 
-        SkIRect ir;
-        layerRect.roundOut(&ir);
+        const SkIRect ir = layerRect.roundOut();
 
-        prepare_for_hoisting(layerCache, topLevelPicture, info, ir, 
+        prepare_for_hoisting(layerCache, topLevelPicture, initialMat, info, ir,
                              needRendering, recycled, false, numSamples);
     }
 }

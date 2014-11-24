@@ -23,6 +23,7 @@
 
 #include "SkGrTexturePixelRef.h"
 
+#include "SkCanvasPriv.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
@@ -1788,8 +1789,8 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps
 
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* mainPicture,
                                            const SkMatrix* matrix, const SkPaint* paint) {
-    // todo: should handle these natively
-    if (matrix || paint) {
+    // todo: should handle this natively
+    if (paint) {
         return false;
     }
 
@@ -1805,9 +1806,14 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return true;
     }
 
+    SkAutoCanvasMatrixPaint acmp(mainCanvas, matrix, paint, mainPicture->cullRect());
+
+    const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
+
     SkTDArray<GrHoistedLayer> atlasedNeedRendering, atlasedRecycled;
 
     GrLayerHoister::FindLayersToAtlas(fContext, mainPicture,
+                                      initialMatrix,
                                       clipBounds,
                                       &atlasedNeedRendering, &atlasedRecycled,
                                       fRenderTarget->numSamples());
@@ -1817,6 +1823,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     SkTDArray<GrHoistedLayer> needRendering, recycled;
 
     GrLayerHoister::FindLayersToHoist(fContext, mainPicture,
+                                      initialMatrix,
                                       clipBounds,
                                       &needRendering, &recycled,
                                       fRenderTarget->numSamples());
@@ -1829,8 +1836,6 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::ConvertLayersToReplacements(recycled, &replacements);
 
     // Render the entire picture using new layers
-    const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
-
     GrRecordReplaceDraw(mainPicture, mainCanvas, &replacements, initialMatrix, NULL);
 
     GrLayerHoister::UnlockLayers(fContext, needRendering);

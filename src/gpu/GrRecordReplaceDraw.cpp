@@ -12,7 +12,7 @@
 #include "SkRecords.h"
 
 GrReplacements::ReplacementInfo* GrReplacements::newReplacement(uint32_t pictureID,
-                                                                unsigned int start,
+                                                                unsigned start,
                                                                 const SkMatrix& ctm) {
     ReplacementInfo* replacement = SkNEW_ARGS(ReplacementInfo, (pictureID, start, ctm));
     fReplacementHash.add(replacement);
@@ -31,14 +31,13 @@ void GrReplacements::freeAll() {
 }
 
 const GrReplacements::ReplacementInfo* GrReplacements::lookupByStart(uint32_t pictureID,
-                                                                     size_t start,
+                                                                     unsigned start,
                                                                      const SkMatrix& ctm) const {
     return fReplacementHash.find(ReplacementInfo::Key(pictureID, start, ctm));
 }
 
 static inline void draw_replacement_bitmap(const GrReplacements::ReplacementInfo* ri,
-                                           SkCanvas* canvas,
-                                           const SkMatrix& initialMatrix) {
+                                           SkCanvas* canvas) {
     SkRect src = SkRect::Make(ri->fSrcRect);
     SkRect dst = SkRect::MakeXYWH(SkIntToScalar(ri->fPos.fX),
                                   SkIntToScalar(ri->fPos.fY),
@@ -46,7 +45,7 @@ static inline void draw_replacement_bitmap(const GrReplacements::ReplacementInfo
                                   SkIntToScalar(ri->fSrcRect.height()));
 
     canvas->save();
-    canvas->setMatrix(initialMatrix);
+    canvas->setMatrix(SkMatrix::I());
     canvas->drawImageRect(ri->fImage, &src, dst, ri->fPaint);
     canvas->restore();
 }
@@ -131,7 +130,7 @@ public:
 
         // For a saveLayer command, check if it can be replaced by a drawBitmap
         // call and, if so, draw it and then update the current op index accordingly.
-        size_t startOffset;
+        unsigned startOffset;
         if (fOps.count()) {
             startOffset = fOps[fIndex];
         } else {
@@ -146,7 +145,7 @@ public:
 
         if (ri) {
             fNumReplaced++;
-            draw_replacement_bitmap(ri, fCanvas, fInitialMatrix);
+            draw_replacement_bitmap(ri, fCanvas);
 
             if (fPicture->fBBH.get()) {
                 while (fOps[fIndex] < ri->fStop) {

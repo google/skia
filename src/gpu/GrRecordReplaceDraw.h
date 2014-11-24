@@ -32,7 +32,7 @@ public:
     class ReplacementInfo {
     public:
         struct Key {
-            Key(uint32_t pictureID, unsigned int start, const SkMatrix& ctm)
+            Key(uint32_t pictureID, unsigned start, const SkMatrix& ctm)
             : fPictureID(pictureID)
             , fStart(start)
             , fCTM(ctm) {
@@ -55,9 +55,9 @@ public:
             unsigned int start() const { return fStart; }
 
         private:
-            const uint32_t     fPictureID;
-            const unsigned int fStart;
-            const SkMatrix     fCTM;
+            const uint32_t fPictureID;
+            const unsigned fStart;
+            const SkMatrix fCTM;
         };
 
         static const Key& GetKey(const ReplacementInfo& layer) { return layer.fKey; }
@@ -86,11 +86,11 @@ public:
     ~GrReplacements() { this->freeAll(); }
 
     // Add a new replacement range.
-    ReplacementInfo* newReplacement(uint32_t pictureID, unsigned int start, const SkMatrix& ctm);
+    ReplacementInfo* newReplacement(uint32_t pictureID, unsigned start, const SkMatrix& ctm);
 
     // look up a replacement range by its pictureID, start offset and the CTM
     // TODO: also need to add clip to lookup
-    const ReplacementInfo* lookupByStart(uint32_t pictureID, size_t start, 
+    const ReplacementInfo* lookupByStart(uint32_t pictureID, unsigned start, 
                                          const SkMatrix& ctm) const;
 
 private:

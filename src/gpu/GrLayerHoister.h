@@ -36,6 +36,7 @@ public:
         layers can be inside nested sub-pictures.
         @param context    Owner of the layer cache (the source of new layers)
         @param topLevelPicture The top-level picture that is about to be rendered
+        @param initialMat  The CTM of the canvas into which the layers will be drawn
         @param query       The rectangle that is about to be drawn.
         @param atlasedNeedRendering Out parameter storing the layers that 
                                     should be hoisted to the atlas
@@ -44,6 +45,7 @@ public:
         */
     static void FindLayersToAtlas(GrContext* context,
                                   const SkPicture* topLevelPicture,
+                                  const SkMatrix& initialMat,
                                   const SkRect& query,
                                   SkTDArray<GrHoistedLayer>* atlasedNeedRendering,
                                   SkTDArray<GrHoistedLayer>* recycled,
@@ -53,6 +55,7 @@ public:
         layers can be inside nested sub-pictures.
         @param context    Owner of the layer cache (the source of new layers)
         @param topLevelPicture The top-level picture that is about to be rendered
+        @param initialMat  The CTM of the canvas into which the layers will be drawn
         @param query       The rectangle that is about to be drawn.
         @param needRendering Out parameter storing the layers that need rendering.
                              This should never include atlased layers.
@@ -61,6 +64,7 @@ public:
     */
     static void FindLayersToHoist(GrContext* context,
                                   const SkPicture* topLevelPicture,
+                                  const SkMatrix& initialMat,
                                   const SkRect& query,
                                   SkTDArray<GrHoistedLayer>* needRendering,
                                   SkTDArray<GrHoistedLayer>* recycled,
