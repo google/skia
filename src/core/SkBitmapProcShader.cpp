@@ -337,8 +337,9 @@ static bool bitmapIsTooBig(const SkBitmap& bm) {
     return bm.width() > maxSize || bm.height() > maxSize;
 }
 
-SkShader* CreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
-        SkShader::TileMode tmy, const SkMatrix* localMatrix, SkTBlitterAllocator* allocator) {
+SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
+                               SkShader::TileMode tmy, const SkMatrix* localMatrix,
+                               SkTBlitterAllocator* allocator) {
     SkShader* shader;
     SkColor color;
     if (src.isNull() || bitmapIsTooBig(src)) {
@@ -466,7 +467,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
                                     "Couldn't convert bitmap to texture.");
         return false;
     }
-    
+
     *paintColor = (kAlpha_8_SkColorType == fRawBitmap.colorType()) ?
                                                 SkColor2GrColor(paint.getColor()) :
                                                 SkColor2GrColorJustAlpha(paint.getColor());
@@ -480,7 +481,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
     return true;
 }
 
-#else 
+#else
 
 bool SkBitmapProcShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
                                              GrFragmentProcessor**) const {

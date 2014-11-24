@@ -242,7 +242,7 @@ SkShader* SkShader::CreateColorShader(SkColor color) {
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                        const SkMatrix* localMatrix) {
-    return ::CreateBitmapShader(src, tmx, tmy, localMatrix, NULL);
+    return SkCreateBitmapShader(src, tmx, tmy, localMatrix, NULL);
 }
 
 SkShader* SkShader::CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy,

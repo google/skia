@@ -77,9 +77,9 @@ public:
     SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint& paint,
                               const SkMatrix* localMatrix = NULL)
             : fPaint(paint) /* makes a copy of the paint */ {
-        fPaint.setShader(CreateBitmapShader(src, SkShader::kClamp_TileMode,
-                                            SkShader::kClamp_TileMode,
-                                            localMatrix, &fAllocator));
+        fPaint.setShader(SkCreateBitmapShader(src, SkShader::kClamp_TileMode,
+                                              SkShader::kClamp_TileMode,
+                                              localMatrix, &fAllocator));
         // we deliberately left the shader with an owner-count of 2
         SkASSERT(2 == fPaint.getShader()->getRefCnt());
     }
@@ -595,7 +595,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 if (newPaint.getStrokeCap() == SkPaint::kRound_Cap) {
                     SkPath      path;
                     SkMatrix    preMatrix;
-                    
+
                     path.addCircle(0, 0, radius);
                     for (size_t i = 0; i < count; i++) {
                         preMatrix.setTranslate(pts[i].fX, pts[i].fY);
@@ -1955,7 +1955,7 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
         if (iterPath) {
             SkPath      tmp;
             SkMatrix    m(scaledMatrix);
-            
+
             tmp.setIsVolatile(true);
             m.postTranslate(xpos + hOffset, 0);
             if (matrix) {
