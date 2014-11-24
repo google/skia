@@ -36,4 +36,5 @@ maxlen = max(map(len, common))
 bonferroni = SIGNIFICANCE_THRESHOLD / len(ps)  # Adjust for the fact we've run multiple tests.
 for ratio, p, key, am, bm in ps:
     if p < bonferroni:
-        print '%*s\t%6s -> %6s\t%.2gx' % (maxlen, key, humanize(am), humanize(bm), ratio)
+        str_ratio = ('%.2gx' if ratio < 1 else '%.3gx') % ratio
+        print '%*s\t%6s -> %6s\t%s' % (maxlen, key, humanize(am), humanize(bm), str_ratio)
