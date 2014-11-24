@@ -77,11 +77,11 @@ static void test_image(skiatest::Reporter* reporter) {
     size_t size = info.getSafeSize(rowBytes);
     SkData* data = SkData::NewUninitialized(size);
 
-    REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
+    REPORTER_ASSERT(reporter, data->unique());
     SkImage* image = SkImage::NewRasterData(info, data, rowBytes);
-    REPORTER_ASSERT(reporter, 2 == data->getRefCnt());
+    REPORTER_ASSERT(reporter, !data->unique());
     image->unref();
-    REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
+    REPORTER_ASSERT(reporter, data->unique());
     data->unref();
 }
 

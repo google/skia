@@ -49,7 +49,7 @@ static void test_refCnt(skiatest::Reporter* reporter) {
     thing1.join();
     thing2.join();
 
-    REPORTER_ASSERT(reporter, ref->getRefCnt() == 1);
+    REPORTER_ASSERT(reporter, ref->unique());
     ref->unref();
 }
 
@@ -93,7 +93,7 @@ static void test_weakRefCnt(skiatest::Reporter* reporter) {
     thing3.join();
     thing4.join();
 
-    REPORTER_ASSERT(reporter, ref->getRefCnt() == 1);
+    REPORTER_ASSERT(reporter, ref->unique());
     REPORTER_ASSERT(reporter, ref->getWeakCnt() == 1);
     ref->unref();
 }
