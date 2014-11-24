@@ -42,10 +42,10 @@ public:
 #endif
     }
 
-//#ifdef SK_DEBUG
+#ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
     int32_t getRefCnt() const { return fRefCnt; }
-//#endif
+#endif
 
     /** May return true if the caller is the only owner.
      *  Ensures that all previous owner's actions are complete.
