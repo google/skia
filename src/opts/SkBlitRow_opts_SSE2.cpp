@@ -873,44 +873,13 @@ void S32_D565_Opaque_SSE2(uint16_t* SK_RESTRICT dst,
 
         const __m128i* s = reinterpret_cast<const __m128i*>(src);
         __m128i* d = reinterpret_cast<__m128i*>(dst);
-        __m128i r16_mask = _mm_set1_epi32(SK_R16_MASK);
-        __m128i g16_mask = _mm_set1_epi32(SK_G16_MASK);
-        __m128i b16_mask = _mm_set1_epi32(SK_B16_MASK);
 
         while (count >= 8) {
             // Load 8 pixels of src.
             __m128i src_pixel1 = _mm_loadu_si128(s++);
             __m128i src_pixel2 = _mm_loadu_si128(s++);
 
-            // Calculate result r.
-            __m128i r1 = _mm_srli_epi32(src_pixel1,
-                                        SK_R32_SHIFT + (8 - SK_R16_BITS));
-            r1 = _mm_and_si128(r1, r16_mask);
-            __m128i r2 = _mm_srli_epi32(src_pixel2,
-                                        SK_R32_SHIFT + (8 - SK_R16_BITS));
-            r2 = _mm_and_si128(r2, r16_mask);
-            __m128i r = _mm_packs_epi32(r1, r2);
-
-            // Calculate result g.
-            __m128i g1 = _mm_srli_epi32(src_pixel1,
-                                        SK_G32_SHIFT + (8 - SK_G16_BITS));
-            g1 = _mm_and_si128(g1, g16_mask);
-            __m128i g2 = _mm_srli_epi32(src_pixel2,
-                                        SK_G32_SHIFT + (8 - SK_G16_BITS));
-            g2 = _mm_and_si128(g2, g16_mask);
-            __m128i g = _mm_packs_epi32(g1, g2);
-
-            // Calculate result b.
-            __m128i b1 = _mm_srli_epi32(src_pixel1,
-                                        SK_B32_SHIFT + (8 - SK_B16_BITS));
-            b1 = _mm_and_si128(b1, b16_mask);
-            __m128i b2 = _mm_srli_epi32(src_pixel2,
-                                        SK_B32_SHIFT + (8 - SK_B16_BITS));
-            b2 = _mm_and_si128(b2, b16_mask);
-            __m128i b = _mm_packs_epi32(b1, b2);
-
-            // Store 8 16-bit colors in dst.
-            __m128i d_pixel = SkPackRGB16_SSE2(r, g, b);
+            __m128i d_pixel = SkPixel32ToPixel16_ToU16_SSE2(src_pixel1, src_pixel2);
             _mm_store_si128(d++, d_pixel);
             count -= 8;
         }
