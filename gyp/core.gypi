@@ -154,6 +154,7 @@
         '<(skia_src_path)/core/SkReadBuffer.h',
         '<(skia_src_path)/core/SkReadBuffer.cpp',
         '<(skia_src_path)/core/SkReader32.h',
+        '<(skia_src_path)/core/SkRecord.cpp',
         '<(skia_src_path)/core/SkRecordDraw.cpp',
         '<(skia_src_path)/core/SkRecordOpts.cpp',
         '<(skia_src_path)/core/SkRecorder.cpp',

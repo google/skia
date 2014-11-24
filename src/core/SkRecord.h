@@ -31,13 +31,7 @@ class SkRecord : public SkNVRefCnt<SkRecord> {
     };
 public:
     SkRecord() : fCount(0), fReserved(0) {}
-
-    ~SkRecord() {
-        Destroyer destroyer;
-        for (unsigned i = 0; i < this->count(); i++) {
-            this->mutate<void>(i, destroyer);
-        }
-    }
+    ~SkRecord();
 
     // Returns the number of canvas commands in this SkRecord.
     unsigned count() const { return fCount; }
@@ -76,11 +70,8 @@ public:
     template <typename T>
     T* append() {
         if (fCount == fReserved) {
-            fReserved = SkTMax<unsigned>(kFirstReserveCount, fReserved*2);
-            fRecords.realloc(fReserved);
-            fTypes.realloc(fReserved);
+            this->grow();
         }
-
         fTypes[fCount] = T::kType;
         return fRecords[fCount++].set(this->allocCommand<T>());
     }
@@ -115,9 +106,7 @@ public:
 
     // Does not return the bytes in any pointers embedded in the Records; callers
     // need to iterate with a visitor to measure those they care for.
-    size_t bytesUsed() const { return fAlloc.approxBytesAllocated() +
-                                      fReserved * (sizeof(Record) + sizeof(Type8)) +
-                                      sizeof(SkRecord); }
+    size_t bytesUsed() const;
 
 private:
     // Implementation notes!
@@ -183,6 +172,9 @@ private:
 
     template <typename T>
     SK_WHEN(!SkTIsEmpty<T>, T*) allocCommand() { return this->alloc<T>(); }
+
+    // Called when we've run out of room to record new commands.
+    void grow();
 
     // An untyped pointer to some bytes in fAlloc.  This is the interface for polymorphic dispatch:
     // visit() and mutate() work with the parallel fTypes array to do the work of a vtable.
