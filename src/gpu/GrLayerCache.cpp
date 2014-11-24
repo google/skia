@@ -10,8 +10,6 @@
 #include "GrLayerCache.h"
 #include "GrSurfacePriv.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrPictureDeletedMessage);
-
 #ifdef SK_DEBUG
 void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fKey.pictureID());
@@ -56,7 +54,7 @@ void GrCachedLayer::validate(const GrTexture* backingTexture) const {
 
 class GrAutoValidateLayer : ::SkNoncopyable {
 public:
-    GrAutoValidateLayer(GrTexture* backingTexture, const GrCachedLayer* layer) 
+    GrAutoValidateLayer(GrTexture* backingTexture, const GrCachedLayer* layer)
         : fBackingTexture(backingTexture)
         , fLayer(layer) {
         if (fLayer) {
@@ -96,8 +94,8 @@ GrLayerCache::~GrLayerCache() {
 
     SkASSERT(0 == fPictureHash.count());
 
-    // The atlas only lets go of its texture when the atlas is deleted. 
-    fAtlas.free();    
+    // The atlas only lets go of its texture when the atlas is deleted.
+    fAtlas.free();
 }
 
 void GrLayerCache::initAtlas() {
@@ -120,12 +118,12 @@ void GrLayerCache::freeAll() {
     }
     fLayerHash.rewind();
 
-    // The atlas only lets go of its texture when the atlas is deleted. 
+    // The atlas only lets go of its texture when the atlas is deleted.
     fAtlas.free();
 }
 
-GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID, 
-                                         int start, int stop, 
+GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
+                                         int start, int stop,
                                          const SkIRect& bounds,
                                          const SkMatrix& ctm,
                                          const SkPaint* paint) {
@@ -137,7 +135,7 @@ GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
 }
 
 GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID,
-                                       int start, 
+                                       int start,
                                        const SkIRect& bounds,
                                        const SkMatrix& ctm) {
     SkASSERT(pictureID != SK_InvalidGenID && start > 0);
@@ -158,8 +156,8 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
     return layer;
 }
 
-bool GrLayerCache::tryToAtlas(GrCachedLayer* layer, 
-                              const GrSurfaceDesc& desc, 
+bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
+                              const GrSurfaceDesc& desc,
                               bool* needsRendering) {
     SkDEBUGCODE(GrAutoValidateLayer avl(fAtlas ? fAtlas->getTexture() : NULL, layer);)
 
@@ -220,7 +218,7 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
                 return true;
             }
 
-            // The layer was rejected by the atlas (even though we know it is 
+            // The layer was rejected by the atlas (even though we know it is
             // plausibly atlas-able). See if a plot can be purged and try again.
             if (!this->purgePlot()) {
                 break;  // We weren't able to purge any plots
@@ -282,7 +280,7 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
                 SkDELETE(pictInfo);
             }
         }
-        
+
         layer->setPlot(NULL);
         layer->setTexture(NULL, GrIRect16::MakeEmpty());
 #endif
@@ -324,7 +322,7 @@ void GrLayerCache::validate() const {
             if (layer->locked()) {
                 plotLocks[layer->plot()->id()]++;
             }
-        } 
+        }
     }
 
     for (int i = 0; i < kNumPlotsX*kNumPlotsY; ++i) {
@@ -456,27 +454,12 @@ void GrLayerCache::purgeAll() {
 }
 #endif
 
-class GrPictureDeletionListener : public SkPicture::DeletionListener {
-    virtual void onDeletion(uint32_t pictureID) SK_OVERRIDE{
-        const GrPictureDeletedMessage message = { pictureID };
-        SkMessageBus<GrPictureDeletedMessage>::Post(message);
-    }
-};
-
-void GrLayerCache::trackPicture(const SkPicture* picture) {
-    if (NULL == fDeletionListener) {
-        fDeletionListener.reset(SkNEW(GrPictureDeletionListener));
-    }
-
-    picture->addDeletionListener(fDeletionListener);
-}
-
 void GrLayerCache::processDeletedPictures() {
-    SkTDArray<GrPictureDeletedMessage> deletedPictures;
+    SkTDArray<SkPicture::DeletionMessage> deletedPictures;
     fPictDeletionInbox.poll(&deletedPictures);
 
     for (int i = 0; i < deletedPictures.count(); i++) {
-        this->purge(deletedPictures[i].pictureID);
+        this->purge(deletedPictures[i].fUniqueID);
     }
 }
 

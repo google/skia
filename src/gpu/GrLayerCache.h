@@ -19,12 +19,7 @@
 // Set to 0 to disable caching of hoisted layers
 #define GR_CACHE_HOISTED_LAYERS 0
 
-// The layer cache listens for these messages to purge picture-related resources.
-struct GrPictureDeletedMessage {
-    uint32_t pictureID;
-};
-
-// GrPictureInfo stores the atlas plots used by a single picture. A single 
+// GrPictureInfo stores the atlas plots used by a single picture. A single
 // plot may be used to store layers from multiple pictures.
 struct GrPictureInfo {
 public:
@@ -262,9 +257,6 @@ public:
         }
     }
 
-    // Setup to be notified when 'picture' is deleted
-    void trackPicture(const SkPicture* picture);
-
     // Cleanup after any SkPicture deletions
     void processDeletedPictures();
 
@@ -304,9 +296,7 @@ private:
 
     SkTDynamicHash<GrCachedLayer, GrCachedLayer::Key> fLayerHash;
 
-    SkMessageBus<GrPictureDeletedMessage>::Inbox fPictDeletionInbox;
-
-    SkAutoTUnref<SkPicture::DeletionListener> fDeletionListener;
+    SkMessageBus<SkPicture::DeletionMessage>::Inbox fPictDeletionInbox;
 
     // This implements a plot-centric locking mechanism (since the atlas
     // backing texture is always locked). Each layer that is locked (i.e.,

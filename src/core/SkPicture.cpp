@@ -17,6 +17,7 @@
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
 #include "SkDrawPictureCallback.h"
+#include "SkMessageBus.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
@@ -40,6 +41,8 @@
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
 #include "SkRecorder.h"
+
+DECLARE_SKMESSAGEBUS_MESSAGE(SkPicture::DeletionMessage);
 
 template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
@@ -278,7 +281,9 @@ SkPicture const* const* SkPicture::drawablePicts() const {
 }
 
 SkPicture::~SkPicture() {
-    this->callDeletionListeners();
+    SkPicture::DeletionMessage msg;
+    msg.fUniqueID = this->uniqueID();
+    SkMessageBus<SkPicture::DeletionMessage>::Post(msg);
 }
 
 void SkPicture::EXPERIMENTAL_addAccelData(const SkPicture::AccelData* data) const {
@@ -526,21 +531,3 @@ SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* dr
     , fDrawablePicts(drawablePicts)
     , fAnalysis(*fRecord)
 {}
-
-// Note that we are assuming that this entry point will only be called from
-// one thread. Currently the only client of this method is
-// SkGpuDevice::EXPERIMENTAL_optimize which should be only called from a single
-// thread.
-void SkPicture::addDeletionListener(DeletionListener* listener) const {
-    SkASSERT(listener);
-
-    *fDeletionListeners.append() = SkRef(listener);
-}
-
-void SkPicture::callDeletionListeners() {
-    for (int i = 0; i < fDeletionListeners.count(); ++i) {
-        fDeletionListeners[i]->onDeletion(this->uniqueID());
-    }
-
-    fDeletionListeners.unrefAll();
-}

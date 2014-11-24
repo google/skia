@@ -1011,7 +1011,7 @@ static void test_savelayer_extraction(skiatest::Reporter* reporter) {
                                   kHeight/2.0 == info1.fBounds.height());
         REPORTER_ASSERT(reporter, info1.fLocalMat.isIdentity());
         REPORTER_ASSERT(reporter, info1.fPreMat.isIdentity());
-        REPORTER_ASSERT(reporter, kWidth/2.0 == info1.fBounds.fLeft && 
+        REPORTER_ASSERT(reporter, kWidth/2.0 == info1.fBounds.fLeft &&
                                   kHeight/2.0 == info1.fBounds.fTop);
         REPORTER_ASSERT(reporter, NULL == info1.fPaint);
         REPORTER_ASSERT(reporter, !info1.fIsNested &&
@@ -1733,7 +1733,7 @@ static void test_bytes_used(skiatest::Reporter* reporter) {
                               sizeof(SkPicture) + sizeof(SkRecord));
 
     // Protect against any unintentional bloat.
-    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) <= 144);
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) <= 128);
 
     // Sanity check of nested SkPictures.
     SkPictureRecorder r2;

@@ -53,8 +53,6 @@ static void create_layers(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, NULL == layer->paint());
         REPORTER_ASSERT(reporter, !layer->isAtlased());
     }
-
-    cache->trackPicture(&picture);
 }
 
 static void lock_layer(skiatest::Reporter* reporter,

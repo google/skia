@@ -180,14 +180,6 @@ public:
     bool suitableForGpuRasterization(GrContext*, const char ** = NULL) const;
 #endif
 
-    class DeletionListener : public SkRefCnt {
-    public:
-        virtual void onDeletion(uint32_t pictureID) = 0;
-    };
-
-    // Takes ref on listener.
-    void addDeletionListener(DeletionListener* listener) const;
-
     /** Return the approximate number of operations in this picture.  This
      *  number may be greater or less than the number of SkCanvas calls
      *  recorded: some calls may be recorded as more than one operation, or some
@@ -211,6 +203,9 @@ public:
         SkAutoTMalloc<const SkPicture*> fPics;
         int fCount;
     };
+
+    // Sent via SkMessageBus from destructor.
+    struct DeletionMessage { int32_t fUniqueID; };
 
 private:
     // V2 : adds SkPixelRef's generation ID.
@@ -259,8 +254,6 @@ private:
     static const uint32_t MIN_PICTURE_VERSION = 19;
     static const uint32_t CURRENT_PICTURE_VERSION = 37;
 
-    void callDeletionListeners();
-
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
@@ -275,7 +268,6 @@ private:
     const uint32_t                        fUniqueID;
     const SkRect                          fCullRect;
     mutable SkAutoTUnref<const AccelData> fAccelData;
-    mutable SkTDArray<DeletionListener*> fDeletionListeners;  // pointers are refed
     SkAutoTDelete<const SkRecord>       fRecord;
     SkAutoTUnref<const SkBBoxHierarchy> fBBH;
     SkAutoTDelete<const SnapshotArray>  fDrawablePicts;

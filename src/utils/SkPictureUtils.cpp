@@ -232,10 +232,6 @@ size_t SkPictureUtils::ApproximateBytesUsed(const SkPicture* pict) {
     if (pict->fBBH.get()) {
         byteCount += pict->fBBH->bytesUsed();
     }
-    byteCount +=
-        pict->fDeletionListeners.reserved() * sizeof(SkPicture::DeletionListener*) +
-        pict->fDeletionListeners.count() * sizeof(SkPicture::DeletionListener);
-
     MeasureRecords visitor;
     for (unsigned curOp = 0; curOp < pict->fRecord->count(); curOp++) {
         byteCount += pict->fRecord->visit<size_t>(curOp, visitor);
