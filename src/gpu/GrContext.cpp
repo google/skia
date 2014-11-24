@@ -24,6 +24,7 @@
 #include "GrPathUtils.h"
 #include "GrResourceCache2.h"
 #include "GrSoftwarePathRenderer.h"
+#include "GrStencilBuffer.h"
 #include "GrStencilAndCoverTextContext.h"
 #include "GrStrokeInfo.h"
 #include "GrSurfacePriv.h"
@@ -249,6 +250,22 @@ bool GrContext::isTextureInCache(const GrSurfaceDesc& desc,
                                  const GrTextureParams* params) const {
     GrResourceKey resourceKey = GrTexturePriv::ComputeKey(fGpu, params, desc, cacheID);
     return fResourceCache2->hasContentKey(resourceKey);
+}
+
+void GrContext::addStencilBuffer(GrStencilBuffer* sb) {
+    // TODO: Make GrStencilBuffers use the scratch mechanism rather than content keys.
+    ASSERT_OWNED_RESOURCE(sb);
+
+    GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(sb->width(),
+                                                            sb->height(),
+                                                            sb->numSamples());
+    SkAssertResult(sb->cacheAccess().setContentKey(resourceKey));
+}
+
+GrStencilBuffer* GrContext::findAndRefStencilBuffer(int width, int height, int sampleCnt) {
+    GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width, height, sampleCnt);
+    GrGpuResource* resource = this->findAndRefCachedResource(resourceKey);
+    return static_cast<GrStencilBuffer*>(resource);
 }
 
 static void stretch_image(void* dst,

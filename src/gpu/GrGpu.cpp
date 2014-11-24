@@ -13,11 +13,13 @@
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
-#include "GrResourceCache2.h"
 #include "GrStencilBuffer.h"
 #include "GrVertexBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+#define DEBUG_INVAL_BUFFER    0xdeadcafe
+#define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
@@ -76,9 +78,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc,
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     SkASSERT(NULL == rt->getStencilBuffer());
-    GrResourceKey sbKey = GrStencilBuffer::ComputeKey(rt->width(), rt->height(), rt->numSamples());
-    SkAutoTUnref<GrStencilBuffer> sb(static_cast<GrStencilBuffer*>(
-        this->getContext()->getResourceCache2()->findAndRefScratchResource(sbKey)));
+    SkAutoTUnref<GrStencilBuffer> sb(
+        this->getContext()->findAndRefStencilBuffer(rt->width(), rt->height(), rt->numSamples()));
     if (sb) {
         rt->setStencilBuffer(sb);
         bool attached = this->attachStencilBufferToRenderTarget(sb, rt);

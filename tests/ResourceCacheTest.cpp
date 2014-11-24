@@ -569,76 +569,6 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_large_resource_count(skiatest::Reporter* reporter) {
-    SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
-    REPORTER_ASSERT(reporter, SkToBool(context));
-    if (NULL == context) {
-        return;
-    }
-
-    static const int kResourceCnt = 2000;
-    // Set the cache size to double the resource count because we're going to create 2x that number
-    // resources, using two different key domains. Add a little slop to the bytes because we resize
-    // down to 1 byte after creating the resource.
-    context->setResourceCacheLimits(2 * kResourceCnt, 2 * kResourceCnt + 1000);
-    GrResourceCache2* cache2 = context->getResourceCache2();
-    cache2->purgeAllUnlocked();
-    SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
-
-    GrCacheID::Domain domain0 = GrCacheID::GenerateDomain();
-    GrCacheID::Domain domain1 = GrCacheID::GenerateDomain();
-    GrResourceKey::ResourceType t = GrResourceKey::GenerateResourceType();
-
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
-
-    for (int i = 0; i < kResourceCnt; ++i) {
-        TestResource* resource;
-        keyData.fData32[0] = i;
-
-        GrResourceKey key0(GrCacheID(domain0, keyData), t, 0);
-        resource = SkNEW_ARGS(TestResource, (context->getGpu()));
-        resource->cacheAccess().setContentKey(key0);
-        resource->setSize(1);
-        resource->unref();
-
-        GrResourceKey key1(GrCacheID(domain1, keyData), t, 0);
-        resource = SkNEW_ARGS(TestResource, (context->getGpu()));
-        resource->cacheAccess().setContentKey(key1);
-        resource->setSize(1);
-        resource->unref();
-    }
-
-    REPORTER_ASSERT(reporter, TestResource::NumAlive() == 2 * kResourceCnt);
-    REPORTER_ASSERT(reporter, cache2->getBudgetedResourceBytes() == 2 * kResourceCnt);
-    REPORTER_ASSERT(reporter, cache2->getBudgetedResourceCount() == 2 * kResourceCnt);
-    REPORTER_ASSERT(reporter, cache2->getResourceBytes() == 2 * kResourceCnt);
-    REPORTER_ASSERT(reporter, cache2->getResourceCount() == 2 * kResourceCnt);
-    for (int i = 0; i < kResourceCnt; ++i) {
-        keyData.fData32[0] = i;
-        GrResourceKey key0(GrCacheID(domain0, keyData), t, 0);
-        REPORTER_ASSERT(reporter, cache2->hasContentKey(key0));
-        GrResourceKey key1(GrCacheID(domain0, keyData), t, 0);
-        REPORTER_ASSERT(reporter, cache2->hasContentKey(key1));
-    }
-
-    cache2->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, TestResource::NumAlive() == 0);
-    REPORTER_ASSERT(reporter, cache2->getBudgetedResourceBytes() == 0);
-    REPORTER_ASSERT(reporter, cache2->getBudgetedResourceCount() == 0);
-    REPORTER_ASSERT(reporter, cache2->getResourceBytes() == 0);
-    REPORTER_ASSERT(reporter, cache2->getResourceCount() == 0);
-
-    for (int i = 0; i < kResourceCnt; ++i) {
-        keyData.fData32[0] = i;
-        GrResourceKey key0(GrCacheID(domain0, keyData), t, 0);
-        REPORTER_ASSERT(reporter, !cache2->hasContentKey(key0));
-        GrResourceKey key1(GrCacheID(domain0, keyData), t, 0);
-        REPORTER_ASSERT(reporter, !cache2->hasContentKey(key1));
-    }
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST(ResourceCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
@@ -668,7 +598,6 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
     test_purge_invalidated(reporter);
     test_cache_chained_purge(reporter);
     test_resource_size_changed(reporter);
-    test_large_resource_count(reporter);
 }
 
 #endif

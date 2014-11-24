@@ -47,6 +47,9 @@ public:
                !fLastClipStackRect.contains(clipSpaceRect);
     }
 
+    // Places the sb in the cache. The cache takes a ref of the stencil buffer.
+    void transferToCache();
+
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt);
 
 protected:
@@ -57,7 +60,6 @@ protected:
         , fBits(bits)
         , fSampleCnt(sampleCnt)
         , fLastClipStackGenID(SkClipStack::kInvalidGenID) {
-        this->setScratchKey(ComputeKey(width, height, sampleCnt));
         fLastClipStackRect.setEmpty();
     }
 

@@ -34,6 +34,7 @@ class GrPath;
 class GrPathRenderer;
 class GrResourceEntry;
 class GrResourceCache2;
+class GrStencilBuffer;
 class GrTestTarget;
 class GrTextContext;
 class GrTextureParams;
@@ -888,6 +889,13 @@ public:
 
     void addGpuTraceMarker(const GrGpuTraceMarker* marker);
     void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
+
+    /**
+     * Stencil buffers add themselves to the cache using addStencilBuffer. findStencilBuffer is
+     * called to check the cache for a SB that matches an RT's criteria.
+     */
+    void addStencilBuffer(GrStencilBuffer* sb);
+    GrStencilBuffer* findAndRefStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(
                     const GrDrawTarget* target,
