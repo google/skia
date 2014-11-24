@@ -255,6 +255,7 @@ template <typename Derived>
 class SkNVRefCnt : SkNoncopyable {
 public:
     SkNVRefCnt() : fRefCnt(1) {}
+    ~SkNVRefCnt() { SkASSERTF(1 == fRefCnt, "NVRefCnt was %d", fRefCnt); }
 
     // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
     //   - unique() needs acquire when it returns true, and no barrier if it returns false;
@@ -267,17 +268,11 @@ public:
         int32_t prevValue = sk_atomic_dec(&fRefCnt);
         SkASSERT(prevValue >= 1);
         if (1 == prevValue) {
+            SkDEBUGCODE(fRefCnt = 1;)   // restore the 1 for our destructor's assert
             SkDELETE((const Derived*)this);
         }
     }
     void  deref() const { this->unref(); }  // Chrome prefers to call deref().
-
-protected:
-#ifdef SK_DEBUG
-    ~SkNVRefCnt() {
-        SkASSERTF(0 == fRefCnt, "NVRefCnt was %d", fRefCnt);
-    }
-#endif
 
 private:
     mutable int32_t fRefCnt;
