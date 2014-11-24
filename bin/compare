@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import sys
+from scipy.stats import mannwhitneyu
+
+SIGNIFICANCE_THRESHOLD = 0.0001
+
+a,b = {},{}
+for (path, d) in [(sys.argv[1], a), (sys.argv[2], b)]:
+    for line in open(path):
+        try:
+            tokens  = line.split()
+            samples = tokens[:-1]
+            label   = tokens[-1]
+            d[label] = map(float, samples)
+        except:
+            pass
+
+common = set(a.keys()).intersection(b.keys())
+
+ps = []
+for key in common:
+    _, p = mannwhitneyu(a[key], b[key])    # Non-parametric t-test.  Doesn't assume normal dist.
+    am, bm = min(a[key]), min(b[key])
+    ps.append((bm/am, p, key, am, bm))
+ps.sort(reverse=True)
+
+def humanize(ns):
+    for threshold, suffix in [(1e9, 's'), (1e6, 'ms'), (1e3, 'us'), (1e0, 'ns')]:
+        if ns > threshold:
+            return "%.3g%s" % (ns/threshold, suffix)
+
+maxlen = max(map(len, common))
+
+# We print only signficant changes in benchmark timing distribution.
+bonferroni = SIGNIFICANCE_THRESHOLD / len(ps)  # Adjust for the fact we've run multiple tests.
+for ratio, p, key, am, bm in ps:
+    if p < bonferroni:
+        print '%*s\t%6s -> %6s\t%.2gx' % (maxlen, key, humanize(am), humanize(bm), ratio)
