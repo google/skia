@@ -210,10 +210,10 @@ public:
     }
 
 private:
-    BBH                      fBBH;
-    Mode                     fMode;
-    SkString                 fName;
-    SkAutoTDelete<SkPicture> fPic;
+    BBH                     fBBH;
+    Mode                    fMode;
+    SkString                fName;
+    SkAutoTUnref<SkPicture> fPic;
 };
 
 DEF_BENCH( return new TiledPlaybackBench(kNone,     kRandom); )

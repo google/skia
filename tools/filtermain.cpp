@@ -661,7 +661,7 @@ struct OptTableEntry {
 
 
 static int filter_picture(const SkString& inFile, const SkString& outFile) {
-    SkAutoTDelete<SkPicture> inPicture;
+    SkAutoTUnref<SkPicture> inPicture;
 
     SkFILEStream inStream(inFile.c_str());
     if (inStream.isValid()) {

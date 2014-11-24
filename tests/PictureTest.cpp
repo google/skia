@@ -1909,7 +1909,7 @@ DEF_TEST(Picture_BitmapLeak, r) {
     SkCanvas* canvas = rec.beginRecording(1920, 1200);
         canvas->drawBitmap(mut, 0, 0);
         canvas->drawBitmap(immut, 800, 600);
-    SkAutoTDelete<const SkPicture> pic(rec.endRecording());
+    SkAutoTUnref<const SkPicture> pic(rec.endRecording());
 
     // The picture shares the immutable pixels but copies the mutable ones.
     REPORTER_ASSERT(r, mut.pixelRef()->unique());

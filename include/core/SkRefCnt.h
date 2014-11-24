@@ -261,9 +261,22 @@ public:
 
     bool unique() const { return 1 == sk_acquire_load(&fRefCnt); }
     void    ref() const { sk_atomic_inc(&fRefCnt); }
-    void  unref() const { if (1 == sk_atomic_dec(&fRefCnt)) { SkDELETE((const Derived*)this); } }
+    void  unref() const {
+        int32_t prevValue = sk_atomic_dec(&fRefCnt);
+        SkASSERT(prevValue >= 1);
+        if (1 == prevValue) {
+            SkDELETE((const Derived*)this);
+        }
+    }
     void  deref() const { this->unref(); }  // Chrome prefers to call deref().
     int32_t getRefCnt() const { return fRefCnt; } // Used by Chrome unit tests.
+
+protected:
+#ifdef SK_DEBUG
+    ~SkNVRefCnt() {
+        SkASSERTF(0 == fRefCnt, "NVRefCnt was %d", fRefCnt);
+    }
+#endif
 
 private:
     mutable int32_t fRefCnt;

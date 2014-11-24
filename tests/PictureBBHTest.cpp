@@ -109,13 +109,13 @@ static void test_clear(skiatest::Reporter* r, SkBBHFactory* factory) {
     // A picture that's just clear().
     src.beginRecording(1,1, factory)
         ->clear(SK_ColorGREEN);
-    SkAutoTDelete<SkPicture> srcPic(src.endRecording());
+    SkAutoTUnref<SkPicture> srcPic(src.endRecording());
 
     // A target canvas with an empty clip.
     SkCanvas* c = dst.beginRecording(1,1, NULL);
         c->clipRect(SkRect::MakeEmpty());
         srcPic->playback(c);
-    SkAutoTDelete<SkPicture> dstPic(dst.endRecording());
+    SkAutoTUnref<SkPicture> dstPic(dst.endRecording());
 
     // Should be Clip - Save - Clear - Restore.
     // Buggy implementations might return 1 (just Clip) or 3 (Clip - Save - Restore).

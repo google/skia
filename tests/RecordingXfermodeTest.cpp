@@ -115,7 +115,7 @@ class PictureStrategy : public RecordingStrategy {
                                                    SkIntToScalar(fHeight),
                                                    &factory);
         drawer.draw(canvas, canvasRect, mode);
-        SkAutoTDelete<SkPicture> picture(recorder.endRecording());
+        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
         SkCanvas replayCanvas(fBitmap);
         replayCanvas.clear(0xffffffff);
