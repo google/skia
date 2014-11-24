@@ -196,10 +196,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(BindVertexArray);
         GET_PROC(GenVertexArrays);
         GET_PROC(DeleteVertexArrays);
-    } else if (extensions.has("GL_APPLE_vertex_array_object")) {
-        GET_PROC_SUFFIX(BindVertexArray, APPLE);
-        GET_PROC_SUFFIX(GenVertexArrays, APPLE);
-        GET_PROC_SUFFIX(DeleteVertexArrays, APPLE);
     }
 
     if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_map_buffer_range")) {

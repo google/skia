@@ -235,8 +235,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     if (kGL_GrGLStandard == standard) {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
-                                    ctxInfo.hasExtension("GL_ARB_vertex_array_object") ||
-                                    ctxInfo.hasExtension("GL_APPLE_vertex_array_object");
+                                    ctxInfo.hasExtension("GL_ARB_vertex_array_object");
     } else {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
                                     ctxInfo.hasExtension("GL_OES_vertex_array_object");
