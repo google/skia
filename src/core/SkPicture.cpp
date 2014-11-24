@@ -319,7 +319,7 @@ void SkPicture::playback(SkCanvas* canvas, SkDrawPictureCallback* callback) cons
     (void)canvas->getClipBounds(&clipBounds);
     const bool useBBH = !clipBounds.contains(this->cullRect());
 
-    SkRecordDraw(*fRecord, canvas, this->drawablePicts(), this->drawableCount(),
+    SkRecordDraw(*fRecord, canvas, this->drawablePicts(), NULL, this->drawableCount(),
                  useBBH ? fBBH.get() : NULL, callback);
 }
 
@@ -474,7 +474,7 @@ SkPictureData* SkPicture::Backport(const SkRecord& src, const SkPictInfo& info,
                                    SkPicture const* const drawablePicts[], int drawableCount) {
     SkPictureRecord rec(SkISize::Make(info.fCullRect.width(), info.fCullRect.height()), 0/*flags*/);
     rec.beginRecording();
-        SkRecordDraw(src, &rec, drawablePicts, drawableCount, NULL/*bbh*/, NULL/*callback*/);
+        SkRecordDraw(src, &rec, drawablePicts, NULL, drawableCount, NULL/*bbh*/, NULL/*callback*/);
     rec.endRecording();
     return SkNEW_ARGS(SkPictureData, (rec, info, false/*deep copy ops?*/));
 }
@@ -526,8 +526,8 @@ SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* dr
                      SkBBoxHierarchy* bbh)
     : fUniqueID(next_picture_generation_id())
     , fCullRect(cullRect)
-    , fRecord(record)
+    , fRecord(SkRef(record))
     , fBBH(SkSafeRef(bbh))
-    , fDrawablePicts(drawablePicts)
+    , fDrawablePicts(drawablePicts)     // take ownership
     , fAnalysis(*fRecord)
 {}

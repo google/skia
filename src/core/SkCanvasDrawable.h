@@ -10,8 +10,8 @@
 
 #include "SkRefCnt.h"
 
-class SkBBHFactory;
 class SkCanvas;
+class SkPicture;
 struct SkRect;
 
 /**
@@ -32,10 +32,7 @@ public:
      */
     void draw(SkCanvas*);
 
-    SkPicture* newPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags);
-    SkPicture* newPictureSnapshot() {
-        return this->newPictureSnapshot(NULL, 0);
-    }
+    SkPicture* newPictureSnapshot();
 
     /**
      *  Return a unique value for this instance. If two calls to this return the same value,
@@ -63,7 +60,7 @@ public:
 protected:
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-    virtual SkPicture* onNewPictureSnapshot(SkBBHFactory*, uint32_t recordFlags);
+    virtual SkPicture* onNewPictureSnapshot();
 
 private:
     int32_t fGenerationID;

@@ -21,7 +21,7 @@ public:
         : fDigits(0)
         , fIndent(0)
         , fIndex(0)
-        , fDraw(canvas, NULL, 0, NULL)
+        , fDraw(canvas, NULL, NULL, 0, NULL)
         , fTimeWithCommand(timeWithCommand) {
         while (count > 0) {
             count /= 10;

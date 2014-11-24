@@ -19,6 +19,7 @@ namespace android {
 #endif
 
 class SkCanvas;
+class SkCanvasDrawable;
 class SkPictureRecord;
 class SkRecord;
 class SkRecorder;
@@ -65,12 +66,32 @@ public:
     */
     SkCanvas* getRecordingCanvas();
 
-    /** Signal that the caller is done recording. This invalidates the canvas
-        returned by beginRecording/getRecordingCanvas, and returns the
-        created SkPicture. Note that the returned picture has its creation
-        ref which the caller must take ownership of.
-    */
-    SkPicture* endRecording();
+    /**
+     *  Signal that the caller is done recording. This invalidates the canvas returned by
+     *  beginRecording/getRecordingCanvas. Ownership of the object is passed to the caller, who
+     *  must call unref() when they are done using it.
+     *
+     *  The returned picture is immutable. If during recording drawables were added to the canvas,
+     *  these will have been "drawn" into a recording canvas, so that this resulting picture will
+     *  reflect their current state, but will not contain a live reference to the drawables
+     *  themselves.
+     */
+    SkPicture* endRecordingAsPicture();
+
+    /**
+     *  Signal that the caller is done recording. This invalidates the canvas returned by
+     *  beginRecording/getRecordingCanvas. Ownership of the object is passed to the caller, who
+     *  must call unref() when they are done using it.
+     *
+     *  Unlike endRecordingAsPicture(), which returns an immutable picture, the returned drawable
+     *  may contain live references to other drawables (if they were added to the recording canvas)
+     *  and therefore this drawable will reflect the current state of those nested drawables anytime
+     *  it is drawn or a new picture is snapped from it (by calling drawable->newPictureSnapshot()).
+     */
+    SkCanvasDrawable* EXPERIMENTAL_endRecordingAsDrawable();
+
+    // Legacy API -- use endRecordingAsPicture instead.
+    SkPicture* endRecording() { return this->endRecordingAsPicture(); }
 
 private:
     void reset();
@@ -88,7 +109,8 @@ private:
     SkRect                        fCullRect;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
     SkAutoTUnref<SkRecorder>      fRecorder;
-    SkAutoTDelete<SkRecord>       fRecord;
+    SkAutoTUnref<SkRecord>        fRecord;
+    SkBBHFactory*                 fBBHFactory;
 
     typedef SkNoncopyable INHERITED;
 };

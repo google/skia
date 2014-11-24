@@ -9,6 +9,28 @@
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 
+SkCanvasDrawableList::~SkCanvasDrawableList() {
+    fArray.unrefAll();
+}
+
+SkPicture::SnapshotArray* SkCanvasDrawableList::newDrawableSnapshot() {
+    const int count = fArray.count();
+    if (0 == count) {
+        return NULL;
+    }
+    SkAutoTMalloc<const SkPicture*> pics(count);
+    for (int i = 0; i < count; ++i) {
+        pics[i] = fArray[i]->newPictureSnapshot();
+    }
+    return SkNEW_ARGS(SkPicture::SnapshotArray, (pics.detach(), count));
+}
+
+void SkCanvasDrawableList::append(SkCanvasDrawable* drawable) {
+    *fArray.append() = SkRef(drawable);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 SkRecorder::SkRecorder(SkRecord* record, int width, int height)
     : SkCanvas(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag)
     , fRecord(record)
@@ -19,27 +41,9 @@ SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds)
     , fRecord(record)
     , fSaveLayerCount(0) {}
 
-SkRecorder::~SkRecorder() {
-    fDrawableList.unrefAll();
-}
-
 void SkRecorder::forgetRecord() {
-    fDrawableList.unrefAll();
-    fDrawableList.reset();
+    fDrawableList.reset(NULL);
     fRecord = NULL;
-}
-
-SkPicture::SnapshotArray* SkRecorder::newDrawableSnapshot(SkBBHFactory* factory,
-                                                          uint32_t recordFlags) {
-    const int count = fDrawableList.count();
-    if (0 == count) {
-        return NULL;
-    }
-    SkAutoTMalloc<const SkPicture*> pics(count);
-    for (int i = 0; i < count; ++i) {
-        pics[i] = fDrawableList[i]->newPictureSnapshot(factory, recordFlags);
-    }
-    return SkNEW_ARGS(SkPicture::SnapshotArray, (pics.detach(), count));
 }
 
 // To make appending to fRecord a little less verbose.
@@ -146,8 +150,11 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
 }
 
 void SkRecorder::onDrawDrawable(SkCanvasDrawable* drawable) {
-    *fDrawableList.append() = SkRef(drawable);
-    APPEND(DrawDrawable, drawable->getBounds(), fDrawableList.count() - 1);
+    if (!fDrawableList) {
+        fDrawableList.reset(SkNEW(SkCanvasDrawableList));
+    }
+    fDrawableList->append(drawable);
+    APPEND(DrawDrawable, drawable->getBounds(), fDrawableList->count() - 1);
 }
 
 void SkRecorder::drawPath(const SkPath& path, const SkPaint& paint) {

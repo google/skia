@@ -13,6 +13,24 @@
 #include "SkRecords.h"
 #include "SkTDArray.h"
 
+class SkBBHFactory;
+
+class SkCanvasDrawableList : SkNoncopyable {
+public:
+    ~SkCanvasDrawableList();
+
+    int count() const { return fArray.count(); }
+    SkCanvasDrawable* const* begin() const { return fArray.begin(); }
+
+    void append(SkCanvasDrawable* drawable);
+
+    // Return a new or ref'd array of pictures that were snapped from our drawables.
+    SkPicture::SnapshotArray* newDrawableSnapshot();
+
+private:
+    SkTDArray<SkCanvasDrawable*> fArray;
+};
+
 // SkRecorder provides an SkCanvas interface for recording into an SkRecord.
 
 class SkRecorder : public SkCanvas {
@@ -20,10 +38,9 @@ public:
     // Does not take ownership of the SkRecord.
     SkRecorder(SkRecord*, int width, int height);   // legacy version
     SkRecorder(SkRecord*, const SkRect& bounds);
-    virtual ~SkRecorder() SK_OVERRIDE;
 
-    // Return a new or ref'd array of pictures that were snapped from our drawables.
-    SkPicture::SnapshotArray* newDrawableSnapshot(SkBBHFactory*, uint32_t recordFlags);
+    SkCanvasDrawableList* getDrawableList() const { return fDrawableList.get(); }
+    SkCanvasDrawableList* detachDrawableList() { return fDrawableList.detach(); }
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
@@ -145,7 +162,7 @@ private:
 
     int fSaveLayerCount;
     SkTDArray<SkBool8> fSaveIsSaveLayer;
-    SkTDArray<SkCanvasDrawable*> fDrawableList;
+    SkAutoTDelete<SkCanvasDrawableList> fDrawableList;
 };
 
 #endif//SkRecorder_DEFINED

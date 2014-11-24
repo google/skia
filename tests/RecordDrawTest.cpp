@@ -41,7 +41,7 @@ DEF_TEST(RecordDraw_Abort, r) {
     SkRecorder canvas(&rerecord, W, H);
 
     JustOneDraw callback;
-    SkRecordDraw(record, &canvas, NULL, 0, NULL/*bbh*/, &callback);
+    SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL/*bbh*/, &callback);
 
     REPORTER_ASSERT(r, 3 == rerecord.count());
     assert_type<SkRecords::Save>    (r, rerecord, 0);
@@ -56,7 +56,7 @@ DEF_TEST(RecordDraw_Unbalanced, r) {
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, W, H);
-    SkRecordDraw(record, &canvas, NULL, 0, NULL/*bbh*/, NULL/*callback*/);
+    SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL/*bbh*/, NULL/*callback*/);
 
     REPORTER_ASSERT(r, 4 == rerecord.count());
     assert_type<SkRecords::Save>    (r, rerecord, 0);
@@ -80,7 +80,7 @@ DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     translate.setTranslate(20, 20);
     translateCanvas.setMatrix(translate);
 
-    SkRecordDraw(scaleRecord, &translateCanvas, NULL, 0, NULL/*bbh*/, NULL/*callback*/);
+    SkRecordDraw(scaleRecord, &translateCanvas, NULL, NULL, 0, NULL/*bbh*/, NULL/*callback*/);
     REPORTER_ASSERT(r, 4 == translateRecord.count());
     assert_type<SkRecords::SetMatrix>(r, translateRecord, 0);
     assert_type<SkRecords::Save>     (r, translateRecord, 1);
@@ -320,7 +320,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         SkRecord record;
         SkRecorder recorder(&record, 10, 10);
         recorder.drawImage(image, 0, 0);
-        SkRecordDraw(record, &canvas, NULL, 0, NULL, 0);
+        SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL, 0);
     }
     REPORTER_ASSERT(r, canvas.fDrawImageCalled);
     canvas.resetTestValues();
@@ -329,7 +329,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         SkRecord record;
         SkRecorder recorder(&record, 10, 10);
         recorder.drawImageRect(image, 0, SkRect::MakeWH(10, 10));
-        SkRecordDraw(record, &canvas, NULL, 0, NULL, 0);
+        SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL, 0);
     }
     REPORTER_ASSERT(r, canvas.fDrawImageRectCalled);
 

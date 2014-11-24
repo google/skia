@@ -11,7 +11,9 @@
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
-                  SkPicture const* const drawablePicts[], int drawableCount,
+                  SkPicture const* const drawablePicts[],
+                  SkCanvasDrawable* const drawables[],
+                  int drawableCount,
                   const SkBBoxHierarchy* bbh,
                   SkDrawPictureCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
@@ -32,7 +34,7 @@ void SkRecordDraw(const SkRecord& record,
         SkTDArray<unsigned> ops;
         bbh->search(query, &ops);
 
-        SkRecords::Draw draw(canvas, drawablePicts, drawableCount);
+        SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
         for (int i = 0; i < ops.count(); i++) {
             if (callback && callback->abortDrawing()) {
                 return;
@@ -44,7 +46,7 @@ void SkRecordDraw(const SkRecord& record,
         }
     } else {
         // Draw all ops.
-        SkRecords::Draw draw(canvas, drawablePicts, drawableCount);
+        SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
         for (unsigned i = 0; i < record.count(); i++) {
             if (callback && callback->abortDrawing()) {
                 return;
@@ -133,7 +135,12 @@ DRAW(DrawData, drawData(r.data, r.length));
 template <> void Draw::draw(const DrawDrawable& r) {
     SkASSERT(r.index >= 0);
     SkASSERT(r.index < fDrawableCount);
-    fCanvas->drawPicture(fDrawablePicts[r.index]);
+    if (fDrawables) {
+        SkASSERT(NULL == fDrawablePicts);
+        fCanvas->EXPERIMENTAL_drawDrawable(fDrawables[r.index]);
+    } else {
+        fCanvas->drawPicture(fDrawablePicts[r.index]);
+    }
 }
 
 // This is an SkRecord visitor that fills an SkBBoxHierarchy.
@@ -159,7 +166,8 @@ public:
     FillBounds(const SkRect& cullRect, const SkRecord& record)
         : fNumRecords(record.count())
         , fCullRect(cullRect)
-        , fBounds(record.count()) {
+        , fBounds(record.count())
+    {
         // Calculate bounds for all ops.  This won't go quite in order, so we'll need
         // to store the bounds separately then feed them in to the BBH later in order.
         fCTM = &SkMatrix::I();
@@ -591,11 +599,13 @@ private:
 // SkRecord visitor to gather saveLayer/restore information.
 class CollectLayers : SkNoncopyable {
 public:
-    CollectLayers(const SkRect& cullRect, const SkRecord& record, SkLayerInfo* accelData)
+    CollectLayers(const SkRect& cullRect, const SkRecord& record,
+                  const SkPicture::SnapshotArray* pictList, SkLayerInfo* accelData)
         : fSaveLayersInStack(0)
         , fAccelData(accelData)
-        , fFillBounds(cullRect, record) {
-    }
+        , fPictList(pictList)
+        , fFillBounds(cullRect, record)
+    {}
 
     void setCurrentOp(unsigned currentOp) { fFillBounds.setCurrentOp(currentOp); }
 
@@ -638,13 +648,13 @@ private:
     void trackSaveLayers(const SaveLayer& sl) { this->pushSaveLayerInfo(true, sl.paint); }
     void trackSaveLayers(const Restore& r) { this->popSaveLayerInfo(); }
 
-    void trackSaveLayers(const DrawPicture& dp) {
+    void trackSaveLayersForPicture(const SkPicture* picture, const SkPaint* paint) {
         // For sub-pictures, we wrap their layer information within the parent
         // picture's rendering hierarchy
         SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
         const SkLayerInfo* childData =
-            static_cast<const SkLayerInfo*>(dp.picture->EXPERIMENTAL_getAccelData(key));
+            static_cast<const SkLayerInfo*>(picture->EXPERIMENTAL_getAccelData(key));
         if (!childData) {
             // If the child layer hasn't been generated with saveLayer data we
             // assume the worst (i.e., that it does contain layers which nest
@@ -658,7 +668,7 @@ private:
         for (int i = 0; i < childData->numBlocks(); ++i) {
             const SkLayerInfo::BlockInfo& src = childData->block(i);
 
-            FillBounds::Bounds newBound = fFillBounds.adjustAndMap(src.fBounds, dp.paint);
+            FillBounds::Bounds newBound = fFillBounds.adjustAndMap(src.fBounds, paint);
             if (newBound.isEmpty()) {
                 continue;
             }
@@ -669,7 +679,7 @@ private:
 
             // If src.fPicture is NULL the layer is in dp.picture; otherwise
             // it belongs to a sub-picture.
-            dst.fPicture = src.fPicture ? src.fPicture : static_cast<const SkPicture*>(dp.picture);
+            dst.fPicture = src.fPicture ? src.fPicture : picture;
             dst.fPicture->ref();
             dst.fBounds = newBound;
             dst.fLocalMat = src.fLocalMat;
@@ -683,6 +693,17 @@ private:
             dst.fHasNestedLayers = src.fHasNestedLayers;
             dst.fIsNested = fSaveLayersInStack > 0 || src.fIsNested;
         }
+    }
+
+    void trackSaveLayers(const DrawPicture& dp) {
+        this->trackSaveLayersForPicture(dp.picture, dp.paint);
+    }
+
+    void trackSaveLayers(const DrawDrawable& dp) {
+        SkASSERT(fPictList);
+        SkASSERT(dp.index >= 0 && dp.index < fPictList->count());
+        const SkPaint* paint = NULL;    // drawables don't get a side-car paint
+        this->trackSaveLayersForPicture(fPictList->begin()[dp.index], paint);
     }
 
     // Inform all the saveLayers already on the stack that they now have a
@@ -743,6 +764,7 @@ private:
     int                   fSaveLayersInStack;
     SkTDArray<SaveLayerInfo> fSaveLayerStack;
     SkLayerInfo*          fAccelData;
+    const SkPicture::SnapshotArray* fPictList;
 
     SkRecords::FillBounds fFillBounds;
 };
@@ -761,8 +783,9 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHi
 }
 
 void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
-                           SkBBoxHierarchy* bbh, SkLayerInfo* data) {
-    SkRecords::CollectLayers visitor(cullRect, record, data);
+                           const SkPicture::SnapshotArray* pictList, SkBBoxHierarchy* bbh,
+                           SkLayerInfo* data) {
+    SkRecords::CollectLayers visitor(cullRect, record, pictList, data);
 
     for (unsigned curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);

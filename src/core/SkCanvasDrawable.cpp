@@ -41,8 +41,8 @@ void SkCanvasDrawable::draw(SkCanvas* canvas) {
     }
 }
 
-SkPicture* SkCanvasDrawable::newPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags) {
-    return this->onNewPictureSnapshot(bbhFactory, recordFlags);
+SkPicture* SkCanvasDrawable::newPictureSnapshot() {
+    return this->onNewPictureSnapshot();
 }
 
 uint32_t SkCanvasDrawable::getGenerationID() {
@@ -64,11 +64,11 @@ void SkCanvasDrawable::notifyDrawingChanged() {
 
 #include "SkPictureRecorder.h"
 
-SkPicture* SkCanvasDrawable::onNewPictureSnapshot(SkBBHFactory* bbhFactory, uint32_t recordFlags) {
+SkPicture* SkCanvasDrawable::onNewPictureSnapshot() {
     SkPictureRecorder recorder;
 
     const SkRect bounds = this->getBounds();
-    SkCanvas* canvas = recorder.beginRecording(bounds, bbhFactory, recordFlags);
+    SkCanvas* canvas = recorder.beginRecording(bounds, NULL, 0);
     this->draw(canvas);
     if (false) {
         draw_bbox(canvas, bounds);

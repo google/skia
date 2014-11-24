@@ -17,6 +17,7 @@
 #include "Sk1DPathEffect.h"
 #include "SkCornerPathEffect.h"
 #include "SkPathMeasure.h"
+#include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
@@ -42,8 +43,7 @@ class ArcsView : public SampleView {
         SkRect   fR;
         SkScalar fSweep;
     public:
-        MyDrawable(const SkRect& r) : fR(r), fSweep(0) {
-        }
+        MyDrawable(const SkRect& r) : fR(r), fSweep(0) {}
 
         void setSweep(SkScalar sweep) {
             if (fSweep != sweep) {
@@ -82,7 +82,8 @@ class ArcsView : public SampleView {
 
 public:
     SkRect fRect;
-    MyDrawable* fDrawable;
+    MyDrawable* fAnimatingDrawable;
+    SkCanvasDrawable* fRootDrawable;
 
     ArcsView() {
         testparse();
@@ -91,16 +92,21 @@ public:
 
         fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
         fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
-        fDrawable = SkNEW_ARGS(MyDrawable, (fRect));
+        fAnimatingDrawable = SkNEW_ARGS(MyDrawable, (fRect));
+
+        SkPictureRecorder recorder;
+        this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
+        fRootDrawable = recorder.EXPERIMENTAL_endRecordingAsDrawable();
     }
 
     virtual ~ArcsView() SK_OVERRIDE {
-        fDrawable->unref();
+        fAnimatingDrawable->unref();
+        fRootDrawable->unref();
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Arcs");
             return true;
@@ -108,7 +114,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    static void drawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
+    static void DrawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
         canvas->drawRect(r, p);
         canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, p);
         canvas->drawLine(r.fLeft, r.fBottom, r.fRight, r.fTop, p);
@@ -116,7 +122,7 @@ protected:
         canvas->drawLine(r.centerX(), r.fTop, r.centerX(), r.fBottom, p);
     }
 
-    static void draw_label(SkCanvas* canvas, const SkRect& rect,
+    static void DrawLabel(SkCanvas* canvas, const SkRect& rect,
                             int start, int sweep) {
         SkPaint paint;
 
@@ -132,7 +138,7 @@ protected:
                          rect.fBottom + paint.getTextSize() * 5/4, paint);
     }
 
-    static void drawArcs(SkCanvas* canvas) {
+    static void DrawArcs(SkCanvas* canvas) {
         SkPaint paint;
         SkRect  r;
         SkScalar w = SkIntToScalar(75);
@@ -161,13 +167,13 @@ protected:
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gAngles); i += 2) {
             paint.setColor(SK_ColorBLACK);
-            drawRectWithLines(canvas, r, paint);
+            DrawRectWithLines(canvas, r, paint);
 
             paint.setColor(SK_ColorRED);
             canvas->drawArc(r, SkIntToScalar(gAngles[i]),
                             SkIntToScalar(gAngles[i+1]), false, paint);
 
-            draw_label(canvas, r, gAngles[i], gAngles[i+1]);
+            DrawLabel(canvas, r, gAngles[i], gAngles[i+1]);
 
             canvas->translate(w * 8 / 7, 0);
         }
@@ -175,32 +181,29 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
-        fDrawable->setSweep(SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
-                                                      SkIntToScalar(360)));
-
+    void drawRoot(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(2));
         paint.setStyle(SkPaint::kStroke_Style);
 
-        drawRectWithLines(canvas, fRect, paint);
+        DrawRectWithLines(canvas, fRect, paint);
 
-        canvas->EXPERIMENTAL_drawDrawable(fDrawable);
+        canvas->EXPERIMENTAL_drawDrawable(fAnimatingDrawable);
 
-        drawArcs(canvas);
+        DrawArcs(canvas);
+    }
+
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+        fAnimatingDrawable->setSweep(SampleCode::GetAnimScalar(360/24, 360));
+        canvas->EXPERIMENTAL_drawDrawable(fRootDrawable);
         this->inval(NULL);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
      //   fSweep += SK_Scalar1;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
-    virtual bool onClick(Click* click) {
-        return this->INHERITED::onClick(click);
     }
 
 private:

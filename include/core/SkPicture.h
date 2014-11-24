@@ -268,9 +268,9 @@ private:
     const uint32_t                        fUniqueID;
     const SkRect                          fCullRect;
     mutable SkAutoTUnref<const AccelData> fAccelData;
-    SkAutoTDelete<const SkRecord>       fRecord;
-    SkAutoTUnref<const SkBBoxHierarchy> fBBH;
-    SkAutoTDelete<const SnapshotArray>  fDrawablePicts;
+    SkAutoTUnref<const SkRecord>          fRecord;
+    SkAutoTUnref<const SkBBoxHierarchy>   fBBH;
+    SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
 
     // helpers for fDrawablePicts
     int drawableCount() const;
@@ -298,6 +298,7 @@ private:
     friend class GrLayerHoister;               // access to fRecord
     friend class ReplaceDraw;
     friend class SkPictureUtils;
+    friend class SkRecordedDrawable;
 };
 SK_COMPILE_ASSERT(sizeof(SkPicture) <= 96, SkPictureSize);
 

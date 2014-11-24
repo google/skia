@@ -14,16 +14,19 @@
 #include "SkMatrix.h"
 #include "SkRecord.h"
 
+class SkCanvasDrawable;
 class SkLayerInfo;
 
 // Fill a BBH to be used by SkRecordDraw to accelerate playback.
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkBBoxHierarchy*);
 
 void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
+                           const SkPicture::SnapshotArray*,
                            SkBBoxHierarchy* bbh, SkLayerInfo* data);
 
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
-void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePicts[], int drawableCount,
+void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePicts[],
+                  SkCanvasDrawable* const drawables[], int drawableCount,
                   const SkBBoxHierarchy*, SkDrawPictureCallback*);
 
 // Draw a portion of an SkRecord into an SkCanvas while replacing clears with drawRects.
@@ -41,11 +44,13 @@ namespace SkRecords {
 // This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
 class Draw : SkNoncopyable {
 public:
-    explicit Draw(SkCanvas* canvas, SkPicture const* const drawablePicts[], int drawableCount,
+    explicit Draw(SkCanvas* canvas, SkPicture const* const drawablePicts[],
+                  SkCanvasDrawable* const drawables[], int drawableCount,
                   const SkMatrix* initialCTM = NULL)
         : fInitialCTM(initialCTM ? *initialCTM : canvas->getTotalMatrix())
         , fCanvas(canvas)
         , fDrawablePicts(drawablePicts)
+        , fDrawables(drawables)
         , fDrawableCount(drawableCount)
     {}
 
@@ -67,6 +72,7 @@ private:
     const SkMatrix fInitialCTM;
     SkCanvas* fCanvas;
     SkPicture const* const* fDrawablePicts;
+    SkCanvasDrawable* const* fDrawables;
     int fDrawableCount;
 };
 
@@ -75,7 +81,8 @@ class PartialDraw : public Draw {
 public:
     PartialDraw(SkCanvas* canvas, SkPicture const* const drawablePicts[], int drawableCount,
                 const SkRect& clearRect, const SkMatrix& initialCTM)
-        : INHERITED(canvas, drawablePicts, drawableCount, &initialCTM), fClearRect(clearRect) {}
+        : INHERITED(canvas, drawablePicts, NULL, drawableCount, &initialCTM), fClearRect(clearRect)
+    {}
 
     // Same as Draw for all ops except Clear.
     template <typename T> void operator()(const T& r) {

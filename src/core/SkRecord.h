@@ -25,7 +25,7 @@
 // only with SkRecords::* structs defined in SkRecords.h.  Your compiler will helpfully yell if you
 // get this wrong.
 
-class SkRecord : SkNoncopyable {
+class SkRecord : public SkNVRefCnt<SkRecord> {
     enum {
         kFirstReserveCount = 64 / sizeof(void*),
     };
@@ -240,6 +240,6 @@ private:
     // Strangely the order of these fields matters.  If the unsigneds don't go first we're 56 bytes.
     // tomhudson and mtklein have no idea why.
 };
-SK_COMPILE_ASSERT(sizeof(SkRecord) <= 48, SkRecordSize);
+SK_COMPILE_ASSERT(sizeof(SkRecord) <= 56, SkRecordSize);
 
 #endif//SkRecord_DEFINED

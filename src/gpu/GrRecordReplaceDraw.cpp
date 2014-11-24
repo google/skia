@@ -60,7 +60,7 @@ public:
                 const GrReplacements* replacements,
                 const SkMatrix& initialMatrix,
                 SkDrawPictureCallback* callback)
-        : INHERITED(canvas, drawablePicts, drawableCount)
+        : INHERITED(canvas, drawablePicts, NULL, drawableCount)
         , fCanvas(canvas)
         , fPicture(picture)
         , fReplacements(replacements)

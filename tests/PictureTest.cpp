@@ -1733,7 +1733,8 @@ static void test_bytes_used(skiatest::Reporter* reporter) {
                               sizeof(SkPicture) + sizeof(SkRecord));
 
     // Protect against any unintentional bloat.
-    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) <= 128);
+    size_t approxUsed = SkPictureUtils::ApproximateBytesUsed(empty.get());
+    REPORTER_ASSERT(reporter, approxUsed <= 136);
 
     // Sanity check of nested SkPictures.
     SkPictureRecorder r2;
@@ -1905,11 +1906,16 @@ DEF_TEST(Picture_BitmapLeak, r) {
     REPORTER_ASSERT(r, mut.pixelRef()->unique());
     REPORTER_ASSERT(r, immut.pixelRef()->unique());
 
-    SkPictureRecorder rec;
-    SkCanvas* canvas = rec.beginRecording(1920, 1200);
-        canvas->drawBitmap(mut, 0, 0);
-        canvas->drawBitmap(immut, 800, 600);
-    SkAutoTUnref<const SkPicture> pic(rec.endRecording());
+    SkAutoTUnref<const SkPicture> pic;
+    {
+        // we want the recorder to go out of scope before our subsequent checks, so we
+        // place it inside local braces.
+        SkPictureRecorder rec;
+        SkCanvas* canvas = rec.beginRecording(1920, 1200);
+            canvas->drawBitmap(mut, 0, 0);
+            canvas->drawBitmap(immut, 800, 600);
+        pic.reset(rec.endRecording());
+    }
 
     // The picture shares the immutable pixels but copies the mutable ones.
     REPORTER_ASSERT(r, mut.pixelRef()->unique());
