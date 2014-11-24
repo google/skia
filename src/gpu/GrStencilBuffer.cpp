@@ -12,14 +12,10 @@
 #include "GrGpu.h"
 #include "GrResourceCache2.h"
 
-void GrStencilBuffer::transferToCache() {
-    this->getGpu()->getContext()->addStencilBuffer(this);
-}
-
 namespace {
 // we should never have more than one stencil buffer with same combo of (width,height,samplecount)
 void gen_cache_id(int width, int height, int sampleCnt, GrCacheID* cacheID) {
-    static const GrCacheID::Domain gStencilBufferDomain = GrCacheID::GenerateDomain();
+    static const GrCacheID::Domain gStencilBufferDomain = GrResourceKey::ScratchDomain();
     GrCacheID::Key key;
     uint32_t* keyData = key.fData32;
     keyData[0] = width;

@@ -1121,8 +1121,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
-bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                 int width, int height) {
+bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) {
 
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
@@ -1176,7 +1175,6 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             sbID = 0; 
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                sb->transferToCache();
                 rt->setStencilBuffer(sb);
                 return true;
             }

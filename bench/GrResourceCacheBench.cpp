@@ -14,9 +14,6 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrResourceCache2.h"
-#include "GrStencilBuffer.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
 #include "SkCanvas.h"
 
 enum {
@@ -24,17 +21,24 @@ enum {
     CACHE_SIZE_BYTES = 2 * 1024 * 1024,
 };
 
-class StencilResource : public GrGpuResource {
+class FooResource : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(StencilResource);
-    StencilResource(GrGpu* gpu, int id)
+    SK_DECLARE_INST_COUNT(FooResource);
+    FooResource(GrGpu* gpu, int id)
         : INHERITED(gpu, false)
         , fID(id) {
         this->registerWithCache();
     }
 
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt) {
-        return GrStencilBuffer::ComputeKey(width, height, sampleCnt);
+        GrCacheID::Key key;
+        memset(&key, 0, sizeof(key));
+        key.fData32[0] = width;
+        key.fData32[1] = height;
+        key.fData32[2] = sampleCnt;
+        static int gType = GrResourceKey::GenerateResourceType();
+        static int gDomain = GrCacheID::GenerateDomain();
+        return GrResourceKey(GrCacheID(gDomain, key), gType, 0);
     }
 
     int fID;
@@ -47,10 +51,10 @@ private:
     typedef GrGpuResource INHERITED;
 };
 
-class TextureResource : public GrGpuResource {
+class BarResource : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(TextureResource);
-    TextureResource(GrGpu* gpu, int id)
+    SK_DECLARE_INST_COUNT(BarResource);
+    BarResource(GrGpu* gpu, int id)
         : INHERITED(gpu, false)
         , fID(id) {
         this->registerWithCache();
@@ -77,13 +81,13 @@ private:
     typedef GrGpuResource INHERITED;
 };
 
-static void get_stencil(int i, int* w, int* h, int* s) {
+static void get_foo_params(int i, int* w, int* h, int* s) {
     *w = i % 1024;
     *h = i * 2 % 1024;
-    *s = i % 1 == 0 ? 0 : 4;
+    *s = i % 2 == 0 ? 0 : 4;
 }
 
-static void get_texture_desc(int i, GrSurfaceDesc* desc) {
+static void get_bar_surf_desc(int i, GrSurfaceDesc* desc) {
     desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
     desc->fWidth  = i % 1024;
     desc->fHeight = i * 2 % 1024;
@@ -94,18 +98,18 @@ static void get_texture_desc(int i, GrSurfaceDesc* desc) {
 static void populate_cache(GrGpu* gpu, int resourceCount) {
     for (int i = 0; i < resourceCount; ++i) {
         int w, h, s;
-        get_stencil(i, &w, &h, &s);
-        GrResourceKey key = GrStencilBuffer::ComputeKey(w, h, s);
-        GrGpuResource* resource = SkNEW_ARGS(StencilResource, (gpu, i));
+        get_foo_params(i, &w, &h, &s);
+        GrResourceKey key = FooResource::ComputeKey(w, h, s);
+        GrGpuResource* resource = SkNEW_ARGS(FooResource, (gpu, i));
         resource->cacheAccess().setContentKey(key);
         resource->unref();
     }
 
     for (int i = 0; i < resourceCount; ++i) {
         GrSurfaceDesc desc;
-        get_texture_desc(i, &desc);
-        GrResourceKey key =  TextureResource::ComputeKey(desc);
-        GrGpuResource* resource = SkNEW_ARGS(TextureResource, (gpu, i));
+        get_bar_surf_desc(i, &desc);
+        GrResourceKey key =  BarResource::ComputeKey(desc);
+        GrGpuResource* resource = SkNEW_ARGS(BarResource, (gpu, i));
         resource->cacheAccess().setContentKey(key);
         resource->unref();
     }
@@ -115,28 +119,28 @@ static void check_cache_contents_or_die(GrResourceCache2* cache, int k) {
     // Benchmark find calls that succeed.
     {
         GrSurfaceDesc desc;
-        get_texture_desc(k, &desc);
-        GrResourceKey key = TextureResource::ComputeKey(desc);
+        get_bar_surf_desc(k, &desc);
+        GrResourceKey key = BarResource::ComputeKey(desc);
         SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
         if (!item) {
             SkFAIL("cache add does not work as expected");
             return;
         }
-        if (static_cast<TextureResource*>(item.get())->fID != k) {
+        if (static_cast<BarResource*>(item.get())->fID != k) {
             SkFAIL("cache add does not work as expected");
             return;
         }
     }
     {
         int w, h, s;
-        get_stencil(k, &w, &h, &s);
-        GrResourceKey key = StencilResource::ComputeKey(w, h, s);
+        get_foo_params(k, &w, &h, &s);
+        GrResourceKey key = FooResource::ComputeKey(w, h, s);
         SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
         if (!item) {
             SkFAIL("cache add does not work as expected");
             return;
         }
-        if (static_cast<TextureResource*>(item.get())->fID != k) {
+        if (static_cast<FooResource*>(item.get())->fID != k) {
             SkFAIL("cache add does not work as expected");
             return;
         }
@@ -145,9 +149,9 @@ static void check_cache_contents_or_die(GrResourceCache2* cache, int k) {
     // Benchmark also find calls that always fail.
     {
         GrSurfaceDesc desc;
-        get_texture_desc(k, &desc);
+        get_bar_surf_desc(k, &desc);
         desc.fHeight |= 1;
-        GrResourceKey key = TextureResource::ComputeKey(desc);
+        GrResourceKey key = BarResource::ComputeKey(desc);
         SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
         if (item) {
             SkFAIL("cache add does not work as expected");
@@ -156,9 +160,9 @@ static void check_cache_contents_or_die(GrResourceCache2* cache, int k) {
     }
     {
         int w, h, s;
-        get_stencil(k, &w, &h, &s);
+        get_foo_params(k, &w, &h, &s);
         h |= 1;
-        GrResourceKey key = StencilResource::ComputeKey(w, h, s);
+        GrResourceKey key = FooResource::ComputeKey(w, h, s);
         SkAutoTUnref<GrGpuResource> item(cache->findAndRefContentResource(key));
         if (item) {
             SkFAIL("cache add does not work as expected");
