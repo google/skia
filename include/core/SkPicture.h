@@ -202,14 +202,14 @@ public:
     // An array of refcounted const SkPicture pointers.
     class SnapshotArray : ::SkNoncopyable {
     public:
-        SnapshotArray(const SkPicture* pics[], size_t count) : fPics(pics), fCount(count) {}
-        ~SnapshotArray() { for (size_t i = 0; i < fCount; i++) { fPics[i]->unref(); } }
+        SnapshotArray(const SkPicture* pics[], int count) : fPics(pics), fCount(count) {}
+        ~SnapshotArray() { for (int i = 0; i < fCount; i++) { fPics[i]->unref(); } }
 
         const SkPicture* const* begin() const { return fPics; }
-        size_t count() const { return fCount; }
+        int count() const { return fCount; }
     private:
         SkAutoTMalloc<const SkPicture*> fPics;
-        size_t fCount;
+        int fCount;
     };
 
 private:
