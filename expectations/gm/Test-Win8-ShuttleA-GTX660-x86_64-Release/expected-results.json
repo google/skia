@@ -7116,10 +7116,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11009857797348161863
+          10566742216990551435
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "dashing2_pdf-poppler.png": {
       "allowed-digests": [
@@ -11911,10 +11911,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12821620961617303185
+          17326560431224736462
         ]
       ], 
-      "reviewed-by-human": true
+      "reviewed-by-human": false
     }, 
     "glyph_pos_n_b_nvprmsaa4.png": {
       "allowed-digests": [
