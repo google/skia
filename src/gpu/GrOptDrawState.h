@@ -24,7 +24,7 @@ class GrDrawState;
  * Class that holds an optimized version of a GrDrawState. It is meant to be an immutable class,
  * and contains all data needed to set the state for a gpu draw.
  */
-class GrOptDrawState : public SkRefCnt {
+class GrOptDrawState {
 public:
     SK_DECLARE_INST_COUNT(GrOptDrawState)
 

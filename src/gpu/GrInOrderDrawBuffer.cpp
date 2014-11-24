@@ -20,7 +20,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
                                          GrIndexBufferAllocPool* indexPool)
     : INHERITED(gpu->getContext())
     , fCmdBuffer(kCmdBufferInitialSizeInBytes)
-    , fLastState(NULL)
+    , fPrevState(NULL)
     , fDstGpu(gpu)
     , fVertexPool(*vertexPool)
     , fIndexPool(*indexPool)
@@ -435,7 +435,7 @@ void GrInOrderDrawBuffer::reset() {
     this->resetIndexSource();
 
     fCmdBuffer.reset();
-    fLastState.reset(NULL);
+    fPrevState = NULL;
     fVertexPool.reset();
     fIndexPool.reset();
     reset_data_buffer(&fPathIndexBuffer, kPathIdxBufferMinReserve);
@@ -470,7 +470,7 @@ void GrInOrderDrawBuffer::flush() {
 
     // Updated every time we find a set state cmd to reflect the current state in the playback
     // stream.
-    SkAutoTUnref<const GrOptDrawState> currentOptState;
+    const GrOptDrawState* currentOptState = NULL;
 
     while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
@@ -484,9 +484,9 @@ void GrInOrderDrawBuffer::flush() {
 
         if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
-            currentOptState.reset(SkRef(ss->fState.get()));
+            currentOptState = &ss->fState;
         } else {
-            iter->execute(this, currentOptState.get());
+            iter->execute(this, currentOptState);
         }
 
         if (cmd_has_trace_marker(iter->fType)) {
@@ -502,29 +502,32 @@ void GrInOrderDrawBuffer::flush() {
 }
 
 void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState* optState) {
+    SkASSERT(optState);
     buf->fDstGpu->draw(*optState, fInfo);
 }
 
 void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf,
                                                const GrOptDrawState* optState) {
+    SkASSERT(optState);
     buf->fDstGpu->stencilPath(*optState, this->path(), fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf,
                                             const GrOptDrawState* optState) {
+    SkASSERT(optState);
     buf->fDstGpu->drawPath(*optState, this->path(), fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
                                              const GrOptDrawState* optState) {
+    SkASSERT(optState);
     buf->fDstGpu->drawPaths(*optState, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fCount,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformsType,
                             fStencilSettings);
 }
 
-void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const GrOptDrawState*) {
-}
+void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const GrOptDrawState*) {}
 
 void GrInOrderDrawBuffer::Clear::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
     if (GrColor_ILLEGAL == fColor) {
@@ -727,15 +730,16 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                                    GrGpu::DrawType drawType,
                                                    const GrClipMaskManager::ScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
-    SkAutoTUnref<GrOptDrawState> optState(
-        SkNEW_ARGS(GrOptDrawState, (ds, fDstGpu, scissor, dstCopy, drawType)));
-    if (optState->mustSkip()) {
+    SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
+                                            (ds, fDstGpu, scissor, dstCopy, drawType));
+    if (ss->fState.mustSkip()) {
+        fCmdBuffer.pop_back();
         return false;
     }
-    if (!fLastState || *optState != *fLastState) {
-        SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState, (optState));
-        fLastState.reset(SkRef(optState.get()));
-        ss->fDrawType = drawType;
+    if (fPrevState && *fPrevState == ss->fState) {
+        fCmdBuffer.pop_back();
+    } else {
+        fPrevState = &ss->fState;
         this->recordTraceMarkersIfNecessary();
     }
     return true;

@@ -77,8 +77,6 @@ private:
         called. */
     void pendingIOComplete() const;
 
-    friend class GrDrawState;
-    friend class GrOptDrawState;
     friend class GrProgramElement;
 
     GrGpuResource*  fResource;

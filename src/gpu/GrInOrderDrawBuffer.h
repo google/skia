@@ -118,7 +118,7 @@ private:
     struct Draw : public Cmd {
         Draw(const DrawInfo& info) : Cmd(kDraw_Cmd), fInfo(info) {}
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         DrawInfo     fInfo;
     };
@@ -128,7 +128,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         GrStencilSettings fStencilSettings;
 
@@ -141,7 +141,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         GrStencilSettings       fStencilSettings;
 
@@ -154,7 +154,7 @@ private:
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         int                     fIndicesLocation;
         size_t                  fCount;
@@ -172,7 +172,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         SkIRect fRect;
         GrColor fColor;
@@ -188,7 +188,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -203,7 +203,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -214,12 +214,15 @@ private:
     };
 
     struct SetState : public Cmd {
-        SetState(const GrOptDrawState* state) : Cmd(kSetState_Cmd), fState(SkRef(state)) {}
+        SetState(const GrDrawState& drawState, GrGpu* gpu, const ScissorState& scissor,
+                 const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType)
+        : Cmd(kSetState_Cmd)
+        , fState(drawState, gpu, scissor, dstCopy, drawType) {}
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*);
+        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
-        SkAutoTUnref<const GrOptDrawState>  fState;
-        GrGpu::DrawType                     fDrawType;
+        const GrOptDrawState    fState;
+        GrGpu::DrawType         fDrawType;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -310,7 +313,7 @@ private:
     typedef SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> GeoPoolStateStack;
 
     CmdBuffer                           fCmdBuffer;
-    SkAutoTUnref<const GrOptDrawState>  fLastState;
+    const GrOptDrawState*               fPrevState;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
     GrGpu*                              fDstGpu;
     GrVertexBufferAllocPool&            fVertexPool;
