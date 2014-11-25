@@ -123,14 +123,3 @@ bool GrSurface::hasPendingIO() const {
     }
     return false;
 }
-
-bool GrSurface::isSameAs(const GrSurface* other) const {
-    const GrRenderTarget* thisRT = this->asRenderTarget();
-    if (thisRT) {
-        return thisRT == other->asRenderTarget();
-    } else {
-        const GrTexture* thisTex = this->asTexture();
-        SkASSERT(thisTex); // We must be one or the other
-        return thisTex == other->asTexture();
-    }
-}

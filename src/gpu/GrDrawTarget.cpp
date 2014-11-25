@@ -971,7 +971,7 @@ bool GrDrawTarget::canCopySurface(const GrSurface* dst,
     SkASSERT(clippedDstPoint.fX + clippedSrcRect.width() <= dst->width() &&
              clippedDstPoint.fY + clippedSrcRect.height() <= dst->height());
 
-    return !dst->surfacePriv().isSameAs(src) && dst->asRenderTarget() && src->asTexture();
+    return (dst != src) && dst->asRenderTarget() && src->asTexture();
 }
 
 void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {

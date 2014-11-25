@@ -2429,7 +2429,7 @@ bool GrGpuGL::copySurface(GrSurface* dst,
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                             srcRect.width(), srcRect.height());
         bool selfOverlap = false;
-        if (dst->surfacePriv().isSameAs(src)) {
+        if (dst == src) {
             selfOverlap = SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
         }
 
@@ -2503,7 +2503,7 @@ bool GrGpuGL::canCopySurface(const GrSurface* dst,
         return true;
     }
     if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
-        if (dst->surfacePriv().isSameAs(src)) {
+        if (dst == src) {
             SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                                 srcRect.width(), srcRect.height());
             if(!SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect)) {

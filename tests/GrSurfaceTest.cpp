@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
@@ -12,9 +14,10 @@
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "GrSurfacePriv.h"
-#include "SkTypes.h"
 #include "Test.h"
 
+// Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
+// and render targets to GrSurface all work as expected.
 DEF_GPUTEST(GrSurface, reporter, factory) {
     GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);
     if (context) {
@@ -25,18 +28,21 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
         desc.fHeight = 256;
         desc.fSampleCnt = 0;
         GrSurface* texRT1 = context->createUncachedTexture(desc, NULL, 0);
-        GrSurface* texRT2 = context->createUncachedTexture(desc, NULL, 0);
+
+        REPORTER_ASSERT(reporter, texRT1 == texRT1->asRenderTarget());
+        REPORTER_ASSERT(reporter, texRT1 == texRT1->asTexture());
+        REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT1->asRenderTarget()) ==
+                                  texRT1->asTexture());
+        REPORTER_ASSERT(reporter, texRT1->asRenderTarget() ==
+                                  static_cast<GrSurface*>(texRT1->asTexture()));
+        REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT1->asRenderTarget()) ==
+                                  static_cast<GrSurface*>(texRT1->asTexture()));
+
         desc.fFlags = kNone_GrSurfaceFlags;
         GrSurface* tex1 = context->createUncachedTexture(desc, NULL, 0);
-
-        REPORTER_ASSERT(reporter, texRT1->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, texRT1->surfacePriv().isSameAs(texRT1->asRenderTarget()));
-        REPORTER_ASSERT(reporter, texRT1->asRenderTarget()->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !texRT2->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !texRT2->asRenderTarget()->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !texRT2->surfacePriv().isSameAs(texRT1->asRenderTarget()));
-        REPORTER_ASSERT(reporter, !texRT2->surfacePriv().isSameAs(tex1));
-        REPORTER_ASSERT(reporter, !texRT2->asRenderTarget()->surfacePriv().isSameAs(tex1));
+        REPORTER_ASSERT(reporter, NULL == tex1->asRenderTarget());
+        REPORTER_ASSERT(reporter, tex1 == tex1->asTexture());
+        REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1) == tex1->asTexture());
 
         GrBackendTextureDesc backendDesc;
         backendDesc.fConfig = kSkia8888_GrPixelConfig;
@@ -45,19 +51,19 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
         backendDesc.fHeight = 256;
         backendDesc.fSampleCnt = 0;
         backendDesc.fTextureHandle = 5;
-        GrSurface* externalTexRT = context->wrapBackendTexture(backendDesc);
-        REPORTER_ASSERT(reporter, externalTexRT->surfacePriv().isSameAs(externalTexRT));
-        REPORTER_ASSERT(reporter,
-                        externalTexRT->surfacePriv().isSameAs(externalTexRT->asRenderTarget()));
-        REPORTER_ASSERT(reporter,
-                        externalTexRT->asRenderTarget()->surfacePriv().isSameAs(externalTexRT));
-        REPORTER_ASSERT(reporter, !externalTexRT->surfacePriv().isSameAs(texRT1));
-        REPORTER_ASSERT(reporter, !externalTexRT->asRenderTarget()->surfacePriv().isSameAs(texRT1));
+        GrSurface* texRT2 = context->wrapBackendTexture(backendDesc);
+        REPORTER_ASSERT(reporter, texRT2 == texRT2->asRenderTarget());
+        REPORTER_ASSERT(reporter, texRT2 == texRT2->asTexture());
+        REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
+                                  texRT2->asTexture());
+        REPORTER_ASSERT(reporter, texRT2->asRenderTarget() ==
+                                  static_cast<GrSurface*>(texRT2->asTexture()));
+        REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
+                                   static_cast<GrSurface*>(texRT2->asTexture()));
 
         texRT1->unref();
         texRT2->unref();
         tex1->unref();
-        externalTexRT->unref();
     }
 }
 
