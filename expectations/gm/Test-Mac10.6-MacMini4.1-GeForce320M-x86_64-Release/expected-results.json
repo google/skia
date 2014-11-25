@@ -13895,10 +13895,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3706805872892876100
+          8379669217369077769
         ]
       ], 
-      "ignore-failure": false, 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "shadertext_mesa.png": {

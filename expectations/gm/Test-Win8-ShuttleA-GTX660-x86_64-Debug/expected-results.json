@@ -18249,9 +18249,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1729916360334344548
+          3280492970607995656
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "shadertext2_nvprmsaa4.png": {

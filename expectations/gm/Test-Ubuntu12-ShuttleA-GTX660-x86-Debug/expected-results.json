@@ -14832,9 +14832,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7591469946375994741
+          5471873127527415301
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "modecolorfilters_565.png": {
