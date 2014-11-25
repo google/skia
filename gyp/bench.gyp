@@ -14,6 +14,7 @@
         '../bench/RecordingBench.cpp',
         '../bench/SKPBench.cpp',
         '../bench/nanobench.cpp',
+        '../tools/LazyDecodeBitmap.cpp',
       ],
       'includes': [
         'bench.gypi',
