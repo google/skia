@@ -15,7 +15,7 @@ import re
 
 def is_ignored(full_path, ignore_list):
   for ignore_path in ignore_list:
-    if re.match(full_path, ignore_path, re.I):
+    if re.search(ignore_path, full_path, re.I):
       return True
   return False
 
@@ -66,7 +66,18 @@ def main():
       include_dirs: directories to traverse for include files""")
   (options, args) = parser.parse_args()
 
-  GenerateIncludeCPP(args[0], args[1:], options.ignore.split())
+  # The MSVS gyp generator uses windows path separators so we intercept those
+  # strings and normalize them to our expected posix representation
+  include_dirs = []
+  for include_dir in args[1:]:
+    include_dirs.append(include_dir.replace("\\", "/"))
+  ignore_list = options.ignore.replace("\\", "/")
+
+  # We can strip off the relative portion of the path to ensure that when we
+  # compare for regex matches we don't fail based on relative path depth
+  ignore_list = ignore_list.replace("../", "")
+
+  GenerateIncludeCPP(args[0], include_dirs, ignore_list.split())
 
 
 if __name__ == "__main__":
