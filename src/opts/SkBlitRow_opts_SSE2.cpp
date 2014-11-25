@@ -38,57 +38,14 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 
         const __m128i *s = reinterpret_cast<const __m128i*>(src);
         __m128i *d = reinterpret_cast<__m128i*>(dst);
-        __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
-        __m128i ag_mask = _mm_set1_epi32(0xFF00FF00);
 
-        // Move scale factors to upper byte of word
-        __m128i src_scale_wide = _mm_set1_epi16(src_scale << 8);
-        __m128i dst_scale_wide = _mm_set1_epi16(dst_scale << 8);
         while (count >= 4) {
             // Load 4 pixels each of src and dest.
             __m128i src_pixel = _mm_loadu_si128(s);
             __m128i dst_pixel = _mm_load_si128(d);
 
-            // Interleave Atom port 0/1 operations based on the execution port
-            // constraints that multiply can only be executed on port 0 (while
-            // boolean operations can be executed on either port 0 or port 1)
-            // because GCC currently doesn't do a good job scheduling
-            // instructions based on these constraints.
-
-            // Get red and blue pixels into lower byte of each word.
-            // (0, r, 0, b, 0, r, 0, b, 0, r, 0, b, 0, r, 0, b)
-            __m128i src_rb = _mm_and_si128(rb_mask, src_pixel);
-
-            // Multiply by scale.
-            // (4 x (0, rs.h, 0, bs.h))
-            // where rs.h stands for the higher byte of r * scale, and
-            // bs.h the higher byte of b * scale.
-            src_rb = _mm_mulhi_epu16(src_rb, src_scale_wide);
-
-            // Get alpha and green pixels into higher byte of each word.
-            // (a, 0, g, 0, a, 0, g, 0, a, 0, g, 0, a, 0, g, 0)
-            __m128i src_ag = _mm_and_si128(ag_mask, src_pixel);
-
-            // Multiply by scale.
-            // (4 x (as.h, as.l, gs.h, gs.l))
-            src_ag = _mm_mulhi_epu16(src_ag, src_scale_wide);
-
-            // Clear the lower byte of the a*scale and g*scale results
-            // (4 x (as.h, 0, gs.h, 0))
-            src_ag = _mm_and_si128(src_ag, ag_mask);
-
-            // Operations the destination pixels are the same as on the
-            // source pixels. See the comments above.
-            __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
-            dst_rb = _mm_mulhi_epu16(dst_rb, dst_scale_wide);
-            __m128i dst_ag = _mm_and_si128(ag_mask, dst_pixel);
-            dst_ag = _mm_mulhi_epu16(dst_ag, dst_scale_wide);
-            dst_ag = _mm_and_si128(dst_ag, ag_mask);
-
-            // Combine back into RGBA.
-            // (4 x (as.h, rs.h, gs.h, bs.h))
-            src_pixel = _mm_or_si128(src_rb, src_ag);
-            dst_pixel = _mm_or_si128(dst_rb, dst_ag);
+            src_pixel = SkAlphaMulQ_SSE2(src_pixel, src_scale);
+            dst_pixel = SkAlphaMulQ_SSE2(dst_pixel, dst_scale);
 
             // Add result
             __m128i result = _mm_add_epi8(src_pixel, dst_pixel);
@@ -368,34 +325,12 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
 
             const __m128i *s = reinterpret_cast<const __m128i*>(src);
             __m128i *d = reinterpret_cast<__m128i*>(dst);
-            __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
-            __m128i src_scale_wide = _mm_set1_epi16(scale);
             __m128i color_wide = _mm_set1_epi32(color);
             while (count >= 4) {
-                // Load 4 pixels each of src and dest.
                 __m128i src_pixel = _mm_loadu_si128(s);
+                src_pixel = SkAlphaMulQ_SSE2(src_pixel, scale);
 
-                // Get red and blue pixels into lower byte of each word.
-                __m128i src_rb = _mm_and_si128(rb_mask, src_pixel);
-
-                // Get alpha and green into lower byte of each word.
-                __m128i src_ag = _mm_srli_epi16(src_pixel, 8);
-
-                // Multiply by scale.
-                src_rb = _mm_mullo_epi16(src_rb, src_scale_wide);
-                src_ag = _mm_mullo_epi16(src_ag, src_scale_wide);
-
-                // Divide by 256.
-                src_rb = _mm_srli_epi16(src_rb, 8);
-                src_ag = _mm_andnot_si128(rb_mask, src_ag);
-
-                // Combine back into RGBA.
-                src_pixel = _mm_or_si128(src_rb, src_ag);
-
-                // Add color to result.
                 __m128i result = _mm_add_epi8(color_wide, src_pixel);
-
-                // Store result.
                 _mm_store_si128(d, result);
                 s++;
                 d++;
