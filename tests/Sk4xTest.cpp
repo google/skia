@@ -15,9 +15,18 @@ DEF_TEST(Sk4x_Construction, r) {
     ASSERT_EQ(baz, foo);
 }
 
+struct AlignedFloats {
+    Sk4f forces16ByteAlignment;   // On 64-bit machines, the stack starts 128-bit aligned,
+    float fs[5];                  // but not necessarily so on 32-bit.  Adding an Sk4f forces it.
+};
+
 DEF_TEST(Sk4x_LoadStore, r) {
+    AlignedFloats aligned;
     // fs will be 16-byte aligned, fs+1 not.
-    float fs[] = { 5,6,7,8,9 };
+    float* fs = aligned.fs;
+    for (int i = 0; i < 5; i++) {  // set to 5,6,7,8,9
+        fs[i] = float(i+5);
+    }
 
     Sk4f foo = Sk4f::Load(fs);
     Sk4f bar = Sk4f::LoadAligned(fs);
