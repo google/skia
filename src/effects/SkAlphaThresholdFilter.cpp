@@ -229,7 +229,9 @@ bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 }
 
 void AlphaThresholdEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (GrPixelConfigIsOpaque(this->texture(0)->config()) && fOuterThreshold >= 1.f) {
+    if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+        inout->mulByUnknownAlpha();
+    } else if (GrPixelConfigIsOpaque(this->texture(0)->config()) && fOuterThreshold >= 1.f) {
         inout->mulByUnknownOpaqueColor();
     } else {
         inout->mulByUnknownColor();

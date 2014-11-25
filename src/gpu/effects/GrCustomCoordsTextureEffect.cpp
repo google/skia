@@ -68,7 +68,9 @@ bool GrCustomCoordsTextureEffect::onIsEqual(const GrGeometryProcessor& other) co
 }
 
 void GrCustomCoordsTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
+    if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+        inout->mulByUnknownAlpha();
+    } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
         inout->mulByUnknownOpaqueColor();
     } else {
         inout->mulByUnknownColor();

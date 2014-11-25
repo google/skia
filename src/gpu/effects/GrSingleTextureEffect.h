@@ -40,7 +40,9 @@ protected:
      * texture.
      */
     void updateInvariantOutputForModulation(GrInvariantOutput* inout) const {
-        if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
+        if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+            inout->mulByUnknownAlpha();
+        } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
             inout->mulByUnknownOpaqueColor();
         } else {
             inout->mulByUnknownColor();
