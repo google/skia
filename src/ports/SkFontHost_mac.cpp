@@ -717,8 +717,9 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
 
-    fRec.getSingleMatrix(&fFUnitMatrix);
-    CGAffineTransform transform = MatrixToCGAffineTransform(fFUnitMatrix);
+    SkMatrix skTransform;
+    fRec.getSingleMatrixWithoutTextSize(&skTransform);
+    CGAffineTransform transform = MatrixToCGAffineTransform(skTransform);
 
     AutoCFRelease<CTFontDescriptorRef> ctFontDesc;
     if (fVertical) {
@@ -734,15 +735,27 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
             ctFontDesc.reset(CTFontDescriptorCreateWithAttributes(cfAttributes));
         }
     }
-    // Since our matrix includes everything, we pass 1 for size.
-    fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, 1, &transform, ctFontDesc));
+
+    // The transform contains everything except the requested text size.
+    // Some properties, like 'trak', are based on the text size (before applying the matrix).
+    CGFloat textSize = ScalarToCG(fRec.fTextSize);
+
+    // If a text size of 0 is requested, CoreGraphics will use 12 instead.
+    // If the text size is 0, set it to something tiny.
+    if (textSize < CGFLOAT_MIN) {
+        textSize = CGFLOAT_MIN;
+    }
+
+    fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &transform, ctFontDesc));
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont, NULL));
     if (fVertical) {
         CGAffineTransform rotateLeft = CGAffineTransformMake(0, -1, 1, 0, 0, 0);
         transform = CGAffineTransformConcat(rotateLeft, transform);
-        fCTVerticalFont.reset(CTFontCreateCopyWithAttributes(ctFont, 1, &transform, NULL));
+        fCTVerticalFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &transform, NULL));
     }
 
+    // The fUnitMatrix includes the text size (and em) as it is used to scale the raw font data.
+    fRec.getSingleMatrix(&fFUnitMatrix);
     SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont)));
     fFUnitMatrix.preScale(emPerFUnit, -emPerFUnit);
 }
@@ -793,7 +806,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
         CGContextSetTextDrawingMode(fCG, kCGTextFill);
         CGContextSetFont(fCG, context.fCGFont);
-        CGContextSetFontSize(fCG, 1 /*CTFontGetSize(context.fCTFont)*/);
+        CGContextSetFontSize(fCG, CTFontGetSize(context.fCTFont));
         CGContextSetTextMatrix(fCG, CTFontGetMatrix(context.fCTFont));
 
         // Because CG always draws from the horizontal baseline,
