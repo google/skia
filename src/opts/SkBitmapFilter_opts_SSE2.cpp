@@ -49,6 +49,7 @@ void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
     const int maxX = s.fBitmap->width();
     const int maxY = s.fBitmap->height();
     SkAutoTMalloc<SkScalar> xWeights(maxX);
+    const SkBitmapFilter* filter = s.getBitmapFilter();
 
     while (count-- > 0) {
         SkPoint srcPt;
@@ -59,34 +60,37 @@ void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
         __m128 weight = _mm_setzero_ps();
         __m128 accum = _mm_setzero_ps();
 
-        int y0 = SkClampMax(SkScalarCeilToInt(srcPt.fY-s.getBitmapFilter()->width()), maxY);
-        int y1 = SkClampMax(SkScalarFloorToInt(srcPt.fY+s.getBitmapFilter()->width()+1), maxY);
-        int x0 = SkClampMax(SkScalarCeilToInt(srcPt.fX-s.getBitmapFilter()->width()), maxX);
-        int x1 = SkClampMax(SkScalarFloorToInt(srcPt.fX+s.getBitmapFilter()->width())+1, maxX);
+        int y0 = SkClampMax(SkScalarCeilToInt(srcPt.fY - filter->width()), maxY);
+        int y1 = SkClampMax(SkScalarFloorToInt(srcPt.fY + filter->width() + 1), maxY);
+        int x0 = SkClampMax(SkScalarCeilToInt(srcPt.fX - filter->width()), maxX);
+        int x1 = SkClampMax(SkScalarFloorToInt(srcPt.fX + filter->width()) + 1, maxX);
 
         for (int srcX = x0; srcX < x1 ; srcX++) {
             // Looking these up once instead of each loop is a ~15% speedup.
-            xWeights[srcX - x0] = s.getBitmapFilter()->lookupScalar((srcPt.fX - srcX));
+            xWeights[srcX - x0] = filter->lookupScalar((srcPt.fX - srcX));
         }
 
         for (int srcY = y0; srcY < y1; srcY++) {
-            SkScalar yWeight = s.getBitmapFilter()->lookupScalar((srcPt.fY - srcY));
+            SkScalar yWeight = filter->lookupScalar((srcPt.fY - srcY));
 
             for (int srcX = x0; srcX < x1 ; srcX++) {
                 SkScalar xWeight = xWeights[srcX - x0];
 
                 SkScalar combined_weight = SkScalarMul(xWeight, yWeight);
+                __m128 weightVector = _mm_set1_ps(combined_weight);
+                weight = _mm_add_ps( weight, weightVector );
 
                 SkPMColor color = *s.fBitmap->getAddr32(srcX, srcY);
+                if (!color) {
+                    continue;
+                }
 
                 __m128i c = _mm_cvtsi32_si128(color);
                 c = _mm_unpacklo_epi8(c, _mm_setzero_si128());
                 c = _mm_unpacklo_epi16(c, _mm_setzero_si128());
                 __m128 cfloat = _mm_cvtepi32_ps(c);
 
-                __m128 weightVector = _mm_set1_ps(combined_weight);
                 accum = _mm_add_ps(accum, _mm_mul_ps(cfloat, weightVector));
-                weight = _mm_add_ps( weight, weightVector );
             }
         }
 
