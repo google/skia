@@ -218,6 +218,11 @@ GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& 
     return resource;
 }
 
+void GrResourceCache2::willRemoveScratchKey(const GrGpuResource* resource) {
+    SkASSERT(resource->cacheAccess().isScratch());
+    fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
+}
+
 bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(!fPurging);
     SkASSERT(resource);

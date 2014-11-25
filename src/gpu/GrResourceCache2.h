@@ -161,6 +161,7 @@ private:
     void notifyPurgable(GrGpuResource*);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     bool didSetContentKey(GrGpuResource*);
+    void willRemoveScratchKey(const GrGpuResource*);
     void didChangeBudgetStatus(GrGpuResource*);
     void makeResourceMRU(GrGpuResource*);
     /// @}
@@ -277,6 +278,12 @@ private:
      */
     bool didSetContentKey(GrGpuResource* resource) { return fCache->didSetContentKey(resource); }
 
+    /**
+     * Called by GrGpuResources when the remove their scratch key.
+     */
+    void willRemoveScratchKey(const GrGpuResource* resource) {
+        fCache->willRemoveScratchKey(resource);
+    }
 
     /**
      * Called by GrGpuResources when they change from budgeted to unbudgeted or vice versa.

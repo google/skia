@@ -9,6 +9,7 @@
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTextureRenderTarget.h"
+#include "GrGpuResourceCacheAccess.h"
 #include "GrOptDrawState.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
@@ -1121,8 +1122,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
-bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                 int width, int height) {
+bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) {
 
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
@@ -1171,15 +1171,16 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
                                                   (this, kIsWrapped, sbID, width, height,
                                                   samples, format)));
-            // If we fail we have to create a new render buffer ID since we gave this one to the
-            // GrGLStencilBuffer object.
-            sbID = 0; 
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                sb->transferToCache();
                 rt->setStencilBuffer(sb);
                 return true;
             }
+            // Remove the scratch key from this resource so we don't grab it from the cache ever
+            // again.
+            sb->cacheAccess().removeScratchKey();
+            // Set this to 0 since we handed the valid ID off to the failed stencil buffer resource.
+            sbID = 0; 
         }
     }
     GL_CALL(DeleteRenderbuffers(1, &sbID));

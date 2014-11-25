@@ -50,6 +50,12 @@ public:
     const GrResourceKey& getScratchKey() const { return fResource->fScratchKey; }
 
     /**
+     * If the resource has a scratch key, the key will be removed. Since scratch keys are installed
+     * at resource creation time, this means the resource will never again be used as scratch.
+     */
+    void removeScratchKey() const { fResource->removeScratchKey();  }
+
+    /**
      * If the resource is currently cached by a content key, the key is returned, otherwise NULL.
      */
     const GrResourceKey* getContentKey() const {
