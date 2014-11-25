@@ -35,7 +35,8 @@ class GrDrawTarget : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawTarget)
 
-    typedef GrPathRendering::PathTransformType PathTransformType ;
+    typedef GrPathRange::PathIndexType PathIndexType;
+    typedef GrPathRendering::PathTransformType PathTransformType;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -279,22 +280,24 @@ public:
     void drawPath(GrDrawState*, const GrPath*, GrPathRendering::FillType fill);
 
     /**
-     * Draws many paths. It will respect the HW
-     * antialias flag on the draw state (if possible in the 3D API).
+     * Draws the aggregate path from combining multiple. Note that this will not
+     * always be equivalent to back-to-back calls to drawPath(). It will respect
+     * the HW antialias flag on the draw state (if possible in the 3D API).
      *
-     * @param pathRange       Source of paths to draw from
-     * @param indices         Array of indices into the the pathRange
-     * @param count           Number of paths to draw (length of indices array)
-     * @param transforms      Array of individual transforms, one for each path
-     * @param transformsType  Type of transformations in the array. Array contains
-                              PathTransformSize(transformsType) * count elements
+     * @param pathRange       Source paths to draw from
+     * @param indices         Array of path indices to draw
+     * @param indexType       Data type of the array elements in indexBuffer
+     * @param transformValues Array of transforms for the individual paths
+     * @param transformType   Type of transforms in transformBuffer
+     * @param count           Number of paths to draw
      * @param fill            Fill type for drawing all the paths
      */
     void drawPaths(GrDrawState*, const GrPathRange* pathRange,
-                   const uint32_t indices[],
+                   const void* indices,
+                   PathIndexType indexType,
+                   const float transformValues[],
+                   PathTransformType transformType,
                    int count,
-                   const float transforms[],
-                   PathTransformType transformsType,
                    GrPathRendering::FillType fill);
 
     /**
@@ -704,10 +707,11 @@ private:
                             const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrDrawState&,
                              const GrPathRange*,
-                             const uint32_t indices[],
-                             int count,
-                             const float transforms[],
+                             const void* indices,
+                             PathIndexType,
+                             const float transformValues[],
                              PathTransformType,
+                             int count,
                              const GrClipMaskManager::ScissorState&,
                              const GrStencilSettings&,
                              const GrDeviceCoordTexture*) = 0;

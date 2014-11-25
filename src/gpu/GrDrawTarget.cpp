@@ -617,15 +617,17 @@ void GrDrawTarget::drawPath(GrDrawState* ds,
 
 void GrDrawTarget::drawPaths(GrDrawState* ds,
                              const GrPathRange* pathRange,
-                             const uint32_t indices[],
+                             const void* indices,
+                             PathIndexType indexType,
+                             const float transformValues[],
+                             PathTransformType transformType,
                              int count,
-                             const float transforms[],
-                             PathTransformType transformsType,
                              GrPathRendering::FillType fill) {
     SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(pathRange);
     SkASSERT(indices);
-    SkASSERT(transforms);
+    SkASSERT(0 == reinterpret_cast<long>(indices) % GrPathRange::PathIndexSizeInBytes(indexType));
+    SkASSERT(transformValues);
     SkASSERT(ds);
 
     // Setup clip
@@ -652,8 +654,8 @@ void GrDrawTarget::drawPaths(GrDrawState* ds,
         return;
     }
 
-    this->onDrawPaths(*ds, pathRange, indices, count, transforms, transformsType, scissorState,
-                      stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
+    this->onDrawPaths(*ds, pathRange, indices, indexType, transformValues, transformType, count,
+                      scissorState, stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect,

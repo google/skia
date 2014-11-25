@@ -157,9 +157,10 @@ private:
         void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
         int                     fIndicesLocation;
-        size_t                  fCount;
+        PathIndexType           fIndexType;
         int                     fTransformsLocation;
-        PathTransformType       fTransformsType;
+        PathTransformType       fTransformType;
+        int                     fCount;
         GrStencilSettings       fStencilSettings;
 
     private:
@@ -249,10 +250,11 @@ private:
                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawPaths(const GrDrawState&,
                      const GrPathRange*,
-                     const uint32_t indices[],
-                     int count,
-                     const float transforms[],
+                     const void* indices,
+                     PathIndexType,
+                     const float transformValues[],
                      PathTransformType,
+                     int count,
                      const ScissorState&,
                      const GrStencilSettings&,
                      const GrDeviceCoordTexture*) SK_OVERRIDE;
@@ -293,8 +295,8 @@ private:
     // TODO: Use a single allocator for commands and records
     enum {
         kCmdBufferInitialSizeInBytes = 8 * 1024,
-        kPathIdxBufferMinReserve     = 64,
-        kPathXformBufferMinReserve   = 2 * kPathIdxBufferMinReserve,
+        kPathIdxBufferMinReserve     = 2 * 64,  // 64 uint16_t's
+        kPathXformBufferMinReserve   = 2 * 64,  // 64 two-float transforms
         kGeoPoolStatePreAllocCnt     = 4,
     };
 
@@ -318,7 +320,7 @@ private:
     GrGpu*                              fDstGpu;
     GrVertexBufferAllocPool&            fVertexPool;
     GrIndexBufferAllocPool&             fIndexPool;
-    SkTDArray<uint32_t>                 fPathIndexBuffer;
+    SkTDArray<char>                     fPathIndexBuffer;
     SkTDArray<float>                    fPathTransformBuffer;
     GeoPoolStateStack                   fGeoPoolStateStack;
     bool                                fFlushing;

@@ -34,17 +34,7 @@ class GrPathRendering {
 public:
     virtual ~GrPathRendering() { }
 
-    // No native support for inverse at this time
-    enum FillType {
-        /** Specifies that "inside" is computed by a non-zero sum of signed
-            edge crossings
-        */
-        kWinding_FillType,
-        /** Specifies that "inside" is computed by an odd number of edge
-            crossings
-        */
-        kEvenOdd_FillType,
-    };
+    typedef GrPathRange::PathIndexType PathIndexType;
 
     enum PathTransformType {
         kNone_PathTransformType,        //!< []
@@ -73,6 +63,18 @@ public:
                 return 0;
         }
     }
+
+    // No native support for inverse at this time
+    enum FillType {
+        /** Specifies that "inside" is computed by a non-zero sum of signed
+            edge crossings
+        */
+        kWinding_FillType,
+        /** Specifies that "inside" is computed by an odd number of edge
+            crossings
+        */
+        kEvenOdd_FillType,
+    };
 
     /**
      * Creates a new gpu path, based on the specified path and stroke and returns it.
@@ -126,8 +128,8 @@ public:
 
     virtual void stencilPath(const GrPath*, const GrStencilSettings&) = 0;
     virtual void drawPath(const GrPath*, const GrStencilSettings&) = 0;
-    virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,
-                           const float transforms[], PathTransformType,
+    virtual void drawPaths(const GrPathRange*, const void* indices, PathIndexType,
+                           const float transformValues[], PathTransformType, int count,
                            const GrStencilSettings&) = 0;
 protected:
     GrPathRendering() { }

@@ -41,8 +41,8 @@ public:
                                       const SkStrokeRec&) SK_OVERRIDE;
     virtual void stencilPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
     virtual void drawPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
-    virtual void drawPaths(const GrPathRange*, const uint32_t indices[], int count,
-                           const float transforms[], PathTransformType,
+    virtual void drawPaths(const GrPathRange*, const void* indices, PathIndexType,
+                           const float transformValues[], PathTransformType, int count,
                            const GrStencilSettings&) SK_OVERRIDE;
 
     /* Called when the 3D context state is unknown. */

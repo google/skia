@@ -324,24 +324,33 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
 
 void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
                                       const GrPathRange* pathRange,
-                                      const uint32_t indices[],
+                                      const void* indices,
+                                      PathIndexType indexType,
+                                      const float transformValues[],
+                                      PathTransformType transformType,
                                       int count,
-                                      const float transforms[],
-                                      PathTransformType transformsType,
                                       const GrClipMaskManager::ScissorState& scissorState,
                                       const GrStencilSettings& stencilSettings,
                                       const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(pathRange);
     SkASSERT(indices);
-    SkASSERT(transforms);
+    SkASSERT(transformValues);
 
     if (!this->recordStateAndShouldDraw(ds, GrGpu::kDrawPath_DrawType, scissorState, dstCopy)) {
         return;
     }
 
-    uint32_t* savedIndices = fPathIndexBuffer.append(count, indices);
-    float* savedTransforms = fPathTransformBuffer.append(count *
-                                 GrPathRendering::PathTransformSize(transformsType), transforms);
+    int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
+    if (int misalign = fPathIndexBuffer.count() % indexBytes) {
+        // Add padding to the index buffer so the indices are aligned properly.
+        fPathIndexBuffer.append(indexBytes - misalign);
+    }
+
+    char* savedIndices = fPathIndexBuffer.append(count * indexBytes,
+                                                 reinterpret_cast<const char*>(indices));
+    float* savedTransforms = fPathTransformBuffer.append(
+                                 count * GrPathRendering::PathTransformSize(transformType),
+                                 transformValues);
 
     if (kDrawPaths_Cmd == strip_trace_bit(fCmdBuffer.back().fType)) {
         // The previous command was also DrawPaths. Try to collapse this call into the one
@@ -353,7 +362,8 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
         // font tend to all wind in the same direction.
         DrawPaths* previous = static_cast<DrawPaths*>(&fCmdBuffer.back());
         if (pathRange == previous->pathRange() &&
-            transformsType == previous->fTransformsType &&
+            indexType == previous->fIndexType &&
+            transformType == previous->fTransformType &&
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
             !ds.willBlendWithDst()) {
@@ -365,9 +375,10 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
 
     DrawPaths* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPaths, (pathRange));
     dp->fIndicesLocation = savedIndices - fPathIndexBuffer.begin();
-    dp->fCount = count;
+    dp->fIndexType = indexType;
     dp->fTransformsLocation = savedTransforms - fPathTransformBuffer.begin();
-    dp->fTransformsType = transformsType;
+    dp->fTransformType = transformType;
+    dp->fCount = count;
     dp->fStencilSettings = stencilSettings;
 
     this->recordTraceMarkersIfNecessary();
@@ -522,9 +533,9 @@ void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
                                              const GrOptDrawState* optState) {
     SkASSERT(optState);
     buf->fDstGpu->drawPaths(*optState, this->pathRange(),
-                            &buf->fPathIndexBuffer[fIndicesLocation], fCount,
-                            &buf->fPathTransformBuffer[fTransformsLocation], fTransformsType,
-                            fStencilSettings);
+                            &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
+                            &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
+                            fCount, fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const GrOptDrawState*) {}

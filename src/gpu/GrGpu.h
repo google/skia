@@ -365,10 +365,11 @@ public:
                           const GrStencilSettings&);
     virtual void drawPaths(const GrOptDrawState&,
                            const GrPathRange*,
-                           const uint32_t indices[],
-                           int count,
-                           const float transforms[],
+                           const void* indices,
+                           GrDrawTarget::PathIndexType,
+                           const float transformValues[],
                            GrDrawTarget::PathTransformType,
+                           int count,
                            const GrStencilSettings&);
 
     static DrawType PrimTypeToDrawType(GrPrimitiveType type) {

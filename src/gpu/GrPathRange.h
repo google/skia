@@ -36,8 +36,25 @@ public:
         return type;
     }
 
+    enum PathIndexType {
+        kU8_PathIndexType,   //!< uint8_t
+        kU16_PathIndexType,  //!< uint16_t
+        kU32_PathIndexType,  //!< uint32_t
+
+        kLast_PathIndexType = kU32_PathIndexType
+    };
+
+    static inline int PathIndexSizeInBytes(PathIndexType type) {
+        GR_STATIC_ASSERT(0 == kU8_PathIndexType);
+        GR_STATIC_ASSERT(1 == kU16_PathIndexType);
+        GR_STATIC_ASSERT(2 == kU32_PathIndexType);
+        GR_STATIC_ASSERT(kU32_PathIndexType == kLast_PathIndexType);
+
+        return 1 << type;
+    }
+
     /**
-     *  Class that generates the paths for a specific range.
+     * Class that generates the paths for a specific range.
      */
     class PathGenerator : public SkRefCnt {
     public:
@@ -76,7 +93,8 @@ protected:
 private:
     // Notify when paths will be drawn in case this is a lazy-loaded path range.
     friend class GrGpu;
-    void willDrawPaths(const uint32_t indices[], int count) const;
+    void willDrawPaths(const void* indices, PathIndexType, int count) const;
+    template<typename IndexType> void willDrawPaths(const void* indices, int count) const;
 
     mutable SkAutoTUnref<PathGenerator> fPathGenerator;
     mutable SkTArray<uint8_t, true /*MEM_COPY*/> fGeneratedPaths;

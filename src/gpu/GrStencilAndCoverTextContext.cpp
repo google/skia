@@ -367,9 +367,9 @@ void GrStencilAndCoverTextContext::flush() {
         return;
     }
 
-    fDrawTarget->drawPaths(&fDrawState, fGlyphs, fIndexBuffer, fPendingGlyphCount, fTransformBuffer,
-                           GrPathRendering::kTranslate_PathTransformType,
-                           GrPathRendering::kWinding_FillType);
+    fDrawTarget->drawPaths(&fDrawState, fGlyphs, fIndexBuffer, GrPathRange::kU16_PathIndexType,
+                           fTransformBuffer, GrPathRendering::kTranslate_PathTransformType,
+                           fPendingGlyphCount, GrPathRendering::kWinding_FillType);
 
     fPendingGlyphCount = 0;
 }

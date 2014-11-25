@@ -57,7 +57,7 @@ private:
     float                           fTextInverseRatio;
     SkGlyphCache*                   fGlyphCache;
     GrPathRange*                    fGlyphs;
-    uint32_t                        fIndexBuffer[kGlyphBufferSize];
+    uint16_t                        fIndexBuffer[kGlyphBufferSize];
     float                           fTransformBuffer[2 * kGlyphBufferSize];
     int                             fPendingGlyphCount;
     SkMatrix                        fContextInitialMatrix;

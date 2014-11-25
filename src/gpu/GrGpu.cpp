@@ -317,10 +317,11 @@ void GrGpu::drawPath(const GrOptDrawState& ds,
 
 void GrGpu::drawPaths(const GrOptDrawState& ds,
                       const GrPathRange* pathRange,
-                      const uint32_t indices[],
+                      const void* indices,
+                      GrDrawTarget::PathIndexType indexType,
+                      const float transformValues[],
+                      GrDrawTarget::PathTransformType transformType,
                       int count,
-                      const float transforms[],
-                      GrDrawTarget::PathTransformType transformsType,
                       const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
@@ -328,7 +329,7 @@ void GrGpu::drawPaths(const GrOptDrawState& ds,
         return;
     }
 
-    pathRange->willDrawPaths(indices, count);
-    this->pathRendering()->drawPaths(pathRange, indices, count, transforms, transformsType,
-                                     stencilSettings);
+    pathRange->willDrawPaths(indices, indexType, count);
+    this->pathRendering()->drawPaths(pathRange, indices, indexType, transformValues,
+                                     transformType, count, stencilSettings);
 }
