@@ -1206,6 +1206,20 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     degenerateConcave.lineTo(41.446522f, 376.25f);
     check_convexity(reporter, degenerateConcave, SkPath::kConcave_Convexity);
     check_direction(reporter, degenerateConcave, SkPath::kUnknown_Direction);
+
+    // http://crbug.com/433683
+    SkPath badFirstVector;
+    badFirstVector.moveTo(501.087708f, 319.610352f);
+    badFirstVector.lineTo(501.087708f, 319.610352f);
+    badFirstVector.cubicTo(501.087677f, 319.610321f, 449.271606f, 258.078674f, 395.084564f, 198.711182f);
+    badFirstVector.cubicTo(358.967072f, 159.140717f, 321.910553f, 120.650436f, 298.442322f, 101.955399f);
+    badFirstVector.lineTo(301.557678f, 98.044601f);
+    badFirstVector.cubicTo(325.283844f, 116.945084f, 362.615204f, 155.720825f, 398.777557f, 195.340454f);
+    badFirstVector.cubicTo(453.031860f, 254.781662f, 504.912262f, 316.389618f, 504.912292f, 316.389648f);
+    badFirstVector.lineTo(504.912292f, 316.389648f);
+    badFirstVector.lineTo(501.087708f, 319.610352f);
+    badFirstVector.close();
+    check_convexity(reporter, badFirstVector, SkPath::kConcave_Convexity);
 }
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
