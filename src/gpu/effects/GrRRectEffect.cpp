@@ -139,7 +139,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -163,12 +162,11 @@ GLCircularRRectEffect::GLCircularRRectEffect(const GrBackendProcessorFactory& fa
 }
 
 void GLCircularRRectEffect::emitCode(GrGLFPBuilder* builder,
-                             const GrFragmentProcessor& fp,
-                             const GrProcessorKey& key,
-                             const char* outputColor,
-                             const char* inputColor,
-                             const TransformedCoordsArray&,
-                             const TextureSamplerArray& samplers) {
+                                     const GrFragmentProcessor& fp,
+                                     const char* outputColor,
+                                     const char* inputColor,
+                                     const TransformedCoordsArray&,
+                                     const TextureSamplerArray& samplers) {
     const CircularRRectEffect& crre = fp.cast<CircularRRectEffect>();
     const char *rectName;
     const char *radiusPlusHalfName;
@@ -494,7 +492,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& effect,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -519,7 +516,6 @@ GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrBackendProcessorFactory
 
 void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
                                        const GrFragmentProcessor& effect,
-                                       const GrProcessorKey& key,
                                        const char* outputColor,
                                        const char* inputColor,
                                        const TransformedCoordsArray&,

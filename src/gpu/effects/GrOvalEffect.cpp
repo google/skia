@@ -103,7 +103,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -129,7 +128,6 @@ GLCircleEffect::GLCircleEffect(const GrBackendProcessorFactory& factory,
 
 void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
-                              const GrProcessorKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -278,7 +276,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -304,7 +301,6 @@ GLEllipseEffect::GLEllipseEffect(const GrBackendProcessorFactory& factory,
 
 void GLEllipseEffect::emitCode(GrGLFPBuilder* builder,
                                const GrFragmentProcessor& fp,
-                               const GrProcessorKey& key,
                                const char* outputColor,
                                const char* inputColor,
                                const TransformedCoordsArray&,

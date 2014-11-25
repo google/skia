@@ -223,7 +223,6 @@ public:
     };
 
 protected:
-    typedef GrProgramDesc::ProcKeyProvider ProcKeyProvider;
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
@@ -249,17 +248,14 @@ protected:
     template <class Proc>
     void emitAndInstallProc(const Proc&,
                             int index,
-                            const ProcKeyProvider&,
                             const GrGLSLExpr4& input,
                             GrGLSLExpr4* output);
 
     // these emit functions help to keep the createAndEmitProcessors template general
     void emitAndInstallProc(const GrPendingFragmentStage&,
-                            const GrProcessorKey&,
                             const char* outColor,
                             const char* inColor);
     void emitAndInstallProc(const GrGeometryProcessor&,
-                            const GrProcessorKey&,
                             const char* outCoverage,
                             const char* inCoverage);
     void verify(const GrGeometryProcessor&);

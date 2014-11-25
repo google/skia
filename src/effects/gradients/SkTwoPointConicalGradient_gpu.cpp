@@ -142,7 +142,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -225,7 +224,6 @@ GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrBackendProcessorFactory& 
 
 void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                       const GrFragmentProcessor& fp,
-                                      const GrProcessorKey& key,
                                       const char* outputColor,
                                       const char* inputColor,
                                       const TransformedCoordsArray& coords,
@@ -423,7 +421,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -506,7 +503,6 @@ GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrBackendPr
 
 void GLFocalOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                               const GrFragmentProcessor& fp,
-                                              const GrProcessorKey& key,
                                               const char* outputColor,
                                               const char* inputColor,
                                               const TransformedCoordsArray& coords,
@@ -632,7 +628,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -712,7 +707,6 @@ GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrBackendProc
 
 void GLFocalInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                              const GrFragmentProcessor& fp,
-                                             const GrProcessorKey& key,
                                              const char* outputColor,
                                              const char* inputColor,
                                              const TransformedCoordsArray& coords,
@@ -877,7 +871,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -965,7 +958,6 @@ GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrBackendPr
 
 void GLCircleInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                               const GrFragmentProcessor& fp,
-                                              const GrProcessorKey& key,
                                               const char* outputColor,
                                               const char* inputColor,
                                               const TransformedCoordsArray& coords,
@@ -1109,7 +1101,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -1205,7 +1196,6 @@ GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrBackend
 
 void GLCircleOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
                                                const GrFragmentProcessor& fp,
-                                               const GrProcessorKey& key,
                                                const char* outputColor,
                                                const char* inputColor,
                                                const TransformedCoordsArray& coords,

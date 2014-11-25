@@ -25,14 +25,12 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLGPBuilder* pb,
                  const GrGeometryProcessor& gp,
-                 const GrProcessorKey& key,
                  const char* output,
                  const char* input,
                  const TextureSamplerArray& samplers)
-            : fPB(pb), fGP(gp), fKey(key), fOutput(output), fInput(input), fSamplers(samplers) {}
+            : fPB(pb), fGP(gp), fOutput(output), fInput(input), fSamplers(samplers) {}
         GrGLGPBuilder* fPB;
         const GrGeometryProcessor& fGP;
-        const GrProcessorKey& fKey;
         const char* fOutput;
         const char* fInput;
         const TextureSamplerArray& fSamplers;

@@ -89,7 +89,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -113,7 +112,6 @@ GLAARectEffect::GLAARectEffect(const GrBackendProcessorFactory& factory,
 
 void GLAARectEffect::emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
-                              const GrProcessorKey& key,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
@@ -183,7 +181,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -207,7 +204,6 @@ GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrBackendProcessorFactory& fact
 
 void GrGLConvexPolyEffect::emitCode(GrGLFPBuilder* builder,
                                     const GrFragmentProcessor& fp,
-                                    const GrProcessorKey& key,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TransformedCoordsArray&,

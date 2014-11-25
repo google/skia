@@ -518,7 +518,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -663,7 +662,6 @@ GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendProcessorFactory& factory,
 
 void GrGLPerlinNoise::emitCode(GrGLFPBuilder* builder,
                                const GrFragmentProcessor&,
-                               const GrProcessorKey& key,
                                const char* outputColor,
                                const char* inputColor,
                                const TransformedCoordsArray& coords,

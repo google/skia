@@ -74,15 +74,10 @@ public:
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
-                          const GrProcessorKey& key,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) {
-        for (uint32_t i = 0; i < kMaxKeySize; i++) {
-            SkASSERT(key.get32(i) == i);
-        }
-    }
+                          const TextureSamplerArray&) {}
 
     static void GenKey(const GrProcessor& processor, const GrGLCaps&, GrProcessorKeyBuilder* b) {
         for (uint32_t i = 0; i < kMaxKeySize; i++) {

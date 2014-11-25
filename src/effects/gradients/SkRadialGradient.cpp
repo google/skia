@@ -482,7 +482,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -561,7 +560,6 @@ GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
 
 void GrGLRadialGradient::emitCode(GrGLFPBuilder* builder,
                                   const GrFragmentProcessor& fp,
-                                  const GrProcessorKey& key,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TransformedCoordsArray& coords,

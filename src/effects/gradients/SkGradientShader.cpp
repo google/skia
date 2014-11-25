@@ -1046,7 +1046,7 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
 
     if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()) {
         key |= kTwoColorKey;
-    } else if (SkGradientShaderBase::kThree_GpuColorType == e.getColorType()){
+    } else if (SkGradientShaderBase::kThree_GpuColorType == e.getColorType()) {
         key |= kThreeColorKey;
     }
 

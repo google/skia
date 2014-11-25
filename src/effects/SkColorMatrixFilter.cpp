@@ -364,7 +364,6 @@ public:
 
         virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor&,
-                              const GrProcessorKey&,
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,

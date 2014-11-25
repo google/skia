@@ -250,24 +250,18 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     if (fOptState.hasGeometryProcessor()) {
         const GrGeometryProcessor& gp = *fOptState.getGeometryProcessor();
         fVS.emitAttributes(gp);
-        ProcKeyProvider keyProvider(&fDesc,
-                                    ProcKeyProvider::kGeometry_ProcessorType,
-                                    GrGLProgramDescBuilder::kProcessorKeyOffsetsAndLengthOffset);
         GrGLSLExpr4 output;
-        this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, keyProvider, *inputCoverage, &output);
+        this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, *inputCoverage, &output);
         *inputCoverage = output;
     }
     this->emitAndInstallFragProcs(fOptState.numColorStages(), numProcs,  inputCoverage);
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut) {
-    ProcKeyProvider keyProvider(&fDesc,
-                                ProcKeyProvider::kFragment_ProcessorType,
-                                GrGLProgramDescBuilder::kProcessorKeyOffsetsAndLengthOffset);
     for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
         const GrPendingFragmentStage& stage = fOptState.getFragmentStage(e);
-        this->emitAndInstallProc<GrPendingFragmentStage>(stage, e, keyProvider, *inOut, &output);
+        this->emitAndInstallProc<GrPendingFragmentStage>(stage, e, *inOut, &output);
         *inOut = output;
     }
 }
@@ -277,7 +271,6 @@ void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, G
 template <class Proc>
 void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
                                             int index,
-                                            const ProcKeyProvider& keyProvider,
                                             const GrGLSLExpr4& input,
                                             GrGLSLExpr4* output) {
     // Program builders have a bit of state we need to clear with each effect
@@ -299,14 +292,12 @@ void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
     fFS.codeAppend(openBrace.c_str());
 
-    this->emitAndInstallProc(proc, keyProvider.get(index), output->c_str(),
-                             input.isOnes() ? NULL : input.c_str());
+    this->emitAndInstallProc(proc, output->c_str(), input.isOnes() ? NULL : input.c_str());
 
     fFS.codeAppend("}");
 }
 
 void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
-                                            const GrProcessorKey& key,
                                             const char* outColor,
                                             const char* inColor) {
     GrGLInstalledFragProc* ifp = SkNEW_ARGS(GrGLInstalledFragProc, (fVS.hasLocalCoords()));
@@ -321,7 +312,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
     SkSTArray<2, GrGLProcessor::TransformedCoords> coords(fp.numTransforms());
     this->emitTransforms(fs, &coords, ifp);
 
-    ifp->fGLProc->emitCode(this, fp, key, outColor, inColor, coords, samplers);
+    ifp->fGLProc->emitCode(this, fp, outColor, inColor, coords, samplers);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
@@ -330,7 +321,6 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
 }
 
 void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
-                                            const GrProcessorKey& key,
                                             const char* outCoverage,
                                             const char* inCoverage) {
     SkASSERT(!fGeometryProcessor);
@@ -341,7 +331,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLGeometryProcessor::EmitArgs args(this, gp, key, outCoverage, inCoverage, samplers);
+    GrGLGeometryProcessor::EmitArgs args(this, gp, outCoverage, inCoverage, samplers);
     fGeometryProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

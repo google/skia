@@ -139,45 +139,6 @@ public:
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-    /** Used to provide effects' keys to their emitCode() function. */
-    class ProcKeyProvider {
-    public:
-        enum ProcessorType {
-            kGeometry_ProcessorType,
-            kFragment_ProcessorType,
-        };
-
-        ProcKeyProvider(const GrProgramDesc* desc, ProcessorType type, int effectOffset)
-            : fDesc(desc), fBaseIndex(0), fEffectOffset(effectOffset) {
-            switch (type) {
-                case kGeometry_ProcessorType:
-                    // there can be only one
-                    fBaseIndex = 0;
-                    break;
-                case kFragment_ProcessorType:
-                    fBaseIndex = desc->hasGeometryProcessor() ? 1 : 0;
-                    break;
-            }
-        }
-
-        GrProcessorKey get(int index) const {
-            const uint16_t* offsetsAndLengths = reinterpret_cast<const uint16_t*>(
-                fDesc->fKey.begin() + fEffectOffset);
-            // We store two uint16_ts per effect, one for the offset to the effect's key and one for
-            // its length. Here we just need the offset.
-            uint16_t offset = offsetsAndLengths[2 * (fBaseIndex + index) + 0];
-            uint16_t length = offsetsAndLengths[2 * (fBaseIndex + index) + 1];
-            // Currently effects must add to the key in units of uint32_t.
-            SkASSERT(0 == (length % sizeof(uint32_t)));
-            return GrProcessorKey(reinterpret_cast<const uint32_t*>(fDesc->fKey.begin() + offset),
-                               length / sizeof(uint32_t));
-        }
-    private:
-        const GrProgramDesc*  fDesc;
-        int                   fBaseIndex;
-        int                   fEffectOffset;
-    };
-
     // A struct to communicate descriptor information to the program descriptor builder
     struct DescInfo {
         int positionAttributeIndex() const {

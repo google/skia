@@ -49,31 +49,6 @@ private:
 };
 
 /**
- * This class is used to pass the key that was created for a GrGLProcessor back to it
- * when it emits code. It may allow the emit step to skip calculations that were
- * performed when computing the key.
- */
-class GrProcessorKey {
-public:
-    GrProcessorKey(const uint32_t* key, int count) : fKey(key), fCount(count) {
-        SkASSERT(0 == reinterpret_cast<intptr_t>(key) % sizeof(uint32_t));
-    }
-
-    /** Gets the uint32_t values that the processor inserted into the key. */
-    uint32_t get32(int index) const {
-        SkASSERT(index >=0 && index < fCount);
-        return fKey[index];
-    }
-
-    /** Gets the number of uint32_t values that the processor inserted into the key. */
-    int count32() const { return fCount; }
-
-private:
-    const uint32_t* fKey;           // unowned ptr into the larger key.
-    int             fCount;         // number of uint32_ts inserted by the processor into its key.
-};
-
-/**
  * Given a GrProcessor of a particular type, creates the corresponding graphics-backend-specific
  * processor object. It also tracks equivalence of shaders generated via a key. The factory for an
  * processor is accessed via GrProcessor::getFactory(). Each factory instance is assigned an ID at

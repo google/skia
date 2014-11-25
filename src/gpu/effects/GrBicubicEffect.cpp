@@ -26,7 +26,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -56,7 +55,6 @@ GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendProcessorFactory& factory, c
 
 void GrGLBicubicEffect::emitCode(GrGLFPBuilder* builder,
                                  const GrFragmentProcessor& effect,
-                                 const GrProcessorKey& key,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,

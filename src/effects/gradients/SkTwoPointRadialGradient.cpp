@@ -413,7 +413,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -569,7 +568,6 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendProcessorFactory& factor
 
 void GrGLRadial2Gradient::emitCode(GrGLFPBuilder* builder,
                                    const GrFragmentProcessor& fp,
-                                   const GrProcessorKey& key,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TransformedCoordsArray& coords,

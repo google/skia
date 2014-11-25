@@ -21,7 +21,6 @@ public:
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
-                          const GrProcessorKey&,
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
@@ -57,7 +56,6 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendProcessorFactory& fa
 
 void GrGLConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                      const GrFragmentProcessor&,
-                                     const GrProcessorKey& key,
                                      const char* outputColor,
                                      const char* inputColor,
                                      const TransformedCoordsArray& coords,
