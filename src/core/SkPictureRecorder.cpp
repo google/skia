@@ -15,7 +15,7 @@
 #include "SkRecordOpts.h"
 #include "SkTypes.h"
 
-SkPictureRecorder::SkPictureRecorder() : fBBHFactory(NULL) {}
+SkPictureRecorder::SkPictureRecorder() {}
 
 SkPictureRecorder::~SkPictureRecorder() {}
 
@@ -23,7 +23,6 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& cullRect,
                                             SkBBHFactory* bbhFactory /* = NULL */,
                                             uint32_t recordFlags /* = 0 */) {
     fCullRect = cullRect;
-    fBBHFactory = bbhFactory;
     fFlags = recordFlags;
 
     if (bbhFactory) {
@@ -68,7 +67,12 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
     if (saveLayerData) {
         pict->EXPERIMENTAL_addAccelData(saveLayerData);
     }
-    
+
+    // release our refs now, so only the picture will be the owner.
+    fRecorder.reset(NULL);
+    fRecord.reset(NULL);
+    fBBH.reset(NULL);
+
     return pict;
 }
 
@@ -157,7 +161,15 @@ SkCanvasDrawable* SkPictureRecorder::EXPERIMENTAL_endRecordingAsDrawable() {
         SkRecordFillBounds(fCullRect, *fRecord, fBBH.get());
     }
 
-    return SkNEW_ARGS(SkRecordedDrawable, (fRecord, fBBH, fRecorder->detachDrawableList(),
-                                           fCullRect,
-                                           SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag)));
+    SkCanvasDrawable* drawable = SkNEW_ARGS(SkRecordedDrawable,
+                                            (fRecord, fBBH, fRecorder->detachDrawableList(),
+                                             fCullRect,
+                                             SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag)));
+
+    // release our refs now, so only the drawable will be the owner.
+    fRecorder.reset(NULL);
+    fRecord.reset(NULL);
+    fBBH.reset(NULL);
+
+    return drawable;
 }

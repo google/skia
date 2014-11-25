@@ -110,7 +110,6 @@ private:
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
     SkAutoTUnref<SkRecorder>      fRecorder;
     SkAutoTUnref<SkRecord>        fRecord;
-    SkBBHFactory*                 fBBHFactory;
 
     typedef SkNoncopyable INHERITED;
 };
