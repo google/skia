@@ -17,7 +17,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t*);
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t*, void* pixels, size_t rowBytes);
-void sk_surface_delete(sk_surface_t*);
+void sk_surface_unref(sk_surface_t*);
 
 /**
  *  Return the canvas associated with this surface. Note: the canvas is owned by the surface,

@@ -58,16 +58,26 @@ typedef struct {
 } sk_imageinfo_t;
 
 typedef struct {
+    float   x;
+    float   y;
+} sk_point_t;
+
+typedef struct {
     float   left;
     float   top;
     float   right;
     float   bottom;
 } sk_rect_t;
 
+typedef struct {
+    float   mat[9];
+} sk_matrix_t;
+
 typedef struct sk_canvas_t sk_canvas_t;
 typedef struct sk_image_t sk_image_t;
 typedef struct sk_paint_t sk_paint_t;
 typedef struct sk_path_t sk_path_t;
+typedef struct sk_shader_t sk_shader_t;
 typedef struct sk_surface_t sk_surface_t;
 
 //////////////////////////////////////////////////////////////////////////////////////////

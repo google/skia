@@ -147,6 +147,10 @@ static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
     return reinterpret_cast<SkCanvas*>(ccanvas);
 }
 
+static SkShader* AsShader(sk_shader_t* cshader) {
+    return reinterpret_cast<SkShader*>(cshader);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_colortype_t sk_colortype_get_default_8888() {
@@ -212,6 +216,10 @@ sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {
 
 void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
     AsPaint(cpaint)->setColor(c);
+}
+
+void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
+    AsPaint(cpaint)->setShader(AsShader(cshader));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -340,9 +348,8 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
     return (sk_surface_t*)SkSurface::NewRasterDirect(info, pixels, rowBytes);
 }
 
-void sk_surface_delete(sk_surface_t* csurf) {
-    SkSurface* surf = (SkSurface*)csurf;
-    SkSafeUnref(surf);
+void sk_surface_unref(sk_surface_t* csurf) {
+    SkSafeUnref((SkSurface*)csurf);
 }
 
 sk_canvas_t* sk_surface_get_canvas(sk_surface_t* csurf) {
@@ -355,8 +362,66 @@ sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     return (sk_image_t*)surf->newImageSnapshot();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////
+#include "../../include/effects/SkGradientShader.h"
+#include "sk_shader.h"
+
+const struct {
+    sk_shader_tilemode_t    fC;
+    SkShader::TileMode      fSK;
+} gTileModeMap[] = {
+    { CLAMP_SK_SHADER_TILEMODE,     SkShader::kClamp_TileMode },
+    { REPEAT_SK_SHADER_TILEMODE,    SkShader::kRepeat_TileMode },
+    { MIRROR_SK_SHADER_TILEMODE,    SkShader::kMirror_TileMode  },
+};
+
+static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkShader::TileMode* skMode) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTileModeMap); ++i) {
+        if (cMode == gTileModeMap[i].fC) {
+            if (skMode) {
+                *skMode = gTileModeMap[i].fSK;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void sk_shader_ref(sk_shader_t* cshader) {
+    SkSafeRef(AsShader(cshader));
+}
+
+void sk_shader_unref(sk_shader_t* cshader) {
+    SkSafeUnref(AsShader(cshader));
+}
+
+sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
+                                           const sk_color_t colors[],
+                                           const float colorPos[],
+                                           int colorCount,
+                                           sk_shader_tilemode_t cmode,
+                                           const sk_matrix_t* cmatrix) {
+    SkShader::TileMode mode;
+    if (!from_c_tilemode(cmode, &mode)) {
+        return NULL;
+    }
+    SkMatrix matrix;
+    if (cmatrix) {
+        matrix.setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
+                      cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
+                      cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
+    } else {
+        matrix.setIdentity();
+    }
+    SkShader* s = SkGradientShader::CreateLinear(reinterpret_cast<const SkPoint*>(pts),
+                                                 reinterpret_cast<const SkColor*>(colors),
+                                                 colorPos, colorCount, mode, 0, &matrix);
+    return (sk_shader_t*)s;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
 void sk_test_capi(SkCanvas* canvas) {
     sk_imageinfo_t cinfo;
@@ -398,5 +463,5 @@ void sk_test_capi(SkCanvas* canvas) {
     sk_path_delete(cpath);
     sk_paint_delete(cpaint);
     sk_image_unref(cimage);
-    sk_surface_delete(csurface);
+    sk_surface_unref(csurface);
 }

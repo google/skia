@@ -31,7 +31,7 @@ static void test_c(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == pixel[0]);
 
     sk_paint_delete(paint);
-    sk_surface_delete(surface);
+    sk_surface_unref(surface);
 }
 
 DEF_TEST(C_API, reporter) {
