@@ -417,15 +417,15 @@ protected:
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
-    void emitUniforms(GrGLFPBuilder* builder, uint32_t baseKey);
+    void emitUniforms(GrGLFPBuilder* builder, const GrGradientEffect&);
 
 
     // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
     // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
     // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
     void emitColor(GrGLFPBuilder* builder,
+                   const GrGradientEffect&,
                    const char* gradientTValue,
-                   uint32_t baseKey,
                    const char* outputColor,
                    const char* inputColor,
                    const TextureSamplerArray& samplers);
@@ -446,22 +446,6 @@ private:
         kBaseKeyBitCnt = (kPremulTypeKeyBitCnt + kColorKeyBitCnt)
     };
     GR_STATIC_ASSERT(kBaseKeyBitCnt <= 32);
-
-    static SkGradientShaderBase::GpuColorType ColorTypeFromKey(uint32_t baseKey){
-        if (kTwoColorKey == (baseKey & kColorKeyMask)) {
-            return SkGradientShaderBase::kTwo_GpuColorType;
-        } else if (kThreeColorKey == (baseKey & kColorKeyMask)) {
-            return SkGradientShaderBase::kThree_GpuColorType;
-        } else {return SkGradientShaderBase::kTexture_GpuColorType;}
-    }
-
-    static GrGradientEffect::PremulType PremulTypeFromKey(uint32_t baseKey){
-        if (kPremulBeforeInterpKey == (baseKey & kPremulTypeMask)) {
-            return GrGradientEffect::kBeforeInterp_PremulType;
-        } else {
-            return GrGradientEffect::kAfterInterp_PremulType;
-        }
-    }
 
     SkScalar fCachedYCoord;
     GrGLProgramDataManager::UniformHandle fFSYUni;

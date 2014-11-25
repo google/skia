@@ -267,14 +267,14 @@ GrFragmentProcessor* GrSweepGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
-                                 const GrFragmentProcessor&,
+                                 const GrFragmentProcessor& fp,
                                  const GrProcessorKey& key,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
-    uint32_t baseKey = key.get32(0);
-    this->emitUniforms(builder, baseKey);
+    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    this->emitUniforms(builder, ge);
     SkString coords2D = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
     const GrGLContextInfo ctxInfo = builder->ctxInfo();
     SkString t;
@@ -288,7 +288,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
         t.printf("atan(- %s.y, -1.0 * %s.x) * 0.1591549430918 + 0.5",
                  coords2D.c_str(), coords2D.c_str());
     }
-    this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
+    this->emitColor(builder, ge, t.c_str(), outputColor, inputColor, samplers);
 }
 
 /////////////////////////////////////////////////////////////////////

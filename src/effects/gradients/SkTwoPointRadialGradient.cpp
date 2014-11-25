@@ -568,14 +568,14 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendProcessorFactory& factor
 }
 
 void GrGLRadial2Gradient::emitCode(GrGLFPBuilder* builder,
-                                   const GrFragmentProcessor&,
+                                   const GrFragmentProcessor& fp,
                                    const GrProcessorKey& key,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TransformedCoordsArray& coords,
                                    const TextureSamplerArray& samplers) {
-    uint32_t baseKey = key.get32(0);
-    this->emitUniforms(builder, baseKey);
+    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    this->emitUniforms(builder, ge);
     fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, "Radial2FSParams", 6);
 
@@ -638,7 +638,7 @@ void GrGLRadial2Gradient::emitCode(GrGLFPBuilder* builder,
         t.printf("-%s / %s", cName.c_str(), bVar.c_str());
     }
 
-    this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
+    this->emitColor(builder, ge, t.c_str(), outputColor, inputColor, samplers);
 }
 
 void GrGLRadial2Gradient::setData(const GrGLProgramDataManager& pdman,

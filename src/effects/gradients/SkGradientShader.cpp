@@ -957,15 +957,15 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendProcessorFactory& factory)
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::emitUniforms(GrGLFPBuilder* builder, uint32_t baseKey) {
+void GrGLGradientEffect::emitUniforms(GrGLFPBuilder* builder, const GrGradientEffect& ge) {
 
-    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(baseKey)) { // 2 Color case
+    if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()) { // 2 Color case
         fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorEndUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, "GradientEndColor");
 
-    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(baseKey)){ // 3 Color Case
+    } else if (SkGradientShaderBase::kThree_GpuColorType == ge.getColorType()) { // 3 Color Case
         fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorMidUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -1058,13 +1058,13 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
 }
 
 void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
+                                   const GrGradientEffect& ge,
                                    const char* gradientTValue,
-                                   uint32_t baseKey,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(baseKey)){
+    if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()){
         fsBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),
                                builder->getUniformVariable(fColorEndUni).c_str(),
@@ -1074,13 +1074,13 @@ void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
         // The gradient SkShader reporting opaque is more restrictive than necessary in the two pt
         // case. Make sure the key reflects this optimization (and note that it can use the same
         // shader as thekBeforeIterp case). This same optimization applies to the 3 color case below.
-        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(baseKey)) {
+        if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
             fsBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 
         fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
                                (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
-    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(baseKey)){
+    } else if (SkGradientShaderBase::kThree_GpuColorType == ge.getColorType()) {
         fsBuilder->codeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
                                gradientTValue);
         fsBuilder->codeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
@@ -1098,7 +1098,7 @@ void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
         }
         fsBuilder->codeAppendf("\tcolorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
                                builder->getUniformVariable(fColorEndUni).c_str());
-        if (GrGradientEffect::kAfterInterp_PremulType == PremulTypeFromKey(baseKey)) {
+        if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
             fsBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 

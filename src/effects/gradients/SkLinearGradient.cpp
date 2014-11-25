@@ -551,17 +551,17 @@ GrFragmentProcessor* GrLinearGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLLinearGradient::emitCode(GrGLFPBuilder* builder,
-                                  const GrFragmentProcessor&,
+                                  const GrFragmentProcessor& fp,
                                   const GrProcessorKey& key,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TransformedCoordsArray& coords,
                                   const TextureSamplerArray& samplers) {
-    uint32_t baseKey = key.get32(0);
-    this->emitUniforms(builder, baseKey);
+    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    this->emitUniforms(builder, ge);
     SkString t = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
     t.append(".x");
-    this->emitColor(builder, t.c_str(), baseKey, outputColor, inputColor, samplers);
+    this->emitColor(builder, ge, t.c_str(), outputColor, inputColor, samplers);
 }
 
 /////////////////////////////////////////////////////////////////////
