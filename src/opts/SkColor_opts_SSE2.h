@@ -42,41 +42,40 @@ static inline __m128i SkAlphaMulAlpha_SSE2(const __m128i& a,
     return prod;
 }
 
-static const __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
-static const __m128i ag_mask = _mm_set1_epi32(0xFF00FF00);
-
 // Portable version SkAlphaMulQ is in SkColorPriv.h.
 static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const __m128i& scale) {
+    const __m128i mask = _mm_set1_epi32(0xFF00FF);
     __m128i s = _mm_or_si128(_mm_slli_epi32(scale, 16), scale);
 
     // uint32_t rb = ((c & mask) * scale) >> 8
-    __m128i rb = _mm_and_si128(rb_mask, c);
+    __m128i rb = _mm_and_si128(mask, c);
     rb = _mm_mullo_epi16(rb, s);
     rb = _mm_srli_epi16(rb, 8);
 
     // uint32_t ag = ((c >> 8) & mask) * scale
     __m128i ag = _mm_srli_epi16(c, 8);
-    ASSERT_EQ(ag, _mm_and_si128(rb_mask, ag));  // ag = _mm_srli_epi16(c, 8) did this for us.
+    ASSERT_EQ(ag, _mm_and_si128(mask, ag));  // ag = _mm_srli_epi16(c, 8) did this for us.
     ag = _mm_mullo_epi16(ag, s);
 
     // (rb & mask) | (ag & ~mask)
-    ASSERT_EQ(rb, _mm_and_si128(rb_mask, rb));  // rb = _mm_srli_epi16(rb, 8) did this for us.
-    ag = _mm_and_si128(ag_mask, ag);
+    ASSERT_EQ(rb, _mm_and_si128(mask, rb));  // rb = _mm_srli_epi16(rb, 8) did this for us.
+    ag = _mm_andnot_si128(mask, ag);
     return _mm_or_si128(rb, ag);
 }
 
 // Fast path for SkAlphaMulQ_SSE2 with a constant scale factor.
 static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const unsigned scale) {
+    const __m128i mask = _mm_set1_epi32(0xFF00FF);
     __m128i s = _mm_set1_epi16(scale << 8); // Move scale factor to upper byte of word.
 
     // With mulhi, red and blue values are already in the right place and
     // don't need to be divided by 256.
-    __m128i rb = _mm_and_si128(rb_mask, c);
+    __m128i rb = _mm_and_si128(mask, c);
     rb = _mm_mulhi_epu16(rb, s);
 
-    __m128i ag = _mm_and_si128(ag_mask, c);
+    __m128i ag = _mm_andnot_si128(mask, c);
     ag = _mm_mulhi_epu16(ag, s);     // Alpha and green values are in the higher byte of each word.
-    ag = _mm_and_si128(ag_mask, ag);
+    ag = _mm_andnot_si128(mask, ag);
 
     return _mm_or_si128(rb, ag);
 }
