@@ -203,5 +203,34 @@ static inline __m128i SkPixel32ToPixel16_ToU16_SSE2(const __m128i& src_pixel1,
     return d_pixel;
 }
 
+// Portable version SkBlendARGB32 is in SkColorPriv.h.
+static inline __m128i SkBlendARGB32_SSE2(const __m128i& src, const __m128i& dst,
+                                         const __m128i& aa) {
+    __m128i src_scale = SkAlpha255To256_SSE2(aa);
+    // SkAlpha255To256(255 - SkAlphaMul(SkGetPackedA32(src), src_scale))
+    __m128i dst_scale = SkGetPackedA32_SSE2(src);
+    dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
+    dst_scale = _mm_srli_epi16(dst_scale, 8);
+    dst_scale = _mm_sub_epi32(_mm_set1_epi32(256), dst_scale);
+
+    __m128i result = SkAlphaMulQ_SSE2(src, src_scale);
+    return _mm_add_epi8(result, SkAlphaMulQ_SSE2(dst, dst_scale));
+}
+
+// Fast path for SkBlendARGB32_SSE2 with a constant alpha factor.
+static inline __m128i SkBlendARGB32_SSE2(const __m128i& src, const __m128i& dst,
+                                         const unsigned aa) {
+    unsigned alpha = SkAlpha255To256(aa);
+    __m128i src_scale = _mm_set1_epi32(alpha);
+    // SkAlpha255To256(255 - SkAlphaMul(SkGetPackedA32(src), src_scale))
+    __m128i dst_scale = SkGetPackedA32_SSE2(src);
+    dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
+    dst_scale = _mm_srli_epi16(dst_scale, 8);
+    dst_scale = _mm_sub_epi32(_mm_set1_epi32(256), dst_scale);
+
+    __m128i result = SkAlphaMulQ_SSE2(src, alpha);
+    return _mm_add_epi8(result, SkAlphaMulQ_SSE2(dst, dst_scale));
+}
+
 #undef ASSERT_EQ
 #endif // SkColor_opts_SSE2_DEFINED
