@@ -57,9 +57,5 @@ dashcubics
 #mtklein
 verylargebitmap
 
-# robertphillips - https://codereview.chromium.org/748853002
-multipicturedraw_sierpinski_tiled
-multipicturedraw_rrectclip_tiled
-multipicturedraw_rectclip_tiled
 
 
