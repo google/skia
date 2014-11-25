@@ -216,12 +216,6 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState, DrawType type) 
         GrBlendCoeff srcCoeff = optState.getSrcBlendCoeff();
         GrBlendCoeff dstCoeff = optState.getDstBlendCoeff();
 
-        // In these blend coeff's we end up drawing nothing so we can skip draw all together
-        if (kZero_GrBlendCoeff == srcCoeff && kOne_GrBlendCoeff == dstCoeff &&
-            !optState.getStencil().doesWrite()) {
-            return false;
-        }
-
         fCurrentProgram.reset(fProgramCache->getProgram(optState, type));
         if (NULL == fCurrentProgram.get()) {
             SkDEBUGFAIL("Failed to create program!");
