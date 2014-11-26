@@ -167,7 +167,7 @@ private:
     /// @}
 
     void purgeAsNeeded() {
-        if (fPurging || (fBudgetedCount <= fMaxCount && fBudgetedBytes < fMaxBytes)) {
+        if (fPurging || (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes)) {
             return;
         }
         this->internalPurgeAsNeeded();
