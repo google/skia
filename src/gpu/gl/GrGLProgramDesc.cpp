@@ -122,16 +122,11 @@ static bool get_meta_key(const GrProcessor& proc,
                          const GrGLCaps& caps,
                          uint32_t transformKey,
                          uint32_t attribKey,
-                         GrProcessorKeyBuilder* b,
-                         uint16_t* processorKeySize) {
+                         GrProcessorKeyBuilder* b) {
     const GrBackendProcessorFactory& factory = proc.getFactory();
     factory.getGLProcessorKey(proc, caps, b);
-    size_t size = b->size();
-    if (size > SK_MaxU16) {
-        *processorKeySize = 0; // suppresses a warning.
-        return false;
-    }
-    *processorKeySize = SkToU16(size);
+
+    size_t processorKeySize = b->size();
     uint32_t textureKey = gen_texture_key(proc, caps);
     uint32_t classID = proc.getFactory().classID();
 
@@ -141,62 +136,13 @@ static bool get_meta_key(const GrProcessor& proc,
     if ((textureKey | transformKey | classID) & kMetaKeyInvalidMask) {
         return false;
     }
-
-    uint32_t* key = b->add32n(2);
-    key[0] = (textureKey << 16 | transformKey);
-    key[1] = (classID << 16);
-    return true;
-}
-
-struct GeometryProcessorKeyBuilder {
-    typedef GrGeometryProcessor StagedProcessor;
-    static bool GetProcessorKey(const GrGeometryProcessor& gp,
-                                const GrGLCaps& caps,
-                                bool,
-                                GrProcessorKeyBuilder* b,
-                                uint16_t* keySize) {
-        /* 0 because no transforms on a GP */
-        return get_meta_key(gp, caps, 0, gen_attrib_key(gp), b, keySize);
-    }
-};
-
-struct FragmentProcessorKeyBuilder {
-    typedef GrPendingFragmentStage StagedProcessor;
-    static bool GetProcessorKey(const GrPendingFragmentStage& fps,
-                                const GrGLCaps& caps,
-                                bool useLocalCoords,
-                                GrProcessorKeyBuilder* b,
-                                uint16_t* keySize) {
-        /* 0 because no attribs on a fP */
-        return get_meta_key(*fps.getProcessor(), caps, gen_transform_key(fps, useLocalCoords), 0,
-                            b, keySize);
-    }
-};
-
-
-template <class ProcessorKeyBuilder>
-bool GrGLProgramDescBuilder::BuildStagedProcessorKey(
-        const typename ProcessorKeyBuilder::StagedProcessor& stage,
-        const GrGLCaps& caps,
-        bool requiresLocalCoordAttrib,
-        GrProgramDesc* desc,
-        int* offsetAndSizeIndex) {
-    GrProcessorKeyBuilder b(&desc->fKey);
-    uint16_t processorKeySize;
-    uint32_t processorOffset = desc->fKey.count();
-    if (processorOffset > SK_MaxU16 ||
-            !ProcessorKeyBuilder::GetProcessorKey(stage, caps, requiresLocalCoordAttrib, &b,
-                                                  &processorKeySize)){
-        desc->fKey.reset();
+    if (processorKeySize > SK_MaxU16) {
         return false;
     }
 
-    uint16_t* offsetAndSize =
-            reinterpret_cast<uint16_t*>(desc->fKey.begin() + kProcessorKeyOffsetsAndLengthOffset +
-                                        *offsetAndSizeIndex * 2 * sizeof(uint16_t));
-    offsetAndSize[0] = SkToU16(processorOffset);
-    offsetAndSize[1] = processorKeySize;
-    ++(*offsetAndSizeIndex);
+    uint32_t* key = b->add32n(2);
+    key[0] = (textureKey << 16 | transformKey);
+    key[1] = (classID << 16 | SkToU16(processorKeySize));
     return true;
 }
 
@@ -215,32 +161,27 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
 
     bool requiresLocalCoordAttrib = descInfo.fRequiresLocalCoordAttrib;
 
-    int numStages = optState.numTotalStages();
-
-    GR_STATIC_ASSERT(0 == kProcessorKeyOffsetsAndLengthOffset % sizeof(uint32_t));
-    // Make room for everything up to and including the array of offsets to effect keys.
+    GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
+    // Make room for everything up to the effect keys.
     desc->fKey.reset();
-    desc->fKey.push_back_n(kProcessorKeyOffsetsAndLengthOffset + 2 * sizeof(uint16_t) * numStages);
-
-    int offsetAndSizeIndex = 0;
+    desc->fKey.push_back_n(kProcessorKeysOffset);
 
     // We can only have one effect which touches the vertex shader
     if (optState.hasGeometryProcessor()) {
-        if (!BuildStagedProcessorKey<GeometryProcessorKeyBuilder>(*optState.getGeometryProcessor(),
-                                                                  gpu->glCaps(),
-                                                                  false,
-                                                                  desc,
-                                                                  &offsetAndSizeIndex)) {
+        const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
+        GrProcessorKeyBuilder b(&desc->fKey);
+        if (!get_meta_key(gp, gpu->glCaps(), 0, gen_attrib_key(gp), &b)) {
+            desc->fKey.reset();
             return false;
         }
     }
 
     for (int s = 0; s < optState.numFragmentStages(); ++s) {
-        if (!BuildStagedProcessorKey<FragmentProcessorKeyBuilder>(optState.getFragmentStage(s),
-                                                                  gpu->glCaps(),
-                                                                  requiresLocalCoordAttrib,
-                                                                  desc,
-                                                                  &offsetAndSizeIndex)) {
+        const GrPendingFragmentStage& fps = optState.getFragmentStage(s);
+        GrProcessorKeyBuilder b(&desc->fKey);
+        if (!get_meta_key(*fps.getProcessor(), gpu->glCaps(),
+                         gen_transform_key(fps, requiresLocalCoordAttrib), 0, &b)) {
+            desc->fKey.reset();
             return false;
         }
     }

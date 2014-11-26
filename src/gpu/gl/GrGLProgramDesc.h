@@ -29,16 +29,16 @@ public:
     // 1. uint32_t for total key length.
     // 2. uint32_t for a checksum.
     // 3. Header struct defined above.
-    // 4. An array of offsets to effect keys and their sizes (see 5). uint16_t for each
-    //    offset and size.
-    // 5. per-effect keys. Each effect's key is a variable length array of uint32_t.
+    // 4. Backend-specific information including per-processor keys and their key lengths.
+    //    Each processor's key is a variable length array of uint32_t.
     enum {
         // Part 3.
         kHeaderOffset = GrProgramDesc::kHeaderOffset,
         kHeaderSize = SkAlign4(sizeof(GLKeyHeader)),
         // Part 4.
-        // This is the offset in the overall key to the array of per-effect offset,length pairs.
-        kProcessorKeyOffsetsAndLengthOffset = kHeaderOffset + kHeaderSize,
+        // This is the offset into the backenend specific part of the key, which includes
+        // per-processor keys.
+        kProcessorKeysOffset = kHeaderOffset + kHeaderSize,
     };
 
     /**
@@ -67,14 +67,6 @@ public:
     static const GLKeyHeader& GetHeader(const GrProgramDesc& desc) {
         return *desc.atOffset<GLKeyHeader, kHeaderOffset>();
     }
-
-private:
-    template <class ProcessorKeyBuilder>
-    static bool BuildStagedProcessorKey(const typename ProcessorKeyBuilder::StagedProcessor& stage,
-                                        const GrGLCaps& caps,
-                                        bool requiresLocalCoordAttrib,
-                                        GrProgramDesc* desc,
-                                        int* offsetAndSizeIndex);
 };
 
 #endif
