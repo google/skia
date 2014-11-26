@@ -2362,30 +2362,46 @@ GrGLuint GrGpuGL::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLI
     return tempFBOID;
 }
 
-void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
+bool GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
+    // In here we look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
+    // possible and we return false to fallback to creating a render target dst for render-to-
+    // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
+    // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
+
     // Check for format issues with glCopyTexSubImage2D
     if (kGLES_GrGLStandard == this->glStandard() && this->glCaps().bgraIsInternalFormat() &&
         kBGRA_8888_GrPixelConfig == src->config()) {
-        // glCopyTexSubImage2D doesn't work with this config. We'll want to make it a render target
-        // in order to call glBlitFramebuffer or to copy to it by rendering.
-        INHERITED::initCopySurfaceDstDesc(src, desc);
-        return;
+        // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
+        // then we set up for that, otherwise fail.
+        if (this->caps()->isConfigRenderable(kBGRA_8888_GrPixelConfig, false)) {
+            desc->fOrigin = kDefault_GrSurfaceOrigin;
+            desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+            desc->fConfig = kBGRA_8888_GrPixelConfig;
+            return true;
+        }
+        return false;
     } else if (NULL == src->asRenderTarget()) {
-        // We don't want to have to create an FBO just to use glCopyTexSubImage2D. Let the base
-        // class handle it by rendering.
-        INHERITED::initCopySurfaceDstDesc(src, desc);
-        return;
+        // CopyTexSubImage2D or fbo blit would require creating a temp fbo for the src.
+        return false;
     }
 
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
     if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
-        // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer.
-        INHERITED::initCopySurfaceDstDesc(src, desc);
-    } else {
-        desc->fConfig = src->config();
-        desc->fOrigin = src->origin();
-        desc->fFlags = kNone_GrSurfaceFlags;
+        // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
+        // fail.
+        if (this->caps()->isConfigRenderable(src->config(), false)) {
+            desc->fOrigin = kDefault_GrSurfaceOrigin;
+            desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+            desc->fConfig = src->config();
+        }
+        return false;
     }
+
+    // We'll do a CopyTexSubImage. Make the dst a plain old texture.
+    desc->fConfig = src->config();
+    desc->fOrigin = src->origin();
+    desc->fFlags = kNone_GrSurfaceFlags;
+    return true;
 }
 
 bool GrGpuGL::copySurface(GrSurface* dst,
@@ -2496,8 +2512,8 @@ bool GrGpuGL::canCopySurface(const GrSurface* dst,
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) {
     // This mirrors the logic in onCopySurface.  We prefer our base makes the copy if we need to
-    // create a temp fbo
-    // TODO verify this assumption, it may not be true at all
+    // create a temp fbo. TODO verify the assumption that temp fbos are expensive; it may not be
+    // true at all.
     bool wouldNeedTempFBO = false;
     if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
         return true;

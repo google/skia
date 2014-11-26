@@ -557,34 +557,29 @@ void GrInOrderDrawBuffer::CopySurface::execute(GrInOrderDrawBuffer* buf, const G
     buf->fDstGpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
-bool GrInOrderDrawBuffer::copySurface(GrSurface* dst,
-                                      GrSurface* src,
-                                      const SkIRect& srcRect,
-                                      const SkIPoint& dstPoint) {
+bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
+                                        GrSurface* src,
+                                        const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint) {
     if (fDstGpu->canCopySurface(dst, src, srcRect, dstPoint)) {
         CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
         cs->fSrcRect = srcRect;
         cs->fDstPoint = dstPoint;
         this->recordTraceMarkersIfNecessary();
         return true;
-    } else if (GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint)) {
-        GrDrawTarget::copySurface(dst, src, srcRect, dstPoint);
-        return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
-bool GrInOrderDrawBuffer::canCopySurface(const GrSurface* dst,
+bool GrInOrderDrawBuffer::onCanCopySurface(const GrSurface* dst,
                                          const GrSurface* src,
                                          const SkIRect& srcRect,
                                          const SkIPoint& dstPoint) {
-    return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint) ||
-           GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint);
+    return fDstGpu->canCopySurface(dst, src, srcRect, dstPoint);
 }
 
-void GrInOrderDrawBuffer::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
-    fDstGpu->initCopySurfaceDstDesc(src, desc);
+bool GrInOrderDrawBuffer::onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
+    return fDstGpu->initCopySurfaceDstDesc(src, desc);
 }
 
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
