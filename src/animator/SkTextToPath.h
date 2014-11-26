@@ -17,7 +17,7 @@ class SkDrawPaint;
 class SkDrawPath;
 class SkText;
 
-class SkTextToPath : public SkDrawable {
+class SkTextToPath : public SkADrawable {
     DECLARE_MEMBER_INFO(TextToPath);
     SkTextToPath();
     virtual bool draw(SkAnimateMaker& );

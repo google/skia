@@ -10,14 +10,14 @@
 #ifndef SkDrawMatrix_DEFINED
 #define SkDrawMatrix_DEFINED
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkMatrix.h"
 #include "SkMemberInfo.h"
 #include "SkIntArray.h"
 
 class SkMatrixPart;
 
-class SkDrawMatrix : public SkDrawable {
+class SkDrawMatrix : public SkADrawable {
     DECLARE_DRAW_MEMBER_INFO(Matrix);
     SkDrawMatrix();
     virtual ~SkDrawMatrix();
@@ -68,7 +68,7 @@ private:
     SkTDMatrixPartArray fParts;
     SkBool8 fChildHasID;
     SkBool8 fDirty;
-    typedef SkDrawable INHERITED;
+    typedef SkADrawable INHERITED;
 };
 
 #endif // SkDrawMatrix_DEFINED

@@ -62,7 +62,7 @@ SkApply::SkApply() : begin(0), dontDraw(false), interval((SkMSec) -1), mode((Mod
 }
 
 SkApply::~SkApply() {
-    for (SkDrawable** curPtr = fScopes.begin(); curPtr < fScopes.end(); curPtr++)
+    for (SkADrawable** curPtr = fScopes.begin(); curPtr < fScopes.end(); curPtr++)
         delete *curPtr;
     if (fDeleteScope)
         delete scope;
@@ -153,7 +153,7 @@ void SkApply::applyValues(int animatorIndex, SkOperand* values, int count,
 }
 
 bool SkApply::contains(SkDisplayable* child) {
-    for (SkDrawable** curPtr = fScopes.begin(); curPtr < fScopes.end(); curPtr++) {
+    for (SkADrawable** curPtr = fScopes.begin(); curPtr < fScopes.end(); curPtr++) {
         if (*curPtr == child || (*curPtr)->contains(child))
             return true;
     }
@@ -161,7 +161,7 @@ bool SkApply::contains(SkDisplayable* child) {
 }
 
 SkDisplayable* SkApply::deepCopy(SkAnimateMaker* maker) {
-    SkDrawable* saveScope = scope;
+    SkADrawable* saveScope = scope;
     scope = NULL;
     SkApply* result = (SkApply*) INHERITED::deepCopy(maker);
     result->scope = scope = saveScope;
@@ -300,7 +300,7 @@ bool SkApply::enable(SkAnimateMaker& maker) {
     }
     refresh(maker);
     SkDisplayList& displayList = maker.fDisplayList;
-    SkDrawable* drawable;
+    SkADrawable* drawable;
 #if defined SK_DEBUG && defined SK_DEBUG_ANIMATION_TIMING
     SkString debugOut;
     SkMSec time = maker.getAppTime();
@@ -340,7 +340,7 @@ bool SkApply::enable(SkAnimateMaker& maker) {
     if (fEmbedded) {
         return false;   // already added to display list by embedder
     }
-    drawable = (SkDrawable*) scope;
+    drawable = (SkADrawable*) scope;
     SkTDDrawableArray* parentList;
     SkTDDrawableArray* grandList;
     SkGroup* parentGroup;
@@ -372,11 +372,11 @@ append:
         } else {
             if (parentGroup)
                 parentGroup->markCopySize(old);
-            SkDrawable** newApplyLocation = &(*parentList)[old];
+            SkADrawable** newApplyLocation = &(*parentList)[old];
             SkGroup* pGroup;
             int oldApply = displayList.findGroup(this, &parentList, &pGroup, &thisGroup, &grandList);
             if (oldApply >= 0) {
-                (*parentList)[oldApply] = (SkDrawable*) SkDisplayType::CreateInstance(&maker, SkType_Apply);
+                (*parentList)[oldApply] = (SkADrawable*) SkDisplayType::CreateInstance(&maker, SkType_Apply);
                 parentGroup = NULL;
                 fDeleteScope = true;
             }
@@ -402,7 +402,7 @@ void SkApply::enableCreate(SkAnimateMaker& maker) {
         SkApply* copy = (SkApply*) deepCopy(&maker); // work on copy of animator state
         if (mode == kMode_create)
             copy->mode = (Mode) -1;
-        SkDrawable* copyScope = copy->scope = (SkDrawable*) scope->deepCopy(&maker);
+        SkADrawable* copyScope = copy->scope = (SkADrawable*) scope->deepCopy(&maker);
         *fScopes.append() = copyScope;
         if (copyScope->resolveIDs(maker, scope, this)) {
             step = steps; // quit
@@ -444,7 +444,7 @@ void SkApply::enableDynamic(SkAnimateMaker& maker) {
             } else
                 pList->remove(old);
         }
-        scope = (SkDrawable*) newScope;
+        scope = (SkADrawable*) newScope;
         onEndElement(maker);
     }
     maker.removeActive(fActive);
@@ -507,7 +507,7 @@ void SkApply::getStep(SkScriptValue* value) {
     getProperty(SK_PROPERTY(step), value);
 }
 
-SkDrawable* SkApply::getTarget(SkAnimateBase* animate) {
+SkADrawable* SkApply::getTarget(SkAnimateBase* animate) {
     if (animate->fTargetIsScope == false || mode != kMode_create)
         return animate->fTarget;
     return scope;
@@ -654,7 +654,7 @@ void SkApply::initialize() {
 
 void SkApply::onEndElement(SkAnimateMaker& maker)
 {
-    SkDrawable* scopePtr = scope;
+    SkADrawable* scopePtr = scope;
     while (scopePtr && scopePtr->isApply()) {
         SkApply* scopedApply = (SkApply*) scopePtr;
         if (scopedApply->scope == this) {

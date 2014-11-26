@@ -19,6 +19,8 @@
         '../src/utils',
       ],
       'sources': [
+        '../src/animator/SkADrawable.cpp',
+        '../src/animator/SkADrawable.h',
         '../include/animator/SkAnimator.h',
         '../include/animator/SkAnimatorView.h',
 
@@ -81,8 +83,6 @@
         '../src/animator/SkDisplayXMLParser.h',
         '../src/animator/SkDraw3D.cpp',
         '../src/animator/SkDraw3D.h',
-        '../src/animator/SkDrawable.cpp',
-        '../src/animator/SkDrawable.h',
         '../src/animator/SkDrawBitmap.cpp',
         '../src/animator/SkDrawBitmap.h',
         '../src/animator/SkDrawBlur.cpp',

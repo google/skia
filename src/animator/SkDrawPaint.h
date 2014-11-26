@@ -10,7 +10,7 @@
 #ifndef SkDrawPaint_DEFINED
 #define SkDrawPaint_DEFINED
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkIntArray.h"
 #include "SkMemberInfo.h"
 #include "SkPaint.h"
@@ -22,7 +22,7 @@ class SkDrawShader;
 class SkTransferMode;
 class SkDrawTypeface;
 
-class SkDrawPaint : public SkDrawable {
+class SkDrawPaint : public SkADrawable {
     DECLARE_DRAW_MEMBER_INFO(Paint);
     SkDrawPaint();
     virtual ~SkDrawPaint();
@@ -71,7 +71,7 @@ public:
     SkBool8 fOwnsTransferMode;
     SkBool8 fOwnsTypeface;
 private:
-    typedef SkDrawable INHERITED;
+    typedef SkADrawable INHERITED;
     friend class SkTextToPath;
     friend class SkSaveLayer;
 };

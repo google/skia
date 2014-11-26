@@ -16,7 +16,7 @@
 #include "SkTypedArray.h"
 
 class SkApply;
-class SkDrawable;
+class SkADrawable;
 
 class SkAnimateBase : public SkDisplayable {
 public:
@@ -62,7 +62,7 @@ protected:
     const SkMemberInfo* fFieldInfo;
     int fFieldOffset;
     SkMSec fStart;  // corrected time when this apply was enabled
-    SkDrawable* fTarget;
+    SkADrawable* fTarget;
     SkTypedArray fValues;
     unsigned fChanged : 1; // true when value referenced by script has changed
     unsigned fDelayed : 1;  // enabled, but undrawn pending delay

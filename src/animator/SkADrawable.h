@@ -7,8 +7,8 @@
  */
 
 
-#ifndef SkDrawable_DEFINED
-#define SkDrawable_DEFINED
+#ifndef SkADrawable_DEFINED
+#define SkADrawable_DEFINED
 
 #include "SkDisplayable.h"
 #include "SkDisplayEvent.h"
@@ -16,7 +16,7 @@
 
 struct SkEventState;
 
-class SkDrawable :  public SkDisplayable {
+class SkADrawable :  public SkDisplayable {
 public:
     virtual bool doEvent(SkDisplayEvent::Kind , SkEventState* state );
     virtual bool draw(SkAnimateMaker& ) = 0;
@@ -25,4 +25,4 @@ public:
     virtual void setSteps(int steps);
 };
 
-#endif // SkDrawable_DEFINED
+#endif // SkADrawable_DEFINED

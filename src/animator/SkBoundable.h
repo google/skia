@@ -10,10 +10,10 @@
 #ifndef SkBoundable_DEFINED
 #define SkBoundable_DEFINED
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkRect.h"
 
-class SkBoundable : public SkDrawable {
+class SkBoundable : public SkADrawable {
 public:
     SkBoundable();
     virtual void clearBounder();
@@ -25,7 +25,7 @@ protected:
     void clearBounds() { fBounds.fLeft = (int16_t) SkToU16(0x8000); }; // mark bounds as unset
     SkIRect fBounds;
 private:
-    typedef SkDrawable INHERITED;
+    typedef SkADrawable INHERITED;
 };
 
 class SkBoundableAuto {

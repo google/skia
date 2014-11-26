@@ -164,7 +164,7 @@ void SkActive::calcDurations(int index)
         fMaxTime = maxTime;
 }
 
-void SkActive::create(SkDrawable* drawable, SkMSec time) {
+void SkActive::create(SkADrawable* drawable, SkMSec time) {
     fApply.fLastTime = time;
     fApply.refresh(fMaker);
     for (int index = 0; index < fAnimators.count(); index++) {
@@ -191,7 +191,7 @@ void SkActive::create(SkDrawable* drawable, SkMSec time) {
 bool SkActive::immediate(bool enable) {
     SkMSec time = 0;
     bool result = false;
-    SkDrawable* drawable = fApply.scope;
+    SkADrawable* drawable = fApply.scope;
     SkMSec final = fMaxTime;
     do {
         bool applied = fAnimators.count() == 0;

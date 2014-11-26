@@ -12,7 +12,7 @@
 #include "SkAnimator.h"
 #include "SkDisplayEvent.h"
 #include "SkDisplayMovie.h"
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #ifdef SK_DEBUG
 #include "SkDump.h"
 #endif
@@ -82,7 +82,7 @@ void SkEvents::dump(SkAnimateMaker& maker) {
     SkTDDrawableArray& drawArray = maker.fDisplayList.fDrawList;
     int count = drawArray.count();
     for (index = 0; index < count; index++) {
-        SkDrawable* drawable = drawArray[index];
+        SkADrawable* drawable = drawArray[index];
         drawable->dumpEvents();
     }
     count = fEvents.count();

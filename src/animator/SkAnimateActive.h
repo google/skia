@@ -23,7 +23,7 @@ public:
     void advance();
     void append(SkApply* );
     void calcDurations(int index);
-    void create(SkDrawable* scope, SkMSec time);
+    void create(SkADrawable* scope, SkMSec time);
     bool draw() { return immediate(false); }
     bool enable() { return immediate(true); }
     void init( );

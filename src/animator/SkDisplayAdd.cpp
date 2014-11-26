@@ -11,7 +11,7 @@
 #include "SkAnimateMaker.h"
 #include "SkDisplayApply.h"
 #include "SkDisplayList.h"
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkDrawGroup.h"
 
 #if SK_USE_CONDENSED_INFO == 0
@@ -38,8 +38,8 @@ SkAdd::SkAdd() : mode(kMode_indirect),
 }
 
 SkDisplayable* SkAdd::deepCopy(SkAnimateMaker* maker) {
-    SkDrawable* saveUse = use;
-    SkDrawable* saveWhere = where;
+    SkADrawable* saveUse = use;
+    SkADrawable* saveWhere = where;
     use = NULL;
     where = NULL;
     SkAdd* copy = (SkAdd*) INHERITED::deepCopy(maker);

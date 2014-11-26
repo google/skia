@@ -36,7 +36,7 @@ SkGroup::~SkGroup() {
         return;
     int index = 0;
     int max = fCopies.count() << 5;
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         if (index >= max || markedForDelete(index))
             delete *ptr;
 //      else {
@@ -52,7 +52,7 @@ SkGroup::~SkGroup() {
 bool SkGroup::addChild(SkAnimateMaker& , SkDisplayable* child) {
     SkASSERT(child);
 //  SkASSERT(child->isDrawable());
-    *fChildren.append() = (SkDrawable*) child;
+    *fChildren.append() = (SkADrawable*) child;
     if (child->isGroup()) {
         SkGroup* groupie = (SkGroup*) child;
         SkASSERT(groupie->fParentList == NULL);
@@ -62,8 +62,8 @@ bool SkGroup::addChild(SkAnimateMaker& , SkDisplayable* child) {
 }
 
 bool SkGroup::contains(SkDisplayable* match) {
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (drawable == match || drawable->contains(match))
             return true;
     }
@@ -83,7 +83,7 @@ SkBool SkGroup::copySet(int index) {
 
 SkDisplayable* SkGroup::deepCopy(SkAnimateMaker* maker) {
     SkDisplayable* copy = INHERITED::deepCopy(maker);
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         SkDisplayable* displayable = (SkDisplayable*)*ptr;
         SkDisplayable* deeperCopy = displayable->deepCopy(maker);
         ((SkGroup*)copy)->addChild(*maker, deeperCopy);
@@ -93,8 +93,8 @@ SkDisplayable* SkGroup::deepCopy(SkAnimateMaker* maker) {
 
 bool SkGroup::doEvent(SkDisplayEvent::Kind kind, SkEventState* state) {
     bool handled = false;
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (drawable->isDrawable() == false)
             continue;
         handled |= drawable->doEvent(kind, state);
@@ -105,8 +105,8 @@ bool SkGroup::doEvent(SkDisplayEvent::Kind kind, SkEventState* state) {
 bool SkGroup::draw(SkAnimateMaker& maker) {
     bool conditionTrue = ifCondition(maker, this, condition);
     bool result = false;
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (drawable->isDrawable() == false)
             continue;
         if (conditionTrue == false) {
@@ -136,12 +136,12 @@ void SkGroup::dumpDrawables(SkAnimateMaker* maker) {
     int save = SkDisplayList::fDumpIndex;
     SkDisplayList::fDumpIndex = 0;
     bool closedYet = false;
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         if (closedYet == false) {
             closedYet = true;
             SkDebugf(">\n");
         }
-        SkDrawable* drawable = *ptr;
+        SkADrawable* drawable = *ptr;
         drawable->dump(maker);
         SkDisplayList::fDumpIndex++;
     }
@@ -154,8 +154,8 @@ void SkGroup::dumpDrawables(SkAnimateMaker* maker) {
 }
 
 void SkGroup::dumpEvents() {
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         drawable->dumpEvents();
     }
 }
@@ -163,8 +163,8 @@ void SkGroup::dumpEvents() {
 
 bool SkGroup::enable(SkAnimateMaker& maker ) {
     reset();
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (ifCondition(maker, drawable, enableCondition) == false)
             continue;
         drawable->enable(maker);
@@ -172,11 +172,11 @@ bool SkGroup::enable(SkAnimateMaker& maker ) {
     return true;    // skip add; already added so that scope is findable by children
 }
 
-int SkGroup::findGroup(SkDrawable* match,  SkTDDrawableArray** list,
+int SkGroup::findGroup(SkADrawable* match,  SkTDDrawableArray** list,
                  SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList) {
     *list = &fChildren;
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (drawable->isGroup()) {
             SkGroup* childGroup = (SkGroup*) drawable;
             if (childGroup->fOriginal == match)
@@ -196,7 +196,7 @@ bool SkGroup::hasEnable() const {
     return true;
 }
 
-bool SkGroup::ifCondition(SkAnimateMaker& maker, SkDrawable*,
+bool SkGroup::ifCondition(SkAnimateMaker& maker, SkADrawable*,
         SkString& conditionString) {
     if (conditionString.size() == 0)
         return true;
@@ -217,8 +217,8 @@ bool SkGroup::ifCondition(SkAnimateMaker& maker, SkDrawable*,
 }
 
 void SkGroup::initialize() {
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (drawable->isDrawable() == false)
             continue;
         drawable->initialize();
@@ -253,7 +253,7 @@ void SkGroup::reset() {
         return;
     int index = 0;
     int max = fCopies.count() << 5;
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         if (index >= max || copySet(index) == false)
             continue;
         SkApply* apply = (SkApply*) *ptr;
@@ -268,12 +268,12 @@ void SkGroup::reset() {
 bool SkGroup::resolveIDs(SkAnimateMaker& maker, SkDisplayable* orig, SkApply* apply) {
     SkGroup* original = (SkGroup*) orig;
     SkTDDrawableArray& originalChildren = original->fChildren;
-    SkDrawable** originalPtr = originalChildren.begin();
-    SkDrawable** ptr = fChildren.begin();
-    SkDrawable** end = fChildren.end();
-    SkDrawable** origChild = ((SkGroup*) orig)->fChildren.begin();
+    SkADrawable** originalPtr = originalChildren.begin();
+    SkADrawable** ptr = fChildren.begin();
+    SkADrawable** end = fChildren.end();
+    SkADrawable** origChild = ((SkGroup*) orig)->fChildren.begin();
     while (ptr < end) {
-        SkDrawable* drawable = *ptr++;
+        SkADrawable* drawable = *ptr++;
         maker.resolveID(drawable, *origChild++);
         if (drawable->resolveIDs(maker, *originalPtr++, apply) == true)
             return true; // failed
@@ -282,8 +282,8 @@ bool SkGroup::resolveIDs(SkAnimateMaker& maker, SkDisplayable* orig, SkApply* ap
 }
 
 void SkGroup::setSteps(int steps) {
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         if (drawable->isDrawable() == false)
             continue;
         drawable->setSteps(steps);
@@ -292,8 +292,8 @@ void SkGroup::setSteps(int steps) {
 
 #ifdef SK_DEBUG
 void SkGroup::validate() {
-    for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
-        SkDrawable* drawable = *ptr;
+    for (SkADrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
+        SkADrawable* drawable = *ptr;
         drawable->validate();
     }
 }

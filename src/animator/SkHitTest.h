@@ -10,10 +10,10 @@
 #ifndef SkHitTest_DEFINED
 #define SkHitTest_DEFINED
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkTypedArray.h"
 
-class SkHitTest : public SkDrawable {
+class SkHitTest : public SkADrawable {
     DECLARE_MEMBER_INFO(HitTest);
     SkHitTest();
     virtual bool draw(SkAnimateMaker& );

@@ -9,7 +9,7 @@
 
 #include "SkAnimate.h"
 #include "SkAnimateMaker.h"
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkParse.h"
 
 #if SK_USE_CONDENSED_INFO == 0

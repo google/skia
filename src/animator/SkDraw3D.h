@@ -11,7 +11,7 @@
 #define SkDraw3D_DEFINED
 
 #include "SkCamera.h"
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkMemberInfo.h"
 
 class Sk3D_Patch;
@@ -23,7 +23,7 @@ private:
     SkPoint3D fPoint;
 };
 
-class Sk3D_Camera : public SkDrawable {
+class Sk3D_Camera : public SkADrawable {
     DECLARE_MEMBER_INFO(3D_Camera);
     Sk3D_Camera();
     virtual ~Sk3D_Camera();

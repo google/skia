@@ -130,7 +130,7 @@ bool SkDisplayEvent::enableEvent(SkAnimateMaker& maker)
         SkDisplayable* displayable = fChildren[index];
         if (displayable->isGroup()) {
             SkTDDrawableArray* parentList = displayList.getDrawList();
-            *parentList->append() = (SkDrawable*) displayable;  // make it findable before children are enabled
+            *parentList->append() = (SkADrawable*) displayable;  // make it findable before children are enabled
         }
         if (displayable->enable(maker))
             continue;
@@ -138,7 +138,7 @@ bool SkDisplayEvent::enableEvent(SkAnimateMaker& maker)
             return true;
         if (displayable->isDrawable() == false)
             return true;    // error
-        SkDrawable* drawable = (SkDrawable*) displayable;
+        SkADrawable* drawable = (SkADrawable*) displayable;
         SkTDDrawableArray* parentList = displayList.getDrawList();
         *parentList->append() = drawable;
     }

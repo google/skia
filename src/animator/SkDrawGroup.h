@@ -10,11 +10,11 @@
 #ifndef SkDrawGroup_DEFINED
 #define SkDrawGroup_DEFINED
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkIntArray.h"
 #include "SkMemberInfo.h"
 
-class SkGroup : public SkDrawable { //interface for schema element <g>
+class SkGroup : public SkADrawable { //interface for schema element <g>
 public:
     DECLARE_MEMBER_INFO(Group);
     SkGroup();
@@ -31,7 +31,7 @@ public:
     virtual void dumpDrawables(SkAnimateMaker* );
     virtual void dumpEvents();
 #endif
-    int findGroup(SkDrawable* drawable,  SkTDDrawableArray** list,
+    int findGroup(SkADrawable* drawable,  SkTDDrawableArray** list,
         SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList);
     virtual bool enable(SkAnimateMaker& );
     SkTDDrawableArray* getChildren() { return &fChildren; }
@@ -50,7 +50,7 @@ public:
     virtual void validate();
 #endif
 protected:
-    bool ifCondition(SkAnimateMaker& maker, SkDrawable* drawable,
+    bool ifCondition(SkAnimateMaker& maker, SkADrawable* drawable,
         SkString& conditionString);
     SkString condition;
     SkString enableCondition;
@@ -59,7 +59,7 @@ protected:
     SkTDIntArray fCopies;
     SkGroup* fOriginal;
 private:
-    typedef SkDrawable INHERITED;
+    typedef SkADrawable INHERITED;
 };
 
 class SkSave: public SkGroup {

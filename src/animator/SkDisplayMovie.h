@@ -11,12 +11,12 @@
 #define SkDisplayMovie_DEFINED
 
 #include "SkAnimator.h"
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkMemberInfo.h"
 
 struct SkEventState;
 
-class SkDisplayMovie : public SkDrawable {
+class SkDisplayMovie : public SkADrawable {
     DECLARE_DISPLAY_MEMBER_INFO(Movie);
     SkDisplayMovie();
     virtual ~SkDisplayMovie();
@@ -45,7 +45,7 @@ protected:
     friend class SkAnimateMaker;
     friend class SkPost;
 private:
-    typedef SkDrawable INHERITED;
+    typedef SkADrawable INHERITED;
 };
 
 #endif // SkDisplayMovie_DEFINED

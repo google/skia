@@ -12,7 +12,7 @@
 #include "SkAnimateProperties.h"
 #include "SkAnimatorScript.h"
 #include "SkDisplayApply.h"
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 
 #if SK_USE_CONDENSED_INFO == 0
 

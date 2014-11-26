@@ -7,18 +7,18 @@
  */
 
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 
-bool SkDrawable::doEvent(SkDisplayEvent::Kind , SkEventState* ) {
+bool SkADrawable::doEvent(SkDisplayEvent::Kind , SkEventState* ) {
     return false;
 }
 
-bool SkDrawable::isDrawable() const {
+bool SkADrawable::isDrawable() const {
     return true;
 }
 
-void SkDrawable::initialize() {
+void SkADrawable::initialize() {
 }
 
-void SkDrawable::setSteps(int steps) {
+void SkADrawable::setSteps(int steps) {
 }

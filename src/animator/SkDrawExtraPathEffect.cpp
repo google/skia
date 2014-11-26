@@ -23,8 +23,8 @@ class SkDrawShapePathEffect : public SkDrawPathEffect {
     virtual bool addChild(SkAnimateMaker& , SkDisplayable* ) SK_OVERRIDE;
     virtual SkPathEffect* getPathEffect();
 protected:
-    SkDrawable* addPath;
-    SkDrawable* addMatrix;
+    SkADrawable* addPath;
+    SkADrawable* addMatrix;
     SkDrawPath* path;
     SkPathEffect* fPathEffect;
     friend class SkShape1DPathEffect;

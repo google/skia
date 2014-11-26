@@ -10,10 +10,10 @@
 #ifndef SkDisplayAdd_DEFINED
 #define SkDisplayAdd_DEFINED
 
-#include "SkDrawable.h"
+#include "SkADrawable.h"
 #include "SkMemberInfo.h"
 
-class SkAdd : public SkDrawable {
+class SkAdd : public SkADrawable {
     DECLARE_MEMBER_INFO(Add);
     SkAdd();
 
@@ -35,11 +35,11 @@ protected:
 //  struct _A {
         Mode mode;
         int32_t offset;
-        SkDrawable* use;
-        SkDrawable* where;  // if NULL, offset becomes index
+        SkADrawable* use;
+        SkADrawable* where;  // if NULL, offset becomes index
 //  } A;
 private:
-    typedef SkDrawable INHERITED;
+    typedef SkADrawable INHERITED;
 };
 
 class SkClear : public SkDisplayable {
