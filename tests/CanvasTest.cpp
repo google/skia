@@ -795,3 +795,21 @@ DEF_TEST(Canvas, reporter) {
 
     test_newraster(reporter);
 }
+
+DEF_TEST(Canvas_SaveState, reporter) {
+    SkCanvas canvas(10, 10);
+    REPORTER_ASSERT(reporter, 1 == canvas.getSaveCount());
+
+    int n = canvas.save();
+    REPORTER_ASSERT(reporter, 1 == n);
+    REPORTER_ASSERT(reporter, 2 == canvas.getSaveCount());
+
+    n = canvas.saveLayer(NULL, NULL);
+    REPORTER_ASSERT(reporter, 2 == n);
+    REPORTER_ASSERT(reporter, 3 == canvas.getSaveCount());
+    
+    canvas.restore();
+    REPORTER_ASSERT(reporter, 2 == canvas.getSaveCount());
+    canvas.restore();
+    REPORTER_ASSERT(reporter, 1 == canvas.getSaveCount());
+}

@@ -811,6 +811,36 @@ void SkCanvas::updateDeviceCMCache() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+int SkCanvas::getSaveCount() const {
+    return fMCStack.count();
+}
+
+int SkCanvas::save() {
+    this->willSave();
+    return this->internalSave();
+}
+
+void SkCanvas::restore() {
+    // check for underflow
+    if (fMCStack.count() > 1) {
+        this->willRestore();
+        this->internalRestore();
+        this->didRestore();
+    }
+}
+
+void SkCanvas::restoreToCount(int count) {
+    // sanity check
+    if (count < 1) {
+        count = 1;
+    }
+    
+    int n = this->getSaveCount() - count;
+    for (int i = 0; i < n; ++i) {
+        this->restore();
+    }
+}
+
 int SkCanvas::internalSave() {
     int saveCount = this->getSaveCount(); // record this before the actual save
 
@@ -821,11 +851,6 @@ int SkCanvas::internalSave() {
     fClipStack.save();
 
     return saveCount;
-}
-
-int SkCanvas::save() {
-    this->willSave();
-    return this->internalSave();
 }
 
 static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
@@ -977,15 +1002,6 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
     }
 }
 
-void SkCanvas::restore() {
-    // check for underflow
-    if (fMCStack.count() > 1) {
-        this->willRestore();
-        this->internalRestore();
-        this->didRestore();
-    }
-}
-
 void SkCanvas::internalRestore() {
     SkASSERT(fMCStack.count() != 0);
 
@@ -1020,22 +1036,6 @@ void SkCanvas::internalRestore() {
             fSaveLayerCount -= 1;
         }
         SkDELETE(layer);
-    }
-}
-
-int SkCanvas::getSaveCount() const {
-    return fMCStack.count();
-}
-
-void SkCanvas::restoreToCount(int count) {
-    // sanity check
-    if (count < 1) {
-        count = 1;
-    }
-
-    int n = this->getSaveCount() - count;
-    for (int i = 0; i < n; ++i) {
-        this->restore();
     }
 }
 
