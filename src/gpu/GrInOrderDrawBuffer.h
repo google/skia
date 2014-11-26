@@ -52,7 +52,7 @@ public:
                         GrVertexBufferAllocPool* vertexPool,
                         GrIndexBufferAllocPool* indexPool);
 
-    ~GrInOrderDrawBuffer() SK_OVERRIDE;
+    virtual ~GrInOrderDrawBuffer();
 
     /**
      * Empties the draw buffer of any queued up draws. This must not be called while inside an
@@ -69,18 +69,30 @@ public:
     void flush();
 
     // tracking for draws
-    DrawToken getCurrentDrawToken() { return DrawToken(this, fDrawID); }
+    virtual DrawToken getCurrentDrawToken() { return DrawToken(this, fDrawID); }
 
     // overrides from GrDrawTarget
-    bool geometryHints(size_t vertexStride,
-                       int* vertexCount,
-                       int* indexCount) const SK_OVERRIDE;
+    virtual bool geometryHints(size_t vertexStride,
+                               int* vertexCount,
+                               int* indexCount) const SK_OVERRIDE;
 
-    void clearStencilClip(const SkIRect& rect,
-                          bool insideClip,
-                          GrRenderTarget* renderTarget) SK_OVERRIDE;
+    virtual bool copySurface(GrSurface* dst,
+                             GrSurface* src,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint)  SK_OVERRIDE;
 
-    void discard(GrRenderTarget*) SK_OVERRIDE;
+    virtual bool canCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) SK_OVERRIDE;
+
+    virtual void clearStencilClip(const SkIRect& rect,
+                                  bool insideClip,
+                                  GrRenderTarget* renderTarget) SK_OVERRIDE;
+
+    virtual void discard(GrRenderTarget*) SK_OVERRIDE;
+
+    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
 private:
     typedef GrClipMaskManager::ScissorState ScissorState;
@@ -261,15 +273,6 @@ private:
     void willReserveVertexAndIndexSpace(int vertexCount,
                                         size_t vertexStride,
                                         int indexCount) SK_OVERRIDE;
-    bool onCopySurface(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) SK_OVERRIDE;
-    bool onCanCopySurface(const GrSurface* dst,
-                          const GrSurface* src,
-                          const SkIRect& srcRect,
-                          const SkIPoint& dstPoint) SK_OVERRIDE;
-    bool onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.

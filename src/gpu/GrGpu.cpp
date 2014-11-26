@@ -209,6 +209,13 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     this->onResolveRenderTarget(target);
 }
 
+void GrGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
+    // Make the dst of the copy be a render target because the default copySurface draws to the dst.
+    desc->fOrigin = kDefault_GrSurfaceOrigin;
+    desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc->fConfig = src->config();
+}
+
 typedef GrTraceMarkerSet::Iter TMIter;
 void GrGpu::saveActiveTraceMarkers() {
     if (this->caps()->gpuTracingSupport()) {

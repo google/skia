@@ -921,19 +921,16 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
                                    dstPoint,
                                    &clippedSrcRect,
                                    &clippedDstPoint)) {
+        SkASSERT(GrDrawTarget::canCopySurface(dst, src, srcRect, dstPoint));
         return true;
     }
 
-    if (this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
-        return true;
+    if (!GrDrawTarget::canCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
+        return false;
     }
 
     GrRenderTarget* rt = dst->asRenderTarget();
     GrTexture* tex = src->asTexture();
-
-    if ((dst != src) && rt && tex) {
-        return false;
-    }
 
     GrDrawState drawState;
     drawState.setRenderTarget(rt);
@@ -968,13 +965,7 @@ bool GrDrawTarget::canCopySurface(const GrSurface* dst,
                                    &clippedDstPoint)) {
         return true;
     }
-    return this->internalCanCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
-}
 
-bool GrDrawTarget::internalCanCopySurface(const GrSurface* dst,
-                                          const GrSurface* src,
-                                          const SkIRect& clippedSrcRect,
-                                          const SkIPoint& clippedDstPoint) {
     // Check that the read/write rects are contained within the src/dst bounds.
     SkASSERT(!clippedSrcRect.isEmpty());
     SkASSERT(SkIRect::MakeWH(src->width(), src->height()).contains(clippedSrcRect));
@@ -982,9 +973,14 @@ bool GrDrawTarget::internalCanCopySurface(const GrSurface* dst,
     SkASSERT(clippedDstPoint.fX + clippedSrcRect.width() <= dst->width() &&
              clippedDstPoint.fY + clippedSrcRect.height() <= dst->height());
 
-    // The base class can do it as a draw or the subclass may be able to handle it.
-    return ((dst != src) && dst->asRenderTarget() && src->asTexture()) ||
-           this->onCanCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
+    return (dst != src) && dst->asRenderTarget() && src->asTexture();
+}
+
+void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
+    // Make the dst of the copy be a render target because the default copySurface draws to the dst.
+    desc->fOrigin = kDefault_GrSurfaceOrigin;
+    desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc->fConfig = src->config();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
