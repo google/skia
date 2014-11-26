@@ -68,7 +68,7 @@ public:
     const GrClipData* getClip() const;
 
     /**
-     * There are three types of "sources" of geometry (vertices and indices) for
+     * There are two types of "sources" of geometry (vertices and indices) for
      * draw calls made on the target. When performing an indexed draw, the
      * indices and vertices can use different source types. Once a source is
      * specified it can be used for multiple draws. However, the time at which
@@ -84,15 +84,9 @@ public:
      * is set or resetVertexSource / resetIndexSource is called. Drawing from
      * a reset source is an error.
      *
-     * The three types of sources are:
+     * The two types of sources are:
      *
-     * 1. A cpu array (set*SourceToArray). This is useful when the caller
-     *    already provided vertex data in a format compatible with a
-     *    GrVertexLayout. The data in the array is consumed at the time that
-     *    set*SourceToArray is called and subsequent edits to the array will not
-     *    be reflected in draws.
-     *
-     * 2. Reserve. This is most useful when the caller has data it must
+     * 1. Reserve. This is most useful when the caller has data it must
      *    transform before drawing and is not long-lived. The caller requests
      *    that the draw target make room for some amount of vertex and/or index
      *    data. The target provides ptrs to hold the vertex and/or index data.
@@ -104,13 +98,11 @@ public:
      *    Where the space is allocated and how it is uploaded to the GPU is
      *    subclass-dependent.
      *
-     * 3. Vertex and Index Buffers. This is most useful for geometry that will
+     * 2. Vertex and Index Buffers. This is most useful for geometry that will
      *    is long-lived. When the data in the buffer is consumed depends on the
      *    GrDrawTarget subclass. For deferred subclasses the caller has to
      *    guarantee that the data is still available in the buffers at playback.
      *    (TODO: Make this more automatic as we have done for read/write pixels)
-     *
-     * The size of each vertex is determined by querying the current GrDrawState.
      */
 
     /**
@@ -413,26 +405,18 @@ public:
      * limitations. If rect is clipped out entirely by the src or dst bounds then
      * true is returned since there is no actual copy necessary to succeed.
      */
-    virtual bool copySurface(GrSurface* dst,
-                             GrSurface* src,
-                             const SkIRect& srcRect,
-                             const SkIPoint& dstPoint);
+    bool copySurface(GrSurface* dst,
+                     GrSurface* src,
+                     const SkIRect& srcRect,
+                     const SkIPoint& dstPoint);
     /**
-     * Function that determines whether a copySurface call would succeed without
+     * Function that determines whether a copySurface call would succeed without actually
      * performing the copy.
      */
-    virtual bool canCopySurface(const GrSurface* dst,
-                                const GrSurface* src,
-                                const SkIRect& srcRect,
-                                const SkIPoint& dstPoint);
-
-    /**
-     * This is can be called before allocating a texture to be a dst for copySurface. It will
-     * populate the origin, config, and flags fields of the desc such that copySurface is more
-     * likely to succeed and be efficient.
-     */
-    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc);
-
+    bool canCopySurface(const GrSurface* dst,
+                        const GrSurface* src,
+                        const SkIRect& srcRect,
+                        const SkIPoint& dstPoint);
 
     /**
      * Release any resources that are cached but not currently in use. This
@@ -670,6 +654,25 @@ protected:
                                  const SkRect* drawBounds);
 
 private:
+    /**
+     * This will be called before allocating a texture as a dst for copySurface. This function
+     * populates the dstDesc's config, flags, and origin so as to maximize efficiency and guarantee
+     * success of the copySurface call.
+     */
+    void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* dstDesc) {
+        if (!this->onInitCopySurfaceDstDesc(src, dstDesc)) {
+            dstDesc->fOrigin = kDefault_GrSurfaceOrigin;
+            dstDesc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+            dstDesc->fConfig = src->config();
+        }
+    }
+
+    /** Internal implementation of canCopySurface. */
+    bool internalCanCopySurface(const GrSurface* dst,
+                                const GrSurface* src,
+                                const SkIRect& clippedSrcRect,
+                                const SkIPoint& clippedDstRect);
+
     // A subclass can optionally overload this function to be notified before
     // vertex and index space is reserved.
     virtual void willReserveVertexAndIndexSpace(int vertexCount,
@@ -719,6 +722,29 @@ private:
     virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
                          GrRenderTarget* renderTarget) = 0;
 
+    /** The subclass will get a chance to copy the surface for falling back to the default
+        implementation, which simply draws a rectangle (and fails if dst isn't a render target). It
+        should assume that any clipping has already been performed on the rect and point. It won't
+        be called if the copy can be skipped. */
+    virtual bool onCopySurface(GrSurface* dst,
+                               GrSurface* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint) = 0;
+
+    /** Indicates whether onCopySurface would succeed. It should assume that any clipping has
+        already been performed on the rect and point. It won't be called if the copy can be
+        skipped. */
+    virtual bool onCanCopySurface(const GrSurface* dst,
+                                  const GrSurface* src,
+                                  const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint) = 0;
+    /**
+     * This will be called before allocating a texture to be a dst for onCopySurface. Only the
+     * dstDesc's config, flags, and origin need be set by the function. If the subclass cannot
+     * create a surface that would succeed its implementation of onCopySurface, it should return
+     * false. The base class will fall back to creating a render target to draw into using the src.
+     */
+    virtual bool onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* dstDesc) = 0;
 
     // helpers for reserving vertex and index space.
     bool reserveVertexSpace(size_t vertexSize,

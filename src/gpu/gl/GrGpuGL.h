@@ -68,7 +68,7 @@ public:
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
-    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
+    virtual bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -94,16 +94,15 @@ public:
         fHWGeometryState.notifyIndexBufferDelete(id);
     }
 
-    // DrawTarget overrides
-    virtual bool copySurface(GrSurface* dst,
-                             GrSurface* src,
-                             const SkIRect& srcRect,
-                             const SkIPoint& dstPoint) SK_OVERRIDE;
+    bool copySurface(GrSurface* dst,
+                     GrSurface* src,
+                     const SkIRect& srcRect,
+                     const SkIPoint& dstPoint) SK_OVERRIDE;
 
-    virtual bool canCopySurface(const GrSurface* dst,
-                                const GrSurface* src,
-                                const SkIRect& srcRect,
-                                const SkIPoint& dstPoint) SK_OVERRIDE;
+    bool canCopySurface(const GrSurface* dst,
+                        const GrSurface* src,
+                        const SkIRect& srcRect,
+                        const SkIPoint& dstPoint) SK_OVERRIDE;
 
 protected:
     virtual void buildProgramDesc(const GrOptDrawState&,

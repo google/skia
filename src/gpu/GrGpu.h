@@ -278,10 +278,11 @@ public:
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. It will
-     * populate the origin, config, and flags fields of the desc such that copySurface is more
-     * likely to succeed and be efficient.
+     * populate the origin, config, and flags fields of the desc such that copySurface can
+     * efficiently succeed. It should only succeed if it can allow copySurface to perform a copy
+     * that would be more effecient than drawing the src to a dst render target.
      */
-    virtual void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc);
+    virtual bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) = 0;
 
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
@@ -337,20 +338,20 @@ public:
     void saveActiveTraceMarkers();
     void restoreActiveTraceMarkers();
 
-    // Called to determine whether an onCopySurface call would succeed or not. This is useful for
-    // proxy subclasses to test whether the copy would succeed without executing it yet. Derived
-    // classes must keep this consistent with their implementation of onCopySurface(). The inputs
-    // are the same as onCopySurface(), i.e. srcRect and dstPoint are clipped to be inside the src
-    // and dst bounds.
+    // Called to determine whether a copySurface call would succeed or not. Derived
+    // classes must keep this consistent with their implementation of onCopySurface(). Fallbacks
+    // to issuing a draw from the src to dst take place at the GrDrawTarget level and this function
+    // should only return true if a faster copy path exists. The rect and point are pre-clipped. The
+    // src rect and implied dst rect are guaranteed to be within the src/dst bounds and non-empty.
     virtual bool canCopySurface(const GrSurface* dst,
                                 const GrSurface* src,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) = 0;
 
-    // This method is called by copySurface  The srcRect is guaranteed to be entirely within the
-    // src bounds. Likewise, the dst rect implied by dstPoint and srcRect's width and height falls
-    // entirely within the dst. The default implementation will draw a rect from the src to the
-    // dst if the src is a texture and the dst is a render target and fail otherwise.
+    // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
+    // take place at the GrDrawTarget level and this function implement faster copy paths. The rect
+    // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
+    // src/dst bounds and non-empty.
     virtual bool copySurface(GrSurface* dst,
                              GrSurface* src,
                              const SkIRect& srcRect,
