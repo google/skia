@@ -1243,7 +1243,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                           const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawSprite()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawSprite()");
     if (bitmap.drawsNothing()) {
         return;
     }
@@ -1683,7 +1683,7 @@ GrContext* SkCanvas::getGrContext() {
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawDRRect()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawDRRect()");
     if (outer.isEmpty()) {
         return;
     }
@@ -1721,7 +1721,7 @@ void SkCanvas::onDiscard() {
 }
 
 void SkCanvas::drawPaint(const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPaint()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPaint()");
     this->internalDrawPaint(paint);
 }
 
@@ -1737,7 +1737,7 @@ void SkCanvas::internalDrawPaint(const SkPaint& paint) {
 
 void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                           const SkPaint& paint) {
-    TRACE_EVENT1("skia", "SkCanvas::drawPoints()", "count", static_cast<uint64_t>(count));
+    TRACE_EVENT1("disabled-by-default-skia", "SkCanvas::drawPoints()", "count", static_cast<uint64_t>(count));
     if ((long)count <= 0) {
         return;
     }
@@ -1769,7 +1769,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
 }
 
 void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawRect()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
     SkRect storage;
     const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
@@ -1789,7 +1789,7 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawOval()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawOval()");
     SkRect storage;
     const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
@@ -1809,7 +1809,7 @@ void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
 }
 
 void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawRRect()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRRect()");
     SkRect storage;
     const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
@@ -1859,7 +1859,7 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPath()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPath()");
     if (!path.isFinite()) {
         return;
     }
@@ -1893,20 +1893,20 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
                        const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawImage()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImage()");
     image->draw(this, left, top, paint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src,
                            const SkRect& dst,
                            const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawImageRect()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
     image->drawRect(this, src, dst, paint);
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                           const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawBitmap()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmap()");
     SkDEBUGCODE(bitmap.validate();)
 
     if (NULL == paint || paint->canComputeFastBounds()) {
@@ -1964,14 +1964,14 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
 void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                     const SkRect& dst, const SkPaint* paint,
                                     DrawBitmapRectFlags flags) {
-    TRACE_EVENT0("skia", "SkCanvas::drawBitmapRectToRect()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapRectToRect()");
     SkDEBUGCODE(bitmap.validate();)
     this->internalDrawBitmapRect(bitmap, src, dst, paint, flags);
 }
 
 void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
                                 const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawBitmapMatrix()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapMatrix()");
     SkDEBUGCODE(bitmap.validate();)
     this->internalDrawBitmap(bitmap, matrix, paint);
 }
@@ -2048,7 +2048,7 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                               const SkRect& dst, const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawBitmapNine()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapNine()");
     SkDEBUGCODE(bitmap.validate();)
 
     // Need a device entry-point, so gpu can use a mesh
@@ -2228,27 +2228,27 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 // These will become non-virtual, so they always call the (virtual) onDraw... method
 void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                         const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawText()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawText()");
     this->onDrawText(text, byteLength, x, y, paint);
 }
 void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                            const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPosText()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPosText()");
     this->onDrawPosText(text, byteLength, pos, paint);
 }
 void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                             SkScalar constY, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPosTextH()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPosTextH()");
     this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
 }
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                               const SkMatrix* matrix, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawTextOnPath()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextOnPath()");
     this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
 }
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawTextBlob()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextBlob()");
     if (blob) {
         this->onDrawTextBlob(blob, x, y, paint);
     }
@@ -2259,7 +2259,7 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
                             const SkColor colors[], SkXfermode* xmode,
                             const uint16_t indices[], int indexCount,
                             const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawVertices()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawVertices()");
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, NULL)
 
     while (iter.next()) {
@@ -2273,7 +2273,7 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                          const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPatch()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPatch()");
     if (NULL == cubics) {
         return;
     }
@@ -2318,7 +2318,7 @@ void SkCanvas::onDrawDrawable(SkCanvasDrawable* dr) {
 
 void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
                         SkXfermode::Mode mode) {
-    TRACE_EVENT0("skia", "SkCanvas::drawARGB()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawARGB()");
     SkPaint paint;
 
     paint.setARGB(a, r, g, b);
@@ -2329,7 +2329,7 @@ void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
 }
 
 void SkCanvas::drawColor(SkColor c, SkXfermode::Mode mode) {
-    TRACE_EVENT0("skia", "SkCanvas::drawColor()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawColor()");
     SkPaint paint;
 
     paint.setColor(c);
@@ -2340,7 +2340,7 @@ void SkCanvas::drawColor(SkColor c, SkXfermode::Mode mode) {
 }
 
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPoint(SkPaint)");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPoint(SkPaint)");
     SkPoint pt;
 
     pt.set(x, y);
@@ -2348,7 +2348,7 @@ void SkCanvas::drawPoint(SkScalar x, SkScalar y, const SkPaint& paint) {
 }
 
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, SkColor color) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPoint(SkColor)");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPoint(SkColor)");
     SkPoint pt;
     SkPaint paint;
 
@@ -2359,7 +2359,7 @@ void SkCanvas::drawPoint(SkScalar x, SkScalar y, SkColor color) {
 
 void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1,
                         const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawLine()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawLine()");
     SkPoint pts[2];
 
     pts[0].set(x0, y0);
@@ -2370,7 +2370,7 @@ void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1,
 void SkCanvas::drawRectCoords(SkScalar left, SkScalar top,
                               SkScalar right, SkScalar bottom,
                               const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawRectCoords()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRectCoords()");
     SkRect  r;
 
     r.set(left, top, right, bottom);
@@ -2379,7 +2379,7 @@ void SkCanvas::drawRectCoords(SkScalar left, SkScalar top,
 
 void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
                           const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawCircle()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawCircle()");
     if (radius < 0) {
         radius = 0;
     }
@@ -2391,7 +2391,7 @@ void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
 
 void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
                              const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawRoundRect()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRoundRect()");
     if (rx > 0 && ry > 0) {
         if (paint.canComputeFastBounds()) {
             SkRect storage;
@@ -2410,7 +2410,7 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
 void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
                        SkScalar sweepAngle, bool useCenter,
                        const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawArc()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
     if (SkScalarAbs(sweepAngle) >= SkIntToScalar(360)) {
         this->drawOval(oval, paint);
     } else {
@@ -2429,7 +2429,7 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
 void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
                                 const SkPath& path, SkScalar hOffset,
                                 SkScalar vOffset, const SkPaint& paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawTextOnPathHV()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextOnPathHV()");
     SkMatrix    matrix;
 
     matrix.setTranslate(hOffset, vOffset);
@@ -2438,14 +2438,14 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 void SkCanvas::drawPicture(const SkPicture* picture) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPicture()");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPicture()");
     if (picture) {
         this->onDrawPicture(picture, NULL, NULL);
     }
 }
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
-    TRACE_EVENT0("skia", "SkCanvas::drawPicture(SkMatrix, SkPaint)");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPicture(SkMatrix, SkPaint)");
     if (picture) {
         if (matrix && matrix->isIdentity()) {
             matrix = NULL;
