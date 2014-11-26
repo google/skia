@@ -72,6 +72,7 @@
         '../samplecode/SampleHairCurves.cpp',
         '../samplecode/SampleHairline.cpp',
         '../samplecode/SampleHairModes.cpp',
+        '../samplecode/SampleHT.cpp',
         '../samplecode/SampleIdentityScale.cpp',
         '../samplecode/SampleLayerMask.cpp',
         '../samplecode/SampleLayers.cpp',
