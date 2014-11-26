@@ -101,6 +101,8 @@
         '<(skia_src_path)/core/SkGlyphCache.h',
         '<(skia_src_path)/core/SkGlyphCache_Globals.h',
         '<(skia_src_path)/core/SkGraphics.cpp',
+        '<(skia_src_path)/core/SkHalf.cpp',
+        '<(skia_src_path)/core/SkHalf.h',
         '<(skia_src_path)/core/SkInstCnt.cpp',
         '<(skia_src_path)/core/SkImageFilter.cpp',
         '<(skia_src_path)/core/SkImageInfo.cpp',

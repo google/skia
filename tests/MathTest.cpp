@@ -9,6 +9,7 @@
 #include "SkEndian.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
+#include "SkHalf.h"
 #include "SkMathPriv.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
@@ -326,6 +327,61 @@ static void unittest_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,  SkScalarIsFinite(0));
 }
 
+static void unittest_half(skiatest::Reporter* reporter) {
+    static const float gFloats[] = {
+        0.f, 1.f, 0.5f, 0.499999f, 0.5000001f, 1.f/3,
+        -0.f, -1.f, -0.5f, -0.499999f, -0.5000001f, -1.f/3
+    };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFloats); ++i) {
+        SkHalf h = SkFloatToHalf(gFloats[i]);
+        float f = SkHalfToFloat(h);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f, gFloats[i]));
+    }
+
+    // check some special values
+    union FloatUnion {
+        uint32_t fU;
+        float    fF;
+    };
+
+    static const FloatUnion largestPositiveHalf = { ((142 << 23) | (1023 << 13)) };
+    SkHalf h = SkFloatToHalf(largestPositiveHalf.fF);
+    float f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f, largestPositiveHalf.fF));
+
+    static const FloatUnion largestNegativeHalf = { (1u << 31) | (142u << 23) | (1023u << 13) };
+    h = SkFloatToHalf(largestNegativeHalf.fF);
+    f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f, largestNegativeHalf.fF));
+
+    static const FloatUnion smallestPositiveHalf = { 102 << 23 };
+    h = SkFloatToHalf(smallestPositiveHalf.fF);
+    f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f, smallestPositiveHalf.fF));
+
+    static const FloatUnion overflowHalf = { ((143 << 23) | (1023 << 13)) };
+    h = SkFloatToHalf(overflowHalf.fF);
+    f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(f) );
+
+    static const FloatUnion underflowHalf = { 101 << 23 };
+    h = SkFloatToHalf(underflowHalf.fF);
+    f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, f == 0.0f );
+
+    static const FloatUnion inf32 = { 255 << 23 };
+    h = SkFloatToHalf(inf32.fF);
+    f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(f) );
+
+    static const FloatUnion nan32 = { 255 << 23 | 1 };
+    h = SkFloatToHalf(nan32.fF);
+    f = SkHalfToFloat(h);
+    REPORTER_ASSERT(reporter, SkScalarIsNaN(f) );
+
+}
+
 static void test_muldiv255(skiatest::Reporter* reporter) {
     for (int a = 0; a <= 255; a++) {
         for (int b = 0; b <= 255; b++) {
@@ -464,6 +520,7 @@ DEF_TEST(Math, reporter) {
 
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
+    unittest_half(reporter);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
