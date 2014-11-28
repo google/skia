@@ -618,6 +618,7 @@ static void draw_tile_to_canvas(SkCanvas* canvas,
     SkMatrix mat(canvas->getTotalMatrix());
     mat.postTranslate(-SkIntToScalar(tileRect.fLeft), -SkIntToScalar(tileRect.fTop));
     canvas->setMatrix(mat);
+    canvas->clipRect(SkRect::Make(tileRect));
     canvas->clear(SK_ColorTRANSPARENT); // Not every picture covers the entirety of every tile
     canvas->drawPicture(picture);
     canvas->restoreToCount(saveCount);
