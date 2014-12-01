@@ -313,21 +313,6 @@ public:
         return DecodeMemory(buffer, size, bitmap, kUnknown_SkColorType, kDecodePixels_Mode, NULL);
     }
 
-    /**
-     *  Struct containing information about a pixel destination.
-     */
-    struct Target {
-        /**
-         *  Pre-allocated memory.
-         */
-        void*  fAddr;
-
-        /**
-         *  Rowbytes of the allocated memory.
-         */
-        size_t fRowBytes;
-    };
-
     /** Decode the image stored in the specified SkStreamRewindable, and store the result
         in bitmap. Return true for success or false on failure.
 
