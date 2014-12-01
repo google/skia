@@ -184,33 +184,43 @@ private:
 
 // Like SkBitmap, but deep copies pixels if they're not immutable.
 // Using this, we guarantee the immutability of all bitmaps we record.
-class ImmutableBitmap : SkNoncopyable {
-public:
+struct ImmutableBitmap : public SkBitmap {
     explicit ImmutableBitmap(const SkBitmap& bitmap) {
         if (bitmap.isImmutable()) {
-            fBitmap = bitmap;
+            *(SkBitmap*)this = bitmap;
         } else {
-            bitmap.copyTo(&fBitmap);
+            bitmap.copyTo(this);
         }
-        fBitmap.setImmutable();
+        this->setImmutable();
     }
+};
 
-    operator const SkBitmap& () const { return fBitmap; }
+// SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
+// Recording is a convenient time to do this, but we could delay it to between record and playback.
+struct BoundedPath : public SkPath {
+    explicit BoundedPath(const SkPath& path) : SkPath(path) {
+        this->updateBoundsCache();
+    }
+};
 
-private:
-    SkBitmap fBitmap;
+// Like SkPath::getBounds(), SkMatrix::getType() isn't thread safe unless we precache it.
+// This may not cover all SkMatrices used by the picture (e.g. some could be hiding in a shader).
+struct TypedMatrix : public SkMatrix {
+    explicit TypedMatrix(const SkMatrix& matrix) : SkMatrix(matrix) {
+        (void)this->getType();
+    }
 };
 
 RECORD0(NoOp);
 
-RECORD2(Restore, SkIRect, devBounds, SkMatrix, matrix);
+RECORD2(Restore, SkIRect, devBounds, TypedMatrix, matrix);
 RECORD0(Save);
 RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
 
 RECORD1(PushCull, SkRect, rect);
 RECORD0(PopCull);
 
-RECORD1(SetMatrix, SkMatrix, matrix);
+RECORD1(SetMatrix, TypedMatrix, matrix);
 
 struct RegionOpAndAA {
     RegionOpAndAA(SkRegion::Op op, bool aa) : op(op), aa(aa) {}
@@ -219,10 +229,10 @@ struct RegionOpAndAA {
 };
 SK_COMPILE_ASSERT(sizeof(RegionOpAndAA) == 4, RegionOpAndAASize);
 
-RECORD3(ClipPath,   SkIRect, devBounds, SkPath,   path,   RegionOpAndAA, opAA);
-RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,  rrect,  RegionOpAndAA, opAA);
-RECORD3(ClipRect,   SkIRect, devBounds, SkRect,   rect,   RegionOpAndAA, opAA);
-RECORD3(ClipRegion, SkIRect, devBounds, SkRegion, region, SkRegion::Op,    op);
+RECORD3(ClipPath,   SkIRect, devBounds, BoundedPath, path, RegionOpAndAA, opAA);
+RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,    rrect, RegionOpAndAA, opAA);
+RECORD3(ClipRect,   SkIRect, devBounds, SkRect,      rect, RegionOpAndAA, opAA);
+RECORD3(ClipRegion, SkIRect, devBounds, SkRegion,  region, SkRegion::Op,    op);
 
 RECORD1(Clear, SkColor, color);
 
@@ -235,7 +245,7 @@ RECORD4(DrawBitmap, Optional<SkPaint>, paint,
                     ImmutableBitmap, bitmap,
                     SkScalar, left,
                     SkScalar, top);
-RECORD3(DrawBitmapMatrix, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, SkMatrix, matrix);
+RECORD3(DrawBitmapMatrix, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, TypedMatrix, matrix);
 RECORD4(DrawBitmapNine, Optional<SkPaint>, paint,
                         ImmutableBitmap, bitmap,
                         SkIRect, center,
@@ -260,10 +270,10 @@ RECORD4(DrawImageRect, Optional<SkPaint>, paint,
                        SkRect, dst);
 RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
-RECORD2(DrawPath, SkPaint, paint, SkPath, path);
+RECORD2(DrawPath, SkPaint, paint, BoundedPath, path);
 RECORD3(DrawPicture, Optional<SkPaint>, paint,
                      RefBox<const SkPicture>, picture,
-                     Optional<SkMatrix>, matrix);
+                     TypedMatrix, matrix);
 RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, unsigned, count, SkPoint*, pts);
 RECORD4(DrawPosText, SkPaint, paint,
                      PODArray<char>, text,
@@ -289,8 +299,8 @@ RECORD4(DrawTextBlob, SkPaint, paint,
 RECORD5(DrawTextOnPath, SkPaint, paint,
                         PODArray<char>, text,
                         size_t, byteLength,
-                        SkPath, path,
-                        Optional<SkMatrix>, matrix);
+                        BoundedPath, path,
+                        TypedMatrix, matrix);
 
 RECORD2(DrawData, PODArray<char>, data, size_t, length);
 

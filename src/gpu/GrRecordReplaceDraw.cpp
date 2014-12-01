@@ -14,7 +14,7 @@
 GrReplacements::ReplacementInfo* GrReplacements::newReplacement(uint32_t pictureID,
                                                                 const SkMatrix& initialMat,
                                                                 const int* key, int keySize) {
-    ReplacementInfo* replacement = SkNEW_ARGS(ReplacementInfo, (pictureID, initialMat, 
+    ReplacementInfo* replacement = SkNEW_ARGS(ReplacementInfo, (pictureID, initialMat,
                                                                 key, keySize));
     fReplacementHash.add(replacement);
     return replacement;
@@ -134,7 +134,7 @@ public:
 
         fOpIndexStack.push(drawPictureOffset);
 
-        SkAutoCanvasMatrixPaint acmp(fCanvas, dp.matrix, dp.paint, dp.picture->cullRect());
+        SkAutoCanvasMatrixPaint acmp(fCanvas, &dp.matrix, dp.paint, dp.picture->cullRect());
 
         // Draw sub-pictures with the same replacement list but a different picture
         ReplaceDraw draw(fCanvas, this->drawablePicts(), this->drawableCount(),
@@ -212,8 +212,8 @@ int GrRecordReplaceDraw(const SkPicture* picture,
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     // TODO: drawablePicts?
-    ReplaceDraw draw(canvas, NULL, 0, 
-                     picture, picture, 
+    ReplaceDraw draw(canvas, NULL, 0,
+                     picture, picture,
                      replacements, initialMatrix, callback, NULL, 0);
 
     return draw.draw();

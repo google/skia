@@ -10,7 +10,6 @@
 #ifndef SkMatrix_DEFINED
 #define SkMatrix_DEFINED
 
-#include "SkDynamicAnnotations.h"
 #include "SkRect.h"
 
 class SkString;
@@ -648,21 +647,21 @@ private:
     };
 
     SkScalar         fMat[9];
-    mutable SkTRacy<uint32_t> fTypeMask;
+    mutable uint32_t fTypeMask;
 
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
         fMat[kMScaleX] = sx;
         fMat[kMSkewX]  = 0;
         fMat[kMTransX] = tx;
-        
+
         fMat[kMSkewY]  = 0;
         fMat[kMScaleY] = sy;
         fMat[kMTransY] = ty;
-        
+
         fMat[kMPersp0] = 0;
         fMat[kMPersp1] = 0;
         fMat[kMPersp2] = 1;
-        
+
         unsigned mask = 0;
         if (sx != 1 || sy != 1) {
             mask |= kScale_Mask;

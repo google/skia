@@ -117,7 +117,7 @@ DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
-DRAW(DrawPicture, drawPicture(r.picture, r.matrix, r.paint));
+DRAW(DrawPicture, drawPicture(r.picture, &r.matrix, r.paint));
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
@@ -126,7 +126,7 @@ DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawSprite, drawSprite(shallow_copy(r.bitmap), r.left, r.top, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
-DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, r.matrix, r.paint));
+DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 DRAW(DrawData, drawData(r.data, r.length));
@@ -402,9 +402,8 @@ private:
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
-    Bounds bounds(const DrawSprite& op) const {
-        const SkBitmap& bm = op.bitmap;
-        return Bounds::MakeXYWH(op.left, op.top, bm.width(), bm.height());  // Ignores the matrix.
+    Bounds bounds(const DrawSprite& op) const {  // Ignores the matrix.
+        return Bounds::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height());
     }
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
@@ -434,13 +433,12 @@ private:
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawBitmap& op) const {
-        const SkBitmap& bm = op.bitmap;
-        return this->adjustAndMap(SkRect::MakeXYWH(op.left, op.top, bm.width(), bm.height()),
-                                  op.paint);
+        return this->adjustAndMap(
+                SkRect::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height()),
+                op.paint);
     }
     Bounds bounds(const DrawBitmapMatrix& op) const {
-        const SkBitmap& bm = op.bitmap;
-        SkRect dst = SkRect::MakeWH(bm.width(), bm.height());
+        SkRect dst = SkRect::MakeWH(op.bitmap.width(), op.bitmap.height());
         op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);
     }
@@ -472,9 +470,7 @@ private:
 
     Bounds bounds(const DrawPicture& op) const {
         SkRect dst = op.picture->cullRect();
-        if (op.matrix) {
-            op.matrix->mapRect(&dst);
-        }
+        op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);
     }
 
