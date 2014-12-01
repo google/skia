@@ -308,6 +308,18 @@ void sk_canvas_scale(sk_canvas_t* ccanvas, float sx, float sy) {
     AsCanvas(ccanvas)->scale(sx, sy);
 }
 
+void sk_canvas_rotate_degress(sk_canvas_t* ccanvas, float degrees) {
+    AsCanvas(ccanvas)->rotate(degrees);
+}
+
+void sk_canvas_rotate_radians(sk_canvas_t* ccanvas, float radians) {
+    AsCanvas(ccanvas)->rotate(SkRadiansToDegrees(radians));
+}
+
+void sk_canvas_skew(sk_canvas_t* ccanvas, float sx, float sy) {
+    AsCanvas(ccanvas)->skew(sx, sy);
+}
+
 void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawPaint(AsPaint(*cpaint));
 }

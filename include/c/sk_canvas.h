@@ -21,6 +21,9 @@ void sk_canvas_restore(sk_canvas_t*);
 
 void sk_canvas_translate(sk_canvas_t*, float dx, float dy);
 void sk_canvas_scale(sk_canvas_t*, float sx, float sy);
+void sk_canvas_rotate_degrees(sk_canvas_t*, float degrees);
+void sk_canvas_rotate_radians(sk_canvas_t*, float radians);
+void sk_canvas_skew(sk_canvas_t*, float sx, float sy);
 
 void sk_canvas_draw_paint(sk_canvas_t*, const sk_paint_t*);
 void sk_canvas_draw_rect(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
