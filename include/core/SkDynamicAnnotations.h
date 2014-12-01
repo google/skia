@@ -82,32 +82,4 @@ private:
     T fVal;
 };
 
-// This is like SkTRacy, but allows you to return the value by reference.
-// TSAN is better at suppressing SkTRacy than SkTRacyReffable, so use SkTRacy when possible.
-//
-// We use this for SkPathRef bounds, which is an SkRect we pass around by reference publically.
-template <typename T>
-class SkTRacyReffable {
-public:
-    SkTRacyReffable() { SK_ANNOTATE_BENIGN_RACE(&fVal); }
-
-    operator const T&() const {
-        return fVal;
-    }
-
-    SkTRacyReffable& operator=(const T& val) {
-        fVal = val;
-        return *this;
-    }
-
-    const T* get() const { return &fVal; }
-          T* get()       { return &fVal; }
-
-    const T* operator->() const { return &fVal; }
-          T* operator->()       { return &fVal; }
-
-private:
-    T fVal;
-};
-
 #endif//SkDynamicAnnotations_DEFINED

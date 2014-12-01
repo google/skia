@@ -74,6 +74,13 @@ private:
 template <typename T>
 static Reference<T> delay_copy(const T& x) { return Reference<T>(x); }
 
+// SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
+// Recording is a convenient time to do this, but we could delay it to between record and playback.
+static Reference<SkPath> force_path_bounds(const SkPath& p) {
+    p.updateBoundsCache();
+    return Reference<SkPath>(p);
+}
+
 // Use copy() only for optional arguments, to be copied if present or skipped if not.
 // (For most types we just pass by value and let copy constructors do their thing.)
 template <typename T>
@@ -158,7 +165,7 @@ void SkRecorder::onDrawDrawable(SkCanvasDrawable* drawable) {
 }
 
 void SkRecorder::drawPath(const SkPath& path, const SkPaint& paint) {
-    APPEND(DrawPath, delay_copy(paint), delay_copy(path));
+    APPEND(DrawPath, delay_copy(paint), force_path_bounds(path));
 }
 
 void SkRecorder::drawBitmap(const SkBitmap& bitmap,
@@ -244,7 +251,7 @@ void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkP
            delay_copy(paint),
            this->copy((const char*)text, byteLength),
            byteLength,
-           delay_copy(path),
+           force_path_bounds(path),
            this->copy(matrix));
 }
 
@@ -341,7 +348,7 @@ void SkRecorder::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyl
 void SkRecorder::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipPath, path, op, edgeStyle);
     SkRecords::RegionOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
-    APPEND(ClipPath, this->devBounds(), delay_copy(path), opAA);
+    APPEND(ClipPath, this->devBounds(), force_path_bounds(path), opAA);
 }
 
 void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
