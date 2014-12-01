@@ -233,6 +233,49 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+class BitmapRectRounding : public skiagm::GM {
+    SkBitmap fBM;
+
+public:
+    BitmapRectRounding() {}
+
+protected:
+    SkString onShortName() SK_OVERRIDE {
+        SkString str;
+        str.printf("bitmaprect_rounding");
+        return str;
+    }
+
+    SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(640, 480);
+    }
+
+    void onOnceBeforeDraw() SK_OVERRIDE {
+        fBM.allocN32Pixels(10, 10);
+        fBM.eraseColor(SK_ColorBLUE);
+    }
+
+    // This choice of coordinates and matrix land the bottom edge of the clip (and bitmap dst)
+    // at exactly 1/2 pixel boundary. However, drawBitmapRect may lose precision along the way.
+    // If it does, we may see a red-line at the bottom, instead of the bitmap exactly matching
+    // the clip (in which case we should see all blue).
+    // The correct image should be all blue.
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+
+        const SkRect r = SkRect::MakeXYWH(1, 1, 110, 114);
+        canvas->scale(0.9f, 0.9f);
+
+        // the drawRect shows the same problem as clipRect(r) followed by drawcolor(red)
+        canvas->drawRect(r, paint);
+        canvas->drawBitmapRect(fBM, NULL, r, NULL);
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 static skiagm::GM* MyFactory0(void*) { return new DrawBitmapRect2(false); }
@@ -254,3 +297,5 @@ static skiagm::GMRegistry reg2(MyFactory2);
 static skiagm::GMRegistry reg3(MyFactory3);
 static skiagm::GMRegistry reg4(MyFactory4);
 #endif
+
+DEF_GM( return new BitmapRectRounding; )
