@@ -472,7 +472,7 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
         if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
             return;
         }
-        this->setDrawBuffers(&info);
+        this->setDrawBuffers(&info, ds->getVertexStride());
 
         this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
@@ -515,7 +515,7 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
             return;
         }
 
-        this->setDrawBuffers(&info);
+        this->setDrawBuffers(&info, ds->getVertexStride());
 
         this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
@@ -773,14 +773,13 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
         info.fVertexCount = info.fInstanceCount * verticesPerInstance;
         info.fIndexCount = info.fInstanceCount * indicesPerInstance;
 
-        this->setDrawBuffers(&info);
-
         if (this->checkDraw(*ds,
                             type,
                             info.fStartVertex,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
+            this->setDrawBuffers(&info, ds->getVertexStride());
             this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
         }
         info.fStartVertex += info.fVertexCount;

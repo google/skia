@@ -579,7 +579,10 @@ public:
         GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;
     };
 
-    virtual void setDrawBuffers(DrawInfo*) = 0;;
+    /**
+     * Used to populate the vertex and index buffer on the draw info before onDraw is called.
+     */
+    virtual void setDrawBuffers(DrawInfo*, size_t vertexStride) = 0;;
     bool programUnitTest(int maxStages);
 
 protected:

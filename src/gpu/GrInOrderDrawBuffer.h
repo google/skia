@@ -8,23 +8,10 @@
 #ifndef GrInOrderDrawBuffer_DEFINED
 #define GrInOrderDrawBuffer_DEFINED
 
-#include "GrDrawTarget.h"
-#include "GrGpu.h"
-#include "GrIndexBuffer.h"
+#include "GrFlushToGpuDrawTarget.h"
 #include "GrOptDrawState.h"
 #include "GrPath.h"
-#include "GrPathRange.h"
-#include "GrRenderTarget.h"
-#include "GrSurface.h"
 #include "GrTRecorder.h"
-#include "GrVertexBuffer.h"
-
-#include "SkClipStack.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
-
-class GrIndexBufferAllocPool;
-class GrVertexBufferAllocPool;
 
 /**
  * GrInOrderDrawBuffer is an implementation of GrDrawTarget that queues up draws for eventual
@@ -36,7 +23,7 @@ class GrVertexBufferAllocPool;
  * in the GrGpu object that the buffer is played back into. The buffer requires VB and IB pools to
  * store geometry.
  */
-class GrInOrderDrawBuffer : public GrClipTarget {
+class GrInOrderDrawBuffer : public GrFlushToGpuDrawTarget {
 public:
 
     /**
@@ -54,27 +41,8 @@ public:
 
     ~GrInOrderDrawBuffer() SK_OVERRIDE;
 
-    /**
-     * Empties the draw buffer of any queued up draws. This must not be called while inside an
-     * unbalanced pushGeometrySource(). The current draw state and clip are preserved.
-     */
-    void reset();
-
-    /**
-     * This plays the queued up draws to its GrGpu target. It also resets this object (i.e. flushing
-     * is destructive). This buffer must not have an active reserved vertex or index source. Any
-     * reserved geometry on the target will be finalized because it's geometry source will be pushed
-     * before flushing and popped afterwards.
-     */
-    void flush();
-
     // tracking for draws
     DrawToken getCurrentDrawToken() { return DrawToken(this, fDrawID); }
-
-    // overrides from GrDrawTarget
-    bool geometryHints(size_t vertexStride,
-                       int* vertexCount,
-                       int* indexCount) const SK_OVERRIDE;
 
     void clearStencilClip(const SkIRect& rect,
                           bool insideClip,
@@ -217,6 +185,9 @@ private:
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
     typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
 
+    void onReset() SK_OVERRIDE;
+    void onFlush() SK_OVERRIDE;
+
     // overrides from GrDrawTarget
     void onDraw(const GrDrawState&,
                 const DrawInfo&,
@@ -250,17 +221,6 @@ private:
                  GrColor color,
                  bool canIgnoreRect,
                  GrRenderTarget* renderTarget) SK_OVERRIDE;
-    void setDrawBuffers(DrawInfo*) SK_OVERRIDE;
-
-    bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) SK_OVERRIDE;
-    bool onReserveIndexSpace(int indexCount, void** indices) SK_OVERRIDE;
-    void releaseReservedVertexSpace() SK_OVERRIDE;
-    void releaseReservedIndexSpace() SK_OVERRIDE;
-    void geometrySourceWillPush() SK_OVERRIDE;
-    void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-    void willReserveVertexAndIndexSpace(int vertexCount,
-                                        size_t vertexStride,
-                                        int indexCount) SK_OVERRIDE;
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
@@ -294,36 +254,16 @@ private:
         kCmdBufferInitialSizeInBytes = 8 * 1024,
         kPathIdxBufferMinReserve     = 2 * 64,  // 64 uint16_t's
         kPathXformBufferMinReserve   = 2 * 64,  // 64 two-float transforms
-        kGeoPoolStatePreAllocCnt     = 4,
     };
-
-    struct GeometryPoolState {
-        const GrVertexBuffer*   fPoolVertexBuffer;
-        int                     fPoolStartVertex;
-        const GrIndexBuffer*    fPoolIndexBuffer;
-        int                     fPoolStartIndex;
-        // caller may conservatively over reserve vertices / indices.
-        // we release unused space back to allocator if possible
-        // can only do this if there isn't an intervening pushGeometrySource()
-        size_t                  fUsedPoolVertexBytes;
-        size_t                  fUsedPoolIndexBytes;
-    };
-
-    typedef SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> GeoPoolStateStack;
 
     CmdBuffer                           fCmdBuffer;
     const GrOptDrawState*               fPrevState;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
-    GrGpu*                              fDstGpu;
-    GrVertexBufferAllocPool&            fVertexPool;
-    GrIndexBufferAllocPool&             fIndexPool;
     SkTDArray<char>                     fPathIndexBuffer;
     SkTDArray<float>                    fPathTransformBuffer;
-    GeoPoolStateStack                   fGeoPoolStateStack;
-    bool                                fFlushing;
     uint32_t                            fDrawID;
 
-    typedef GrClipTarget INHERITED;
+    typedef GrFlushToGpuDrawTarget INHERITED;
 };
 
 #endif
