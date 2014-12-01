@@ -17,16 +17,6 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#ifdef SK_DEBUG
-    #define SkASSERT_CONTINUE(pred)                                                         \
-        do {                                                                                \
-            if (!(pred))                                                                    \
-                SkDebugf("file %s:%d: assert failed '" #pred "'\n", __FILE__, __LINE__);    \
-        } while (false)
-#else
-    #define SkASSERT_CONTINUE(pred)
-#endif
-
 class SkScalerContext_FreeType_Base : public SkScalerContext {
 protected:
     // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
