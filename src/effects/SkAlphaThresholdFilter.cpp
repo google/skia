@@ -19,6 +19,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkAlphaThresholdFilterImpl(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
@@ -233,6 +236,15 @@ void AlphaThresholdEffect::onComputeInvariantOutput(GrInvariantOutput* inout) co
     }
 }
 
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(SkReadBuffer& buffer)
+  : INHERITED(1, buffer) {
+    fInnerThreshold = buffer.readScalar();
+    fOuterThreshold = buffer.readScalar();
+    buffer.readRegion(&fRegion);
+}
 #endif
 
 SkFlattenable* SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {

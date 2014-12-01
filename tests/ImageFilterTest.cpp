@@ -58,6 +58,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit MatrixTestImageFilter(SkReadBuffer& buffer) : SkImageFilter(0, NULL) {
+        fReporter = static_cast<skiatest::Reporter*>(buffer.readFunctionPtr());
+        buffer.readMatrix(&fExpectedMatrix);
+    }
+#endif
+
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeFunctionPtr(fReporter);
@@ -67,7 +74,7 @@ protected:
 private:
     skiatest::Reporter* fReporter;
     SkMatrix fExpectedMatrix;
-
+    
     typedef SkImageFilter INHERITED;
 };
 
@@ -480,7 +487,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     }
 }
 
-static void draw_saveLayer_picture(int width, int height, int tileSize,
+static void draw_saveLayer_picture(int width, int height, int tileSize, 
                                    SkBBHFactory* factory, SkBitmap* result) {
 
     SkMatrix matrix;
@@ -494,8 +501,8 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
     paint.setImageFilter(imageFilter.get());
     SkPictureRecorder recorder;
     SkRect bounds = SkRect::Make(SkIRect::MakeXYWH(0, 0, 50, 50));
-    SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width),
-                                                        SkIntToScalar(height),
+    SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width), 
+                                                        SkIntToScalar(height), 
                                                         factory, 0);
     recordingCanvas->translate(-55, 0);
     recordingCanvas->saveLayer(&bounds, &paint);
@@ -618,11 +625,11 @@ DEF_TEST(ImageFilterDrawTiledBlurRTree, reporter) {
 
     SkPictureRecorder recorder1, recorder2;
     // The only difference between these two pictures is that one has RTree aceleration.
-    SkCanvas* recordingCanvas1 = recorder1.beginRecording(SkIntToScalar(width),
-                                                          SkIntToScalar(height),
+    SkCanvas* recordingCanvas1 = recorder1.beginRecording(SkIntToScalar(width), 
+                                                          SkIntToScalar(height), 
                                                           NULL, 0);
-    SkCanvas* recordingCanvas2 = recorder2.beginRecording(SkIntToScalar(width),
-                                                          SkIntToScalar(height),
+    SkCanvas* recordingCanvas2 = recorder2.beginRecording(SkIntToScalar(width), 
+                                                          SkIntToScalar(height), 
                                                           &factory, 0);
     draw_blurred_rect(recordingCanvas1);
     draw_blurred_rect(recordingCanvas2);

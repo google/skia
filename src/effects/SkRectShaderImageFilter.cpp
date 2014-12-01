@@ -34,6 +34,13 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cr
   , fShader(SkRef(s)) {
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkRectShaderImageFilter::SkRectShaderImageFilter(SkReadBuffer& buffer)
+  : INHERITED(0, buffer) {
+    fShader = buffer.readShader();
+}
+#endif
+
 SkFlattenable* SkRectShaderImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     SkAutoTUnref<SkShader> shader(buffer.readShader());

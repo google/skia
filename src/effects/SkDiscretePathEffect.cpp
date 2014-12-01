@@ -87,3 +87,12 @@ void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fPerterb);
     buffer.writeUInt(fSeedAssist);
 }
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkDiscretePathEffect::SkDiscretePathEffect(SkReadBuffer& buffer) {
+    fSegLength = buffer.readScalar();
+    fPerterb = buffer.readScalar();
+    fSeedAssist = buffer.readUInt();
+}
+#endif
+

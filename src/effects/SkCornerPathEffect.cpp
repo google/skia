@@ -135,3 +135,9 @@ SkFlattenable* SkCornerPathEffect::CreateProc(SkReadBuffer& buffer) {
 void SkCornerPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fRadius);
 }
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkCornerPathEffect::SkCornerPathEffect(SkReadBuffer& buffer) {
+    fRadius = buffer.readScalar();
+}
+#endif

@@ -172,6 +172,11 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    Dot2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
+        fRadius = buffer.readScalar();
+    }
+#endif
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fRadius);

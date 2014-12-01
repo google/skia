@@ -7,6 +7,15 @@
 
 #include "SkLocalMatrixShader.h"
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkLocalMatrixShader::SkLocalMatrixShader(SkReadBuffer& buffer) : INHERITED(buffer) {
+    fProxyShader.reset(buffer.readShader());
+    if (NULL == fProxyShader.get()) {
+        sk_throw();
+    }
+}
+#endif
+
 SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);

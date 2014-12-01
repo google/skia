@@ -90,6 +90,13 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    Dot2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
+        fRadius = buffer.readScalar();
+        fPts = NULL;
+    }
+#endif
+
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         buffer.writeMatrix(this->getMatrix());
         buffer.writeScalar(fRadius);
@@ -119,7 +126,13 @@ public:
     }
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(InverseFillPE)
 
+protected:
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    InverseFillPE(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
+
 private:
+
     typedef SkPathEffect INHERITED;
 };
 

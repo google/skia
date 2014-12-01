@@ -47,6 +47,9 @@ public:
 protected:
     SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* inputs[2],
                           const CropRect* cropRect, uint32_t uniqueID);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkXfermodeImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

@@ -75,6 +75,9 @@ protected:
                           SkImageFilter* input,
                           const CropRect* cropRect,
                           uint32_t uniqueID);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkLightingImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     const SkLight* light() const { return fLight.get(); }
     SkScalar surfaceScale() const { return fSurfaceScale; }

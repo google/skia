@@ -31,6 +31,18 @@ static SkVector mapSigma(const SkSize& localSigma, const SkMatrix& ctm) {
     return sigma;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
+  : INHERITED(1, buffer) {
+    fSigma.fWidth = buffer.readScalar();
+    fSigma.fHeight = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fSigma.fWidth) &&
+                    SkScalarIsFinite(fSigma.fHeight) &&
+                    (fSigma.fWidth >= 0) &&
+                    (fSigma.fHeight >= 0));
+}
+#endif
+
 SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
                                      SkScalar sigmaY,
                                      SkImageFilter* input,

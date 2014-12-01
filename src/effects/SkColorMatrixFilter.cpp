@@ -307,6 +307,15 @@ void SkColorMatrixFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalarArray(fMatrix.fMat, 20);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkColorMatrixFilter::SkColorMatrixFilter(SkReadBuffer& buffer) : INHERITED(buffer) {
+    SkASSERT(buffer.getArrayCount() == 20);
+    if (buffer.readScalarArray(fMatrix.fMat, 20)) {
+        this->initState(fMatrix.fMat);
+    }
+}
+#endif
+
 SkFlattenable* SkColorMatrixFilter::CreateProc(SkReadBuffer& buffer) {
     SkColorMatrix matrix;
     if (buffer.readScalarArray(matrix.fMat, 20)) {

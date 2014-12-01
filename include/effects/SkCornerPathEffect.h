@@ -32,6 +32,9 @@ public:
 
 protected:
     explicit SkCornerPathEffect(SkScalar radius);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkCornerPathEffect(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

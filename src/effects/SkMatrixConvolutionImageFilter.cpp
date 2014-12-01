@@ -76,6 +76,50 @@ SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
                                                        input, cropRect, uniqueID));
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+static bool tile_mode_is_valid(SkMatrixConvolutionImageFilter::TileMode tileMode) {
+    switch (tileMode) {
+        case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+        case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+        case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkReadBuffer& buffer)
+    : INHERITED(1, buffer) {
+    fKernelSize.fWidth = buffer.readInt();
+    fKernelSize.fHeight = buffer.readInt();
+    if ((fKernelSize.fWidth >= 1) && (fKernelSize.fHeight >= 1) &&
+        // Make sure size won't be larger than a signed int,
+        // which would still be extremely large for a kernel,
+        // but we don't impose a hard limit for kernel size
+        (gMaxKernelSize / fKernelSize.fWidth >= fKernelSize.fHeight)) {
+        size_t size = fKernelSize.fWidth * fKernelSize.fHeight;
+        fKernel = SkNEW_ARRAY(SkScalar, size);
+        SkDEBUGCODE(bool success =) buffer.readScalarArray(fKernel, size);
+        SkASSERT(success);
+    } else {
+        fKernel = 0;
+    }
+    fGain = buffer.readScalar();
+    fBias = buffer.readScalar();
+    fKernelOffset.fX = buffer.readInt();
+    fKernelOffset.fY = buffer.readInt();
+    fTileMode = (TileMode) buffer.readInt();
+    fConvolveAlpha = buffer.readBool();
+    buffer.validate((fKernel != 0) &&
+                    SkScalarIsFinite(fGain) &&
+                    SkScalarIsFinite(fBias) &&
+                    tile_mode_is_valid(fTileMode) &&
+                    (fKernelOffset.fX >= 0) && (fKernelOffset.fX < fKernelSize.fWidth) &&
+                    (fKernelOffset.fY >= 0) && (fKernelOffset.fY < fKernelSize.fHeight));
+}
+#endif
+
 SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkISize kernelSize;

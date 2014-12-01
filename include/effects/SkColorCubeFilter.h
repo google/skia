@@ -32,6 +32,9 @@ public:
 
 protected:
     SkColorCubeFilter(SkData* cubeData, int cubeDimension);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkColorCubeFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

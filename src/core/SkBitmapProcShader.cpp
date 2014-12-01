@@ -39,6 +39,15 @@ SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src, TileMode tmx, TileMo
     fTileModeY = (uint8_t)tmy;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkBitmapProcShader::SkBitmapProcShader(SkReadBuffer& buffer) : INHERITED(buffer) {
+    buffer.readBitmap(&fRawBitmap);
+    fRawBitmap.setImmutable();
+    fTileModeX = buffer.readUInt();
+    fTileModeY = buffer.readUInt();
+}
+#endif
+
 SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
                                                    SkMatrix* texM,
                                                    TileMode xy[]) const {

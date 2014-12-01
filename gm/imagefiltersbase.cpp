@@ -22,7 +22,11 @@ public:
     public:
         Registrar() {
             SkFlattenable::Register("FailImageFilter",
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+                                    FailImageFilter::DeepCreateProc,
+#else
                                     FailImageFilter::CreateProc,
+#endif
                                     FailImageFilter::GetFlattenableType());
         }
     };
@@ -39,6 +43,10 @@ protected:
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         return false;
     }
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    FailImageFilter(SkReadBuffer& buffer) : INHERITED(0, buffer) {}
+#endif
 
 private:
     typedef SkImageFilter INHERITED;
@@ -57,7 +65,11 @@ public:
     public:
         Registrar() {
             SkFlattenable::Register("IdentityImageFilter",
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+                                    IdentityImageFilter::DeepCreateProc,
+#else
                                     IdentityImageFilter::CreateProc,
+#endif
                                     IdentityImageFilter::GetFlattenableType());
         }
     };
@@ -75,6 +87,10 @@ protected:
         offset->set(0, 0);
         return true;
     }
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    IdentityImageFilter(SkReadBuffer& buffer) : INHERITED(1, buffer) {}
+#endif
 
 private:
     typedef SkImageFilter INHERITED;

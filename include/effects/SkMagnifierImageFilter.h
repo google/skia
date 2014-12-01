@@ -20,6 +20,9 @@ public:
 
 protected:
     SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset, SkImageFilter* input);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkMagnifierImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

@@ -30,6 +30,21 @@ SkPictureImageFilter::~SkPictureImageFilter() {
     SkSafeUnref(fPicture);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkPictureImageFilter::SkPictureImageFilter(SkReadBuffer& buffer)
+  : INHERITED(0, buffer),
+    fPicture(NULL) {
+    if (!buffer.isCrossProcess()) {
+        if (buffer.readBool()) {
+            fPicture = SkPicture::CreateFromBuffer(buffer);
+        }
+    } else {
+        buffer.validate(!buffer.readBool());
+    }
+    buffer.readRect(&fCropRect);
+}
+#endif
+
 SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkPicture> picture;
     SkRect cropRect;

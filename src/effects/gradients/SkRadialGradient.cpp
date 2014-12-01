@@ -252,6 +252,14 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     return kRadial_GradientType;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkRadialGradient::SkRadialGradient(SkReadBuffer& buffer)
+    : INHERITED(buffer),
+      fCenter(buffer.readPoint()),
+      fRadius(buffer.readScalar()) {
+}
+#endif
+
 SkFlattenable* SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
@@ -570,7 +578,7 @@ bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
                                            const SkMatrix* localMatrix, GrColor* paintColor,
                                            GrFragmentProcessor** fp) const {
     SkASSERT(context);
-
+    
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return false;
@@ -583,10 +591,10 @@ bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-
+    
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
     *fp = GrRadialGradient::Create(context, *this, matrix, fTileMode);
-
+    
     return true;
 }
 

@@ -25,6 +25,12 @@ void SkPixelXorXfermode::flatten(SkWriteBuffer& wb) const {
     wb.writeColor(fOpColor);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkPixelXorXfermode::SkPixelXorXfermode(SkReadBuffer& rb) : INHERITED(rb) {
+    fOpColor = rb.readColor();
+}
+#endif
+
 SkFlattenable* SkPixelXorXfermode::CreateProc(SkReadBuffer& buffer) {
     return Create(buffer.readColor());
 }

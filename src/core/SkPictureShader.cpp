@@ -100,6 +100,15 @@ SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMod
     , fTmy(tmy) {
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkPictureShader::SkPictureShader(SkReadBuffer& buffer) : INHERITED(buffer) {
+    fTmx = static_cast<SkShader::TileMode>(buffer.read32());
+    fTmy = static_cast<SkShader::TileMode>(buffer.read32());
+    buffer.readRect(&fTile);
+    fPicture = SkPicture::CreateFromBuffer(buffer);
+}
+#endif
+
 SkPictureShader::~SkPictureShader() {
     fPicture->unref();
 }

@@ -32,6 +32,10 @@ protected:
         SkASSERT(inputs[0]);
         SkASSERT(inputs[1]);
     }
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkComposeImageFilter(SkReadBuffer& buffer);
+#endif
+
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const SK_OVERRIDE;

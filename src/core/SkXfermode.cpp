@@ -1237,6 +1237,23 @@ GrFragmentProcessor* XferEffect::TestCreate(SkRandom* rand,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkProcCoeffXfermode::SkProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
+    uint32_t mode32 = buffer.read32() % SK_ARRAY_COUNT(gProcCoeffs);
+    if (mode32 >= SK_ARRAY_COUNT(gProcCoeffs)) {
+        // out of range, just set to something harmless
+        mode32 = SkXfermode::kSrcOut_Mode;
+    }
+    fMode = (SkXfermode::Mode)mode32;
+
+    const ProcCoeff& rec = gProcCoeffs[fMode];
+    fProc = rec.fProc;
+    // these may be valid, or may be CANNOT_USE_COEFF
+    fSrcCoeff = rec.fSC;
+    fDstCoeff = rec.fDC;
+}
+#endif
+
 SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     uint32_t mode32 = buffer.read32();
     if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
@@ -1426,6 +1443,9 @@ public:
 
 private:
     SkClearXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kClear_Mode) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkClearXfermode(SkReadBuffer& buffer) : SkProcCoeffXfermode(buffer) {}
+#endif
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -1488,6 +1508,9 @@ public:
 
 private:
     SkSrcXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kSrc_Mode) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkSrcXfermode(SkReadBuffer& buffer) : SkProcCoeffXfermode(buffer) {}
+#endif
     typedef SkProcCoeffXfermode INHERITED;
 };
 
@@ -1553,6 +1576,9 @@ public:
 
 private:
     SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkDstInXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -1597,6 +1623,9 @@ public:
 
 private:
     SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkDstOutXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {}
+#endif
 
     typedef SkProcCoeffXfermode INHERITED;
 };

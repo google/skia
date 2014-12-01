@@ -22,6 +22,16 @@
 #include "effects/Gr1DKernelEffect.h"
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkMorphologyImageFilter::SkMorphologyImageFilter(SkReadBuffer& buffer)
+  : INHERITED(1, buffer) {
+    fRadius.fWidth = buffer.readInt();
+    fRadius.fHeight = buffer.readInt();
+    buffer.validate((fRadius.fWidth >= 0) &&
+                    (fRadius.fHeight >= 0));
+}
+#endif
+
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
                                                  int radiusY,
                                                  SkImageFilter* input,

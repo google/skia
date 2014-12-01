@@ -235,7 +235,7 @@ void GrMagnifierEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 
 SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar inset,
                                               SkImageFilter* input) {
-
+    
     if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
         return NULL;
     }
@@ -246,6 +246,22 @@ SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar in
     return SkNEW_ARGS(SkMagnifierImageFilter, (srcRect, inset, input));
 }
 
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkMagnifierImageFilter::SkMagnifierImageFilter(SkReadBuffer& buffer)
+  : INHERITED(1, buffer) {
+    float x = buffer.readScalar();
+    float y = buffer.readScalar();
+    float width = buffer.readScalar();
+    float height = buffer.readScalar();
+    fSrcRect = SkRect::MakeXYWH(x, y, width, height);
+    fInset = buffer.readScalar();
+
+    buffer.validate(SkScalarIsFinite(fInset) && SkIsValidRect(fSrcRect) &&
+                    // Negative numbers in src rect are not supported
+                    (fSrcRect.fLeft >= 0) && (fSrcRect.fTop >= 0));
+}
+#endif
 
 SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset,
                                                SkImageFilter* input)

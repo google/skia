@@ -53,6 +53,9 @@ protected:
     SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
                      uint32_t flags);
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    SkBlurDrawLooper(SkReadBuffer&);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool asABlurShadow(BlurShadowRec*) const SK_OVERRIDE;

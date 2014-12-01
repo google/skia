@@ -290,6 +290,9 @@ protected:
     SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale,
                                  SkScalar kd, SkImageFilter* input, const CropRect* cropRect,
                                  uint32_t uniqueID);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkDiffuseLightingImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
@@ -319,6 +322,9 @@ protected:
     SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks,
                                   SkScalar shininess, SkImageFilter* input, const CropRect*,
                                   uint32_t uniqueID);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkSpecularLightingImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
@@ -936,6 +942,15 @@ SkImageFilter* SkLightingImageFilter::CreateSpotLitSpecular(const SkPoint3& loca
 
 SkLightingImageFilter::~SkLightingImageFilter() {}
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkLightingImageFilter::SkLightingImageFilter(SkReadBuffer& buffer)
+  : INHERITED(1, buffer) {
+    fLight.reset(SkLight::UnflattenLight(buffer));
+    fSurfaceScale = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fSurfaceScale));
+}
+#endif
+
 void SkLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     fLight->flattenLight(buffer);
@@ -965,6 +980,15 @@ SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkSca
     fKD(kd)
 {
 }
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkReadBuffer& buffer)
+  : INHERITED(buffer)
+{
+    fKD = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fKD) && (fKD >= 0));
+}
+#endif
 
 SkFlattenable* SkDiffuseLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
@@ -1071,6 +1095,17 @@ SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkS
     fShininess(shininess)
 {
 }
+
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkReadBuffer& buffer)
+    : INHERITED(buffer)
+{
+    fKS = buffer.readScalar();
+    fShininess = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fKS) && (fKS >= 0) &&
+                    SkScalarIsFinite(fShininess));
+}
+#endif
 
 SkFlattenable* SkSpecularLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);

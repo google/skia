@@ -161,6 +161,15 @@ void SkColorCubeFilter::filterSpan(const SkPMColor src[], int count, SkPMColor d
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkColorCubeFilter::SkColorCubeFilter(SkReadBuffer& buffer)
+  : fCache(buffer.readInt()) {
+    fCubeData.reset(buffer.readByteArrayAsData());
+    buffer.validate(is_valid_3D_lut(fCubeData, fCache.cubeDimension()));
+    fUniqueID = SkNextColorCubeUniqueID();
+}
+#endif
+
 SkFlattenable* SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {
     int cubeDimension = buffer.readInt();
     SkAutoDataUnref cubeData(buffer.readByteArrayAsData());

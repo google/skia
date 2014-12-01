@@ -585,6 +585,16 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
              src.fRight + pad, src.fBottom + pad);
 }
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkReadBuffer& buffer) : SkMaskFilter(buffer) {
+    fSigma = buffer.readScalar();
+    fBlurStyle = (SkBlurStyle)buffer.readInt();
+    fBlurFlags = buffer.readUInt() & SkBlurMaskFilter::kAll_BlurFlag;
+    SkASSERT(fSigma > 0);
+    SkASSERT((unsigned)fBlurStyle <= kLastEnum_SkBlurStyle);
+}
+#endif
+
 SkFlattenable* SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     const SkScalar sigma = buffer.readScalar();
     const unsigned style = buffer.readUInt();

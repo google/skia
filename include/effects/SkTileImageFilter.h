@@ -32,6 +32,9 @@ public:
 protected:
     SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, SkImageFilter* input, uint32_t uniqueID)
         : INHERITED(1, &input, NULL, uniqueID), fSrcRect(srcRect), fDstRect(dstRect) {}
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkTileImageFilter(SkReadBuffer& buffer);
+#endif
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 

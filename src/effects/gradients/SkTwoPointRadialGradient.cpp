@@ -343,6 +343,17 @@ void SkTwoPointRadialGradient::toString(SkString* str) const {
 }
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+SkTwoPointRadialGradient::SkTwoPointRadialGradient(SkReadBuffer& buffer)
+    : INHERITED(buffer),
+      fCenter1(buffer.readPoint()),
+      fCenter2(buffer.readPoint()),
+      fRadius1(buffer.readScalar()),
+      fRadius2(buffer.readScalar()) {
+    init();
+};
+#endif
+
 SkFlattenable* SkTwoPointRadialGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
@@ -675,7 +686,7 @@ bool SkTwoPointRadialGradient::asFragmentProcessor(GrContext* context, const SkP
                                                    const SkMatrix* localMatrix, GrColor* paintColor,
                                                    GrFragmentProcessor** fp)  const {
     SkASSERT(context);
-
+    
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
@@ -701,7 +712,7 @@ bool SkTwoPointRadialGradient::asFragmentProcessor(GrContext* context, const SkP
 
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
     *fp = GrRadial2Gradient::Create(context, *this, matrix, fTileMode);
-
+    
     return true;
 }
 

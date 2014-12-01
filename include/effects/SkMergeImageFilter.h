@@ -38,6 +38,9 @@ protected:
                        const SkXfermode::Mode modes[],
                        const CropRect* cropRect,
                        uint32_t uniqueID);
+#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
+    explicit SkMergeImageFilter(SkReadBuffer& buffer);
+#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
