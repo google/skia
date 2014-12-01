@@ -17,10 +17,6 @@ public:
     SK_TO_STRING_OVERRIDE()
 
 private:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkNEONProcCoeffXfermode(SkReadBuffer& buffer);
-#endif
-
     // void* is used to avoid pulling arm_neon.h in the core and having to build
     // it with -mfpu=neon.
     void* fProcSIMD;

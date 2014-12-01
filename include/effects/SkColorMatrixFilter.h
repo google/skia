@@ -41,9 +41,6 @@ public:
 protected:
     explicit SkColorMatrixFilter(const SkColorMatrix&);
     explicit SkColorMatrixFilter(const SkScalar array[20]);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkColorMatrixFilter(SkReadBuffer& buffer);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

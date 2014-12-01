@@ -82,13 +82,6 @@ SkFlattenable* SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
     return Create(table);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkTableMaskFilter::SkTableMaskFilter(SkReadBuffer& rb) : INHERITED(rb) {
-    SkASSERT(256 == rb.getArrayCount());
-    rb.readByteArray(fTable, 256);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTableMaskFilter::MakeGammaTable(uint8_t table[256], SkScalar gamma) {

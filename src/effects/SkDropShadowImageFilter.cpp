@@ -29,24 +29,6 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
 {
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkDropShadowImageFilter::SkDropShadowImageFilter(SkReadBuffer& buffer)
- : INHERITED(1, buffer) {
-    fDx = buffer.readScalar();
-    fDy = buffer.readScalar();
-    fSigmaX = buffer.readScalar();
-    fSigmaY = buffer.readScalar();
-    fColor = buffer.readColor();
-    fShadowMode = buffer.isVersionLT(SkReadBuffer::kDropShadowMode_Version) ?
-                  kDrawShadowAndForeground_ShadowMode :
-                  static_cast<ShadowMode>(buffer.readInt());
-    buffer.validate(SkScalarIsFinite(fDx) &&
-                    SkScalarIsFinite(fDy) &&
-                    SkScalarIsFinite(fSigmaX) &&
-                    SkScalarIsFinite(fSigmaY));
-}
-#endif
-
 SkFlattenable* SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar dx = buffer.readScalar();

@@ -44,10 +44,6 @@ SkColorFilter* SkLumaColorFilter::Create() {
 
 SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkLumaColorFilter::SkLumaColorFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
-
 SkFlattenable* SkLumaColorFilter::CreateProc(SkReadBuffer&) {
     return SkNEW(SkLumaColorFilter);
 }

@@ -369,28 +369,3 @@ SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
     }
     return NULL;
 }
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer)
-        : INHERITED(buffer)
-        , fPhase(0)
-        , fInitialDashLength(0)
-        , fInitialDashIndex(0)
-        , fIntervalLength(0) {
-    fPhase = buffer.readScalar();
-    fCount = buffer.getArrayCount();
-    size_t allocSize = sizeof(SkScalar) * fCount;
-    if (buffer.validateAvailable(allocSize)) {
-        fIntervals = (SkScalar*)sk_malloc_throw(allocSize);
-        buffer.readScalarArray(fIntervals, fCount);
-    } else {
-        fIntervals = NULL;
-    }
-
-    // set the internal data members, fPhase should have been between 0 and intervalLength
-    // when written to buffer so no need to adjust it
-    SkDashPath::CalcDashParameters(fPhase, fIntervals, fCount,
-                                   &fInitialDashLength, &fInitialDashIndex, &fIntervalLength);
-}
-#endif
-

@@ -108,12 +108,3 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter
   : INHERITED(1, &input, cropRect, uniqueID) {
     fOffset.set(dx, dy);
 }
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkOffsetImageFilter::SkOffsetImageFilter(SkReadBuffer& buffer)
-  : INHERITED(1, buffer) {
-    buffer.readPoint(&fOffset);
-    buffer.validate(SkScalarIsFinite(fOffset.fX) &&
-                    SkScalarIsFinite(fOffset.fY));
-}
-#endif

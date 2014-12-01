@@ -60,14 +60,6 @@ SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
     pts_to_unit_matrix(pts, &fPtsToUnit);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkLinearGradient::SkLinearGradient(SkReadBuffer& buffer)
-    : INHERITED(buffer)
-    , fStart(buffer.readPoint())
-    , fEnd(buffer.readPoint()) {
-}
-#endif
-
 SkFlattenable* SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
@@ -568,7 +560,7 @@ bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
                                            const SkMatrix* localMatrix, GrColor* paintColor,
                                            GrFragmentProcessor** fp)  const {
     SkASSERT(context);
-    
+
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return false;
@@ -581,10 +573,10 @@ bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    
+
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
     *fp = GrLinearGradient::Create(context, *this, matrix, fTileMode);
-    
+
     return true;
 }
 

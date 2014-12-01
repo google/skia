@@ -35,9 +35,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLumaColorFilter)
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkLumaColorFilter(SkReadBuffer& buffer);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

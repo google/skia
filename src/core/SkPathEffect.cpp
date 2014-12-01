@@ -49,14 +49,6 @@ void SkPairPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fPE1);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkPairPathEffect::SkPairPathEffect(SkReadBuffer& buffer) {
-    fPE0 = buffer.readPathEffect();
-    fPE1 = buffer.readPathEffect();
-    // either of these may fail, so we have to check for nulls later on
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlattenable* SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {

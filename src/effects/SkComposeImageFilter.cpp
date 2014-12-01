@@ -40,9 +40,3 @@ SkFlattenable* SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     return SkComposeImageFilter::Create(common.getInput(0), common.getInput(1));
 }
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkComposeImageFilter::SkComposeImageFilter(SkReadBuffer& buffer)
-  : INHERITED(2, buffer) {
-}
-#endif

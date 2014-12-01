@@ -76,9 +76,6 @@ protected:
                                    SkImageFilter* input,
                                    const CropRect* cropRect,
                                    uint32_t uniqueID);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkMatrixConvolutionImageFilter(SkReadBuffer& buffer);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

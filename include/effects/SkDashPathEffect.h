@@ -55,9 +55,6 @@ public:
 
 protected:
     SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkDashPathEffect(SkReadBuffer&);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

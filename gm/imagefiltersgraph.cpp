@@ -29,11 +29,7 @@ public:
     public:
         Registrar() {
             SkFlattenable::Register("SimpleOffsetFilter",
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-                                    SimpleOffsetFilter::DeepCreateProc,
-#else
                                     SimpleOffsetFilter::CreateProc,
-#endif
                                     SimpleOffsetFilter::GetFlattenableType());
         }
     };
@@ -69,14 +65,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SimpleOffsetFilter(SkReadBuffer& buffer)
-    : SkImageFilter(1, buffer) {
-        fDX = buffer.readScalar();
-        fDY = buffer.readScalar();
-    }
-#endif
-
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fDX);

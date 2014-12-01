@@ -49,16 +49,6 @@ private:
         fEnforcePMColor = enforcePMColor;
     }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkArithmeticMode_scalar(SkReadBuffer& buffer) : INHERITED(buffer) {
-        fK[0] = buffer.readScalar();
-        fK[1] = buffer.readScalar();
-        fK[2] = buffer.readScalar();
-        fK[3] = buffer.readScalar();
-        fEnforcePMColor = buffer.readBool();
-    }
-#endif
-
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         buffer.writeScalar(fK[0]);
         buffer.writeScalar(fK[1]);

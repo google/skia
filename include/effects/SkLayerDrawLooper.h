@@ -81,14 +81,7 @@ public:
 
     SK_TO_STRING_OVERRIDE()
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    static SkFlattenable* DeepCreateProc(SkReadBuffer& buffer) {
-        return CreateProc(buffer);
-    }
-    virtual Factory getFactory() const SK_OVERRIDE { return DeepCreateProc; }
-#else
     virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; }
-#endif
     static SkFlattenable* CreateProc(SkReadBuffer& buffer);
 
 protected:

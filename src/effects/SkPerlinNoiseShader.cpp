@@ -51,11 +51,6 @@ inline SkScalar smoothCurve(SkScalar t) {
     return SkScalarMul(SkScalarSquare(t), SK_Scalar3 - 2 * t);
 }
 
-bool perlin_noise_type_is_valid(SkPerlinNoiseShader::Type type) {
-    return (SkPerlinNoiseShader::kFractalNoise_Type == type) ||
-           (SkPerlinNoiseShader::kTurbulence_Type == type);
-}
-
 } // end namespace
 
 struct SkPerlinNoiseShader::StitchData {
@@ -287,22 +282,6 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
 {
     SkASSERT(numOctaves >= 0 && numOctaves < 256);
 }
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkPerlinNoiseShader::SkPerlinNoiseShader(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fType           = (SkPerlinNoiseShader::Type) buffer.readInt();
-    fBaseFrequencyX = buffer.readScalar();
-    fBaseFrequencyY = buffer.readScalar();
-    fNumOctaves     = buffer.readInt();
-    fSeed           = buffer.readScalar();
-    fStitchTiles    = buffer.readBool();
-    fTileSize.fWidth  = buffer.readInt();
-    fTileSize.fHeight = buffer.readInt();
-    buffer.validate(perlin_noise_type_is_valid(fType) &&
-                    (fNumOctaves >= 0) && (fNumOctaves <= 255) &&
-                    (fStitchTiles != fTileSize.isEmpty()));
-}
-#endif
 
 SkPerlinNoiseShader::~SkPerlinNoiseShader() {
 }
@@ -964,7 +943,7 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
                                               const SkMatrix* externalLocalMatrix,
                                               GrColor* paintColor, GrFragmentProcessor** fp) const {
     SkASSERT(context);
-    
+
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
 
     SkMatrix localMatrix = this->getLocalMatrix();

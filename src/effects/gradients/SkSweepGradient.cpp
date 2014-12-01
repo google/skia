@@ -41,13 +41,6 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkSweepGradient::SkSweepGradient(SkReadBuffer& buffer)
-    : INHERITED(buffer),
-      fCenter(buffer.readPoint()) {
-}
-#endif
-
 SkFlattenable* SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
@@ -294,7 +287,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
 bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                           const SkMatrix* localMatrix, GrColor* paintColor,
                                           GrFragmentProcessor** effect)  const {
-    
+
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return false;
@@ -307,10 +300,10 @@ bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& pai
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    
+
     *effect = GrSweepGradient::Create(context, *this, matrix);
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
-    
+
     return true;
 }
 

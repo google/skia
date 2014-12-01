@@ -84,17 +84,6 @@ protected:
         buffer.writeUInt(fMode);
     }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkModeColorFilter(SkReadBuffer& buffer) {
-        fColor = buffer.readColor();
-        fMode = (SkXfermode::Mode)buffer.readUInt();
-        if (buffer.isValid()) {
-            this->updateCache();
-            buffer.validate(SkIsValidMode(fMode));
-        }
-    }
-#endif
-
 private:
     SkColor             fColor;
     SkXfermode::Mode    fMode;

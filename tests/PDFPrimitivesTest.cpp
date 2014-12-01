@@ -444,11 +444,6 @@ public:
         return true;
     }
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyImageFilter)
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit DummyImageFilter(SkReadBuffer& buffer) : SkImageFilter(0, NULL) {
-        fVisited = buffer.readBool();
-    }
-#endif
     bool visited() const { return fVisited; }
 
 private:

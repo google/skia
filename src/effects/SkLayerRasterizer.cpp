@@ -148,18 +148,13 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkLayerRasterizer::SkLayerRasterizer(SkReadBuffer& buffer)
-    : SkRasterizer(buffer), fLayers(ReadLayers(buffer)) {}
-#endif
-
 SkFlattenable* SkLayerRasterizer::CreateProc(SkReadBuffer& buffer) {
     return SkNEW_ARGS(SkLayerRasterizer, (ReadLayers(buffer)));
 }
 
 SkDeque* SkLayerRasterizer::ReadLayers(SkReadBuffer& buffer) {
     int count = buffer.readInt();
-    
+
     SkDeque* layers = SkNEW_ARGS(SkDeque, (sizeof(SkLayerRasterizer_Rec)));
     for (int i = 0; i < count; i++) {
         SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)layers->push_back();

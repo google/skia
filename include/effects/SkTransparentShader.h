@@ -41,10 +41,6 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE {}
 
 private:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkTransparentShader(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
-
     typedef SkShader INHERITED;
 };
 

@@ -61,9 +61,6 @@ public:
     };
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkTable_ColorFilter(SkReadBuffer& buffer);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
@@ -227,27 +224,6 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkTableColorFilter::CreateARGB(a, r, g, b);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkTable_ColorFilter::SkTable_ColorFilter(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fBitmap = NULL;
-
-    uint8_t storage[5*256];
-
-    fFlags = buffer.readInt();
-
-    size_t size = buffer.getArrayCount();
-    SkASSERT(size <= sizeof(storage));
-    buffer.validate(size <= sizeof(storage));
-    buffer.readByteArray(storage, size);
-
-    SkDEBUGCODE(size_t raw = ) SkPackBits::Unpack8(storage, size, fStorage);
-
-    SkASSERT(raw <= sizeof(fStorage));
-    SkDEBUGCODE(size_t count = gCountNibBits[fFlags & 0xF]);
-    SkASSERT(raw == count * 256);
-}
-#endif
-
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
     if (table) {
         if (NULL == fBitmap) {
@@ -312,7 +288,7 @@ private:
     GrTextureAccess         fTextureAccess;
 
     // currently not used in shader code, just to assist onComputeInvariantOutput().
-    unsigned                fFlags; 
+    unsigned                fFlags;
 
     GrTextureStripAtlas*    fAtlas;
     int                     fRow;
@@ -358,7 +334,7 @@ void GLColorTableEffect::setData(const GrGLProgramDataManager& pdm, const GrProc
         rgbaYValues[3] = 0.125;
         rgbaYValues[0] = 0.375;
         rgbaYValues[1] = 0.625;
-        rgbaYValues[2] = 0.875;        
+        rgbaYValues[2] = 0.875;
     }
     pdm.set4fv(fRGBAYValuesUni, 1, rgbaYValues);
 }

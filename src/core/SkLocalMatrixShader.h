@@ -33,7 +33,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    
+
     virtual bool asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                      const SkMatrix* localMatrix, GrColor* grColor,
                                      GrFragmentProcessor** fp) const SK_OVERRIDE {
@@ -43,17 +43,17 @@ public:
         }
         return fProxyShader->asFragmentProcessor(context, paint, &tmp, grColor, fp);
     }
-    
-#else 
-    
+
+#else
+
     virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
                                      GrFragmentProcessor**) const SK_OVERRIDE {
         SkDEBUGFAIL("Should not call in GPU-less build");
         return false;
     }
-    
+
 #endif
-    
+
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {
         if (localMatrix) {
             *localMatrix = this->getLocalMatrix();
@@ -65,9 +65,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixShader)
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkLocalMatrixShader(SkReadBuffer&);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
 
