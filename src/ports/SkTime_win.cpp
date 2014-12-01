@@ -17,7 +17,7 @@ void SkTime::GetDateTime(DateTime* dt)
         GetSystemTime(&st);
 
         dt->fYear       = st.wYear;
-        dt->fMonth      = SkToU8(st.wMonth + 1);
+        dt->fMonth      = SkToU8(st.wMonth);
         dt->fDayOfWeek  = SkToU8(st.wDayOfWeek);
         dt->fDay        = SkToU8(st.wDay);
         dt->fHour       = SkToU8(st.wHour);
