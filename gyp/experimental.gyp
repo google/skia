@@ -73,6 +73,41 @@
           ],
         }],
       ],
-    }
+    },
+    {
+      'target_name': 'multipage_pdf_profiler',
+      'type': 'executable',
+      'sources': [
+        '../experimental/tools/multipage_pdf_profiler.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'pdf.gyp:pdf',
+        'tools.gyp:proc_stats',
+        'tools.gyp:sk_tool_utils',
+      ],
+    },
+    {
+      'target_name': 'gmtoskp',
+      'type': 'executable',
+      'sources': [
+        '../experimental/tools/gmtoskp.cpp',
+        '../gm/gm.cpp',
+      ],
+      'include_dirs': [
+        '../tools',
+        '../src/effects',
+        '../src/core',
+        '../src/gpu',
+        '../third_party/etc1',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'tools.gyp:resources',
+        'tools.gyp:sk_tool_utils',
+        'gputest.gyp:skgputest',
+      ],
+      'includes': [ 'gmslides.gypi', ],
+    },
   ],
 }
