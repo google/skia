@@ -195,22 +195,6 @@ static unsigned CGRGBPixel_getAlpha(CGRGBPixel pixel) {
     return pixel & 0xFF;
 }
 
-// The calls to support subpixel are present in 10.5, but are not included in
-// the 10.5 SDK. The needed calls have been extracted from the 10.6 SDK and are
-// included below. To verify that CGContextSetShouldSubpixelQuantizeFonts, for
-// instance, is present in the 10.5 CoreGraphics libary, use:
-//   cd /Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/
-//   cd ApplicationServices.framework/Frameworks/CoreGraphics.framework/
-//   nm CoreGraphics | grep CGContextSetShouldSubpixelQuantizeFonts
-
-#if !defined(MAC_OS_X_VERSION_10_6) || (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6)
-CG_EXTERN void CGContextSetAllowsFontSmoothing(CGContextRef context, bool value);
-CG_EXTERN void CGContextSetAllowsFontSubpixelPositioning(CGContextRef context, bool value);
-CG_EXTERN void CGContextSetShouldSubpixelPositionFonts(CGContextRef context, bool value);
-CG_EXTERN void CGContextSetAllowsFontSubpixelQuantization(CGContextRef context, bool value);
-CG_EXTERN void CGContextSetShouldSubpixelQuantizeFonts(CGContextRef context, bool value);
-#endif
-
 static const char FONT_DEFAULT_NAME[] = "Lucida Sans";
 
 // See Source/WebKit/chromium/base/mac/mac_util.mm DarwinMajorVersionInternal for original source.
