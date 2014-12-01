@@ -87,7 +87,7 @@ EGLGLContext::EGLGLContext(GrGLStandard forcedGpuAPI)
             continue;
         }
 
-        EGLint numConfigs;
+        EGLint numConfigs = 0;
         const EGLint configAttribs[] = {
             EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
             EGL_RENDERABLE_TYPE, kAPIs[api].fRenderableTypeBit,
@@ -101,6 +101,11 @@ EGLGLContext::EGLGLContext(GrGLStandard forcedGpuAPI)
         EGLConfig surfaceConfig;
         if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
             SkDebugf("eglChooseConfig failed. EGL Error: 0x%08x\n", eglGetError());
+            continue;
+        }
+
+        if (0 == numConfigs) {
+            SkDebugf("No suitable EGL config found.\n");
             continue;
         }
 
