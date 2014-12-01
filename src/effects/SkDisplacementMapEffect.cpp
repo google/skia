@@ -192,19 +192,6 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSel
 SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkDisplacementMapEffect::SkDisplacementMapEffect(SkReadBuffer& buffer)
-  : INHERITED(2, buffer)
-{
-    fXChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();
-    fYChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();
-    fScale            = buffer.readScalar();
-    buffer.validate(channel_selector_type_is_valid(fXChannelSelector) &&
-                    channel_selector_type_is_valid(fYChannelSelector) &&
-                    SkScalarIsFinite(fScale));
-}
-#endif
-
 SkFlattenable* SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     ChannelSelectorType xsel = (ChannelSelectorType)buffer.readInt();

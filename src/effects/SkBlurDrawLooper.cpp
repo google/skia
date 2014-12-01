@@ -62,19 +62,6 @@ void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
     this->initEffects();
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkBlurDrawLooper::SkBlurDrawLooper(SkReadBuffer& buffer) : INHERITED(buffer) {
-
-    fSigma = buffer.readScalar();
-    fDx = buffer.readScalar();
-    fDy = buffer.readScalar();
-    fBlurColor = buffer.readColor();
-    fBlurFlags = buffer.readUInt() & kAll_BlurFlag;
-
-    this->initEffects();
-}
-#endif
-
 SkFlattenable* SkBlurDrawLooper::CreateProc(SkReadBuffer& buffer) {
     const SkColor color = buffer.readColor();
     const SkScalar sigma = buffer.readScalar();

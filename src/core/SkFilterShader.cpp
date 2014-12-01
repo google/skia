@@ -21,13 +21,6 @@ SkFilterShader::SkFilterShader(SkShader* shader, SkColorFilter* filter) {
     filter->ref();
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkFilterShader::SkFilterShader(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fShader = buffer.readShader();
-    fFilter = buffer.readColorFilter();
-}
-#endif
-
 SkFilterShader::~SkFilterShader() {
     fFilter->unref();
     fShader->unref();

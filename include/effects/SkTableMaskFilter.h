@@ -55,9 +55,6 @@ public:
 protected:
     SkTableMaskFilter();
     explicit SkTableMaskFilter(const uint8_t table[256]);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkTableMaskFilter(SkReadBuffer& rb);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

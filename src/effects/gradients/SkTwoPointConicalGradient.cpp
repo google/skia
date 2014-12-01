@@ -343,19 +343,6 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
     return kConical_GradientType;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkTwoPointConicalGradient::SkTwoPointConicalGradient(
-    SkReadBuffer& buffer)
-    : INHERITED(buffer)
-    , fCenter1(buffer.readPoint())
-    , fCenter2(buffer.readPoint())
-    , fRadius1(buffer.readScalar())
-    , fRadius2(buffer.readScalar())
-    , fFlippedGrad(buffer.readBool()) {
-    this->init();
-}
-#endif
-
 SkFlattenable* SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {

@@ -45,9 +45,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkFilterShader)
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkFilterShader(SkReadBuffer&);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 

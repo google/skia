@@ -23,12 +23,6 @@ SkXfermode* SkLerpXfermode::Create(SkScalar scale) {
 
 SkLerpXfermode::SkLerpXfermode(unsigned scale256) : fScale256(scale256) {}
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkLerpXfermode::SkLerpXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fScale256 = buffer.readUInt();
-}
-#endif
-
 void SkLerpXfermode::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fScale256);
 }

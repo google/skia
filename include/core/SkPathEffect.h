@@ -135,9 +135,6 @@ public:
 
 protected:
     SkPathEffect() {}
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
 
 private:
     // illegal
@@ -159,9 +156,6 @@ public:
 
 protected:
     SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkPairPathEffect(SkReadBuffer&);
-#endif
 
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
@@ -197,10 +191,6 @@ protected:
     SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner)
         : INHERITED(outer, inner) {}
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkComposePathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
-
 private:
     // illegal
     SkComposePathEffect(const SkComposePathEffect&);
@@ -233,10 +223,6 @@ public:
 protected:
     SkSumPathEffect(SkPathEffect* first, SkPathEffect* second)
         : INHERITED(first, second) {}
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkSumPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
 
 private:
     // illegal

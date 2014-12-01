@@ -21,14 +21,6 @@ SkAvoidXfermode::SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode) {
     fMode = mode;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkAvoidXfermode::SkAvoidXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fOpColor = buffer.readColor();
-    fDistMul = buffer.readUInt();
-    fMode = (Mode)buffer.readUInt();
-}
-#endif
-
 SkFlattenable* SkAvoidXfermode::CreateProc(SkReadBuffer& buffer) {
     const SkColor color = buffer.readColor();
     const unsigned tolerance = buffer.readUInt();

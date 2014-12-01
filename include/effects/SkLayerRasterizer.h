@@ -69,9 +69,6 @@ public:
 protected:
     SkLayerRasterizer();
     SkLayerRasterizer(SkDeque* layers);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkLayerRasterizer(SkReadBuffer&);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkRasterizer

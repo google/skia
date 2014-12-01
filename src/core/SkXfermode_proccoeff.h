@@ -22,7 +22,7 @@ public:
         fSrcCoeff = rec.fSC;
         fDstCoeff = rec.fDC;
     }
-    
+
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
@@ -43,10 +43,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkProcCoeffXfermode(SkReadBuffer& buffer);
-#endif
-
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
     Mode getMode() const { return fMode; }

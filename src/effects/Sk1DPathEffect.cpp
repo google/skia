@@ -147,22 +147,6 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkPath1DPathEffect::SkPath1DPathEffect(SkReadBuffer& buffer) {
-    fAdvance = buffer.readScalar();
-    if (fAdvance > 0) {
-        buffer.readPath(&fPath);
-        fInitialOffset = buffer.readScalar();
-        fStyle = (Style) buffer.readUInt();
-    } else {
-        SkDEBUGF(("SkPath1DPathEffect can't use advance <= 0\n"));
-        // Make Coverity happy.
-        fInitialOffset = 0;
-        fStyle = kStyleCount;
-    }
-}
-#endif
-
 SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) const {
     return fInitialOffset;
 }

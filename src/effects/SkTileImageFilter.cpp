@@ -93,15 +93,6 @@ bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkTileImageFilter::SkTileImageFilter(SkReadBuffer& buffer)
-  : INHERITED(1, buffer) {
-    buffer.readRect(&fSrcRect);
-    buffer.readRect(&fDstRect);
-    buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
-}
-#endif
-
 SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src, dst;

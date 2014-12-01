@@ -34,9 +34,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRectShaderImageFilter)
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkRectShaderImageFilter(SkReadBuffer& buffer);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

@@ -135,9 +135,6 @@ public:
 
 protected:
     SkColorFilter() {}
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkColorFilter(SkReadBuffer& rb) : INHERITED(rb) {}
-#endif
 
 private:
     typedef SkFlattenable INHERITED;

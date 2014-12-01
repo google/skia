@@ -26,15 +26,6 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, co
   , fSrcRect(srcRect)
   , fDstRect(dstRect) {}
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer) : INHERITED(0, buffer) {
-    buffer.readBitmap(&fBitmap);
-    buffer.readRect(&fSrcRect);
-    buffer.readRect(&fDstRect);
-    buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
-}
-#endif
-
 SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
     buffer.readRect(&src);

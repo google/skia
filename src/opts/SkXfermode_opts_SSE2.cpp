@@ -641,13 +641,6 @@ typedef __m128i (*SkXfermodeProcSIMD)(const __m128i& src, const __m128i& dst);
 
 extern SkXfermodeProcSIMD gSSE2XfermodeProcs[];
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkSSE2ProcCoeffXfermode::SkSSE2ProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fProcSIMD = reinterpret_cast<void*>(gSSE2XfermodeProcs[this->getMode()]);
-    buffer.validate(fProcSIMD != NULL);
-}
-#endif
-
 void SkSSE2ProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
                                      int count, const SkAlpha aa[]) const {
     SkASSERT(dst && src && count >= 0);

@@ -73,13 +73,6 @@ void Sk2DPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fMatrix);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-Sk2DPathEffect::Sk2DPathEffect(SkReadBuffer& buffer) {
-    buffer.readMatrix(&fMatrix);
-    fMatrixIsInvertible = fMatrix.invert(&fInverse);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkLine2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
@@ -104,12 +97,6 @@ void SkLine2DPathEffect::nextSpan(int u, int v, int ucount, SkPath* dst) const {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkLine2DPathEffect::SkLine2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fWidth = buffer.readScalar();
-}
-#endif
-
 SkFlattenable* SkLine2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
@@ -127,12 +114,6 @@ void SkLine2DPathEffect::flatten(SkWriteBuffer &buffer) const {
 SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)
     : INHERITED(m), fPath(p) {
 }
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkPath2DPathEffect::SkPath2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
-    buffer.readPath(&fPath);
-}
-#endif
 
 SkFlattenable* SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;

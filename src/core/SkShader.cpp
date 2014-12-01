@@ -46,17 +46,6 @@ SkShader::SkShader(const SkMatrix* localMatrix) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkShader::SkShader(SkReadBuffer& buffer) : INHERITED(buffer) {
-    inc_shader_counter();
-    if (buffer.readBool()) {
-        buffer.readMatrix(&fLocalMatrix);
-    } else {
-        fLocalMatrix.reset();
-    }
-}
-#endif
-
 SkShader::~SkShader() {
     dec_shader_counter();
 }
@@ -270,12 +259,6 @@ SkColorShader::SkColorShader(SkColor c)
 bool SkColorShader::isOpaque() const {
     return SkColorGetA(fColor) == 255;
 }
-
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkColorShader::SkColorShader(SkReadBuffer& b) : INHERITED(b) {
-    fColor = b.readColor();
-}
-#endif
 
 SkFlattenable* SkColorShader::CreateProc(SkReadBuffer& buffer) {
     return SkNEW_ARGS(SkColorShader, (buffer.readColor()));

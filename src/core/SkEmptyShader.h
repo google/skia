@@ -30,10 +30,6 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkEmptyShader(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
-
     virtual SkShader::Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE {
         return NULL;
     }

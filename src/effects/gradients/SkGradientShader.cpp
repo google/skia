@@ -199,56 +199,6 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
     this->initCommon();
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-static SkShader::TileMode unpack_mode(uint32_t packed) {
-    return (SkShader::TileMode)(packed & 0xF);
-}
-
-static uint32_t unpack_flags(uint32_t packed) {
-    return packed >> 4;
-}
-
-SkGradientShaderBase::SkGradientShaderBase(SkReadBuffer& buffer) : INHERITED(buffer) {
-    int colorCount = fColorCount = buffer.getArrayCount();
-    if (colorCount > kColorStorageCount) {
-        size_t allocSize = (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec)) * colorCount;
-        if (buffer.validateAvailable(allocSize)) {
-            fOrigColors = reinterpret_cast<SkColor*>(sk_malloc_throw(allocSize));
-        } else {
-            fOrigColors =  NULL;
-            colorCount = fColorCount = 0;
-        }
-    } else {
-        fOrigColors = fStorage;
-    }
-    buffer.readColorArray(fOrigColors, colorCount);
-
-    fOrigPos = (SkScalar*)(fOrigColors + colorCount);
-
-    {
-        uint32_t packed = buffer.readUInt();
-        fGradFlags = SkToU8(unpack_flags(packed));
-        fTileMode = unpack_mode(packed);
-    }
-    fTileProc = gTileProcs[fTileMode];
-    fRecs = (Rec*)(fOrigPos + colorCount);
-    if (colorCount > 2) {
-        Rec* recs = fRecs;
-        recs[0].fPos = 0;
-        fOrigPos[0] = 0;
-        for (int i = 1; i < colorCount; i++) {
-            recs[i].fPos = buffer.readInt();
-            recs[i].fScale = buffer.readUInt();
-            fOrigPos[i] = SkFixedToScalar(recs[i].fPos);
-        }
-    } else {
-        fOrigPos = NULL;
-    }
-    buffer.readMatrix(&fPtsToUnit);
-    this->initCommon();
-}
-#endif
-
 SkGradientShaderBase::~SkGradientShaderBase() {
     if (fOrigColors != fStorage) {
         sk_free(fOrigColors);

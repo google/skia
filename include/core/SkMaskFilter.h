@@ -153,10 +153,6 @@ public:
 
 protected:
     SkMaskFilter() {}
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    // empty for now, but lets get our subclass to remember to init us for the future
-    SkMaskFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
-#endif
 
     enum FilterReturn {
         kFalse_FilterReturn,

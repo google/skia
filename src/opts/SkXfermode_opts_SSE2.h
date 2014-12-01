@@ -25,10 +25,6 @@ public:
     SK_TO_STRING_OVERRIDE()
 
 private:
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    SkSSE2ProcCoeffXfermode(SkReadBuffer& buffer);
-#endif
-
     void* fProcSIMD;
     typedef SkProcCoeffXfermode INHERITED;
 };

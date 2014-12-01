@@ -64,9 +64,6 @@ public:
 
 protected:
     SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-    explicit SkPath1DPathEffect(SkReadBuffer& buffer);
-#endif
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // overrides from Sk1DPathEffect

@@ -84,21 +84,6 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
     : INHERITED(1, &input, cropRect, uniqueID), fColorFilter(SkRef(cf)) {
 }
 
-#ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
-SkColorFilterImageFilter::SkColorFilterImageFilter(SkReadBuffer& buffer) : INHERITED(1, buffer) {
-    fColorFilter = buffer.readColorFilter();
-    // we aren't prepared for this to be NULL, and it can't ever be when we're NOT supporting
-    // SK_SUPPORT_LEGACY_DEEPFLATTENING, as we always go through a factory which can detect
-    // NULL. However, since here we're in the legacy code, we assign a dummy filter so we
-    // don't crash with a null-ptr.
-    if (NULL == fColorFilter) {
-        // colormatrix identity is effectively a no-op
-        fColorFilter = SkColorMatrixFilter::Create(SkColorMatrix());
-        SkASSERT(fColorFilter);
-    }
-}
-#endif
-
 SkFlattenable* SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkAutoTUnref<SkColorFilter> cf(buffer.readColorFilter());
