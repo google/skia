@@ -114,3 +114,16 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     stroker.strokePath(src, dst);
     return true;
 }
+
+void SkStrokeRec::applyToPaint(SkPaint* paint) const {
+    if (fWidth < 0) {  // fill
+        paint->setStyle(SkPaint::kFill_Style);
+        return;
+    }
+
+    paint->setStyle(fStrokeAndFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
+    paint->setStrokeWidth(fWidth);
+    paint->setStrokeMiter(fMiterLimit);
+    paint->setStrokeCap(fCap);
+    paint->setStrokeJoin(fJoin);
+}

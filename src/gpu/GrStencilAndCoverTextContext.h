@@ -57,11 +57,13 @@ private:
     float                           fTextInverseRatio;
     SkGlyphCache*                   fGlyphCache;
     GrPathRange*                    fGlyphs;
-    uint16_t                        fIndexBuffer[kGlyphBufferSize];
-    float                           fTransformBuffer[2 * kGlyphBufferSize];
-    int                             fPendingGlyphCount;
+    SkStrokeRec                     fStroke;
+    uint16_t                        fGlyphIndices[kGlyphBufferSize];
+    SkPoint                         fGlyphPositions[kGlyphBufferSize];
+    int                             fQueuedGlyphCount;
+    int                             fFallbackGlyphsIdx;
     SkMatrix                        fContextInitialMatrix;
-    bool                            fNeedsDeviceSpaceGlyphs;
+    bool                            fUsingDeviceSpaceGlyphs;
 
     GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
 
@@ -76,7 +78,8 @@ private:
                                const SkPoint& offset) SK_OVERRIDE;
 
     void init(const GrPaint&, const SkPaint&, size_t textByteLength, RenderMode);
-    void appendGlyph(uint16_t glyphID, float x, float y);
+    bool mapToFallbackContext(GrContext::AutoMatrix&, SkMatrix* inverse);
+    void appendGlyph(const SkGlyph&, const SkPoint&);
     void flush();
     void finish();
 

@@ -85,6 +85,11 @@ public:
      */
     bool applyToPath(SkPath* dst, const SkPath& src) const;
 
+    /**
+     *  Apply these stroke parameters to a paint.
+     */
+    void applyToPaint(SkPaint* paint) const;
+
     bool operator==(const SkStrokeRec& other) const {
             return fWidth == other.fWidth &&
                    fMiterLimit == other.fMiterLimit &&
