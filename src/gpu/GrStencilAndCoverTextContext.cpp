@@ -260,7 +260,8 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
         m.postScale(1, -1);
         fPaint.localCoordChangeInverse(m);
 
-        fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, &fContextInitialMatrix, false);
+        fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, &fContextInitialMatrix,
+                                           true /*ignoreGamma*/);
         fGlyphs = get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
                                 &fGlyphCache->getDescriptor(), fStroke);
     } else {
@@ -329,7 +330,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
         fPaint.localCoordChange(textMatrix);
         fContext->concatMatrix(textMatrix);
 
-        fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, NULL, false);
+        fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, NULL, true /*ignoreGamma*/);
         fGlyphs = canUseRawPaths ?
                       get_gr_glyphs(fContext, fSkPaint.getTypeface(), NULL, fStroke) :
                       get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
