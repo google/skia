@@ -102,7 +102,7 @@ public:
     class DescriptorScope : public Descriptor {
     public:
         DescriptorScope() {}
-        
+
         bool unflatten(SkReadBuffer&);
 
         // fColors and fPos always point into local memory, so they can be safely mutated
@@ -249,11 +249,6 @@ protected:
     static void FlipGradientColors(SkColor* colorDst, Rec* recDst,
                                    SkColor* colorSrc, Rec* recSrc,
                                    int count);
-
-    // V23_COMPATIBILITY_CODE
-    // Used for 2-pt conical gradients since we sort start/end cirlces by radius
-    // Assumes space has already been allocated for fOrigColors
-    void flipGradientColors();
 
 private:
     enum {

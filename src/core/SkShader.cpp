@@ -273,15 +273,6 @@ bool SkColorShader::isOpaque() const {
 
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkColorShader::SkColorShader(SkReadBuffer& b) : INHERITED(b) {
-    // V25_COMPATIBILITY_CODE We had a boolean to make the color shader inherit the paint's
-    // color. We don't support that any more.
-    if (b.isVersionLT(SkReadBuffer::kColorShaderNoBool_Version)) {
-        if (b.readBool()) {
-            SkDEBUGFAIL("We shouldn't have pictures that recorded the inherited case.");
-            fColor = SK_ColorWHITE;
-            return;
-        }
-    }
     fColor = b.readColor();
 }
 #endif

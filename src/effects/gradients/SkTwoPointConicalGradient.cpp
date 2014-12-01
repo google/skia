@@ -346,27 +346,14 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
     SkReadBuffer& buffer)
-    : INHERITED(buffer),
-    fCenter1(buffer.readPoint()),
-    fCenter2(buffer.readPoint()),
-    fRadius1(buffer.readScalar()),
-    fRadius2(buffer.readScalar()) {
-    if (buffer.isVersionLT(SkReadBuffer::kGradientFlippedFlag_Version)) {
-        // V23_COMPATIBILITY_CODE
-        // Sort gradient by radius size for old pictures
-        if (fRadius2 < fRadius1) {
-            SkTSwap(fCenter1, fCenter2);
-            SkTSwap(fRadius1, fRadius2);
-            this->flipGradientColors();
-            fFlippedGrad = true;
-        } else {
-            fFlippedGrad = false;
-        }
-    } else {
-        fFlippedGrad = buffer.readBool();
-    }
+    : INHERITED(buffer)
+    , fCenter1(buffer.readPoint())
+    , fCenter2(buffer.readPoint())
+    , fRadius1(buffer.readScalar())
+    , fRadius2(buffer.readScalar())
+    , fFlippedGrad(buffer.readBool()) {
     this->init();
-};
+}
 #endif
 
 SkFlattenable* SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {

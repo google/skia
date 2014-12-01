@@ -321,17 +321,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             break;
         case SK_PICT_FACTORY_TAG: {
             SkASSERT(!haveBuffer);
-        // Remove this code when v21 and below are no longer supported. At the
-        // same time add a new 'count' variable and use it rather then reusing 'size'.
-#ifndef DISABLE_V21_COMPATIBILITY_CODE
-            if (fInfo.fVersion >= 22) {
-                // in v22 this tag's size represents the size of the chunk in bytes
-                // and the number of factory strings is written out separately
-#endif
-                size = stream->readU32();
-#ifndef DISABLE_V21_COMPATIBILITY_CODE
-            }
-#endif
+            size = stream->readU32();
             fFactoryPlayback = SkNEW_ARGS(SkFactoryPlayback, (size));
             for (size_t i = 0; i < size; i++) {
                 SkString str;

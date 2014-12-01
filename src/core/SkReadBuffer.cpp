@@ -265,17 +265,8 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
             // larger deserialize.
             bitmap->setInfo(SkImageInfo::MakeUnknown(width, height));
             return true;
-        } else {
-            // A size of zero means the SkBitmap was simply flattened.
-            if (this->isVersionLT(kNoMoreBitmapFlatten_Version)) {
-                SkBitmap tmp;
-                tmp.legacyUnflatten(*this);
-                // just throw this guy away
-            } else {
-                if (SkBitmap::ReadRawPixels(this, bitmap)) {
-                    return true;
-                }
-            }
+        } else if (SkBitmap::ReadRawPixels(this, bitmap)) {
+            return true;
         }
     }
     // Could not read the SkBitmap. Use a placeholder bitmap.

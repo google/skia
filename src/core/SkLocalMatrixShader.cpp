@@ -9,9 +9,6 @@
 
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkLocalMatrixShader::SkLocalMatrixShader(SkReadBuffer& buffer) : INHERITED(buffer) {
-    if (buffer.isVersionLT(SkReadBuffer::kSimplifyLocalMatrix_Version)) {
-        buffer.readMatrix(&(INHERITED::fLocalMatrix));
-    }
     fProxyShader.reset(buffer.readShader());
     if (NULL == fProxyShader.get()) {
         sk_throw();

@@ -251,7 +251,7 @@ private:
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
-    static const uint32_t MIN_PICTURE_VERSION = 19;
+    static const uint32_t MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
     static const uint32_t CURRENT_PICTURE_VERSION = 37;
 
     void createHeader(SkPictInfo* info) const;

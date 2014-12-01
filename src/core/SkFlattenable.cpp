@@ -13,7 +13,7 @@
 
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 bool SkFlattenable::NeedsDeepUnflatten(const SkReadBuffer& buffer) {
-    return buffer.isVersionLT(SkReadBuffer::kFlattenCreateProc_Version);
+    return false;  // TODO: looks like all this can go away too now?
 }
 #endif
 

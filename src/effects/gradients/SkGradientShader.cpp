@@ -209,11 +209,6 @@ static uint32_t unpack_flags(uint32_t packed) {
 }
 
 SkGradientShaderBase::SkGradientShaderBase(SkReadBuffer& buffer) : INHERITED(buffer) {
-    if (buffer.isVersionLT(SkReadBuffer::kNoUnitMappers_Version)) {
-        // skip the old SkUnitMapper slot
-        buffer.skipFlattenable();
-    }
-
     int colorCount = fColorCount = buffer.getArrayCount();
     if (colorCount > kColorStorageCount) {
         size_t allocSize = (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec)) * colorCount;
@@ -316,10 +311,6 @@ void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
         memcpy(recDst, recsTemp.get(), count * sizeof(Rec));
     }
     memcpy(colorDst, colorsTemp.get(), count * sizeof(SkColor));
-}
-
-void SkGradientShaderBase::flipGradientColors() {
-    FlipGradientColors(fOrigColors, fRecs, fOrigColors, fRecs, fColorCount);
 }
 
 bool SkGradientShaderBase::isOpaque() const {

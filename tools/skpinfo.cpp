@@ -59,8 +59,8 @@ int tool_main(int argc, char** argv) {
         SkDebugf("Version: %d\n", info.fVersion);
     }
     if (FLAGS_cullRect && !FLAGS_quiet) {
-        SkDebugf("Cull Rect: %f,%f,%f,%f\n", 
-                 info.fCullRect.fLeft, info.fCullRect.fTop, 
+        SkDebugf("Cull Rect: %f,%f,%f,%f\n",
+                 info.fCullRect.fLeft, info.fCullRect.fTop,
                  info.fCullRect.fRight, info.fCullRect.fBottom);
     }
     if (FLAGS_flags && !FLAGS_quiet) {
@@ -106,15 +106,6 @@ int tool_main(int argc, char** argv) {
             if (FLAGS_tags && !FLAGS_quiet) {
                 SkDebugf("SK_PICT_FACTORY_TAG %d\n", chunkSize);
             }
-            // Remove this code when v21 and below are no longer supported
-#ifndef DISABLE_V21_COMPATIBILITY_CODE
-            if (info.fVersion < 22) {
-                if (!FLAGS_quiet) {
-                    SkDebugf("Exiting early due to format limitations\n");
-                }
-                return kSuccess;       // TODO: need to store size in bytes
-            }
-#endif
             break;
         case SK_PICT_TYPEFACE_TAG:
             if (FLAGS_tags && !FLAGS_quiet) {

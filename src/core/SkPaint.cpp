@@ -1799,11 +1799,10 @@ static uint32_t pack_4(unsigned a, unsigned b, unsigned c, unsigned d) {
 #endif
 
 enum FlatFlags {
-    kHasTypeface_FlatFlag                      = 0x01,
-    kHasEffects_FlatFlag                       = 0x02,
-    kHasNonDefaultPaintOptionsAndroid_FlatFlag = 0x04,
+    kHasTypeface_FlatFlag = 0x1,
+    kHasEffects_FlatFlag  = 0x2,
 
-    kFlatFlagMask = 0x7,
+    kFlatFlagMask         = 0x3,
 };
 
 enum BitsPerField {
@@ -1836,37 +1835,6 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     paint->setHinting((SkPaint::Hinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
     paint->setTextAlign((SkPaint::Align)((packed >> 12) & BPF_Mask(kAlign_BPF)));
     paint->setFilterLevel((SkPaint::FilterLevel)((packed >> 10) & BPF_Mask(kFilter_BPF)));
-    return (FlatFlags)(packed & kFlatFlagMask);
-}
-
-// V22_COMPATIBILITY_CODE
-static FlatFlags unpack_paint_flags_v22(SkPaint* paint, uint32_t packed) {
-    enum {
-        kFilterBitmap_Flag    = 0x02,
-        kHighQualityFilterBitmap_Flag = 0x4000,
-
-        kAll_Flags = kFilterBitmap_Flag | kHighQualityFilterBitmap_Flag
-    };
-
-    // previously flags:16, textAlign:8, flatFlags:8
-    // now flags:16, hinting:4, textAlign:4, flatFlags:8
-    unsigned flags = packed >> 16;
-    int filter = 0;
-    if (flags & kFilterBitmap_Flag) {
-        filter |= 1;
-    }
-    if (flags & kHighQualityFilterBitmap_Flag) {
-        filter |= 2;
-    }
-    paint->setFilterLevel((SkPaint::FilterLevel)filter);
-    flags &= ~kAll_Flags;   // remove these (now dead) bit flags
-
-    paint->setFlags(flags);
-
-    // hinting added later. 0 in this nibble means use the default.
-    uint32_t hinting = (packed >> 12) & 0xF;
-    paint->setHinting(0 == hinting ? SkPaint::kNormal_Hinting : static_cast<SkPaint::Hinting>(hinting-1));
-    paint->setTextAlign(static_cast<SkPaint::Align>((packed >> 8) & 0xF));
     return (FlatFlags)(packed & kFlatFlagMask);
 }
 
@@ -1948,12 +1916,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     this->setStrokeMiter(read_scalar(pod));
     this->setColor(*pod++);
 
-    unsigned flatFlags = 0;
-    if (buffer.isVersionLT(SkReadBuffer::kFilterLevelIsEnum_Version)) {
-        flatFlags = unpack_paint_flags_v22(this, *pod++);
-    } else {
-        flatFlags = unpack_paint_flags(this, *pod++);
-    }
+    unsigned flatFlags = unpack_paint_flags(this, *pod++);
 
     uint32_t tmp = *pod++;
     this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
@@ -1989,14 +1952,6 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setRasterizer(NULL);
         this->setLooper(NULL);
         this->setImageFilter(NULL);
-    }
-
-    if (buffer.isVersionLT(SkReadBuffer::kRemoveAndroidPaintOpts_Version) &&
-            flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
-        SkString tag;
-        buffer.readUInt();
-        buffer.readString(&tag);
-        buffer.readBool();
     }
 }
 

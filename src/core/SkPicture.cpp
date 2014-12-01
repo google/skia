@@ -356,22 +356,10 @@ bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     }
 
     info.fVersion = stream->readU32();
-
-#ifndef V35_COMPATIBILITY_CODE
-    if (info.fVersion < 35) {
-        info.fCullRect.fLeft = 0;
-        info.fCullRect.fTop = 0;
-        info.fCullRect.fRight = SkIntToScalar(stream->readU32());
-        info.fCullRect.fBottom = SkIntToScalar(stream->readU32());
-    } else {
-#endif
-        info.fCullRect.fLeft = stream->readScalar();
-        info.fCullRect.fTop = stream->readScalar();
-        info.fCullRect.fRight = stream->readScalar();
-        info.fCullRect.fBottom = stream->readScalar();
-#ifndef V35_COMPATIBILITY_CODE
-    }
-#endif
+    info.fCullRect.fLeft = stream->readScalar();
+    info.fCullRect.fTop = stream->readScalar();
+    info.fCullRect.fRight = stream->readScalar();
+    info.fCullRect.fBottom = stream->readScalar();
 
     info.fFlags = stream->readU32();
 
@@ -395,20 +383,7 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo
     }
 
     info.fVersion = buffer->readUInt();
-
-#ifndef V35_COMPATIBILITY_CODE
-    if (info.fVersion < 35) {
-        info.fCullRect.fLeft = 0;
-        info.fCullRect.fTop = 0;
-        info.fCullRect.fRight = SkIntToScalar(buffer->readUInt());
-        info.fCullRect.fBottom = SkIntToScalar(buffer->readUInt());
-    } else {
-#endif
-        buffer->readRect(&info.fCullRect);
-#ifndef V35_COMPATIBILITY_CODE
-    }
-#endif
-
+    buffer->readRect(&info.fCullRect);
     info.fFlags = buffer->readUInt();
 
     if (!IsValidPictInfo(info)) {

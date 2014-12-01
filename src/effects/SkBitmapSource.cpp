@@ -28,11 +28,7 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, co
 
 #ifdef SK_SUPPORT_LEGACY_DEEPFLATTENING
 SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer) : INHERITED(0, buffer) {
-    if (buffer.isVersionLT(SkReadBuffer::kNoMoreBitmapFlatten_Version)) {
-        fBitmap.legacyUnflatten(buffer);
-    } else {
-        buffer.readBitmap(&fBitmap);
-    }
+    buffer.readBitmap(&fBitmap);
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
     buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
