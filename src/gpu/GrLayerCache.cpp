@@ -226,6 +226,11 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
                 break;  // We weren't able to purge any plots
             }
         }
+
+        if (pictInfo->fPlotUsage.isEmpty()) {
+            fPictureHash.remove(pictInfo->fPictureID);
+            SkDELETE(pictInfo);
+        }
     }
 
     return false;
