@@ -57,5 +57,7 @@ dashcubics
 #mtklein
 verylargebitmap
 
-
+#robertphillips
+multipicturedraw_sierpinski_simple
+multipicturedraw_sierpinski_tiled
 

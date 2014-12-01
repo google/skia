@@ -13,7 +13,6 @@
 #ifdef SK_DEBUG
 void GrCachedLayer::validate(const GrTexture* backingTexture) const {
     SkASSERT(SK_InvalidGenID != fKey.pictureID());
-    SkASSERT(fKey.start() >= 0);
 
     if (fTexture) {
         // If the layer is in some texture then it must occupy some rectangle
@@ -125,32 +124,35 @@ void GrLayerCache::freeAll() {
 GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
                                          int start, int stop,
                                          const SkIRect& bounds,
-                                         const SkMatrix& ctm,
+                                         const SkMatrix& initialMat,
+                                         const int* key,
+                                         int keySize,
                                          const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
 
-    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, bounds, ctm, paint));
+    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, bounds, initialMat,
+                                                      key, keySize, paint));
     fLayerHash.add(layer);
     return layer;
 }
 
-GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID,
-                                       int start,
-                                       const SkIRect& bounds,
-                                       const SkMatrix& ctm) {
-    SkASSERT(pictureID != SK_InvalidGenID && start > 0);
-    return fLayerHash.find(GrCachedLayer::Key(pictureID, start, bounds, ctm));
+GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID, const SkMatrix& initialMat,
+                                       const int* key, int keySize) {
+    SkASSERT(pictureID != SK_InvalidGenID);
+    return fLayerHash.find(GrCachedLayer::Key(pictureID, initialMat, key, keySize));
 }
 
 GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
                                                int start, int stop,
                                                const SkIRect& bounds,
-                                               const SkMatrix& ctm,
+                                               const SkMatrix& initialMat,
+                                               const int* key,
+                                               int keySize,
                                                const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
-    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, start, bounds, ctm));
+    GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, initialMat, key, keySize));
     if (NULL == layer) {
-        layer = this->createLayer(pictureID, start, stop, bounds, ctm, paint);
+        layer = this->createLayer(pictureID, start, stop, bounds, initialMat, key, keySize, paint);
     }
 
     return layer;
@@ -485,7 +487,11 @@ void GrLayerCache::writeLayersToDisk(const SkString& dirName) {
         }
 
         SkString fileName(dirName);
-        fileName.appendf("\\%d-%d.png", layer->fKey.pictureID(), layer->fKey.start());
+        fileName.appendf("\\%d", layer->fKey.pictureID());
+        for (int i = 0; i < layer->fKey.keySize(); ++i) {
+            fileName.appendf("-%d", layer->fKey.key()[i]);
+        }
+        fileName.appendf(".png");
 
         layer->texture()->surfacePriv().savePixels(fileName.c_str());
     }

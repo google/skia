@@ -938,7 +938,7 @@ static void test_savelayer_extraction(skiatest::Reporter* reporter) {
 
         // 2)
         c->saveLayer(NULL, NULL); // layer #1
-            c->translate(kWidth/2.0f, kHeight/2.0f);
+            c->translate(kWidth / 2.0f, kHeight / 2.0f);
             SkRect r = SkRect::MakeXYWH(0, 0, kWidth/2, kHeight/2);
             c->saveLayer(&r, &complexPaint); // layer #2
             c->restore();

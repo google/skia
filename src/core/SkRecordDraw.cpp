@@ -692,6 +692,13 @@ private:
             dst.fRestoreOpID = src.fRestoreOpID;
             dst.fHasNestedLayers = src.fHasNestedLayers;
             dst.fIsNested = fSaveLayersInStack > 0 || src.fIsNested;
+
+            // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
+            dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
+            dst.fKey = SkNEW_ARRAY(int, dst.fKeySize);
+            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(int));
+            dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
+            memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
         }
     }
 
@@ -724,6 +731,7 @@ private:
         if (isSaveLayer) {
             this->updateStackForSaveLayer();
             ++fSaveLayersInStack;
+            fSaveLayerOpStack.push(fFillBounds.currentOp());
         }
 
         fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, paint));
@@ -734,6 +742,8 @@ private:
             SkASSERT(false);
             return;
         }
+
+        SkASSERT(fSaveLayersInStack == fSaveLayerOpStack.count());
 
         SaveLayerInfo sli;
         fSaveLayerStack.pop(&sli);
@@ -758,12 +768,20 @@ private:
         block.fRestoreOpID = fFillBounds.currentOp();
         block.fHasNestedLayers = sli.fHasNestedSaveLayer;
         block.fIsNested = fSaveLayersInStack > 0;
+
+        block.fKeySize = fSaveLayerOpStack.count();
+        block.fKey = SkNEW_ARRAY(int, block.fKeySize);
+        memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(int));
+
+        fSaveLayerOpStack.pop();
     }
 
     // Used to collect saveLayer information for layer hoisting
-    int                   fSaveLayersInStack;
+    int                      fSaveLayersInStack;
     SkTDArray<SaveLayerInfo> fSaveLayerStack;
-    SkLayerInfo*          fAccelData;
+    // The op code indices of all the currently active saveLayers
+    SkTDArray<int>           fSaveLayerOpStack;
+    SkLayerInfo*             fAccelData;
     const SkPicture::SnapshotArray* fPictList;
 
     SkRecords::FillBounds fFillBounds;

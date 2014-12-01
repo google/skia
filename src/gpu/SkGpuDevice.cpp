@@ -1832,8 +1832,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     GrReplacements replacements;
 
-    GrLayerHoister::ConvertLayersToReplacements(needRendering, &replacements);
-    GrLayerHoister::ConvertLayersToReplacements(recycled, &replacements);
+    GrLayerHoister::ConvertLayersToReplacements(mainPicture, needRendering, &replacements);
+    GrLayerHoister::ConvertLayersToReplacements(mainPicture, recycled, &replacements);
 
     // Render the entire picture using new layers
     GrRecordReplaceDraw(mainPicture, mainCanvas, &replacements, initialMatrix, NULL);

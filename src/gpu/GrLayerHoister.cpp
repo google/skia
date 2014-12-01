@@ -19,7 +19,7 @@
 // required texture/render target resources.
 static void prepare_for_hoisting(GrLayerCache* layerCache, 
                                  const SkPicture* topLevelPicture,
-                                 const SkMatrix& matrix,
+                                 const SkMatrix& initialMat,
                                  const SkLayerInfo::BlockInfo& info,
                                  const SkIRect& layerRect,
                                  SkTDArray<GrHoistedLayer>* needRendering,
@@ -28,15 +28,13 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
                                  int numSamples) {
     const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
 
-    SkMatrix combined = matrix;
-    combined.preConcat(info.fPreMat);
-    combined.preConcat(info.fLocalMat);
-
-    GrCachedLayer* layer = layerCache->findLayerOrCreate(pict->uniqueID(),
+    GrCachedLayer* layer = layerCache->findLayerOrCreate(topLevelPicture->uniqueID(),
                                                          info.fSaveLayerOpID,
                                                          info.fRestoreOpID,
                                                          layerRect,
-                                                         combined,
+                                                         initialMat,
+                                                         info.fKey,
+                                                         info.fKeySize,
                                                          info.fPaint);
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -76,7 +74,8 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     hl->fPicture = pict;
     hl->fOffset = SkIPoint::Make(layerRect.fLeft, layerRect.fTop);
     hl->fLocalMat = info.fLocalMat;
-    hl->fPreMat = matrix;
+    hl->fInitialMat = initialMat;
+    hl->fPreMat = initialMat;
     hl->fPreMat.preConcat(info.fPreMat);
 }
 
@@ -192,19 +191,17 @@ static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* re
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 
-void GrLayerHoister::ConvertLayersToReplacements(const SkTDArray<GrHoistedLayer>& layers,
+void GrLayerHoister::ConvertLayersToReplacements(const SkPicture* topLevelPicture,
+                                                 const SkTDArray<GrHoistedLayer>& layers,
                                                  GrReplacements* replacements) {
     // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
     for (int i = 0; i < layers.count(); ++i) {
         GrCachedLayer* layer = layers[i].fLayer;
-        const SkPicture* picture = layers[i].fPicture;
-
-        SkMatrix combined = SkMatrix::Concat(layers[i].fPreMat, layers[i].fLocalMat);
 
         GrReplacements::ReplacementInfo* layerInfo =
-                    replacements->newReplacement(picture->uniqueID(),
-                                                 layer->start(),
-                                                 combined);
+                    replacements->newReplacement(topLevelPicture->uniqueID(),
+                                                 layers[i].fInitialMat,
+                                                 layer->key(), layer->keySize());
         layerInfo->fStop = layer->stop();
         layerInfo->fPos = layers[i].fOffset;
 

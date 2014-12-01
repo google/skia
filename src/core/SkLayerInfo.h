@@ -18,8 +18,8 @@ public:
     // Information about a given saveLayer/restore block in an SkPicture
     class BlockInfo {
     public:
-        BlockInfo() : fPicture(NULL), fPaint(NULL) {}
-        ~BlockInfo() { SkSafeUnref(fPicture); SkDELETE(fPaint); }
+        BlockInfo() : fPicture(NULL), fPaint(NULL), fKey(NULL), fKeySize(0) {}
+        ~BlockInfo() { SkSafeUnref(fPicture); SkDELETE(fPaint); SkDELETE_ARRAY(fKey); }
 
         // The picture owning the layer. If the owning picture is the top-most
         // one (i.e., the picture for which this SkLayerInfo was created) then
@@ -50,6 +50,11 @@ public:
         bool    fHasNestedLayers;
         // True if this saveLayer is nested within another. False otherwise.
         bool    fIsNested;
+        // The variable length key for this saveLayer block. It stores the
+        // thread of drawPicture and saveLayer operation indices that lead to this
+        // saveLayer (including its own op index). The BlockInfo owns this memory.
+        int*    fKey;
+        int     fKeySize;  // # of ints
     };
 
     SkLayerInfo(Key key) : INHERITED(key) { }

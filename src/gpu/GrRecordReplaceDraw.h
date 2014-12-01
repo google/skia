@@ -32,47 +32,69 @@ public:
     class ReplacementInfo {
     public:
         struct Key {
-            Key(uint32_t pictureID, unsigned start, const SkMatrix& ctm)
-            : fPictureID(pictureID)
-            , fStart(start)
-            , fCTM(ctm) {
-                fCTM.getType(); // force initialization of type so hashes match
+            Key(uint32_t pictureID, const SkMatrix& initialMat,
+                const int* key, int keySize, bool copyKey = false)
+            : fKeySize(keySize)
+            , fFreeKey(copyKey) {
+                fIDMatrix.fPictureID = pictureID;
+                fIDMatrix.fInitialMat = initialMat;
+                fIDMatrix.fInitialMat.getType(); // force initialization of type so hashes match
 
-                // Key needs to be tightly packed.
-                GR_STATIC_ASSERT(sizeof(Key) == sizeof(uint32_t) +      // picture ID
-                                                sizeof(int) +           // start
-                                                9 * sizeof(SkScalar)    // 3x3 from CTM
-                                                +sizeof(uint32_t));     // matrix's type
+                if (copyKey) {
+                    int* tempKey = SkNEW_ARRAY(int, keySize);
+                    memcpy(tempKey, key, keySize * sizeof(int));
+                    fKey = tempKey;
+                } else {
+                    fKey = key;
+                }
+
+                // The pictureID/matrix portion needs to be tightly packed.
+                GR_STATIC_ASSERT(sizeof(IDMatrix) == sizeof(uint32_t)+                // pictureID
+                                              9 * sizeof(SkScalar)+sizeof(uint32_t)); // matrix
             }
 
-            bool operator==(const Key& other) const { 
-                return fPictureID == other.fPictureID &&
-                       fStart == other.fStart &&
-                       fCTM.cheapEqualTo(other.fCTM); // TODO: should be fuzzy
+            ~Key() {
+                if (fFreeKey) {
+                    SkDELETE_ARRAY(fKey);
+                }
+            }
+            bool operator==(const Key& other) const {
+                if (fKeySize != other.fKeySize) {
+                    return false;
+                }
+                return fIDMatrix.fPictureID == other.fIDMatrix.fPictureID &&
+                       fIDMatrix.fInitialMat.cheapEqualTo(other.fIDMatrix.fInitialMat) &&
+                       !memcmp(fKey, other.fKey, fKeySize * sizeof(int));
             }
 
-            uint32_t     pictureID() const { return fPictureID; }
-            unsigned int start() const { return fStart; }
+            uint32_t hash() const {
+                uint32_t hash = SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(fKey),
+                                                    fKeySize * sizeof(int));
+                return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&fIDMatrix),
+                                           sizeof(IDMatrix), hash);
+            }
 
         private:
-            const uint32_t fPictureID;
-            const unsigned fStart;
-            const SkMatrix fCTM;
+            struct IDMatrix {
+                uint32_t fPictureID;
+                SkMatrix fInitialMat;
+            }              fIDMatrix;
+
+            const int*     fKey;
+            const int      fKeySize;
+            const bool     fFreeKey;
         };
 
         static const Key& GetKey(const ReplacementInfo& layer) { return layer.fKey; }
-        static uint32_t Hash(const Key& key) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
-        }
+        static uint32_t Hash(const Key& key) { return key.hash(); }
 
-        ReplacementInfo(uint32_t pictureID, unsigned int start, const SkMatrix& ctm)
-            : fKey(pictureID, start, ctm)
+        ReplacementInfo(uint32_t pictureID, const SkMatrix& initialMat,
+                        const int* key, int keySize)
+            : fKey(pictureID, initialMat, key, keySize, true)
             , fImage(NULL)
             , fPaint(NULL) {
         }
         ~ReplacementInfo() { fImage->unref(); SkDELETE(fPaint); }
-
-        unsigned int start() const { return fKey.start(); }
 
         const Key       fKey;
         unsigned        fStop;
@@ -86,12 +108,11 @@ public:
     ~GrReplacements() { this->freeAll(); }
 
     // Add a new replacement range.
-    ReplacementInfo* newReplacement(uint32_t pictureID, unsigned start, const SkMatrix& ctm);
+    ReplacementInfo* newReplacement(uint32_t pictureID, const SkMatrix& initialMat,
+                                    const int* key, int keySize);
 
-    // look up a replacement range by its pictureID, start offset and the CTM
-    // TODO: also need to add clip to lookup
-    const ReplacementInfo* lookupByStart(uint32_t pictureID, unsigned start, 
-                                         const SkMatrix& ctm) const;
+    const ReplacementInfo* lookup(uint32_t pictureID, const SkMatrix& initalMat,
+                                  const int* key, int keySize) const;
 
 private:
     SkTDynamicHash<ReplacementInfo, ReplacementInfo::Key> fReplacementHash;

@@ -115,9 +115,11 @@ void test_replacements(skiatest::Reporter* r, bool useBBH) {
         pic.reset(recorder.endRecording());
     }
 
+    int key[1] = { 0 };
+
     GrReplacements replacements;
-    GrReplacements::ReplacementInfo* ri = replacements.newReplacement(pic->uniqueID(),
-                                                                      0, SkMatrix::I());
+    GrReplacements::ReplacementInfo* ri = replacements.newReplacement(pic->uniqueID(), 
+                                                                      SkMatrix::I(), key, 1);
     ri->fStop = 2;
     ri->fPos.set(0, 0);
     ri->fImage = make_image(SK_ColorRED);

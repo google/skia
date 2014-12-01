@@ -170,8 +170,8 @@ void SkMultiPictureDraw::draw() {
 
             GrReplacements replacements;
 
-            GrLayerHoister::ConvertLayersToReplacements(needRendering, &replacements);
-            GrLayerHoister::ConvertLayersToReplacements(recycled, &replacements);
+            GrLayerHoister::ConvertLayersToReplacements(picture, needRendering, &replacements);
+            GrLayerHoister::ConvertLayersToReplacements(picture, recycled, &replacements);
 
             // Render the entire picture using new layers
             GrRecordReplaceDraw(picture, canvas, &replacements, initialMatrix, NULL);

@@ -17,9 +17,11 @@ struct SkRect;
 
 class GrHoistedLayer {
 public:
-    const SkPicture* fPicture;
+    const SkPicture* fPicture;  // the picture that actually contains the layer
+                                // (not necessarily the top-most picture)
     GrCachedLayer*   fLayer;
     SkIPoint         fOffset;
+    SkMatrix         fInitialMat;
     SkMatrix         fPreMat;
     SkMatrix         fLocalMat;
 };
@@ -86,7 +88,8 @@ public:
         @param layers       The hoisted layers
         @param replacements Replacement object that will be used for a replacement draw
     */
-    static void ConvertLayersToReplacements(const SkTDArray<GrHoistedLayer>& layers,
+    static void ConvertLayersToReplacements(const SkPicture* topLevelPicture, 
+                                            const SkTDArray<GrHoistedLayer>& layers,
                                             GrReplacements* replacements);
 
     /** Unlock a group of layers in the layer cache.
