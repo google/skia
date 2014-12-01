@@ -12,6 +12,9 @@
 #define GrColor_DEFINED
 
 #include "GrTypes.h"
+#include "SkColor.h"
+#include "SkColorPriv.h"
+#include "SkUnPreMultiply.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. The components are stored
@@ -97,6 +100,23 @@ static inline float GrNormalizeByteToFloat(uint8_t value) {
 /** Determines whether the color is opaque or not. */
 static inline bool GrColorIsOpaque(GrColor color) {
     return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
+}
+
+/** Returns an unpremuled version of the GrColor. */
+static inline GrColor GrUnPreMulColor(GrColor color) {
+    unsigned r = GrColorUnpackR(color);
+    unsigned g = GrColorUnpackG(color); 
+    unsigned b = GrColorUnpackB(color);
+    unsigned a = GrColorUnpackA(color);
+    SkPMColor colorPM = SkPackARGB32(a, r, g, b);
+    SkColor colorUPM = SkUnPreMultiply::PMColorToColor(colorPM);
+
+    r = SkGetPackedR32(colorUPM);
+    g = SkGetPackedG32(colorUPM);
+    b = SkGetPackedB32(colorUPM);
+    a = SkGetPackedA32(colorUPM);
+
+    return GrColorPackRGBA(r, g, b, a);
 }
 
 /**
