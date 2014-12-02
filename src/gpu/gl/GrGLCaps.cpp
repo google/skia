@@ -178,20 +178,17 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                              ctxInfo.hasExtension("GL_EXT_texture_storage");
     }
 
-    // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support it if
-    // it doesn't have ARB_texture_rg extension.
-    if (kGL_GrGLStandard == standard) {
-        if (ctxInfo.isMesa()) {
-            fTextureRedSupport = ctxInfo.hasExtension("GL_ARB_texture_rg");
-        } else {
+    // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support GL_RED 
+    // and GL_RG on FBO textures.
+    if (!ctxInfo.isMesa()) {
+        if (kGL_GrGLStandard == standard) {
             fTextureRedSupport = version >= GR_GL_VER(3,0) ||
                                  ctxInfo.hasExtension("GL_ARB_texture_rg");
+        } else {
+            fTextureRedSupport =  version >= GR_GL_VER(3,0) ||
+                                  ctxInfo.hasExtension("GL_EXT_texture_rg");
         }
-    } else {
-        fTextureRedSupport =  version >= GR_GL_VER(3,0) ||
-                              ctxInfo.hasExtension("GL_EXT_texture_rg");
     }
-
     fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
 
