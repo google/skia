@@ -9,6 +9,7 @@
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 static void checkerboard(
         SkCanvas* canvas, int w, int h, int size, SkColor c1, SkColor c2) {
@@ -58,7 +59,7 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     SkPaint paint;
-    paint.setTypeface(SkTypeface::CreateFromName("Arial", SkTypeface::kBold));
+    sk_tool_utils::set_portable_typeface(&paint, NULL, SkTypeface::kBold);
     paint.setTextSize(18.0f);
 
     canvas->clear(SK_ColorLTGRAY);
