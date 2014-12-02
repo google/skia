@@ -84,7 +84,8 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     SkASSERT(pdfData);
     pdf.reset();
 
-    REPORTER_ASSERT(r, is_subset_of(mandrillData, pdfData));
+    // Test disabled, waiting on resolution to http://skbug.com/3180
+    // REPORTER_ASSERT(r, is_subset_of(mandrillData, pdfData));
 
     // This JPEG uses a nonstandard colorspace - it can not be
     // embedded into the PDF directly.

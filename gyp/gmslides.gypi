@@ -99,6 +99,7 @@
         '../gm/gradientDirtyLaundry.cpp',
         '../gm/gradient_matrix.cpp',
         '../gm/gradtext.cpp',
+        '../gm/grayscalejpg.cpp',
         '../gm/hairlines.cpp',
         '../gm/hairmodes.cpp',
         '../gm/hittestpath.cpp',

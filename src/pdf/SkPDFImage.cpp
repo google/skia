@@ -629,6 +629,7 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
     return true;
 }
 
+#if 0  // reenable when we can figure out the JPEG colorspace
 namespace {
 /**
  *  This PDFObject assumes that its constructor was handed
@@ -657,7 +658,7 @@ public:
             "/Subtype /Image\n"
             "/Width %d\n"
             "/Height %d\n"
-            "/ColorSpace /DeviceRGB\n"
+            "/ColorSpace /DeviceRGB\n"  // or DeviceGray
             "/BitsPerComponent 8\n"
             "/Filter /DCTDecode\n"
             "/ColorTransform 0\n"
@@ -702,11 +703,13 @@ static bool is_jfif_jpeg(SkData* data) {
                             sizeof(bytesSixToTen))));
 }
 }  // namespace
+#endif
 
 SkPDFObject* SkPDFCreateImageObject(
         const SkBitmap& bitmap,
         const SkIRect& subset,
         SkPicture::EncodeBitmap encoder) {
+#if 0  // reenable when we can figure out the JPEG colorspace
     if (SkIRect::MakeWH(bitmap.width(), bitmap.height()) == subset) {
         SkAutoTUnref<SkData> encodedData(ref_encoded_data(bitmap));
         if (is_jfif_jpeg(encodedData)) {
@@ -714,5 +717,6 @@ SkPDFObject* SkPDFCreateImageObject(
                               (encodedData, bitmap.width(), bitmap.height()));
         }
     }
+#endif
     return SkPDFImage::CreateImage(bitmap, subset, encoder);
 }
