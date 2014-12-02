@@ -4230,6 +4230,42 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "colorwheelnative_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2208579169651114366
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15843549264837361639
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15843549264837361639
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6233774103087101105
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip2_565.png": {
       "allowed-digests": [
         [

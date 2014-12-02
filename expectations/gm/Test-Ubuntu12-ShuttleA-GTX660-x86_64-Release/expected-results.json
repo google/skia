@@ -5981,6 +5981,60 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "colorwheelnative_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14803637687851344622
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12594875556864321694
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12594875556864321694
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12594875556864321694
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14902227942686580363
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "colorwheelnative_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1897735759377965294
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip2_565.png": {
       "allowed-digests": [
         [

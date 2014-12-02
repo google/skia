@@ -4738,6 +4738,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "colorwheelnative_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9044018720727599759
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip2_565.png": {
       "allowed-digests": [
         [
