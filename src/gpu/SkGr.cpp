@@ -56,12 +56,10 @@ static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
     SkSrcPixelInfo srcPI;
     srcPI.fColorType = kN32_SkColorType;
     srcPI.fAlphaType = kPremul_SkAlphaType;
-    srcPI.fPixels = ctable->lockColors();
+    srcPI.fPixels = ctable->readColors();
     srcPI.fRowBytes = count * sizeof(SkPMColor);
 
     srcPI.convertPixelsTo(&dstPI, count, 1);
-
-    ctable->unlockColors();
 
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += 256 * sizeof(GrColor);
@@ -205,7 +203,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx, bool cache,
         // then we don't know how to scale the image to match it...
         if (ktx.width() != bm.width() || ktx.height() != bm.height()) {
             return NULL;
-        }        
+        }
 
         bytes = ktx.pixelData();
         desc.fConfig = kETC1_GrPixelConfig;
@@ -481,7 +479,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
         dm = SkXfermode::kISA_Coeff;
     }
     grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
-    
+
     //set the color of the paint to the one of the parameter
     grPaint->setColor(paintColor);
 

@@ -30,7 +30,7 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(SkPaint::kNone_FilterLevel == s.fFilterLevel);
 
-    const uint16_t* SK_RESTRICT table = s.fBitmap->getColorTable()->lock16BitCache();
+    const uint16_t* SK_RESTRICT table = s.fBitmap->getColorTable()->read16BitCache();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
 
     // buffer is y32, x16, x16, x16, x16, x16
@@ -104,8 +104,6 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
             src = srcAddr[*xx++]; *colors++ = table[src];
         }
     }
-
-    s.fBitmap->getColorTable()->unlock16BitCache();
 }
 
 void SI8_opaque_D32_nofilter_DX_arm(
@@ -121,7 +119,7 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(SkPaint::kNone_FilterLevel == s.fFilterLevel);
 
-    const SkPMColor* SK_RESTRICT table = s.fBitmap->getColorTable()->lockColors();
+    const SkPMColor* SK_RESTRICT table = s.fBitmap->getColorTable()->readColors();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
 
     // buffer is y32, x16, x16, x16, x16, x16
@@ -184,8 +182,6 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
             : "memory", "cc", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"
         );
     }
-
-    s.fBitmap->getColorTable()->unlockColors();
 }
 #endif // !defined(SK_CPU_ARM64) && SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
 

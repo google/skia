@@ -1355,7 +1355,6 @@ protected:
 
         // allocate these before set call setjmp
         SkAutoMalloc    oneRow;
-        SkAutoLockColors ctLocker;
 
         cinfo.err = jpeg_std_error(&sk_err);
         sk_err.error_exit = skjpeg_error_exit;
@@ -1392,7 +1391,7 @@ protected:
         const int       width = bm.width();
         uint8_t*        oneRowP = (uint8_t*)oneRow.reset(width * 3);
 
-        const SkPMColor* colors = ctLocker.lockColors(bm);
+        const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : NULL;
         const void*      srcRow = bm.getPixels();
 
         while (cinfo.next_scanline < cinfo.image_height) {

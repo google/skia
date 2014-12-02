@@ -621,7 +621,6 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     }
 
     SkAutoLockPixels alp(bm);
-    SkAutoLockColors ctLocker;
     if (NULL == bm.getPixels()) {
         return false;
     }
@@ -638,7 +637,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     pic.writer = stream_writer;
     pic.custom_ptr = (void*)stream;
 
-    const SkPMColor* colors = ctLocker.lockColors(bm);
+    const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : NULL;
     const uint8_t* src = (uint8_t*)bm.getPixels();
     const int rgbStride = pic.width * bpp;
 

@@ -271,13 +271,13 @@ public:
                                             isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
         return this->tryAllocPixels(info);
     }
-    
+
     SK_ALLOCPIXELS_RETURN_TYPE allocN32Pixels(int width, int height, bool isOpaque = false) {
         SkImageInfo info = SkImageInfo::MakeN32(width, height,
                                             isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
         return this->allocPixels(info);
     }
-    
+
     /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
      *  optional ReleaseProc and context. When the pixels are no longer
@@ -797,60 +797,6 @@ private:
 };
 //TODO(mtklein): uncomment when 71713004 lands and Chromium's fixed.
 //#define SkAutoLockPixels(...) SK_REQUIRE_LOCAL_VAR(SkAutoLockPixels)
-
-/** Helper class that performs the lock/unlockColors calls on a colortable.
-    The destructor will call unlockColors(false) if it has a bitmap's colortable
-*/
-class SkAutoLockColors : SkNoncopyable {
-public:
-    /** Initialize with no bitmap. Call lockColors(bitmap) to lock bitmap's
-        colortable
-     */
-    SkAutoLockColors() : fCTable(NULL), fColors(NULL) {}
-    /** Initialize with bitmap, locking its colortable if present
-     */
-    explicit SkAutoLockColors(const SkBitmap& bm) {
-        fCTable = bm.getColorTable();
-        fColors = fCTable ? fCTable->lockColors() : NULL;
-    }
-    /** Initialize with a colortable (may be null)
-     */
-    explicit SkAutoLockColors(SkColorTable* ctable) {
-        fCTable = ctable;
-        fColors = ctable ? ctable->lockColors() : NULL;
-    }
-    ~SkAutoLockColors() {
-        if (fCTable) {
-            fCTable->unlockColors();
-        }
-    }
-
-    /** Return the currently locked colors, or NULL if no bitmap's colortable
-        is currently locked.
-    */
-    const SkPMColor* colors() const { return fColors; }
-
-    /** Locks the table and returns is colors (assuming ctable is not null) and
-        unlocks the previous table if one was present
-     */
-    const SkPMColor* lockColors(SkColorTable* ctable) {
-        if (fCTable) {
-            fCTable->unlockColors();
-        }
-        fCTable = ctable;
-        fColors = ctable ? ctable->lockColors() : NULL;
-        return fColors;
-    }
-
-    const SkPMColor* lockColors(const SkBitmap& bm) {
-        return this->lockColors(bm.getColorTable());
-    }
-
-private:
-    SkColorTable*    fCTable;
-    const SkPMColor* fColors;
-};
-#define SkAutoLockColors(...) SK_REQUIRE_LOCAL_VAR(SkAutoLockColors)
 
 ///////////////////////////////////////////////////////////////////////////////
 

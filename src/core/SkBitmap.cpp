@@ -284,20 +284,20 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     if (!this->setInfo(requestedInfo, rowBytes)) {
         return reset_return_false(this);
     }
-    
+
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
     // setInfo may have computed a valid rowbytes if 0 were passed in
     rowBytes = this->rowBytes();
 
     SkMallocPixelRef::PRFactory defaultFactory;
-    
+
     SkPixelRef* pr = defaultFactory.create(correctedInfo, rowBytes, NULL);
     if (NULL == pr) {
         return reset_return_false(this);
     }
     this->setPixelRef(pr)->unref();
-    
+
     // TODO: lockPixels could/should return bool or void*/NULL
     this->lockPixels();
     if (NULL == this->getPixels()) {
@@ -586,11 +586,10 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             return true;
         } break;
         case kIndex_8_SkColorType: {
-            SkAutoLockColors alc(bm);
-            const SkPMColor* table = alc.colors();
-            if (!table) {
+            if (!bm.getColorTable()) {
                 return false;
             }
+            const SkPMColor* table = bm.getColorTable()->readColors();
             SkPMColor c = (SkPMColor)~0;
             for (int i = bm.getColorTable()->count() - 1; i >= 0; --i) {
                 c &= table[i];
@@ -848,15 +847,15 @@ bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, 
     if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
         return false;
     }
-    
+
     SkIRect srcR = SkIRect::MakeXYWH(x, y, requestedDstInfo.width(), requestedDstInfo.height());
     if (!srcR.intersect(0, 0, this->width(), this->height())) {
         return false;
     }
-    
+
     // the intersect may have shrunk info's logical size
     const SkImageInfo dstInfo = requestedDstInfo.makeWH(srcR.width(), srcR.height());
-    
+
     // if x or y are negative, then we have to adjust pixels
     if (x > 0) {
         x = 0;
@@ -868,16 +867,16 @@ bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, 
     dstPixels = ((char*)dstPixels - y * dstRB - x * dstInfo.bytesPerPixel());
 
     //////////////
-    
+
     SkAutoLockPixels alp(*this);
-    
+
     // since we don't stop creating un-pixeled devices yet, check for no pixels here
     if (NULL == this->getPixels()) {
         return false;
     }
-    
+
     const SkImageInfo srcInfo = this->info().makeWH(dstInfo.width(), dstInfo.height());
-    
+
     const void* srcPixels = this->getAddr(srcR.x(), srcR.y());
     return SkPixelInfo::CopyPixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, this->rowBytes(),
                                    this->getColorTable());
@@ -1067,7 +1066,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
     } else if (kIndex_8_SkColorType == colorType && !src.isOpaque()) {
         SkColorTable* ct = src.getColorTable();
         if (ct) {
-            const SkPMColor* SK_RESTRICT table = ct->lockColors();
+            const SkPMColor* SK_RESTRICT table = ct->readColors();
             const uint8_t* SK_RESTRICT s = src.getAddr8(0, 0);
             while (--h >= 0) {
                 for (int x = 0; x < w; x++) {
@@ -1076,7 +1075,6 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
                 s += rb;
                 alpha += alphaRowBytes;
             }
-            ct->unlockColors();
         }
     } else {    // src is opaque, so just fill alpha[] with 0xFF
         memset(alpha, 0xFF, h * alphaRowBytes);

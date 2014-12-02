@@ -154,13 +154,13 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         dstPI.fAlphaType = dstInfo.alphaType();
         dstPI.fPixels = dstPixels;
         dstPI.fRowBytes = dstRB;
-        
+
         SkSrcPixelInfo srcPI;
         srcPI.fColorType = srcInfo.colorType();
         srcPI.fAlphaType = srcInfo.alphaType();
         srcPI.fPixels = srcPixels;
         srcPI.fRowBytes = srcRB;
-        
+
         return srcPI.convertPixelsTo(&dstPI, width, height);
     }
 
@@ -196,13 +196,13 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
             // Our method for converting to 4444 assumes premultiplied.
             return false;
         }
-        
+
         const SkPMColor* table = NULL;
         if (kIndex_8_SkColorType == srcInfo.colorType()) {
             if (NULL == ctable) {
                 return false;
             }
-            table = ctable->lockColors();
+            table = ctable->readColors();
         }
 
         for (int y = 0; y < height; ++y) {
@@ -221,10 +221,6 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
             }
             dstPixels = (char*)dstPixels + dstRB;
             srcPixels = (const char*)srcPixels + srcRB;
-        }
-        
-        if (table) {
-            ctable->unlockColors();
         }
         return true;
     }

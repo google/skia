@@ -26,7 +26,7 @@ public:
         const SkPMColor* ctable = NULL;
 
         if fSource.getColorTable())
-            ctable = fSource.getColorTable()->lockColors();
+            ctable = fSource.getColorTable()->readColors();
 
         while (--height >= 0)
         {
@@ -34,9 +34,6 @@ public:
             dst += dstRB;
             src += srcRB;
         }
-
-        if fSource.getColorTable())
-            fSource.getColorTable()->unlockColors();
     }
 
 private:

@@ -199,8 +199,7 @@ bool DecodingImageGenerator::onGetPixels(const SkImageInfo& info,
             return false;
         }
         const int count = ctable->count();
-        memcpy(ctableEntries, ctable->lockColors(), count * sizeof(SkPMColor));
-        ctable->unlockColors();
+        memcpy(ctableEntries, ctable->readColors(), count * sizeof(SkPMColor));
         *ctableCount = count;
     }
     return true;
