@@ -481,17 +481,6 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
     return false;
 }
 
-bool GrInOrderDrawBuffer::onCanCopySurface(const GrSurface* dst,
-                                         const GrSurface* src,
-                                         const SkIRect& srcRect,
-                                         const SkIPoint& dstPoint) {
-    return getGpu()->canCopySurface(dst, src, srcRect, dstPoint);
-}
-
-bool GrInOrderDrawBuffer::onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
-    return getGpu()->initCopySurfaceDstDesc(src, desc);
-}
-
 bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                                    GrGpu::DrawType drawType,
                                                    const GrClipMaskManager::ScissorState& scissor,

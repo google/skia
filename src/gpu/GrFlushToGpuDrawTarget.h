@@ -79,6 +79,11 @@ private:
     void willReserveVertexAndIndexSpace(int vertexCount,
                                         size_t vertexStride,
                                         int indexCount) SK_OVERRIDE;
+    bool onCanCopySurface(const GrSurface* dst,
+                          const GrSurface* src,
+                          const SkIRect& srcRect,
+                          const SkIPoint& dstPoint) SK_OVERRIDE;
+    bool onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
     GeoPoolStateStack                   fGeoPoolStateStack;
     SkAutoTUnref<GrGpu>                 fGpu;

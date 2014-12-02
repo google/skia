@@ -225,11 +225,6 @@ private:
                        GrSurface* src,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) SK_OVERRIDE;
-    bool onCanCopySurface(const GrSurface* dst,
-                          const GrSurface* src,
-                          const SkIRect& srcRect,
-                          const SkIPoint& dstPoint) SK_OVERRIDE;
-    bool onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.

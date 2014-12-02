@@ -249,3 +249,14 @@ void GrFlushToGpuDrawTarget::geometrySourceWillPop(const GeometrySrcState& resto
         poolState.fUsedPoolIndexBytes = sizeof(uint16_t) * restoredState.fIndexCount;
     }
 }
+
+bool GrFlushToGpuDrawTarget::onCanCopySurface(const GrSurface* dst,
+                                              const GrSurface* src,
+                                              const SkIRect& srcRect,
+                                              const SkIPoint& dstPoint) {
+    return getGpu()->canCopySurface(dst, src, srcRect, dstPoint);
+}
+
+bool GrFlushToGpuDrawTarget::onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
+    return getGpu()->initCopySurfaceDstDesc(src, desc);
+}
