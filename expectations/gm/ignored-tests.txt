@@ -61,3 +61,5 @@ verylargebitmap
 multipicturedraw_sierpinski_simple
 multipicturedraw_sierpinski_tiled
 
+#derekf
+drawbitmapmatrix
