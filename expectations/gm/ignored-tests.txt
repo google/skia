@@ -63,3 +63,6 @@ multipicturedraw_sierpinski_tiled
 
 #derekf
 drawbitmapmatrix
+
+#junov skbug.com/3176
+pictureimagefilter

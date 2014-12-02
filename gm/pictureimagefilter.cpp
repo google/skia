@@ -36,7 +36,7 @@ protected:
         fPicture.reset(recorder.endRecording());
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(500, 150); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(400, 300); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         this->makePicture();
@@ -57,10 +57,16 @@ protected:
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
             SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
-            SkAutoTUnref<SkImageFilter> pictureSource(SkPictureImageFilter::Create(fPicture));
-            SkAutoTUnref<SkImageFilter> pictureSourceSrcRect(SkPictureImageFilter::Create(fPicture, srcRect));
-            SkAutoTUnref<SkImageFilter> pictureSourceEmptyRect(SkPictureImageFilter::Create(fPicture, emptyRect));
+            SkAutoTUnref<SkPictureImageFilter> pictureSource(
+                SkPictureImageFilter::Create(fPicture));
+            SkAutoTUnref<SkPictureImageFilter> pictureSourceSrcRect(
+                SkPictureImageFilter::Create(fPicture, srcRect));
+            SkAutoTUnref<SkPictureImageFilter> pictureSourceEmptyRect(
+                SkPictureImageFilter::Create(fPicture, emptyRect));
+            SkAutoTUnref<SkPictureImageFilter> pictureSourceResampled(
+                SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect()));
 
+            canvas->save();
             // Draw the picture unscaled.
             fillRectFiltered(canvas, bounds, pictureSource);
             canvas->translate(SkIntToScalar(100), 0);
@@ -72,6 +78,18 @@ protected:
             // Draw the picture to an empty rect (should draw nothing).
             fillRectFiltered(canvas, bounds, pictureSourceEmptyRect);
             canvas->translate(SkIntToScalar(100), 0);
+
+            canvas->restore();
+
+            // Draw the picture scaled
+            canvas->translate(0, SkIntToScalar(100));
+            canvas->scale(200 / srcRect.width(), 200 / srcRect.height());
+            canvas->translate(-srcRect.fLeft, -srcRect.fTop);
+            fillRectFiltered(canvas, srcRect, pictureSource);
+
+            // Draw the picture scaled, but rasterized at original resolution
+            canvas->translate(srcRect.width(), 0);
+            fillRectFiltered(canvas, srcRect, pictureSourceResampled);
         }
     }
 

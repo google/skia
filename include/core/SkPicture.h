@@ -246,13 +246,14 @@ private:
     // V35: Store SkRect (rather then width & height) in header
     // V36: Remove (obsolete) alphatype from SkColorTable
     // V37: Added shadow only option to SkDropShadowImageFilter (last version to record CLEAR)
+    // V37: Added PictureResolution and FilterLevel options to SkPictureImageFilter
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 37;
+    static const uint32_t CURRENT_PICTURE_VERSION = 38;
 
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);

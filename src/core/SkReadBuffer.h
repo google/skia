@@ -53,6 +53,7 @@ public:
         */
         kRemoveColorTableAlpha_Version     = 36,
         kDropShadowMode_Version            = 37,
+        kPictureImageFilterResolution_Version = 38,
     };
 
     /**
