@@ -11,8 +11,6 @@
 #include "SkFixed.h"
 #include "SkFloatingPoint.h"
 
-//#define SK_SUPPORT_DEPRECATED_SCALARROUND
-
 // TODO: move this sort of check into SkPostConfig.h
 #define SK_SCALAR_IS_DOUBLE 0
 #undef SK_SCALAR_IS_FLOAT
@@ -182,13 +180,6 @@ static inline SkScalar SkMinScalar(SkScalar a, SkScalar b) { return a < b ? a : 
 static inline bool SkScalarIsInt(SkScalar x) {
     return x == (SkScalar)(int)x;
 }
-
-// DEPRECATED : use ToInt or ToScalar variant
-#ifdef SK_SUPPORT_DEPRECATED_SCALARROUND
-#   define SkScalarFloor(x)    SkScalarFloorToInt(x)
-#   define SkScalarCeil(x)     SkScalarCeilToInt(x)
-#   define SkScalarRound(x)    SkScalarRoundToInt(x)
-#endif
 
 /**
  *  Returns -1 || 0 || 1 depending on the sign of value:
