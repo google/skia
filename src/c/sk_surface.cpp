@@ -91,6 +91,12 @@ static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     return true;
 }
 
+static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
+    matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
+                   cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
+                   cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
+}
+
 const struct {
     sk_path_direction_t fC;
     SkPath::Direction   fSk;
@@ -320,6 +326,13 @@ void sk_canvas_skew(sk_canvas_t* ccanvas, float sx, float sy) {
     AsCanvas(ccanvas)->skew(sx, sy);
 }
 
+void sk_canvas_concat_matrix(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
+    SkASSERT(cmatrix);
+    SkMatrix matrix;
+    from_c_matrix(cmatrix, &matrix);
+    AsCanvas(ccanvas)->concat(matrix);
+}
+
 void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawPaint(AsPaint(*cpaint));
 }
@@ -420,9 +433,7 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
     }
     SkMatrix matrix;
     if (cmatrix) {
-        matrix.setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
-                      cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
-                      cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
+        from_c_matrix(cmatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
