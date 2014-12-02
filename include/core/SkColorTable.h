@@ -13,19 +13,19 @@
 #include "SkColor.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
+#include "SkLazyPtr.h"
 
 /** \class SkColorTable
 
     SkColorTable holds an array SkPMColors (premultiplied 32-bit colors) used by
     8-bit bitmaps, where the bitmap bytes are interpreted as indices into the colortable.
+
+    SkColorTable is thread-safe.
 */
 class SK_API SkColorTable : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkColorTable)
 
-    /** Makes a deep copy of colors.
-     */
-    SkColorTable(const SkColorTable& src);
     SkColorTable(const SkPMColor colors[], int count);
     virtual ~SkColorTable();
 
@@ -41,23 +41,23 @@ public:
         return fColors[index];
     }
 
-    // TODO: Would making the read() methods const allow us to avoid copies?
-
     /** Return the array of colors for reading.
      */
-    const SkPMColor* readColors() { return fColors; }
+    const SkPMColor* readColors() const { return fColors; }
 
     /** read16BitCache() returns the array of RGB16 colors that mirror the 32bit colors.
      */
-    const uint16_t* read16BitCache();
+    const uint16_t* read16BitCache() const;
 
     explicit SkColorTable(SkReadBuffer&);
     void writeToBuffer(SkWriteBuffer&) const;
 
 private:
-    SkPMColor*  fColors;
-    uint16_t*   f16BitCache;
-    int         fCount;
+    static void Free16BitCache(uint16_t* cache) { sk_free(cache); }
+
+    SkPMColor*                          fColors;
+    SkLazyPtr<uint16_t, Free16BitCache> f16BitCache;
+    int                                 fCount;
 
     void init(const SkPMColor* colors, int count);
 

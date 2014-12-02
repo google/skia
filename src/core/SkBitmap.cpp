@@ -938,8 +938,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     // allocate colortable if srcConfig == kIndex8_Config
     SkAutoTUnref<SkColorTable> ctable;
     if (dstColorType == kIndex_8_SkColorType) {
-        // TODO: can we just ref() the src colortable? Is it reentrant-safe?
-        ctable.reset(SkNEW_ARGS(SkColorTable, (*src->getColorTable())));
+        ctable.reset(SkRef(src->getColorTable()));
     }
     if (!tmpDst.tryAllocPixels(alloc, ctable)) {
         return false;

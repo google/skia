@@ -16,17 +16,10 @@
 void SkColorTable::init(const SkPMColor colors[], int count) {
     SkASSERT((unsigned)count <= 256);
 
-    f16BitCache = NULL;
     fCount = count;
     fColors = reinterpret_cast<SkPMColor*>(sk_malloc_throw(count * sizeof(SkPMColor)));
 
     memcpy(fColors, colors, count * sizeof(SkPMColor));
-}
-
-// As copy constructor is hidden in the class hierarchy, we need to call
-// default constructor explicitly to suppress a compiler warning.
-SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {
-    this->init(src.fColors, src.fCount);
 }
 
 SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
@@ -41,30 +34,34 @@ SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
 
 SkColorTable::~SkColorTable() {
     sk_free(fColors);
-    sk_free(f16BitCache);
+    // f16BitCache frees itself
 }
 
 #include "SkColorPriv.h"
 
-static inline void build_16bitcache(uint16_t dst[], const SkPMColor src[],
-                                    int count) {
-    while (--count >= 0) {
-        *dst++ = SkPixel32ToPixel16_ToU16(*src++);
-    }
-}
+namespace {
+struct Build16BitCache {
+    const SkPMColor* fColors;
+    int fCount;
 
-const uint16_t* SkColorTable::read16BitCache() {
-    if (NULL == f16BitCache) {
-        f16BitCache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
-        build_16bitcache(f16BitCache, fColors, fCount);
+    uint16_t* operator()() const {
+        uint16_t* cache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
+        for (int i = 0; i < fCount; i++) {
+            cache[i] = SkPixel32ToPixel16_ToU16(fColors[i]);
+        }
+        return cache;
     }
-    return f16BitCache;
+};
+}//namespace
+
+const uint16_t* SkColorTable::read16BitCache() const {
+    const Build16BitCache create = { fColors, fCount };
+    return f16BitCache.get(create);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 SkColorTable::SkColorTable(SkReadBuffer& buffer) {
-    f16BitCache = NULL;
     if (buffer.isVersionLT(SkReadBuffer::kRemoveColorTableAlpha_Version)) {
         /*fAlphaType = */buffer.readUInt();
     }
