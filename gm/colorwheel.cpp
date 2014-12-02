@@ -55,3 +55,25 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
     draw_bitmap(canvas, "color_wheel.webp", 0, 128);  // bottom left
     draw_bitmap(canvas, "color_wheel.jpg", 128, 128);  // bottom right
 }
+
+DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::CreateFromName("Arial", SkTypeface::kBold));
+    paint.setTextSize(18.0f);
+
+    canvas->clear(SK_ColorLTGRAY);
+    paint.setColor(SK_ColorRED);
+    canvas->drawText("R", 1, 8.0f, 20.0f, paint);
+    paint.setColor(SK_ColorGREEN);
+    canvas->drawText("G", 1, 24.0f, 20.0f, paint);
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawText("B", 1, 40.0f, 20.0f, paint);
+    paint.setColor(SK_ColorCYAN);
+    canvas->drawText("C", 1, 56.0f, 20.0f, paint);
+    paint.setColor(SK_ColorMAGENTA);
+    canvas->drawText("M", 1, 72.0f, 20.0f, paint);
+    paint.setColor(SK_ColorYELLOW);
+    canvas->drawText("Y", 1, 88.0f, 20.0f, paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawText("K", 1, 104.0f, 20.0f, paint);
+}
