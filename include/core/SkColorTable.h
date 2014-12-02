@@ -53,7 +53,7 @@ public:
     void writeToBuffer(SkWriteBuffer&) const;
 
 private:
-    static void Free16BitCache(uint16_t* cache) { sk_free(cache); }
+    static void Free16BitCache(uint16_t*);
 
     SkPMColor*                          fColors;
     SkLazyPtr<uint16_t, Free16BitCache> f16BitCache;

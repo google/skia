@@ -54,6 +54,8 @@ struct Build16BitCache {
 };
 }//namespace
 
+void SkColorTable::Free16BitCache(uint16_t* cache) { sk_free(cache); }
+
 const uint16_t* SkColorTable::read16BitCache() const {
     const Build16BitCache create = { fColors, fCount };
     return f16BitCache.get(create);
