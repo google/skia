@@ -170,6 +170,7 @@
         '../gm/simpleaaclip.cpp',
         '../gm/skbug1719.cpp',
         '../gm/smallarc.cpp',
+        '../gm/smallimage.cpp',
         '../gm/stringart.cpp',
         '../gm/spritebitmap.cpp',
         '../gm/srcmode.cpp',

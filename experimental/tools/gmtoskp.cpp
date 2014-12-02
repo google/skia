@@ -28,7 +28,7 @@ DEFINE_string2(match,
                "If a GM does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 
-DEFINE_string2(writePath, w, "", "Write output here as .skps.");
+DEFINE_string2(writePath, w, "", "Write output in this directory as .skps.");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -49,11 +49,13 @@ int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("");
     SkCommandLineFlags::Parse(argc, argv);
     if (FLAGS_writePath.isEmpty()) {
+        SkDebugf("You need to specify a --writePath option");
         return 1;
     }
     const char* writePath = FLAGS_writePath[0];
     if (!sk_mkdir(writePath)) {
-        return 1;
+        
+        return 2;
     }
     for (const skiagm::GMRegistry* reg = skiagm::GMRegistry::Head();
          reg != NULL;
@@ -69,7 +71,7 @@ int main(int argc, char** argv) {
             SkFILEWStream outputStream(path.c_str());
             if (!outputStream.isValid()) {
                 SkDebugf("Could not open file %s\n", path.c_str());
-                return 1;
+                return 3;
             }
             gmtoskp(gm, &outputStream);
         }

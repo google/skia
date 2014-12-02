@@ -12,19 +12,16 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "PageCachingDocument.h"
 #include "ProcStats.h"
 #include "flags/SkCommandLineFlags.h"
-
-#ifdef SK_ENABLE_NEW_SKPDF_BACKEND
-#include "skpdf.h"
-#endif
 
 DEFINE_string2(readPath,
                r,
                "",
                "(Required)  The path to a .skp Skia Picture file.");
 DEFINE_string2(writePath, w, "", "If set, write PDF output to this file.");
-DEFINE_bool(newPdf, false, "Use the new PDF backend.");
+DEFINE_bool(cachePages, false, "Use a PageCachingDocument.");
 DEFINE_bool(nullCanvas, true, "Render to a SkNullCanvas as a control.");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -45,12 +42,11 @@ public:
 };
 
 SkDocument* CreatePDFDocument(SkWStream* out) {
-#ifdef SK_ENABLE_NEW_SKPDF_BACKEND
-    if (FLAGS_newPdf) {
-        return skpdf::CreatePDFDocument(out);
+    if (FLAGS_cachePages) {
+        return CreatePageCachingDocument(out);
+    } else {
+        return SkDocument::CreatePDF(out);
     }
-#endif
-    return SkDocument::CreatePDF(out);
 }
 }  // namespace
 
@@ -119,7 +115,8 @@ int main(int argc, char** argv) {
                 canvas->clipRect(letterRect);
                 canvas->translate(SkIntToScalar(-kLetterWidth * x),
                                   SkIntToScalar(-kLetterHeight * y));
-                canvas->drawPicture(picture);
+                picture->playback(canvas);
+                //canvas->drawPicture(picture);
             }
             canvas->flush();
             if (!FLAGS_nullCanvas) {

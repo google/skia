@@ -79,6 +79,7 @@
       'type': 'executable',
       'sources': [
         '../experimental/tools/multipage_pdf_profiler.cpp',
+        '../experimental/tools/PageCachingDocument.cpp',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
