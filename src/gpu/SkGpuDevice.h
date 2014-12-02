@@ -155,7 +155,6 @@ private:
 
     virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
 
-    // temporarily change the return to false, until we understand the issues with filters and persp
     virtual bool forceConservativeRasterClip() const SK_OVERRIDE { return true; }
 
     // sets the render target, clip, and matrix on GrContext. Use forceIdenity to override
