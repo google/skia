@@ -234,10 +234,6 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
 
         SkCanvas* atlasCanvas = surface->getCanvas();
 
-        SkPaint clearPaint;
-        clearPaint.setColor(SK_ColorTRANSPARENT);
-        clearPaint.setXfermode(SkXfermode::Create(SkXfermode::kSrc_Mode))->unref();
-
         for (int i = 0; i < atlased.count(); ++i) {
             const GrCachedLayer* layer = atlased[i].fLayer;
             const SkPicture* pict = atlased[i].fPicture;
@@ -255,9 +251,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
                                             SkIntToScalar(layer->rect().width()),
                                             SkIntToScalar(layer->rect().height()));
             atlasCanvas->clipRect(bound);
-
-            // Since 'clear' doesn't respect the clip we need to draw a rect
-            atlasCanvas->drawRect(bound, clearPaint);
+            atlasCanvas->clear(0);
 
             // '-offset' maps the layer's top/left to the origin.
             // Since this layer is atlased, the top/left corner needs
@@ -272,7 +266,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
 
             SkRecordPartialDraw(*pict->fRecord.get(), atlasCanvas,
                                 pict->drawablePicts(), pict->drawableCount(),
-                                bound, layer->start() + 1, layer->stop(), initialCTM);
+                                layer->start() + 1, layer->stop(), initialCTM);
 
             atlasCanvas->restore();
         }
@@ -303,7 +297,6 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
                                         SkIntToScalar(layer->rect().height()));
 
         layerCanvas->clipRect(bound);
-
         layerCanvas->clear(SK_ColorTRANSPARENT);
 
         SkMatrix initialCTM;
@@ -315,7 +308,7 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
 
         SkRecordPartialDraw(*pict->fRecord.get(), layerCanvas,
                             pict->drawablePicts(), pict->drawableCount(),
-                            bound, layer->start()+1, layer->stop(), initialCTM);
+                            layer->start()+1, layer->stop(), initialCTM);
 
         layerCanvas->flush();
     }

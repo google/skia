@@ -163,8 +163,9 @@ protected:
 
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.
+     *  DEPRECATED : will go away when chrome subclasses have been updated
      */
-    virtual void clear(SkColor color) = 0;
+    virtual void clear(SkColor color);
 
     SK_ATTR_DEPRECATED("use clear() instead")
     void eraseColor(SkColor eraseColor) { this->clear(eraseColor); }

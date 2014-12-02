@@ -127,10 +127,6 @@ void SkBitmapDevice::unlockPixels() {
     }
 }
 
-void SkBitmapDevice::clear(SkColor color) {
-    fBitmap.eraseColor(color);
-}
-
 const SkBitmap& SkBitmapDevice::onAccessBitmap() {
     return fBitmap;
 }

@@ -426,10 +426,6 @@ void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkPaint::Fil
     fTexOverrideFilter->setFilterLevel(level);
 }
 
-void SkDebugCanvas::clear(SkColor color) {
-    this->addDrawCommand(new SkClearCommand(color));
-}
-
 void SkDebugCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipPathCommand(path, op, kSoft_ClipEdgeStyle == edgeStyle));
 }

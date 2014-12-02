@@ -170,8 +170,6 @@ protected:
 
     // None of the following drawing methods should ever get called on the
     // deferred device
-    virtual void clear(SkColor color) SK_OVERRIDE
-        {SkASSERT(0);}
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
@@ -738,16 +736,6 @@ void SkDeferredCanvas::onClipPath(const SkPath& path,
 void SkDeferredCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     this->drawingCanvas()->clipRegion(deviceRgn, op);
     this->INHERITED::onClipRegion(deviceRgn, op);
-    this->recordedDrawCommand();
-}
-
-void SkDeferredCanvas::clear(SkColor color) {
-    // purge pending commands
-    if (fDeferredDrawing) {
-        this->getDeferredDevice()->skipPendingCommands();
-    }
-
-    this->drawingCanvas()->clear(color);
     this->recordedDrawCommand();
 }
 

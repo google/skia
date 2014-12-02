@@ -245,7 +245,7 @@ private:
     // V34: Add SkTextBlob serialization.
     // V35: Store SkRect (rather then width & height) in header
     // V36: Remove (obsolete) alphatype from SkColorTable
-    // V37: Added shadow only option to SkDropShadowImageFilter
+    // V37: Added shadow only option to SkDropShadowImageFilter (last version to record CLEAR)
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw

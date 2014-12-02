@@ -801,20 +801,6 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
     }
 }
 
-void SkPDFDevice::clear(SkColor color) {
-    this->cleanUp(true);
-    this->init();
-
-    SkPaint paint;
-    paint.setColor(color);
-    paint.setStyle(SkPaint::kFill_Style);
-    SkMatrix identity;
-    identity.reset();
-    ScopedContentEntry content(this, &fExistingClipStack, fExistingClipRegion,
-                               identity, paint);
-    internalDrawPaint(paint, content.entry());
-}
-
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
     SkPaint newPaint = paint;
     newPaint.setStyle(SkPaint::kFill_Style);
