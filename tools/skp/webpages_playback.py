@@ -7,8 +7,8 @@
 
 To archive webpages and store SKP files (archives should be rarely updated):
 
-cd ../buildbot/slave/skia_slave_scripts
-python webpages_playback.py --dest_gsbase=gs://rmistry --record \
+cd skia
+python tools/skp/webpages_playback.py --dest_gsbase=gs://rmistry --record \
 --page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
 --browser_executable=/tmp/chromium/out/Release/chrome
 
@@ -16,8 +16,8 @@ python webpages_playback.py --dest_gsbase=gs://rmistry --record \
 To replay archived webpages and re-generate SKP files (should be run whenever
 SkPicture.PICTURE_VERSION changes):
 
-cd ../buildbot/slave/skia_slave_scripts
-python webpages_playback.py --dest_gsbase=gs://rmistry \
+cd skia
+python tools/skp/webpages_playback.py --dest_gsbase=gs://rmistry \
 --page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
 --browser_executable=/tmp/chromium/out/Release/chrome
 
@@ -25,8 +25,8 @@ python webpages_playback.py --dest_gsbase=gs://rmistry \
 Specify the --page_sets flag (default value is 'all') to pick a list of which
 webpages should be archived and/or replayed. Eg:
 
---page_sets=page_sets/skia_yahooanswers_desktop.json,\
-page_sets/skia_wikipedia_galaxynexus.json
+--page_sets=tools/skp/page_sets/skia_yahooanswers_desktop.py,\
+tools/skp/page_sets/skia_googlecalendar_nexus10.py
 
 The --browser_executable flag should point to the browser binary you want to use
 to capture archives and/or capture SKP files. Majority of the time it should be
@@ -42,8 +42,6 @@ The --skia_tools flag if specified will allow this script to run
 debugger, render_pictures, and render_pdfs on the captured
 SKP(s). The tools are run after all SKPs are succesfully captured to make sure
 they can be added to the buildbots with no breakages.
-To preview the captured SKP before proceeding to the next page_set specify both
---skia_tools and --view_debugger_output.
 """
 
 import glob
