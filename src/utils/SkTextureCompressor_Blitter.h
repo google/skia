@@ -309,7 +309,8 @@ public:
     virtual void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
 
         // Assumptions:
-        SkASSERT(!fBlitMaskCalled && (fBlitMaskCalled = true));
+        SkASSERT(!fBlitMaskCalled);
+        SkDEBUGCODE(fBlitMaskCalled = true);
         SkASSERT(SkMask::kA8_Format == mask.fFormat);
         SkASSERT(mask.fBounds.contains(clip));
 
