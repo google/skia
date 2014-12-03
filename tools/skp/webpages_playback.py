@@ -310,7 +310,7 @@ class SkPicturePlayback(object):
       if not self._non_interactive:
         print '\n\n=======Running debugger======='
         os.system('%s %s' % (os.path.join(self._skia_tools, 'debugger'),
-                             os.path.join(self._local_skp_dir, '*')))
+                             self._local_skp_dir))
 
     print '\n\n'
 
