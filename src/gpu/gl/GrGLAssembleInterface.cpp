@@ -131,6 +131,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetShaderiv);
     GET_PROC(GetString);
     GET_PROC(GetStringi);
+    GET_PROC(GetShaderPrecisionFormat);
     GET_PROC(GetTexLevelParameteriv);
     GET_PROC(GenQueries);
     GET_PROC(GenTextures);
@@ -371,6 +372,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetProgramInfoLog);
     GET_PROC(GetProgramiv);
     GET_PROC(GetShaderInfoLog);
+    GET_PROC(GetShaderPrecisionFormat);
     GET_PROC(GetShaderiv);
     GET_PROC(GetString);
     GET_PROC(GetStringi);

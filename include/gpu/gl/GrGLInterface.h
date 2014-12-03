@@ -220,6 +220,7 @@ public:
         GLPtr<GrGLGetRenderbufferParameterivProc> fGetRenderbufferParameteriv;
         GLPtr<GrGLGetShaderInfoLogProc> fGetShaderInfoLog;
         GLPtr<GrGLGetShaderivProc> fGetShaderiv;
+        GLPtr<GrGLGetShaderPrecisionFormatProc> fGetShaderPrecisionFormat;
         GLPtr<GrGLGetStringProc> fGetString;
         GLPtr<GrGLGetStringiProc> fGetStringi;
         GLPtr<GrGLGetTexLevelParameterivProc> fGetTexLevelParameteriv;

@@ -461,6 +461,15 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4,1) ||
+        fExtensions.has("GL_ARB_ES2_compatibility")) {
+#if 0 // Enable this once Chrome gives us the function ptr
+        if (NULL == fFunctions.fGetShaderPrecisionFormat) {
+            RETURN_FALSE_INTERFACE
+        }
+#endif
+    }
+
     if (fExtensions.has("GL_NV_path_rendering")) {
         if (NULL == fFunctions.fPathCommands ||
             NULL == fFunctions.fPathCoords ||
