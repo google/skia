@@ -191,7 +191,7 @@ DEF_TEST(RecordDraw_PartialStartStop, r) {
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
-    SkRecordPartialDraw(record, &canvas, NULL, 0, 1, 2, SkMatrix::I()); // replay just drawRect of r2
+    SkRecordPartialDraw(record, &canvas, NULL, 0, r1, 1, 2, SkMatrix::I()); // replay just drawRect of r2
 
     REPORTER_ASSERT(r, 3 == rerecord.count());
     assert_type<SkRecords::Save>     (r, rerecord, 0);
@@ -200,6 +200,30 @@ DEF_TEST(RecordDraw_PartialStartStop, r) {
 
     const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, 1);
     REPORTER_ASSERT(r, drawRect->rect == r2);
+}
+
+// Check that clears are converted to drawRects
+DEF_TEST(RecordDraw_PartialClear, r) {
+    static const int kWidth = 10, kHeight = 10;
+
+    SkRect rect = { 0, 0, kWidth, kHeight };
+
+    SkRecord record;
+    SkRecorder recorder(&record, kWidth, kHeight);
+    recorder.clear(SK_ColorRED);
+
+    SkRecord rerecord;
+    SkRecorder canvas(&rerecord, kWidth, kHeight);
+    SkRecordPartialDraw(record, &canvas, NULL, 0, rect, 0, 1, SkMatrix::I()); // replay just the clear
+
+    REPORTER_ASSERT(r, 3 == rerecord.count());
+    assert_type<SkRecords::Save>    (r, rerecord, 0);
+    assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    assert_type<SkRecords::Restore> (r, rerecord, 2);
+
+    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    REPORTER_ASSERT(r, drawRect->rect == rect);
+    REPORTER_ASSERT(r, drawRect->paint.getColor() == SK_ColorRED);
 }
 
 // A regression test for crbug.com/415468 and skbug.com/2957.

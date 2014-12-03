@@ -1706,6 +1706,14 @@ void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
 
+void SkCanvas::clear(SkColor color) {
+    SkDrawIter  iter(this);
+    this->predrawNotify();
+    while (iter.next()) {
+        iter.fDevice->clear(color);
+    }
+}
+
 void SkCanvas::onDiscard() {
     if (fSurfaceBase) {
         fSurfaceBase->aboutToDraw(SkSurface::kDiscard_ContentChangeMode);

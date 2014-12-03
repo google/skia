@@ -44,7 +44,7 @@ SkSurface_Gpu::SkSurface_Gpu(GrRenderTarget* renderTarget, const SkSurfaceProps*
     fDevice = SkGpuDevice::Create(renderTarget, this->props(), deviceFlags);
 
     if (kRGB_565_GrPixelConfig != renderTarget->config() && doClear) {
-        fDevice->clearAll();
+        fDevice->clear(0x0);
     }
 }
 

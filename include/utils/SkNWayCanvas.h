@@ -23,6 +23,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // These are forwarded to the N canvases we're referencing
 
+    virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;

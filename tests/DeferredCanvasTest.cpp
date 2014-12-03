@@ -284,6 +284,14 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     canvas->restore();
     REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
 
+    // Verify that a clear with clipping triggers a fresh frame
+    // (clear is not affected by clipping)
+    canvas->save();
+    canvas->clipRect(partialRect, SkRegion::kIntersect_Op, false);
+    canvas->clear(0x00000000);
+    canvas->restore();
+    REPORTER_ASSERT(reporter, canvas->isFreshFrame());
+
     // Verify that full frame rects with different forms of opaque paint
     // trigger frames to be marked as fresh
     {

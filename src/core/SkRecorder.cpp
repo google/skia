@@ -118,6 +118,10 @@ char* SkRecorder::copy(const char* src) {
 }
 
 
+void SkRecorder::clear(SkColor color) {
+    APPEND(Clear, color);
+}
+
 void SkRecorder::drawPaint(const SkPaint& paint) {
     APPEND(DrawPaint, delay_copy(paint));
 }

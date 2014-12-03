@@ -158,6 +158,8 @@ public:
 // Inherited from SkCanvas
 ////////////////////////////////////////////////////////////////////////////////
 
+    virtual void clear(SkColor) SK_OVERRIDE;
+
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
 

@@ -29,6 +29,7 @@ public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
+    virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;

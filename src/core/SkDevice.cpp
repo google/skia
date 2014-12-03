@@ -90,11 +90,6 @@ SkSurface* SkBaseDevice::newSurface(const SkImageInfo&, const SkSurfaceProps&) {
 
 const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }
 
-// DEPRECATED : remove when chrome subclass have been updated to not override clear()
-void SkBaseDevice::clear(SkColor color) {
-    SkFAIL("SkDevice::clear() should not be called");
-}
-
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                               const SkRRect& inner, const SkPaint& paint) {
     SkPath path;
