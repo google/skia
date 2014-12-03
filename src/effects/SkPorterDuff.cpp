@@ -10,6 +10,8 @@
 #include "SkPorterDuff.h"
 #include "SkXfermode.h"
 
+#ifdef SK_SUPPORT_LEGACY_PORTER_DUFF
+
 /*  This file just exists as a compatibility layer, gluing the PorterDuff API
     into the (extended) SkXfermode API
  */
@@ -85,3 +87,5 @@ SkXfermodeProc SkPorterDuff::GetXfermodeProc(Mode mode) {
 SkXfermodeProc16 SkPorterDuff::GetXfermodeProc16(Mode mode, SkColor srcColor) {
     return SkXfermode::GetProc16(gPairs[mode].fXF, srcColor);
 }
+
+#endif

@@ -11,6 +11,12 @@
 #include "SkColor.h"
 #include "SkXfermode.h"
 
+//#define SK_SUPPORT_LEGACY_PORTER_DUFF
+
+// Temporary guard until we can remove the dependencies in android. Then we
+// plan to remove this entirely.
+#ifdef SK_SUPPORT_LEGACY_PORTER_DUFF
+
 class SkXfermode;
 
 class SK_API SkPorterDuff {
@@ -75,5 +81,7 @@ public:
      */
     static SkXfermode::Mode ToXfermodeMode(Mode);
 } SK_ATTR_DEPRECATED("use SkXfermode::Mode");
+
+#endif
 
 #endif
