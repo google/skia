@@ -10,7 +10,6 @@
 #include "SkDraw.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
-#include "SkRasterClip.h"
 #include "SkShader.h"
 #include "SkTextBlob.h"
 
@@ -93,24 +92,7 @@ const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }
 
 // DEPRECATED : remove when chrome subclass have been updated to not override clear()
 void SkBaseDevice::clear(SkColor color) {
-    SkPaint paint;
-    paint.setColor(color);
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-
-    SkMatrix matrix;
-    matrix.reset();
-
-    SkRasterClip rc(SkIRect::MakeWH(this->width(), this->height()));
-
-    SkDraw draw;
-    sk_bzero(&draw, sizeof(draw));
-
-    draw.fBitmap = &this->accessBitmap(true);
-    draw.fMatrix = &matrix;
-    draw.fClip   = &rc.forceGetBW();
-    draw.fRC     = &rc;
-    draw.fDevice = this;
-    this->drawPaint(draw, paint);
+    SkFAIL("SkDevice::clear() should not be called");
 }
 
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
