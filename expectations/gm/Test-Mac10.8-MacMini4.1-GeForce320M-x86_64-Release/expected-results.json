@@ -18100,7 +18100,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9731024951998568241
+          14795861386913800488
         ]
       ], 
       "reviewed-by-human": true
@@ -18131,6 +18131,7 @@
           14795861386913800488
         ]
       ], 
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "tilemode_bitmap_565.png": {
