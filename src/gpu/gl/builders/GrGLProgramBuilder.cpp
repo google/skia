@@ -28,13 +28,10 @@ static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar:
 
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
-                                               GrGpu::DrawType drawType,
-                                               GrGpuGL* gpu) {
+GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, GrGpuGL* gpu) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(optState,
-                                                                   drawType,
                                                                    optState.hasGeometryProcessor(),
                                                                    gpu));
 
@@ -73,7 +70,6 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
 
 GrGLProgramBuilder*
 GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
-                                         GrGpu::DrawType drawType,
                                          bool hasGeometryProcessor,
                                          GrGpuGL* gpu) {
     const GrProgramDesc& desc = optState.programDesc();
@@ -234,9 +230,7 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
         fVS.setupUniformViewMatrix();
 
         const GrProgramDesc::KeyHeader& header = this->header();
-        if (header.fEmitsPointSize) {
-            fVS.codeAppend("gl_PointSize = 1.0;");
-        }
+        fVS.codeAppend("gl_PointSize = 1.0;");
 
         // Setup position
         // TODO it'd be possible to remove these from the vertexshader builder and have them

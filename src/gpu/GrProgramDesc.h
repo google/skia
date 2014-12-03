@@ -103,8 +103,6 @@ public:
                                                    // effects that read the fragment position.
                                                    // Otherwise, 0.
 
-        SkBool8                     fEmitsPointSize;
-
         ColorInput                  fColorInput : 8;
         ColorInput                  fCoverageInput : 8;
 

@@ -171,15 +171,15 @@ private:
     };
 
     struct SetState : public Cmd {
-        SetState(const GrDrawState& drawState, GrGpu* gpu, const ScissorState& scissor,
-                 const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType)
+        SetState(const GrDrawState& drawState, const GrDrawTargetCaps& caps,
+                 const ScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
+                 GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
-        , fState(drawState, gpu, scissor, dstCopy, drawType) {}
+        , fState(drawState, caps, scissor, dstCopy, drawType) {}
 
         void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
-        const GrOptDrawState    fState;
-        GrGpu::DrawType         fDrawType;
+        GrOptDrawState          fState;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.

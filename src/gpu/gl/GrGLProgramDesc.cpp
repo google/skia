@@ -196,8 +196,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
 
     header->fHasGeometryProcessor = optState.hasGeometryProcessor();
 
-    header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
-
     bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
     if (gpu->caps()->pathRenderingSupport() && isPathRendering) {
         header->fUseNvpr = true;
