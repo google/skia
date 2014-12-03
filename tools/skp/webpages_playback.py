@@ -109,6 +109,10 @@ GS_FINE_GRAINED_ACL_LIST = [
    gs_utils.GSUtils.Permission.READ),
 ]
 
+def remove_prefix(s, prefix):
+  if s.startswith(prefix):
+    return s[len(prefix):]
+  return s
 
 class SkPicturePlayback(object):
   """Class that archives or replays webpages and creates SKPs."""
@@ -177,7 +181,7 @@ class SkPicturePlayback(object):
       raw_input("Please press a key when you are ready to proceed...")
     elif not os.path.isfile(CREDENTIALS_FILE_PATH):
       # Download the credentials.json file from Google Storage.
-      gs_bucket = self._dest_gsbase.lstrip(gs_utils.GS_PREFIX)
+      gs_bucket = remove_prefix(self._dest_gsbase.lstrip(), gs_utils.GS_PREFIX)
       gs_utils.GSUtils().download_file(gs_bucket, CREDENTIALS_GS_PATH,
                                        CREDENTIALS_FILE_PATH)
 
@@ -319,7 +323,7 @@ class SkPicturePlayback(object):
       if self._alternate_upload_dir:
         dest_dir_name = self._alternate_upload_dir
 
-      gs_bucket = self._dest_gsbase.lstrip(gs_utils.GS_PREFIX)
+      gs_bucket = remove_prefix(self._dest_gsbase.lstrip(), gs_utils.GS_PREFIX)
       gs_utils.GSUtils().upload_dir_contents(
           LOCAL_PLAYBACK_ROOT_DIR, gs_bucket, dest_dir_name,
           upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED,
@@ -382,7 +386,7 @@ class SkPicturePlayback(object):
                                      'webpages_archive',
                                      page_set_json_name)
     gs = gs_utils.GSUtils()
-    gs_bucket = self._dest_gsbase.lstrip(gs_utils.GS_PREFIX)
+    gs_bucket = remove_prefix(self._dest_gsbase.lstrip(), gs_utils.GS_PREFIX)
     if (gs.does_storage_object_exist(gs_bucket, wpr_source) and
         gs.does_storage_object_exist(gs_bucket, page_set_source)):
       gs.download_file(gs_bucket, wpr_source,
