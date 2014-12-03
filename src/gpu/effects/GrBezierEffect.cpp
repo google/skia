@@ -321,7 +321,7 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
     const GrCubicEffect& gp = args.fGP.cast<GrCubicEffect>();
 
     GrGLVertToFrag v(kVec4f_GrSLType);
-    args.fPB->addVarying("CubicCoeffs", &v);
+    args.fPB->addVarying("CubicCoeffs", &v, GrGLShaderVar::kHigh_Precision);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
 
     // setup coord outputs
