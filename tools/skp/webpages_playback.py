@@ -295,7 +295,7 @@ class SkPicturePlayback(object):
       ]
       render_pdfs_cmd = [
           os.path.join(self._skia_tools, 'render_pdfs'),
-          self._local_skp_dir
+          '-r', self._local_skp_dir
       ]
 
       for tools_cmd in (render_pictures_cmd, render_pdfs_cmd):
