@@ -600,8 +600,7 @@ int nanobench_main();
 int nanobench_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
-    // Multithreading is disabled pending resolution of skia:3149
-    //SkTaskGroup::Enabler enabled;
+    SkTaskGroup::Enabler enabled;
 
 #if SK_SUPPORT_GPU
     GrContext::Options grContextOpts;

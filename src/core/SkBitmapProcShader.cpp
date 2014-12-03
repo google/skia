@@ -92,9 +92,9 @@ static bool valid_for_drawing(const SkBitmap& bm) {
         return false;   // no pixels to read
     }
     if (kIndex_8_SkColorType == bm.colorType()) {
-        // ugh, I have to lock-pixels to inspect the colortable
-        SkAutoLockPixels alp(bm);
-        if (!bm.getColorTable()) {
+        SkBitmap copy(bm);          // Locking and unlocking pixels is not thread safe,
+        SkAutoLockPixels alp(copy); // but we need to call it before getColorTable() is safe.
+        if (!copy.getColorTable()) {
             return false;
         }
     }
