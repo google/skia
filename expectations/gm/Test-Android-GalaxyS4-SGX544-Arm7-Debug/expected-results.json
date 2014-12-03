@@ -2768,7 +2768,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8207603413123076437
+          3259127757869800548
         ]
       ], 
       "reviewed-by-human": true
@@ -5656,11 +5656,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3820079237050127217
+          7390640465801831528
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradtext_565.png": {
       "allowed-digests": [
@@ -5870,7 +5870,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14771652249910100761
+          12246948716703985900
         ]
       ], 
       "reviewed-by-human": true
@@ -6418,7 +6418,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2050649238226542649
+          5395800440148656953
         ]
       ], 
       "reviewed-by-human": true
@@ -6618,7 +6618,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5444522657787181251
+          15828404959545127859
         ]
       ], 
       "ignore-failure": false, 
@@ -8870,7 +8870,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7147776690675968904
+          5108944420547901372
         ]
       ], 
       "reviewed-by-human": true
