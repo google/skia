@@ -15,7 +15,7 @@
 
 class TestingAccess {
 public:
-    static int NumLayers(GrLayerCache* cache) {
+    static unsigned NumLayers(GrLayerCache* cache) {
         return cache->numLayers();
     }
     static void Purge(GrLayerCache* cache, uint32_t pictureID) {
@@ -25,7 +25,8 @@ public:
         return layer->uses();
     }
     static GrCachedLayer* Find(GrLayerCache* cache, uint32_t pictureID,
-                               const SkMatrix& initialMat, const int* key, int keySize) {
+                               const SkMatrix& initialMat, 
+                               const unsigned* key, int keySize) {
         return cache->findLayer(pictureID, initialMat, key, keySize);
     }
 };
@@ -34,11 +35,11 @@ public:
 static void create_layers(skiatest::Reporter* reporter,
                           GrLayerCache* cache,
                           const SkPicture& picture,
-                          int numToAdd,
-                          int idOffset) {
+                          unsigned numToAdd,
+                          unsigned idOffset) {
 
-    for (int i = 0; i < numToAdd; ++i) {
-        int indices[1] = { idOffset+i+1 };
+    for (unsigned i = 0; i < numToAdd; ++i) {
+        unsigned indices[1] = { idOffset+i+1 };
         GrCachedLayer* layer = cache->findLayerOrCreate(picture.uniqueID(), 
                                                         idOffset+i+1, idOffset+i+2, 
                                                         SkIRect::MakeEmpty(),
@@ -116,8 +117,8 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
         create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
 
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int indices[1] = { i + 1 };
+        for (unsigned i = 0; i < kInitialNumLayers; ++i) {
+            unsigned indices[1] = { i + 1 };
             GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
                                                        indices, 1);
             REPORTER_ASSERT(reporter, layer);
@@ -135,8 +136,8 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         }
 
         // Unlock the textures
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int indices[1] = { i+1 };
+        for (unsigned i = 0; i < kInitialNumLayers; ++i) {
+            unsigned indices[1] = { i+1 };
 
             GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
                                                        indices, 1);
@@ -144,8 +145,8 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             cache.removeUse(layer);
         }
 
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int indices[1] = { i+1 };
+        for (unsigned i = 0; i < kInitialNumLayers; ++i) {
+            unsigned indices[1] = { i+1 };
 
             GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
                                                        indices, 1);
@@ -172,7 +173,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         }
 
         {
-            int indices[1] = { kInitialNumLayers+1 };
+            unsigned indices[1] = { kInitialNumLayers+1 };
 
             // Add an additional layer. Since all the layers are unlocked this 
             // will force out the first atlased layer
@@ -185,8 +186,8 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             cache.removeUse(layer);
         }
 
-        for (int i = 0; i < kInitialNumLayers+1; ++i) {
-            int indices[1] = { i+1 };
+        for (unsigned i = 0; i < kInitialNumLayers+1; ++i) {
+            unsigned indices[1] = { i+1 };
 
             GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
                                                        indices, 1);

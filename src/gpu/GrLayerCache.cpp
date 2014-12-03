@@ -125,7 +125,7 @@ GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
                                          int start, int stop,
                                          const SkIRect& bounds,
                                          const SkMatrix& initialMat,
-                                         const int* key,
+                                         const unsigned* key,
                                          int keySize,
                                          const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
@@ -137,7 +137,7 @@ GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
 }
 
 GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID, const SkMatrix& initialMat,
-                                       const int* key, int keySize) {
+                                       const unsigned* key, int keySize) {
     SkASSERT(pictureID != SK_InvalidGenID);
     return fLayerHash.find(GrCachedLayer::Key(pictureID, initialMat, key, keySize));
 }
@@ -146,7 +146,7 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
                                                int start, int stop,
                                                const SkIRect& bounds,
                                                const SkMatrix& initialMat,
-                                               const int* key,
+                                               const unsigned* key,
                                                int keySize,
                                                const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
@@ -209,9 +209,8 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
                 pictInfo->incPlotUsage(plot->id());
 #endif
                 // The layer was successfully added to the atlas
-                GrIRect16 bounds = GrIRect16::MakeXYWH(loc.fX, loc.fY,
-                                                       SkToS16(desc.fWidth),
-                                                       SkToS16(desc.fHeight));
+                const SkIRect bounds = SkIRect::MakeXYWH(loc.fX, loc.fY, 
+                                                         desc.fWidth, desc.fHeight);
                 layer->setTexture(fAtlas->getTexture(), bounds);
                 layer->setPlot(plot);
                 layer->setLocked(true);
@@ -250,7 +249,7 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* n
         return false;
     }
 
-    layer->setTexture(tex, GrIRect16::MakeWH(SkToS16(desc.fWidth), SkToS16(desc.fHeight)));
+    layer->setTexture(tex, SkIRect::MakeWH(desc.fWidth, desc.fHeight));
     layer->setLocked(true);
     *needsRendering = true;
     return true;
@@ -289,11 +288,11 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
         }
 
         layer->setPlot(NULL);
-        layer->setTexture(NULL, GrIRect16::MakeEmpty());
+        layer->setTexture(NULL, SkIRect::MakeEmpty());
 #endif
 
     } else {
-        layer->setTexture(NULL, GrIRect16::MakeEmpty());
+        layer->setTexture(NULL, SkIRect::MakeEmpty());
     }
 
     layer->setLocked(false);

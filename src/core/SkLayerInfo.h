@@ -53,7 +53,7 @@ public:
         // The variable length key for this saveLayer block. It stores the
         // thread of drawPicture and saveLayer operation indices that lead to this
         // saveLayer (including its own op index). The BlockInfo owns this memory.
-        int*    fKey;
+        unsigned* fKey;
         int     fKeySize;  // # of ints
     };
 

@@ -72,7 +72,6 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     layerCache->addUse(layer);
     hl->fLayer = layer;
     hl->fPicture = pict;
-    hl->fOffset = SkIPoint::Make(layerRect.fLeft, layerRect.fTop);
     hl->fLocalMat = info.fLocalMat;
     hl->fInitialMat = initialMat;
     hl->fPreMat = initialMat;
@@ -185,46 +184,6 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
     }
 }
 
-static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* result) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    result->setInfo(info);
-    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
-}
-
-void GrLayerHoister::ConvertLayersToReplacements(const SkPicture* topLevelPicture,
-                                                 const SkTDArray<GrHoistedLayer>& layers,
-                                                 GrReplacements* replacements) {
-    // TODO: just replace GrReplacements::ReplacementInfo with GrCachedLayer?
-    for (int i = 0; i < layers.count(); ++i) {
-        GrCachedLayer* layer = layers[i].fLayer;
-
-        GrReplacements::ReplacementInfo* layerInfo =
-                    replacements->newReplacement(topLevelPicture->uniqueID(),
-                                                 layers[i].fInitialMat,
-                                                 layer->key(), layer->keySize());
-        layerInfo->fStop = layer->stop();
-        layerInfo->fPos = layers[i].fOffset;
-
-        SkBitmap bm;
-        wrap_texture(layers[i].fLayer->texture(),
-                     !layers[i].fLayer->isAtlased() ? layers[i].fLayer->rect().width()
-                                                    : layers[i].fLayer->texture()->width(),
-                     !layers[i].fLayer->isAtlased() ? layers[i].fLayer->rect().height()
-                                                    : layers[i].fLayer->texture()->height(),
-                     &bm);
-        layerInfo->fImage = SkImage::NewTexture(bm);
-
-        layerInfo->fPaint = layers[i].fLayer->paint()
-                                ? SkNEW_ARGS(SkPaint, (*layers[i].fLayer->paint()))
-                                : NULL;
-
-        layerInfo->fSrcRect = SkIRect::MakeXYWH(layers[i].fLayer->rect().fLeft,
-                                                layers[i].fLayer->rect().fTop,
-                                                layers[i].fLayer->rect().width(),
-                                                layers[i].fLayer->rect().height());
-    }
-}
-
 void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
                                        const SkTDArray<GrHoistedLayer>& atlased) {
     if (atlased.count() > 0) {
@@ -241,7 +200,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
         for (int i = 0; i < atlased.count(); ++i) {
             const GrCachedLayer* layer = atlased[i].fLayer;
             const SkPicture* pict = atlased[i].fPicture;
-            const SkIPoint offset = atlased[i].fOffset;
+            const SkIPoint offset = SkIPoint::Make(layer->bound().fLeft, layer->bound().fTop);
             SkDEBUGCODE(const SkPaint* layerPaint = layer->paint();)
 
             SkASSERT(!layerPaint || !layerPaint->getImageFilter());
@@ -250,10 +209,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
 
             // Add a rect clip to make sure the rendering doesn't
             // extend beyond the boundaries of the atlased sub-rect
-            SkRect bound = SkRect::MakeXYWH(SkIntToScalar(layer->rect().fLeft),
-                                            SkIntToScalar(layer->rect().fTop),
-                                            SkIntToScalar(layer->rect().width()),
-                                            SkIntToScalar(layer->rect().height()));
+            const SkRect bound = SkRect::Make(layer->rect());
             atlasCanvas->clipRect(bound);
 
             // Since 'clear' doesn't respect the clip we need to draw a rect
@@ -285,7 +241,7 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
     for (int i = 0; i < layers.count(); ++i) {
         GrCachedLayer* layer = layers[i].fLayer;
         const SkPicture* pict = layers[i].fPicture;
-        const SkIPoint& offset = layers[i].fOffset;
+        const SkIPoint offset = SkIPoint::Make(layer->bound().fLeft, layer->bound().fTop);
 
         // Each non-atlased layer has its own GrTexture
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
@@ -297,11 +253,7 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
 
         // Add a rect clip to make sure the rendering doesn't
         // extend beyond the boundaries of the layer
-        SkRect bound = SkRect::MakeXYWH(SkIntToScalar(layer->rect().fLeft),
-                                        SkIntToScalar(layer->rect().fTop),
-                                        SkIntToScalar(layer->rect().width()),
-                                        SkIntToScalar(layer->rect().height()));
-
+        const SkRect bound = SkRect::Make(layer->rect());
         layerCanvas->clipRect(bound);
 
         layerCanvas->clear(SK_ColorTRANSPARENT);

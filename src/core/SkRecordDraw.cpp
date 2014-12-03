@@ -691,10 +691,10 @@ private:
 
             // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
             dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
-            dst.fKey = SkNEW_ARRAY(int, dst.fKeySize);
-            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(int));
+            dst.fKey = SkNEW_ARRAY(unsigned, dst.fKeySize);
+            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(unsigned));
             dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
-            memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
+            memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(unsigned));
         }
     }
 
@@ -766,8 +766,8 @@ private:
         block.fIsNested = fSaveLayersInStack > 0;
 
         block.fKeySize = fSaveLayerOpStack.count();
-        block.fKey = SkNEW_ARRAY(int, block.fKeySize);
-        memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(int));
+        block.fKey = SkNEW_ARRAY(unsigned, block.fKeySize);
+        memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(unsigned));
 
         fSaveLayerOpStack.pop();
     }
@@ -776,7 +776,7 @@ private:
     int                      fSaveLayersInStack;
     SkTDArray<SaveLayerInfo> fSaveLayerStack;
     // The op code indices of all the currently active saveLayers
-    SkTDArray<int>           fSaveLayerOpStack;
+    SkTDArray<unsigned>      fSaveLayerOpStack;
     SkLayerInfo*             fAccelData;
     const SkPicture::SnapshotArray* fPictList;
 

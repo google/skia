@@ -77,7 +77,7 @@ public:
     // For SkTDynamicHash
     struct Key {
         Key(uint32_t pictureID, const SkMatrix& initialMat, 
-            const int* key, int keySize, bool copyKey = false)
+            const unsigned* key, int keySize, bool copyKey = false)
         : fKeySize(keySize) 
         , fFreeKey(copyKey) {
             fIDMatrix.fPictureID = pictureID;
@@ -85,8 +85,8 @@ public:
             fIDMatrix.fInitialMat.getType(); // force initialization of type so hashes match
 
             if (copyKey) {
-                int* tempKey = SkNEW_ARRAY(int, keySize);
-                memcpy(tempKey, key, keySize*sizeof(int));
+                unsigned* tempKey = SkNEW_ARRAY(unsigned, keySize);
+                memcpy(tempKey, key, keySize*sizeof(unsigned));
                 fKey = tempKey;
             } else {
                 fKey = key;
@@ -115,7 +115,7 @@ public:
         uint32_t pictureID() const { return fIDMatrix.fPictureID; }
 
         // TODO: remove these when GrCachedLayer & ReplacementInfo fuse
-        const int* key() const { SkASSERT(fFreeKey);  return fKey; }
+        const unsigned* key() const { SkASSERT(fFreeKey);  return fKey; }
         int keySize() const { SkASSERT(fFreeKey); return fKeySize; }
 
         uint32_t hash() const {
@@ -133,18 +133,18 @@ public:
             SkMatrix fInitialMat;
         }              fIDMatrix;
 
-        const int*     fKey;
-        const int      fKeySize;
-        bool           fFreeKey;
+        const unsigned* fKey;
+        const int       fKeySize;
+        bool            fFreeKey;
     };
 
     static const Key& GetKey(const GrCachedLayer& layer) { return layer.fKey; }
     static uint32_t Hash(const Key& key) { return key.hash(); }
 
     // GrCachedLayer proper
-    GrCachedLayer(uint32_t pictureID, int start, int stop,
+    GrCachedLayer(uint32_t pictureID, unsigned start, unsigned stop,
                   const SkIRect& bounds, const SkMatrix& ctm,
-                  const int* key, int keySize,
+                  const unsigned* key, int keySize,
                   const SkPaint* paint)
         : fKey(pictureID, ctm, key, keySize, true)
         , fStart(start)
@@ -152,11 +152,11 @@ public:
         , fBounds(bounds)
         , fPaint(paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL)
         , fTexture(NULL)
-        , fRect(GrIRect16::MakeEmpty())
+        , fRect(SkIRect::MakeEmpty())
         , fPlot(NULL)
         , fUses(0)
         , fLocked(false) {
-        SkASSERT(SK_InvalidGenID != pictureID && start >= 0 && stop >= 0);
+        SkASSERT(SK_InvalidGenID != pictureID);
     }
 
     ~GrCachedLayer() {
@@ -166,20 +166,20 @@ public:
 
     uint32_t pictureID() const { return fKey.pictureID(); }
     // TODO: remove these when GrCachedLayer & ReplacementInfo fuse
-    const int* key() const { return fKey.key(); }
+    const unsigned* key() const { return fKey.key(); }
     int keySize() const { return fKey.keySize(); }
 
-    int start() const { return fStart; }
+    unsigned start() const { return fStart; }
     // TODO: make bound debug only
     const SkIRect& bound() const { return fBounds; }
-    int stop() const { return fStop; }
-    void setTexture(GrTexture* texture, const GrIRect16& rect) {
+    unsigned stop() const { return fStop; }
+    void setTexture(GrTexture* texture, const SkIRect& rect) {
         SkRefCnt_SafeAssign(fTexture, texture);
         fRect = rect;
     }
     GrTexture* texture() { return fTexture; }
     const SkPaint* paint() const { return fPaint; }
-    const GrIRect16& rect() const { return fRect; }
+    const SkIRect& rect() const { return fRect; }
 
     void setPlot(GrPlot* plot) {
         SkASSERT(NULL == plot || NULL == fPlot);
@@ -199,9 +199,9 @@ private:
     const Key       fKey;
 
     // The "saveLayer" operation index of the cached layer
-    const int       fStart;
+    const unsigned  fStart;
     // The final "restore" operation index of the cached layer
-    const int       fStop;
+    const unsigned  fStop;
 
     const SkIRect   fBounds;
 
@@ -216,7 +216,7 @@ private:
     // For both atlased and non-atlased layers 'fRect' contains the  bound of
     // the layer in whichever texture it resides. It is empty when 'fTexture'
     // is NULL.
-    GrIRect16       fRect;
+    SkIRect         fRect;
 
     // For atlased layers, fPlot stores the atlas plot in which the layer rests.
     // It is always NULL for non-atlased layers.
@@ -259,11 +259,13 @@ public:
     // elements by the GrContext
     void freeAll();
 
+    GrCachedLayer* findLayer(uint32_t pictureID, const SkMatrix& ctm,
+                             const unsigned* key, int keySize);
     GrCachedLayer* findLayerOrCreate(uint32_t pictureID,
                                      int start, int stop, 
                                      const SkIRect& bounds,
                                      const SkMatrix& initialMat,
-                                     const int* key, int keySize,
+                                     const unsigned* key, int keySize,
                                      const SkPaint* paint);
 
     // Attempt to place 'layer' in the atlas. Return true on success; false on failure.
@@ -346,7 +348,7 @@ private:
     void initAtlas();
     GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop,
                                const SkIRect& bounds, const SkMatrix& initialMat,
-                               const int* key, int keySize,
+                               const unsigned* key, int keySize,
                                const SkPaint* paint);
 
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
@@ -367,8 +369,6 @@ private:
     // for testing
     friend class TestingAccess;
     int numLayers() const { return fLayerHash.count(); }
-    GrCachedLayer* findLayer(uint32_t pictureID, const SkMatrix& ctm,
-                             const int* key, int keySize);
 };
 
 #endif

@@ -20,7 +20,6 @@ public:
     const SkPicture* fPicture;  // the picture that actually contains the layer
                                 // (not necessarily the top-most picture)
     GrCachedLayer*   fLayer;
-    SkIPoint         fOffset;
     SkMatrix         fInitialMat;
     SkMatrix         fPreMat;
     SkMatrix         fLocalMat;

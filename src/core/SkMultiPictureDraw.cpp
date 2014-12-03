@@ -15,6 +15,7 @@
 #include "SkTaskGroup.h"
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 #include "GrRenderTarget.h"
@@ -168,13 +169,9 @@ void SkMultiPictureDraw::draw() {
 
             GrLayerHoister::DrawLayers(context, needRendering);
 
-            GrReplacements replacements;
-
-            GrLayerHoister::ConvertLayersToReplacements(picture, needRendering, &replacements);
-            GrLayerHoister::ConvertLayersToReplacements(picture, recycled, &replacements);
-
             // Render the entire picture using new layers
-            GrRecordReplaceDraw(picture, canvas, &replacements, initialMatrix, NULL);
+            GrRecordReplaceDraw(picture, canvas, context->getLayerCache(),
+                                initialMatrix, NULL);
 
             GrLayerHoister::UnlockLayers(context, needRendering);
             GrLayerHoister::UnlockLayers(context, recycled);
