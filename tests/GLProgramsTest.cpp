@@ -118,50 +118,6 @@ static GrRenderTarget* random_render_target(GrContext* context,
     return SkRef(texture->asRenderTarget());
 }
 
-// TODO clean this up, we have to do this to test geometry processors but there has got to be
-// a better way.  In the mean time, we actually fill out these generic vertex attribs below with
-// the correct vertex attribs from the GP.  We have to ensure, however, we don't try to add more
-// than two attributes.  In addition, we 'pad' the below array with GPs up to 6 entries, 4 fixed
-// function vertex attributes and 2 GP custom attributes.
-GrVertexAttrib kGenericVertexAttribs[] = {
-    { kVec2f_GrVertexAttribType, 0,   kPosition_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 0,   kGeometryProcessor_GrVertexAttribBinding }
-};
-
-/*
- * convert sl type to vertexattrib type, not a complete implementation, only use for debugging
- */
-static GrVertexAttribType convert_sltype_to_attribtype(GrSLType type) {
-    switch (type) {
-        case kFloat_GrSLType:
-            return kFloat_GrVertexAttribType;
-        case kVec2f_GrSLType:
-            return kVec2f_GrVertexAttribType;
-        case kVec3f_GrSLType:
-            return kVec3f_GrVertexAttribType;
-        case kVec4f_GrSLType:
-            return kVec4f_GrVertexAttribType;
-        default:
-            SkFAIL("Type isn't convertible");
-            return kFloat_GrVertexAttribType;
-    }
-}
-// end test hack
-
-static void setup_random_ff_attribute(GrVertexAttribBinding binding, GrVertexAttribType type,
-                                      SkRandom* random, int* attribIndex, int* runningStride) {
-    if (random->nextBool()) {
-        kGenericVertexAttribs[*attribIndex].fType = type;
-        kGenericVertexAttribs[*attribIndex].fOffset = *runningStride;
-        kGenericVertexAttribs[*attribIndex].fBinding = binding;
-        *runningStride += GrVertexAttribTypeSize(kGenericVertexAttribs[(*attribIndex)++].fType);
-    }
-}
-
 static void set_random_gp(GrContext* context,
                           const GrDrawTargetCaps& caps,
                           GrDrawState* ds,
@@ -174,41 +130,6 @@ static void set_random_gp(GrContext* context,
                                                                      dummyTextures));
     SkASSERT(gp);
 
-    // we have to set dummy vertex attributes, first we setup the fixed function attributes
-    // always leave the position attribute untouched in the array
-    int attribIndex = 1;
-    int runningStride = GrVertexAttribTypeSize(kGenericVertexAttribs[0].fType);
-
-    // local coords
-    setup_random_ff_attribute(kLocalCoord_GrVertexAttribBinding, kVec2f_GrVertexAttribType,
-                              random, &attribIndex, &runningStride);
-
-    // color
-    setup_random_ff_attribute(kColor_GrVertexAttribBinding, kVec4f_GrVertexAttribType,
-                              random, &attribIndex, &runningStride);
-
-    // coverage
-    setup_random_ff_attribute(kCoverage_GrVertexAttribBinding, kUByte_GrVertexAttribType,
-                              random, &attribIndex, &runningStride);
-
-    // Update the geometry processor attributes
-    const GrGeometryProcessor::VertexAttribArray& v = gp->getVertexAttribs();
-    int numGPAttribs = v.count();
-    SkASSERT(numGPAttribs <= GrGeometryProcessor::kMaxVertexAttribs &&
-             GrGeometryProcessor::kMaxVertexAttribs == 2);
-
-    // we actually can't overflow if kMaxVertexAttribs == 2, but GCC 4.8 wants more proof
-    int maxIndex = SK_ARRAY_COUNT(kGenericVertexAttribs);
-    for (int i = 0; i < numGPAttribs && i + attribIndex < maxIndex; i++) {
-        kGenericVertexAttribs[i + attribIndex].fType =
-                convert_sltype_to_attribtype(v[i].getType());
-        kGenericVertexAttribs[i + attribIndex].fOffset = runningStride;
-        kGenericVertexAttribs[i + attribIndex].fBinding = kGeometryProcessor_GrVertexAttribBinding;
-        runningStride += GrVertexAttribTypeSize(kGenericVertexAttribs[i + attribIndex].fType);
-    }
-
-    // update the vertex attributes with the ds
-    ds->setVertexAttribs<kGenericVertexAttribs>(attribIndex + numGPAttribs, runningStride);
     ds->setGeometryProcessor(gp);
 }
 

@@ -35,23 +35,10 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
 namespace {
-// position + texture coord
-extern const GrVertexAttrib gLCDVertexAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kGeometryProcessor_GrVertexAttribBinding}
-};
-
 static const size_t kLCDTextVASize = 2 * sizeof(SkPoint);
 
 // position + local coord
 static const size_t kColorTextVASize = 2 * sizeof(SkPoint);
-
-// position + color + texture coord
-extern const GrVertexAttrib gGrayVertexAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kGeometryProcessor_GrVertexAttribBinding}
-};
 
 static const size_t kGrayTextVASize = 2 * sizeof(SkPoint) + sizeof(GrColor);
 
@@ -354,19 +341,6 @@ static size_t get_vertex_stride(GrMaskFormat maskFormat) {
     }
 }
 
-static void set_vertex_attributes(GrDrawState* drawState, GrMaskFormat maskFormat) {
-    if (kA8_GrMaskFormat == maskFormat) {
-        drawState->setVertexAttribs<gGrayVertexAttribs>(
-                                    SK_ARRAY_COUNT(gGrayVertexAttribs), kGrayTextVASize);
-    } else if (kARGB_GrMaskFormat == maskFormat) {
-        GrDefaultGeoProcFactory::SetAttribs(drawState,
-                                            GrDefaultGeoProcFactory::kLocalCoord_GPType);
-    } else {
-        drawState->setVertexAttribs<gLCDVertexAttribs>(
-                                    SK_ARRAY_COUNT(gLCDVertexAttribs), kLCDTextVASize);
-    }
-}
-
 static void* alloc_vertices(GrDrawTarget* drawTarget,
                             int numVertices,
                             GrMaskFormat maskFormat) {
@@ -552,16 +526,15 @@ void GrBitmapTextContext::flush() {
         GrDrawState drawState;
         drawState.setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
 
-        set_vertex_attributes(&drawState, fCurrMaskFormat);
-
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
         SkASSERT(fCurrTexture);
-        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
 
         // This effect could be stored with one of the cache objects (atlas?)
+        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
         if (kARGB_GrMaskFormat == fCurrMaskFormat) {
-            drawState.setGeometryProcessor(GrDefaultGeoProcFactory::Create(true))->unref();
+            uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
+            drawState.setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
             GrFragmentProcessor* fragProcessor = GrSimpleTextureEffect::Create(fCurrTexture,
                                                                                SkMatrix::I(),
                                                                                params);
@@ -569,11 +542,12 @@ void GrBitmapTextContext::flush() {
         } else {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID) {
+                bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
                 fCachedGeometryProcessor.reset(GrCustomCoordsTextureEffect::Create(fCurrTexture,
-                                                                                   params));
+                                                                                   params,
+                                                                                   hasColor));
                 fEffectTextureUniqueID = textureUniqueID;
             }
-
             drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
         }
 

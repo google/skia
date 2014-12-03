@@ -250,16 +250,11 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState, DrawType type) 
 void GrGpuGL::setupGeometry(const GrOptDrawState& optState,
                             const GrDrawTarget::DrawInfo& info,
                             size_t* indexOffsetInBytes) {
-    GrGLsizei stride = static_cast<GrGLsizei>(optState.getVertexStride());
-
-    size_t vertexOffsetInBytes = stride * info.startVertex();
-
     GrGLVertexBuffer* vbuf;
     vbuf = (GrGLVertexBuffer*) info.vertexBuffer();
 
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
-    vertexOffsetInBytes += vbuf->baseOffset();
 
     GrGLIndexBuffer* ibuf = NULL;
     if (info.isIndexed()) {
@@ -276,23 +271,31 @@ void GrGpuGL::setupGeometry(const GrOptDrawState& optState,
         fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
     if (fCurrentProgram->hasVertexShader()) {
-        int vertexAttribCount = optState.getVertexAttribCount();
-        uint32_t usedAttribArraysMask = 0;
-        const GrVertexAttrib* vertexAttrib = optState.getVertexAttribs();
+        const GrGeometryProcessor* gp = optState.getGeometryProcessor();
 
-        for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
-             ++vertexAttribIndex, ++vertexAttrib) {
-            usedAttribArraysMask |= (1 << vertexAttribIndex);
-            GrVertexAttribType attribType = vertexAttrib->fType;
+        GrGLsizei stride = static_cast<GrGLsizei>(gp->getVertexStride());
+
+        size_t vertexOffsetInBytes = stride * info.startVertex();
+
+        vertexOffsetInBytes += vbuf->baseOffset();
+
+        const SkTArray<GrGeometryProcessor::GrAttribute, true>& attribs = gp->getAttribs();
+        int vaCount = attribs.count();
+        uint32_t usedAttribArraysMask = 0;
+        size_t offset = 0;
+
+        for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
+            usedAttribArraysMask |= (1 << attribIndex);
+            GrVertexAttribType attribType = attribs[attribIndex].fType;
             attribState->set(this,
-                             vertexAttribIndex,
+                             attribIndex,
                              vbuf,
                              GrGLAttribTypeToLayout(attribType).fCount,
                              GrGLAttribTypeToLayout(attribType).fType,
                              GrGLAttribTypeToLayout(attribType).fNormalized,
                              stride,
-                             reinterpret_cast<GrGLvoid*>(
-                                 vertexOffsetInBytes + vertexAttrib->fOffset));
+                             reinterpret_cast<GrGLvoid*>(vertexOffsetInBytes + offset));
+            offset += attribs[attribIndex].fOffset;
         }
         attribState->disableUnusedArrays(this, usedAttribArraysMask);
     }

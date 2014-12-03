@@ -111,11 +111,6 @@ public:
         PrimaryOutputType           fPrimaryOutputType : 8;
         SecondaryOutputType         fSecondaryOutputType : 8;
 
-        int8_t                      fPositionAttributeIndex;
-        int8_t                      fLocalCoordAttributeIndex;
-        int8_t                      fColorAttributeIndex;
-        int8_t                      fCoverageAttributeIndex;
-
         SkBool8                     fHasGeometryProcessor;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
@@ -141,29 +136,10 @@ public:
 
     // A struct to communicate descriptor information to the program descriptor builder
     struct DescInfo {
-        int positionAttributeIndex() const {
-            return fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding];
-        }
-        int localCoordAttributeIndex() const {
-            return fFixedFunctionVertexAttribIndices[kLocalCoord_GrVertexAttribBinding];
-        }
-        int colorVertexAttributeIndex() const {
-            return fFixedFunctionVertexAttribIndices[kColor_GrVertexAttribBinding];
-        }
-        int coverageVertexAttributeIndex() const {
-            return fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
-        }
-        bool hasLocalCoordAttribute() const {
-            return -1 != fFixedFunctionVertexAttribIndices[kLocalCoord_GrVertexAttribBinding];
-        }
-        bool hasColorVertexAttribute() const {
-            return -1 != fFixedFunctionVertexAttribIndices[kColor_GrVertexAttribBinding];
-        }
-        bool hasCoverageVertexAttribute() const {
-            return -1 != fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
-        }
-
-        int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
+        // TODO when GPs control uniform / attribute handling of color / coverage, then we can
+        // clean this up
+        bool            fHasVertexColor;
+        bool            fHasVertexCoverage;
 
         // These flags are needed to protect the code from creating an unused uniform color/coverage
         // which will cause shader compiler errors.

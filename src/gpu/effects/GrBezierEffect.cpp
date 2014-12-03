@@ -37,16 +37,20 @@ GrGLConicEffect::GrGLConicEffect(const GrBackendProcessorFactory& factory,
 }
 
 void GrGLConicEffect::emitCode(const EmitArgs& args) {
+    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    const GrConicEffect& gp = args.fGP.cast<GrConicEffect>();
+
     GrGLVertToFrag v(kVec4f_GrSLType);
     args.fPB->addVarying("ConicCoeffs", &v);
+    vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
-    const GrShaderVar& inConicCoeffs = args.fGP.cast<GrConicEffect>().inConicCoeffs();
-    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-    vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inConicCoeffs.c_str());
+    // setup coord outputs
+    vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), gp.inPosition()->fName);
+    vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), gp.inPosition()->fName);
 
     // setup position varying
     vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
+                           gp.inPosition()->fName);
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppend("float edgeAlpha;");
@@ -105,8 +109,7 @@ void GrGLConicEffect::emitCode(const EmitArgs& args) {
             SkFAIL("Shouldn't get here");
     }
 
-    fsBuilder->codeAppendf("%s = %s;", args.fOutput,
-                           (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
+    fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
 }
 
 void GrGLConicEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -125,10 +128,10 @@ const GrBackendGeometryProcessorFactory& GrConicEffect::getFactory() const {
 }
 
 GrConicEffect::GrConicEffect(GrPrimitiveEdgeType edgeType)
-    : fEdgeType(edgeType)
-    , fInConicCoeffs(this->addVertexAttrib(GrShaderVar("inConicCoeffs",
-                                                       kVec4f_GrSLType,
-                                                       GrShaderVar::kAttribute_TypeModifier))) {
+    : fEdgeType(edgeType) {
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    fInConicCoeffs = &this->addVertexAttrib(GrAttribute("inConicCoeffs",
+                                                        kVec4f_GrVertexAttribType));
 }
 
 bool GrConicEffect::onIsEqual(const GrGeometryProcessor& other) const {
@@ -181,16 +184,20 @@ GrGLQuadEffect::GrGLQuadEffect(const GrBackendProcessorFactory& factory,
 }
 
 void GrGLQuadEffect::emitCode(const EmitArgs& args) {
+    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    const GrQuadEffect& gp = args.fGP.cast<GrQuadEffect>();
+
     GrGLVertToFrag v(kVec4f_GrSLType);
     args.fPB->addVarying("HairQuadEdge", &v);
+    vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
-    GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-    const GrShaderVar& inHairQuadEdge = args.fGP.cast<GrQuadEffect>().inHairQuadEdge();
-    vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inHairQuadEdge.c_str());
+    // setup coord outputs
+    vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), gp.inPosition()->fName);
+    vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), gp.inPosition()->fName);
 
     // setup position varying
     vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
+                           gp.inPosition()->fName);
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float edgeAlpha;");
@@ -235,8 +242,7 @@ void GrGLQuadEffect::emitCode(const EmitArgs& args) {
             SkFAIL("Shouldn't get here");
     }
 
-    fsBuilder->codeAppendf("%s = %s;", args.fOutput,
-                           (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
+    fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
 }
 
 void GrGLQuadEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -255,10 +261,10 @@ const GrBackendGeometryProcessorFactory& GrQuadEffect::getFactory() const {
 }
 
 GrQuadEffect::GrQuadEffect(GrPrimitiveEdgeType edgeType)
-    : fEdgeType(edgeType)
-    , fInHairQuadEdge(this->addVertexAttrib(GrShaderVar("inCubicCoeffs",
-                                                        kVec4f_GrSLType,
-                                                        GrShaderVar::kAttribute_TypeModifier))) {
+    : fEdgeType(edgeType) {
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    fInHairQuadEdge = &this->addVertexAttrib(GrAttribute("inHairQuadEdge",
+                                                        kVec4f_GrVertexAttribType));
 }
 
 bool GrQuadEffect::onIsEqual(const GrGeometryProcessor& other) const {
@@ -311,16 +317,20 @@ GrGLCubicEffect::GrGLCubicEffect(const GrBackendProcessorFactory& factory,
 }
 
 void GrGLCubicEffect::emitCode(const EmitArgs& args) {
-    GrGLVertToFrag v(kVec4f_GrSLType);
-    args.fPB->addVarying("CubicCoeffs", &v, GrGLShaderVar::kHigh_Precision);
-
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-    const GrShaderVar& inCubicCoeffs = args.fGP.cast<GrCubicEffect>().inCubicCoeffs();
-    vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inCubicCoeffs.c_str());
+    const GrCubicEffect& gp = args.fGP.cast<GrCubicEffect>();
+
+    GrGLVertToFrag v(kVec4f_GrSLType);
+    args.fPB->addVarying("CubicCoeffs", &v);
+    vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
+
+    // setup coord outputs
+    vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), gp.inPosition()->fName);
+    vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), gp.inPosition()->fName);
 
     // setup position varying
     vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
-                           vsBuilder->inPosition());
+                           gp.inPosition()->fName);
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -405,8 +415,8 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
             SkFAIL("Shouldn't get here");
     }
 
-    fsBuilder->codeAppendf("%s = %s;", args.fOutput,
-                           (GrGLSLExpr4(args.fInput) * GrGLSLExpr1(edgeAlpha.c_str())).c_str());
+
+    fsBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
 }
 
 void GrGLCubicEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
@@ -425,10 +435,10 @@ const GrBackendGeometryProcessorFactory& GrCubicEffect::getFactory() const {
 }
 
 GrCubicEffect::GrCubicEffect(GrPrimitiveEdgeType edgeType)
-    : fEdgeType(edgeType)
-    , fInCubicCoeffs(this->addVertexAttrib(GrShaderVar("inCubicCoeffs",
-                                                       kVec4f_GrSLType,
-                                                       GrShaderVar::kAttribute_TypeModifier))) {
+    : fEdgeType(edgeType) {
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    fInCubicCoeffs = &this->addVertexAttrib(GrAttribute("inCubicCoeffs",
+                                                        kVec4f_GrVertexAttribType));
 }
 
 bool GrCubicEffect::onIsEqual(const GrGeometryProcessor& other) const {

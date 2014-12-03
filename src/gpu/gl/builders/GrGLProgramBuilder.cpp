@@ -52,36 +52,14 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState,
     GrGLSLExpr1 inputCoverage;
     pb->setupUniformColorAndCoverageIfNeeded(&inputColor,  &inputCoverage);
 
-    // if we have a vertex shader(we don't only if we are using NVPR or NVPR ES), then we may have
-    // to setup a few more things like builtin vertex attributes
-    bool hasVertexShader = !(header.fUseNvpr &&
-                             gpu->glPathRendering()->texturingMode() ==
-                             GrGLPathRendering::FixedFunction_TexturingMode);
-
-    if (hasVertexShader) {
-        pb->fVS.setupUniformViewMatrix();
-        pb->fVS.setupPositionAndLocalCoords();
-
-        if (header.fEmitsPointSize) {
-            pb->fVS.codeAppend("gl_PointSize = 1.0;");
-        }
-        if (GrProgramDesc::kAttribute_ColorInput == header.fColorInput) {
-            pb->fVS.setupBuiltinVertexAttribute("Color", &inputColor);
-        }
-        if (GrProgramDesc::kAttribute_ColorInput == header.fCoverageInput) {
-            pb->fVS.setupBuiltinVertexAttribute("Coverage", &inputCoverage);
-        }
-    }
-
     // TODO: Once all stages can handle taking a float or vec4 and correctly handling them we can
     // remove this cast to a vec4.
-    GrGLSLExpr4 inputCoverageVec4 = GrGLSLExpr4::VectorCast(inputCoverage);
+    GrGLSLExpr4 inputCoverageVec4;
+    if (inputCoverage.isValid()) {
+        inputCoverageVec4 = GrGLSLExpr4::VectorCast(inputCoverage);
+    }
 
     pb->emitAndInstallProcs(&inputColor, &inputCoverageVec4);
-
-    if (hasVertexShader) {
-        pb->fVS.transformToNormalizedDeviceSpace();
-    }
 
     // write the secondary color output if necessary
     if (GrProgramDesc::kNone_SecondaryOutputType != header.fSecondaryOutputType) {
@@ -143,6 +121,15 @@ void GrGLProgramBuilder::addVarying(const char* name,
     if (varying->fsVarying()) {
         fFS.addVarying(varying, fsPrecision);
     }
+}
+
+void GrGLProgramBuilder::addPassThroughAttribute(const GrGeometryProcessor::GrAttribute* input,
+                                                 const char* output) {
+    GrSLType type = GrVertexAttribTypeToSLType(input->fType);
+    GrGLVertToFrag v(type);
+    this->addVarying(input->fName, &v);
+    fVS.codeAppendf("%s = %s;", v.vsOut(), input->fName);
+    fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 
 void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name) {
@@ -242,50 +229,84 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
     }
 }
 
-void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
-                                             GrGLSLExpr4* inputCoverage) {
+void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
+    if (fOptState.hasGeometryProcessor()) {
+        fVS.setupUniformViewMatrix();
+
+        const GrProgramDesc::KeyHeader& header = this->header();
+        if (header.fEmitsPointSize) {
+            fVS.codeAppend("gl_PointSize = 1.0;");
+        }
+
+        // Setup position
+        // TODO it'd be possible to remove these from the vertexshader builder and have them
+        // be outputs from the emit call.  We don't do this because emitargs is constant.  It would
+        // be easy to change this though
+        fVS.codeAppendf("vec3 %s;", fVS.glPosition());
+        fVS.codeAppendf("vec2 %s;", fVS.positionCoords());
+        fVS.codeAppendf("vec2 %s;", fVS.localCoords());
+
+        const GrGeometryProcessor& gp = *fOptState.getGeometryProcessor();
+        fVS.emitAttributes(gp);
+        GrGLSLExpr4 outputColor;
+        GrGLSLExpr4 outputCoverage;
+        this->emitAndInstallProc(gp, &outputColor, &outputCoverage);
+
+        // We may override color and coverage here if we have unform color or coverage.  This is
+        // obviously not ideal.
+        // TODO lets the GP itself do the override
+        if (GrProgramDesc::kAttribute_ColorInput == header.fColorInput) {
+            *inputColor = outputColor;
+        }
+        if (GrProgramDesc::kUniform_ColorInput != header.fCoverageInput) {
+            *inputCoverage = outputCoverage;
+        }
+    }
+
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
     int numProcs = fOptState.numFragmentStages();
     this->emitAndInstallFragProcs(0, fOptState.numColorStages(), inputColor);
-    if (fOptState.hasGeometryProcessor()) {
-        const GrGeometryProcessor& gp = *fOptState.getGeometryProcessor();
-        fVS.emitAttributes(gp);
-        GrGLSLExpr4 output;
-        this->emitAndInstallProc<GrGeometryProcessor>(gp, 0, *inputCoverage, &output);
-        *inputCoverage = output;
-    }
     this->emitAndInstallFragProcs(fOptState.numColorStages(), numProcs,  inputCoverage);
+
+    if (fOptState.hasGeometryProcessor()) {
+        fVS.transformToNormalizedDeviceSpace();
+    }
 }
 
-void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut) {
+void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
+                                                 int numProcs,
+                                                 GrGLSLExpr4* inOut) {
     for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
         const GrPendingFragmentStage& stage = fOptState.getFragmentStage(e);
-        this->emitAndInstallProc<GrPendingFragmentStage>(stage, e, *inOut, &output);
+        this->emitAndInstallProc(stage, e, *inOut, &output);
         *inOut = output;
     }
 }
 
+void GrGLProgramBuilder::nameExpression(GrGLSLExpr4* output, const char* baseName) {
+    // create var to hold stage result.  If we already have a valid output name, just use that
+    // otherwise create a new mangled one.  This name is only valid if we are reordering stages
+    // and have to tell stage exactly where to put its output.
+    SkString outName;
+    if (output->isValid()) {
+        outName = output->c_str();
+    } else {
+        this->nameVariable(&outName, '\0', baseName);
+    }
+    fFS.codeAppendf("vec4 %s;", outName.c_str());
+    *output = outName;
+}
+
 // TODO Processors cannot output zeros because an empty string is all 1s
 // the fix is to allow effects to take the GrGLSLExpr4 directly
-template <class Proc>
-void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
+void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& proc,
                                             int index,
                                             const GrGLSLExpr4& input,
                                             GrGLSLExpr4* output) {
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
-
-    // create var to hold stage result.  If we already have a valid output name, just use that
-    // otherwise create a new mangled one.
-    SkString outColorName;
-    if (output->isValid()) {
-        outColorName = output->c_str();
-    } else {
-        this->nameVariable(&outColorName, '\0', "output");
-    }
-    fFS.codeAppendf("vec4 %s;", outColorName.c_str());
-    *output = outColorName;
+    this->nameExpression(output, "output");
 
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
@@ -297,10 +318,28 @@ void GrGLProgramBuilder::emitAndInstallProc(const Proc& proc,
     fFS.codeAppend("}");
 }
 
+void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& proc,
+                                            GrGLSLExpr4* outputColor,
+                                            GrGLSLExpr4* outputCoverage) {
+    // Program builders have a bit of state we need to clear with each effect
+    AutoStageAdvance adv(this);
+    this->nameExpression(outputColor, "outputColor");
+    this->nameExpression(outputCoverage, "outputCoverage");
+
+    // Enclose custom code in a block to avoid namespace conflicts
+    SkString openBrace;
+    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
+    fFS.codeAppend(openBrace.c_str());
+
+    this->emitAndInstallProc(proc, outputColor->c_str(), outputCoverage->c_str());
+
+    fFS.codeAppend("}");
+}
+
 void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
                                             const char* outColor,
                                             const char* inColor) {
-    GrGLInstalledFragProc* ifp = SkNEW_ARGS(GrGLInstalledFragProc, (fVS.hasLocalCoords()));
+    GrGLInstalledFragProc* ifp = SkNEW(GrGLInstalledFragProc);
 
     const GrFragmentProcessor& fp = *fs.getProcessor();
     ifp->fGLProc.reset(fp.getFactory().createGLInstance(fp));
@@ -321,8 +360,8 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
 }
 
 void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
-                                            const char* outCoverage,
-                                            const char* inCoverage) {
+                                            const char* outColor,
+                                            const char* outCoverage) {
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
 
@@ -331,7 +370,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLGeometryProcessor::EmitArgs args(this, gp, outCoverage, inCoverage, samplers);
+    GrGLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers);
     fGeometryProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -377,9 +416,10 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
             suffixedVaryingName.appendf("_%i", t);
             varyingName = suffixedVaryingName.c_str();
         }
-        const char* coords = kPosition_GrCoordSet == processor->coordTransform(t).sourceCoords() ?
-                                                     fVS.positionAttribute().c_str() :
-                                                     fVS.localCoordsAttribute().c_str();
+
+        bool useLocalCoords = kLocal_GrCoordSet == processor->coordTransform(t).sourceCoords();
+        const char* coords = useLocalCoords ? fVS.localCoords() : fVS.positionCoords();
+
         GrGLVertToFrag v(varyingType);
         this->addCoordVarying(varyingName, &v, uniName, coords);
 
@@ -419,6 +459,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         this->cleanupProgram(programID, shadersToDelete);
         return NULL;
     }
+
     if (!(GrGLProgramDescBuilder::GetHeader(fDesc).fUseNvpr &&
           fGpu->glPathRendering()->texturingMode() ==
           GrGLPathRendering::FixedFunction_TexturingMode)) {
@@ -426,7 +467,11 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             this->cleanupProgram(programID, shadersToDelete);
             return NULL;
         }
-        fVS.bindVertexAttributes(programID);
+
+        // Non fixed function NVPR actually requires a vertex shader to compile
+        if (fOptState.hasGeometryProcessor()) {
+            fVS.bindVertexAttributes(programID);
+        }
     }
     bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
     if (usingBindUniform) {

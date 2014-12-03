@@ -38,27 +38,11 @@ static const int kMediumDFFontSize = 78;
 static const int kMediumDFFontLimit = 78;
 static const int kLargeDFFontSize = 192;
 
-namespace {
-// position + texture coord
-extern const GrVertexAttrib gTextVertexAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,                kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(SkPoint) , kGeometryProcessor_GrVertexAttribBinding}
-};
-
 static const size_t kTextVASize = 2 * sizeof(SkPoint); 
-
-// position + color + texture coord
-extern const GrVertexAttrib gTextVertexWithColorAttribs[] = {
-    {kVec2f_GrVertexAttribType,  0,                                 kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(SkPoint),                   kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(SkPoint) + sizeof(GrColor), kGeometryProcessor_GrVertexAttribBinding}
-};
-    
 static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
 
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;
-};
 
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const SkDeviceProperties& properties,
@@ -432,6 +416,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                                    colorNoPreMul,
                                                                                    flags));
         } else {
+            flags |= kColorAttr_DistanceFieldEffectFlag;
 #ifdef SK_GAMMA_APPLY_TO_A8
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.gamma(),
                                                                 filteredColor);
@@ -618,18 +603,6 @@ HAS_ATLAS:
     return true;
 }
 
-// We use color vertices if we aren't drawing LCD text
-static void set_vertex_attributes(GrDrawState* drawState, bool useColorVerts) {
-    // set up attributes
-    if (useColorVerts) {
-        drawState->setVertexAttribs<gTextVertexWithColorAttribs>(
-                                    SK_ARRAY_COUNT(gTextVertexWithColorAttribs), kTextVAColorSize);
-    } else {
-        drawState->setVertexAttribs<gTextVertexAttribs>(
-                                    SK_ARRAY_COUNT(gTextVertexAttribs), kTextVASize);
-    }
-}
-
 void GrDistanceFieldTextContext::flush() {
     if (NULL == fDrawTarget) {
         return;
@@ -638,8 +611,6 @@ void GrDistanceFieldTextContext::flush() {
     if (fCurrVertex > 0) {
         GrDrawState drawState;
         drawState.setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
-        bool useColorVerts = !fUseLCDText;
-        set_vertex_attributes(&drawState, useColorVerts);
 
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));

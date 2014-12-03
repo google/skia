@@ -120,58 +120,24 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
 }
 
 /**
- * Semantic bindings for vertex attributes. kEffect means that the attribute is input to a
- * GrProcessor. Each binding other than kEffect may not appear more than once in the current set of
- * attributes. kPosition must be appear for exactly one attribute.
+ * converts a GrVertexAttribType to a GrSLType
  */
-enum GrVertexAttribBinding {
-    kPosition_GrVertexAttribBinding,    // required, must have vector count of 2
-    kLocalCoord_GrVertexAttribBinding,  // must have vector count of 2
-    kColor_GrVertexAttribBinding,       // must have vector count of 4
-    kCoverage_GrVertexAttribBinding,    // must have a single byte
-
-    kLastFixedFunction_GrVertexAttribBinding = kCoverage_GrVertexAttribBinding,
-
-    kGeometryProcessor_GrVertexAttribBinding,      // vector length must agree with
-                                        // GrProcessor::vertexAttribType() for each effect input to
-                                        // which the attribute is mapped by GrDrawState::setEffect()
-    kLast_GrVertexAttribBinding = kGeometryProcessor_GrVertexAttribBinding
-};
-
-static const int kGrVertexAttribBindingCnt = kLast_GrVertexAttribBinding + 1;
-static const int kGrFixedFunctionVertexAttribBindingCnt =
-    kLastFixedFunction_GrVertexAttribBinding + 1;
-
-static inline int GrFixedFunctionVertexAttribVectorCount(GrVertexAttribBinding binding) {
-    SkASSERT(binding >= 0 && binding < kGrFixedFunctionVertexAttribBindingCnt);
-    static const int kVecCounts[] = { 2, 2, 4, 1 };
-
-    return kVecCounts[binding];
-
-    GR_STATIC_ASSERT(0 == kPosition_GrVertexAttribBinding);
-    GR_STATIC_ASSERT(1 == kLocalCoord_GrVertexAttribBinding);
-    GR_STATIC_ASSERT(2 == kColor_GrVertexAttribBinding);
-    GR_STATIC_ASSERT(3 == kCoverage_GrVertexAttribBinding);
-    GR_STATIC_ASSERT(kGrFixedFunctionVertexAttribBindingCnt == SK_ARRAY_COUNT(kVecCounts));
-}
-
-struct GrVertexAttrib {
-    inline void set(GrVertexAttribType type, size_t offset, GrVertexAttribBinding binding) {
-        fType = type;
-        fOffset = offset;
-        fBinding = binding;
+static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
+    switch (type) {
+        default:
+            SkFAIL("Unsupported type conversion");
+        case kUByte_GrVertexAttribType:
+        case kFloat_GrVertexAttribType:
+            return kFloat_GrSLType;
+        case kVec2f_GrVertexAttribType:
+            return kVec2f_GrSLType;
+        case kVec3f_GrVertexAttribType:
+            return kVec3f_GrSLType;
+        case kVec4ub_GrVertexAttribType:
+        case kVec4f_GrVertexAttribType:
+            return kVec4f_GrSLType;
     }
-    bool operator==(const GrVertexAttrib& other) const {
-        return fType == other.fType && fOffset == other.fOffset && fBinding == other.fBinding;
-    };
-    bool operator!=(const GrVertexAttrib& other) const { return !(*this == other); }
-
-    GrVertexAttribType      fType;
-    size_t                  fOffset;
-    GrVertexAttribBinding   fBinding;
-};
-
-template <int N> class GrVertexAttribArray : public SkSTArray<N, GrVertexAttrib, true> {};
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

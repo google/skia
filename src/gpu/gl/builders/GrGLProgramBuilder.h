@@ -126,9 +126,24 @@ struct GrGLGeoToFrag : public GrGLVarying {
 /* a specialization of the above for GPs.  Lets the user add uniforms, varyings, and VS / FS code */
 class GrGLGPBuilder : public virtual GrGLUniformBuilder {
 public:
+    /*
+     * addVarying allows fine grained control for setting up varyings between stages.  If you just
+     * need to take an attribute and pass it through to an output value in a fragment shader, use
+     * addPassThroughAttribute.
+     * TODO convert most uses of addVarying to addPassThroughAttribute
+     */
     virtual void addVarying(const char* name,
                             GrGLVarying*,
                             GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision) = 0;
+
+    /*
+     * This call can be used by GP to pass an attribute through all shaders directly to 'output' in
+     * the fragment shader.  Though this call effects both the vertex shader and fragment shader,
+     * it expects 'output' to be defined in the fragment shader before this call is made.
+     * TODO it might be nicer behavior to have a flag to declare output inside this call
+     */
+    virtual void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
+                                         const char* output) = 0;
 
     // TODO rename getFragmentBuilder
     virtual GrGLGPFragmentBuilder* getFragmentShaderBuilder() = 0;
@@ -205,6 +220,10 @@ public:
             GrGLVarying*,
             GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision) SK_OVERRIDE;
 
+    virtual void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
+                                         const char* output) SK_OVERRIDE;
+
+
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {
         UniformHandle       fViewMatrixUni;
@@ -242,22 +261,29 @@ protected:
     // generating stage code.
     void nameVariable(SkString* out, char prefix, const char* name);
     void setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor, GrGLSLExpr1* inputCoverage);
+    // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
+    // If GrGLSLExpr4 has a valid name then it will use that instead
+    void nameExpression(GrGLSLExpr4*, const char* baseName);
     void emitAndInstallProcs(GrGLSLExpr4* inputColor,
                              GrGLSLExpr4* inputCoverage);
     void emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut);
-    template <class Proc>
-    void emitAndInstallProc(const Proc&,
+    void emitAndInstallProc(const GrPendingFragmentStage&,
                             int index,
                             const GrGLSLExpr4& input,
                             GrGLSLExpr4* output);
+
+    void emitAndInstallProc(const GrGeometryProcessor&,
+                            GrGLSLExpr4* outputColor,
+                            GrGLSLExpr4* outputCoverage);
 
     // these emit functions help to keep the createAndEmitProcessors template general
     void emitAndInstallProc(const GrPendingFragmentStage&,
                             const char* outColor,
                             const char* inColor);
     void emitAndInstallProc(const GrGeometryProcessor&,
-                            const char* outCoverage,
-                            const char* inCoverage);
+                            const char* outColor,
+                            const char* outCoverage);
+
     void verify(const GrGeometryProcessor&);
     void verify(const GrFragmentProcessor&);
     void emitSamplers(const GrProcessor&,
@@ -372,7 +398,7 @@ struct GrGLInstalledGeoProc : public GrGLInstalledProc {
 };
 
 struct GrGLInstalledFragProc : public GrGLInstalledProc {
-    GrGLInstalledFragProc(bool useLocalCoords) : fGLProc(NULL), fLocalCoordAttrib(useLocalCoords) {}
+    GrGLInstalledFragProc() : fGLProc(NULL) {}
     class ShaderVarHandle {
     public:
         bool isValid() const { return fHandle > -1; }
@@ -397,7 +423,6 @@ struct GrGLInstalledFragProc : public GrGLInstalledProc {
 
     SkAutoTDelete<GrGLFragmentProcessor> fGLProc;
     SkSTArray<2, Transform, true>        fTransforms;
-    bool                                 fLocalCoordAttrib;
 };
 
 struct GrGLInstalledFragProcs : public SkRefCnt {

@@ -233,10 +233,12 @@ bool GrDefaultPathRenderer::createGeom(GrDrawTarget* target,
         }
     }
 
-    drawState->setDefaultVertexAttribs();
-    if (!arg->set(target, maxPts, drawState->getVertexStride(), maxIdxs)) {
+    // TODO this is really wierd, I just need default vertex stride, can I think of a better way?
+    SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create());
+    if (!arg->set(target, maxPts, gp->getVertexStride(), maxIdxs)) {
         return false;
     }
+    SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
     uint16_t* idxBase = reinterpret_cast<uint16_t*>(arg->indices());
     uint16_t* idx = idxBase;
@@ -497,7 +499,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                 drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
             }
             GrDrawState::AutoRestoreEffects are(drawState);
-            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
+            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create())->unref();
             if (indexCnt) {
                 target->drawIndexed(drawState,
                                     primType,

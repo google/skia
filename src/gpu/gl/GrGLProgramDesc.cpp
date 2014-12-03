@@ -63,9 +63,9 @@ static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
 static uint32_t gen_attrib_key(const GrGeometryProcessor& proc) {
     uint32_t key = 0;
 
-    const GrGeometryProcessor::VertexAttribArray& vars = proc.getVertexAttribs();
+    const GrGeometryProcessor::VertexAttribArray& vars = proc.getAttribs();
     int numAttributes = vars.count();
-    SkASSERT(numAttributes <= 2);
+    SkASSERT(numAttributes <= GrGeometryProcessor::kMaxVertexAttribs);
     for (int a = 0; a < numAttributes; ++a) {
         uint32_t value = 1 << a;
         key |= value;
@@ -206,11 +206,7 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
         header->fUseNvpr = false;
     }
 
-    bool hasUniformColor = inputColorIsUsed &&
-                           (isPathRendering || !descInfo.hasColorVertexAttribute());
-
-    bool hasUniformCoverage = inputCoverageIsUsed &&
-                              (isPathRendering || !descInfo.hasCoverageVertexAttribute());
+    bool hasUniformColor = inputColorIsUsed && (isPathRendering || !descInfo.fHasVertexColor);
 
     if (!inputColorIsUsed) {
         header->fColorInput = GrProgramDesc::kAllOnes_ColorInput;
@@ -221,12 +217,13 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
         SkASSERT(!header->fUseNvpr);
     }
 
-    bool covIsSolidWhite = !descInfo.hasCoverageVertexAttribute() &&
-                           0xffffffff == optState.getCoverageColor();
+    bool hasVertexCoverage = !isPathRendering && descInfo.fHasVertexCoverage;
+
+    bool covIsSolidWhite = !hasVertexCoverage && 0xffffffff == optState.getCoverageColor();
 
     if (covIsSolidWhite || !inputCoverageIsUsed) {
         header->fCoverageInput = GrProgramDesc::kAllOnes_ColorInput;
-    } else if (hasUniformCoverage) {
+    } else if (!hasVertexCoverage) {
         header->fCoverageInput = GrProgramDesc::kUniform_ColorInput;
     } else {
         header->fCoverageInput = GrProgramDesc::kAttribute_ColorInput;
@@ -253,31 +250,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
                                                                   gpu->glCaps());
     } else {
         header->fFragPosKey = 0;
-    }
-
-    // Record attribute indices
-    header->fPositionAttributeIndex = descInfo.positionAttributeIndex();
-    header->fLocalCoordAttributeIndex = descInfo.localCoordAttributeIndex();
-
-    // For constant color and coverage we need an attribute with an index beyond those already set
-    int availableAttributeIndex = optState.getVertexAttribCount();
-    if (descInfo.hasColorVertexAttribute()) {
-        header->fColorAttributeIndex = descInfo.colorVertexAttributeIndex();
-    } else if (GrProgramDesc::kAttribute_ColorInput == header->fColorInput) {
-        SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
-        header->fColorAttributeIndex = availableAttributeIndex;
-        availableAttributeIndex++;
-    } else {
-        header->fColorAttributeIndex = -1;
-    }
-
-    if (descInfo.hasCoverageVertexAttribute()) {
-        header->fCoverageAttributeIndex = descInfo.coverageVertexAttributeIndex();
-    } else if (GrProgramDesc::kAttribute_ColorInput == header->fCoverageInput) {
-        SkASSERT(availableAttributeIndex < GrDrawState::kMaxVertexAttribCnt);
-        header->fCoverageAttributeIndex = availableAttributeIndex;
-    } else {
-        header->fCoverageAttributeIndex = -1;
     }
 
     header->fPrimaryOutputType = descInfo.fPrimaryOutputType;

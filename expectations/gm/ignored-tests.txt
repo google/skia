@@ -66,3 +66,6 @@ drawbitmapmatrix
 
 #junov skbug.com/3176
 pictureimagefilter
+
+#joshualitt
+bezier_cubic_effects

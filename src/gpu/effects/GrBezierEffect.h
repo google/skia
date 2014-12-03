@@ -88,7 +88,8 @@ public:
 
     static const char* Name() { return "Conic"; }
 
-    inline const GrShaderVar& inConicCoeffs() const { return fInConicCoeffs; }
+    inline const GrAttribute* inPosition() const { return fInPosition; }
+    inline const GrAttribute* inConicCoeffs() const { return fInConicCoeffs; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
@@ -107,7 +108,8 @@ private:
     }
 
     GrPrimitiveEdgeType   fEdgeType;
-    const GrShaderVar& fInConicCoeffs;
+    const GrAttribute*    fInPosition;
+    const GrAttribute*    fInConicCoeffs;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -157,7 +159,8 @@ public:
 
     static const char* Name() { return "Quad"; }
 
-    inline const GrShaderVar& inHairQuadEdge() const { return fInHairQuadEdge; }
+    inline const GrAttribute* inPosition() const { return fInPosition; }
+    inline const GrAttribute* inHairQuadEdge() const { return fInHairQuadEdge; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
@@ -176,7 +179,8 @@ private:
     }
 
     GrPrimitiveEdgeType   fEdgeType;
-    const GrShaderVar& fInHairQuadEdge;
+    const GrAttribute*    fInPosition;
+    const GrAttribute*    fInHairQuadEdge;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -228,7 +232,8 @@ public:
 
     static const char* Name() { return "Cubic"; }
 
-    inline const GrShaderVar& inCubicCoeffs() const { return fInCubicCoeffs; }
+    inline const GrAttribute* inPosition() const { return fInPosition; }
+    inline const GrAttribute* inCubicCoeffs() const { return fInCubicCoeffs; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
@@ -247,7 +252,8 @@ private:
     }
 
     GrPrimitiveEdgeType   fEdgeType;
-    const GrShaderVar& fInCubicCoeffs;
+    const GrAttribute*    fInPosition;
+    const GrAttribute*    fInCubicCoeffs;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

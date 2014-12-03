@@ -66,8 +66,7 @@ static void set_vertex_attributes(GrDrawState* drawState, bool hasLocalCoords, G
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
                      GrDefaultGeoProcFactory::kColor_GPType;
     flags |= hasLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
-    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::CreateAndSetAttribs(drawState,
-                                                                                 flags))->unref();
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
     if (0xFF == GrColorUnpackA(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
@@ -119,7 +118,10 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
     GrColor color = ds->getColor();
     set_vertex_attributes(ds, SkToBool(localRect),  color);
 
-    AutoReleaseGeometry geo(this, 4, ds->getVertexStride(), 0);
+    size_t vstride = ds->getGeometryProcessor()->getVertexStride();
+    SkASSERT(vstride == sizeof(SkPoint) + sizeof(GrColor) + (SkToBool(localRect) ? sizeof(SkPoint) :
+                                                                                   0));
+    AutoReleaseGeometry geo(this, 4, vstride, 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -135,8 +137,6 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
     if (!avmr.setIdentity(ds)) {
         return;
     }
-
-    size_t vstride = ds->getVertexStride();
 
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
     matrix.mapPointsWithStride(geo.positions(), vstride, 4);

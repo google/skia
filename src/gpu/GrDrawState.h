@@ -70,73 +70,16 @@ public:
     /// @name Vertex Attributes
     ////
 
-    enum {
-        kMaxVertexAttribCnt = kLast_GrVertexAttribBinding + 4,
-    };
-
-    const GrVertexAttrib* getVertexAttribs() const { return fVAPtr; }
-    int getVertexAttribCount() const { return fVACount; }
-
-    size_t getVertexStride() const { return fVAStride; }
-
+    // TODO when we move this info off of GrGeometryProcessor, delete these
     bool hasLocalCoordAttribute() const {
-        return -1 != fFixedFunctionVertexAttribIndices[kLocalCoord_GrVertexAttribBinding];
+        return this->hasGeometryProcessor() && this->getGeometryProcessor()->hasLocalCoords();
     }
     bool hasColorVertexAttribute() const {
-        return -1 != fFixedFunctionVertexAttribIndices[kColor_GrVertexAttribBinding];
+        return this->hasGeometryProcessor() && this->getGeometryProcessor()->hasVertexColor();
     }
     bool hasCoverageVertexAttribute() const {
-        return -1 != fFixedFunctionVertexAttribIndices[kCoverage_GrVertexAttribBinding];
+        return this->hasGeometryProcessor() && this->getGeometryProcessor()->hasVertexCoverage();
     }
-
-    const int* getFixedFunctionVertexAttribIndices() const {
-        return fFixedFunctionVertexAttribIndices;
-    }
-
-    bool validateVertexAttribs() const;
-
-   /**
-     * The format of vertices is represented as an array of GrVertexAttribs, with each representing
-     * the type of the attribute, its offset, and semantic binding (see GrVertexAttrib in
-     * GrTypesPriv.h).
-     *
-     * The mapping of attributes with kEffect bindings to GrProcessor inputs is specified when
-     * setEffect is called.
-     */
-
-    /**
-     *  Sets vertex attributes for next draw. The object driving the templatization
-     *  should be a global GrVertexAttrib array that is never changed.
-     *
-     *  @param count      the number of attributes being set, limited to kMaxVertexAttribCnt.
-     *  @param stride     the number of bytes between successive vertex data.
-     */
-    template <const GrVertexAttrib A[]> void setVertexAttribs(int count, size_t stride) {
-        this->internalSetVertexAttribs(A, count, stride);
-    }
-
-    /**
-     *  Sets default vertex attributes for next draw. The default is a single attribute:
-     *  {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribType}
-     */
-    void setDefaultVertexAttribs();
-
-    /**
-     * Helper to save/restore vertex attribs
-     */
-     class AutoVertexAttribRestore {
-     public:
-         AutoVertexAttribRestore(GrDrawState* drawState);
-
-         ~AutoVertexAttribRestore() { fDrawState->internalSetVertexAttribs(fVAPtr, fVACount,
-                                                                           fVAStride); }
-
-     private:
-         GrDrawState*          fDrawState;
-         const GrVertexAttrib* fVAPtr;
-         int                   fVACount;
-         size_t                fVAStride;
-     };
 
     /// @}
 
@@ -765,8 +708,6 @@ private:
     // This is used to assert that this condition holds.
     SkDEBUGCODE(int fBlockEffectRemovalCnt;)
 
-    void internalSetVertexAttribs(const GrVertexAttrib attribs[], int count, size_t stride);
-
     typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
 
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
@@ -774,9 +715,6 @@ private:
     SkMatrix                                fViewMatrix;
     GrColor                                 fBlendConstant;
     uint32_t                                fFlagBits;
-    const GrVertexAttrib*                   fVAPtr;
-    int                                     fVACount;
-    size_t                                  fVAStride;
     GrStencilSettings                       fStencilSettings;
     uint8_t                                 fCoverage;
     DrawFace                                fDrawFace;
@@ -786,10 +724,6 @@ private:
     FragmentStageArray                      fColorStages;
     FragmentStageArray                      fCoverageStages;
     uint32_t                                fHints;
-
-    // This is simply a different representation of info in fVertexAttribs and thus does
-    // not need to be compared in op==.
-    int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
 
     mutable GrProcOptInfo fColorProcInfo;
     mutable GrProcOptInfo fCoverageProcInfo;

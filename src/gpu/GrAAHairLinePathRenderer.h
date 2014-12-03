@@ -57,7 +57,8 @@ private:
                           const PtArray& conics,
                           int conicCnt,
                           const IntArray& qSubdivs,
-                          const FloatArray& cWeights);
+                          const FloatArray& cWeights,
+                          size_t vertexStride);
 
     const GrIndexBuffer*        fLinesIndexBuffer;
     const GrIndexBuffer*        fQuadsIndexBuffer;

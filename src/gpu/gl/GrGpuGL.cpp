@@ -146,7 +146,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this));
 
-    SkASSERT(this->glCaps().maxVertexAttributes() >= GrDrawState::kMaxVertexAttribCnt);
+    SkASSERT(this->glCaps().maxVertexAttributes() >= GrGeometryProcessor::kMaxVertexAttribs);
 
     fLastSuccessfulStencilFmtIdx = 0;
     fHWProgramID = 0;

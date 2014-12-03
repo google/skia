@@ -36,19 +36,6 @@ public:
     bool operator== (const GrOptDrawState& that) const;
     bool operator!= (const GrOptDrawState& that) const { return !(*this == that); }
 
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Vertex Attributes
-    ////
-
-    enum {
-        kMaxVertexAttribCnt = kLast_GrVertexAttribBinding + 4,
-    };
-
-    const GrVertexAttrib* getVertexAttribs() const { return fVAPtr; }
-    int getVertexAttribCount() const { return fVACount; }
-
-    size_t getVertexStride() const { return fVAStride; }
-
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -213,26 +200,18 @@ private:
                                         int* firstCoverageStageIdx);
 
     /**
-     * This function takes in a flag and removes the corresponding fixed function vertex attributes.
-     * The flags are in the same order as GrVertexAttribBinding array. If bit i of removeVAFlags is
-     * set, then vertex attributes with binding (GrVertexAttribute)i will be removed.
-     */
-    void removeFixedFunctionVertexAttribs(uint8_t removeVAFlags, GrProgramDesc::DescInfo*);
-
-    /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
     void adjustProgramForBlendOpt(const GrDrawState& ds, GrDrawState::BlendOpt,
                                   GrProgramDesc::DescInfo*,
-                                  int* firstColorStageIdx, int* firstCoverageStageIdx,
-                                  uint8_t* fixedFunctionVAToRemove);
+                                  int* firstColorStageIdx, int* firstCoverageStageIdx);
 
     /**
      * Loop over the effect stages to determine various info like what data they will read and what
      * shaders they require.
      */
     void getStageStats(const GrDrawState& ds, int firstColorStageIdx, int firstCoverageStageIdx,
-                       GrProgramDesc::DescInfo*);
+                       bool hasLocalCoords, GrProgramDesc::DescInfo*);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
@@ -256,9 +235,6 @@ private:
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
     GrColor                             fBlendConstant;
-    const GrVertexAttrib*               fVAPtr;
-    int                                 fVACount;
-    size_t                              fVAStride;
     GrStencilSettings                   fStencilSettings;
     uint8_t                             fCoverage;
     GrDrawState::DrawFace               fDrawFace;
@@ -271,8 +247,6 @@ private:
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;
-
-    SkAutoSTArray<4, GrVertexAttrib> fOptVA;
 
     GrProgramDesc fDesc;
 

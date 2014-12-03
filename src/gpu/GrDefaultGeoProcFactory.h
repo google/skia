@@ -17,8 +17,6 @@ class GrDrawState;
  * view matrix and wire through color, coverage, UV coords if requested.  Right now this is only
  * used in the creation of optimized draw states because adding default GPs to the drawstate can
  * interfere with batching due to updating the drawstate.
- * TODO When we track geometry state separately from the draw state, we should be able use a default
- * GP with every draw call
  */
 class GrDefaultGeoProcFactory {
 public:
@@ -82,9 +80,7 @@ public:
      *
      * You must unref the return from Create.
      */
-    static void SetAttribs(GrDrawState*, uint32_t GPTypeFlags = 0);
-    static const GrGeometryProcessor* CreateAndSetAttribs(GrDrawState*, uint32_t GPTypeFlags = 0);
-    static const GrGeometryProcessor* Create(bool hasAttributeCoverage);
+    static const GrGeometryProcessor* Create(uint32_t gpTypeFlags = 0);
 };
 
 #endif

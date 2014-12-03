@@ -313,13 +313,13 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
                                         GrTextureParams::kNone_FilterMode);
         drawState.addColorTextureProcessor(clampedTexture, SkMatrix::I(), params);
 
-        drawState.setGeometryProcessor(
-                GrDefaultGeoProcFactory::CreateAndSetAttribs(
-                        &drawState,
-                        GrDefaultGeoProcFactory::kPosition_GPType |
-                        GrDefaultGeoProcFactory::kLocalCoord_GPType))->unref();
+        uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
+                         GrDefaultGeoProcFactory::kLocalCoord_GPType;
+        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(flags);
+        drawState.setGeometryProcessor(gp)->unref();
 
-        GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, drawState.getVertexStride(),  0);
+        GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, gp->getVertexStride(),  0);
+        SkASSERT(gp->getVertexStride() == 2 * sizeof(SkPoint));
 
         if (arg.succeeded()) {
             SkPoint* verts = (SkPoint*) arg.vertices();
@@ -753,12 +753,13 @@ void GrContext::drawRect(const GrPaint& paint,
         // unitSquareVertexBuffer()
 
         static const int worstCaseVertCount = 10;
-        drawState.setDefaultVertexAttribs();
-        drawState.setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
+        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create();
+        drawState.setGeometryProcessor(gp)->unref();
         GrDrawTarget::AutoReleaseGeometry geo(target,
                                               worstCaseVertCount,
-                                              drawState.getVertexStride(),
+                                              gp->getVertexStride(),
                                               0);
+        SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         if (!geo.succeeded()) {
             SkDebugf("Failed to get space for vertices!\n");
@@ -828,8 +829,7 @@ static void set_vertex_attributes(GrDrawState* drawState,
         *colorOffset = sizeof(SkPoint);
         flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
-    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::CreateAndSetAttribs(drawState,
-                                                                                 flags))->unref();
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
 }
 
 void GrContext::drawVertices(const GrPaint& paint,
@@ -854,7 +854,9 @@ void GrContext::drawVertices(const GrPaint& paint,
     int colorOffset = -1, texOffset = -1;
     set_vertex_attributes(&drawState, texCoords, colors, &colorOffset, &texOffset);
 
-    size_t vertexStride = drawState.getVertexStride();
+    size_t vertexStride = drawState.getGeometryProcessor()->getVertexStride();
+    SkASSERT(vertexStride == sizeof(SkPoint) + (SkToBool(texCoords) ? sizeof(SkPoint) : 0)
+                                             + (SkToBool(colors) ? sizeof(GrColor) : 0));
     if (!geo.set(target, vertexCount, vertexStride, indexCount)) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -1546,9 +1548,6 @@ GrDrawTarget* GrContext::prepareToDraw(GrDrawState* ds,
                 SkDebugf("Partial pixel coverage will be incorrectly blended.\n");
             }
 #endif
-            // Clear any vertex attributes configured for the previous use of the
-            // GrDrawState which can effect which blend optimizations are in effect.
-            ds->setDefaultVertexAttribs();
         } else {
             ds->reset(fViewMatrix);
             ds->setRenderTarget(fRenderTarget.get());

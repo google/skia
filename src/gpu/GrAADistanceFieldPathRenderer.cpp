@@ -103,13 +103,6 @@ GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// position + texture coord
-extern const GrVertexAttrib gSDFPathVertexAttribs[] = {
-    { kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, sizeof(SkPoint), kGeometryProcessor_GrVertexAttribBinding }
-};
-static const size_t kSDFPathVASize = 2 * sizeof(SkPoint);
-
 bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrDrawState* drawState,
                                                const SkPath& path,
@@ -322,12 +315,25 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     GrDrawTarget::DrawToken drawToken = target->getCurrentDrawToken();
     pathData->fPlot->setDrawToken(drawToken);
     
-    // make me some vertices
-    drawState->setVertexAttribs<gSDFPathVertexAttribs>(SK_ARRAY_COUNT(gSDFPathVertexAttribs),
-                                                       kSDFPathVASize);
+    // set up any flags
+    uint32_t flags = 0;
+    const SkMatrix& vm = drawState->getViewMatrix();
+    flags |= vm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+
+    GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
+    if (flags != fEffectFlags) {
+        fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(texture,
+                                                                                   params,
+                                                                                   flags));
+        fEffectFlags = flags;
+    }
+    drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
+
     void* vertices = NULL;
-    bool success = target->reserveVertexAndIndexSpace(4, drawState->getVertexStride(), 0, &vertices,
-                                                      NULL);
+    bool success = target->reserveVertexAndIndexSpace(4,
+                                                      fCachedGeometryProcessor->getVertexStride(),
+                                                      0, &vertices, NULL);
+    SkASSERT(fCachedGeometryProcessor->getVertexStride() == 2 * sizeof(SkPoint));
     GrAlwaysAssert(success);
     
     SkScalar dx = pathData->fBounds.fLeft;
@@ -361,20 +367,6 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
                               SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
                               vertSize);
     
-    // set up any flags
-    uint32_t flags = 0;
-    const SkMatrix& vm = drawState->getViewMatrix();
-    flags |= vm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-    
-    GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
-    if (flags != fEffectFlags) {
-        fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(texture,
-                                                                                   params,
-                                                                                   flags));
-        fEffectFlags = flags;
-    }
-    drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
-
     vm.mapRect(&r);
     target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
     target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &r);

@@ -21,32 +21,43 @@ public:
         : INHERITED (factory) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
-        const GrCustomCoordsTextureEffect& customCoordsTextureEffect =
+        const GrCustomCoordsTextureEffect& cte =
                 args.fGP.cast<GrCustomCoordsTextureEffect>();
-        SkASSERT(1 == customCoordsTextureEffect.getVertexAttribs().count());
+
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
+        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), cte.inTextureCoords()->fName);
 
-        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        const GrShaderVar& inTextureCoords = customCoordsTextureEffect.inTextureCoords();
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), inTextureCoords.c_str());
+        if (cte.inColor()) {
+            args.fPB->addPassThroughAttribute(cte.inColor(), args.fOutputColor);
+        }
+
+        // setup output coords
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), cte.inPosition()->fName);
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), cte.inPosition()->fName);
 
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), vsBuilder->inPosition());
+                               vsBuilder->uViewM(), cte.inPosition()->fName);
 
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("%s = ", args.fOutput);
-        fsBuilder->appendTextureLookupAndModulate(args.fInput,
-                                                  args.fSamplers[0],
-                                                  v.fsIn(),
-                                                  kVec2f_GrSLType);
+        fsBuilder->codeAppendf("%s = ", args.fOutputCoverage);
+        fsBuilder->appendTextureLookup(args.fSamplers[0], v.fsIn(), kVec2f_GrSLType);
         fsBuilder->codeAppend(";");
     }
 
     virtual void setData(const GrGLProgramDataManager&,
                          const GrProcessor&) SK_OVERRIDE {}
+
+    static inline void GenKey(const GrProcessor& proc, const GrGLCaps&,
+                              GrProcessorKeyBuilder* b) {
+        const GrCustomCoordsTextureEffect& gp = proc.cast<GrCustomCoordsTextureEffect>();
+
+        b->add32(SkToBool(gp.inColor()));
+    }
+
 
 private:
     typedef GrGLGeometryProcessor INHERITED;
@@ -55,16 +66,22 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
-                                                         const GrTextureParams& params)
-    : fTextureAccess(texture, params)
-    , fInTextureCoords(this->addVertexAttrib(GrShaderVar("inTextureCoords",
-                                                         kVec2f_GrSLType,
-                                                         GrShaderVar::kAttribute_TypeModifier))) {
+                                                         const GrTextureParams& params,
+                                                         bool hasColor)
+    : fTextureAccess(texture, params), fInColor(NULL) {
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    if (hasColor) {
+        fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
+        this->setHasVertexColor();
+    }
+    fInTextureCoords = &this->addVertexAttrib(GrAttribute("inTextureCoords",
+                                                          kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 
 bool GrCustomCoordsTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    return true;
+    const GrCustomCoordsTextureEffect& gp = other.cast<GrCustomCoordsTextureEffect>();
+    return SkToBool(this->inColor()) == SkToBool(gp.inColor());
 }
 
 void GrCustomCoordsTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -103,5 +120,5 @@ GrGeometryProcessor* GrCustomCoordsTextureEffect::TestCreate(SkRandom* random,
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    return GrCustomCoordsTextureEffect::Create(textures[texIdx], params);
+    return GrCustomCoordsTextureEffect::Create(textures[texIdx], params, random->nextBool());
 }

@@ -22,13 +22,15 @@ enum GrDistanceFieldEffectFlags {
     kUseLCD_DistanceFieldEffectFlag     = 0x04,   // use lcd text
     kBGR_DistanceFieldEffectFlag        = 0x08,   // lcd display has bgr order
     kPortrait_DistanceFieldEffectFlag   = 0x10,   // lcd display is in portrait mode (not used yet)
+    kColorAttr_DistanceFieldEffectFlag  = 0x20,   // color vertex attribute
 
     kInvalid_DistanceFieldEffectFlag    = 0x80,   // invalid state (for initialization)
     
     kUniformScale_DistanceFieldEffectMask = kSimilarity_DistanceFieldEffectFlag |
                                             kRectToRect_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldTextureEffect
-    kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag,
+    kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag |
+                                            kColorAttr_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldLCDTextureEffect
     kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
                                             kRectToRect_DistanceFieldEffectFlag |
@@ -62,7 +64,9 @@ public:
 
     static const char* Name() { return "DistanceFieldTexture"; }
 
-    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
+    const GrAttribute* inPosition() const { return fInPosition; }
+    const GrAttribute* inColor() const { return fInColor; }
+    const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getLuminance() const { return fLuminance; }
 #endif
@@ -89,7 +93,9 @@ private:
     float              fLuminance;
 #endif
     uint32_t           fFlags;
-    const GrShaderVar& fInTextureCoords;
+    const GrAttribute* fInPosition;
+    const GrAttribute* fInColor;
+    const GrAttribute* fInTextureCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -114,7 +120,9 @@ public:
 
     static const char* Name() { return "DistanceFieldTexture"; }
 
-    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
+    const GrAttribute* inPosition() const { return fInPosition; }
+    const GrAttribute* inColor() const { return fInColor; }
+    const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
     uint32_t getFlags() const { return fFlags; }
 
     typedef GrGLDistanceFieldNoGammaTextureEffect GLProcessor;
@@ -131,7 +139,9 @@ private:
 
     GrTextureAccess    fTextureAccess;
     uint32_t           fFlags;
-    const GrShaderVar& fInTextureCoords;
+    const GrAttribute* fInPosition;
+    const GrAttribute* fInColor;
+    const GrAttribute* fInTextureCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -157,7 +167,8 @@ public:
 
     static const char* Name() { return "DistanceFieldLCDTexture"; }
 
-    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
+    const GrAttribute* inPosition() const { return fInPosition; }
+    const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor getTextColor() const { return fTextColor; }
     uint32_t getFlags() const { return fFlags; }
 
@@ -179,7 +190,8 @@ private:
     GrTextureAccess    fGammaTextureAccess;
     GrColor            fTextColor;
     uint32_t           fFlags;
-    const GrShaderVar& fInTextureCoords;
+    const GrAttribute* fInPosition;
+    const GrAttribute* fInTextureCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

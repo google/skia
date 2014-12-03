@@ -34,21 +34,30 @@ public:
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldTextureEffect>();
-        SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
+        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
-        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+        // setup color attribute
+        if(dfTexEffect.inColor()) {
+            args.fPB->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
+        }
 
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), vsBuilder->inPosition());
+                               vsBuilder->uViewM(), dfTexEffect.inPosition()->fName);
+
+        // setup output coords
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
+                               dfTexEffect.inPosition()->fName);
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
+                               dfTexEffect.inPosition()->fName);
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -111,8 +120,7 @@ public:
         fsBuilder->codeAppend("\tval = gammaColor.r;\n");
 #endif
 
-        fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
-                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("val")).c_str());
+        fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -171,10 +179,15 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
     , fLuminance(luminance)
 #endif
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInTextureCoords(this->addVertexAttrib(GrShaderVar("inTextureCoords",
-                                                         kVec2f_GrSLType,
-                                                         GrShaderVar::kAttribute_TypeModifier))) {
+    , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    if (flags & kColorAttr_DistanceFieldEffectFlag) {
+        fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
+        this->setHasVertexColor();
+    }
+    fInTextureCoords = &this->addVertexAttrib(GrAttribute("inTextureCoords",
+                                                          kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 #ifdef SK_GAMMA_APPLY_TO_A8
     this->addTextureAccess(&fGammaTextureAccess);
@@ -249,21 +262,31 @@ public:
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
-        SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
 
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
+        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
 
-        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+        // setup color attribute
+        if(dfTexEffect.inColor()) {
+            args.fPB->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
+        }
+
+        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
+
+        // setup coord outputs
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
+                               dfTexEffect.inPosition()->fName);
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
+                               dfTexEffect.inPosition()->fName);
 
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), vsBuilder->inPosition());
+                               vsBuilder->uViewM(), dfTexEffect.inPosition()->fName);
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -311,8 +334,7 @@ public:
         }
         fsBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
 
-        fsBuilder->codeAppendf("%s = %s;", args.fOutput,
-            (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("val")).c_str());
+        fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -351,10 +373,15 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(GrTextu
                                                                     uint32_t flags)
     : fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInTextureCoords(this->addVertexAttrib(GrShaderVar("inTextureCoords",
-                       kVec2f_GrSLType,
-                       GrShaderVar::kAttribute_TypeModifier))) {
+    , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    if (flags & kColorAttr_DistanceFieldEffectFlag) {
+        fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
+        this->setHasVertexColor();
+    }
+    fInTextureCoords = &this->addVertexAttrib(GrAttribute("inTextureCoords",
+                                                          kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -411,17 +438,21 @@ public:
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
-        SkASSERT(1 == dfTexEffect.getVertexAttribs().count());
-
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-        vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), dfTexEffect.inTextureCoords().c_str());
+        GrGLVertToFrag v(kVec2f_GrSLType);
+        args.fPB->addVarying("TextureCoords", &v);
+        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
+
+        // setup coord outputs
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
+                               dfTexEffect.inPosition()->fName);
+        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
+                               dfTexEffect.inPosition()->fName);
 
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), vsBuilder->inPosition());
+                               vsBuilder->uViewM(), dfTexEffect.inPosition()->fName);
 
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)
@@ -528,8 +559,7 @@ public:
         fsBuilder->codeAppend(";\n");
         fsBuilder->codeAppend("\tval.z = gammaColor.r;\n");
 
-        fsBuilder->codeAppendf("\t%s = %s;\n", args.fOutput,
-                               (GrGLSLExpr4(args.fInput) * GrGLSLExpr4("val")).c_str());
+        fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -591,12 +621,11 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
     : fTextureAccess(texture, params)
     , fGammaTextureAccess(gamma, gParams)
     , fTextColor(textColor)
-    , fFlags(flags & kLCD_DistanceFieldEffectMask)
-    , fInTextureCoords(this->addVertexAttrib(GrShaderVar("inTextureCoords",
-                                                         kVec2f_GrSLType,
-                                                         GrShaderVar::kAttribute_TypeModifier))) {
+    , fFlags(flags & kLCD_DistanceFieldEffectMask){
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
-        
+    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    fInTextureCoords = &this->addVertexAttrib(GrAttribute("inTextureCoords",
+                                                          kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
     this->addTextureAccess(&fGammaTextureAccess);
 }

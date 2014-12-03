@@ -375,7 +375,6 @@ bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
         }
     }
 
-    SkASSERT(drawState.validateVertexAttribs());
 #endif
     if (NULL == drawState.getRenderTarget()) {
         return false;
@@ -472,7 +471,7 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
         if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
             return;
         }
-        this->setDrawBuffers(&info, ds->getVertexStride());
+        this->setDrawBuffers(&info, ds->getGeometryProcessor()->getVertexStride());
 
         this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
@@ -515,7 +514,7 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
             return;
         }
 
-        this->setDrawBuffers(&info, ds->getVertexStride());
+        this->setDrawBuffers(&info, ds->getGeometryProcessor()->getVertexStride());
 
         this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
@@ -779,7 +778,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
-            this->setDrawBuffers(&info, ds->getVertexStride());
+            this->setDrawBuffers(&info, ds->getGeometryProcessor()->getVertexStride());
             this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
         }
         info.fStartVertex += info.fVertexCount;

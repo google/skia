@@ -28,9 +28,6 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
         this->fDstBlend != that.fDstBlend ||
         this->fBlendConstant != that.fBlendConstant ||
         this->fFlagBits != that.fFlagBits ||
-        this->fVACount != that.fVACount ||
-        this->fVAStride != that.fVAStride ||
-        memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace) {
         return false;
@@ -65,10 +62,6 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
         }
     }
 
-    SkASSERT(0 == memcmp(this->fFixedFunctionVertexAttribIndices,
-                         that.fFixedFunctionVertexAttribIndices,
-                         sizeof(this->fFixedFunctionVertexAttribIndices)));
-
     return true;
 }
 
@@ -95,9 +88,6 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fDstBlend = that.fDstBlend;
     fBlendConstant = that.fBlendConstant;
     fFlagBits = that.fFlagBits;
-    fVACount = that.fVACount;
-    fVAPtr = that.fVAPtr;
-    fVAStride = that.fVAStride;
     fStencilSettings = that.fStencilSettings;
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
@@ -115,10 +105,6 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     if (fCoverageProcInfoValid) {
         fCoverageProcInfo = that.fCoverageProcInfo;
     }
-
-    memcpy(fFixedFunctionVertexAttribIndices,
-            that.fFixedFunctionVertexAttribIndices,
-            sizeof(fFixedFunctionVertexAttribIndices));
     return *this;
 }
 
@@ -129,9 +115,6 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fGeometryProcessor.reset(NULL);
     fColorStages.reset();
     fCoverageStages.reset();
-
-
-    this->setDefaultVertexAttribs();
 
     fColor = 0xffffffff;
     if (NULL == initialViewMatrix) {
@@ -212,126 +195,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawState::validateVertexAttribs() const {
-    // check consistency of effects and attributes
-    GrSLType slTypes[kMaxVertexAttribCnt];
-    for (int i = 0; i < kMaxVertexAttribCnt; ++i) {
-        slTypes[i] = static_cast<GrSLType>(-1);
-    }
-
-    if (this->hasGeometryProcessor()) {
-        const GrGeometryProcessor* gp = this->getGeometryProcessor();
-        // make sure that any attribute indices have the correct binding type, that the attrib
-        // type and effect's shader lang type are compatible, and that attributes shared by
-        // multiple effects use the same shader lang type.
-        const GrGeometryProcessor::VertexAttribArray& s = gp->getVertexAttribs();
-
-        int effectIndex = 0;
-        for (int index = 0; index < fVACount; index++) {
-            if (kGeometryProcessor_GrVertexAttribBinding != fVAPtr[index].fBinding) {
-                // we only care about effect bindings
-                continue;
-            }
-            SkASSERT(effectIndex < s.count());
-            GrSLType effectSLType = s[effectIndex].getType();
-            GrVertexAttribType attribType = fVAPtr[index].fType;
-            int slVecCount = GrSLTypeVectorCount(effectSLType);
-            int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
-            if (slVecCount != attribVecCount ||
-                (static_cast<GrSLType>(-1) != slTypes[index] && slTypes[index] != effectSLType)) {
-                return false;
-            }
-            slTypes[index] = effectSLType;
-            effectIndex++;
-        }
-        // Make sure all attributes are consumed and we were able to find everything
-        SkASSERT(s.count() == effectIndex);
-    }
-
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-static void validate_vertex_attribs(const GrVertexAttrib* attribs, int count, size_t stride) {
-    // this works as long as we're 4 byte-aligned
-#ifdef SK_DEBUG
-    uint32_t overlapCheck = 0;
-    SkASSERT(count <= GrDrawState::kMaxVertexAttribCnt);
-    for (int index = 0; index < count; ++index) {
-        size_t attribSize = GrVertexAttribTypeSize(attribs[index].fType);
-        size_t attribOffset = attribs[index].fOffset;
-        SkASSERT(attribOffset + attribSize <= stride);
-        size_t dwordCount = attribSize >> 2;
-        uint32_t mask = (1 << dwordCount)-1;
-        size_t offsetShift = attribOffset >> 2;
-        SkASSERT(!(overlapCheck & (mask << offsetShift)));
-        overlapCheck |= (mask << offsetShift);
-    }
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrDrawState::internalSetVertexAttribs(const GrVertexAttrib* attribs, int count,
-                                           size_t stride) {
-    SkASSERT(count <= kMaxVertexAttribCnt);
-
-    fVAPtr = attribs;
-    fVACount = count;
-    fVAStride = stride;
-    validate_vertex_attribs(fVAPtr, fVACount, fVAStride);
-
-    // Set all the indices to -1
-    memset(fFixedFunctionVertexAttribIndices,
-           0xff,
-           sizeof(fFixedFunctionVertexAttribIndices));
-#ifdef SK_DEBUG
-    uint32_t overlapCheck = 0;
-#endif
-    for (int i = 0; i < count; ++i) {
-        if (attribs[i].fBinding < kGrFixedFunctionVertexAttribBindingCnt) {
-            // The fixed function attribs can only be specified once
-            SkASSERT(-1 == fFixedFunctionVertexAttribIndices[attribs[i].fBinding]);
-            SkASSERT(GrFixedFunctionVertexAttribVectorCount(attribs[i].fBinding) ==
-                     GrVertexAttribTypeVectorCount(attribs[i].fType));
-            fFixedFunctionVertexAttribIndices[attribs[i].fBinding] = i;
-        }
-#ifdef SK_DEBUG
-        size_t dwordCount = GrVertexAttribTypeSize(attribs[i].fType) >> 2;
-        uint32_t mask = (1 << dwordCount)-1;
-        size_t offsetShift = attribs[i].fOffset >> 2;
-        SkASSERT(!(overlapCheck & (mask << offsetShift)));
-        overlapCheck |= (mask << offsetShift);
-#endif
-    }
-    fColorProcInfoValid = false;
-    fCoverageProcInfoValid = false;
-    // Positions must be specified.
-    SkASSERT(-1 != fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding]);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrDrawState::setDefaultVertexAttribs() {
-    static const GrVertexAttrib kPositionAttrib =
-        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding};
-
-    fVAPtr = &kPositionAttrib;
-    fVACount = 1;
-    fVAStride = GrVertexAttribTypeSize(kVec2f_GrVertexAttribType);
-
-    // set all the fixed function indices to -1 except position.
-    memset(fFixedFunctionVertexAttribIndices,
-           0xff,
-           sizeof(fFixedFunctionVertexAttribIndices));
-    fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding] = 0;
-    fColorProcInfoValid = false;
-    fCoverageProcInfoValid = false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 bool GrDrawState::couldApplyCoverage(const GrDrawTargetCaps& caps) const {
     if (caps.dualSourceBlendingSupport()) {
         return true;
@@ -359,17 +222,6 @@ bool GrDrawState::hasSolidCoverage() const {
 
     this->calcCoverageInvariantOutput();
     return fCoverageProcInfo.isSolidWhite();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrDrawState::AutoVertexAttribRestore::AutoVertexAttribRestore(GrDrawState* drawState) {
-    SkASSERT(drawState);
-    fDrawState = drawState;
-    fVAPtr = drawState->fVAPtr;
-    fVACount = drawState->fVACount;
-    fVAStride = drawState->fVAStride;
-    fDrawState->setDefaultVertexAttribs();
 }
 
 //////////////////////////////////////////////////////////////////////////////s

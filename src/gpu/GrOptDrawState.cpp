@@ -7,7 +7,6 @@
 
 #include "GrOptDrawState.h"
 
-#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
@@ -30,9 +29,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         // Set the fields that don't default init and return. The lack of a render target will
         // indicate that this can be skipped.
         fFlags = 0;
-        fVAPtr = NULL;
-        fVACount = 0;
-        fVAStride = 0;
         fDrawFace = GrDrawState::kInvalid_DrawFace;
         fSrcBlend = kZero_GrBlendCoeff;
         fDstBlend = kZero_GrBlendCoeff;
@@ -46,9 +42,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fScissorState = scissorState;
     fViewMatrix = drawState.getViewMatrix();
     fBlendConstant = drawState.getBlendConstant();
-    fVAPtr = drawState.getVertexAttribs();
-    fVACount = drawState.getVertexAttribCount();
-    fVAStride = drawState.getVertexStride();
     fStencilSettings = drawState.getStencil();
     fDrawFace = drawState.getDrawFace();
     fSrcBlend = optSrcCoeff;
@@ -72,18 +65,21 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fFlags |= kDither_Flag;
     }
 
-    memcpy(descInfo.fFixedFunctionVertexAttribIndices,
-           drawState.getFixedFunctionVertexAttribIndices(),
-           sizeof(descInfo.fFixedFunctionVertexAttribIndices));
+    descInfo.fHasVertexColor = drawState.hasGeometryProcessor() &&
+                               drawState.getGeometryProcessor()->hasVertexColor();
 
-    uint8_t fixedFunctionVAToRemove = 0;
+    descInfo.fHasVertexCoverage = drawState.hasGeometryProcessor() &&
+                                 drawState.getGeometryProcessor()->hasVertexCoverage();
+
+    bool hasLocalCoords = drawState.hasGeometryProcessor() &&
+                          drawState.getGeometryProcessor()->hasLocalCoords();
 
     const GrProcOptInfo& colorPOI = drawState.colorProcInfo();
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
     descInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
     fColor = colorPOI.inputColorToEffectiveStage();
     if (colorPOI.removeVertexAttrib()) {
-        fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
+        descInfo.fHasVertexColor = false;
     }
 
     // TODO: Once we can handle single or four channel input into coverage stages then we can use
@@ -93,12 +89,10 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fCoverage = drawState.getCoverage();
 
     this->adjustProgramForBlendOpt(drawState, blendOpt, &descInfo, &firstColorStageIdx,
-                                   &firstCoverageStageIdx, &fixedFunctionVAToRemove);
-    // Should not be setting any more FFVA to be removed at this point
-    if (0 != fixedFunctionVAToRemove) {
-        this->removeFixedFunctionVertexAttribs(fixedFunctionVAToRemove, &descInfo);
-    }
-    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, &descInfo);
+                                   &firstCoverageStageIdx);
+
+    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, hasLocalCoords,
+                        &descInfo);
 
     // Copy GeometryProcesssor from DS or ODS
     SkASSERT(GrGpu::IsPathRenderingDrawType(drawType) ||
@@ -107,18 +101,16 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fGeometryProcessor.reset(drawState.getGeometryProcessor());
 
     // Copy Stages from DS to ODS
-    bool explicitLocalCoords = descInfo.hasLocalCoordAttribute();
-
     for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
-                               (drawState.fColorStages[i], explicitLocalCoords));
+                               (drawState.fColorStages[i], hasLocalCoords));
     }
     fNumColorStages = fFragmentStages.count();
     for (int i = firstCoverageStageIdx; i < drawState.numCoverageStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
-                               (drawState.fCoverageStages[i], explicitLocalCoords));
+                               (drawState.fCoverageStages[i], hasLocalCoords));
     }
 
     this->setOutputStateInfo(drawState, blendOpt, *gpu->caps(), &descInfo);
@@ -166,8 +158,7 @@ void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
                                               GrDrawState::BlendOpt blendOpt,
                                               GrProgramDesc::DescInfo* descInfo,
                                               int* firstColorStageIdx,
-                                              int* firstCoverageStageIdx,
-                                              uint8_t* fixedFunctionVAToRemove) {
+                                              int* firstCoverageStageIdx) {
     switch (blendOpt) {
         case GrDrawState::kNone_BlendOpt:
         case GrDrawState::kSkipDraw_BlendOpt:
@@ -177,7 +168,7 @@ void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
             fColor = 0xffffffff;
             descInfo->fInputColorIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
-            *fixedFunctionVAToRemove |= 0x1 << kColor_GrVertexAttribBinding;
+            descInfo->fHasVertexColor = false;
             break;
         case GrDrawState::kEmitTransBlack_BlendOpt:
             fColor = 0;
@@ -186,46 +177,10 @@ void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
             descInfo->fInputCoverageIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
             *firstCoverageStageIdx = ds.numCoverageStages();
-            *fixedFunctionVAToRemove |= (0x1 << kColor_GrVertexAttribBinding |
-                                         0x1 << kCoverage_GrVertexAttribBinding);
+            descInfo->fHasVertexColor = false;
+            descInfo->fHasVertexCoverage = false;
             break;
     }
-}
-
-void GrOptDrawState::removeFixedFunctionVertexAttribs(uint8_t removeVAFlag,
-                                                      GrProgramDesc::DescInfo* descInfo) {
-    int numToRemove = 0;
-    uint8_t maskCheck = 0x1;
-    // Count the number of vertex attributes that we will actually remove
-    for (int i = 0; i < kGrFixedFunctionVertexAttribBindingCnt; ++i) {
-        if ((maskCheck & removeVAFlag) && -1 != descInfo->fFixedFunctionVertexAttribIndices[i]) {
-            ++numToRemove;
-        }
-        maskCheck <<= 1;
-    }
-
-    fOptVA.reset(fVACount - numToRemove);
-
-    GrVertexAttrib* dst = fOptVA.get();
-    const GrVertexAttrib* src = fVAPtr;
-
-    for (int i = 0, newIdx = 0; i < fVACount; ++i, ++src) {
-        const GrVertexAttrib& currAttrib = *src;
-        if (currAttrib.fBinding < kGrFixedFunctionVertexAttribBindingCnt) {
-            uint8_t maskCheck = 0x1 << currAttrib.fBinding;
-            if (maskCheck & removeVAFlag) {
-                SkASSERT(-1 != descInfo->fFixedFunctionVertexAttribIndices[currAttrib.fBinding]);
-                descInfo->fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = -1;
-                continue;
-            }
-            descInfo->fFixedFunctionVertexAttribIndices[currAttrib.fBinding] = newIdx;
-        }
-        memcpy(dst, src, sizeof(GrVertexAttrib));
-        ++newIdx;
-        ++dst;
-    }
-    fVACount -= numToRemove;
-    fVAPtr = fOptVA.get();
 }
 
 static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* readsFragPosition) {
@@ -238,10 +193,11 @@ static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* 
 }
 
 void GrOptDrawState::getStageStats(const GrDrawState& ds, int firstColorStageIdx,
-                                   int firstCoverageStageIdx, GrProgramDesc::DescInfo* descInfo) {
+                                   int firstCoverageStageIdx, bool hasLocalCoords,
+                                   GrProgramDesc::DescInfo* descInfo) {
     // We will need a local coord attrib if there is one currently set on the optState and we are
     // actually generating some effect code
-    descInfo->fRequiresLocalCoordAttrib = descInfo->hasLocalCoordAttribute() &&
+    descInfo->fRequiresLocalCoordAttrib = hasLocalCoords &&
         ds.numTotalStages() - firstColorStageIdx - firstCoverageStageIdx > 0;
 
     descInfo->fReadsDst = false;
@@ -267,8 +223,8 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
     if (this->fDesc != that.fDesc) {
         return false;
     }
-    bool usingVertexColors = that.fDesc.header().fColorAttributeIndex != -1;
-    if (!usingVertexColors && this->fColor != that.fColor) {
+    bool hasVertexColors = this->fDesc.header().fColorInput == GrProgramDesc::kAttribute_ColorInput;
+    if (!hasVertexColors && this->fColor != that.fColor) {
         return false;
     }
 
@@ -279,17 +235,15 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
         this->fDstBlend != that.fDstBlend ||
         this->fBlendConstant != that.fBlendConstant ||
         this->fFlags != that.fFlags ||
-        this->fVACount != that.fVACount ||
-        this->fVAStride != that.fVAStride ||
-        memcmp(this->fVAPtr, that.fVAPtr, this->fVACount * sizeof(GrVertexAttrib)) ||
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace ||
         this->fDstCopy.texture() != that.fDstCopy.texture()) {
         return false;
     }
 
-    bool usingVertexCoverage = this->fDesc.header().fCoverageAttributeIndex != -1;
-    if (!usingVertexCoverage && this->fCoverage != that.fCoverage) {
+    bool hasVertexCoverage =
+            this->fDesc.header().fCoverageInput == GrProgramDesc::kAttribute_ColorInput;
+    if (!hasVertexCoverage && this->fCoverage != that.fCoverage) {
         return false;
     }
 

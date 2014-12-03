@@ -27,18 +27,17 @@ enum CoverageAttribType {
 }
 
 static CoverageAttribType set_rect_attribs(GrDrawState* drawState) {
+    uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     if (drawState->canTweakAlphaForCoverage()) {
-        drawState->setGeometryProcessor(
-                GrDefaultGeoProcFactory::CreateAndSetAttribs(
-                        drawState,
-                        GrDefaultGeoProcFactory::kColor_GPType))->unref();
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
+        SkASSERT(drawState->getGeometryProcessor()->getVertexStride() ==
+                 sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         return kUseColor_CoverageAttribType;
     } else {
-        drawState->setGeometryProcessor(
-                GrDefaultGeoProcFactory::CreateAndSetAttribs(
-                        drawState,
-                        GrDefaultGeoProcFactory::kColor_GPType |
-                        GrDefaultGeoProcFactory::kCoverage_GPType))->unref();
+        flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
+        SkASSERT(drawState->getGeometryProcessor()->getVertexStride() ==
+                 sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
         return kUseCoverage_CoverageAttribType;
     }
 }
@@ -190,7 +189,8 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, 8, drawState->getVertexStride(),  0);
+    size_t vstride = drawState->getGeometryProcessor()->getVertexStride();
+    GrDrawTarget::AutoReleaseGeometry geo(target, 8, vstride, 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -209,7 +209,6 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-    size_t vstride = drawState->getVertexStride();
 
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
     SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vstride);
@@ -395,7 +394,8 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     int outerVertexNum = miterStroke ? 4 : 8;
     int totalVertexNum = (outerVertexNum + innerVertexNum) * 2;
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, totalVertexNum,  drawState->getVertexStride(), 0);
+    size_t vstride = drawState->getGeometryProcessor()->getVertexStride();
+    GrDrawTarget::AutoReleaseGeometry geo(target, totalVertexNum, vstride, 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -407,7 +407,6 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-    size_t vstride = drawState->getVertexStride();
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.

@@ -21,29 +21,33 @@ class GrInvariantOutput;
  */
 class GrCustomCoordsTextureEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& p) {
-        return SkNEW_ARGS(GrCustomCoordsTextureEffect, (tex, p));
+    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& p, bool hasColor) {
+        return SkNEW_ARGS(GrCustomCoordsTextureEffect, (tex, p, hasColor));
     }
 
     virtual ~GrCustomCoordsTextureEffect() {}
 
     static const char* Name() { return "Texture"; }
 
-    const GrShaderVar& inTextureCoords() const { return fInTextureCoords; }
+    const GrAttribute* inPosition() const { return fInPosition; }
+    const GrAttribute* inColor() const { return fInColor; }
+    const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
 
     typedef GrGLCustomCoordsTextureEffect GLProcessor;
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params);
+    GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params, bool hasColor);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
-    const GrShaderVar& fInTextureCoords;
+    const GrAttribute* fInPosition;
+    const GrAttribute* fInColor;
+    const GrAttribute* fInTextureCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

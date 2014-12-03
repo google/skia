@@ -25,16 +25,13 @@
 /**
  * Retrieves the final matrix that a transform needs to apply to its source coords.
  */
-static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage,
-                                     bool useExplicitLocalCoords,
-                                     int transformIdx) {
+static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage, int transformIdx) {
     const GrCoordTransform& coordTransform = stage.getProcessor()->coordTransform(transformIdx);
     SkMatrix combined;
 
     if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
         // If we have explicit local coords then we shouldn't need a coord change.
-        const SkMatrix& ccm =
-                useExplicitLocalCoords ? SkMatrix::I() : stage.getCoordChangeMatrix();
+        const SkMatrix& ccm = stage.getCoordChangeMatrix();
         combined.setConcat(coordTransform.getMatrix(), ccm);
     } else {
         combined = coordTransform.getMatrix();
@@ -187,7 +184,7 @@ void GrGLProgram::setTransformData(const GrPendingFragmentStage& processor,
     SkASSERT(numTransforms == processor.getProcessor()->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& matrix = get_transform_matrix(processor, ip->fLocalCoordAttrib, t);
+        const SkMatrix& matrix = get_transform_matrix(processor, t);
         if (!transforms[t].fCurrentValue.cheapEqualTo(matrix)) {
             fProgramDataManager.setSkMatrix(transforms[t].fHandle.convertToUniformHandle(), matrix);
             transforms[t].fCurrentValue = matrix;
@@ -335,7 +332,7 @@ void GrGLNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
     SkASSERT(numTransforms == proc.getProcessor()->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& transform = get_transform_matrix(proc, false, t);
+        const SkMatrix& transform = get_transform_matrix(proc, t);
         if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
             continue;
         }
@@ -376,7 +373,7 @@ GrGLLegacyNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
     int texCoordIndex = ip->fTransforms[0].fHandle.handle();
     int numTransforms = proc.getProcessor()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
-        const SkMatrix& transform = get_transform_matrix(proc, false, t);
+        const SkMatrix& transform = get_transform_matrix(proc, t);
         GrGLPathRendering::PathTexGenComponents components =
                 GrGLPathRendering::kST_PathTexGenComponents;
         if (proc.isPerspectiveCoordTransform(t)) {

@@ -21,15 +21,6 @@
 
 #include "effects/GrBezierEffect.h"
 
-// Position & KLM line eq values. These are the vertex attributes for Bezier curves. The last value
-// of the Vec4f is ignored.
-namespace {
-extern const GrVertexAttrib kAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(SkPoint), kGeometryProcessor_GrVertexAttribBinding}
-};
-}
-
 static inline SkScalar eval_line(const SkPoint& p, const SkScalar lineEq[3], SkScalar sign) {
     return sign * (lineEq[0] * p.fX + lineEq[1] * p.fY + lineEq[2]);
 }
@@ -159,9 +150,9 @@ protected:
                     SkASSERT(tt.target());
 
                     GrDrawState ds;
-                    ds.setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
+                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
+                    SkASSERT(gp->getVertexStride() == sizeof(Vertex));
                     Vertex* verts = reinterpret_cast<Vertex*>(geo.vertices());
 
                     verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop,
@@ -316,9 +307,9 @@ protected:
                     SkASSERT(tt.target());
 
                     GrDrawState ds;
-                    ds.setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
+                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
+                    SkASSERT(gp->getVertexStride() == sizeof(Vertex));
                     Vertex* verts = reinterpret_cast<Vertex*>(geo.vertices());
 
                     verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop,
@@ -504,9 +495,9 @@ protected:
                     SkASSERT(tt.target());
 
                     GrDrawState ds;
-                    ds.setVertexAttribs<kAttribs>(2, sizeof(Vertex));
 
-                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, ds.getVertexStride(), 0);
+                    GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
+                    SkASSERT(gp->getVertexStride() == sizeof(Vertex));
                     Vertex* verts = reinterpret_cast<Vertex*>(geo.vertices());
 
                     verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop,

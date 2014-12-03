@@ -642,14 +642,6 @@ void add_line(const SkPoint p[2],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace {
-// position + edge
-extern const GrVertexAttrib gHairlineBezierAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(SkPoint),    kGeometryProcessor_GrVertexAttribBinding}
-};
-};
-
 bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
                                               GrDrawState* drawState,
                                               GrDrawTarget::AutoReleaseGeometry* arg,
@@ -661,10 +653,9 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
 
     int vertCnt = kLineSegNumVertices * lineCnt;
 
-    GrDefaultGeoProcFactory::SetAttribs(drawState, GrDefaultGeoProcFactory::kPosition_GPType |
-                                                   GrDefaultGeoProcFactory::kCoverage_GPType);
-
-    if (!arg->set(target, vertCnt, drawState->getVertexStride(),  0)) {
+    size_t vstride = drawState->getGeometryProcessor()->getVertexStride();
+    SkASSERT(vstride == sizeof(LineVertex));
+    if (!arg->set(target, vertCnt, vstride,  0)) {
         return false;
     }
 
@@ -701,15 +692,13 @@ bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
                                                 const PtArray& conics,
                                                 int conicCnt,
                                                 const IntArray& qSubdivs,
-                                                const FloatArray& cWeights) {
+                                                const FloatArray& cWeights,
+                                                size_t vertexStride) {
     const SkMatrix& viewM = drawState->getViewMatrix();
 
     int vertCnt = kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt;
 
-    int vAttribCnt = SK_ARRAY_COUNT(gHairlineBezierAttribs);
-    drawState->setVertexAttribs<gHairlineBezierAttribs>(vAttribCnt, sizeof(BezierVertex));
-
-    if (!arg->set(target, vertCnt, drawState->getVertexStride(), 0)) {
+    if (!arg->set(target, vertCnt, vertexStride, 0)) {
         return false;
     }
 
@@ -846,6 +835,11 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 
+        uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
+                           GrDefaultGeoProcFactory::kCoverage_GPType;
+        GrDrawState::AutoRestoreEffects are(drawState);
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(gpFlags))->unref();
+
         if (!this->createLineGeom(target,
                                   drawState,
                                   &arg,
@@ -868,8 +862,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                           kLineSegNumVertices * lineCnt));
 
         {
-            GrDrawState::AutoRestoreEffects are(drawState);
-            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(false))->unref();
             target->setIndexSourceToBuffer(fLinesIndexBuffer);
             int lines = 0;
             while (lines < lineCnt) {
@@ -901,7 +893,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                     conics,
                                     conicCnt,
                                     qSubdivs,
-                                    cWeights)) {
+                                    cWeights,
+                                    sizeof(BezierVertex))) {
             return false;
         }
 
@@ -923,6 +916,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
             SkASSERT(hairQuadProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
+
             drawState->setGeometryProcessor(hairQuadProcessor)->unref();
             int quads = 0;
             while (quads < quadCnt) {
@@ -943,6 +937,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
             GrGeometryProcessor* hairConicProcessor = GrConicEffect::Create(
                     kHairlineAA_GrProcessorEdgeType, *target->caps());
             SkASSERT(hairConicProcessor);
+
             drawState->setGeometryProcessor(hairConicProcessor)->unref();
             int conics = 0;
             while (conics < conicCnt) {

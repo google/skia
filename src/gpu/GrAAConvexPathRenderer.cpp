@@ -518,7 +518,8 @@ public:
 
     static const char* Name() { return "QuadEdge"; }
 
-    const GrShaderVar& inQuadEdge() const { return fInQuadEdge; }
+    const GrAttribute* inPosition() const { return fInPosition; }
+    const GrAttribute* inQuadEdge() const { return fInQuadEdge; }
 
     virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendGeometryProcessorFactory<QuadEdgeEffect>::getInstance();
@@ -530,8 +531,20 @@ public:
             : INHERITED (factory) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+            const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
+            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
             GrGLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("QuadEdge", &v);
+            vsBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
+
+            // setup coord outputs
+            vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), qe.inPosition()->fName);
+            vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), qe.inPosition()->fName);
+
+            // setup position varying
+            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
+                                   vsBuilder->uViewM(), qe.inPosition()->fName);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -555,17 +568,7 @@ public:
             fsBuilder->codeAppendf("edgeAlpha = "
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);}");
 
-
-            fsBuilder->codeAppendf("%s = %s;", args.fOutput,
-                                   (GrGLSLExpr4(args.fInput) * GrGLSLExpr1("edgeAlpha")).c_str());
-
-            const GrShaderVar& inQuadEdge = args.fGP.cast<QuadEdgeEffect>().inQuadEdge();
-            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-            vsBuilder->codeAppendf("\t%s = %s;\n", v.vsOut(), inQuadEdge.c_str());
-
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), vsBuilder->inPosition());
+            fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
@@ -577,10 +580,9 @@ public:
     };
 
 private:
-    QuadEdgeEffect()
-        : fInQuadEdge(this->addVertexAttrib(GrShaderVar("inQuadEdge",
-                                                        kVec4f_GrSLType,
-                                                        GrShaderVar::kAttribute_TypeModifier))) {
+    QuadEdgeEffect() {
+        fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+        fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
     }
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
@@ -591,7 +593,8 @@ private:
         inout->mulByUnknownAlpha();
     }
 
-    const GrShaderVar& fInQuadEdge;
+    const GrAttribute* fInPosition;
+    const GrAttribute* fInQuadEdge;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -618,16 +621,6 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
     return (target->caps()->shaderDerivativeSupport() && antiAlias &&
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
-
-namespace {
-
-// position + edge
-extern const GrVertexAttrib gPathAttribs[] = {
-    {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(SkPoint), kGeometryProcessor_GrVertexAttribBinding}
-};
-
-};
 
 bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrDrawState* drawState,
@@ -678,12 +671,11 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     // Our computed verts should all be within one pixel of the segment control points.
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
-    drawState->setVertexAttribs<gPathAttribs>(SK_ARRAY_COUNT(gPathAttribs), sizeof(QuadVertex));
-
     GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Create();
     drawState->setGeometryProcessor(quadProcessor)->unref();
 
-    GrDrawTarget::AutoReleaseGeometry arg(target, vCount, drawState->getVertexStride(), iCount);
+    GrDrawTarget::AutoReleaseGeometry arg(target, vCount, quadProcessor->getVertexStride(), iCount);
+    SkASSERT(quadProcessor->getVertexStride() == sizeof(QuadVertex));
     if (!arg.succeeded()) {
         return false;
     }
