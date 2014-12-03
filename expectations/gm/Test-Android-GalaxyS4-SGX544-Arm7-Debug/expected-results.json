@@ -5690,6 +5690,15 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
+    "grayscalejpg_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2821620261088527407
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "hairlines_565.png": {
       "allowed-digests": [
         [
@@ -8790,6 +8799,15 @@
         [
           "bitmap-64bitMD5", 
           17095707402781773995
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "small_image_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18343327300122266214
         ]
       ], 
       "reviewed-by-human": true

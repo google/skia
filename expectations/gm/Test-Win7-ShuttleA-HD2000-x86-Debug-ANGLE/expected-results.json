@@ -9616,6 +9616,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "grayscalejpg_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2821620261088527407
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "hairlines_565.png": {
       "allowed-digests": [
         [
@@ -14065,6 +14074,15 @@
         1759
       ], 
       "reviewed-by-human": false
+    }, 
+    "small_image_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18343327300122266214
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "smallarc_angle.png": {
       "allowed-digests": [
