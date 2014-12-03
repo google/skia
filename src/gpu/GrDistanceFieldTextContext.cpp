@@ -38,9 +38,6 @@ static const int kMediumDFFontSize = 78;
 static const int kMediumDFFontLimit = 78;
 static const int kLargeDFFontSize = 192;
 
-static const size_t kTextVASize = 2 * sizeof(SkPoint); 
-static const size_t kTextVAColorSize = 2 * sizeof(SkPoint) + sizeof(GrColor); 
-
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;
 
