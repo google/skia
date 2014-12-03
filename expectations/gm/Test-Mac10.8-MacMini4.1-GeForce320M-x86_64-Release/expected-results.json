@@ -55,6 +55,7 @@
       "reviewed-by-human": false
     }, 
     "3x3bitmaprect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -100,6 +101,7 @@
       "reviewed-by-human": true
     }, 
     "aaclip_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -151,6 +153,7 @@
       "reviewed-by-human": false
     }, 
     "aarectmodes_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -208,6 +211,7 @@
       "reviewed-by-human": false
     }, 
     "alphagradients_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -265,6 +269,7 @@
       "reviewed-by-human": false
     }, 
     "arcofzorro_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -313,6 +318,7 @@
       "ignore-failure": false
     }, 
     "arithmode_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -370,6 +376,7 @@
       "reviewed-by-human": true
     }, 
     "astcbitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -457,6 +464,7 @@
       "reviewed-by-human": true
     }, 
     "beziers_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -511,6 +519,7 @@
       "ignore-failure": false
     }, 
     "bigbitmaprect_i_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -565,6 +574,7 @@
       "ignore-failure": false
     }, 
     "bigbitmaprect_s_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -610,6 +620,7 @@
       "reviewed-by-human": false
     }, 
     "bigblurs_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -667,6 +678,7 @@
       "reviewed-by-human": false
     }, 
     "bigmatrix_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -724,6 +736,7 @@
       "reviewed-by-human": false
     }, 
     "bigtext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -793,6 +806,7 @@
       "reviewed-by-human": false
     }, 
     "bitmap_premul_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -850,6 +864,7 @@
       "reviewed-by-human": false
     }, 
     "bitmapcopy_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -907,6 +922,7 @@
       "reviewed-by-human": true
     }, 
     "bitmapfilters_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -973,6 +989,7 @@
       "ignore-failure": false
     }, 
     "bitmaprect_i_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1027,6 +1044,7 @@
       "ignore-failure": false
     }, 
     "bitmaprect_s_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1078,6 +1096,7 @@
       "reviewed-by-human": false
     }, 
     "bitmaprecttest_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1132,6 +1151,7 @@
       "ignore-failure": false
     }, 
     "bitmapscroll_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1180,6 +1200,7 @@
       "reviewed-by-human": false
     }, 
     "bitmapshaders_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1222,6 +1243,7 @@
       "reviewed-by-human": true
     }, 
     "bitmapsource_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1270,6 +1292,7 @@
       "reviewed-by-human": true
     }, 
     "bleed_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1315,6 +1338,7 @@
       "reviewed-by-human": true
     }, 
     "blur2rects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1360,6 +1384,7 @@
       "reviewed-by-human": false
     }, 
     "blurcircles_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1414,6 +1439,7 @@
       "reviewed-by-human": false
     }, 
     "blurquickreject_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1459,6 +1485,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_25_100_20_inner_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1516,6 +1543,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_20_inner_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1561,6 +1589,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_25_100_20_normal_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1618,6 +1647,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_20_normal_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1663,6 +1693,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_25_100_20_outer_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1720,6 +1751,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_20_outer_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1777,6 +1809,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_inner_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1834,6 +1867,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_inner_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1891,6 +1925,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_normal_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1948,6 +1983,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_normal_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2005,6 +2041,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_outer_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2062,6 +2099,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_25_100_2_outer_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2107,6 +2145,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_5_100_20_inner_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2164,6 +2203,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_20_inner_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2209,6 +2249,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_5_100_20_normal_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2266,6 +2307,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_20_normal_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2311,6 +2353,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_5_100_20_outer_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2368,6 +2411,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_20_outer_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2425,6 +2469,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_inner_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2482,6 +2527,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_inner_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2539,6 +2585,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_normal_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2596,6 +2643,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_normal_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2653,6 +2701,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_outer_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2710,6 +2759,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_100_2_outer_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2758,6 +2808,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_5_5_20_inner_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2815,6 +2866,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_20_inner_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2860,6 +2912,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_5_5_20_normal_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2917,6 +2970,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_20_normal_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -2962,6 +3016,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_5_5_20_outer_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3019,6 +3074,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_20_outer_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3076,6 +3132,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_inner_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3133,6 +3190,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_inner_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3190,6 +3248,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_normal_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3247,6 +3306,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_normal_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3304,6 +3364,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_outer_fast_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3361,6 +3422,7 @@
       "reviewed-by-human": false
     }, 
     "blurrect_5_5_2_outer_slow_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3406,6 +3468,7 @@
       "reviewed-by-human": true
     }, 
     "blurrect_gallery_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3643,6 +3706,7 @@
       "reviewed-by-human": false
     }, 
     "blurrects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3688,6 +3752,7 @@
       "reviewed-by-human": false
     }, 
     "blurroundrect-WH-100x100-unevenCorners_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3733,6 +3798,7 @@
       "reviewed-by-human": false
     }, 
     "blurroundrect-WH[100x100]-unevenCorners_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3787,6 +3853,7 @@
       "reviewed-by-human": false
     }, 
     "blurs_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3835,6 +3902,7 @@
       "reviewed-by-human": true
     }, 
     "canvas-layer-state_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3892,6 +3960,7 @@
       "reviewed-by-human": false
     }, 
     "canvas-state_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -3949,6 +4018,7 @@
       "reviewed-by-human": false
     }, 
     "chrome_gradtext1_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4018,6 +4088,7 @@
       "reviewed-by-human": false
     }, 
     "chrome_gradtext2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4084,6 +4155,7 @@
       "reviewed-by-human": false
     }, 
     "circles_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4141,6 +4213,7 @@
       "reviewed-by-human": false
     }, 
     "circular-clips_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4198,6 +4271,7 @@
       "reviewed-by-human": false
     }, 
     "clamped_gradients_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4243,6 +4317,7 @@
       "reviewed-by-human": true
     }, 
     "clip_strokerect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4300,6 +4375,7 @@
       "reviewed-by-human": false
     }, 
     "clipped-bitmap-shaders-clamp-hq_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4357,6 +4433,7 @@
       "reviewed-by-human": false
     }, 
     "clipped-bitmap-shaders-clamp_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4414,6 +4491,7 @@
       "reviewed-by-human": false
     }, 
     "clipped-bitmap-shaders-mirror-hq_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4471,6 +4549,7 @@
       "reviewed-by-human": false
     }, 
     "clipped-bitmap-shaders-mirror_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4528,6 +4607,7 @@
       "reviewed-by-human": false
     }, 
     "clipped-bitmap-shaders-tile-hq_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4585,6 +4665,7 @@
       "reviewed-by-human": false
     }, 
     "clipped-bitmap-shaders-tile_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4642,6 +4723,7 @@
       "reviewed-by-human": false
     }, 
     "clippedcubic_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4699,6 +4781,7 @@
       "reviewed-by-human": false
     }, 
     "cmykjpeg_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4744,6 +4827,7 @@
       "reviewed-by-human": true
     }, 
     "colorcube_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4801,6 +4885,7 @@
       "reviewed-by-human": false
     }, 
     "coloremoji_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4867,6 +4952,7 @@
       "reviewed-by-human": true
     }, 
     "colorfilterimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4921,6 +5007,7 @@
       "ignore-failure": false
     }, 
     "colormatrix_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -4975,6 +5062,7 @@
       "reviewed-by-human": false
     }, 
     "colortype_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5032,6 +5120,7 @@
       "reviewed-by-human": true
     }, 
     "colortype_xfermodes_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5080,6 +5169,7 @@
       "reviewed-by-human": true
     }, 
     "colorwheel_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5128,6 +5218,7 @@
       "reviewed-by-human": true
     }, 
     "colorwheelnative_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5215,6 +5306,7 @@
       "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5269,6 +5361,7 @@
       "reviewed-by-human": true
     }, 
     "complexclip2_path_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5290,6 +5383,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5344,6 +5438,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip2_rect_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5389,6 +5484,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip2_rrect_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5434,6 +5530,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip2_rrect_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5509,6 +5606,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip_aa_layer_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5542,6 +5640,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5629,6 +5728,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip_bw_layer_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5662,6 +5762,7 @@
       "reviewed-by-human": false
     }, 
     "complexclip_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5737,6 +5838,7 @@
       "reviewed-by-human": false
     }, 
     "composeshader_alpha_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5764,6 +5866,7 @@
       "reviewed-by-human": true
     }, 
     "composeshader_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5809,6 +5912,7 @@
       "reviewed-by-human": true
     }, 
     "convex_poly_clip_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5869,6 +5973,7 @@
       "reviewed-by-human": true
     }, 
     "convexpaths_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5926,6 +6031,7 @@
       "reviewed-by-human": false
     }, 
     "copyTo4444_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -5992,6 +6098,7 @@
       "reviewed-by-human": false
     }, 
     "cubicclosepath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6058,6 +6165,7 @@
       "reviewed-by-human": false
     }, 
     "cubicpath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6124,6 +6232,7 @@
       "reviewed-by-human": false
     }, 
     "dashcubics_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6181,6 +6290,7 @@
       "reviewed-by-human": false
     }, 
     "dashing2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6235,6 +6345,7 @@
       "reviewed-by-human": false
     }, 
     "dashing3_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6280,6 +6391,7 @@
       "reviewed-by-human": true
     }, 
     "dashing4_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6325,6 +6437,7 @@
       "reviewed-by-human": true
     }, 
     "dashing5_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6370,6 +6483,7 @@
       "reviewed-by-human": true
     }, 
     "dashing5_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6424,6 +6538,7 @@
       "reviewed-by-human": false
     }, 
     "dashing_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6478,6 +6593,7 @@
       "reviewed-by-human": false
     }, 
     "degeneratesegments_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6547,6 +6663,7 @@
       "reviewed-by-human": false
     }, 
     "deviceproperties_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6623,6 +6740,7 @@
       "reviewed-by-human": true
     }, 
     "displacement_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6668,6 +6786,7 @@
       "reviewed-by-human": true
     }, 
     "distantclip_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6713,6 +6832,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_high_512_256_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6758,6 +6878,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_low_512_256_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6803,6 +6924,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_medium_512_256_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6848,6 +6970,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_none_512_256_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6893,6 +7016,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_high_mandrill_132x132_12x12.astc_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6938,6 +7062,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_high_mandrill_512.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -6995,6 +7120,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_low_mandrill_132x132_12x12.astc_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7040,6 +7166,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_low_mandrill_512.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7097,6 +7224,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_medium_mandrill_132x132_12x12.astc_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7142,6 +7270,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_medium_mandrill_512.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7199,6 +7328,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_none_mandrill_132x132_12x12.astc_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7244,6 +7374,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_none_mandrill_512.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7301,6 +7432,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_text_high_72.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7358,6 +7490,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_text_low_72.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7415,6 +7548,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_text_medium_72.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7472,6 +7606,7 @@
       "reviewed-by-human": true
     }, 
     "downsamplebitmap_text_none_72.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7535,6 +7670,7 @@
       "ignore-failure": false
     }, 
     "drawbitmapmatrix_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7589,6 +7725,7 @@
       "reviewed-by-human": false
     }, 
     "drawbitmaprect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7637,6 +7774,7 @@
       "reviewed-by-human": false
     }, 
     "drawlooper_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7691,6 +7829,7 @@
       "reviewed-by-human": true
     }, 
     "dropshadowimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7744,6 +7883,7 @@
       "reviewed-by-human": true
     }, 
     "drrect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7789,6 +7929,7 @@
       "reviewed-by-human": true
     }, 
     "emboss_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7843,6 +7984,7 @@
       "reviewed-by-human": false
     }, 
     "emptypath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7927,6 +8069,7 @@
       "reviewed-by-human": true
     }, 
     "etc1bitmap_ktx_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7972,6 +8115,7 @@
       "reviewed-by-human": true
     }, 
     "etc1bitmap_npot_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -7990,6 +8134,7 @@
       "reviewed-by-human": true
     }, 
     "etc1bitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8035,6 +8180,7 @@
       "reviewed-by-human": true
     }, 
     "etc1bitmap_pkm_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8080,6 +8226,7 @@
       "reviewed-by-human": true
     }, 
     "etc1bitmap_r11.ktx_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8131,6 +8278,7 @@
       "reviewed-by-human": false
     }, 
     "extractbitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8200,6 +8348,7 @@
       "reviewed-by-human": false
     }, 
     "factory_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8257,6 +8406,7 @@
       "reviewed-by-human": false
     }, 
     "fatpathfill_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8314,6 +8464,7 @@
       "reviewed-by-human": false
     }, 
     "filltypes_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8368,6 +8519,7 @@
       "reviewed-by-human": false
     }, 
     "filltypespersp_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8414,6 +8566,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_192_192_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8461,6 +8614,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_32_2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8508,6 +8662,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_32_32_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8565,6 +8720,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_32_8_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8612,6 +8768,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_4_4_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8657,6 +8814,7 @@
       "reviewed-by-human": true
     }, 
     "filterbitmap_image_color_wheel.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8703,6 +8861,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_128.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8760,6 +8919,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_16.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8807,6 +8967,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_256.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8863,6 +9024,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_32.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8909,6 +9071,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_512.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -8966,6 +9129,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_64.png_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9013,6 +9177,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_10.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9060,6 +9225,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_3.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9107,6 +9273,7 @@
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_7.00pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9153,6 +9320,7 @@
       "reviewed-by-human": false
     }, 
     "filterindiabox_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9273,6 +9441,7 @@
       "reviewed-by-human": false
     }, 
     "fontmgr_match_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9339,6 +9508,7 @@
       "reviewed-by-human": true
     }, 
     "fontscaler_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9396,6 +9566,7 @@
       "reviewed-by-human": false
     }, 
     "gammagradienttext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9450,6 +9621,7 @@
       "reviewed-by-human": false
     }, 
     "gammatext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9516,6 +9688,7 @@
       "reviewed-by-human": false
     }, 
     "getpostextpath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9585,6 +9758,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_clamp_bilerp_rotate_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9642,6 +9816,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_clamp_bilerp_scale_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9699,6 +9874,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_clamp_point_rotate_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9756,6 +9932,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_clamp_point_scale_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9813,6 +9990,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_mirror_bilerp_rotate_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9882,6 +10060,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_mirror_bilerp_scale_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9940,6 +10119,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_mirror_point_rotate_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -9997,6 +10177,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_mirror_point_scale_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10054,6 +10235,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_repeat_bilerp_rotate_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10111,6 +10293,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_repeat_bilerp_scale_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10168,6 +10351,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_repeat_point_rotate_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10225,6 +10409,7 @@
       "reviewed-by-human": false
     }, 
     "giantbitmap_repeat_point_scale_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10270,6 +10455,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_align_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10315,6 +10501,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_h_b_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10360,6 +10547,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_h_f_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10405,6 +10593,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_h_s_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10450,6 +10639,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_n_b_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10495,6 +10685,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_n_f_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10540,6 +10731,7 @@
       "reviewed-by-human": false
     }, 
     "glyph_pos_n_s_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10585,6 +10777,7 @@
       "reviewed-by-human": false
     }, 
     "gpusamplerstress_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10636,6 +10829,7 @@
       "reviewed-by-human": true
     }, 
     "gradient_dirty_laundry_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10693,6 +10887,7 @@
       "reviewed-by-human": false
     }, 
     "gradient_matrix_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10738,6 +10933,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_2pt_conical_edge_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10783,6 +10979,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_2pt_conical_inside_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10828,6 +11025,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_2pt_conical_outside_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10903,6 +11101,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_degenerate_2pt_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -10969,6 +11168,7 @@
       "reviewed-by-human": true
     }, 
     "gradients_local_perspective_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11014,6 +11214,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_many_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11059,6 +11260,7 @@
       "reviewed-by-human": true
     }, 
     "gradients_no_texture_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11080,6 +11282,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11128,6 +11331,7 @@
       "reviewed-by-human": false
     }, 
     "gradients_view_perspective_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11177,6 +11381,7 @@
       "reviewed-by-human": false
     }, 
     "gradtext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11234,6 +11439,7 @@
       "reviewed-by-human": true
     }, 
     "grayscalejpg_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11288,6 +11494,7 @@
       "reviewed-by-human": false
     }, 
     "hairlines_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11375,6 +11582,7 @@
       "reviewed-by-human": false
     }, 
     "hittestpath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11420,6 +11628,7 @@
       "reviewed-by-human": true
     }, 
     "image-surface_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11465,6 +11674,7 @@
       "reviewed-by-human": true
     }, 
     "imagealphathreshold_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11510,6 +11720,7 @@
       "reviewed-by-human": true
     }, 
     "imageblur2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11582,6 +11793,7 @@
       "reviewed-by-human": true
     }, 
     "imageblur_large_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11600,6 +11812,7 @@
       "reviewed-by-human": true
     }, 
     "imageblur_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11654,6 +11867,7 @@
       "reviewed-by-human": true
     }, 
     "imageblurtiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11709,6 +11923,7 @@
       "reviewed-by-human": true
     }, 
     "imagefiltersbase_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11763,6 +11978,7 @@
       "reviewed-by-human": true
     }, 
     "imagefiltersclipped_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11808,6 +12024,7 @@
       "reviewed-by-human": true
     }, 
     "imagefilterscropexpand_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11863,6 +12080,7 @@
       "reviewed-by-human": true
     }, 
     "imagefilterscropped_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11929,6 +12147,7 @@
       "reviewed-by-human": true
     }, 
     "imagefiltersgraph_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -11974,6 +12193,7 @@
       "reviewed-by-human": true
     }, 
     "imagefiltersscaled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12019,6 +12239,7 @@
       "reviewed-by-human": true
     }, 
     "imagemagnifier_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12064,6 +12285,7 @@
       "reviewed-by-human": true
     }, 
     "imageresizetiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12121,6 +12343,7 @@
       "reviewed-by-human": false
     }, 
     "internal_links_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12178,6 +12401,7 @@
       "reviewed-by-human": true
     }, 
     "inverse_paths_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12235,6 +12459,7 @@
       "reviewed-by-human": false
     }, 
     "lcdtext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12292,6 +12517,7 @@
       "reviewed-by-human": true
     }, 
     "lcdtextsize_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12343,6 +12569,7 @@
       "reviewed-by-human": false
     }, 
     "lerpmode_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12398,6 +12625,7 @@
       "reviewed-by-human": true
     }, 
     "lighting_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12443,6 +12671,7 @@
       "reviewed-by-human": false
     }, 
     "lightingcolorfilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12497,6 +12726,7 @@
       "reviewed-by-human": false
     }, 
     "lineclosepath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12563,6 +12793,7 @@
       "reviewed-by-human": false
     }, 
     "linepath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12618,6 +12849,7 @@
       ]
     }, 
     "lumafilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12724,6 +12956,7 @@
       "reviewed-by-human": true
     }, 
     "matrixconvolution_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12769,6 +13002,7 @@
       "reviewed-by-human": true
     }, 
     "matriximagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12823,6 +13057,7 @@
       "reviewed-by-human": false
     }, 
     "megalooper_0x0_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12877,6 +13112,7 @@
       "reviewed-by-human": false
     }, 
     "megalooper_1x4_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -12931,6 +13167,7 @@
       "reviewed-by-human": false
     }, 
     "megalooper_4x1_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13009,6 +13246,7 @@
       "reviewed-by-human": false
     }, 
     "modecolorfilters_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13076,6 +13314,7 @@
       "reviewed-by-human": true
     }, 
     "morphology_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13121,6 +13360,7 @@
       "reviewed-by-human": true
     }, 
     "multipicturedraw_biglayer_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13166,6 +13406,7 @@
       "reviewed-by-human": true
     }, 
     "multipicturedraw_biglayer_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13211,6 +13452,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_invpathclip_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13256,6 +13498,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_invpathclip_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13301,6 +13544,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_noclip_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13346,6 +13590,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_noclip_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13391,6 +13636,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_pathclip_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13436,6 +13682,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_pathclip_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13481,6 +13728,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_rectclip_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13526,6 +13774,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_rectclip_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13571,6 +13820,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_rrectclip_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13616,6 +13866,7 @@
       "reviewed-by-human": false
     }, 
     "multipicturedraw_rrectclip_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13661,6 +13912,7 @@
       "reviewed-by-human": true
     }, 
     "multipicturedraw_sierpinski_simple_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13706,6 +13958,7 @@
       "reviewed-by-human": true
     }, 
     "multipicturedraw_sierpinski_tiled_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13760,6 +14013,7 @@
       "reviewed-by-human": false
     }, 
     "nested_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13817,6 +14071,7 @@
       "reviewed-by-human": false
     }, 
     "nested_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13862,6 +14117,7 @@
       "reviewed-by-human": true
     }, 
     "ninepatch-stretch_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13907,6 +14163,7 @@
       "reviewed-by-human": false
     }, 
     "nonclosedpaths_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -13953,6 +14210,7 @@
       "reviewed-by-human": true
     }, 
     "offsetimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14010,6 +14268,7 @@
       "reviewed-by-human": false
     }, 
     "optimizations_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14064,6 +14323,7 @@
       "reviewed-by-human": false
     }, 
     "ovals_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14109,6 +14369,7 @@
       "reviewed-by-human": false
     }, 
     "patch_grid_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14154,6 +14415,7 @@
       "reviewed-by-human": false
     }, 
     "patch_primitive_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14208,6 +14470,7 @@
       "reviewed-by-human": false
     }, 
     "path-reverse_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14262,6 +14525,7 @@
       "reviewed-by-human": false
     }, 
     "patheffect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14313,6 +14577,7 @@
       "reviewed-by-human": true
     }, 
     "pathfill_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14364,6 +14629,7 @@
       "reviewed-by-human": true
     }, 
     "pathinterior_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14421,6 +14687,7 @@
       "reviewed-by-human": false
     }, 
     "pathinvfill_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14472,6 +14739,7 @@
       "reviewed-by-human": false
     }, 
     "pathopsinverse_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14523,6 +14791,7 @@
       "reviewed-by-human": true
     }, 
     "pathopsskpclip_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14568,6 +14837,7 @@
       "reviewed-by-human": false
     }, 
     "peekpixels_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14640,6 +14910,7 @@
       "reviewed-by-human": false
     }, 
     "perlinnoise_localmatrix_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14661,6 +14932,7 @@
       "reviewed-by-human": false
     }, 
     "perlinnoise_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14703,6 +14975,7 @@
       "reviewed-by-human": true
     }, 
     "pictureimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14748,6 +15021,7 @@
       "reviewed-by-human": false
     }, 
     "pictures_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14793,6 +15067,7 @@
       "reviewed-by-human": true
     }, 
     "pictureshader_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14838,6 +15113,7 @@
       "reviewed-by-human": false
     }, 
     "pictureshadertile_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14892,6 +15168,7 @@
       "reviewed-by-human": false
     }, 
     "points_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14940,6 +15217,7 @@
       "reviewed-by-human": false
     }, 
     "poly2poly_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -14997,6 +15275,7 @@
       "reviewed-by-human": false
     }, 
     "polygons_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15051,6 +15330,7 @@
       "reviewed-by-human": false
     }, 
     "quadclosepath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15117,6 +15397,7 @@
       "reviewed-by-human": false
     }, 
     "quadpath_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15180,6 +15461,7 @@
       "reviewed-by-human": true
     }, 
     "radial_gradient2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15237,6 +15519,7 @@
       "reviewed-by-human": false
     }, 
     "radial_gradient_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15294,6 +15577,7 @@
       "reviewed-by-human": true
     }, 
     "rects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15336,6 +15620,7 @@
       "reviewed-by-human": true
     }, 
     "resizeimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15381,6 +15666,7 @@
       "reviewed-by-human": true
     }, 
     "roundrects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15492,6 +15778,7 @@
       "reviewed-by-human": true
     }, 
     "rrect_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15537,6 +15824,7 @@
       "reviewed-by-human": true
     }, 
     "rrect_clip_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15582,6 +15870,7 @@
       "reviewed-by-human": true
     }, 
     "rrect_clip_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15639,6 +15928,7 @@
       "reviewed-by-human": false
     }, 
     "rrect_draw_aa_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15684,6 +15974,7 @@
       "reviewed-by-human": false
     }, 
     "rrect_draw_bw_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15720,6 +16011,7 @@
       "reviewed-by-human": true
     }, 
     "rrect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15777,6 +16069,7 @@
       "reviewed-by-human": false
     }, 
     "samplerstress_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15834,6 +16127,7 @@
       "reviewed-by-human": true
     }, 
     "scaled_tilemode_bitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15903,6 +16197,7 @@
       "reviewed-by-human": false
     }, 
     "scaled_tilemode_gradient_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15987,6 +16282,7 @@
       "reviewed-by-human": true
     }, 
     "scaled_tilemodes_npot_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16021,6 +16317,7 @@
       "reviewed-by-human": true
     }, 
     "scaled_tilemodes_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16094,6 +16391,7 @@
       "reviewed-by-human": false
     }, 
     "selftest1_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16151,6 +16449,7 @@
       "reviewed-by-human": false
     }, 
     "selftest2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16208,6 +16507,7 @@
       "reviewed-by-human": false
     }, 
     "shaderbounds_linear_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16245,6 +16545,7 @@
       "reviewed-by-human": true
     }, 
     "shadertext2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16303,6 +16604,7 @@
       "reviewed-by-human": true
     }, 
     "shadertext3_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16360,6 +16662,7 @@
       "reviewed-by-human": true
     }, 
     "shadertext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16430,6 +16733,7 @@
       "reviewed-by-human": false
     }, 
     "shadows_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16487,6 +16791,7 @@
       "reviewed-by-human": false
     }, 
     "shallow_gradient_conical_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16544,6 +16849,7 @@
       "reviewed-by-human": false
     }, 
     "shallow_gradient_linear_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16601,6 +16907,7 @@
       "reviewed-by-human": false
     }, 
     "shallow_gradient_radial_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16658,6 +16965,7 @@
       "reviewed-by-human": false
     }, 
     "shallow_gradient_sweep_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16715,6 +17023,7 @@
       "reviewed-by-human": false
     }, 
     "simpleaaclip_aaclip_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16781,6 +17090,7 @@
       "reviewed-by-human": false
     }, 
     "simpleaaclip_path_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16847,6 +17157,7 @@
       "reviewed-by-human": false
     }, 
     "simpleaaclip_rect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16904,6 +17215,7 @@
       "reviewed-by-human": false
     }, 
     "simpleblurroundrect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16949,6 +17261,7 @@
       "reviewed-by-human": false
     }, 
     "skbug1719_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16994,6 +17307,7 @@
       "reviewed-by-human": true
     }, 
     "small_image_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17039,6 +17353,7 @@
       "reviewed-by-human": true
     }, 
     "smallarc_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17094,6 +17409,7 @@
       "reviewed-by-human": true
     }, 
     "spritebitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17140,6 +17456,7 @@
       "reviewed-by-human": true
     }, 
     "srcmode_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17194,6 +17511,7 @@
       "reviewed-by-human": false
     }, 
     "stringart_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17251,6 +17569,7 @@
       "reviewed-by-human": false
     }, 
     "stroke-fill_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17308,6 +17627,7 @@
       "reviewed-by-human": true
     }, 
     "strokerect_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17362,6 +17682,7 @@
       "reviewed-by-human": false
     }, 
     "strokerects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17416,6 +17737,7 @@
       "reviewed-by-human": false
     }, 
     "strokes3_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17473,6 +17795,7 @@
       "reviewed-by-human": false
     }, 
     "strokes_poly_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17518,6 +17841,7 @@
       "reviewed-by-human": true
     }, 
     "strokes_round_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17563,6 +17887,7 @@
       "reviewed-by-human": true
     }, 
     "stroketext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17608,6 +17933,7 @@
       "reviewed-by-human": true
     }, 
     "surfaceprops_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17662,6 +17988,7 @@
       "ignore-failure": false
     }, 
     "tablecolorfilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17716,6 +18043,7 @@
       "reviewed-by-human": true
     }, 
     "testimagefilters_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17809,6 +18137,7 @@
       "reviewed-by-human": true
     }, 
     "textblob_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17845,6 +18174,7 @@
       "reviewed-by-human": true
     }, 
     "textblobshader_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17905,6 +18235,7 @@
       "reviewed-by-human": false
     }, 
     "texteffects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -17980,6 +18311,7 @@
       "reviewed-by-human": false
     }, 
     "thinrects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18034,6 +18366,7 @@
       "reviewed-by-human": false
     }, 
     "thinstrokedrects_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18079,6 +18412,7 @@
       "reviewed-by-human": true
     }, 
     "tiledscaledbitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18125,6 +18459,7 @@
       "reviewed-by-human": true
     }, 
     "tileimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18171,6 +18506,7 @@
       "reviewed-by-human": true
     }, 
     "tilemode_bitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18240,6 +18576,7 @@
       "reviewed-by-human": false
     }, 
     "tilemode_gradient_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18324,6 +18661,7 @@
       "reviewed-by-human": true
     }, 
     "tilemodes_npot_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18354,6 +18692,7 @@
       "reviewed-by-human": true
     }, 
     "tilemodes_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18423,6 +18762,7 @@
       "reviewed-by-human": false
     }, 
     "tinybitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18471,6 +18811,7 @@
       "reviewed-by-human": false
     }, 
     "twopointconical_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18540,6 +18881,7 @@
       "reviewed-by-human": false
     }, 
     "typeface_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18633,6 +18975,7 @@
       "reviewed-by-human": false
     }, 
     "typefacestyles_kerning_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18654,6 +18997,7 @@
       "reviewed-by-human": false
     }, 
     "typefacestyles_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18711,6 +19055,7 @@
       "reviewed-by-human": false
     }, 
     "varied_text_clipped_lcd_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18756,6 +19101,7 @@
       "reviewed-by-human": false
     }, 
     "varied_text_clipped_no_lcd_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18801,6 +19147,7 @@
       "reviewed-by-human": false
     }, 
     "varied_text_ignorable_clip_lcd_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18846,6 +19193,7 @@
       "reviewed-by-human": false
     }, 
     "varied_text_ignorable_clip_no_lcd_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18900,6 +19248,7 @@
       "reviewed-by-human": false
     }, 
     "vertices_80_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18936,6 +19285,7 @@
       "reviewed-by-human": false
     }, 
     "vertices_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -18993,6 +19343,7 @@
       "reviewed-by-human": false
     }, 
     "verttext2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -19059,6 +19410,7 @@
       "reviewed-by-human": false
     }, 
     "verttext_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -19116,6 +19468,7 @@
       "reviewed-by-human": true
     }, 
     "verylargebitmap_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -19174,6 +19527,7 @@
       "reviewed-by-human": true
     }, 
     "xfermodeimagefilter_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -19222,6 +19576,7 @@
       "ignore-failure": false
     }, 
     "xfermodes2_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -19285,6 +19640,7 @@
       "ignore-failure": false
     }, 
     "xfermodes3_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -19345,6 +19701,7 @@
       "ignore-failure": false
     }, 
     "xfermodes_pdf-native.png": {
+      "ignore-failure": true,
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 

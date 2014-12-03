@@ -9,6 +9,7 @@
 
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkDevice.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -383,14 +384,15 @@ static SkBitmap* transferImageStreamToBitmap(const unsigned char* uncompressedSt
 
     // minimal support for now
     if ((colorSpace.equals("DeviceRGB") || colorSpace.equals("RGB")) && bpc == 8) {
-        SkColor* uncompressedStreamArgb = (SkColor*)malloc(width * height * sizeof(SkColor));
+        uint32_t* uncompressedStreamArgb = (SkColor*)malloc(width * height * sizeof(uint32_t));
 
         for (int h = 0 ; h < height; h++) {
             long i = width * (h);
             for (int w = 0 ; w < width; w++) {
-                uncompressedStreamArgb[i] = SkColorSetRGB(uncompressedStream[3 * w],
-                                                          uncompressedStream[3 * w + 1],
-                                                          uncompressedStream[3 * w + 2]);
+                uncompressedStreamArgb[i] = SkPackARGB32(0xFF,
+                                                         uncompressedStream[3 * w],
+                                                         uncompressedStream[3 * w + 1],
+                                                         uncompressedStream[3 * w + 2]);
                 i++;
             }
             uncompressedStream += bytesPerLine;
