@@ -5121,7 +5121,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15967084461769578851
+          5557054264948942887
         ]
       ], 
       "reviewed-by-human": true
@@ -6944,7 +6944,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3956162808902913477
+          7006120129941369043
         ]
       ], 
       "ignore-failure": false, 
@@ -13940,7 +13940,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14538925139014693261
+          11408269879068023087
         ]
       ], 
       "ignore-failure": false, 
@@ -14664,10 +14664,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17120868825023817733
+          9642424294640112060
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "perlinnoise_pdf-poppler.png": {
       "allowed-digests": [
@@ -18084,7 +18087,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3824408873020225049
+          17889332793205793333
         ]
       ], 
       "ignore-failure": false, 
@@ -19032,7 +19035,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11258531395343605548
+          5255340625902932272
         ]
       ], 
       "ignore-failure": false, 
