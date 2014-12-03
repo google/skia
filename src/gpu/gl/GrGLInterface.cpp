@@ -184,11 +184,9 @@ bool GrGLInterface::validate() const {
         NULL == fFunctions.fUniformMatrix3fv ||
         NULL == fFunctions.fUniformMatrix4fv ||
         NULL == fFunctions.fUseProgram ||
-#if 0
         NULL == fFunctions.fVertexAttrib1f ||
         NULL == fFunctions.fVertexAttrib2fv ||
         NULL == fFunctions.fVertexAttrib3fv ||
-#endif
         NULL == fFunctions.fVertexAttrib4fv ||
         NULL == fFunctions.fVertexAttribPointer ||
         NULL == fFunctions.fViewport ||
