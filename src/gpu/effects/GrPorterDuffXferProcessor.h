@@ -53,6 +53,8 @@ private:
 
 class GrPorterDuffXPFactory : public GrXPFactory {
 public:
+    static GrXPFactory* Create(SkXfermode::Mode mode); 
+
     static GrXPFactory* Create(SkXfermode::Coeff src, SkXfermode::Coeff dst) {
         return SkNEW_ARGS(GrPorterDuffXPFactory, ((GrBlendCoeff)(src), (GrBlendCoeff)(dst)));
     }

@@ -43,7 +43,7 @@ private:
  * creates will have. For example, can it create an XP that supports RGB coverage or will the XP
  * blend with the destination color.
  */
-class GrXPFactory : public GrProgramElement {
+class GrXPFactory : public SkRefCnt {
 public:
     virtual const GrXferProcessor* createXferProcessor() const = 0;
 

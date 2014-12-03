@@ -116,8 +116,7 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fRenderTarget.reset(NULL);
 
     fGeometryProcessor.reset(NULL);
-    fXPFactory.reset(GrPorterDuffXPFactory::Create(kOne_GrBlendCoeff,
-                                                   kZero_GrBlendCoeff));
+    fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
     fColorStages.reset();
     fCoverageStages.reset();
 

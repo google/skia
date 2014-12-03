@@ -475,15 +475,13 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
         if (fragmentProcessor) {
             SkASSERT(NULL == xpFactory);
             grPaint->addColorProcessor(fragmentProcessor)->unref();
-            xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kOne_Coeff,
-                                                      SkXfermode::kZero_Coeff);
+            xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode);
             sm = SkXfermode::kOne_Coeff;
             dm = SkXfermode::kZero_Coeff;
         }
     } else {
         // Fall back to src-over
-        xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kOne_Coeff,
-                                                  SkXfermode::kISA_Coeff);
+        xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode);
         sm = SkXfermode::kOne_Coeff;
         dm = SkXfermode::kISA_Coeff;
     }

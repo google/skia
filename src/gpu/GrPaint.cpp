@@ -52,8 +52,7 @@ bool GrPaint::isOpaqueAndConstantColor(GrColor* color) const {
 void GrPaint::resetStages() {
     fColorStages.reset();
     fCoverageStages.reset();
-    fXPFactory.reset(GrPorterDuffXPFactory::Create(kOne_GrBlendCoeff,
-                                                   kZero_GrBlendCoeff));
+    fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
 }
 
 bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
