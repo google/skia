@@ -117,7 +117,17 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     }
 
     this->setOutputStateInfo(drawState, blendOpt, caps);
-};
+
+    // let the GP init the batch tracker
+    if (drawState.hasGeometryProcessor()) {
+        GrGeometryProcessor::InitBT init;
+        init.fOutputColor = fDescInfo.fInputColorIsUsed;
+        init.fOutputCoverage = fDescInfo.fInputCoverageIsUsed;
+        init.fColor = this->getColor();
+        init.fCoverage = this->getCoverage();
+        fGeometryProcessor->initBatchTracker(&fBatchTracker, init);
+    }
+}
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
                                         GrDrawState::BlendOpt blendOpt,

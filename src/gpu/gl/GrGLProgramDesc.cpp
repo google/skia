@@ -123,9 +123,6 @@ static bool get_meta_key(const GrProcessor& proc,
                          uint32_t transformKey,
                          uint32_t attribKey,
                          GrProcessorKeyBuilder* b) {
-    const GrBackendProcessorFactory& factory = proc.getFactory();
-    factory.getGLProcessorKey(proc, caps, b);
-
     size_t processorKeySize = b->size();
     uint32_t textureKey = gen_texture_key(proc, caps);
     uint32_t classID = proc.getFactory().classID();
@@ -170,6 +167,8 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     if (optState.hasGeometryProcessor()) {
         const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
         GrProcessorKeyBuilder b(&desc->fKey);
+        const GrBackendGeometryProcessorFactory& factory = gp.getFactory();
+        factory.getGLProcessorKey(gp, optState.getBatchTracker(), gpu->glCaps(), &b);
         if (!get_meta_key(gp, gpu->glCaps(), 0, gen_attrib_key(gp), &b)) {
             desc->fKey.reset();
             return false;
@@ -178,7 +177,10 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
 
     for (int s = 0; s < optState.numFragmentStages(); ++s) {
         const GrPendingFragmentStage& fps = optState.getFragmentStage(s);
+        const GrFragmentProcessor& fp = *fps.getProcessor();
         GrProcessorKeyBuilder b(&desc->fKey);
+        const GrBackendFragmentProcessorFactory& factory = fp.getFactory();
+        factory.getGLProcessorKey(fp, gpu->glCaps(), &b);
         if (!get_meta_key(*fps.getProcessor(), gpu->glCaps(),
                          gen_transform_key(fps, requiresLocalCoordAttrib), 0, &b)) {
             desc->fKey.reset();

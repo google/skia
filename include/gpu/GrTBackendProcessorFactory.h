@@ -41,14 +41,6 @@ public:
      *  described in this class's comment. */
     virtual const char* name() const SK_OVERRIDE { return ProcessorClass::Name(); }
 
-
-    /** Implemented using GLProcessor::GenKey as described in this class's comment. */
-    virtual void getGLProcessorKey(const GrProcessor& processor,
-                                   const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
-        GLProcessor::GenKey(processor, caps, b);
-    }
-
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
@@ -77,24 +69,80 @@ protected:
  * typesafe and does not require any casting.
  */
 template <class ProcessorClass>
-class GrTBackendGeometryProcessorFactory
-        : public GrTBackendProcessorFactory<ProcessorClass,
-                                            GrBackendGeometryProcessorFactory,
-                                            GrGeometryProcessor,
-                                            GrGLGeometryProcessor> {
+class GrTBackendGeometryProcessorFactory : public GrBackendGeometryProcessorFactory {
+public:
+    typedef typename ProcessorClass::GLProcessor GLProcessor;
+
+    /** Returns a human-readable name for the processor. Implemented using GLProcessor::Name as
+     *  described in this class's comment. */
+    virtual const char* name() const SK_OVERRIDE { return ProcessorClass::Name(); }
+
+    /** Implemented using GLProcessor::GenKey as described in this class's comment. */
+    virtual void getGLProcessorKey(const GrGeometryProcessor& processor,
+                                   const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(processor, bt, caps, b);
+    }
+
+
+    /** Returns a new instance of the appropriate *GL* implementation class
+        for the given GrProcessor; caller is responsible for deleting
+        the object. */
+    virtual GrGLGeometryProcessor* createGLInstance(const GrGeometryProcessor& gp,
+                                                    const GrBatchTracker& bt) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, gp, bt));
+    }
+
+    /** This class is a singleton. This function returns the single instance. */
+    static const GrBackendGeometryProcessorFactory& getInstance() {
+        static SkAlignedSTStorage<1, GrTBackendGeometryProcessorFactory> gInstanceMem;
+        static const GrTBackendGeometryProcessorFactory* gInstance;
+        if (!gInstance) {
+            gInstance = SkNEW_PLACEMENT(gInstanceMem.get(),
+                                        GrTBackendGeometryProcessorFactory);
+        }
+        return *gInstance;
+    }
 protected:
     GrTBackendGeometryProcessorFactory() {}
 };
 
 template <class ProcessorClass>
-class GrTBackendFragmentProcessorFactory
-        : public GrTBackendProcessorFactory<ProcessorClass,
-                                           GrBackendFragmentProcessorFactory,
-                                           GrFragmentProcessor,
-                                           GrGLFragmentProcessor> {
+class GrTBackendFragmentProcessorFactory : public GrBackendFragmentProcessorFactory {
+public:
+    typedef typename ProcessorClass::GLProcessor GLProcessor;
+
+    /** Returns a human-readable name for the processor. Implemented using GLProcessor::Name as
+     *  described in this class's comment. */
+    virtual const char* name() const SK_OVERRIDE { return ProcessorClass::Name(); }
+
+    /** Implemented using GLProcessor::GenKey as described in this class's comment. */
+    virtual void getGLProcessorKey(const GrFragmentProcessor& processor,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(processor, caps, b);
+    }
+
+    /** Returns a new instance of the appropriate *GL* implementation class
+        for the given GrProcessor; caller is responsible for deleting
+        the object. */
+    virtual GrGLFragmentProcessor* createGLInstance(const GrFragmentProcessor& gp) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, gp));
+    }
+
+    /** This class is a singleton. This function returns the single instance. */
+    static const GrBackendFragmentProcessorFactory& getInstance() {
+        static SkAlignedSTStorage<1, GrTBackendFragmentProcessorFactory> gInstanceMem;
+        static const GrTBackendFragmentProcessorFactory* gInstance;
+        if (!gInstance) {
+            gInstance = SkNEW_PLACEMENT(gInstanceMem.get(),
+                                        GrTBackendFragmentProcessorFactory);
+        }
+        return *gInstance;
+    }
 protected:
     GrTBackendFragmentProcessorFactory() {}
 };
-
 
 #endif
