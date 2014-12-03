@@ -11,8 +11,10 @@
 #include "GrOptDrawState.h"
 #include "GrPaint.h"
 #include "GrProcOptInfo.h"
+#include "GrXferProcessor.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 
-//////////////////////////////////////////////////////////////////////////////s
+///////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawState::isEqual(const GrDrawState& that) const {
     bool usingVertexColors = this->hasColorVertexAttribute();
@@ -92,6 +94,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fCoverage = that.fCoverage;
     fDrawFace = that.fDrawFace;
     fGeometryProcessor.reset(SkSafeRef(that.fGeometryProcessor.get()));
+    fXPFactory.reset(SkRef(that.getXPFactory()));
     fColorStages = that.fColorStages;
     fCoverageStages = that.fCoverageStages;
 
@@ -113,6 +116,8 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fRenderTarget.reset(NULL);
 
     fGeometryProcessor.reset(NULL);
+    fXPFactory.reset(GrPorterDuffXPFactory::Create(kOne_GrBlendCoeff,
+                                                   kZero_GrBlendCoeff));
     fColorStages.reset();
     fCoverageStages.reset();
 
@@ -169,6 +174,9 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
         fCoverageStages.push_back(paint.getCoverageStage(i));
     }
 
+    fXPFactory.reset(SkRef(paint.getXPFactory()));
+
+    this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
     this->setRenderTarget(rt);
 
     fViewMatrix = vm;
@@ -187,7 +195,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     this->setState(GrDrawState::kDither_StateBit, paint.isDither());
     this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());
 
-    this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
     this->setCoverage(0xFF);
     fColorProcInfoValid = false;
     fCoverageProcInfoValid = false;

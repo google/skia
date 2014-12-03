@@ -115,8 +115,10 @@ private:
 
 class GrFragmentProcessor;
 class GrGeometryProcessor;
+class GrXferProcessor;
 class GrGLFragmentProcessor;
 class GrGLGeometryProcessor;
+class GrGLXferProcessor;
 
 /**
  * Backend processor factory cannot actually create anything, it is up to subclasses to implement
@@ -130,6 +132,15 @@ public:
      * GLSL program and to manage updating uniforms for the program when it is used.
      */
     virtual GrGLFragmentProcessor* createGLInstance(const GrFragmentProcessor&) const = 0;
+};
+
+class GrBackendXferProcessorFactory : public GrBackendProcessorFactory {
+public:
+    /**
+     * Creates a GrGLProcessor instance that is used both to generate code for the GrProcessor in a
+     * GLSL program and to manage updating uniforms for the program when it is used.
+     */
+    virtual GrGLXferProcessor* createGLInstance(const GrXferProcessor&) const = 0;
 };
 
 class GrBackendGeometryProcessorFactory : public GrBackendProcessorFactory {

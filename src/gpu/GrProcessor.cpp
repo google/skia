@@ -28,6 +28,13 @@ GrProcessorTestFactory<GrFragmentProcessor>::GetFactories() {
 }
 
 template<>
+SkTArray<GrProcessorTestFactory<GrXferProcessor>*, true>*
+GrProcessorTestFactory<GrXferProcessor>::GetFactories() {
+    static SkTArray<GrProcessorTestFactory<GrXferProcessor>*, true> gFactories;
+    return &gFactories;
+}
+
+template<>
 SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true>*
 GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
     static SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true> gFactories;
@@ -41,6 +48,7 @@ GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
  */
 static const int kFPFactoryCount = 37;
 static const int kGPFactoryCount = 14;
+static const int kXPFactoryCount = 0;
 
 template<>
 void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
@@ -53,6 +61,13 @@ template<>
 void GrProcessorTestFactory<GrGeometryProcessor>::VerifyFactoryCount() {
     if (kGPFactoryCount != GetFactories()->count()) {
         SkFAIL("Wrong number of geometry processor factories!");
+    }
+}
+
+template<>
+void GrProcessorTestFactory<GrXferProcessor>::VerifyFactoryCount() {
+    if (kXPFactoryCount != GetFactories()->count()) {
+        SkFAIL("Wrong number of xfer processor factories!");
     }
 }
 

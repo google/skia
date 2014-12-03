@@ -15,6 +15,7 @@
 
 class GrFragmentProcessor;
 class GrTexture;
+class GrXPFactory;
 class SkString;
 
 /** \class SkXfermode
@@ -198,16 +199,28 @@ public:
         fragment shader. If NULL, the effect should request access to destination color
         (setWillReadDstColor()), and use that in the fragment shader (builder->dstColor()).
      */
+    // TODO: Once all custom xp's have been created the background parameter will be required here.
+    //       We will always use the XPFactory if there is no background texture and the fragment if
+    //       there is one.
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background = NULL) const;
 
-    /** Returns true if the xfermode can be expressed as coeffs (src, dst), or as an effect
-        (effect). This helper calls the asCoeff() and asFragmentProcessor() virtuals. If the
-        xfermode is NULL, it is treated as kSrcOver_Mode. It is legal to call this with all params
-        NULL to simply test the return value.  effect, src, and dst must all be NULL or all
-        non-NULL.
+    /** A subclass may implement this factory function to work with the GPU backend. It is legal
+        to call this with xpf NULL to simply test the return value. If xpf is non-NULL then the
+        xfermode may optionally allocate a factory to return to the caller as *xpf. The caller
+        will install it and own a ref to it. Since the xfermode may or may not assign *xpf, the
+        caller should set *xpf to NULL beforehand. XP's cannot use a background texture since they
+        have no coord transforms.
      */
-    static bool asFragmentProcessorOrCoeff(SkXfermode*, GrFragmentProcessor**, Coeff* src,
-                                           Coeff* dst, GrTexture* background = NULL);
+    virtual bool asXPFactory(GrXPFactory** xpf) const;
+
+    /** Returns true if the xfermode can be expressed as an xfer processor factory (xpFactory),
+        or a fragment processor. This helper calls the asCoeff(), asXPFactory(),
+        and asFragmentProcessor() virtuals. If the xfermode is NULL, it is treated as kSrcOver_Mode.
+        It is legal to call this with all params NULL to simply test the return value.
+        fp, xpf, src, and dst must all be NULL or all non-NULL.
+     */
+    static bool AsFragmentProcessorOrXPFactory(SkXfermode*, GrFragmentProcessor**,
+                                               GrXPFactory**, Coeff* src, Coeff* dst);
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

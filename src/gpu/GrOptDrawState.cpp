@@ -100,6 +100,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
              drawState.hasGeometryProcessor());
     fGeometryProcessor.reset(drawState.getGeometryProcessor());
 
+    // Create XferProcessor from DS's XPFactory
+    const GrXferProcessor* xpProcessor = drawState.getXPFactory()->createXferProcessor();
+    fXferProcessor.reset(xpProcessor);
+    xpProcessor->unref();
+
     // Copy Stages from DS to ODS
     for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,

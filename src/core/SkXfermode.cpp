@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkXfermode.h"
 #include "SkXfermode_opts_SSE2.h"
 #include "SkXfermode_proccoeff.h"
@@ -680,16 +679,41 @@ bool SkXfermode::asFragmentProcessor(GrFragmentProcessor**, GrTexture*) const {
     return false;
 }
 
-bool SkXfermode::asFragmentProcessorOrCoeff(SkXfermode* xfermode, GrFragmentProcessor** fp,
-                                            Coeff* src, Coeff* dst, GrTexture* background) {
+bool SkXfermode::asXPFactory(GrXPFactory**) const {
+    return false;
+}
+
+
+#if SK_SUPPORT_GPU
+#include "effects/GrPorterDuffXferProcessor.h"
+
+bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
+                                                GrFragmentProcessor** fp,
+                                                GrXPFactory** xpf,
+                                                Coeff* src, Coeff* dst) {
     if (NULL == xfermode) {
-        return ModeAsCoeff(kSrcOver_Mode, src, dst);
+        SkAssertResult(ModeAsCoeff(kSrcOver_Mode, src, dst));
+        *xpf = GrPorterDuffXPFactory::Create(*src, *dst);
+        return true;
     } else if (xfermode->asCoeff(src, dst)) {
+        *xpf = GrPorterDuffXPFactory::Create(*src, *dst);
+        return true;
+    } else if (xfermode->asXPFactory(xpf)) {
+        *src = SkXfermode::kOne_Coeff;
+        *dst = SkXfermode::kZero_Coeff;
         return true;
     } else {
-        return xfermode->asFragmentProcessor(fp, background);
+        return xfermode->asFragmentProcessor(fp);
     }
 }
+#else
+bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
+                                                GrFragmentProcessor** fp,
+                                                GrXPFactory** xpf,
+                                                Coeff* src, Coeff* dst) {
+    return false;
+}
+#endif
 
 SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) const{
     // no-op. subclasses should override this

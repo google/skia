@@ -35,6 +35,7 @@
       '<(skia_include_path)/gpu/GrTextureAccess.h',
       '<(skia_include_path)/gpu/GrTypes.h',
       '<(skia_include_path)/gpu/GrUserConfig.h',
+      '<(skia_include_path)/gpu/GrXferProcessor.h',
 
       '<(skia_include_path)/gpu/gl/GrGLConfig.h',
       '<(skia_include_path)/gpu/gl/GrGLExtensions.h',
@@ -195,6 +196,8 @@
       '<(skia_src_path)/gpu/effects/GrMatrixConvolutionEffect.h',
       '<(skia_src_path)/gpu/effects/GrOvalEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrOvalEffect.h',
+      '<(skia_src_path)/gpu/effects/GrPorterDuffXferProcessor.cpp',
+      '<(skia_src_path)/gpu/effects/GrPorterDuffXferProcessor.h',
       '<(skia_src_path)/gpu/effects/GrRRectEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrRRectEffect.h',
       '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.cpp',

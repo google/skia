@@ -142,6 +142,8 @@ private:
         return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
     }
 
+    bool isSingleComponent() const { return fIsSingleComponent; }
+
     bool willUseInputColor() const { return fWillUseInputColor; }
     void resetWillUseInputColor() { fWillUseInputColor = true; }
 

@@ -561,9 +561,10 @@ void GrBitmapTextContext::flush() {
                 break;
                 // LCD text
             case kA565_GrMaskFormat: {
-                if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
-                    kISA_GrBlendCoeff != fPaint.getDstBlendCoeff() ||
-                    fPaint.numColorStages()) {
+                // TODO: move supportsRGBCoverage check to setupCoverageEffect and only add LCD
+                // processor if the xp can support it. For now we will simply assume that if
+                // fUseLCDText is true, then we have a known color output.
+                if (!drawState.getXPFactory()->supportsRGBCoverage(0, kRGBA_GrColorComponentFlags)) {
                     SkDebugf("LCD Text will not draw correctly.\n");
                 }
                 SkASSERT(!drawState.hasColorVertexAttribute());

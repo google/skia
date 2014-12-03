@@ -203,6 +203,9 @@ public:
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+
+    const GrXPFactory* getXPFactory() const { return fXPFactory.get(); }
+
     const GrFragmentStage& getColorStage(int idx) const { return fColorStages[idx]; }
     const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
 
@@ -721,6 +724,7 @@ private:
     GrBlendCoeff                            fSrcBlend;
     GrBlendCoeff                            fDstBlend;
     SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
+    SkAutoTUnref<const GrXPFactory>         fXPFactory;
     FragmentStageArray                      fColorStages;
     FragmentStageArray                      fCoverageStages;
     uint32_t                                fHints;

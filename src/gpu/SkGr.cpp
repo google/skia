@@ -6,15 +6,18 @@
  */
 
 #include "SkGr.h"
+
+#include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
+#include "GrXferProcessor.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
 #include "SkTextureCompressor.h"
-#include "GrGpu.h"
 #include "effects/GrDitherEffect.h"
-#include "GrDrawTargetCaps.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
@@ -465,19 +468,27 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     SkXfermode::Coeff dm;
 
     SkXfermode* mode = skPaint.getXfermode();
-    GrFragmentProcessor* xferProcessor = NULL;
-    if (SkXfermode::asFragmentProcessorOrCoeff(mode, &xferProcessor, &sm, &dm)) {
-        if (xferProcessor) {
-            grPaint->addColorProcessor(xferProcessor)->unref();
+    GrFragmentProcessor* fragmentProcessor = NULL;
+    GrXPFactory* xpFactory = NULL;
+    if (SkXfermode::AsFragmentProcessorOrXPFactory(mode, &fragmentProcessor, &xpFactory,
+                                                   &sm, &dm)) {
+        if (fragmentProcessor) {
+            SkASSERT(NULL == xpFactory);
+            grPaint->addColorProcessor(fragmentProcessor)->unref();
+            xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kOne_Coeff,
+                                                      SkXfermode::kZero_Coeff);
             sm = SkXfermode::kOne_Coeff;
             dm = SkXfermode::kZero_Coeff;
         }
     } else {
-        //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
         // Fall back to src-over
+        xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kOne_Coeff,
+                                                  SkXfermode::kISA_Coeff);
         sm = SkXfermode::kOne_Coeff;
         dm = SkXfermode::kISA_Coeff;
     }
+    SkASSERT(xpFactory);
+    grPaint->setXPFactory(xpFactory)->unref();
     grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
 
     //set the color of the paint to the one of the parameter

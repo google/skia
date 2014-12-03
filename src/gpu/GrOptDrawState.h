@@ -84,6 +84,9 @@ public:
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+
+    const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
+
     const GrPendingFragmentStage& getColorStage(int idx) const {
         SkASSERT(idx < this->numColorStages());
         return fFragmentStages[idx];
@@ -230,6 +233,7 @@ private:
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
     typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
     typedef GrPendingProgramElement<const GrGeometryProcessor> ProgramGeometryProcessor;
+    typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     ScissorState                        fScissorState;
     GrColor                             fColor;
@@ -243,6 +247,7 @@ private:
     GrBlendCoeff                        fDstBlend;
     uint32_t                            fFlags;
     ProgramGeometryProcessor            fGeometryProcessor;
+    ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.

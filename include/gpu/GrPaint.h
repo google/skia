@@ -12,6 +12,7 @@
 
 #include "GrColor.h"
 #include "GrFragmentStage.h"
+#include "GrXferProcessor.h"
 
 #include "SkXfermode.h"
 
@@ -78,6 +79,11 @@ public:
     void setDither(bool dither) { fDither = dither; }
     bool isDither() const { return fDither; }
 
+    const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
+        fXPFactory.reset(SkRef(xpFactory));
+        return xpFactory;
+    }
+
     /**
      * Appends an additional color processor to the color computation.
      */
@@ -109,6 +115,8 @@ public:
     int numCoverageStages() const { return fCoverageStages.count(); }
     int numTotalStages() const { return this->numColorStages() + this->numCoverageStages(); }
 
+    const GrXPFactory* getXPFactory() const { return fXPFactory.get(); }
+
     const GrFragmentStage& getColorStage(int s) const { return fColorStages[s]; }
     const GrFragmentStage& getCoverageStage(int s) const { return fCoverageStages[s]; }
 
@@ -122,6 +130,8 @@ public:
 
         fColorStages = paint.fColorStages;
         fCoverageStages = paint.fCoverageStages;
+
+        fXPFactory.reset(SkRef(paint.getXPFactory()));
 
         return *this;
     }
@@ -197,15 +207,16 @@ private:
     friend class GrContext; // To access above two functions
     friend class GrStencilAndCoverTextContext;  // To access above two functions
 
-    SkSTArray<4, GrFragmentStage> fColorStages;
-    SkSTArray<2, GrFragmentStage> fCoverageStages;
+    SkAutoTUnref<const GrXPFactory> fXPFactory;
+    SkSTArray<4, GrFragmentStage>   fColorStages;
+    SkSTArray<2, GrFragmentStage>   fCoverageStages;
 
-    GrBlendCoeff                fSrcBlendCoeff;
-    GrBlendCoeff                fDstBlendCoeff;
-    bool                        fAntiAlias;
-    bool                        fDither;
+    GrBlendCoeff                    fSrcBlendCoeff;
+    GrBlendCoeff                    fDstBlendCoeff;
+    bool                            fAntiAlias;
+    bool                            fDither;
 
-    GrColor                     fColor;
+    GrColor                         fColor;
 
     void resetBlend() {
         fSrcBlendCoeff = kOne_GrBlendCoeff;
@@ -221,10 +232,7 @@ private:
         fColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
     }
 
-    void resetStages() {
-        fColorStages.reset();
-        fCoverageStages.reset();
-    }
+    void resetStages(); 
 };
 
 #endif

@@ -125,4 +125,16 @@ private:
     typedef GrGLProcessor INHERITED;
 };
 
+class GrGLXferProcessor : public GrGLFragmentProcessor {
+public:
+    GrGLXferProcessor(const GrBackendProcessorFactory& factory)
+        : INHERITED(factory) {
+    }
+    
+    virtual ~GrGLXferProcessor() {}
+
+private:
+    typedef GrGLFragmentProcessor INHERITED;
+};
+
 #endif

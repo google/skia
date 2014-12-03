@@ -35,6 +35,7 @@ public:
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
+    bool isSingleComponent() const { return fInOut.isSingleComponent(); }
 
     GrColor color() const { return fInOut.color(); }
     uint8_t validFlags() const { return fInOut.validFlags(); }

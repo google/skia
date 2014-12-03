@@ -10,6 +10,7 @@
 
 #include "GrBlend.h"
 #include "GrProcOptInfo.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
@@ -46,6 +47,13 @@ bool GrPaint::isOpaqueAndConstantColor(GrColor* color) const {
         }
     }
     return false;
+}
+
+void GrPaint::resetStages() {
+    fColorStages.reset();
+    fCoverageStages.reset();
+    fXPFactory.reset(GrPorterDuffXPFactory::Create(kOne_GrBlendCoeff,
+                                                   kZero_GrBlendCoeff));
 }
 
 bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
@@ -114,3 +122,4 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
     }
     return opaque;
 }
+
