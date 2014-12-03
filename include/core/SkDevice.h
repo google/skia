@@ -166,6 +166,9 @@ protected:
      */
     virtual void clear(SkColor color) = 0;
 
+    SK_ATTR_DEPRECATED("use clear() instead")
+    void eraseColor(SkColor eraseColor) { this->clear(eraseColor); }
+
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
