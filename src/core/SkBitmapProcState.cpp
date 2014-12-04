@@ -324,8 +324,30 @@ SkBitmapProcState::~SkBitmapProcState() {
     SkDELETE(fBitmapFilter);
 }
 
+static bool valid_for_drawing(const SkBitmap& bm) {
+    if (0 == bm.width() || 0 == bm.height()) {
+        return false;   // nothing to draw
+    }
+    if (NULL == bm.pixelRef()) {
+        return false;   // no pixels to read
+    }
+    if (bm.getTexture()) {
+        // we can handle texture (ugh) since lockPixels will perform a read-back
+        return true;
+    }
+    if (kIndex_8_SkColorType == bm.colorType()) {
+        SkAutoLockPixels alp(bm); // but we need to call it before getColorTable() is safe.
+        if (!bm.getColorTable()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
-    SkASSERT(fOrigBitmap.width() && fOrigBitmap.height());
+    if (!valid_for_drawing(fOrigBitmap)) {
+        return false;
+    }
 
     fBitmap = NULL;
     fInvMatrix = inv;
