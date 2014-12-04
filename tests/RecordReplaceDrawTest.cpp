@@ -94,8 +94,8 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
         SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight),
                                                    useBBH ? &bbhFactory : NULL);
 
-        SkAutoTDelete<SkPaint> paint(SkNEW(SkPaint));
-        canvas->saveLayer(NULL, paint);
+        SkPaint paint;
+        canvas->saveLayer(NULL, &paint);
         canvas->clear(SK_ColorRED);
         canvas->restore();
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth / 2), SkIntToScalar(kHeight / 2)),
@@ -105,10 +105,11 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
 
     unsigned key[1] = { 0 };
 
+    SkPaint paint;
     GrLayerCache* layerCache = context->getLayerCache();
-    GrCachedLayer* layer = layerCache->findLayerOrCreate(pic->uniqueID(), 0, 2, 
+    GrCachedLayer* layer = layerCache->findLayerOrCreate(pic->uniqueID(), 0, 2,
                                                          SkIRect::MakeWH(kWidth, kHeight),
-                                                         SkMatrix::I(), key, 1, SkNEW(SkPaint));
+                                                         SkMatrix::I(), key, 1, &paint);
 
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
