@@ -54,10 +54,6 @@ modecolorfilters
 #humper skia:2049
 dashcubics
 
-#robertphillips
-multipicturedraw_sierpinski_simple
-multipicturedraw_sierpinski_tiled
-
 #derekf
 drawbitmapmatrix
 
