@@ -793,6 +793,10 @@ int nanobench_main() {
 #endif
     }
 
+    log->bench("memory_usage", 0,0);
+    log->config("meta");
+    log->metric("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
+
     return 0;
 }
 
