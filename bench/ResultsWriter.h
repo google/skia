@@ -34,7 +34,7 @@ public:
     virtual void property(const char name[], const char value[]) {}
 
     // Denote the start of a specific benchmark. Once bench is called,
-    // then config and timer can be called multiple times to record runs.
+    // then config and metric can be called multiple times to record runs.
     virtual void bench(const char name[], int32_t x, int32_t y) {}
 
     // Record the specific configuration a bench is run under, such as "8888".
@@ -44,7 +44,7 @@ public:
     virtual void configOption(const char name[], const char* value) {}
 
     // Record a single test metric.
-    virtual void timer(const char name[], double ms) {}
+    virtual void metric(const char name[], double ms) {}
 
     // Flush to storage now please.
     virtual void flush() {}
@@ -105,7 +105,7 @@ public:
     virtual void configOption(const char name[], const char* value) {
         (*fConfig)["options"][name] = value;
     }
-    virtual void timer(const char name[], double ms) {
+    virtual void metric(const char name[], double ms) {
         // Don't record if nan, or -nan.
         if (sk_double_isnan(ms)) {
             return;

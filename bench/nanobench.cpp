@@ -24,6 +24,7 @@
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
+#include "SkPictureUtils.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
@@ -524,6 +525,8 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
+            fSKPBytes = SkPictureUtils::ApproximateBytesUsed(pic);
+            fSKPOps   = pic->approximateOpCount();
             return SkNEW_ARGS(RecordingBench, (name.c_str(), pic.get(), FLAGS_bbh));
         }
 
@@ -578,6 +581,10 @@ public:
                 log->configOption("multi_picture_draw", fUseMPDs[fCurrentUseMPD-1] ? "true" : "false");
             }
         }
+        if (0 == strcmp(fBenchType, "recording")) {
+            log->metric("bytes", fSKPBytes);
+            log->metric("ops",   fSKPOps);
+        }
     }
 
 private:
@@ -587,6 +594,8 @@ private:
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
     SkTArray<bool>     fUseMPDs;
+
+    double fSKPBytes, fSKPOps;
 
     const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...
@@ -723,11 +732,11 @@ int nanobench_main() {
                 fill_gpu_options(log.get(), targets[j]->gl);
             }
 #endif
-            log->timer("min_ms",    stats.min);
-            log->timer("median_ms", stats.median);
-            log->timer("mean_ms",   stats.mean);
-            log->timer("max_ms",    stats.max);
-            log->timer("stddev_ms", sqrt(stats.var));
+            log->metric("min_ms",    stats.min);
+            log->metric("median_ms", stats.median);
+            log->metric("mean_ms",   stats.mean);
+            log->metric("max_ms",    stats.max);
+            log->metric("stddev_ms", sqrt(stats.var));
             if (runs++ % FLAGS_flushEvery == 0) {
                 log->flush();
             }
