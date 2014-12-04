@@ -12,30 +12,6 @@
 #include "GrProcessor.h"
 #include "GrShaderVar.h"
 
-/*
- * A struct for tracking batching decisions.  While this lives on GrOptState, it is managed
- * entirely by the derived classes of the GP.
- */
-class GrBatchTracker {
-public:
-    template <typename T> const T& cast() const {
-        SkASSERT(sizeof(T) <= kMaxSize);
-        return *reinterpret_cast<const T*>(fData);
-    }
-
-    template <typename T> T* cast() {
-        SkASSERT(sizeof(T) <= kMaxSize);
-        return reinterpret_cast<T*>(fData);
-    }
-
-    static const size_t kMaxSize = 32;
-
-private:
-    uint8_t fData[kMaxSize];
-};
-
-class GrOptDrawState;
-
 /**
  * A GrGeometryProcessor is used to perform computation in the vertex shader and
  * add support for custom vertex attributes. A GrGemeotryProcessor is typically
@@ -96,15 +72,6 @@ public:
         }
         return this->onIsEqual(that);
     }
-
-    struct InitBT {
-        bool fOutputColor;
-        bool fOutputCoverage;
-        GrColor fColor;
-        GrColor fCoverage;
-    };
-
-    virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const {}
 
     // TODO this is a total hack until the gp can own whether or not it uses uniform
     // color / coverage

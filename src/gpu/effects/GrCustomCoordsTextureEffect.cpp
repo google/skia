@@ -17,9 +17,7 @@
 
 class GrGLCustomCoordsTextureEffect : public GrGLGeometryProcessor {
 public:
-    GrGLCustomCoordsTextureEffect(const GrBackendProcessorFactory& factory,
-                                  const GrGeometryProcessor&,
-                                  const GrBatchTracker&)
+    GrGLCustomCoordsTextureEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
         : INHERITED (factory) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
@@ -51,12 +49,9 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager&,
-                         const GrGeometryProcessor&,
-                         const GrBatchTracker&) SK_OVERRIDE {}
+                         const GrProcessor&) SK_OVERRIDE {}
 
-    static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrBatchTracker&,
-                              const GrGLCaps&,
+    static inline void GenKey(const GrProcessor& proc, const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrCustomCoordsTextureEffect& gp = proc.cast<GrCustomCoordsTextureEffect>();
 

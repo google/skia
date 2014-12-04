@@ -158,8 +158,7 @@ void GrGLProgram::setData(const GrOptDrawState& optState) {
     if (fGeometryProcessor.get()) {
         SkASSERT(optState.hasGeometryProcessor());
         const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
-        const GrBatchTracker& bt = optState.getBatchTracker();
-        fGeometryProcessor->fGLProc->setData(fProgramDataManager, gp, bt);
+        fGeometryProcessor->fGLProc->setData(fProgramDataManager, gp);
         this->bindTextures(fGeometryProcessor, gp);
     }
     this->setFragmentData(optState);

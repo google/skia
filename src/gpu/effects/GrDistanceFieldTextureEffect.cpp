@@ -23,8 +23,7 @@
 class GrGLDistanceFieldTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldTextureEffect(const GrBackendProcessorFactory& factory,
-                                   const GrGeometryProcessor&,
-                                   const GrBatchTracker&)
+                                   const GrProcessor&)
         : INHERITED (factory)
         , fTextureSize(SkISize::Make(-1,-1))
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -125,11 +124,10 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrGeometryProcessor& proc,
-                         const GrBatchTracker&) SK_OVERRIDE {
+                         const GrProcessor& effect) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
 
-        GrTexture* texture = proc.texture(0);
+        GrTexture* texture = effect.texture(0);
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
@@ -139,7 +137,7 @@ public:
         }
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldTextureEffect& dfTexEffect =
-                proc.cast<GrDistanceFieldTextureEffect>();
+                effect.cast<GrDistanceFieldTextureEffect>();
         float luminance = dfTexEffect.getLuminance();
         if (luminance != fLuminance) {
             pdman.set1f(fLuminanceUni, luminance);
@@ -148,9 +146,7 @@ public:
 #endif
     }
 
-    static inline void GenKey(const GrGeometryProcessor& processor,
-                              const GrBatchTracker&,
-                              const GrGLCaps&,
+    static inline void GenKey(const GrProcessor& processor, const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldTextureEffect>();
@@ -259,8 +255,7 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
 class GrGLDistanceFieldNoGammaTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldNoGammaTextureEffect(const GrBackendProcessorFactory& factory,
-                                          const GrGeometryProcessor&,
-                                          const GrBatchTracker&)
+                                          const GrProcessor& effect)
         : INHERITED(factory)
         , fTextureSize(SkISize::Make(-1, -1)) {}
 
@@ -343,11 +338,10 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrGeometryProcessor& proc,
-                         const GrBatchTracker&) SK_OVERRIDE {
+                         const GrProcessor& effect) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
 
-        GrTexture* texture = proc.texture(0);
+        GrTexture* texture = effect.texture(0);
         if (texture->width() != fTextureSize.width() || 
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
@@ -357,12 +351,10 @@ public:
         }
     }
 
-    static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrBatchTracker&,
-                              const GrGLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
-            proc.cast<GrDistanceFieldNoGammaTextureEffect>();
+            effect.cast<GrDistanceFieldNoGammaTextureEffect>();
 
         b->add32(dfTexEffect.getFlags());
     }
@@ -438,8 +430,7 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
 class GrGLDistanceFieldLCDTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldLCDTextureEffect(const GrBackendProcessorFactory& factory,
-                                      const GrGeometryProcessor&,
-                                      const GrBatchTracker&)
+                                      const GrProcessor&)
     : INHERITED (factory)
     , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
@@ -572,8 +563,7 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrGeometryProcessor& processor,
-                         const GrBatchTracker&) SK_OVERRIDE {
+                         const GrProcessor& processor) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
         SkASSERT(fTextColorUni.isValid());
 
@@ -604,9 +594,7 @@ public:
         }
     }
 
-    static inline void GenKey(const GrGeometryProcessor& processor,
-                              const GrBatchTracker&,
-                              const GrGLCaps&,
+    static inline void GenKey(const GrProcessor& processor, const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldLCDTextureEffect>();

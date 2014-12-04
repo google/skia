@@ -68,6 +68,14 @@ private:
  */
 class GrBackendProcessorFactory : SkNoncopyable {
 public:
+    /** 
+     * Generates an processor's key. The key is based on the aspects of the GrProcessor object's
+     * configuration that affect GLSL code generation. Two GrProcessor instances that would cause
+     * this->createGLInstance()->emitCode() to produce different code must produce different keys.
+     */
+    virtual void getGLProcessorKey(const GrProcessor&, const GrGLCaps&,
+                                   GrProcessorKeyBuilder*) const = 0;
+
     /**
      * Produces a human-reable name for the v.
      */
@@ -120,15 +128,6 @@ class GrGLXferProcessor;
 class GrBackendFragmentProcessorFactory : public GrBackendProcessorFactory {
 public:
     /**
-     * Generates an processor's key. The key is based on the aspects of the GrProcessor object's
-     * configuration that affect GLSL code generation. Two GrProcessor instances that would cause
-     * this->createGLInstance()->emitCode() to produce different code must produce different keys.
-     */
-    virtual void getGLProcessorKey(const GrFragmentProcessor&,
-                                   const GrGLCaps&,
-                                   GrProcessorKeyBuilder*) const = 0;
-
-    /**
      * Creates a GrGLProcessor instance that is used both to generate code for the GrProcessor in a
      * GLSL program and to manage updating uniforms for the program when it is used.
      */
@@ -144,26 +143,13 @@ public:
     virtual GrGLXferProcessor* createGLInstance(const GrXferProcessor&) const = 0;
 };
 
-class GrBatchTracker;
-
 class GrBackendGeometryProcessorFactory : public GrBackendProcessorFactory {
 public:
-    /**
-     * Generates an processor's key. The key is based on the aspects of the GrProcessor object's
-     * configuration that affect GLSL code generation. Two GrProcessor instances that would cause
-     * this->createGLInstance()->emitCode() to produce different code must produce different keys.
-     */
-    virtual void getGLProcessorKey(const GrGeometryProcessor&,
-                                   const GrBatchTracker&,
-                                   const GrGLCaps&,
-                                   GrProcessorKeyBuilder*) const = 0;
-
     /**
      * Creates a GrGLProcessor instance that is used both to generate code for the GrProcessor in a
      * GLSL program and to manage updating uniforms for the program when it is used.
      */
-    virtual GrGLGeometryProcessor* createGLInstance(const GrGeometryProcessor&,
-                                                    const GrBatchTracker&) const = 0;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrGeometryProcessor&) const = 0;
 };
 
 #endif
