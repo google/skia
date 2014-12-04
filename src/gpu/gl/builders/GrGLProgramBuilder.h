@@ -186,7 +186,7 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGpu::DrawType, GrGpuGL*);
+    static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGpuGL*);
 
     virtual UniformHandle addUniform(uint32_t visibility,
                                      GrSLType type,
@@ -246,7 +246,6 @@ protected:
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
     static GrGLProgramBuilder* CreateProgramBuilder(const GrOptDrawState&,
-                                                    GrGpu::DrawType,
                                                     bool hasGeometryProcessor,
                                                     GrGpuGL*);
 

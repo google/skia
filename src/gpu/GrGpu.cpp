@@ -277,7 +277,7 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 void GrGpu::draw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
     this->handleDirtyContext();
-    if (!this->flushGraphicsState(ds, PrimTypeToDrawType(info.primitiveType()))) {
+    if (!this->flushGraphicsState(ds)) {
         return;
     }
     this->onDraw(ds, info);
@@ -288,7 +288,7 @@ void GrGpu::stencilPath(const GrOptDrawState& ds,
                         const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kStencilPath_DrawType)) {
+    if (!this->flushGraphicsState(ds)) {
         return;
     }
 
@@ -301,7 +301,7 @@ void GrGpu::drawPath(const GrOptDrawState& ds,
                      const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kDrawPath_DrawType)) {
+    if (!this->flushGraphicsState(ds)) {
         return;
     }
 
@@ -318,7 +318,7 @@ void GrGpu::drawPaths(const GrOptDrawState& ds,
                       const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
 
-    if (!this->flushGraphicsState(ds, kDrawPaths_DrawType)) {
+    if (!this->flushGraphicsState(ds)) {
         return;
     }
 

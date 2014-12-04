@@ -123,13 +123,13 @@ void GrGLProgram::bindTextures(const GrGLInstalledProc* ip, const GrProcessor& p
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(const GrOptDrawState& optState, GrGpu::DrawType drawType) {
+void GrGLProgram::setData(const GrOptDrawState& optState) {
     GrColor color = optState.getColor();
     uint8_t coverage = optState.getCoverage();
 
     this->setColor(optState, color);
     this->setCoverage(optState, coverage);
-    this->setMatrixAndRenderTargetHeight(drawType, optState);
+    this->setMatrixAndRenderTargetHeight(optState);
 
     const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
     if (dstCopy) {
@@ -164,7 +164,7 @@ void GrGLProgram::setData(const GrOptDrawState& optState, GrGpu::DrawType drawTy
     this->setFragmentData(optState);
 
     // Some of GrGLProgram subclasses need to update state here
-    this->didSetData(drawType);
+    this->didSetData(optState.drawType());
 }
 
 void GrGLProgram::setFragmentData(const GrOptDrawState& optState) {
@@ -241,8 +241,7 @@ void GrGLProgram::setCoverage(const GrOptDrawState& optState, uint8_t coverage) 
     }
 }
 
-void GrGLProgram::setMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
-                                                 const GrOptDrawState& optState) {
+void GrGLProgram::setMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fMatrixState.fRenderTargetSize.fHeight != optState.getRenderTarget()->height()) {
@@ -251,11 +250,10 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
     }
 
     // call subclasses to set the actual view matrix
-    this->onSetMatrixAndRenderTargetHeight(drawType, optState);
+    this->onSetMatrixAndRenderTargetHeight(optState);
 }
 
-void GrGLProgram::onSetMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
-                                                   const GrOptDrawState& optState) {
+void GrGLProgram::onSetMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
@@ -289,9 +287,8 @@ GrGLNvprProgramBase::GrGLNvprProgramBase(GrGpuGL* gpu,
     : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, NULL, fragmentProcessors) {
 }
 
-void GrGLNvprProgramBase::onSetMatrixAndRenderTargetHeight(GrGpu::DrawType drawType,
-                                                           const GrOptDrawState& optState) {
-    SkASSERT(GrGpu::IsPathRenderingDrawType(drawType));
+void GrGLNvprProgramBase::onSetMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
+    SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()));
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());

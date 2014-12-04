@@ -103,8 +103,6 @@ public:
                                                    // effects that read the fragment position.
                                                    // Otherwise, 0.
 
-        SkBool8                     fEmitsPointSize;
-
         ColorInput                  fColorInput : 8;
         ColorInput                  fCoverageInput : 8;
 
@@ -136,6 +134,19 @@ public:
 
     // A struct to communicate descriptor information to the program descriptor builder
     struct DescInfo {
+        bool operator==(const DescInfo& that) const {
+            return fHasVertexColor == that.fHasVertexColor &&
+                   fHasVertexCoverage == that.fHasVertexCoverage &&
+                   fInputColorIsUsed == that.fInputColorIsUsed &&
+                   fInputCoverageIsUsed == that.fInputCoverageIsUsed &&
+                   fReadsDst == that.fReadsDst &&
+                   fReadsFragPosition == that.fReadsFragPosition &&
+                   fRequiresLocalCoordAttrib == that.fRequiresLocalCoordAttrib &&
+                   fPrimaryOutputType == that.fPrimaryOutputType &&
+                   fSecondaryOutputType == that.fSecondaryOutputType;
+
+        }
+        bool operator!=(const DescInfo& that) const { return !(*this == that); };
         // TODO when GPs control uniform / attribute handling of color / coverage, then we can
         // clean this up
         bool            fHasVertexColor;
