@@ -619,24 +619,12 @@ public:
         @param color    the color to draw with
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
-    void drawColor(SkColor color,
-                   SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
+    void drawColor(SkColor color, SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
 
-    /**
-     *  This erases the entire drawing surface to the specified color,
-     *  irrespective of the clip. It does not blend with the previous pixels,
-     *  but always overwrites them.
-     *
-     *  It is roughly equivalent to the following:
-     *      canvas.save();
-     *      canvas.clipRect(hugeRect, kReplace_Op);
-     *      paint.setColor(color);
-     *      paint.setXfermodeMode(kSrc_Mode);
-     *      canvas.drawPaint(paint);
-     *      canvas.restore();
-     *  though it is almost always much more efficient.
-     */
-    virtual void clear(SkColor);
+    // TODO: remove virtual when chrome subclass stop overriding this.
+    virtual void clear(SkColor color) {
+        this->drawColor(color, SkXfermode::kSrc_Mode);
+    }
 
     /**
      * This makes the contents of the canvas undefined. Subsequent calls that

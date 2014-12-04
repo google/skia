@@ -68,7 +68,7 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 #define DO_DEFERRED_CLEAR()             \
     do {                                \
         if (fFlags & kNeedClear_Flag) {  \
-            this->clear(SK_ColorTRANSPARENT); \
+            this->clearAll(); \
         }                               \
     } while (false)                     \
 
@@ -294,6 +294,14 @@ GrRenderTarget* SkGpuDevice::accessRenderTarget() {
     return fRenderTarget;
 }
 
+void SkGpuDevice::clearAll() {
+    GrColor color = 0;
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::clearAll", fContext);
+    SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
+    fContext->clear(&rect, color, true, fRenderTarget);
+    fFlags &= ~kNeedClear_Flag;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SK_COMPILE_ASSERT(SkShader::kNone_BitmapType == 0, shader_type_mismatch);
@@ -308,13 +316,6 @@ SK_COMPILE_ASSERT(SkShader::kLinear_BitmapType == 6, shader_type_mismatch);
 SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 6, shader_type_mismatch);
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkGpuDevice::clear(SkColor color) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::clear", fContext);
-    SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fContext->clear(&rect, SkColor2GrColor(color), true, fRenderTarget);
-    fFlags &= ~kNeedClear_Flag;
-}
 
 void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
@@ -1514,7 +1515,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
     if (dev->fFlags & kNeedClear_Flag) {
         // TODO: could check here whether we really need to draw at all
-        dev->clear(0x0);
+        dev->clearAll();
     }
 
     // drawDevice is defined to be in device coords.

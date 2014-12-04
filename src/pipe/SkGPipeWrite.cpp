@@ -233,7 +233,6 @@ public:
 
     // overrides from SkCanvas
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
-    virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
@@ -689,20 +688,6 @@ void SkGPipeCanvas::onClipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkGPipeCanvas::clear(SkColor color) {
-    NOTIFY_SETUP(this);
-    unsigned flags = 0;
-    if (color) {
-        flags |= kClear_HasColor_DrawOpFlag;
-    }
-    if (this->needOpBytes(sizeof(SkColor))) {
-        this->writeOp(kDrawClear_DrawOp, flags, 0);
-        if (color) {
-            fWriter.write32(color);
-        }
-    }
-}
 
 void SkGPipeCanvas::drawPaint(const SkPaint& paint) {
     NOTIFY_SETUP(this);

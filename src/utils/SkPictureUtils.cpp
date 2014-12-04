@@ -77,10 +77,6 @@ public:
         return false;
     }
 
-    virtual void clear(SkColor color) SK_OVERRIDE {
-        nothing_to_do();
-    }
-
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }

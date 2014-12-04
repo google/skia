@@ -65,13 +65,15 @@ public:
 
     GrContext* context() const { return fContext; }
 
+    // set all pixels to 0
+    void clearAll();
+
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
     virtual SkImageInfo imageInfo() const SK_OVERRIDE {
         return fRenderTarget ? fRenderTarget->surfacePriv().info() : SkImageInfo::MakeUnknown();
     }
 
-    virtual void clear(SkColor color) SK_OVERRIDE;
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) SK_OVERRIDE;

@@ -40,9 +40,6 @@ public:
     }
 
 protected:
-    virtual void clear(SkColor color) SK_OVERRIDE {
-        NothingToDo();
-    }
     virtual void drawPaint(const SkDraw& draw, const SkPaint& paint) SK_OVERRIDE {
         SkBitmap bm;
 

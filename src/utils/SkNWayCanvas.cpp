@@ -134,13 +134,6 @@ void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     this->INHERITED::onClipRegion(deviceRgn, op);
 }
 
-void SkNWayCanvas::clear(SkColor color) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->clear(color);
-    }
-}
-
 void SkNWayCanvas::drawPaint(const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {

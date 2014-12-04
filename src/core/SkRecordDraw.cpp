@@ -61,13 +61,12 @@ void SkRecordDraw(const SkRecord& record,
 
 void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
                          SkPicture const* const drawablePicts[], int drawableCount,
-                         const SkRect& clearRect,
                          unsigned start, unsigned stop,
                          const SkMatrix& initialCTM) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     stop = SkTMin(stop, record.count());
-    SkRecords::PartialDraw draw(canvas, NULL, 0, clearRect, initialCTM);
+    SkRecords::Draw draw(canvas, drawablePicts, NULL, drawableCount, &initialCTM);
     for (unsigned i = start; i < stop; i++) {
         record.visit<void>(i, draw);
     }

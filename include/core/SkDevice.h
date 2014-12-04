@@ -164,8 +164,9 @@ protected:
 private:
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.
+     *  DEPRECATED : will go away when chrome subclasses have been updated
      */
-    virtual void clear(SkColor color) = 0;
+    virtual void clear(SkColor color);
 public:
 
     /** These are called inside the per-device-layer loop for each draw call.
