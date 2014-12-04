@@ -161,10 +161,12 @@ protected:
      virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
                                 const SkClipStack&) {};
 
+private:
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.
      */
     virtual void clear(SkColor color) = 0;
+public:
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
