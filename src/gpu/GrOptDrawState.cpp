@@ -13,12 +13,11 @@
 #include "GrProcOptInfo.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
-                               const GrDrawTargetCaps& caps,
+                               GrGpu* gpu,
                                const ScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
-                               GrGpu::DrawType drawType)
-    : fFinalized(false) {
-    fDrawType = drawType;
+                               GrGpu::DrawType drawType) {
+
     GrBlendCoeff optSrcCoeff;
     GrBlendCoeff optDstCoeff;
     GrDrawState::BlendOpt blendOpt = drawState.getBlendOpt(false, &optSrcCoeff, &optDstCoeff);
@@ -53,6 +52,8 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fDstCopy = *dstCopy;
     }
 
+    GrProgramDesc::DescInfo descInfo;
+
     fFlags = 0;
     if (drawState.isHWAntialias()) {
         fFlags |= kHWAA_Flag;
@@ -64,33 +65,34 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fFlags |= kDither_Flag;
     }
 
-    fDescInfo.fHasVertexColor = drawState.hasGeometryProcessor() &&
-                                drawState.getGeometryProcessor()->hasVertexColor();
+    descInfo.fHasVertexColor = drawState.hasGeometryProcessor() &&
+                               drawState.getGeometryProcessor()->hasVertexColor();
 
-    fDescInfo.fHasVertexCoverage = drawState.hasGeometryProcessor() &&
-                                   drawState.getGeometryProcessor()->hasVertexCoverage();
+    descInfo.fHasVertexCoverage = drawState.hasGeometryProcessor() &&
+                                 drawState.getGeometryProcessor()->hasVertexCoverage();
 
     bool hasLocalCoords = drawState.hasGeometryProcessor() &&
                           drawState.getGeometryProcessor()->hasLocalCoords();
 
     const GrProcOptInfo& colorPOI = drawState.colorProcInfo();
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
-    fDescInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
+    descInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
     fColor = colorPOI.inputColorToEffectiveStage();
     if (colorPOI.removeVertexAttrib()) {
-        fDescInfo.fHasVertexColor = false;
+        descInfo.fHasVertexColor = false;
     }
 
     // TODO: Once we can handle single or four channel input into coverage stages then we can use
     // drawState's coverageProcInfo (like color above) to set this initial information.
     int firstCoverageStageIdx = 0;
-    fDescInfo.fInputCoverageIsUsed = true;
+    descInfo.fInputCoverageIsUsed = true;
     fCoverage = drawState.getCoverage();
 
-    this->adjustProgramForBlendOpt(drawState, blendOpt, &firstColorStageIdx,
+    this->adjustProgramForBlendOpt(drawState, blendOpt, &descInfo, &firstColorStageIdx,
                                    &firstCoverageStageIdx);
 
-    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, hasLocalCoords);
+    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, hasLocalCoords,
+                        &descInfo);
 
     // Copy GeometryProcesssor from DS or ODS
     SkASSERT(GrGpu::IsPathRenderingDrawType(drawType) ||
@@ -116,15 +118,19 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                (drawState.fCoverageStages[i], hasLocalCoords));
     }
 
-    this->setOutputStateInfo(drawState, blendOpt, caps);
+    this->setOutputStateInfo(drawState, blendOpt, *gpu->caps(), &descInfo);
+
+    // now create a key
+    gpu->buildProgramDesc(*this, descInfo, drawType, &fDesc);
 };
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
                                         GrDrawState::BlendOpt blendOpt,
-                                        const GrDrawTargetCaps& caps) {
+                                        const GrDrawTargetCaps& caps,
+                                        GrProgramDesc::DescInfo* descInfo) {
     // Set this default and then possibly change our mind if there is coverage.
-    fDescInfo.fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
-    fDescInfo.fSecondaryOutputType = GrProgramDesc::kNone_SecondaryOutputType;
+    descInfo->fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
+    descInfo->fSecondaryOutputType = GrProgramDesc::kNone_SecondaryOutputType;
 
     // Determine whether we should use dual source blending or shader code to keep coverage
     // separate from color.
@@ -134,27 +140,28 @@ void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
         if (caps.dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color
-                fDescInfo.fSecondaryOutputType = GrProgramDesc::kCoverage_SecondaryOutputType;
+                descInfo->fSecondaryOutputType = GrProgramDesc::kCoverage_SecondaryOutputType;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             } else if (kSA_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                fDescInfo.fSecondaryOutputType = GrProgramDesc::kCoverageISA_SecondaryOutputType;
+                descInfo->fSecondaryOutputType = GrProgramDesc::kCoverageISA_SecondaryOutputType;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             } else if (kSC_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                fDescInfo.fSecondaryOutputType = GrProgramDesc::kCoverageISC_SecondaryOutputType;
+                descInfo->fSecondaryOutputType = GrProgramDesc::kCoverageISC_SecondaryOutputType;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             }
-        } else if (fDescInfo.fReadsDst &&
+        } else if (descInfo->fReadsDst &&
                    kOne_GrBlendCoeff == fSrcBlend &&
                    kZero_GrBlendCoeff == fDstBlend) {
-            fDescInfo.fPrimaryOutputType = GrProgramDesc::kCombineWithDst_PrimaryOutputType;
+            descInfo->fPrimaryOutputType = GrProgramDesc::kCombineWithDst_PrimaryOutputType;
         }
     }
 }
 
 void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
                                               GrDrawState::BlendOpt blendOpt,
+                                              GrProgramDesc::DescInfo* descInfo,
                                               int* firstColorStageIdx,
                                               int* firstCoverageStageIdx) {
     switch (blendOpt) {
@@ -164,19 +171,19 @@ void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
             break;
         case GrDrawState::kEmitCoverage_BlendOpt:
             fColor = 0xffffffff;
-            fDescInfo.fInputColorIsUsed = true;
+            descInfo->fInputColorIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
-            fDescInfo.fHasVertexColor = false;
+            descInfo->fHasVertexColor = false;
             break;
         case GrDrawState::kEmitTransBlack_BlendOpt:
             fColor = 0;
             fCoverage = 0xff;
-            fDescInfo.fInputColorIsUsed = true;
-            fDescInfo.fInputCoverageIsUsed = true;
+            descInfo->fInputColorIsUsed = true;
+            descInfo->fInputCoverageIsUsed = true;
             *firstColorStageIdx = ds.numColorStages();
             *firstCoverageStageIdx = ds.numCoverageStages();
-            fDescInfo.fHasVertexColor = false;
-            fDescInfo.fHasVertexCoverage = false;
+            descInfo->fHasVertexColor = false;
+            descInfo->fHasVertexCoverage = false;
             break;
     }
 }
@@ -191,57 +198,46 @@ static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* 
 }
 
 void GrOptDrawState::getStageStats(const GrDrawState& ds, int firstColorStageIdx,
-                                   int firstCoverageStageIdx, bool hasLocalCoords) {
+                                   int firstCoverageStageIdx, bool hasLocalCoords,
+                                   GrProgramDesc::DescInfo* descInfo) {
     // We will need a local coord attrib if there is one currently set on the optState and we are
     // actually generating some effect code
-    fDescInfo.fRequiresLocalCoordAttrib = hasLocalCoords &&
+    descInfo->fRequiresLocalCoordAttrib = hasLocalCoords &&
         ds.numTotalStages() - firstColorStageIdx - firstCoverageStageIdx > 0;
 
-    fDescInfo.fReadsDst = false;
-    fDescInfo.fReadsFragPosition = false;
+    descInfo->fReadsDst = false;
+    descInfo->fReadsFragPosition = false;
 
     for (int s = firstColorStageIdx; s < ds.numColorStages(); ++s) {
         const GrFragmentStage& stage = ds.getColorStage(s);
-        get_stage_stats(stage, &fDescInfo.fReadsDst, &fDescInfo.fReadsFragPosition);
+        get_stage_stats(stage, &descInfo->fReadsDst, &descInfo->fReadsFragPosition);
     }
     for (int s = firstCoverageStageIdx; s < ds.numCoverageStages(); ++s) {
         const GrFragmentStage& stage = ds.getCoverageStage(s);
-        get_stage_stats(stage, &fDescInfo.fReadsDst, &fDescInfo.fReadsFragPosition);
+        get_stage_stats(stage, &descInfo->fReadsDst, &descInfo->fReadsFragPosition);
     }
     if (ds.hasGeometryProcessor()) {
         const GrGeometryProcessor& gp = *ds.getGeometryProcessor();
-        fDescInfo.fReadsFragPosition = fDescInfo.fReadsFragPosition || gp.willReadFragmentPosition();
+        descInfo->fReadsFragPosition = descInfo->fReadsFragPosition || gp.willReadFragmentPosition();
     }
-}
-
-void GrOptDrawState::finalize(GrGpu* gpu) {
-    gpu->buildProgramDesc(*this, fDescInfo, fDrawType, &fDesc);
-    fFinalized = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
-    if (!fDescInfo.fHasVertexColor && this->fColor != that.fColor) {
+    if (this->fDesc != that.fDesc) {
+        return false;
+    }
+    bool hasVertexColors = this->fDesc.header().fColorInput == GrProgramDesc::kAttribute_ColorInput;
+    if (!hasVertexColors && this->fColor != that.fColor) {
         return false;
     }
 
     if (this->getRenderTarget() != that.getRenderTarget() ||
-        this->fFragmentStages.count() != that.fFragmentStages.count() ||
-        this->fNumColorStages != that.fNumColorStages ||
         this->fScissorState != that.fScissorState ||
         !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
         this->fSrcBlend != that.fSrcBlend ||
         this->fDstBlend != that.fDstBlend ||
-        this->fDrawType != that.fDrawType ||
-        fDescInfo.fInputColorIsUsed != that.fDescInfo.fInputColorIsUsed ||
-        fDescInfo.fInputCoverageIsUsed != that.fDescInfo.fInputCoverageIsUsed ||
-        fDescInfo.fReadsDst != that.fDescInfo.fReadsDst ||
-        fDescInfo.fReadsFragPosition != that.fDescInfo.fReadsFragPosition ||
-        fDescInfo.fRequiresLocalCoordAttrib != that.fDescInfo.fRequiresLocalCoordAttrib ||
-        fDescInfo.fPrimaryOutputType != that.fDescInfo.fPrimaryOutputType ||
-        fDescInfo.fSecondaryOutputType != that.fDescInfo.fSecondaryOutputType ||
-        this->fScissorState != that.fScissorState ||
         this->fBlendConstant != that.fBlendConstant ||
         this->fFlags != that.fFlags ||
         this->fStencilSettings != that.fStencilSettings ||
@@ -250,7 +246,9 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
         return false;
     }
 
-    if (!fDescInfo.fHasVertexCoverage && this->fCoverage != that.fCoverage) {
+    bool hasVertexCoverage =
+            this->fDesc.header().fCoverageInput == GrProgramDesc::kAttribute_ColorInput;
+    if (!hasVertexCoverage && this->fCoverage != that.fCoverage) {
         return false;
     }
 

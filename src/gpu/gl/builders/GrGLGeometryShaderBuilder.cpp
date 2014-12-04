@@ -48,7 +48,9 @@ bool GrGLGeometryBuilder::compileAndAttachShaders(GrGLuint programId,
     geomShaderSrc.append("void main() {\n");
     geomShaderSrc.append("\tfor (int i = 0; i < 3; ++i) {\n"
                          "\t\tgl_Position = gl_in[i].gl_Position;\n");
-    geomShaderSrc.append("\t\tgl_PointSize = 1.0;\n");
+    if (fProgramBuilder->desc().header().fEmitsPointSize) {
+        geomShaderSrc.append("\t\tgl_PointSize = 1.0;\n");
+    }
     SkASSERT(fInputs.count() == fOutputs.count());
     for (int i = 0; i < fInputs.count(); ++i) {
         geomShaderSrc.appendf("\t\t%s = %s[i];\n",

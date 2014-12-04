@@ -1894,14 +1894,14 @@ void GrGpuGL::flushStencil(const GrStencilSettings& stencilSettings, DrawType ty
     }
 }
 
-void GrGpuGL::flushAAState(const GrOptDrawState& optState) {
+void GrGpuGL::flushAAState(const GrOptDrawState& optState, DrawType type) {
 // At least some ATI linux drivers will render GL_LINES incorrectly when MSAA state is enabled but
 // the target is not multisampled. Single pixel wide lines are rendered thicker than 1 pixel wide.
 #if 0
     // Replace RT_HAS_MSAA with this definition once this driver bug is no longer a relevant concern
     #define RT_HAS_MSAA rt->isMultisampled()
 #else
-    #define RT_HAS_MSAA (rt->isMultisampled() || kDrawLines_DrawType == optState.drawType())
+    #define RT_HAS_MSAA (rt->isMultisampled() || kDrawLines_DrawType == type)
 #endif
 
     const GrRenderTarget* rt = optState.getRenderTarget();

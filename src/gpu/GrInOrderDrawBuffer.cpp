@@ -394,7 +394,7 @@ void GrInOrderDrawBuffer::onFlush() {
 
     // Updated every time we find a set state cmd to reflect the current state in the playback
     // stream.
-    GrOptDrawState* currentOptState = NULL;
+    const GrOptDrawState* currentOptState = NULL;
 
     while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
@@ -409,7 +409,6 @@ void GrInOrderDrawBuffer::onFlush() {
         if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
             currentOptState = &ss->fState;
-            currentOptState->finalize(this->getGpu());
         } else {
             iter->execute(this, currentOptState);
         }
@@ -487,8 +486,7 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                                    const GrClipMaskManager::ScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
     SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
-                                            (ds, *this->getGpu()->caps(), scissor, dstCopy,
-                                             drawType));
+                                            (ds, this->getGpu(), scissor, dstCopy, drawType));
     if (ss->fState.mustSkip()) {
         fCmdBuffer.pop_back();
         return false;

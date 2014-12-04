@@ -140,7 +140,7 @@ private:
         return false;
     }
 
-    bool flushGraphicsState(const GrOptDrawState&) SK_OVERRIDE { return false; }
+    bool flushGraphicsState(const GrOptDrawState&, DrawType) SK_OVERRIDE { return false; }
 
     void clearStencil(GrRenderTarget* target) SK_OVERRIDE  {}
 

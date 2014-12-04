@@ -129,7 +129,7 @@ public:
      * GrGpuGL object to bind the textures required by the GrGLProcessors. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
-    void setData(const GrOptDrawState&);
+    void setData(const GrOptDrawState&, GrGpu::DrawType);
 
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -167,8 +167,8 @@ protected:
     virtual void didSetData(GrGpu::DrawType);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setMatrixAndRenderTargetHeight(const GrOptDrawState&);
-    virtual void onSetMatrixAndRenderTargetHeight(const GrOptDrawState&);
+    void setMatrixAndRenderTargetHeight(GrGpu::DrawType, const GrOptDrawState&);
+    virtual void onSetMatrixAndRenderTargetHeight(GrGpu::DrawType, const GrOptDrawState&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     MatrixState fMatrixState;
@@ -206,7 +206,7 @@ protected:
                         GrGLuint programID,
                         const UniformInfoArray&,
                         GrGLInstalledFragProcs* fragmentProcessors);
-    virtual void onSetMatrixAndRenderTargetHeight(const GrOptDrawState&);
+    virtual void onSetMatrixAndRenderTargetHeight(GrGpu::DrawType, const GrOptDrawState&);
 
     typedef GrGLProgram INHERITED;
 };

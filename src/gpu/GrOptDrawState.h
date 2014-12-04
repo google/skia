@@ -30,7 +30,7 @@ public:
 
     typedef GrClipMaskManager::ScissorState ScissorState;
 
-    GrOptDrawState(const GrDrawState& drawState, const GrDrawTargetCaps&, const ScissorState&,
+    GrOptDrawState(const GrDrawState& drawState, GrGpu*, const ScissorState&,
                    const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
     bool operator== (const GrOptDrawState& that) const;
@@ -180,20 +180,33 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    GrGpu::DrawType drawType() const { return fDrawType; }
-
     const GrDeviceCoordTexture* getDstCopy() const { return fDstCopy.texture() ? &fDstCopy : NULL; }
 
-    // Finalize *MUST* be called before programDesc()
-    void finalize(GrGpu*);
-
-    const GrProgramDesc& programDesc() const { SkASSERT(fFinalized); return fDesc; }
+    const GrProgramDesc& programDesc() const { return fDesc; }
 
 private:
+    /**
+     * Loops through all the color stage effects to check if the stage will ignore color input or
+     * always output a constant color. In the ignore color input case we can ignore all previous
+     * stages. In the constant color case, we can ignore all previous stages and
+     * the current one and set the state color to the constant color.
+     */
+    void computeEffectiveColorStages(const GrDrawState& ds, GrProgramDesc::DescInfo*,
+                                     int* firstColorStageIdx, uint8_t* fixFunctionVAToRemove);
+
+    /**
+     * Loops through all the coverage stage effects to check if the stage will ignore color input.
+     * If a coverage stage will ignore input, then we can ignore all coverage stages before it. We
+     * loop to determine the first effective coverage stage.
+     */
+    void computeEffectiveCoverageStages(const GrDrawState& ds, GrProgramDesc::DescInfo* descInfo,
+                                        int* firstCoverageStageIdx);
+
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
     void adjustProgramForBlendOpt(const GrDrawState& ds, GrDrawState::BlendOpt,
+                                  GrProgramDesc::DescInfo*,
                                   int* firstColorStageIdx, int* firstCoverageStageIdx);
 
     /**
@@ -201,14 +214,15 @@ private:
      * shaders they require.
      */
     void getStageStats(const GrDrawState& ds, int firstColorStageIdx, int firstCoverageStageIdx,
-                       bool hasLocalCoords);
+                       bool hasLocalCoords, GrProgramDesc::DescInfo*);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawState& ds, GrDrawState::BlendOpt, const GrDrawTargetCaps&);
+    void setOutputStateInfo(const GrDrawState& ds, GrDrawState::BlendOpt, const GrDrawTargetCaps&,
+                            GrProgramDesc::DescInfo*);
 
     enum Flags {
         kDither_Flag            = 0x1,
@@ -235,9 +249,6 @@ private:
     ProgramGeometryProcessor            fGeometryProcessor;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
-    GrGpu::DrawType                     fDrawType;
-    GrProgramDesc::DescInfo             fDescInfo;
-    bool                                fFinalized;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;

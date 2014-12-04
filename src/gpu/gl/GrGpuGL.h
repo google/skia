@@ -155,7 +155,7 @@ private:
 
 
     virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
-    virtual bool flushGraphicsState(const GrOptDrawState&) SK_OVERRIDE;
+    virtual bool flushGraphicsState(const GrOptDrawState&, DrawType) SK_OVERRIDE;
 
     // GrDrawTarget overrides
     virtual void didAddGpuTraceMarker() SK_OVERRIDE;
@@ -188,7 +188,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const GrOptDrawState&);
+        GrGLProgram* getProgram(const GrOptDrawState&, DrawType);
 
     private:
         enum {
@@ -248,7 +248,7 @@ private:
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(const GrStencilSettings&, DrawType);
-    void flushAAState(const GrOptDrawState&);
+    void flushAAState(const GrOptDrawState&, DrawType);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,

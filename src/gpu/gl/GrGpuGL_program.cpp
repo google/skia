@@ -91,7 +91,7 @@ int GrGpuGL::ProgramCache::search(const GrProgramDesc& desc) const {
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState) {
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState, DrawType type) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -126,7 +126,7 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState) {
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, type, fGpu);
         if (NULL == program) {
             return NULL;
         }
@@ -201,11 +201,11 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState) {
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState) {
+bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState, DrawType type) {
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
     SkASSERT(optState.getRenderTarget());
 
-    if (kStencilPath_DrawType == optState.drawType()) {
+    if (kStencilPath_DrawType == type) {
         const GrRenderTarget* rt = optState.getRenderTarget();
         SkISize size;
         size.set(rt->width(), rt->height());
@@ -216,7 +216,7 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState) {
         GrBlendCoeff srcCoeff = optState.getSrcBlendCoeff();
         GrBlendCoeff dstCoeff = optState.getDstBlendCoeff();
 
-        fCurrentProgram.reset(fProgramCache->getProgram(optState));
+        fCurrentProgram.reset(fProgramCache->getProgram(optState, type));
         if (NULL == fCurrentProgram.get()) {
             SkDEBUGFAIL("Failed to create program!");
             return false;
@@ -230,15 +230,15 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState) {
             fHWProgramID = programID;
         }
 
-        this->flushBlend(optState, kDrawLines_DrawType == optState.drawType(), srcCoeff, dstCoeff);
+        this->flushBlend(optState, kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
-        fCurrentProgram->setData(optState);
+        fCurrentProgram->setData(optState, type);
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
-    this->flushStencil(optState.getStencil(), optState.drawType());
+    this->flushStencil(optState.getStencil(), type);
     this->flushScissor(optState.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushAAState(optState);
+    this->flushAAState(optState, type);
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).

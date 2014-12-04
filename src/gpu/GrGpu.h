@@ -469,7 +469,7 @@ private:
     // deltas from previous state at draw time. This function does the
     // backend-specific flush of the state.
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(const GrOptDrawState&) = 0;
+    virtual bool flushGraphicsState(const GrOptDrawState&, DrawType) = 0;
 
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
