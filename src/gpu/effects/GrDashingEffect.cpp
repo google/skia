@@ -504,13 +504,20 @@ private:
 
 class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingCircleEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLDashingCircleEffect(const GrBackendProcessorFactory&,
+                          const GrGeometryProcessor&,
+                          const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrGeometryProcessor&,
+                              const GrBatchTracker&,
+                              const GrGLCaps&,
+                              GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&,
+                         const GrGeometryProcessor&,
+                         const GrBatchTracker&) SK_OVERRIDE;
 
 private:
     GrGLProgramDataManager::UniformHandle fParamUniform;
@@ -521,7 +528,8 @@ private:
 };
 
 GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendProcessorFactory& factory,
-                                             const GrProcessor&)
+                                             const GrGeometryProcessor&,
+                                             const GrBatchTracker&)
     : INHERITED (factory) {
     fPrevRadius = SK_ScalarMin;
     fPrevCenterX = SK_ScalarMin;
@@ -570,8 +578,9 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
-void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman
-                                    , const GrProcessor& processor) {
+void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
+                                    const GrGeometryProcessor& processor,
+                                    const GrBatchTracker&) {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     SkScalar radius = dce.getRadius();
     SkScalar centerX = dce.getCenterX();
@@ -584,7 +593,9 @@ void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman
     }
 }
 
-void GLDashingCircleEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& processor,
+                                   const GrBatchTracker&,
+                                   const GrGLCaps&,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     b->add32(dce.getEdgeType());
@@ -712,13 +723,20 @@ private:
 
 class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingLineEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLDashingLineEffect(const GrBackendProcessorFactory&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrGeometryProcessor&,
+                              const GrBatchTracker&,
+                              const GrGLCaps&,
+                              GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    virtual void setData(const GrGLProgramDataManager&,
+                         const GrGeometryProcessor&,
+                         const GrBatchTracker&) SK_OVERRIDE;
 
 private:
     GrGLProgramDataManager::UniformHandle fRectUniform;
@@ -729,7 +747,8 @@ private:
 };
 
 GLDashingLineEffect::GLDashingLineEffect(const GrBackendProcessorFactory& factory,
-                                         const GrProcessor&)
+                                         const GrGeometryProcessor&,
+                                         const GrBatchTracker&)
     : INHERITED (factory) {
     fPrevRect.fLeft = SK_ScalarNaN;
     fPrevIntervalLength = SK_ScalarMax;
@@ -792,7 +811,8 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
 }
 
 void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
-                                  const GrProcessor& processor) {
+                                  const GrGeometryProcessor& processor,
+                                  const GrBatchTracker&) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     const SkRect& rect = de.getRect();
     SkScalar intervalLength = de.getIntervalLength();
@@ -805,7 +825,9 @@ void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
     }
 }
 
-void GLDashingLineEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GLDashingLineEffect::GenKey(const GrGeometryProcessor& processor,
+                                 const GrBatchTracker&,
+                                 const GrGLCaps&,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     b->add32(de.getEdgeType());

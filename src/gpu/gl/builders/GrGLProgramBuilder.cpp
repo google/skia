@@ -359,12 +359,13 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
 
-    fGeometryProcessor->fGLProc.reset(gp.getFactory().createGLInstance(gp));
+    const GrBatchTracker& bt = fOptState.getBatchTracker();
+    fGeometryProcessor->fGLProc.reset(gp.getFactory().createGLInstance(gp, bt));
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers);
+    GrGLGeometryProcessor::EmitArgs args(this, gp, bt, outColor, outCoverage, samplers);
     fGeometryProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

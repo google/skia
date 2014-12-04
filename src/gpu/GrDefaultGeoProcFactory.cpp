@@ -75,7 +75,9 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
+        GLProcessor(const GrBackendProcessorFactory& factory,
+                    const GrGeometryProcessor&,
+                    const GrBatchTracker&)
             : INHERITED (factory) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
@@ -109,12 +111,17 @@ public:
             fs->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
         }
 
-        static inline void GenKey(const GrProcessor& gp, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+        static inline void GenKey(const GrGeometryProcessor& gp,
+                                  const GrBatchTracker&,
+                                  const GrGLCaps&,
+                                  GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             b->add32(def.fFlags);
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager&,
+                             const GrGeometryProcessor&,
+                             const GrBatchTracker&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;

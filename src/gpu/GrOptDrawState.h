@@ -84,6 +84,7 @@ public:
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+    const GrBatchTracker& getBatchTracker() const { return fBatchTracker; }
 
     const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
 
@@ -233,6 +234,7 @@ private:
     GrBlendCoeff                        fDstBlend;
     uint32_t                            fFlags;
     ProgramGeometryProcessor            fGeometryProcessor;
+    GrBatchTracker                      fBatchTracker;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
     GrGpu::DrawType                     fDrawType;

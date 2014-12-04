@@ -91,7 +91,9 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
+        GLProcessor(const GrBackendProcessorFactory& factory,
+                    const GrGeometryProcessor&,
+                    const GrBatchTracker&)
         : INHERITED (factory) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
@@ -122,13 +124,17 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrProcessor& processor, const GrGLCaps&,
+        static void GenKey(const GrGeometryProcessor& processor,
+                           const GrBatchTracker&,
+                           const GrGLCaps&,
                            GrProcessorKeyBuilder* b) {
             const CircleEdgeEffect& circleEffect = processor.cast<CircleEdgeEffect>();
             b->add32(circleEffect.isStroked());
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager&,
+                             const GrGeometryProcessor&,
+                             const GrBatchTracker&) SK_OVERRIDE {}
 
     private:
         typedef GrGLGeometryProcessor INHERITED;
@@ -212,7 +218,9 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
+        GLProcessor(const GrBackendProcessorFactory& factory,
+                    const GrGeometryProcessor&,
+                    const GrBatchTracker&)
         : INHERITED (factory) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
@@ -265,13 +273,17 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrProcessor& processor, const GrGLCaps&,
+        static void GenKey(const GrGeometryProcessor& processor,
+                           const GrBatchTracker&,
+                           const GrGLCaps&,
                            GrProcessorKeyBuilder* b) {
             const EllipseEdgeEffect& ellipseEffect = processor.cast<EllipseEdgeEffect>();
             b->add32(ellipseEffect.isStroked());
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager&,
+                             const GrGeometryProcessor&,
+                             const GrBatchTracker&) SK_OVERRIDE {
         }
 
     private:
@@ -364,7 +376,9 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
+        GLProcessor(const GrBackendProcessorFactory& factory,
+                    const GrGeometryProcessor&,
+                    const GrBatchTracker&)
         : INHERITED (factory) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
@@ -431,14 +445,18 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrProcessor& processor, const GrGLCaps&,
+        static void GenKey(const GrGeometryProcessor& processor,
+                           const GrBatchTracker&,
+                           const GrGLCaps&,
                            GrProcessorKeyBuilder* b) {
             const DIEllipseEdgeEffect& ellipseEffect = processor.cast<DIEllipseEdgeEffect>();
 
             b->add32(ellipseEffect.getMode());
         }
 
-        virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {
+        virtual void setData(const GrGLProgramDataManager&,
+                             const GrGeometryProcessor&,
+                             const GrBatchTracker&) SK_OVERRIDE {
         }
 
     private:

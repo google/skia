@@ -15,13 +15,20 @@
 
 class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
-    GrGLConicEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLConicEffect(const GrBackendProcessorFactory&,
+                    const GrGeometryProcessor&,
+                    const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrGeometryProcessor&,
+                              const GrBatchTracker&,
+                              const GrGLCaps&,
+                              GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&,
+                         const GrGeometryProcessor&,
+                         const GrBatchTracker&) SK_OVERRIDE {}
 
 private:
     GrPrimitiveEdgeType fEdgeType;
@@ -30,9 +37,10 @@ private:
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrBackendProcessorFactory& factory,
-                                 const GrProcessor& effect)
+                                 const GrGeometryProcessor& processor,
+                                 const GrBatchTracker& bt)
     : INHERITED (factory) {
-    const GrConicEffect& ce = effect.cast<GrConicEffect>();
+    const GrConicEffect& ce = processor.cast<GrConicEffect>();
     fEdgeType = ce.getEdgeType();
 }
 
@@ -112,7 +120,9 @@ void GrGLConicEffect::emitCode(const EmitArgs& args) {
     fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
 }
 
-void GrGLConicEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GrGLConicEffect::GenKey(const GrGeometryProcessor& processor,
+                             const GrBatchTracker&,
+                             const GrGLCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrConicEffect& ce = processor.cast<GrConicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
@@ -162,13 +172,20 @@ GrGeometryProcessor* GrConicEffect::TestCreate(SkRandom* random,
 
 class GrGLQuadEffect : public GrGLGeometryProcessor {
 public:
-    GrGLQuadEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLQuadEffect(const GrBackendProcessorFactory&,
+                   const GrGeometryProcessor&,
+                   const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrGeometryProcessor&,
+                              const GrBatchTracker&,
+                              const GrGLCaps&,
+                              GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&,
+                         const GrGeometryProcessor&,
+                         const GrBatchTracker&) SK_OVERRIDE {}
 
 private:
     GrPrimitiveEdgeType fEdgeType;
@@ -177,9 +194,10 @@ private:
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrBackendProcessorFactory& factory,
-                                 const GrProcessor& effect)
+                               const GrGeometryProcessor& processor,
+                               const GrBatchTracker& bt)
     : INHERITED (factory) {
-    const GrQuadEffect& ce = effect.cast<GrQuadEffect>();
+    const GrQuadEffect& ce = processor.cast<GrQuadEffect>();
     fEdgeType = ce.getEdgeType();
 }
 
@@ -245,7 +263,9 @@ void GrGLQuadEffect::emitCode(const EmitArgs& args) {
     fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
 }
 
-void GrGLQuadEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GrGLQuadEffect::GenKey(const GrGeometryProcessor& processor,
+                            const GrBatchTracker&,
+                            const GrGLCaps&,
                             GrProcessorKeyBuilder* b) {
     const GrQuadEffect& ce = processor.cast<GrQuadEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
@@ -295,13 +315,20 @@ GrGeometryProcessor* GrQuadEffect::TestCreate(SkRandom* random,
 
 class GrGLCubicEffect : public GrGLGeometryProcessor {
 public:
-    GrGLCubicEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLCubicEffect(const GrBackendProcessorFactory&,
+                    const GrGeometryProcessor&,
+                    const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrGeometryProcessor&,
+                              const GrBatchTracker&,
+                              const GrGLCaps&,
+                              GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+    virtual void setData(const GrGLProgramDataManager&,
+                         const GrGeometryProcessor&,
+                         const GrBatchTracker&) SK_OVERRIDE {}
 
 private:
     GrPrimitiveEdgeType fEdgeType;
@@ -310,7 +337,8 @@ private:
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrBackendProcessorFactory& factory,
-                                 const GrProcessor& processor)
+                                 const GrGeometryProcessor& processor,
+                                 const GrBatchTracker&)
     : INHERITED (factory) {
     const GrCubicEffect& ce = processor.cast<GrCubicEffect>();
     fEdgeType = ce.getEdgeType();
@@ -419,7 +447,9 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
     fsBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
 }
 
-void GrGLCubicEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GrGLCubicEffect::GenKey(const GrGeometryProcessor& processor,
+                             const GrBatchTracker&,
+                             const GrGLCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrCubicEffect& ce = processor.cast<GrCubicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
