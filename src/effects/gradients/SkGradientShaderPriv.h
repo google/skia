@@ -297,7 +297,6 @@ static inline int next_dither_toggle16(int toggle) {
 #include "gl/GrGLProcessor.h"
 
 class GrFragmentStage;
-class GrBackendProcessorFactory;
 class GrInvariantOutput;
 
 /*
@@ -397,7 +396,7 @@ private:
 // Base class for GL gradient effects
 class GrGLGradientEffect : public GrGLFragmentProcessor {
 public:
-    GrGLGradientEffect(const GrBackendProcessorFactory& factory);
+    GrGLGradientEffect();
     virtual ~GrGLGradientEffect();
 
     virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;

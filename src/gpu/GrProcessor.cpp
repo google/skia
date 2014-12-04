@@ -6,7 +6,6 @@
  */
 
 #include "GrProcessor.h"
-#include "GrBackendProcessorFactory.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrGeometryData.h"
@@ -15,6 +14,9 @@
 #include "SkTLS.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+
+class GrFragmentProcessor;
+class GrGeometryProcessor;
 
 /*
  * Originally these were both in the processor unit test header, but then it seemed to cause linker
@@ -109,16 +111,12 @@ private:
     }
 };
 
-int32_t GrBackendProcessorFactory::fCurrProcessorClassID =
-        GrBackendProcessorFactory::kIllegalProcessorClassID;
+int32_t GrProcessor::gCurrProcessorClassID =
+        GrProcessor::kIllegalProcessorClassID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 GrProcessor::~GrProcessor() {}
-
-const char* GrProcessor::name() const {
-    return this->getFactory().name();
-}
 
 void GrProcessor::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
@@ -181,4 +179,3 @@ void* GrGeometryData::operator new(size_t size) {
 void GrGeometryData::operator delete(void* target) {
     GrProcessor_Globals::GetTLS()->release(target);
 }
-

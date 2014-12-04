@@ -16,7 +16,6 @@
 #include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "GrTBackendProcessorFactory.h"
 #endif
 
 namespace {
@@ -287,8 +286,7 @@ bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix&
 #if SK_SUPPORT_GPU
 class GrGLDisplacementMapEffect : public GrGLFragmentProcessor {
 public:
-    GrGLDisplacementMapEffect(const GrBackendProcessorFactory&,
-                              const GrProcessor&);
+    GrGLDisplacementMapEffect(const GrProcessor&);
     virtual ~GrGLDisplacementMapEffect();
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -328,15 +326,22 @@ public:
 
     virtual ~GrDisplacementMapEffect();
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLDisplacementMapEffect::GenKey(*this, caps, b);
+    }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLDisplacementMapEffect, (*this));
+    }
+
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector() const
         { return fXChannelSelector; }
     SkDisplacementMapEffect::ChannelSelectorType yChannelSelector() const
         { return fYChannelSelector; }
     const SkVector& scale() const { return fScale; }
 
-    typedef GrGLDisplacementMapEffect GLProcessor;
-    static const char* Name() { return "DisplacementMap"; }
+    virtual const char* name() const SK_OVERRIDE { return "DisplacementMap"; }
 
 private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
@@ -456,6 +461,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
     , fXChannelSelector(xChannelSelector)
     , fYChannelSelector(yChannelSelector)
     , fScale(scale) {
+    this->initClassID<GrDisplacementMapEffect>();
     this->addCoordTransform(&fDisplacementTransform);
     this->addTextureAccess(&fDisplacementAccess);
     this->addCoordTransform(&fColorTransform);
@@ -470,10 +476,6 @@ bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
     return fXChannelSelector == s.fXChannelSelector &&
            fYChannelSelector == s.fYChannelSelector &&
            fScale == s.fScale;
-}
-
-const GrBackendFragmentProcessorFactory& GrDisplacementMapEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrDisplacementMapEffect>::getInstance();
 }
 
 void GrDisplacementMapEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -514,10 +516,8 @@ GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrBackendProcessorFactory& factory,
-                                                     const GrProcessor& proc)
-    : INHERITED(factory)
-    , fXChannelSelector(proc.cast<GrDisplacementMapEffect>().xChannelSelector())
+GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrProcessor& proc)
+    : fXChannelSelector(proc.cast<GrDisplacementMapEffect>().xChannelSelector())
     , fYChannelSelector(proc.cast<GrDisplacementMapEffect>().yChannelSelector()) {
 }
 

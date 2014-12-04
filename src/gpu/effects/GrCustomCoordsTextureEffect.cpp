@@ -7,20 +7,17 @@
 
 #include "GrCustomCoordsTextureEffect.h"
 #include "GrInvariantOutput.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "GrTexture.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "GrTBackendProcessorFactory.h"
-#include "GrTexture.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLCustomCoordsTextureEffect : public GrGLGeometryProcessor {
 public:
-    GrGLCustomCoordsTextureEffect(const GrBackendProcessorFactory& factory,
-                                  const GrGeometryProcessor&,
-                                  const GrBatchTracker&)
-        : INHERITED (factory) {}
+    GrGLCustomCoordsTextureEffect(const GrGeometryProcessor&,
+                                  const GrBatchTracker&) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrCustomCoordsTextureEffect& cte =
@@ -74,6 +71,7 @@ GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
                                                          const GrTextureParams& params,
                                                          bool hasColor)
     : fTextureAccess(texture, params), fInColor(NULL) {
+    this->initClassID<GrCustomCoordsTextureEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     if (hasColor) {
         fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
@@ -99,10 +97,16 @@ void GrCustomCoordsTextureEffect::onComputeInvariantOutput(GrInvariantOutput* in
     }
 }
 
-const GrBackendGeometryProcessorFactory& GrCustomCoordsTextureEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrCustomCoordsTextureEffect>::getInstance();
+void GrCustomCoordsTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                                    const GrGLCaps& caps,
+                                                    GrProcessorKeyBuilder* b) const {
+    GrGLCustomCoordsTextureEffect::GenKey(*this, bt, caps, b);
 }
 
+GrGLGeometryProcessor*
+GrCustomCoordsTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLCustomCoordsTextureEffect, (*this, bt));
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCustomCoordsTextureEffect);

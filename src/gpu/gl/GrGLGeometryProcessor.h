@@ -18,11 +18,12 @@ class GrGLGPBuilder;
  * from this class. Since paths don't have vertices, this class is only meant to be used internally
  * by skia, for special cases.
  */
-class GrGLGeometryProcessor : public GrGLProcessor {
+class GrGLGeometryProcessor {
 public:
-    GrGLGeometryProcessor(const GrBackendProcessorFactory& factory)
-        : INHERITED(factory) {}
+    GrGLGeometryProcessor() {}
+    virtual ~GrGLGeometryProcessor() {}
 
+    typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
         EmitArgs(GrGLGPBuilder* pb,
                  const GrGeometryProcessor& gp,

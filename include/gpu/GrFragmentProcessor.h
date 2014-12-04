@@ -11,6 +11,9 @@
 #include "GrProcessor.h"
 
 class GrCoordTransform;
+class GrGLCaps;
+class GrGLFragmentProcessor;
+class GrProcessorKeyBuilder;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (vec4f) and
     produce an output color. They may reference textures and uniforms. They may use
@@ -24,7 +27,18 @@ public:
         , fWillReadDstColor(false)
         , fWillUseInputColor(true) {}
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const = 0;
+    /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const = 0;
+
+    /** Returns a new instance of the appropriate *GL* implementation class
+        for the given GrFragmentProcessor; caller is responsible for deleting
+        the object. */
+    virtual GrGLFragmentProcessor* createGLInstance() const = 0;
+
+    /** Human-meaningful string to identify this GrFragmentProcessor; may be embedded
+        in generated shader code. */
+    virtual const char* name() const = 0;
 
     int numTransforms() const { return fCoordTransforms.count(); }
 
@@ -38,15 +52,14 @@ public:
     /** Will this prceossor read the source color value? */
     bool willUseInputColor() const { return fWillUseInputColor; }
 
-    /** Returns true if this and other prceossor conservatively draw identically. It can only return
-        true when the two prceossor are of the same subclass (i.e. they return the same object from
+    /** Returns true if this and other processor conservatively draw identically. It can only return
+        true when the two processor are of the same subclass (i.e. they return the same object from
         from getFactory()).
 
-        A return value of true from isEqual() should not be used to test whether the prceossor would
-        generate the same shader code. To test for identical code generation use the prceossor' keys
-        computed by the GrBackendProcessorFactory. */
+        A return value of true from isEqual() should not be used to test whether the processor would
+        generate the same shader code. To test for identical code generation use getGLProcessorKey*/
     bool isEqual(const GrFragmentProcessor& that) const {
-        if (&this->getFactory() != &that.getFactory() ||
+        if (this->classID() != that.classID() ||
             !this->hasSameTransforms(that) ||
             !this->hasSameTextureAccesses(that)) {
             return false;

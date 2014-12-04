@@ -8,7 +8,6 @@
 {
   'variables': {
     'skgpu_sources': [
-      '<(skia_include_path)/gpu/GrBackendProcessorFactory.h',
       '<(skia_include_path)/gpu/GrBinHashKey.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
@@ -30,7 +29,6 @@
       '<(skia_include_path)/gpu/GrResourceKey.h',
       '<(skia_include_path)/gpu/GrSurface.h',
       '<(skia_include_path)/gpu/GrShaderVar.h',
-      '<(skia_include_path)/gpu/GrTBackendProcessorFactory.h',
       '<(skia_include_path)/gpu/GrTexture.h',
       '<(skia_include_path)/gpu/GrTextureAccess.h',
       '<(skia_include_path)/gpu/GrTypes.h',

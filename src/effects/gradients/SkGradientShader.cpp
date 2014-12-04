@@ -887,13 +887,11 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "effects/GrTextureStripAtlas.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
-GrGLGradientEffect::GrGLGradientEffect(const GrBackendProcessorFactory& factory)
-    : INHERITED(factory)
-    , fCachedYCoord(SK_ScalarMax) {
+GrGLGradientEffect::GrGLGradientEffect()
+    : fCachedYCoord(SK_ScalarMax) {
 }
 
 GrGLGradientEffect::~GrGLGradientEffect() { }

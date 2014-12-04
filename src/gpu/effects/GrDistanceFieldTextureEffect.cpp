@@ -7,26 +7,22 @@
 
 #include "GrDistanceFieldTextureEffect.h"
 #include "GrInvariantOutput.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "GrTexture.h"
+#include "SkDistanceFieldGen.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "GrTBackendProcessorFactory.h"
-#include "GrTexture.h"
-
-#include "SkDistanceFieldGen.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 // Assuming a radius of the diagonal of the fragment, hence a factor of sqrt(2)/2
 #define SK_DistanceFieldAAFactor     "0.7071"
 
 class GrGLDistanceFieldTextureEffect : public GrGLGeometryProcessor {
 public:
-    GrGLDistanceFieldTextureEffect(const GrBackendProcessorFactory& factory,
-                                   const GrGeometryProcessor&,
+    GrGLDistanceFieldTextureEffect(const GrGeometryProcessor&,
                                    const GrBatchTracker&)
-        : INHERITED (factory)
-        , fTextureSize(SkISize::Make(-1,-1))
+        : fTextureSize(SkISize::Make(-1,-1))
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fLuminance(-1.0f)
 #endif
@@ -185,6 +181,7 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+    this->initClassID<GrDistanceFieldTextureEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     if (flags & kColorAttr_DistanceFieldEffectFlag) {
         fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
@@ -211,8 +208,15 @@ void GrDistanceFieldTextureEffect::onComputeInvariantOutput(GrInvariantOutput* i
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendGeometryProcessorFactory& GrDistanceFieldTextureEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrDistanceFieldTextureEffect>::getInstance();
+void GrDistanceFieldTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                                     const GrGLCaps& caps,
+                                                     GrProcessorKeyBuilder* b) const {
+    GrGLDistanceFieldTextureEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor*
+GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLDistanceFieldTextureEffect, (*this, bt));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -258,11 +262,9 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
 
 class GrGLDistanceFieldNoGammaTextureEffect : public GrGLGeometryProcessor {
 public:
-    GrGLDistanceFieldNoGammaTextureEffect(const GrBackendProcessorFactory& factory,
-                                          const GrGeometryProcessor&,
+    GrGLDistanceFieldNoGammaTextureEffect(const GrGeometryProcessor&,
                                           const GrBatchTracker&)
-        : INHERITED(factory)
-        , fTextureSize(SkISize::Make(-1, -1)) {}
+        : fTextureSize(SkISize::Make(-1, -1)) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
@@ -383,6 +385,7 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(GrTextu
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+    this->initClassID<GrDistanceFieldNoGammaTextureEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     if (flags & kColorAttr_DistanceFieldEffectFlag) {
         fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
@@ -403,8 +406,15 @@ void GrDistanceFieldNoGammaTextureEffect::onComputeInvariantOutput(GrInvariantOu
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendGeometryProcessorFactory& GrDistanceFieldNoGammaTextureEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrDistanceFieldNoGammaTextureEffect>::getInstance();
+void GrDistanceFieldNoGammaTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                                            const GrGLCaps& caps,
+                                                            GrProcessorKeyBuilder* b) const {
+    GrGLDistanceFieldNoGammaTextureEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor*
+GrDistanceFieldNoGammaTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLDistanceFieldNoGammaTextureEffect, (*this, bt));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -437,11 +447,9 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
 
 class GrGLDistanceFieldLCDTextureEffect : public GrGLGeometryProcessor {
 public:
-    GrGLDistanceFieldLCDTextureEffect(const GrBackendProcessorFactory& factory,
-                                      const GrGeometryProcessor&,
+    GrGLDistanceFieldLCDTextureEffect(const GrGeometryProcessor&,
                                       const GrBatchTracker&)
-    : INHERITED (factory)
-    , fTextureSize(SkISize::Make(-1,-1))
+    : fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
@@ -635,6 +643,7 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
     , fTextColor(textColor)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
+    this->initClassID<GrDistanceFieldLCDTextureEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInTextureCoords = &this->addVertexAttrib(GrAttribute("inTextureCoords",
                                                           kVec2f_GrVertexAttribType));
@@ -652,8 +661,15 @@ void GrDistanceFieldLCDTextureEffect::onComputeInvariantOutput(GrInvariantOutput
     inout->mulByUnknownColor();
 }
 
-const GrBackendGeometryProcessorFactory& GrDistanceFieldLCDTextureEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrDistanceFieldLCDTextureEffect>::getInstance();
+void GrDistanceFieldLCDTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                                        const GrGLCaps& caps,
+                                                        GrProcessorKeyBuilder* b) const {
+    GrGLDistanceFieldLCDTextureEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor*
+GrDistanceFieldLCDTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLDistanceFieldLCDTextureEffect, (*this, bt));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

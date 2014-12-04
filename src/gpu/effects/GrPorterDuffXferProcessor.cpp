@@ -7,11 +7,9 @@
 
 #include "GrPorterDuffXferProcessor.h"
 
-#include "GrBackendProcessorFactory.h"
 #include "GrDrawState.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
-#include "GrTBackendProcessorFactory.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "gl/GrGLProcessor.h"
@@ -20,8 +18,7 @@
 
 class GrGLPorterDuffXferProcessor : public GrGLXferProcessor {
 public:
-    GrGLPorterDuffXferProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
-        : INHERITED(factory) {}
+    GrGLPorterDuffXferProcessor(const GrProcessor&) {}
 
     virtual ~GrGLPorterDuffXferProcessor() {}
 
@@ -46,13 +43,20 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrPorterDuffXferProcessor::GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend)
-    : fSrcBlend(srcBlend), fDstBlend(dstBlend) {}
+    : fSrcBlend(srcBlend), fDstBlend(dstBlend) {
+    this->initClassID<GrPorterDuffXferProcessor>();
+}
 
 GrPorterDuffXferProcessor::~GrPorterDuffXferProcessor() {
 }
 
-const GrBackendFragmentProcessorFactory& GrPorterDuffXferProcessor::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrPorterDuffXferProcessor>::getInstance();
+void GrPorterDuffXferProcessor::getGLProcessorKey(const GrGLCaps& caps,
+                                                  GrProcessorKeyBuilder* b) const {
+    GrGLPorterDuffXferProcessor::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrPorterDuffXferProcessor::createGLInstance() const {
+    return SkNEW_ARGS(GrGLPorterDuffXferProcessor, (*this));
 }
 
 void GrPorterDuffXferProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {

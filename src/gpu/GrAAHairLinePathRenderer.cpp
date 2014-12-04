@@ -15,7 +15,6 @@
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
-#include "GrTBackendProcessorFactory.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"

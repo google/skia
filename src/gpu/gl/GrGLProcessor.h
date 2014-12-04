@@ -8,8 +8,8 @@
 #ifndef GrGLProcessor_DEFINED
 #define GrGLProcessor_DEFINED
 
-#include "GrBackendProcessorFactory.h"
 #include "GrGLProgramDataManager.h"
+#include "GrProcessor.h"
 #include "GrTextureAccess.h"
 
 /** @file
@@ -26,13 +26,9 @@
 
     These objects are created by the factory object returned by the GrProcessor::getFactory().
 */
-
+// TODO delete this and make TextureSampler its own thing
 class GrGLProcessor {
 public:
-    GrGLProcessor(const GrBackendProcessorFactory& factory)
-        : fFactory(factory) {
-    }
-
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
     /**
@@ -67,26 +63,19 @@ public:
     };
 
     typedef SkTArray<TextureSampler> TextureSamplerArray;
-
-    virtual ~GrGLProcessor() {}
-
-    const char* name() const { return fFactory.name(); }
-
-    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
-
-protected:
-    const GrBackendProcessorFactory& fFactory;
 };
 
 class GrGLFPBuilder;
 
-class GrGLFragmentProcessor : public GrGLProcessor {
+class GrGLFragmentProcessor {
 public:
-    GrGLFragmentProcessor(const GrBackendProcessorFactory& factory)
-        : INHERITED(factory) {
-    }
+    GrGLFragmentProcessor() {}
 
     virtual ~GrGLFragmentProcessor() {}
+
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
+    typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -122,15 +111,15 @@ public:
     // TODO update this to pass in GrFragmentProcessor
     virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) {}
 
+    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
+
 private:
     typedef GrGLProcessor INHERITED;
 };
 
 class GrGLXferProcessor : public GrGLFragmentProcessor {
 public:
-    GrGLXferProcessor(const GrBackendProcessorFactory& factory)
-        : INHERITED(factory) {
-    }
+    GrGLXferProcessor() {}
     
     virtual ~GrGLXferProcessor() {}
 

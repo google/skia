@@ -5,25 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrConvexPolyEffect.h"
 #include "GrInvariantOutput.h"
+#include "SkPath.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
-#include "GrTBackendProcessorFactory.h"
-
-#include "SkPath.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////
-class GLAARectEffect;
-
 class AARectEffect : public GrFragmentProcessor {
 public:
-    typedef GLAARectEffect GLProcessor;
-
     const SkRect& getRect() const { return fRect; }
-
-    static const char* Name() { return "AARect"; }
 
     static GrFragmentProcessor* Create(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
         return SkNEW_ARGS(AARectEffect, (edgeType, rect));
@@ -31,10 +23,16 @@ public:
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual const char* name() const SK_OVERRIDE { return "AARect"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
-    AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect) : fRect(rect), fEdgeType(edgeType) {
+    AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
+        : fRect(rect), fEdgeType(edgeType) {
+        this->initClassID<AARectEffect>();
         this->setWillReadFragmentPosition();
     }
 
@@ -85,7 +83,7 @@ GrFragmentProcessor* AARectEffect::TestCreate(SkRandom* random,
 
 class GLAARectEffect : public GrGLFragmentProcessor {
 public:
-    GLAARectEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLAARectEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -104,9 +102,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLAARectEffect::GLAARectEffect(const GrBackendProcessorFactory& factory,
-                               const GrProcessor& effect)
-    : INHERITED (factory) {
+GLAARectEffect::GLAARectEffect(const GrProcessor& effect) {
     fPrevRect.fLeft = SK_ScalarNaN;
 }
 
@@ -169,15 +165,19 @@ void GLAARectEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
     b->add32(aare.getEdgeType());
 }
 
-const GrBackendFragmentProcessorFactory& AARectEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<AARectEffect>::getInstance();
+void AARectEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GLAARectEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* AARectEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GLAARectEffect, (*this));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class GrGLConvexPolyEffect : public GrGLFragmentProcessor {
 public:
-    GrGLConvexPolyEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLConvexPolyEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -196,9 +196,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrBackendProcessorFactory& factory,
-                                           const GrProcessor&)
-    : INHERITED (factory) {
+GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrProcessor&) {
     fPrevEdges[0] = SK_ScalarNaN;
 }
 
@@ -326,13 +324,19 @@ void GrConvexPolyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendFragmentProcessorFactory& GrConvexPolyEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrConvexPolyEffect>::getInstance();
+void GrConvexPolyEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                           GrProcessorKeyBuilder* b) const {
+    GrGLConvexPolyEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrConvexPolyEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GrGLConvexPolyEffect, (*this));
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[])
     : fEdgeType(edgeType)
     , fEdgeCount(n) {
+    this->initClassID<GrConvexPolyEffect>();
     // Factory function should have already ensured this.
     SkASSERT(n <= kMaxEdges);
     memcpy(fEdges, edges, 3 * n * sizeof(SkScalar));

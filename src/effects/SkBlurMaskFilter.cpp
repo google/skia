@@ -22,12 +22,11 @@
 #include "GrTexture.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "effects/GrSimpleTextureEffect.h"
-#include "GrTBackendProcessorFactory.h"
 #include "SkGrPixelRef.h"
 #include "SkDraw.h"
+#include "effects/GrSimpleTextureEffect.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #endif
 
 SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
@@ -609,11 +608,13 @@ class GrRectBlurEffect : public GrFragmentProcessor {
 public:
     virtual ~GrRectBlurEffect();
 
-    static const char* Name() { return "RectBlur"; }
+    virtual const char* name() const SK_OVERRIDE { return "RectBlur"; }
 
-    typedef GrGLRectBlurEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+
     /**
      * Create a simple filter effect with custom bicubic coefficients.
      */
@@ -659,8 +660,7 @@ private:
 
 class GrGLRectBlurEffect : public GrGLFragmentProcessor {
 public:
-    GrGLRectBlurEffect(const GrBackendProcessorFactory& factory,
-                       const GrProcessor&);
+    GrGLRectBlurEffect(const GrProcessor&) {}
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const char* outputColor,
@@ -678,12 +678,6 @@ private:
 
     typedef GrGLFragmentProcessor INHERITED;
 };
-
-
-
-GrGLRectBlurEffect::GrGLRectBlurEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
-    : INHERITED(factory) {
-}
 
 void OutputRectBlurProfileLookup(GrGLFPFragmentBuilder* fsBuilder,
                                  const GrGLShaderBuilder::TextureSampler& sampler,
@@ -794,10 +788,10 @@ bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
 
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
                                    GrTexture *blur_profile)
-  : INHERITED(),
-    fRect(rect),
+  : fRect(rect),
     fSigma(sigma),
     fBlurProfileAccess(blur_profile) {
+    this->initClassID<GrRectBlurEffect>();
     this->addTextureAccess(&fBlurProfileAccess);
     this->setWillReadFragmentPosition();
 }
@@ -805,8 +799,13 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
 GrRectBlurEffect::~GrRectBlurEffect() {
 }
 
-const GrBackendFragmentProcessorFactory& GrRectBlurEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrRectBlurEffect>::getInstance();
+void GrRectBlurEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                         GrProcessorKeyBuilder* b) const {
+    GrGLRectBlurEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrRectBlurEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLRectBlurEffect, (*this));
 }
 
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -870,22 +869,21 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     return true;
 }
 
-class GrGLRRectBlurEffect;
-
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
 
     static GrFragmentProcessor* Create(GrContext* context, float sigma, const SkRRect&);
 
     virtual ~GrRRectBlurEffect() {};
-    static const char* Name() { return "GrRRectBlur"; }
+    virtual const char* name() const SK_OVERRIDE { return "GrRRectBlur"; }
 
     const SkRRect& getRRect() const { return fRRect; }
     float getSigma() const { return fSigma; }
 
-    typedef GrGLRRectBlurEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
@@ -981,14 +979,11 @@ void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendFragmentProcessorFactory& GrRRectBlurEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrRRectBlurEffect>::getInstance();
-}
-
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture *ninePatchTexture)
     : fRRect(rrect),
       fSigma(sigma),
       fNinePatchAccess(ninePatchTexture) {
+    this->initClassID<GrRRectBlurEffect>();
     this->addTextureAccess(&fNinePatchAccess);
     this->setWillReadFragmentPosition();
 }
@@ -1019,7 +1014,7 @@ GrFragmentProcessor* GrRRectBlurEffect::TestCreate(SkRandom* random,
 
 class GrGLRRectBlurEffect : public GrGLFragmentProcessor {
 public:
-    GrGLRRectBlurEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLRRectBlurEffect(const GrProcessor&) {}
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
@@ -1036,11 +1031,6 @@ private:
     GrGLProgramDataManager::UniformHandle fBlurRadiusUniform;
     typedef GrGLFragmentProcessor INHERITED;
 };
-
-GrGLRRectBlurEffect::GrGLRRectBlurEffect(const GrBackendProcessorFactory& factory,
-                                         const GrProcessor&)
-    : INHERITED (factory) {
-}
 
 void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
                                    const GrFragmentProcessor&,
@@ -1116,6 +1106,13 @@ void GrGLRRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
     pdman.set1f(fCornerRadiusUniform, radius);
 }
 
+void GrRRectBlurEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GrGLRRectBlurEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrRRectBlurEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLRRectBlurEffect, (*this));
+}
 
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
                                                     GrPaint* grp,

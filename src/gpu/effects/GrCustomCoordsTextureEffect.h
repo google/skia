@@ -27,15 +27,17 @@ public:
 
     virtual ~GrCustomCoordsTextureEffect() {}
 
-    static const char* Name() { return "Texture"; }
+    virtual const char* name() const SK_OVERRIDE { return "Texture"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inColor() const { return fInColor; }
     const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
 
-    typedef GrGLCustomCoordsTextureEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params, bool hasColor);

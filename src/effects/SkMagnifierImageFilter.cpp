@@ -14,15 +14,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
+#include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
-
-class GrGLMagnifierEffect;
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
@@ -45,17 +42,18 @@ public:
 
     virtual ~GrMagnifierEffect() {};
 
-    static const char* Name() { return "Magnifier"; }
+    virtual const char* name() const SK_OVERRIDE { return "Magnifier"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+
     float x_offset() const { return fXOffset; }
     float y_offset() const { return fYOffset; }
     float x_inv_zoom() const { return fXInvZoom; }
     float y_inv_zoom() const { return fYInvZoom; }
     float x_inv_inset() const { return fXInvInset; }
     float y_inv_inset() const { return fYInvInset; }
-
-    typedef GrGLMagnifierEffect GLProcessor;
 
 private:
     GrMagnifierEffect(GrTexture* texture,
@@ -71,7 +69,9 @@ private:
         , fXInvZoom(xInvZoom)
         , fYInvZoom(yInvZoom)
         , fXInvInset(xInvInset)
-        , fYInvInset(yInvInset) {}
+        , fYInvInset(yInvInset) {
+        this->initClassID<GrMagnifierEffect>();
+    }
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
@@ -94,7 +94,7 @@ typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLFragmentProcessor {
 public:
-    GrGLMagnifierEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLMagnifierEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
@@ -113,9 +113,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendProcessorFactory& factory,
-                                         const GrProcessor&)
-    : INHERITED(factory) {
+GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProcessor&) {
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLFPBuilder* builder,
@@ -181,6 +179,15 @@ void GrGLMagnifierEffect::setData(const GrGLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 
+void GrMagnifierEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                          GrProcessorKeyBuilder* b) const {
+    GrGLMagnifierEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrMagnifierEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLMagnifierEffect, (*this));
+}
+
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 
 GrFragmentProcessor* GrMagnifierEffect::TestCreate(SkRandom* random,
@@ -210,10 +217,6 @@ GrFragmentProcessor* GrMagnifierEffect::TestCreate(SkRandom* random,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-const GrBackendFragmentProcessorFactory& GrMagnifierEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrMagnifierEffect>::getInstance();
-}
 
 bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMagnifierEffect& s = sBase.cast<GrMagnifierEffect>();

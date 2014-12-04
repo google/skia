@@ -86,7 +86,7 @@ public:
 
     virtual ~GrConicEffect();
 
-    static const char* Name() { return "Conic"; }
+    virtual const char* name() const SK_OVERRIDE { return "Conic"; }
 
     inline const GrAttribute* inPosition() const { return fInPosition; }
     inline const GrAttribute* inConicCoeffs() const { return fInConicCoeffs; }
@@ -94,9 +94,11 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
-    typedef GrGLConicEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrConicEffect(GrPrimitiveEdgeType);
@@ -157,7 +159,7 @@ public:
 
     virtual ~GrQuadEffect();
 
-    static const char* Name() { return "Quad"; }
+    virtual const char* name() const SK_OVERRIDE { return "Quad"; }
 
     inline const GrAttribute* inPosition() const { return fInPosition; }
     inline const GrAttribute* inHairQuadEdge() const { return fInHairQuadEdge; }
@@ -165,9 +167,11 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
-    typedef GrGLQuadEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrQuadEffect(GrPrimitiveEdgeType);
@@ -230,7 +234,7 @@ public:
 
     virtual ~GrCubicEffect();
 
-    static const char* Name() { return "Cubic"; }
+    virtual const char* name() const SK_OVERRIDE { return "Cubic"; }
 
     inline const GrAttribute* inPosition() const { return fInPosition; }
     inline const GrAttribute* inCubicCoeffs() const { return fInCubicCoeffs; }
@@ -238,9 +242,11 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
-    typedef GrGLCubicEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrCubicEffect(GrPrimitiveEdgeType);

@@ -138,8 +138,6 @@ protected:
     typedef GrSingleTextureEffect INHERITED;
 };
 
-class GrGLTextureDomainEffect;
-
 /**
  * A basic texture effect that uses GrTextureDomain.
  */
@@ -155,11 +153,11 @@ public:
 
     virtual ~GrTextureDomainEffect();
 
-    static const char* Name() { return "TextureDomain"; }
+    virtual const char* name() const SK_OVERRIDE { return "TextureDomain"; }
 
-    typedef GrGLTextureDomainEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const GrTextureDomain& textureDomain() const { return fTextureDomain; }
 

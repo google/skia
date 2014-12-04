@@ -11,20 +11,17 @@
 #include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
+#include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrPathUtils.h"
-#include "GrTBackendProcessorFactory.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
 #include "SkTraceEvent.h"
-
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
-
-#include "GrGeometryProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
@@ -516,21 +513,15 @@ public:
 
     virtual ~QuadEdgeEffect() {}
 
-    static const char* Name() { return "QuadEdge"; }
+    virtual const char* name() const SK_OVERRIDE { return "QuadEdge"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inQuadEdge() const { return fInQuadEdge; }
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendGeometryProcessorFactory<QuadEdgeEffect>::getInstance();
-    }
-
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrGeometryProcessor&,
-                    const GrBatchTracker&)
-            : INHERITED (factory) {}
+        GLProcessor(const GrGeometryProcessor&,
+                    const GrBatchTracker&) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
@@ -586,8 +577,19 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, bt, caps, b);
+    }
+
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, bt));
+    }
+
 private:
     QuadEdgeEffect() {
+        this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
     }

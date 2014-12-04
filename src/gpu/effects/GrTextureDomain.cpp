@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrTextureDomain.h"
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
-#include "GrTBackendProcessorFactory.h"
-#include "gl/GrGLProcessor.h"
 #include "SkFloatingPoint.h"
-
+#include "gl/GrGLProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
     : fIndex(index) {
@@ -168,7 +166,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
 
 class GrGLTextureDomainEffect : public GrGLFragmentProcessor {
 public:
-    GrGLTextureDomainEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLTextureDomainEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
@@ -186,9 +184,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendProcessorFactory& factory,
-                                                 const GrProcessor&)
-    : INHERITED(factory) {
+GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProcessor&) {
 }
 
 void GrGLTextureDomainEffect::emitCode(GrGLFPBuilder* builder,
@@ -252,14 +248,20 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
     , fTextureDomain(domain, mode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
             filterMode == GrTextureParams::kNone_FilterMode);
+    this->initClassID<GrTextureDomainEffect>();
 }
 
 GrTextureDomainEffect::~GrTextureDomainEffect() {
 
 }
 
-const GrBackendFragmentProcessorFactory& GrTextureDomainEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrTextureDomainEffect>::getInstance();
+void GrTextureDomainEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                              GrProcessorKeyBuilder* b) const {
+    GrGLTextureDomainEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrTextureDomainEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GrGLTextureDomainEffect, (*this));
 }
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

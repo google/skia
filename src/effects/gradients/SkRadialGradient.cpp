@@ -461,15 +461,13 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "GrTBackendProcessorFactory.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLRadialGradient : public GrGLGradientEffect {
 public:
 
-    GrGLRadialGradient(const GrBackendProcessorFactory& factory,
-                       const GrProcessor&) : INHERITED (factory) { }
+    GrGLRadialGradient(const GrProcessor&) {}
     virtual ~GrGLRadialGradient() { }
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -502,12 +500,16 @@ public:
 
     virtual ~GrRadialGradient() { }
 
-    static const char* Name() { return "Radial Gradient"; }
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<GrRadialGradient>::getInstance();
+    virtual const char* name() const SK_OVERRIDE { return "Radial Gradient"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLRadialGradient::GenKey(*this, caps, b);
     }
 
-    typedef GrGLRadialGradient GLProcessor;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLRadialGradient, (*this));
+    }
 
 private:
     GrRadialGradient(GrContext* ctx,
@@ -515,6 +517,7 @@ private:
                      const SkMatrix& matrix,
                      SkShader::TileMode tm)
         : INHERITED(ctx, shader, matrix, tm) {
+        this->initClassID<GrRadialGradient>();
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -556,7 +559,7 @@ void GrGLRadialGradient::emitCode(GrGLFPBuilder* builder,
                                   const char* inputColor,
                                   const TransformedCoordsArray& coords,
                                   const TextureSamplerArray& samplers) {
-    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    const GrRadialGradient& ge = fp.cast<GrRadialGradient>();
     this->emitUniforms(builder, ge);
     SkString t("length(");
     t.append(builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0));

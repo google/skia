@@ -47,14 +47,12 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "GrTBackendProcessorFactory.h"
 #include "GrTextureAccess.h"
 
 #include "SkGr.h"
 
-class GrGLAlphaThresholdEffect;
+#include "gl/GrGLProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class AlphaThresholdEffect : public GrFragmentProcessor {
 
@@ -71,13 +69,14 @@ public:
 
     virtual ~AlphaThresholdEffect() {};
 
-    static const char* Name() { return "Alpha Threshold"; }
+    virtual const char* name() const SK_OVERRIDE { return "Alpha Threshold"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
-    typedef GrGLAlphaThresholdEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     AlphaThresholdEffect(GrTexture* texture,
@@ -92,6 +91,7 @@ private:
         , fMaskCoordTransform(kLocal_GrCoordSet,
                               GrCoordTransform::MakeDivByTextureWHMatrix(maskTexture), maskTexture)
         , fMaskTextureAccess(maskTexture) {
+        this->initClassID<AlphaThresholdEffect>();
         this->addCoordTransform(&fImageCoordTransform);
         this->addTextureAccess(&fImageTextureAccess);
         this->addCoordTransform(&fMaskCoordTransform);
@@ -116,7 +116,7 @@ private:
 
 class GrGLAlphaThresholdEffect : public GrGLFragmentProcessor {
 public:
-    GrGLAlphaThresholdEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLAlphaThresholdEffect(const GrFragmentProcessor&) {}
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
@@ -134,11 +134,6 @@ private:
 
     typedef GrGLFragmentProcessor INHERITED;
 };
-
-GrGLAlphaThresholdEffect::GrGLAlphaThresholdEffect(const GrBackendProcessorFactory& factory,
-                                                   const GrProcessor&)
-    : INHERITED(factory) {
-}
 
 void GrGLAlphaThresholdEffect::emitCode(GrGLFPBuilder* builder,
                                         const GrFragmentProcessor&,
@@ -213,8 +208,13 @@ GrFragmentProcessor* AlphaThresholdEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const GrBackendFragmentProcessorFactory& AlphaThresholdEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<AlphaThresholdEffect>::getInstance();
+void AlphaThresholdEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                             GrProcessorKeyBuilder* b) const {
+    GrGLAlphaThresholdEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* AlphaThresholdEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLAlphaThresholdEffect, (*this));
 }
 
 bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

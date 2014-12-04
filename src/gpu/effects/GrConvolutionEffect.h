@@ -11,8 +11,6 @@
 #include "Gr1DKernelEffect.h"
 #include "GrInvariantOutput.h"
 
-class GrGLConvolutionEffect;
-
 /**
  * A convolution effect. The kernel is specified as an array of 2 * half-width
  * + 1 weights. Each texel is multiplied by it's weight and summed to determine
@@ -59,11 +57,11 @@ public:
     const float* bounds() const { return fBounds; }
     bool useBounds() const { return fUseBounds; }
 
-    static const char* Name() { return "Convolution"; }
+    virtual const char* name() const SK_OVERRIDE { return "Convolution"; }
 
-    typedef GrGLConvolutionEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     enum {
         // This was decided based on the min allowed value for the max texture

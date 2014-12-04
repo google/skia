@@ -62,7 +62,7 @@ public:
 
     virtual ~GrDistanceFieldTextureEffect() {}
 
-    static const char* Name() { return "DistanceFieldTexture"; }
+    virtual const char* name() const SK_OVERRIDE { return "DistanceFieldTexture"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inColor() const { return fInColor; }
@@ -72,9 +72,11 @@ public:
 #endif
     uint32_t getFlags() const { return fFlags; }
 
-    typedef GrGLDistanceFieldTextureEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldTextureEffect(GrTexture* texture, const GrTextureParams& params,
@@ -118,16 +120,18 @@ public:
 
     virtual ~GrDistanceFieldNoGammaTextureEffect() {}
 
-    static const char* Name() { return "DistanceFieldTexture"; }
+    virtual const char* name() const SK_OVERRIDE { return "DistanceFieldTexture"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inColor() const { return fInColor; }
     const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
     uint32_t getFlags() const { return fFlags; }
 
-    typedef GrGLDistanceFieldNoGammaTextureEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldNoGammaTextureEffect(GrTexture* texture, const GrTextureParams& params,
@@ -165,16 +169,18 @@ public:
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}
 
-    static const char* Name() { return "DistanceFieldLCDTexture"; }
+    virtual const char* name() const SK_OVERRIDE { return "DistanceFieldLCDTexture"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor getTextColor() const { return fTextColor; }
     uint32_t getFlags() const { return fFlags; }
 
-    typedef GrGLDistanceFieldLCDTextureEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldLCDTextureEffect(GrTexture* texture, const GrTextureParams& params,

@@ -16,8 +16,6 @@
 // Allows for a 5x5 kernel (or 25x1, for that matter).
 #define MAX_KERNEL_SIZE 25
 
-class GrGLMatrixConvolutionEffect;
-
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
     static GrFragmentProcessor* Create(GrTexture* texture,
@@ -53,7 +51,6 @@ public:
 
     virtual ~GrMatrixConvolutionEffect();
 
-    static const char* Name() { return "MatrixConvolution"; }
     const SkIRect& bounds() const { return fBounds; }
     const SkISize& kernelSize() const { return fKernelSize; }
     const float* kernelOffset() const { return fKernelOffset; }
@@ -63,9 +60,11 @@ public:
     bool convolveAlpha() const { return fConvolveAlpha; }
     const GrTextureDomain& domain() const { return fDomain; }
 
-    typedef GrGLMatrixConvolutionEffect GLProcessor;
+    virtual const char* name() const SK_OVERRIDE { return "MatrixConvolution"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrMatrixConvolutionEffect(GrTexture*,

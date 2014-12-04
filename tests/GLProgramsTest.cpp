@@ -15,7 +15,6 @@
 #include "GrContextFactory.h"
 #include "GrInvariantOutput.h"
 #include "GrOptDrawState.h"
-#include "GrTBackendProcessorFactory.h"
 #include "GrTest.h"
 #include "SkChecksum.h"
 #include "SkRandom.h"
@@ -31,46 +30,9 @@
  */
 static const uint32_t kMaxKeySize = 1024;
 
-class GLBigKeyProcessor;
-
-class BigKeyProcessor : public GrFragmentProcessor {
-public:
-    static GrFragmentProcessor* Create() {
-        GR_CREATE_STATIC_PROCESSOR(gBigKeyProcessor, BigKeyProcessor, ())
-        return SkRef(gBigKeyProcessor);
-    }
-
-    static const char* Name() { return "Big ol' Key"; }
-
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<BigKeyProcessor>::getInstance();
-    }
-
-    typedef GLBigKeyProcessor GLProcessor;
-
-private:
-    BigKeyProcessor() { }
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE { }
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
-
-    typedef GrFragmentProcessor INHERITED;
-};
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
-
-GrFragmentProcessor* BigKeyProcessor::TestCreate(SkRandom*,
-                                                 GrContext*,
-                                                 const GrDrawTargetCaps&,
-                                                 GrTexture*[]) {
-    return BigKeyProcessor::Create();
-}
-
 class GLBigKeyProcessor : public GrGLFragmentProcessor {
 public:
-    GLBigKeyProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
-        : INHERITED(factory) {}
+    GLBigKeyProcessor(const GrProcessor&) {}
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -88,6 +50,45 @@ public:
 private:
     typedef GrGLFragmentProcessor INHERITED;
 };
+
+class BigKeyProcessor : public GrFragmentProcessor {
+public:
+    static GrFragmentProcessor* Create() {
+        GR_CREATE_STATIC_PROCESSOR(gBigKeyProcessor, BigKeyProcessor, ())
+        return SkRef(gBigKeyProcessor);
+    }
+
+    virtual const char* name() const SK_OVERRIDE { return "Big Ole Key"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLBigKeyProcessor::GenKey(*this, caps, b);
+    }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GLBigKeyProcessor, (*this));
+    }
+
+private:
+    BigKeyProcessor() {
+        this->initClassID<BigKeyProcessor>();
+    }
+    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE { }
+
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+
+    typedef GrFragmentProcessor INHERITED;
+};
+
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
+
+GrFragmentProcessor* BigKeyProcessor::TestCreate(SkRandom*,
+                                                 GrContext*,
+                                                 const GrDrawTargetCaps&,
+                                                 GrTexture*[]) {
+    return BigKeyProcessor::Create();
+}
 
 /*
  * Begin test code

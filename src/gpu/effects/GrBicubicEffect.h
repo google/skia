@@ -11,7 +11,6 @@
 #include "GrSingleTextureEffect.h"
 #include "GrTextureDomain.h"
 #include "gl/GrGLProcessor.h"
-#include "GrTBackendProcessorFactory.h"
 
 class GrGLBicubicEffect;
 class GrInvariantOutput;
@@ -24,12 +23,13 @@ public:
     };
     virtual ~GrBicubicEffect();
 
-    static const char* Name() { return "Bicubic"; }
     const float* coefficients() const { return fCoefficients; }
 
-    typedef GrGLBicubicEffect GLProcessor;
+    virtual const char* name() const SK_OVERRIDE { return "Bicubic"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const GrTextureDomain& domain() const { return fDomain; }
 

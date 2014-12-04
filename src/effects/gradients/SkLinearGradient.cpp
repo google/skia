@@ -451,7 +451,6 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "GrTBackendProcessorFactory.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
@@ -460,8 +459,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 class GrGLLinearGradient : public GrGLGradientEffect {
 public:
 
-    GrGLLinearGradient(const GrBackendProcessorFactory& factory, const GrProcessor&)
-                       : INHERITED (factory) { }
+    GrGLLinearGradient(const GrProcessor&) {}
 
     virtual ~GrGLLinearGradient() { }
 
@@ -495,19 +493,25 @@ public:
 
     virtual ~GrLinearGradient() { }
 
-    static const char* Name() { return "Linear Gradient"; }
-    const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<GrLinearGradient>::getInstance();
+    virtual const char* name() const { return "Linear Gradient"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLLinearGradient::GenKey(*this, caps, b);
     }
 
-    typedef GrGLLinearGradient GLProcessor;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLLinearGradient, (*this));
+    }
 
 private:
     GrLinearGradient(GrContext* ctx,
                      const SkLinearGradient& shader,
                      const SkMatrix& matrix,
                      SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm) { }
+        : INHERITED(ctx, shader, matrix, tm) {
+        this->initClassID<GrLinearGradient>();
+    }
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
@@ -547,7 +551,7 @@ void GrGLLinearGradient::emitCode(GrGLFPBuilder* builder,
                                   const char* inputColor,
                                   const TransformedCoordsArray& coords,
                                   const TextureSamplerArray& samplers) {
-    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    const GrLinearGradient& ge = fp.cast<GrLinearGradient>();
     this->emitUniforms(builder, ge);
     SkString t = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
     t.append(".x");

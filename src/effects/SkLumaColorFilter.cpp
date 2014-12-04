@@ -11,11 +11,10 @@
 #include "SkString.h"
 
 #if SK_SUPPORT_GPU
-#include "gl/GrGLProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #endif
 
 void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
@@ -64,18 +63,20 @@ public:
         return SkRef(gLumaEffect);
     }
 
-    static const char* Name() { return "Luminance-to-Alpha"; }
+    virtual const char* name() const SK_OVERRIDE { return "Luminance-to-Alpha"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<LumaColorFilterEffect>::getInstance();
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, caps, b);
+    }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this));
     }
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrProcessor&)
-        : INHERITED(factory) {
-        }
+        GLProcessor(const GrProcessor&) {}
 
         static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
 
@@ -105,6 +106,10 @@ public:
     };
 
 private:
+    LumaColorFilterEffect() {
+        this->initClassID<LumaColorFilterEffect>();
+    }
+
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {

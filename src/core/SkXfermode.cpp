@@ -810,7 +810,6 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessorUnitTest.h"
-#include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
@@ -831,20 +830,24 @@ public:
         }
     }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<XferEffect>::getInstance();
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    static const char* Name() { return "XferEffect"; }
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this));
+    }
+
+    virtual const char* name() const SK_OVERRIDE { return "XferEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     const GrTextureAccess&  backgroundAccess() const { return fBackgroundAccess; }
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
-            : INHERITED(factory) {
-        }
+        GLProcessor(const GrFragmentProcessor&) {}
+
         virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor& fp,
                               const char* outputColor,
@@ -1228,6 +1231,7 @@ public:
 private:
     XferEffect(SkXfermode::Mode mode, GrTexture* background)
         : fMode(mode) {
+        this->initClassID<XferEffect>();
         if (background) {
             fBackgroundTransform.reset(kLocal_GrCoordSet, background);
             this->addCoordTransform(&fBackgroundTransform);

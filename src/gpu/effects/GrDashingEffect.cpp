@@ -18,7 +18,6 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrStrokeInfo.h"
-#include "GrTBackendProcessorFactory.h"
 #include "SkGr.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLProcessor.h"
@@ -463,7 +462,7 @@ public:
 
     virtual ~DashingCircleEffect();
 
-    static const char* Name() { return "DashingCircleEffect"; }
+    virtual const char* name() const SK_OVERRIDE { return "DashingCircleEffect"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
 
@@ -477,9 +476,11 @@ public:
 
     SkScalar getIntervalLength() const { return fIntervalLength; }
 
-    typedef GLDashingCircleEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker&,
+                                   const GrGLCaps&,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     DashingCircleEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info, SkScalar radius);
@@ -504,9 +505,7 @@ private:
 
 class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingCircleEffect(const GrBackendProcessorFactory&,
-                          const GrGeometryProcessor&,
-                          const GrBatchTracker&);
+    GLDashingCircleEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
@@ -527,10 +526,8 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GLDashingCircleEffect::GLDashingCircleEffect(const GrBackendProcessorFactory& factory,
-                                             const GrGeometryProcessor&,
-                                             const GrBatchTracker&)
-    : INHERITED (factory) {
+GLDashingCircleEffect::GLDashingCircleEffect(const GrGeometryProcessor&,
+                                             const GrBatchTracker&) {
     fPrevRadius = SK_ScalarMin;
     fPrevCenterX = SK_ScalarMin;
     fPrevIntervalLength = SK_ScalarMax;
@@ -618,13 +615,20 @@ void DashingCircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) con
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendGeometryProcessorFactory& DashingCircleEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<DashingCircleEffect>::getInstance();
+void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                            const GrGLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
+    GLDashingCircleEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GLDashingCircleEffect, (*this, bt));
 }
 
 DashingCircleEffect::DashingCircleEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info,
                                          SkScalar radius)
     : fEdgeType(edgeType) {
+    this->initClassID<DashingCircleEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInCoord = &this->addVertexAttrib(GrAttribute("inCoord", kVec2f_GrVertexAttribType));
     SkScalar onLen = info.fIntervals[0];
@@ -685,7 +689,7 @@ public:
 
     virtual ~DashingLineEffect();
 
-    static const char* Name() { return "DashingEffect"; }
+    virtual const char* name() const SK_OVERRIDE { return "DashingEffect"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
 
@@ -697,9 +701,11 @@ public:
 
     SkScalar getIntervalLength() const { return fIntervalLength; }
 
-    typedef GLDashingLineEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
     DashingLineEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info, SkScalar strokeWidth);
@@ -723,9 +729,7 @@ private:
 
 class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingLineEffect(const GrBackendProcessorFactory&,
-                        const GrGeometryProcessor&,
-                        const GrBatchTracker&);
+    GLDashingLineEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
 
@@ -746,10 +750,8 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GLDashingLineEffect::GLDashingLineEffect(const GrBackendProcessorFactory& factory,
-                                         const GrGeometryProcessor&,
-                                         const GrBatchTracker&)
-    : INHERITED (factory) {
+GLDashingLineEffect::GLDashingLineEffect(const GrGeometryProcessor&,
+                                         const GrBatchTracker&) {
     fPrevRect.fLeft = SK_ScalarNaN;
     fPrevIntervalLength = SK_ScalarMax;
 }
@@ -851,13 +853,20 @@ void DashingLineEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendGeometryProcessorFactory& DashingLineEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<DashingLineEffect>::getInstance();
+void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                          const GrGLCaps& caps,
+                                          GrProcessorKeyBuilder* b) const {
+    GLDashingLineEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GLDashingLineEffect, (*this, bt));
 }
 
 DashingLineEffect::DashingLineEffect(GrPrimitiveEdgeType edgeType, const DashInfo& info,
                                      SkScalar strokeWidth)
     : fEdgeType(edgeType) {
+    this->initClassID<DashingLineEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInCoord = &this->addVertexAttrib(GrAttribute("inCoord", kVec2f_GrVertexAttribType));
     SkScalar onLen = info.fIntervals[0];

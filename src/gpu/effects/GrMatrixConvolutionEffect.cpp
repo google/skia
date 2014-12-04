@@ -4,17 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrMatrixConvolutionEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrTBackendProcessorFactory.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLMatrixConvolutionEffect : public GrGLFragmentProcessor {
 public:
-    GrGLMatrixConvolutionEffect(const GrBackendProcessorFactory& factory,
-                                const GrProcessor&);
+    GrGLMatrixConvolutionEffect(const GrProcessor&);
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
                           const char* outputColor,
@@ -42,9 +40,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendProcessorFactory& factory,
-                                                         const GrProcessor& processor)
-    : INHERITED(factory) {
+GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProcessor& processor) {
     const GrMatrixConvolutionEffect& m = processor.cast<GrMatrixConvolutionEffect>();
     fKernelSize = m.kernelSize();
     fConvolveAlpha = m.convolveAlpha();
@@ -160,6 +156,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
     fBias(SkScalarToFloat(bias) / 255.0f),
     fConvolveAlpha(convolveAlpha),
     fDomain(GrTextureDomain::MakeTexelDomain(texture, bounds), tileMode) {
+    this->initClassID<GrMatrixConvolutionEffect>();
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
     }
@@ -170,8 +167,13 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
 }
 
-const GrBackendFragmentProcessorFactory& GrMatrixConvolutionEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrMatrixConvolutionEffect>::getInstance();
+void GrMatrixConvolutionEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                                  GrProcessorKeyBuilder* b) const {
+    GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrMatrixConvolutionEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GrGLMatrixConvolutionEffect, (*this));
 }
 
 bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

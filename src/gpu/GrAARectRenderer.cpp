@@ -10,7 +10,6 @@
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "SkColorPriv.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"

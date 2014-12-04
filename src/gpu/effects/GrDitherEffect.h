@@ -11,7 +11,7 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 
-class GrProcessor;
+class GrFragmentProcessor;
 
 namespace GrDitherEffect {
     /**

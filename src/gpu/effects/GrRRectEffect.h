@@ -11,6 +11,7 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 
+class GrFragmentProcessor;
 class GrProcessor;
 class SkRRect;
 

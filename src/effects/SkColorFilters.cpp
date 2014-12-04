@@ -115,10 +115,9 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessorUnitTest.h"
-#include "GrTBackendProcessorFactory.h"
+#include "SkGr.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "SkGr.h"
 
 namespace {
 /**
@@ -195,19 +194,23 @@ public:
         return true;
     }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<ModeColorFilterEffect>::getInstance();
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    static const char* Name() { return "ModeColorFilterEffect"; }
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this));
+    }
+
+    virtual const char* name() const SK_OVERRIDE { return "ModeColorFilterEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     GrColor color() const { return fColor; }
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&)
-            : INHERITED(factory) {
+        GLProcessor(const GrProcessor&) {
         }
 
         virtual void emitCode(GrGLFPBuilder* builder,
@@ -263,7 +266,9 @@ public:
 private:
     ModeColorFilterEffect(GrColor color, SkXfermode::Mode mode)
         : fMode(mode),
-          fColor(color) {}
+          fColor(color) {
+        this->initClassID<ModeColorFilterEffect>();
+    }
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const ModeColorFilterEffect& s = other.cast<ModeColorFilterEffect>();

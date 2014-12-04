@@ -386,9 +386,8 @@ void SkTwoPointRadialGradient::init() {
 
 #if SK_SUPPORT_GPU
 
-#include "GrTBackendProcessorFactory.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 // For brevity
 typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -397,7 +396,7 @@ class GrGLRadial2Gradient : public GrGLGradientEffect {
 
 public:
 
-    GrGLRadial2Gradient(const GrBackendProcessorFactory& factory, const GrProcessor&);
+    GrGLRadial2Gradient(const GrProcessor&);
     virtual ~GrGLRadial2Gradient() { }
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -447,9 +446,15 @@ public:
 
     virtual ~GrRadial2Gradient() { }
 
-    static const char* Name() { return "Two-Point Radial Gradient"; }
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<GrRadial2Gradient>::getInstance();
+    virtual const char* name() const SK_OVERRIDE { return "Two-Point Radial Gradient"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLRadial2Gradient::GenKey(*this, caps, b);
+    }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLRadial2Gradient, (*this));
     }
 
     // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
@@ -457,8 +462,6 @@ public:
     SkScalar center() const { return fCenterX1; }
     SkScalar radius() const { return fRadius0; }
     bool isPosRoot() const { return SkToBool(fPosRoot); }
-
-    typedef GrGLRadial2Gradient GLProcessor;
 
 private:
     virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
@@ -477,6 +480,7 @@ private:
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
         , fPosRoot(shader.getDiffRadius() < 0) {
+        this->initClassID<GrRadial2Gradient>();
         // We pass the linear part of the quadratic as a varying.
         //    float b = 2.0 * (fCenterX1 * x - fRadius0 * z)
         fBTransform = this->getCoordTransform();
@@ -542,10 +546,8 @@ GrFragmentProcessor* GrRadial2Gradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendProcessorFactory& factory,
-                                         const GrProcessor& processor)
-    : INHERITED(factory)
-    , fVSVaryingName(NULL)
+GrGLRadial2Gradient::GrGLRadial2Gradient(const GrProcessor& processor)
+    : fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
     , fCachedCenter(SK_ScalarMax)
     , fCachedRadius(-SK_ScalarMax)
@@ -561,7 +563,7 @@ void GrGLRadial2Gradient::emitCode(GrGLFPBuilder* builder,
                                    const char* inputColor,
                                    const TransformedCoordsArray& coords,
                                    const TextureSamplerArray& samplers) {
-    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    const GrRadial2Gradient& ge = fp.cast<GrRadial2Gradient>();
     this->emitUniforms(builder, ge);
     fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, "Radial2FSParams", 6);

@@ -5,34 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrOvalEffect.h"
+
+#include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
+#include "SkRect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
-#include "GrTBackendProcessorFactory.h"
-
-#include "SkRect.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////
-
-class GLCircleEffect;
 
 class CircleEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
 
     virtual ~CircleEffect() {};
-    static const char* Name() { return "Circle"; }
+
+    virtual const char* name() const SK_OVERRIDE { return "Circle"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const SkPoint& getCenter() const { return fCenter; }
     SkScalar getRadius() const { return fRadius; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
-
-    typedef GLCircleEffect GLProcessor;
-
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
@@ -60,14 +59,11 @@ void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendFragmentProcessorFactory& CircleEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<CircleEffect>::getInstance();
-}
-
 CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
     : fCenter(c)
     , fRadius(r)
     , fEdgeType(edgeType) {
+    this->initClassID<CircleEffect>();
     this->setWillReadFragmentPosition();
 }
 
@@ -99,7 +95,7 @@ GrFragmentProcessor* CircleEffect::TestCreate(SkRandom* random,
 
 class GLCircleEffect : public GrGLFragmentProcessor {
 public:
-    GLCircleEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLCircleEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -120,9 +116,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLCircleEffect::GLCircleEffect(const GrBackendProcessorFactory& factory,
-                               const GrProcessor&)
-    : INHERITED (factory) {
+GLCircleEffect::GLCircleEffect(const GrProcessor&) {
     fPrevRadius = -1.f;
 }
 
@@ -183,9 +177,18 @@ void GLCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrProces
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GLEllipseEffect;
+void CircleEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const {
+    GLCircleEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* CircleEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GLCircleEffect, (*this));
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 class EllipseEffect : public GrFragmentProcessor {
 public:
@@ -193,16 +196,17 @@ public:
                                        SkScalar ry);
 
     virtual ~EllipseEffect() {};
-    static const char* Name() { return "Ellipse"; }
+
+    virtual const char* name() const SK_OVERRIDE { return "Ellipse"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const SkPoint& getCenter() const { return fCenter; }
     SkVector getRadii() const { return fRadii; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
-
-    typedef GLEllipseEffect GLProcessor;
-
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
@@ -232,14 +236,11 @@ void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendFragmentProcessorFactory& EllipseEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<EllipseEffect>::getInstance();
-}
-
 EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx, SkScalar ry)
     : fCenter(c)
     , fRadii(SkVector::Make(rx, ry))
     , fEdgeType(edgeType) {
+    this->initClassID<EllipseEffect>();
     this->setWillReadFragmentPosition();
 }
 
@@ -272,7 +273,7 @@ GrFragmentProcessor* EllipseEffect::TestCreate(SkRandom* random,
 
 class GLEllipseEffect : public GrGLFragmentProcessor {
 public:
-    GLEllipseEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLEllipseEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -293,9 +294,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLEllipseEffect::GLEllipseEffect(const GrBackendProcessorFactory& factory,
-                                 const GrProcessor& effect)
-    : INHERITED (factory) {
+GLEllipseEffect::GLEllipseEffect(const GrProcessor& effect) {
     fPrevRadii.fX = -1.f;
 }
 
@@ -363,6 +362,17 @@ void GLEllipseEffect::setData(const GrGLProgramDataManager& pdman, const GrProce
         fPrevCenter = ee.getCenter();
         fPrevRadii = ee.getRadii();
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void EllipseEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const {
+    GLEllipseEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* EllipseEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GLEllipseEffect, (*this));
 }
 
 //////////////////////////////////////////////////////////////////////////////

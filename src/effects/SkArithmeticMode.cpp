@@ -17,7 +17,6 @@
 #include "GrInvariantOutput.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "GrTBackendProcessorFactory.h"
 #endif
 
 static const bool gUseUnpremul = false;
@@ -241,7 +240,7 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
 
 class GrGLArithmeticEffect : public GrGLFragmentProcessor {
 public:
-    GrGLArithmeticEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLArithmeticEffect(const GrProcessor&);
     virtual ~GrGLArithmeticEffect();
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -273,10 +272,17 @@ public:
 
     virtual ~GrArithmeticEffect();
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual const char* name() const SK_OVERRIDE { return "Arithmetic"; }
 
-    typedef GrGLArithmeticEffect GLProcessor;
-    static const char* Name() { return "Arithmetic"; }
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLArithmeticEffect::GenKey(*this, caps, b);
+    }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLArithmeticEffect, (*this));
+    }
+
     GrTexture* backgroundTexture() const { return fBackgroundAccess.getTexture(); }
 
     float k1() const { return fK1; }
@@ -307,6 +313,7 @@ private:
 GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4,
                                        bool enforcePMColor, GrTexture* background)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
+    this->initClassID<GrArithmeticEffect>();
     if (background) {
         fBackgroundTransform.reset(kLocal_GrCoordSet, background);
         this->addCoordTransform(&fBackgroundTransform);
@@ -329,10 +336,6 @@ bool GrArithmeticEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
            fEnforcePMColor == s.fEnforcePMColor;
 }
 
-const GrBackendFragmentProcessorFactory& GrArithmeticEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrArithmeticEffect>::getInstance();
-}
-
 void GrArithmeticEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // TODO: optimize this
     inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
@@ -340,10 +343,8 @@ void GrArithmeticEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLArithmeticEffect::GrGLArithmeticEffect(const GrBackendProcessorFactory& factory,
-                                           const GrProcessor&)
-   : INHERITED(factory),
-     fEnforcePMColor(true) {
+GrGLArithmeticEffect::GrGLArithmeticEffect(const GrProcessor&)
+   : fEnforcePMColor(true) {
 }
 
 GrGLArithmeticEffect::~GrGLArithmeticEffect() {

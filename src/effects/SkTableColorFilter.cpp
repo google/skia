@@ -253,14 +253,10 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "SkGr.h"
 #include "effects/GrTextureStripAtlas.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-
-
-class GLColorTableEffect;
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
@@ -268,10 +264,11 @@ public:
 
     virtual ~ColorTableEffect();
 
-    static const char* Name() { return "ColorTable"; }
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual const char* name() const SK_OVERRIDE { return "ColorTable"; }
 
-    typedef GLColorTableEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const GrTextureStripAtlas* atlas() const { return fAtlas; }
     int atlasRow() const { return fRow; }
@@ -298,7 +295,7 @@ private:
 
 class GLColorTableEffect : public GrGLFragmentProcessor {
 public:
-    GLColorTableEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLColorTableEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
@@ -316,9 +313,8 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLColorTableEffect::GLColorTableEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
-    : INHERITED(factory) {
- }
+GLColorTableEffect::GLColorTableEffect(const GrProcessor&) {
+}
 
 void GLColorTableEffect::setData(const GrGLProgramDataManager& pdm, const GrProcessor& proc) {
     // The textures are organized in a strip where the rows are ordered a, r, g, b.
@@ -420,7 +416,7 @@ ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atla
     , fFlags(flags)
     , fAtlas(atlas)
     , fRow(row) {
-
+    this->initClassID<ColorTableEffect>();
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -430,8 +426,13 @@ ColorTableEffect::~ColorTableEffect() {
     }
 }
 
-const GrBackendFragmentProcessorFactory&  ColorTableEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<ColorTableEffect>::getInstance();
+void ColorTableEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                         GrProcessorKeyBuilder* b) const {
+    GLColorTableEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* ColorTableEffect::createGLInstance() const {
+    return SkNEW_ARGS(GLColorTableEffect, (*this));
 }
 
 bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {

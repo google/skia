@@ -15,12 +15,11 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 
 class GrGLDiffuseLightingEffect;
 class GrGLSpecularLightingEffect;
@@ -374,11 +373,12 @@ public:
                                                     kd));
     }
 
-    static const char* Name() { return "DiffuseLighting"; }
+    virtual const char* name() const SK_OVERRIDE { return "DiffuseLighting"; }
 
-    typedef GrGLDiffuseLightingEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+
     SkScalar kd() const { return fKD; }
 
 private:
@@ -410,11 +410,13 @@ public:
                                                      ks,
                                                      shininess));
     }
-    static const char* Name() { return "SpecularLighting"; }
 
-    typedef GrGLSpecularLightingEffect GLProcessor;
+    virtual const char* name() const SK_OVERRIDE { return "SpecularLighting"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
@@ -1190,7 +1192,7 @@ SkLight* create_random_light(SkRandom* random) {
 
 class GrGLLightingEffect  : public GrGLFragmentProcessor {
 public:
-    GrGLLightingEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLLightingEffect(const GrProcessor&);
     virtual ~GrGLLightingEffect();
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -1222,7 +1224,7 @@ private:
 
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
-    GrGLDiffuseLightingEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLDiffuseLightingEffect(const GrProcessor&);
     virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
     virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
@@ -1236,7 +1238,7 @@ private:
 
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
-    GrGLSpecularLightingEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLSpecularLightingEffect(const GrProcessor&);
     virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
     virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
@@ -1281,16 +1283,22 @@ GrDiffuseLightingEffect::GrDiffuseLightingEffect(GrTexture* texture,
                                                  const SkMatrix& matrix,
                                                  SkScalar kd)
     : INHERITED(texture, light, surfaceScale, matrix), fKD(kd) {
-}
-
-const GrBackendFragmentProcessorFactory& GrDiffuseLightingEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrDiffuseLightingEffect>::getInstance();
+    this->initClassID<GrDiffuseLightingEffect>();
 }
 
 bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrDiffuseLightingEffect& s = sBase.cast<GrDiffuseLightingEffect>();
     return INHERITED::onIsEqual(sBase) &&
             this->kd() == s.kd();
+}
+
+void GrDiffuseLightingEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                                GrProcessorKeyBuilder* b) const {
+    GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrDiffuseLightingEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLDiffuseLightingEffect, (*this));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
@@ -1313,9 +1321,7 @@ GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLLightingEffect::GrGLLightingEffect(const GrBackendProcessorFactory& factory,
-                                       const GrProcessor& fp)
-    : INHERITED(factory) {
+GrGLLightingEffect::GrGLLightingEffect(const GrProcessor& fp) {
     const GrLightingEffect& m = fp.cast<GrLightingEffect>();
     fLight = m.light()->createGLLight();
 }
@@ -1440,9 +1446,8 @@ void GrGLLightingEffect::setData(const GrGLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrBackendProcessorFactory& factory,
-                                                     const GrProcessor& proc)
-    : INHERITED(factory, proc) {
+GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrProcessor& proc)
+    : INHERITED(proc) {
 }
 
 void GrGLDiffuseLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString* funcName) {
@@ -1486,10 +1491,7 @@ GrSpecularLightingEffect::GrSpecularLightingEffect(GrTexture* texture,
     : INHERITED(texture, light, surfaceScale, matrix),
       fKS(ks),
       fShininess(shininess) {
-}
-
-const GrBackendFragmentProcessorFactory& GrSpecularLightingEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrSpecularLightingEffect>::getInstance();
+    this->initClassID<GrSpecularLightingEffect>();
 }
 
 bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -1497,6 +1499,15 @@ bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const
     return INHERITED::onIsEqual(sBase) &&
            this->ks() == s.ks() &&
            this->shininess() == s.shininess();
+}
+
+void GrSpecularLightingEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                                GrProcessorKeyBuilder* b) const {
+    GrGLSpecularLightingEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrSpecularLightingEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLSpecularLightingEffect, (*this));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
@@ -1519,9 +1530,8 @@ GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrBackendProcessorFactory& factory,
-                                                       const GrProcessor& proc)
-    : INHERITED(factory, proc) {
+GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrProcessor& proc)
+    : INHERITED(proc) {
 }
 
 void GrGLSpecularLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString* funcName) {

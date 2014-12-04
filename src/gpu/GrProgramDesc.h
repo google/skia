@@ -8,7 +8,6 @@
 #ifndef GrProgramDesc_DEFINED
 #define GrProgramDesc_DEFINED
 
-#include "GrBackendProcessorFactory.h"
 #include "GrColor.h"
 #include "GrTypesPriv.h"
 #include "SkChecksum.h"

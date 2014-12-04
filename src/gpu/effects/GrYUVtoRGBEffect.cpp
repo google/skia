@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrYUVtoRGBEffect.h"
 
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "gl/GrGLProcessor.h"
-#include "GrTBackendProcessorFactory.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 namespace {
 
@@ -23,11 +22,7 @@ public:
         return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, colorSpace));
     }
 
-    static const char* Name() { return "YUV to RGB"; }
-
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<YUVtoRGBEffect>::getInstance();
-    }
+    virtual const char* name() const SK_OVERRIDE { return "YUV to RGB"; }
 
     SkYUVColorSpace getColorSpace() const {
         return fColorSpace;
@@ -41,10 +36,7 @@ public:
         // this class always generates the same code.
         static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
 
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrProcessor&)
-        : INHERITED(factory) {
-        }
+        GLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor&,
@@ -86,6 +78,15 @@ public:
         typedef GrGLFragmentProcessor INHERITED;
     };
 
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, caps, b);
+    }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this));
+    }
+
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
                    SkYUVColorSpace colorSpace)
@@ -95,6 +96,7 @@ private:
     , fUAccess(uTexture)
     , fVAccess(vTexture)
     , fColorSpace(colorSpace) {
+        this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fCoordTransform);
         this->addTextureAccess(&fYAccess);
         this->addTextureAccess(&fUAccess);

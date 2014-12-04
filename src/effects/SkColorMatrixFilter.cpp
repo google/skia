@@ -325,7 +325,6 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
@@ -335,11 +334,17 @@ public:
         return SkNEW_ARGS(ColorMatrixEffect, (matrix));
     }
 
-    static const char* Name() { return "Color Matrix"; }
+    virtual const char* name() const SK_OVERRIDE { return "Color Matrix"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<ColorMatrixEffect>::getInstance();
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, caps, b);
     }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this));
+    }
+
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -348,10 +353,7 @@ public:
         // this class always generates the same code.
         static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
 
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                 const GrProcessor&)
-        : INHERITED(factory) {
-        }
+        GLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor&,
@@ -410,7 +412,9 @@ public:
     };
 
 private:
-    ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
+    ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {
+        this->initClassID<ColorMatrixEffect>();
+    }
 
     virtual bool onIsEqual(const GrFragmentProcessor& s) const {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();

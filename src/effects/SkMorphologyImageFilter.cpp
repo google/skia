@@ -16,10 +16,9 @@
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
-#include "GrTBackendProcessorFactory.h"
+#include "effects/Gr1DKernelEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "effects/Gr1DKernelEffect.h"
 #endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
@@ -268,9 +267,6 @@ SkFlattenable* SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
 #if SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////
-
-class GrGLMorphologyEffect;
-
 /**
  * Morphology effects. Depending upon the type of morphology, either the
  * component-wise min (Erode_Type) or max (Dilate_Type) of all pixels in the
@@ -295,11 +291,11 @@ public:
 
     MorphologyType type() const { return fType; }
 
-    static const char* Name() { return "Morphology"; }
+    virtual const char* name() const SK_OVERRIDE { return "Morphology"; }
 
-    typedef GrGLMorphologyEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 protected:
 
@@ -321,7 +317,7 @@ private:
 
 class GrGLMorphologyEffect : public GrGLFragmentProcessor {
 public:
-    GrGLMorphologyEffect (const GrBackendProcessorFactory&, const GrProcessor&);
+    GrGLMorphologyEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder*,
                           const GrFragmentProcessor&,
@@ -344,9 +340,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendProcessorFactory& factory,
-                                           const GrProcessor& proc)
-    : INHERITED(factory) {
+GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProcessor& proc) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     fRadius = m.radius();
     fType = m.type();
@@ -428,15 +422,19 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
                                        MorphologyType type)
     : Gr1DKernelEffect(texture, direction, radius)
     , fType(type) {
+    this->initClassID<GrMorphologyEffect>();
 }
 
 GrMorphologyEffect::~GrMorphologyEffect() {
 }
 
-const GrBackendFragmentProcessorFactory& GrMorphologyEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrMorphologyEffect>::getInstance();
+void GrMorphologyEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GrGLMorphologyEffect::GenKey(*this, caps, b);
 }
 
+GrGLFragmentProcessor* GrMorphologyEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLMorphologyEffect, (*this));
+}
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();
     return (this->radius() == s.radius() &&

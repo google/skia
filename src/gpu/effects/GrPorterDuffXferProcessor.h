@@ -12,9 +12,7 @@
 #include "GrXferProcessor.h"
 #include "SkXfermode.h"
 
-class GrBackendFragmentProcessorFactory;
 class GrDrawState;
-class GrGLPorterDuffXferProcessor;
 class GrInvariantOutput;
 
 class GrPorterDuffXferProcessor : public GrXferProcessor {
@@ -25,10 +23,12 @@ public:
 
     virtual ~GrPorterDuffXferProcessor();
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual const char* name() const { return "Porter Duff"; }
 
-    typedef GrGLPorterDuffXferProcessor GLProcessor;
-    static const char* Name() { return "Porter Duff"; }
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend);

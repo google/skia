@@ -18,10 +18,9 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
+#include "SkGr.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "GrTBackendProcessorFactory.h"
-#include "SkGr.h"
 #endif
 
 static const int kBlockSize = 256;
@@ -487,12 +486,9 @@ void SkPerlinNoiseShader::PerlinNoiseShaderContext::shadeSpan16(
 
 #if SK_SUPPORT_GPU
 
-#include "GrTBackendProcessorFactory.h"
-
 class GrGLPerlinNoise : public GrGLFragmentProcessor {
 public:
-    GrGLPerlinNoise(const GrBackendProcessorFactory&,
-                    const GrProcessor&);
+    GrGLPerlinNoise(const GrProcessor&);
     virtual ~GrGLPerlinNoise() {}
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -536,10 +532,17 @@ public:
         SkDELETE(fPaintingData);
     }
 
-    static const char* Name() { return "PerlinNoise"; }
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<GrPerlinNoiseEffect>::getInstance();
+    virtual const char* name() const SK_OVERRIDE { return "PerlinNoise"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLPerlinNoise::GenKey(*this, caps, b);
     }
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLPerlinNoise, (*this));
+    }
+
     const SkPerlinNoiseShader::StitchData& stitchData() const { return fPaintingData->fStitchDataInit; }
 
     SkPerlinNoiseShader::Type type() const { return fType; }
@@ -548,8 +551,6 @@ public:
     int numOctaves() const { return fNumOctaves; }
     const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
     uint8_t alpha() const { return fAlpha; }
-
-    typedef GrGLPerlinNoise GLProcessor;
 
 private:
     virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
@@ -578,6 +579,7 @@ private:
       , fPermutationsAccess(permutationsTexture)
       , fNoiseAccess(noiseTexture)
       , fPaintingData(paintingData) {
+        this->initClassID<GrPerlinNoiseEffect>();
         this->addTextureAccess(&fPermutationsAccess);
         this->addTextureAccess(&fNoiseAccess);
         fCoordTransform.reset(kLocal_GrCoordSet, matrix);
@@ -631,10 +633,8 @@ GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
     return effect;
 }
 
-GrGLPerlinNoise::GrGLPerlinNoise(const GrBackendProcessorFactory& factory,
-                                 const GrProcessor& processor)
-  : INHERITED (factory)
-  , fType(processor.cast<GrPerlinNoiseEffect>().type())
+GrGLPerlinNoise::GrGLPerlinNoise(const GrProcessor& processor)
+  : fType(processor.cast<GrPerlinNoiseEffect>().type())
   , fStitchTiles(processor.cast<GrPerlinNoiseEffect>().stitchTiles())
   , fNumOctaves(processor.cast<GrPerlinNoiseEffect>().numOctaves()) {
 }

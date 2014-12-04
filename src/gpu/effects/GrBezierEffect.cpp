@@ -7,16 +7,14 @@
 
 #include "GrBezierEffect.h"
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "GrTBackendProcessorFactory.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
-    GrGLConicEffect(const GrBackendProcessorFactory&,
-                    const GrGeometryProcessor&,
+    GrGLConicEffect(const GrGeometryProcessor&,
                     const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
@@ -36,10 +34,8 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GrGLConicEffect::GrGLConicEffect(const GrBackendProcessorFactory& factory,
-                                 const GrGeometryProcessor& processor,
-                                 const GrBatchTracker& bt)
-    : INHERITED (factory) {
+GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor,
+                                 const GrBatchTracker& bt) {
     const GrConicEffect& ce = processor.cast<GrConicEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -133,12 +129,19 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& processor,
 
 GrConicEffect::~GrConicEffect() {}
 
-const GrBackendGeometryProcessorFactory& GrConicEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrConicEffect>::getInstance();
+void GrConicEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                      const GrGLCaps& caps,
+                                      GrProcessorKeyBuilder* b) const {
+    GrGLConicEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLConicEffect, (*this, bt));
 }
 
 GrConicEffect::GrConicEffect(GrPrimitiveEdgeType edgeType)
     : fEdgeType(edgeType) {
+    this->initClassID<GrConicEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInConicCoeffs = &this->addVertexAttrib(GrAttribute("inConicCoeffs",
                                                         kVec4f_GrVertexAttribType));
@@ -172,8 +175,7 @@ GrGeometryProcessor* GrConicEffect::TestCreate(SkRandom* random,
 
 class GrGLQuadEffect : public GrGLGeometryProcessor {
 public:
-    GrGLQuadEffect(const GrBackendProcessorFactory&,
-                   const GrGeometryProcessor&,
+    GrGLQuadEffect(const GrGeometryProcessor&,
                    const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
@@ -193,10 +195,8 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GrGLQuadEffect::GrGLQuadEffect(const GrBackendProcessorFactory& factory,
-                               const GrGeometryProcessor& processor,
-                               const GrBatchTracker& bt)
-    : INHERITED (factory) {
+GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor,
+                               const GrBatchTracker& bt) {
     const GrQuadEffect& ce = processor.cast<GrQuadEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -276,12 +276,19 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& processor,
 
 GrQuadEffect::~GrQuadEffect() {}
 
-const GrBackendGeometryProcessorFactory& GrQuadEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrQuadEffect>::getInstance();
+void GrQuadEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                     const GrGLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const {
+    GrGLQuadEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLQuadEffect, (*this, bt));
 }
 
 GrQuadEffect::GrQuadEffect(GrPrimitiveEdgeType edgeType)
     : fEdgeType(edgeType) {
+    this->initClassID<GrQuadEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInHairQuadEdge = &this->addVertexAttrib(GrAttribute("inHairQuadEdge",
                                                         kVec4f_GrVertexAttribType));
@@ -315,8 +322,7 @@ GrGeometryProcessor* GrQuadEffect::TestCreate(SkRandom* random,
 
 class GrGLCubicEffect : public GrGLGeometryProcessor {
 public:
-    GrGLCubicEffect(const GrBackendProcessorFactory&,
-                    const GrGeometryProcessor&,
+    GrGLCubicEffect(const GrGeometryProcessor&,
                     const GrBatchTracker&);
 
     virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
@@ -336,10 +342,8 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GrGLCubicEffect::GrGLCubicEffect(const GrBackendProcessorFactory& factory,
-                                 const GrGeometryProcessor& processor,
-                                 const GrBatchTracker&)
-    : INHERITED (factory) {
+GrGLCubicEffect::GrGLCubicEffect(const GrGeometryProcessor& processor,
+                                 const GrBatchTracker&) {
     const GrCubicEffect& ce = processor.cast<GrCubicEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -460,12 +464,19 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& processor,
 
 GrCubicEffect::~GrCubicEffect() {}
 
-const GrBackendGeometryProcessorFactory& GrCubicEffect::getFactory() const {
-    return GrTBackendGeometryProcessorFactory<GrCubicEffect>::getInstance();
+void GrCubicEffect::getGLProcessorKey(const GrBatchTracker& bt,
+                                      const GrGLCaps& caps,
+                                      GrProcessorKeyBuilder* b) const {
+    GrGLCubicEffect::GenKey(*this, bt, caps, b);
+}
+
+GrGLGeometryProcessor* GrCubicEffect::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLCubicEffect, (*this, bt));
 }
 
 GrCubicEffect::GrCubicEffect(GrPrimitiveEdgeType edgeType)
     : fEdgeType(edgeType) {
+    this->initClassID<GrCubicEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInCubicCoeffs = &this->addVertexAttrib(GrAttribute("inCubicCoeffs",
                                                         kVec4f_GrVertexAttribType));

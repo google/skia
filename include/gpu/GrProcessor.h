@@ -8,7 +8,6 @@
 #ifndef GrProcessor_DEFINED
 #define GrProcessor_DEFINED
 
-#include "GrBackendProcessorFactory.h"
 #include "GrColor.h"
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
@@ -18,6 +17,36 @@
 class GrContext;
 class GrCoordTransform;
 class GrInvariantOutput;
+
+/**
+ * Used by processors to build their keys. It incorporates each per-processor key into a larger
+ * shader key.
+ */
+class GrProcessorKeyBuilder {
+public:
+    GrProcessorKeyBuilder(SkTArray<unsigned char, true>* data) : fData(data), fCount(0) {
+        SkASSERT(0 == fData->count() % sizeof(uint32_t));
+    }
+
+    void add32(uint32_t v) {
+        ++fCount;
+        fData->push_back_n(4, reinterpret_cast<uint8_t*>(&v));
+    }
+
+    /** Inserts count uint32_ts into the key. The returned pointer is only valid until the next
+        add*() call. */
+    uint32_t* SK_WARN_UNUSED_RESULT add32n(int count) {
+        SkASSERT(count > 0);
+        fCount += count;
+        return reinterpret_cast<uint32_t*>(fData->push_back_n(4 * count));
+    }
+
+    size_t size() const { return sizeof(uint32_t) * fCount; }
+
+private:
+    SkTArray<uint8_t, true>* fData; // unowned ptr to the larger key.
+    int fCount;                     // number of uint32_ts added to fData by the processor.
+};
 
 /** Provides custom shader code to the Ganesh shading pipeline. GrProcessor objects *must* be
     immutable: after being constructed, their fields may not change.
@@ -42,26 +71,9 @@ public:
      */
     void computeInvariantOutput(GrInvariantOutput* inout) const; 
 
-    /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
-        identification. The factory should be an instance of templated class,
-        GrTBackendProcessorFactory. It is templated on the subclass of GrProcessor. The subclass
-        must have a nested type (or typedef) named GLProcessor which will be the subclass of
-        GrGLProcessor created by the factory.
-
-        Example:
-        class MyCustomProcessor : public GrProcessor {
-        ...
-            virtual const GrBackendProcessorFactory& getFactory() const SK_OVERRIDE {
-                return GrTBackendProcessorFactory<MyCustomProcessor>::getInstance();
-            }
-        ...
-        };
-     */
-    virtual const GrBackendProcessorFactory& getFactory() const = 0;
-
     /** Human-meaningful string to identify this prcoessor; may be embedded
         in generated shader code. */
-    const char* name() const;
+    virtual const char* name() const = 0;
 
     int numTextures() const { return fTextureAccesses.count(); }
 
@@ -90,8 +102,10 @@ public:
       */
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
 
+    uint32_t classID() const { SkASSERT(kIllegalProcessorClassID != fClassID); return fClassID; }
+
 protected:
-    GrProcessor() : fWillReadFragmentPosition(false) {}
+    GrProcessor() : fClassID(kIllegalProcessorClassID), fWillReadFragmentPosition(false) {}
 
     /**
      * Subclasses call this from their constructor to register GrTextureAccesses. The processor
@@ -110,18 +124,41 @@ protected:
      */
     void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
 
+    template <typename PROC_SUBCLASS> void initClassID() {
+         static uint32_t kClassID = GenClassID();
+         fClassID = kClassID;
+    }
+
+    uint32_t fClassID;
+
 private:
     /** 
      * Subclass implements this to support getConstantColorComponents(...).
      */
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
+    
+    static uint32_t GenClassID() {
+        // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
+        // atomic inc returns the old value not the incremented value. So we add
+        // 1 to the returned value.
+        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(&gCurrProcessorClassID)) + 1;
+        if (!id) {
+            SkFAIL("This should never wrap as it should only be called once for each GrProcessor "
+                   "subclass.");
+        }
+        return id;
+    }
+
+    enum {
+        kIllegalProcessorClassID = 0,
+    };
+    static int32_t gCurrProcessorClassID;
 
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
     bool                                         fWillReadFragmentPosition;
 
     typedef GrProgramElement INHERITED;
 };
-
 
 /**
  * This creates a processor outside of the memory pool. The processor's destructor will be called

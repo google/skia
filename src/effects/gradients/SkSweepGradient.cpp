@@ -177,15 +177,13 @@ void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* 
 
 #if SK_SUPPORT_GPU
 
-#include "GrTBackendProcessorFactory.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
-    GrGLSweepGradient(const GrBackendProcessorFactory& factory,
-                      const GrProcessor&) : INHERITED (factory) { }
+    GrGLSweepGradient(const GrProcessor&) {}
     virtual ~GrGLSweepGradient() { }
 
     virtual void emitCode(GrGLFPBuilder*,
@@ -215,18 +213,24 @@ public:
     }
     virtual ~GrSweepGradient() { }
 
-    static const char* Name() { return "Sweep Gradient"; }
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendFragmentProcessorFactory<GrSweepGradient>::getInstance();
+    virtual const char* name() const SK_OVERRIDE { return "Sweep Gradient"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GrGLSweepGradient::GenKey(*this, caps, b);
     }
 
-    typedef GrGLSweepGradient GLProcessor;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+        return SkNEW_ARGS(GrGLSweepGradient, (*this));
+    }
 
 private:
     GrSweepGradient(GrContext* ctx,
                     const SkSweepGradient& shader,
                     const SkMatrix& matrix)
-    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) { }
+    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) {
+        this->initClassID<GrSweepGradient>();
+    }
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrGradientEffect INHERITED;
@@ -264,7 +268,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
-    const GrGradientEffect& ge = fp.cast<GrGradientEffect>();
+    const GrSweepGradient& ge = fp.cast<GrSweepGradient>();
     this->emitUniforms(builder, ge);
     SkString coords2D = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
     const GrGLContextInfo ctxInfo = builder->ctxInfo();

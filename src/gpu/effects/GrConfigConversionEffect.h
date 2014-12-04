@@ -11,7 +11,6 @@
 #include "GrSingleTextureEffect.h"
 
 class GrFragmentStage;
-class GrGLConfigConversionEffect;
 class GrInvariantOutput;
 
 /**
@@ -38,10 +37,11 @@ public:
     static const GrFragmentProcessor* Create(GrTexture*, bool swapRedAndBlue, PMConversion,
                                              const SkMatrix&);
 
-    static const char* Name() { return "Config Conversion"; }
-    typedef GrGLConfigConversionEffect GLProcessor;
+    virtual const char* name() const SK_OVERRIDE { return "Config Conversion"; }
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     bool swapsRedAndBlue() const { return fSwapRedAndBlue; }
     PMConversion  pmConversion() const { return fPMConversion; }

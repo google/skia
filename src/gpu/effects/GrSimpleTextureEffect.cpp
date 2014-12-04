@@ -7,8 +7,8 @@
 
 #include "GrSimpleTextureEffect.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "GrTexture.h"
+#include "gl/GrGLCaps.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
@@ -16,9 +16,7 @@
 
 class GrGLSimpleTextureEffect : public GrGLFragmentProcessor {
 public:
-    GrGLSimpleTextureEffect(const GrBackendProcessorFactory& factory, const GrProcessor&)
-        : INHERITED (factory) {
-    }
+    GrGLSimpleTextureEffect(const GrProcessor&) {}
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -45,8 +43,13 @@ void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
     this->updateInvariantOutputForModulation(inout);
 }
 
-const GrBackendFragmentProcessorFactory& GrSimpleTextureEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrSimpleTextureEffect>::getInstance();
+void GrSimpleTextureEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                              GrProcessorKeyBuilder* b) const {
+    GrGLSimpleTextureEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrSimpleTextureEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GrGLSimpleTextureEffect, (*this));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

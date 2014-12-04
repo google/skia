@@ -10,7 +10,6 @@
 
 #include "GrSingleTextureEffect.h"
 
-class GrGLSimpleTextureEffect;
 class GrInvariantOutput;
 
 /**
@@ -48,11 +47,11 @@ public:
 
     virtual ~GrSimpleTextureEffect() {}
 
-    static const char* Name() { return "Texture"; }
+    virtual const char* name() const SK_OVERRIDE { return "SimpleTexture"; }
 
-    typedef GrGLSimpleTextureEffect GLProcessor;
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrSimpleTextureEffect(GrTexture* texture,
@@ -60,6 +59,7 @@ private:
                           GrTextureParams::FilterMode filterMode,
                           GrCoordSet coordSet)
         : GrSingleTextureEffect(texture, matrix, filterMode, coordSet) {
+        this->initClassID<GrSimpleTextureEffect>();
     }
 
     GrSimpleTextureEffect(GrTexture* texture,
@@ -67,6 +67,7 @@ private:
                           const GrTextureParams& params,
                           GrCoordSet coordSet)
         : GrSingleTextureEffect(texture, matrix, params, coordSet) {
+        this->initClassID<GrSimpleTextureEffect>();
     }
 
     virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE { return true; }

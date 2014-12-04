@@ -34,6 +34,8 @@ private:
     uint8_t fData[kMaxSize];
 };
 
+class GrGLCaps;
+class GrGLGeometryProcessor;
 class GrOptDrawState;
 
 /**
@@ -55,7 +57,18 @@ public:
         , fHasVertexCoverage(false)
         , fHasLocalCoords(false) {}
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const = 0;
+    virtual const char* name() const = 0;
+
+    /** Implemented using GLProcessor::GenKey as described in this class's comment. */
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const = 0;
+
+
+    /** Returns a new instance of the appropriate *GL* implementation class
+        for the given GrProcessor; caller is responsible for deleting
+        the object. */
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const = 0;
 
     /*
      * This is a safeguard to prevent GPs from going beyond platform specific attribute limits.
@@ -91,7 +104,7 @@ public:
         would generate the same shader code. To test for identical code generation use the
         processors' keys computed by the GrBackendEffectFactory. */
     bool isEqual(const GrGeometryProcessor& that) const {
-        if (&this->getFactory() != &that.getFactory() || !this->hasSameTextureAccesses(that)) {
+        if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
             return false;
         }
         return this->onIsEqual(that);
@@ -143,5 +156,4 @@ private:
 
     typedef GrProcessor INHERITED;
 };
-
 #endif

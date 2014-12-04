@@ -7,24 +7,20 @@
 
 #include "GrOvalRenderer.h"
 
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
-#include "gl/GrGLGeometryProcessor.h"
 #include "GrProcessor.h"
-#include "GrTBackendProcessorFactory.h"
-
 #include "GrDrawState.h"
 #include "GrDrawTarget.h"
+#include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "GrInvariantOutput.h"
-
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
-
-#include "GrGeometryProcessor.h"
 #include "effects/GrRRectEffect.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/GrGLSL.h"
+#include "gl/GrGLGeometryProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 namespace {
 // TODO(joshualitt) add per vertex colors
@@ -78,23 +74,16 @@ public:
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inCircleEdge() const { return fInCircleEdge; }
-
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendGeometryProcessorFactory<CircleEdgeEffect>::getInstance();
-    }
-
     virtual ~CircleEdgeEffect() {}
 
-    static const char* Name() { return "CircleEdge"; }
+    virtual const char* name() const SK_OVERRIDE { return "CircleEdge"; }
 
     inline bool isStroked() const { return fStroke; }
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrGeometryProcessor&,
-                    const GrBatchTracker&)
-        : INHERITED (factory) {}
+        GLProcessor(const GrGeometryProcessor&,
+                    const GrBatchTracker&) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
@@ -140,9 +129,19 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, bt, caps, b);
+    }
+
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, bt));
+    }
 
 private:
     CircleEdgeEffect(bool stroke) {
+        this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInCircleEdge = &this->addVertexAttrib(GrAttribute("inCircleEdge",
                                                            kVec4f_GrVertexAttribType));
@@ -201,14 +200,9 @@ public:
         }
     }
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendGeometryProcessorFactory<EllipseEdgeEffect>::getInstance();
-    }
-
     virtual ~EllipseEdgeEffect() {}
 
-    static const char* Name() { return "EllipseEdge"; }
-
+    virtual const char* name() const SK_OVERRIDE { return "EllipseEdge"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inEllipseOffset() const { return fInEllipseOffset; }
@@ -218,10 +212,8 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrGeometryProcessor&,
-                    const GrBatchTracker&)
-        : INHERITED (factory) {}
+        GLProcessor(const GrGeometryProcessor&,
+                    const GrBatchTracker&) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
@@ -290,8 +282,19 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, bt, caps, b);
+    }
+
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, bt));
+    }
+
 private:
     EllipseEdgeEffect(bool stroke) {
+        this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(GrAttribute("inEllipseOffset",
                                                               kVec2f_GrVertexAttribType));
@@ -360,13 +363,9 @@ public:
         }
     }
 
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendGeometryProcessorFactory<DIEllipseEdgeEffect>::getInstance();
-    }
-
     virtual ~DIEllipseEdgeEffect() {}
 
-    static const char* Name() { return "DIEllipseEdge"; }
+    virtual const char* name() const SK_OVERRIDE { return "DIEllipseEdge"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
@@ -376,10 +375,8 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrGeometryProcessor&,
-                    const GrBatchTracker&)
-        : INHERITED (factory) {}
+        GLProcessor(const GrGeometryProcessor&,
+                    const GrBatchTracker&) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
@@ -463,8 +460,19 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, bt, caps, b);
+    }
+
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, bt));
+    }
+
 private:
     DIEllipseEdgeEffect(Mode mode) {
+        this->initClassID<DIEllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffsets0 = &this->addVertexAttrib(GrAttribute("inEllipseOffsets0",
                                                                 kVec2f_GrVertexAttribType));

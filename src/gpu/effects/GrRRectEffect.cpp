@@ -5,24 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrRRectEffect.h"
 
-#include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "GrConvexPolyEffect.h"
+#include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
-#include "GrTBackendProcessorFactory.h"
-
 #include "SkRRect.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/GrGLSL.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;
 
 //////////////////////////////////////////////////////////////////////////////
-
-class GLCircularRRectEffect;
 
 class CircularRRectEffect : public GrFragmentProcessor {
 public:
@@ -50,17 +47,18 @@ public:
                                        const SkRRect&);
 
     virtual ~CircularRRectEffect() {};
-    static const char* Name() { return "CircularRRect"; }
+
+    virtual const char* name() const SK_OVERRIDE { return "CircularRRect"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const SkRRect& getRRect() const { return fRRect; }
 
     uint32_t getCircularCornerFlags() const { return fCircularCornerFlags; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
-
-    typedef GLCircularRRectEffect GLProcessor;
-
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     CircularRRectEffect(GrPrimitiveEdgeType, uint32_t circularCornerFlags, const SkRRect&);
@@ -91,15 +89,12 @@ void CircularRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) con
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendFragmentProcessorFactory& CircularRRectEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<CircularRRectEffect>::getInstance();
-}
-
 CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t circularCornerFlags,
                                          const SkRRect& rrect)
     : fRRect(rrect)
     , fEdgeType(edgeType)
     , fCircularCornerFlags(circularCornerFlags) {
+    this->initClassID<CircularRRectEffect>();
     this->setWillReadFragmentPosition();
 }
 
@@ -135,7 +130,7 @@ GrFragmentProcessor* CircularRRectEffect::TestCreate(SkRandom* random,
 
 class GLCircularRRectEffect : public GrGLFragmentProcessor {
 public:
-    GLCircularRRectEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLCircularRRectEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& fp,
@@ -155,9 +150,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLCircularRRectEffect::GLCircularRRectEffect(const GrBackendProcessorFactory& factory,
-                                             const GrProcessor& )
-    : INHERITED (factory) {
+GLCircularRRectEffect::GLCircularRRectEffect(const GrProcessor& ) {
     fPrevRRect.setEmpty();
 }
 
@@ -380,25 +373,34 @@ void GLCircularRRectEffect::setData(const GrGLProgramDataManager& pdman,
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GLEllipticalRRectEffect;
+void CircularRRectEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
+    GLCircularRRectEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* CircularRRectEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GLCircularRRectEffect, (*this));
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 class EllipticalRRectEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkRRect&);
 
     virtual ~EllipticalRRectEffect() {};
-    static const char* Name() { return "EllipticalRRect"; }
+
+    virtual const char* name() const SK_OVERRIDE { return "EllipticalRRect"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     const SkRRect& getRRect() const { return fRRect; }
 
-
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
-
-    typedef GLEllipticalRRectEffect GLProcessor;
-
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
 
 private:
     EllipticalRRectEffect(GrPrimitiveEdgeType, const SkRRect&);
@@ -427,13 +429,10 @@ void EllipticalRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
     inout->mulByUnknownAlpha();
 }
 
-const GrBackendFragmentProcessorFactory& EllipticalRRectEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<EllipticalRRectEffect>::getInstance();
-}
-
 EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const SkRRect& rrect)
     : fRRect(rrect)
-    , fEdgeType(edgeType){
+    , fEdgeType(edgeType) {
+    this->initClassID<EllipticalRRectEffect>();
     this->setWillReadFragmentPosition();
 }
 
@@ -488,7 +487,7 @@ GrFragmentProcessor* EllipticalRRectEffect::TestCreate(SkRandom* random,
 
 class GLEllipticalRRectEffect : public GrGLFragmentProcessor {
 public:
-    GLEllipticalRRectEffect(const GrBackendProcessorFactory&, const GrProcessor&);
+    GLEllipticalRRectEffect(const GrProcessor&);
 
     virtual void emitCode(GrGLFPBuilder* builder,
                           const GrFragmentProcessor& effect,
@@ -508,9 +507,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrBackendProcessorFactory& factory,
-                             const GrProcessor& effect)
-    : INHERITED (factory) {
+GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrProcessor& effect) {
     fPrevRRect.setEmpty();
 }
 
@@ -632,6 +629,17 @@ void GLEllipticalRRectEffect::setData(const GrGLProgramDataManager& pdman,
         pdman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
         fPrevRRect = rrect;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void EllipticalRRectEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                              GrProcessorKeyBuilder* b) const {
+    GLEllipticalRRectEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* EllipticalRRectEffect::createGLInstance() const  {
+    return SkNEW_ARGS(GLEllipticalRRectEffect, (*this));
 }
 
 //////////////////////////////////////////////////////////////////////////////

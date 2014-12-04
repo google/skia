@@ -8,17 +8,14 @@
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "GrSimpleTextureEffect.h"
+#include "SkMatrix.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "SkMatrix.h"
 
 class GrGLConfigConversionEffect : public GrGLFragmentProcessor {
 public:
-    GrGLConfigConversionEffect(const GrBackendProcessorFactory& factory,
-                               const GrProcessor& processor)
-    : INHERITED (factory) {
+    GrGLConfigConversionEffect(const GrProcessor& processor) {
         const GrConfigConversionEffect& configConversionEffect =
                 processor.cast<GrConfigConversionEffect>();
         fSwapRedAndBlue = configConversionEffect.swapsRedAndBlue();
@@ -109,14 +106,11 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
     : GrSingleTextureEffect(texture, matrix)
     , fSwapRedAndBlue(swapRedAndBlue)
     , fPMConversion(pmConversion) {
+    this->initClassID<GrConfigConversionEffect>();
     SkASSERT(kRGBA_8888_GrPixelConfig == texture->config() ||
              kBGRA_8888_GrPixelConfig == texture->config());
     // Why did we pollute our texture cache instead of using a GrSingleTextureEffect?
     SkASSERT(swapRedAndBlue || kNone_PMConversion != pmConversion);
-}
-
-const GrBackendFragmentProcessorFactory& GrConfigConversionEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrConfigConversionEffect>::getInstance();
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -152,6 +146,16 @@ GrFragmentProcessor* GrConfigConversionEffect::TestCreate(SkRandom* random,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void GrConfigConversionEffect::getGLProcessorKey(const GrGLCaps& caps,
+                                                 GrProcessorKeyBuilder* b) const {
+    GrGLConfigConversionEffect::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrConfigConversionEffect::createGLInstance() const {
+    return SkNEW_ARGS(GrGLConfigConversionEffect, (*this));
+}
+
 void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context,
                                                               PMConversion* pmToUPMRule,
                                                               PMConversion* upmToPMRule) {

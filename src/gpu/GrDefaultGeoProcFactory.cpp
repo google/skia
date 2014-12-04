@@ -9,7 +9,6 @@
 
 #include "GrDrawState.h"
 #include "GrInvariantOutput.h"
-#include "GrTBackendProcessorFactory.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
@@ -62,11 +61,7 @@ public:
         }
     }
 
-    static const char* Name() { return "DefaultGeometryProcessor"; }
-
-    virtual const GrBackendGeometryProcessorFactory& getFactory() const SK_OVERRIDE {
-        return GrTBackendGeometryProcessorFactory<DefaultGeoProc>::getInstance();
-    }
+    virtual const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inColor() const { return fInColor; }
@@ -75,10 +70,8 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory,
-                    const GrGeometryProcessor&,
-                    const GrBatchTracker&)
-            : INHERITED (factory) {}
+        GLProcessor(const GrGeometryProcessor&,
+                    const GrBatchTracker&) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
@@ -127,6 +120,16 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+        GLProcessor::GenKey(*this, bt, caps, b);
+    }
+
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLProcessor, (*this, bt));
+    }
+
 private:
     DefaultGeoProc(uint32_t gpTypeFlags)
         : fInPosition(NULL)
@@ -134,6 +137,7 @@ private:
         , fInLocalCoords(NULL)
         , fInCoverage(NULL)
         , fFlags(gpTypeFlags) {
+        this->initClassID<DefaultGeoProc>();
         bool hasColor = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kColor_GPType);
         bool hasLocalCoord = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kLocalCoord_GPType);
         bool hasCoverage = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kCoverage_GPType);

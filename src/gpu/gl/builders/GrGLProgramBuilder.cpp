@@ -336,7 +336,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
     GrGLInstalledFragProc* ifp = SkNEW(GrGLInstalledFragProc);
 
     const GrFragmentProcessor& fp = *fs.getProcessor();
-    ifp->fGLProc.reset(fp.getFactory().createGLInstance(fp));
+    ifp->fGLProc.reset(fp.createGLInstance());
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
@@ -360,7 +360,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
 
     const GrBatchTracker& bt = fOptState.getBatchTracker();
-    fGeometryProcessor->fGLProc.reset(gp.getFactory().createGLInstance(gp, bt));
+    fGeometryProcessor->fGLProc.reset(gp.createGLInstance(bt));
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);

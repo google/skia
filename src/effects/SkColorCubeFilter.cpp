@@ -15,11 +15,10 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-#include "GrTBackendProcessorFactory.h"
 #include "GrTexturePriv.h"
 #include "SkGr.h"
+#include "gl/GrGLProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,16 +192,20 @@ public:
 
     virtual ~GrColorCubeEffect();
 
-    virtual const GrBackendFragmentProcessorFactory& getFactory() const SK_OVERRIDE;
+    virtual const char* name() const SK_OVERRIDE { return "ColorCube"; }
+
+    virtual void getGLProcessorKey(const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+
+    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
     int colorCubeSize() const { return fColorCubeAccess.getTexture()->width(); }
 
-    static const char* Name() { return "ColorCube"; }
 
     virtual void onComputeInvariantOutput(GrInvariantOutput*) const SK_OVERRIDE;
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
-        GLProcessor(const GrBackendProcessorFactory& factory, const GrProcessor&);
+        GLProcessor(const GrProcessor&);
         virtual ~GLProcessor();
 
         virtual void emitCode(GrGLFPBuilder*,
@@ -239,6 +242,7 @@ private:
 GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
     : fColorCubeTransform(kLocal_GrCoordSet, colorCube)
     , fColorCubeAccess(colorCube, "bgra", GrTextureParams::kBilerp_FilterMode) {
+    this->initClassID<GrColorCubeEffect>();
     this->addCoordTransform(&fColorCubeTransform);
     this->addTextureAccess(&fColorCubeAccess);
 }
@@ -246,8 +250,12 @@ GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
 GrColorCubeEffect::~GrColorCubeEffect() {
 }
 
-const GrBackendFragmentProcessorFactory& GrColorCubeEffect::getFactory() const {
-    return GrTBackendFragmentProcessorFactory<GrColorCubeEffect>::getInstance();
+void GrColorCubeEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GLProcessor::GenKey(*this, caps, b);
+}
+
+GrGLFragmentProcessor* GrColorCubeEffect::createGLInstance() const {
+    return SkNEW_ARGS(GLProcessor, (*this));
 }
 
 void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -256,9 +264,7 @@ void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrColorCubeEffect::GLProcessor::GLProcessor(const GrBackendProcessorFactory& factory,
-                                            const GrProcessor&)
-    : INHERITED(factory) {
+GrColorCubeEffect::GLProcessor::GLProcessor(const GrProcessor&) {
 }
 
 GrColorCubeEffect::GLProcessor::~GLProcessor() {
