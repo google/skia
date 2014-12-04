@@ -57,8 +57,16 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
 
     for (int y = bounds.fTop; y < bounds.fBottom; y += FLAGS_benchTile) {
         for (int x = bounds.fLeft; x < bounds.fRight; x += FLAGS_benchTile) {
-            *fTileRects.append() = SkIRect::MakeXYWH(x, y, FLAGS_benchTile, FLAGS_benchTile);
+            const SkIRect tileRect = SkIRect::MakeXYWH(x, y, FLAGS_benchTile, FLAGS_benchTile);
+            *fTileRects.append() = tileRect;
             *fSurfaces.push() = canvas->newSurface(ii);
+
+            // Never want the contents of a tile to include stuff the parent
+            // canvas clips out
+            SkRect clip = SkRect::Make(bounds);
+            clip.offset(-SkIntToScalar(tileRect.fLeft), -SkIntToScalar(tileRect.fTop));
+            fSurfaces.top()->getCanvas()->clipRect(clip);
+
             fSurfaces.top()->getCanvas()->setMatrix(canvas->getTotalMatrix());
             fSurfaces.top()->getCanvas()->scale(fScale, fScale);
         }
@@ -120,8 +128,9 @@ void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
             for (int y = bounds.fTop; y < bounds.fBottom; y += FLAGS_benchTile) {
                 for (int x = bounds.fLeft; x < bounds.fRight; x += FLAGS_benchTile) {
                     SkAutoCanvasRestore perTile(canvas, true/*save now*/);
-                    canvas->clipRect(SkRect::Make(
-                                SkIRect::MakeXYWH(x, y, FLAGS_benchTile, FLAGS_benchTile)));
+                    canvas->clipRect(SkRect::MakeXYWH(x/fScale, y/fScale,
+                                                      FLAGS_benchTile/fScale,
+                                                      FLAGS_benchTile/fScale));
                     fPic->playback(canvas);
                 }
             }

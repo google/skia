@@ -1823,6 +1823,7 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps
 
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* mainPicture,
                                            const SkMatrix* matrix, const SkPaint* paint) {
+#ifndef SK_IGNORE_GPU_LAYER_HOISTING
     // todo: should handle this natively
     if (paint) {
         return false;
@@ -1874,6 +1875,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::UnlockLayers(fContext, atlasedRecycled);
 
     return true;
+#else
+    return false;
+#endif
 }
 
 SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
