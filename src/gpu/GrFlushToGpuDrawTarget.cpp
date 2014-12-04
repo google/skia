@@ -7,8 +7,8 @@
 
 #include "GrFlushToGpuDrawTarget.h"
 #include "GrContext.h"
+#include "GrFontCache.h"
 #include "GrGpu.h"
-#include "GrTextStrike.h"
 #include "GrBufferAllocPool.h"
 
 GrFlushToGpuDrawTarget::GrFlushToGpuDrawTarget(GrGpu* gpu,

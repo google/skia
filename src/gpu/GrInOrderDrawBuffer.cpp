@@ -11,7 +11,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrTemplates.h"
-#include "GrTextStrike.h"
+#include "GrFontCache.h"
 #include "GrTexture.h"
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,

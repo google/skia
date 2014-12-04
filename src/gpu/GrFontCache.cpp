@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "GrFontCache.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
 #include "GrSurfacePriv.h"
-#include "GrTextStrike.h"
-#include "GrTextStrike_impl.h"
 #include "SkString.h"
 
 #include "SkDistanceFieldGen.h"

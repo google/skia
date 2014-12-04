@@ -9,12 +9,11 @@
 #include "GrAtlas.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTarget.h"
+#include "GrFontCache.h"
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
 #include "GrStrokeInfo.h"
 #include "GrTexturePriv.h"
-#include "GrTextStrike.h"
-#include "GrTextStrike_impl.h"
 
 #include "SkAutoKern.h"
 #include "SkColorPriv.h"
@@ -359,6 +358,41 @@ static void* alloc_vertices(GrDrawTarget* drawTarget,
     return vertices;
 }
 
+inline bool GrBitmapTextContext::uploadGlyph(GrGlyph* glyph, GrFontScaler* scaler) {
+    if (!fStrike->glyphTooLargeForAtlas(glyph)) {
+        if (fStrike->addGlyphToAtlas(glyph, scaler)) {
+            return true;
+        }
+        
+        // try to clear out an unused plot before we flush
+        if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
+            fStrike->addGlyphToAtlas(glyph, scaler)) {
+            return true;
+        }
+        
+        if (c_DumpFontCache) {
+#ifdef SK_DEVELOPER
+            fContext->getFontCache()->dump();
+#endif
+        }
+        
+        // before we purge the cache, we must flush any accumulated draws
+        this->flush();
+        fContext->flush();
+        
+        // we should have an unused plot now
+        if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
+            fStrike->addGlyphToAtlas(glyph, scaler)) {
+            return true;
+        }
+        
+        // we should never get here
+        SkASSERT(false);
+    }
+    
+    return false;
+}
+
 void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
                                       SkFixed vx, SkFixed vy,
                                       GrFontScaler* scaler) {
@@ -392,35 +426,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         }
     }
 
-    if (NULL == glyph->fPlot) {
-        if (!fStrike->glyphTooLargeForAtlas(glyph)) {
-            if (fStrike->addGlyphToAtlas(glyph, scaler)) {
-                goto HAS_ATLAS;
-            }
-
-            // try to clear out an unused plot before we flush
-            if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
-                fStrike->addGlyphToAtlas(glyph, scaler)) {
-                goto HAS_ATLAS;
-            }
-
-            if (c_DumpFontCache) {
-#ifdef SK_DEVELOPER
-                fContext->getFontCache()->dump();
-#endif
-            }
-
-            // flush any accumulated draws to allow us to free up a plot
-            this->flush();
-            fContext->flush();
-
-            // we should have an unused plot now
-            if (fContext->getFontCache()->freeUnusedPlot(fStrike, glyph) &&
-                fStrike->addGlyphToAtlas(glyph, scaler)) {
-                goto HAS_ATLAS;
-            }
-        }
-
+    if (NULL == glyph->fPlot && !uploadGlyph(glyph, scaler)) {
         if (NULL == glyph->fPath) {
             SkPath* path = SkNEW(SkPath);
             if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
@@ -448,7 +454,6 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         return;
     }
 
-HAS_ATLAS:
     SkASSERT(glyph->fPlot);
     GrDrawTarget::DrawToken drawToken = fDrawTarget->getCurrentDrawToken();
     glyph->fPlot->setDrawToken(drawToken);

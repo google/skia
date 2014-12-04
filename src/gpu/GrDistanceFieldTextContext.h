@@ -60,6 +60,7 @@ private:
 
     void init(const GrPaint&, const SkPaint&);
     bool appendGlyph(GrGlyph::PackedID, SkScalar left, SkScalar top, GrFontScaler*);
+    bool uploadGlyph(GrGlyph*, GrFontScaler*);
     void setupCoverageEffect(const SkColor& filteredColor);
     void flush();                 // automatically called by destructor
     void finish();

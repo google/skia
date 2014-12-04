@@ -48,6 +48,7 @@ private:
 
     void init(const GrPaint&, const SkPaint&);
     void appendGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
+    bool uploadGlyph(GrGlyph*, GrFontScaler*);
     void flush();                 // automatically called by destructor
     void finish();
 };
