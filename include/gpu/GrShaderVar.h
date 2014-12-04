@@ -35,14 +35,13 @@ public:
     };
 
     enum Precision {
-        kLow_Precision,         // lowp
-        kMedium_Precision,      // mediump
-        kHigh_Precision,        // highp
-        kDefault_Precision,     // Default for the current context. We make
-                                // fragment shaders default to mediump on ES2
-                                // because highp support is not guaranteed (and
-                                // we haven't been motivated to test for it).
-                                // Otherwise, highp.
+        kLow_Precision,
+        kMedium_Precision,
+        kHigh_Precision,
+
+        // Default precision is medium. This is because on OpenGL ES 2 highp support is not
+        // guaranteed. On (non-ES) OpenGL the specifiers have no effect on precision.
+        kDefault_Precision = kMedium_Precision,
     };
 
     /**

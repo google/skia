@@ -13,8 +13,6 @@
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fProgramBuilder->gpu()->glInterface(), R, X)
 
-// ES2 FS only guarantees mediump and lowp support
-static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar::kMedium_Precision;
 const char* GrGLFragmentShaderBuilder::kDstCopyColorName = "_dstColor";
 static const char* declared_color_output_name() { return "fsColorOut"; }
 static const char* dual_source_output_name() { return "dualSourceOut"; }
@@ -33,8 +31,6 @@ static void append_default_precision_qualifier(GrGLShaderVar::Precision p,
             case GrGLShaderVar::kLow_Precision:
                 str->append("precision lowp float;\n");
                 break;
-            case GrGLShaderVar::kDefault_Precision:
-                SkFAIL("Default precision now allowed.");
             default:
                 SkFAIL("Unknown precision value.");
         }
@@ -310,7 +306,7 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
     GrGpuGL* gpu = fProgramBuilder->gpu();
     SkString fragShaderSrc(GrGetGLSLVersionDecl(gpu->ctxInfo()));
     fragShaderSrc.append(fExtensions);
-    append_default_precision_qualifier(kDefaultFragmentPrecision,
+    append_default_precision_qualifier(GrShaderVar::kDefault_Precision,
                                        gpu->glStandard(),
                                        &fragShaderSrc);
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility, &fragShaderSrc);

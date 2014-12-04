@@ -21,9 +21,6 @@
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
-// ES2 FS only guarantees mediump and lowp support
-static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar::kMedium_Precision;
-
 //////////////////////////////////////////////////////////////////////////////
 
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
@@ -175,7 +172,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(uint32
     // to use the default FS precision.
     if ((kVertex_Visibility | kFragment_Visibility) == visibility) {
         // the fragment and vertex precisions must match
-        uni.fVariable.setPrecision(kDefaultFragmentPrecision);
+        uni.fVariable.setPrecision(GrShaderVar::kDefault_Precision);
     }
 
     if (outName) {

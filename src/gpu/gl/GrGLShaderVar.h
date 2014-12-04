@@ -207,8 +207,6 @@ public:
                     return "mediump ";
                 case kHigh_Precision:
                     return "highp ";
-                case kDefault_Precision:
-                    return "";
                 default:
                     SkFAIL("Unexpected precision type.");
             }
