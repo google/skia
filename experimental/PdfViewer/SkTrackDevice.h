@@ -39,11 +39,13 @@ public:
     }
 
 protected:
+#if 0   // clear is deprecated (and private)
     virtual void clear(SkColor color) {
         before();
         INHERITED::clear(color);
         after();
     }
+#endif
 
     virtual void drawPaint(const SkDraw& dummy1, const SkPaint& paint) {
         before();
