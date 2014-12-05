@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrPorterDuffXferProcessor.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 
 #include "GrDrawState.h"
 #include "GrInvariantOutput.h"
