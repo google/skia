@@ -519,32 +519,36 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
         return true;
     }
 
-    if (NULL == glyph->fPlot && !uploadGlyph(glyph, scaler)) {
-        if (NULL == glyph->fPath) {
-            SkPath* path = SkNEW(SkPath);
-            if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
-                // flag the glyph as being dead?
-                delete path;
-                return true;
+    if (NULL == glyph->fPlot) {
+        // needs to be a separate conditional to avoid over-optimization
+        // on Nexus 7 and Nexus 10
+        if (!uploadGlyph(glyph, scaler)) {
+            if (NULL == glyph->fPath) {
+                SkPath* path = SkNEW(SkPath);
+                if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
+                    // flag the glyph as being dead?
+                    delete path;
+                    return true;
+                }
+                glyph->fPath = path;
             }
-            glyph->fPath = path;
+
+            // flush any accumulated draws before drawing this glyph as a path.
+            this->flush();
+
+            GrContext::AutoMatrix am;
+            SkMatrix ctm;
+            ctm.setScale(fTextRatio, fTextRatio);
+            ctm.postTranslate(sx - dx, sy - dy);
+            GrPaint tmpPaint(fPaint);
+            am.setPreConcat(fContext, ctm, &tmpPaint);
+            GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
+            fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
+
+            // remove this glyph from the vertices we need to allocate
+            fTotalVertexCount -= kVerticesPerGlyph;
+            return true;
         }
-
-        // flush any accumulated draws before drawing this glyph as a path.
-        this->flush();
-
-        GrContext::AutoMatrix am;
-        SkMatrix ctm;
-        ctm.setScale(fTextRatio, fTextRatio);
-        ctm.postTranslate(sx - dx, sy - dy);
-        GrPaint tmpPaint(fPaint);
-        am.setPreConcat(fContext, ctm, &tmpPaint);
-        GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
-
-        // remove this glyph from the vertices we need to allocate
-        fTotalVertexCount -= kVerticesPerGlyph;
-        return true;
     }
 
     SkASSERT(glyph->fPlot);
