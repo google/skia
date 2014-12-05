@@ -15,6 +15,7 @@
 #include "SkGlyph.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
+#include "SkMatrix22.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkPathEffect.h"
@@ -720,6 +721,91 @@ void SkScalerContextRec::getSingleMatrixWithoutTextSize(SkMatrix* m) const {
     SkMatrix    deviceMatrix;
     this->getMatrixFrom2x2(&deviceMatrix);
     m->postConcat(deviceMatrix);
+}
+
+void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector* s, SkMatrix* sA,
+                                         SkMatrix* GsA, SkMatrix* G_inv, SkMatrix* A_out)
+{
+    // A is the 'total' matrix.
+    SkMatrix A;
+    this->getSingleMatrix(&A);
+
+    // The caller may find the 'total' matrix useful when dealing directly with EM sizes.
+    if (A_out) {
+        *A_out = A;
+    }
+
+    // GA is the matrix A with rotation removed.
+    SkMatrix GA;
+    bool skewedOrFlipped = A.getSkewX() || A.getSkewY() || A.getScaleX() < 0 || A.getScaleY() < 0;
+    if (skewedOrFlipped) {
+        // h is where A maps the horizontal baseline.
+        SkPoint h = SkPoint::Make(SK_Scalar1, 0);
+        A.mapPoints(&h, 1);
+
+        // G is the Givens Matrix for A (rotational matrix where GA[0][1] == 0).
+        SkMatrix G;
+        SkComputeGivensRotation(h, &G);
+
+        GA = G;
+        GA.preConcat(A);
+
+        // The 'remainingRotation' is G inverse, which is fairly simple since G is 2x2 rotational.
+        if (G_inv) {
+            G_inv->setAll(
+                G.get(SkMatrix::kMScaleX), -G.get(SkMatrix::kMSkewX), G.get(SkMatrix::kMTransX),
+                -G.get(SkMatrix::kMSkewY), G.get(SkMatrix::kMScaleY), G.get(SkMatrix::kMTransY),
+                G.get(SkMatrix::kMPersp0), G.get(SkMatrix::kMPersp1), G.get(SkMatrix::kMPersp2));
+        }
+    } else {
+        GA = A;
+        if (G_inv) {
+            G_inv->reset();
+        }
+    }
+
+    // At this point, given GA, create s.
+    switch (preMatrixScale) {
+        case kFull_PreMatrixScale:
+            s->fX = SkScalarAbs(GA.get(SkMatrix::kMScaleX));
+            s->fY = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+            break;
+        case kVertical_PreMatrixScale: {
+            SkScalar yScale = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+            s->fX = yScale;
+            s->fY = yScale;
+            break;
+        }
+        case kVerticalInteger_PreMatrixScale: {
+            SkScalar realYScale = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+            SkScalar intYScale = SkScalarRoundToScalar(realYScale);
+            if (intYScale == 0) {
+                intYScale = SK_Scalar1;
+            }
+            s->fX = intYScale;
+            s->fY = intYScale;
+            break;
+        }
+    }
+
+    // The 'remaining' matrix sA is the total matrix A without the scale.
+    if (!skewedOrFlipped && kFull_PreMatrixScale == preMatrixScale) {
+        // If GA == A and kFull_PreMatrixScale, sA is identity.
+        sA->reset();
+    } else {
+        // TODO: If GA == A and kVertical_PreMatrixScale, sA.scaleY is SK_Scalar1.
+        // TODO: If GA == A and kVertical_PreMatrixScale and A.scaleX == A.scaleY, sA is identity.
+        // TODO: like kVertical_PreMatrixScale, kVerticalInteger_PreMatrixScale with int scales.
+        *sA = A;
+        sA->preScale(SkScalarInvert(s->fX), SkScalarInvert(s->fY));
+    }
+
+    // The 'remainingWithoutRotation' matrix GsA is the non-rotational part of A without the scale.
+    if (GsA) {
+        *GsA = GA;
+         // G is rotational so reorders with the scale.
+        GsA->preScale(SkScalarInvert(s->fX), SkScalarInvert(s->fY));
+    }
 }
 
 SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {

@@ -817,56 +817,12 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     }
     fFace = fFaceRec->fFace;
 
-    // A is the total matrix.
-    SkMatrix A;
-    fRec.getSingleMatrix(&A);
+    fRec.computeMatrices(SkScalerContextRec::kFull_PreMatrixScale, &fScale, &fMatrix22Scalar);
+    fMatrix22Scalar.setSkewX(-fMatrix22Scalar.getSkewX());
+    fMatrix22Scalar.setSkewY(-fMatrix22Scalar.getSkewY());
 
-    SkScalar sx = A.getScaleX();
-    SkScalar sy = A.getScaleY();
-    fMatrix22Scalar.reset();
-
-    // In GDI, the hinter is aware of the current transformation
-    // (the transform is in some sense applied before/with the hinting).
-    // The bytecode can then test if it is rotated or stretched and decide
-    // to apply instructions or not.
-    //
-    // FreeType, however, always does the transformation strictly after hinting.
-    // It just sets 'rotated' and 'stretched' to false and only applies the
-    // size before hinting.
-    //
-    // Also, FreeType respects the head::flags::IntegerScaling flag,
-    // (although this is patched out on most major distros)
-    // so it is critical to get the size correct on the request.
-    //
-    // This also gets us the actual closest size on bitmap fonts as well.
-    if (A.getSkewX() || A.getSkewY() || sx < 0 || sy < 0) {
-        // h is where A maps the horizontal baseline.
-        SkPoint h = SkPoint::Make(SK_Scalar1, 0);
-        A.mapPoints(&h, 1);
-
-        // G is the Givens Matrix for A (rotational matrix where GA[0][1] == 0).
-        SkMatrix G;
-        SkComputeGivensRotation(h, &G);
-
-        // GA is the matrix A with rotation removed.
-        SkMatrix GA(G);
-        GA.preConcat(A);
-
-        sx = SkScalarAbs(GA.get(SkMatrix::kMScaleX));
-        sy = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
-
-        // sA is the total matrix A without the text scale.
-        SkMatrix sA(A);
-        sA.preScale(SkScalarInvert(sx), SkScalarInvert(sy)); //remove text size
-
-        fMatrix22Scalar.setScaleX(sA.getScaleX());
-        fMatrix22Scalar.setSkewX(-sA.getSkewX());
-        fMatrix22Scalar.setSkewY(-sA.getSkewY());
-        fMatrix22Scalar.setScaleY(sA.getScaleY());
-    }
-    fScale.set(sx, sy);
-    fScaleX = SkScalarToFixed(sx);
-    fScaleY = SkScalarToFixed(sy);
+    fScaleX = SkScalarToFixed(fScale.fX);
+    fScaleY = SkScalarToFixed(fScale.fY);
     fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
     fMatrix22.xy = SkScalarToFixed(fMatrix22Scalar.getSkewX());
     fMatrix22.yx = SkScalarToFixed(fMatrix22Scalar.getSkewY());

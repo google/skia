@@ -617,55 +617,27 @@ SkScalerContext_GDI::SkScalerContext_GDI(SkTypeface* rawTypeface,
     SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
 
-    SkPoint h = SkPoint::Make(SK_Scalar1, 0);
-    // A is the total matrix.
-    SkMatrix A;
-    fRec.getSingleMatrix(&A);
-    A.mapPoints(&h, 1);
-
-    // G is the Givens Matrix for A (rotational matrix where GA[0][1] == 0).
-    SkMatrix G;
-    SkComputeGivensRotation(h, &G);
-
-    // GA is the matrix A with rotation removed.
-    SkMatrix GA(G);
-    GA.preConcat(A);
-
-    // realTextSize is the actual device size we want (as opposed to the size the user requested).
-    // gdiTextSize is the size we request from GDI.
-    // If the scale is negative, this means the matrix will do the flip anyway.
-    SkScalar realTextSize = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
-    SkScalar gdiTextSize = SkScalarRoundToScalar(realTextSize);
-    if (gdiTextSize == 0) {
-        gdiTextSize = SK_Scalar1;
-    }
-
-    // When not hinting, remove only the gdiTextSize scale which will be applied by GDI.
     // When GDI hinting, remove the entire Y scale to prevent 'subpixel' metrics.
-    SkScalar scale = (fRec.getHinting() == SkPaint::kNo_Hinting ||
-                      fRec.getHinting() == SkPaint::kSlight_Hinting)
-                   ? SkScalarInvert(gdiTextSize)
-                   : SkScalarInvert(realTextSize);
-
-    // sA is the total matrix A without the textSize (so GDI knows the text size separately).
-    // When this matrix is used with GetGlyphOutline, no further processing is needed.
-    SkMatrix sA(A);
-    sA.preScale(scale, scale); //remove text size
-
-    // GsA is the non-rotational part of A without the text height scale.
-    // This is what is used to find the magnitude of advances.
-    SkMatrix GsA(GA);
-    GsA.preScale(scale, scale); //remove text size, G is rotational so reorders with the scale.
+    // When not hinting, remove only the gdiTextSize scale which will be applied by GDI.
+    SkScalerContextRec::PreMatrixScale scaleConstraints =
+        (fRec.getHinting() == SkPaint::kNo_Hinting || fRec.getHinting() == SkPaint::kSlight_Hinting)
+                   ? SkScalerContextRec::kVerticalInteger_PreMatrixScale
+                   : SkScalerContextRec::kVertical_PreMatrixScale;
+    SkVector scale;
+    SkMatrix sA;
+    SkMatrix GsA;
+    SkMatrix A;
+    fRec.computeMatrices(scaleConstraints, &scale, &sA, &GsA, &fG_inv, &A);
 
     fGsA.eM11 = SkScalarToFIXED(GsA.get(SkMatrix::kMScaleX));
     fGsA.eM12 = SkScalarToFIXED(-GsA.get(SkMatrix::kMSkewY)); // This should be ~0.
     fGsA.eM21 = SkScalarToFIXED(-GsA.get(SkMatrix::kMSkewX));
     fGsA.eM22 = SkScalarToFIXED(GsA.get(SkMatrix::kMScaleY));
 
-    // fG_inv is G inverse, which is fairly simple since G is 2x2 rotational.
-    fG_inv.setAll(G.get(SkMatrix::kMScaleX), -G.get(SkMatrix::kMSkewX), G.get(SkMatrix::kMTransX),
-                  -G.get(SkMatrix::kMSkewY), G.get(SkMatrix::kMScaleY), G.get(SkMatrix::kMTransY),
-                  G.get(SkMatrix::kMPersp0), G.get(SkMatrix::kMPersp1), G.get(SkMatrix::kMPersp2));
+    SkScalar gdiTextSize = scale.fY;
+    if (gdiTextSize == 0) {
+        gdiTextSize = SK_Scalar1;
+    }
 
     LOGFONT lf = typeface->fLogFont;
     lf.lfHeight = -SkScalarTruncToInt(gdiTextSize);
