@@ -34,10 +34,7 @@ static void draw_path(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     paint.setColor(SK_ColorMAGENTA);
     paint.setImageFilter(imf);
     paint.setAntiAlias(true);
-    canvas->save();
-    canvas->clipRect(r);
     canvas->drawCircle(r.centerX(), r.centerY(), r.width()*2/5, paint);
-    canvas->restore();
 }
 
 static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
@@ -48,10 +45,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(r.height()/2);
     paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->save();
-    canvas->clipRect(r);
     canvas->drawText("Text", 4, r.centerX(), r.centerY(), paint);
-    canvas->restore();
 }
 
 static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
@@ -67,10 +61,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     draw_path(&c, r, NULL);
 
     paint.setImageFilter(imf);
-    canvas->save();
-    canvas->clipRect(r);
     canvas->drawBitmap(bm, 0, 0, &paint);
-    canvas->restore();
 }
 
 static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
