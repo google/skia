@@ -733,10 +733,6 @@ int nanobench_main() {
             }
 #endif
             log->metric("min_ms",    stats.min);
-            log->metric("median_ms", stats.median);
-            log->metric("mean_ms",   stats.mean);
-            log->metric("max_ms",    stats.max);
-            log->metric("stddev_ms", sqrt(stats.var));
             if (runs++ % FLAGS_flushEvery == 0) {
                 log->flush();
             }
