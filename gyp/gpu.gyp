@@ -74,6 +74,7 @@
       ],
       'include_dirs': [
         '../include/gpu',
+        '../include/gpu/effects',
       ],
     },
   },
@@ -94,6 +95,7 @@
       ],
       'include_dirs': [
         '../include/gpu',
+        '../include/gpu/effects',
         '../src/core',
         '../src/gpu',
       ],
