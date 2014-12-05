@@ -51,6 +51,10 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
         return false;
     }
 
+    if (!this->getXPFactory()->isEqual(*that.getXPFactory())) {
+        return false;
+    }
+
     for (int i = 0; i < this->numColorStages(); i++) {
         if (!GrFragmentStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
                                              explicitLocalCoords)) {

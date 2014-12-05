@@ -68,8 +68,12 @@ public:
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
 private:
-    GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst)
-        : fSrc(src), fDst(dst) {}
+    GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 
+
+    bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
+        const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();
+        return (fSrc == xpf.fSrc && fDst == xpf.fDst);
+    }
 
     GrBlendCoeff fSrc;
     GrBlendCoeff fDst;

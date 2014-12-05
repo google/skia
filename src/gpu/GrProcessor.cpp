@@ -11,6 +11,7 @@
 #include "GrGeometryData.h"
 #include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
+#include "GrXferProcessor.h"
 #include "SkTLS.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
@@ -179,3 +180,10 @@ void* GrGeometryData::operator new(size_t size) {
 void GrGeometryData::operator delete(void* target) {
     GrProcessor_Globals::GetTLS()->release(target);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Initial static variable from GrXPFactory
+int32_t GrXPFactory::gCurrXPFClassID =
+        GrXPFactory::kIllegalXPFClassID;
+

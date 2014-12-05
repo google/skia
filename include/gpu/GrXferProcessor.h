@@ -54,7 +54,50 @@ public:
      */
     virtual bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const = 0;
 
+    bool isEqual(const GrXPFactory& that) const {
+        if (this->classID() != that.classID()) {
+            return false;
+        }
+        return this->onIsEqual(that);
+    }
+
+    /**
+      * Helper for down-casting to a GrXPFactory subclass
+      */
+    template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
+
+    uint32_t classID() const { SkASSERT(kIllegalXPFClassID != fClassID); return fClassID; }
+
+protected:
+    GrXPFactory() : fClassID(kIllegalXPFClassID) {}
+
+    template <typename XPF_SUBCLASS> void initClassID() {
+         static uint32_t kClassID = GenClassID();
+         fClassID = kClassID;
+    }
+
+    uint32_t fClassID;
+
 private:
+    virtual bool onIsEqual(const GrXPFactory&) const = 0;
+
+    static uint32_t GenClassID() {
+        // fCurrXPFactoryID has been initialized to kIllegalXPFactoryID. The
+        // atomic inc returns the old value not the incremented value. So we add
+        // 1 to the returned value.
+        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(&gCurrXPFClassID)) + 1;
+        if (!id) {
+            SkFAIL("This should never wrap as it should only be called once for each GrXPFactory "
+                   "subclass.");
+        }
+        return id;
+    }
+
+    enum {
+        kIllegalXPFClassID = 0,
+    };
+    static int32_t gCurrXPFClassID;
+
     typedef GrProgramElement INHERITED;
 };
 

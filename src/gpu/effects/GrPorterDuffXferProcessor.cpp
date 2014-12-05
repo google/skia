@@ -65,6 +65,11 @@ void GrPorterDuffXferProcessor::onComputeInvariantOutput(GrInvariantOutput* inou
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GrPorterDuffXPFactory::GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst)
+    : fSrc(src), fDst(dst) {
+    this->initClassID<GrPorterDuffXPFactory>();
+}
+
 GrXPFactory* GrPorterDuffXPFactory::Create(SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kClear_Mode: {
