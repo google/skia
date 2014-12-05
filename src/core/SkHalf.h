@@ -15,6 +15,10 @@
 // only used for storage
 typedef uint16_t SkHalf;
 
+#define SK_HalfMin      0x0400   // 2^-24  (minimum positive normal value)
+#define SK_HalfMax      0x7bff   // 65504
+#define SK_HalfEpsilon  0x1400   // 2^-10
+
 // convert between half and single precision floating point
 float SkHalfToFloat(SkHalf h);
 SkHalf SkFloatToHalf(float f);

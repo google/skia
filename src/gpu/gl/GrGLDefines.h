@@ -302,7 +302,9 @@
 #define GR_GL_INT                            0x1404
 #define GR_GL_UNSIGNED_INT                   0x1405
 #define GR_GL_FLOAT                          0x1406
+#define GR_GL_HALF_FLOAT                     0x140B
 #define GR_GL_FIXED                          0x140C
+#define GR_GL_HALF_FLOAT_OES                 0x8D61
 
 /* Lighting */
 #define GR_GL_LIGHTING                       0x0B50
@@ -379,6 +381,8 @@
 #define GR_GL_ALPHA8                         0x803C
 
 #define GR_GL_R8                             0x8229
+#define GR_GL_R16F                           0x822D
+#define GR_GL_ALPHA16F                       0x881C
 
 /* PixelType */
 /*      GL_UNSIGNED_BYTE */

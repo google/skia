@@ -390,7 +390,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 }
 
 void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
-
     // OpenGL < 3.0
     //  no support for render targets unless the GL_ARB_framebuffer_object
     //  extension is supported (in which case we get ALPHA, RED, RG, RGB,
@@ -470,8 +469,24 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
 
     if (this->isConfigTexturable(kRGBA_float_GrPixelConfig)) {
         fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
+        if (kGL_GrGLStandard == standard) {
+            fConfigRenderSupport[kRGBA_float_GrPixelConfig][kYes_MSAA] = true;
+        } else {
+            // for now we don't support float point MSAA on ES
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = false;
+        }
     }
 
+    if (this->isConfigTexturable(kAlpha_half_GrPixelConfig)) {
+        fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = true;
+        if (kGL_GrGLStandard == standard) {
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = true;
+        } else {
+            // for now we don't support float point MSAA on ES
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = false;
+        }
+    }
+    
     // If we don't support MSAA then undo any places above where we set a config as renderable with
     // msaa.
     if (kNone_MSFBOType == fMSFBOType) {
@@ -607,6 +622,19 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
                          ctxInfo.hasExtension("GL_OES_texture_float"));
     }
     fConfigTextureSupport[kRGBA_float_GrPixelConfig] = hasFPTextures;
+
+    // Check for fp16 texture support
+    // NOTE: We disallow floating point textures on ES devices if linear
+    // filtering modes are not supported.  This is for simplicity, but a more
+    // granular approach is possible.  Coincidentally, 16-bit floating point textures became part of
+    // the standard in ES3.1 / OGL 3.1, hence the shorthand
+    bool hasHalfFPTextures = version >= GR_GL_VER(3, 1);
+    if (!hasHalfFPTextures) {
+        hasHalfFPTextures = ctxInfo.hasExtension("GL_ARB_texture_float") ||
+        (ctxInfo.hasExtension("OES_texture_half_float_linear") &&
+         ctxInfo.hasExtension("GL_OES_texture_half_float"));
+    }
+    fConfigTextureSupport[kAlpha_half_GrPixelConfig] = hasHalfFPTextures && fTextureRedSupport;
 }
 
 bool GrGLCaps::doReadPixelsSupported(const GrGLInterface* intf,
