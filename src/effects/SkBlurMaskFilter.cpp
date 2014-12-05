@@ -551,7 +551,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     }
 
     const SkScalar sigma = this->computeXformedSigma(matrix);
-    if (!find_cached_rects(&patch->fMask, sigma, fBlurStyle, this->getQuality(), rects, count)) {
+    if (!find_cached_rects(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count)) {
         if (count > 1 || !c_analyticBlurNinepatch) {
             if (!draw_rects_into_mask(smallR, count, &srcM)) {
                 return kFalse_FilterReturn;
@@ -568,7 +568,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
                 return kFalse_FilterReturn;
             }
         }
-        add_cached_rects(patch->fMask, sigma, fBlurStyle, this->getQuality(), rects, count);
+        add_cached_rects(patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count);
     }
     patch->fMask.fBounds.offsetTo(0, 0);
     patch->fOuterRect = dstM.fBounds;

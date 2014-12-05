@@ -104,19 +104,27 @@ public:
         , fQuality(quality)
     {
         SkASSERT(1 == count || 2 == count);
-        fRects[0] = SkRect::MakeEmpty();
-        fRects[1] = SkRect::MakeEmpty();
+        SkIRect ir;
+        rects[0].roundOut(&ir);
+        fSizes[0] = SkSize::Make(0, 0);
+        fSizes[1] = SkSize::Make(0, 0);
+        fSizes[2] = SkSize::Make(0, 0);
+        fSizes[3] = SkSize::Make(rects[0].x() - ir.x(), rects[0].y() - ir.y());
         for (int i = 0; i < count; i++) {
-            fRects[i] = rects[i];
+            fSizes[i] = SkSize::Make(rects[i].width(), rects[i].height());
         }
+        if (2 == count) {
+            fSizes[2] = SkSize::Make(rects[0].x() - rects[1].x(), rects[0].y() - rects[1].y());
+        }
+
         this->init(&gRectsBlurKeyNamespaceLabel,
-                   sizeof(fSigma) + sizeof(fStyle) + sizeof(fQuality) + sizeof(fRects));
+                   sizeof(fSigma) + sizeof(fStyle) + sizeof(fQuality) + sizeof(fSizes));
     }
 
     SkScalar    fSigma;
     int32_t     fStyle;
     int32_t     fQuality;
-    SkRect      fRects[2];
+    SkSize      fSizes[4];
 };
 
 struct RectsBlurRec : public SkResourceCache::Rec {
