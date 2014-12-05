@@ -4802,18 +4802,26 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8073710266722538686
+          13687524319686840248
         ]
       ], 
+      "bugs": [
+        3188
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "dftext_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8073710266722538686
+          13687524319686840248
         ]
       ], 
+      "bugs": [
+        3188
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "discard_gpu.png": {
