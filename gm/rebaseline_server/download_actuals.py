@@ -197,6 +197,9 @@ class RietveldIssueActuals(object):
       logging.info('Fetching issue %s patch %s try %s...' %
                   (self._issue, patchset, try_builder))
       build_url = try_job_result.get('url', '<bad url>')
+      if build_url is None:
+        logging.warning('Builder %s has not started.' % (try_builder,))
+        continue
       gm_upload_output_url = build_url + urllib2.quote(upload_gm_step_url)
       logging.info('Fetching %s ...' % (gm_upload_output_url,))
 
