@@ -6043,10 +6043,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5040757535335650688
+          612092832801010869
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "imagefilterscropped_msaa4.png": {
       "allowed-digests": [
