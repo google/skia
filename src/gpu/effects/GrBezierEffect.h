@@ -60,25 +60,19 @@ class GrConicEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_PROCESSOR(gConicFillAA, GrConicEffect, (kFillAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_PROCESSOR(gConicHairAA, GrConicEffect, (kHairlineAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_PROCESSOR(gConicFillBW, GrConicEffect, (kFillBW_GrProcessorEdgeType));
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                gConicFillAA->ref();
-                return gConicFillAA;
+                return SkNEW_ARGS(GrConicEffect, (kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                gConicHairAA->ref();
-                return gConicHairAA;
+                return SkNEW_ARGS(GrConicEffect, (kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
-                gConicFillBW->ref();
-                return gConicFillBW;
+                return SkNEW_ARGS(GrConicEffect, (kFillBW_GrProcessorEdgeType));;
             default:
                 return NULL;
         }
@@ -133,25 +127,19 @@ class GrQuadEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_PROCESSOR(gQuadFillAA, GrQuadEffect, (kFillAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_PROCESSOR(gQuadHairAA, GrQuadEffect, (kHairlineAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_PROCESSOR(gQuadFillBW, GrQuadEffect, (kFillBW_GrProcessorEdgeType));
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                gQuadFillAA->ref();
-                return gQuadFillAA;
+                return SkNEW_ARGS(GrQuadEffect, (kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                gQuadHairAA->ref();
-                return gQuadHairAA;
+                return SkNEW_ARGS(GrQuadEffect, (kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
-                gQuadFillBW->ref();
-                return gQuadFillBW;
+                return SkNEW_ARGS(GrQuadEffect, (kFillBW_GrProcessorEdgeType));
             default:
                 return NULL;
         }
@@ -208,25 +196,19 @@ class GrCubicEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_PROCESSOR(gCubicFillAA, GrCubicEffect, (kFillAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_PROCESSOR(gCubicHairAA, GrCubicEffect, (kHairlineAA_GrProcessorEdgeType));
-        GR_CREATE_STATIC_PROCESSOR(gCubicFillBW, GrCubicEffect, (kFillBW_GrProcessorEdgeType));
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                gCubicFillAA->ref();
-                return gCubicFillAA;
+                return SkNEW_ARGS(GrCubicEffect, (kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                gCubicHairAA->ref();
-                return gCubicHairAA;
+                return SkNEW_ARGS(GrCubicEffect, (kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
-                gCubicFillBW->ref();
-                return gCubicFillBW;
+                return SkNEW_ARGS(GrCubicEffect, (kFillBW_GrProcessorEdgeType));
             default:
                 return NULL;
         }

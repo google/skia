@@ -506,9 +506,7 @@ class QuadEdgeEffect : public GrGeometryProcessor {
 public:
 
     static GrGeometryProcessor* Create() {
-        GR_CREATE_STATIC_PROCESSOR(gQuadEdgeEffect, QuadEdgeEffect, ());
-        gQuadEdgeEffect->ref();
-        return gQuadEdgeEffect;
+        return SkNEW(QuadEdgeEffect);
     }
 
     virtual ~QuadEdgeEffect() {}

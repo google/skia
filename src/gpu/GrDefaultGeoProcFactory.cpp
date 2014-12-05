@@ -22,43 +22,7 @@ typedef GrDefaultGeoProcFactory Flag;
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(uint32_t gpTypeFlags) {
-        switch (gpTypeFlags) {
-            case Flag::kColor_GPType | Flag::kCoverage_GPType | Flag::kLocalCoord_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcColLocCov, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcColLocCov);
-            }
-            case Flag::kColor_GPType | Flag::kLocalCoord_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcColLoc, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcColLoc);
-            }
-            case Flag::kColor_GPType | Flag::kCoverage_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcColCov, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcColCov);
-            }
-            case Flag::kColor_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcCol, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcCol);
-            }
-            case Flag::kLocalCoord_GPType | Flag::kCoverage_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcLocCov, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcLocCov);
-            }
-            case Flag::kLocalCoord_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcLoc, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcLoc);
-            }
-            case Flag::kCoverage_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProcCov, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProcCov);
-            }
-            case Flag::kPosition_GPType: {
-                GR_CREATE_STATIC_PROCESSOR(gDefaultGeoProc, DefaultGeoProc, (gpTypeFlags));
-                return SkRef(gDefaultGeoProc);
-            }
-            default:
-                SkFAIL("Incomplete Switch");
-                return NULL;
-        }
+        return SkNEW_ARGS(DefaultGeoProc, (gpTypeFlags));
     }
 
     virtual const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
