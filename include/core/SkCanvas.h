@@ -621,8 +621,11 @@ public:
     */
     void drawColor(SkColor color, SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
 
-    // TODO: remove virtual when chrome subclass stop overriding this.
-    virtual void clear(SkColor color) {
+    /**
+     *  Helper method for drawing a color in SRC mode, completely replacing all the pixels
+     *  in the current clip with this color.
+     */
+    void clear(SkColor color) {
         this->drawColor(color, SkXfermode::kSrc_Mode);
     }
 
