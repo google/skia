@@ -16,10 +16,12 @@
 #include "GrInvariantOutput.h"
 #include "GrOptDrawState.h"
 #include "GrTest.h"
+#include "GrXferProcessor.h"
 #include "SkChecksum.h"
 #include "SkRandom.h"
 #include "Test.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/GrGpuGL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -267,7 +269,8 @@ static void set_random_blend_func(GrDrawState* ds, SkRandom* random) {
         dst = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
     } while (GrBlendCoeffRefsDst(dst));
 
-    ds->setBlendFunc(src, dst);
+    GrXPFactory* xpFactory = GrPorterDuffXPFactory::Create(src, dst);
+    ds->setXPFactory(xpFactory)->unref();
 }
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'

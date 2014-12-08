@@ -17,8 +17,9 @@ class GrInvariantOutput;
 
 class GrPorterDuffXferProcessor : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend) {
-        return SkNEW_ARGS(GrPorterDuffXferProcessor, (srcBlend, dstBlend));
+    static GrXferProcessor* Create(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend,
+                                   GrColor constant = 0) {
+        return SkNEW_ARGS(GrPorterDuffXferProcessor, (srcBlend, dstBlend, constant));
     }
 
     virtual ~GrPorterDuffXferProcessor();
@@ -30,12 +31,28 @@ public:
 
     virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
+    virtual GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
+                                                       const GrProcOptInfo& coveragePOI,
+                                                       bool isCoverageDrawing,
+                                                       bool colorWriteDisabled,
+                                                       bool doesStencilWrite,
+                                                       GrColor* color,
+                                                       uint8_t* coverage) SK_OVERRIDE;
+
+    virtual void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+        blendInfo->fSrcBlend = fSrcBlend;
+        blendInfo->fDstBlend = fDstBlend;
+        blendInfo->fBlendConstant = fBlendConstant;
+    }
+
 private:
-    GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend);
+    GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant);
 
     virtual bool onIsEqual(const GrFragmentProcessor& fpBase) const SK_OVERRIDE {
         const GrPorterDuffXferProcessor& xp = fpBase.cast<GrPorterDuffXferProcessor>();
-        if (fSrcBlend != xp.fSrcBlend || fDstBlend != xp.fDstBlend) {
+        if (fSrcBlend != xp.fSrcBlend ||
+            fDstBlend != xp.fDstBlend ||
+            fBlendConstant != xp.fBlendConstant) {
             return false;
         }
         return true;
@@ -45,7 +62,8 @@ private:
 
     GrBlendCoeff fSrcBlend;
     GrBlendCoeff fDstBlend;
-    
+    GrColor      fBlendConstant;
+
     typedef GrXferProcessor INHERITED;
 };
 
@@ -63,20 +81,34 @@ public:
         return SkNEW_ARGS(GrPorterDuffXPFactory, (src, dst));
     }
 
-    const GrXferProcessor* createXferProcessor() const SK_OVERRIDE;
+    GrXferProcessor* createXferProcessor(const GrProcOptInfo& colorPOI,
+                                         const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
+
+    bool canApplyCoverage(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
+                          bool isCoverageDrawing, bool colorWriteDisabled) const SK_OVERRIDE;
+
+    bool willBlendWithDst(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
+                          bool isCoverageDrawing, bool colorWriteDisabled) const SK_OVERRIDE;
+
+    bool canTweakAlphaForCoverage(bool isCoverageDrawing) const SK_OVERRIDE;
+
+    bool getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,
+                                const GrProcOptInfo& coveragePOI,
+                                GrColor* solidColor,
+                                uint32_t* solidColorKnownComponents) const SK_OVERRIDE;
 
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();
-        return (fSrc == xpf.fSrc && fDst == xpf.fDst);
+        return (fSrcCoeff == xpf.fSrcCoeff && fDstCoeff == xpf.fDstCoeff);
     }
 
-    GrBlendCoeff fSrc;
-    GrBlendCoeff fDst;
+    GrBlendCoeff fSrcCoeff;
+    GrBlendCoeff fDstCoeff;
 
     typedef GrXPFactory INHERITED;
 };

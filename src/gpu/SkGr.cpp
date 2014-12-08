@@ -464,30 +464,21 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     grPaint->setDither(skPaint.isDither());
     grPaint->setAntiAlias(skPaint.isAntiAlias());
 
-    SkXfermode::Coeff sm;
-    SkXfermode::Coeff dm;
-
     SkXfermode* mode = skPaint.getXfermode();
     GrFragmentProcessor* fragmentProcessor = NULL;
     GrXPFactory* xpFactory = NULL;
-    if (SkXfermode::AsFragmentProcessorOrXPFactory(mode, &fragmentProcessor, &xpFactory,
-                                                   &sm, &dm)) {
+    if (SkXfermode::AsFragmentProcessorOrXPFactory(mode, &fragmentProcessor, &xpFactory)) {
         if (fragmentProcessor) {
             SkASSERT(NULL == xpFactory);
             grPaint->addColorProcessor(fragmentProcessor)->unref();
             xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode);
-            sm = SkXfermode::kOne_Coeff;
-            dm = SkXfermode::kZero_Coeff;
         }
     } else {
         // Fall back to src-over
         xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode);
-        sm = SkXfermode::kOne_Coeff;
-        dm = SkXfermode::kISA_Coeff;
     }
     SkASSERT(xpFactory);
     grPaint->setXPFactory(xpFactory)->unref();
-    grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
 
     //set the color of the paint to the one of the parameter
     grPaint->setColor(paintColor);
