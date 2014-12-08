@@ -2215,7 +2215,8 @@ struct Convexicator {
     Convexicator()
     : fPtCount(0)
     , fConvexity(SkPath::kConvex_Convexity)
-    , fDirection(SkPath::kUnknown_Direction) {
+    , fDirection(SkPath::kUnknown_Direction)
+    , fIsFinite(true) {
         fExpectedDir = kInvalid_DirChange;
         // warnings
         fLastPt.set(0, 0);
@@ -2233,7 +2234,7 @@ struct Convexicator {
     SkPath::Direction getDirection() const { return fDirection; }
 
     void addPt(const SkPoint& pt) {
-        if (SkPath::kConcave_Convexity == fConvexity) {
+        if (SkPath::kConcave_Convexity == fConvexity || !fIsFinite) {
             return;
         }
 
@@ -2242,7 +2243,10 @@ struct Convexicator {
             ++fPtCount;
         } else {
             SkVector vec = pt - fCurrPt;
-            if (!SkScalarNearlyZero(vec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
+            SkScalar lengthSqd = vec.lengthSqd();
+            if (!SkScalarIsFinite(lengthSqd)) {
+                fIsFinite = false;
+            } else if (!SkScalarNearlyZero(lengthSqd, SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
                 fLastPt = fCurrPt;
                 fCurrPt = pt;
                 if (++fPtCount == 2) {
@@ -2270,6 +2274,10 @@ struct Convexicator {
         if (fPtCount > 2) {
             this->addVec(fFirstVec);
         }
+    }
+
+    bool isFinite() const {
+        return fIsFinite;
     }
 
 private:
@@ -2310,6 +2318,7 @@ private:
     SkPath::Convexity   fConvexity;
     SkPath::Direction   fDirection;
     int                 fDx, fDy, fSx, fSy;
+    bool                fIsFinite;
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
@@ -2322,6 +2331,9 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     int             count;
     Convexicator    state;
 
+    if (!isFinite()) {
+        return kUnknown_Convexity;
+    }
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
@@ -2350,6 +2362,9 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
             state.addPt(pts[i]);
         }
         // early exit
+        if (!state.isFinite()) {
+            return kUnknown_Convexity;
+        }
         if (kConcave_Convexity == state.getConvexity()) {
             fConvexity = kConcave_Convexity;
             return kConcave_Convexity;

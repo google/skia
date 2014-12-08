@@ -1308,6 +1308,79 @@ static void test_convexity(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, gRec[i].fExpectedConvexity == path.getConvexity());
         check_direction(reporter, path, gRec[i].fExpectedDirection);
     }
+
+    static const SkPoint nonFinitePts[] = {
+        { SK_ScalarInfinity, 0 },
+        { 0, SK_ScalarInfinity },
+        { SK_ScalarInfinity, SK_ScalarInfinity },
+        { SK_ScalarNegativeInfinity, 0},
+        { 0, SK_ScalarNegativeInfinity },
+        { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity },
+        { SK_ScalarNegativeInfinity, SK_ScalarInfinity },
+        { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
+        { SK_ScalarNaN, 0 },
+        { 0, SK_ScalarNaN },
+        { SK_ScalarNaN, SK_ScalarNaN },
+    };
+
+    const size_t nonFinitePtsCount = sizeof(nonFinitePts) / sizeof(nonFinitePts[0]);
+
+    static const SkPoint finitePts[] = {
+        { SK_ScalarMax, 0 },
+        { 0, SK_ScalarMax },
+        { SK_ScalarMax, SK_ScalarMax },
+        { SK_ScalarMin, 0 },
+        { 0, SK_ScalarMin },
+        { SK_ScalarMin, SK_ScalarMin },
+    };
+
+    const size_t finitePtsCount = sizeof(finitePts) / sizeof(finitePts[0]);
+
+    for (int index = 0; index < (int) (13 * nonFinitePtsCount * finitePtsCount); ++index) {
+        int i = (int) (index % nonFinitePtsCount);
+        int f = (int) (index % finitePtsCount);
+        int g = (int) ((f + 1) % finitePtsCount);
+        path.reset();
+        switch (index % 13) {
+            case 0: path.lineTo(nonFinitePts[i]); break;
+            case 1: path.quadTo(nonFinitePts[i], nonFinitePts[i]); break;
+            case 2: path.quadTo(nonFinitePts[i], finitePts[f]); break;
+            case 3: path.quadTo(finitePts[f], nonFinitePts[i]); break;
+            case 4: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[f]); break;
+            case 5: path.cubicTo(finitePts[f], nonFinitePts[i], finitePts[f]); break;
+            case 6: path.cubicTo(finitePts[f], finitePts[f], nonFinitePts[i]); break;
+            case 7: path.cubicTo(nonFinitePts[i], nonFinitePts[i], finitePts[f]); break;
+            case 8: path.cubicTo(nonFinitePts[i], finitePts[f], nonFinitePts[i]); break;
+            case 9: path.cubicTo(finitePts[f], nonFinitePts[i], nonFinitePts[i]); break;
+            case 10: path.cubicTo(nonFinitePts[i], nonFinitePts[i], nonFinitePts[i]); break;
+            case 11: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[g]); break;
+            case 12: path.moveTo(nonFinitePts[i]); break;
+        }
+        check_convexity(reporter, path, SkPath::kUnknown_Convexity);
+    }
+
+    for (int index = 0; index < (int) (11 * finitePtsCount); ++index) {
+        int f = (int) (index % finitePtsCount);
+        int g = (int) ((f + 1) % finitePtsCount);
+        path.reset();
+        int curveSelect = index % 11;
+        switch (curveSelect) {
+            case 0: path.moveTo(finitePts[f]); break;
+            case 1: path.lineTo(finitePts[f]); break;
+            case 2: path.quadTo(finitePts[f], finitePts[f]); break;
+            case 3: path.quadTo(finitePts[f], finitePts[g]); break;
+            case 4: path.quadTo(finitePts[g], finitePts[f]); break;
+            case 5: path.cubicTo(finitePts[f], finitePts[f], finitePts[f]); break;
+            case 6: path.cubicTo(finitePts[f], finitePts[f], finitePts[g]); break;
+            case 7: path.cubicTo(finitePts[f], finitePts[g], finitePts[f]); break;
+            case 8: path.cubicTo(finitePts[f], finitePts[g], finitePts[g]); break;
+            case 9: path.cubicTo(finitePts[g], finitePts[f], finitePts[f]); break;
+            case 10: path.cubicTo(finitePts[g], finitePts[f], finitePts[g]); break;
+        }
+        check_convexity(reporter, path, curveSelect == 0 ? SkPath::kConvex_Convexity
+                : SkPath::kUnknown_Convexity);
+    }
+
 }
 
 static void test_isLine(skiatest::Reporter* reporter) {
@@ -2959,6 +3032,15 @@ static void test_rrect_is_convex(skiatest::Reporter* reporter, SkPath* path,
     path->reset();
 }
 
+static void test_rrect_convexity_is_unknown(skiatest::Reporter* reporter, SkPath* path,
+                                 SkPath::Direction dir) {
+    REPORTER_ASSERT(reporter, path->isConvex());
+    REPORTER_ASSERT(reporter, path->cheapIsDirection(dir));
+    path->setConvexity(SkPath::kUnknown_Convexity);
+    REPORTER_ASSERT(reporter, path->getConvexity() == SkPath::kUnknown_Convexity);
+    path->reset();
+}
+
 static void test_rrect(skiatest::Reporter* reporter) {
     SkPath p;
     SkRRect rr;
@@ -3014,11 +3096,11 @@ static void test_rrect(skiatest::Reporter* reporter) {
     SkRect largeR = {0, 0, SK_ScalarMax, SK_ScalarMax};
     rr.setRectRadii(largeR, radii);
     p.addRRect(rr);
-    test_rrect_is_convex(reporter, &p, SkPath::kCW_Direction);
+    test_rrect_convexity_is_unknown(reporter, &p, SkPath::kCW_Direction);
     SkRect infR = {0, 0, SK_ScalarMax, SK_ScalarInfinity};
     rr.setRectRadii(infR, radii);
     p.addRRect(rr);
-    test_rrect_is_convex(reporter, &p, SkPath::kCW_Direction);
+    test_rrect_convexity_is_unknown(reporter, &p, SkPath::kCW_Direction);
     SkRect tinyR = {0, 0, 1e-9f, 1e-9f};
     p.addRoundRect(tinyR, 5e-11f, 5e-11f);
     test_rrect_is_convex(reporter, &p, SkPath::kCW_Direction);
