@@ -1159,11 +1159,6 @@ HRESULT SkXPSDevice::createXpsQuad(const SkPoint (&points)[4],
     return S_OK;
 }
 
-void SkXPSDevice::clear(SkColor color) {
-    //TODO: override this for XPS
-    SkDEBUGF(("XPS clear not yet implemented."));
-}
-
 void SkXPSDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
                              size_t count, const SkPoint points[],
                              const SkPaint& paint) {

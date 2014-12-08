@@ -70,8 +70,6 @@ public:
     virtual bool endPortfolio();
 
 protected:
-    virtual void clear(SkColor color) SK_OVERRIDE;
-
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
 
     virtual void drawPoints(
