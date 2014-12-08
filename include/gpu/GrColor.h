@@ -111,10 +111,10 @@ static inline GrColor GrUnPreMulColor(GrColor color) {
     SkPMColor colorPM = SkPackARGB32(a, r, g, b);
     SkColor colorUPM = SkUnPreMultiply::PMColorToColor(colorPM);
 
-    r = SkGetPackedR32(colorUPM);
-    g = SkGetPackedG32(colorUPM);
-    b = SkGetPackedB32(colorUPM);
-    a = SkGetPackedA32(colorUPM);
+    r = SkColorGetR(colorUPM);
+    g = SkColorGetG(colorUPM);
+    b = SkColorGetB(colorUPM);
+    a = SkColorGetA(colorUPM);
 
     return GrColorPackRGBA(r, g, b, a);
 }
