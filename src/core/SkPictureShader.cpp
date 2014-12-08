@@ -185,7 +185,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
         SkCanvas canvas(bm);
         canvas.scale(tileScale.width(), tileScale.height());
-        canvas.translate(fTile.x(), fTile.y());
+        canvas.translate(-fTile.x(), -fTile.y());
         canvas.drawPicture(fPicture);
 
         SkMatrix shaderMatrix = this->getLocalMatrix();

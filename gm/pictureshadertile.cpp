@@ -21,68 +21,43 @@ static const struct {
     SkScalar offsetX, offsetY;
 } tiles[] = {
     {      0,      0,    1,    1,      0,    0 },
-    {   0.5f,   0.5f,    1,    1,      0,    0 },
     {  -0.5f,  -0.5f,    1,    1,      0,    0 },
+    {   0.5f,   0.5f,    1,    1,      0,    0 },
 
     {      0,      0, 1.5f, 1.5f,      0,    0 },
-    {   0.5f,   0.5f, 1.5f, 1.5f,      0,    0 },
     {  -0.5f,  -0.5f, 1.5f, 1.5f,      0,    0 },
+    {   0.5f,   0.5f, 1.5f, 1.5f,      0,    0 },
 
     {      0,      0, 0.5f, 0.5f,      0,    0 },
-    { -0.25f, -0.25f, 0.5f, 0.5f,      0,    0 },
     {  0.25f,  0.25f, 0.5f, 0.5f,      0,    0 },
+    { -0.25f, -0.25f, 0.5f, 0.5f,      0,    0 },
 
     {      0,      0,    1,    1,   0.5f, 0.5f },
-    {   0.5f,   0.5f,    1,    1,   0.5f, 0.5f },
     {  -0.5f,  -0.5f,    1,    1,   0.5f, 0.5f },
+    {   0.5f,   0.5f,    1,    1,   0.5f, 0.5f },
 
     {      0,      0, 1.5f, 1.5f,   0.5f, 0.5f },
-    {   0.5f,   0.5f, 1.5f, 1.5f,   0.5f, 0.5f },
     {  -0.5f,  -0.5f, 1.5f, 1.5f,   0.5f, 0.5f },
+    {   0.5f,   0.5f, 1.5f, 1.5f,   0.5f, 0.5f },
 
     {      0,      0, 1.5f,    1,      0,    0 },
-    {   0.5f,   0.5f, 1.5f,    1,      0,    0 },
     {  -0.5f,  -0.5f, 1.5f,    1,      0,    0 },
+    {   0.5f,   0.5f, 1.5f,    1,      0,    0 },
 
     {      0,      0, 0.5f,    1,      0,    0 },
-    { -0.25f, -0.25f, 0.5f,    1,      0,    0 },
     {  0.25f,  0.25f, 0.5f,    1,      0,    0 },
+    { -0.25f, -0.25f, 0.5f,    1,      0,    0 },
 
     {      0,      0,    1, 1.5f,      0,    0 },
-    {   0.5f,   0.5f,    1, 1.5f,      0,    0 },
     {  -0.5f,  -0.5f,    1, 1.5f,      0,    0 },
+    {   0.5f,   0.5f,    1, 1.5f,      0,    0 },
 
     {      0,      0,    1, 0.5f,      0,    0 },
-    { -0.25f, -0.25f,    1, 0.5f,      0,    0 },
     {  0.25f,  0.25f,    1, 0.5f,      0,    0 },
+    { -0.25f, -0.25f,    1, 0.5f,      0,    0 },
 };
 
 class PictureShaderTileGM : public skiagm::GM {
-public:
-    PictureShaderTileGM() {
-        SkPictureRecorder recorder;
-        SkCanvas* pictureCanvas = recorder.beginRecording(kPictureSize, kPictureSize, NULL, 0);
-        drawScene(pictureCanvas, kPictureSize);
-        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(tiles); ++i) {
-            SkRect tile = SkRect::MakeXYWH(tiles[i].x * kPictureSize,
-                                           tiles[i].y * kPictureSize,
-                                           tiles[i].w * kPictureSize,
-                                           tiles[i].h * kPictureSize);
-            SkMatrix localMatrix;
-            localMatrix.setTranslate(tiles[i].offsetX * kPictureSize,
-                                     tiles[i].offsetY * kPictureSize);
-            localMatrix.postScale(kFillSize / (2 * kPictureSize),
-                                  kFillSize / (2 * kPictureSize));
-            fShaders[i].reset(SkShader::CreatePictureShader(picture,
-                              SkShader::kRepeat_TileMode,
-                              SkShader::kRepeat_TileMode,
-                              &localMatrix,
-                              &tile));
-        }
-    }
-
 protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
@@ -94,6 +69,47 @@ protected:
 
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(800, 600);
+    }
+
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        SkPictureRecorder recorder;
+        SkCanvas* pictureCanvas = recorder.beginRecording(kPictureSize, kPictureSize);
+        drawScene(pictureCanvas, kPictureSize);
+        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+        SkPoint offset = SkPoint::Make(100, 100);
+        pictureCanvas = recorder.beginRecording(SkRect::MakeXYWH(offset.x(), offset.y(),
+                                                                 kPictureSize, kPictureSize));
+        pictureCanvas->translate(offset.x(), offset.y());
+        drawScene(pictureCanvas, kPictureSize);
+        SkAutoTUnref<SkPicture> offsetPicture(recorder.endRecording());
+
+        for (unsigned i = 0; i < SK_ARRAY_COUNT(tiles); ++i) {
+            SkRect tile = SkRect::MakeXYWH(tiles[i].x * kPictureSize,
+                                           tiles[i].y * kPictureSize,
+                                           tiles[i].w * kPictureSize,
+                                           tiles[i].h * kPictureSize);
+            SkMatrix localMatrix;
+            localMatrix.setTranslate(tiles[i].offsetX * kPictureSize,
+                                     tiles[i].offsetY * kPictureSize);
+            localMatrix.postScale(kFillSize / (2 * kPictureSize),
+                                  kFillSize / (2 * kPictureSize));
+
+            SkPicture* picturePtr = picture.get();
+            SkRect* tilePtr = &tile;
+
+            if (tile == SkRect::MakeWH(kPictureSize, kPictureSize)) {
+                // When the tile == picture bounds, exercise the picture + offset path.
+                picturePtr = offsetPicture.get();
+                tilePtr = NULL;
+            }
+
+            fShaders[i].reset(SkShader::CreatePictureShader(picturePtr,
+                              SkShader::kRepeat_TileMode,
+                              SkShader::kRepeat_TileMode,
+                              &localMatrix,
+                              tilePtr));
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
