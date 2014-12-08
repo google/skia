@@ -443,7 +443,6 @@ public:
      *  @param src  The picture to use inside the shader (if not NULL, its ref count
      *              is incremented). The SkPicture must not be changed after
      *              successfully creating a picture shader.
-     *              FIXME: src cannot be const due to SkCanvas::drawPicture
      *  @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
      *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
      *  @param tile The tile rectangle in picture coordinates: this represents the subset
@@ -453,7 +452,7 @@ public:
      *              bounds.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static SkShader* CreatePictureShader(SkPicture* src,
+    static SkShader* CreatePictureShader(const SkPicture* src,
                                          TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix,
                                          const SkRect* tile);
