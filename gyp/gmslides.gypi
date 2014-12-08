@@ -84,6 +84,7 @@
         '../gm/filltypes.cpp',
         '../gm/filltypespersp.cpp',
         '../gm/filterbitmap.cpp',
+        '../gm/filterfastbounds.cpp',
         '../gm/filterindiabox.cpp',
         '../gm/fontcache.cpp',
         '../gm/fontmgr.cpp',
