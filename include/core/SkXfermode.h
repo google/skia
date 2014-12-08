@@ -217,10 +217,10 @@ public:
         or a fragment processor. This helper calls the asCoeff(), asXPFactory(),
         and asFragmentProcessor() virtuals. If the xfermode is NULL, it is treated as kSrcOver_Mode.
         It is legal to call this with all params NULL to simply test the return value.
-        fp and xpf must both be NULL or all non-NULL.
+        fp, xpf, src, and dst must all be NULL or all non-NULL.
      */
     static bool AsFragmentProcessorOrXPFactory(SkXfermode*, GrFragmentProcessor**,
-                                               GrXPFactory**);
+                                               GrXPFactory**, Coeff* src, Coeff* dst);
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

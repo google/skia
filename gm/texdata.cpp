@@ -12,9 +12,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "SkColorPriv.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "SkColorPriv.h"
 
 namespace skiagm {
 
@@ -99,8 +98,7 @@ protected:
                 ctx->setRenderTarget(target);
 
                 GrPaint paint;
-                paint.setPorterDuffXPFactory(SkXfermode::kSrcOver_Mode);
-
+                paint.setBlendFunc(kOne_GrBlendCoeff, kISA_GrBlendCoeff);
                 SkMatrix vm;
                 if (i) {
                     vm.setRotate(90 * SK_Scalar1,

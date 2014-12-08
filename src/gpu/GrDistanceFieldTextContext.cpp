@@ -637,6 +637,8 @@ void GrDistanceFieldTextContext::flush() {
 
         // Set draw state
         if (fUseLCDText) {
+            GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
+
             // TODO: move supportsRGBCoverage check to setupCoverageEffect and only add LCD
             // processor if the xp can support it. For now we will simply assume that if
             // fUseLCDText is true, then we have a known color output.
@@ -644,10 +646,22 @@ void GrDistanceFieldTextContext::flush() {
                 SkDebugf("LCD Text will not draw correctly.\n");
             }
             SkASSERT(!drawState.hasColorVertexAttribute());
+            // We don't use the GrPaint's color in this case because it's been premultiplied by
+            // alpha. Instead we feed in a non-premultiplied color, and multiply its alpha by
+            // the mask texture color. The end result is that we get
+            //            mask*paintAlpha*paintColor + (1-mask*paintAlpha)*dstColor
+            int a = SkColorGetA(fSkPaint.getColor());
+            // paintAlpha
+            drawState.setColor(SkColorSetARGB(a, a, a, a));
+            // paintColor
+            drawState.setBlendConstant(colorNoPreMul);
+            drawState.setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
         } else {
             if (0xFF == GrColorUnpackA(fPaint.getColor())) {
                 drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
             }
+            // set back to normal in case we took LCD path previously.
+            drawState.setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
             // We're using per-vertex color.
             SkASSERT(drawState.hasColorVertexAttribute());
         }

@@ -194,20 +194,22 @@ private:
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
-    void adjustProgramFromOptimizations(const GrDrawState& ds,
-                                        GrXferProcessor::OptFlags,
-                                        const GrProcOptInfo& colorPOI,
-                                        const GrProcOptInfo& coveragePOI,
-                                        int* firstColorStageIdx,
-                                        int* firstCoverageStageIdx);
+    void adjustProgramForBlendOpt(const GrDrawState& ds, GrDrawState::BlendOpt,
+                                  int* firstColorStageIdx, int* firstCoverageStageIdx);
+
+    /**
+     * Loop over the effect stages to determine various info like what data they will read and what
+     * shaders they require.
+     */
+    void getStageStats(const GrDrawState& ds, int firstColorStageIdx, int firstCoverageStageIdx,
+                       bool hasLocalCoords);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawState& ds, GrXferProcessor::OptFlags,
-                            const GrDrawTargetCaps&);
+    void setOutputStateInfo(const GrDrawState& ds, GrDrawState::BlendOpt, const GrDrawTargetCaps&);
 
     enum Flags {
         kDither_Flag            = 0x1,

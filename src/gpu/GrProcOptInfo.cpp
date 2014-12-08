@@ -7,9 +7,8 @@
 
 #include "GrProcOptInfo.h"
 
-#include "GrFragmentProcessor.h"
-#include "GrFragmentStage.h"
 #include "GrGeometryProcessor.h"
+#include "GrFragmentStage.h"
 
 void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
                                           int stageCount,
@@ -23,7 +22,6 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
     fInputColor = startColor;
     fRemoveVertexAttrib = false;
     fReadsDst = false;
-    fReadsFragPosition = false;
 
     if (areCoverageStages && gp) {
         gp->computeInvariantOutput(&fInOut);
@@ -33,21 +31,16 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
         const GrFragmentProcessor* processor = stages[i].getProcessor();
         fInOut.resetWillUseInputColor();
         processor->computeInvariantOutput(&fInOut);
-#ifdef SK_DEBUG
+        #ifdef SK_DEBUG
         fInOut.validate();
-#endif
+        #endif
         if (!fInOut.willUseInputColor()) {
             fFirstEffectStageIndex = i;
             fInputColorIsUsed = false;
-            // Reset these since we don't care if previous stages read these values
-            fReadsDst = false;
-            fReadsFragPosition = false;
+            fReadsDst = false; // Reset this since we don't care if previous stages read dst
         }
         if (processor->willReadDstColor()) {
             fReadsDst = true;
-        }
-        if (processor->willReadFragmentPosition()) {
-            fReadsFragPosition = true;
         }
         if (kRGBA_GrColorComponentFlags == fInOut.validFlags()) {
             fFirstEffectStageIndex = i + 1;
@@ -57,10 +50,7 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
             // Since we are clearing all previous color stages we are in a state where we have found
             // zero stages that don't multiply the inputColor.
             fInOut.resetNonMulStageFound();
-            // Reset these since we don't care if previous stages read these values
-            fReadsDst = false;
-            fReadsFragPosition = false;
+            fReadsDst = false; // Reset this since we don't care if previous stages read dst
         }
     }
 }
-

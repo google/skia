@@ -17,9 +17,7 @@
 #include "GrProcOptInfo.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
-#include "GrXferProcessor.h"
 #include "SkMatrix.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 class GrDrawTargetCaps;
@@ -216,22 +214,6 @@ public:
      */
     bool willEffectReadDstColor() const;
 
-    /**
-     * The xfer processor factory.
-     */
-    const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory.reset(SkRef(xpFactory));
-        return xpFactory;
-    }
-
-    void setPorterDuffXPFactory(SkXfermode::Mode mode) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(mode));
-    }
-
-    void setPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(src, dst));
-    }
-
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (effect));
@@ -350,12 +332,59 @@ public:
     /// @name Blending
     ////
 
+    GrBlendCoeff getSrcBlendCoeff() const { return fSrcBlend; }
+    GrBlendCoeff getDstBlendCoeff() const { return fDstBlend; }
+
+    /**
+     * Retrieves the last value set by setBlendConstant()
+     * @return the blending constant value
+     */
+    GrColor getBlendConstant() const { return fBlendConstant; }
+
     /**
      * Determines whether multiplying the computed per-pixel color by the pixel's fractional
      * coverage before the blend will give the correct final destination color. In general it
      * will not as coverage is applied after blending.
      */
     bool canTweakAlphaForCoverage() const;
+
+    /**
+     * Sets the blending function coefficients.
+     *
+     * The blend function will be:
+     *    D' = sat(S*srcCoef + D*dstCoef)
+     *
+     *   where D is the existing destination color, S is the incoming source
+     *   color, and D' is the new destination color that will be written. sat()
+     *   is the saturation function.
+     *
+     * @param srcCoef coefficient applied to the src color.
+     * @param dstCoef coefficient applied to the dst color.
+     */
+    void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
+        fSrcBlend = srcCoeff;
+        fDstBlend = dstCoeff;
+    #ifdef SK_DEBUG
+        if (GrBlendCoeffRefsDst(dstCoeff)) {
+            SkDebugf("Unexpected dst blend coeff. Won't work correctly with coverage stages.\n");
+        }
+        if (GrBlendCoeffRefsSrc(srcCoeff)) {
+            SkDebugf("Unexpected src blend coeff. Won't work correctly with coverage stages.\n");
+        }
+    #endif
+    }
+
+    /**
+     * Sets the blending function constant referenced by the following blending
+     * coefficients:
+     *      kConstC_GrBlendCoeff
+     *      kIConstC_GrBlendCoeff
+     *      kConstA_GrBlendCoeff
+     *      kIConstA_GrBlendCoeff
+     *
+     * @param constant the constant to set
+     */
+    void setBlendConstant(GrColor constant) { fBlendConstant = constant; }
 
     /// @}
 
@@ -608,6 +637,47 @@ public:
 private:
     bool isEqual(const GrDrawState& that) const;
 
+    /**
+     * Optimizations for blending / coverage to that can be applied based on the current state.
+     */
+    enum BlendOpt {
+        /**
+         * No optimization
+         */
+        kNone_BlendOpt,
+        /**
+         * Don't draw at all
+         */
+        kSkipDraw_BlendOpt,
+        /**
+         * The coverage value does not have to be computed separately from alpha, the the output
+         * color can be the modulation of the two.
+         */
+        kCoverageAsAlpha_BlendOpt,
+        /**
+         * Instead of emitting a src color, emit coverage in the alpha channel and r,g,b are
+         * "don't cares".
+         */
+        kEmitCoverage_BlendOpt,
+        /**
+         * Emit transparent black instead of the src color, no need to compute coverage.
+         */
+        kEmitTransBlack_BlendOpt
+    };
+
+    /**
+     * Determines what optimizations can be applied based on the blend. The coefficients may have
+     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
+     * params that receive the tweaked coefficients. Normally the function looks at the current
+     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
+     * determine the blend optimizations that would be used if there was partial pixel coverage.
+     *
+     * This is used internally and when constructing a GrOptDrawState.
+     */
+    BlendOpt getBlendOpt(bool forceCoverage = false,
+                         GrBlendCoeff* srcCoeff = NULL,
+                         GrBlendCoeff* dstCoeff = NULL) const;
+
     const GrProcOptInfo& colorProcInfo() const { 
         this->calcColorInvariantOutput();
         return fColorProcInfo;
@@ -646,10 +716,13 @@ private:
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     GrColor                                 fColor;
     SkMatrix                                fViewMatrix;
+    GrColor                                 fBlendConstant;
     uint32_t                                fFlagBits;
     GrStencilSettings                       fStencilSettings;
     uint8_t                                 fCoverage;
     DrawFace                                fDrawFace;
+    GrBlendCoeff                            fSrcBlend;
+    GrBlendCoeff                            fDstBlend;
     SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
     SkAutoTUnref<const GrXPFactory>         fXPFactory;
     FragmentStageArray                      fColorStages;

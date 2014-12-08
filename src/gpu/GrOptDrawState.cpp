@@ -11,7 +11,6 @@
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrProcOptInfo.h"
-#include "GrXferProcessor.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                const GrDrawTargetCaps& caps,
@@ -20,35 +19,14 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                GrGpu::DrawType drawType)
     : fFinalized(false) {
     fDrawType = drawType;
-
-    const GrProcOptInfo& colorPOI = drawState.colorProcInfo();
-    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo();
-    
-    fColor = colorPOI.inputColorToEffectiveStage();
-    fCoverage = drawState.getCoverage();
-
-    // Create XferProcessor from DS's XPFactory
-    SkAutoTUnref<GrXferProcessor> xferProcessor(
-        drawState.getXPFactory()->createXferProcessor(colorPOI, coveragePOI));
-
-    GrXferProcessor::OptFlags optFlags;
-    if (xferProcessor) {
-        fXferProcessor.reset(xferProcessor.get());
-
-        optFlags = xferProcessor->getOptimizations(colorPOI,
-                                                   coveragePOI,
-                                                   drawState.isCoverageDrawing(),
-                                                   drawState.isColorWriteDisabled(),
-                                                   drawState.getStencil().doesWrite(),
-                                                   &fColor,
-                                                   &fCoverage);
-    }
+    GrBlendCoeff optSrcCoeff;
+    GrBlendCoeff optDstCoeff;
+    GrDrawState::BlendOpt blendOpt = drawState.getBlendOpt(false, &optSrcCoeff, &optDstCoeff);
 
     // When path rendering the stencil settings are not always set on the draw state
     // so we must check the draw type. In cases where we will skip drawing we simply return a
     // null GrOptDrawState.
-    if (!xferProcessor || ((GrXferProcessor::kSkipDraw_OptFlag & optFlags) &&
-                           GrGpu::kStencilPath_DrawType != drawType)) {
+    if (GrDrawState::kSkipDraw_BlendOpt == blendOpt && GrGpu::kStencilPath_DrawType != drawType) {
         // Set the fields that don't default init and return. The lack of a render target will
         // indicate that this can be skipped.
         fFlags = 0;
@@ -64,8 +42,12 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     SkASSERT(fRenderTarget);
     fScissorState = scissorState;
     fViewMatrix = drawState.getViewMatrix();
+    fBlendConstant = drawState.getBlendConstant();
     fStencilSettings = drawState.getStencil();
     fDrawFace = drawState.getDrawFace();
+    fSrcBlend = optSrcCoeff;
+    fDstBlend = optDstCoeff;
+
     // TODO move this out of optDrawState
     if (dstCopy) {
         fDstCopy = *dstCopy;
@@ -91,8 +73,10 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     bool hasLocalCoords = drawState.hasGeometryProcessor() &&
                           drawState.getGeometryProcessor()->hasLocalCoords();
 
+    const GrProcOptInfo& colorPOI = drawState.colorProcInfo();
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
     fDescInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
+    fColor = colorPOI.inputColorToEffectiveStage();
     if (colorPOI.removeVertexAttrib()) {
         fDescInfo.fHasVertexColor = false;
     }
@@ -101,18 +85,12 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     // drawState's coverageProcInfo (like color above) to set this initial information.
     int firstCoverageStageIdx = 0;
     fDescInfo.fInputCoverageIsUsed = true;
+    fCoverage = drawState.getCoverage();
 
+    this->adjustProgramForBlendOpt(drawState, blendOpt, &firstColorStageIdx,
+                                   &firstCoverageStageIdx);
 
-    GrXferProcessor::BlendInfo blendInfo;
-    fXferProcessor->getBlendInfo(&blendInfo);
-    fSrcBlend = blendInfo.fSrcBlend;
-    fDstBlend = blendInfo.fDstBlend;
-    fBlendConstant = blendInfo.fBlendConstant;
-
-    this->adjustProgramFromOptimizations(drawState, optFlags, colorPOI, coveragePOI,
-                                         &firstColorStageIdx, &firstCoverageStageIdx);
-
-    fDescInfo.fRequiresLocalCoordAttrib = hasLocalCoords;
+    this->getStageStats(drawState, firstColorStageIdx, firstCoverageStageIdx, hasLocalCoords);
 
     // Copy GeometryProcesssor from DS or ODS
     SkASSERT(GrGpu::IsPathRenderingDrawType(drawType) ||
@@ -120,19 +98,25 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
              drawState.hasGeometryProcessor());
     fGeometryProcessor.reset(drawState.getGeometryProcessor());
 
+    // Create XferProcessor from DS's XPFactory
+    const GrXferProcessor* xpProcessor = drawState.getXPFactory()->createXferProcessor();
+    fXferProcessor.reset(xpProcessor);
+    xpProcessor->unref();
+
     // Copy Stages from DS to ODS
     for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
                                (drawState.fColorStages[i], hasLocalCoords));
     }
-
     fNumColorStages = fFragmentStages.count();
     for (int i = firstCoverageStageIdx; i < drawState.numCoverageStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
                                (drawState.fCoverageStages[i], hasLocalCoords));
     }
+
+    this->setOutputStateInfo(drawState, blendOpt, caps);
 
     // let the GP init the batch tracker
     if (drawState.hasGeometryProcessor()) {
@@ -143,12 +127,10 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         init.fCoverage = this->getCoverage();
         fGeometryProcessor->initBatchTracker(&fBatchTracker, init);
     }
-
-    this->setOutputStateInfo(drawState, optFlags, caps);
 }
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
-                                        GrXferProcessor::OptFlags optFlags,
+                                        GrDrawState::BlendOpt blendOpt,
                                         const GrDrawTargetCaps& caps) {
     // Set this default and then possibly change our mind if there is coverage.
     fDescInfo.fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
@@ -156,7 +138,8 @@ void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
 
     // Determine whether we should use dual source blending or shader code to keep coverage
     // separate from color.
-    bool keepCoverageSeparate = !(optFlags & GrXferProcessor::kSetCoverageDrawing_OptFlag);
+    bool keepCoverageSeparate = !(GrDrawState::kCoverageAsAlpha_BlendOpt == blendOpt ||
+                                  GrDrawState::kEmitCoverage_BlendOpt == blendOpt);
     if (keepCoverageSeparate && !ds.hasSolidCoverage()) {
         if (caps.dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
@@ -180,35 +163,64 @@ void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
     }
 }
 
-void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
-                                                    GrXferProcessor::OptFlags flags,
-                                                    const GrProcOptInfo& colorPOI,
-                                                    const GrProcOptInfo& coveragePOI,
-                                                    int* firstColorStageIdx,
-                                                    int* firstCoverageStageIdx) {
+void GrOptDrawState::adjustProgramForBlendOpt(const GrDrawState& ds,
+                                              GrDrawState::BlendOpt blendOpt,
+                                              int* firstColorStageIdx,
+                                              int* firstCoverageStageIdx) {
+    switch (blendOpt) {
+        case GrDrawState::kNone_BlendOpt:
+        case GrDrawState::kSkipDraw_BlendOpt:
+        case GrDrawState::kCoverageAsAlpha_BlendOpt:
+            break;
+        case GrDrawState::kEmitCoverage_BlendOpt:
+            fColor = 0xffffffff;
+            fDescInfo.fInputColorIsUsed = true;
+            *firstColorStageIdx = ds.numColorStages();
+            fDescInfo.fHasVertexColor = false;
+            break;
+        case GrDrawState::kEmitTransBlack_BlendOpt:
+            fColor = 0;
+            fCoverage = 0xff;
+            fDescInfo.fInputColorIsUsed = true;
+            fDescInfo.fInputCoverageIsUsed = true;
+            *firstColorStageIdx = ds.numColorStages();
+            *firstCoverageStageIdx = ds.numCoverageStages();
+            fDescInfo.fHasVertexColor = false;
+            fDescInfo.fHasVertexCoverage = false;
+            break;
+    }
+}
+
+static void get_stage_stats(const GrFragmentStage& stage, bool* readsDst, bool* readsFragPosition) {
+    if (stage.getProcessor()->willReadDstColor()) {
+        *readsDst = true;
+    }
+    if (stage.getProcessor()->willReadFragmentPosition()) {
+        *readsFragPosition = true;
+    }
+}
+
+void GrOptDrawState::getStageStats(const GrDrawState& ds, int firstColorStageIdx,
+                                   int firstCoverageStageIdx, bool hasLocalCoords) {
+    // We will need a local coord attrib if there is one currently set on the optState and we are
+    // actually generating some effect code
+    fDescInfo.fRequiresLocalCoordAttrib = hasLocalCoords &&
+        ds.numTotalStages() - firstColorStageIdx - firstCoverageStageIdx > 0;
+
     fDescInfo.fReadsDst = false;
     fDescInfo.fReadsFragPosition = false;
 
-    if (flags & GrXferProcessor::kClearColorStages_OptFlag) {
-        fDescInfo.fInputColorIsUsed = true;
-        *firstColorStageIdx = ds.numColorStages();
-        fDescInfo.fHasVertexColor = false;
-    } else {
-        fDescInfo.fReadsDst = colorPOI.readsDst();
-        fDescInfo.fReadsFragPosition = colorPOI.readsFragPosition();
+    for (int s = firstColorStageIdx; s < ds.numColorStages(); ++s) {
+        const GrFragmentStage& stage = ds.getColorStage(s);
+        get_stage_stats(stage, &fDescInfo.fReadsDst, &fDescInfo.fReadsFragPosition);
     }
-
-    if (flags & GrXferProcessor::kClearCoverageStages_OptFlag) {
-        fDescInfo.fInputCoverageIsUsed = true;
-        *firstCoverageStageIdx = ds.numCoverageStages();
-        fDescInfo.fHasVertexCoverage = false;
-    } else {
-        if (coveragePOI.readsDst()) {
-            fDescInfo.fReadsDst = true;
-        }
-        if (coveragePOI.readsFragPosition()) {
-            fDescInfo.fReadsFragPosition = true;
-        }
+    for (int s = firstCoverageStageIdx; s < ds.numCoverageStages(); ++s) {
+        const GrFragmentStage& stage = ds.getCoverageStage(s);
+        get_stage_stats(stage, &fDescInfo.fReadsDst, &fDescInfo.fReadsFragPosition);
+    }
+    if (ds.hasGeometryProcessor()) {
+        const GrGeometryProcessor& gp = *ds.getGeometryProcessor();
+        fDescInfo.fReadsFragPosition = fDescInfo.fReadsFragPosition || gp.willReadFragmentPosition();
     }
 }
 

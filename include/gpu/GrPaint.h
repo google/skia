@@ -13,7 +13,6 @@
 #include "GrColor.h"
 #include "GrFragmentStage.h"
 #include "GrXferProcessor.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 
 #include "SkXfermode.h"
 
@@ -52,6 +51,17 @@ public:
     ~GrPaint() {}
 
     /**
+     * Sets the blending coefficients to use to blend the final primitive color with the
+     * destination color. Defaults to kOne for src and kZero for dst (i.e. src mode).
+     */
+    void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
+        fSrcBlendCoeff = srcCoeff;
+        fDstBlendCoeff = dstCoeff;
+    }
+    GrBlendCoeff getSrcBlendCoeff() const { return fSrcBlendCoeff; }
+    GrBlendCoeff getDstBlendCoeff() const { return fDstBlendCoeff; }
+
+    /**
      * The initial color of the drawn primitive. Defaults to solid white.
      */
     void setColor(GrColor color) { fColor = color; }
@@ -72,14 +82,6 @@ public:
     const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory.reset(SkRef(xpFactory));
         return xpFactory;
-    }
-
-    void setPorterDuffXPFactory(SkXfermode::Mode mode) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(mode));
-    }
-
-    void setPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(src, dst));
     }
 
     /**
@@ -119,6 +121,8 @@ public:
     const GrFragmentStage& getCoverageStage(int s) const { return fCoverageStages[s]; }
 
     GrPaint& operator=(const GrPaint& paint) {
+        fSrcBlendCoeff = paint.fSrcBlendCoeff;
+        fDstBlendCoeff = paint.fDstBlendCoeff;
         fAntiAlias = paint.fAntiAlias;
         fDither = paint.fDither;
 
@@ -136,6 +140,7 @@ public:
      * Resets the paint to the defaults.
      */
     void reset() {
+        this->resetBlend();
         this->resetOptions();
         this->resetColor();
         this->resetStages();
@@ -206,10 +211,17 @@ private:
     SkSTArray<4, GrFragmentStage>   fColorStages;
     SkSTArray<2, GrFragmentStage>   fCoverageStages;
 
+    GrBlendCoeff                    fSrcBlendCoeff;
+    GrBlendCoeff                    fDstBlendCoeff;
     bool                            fAntiAlias;
     bool                            fDither;
 
     GrColor                         fColor;
+
+    void resetBlend() {
+        fSrcBlendCoeff = kOne_GrBlendCoeff;
+        fDstBlendCoeff = kZero_GrBlendCoeff;
+    }
 
     void resetOptions() {
         fAntiAlias = false;
@@ -220,7 +232,7 @@ private:
         fColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
     }
 
-    void resetStages();
+    void resetStages(); 
 };
 
 #endif
