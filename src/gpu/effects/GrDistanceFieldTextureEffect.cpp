@@ -659,6 +659,7 @@ bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrGeometryProcessor& other
 
 void GrDistanceFieldLCDTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownColor();
+    inout->setUsingLCDCoverage();
 }
 
 void GrDistanceFieldLCDTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,

@@ -13,8 +13,12 @@
 class GrInvariantOutput {
 public:
     GrInvariantOutput(GrColor color, GrColorComponentFlags flags, bool isSingleComponent)
-        : fColor(color), fValidFlags(flags), fIsSingleComponent(isSingleComponent),
-          fNonMulStageFound(false), fWillUseInputColor(true) {}
+        : fColor(color)
+        , fValidFlags(flags)
+        , fIsSingleComponent(isSingleComponent)
+        , fNonMulStageFound(false)
+        , fWillUseInputColor(true)
+        , fIsLCDCoverage(false) {}
 
     virtual ~GrInvariantOutput() {}
 
@@ -92,6 +96,12 @@ public:
         }
     }
 
+    // Temporary setter to handle LCD text correctly until we improve texture pixel config queries
+    // and thus can rely solely on number of coverage components for RGA vs single channel coverage.
+    void setUsingLCDCoverage() {
+        fIsLCDCoverage = true;
+    }
+
     GrColor color() const { return fColor; }
     uint8_t validFlags() const { return fValidFlags; }
 
@@ -100,13 +110,6 @@ public:
      * same. If the flags are all set then all color components must be equal.
      */
     SkDEBUGCODE(void validate() const;)
-
-protected:
-    GrColor fColor;
-    uint32_t fValidFlags;
-    bool fIsSingleComponent;
-    bool fNonMulStageFound;
-    bool fWillUseInputColor;
 
 private:
     friend class GrProcOptInfo;
@@ -149,11 +152,21 @@ private:
 
     void resetNonMulStageFound() { fNonMulStageFound = false; }
 
+    bool isLCDCoverage() const { return fIsLCDCoverage; }
+
     SkDEBUGCODE(bool colorComponentsAllEqual() const;)
     /**
      * If alpha is valid, check that any valid R,G,B values are <= A
      */
     SkDEBUGCODE(bool validPreMulColor() const;)
+
+    GrColor fColor;
+    uint32_t fValidFlags;
+    bool fIsSingleComponent;
+    bool fNonMulStageFound;
+    bool fWillUseInputColor;
+    bool fIsLCDCoverage; // Temorary data member until texture pixel configs are updated
+
 };
 
 #endif

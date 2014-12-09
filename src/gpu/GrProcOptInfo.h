@@ -37,6 +37,12 @@ public:
     bool isOpaque() const { return fInOut.isOpaque(); }
     bool isSingleComponent() const { return fInOut.isSingleComponent(); }
 
+    // TODO: Once texture pixel configs quaries are updated, we no longer need this function.
+    // For now this function will correctly tell us if we are using LCD text or not and should only
+    // be called when looking at the coverage output.
+    bool isFourChannelOutput() const { return !fInOut.isSingleComponent() &&
+                                               fInOut.isLCDCoverage(); }
+
     GrColor color() const { return fInOut.color(); }
     uint8_t validFlags() const { return fInOut.validFlags(); }
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCustomCoordsTextureEffect.h"
+#include "GrBitmapTextGeoProc.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "gl/GrGLProcessor.h"
@@ -14,14 +14,12 @@
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-class GrGLCustomCoordsTextureEffect : public GrGLGeometryProcessor {
+class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
 public:
-    GrGLCustomCoordsTextureEffect(const GrGeometryProcessor&,
-                                  const GrBatchTracker&) {}
+    GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
-        const GrCustomCoordsTextureEffect& cte =
-                args.fGP.cast<GrCustomCoordsTextureEffect>();
+        const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
@@ -55,7 +53,7 @@ public:
                               const GrBatchTracker&,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
-        const GrCustomCoordsTextureEffect& gp = proc.cast<GrCustomCoordsTextureEffect>();
+        const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
 
         b->add32(SkToBool(gp.inColor()));
     }
@@ -67,13 +65,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
-                                                         const GrTextureParams& params,
-                                                         bool hasColor)
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrTexture* texture, const GrTextureParams& params,
+                                         bool useColorAttrib)
     : fTextureAccess(texture, params), fInColor(NULL) {
-    this->initClassID<GrCustomCoordsTextureEffect>();
+    this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
-    if (hasColor) {
+    if (useColorAttrib) {
         fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
         this->setHasVertexColor();
     }
@@ -82,39 +79,41 @@ GrCustomCoordsTextureEffect::GrCustomCoordsTextureEffect(GrTexture* texture,
     this->addTextureAccess(&fTextureAccess);
 }
 
-bool GrCustomCoordsTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    const GrCustomCoordsTextureEffect& gp = other.cast<GrCustomCoordsTextureEffect>();
+bool GrBitmapTextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrBitmapTextGeoProc& gp = other.cast<GrBitmapTextGeoProc>();
     return SkToBool(this->inColor()) == SkToBool(gp.inColor());
 }
 
-void GrCustomCoordsTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
+void GrBitmapTextGeoProc::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
         inout->mulByUnknownAlpha();
     } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
         inout->mulByUnknownOpaqueColor();
+        inout->setUsingLCDCoverage();
     } else {
         inout->mulByUnknownColor();
+        inout->setUsingLCDCoverage();
     }
 }
 
-void GrCustomCoordsTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                                    const GrGLCaps& caps,
-                                                    GrProcessorKeyBuilder* b) const {
-    GrGLCustomCoordsTextureEffect::GenKey(*this, bt, caps, b);
+void GrBitmapTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
+                                            const GrGLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
+    GrGLBitmapTextGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLGeometryProcessor*
-GrCustomCoordsTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
-    return SkNEW_ARGS(GrGLCustomCoordsTextureEffect, (*this, bt));
+GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt) const {
+    return SkNEW_ARGS(GrGLBitmapTextGeoProc, (*this, bt));
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCustomCoordsTextureEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
-GrGeometryProcessor* GrCustomCoordsTextureEffect::TestCreate(SkRandom* random,
-                                                             GrContext*,
-                                                             const GrDrawTargetCaps&,
-                                                             GrTexture* textures[]) {
+GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
+                                                     GrContext*,
+                                                     const GrDrawTargetCaps&,
+                                                     GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -129,5 +128,5 @@ GrGeometryProcessor* GrCustomCoordsTextureEffect::TestCreate(SkRandom* random,
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    return GrCustomCoordsTextureEffect::Create(textures[texIdx], params, random->nextBool());
+    return GrBitmapTextGeoProc::Create(textures[texIdx], params, random->nextBool());
 }

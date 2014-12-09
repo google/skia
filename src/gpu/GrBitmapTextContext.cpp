@@ -27,7 +27,7 @@
 #include "SkStrokeRec.h"
 #include "SkTextMapStateProc.h"
 
-#include "effects/GrCustomCoordsTextureEffect.h"
+#include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
@@ -547,10 +547,10 @@ void GrBitmapTextContext::flush() {
         } else {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID) {
-                bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
-                fCachedGeometryProcessor.reset(GrCustomCoordsTextureEffect::Create(fCurrTexture,
-                                                                                   params,
-                                                                                   hasColor));
+                bool useColorAttrib = kA8_GrMaskFormat == fCurrMaskFormat;
+                fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(fCurrTexture,
+                                                                           params,
+                                                                           useColorAttrib));
                 fEffectTextureUniqueID = textureUniqueID;
             }
             drawState.setGeometryProcessor(fCachedGeometryProcessor.get());

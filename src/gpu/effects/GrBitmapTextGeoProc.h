@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCustomCoordsTextureEffect_DEFINED
-#define GrCustomCoordsTextureEffect_DEFINED
+#ifndef GrBitmapTextGeoProc_DEFINED
+#define GrBitmapTextGeoProc_DEFINED
 
 #include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
 
-class GrGLCustomCoordsTextureEffect;
+class GrGLBitmapTextGeoProc;
 class GrInvariantOutput;
 
 /**
@@ -19,13 +19,14 @@ class GrInvariantOutput;
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute.
  */
-class GrCustomCoordsTextureEffect : public GrGeometryProcessor {
+class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& p, bool hasColor) {
-        return SkNEW_ARGS(GrCustomCoordsTextureEffect, (tex, p, hasColor));
+    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& p,
+                                       bool useColorAttrib) {
+        return SkNEW_ARGS(GrBitmapTextGeoProc, (tex, p, useColorAttrib));
     }
 
-    virtual ~GrCustomCoordsTextureEffect() {}
+    virtual ~GrBitmapTextGeoProc() {}
 
     virtual const char* name() const SK_OVERRIDE { return "Texture"; }
 
@@ -40,7 +41,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrCustomCoordsTextureEffect(GrTexture* texture, const GrTextureParams& params, bool hasColor);
+    GrBitmapTextGeoProc(GrTexture* texture, const GrTextureParams& params, bool useColorAttrib);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
