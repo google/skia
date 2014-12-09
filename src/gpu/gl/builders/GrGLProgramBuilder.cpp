@@ -384,6 +384,8 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
         const char* uniName = "StageMatrix";
         GrSLType varyingType = stage.isPerspectiveCoordTransform(t) ? kVec3f_GrSLType :
                                                                       kVec2f_GrSLType;
+        GrSLPrecision precision = processor->coordTransform(t).precision();
+
         SkString suffixedUniName;
         if (0 != t) {
             suffixedUniName.append(uniName);
@@ -391,7 +393,7 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
             uniName = suffixedUniName.c_str();
         }
         ifp->fTransforms[t].fHandle = this->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                                       kMat33f_GrSLType, kDefault_GrSLPrecision,
+                                                       kMat33f_GrSLType, precision,
                                                        uniName,
                                                        &uniName).toShaderBuilderIndex();
 
@@ -407,7 +409,7 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
         const char* coords = useLocalCoords ? fVS.localCoords() : fVS.positionCoords();
 
         GrGLVertToFrag v(varyingType);
-        this->addVarying(varyingName, &v, processor->coordTransform(t).precision());
+        this->addVarying(varyingName, &v, precision);
         fCoordVaryings.push_back(TransformVarying(v, uniName, coords));
 
         SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
