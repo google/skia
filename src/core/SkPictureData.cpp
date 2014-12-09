@@ -218,14 +218,14 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
 }
 
 void SkPictureData::serialize(SkWStream* stream,
-                                  SkPicture::EncodeBitmap encoder) const {
+                              SkPixelSerializer* pixelSerializer) const {
     write_tag_size(stream, SK_PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
 
     if (fPictureCount > 0) {
         write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->serialize(stream, encoder);
+            fPictureRefs[i]->serialize(stream, pixelSerializer);
         }
     }
 
@@ -238,7 +238,7 @@ void SkPictureData::serialize(SkWStream* stream,
         SkWriteBuffer buffer(SkWriteBuffer::kCrossProcess_Flag);
         buffer.setTypefaceRecorder(&typefaceSet);
         buffer.setFactoryRecorder(&factSet);
-        buffer.setBitmapEncoder(encoder);
+        buffer.setPixelSerializer(pixelSerializer);
 
         this->flattenToBuffer(buffer);
 
