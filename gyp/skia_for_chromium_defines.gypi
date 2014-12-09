@@ -15,8 +15,6 @@
     'skia_for_chromium_defines': [
       'SK_SUPPORT_LEGACY_TEXTRENDERMODE',
       'SK_IGNORE_GPU_LAYER_HOISTING',
-      # Transition for skbug.com/3190
-      'SK_LEGACY_ENCODE_BITMAP',
     ],
   },
 }
