@@ -39,6 +39,24 @@ enum GrShaderType {
 static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
 
 /**
+ * Precisions of shader language variables. Not all shading languages support precisions or actually
+ * vary the internal precision based on the qualifiers.
+ */
+enum GrSLPrecision {
+    kLow_GrSLPrecision,
+    kMedium_GrSLPrecision,
+    kHigh_GrSLPrecision,
+
+    // Default precision is medium. This is because on OpenGL ES 2 highp support is not
+    // guaranteed. On (non-ES) OpenGL the specifiers have no effect on precision.
+    kDefault_GrSLPrecision = kMedium_GrSLPrecision,
+
+    kLast_GrSLPrecision = kHigh_GrSLPrecision
+};
+
+static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
+
+/**
  * Gets the vector size of the SLType. Returns -1 for void, matrices, and samplers.
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {

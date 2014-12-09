@@ -22,7 +22,7 @@ void GrCoordTransform::reset(GrCoordSet sourceCoords, const SkMatrix& m, const G
     // increased. Our rule is that we want at least 4 subpixel values in the representation for
     // coords between 0 to 1. Note that this still might not be enough when drawing with repeat
     // or mirror-repeat modes but that case can be arbitrarily bad. 
-    fPrecision = GrShaderVar::kDefault_Precision;
+    fPrecision = kDefault_GrSLPrecision;
     if (texture->getContext()) {
         const GrDrawTargetCaps* caps = texture->getContext()->getGpu()->caps();
         if (caps->floatPrecisionVaries()) {
@@ -36,10 +36,10 @@ void GrCoordTransform::reset(GrCoordSet sourceCoords, const SkMatrix& m, const G
                 if ((2 << info->fBits) / maxD > 4) {
                     break;
                 }
-                if (GrShaderVar::kHigh_Precision == fPrecision) {
+                if (kHigh_GrSLPrecision == fPrecision) {
                     break;
                 }
-                GrShaderVar::Precision nextP = static_cast<GrShaderVar::Precision>(fPrecision + 1);
+                GrSLPrecision nextP = static_cast<GrSLPrecision>(fPrecision + 1);
                 info = &caps->getFloatShaderPrecisionInfo(kFragment_GrShaderType, nextP);
                 if (!info->supported()) {
                     break;
@@ -52,7 +52,7 @@ void GrCoordTransform::reset(GrCoordSet sourceCoords, const SkMatrix& m, const G
 
 void GrCoordTransform::reset(GrCoordSet sourceCoords,
                              const SkMatrix& m,
-                             GrShaderVar::Precision precision) {
+                             GrSLPrecision precision) {
     SkASSERT(!fInProcessor);
     fSourceCoords = sourceCoords;
     fMatrix = m;

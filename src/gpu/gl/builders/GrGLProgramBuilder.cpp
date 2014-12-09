@@ -103,7 +103,7 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optSt
 
 void GrGLProgramBuilder::addVarying(const char* name,
                                     GrGLVarying* varying,
-                                    GrGLShaderVar::Precision fsPrecision) {
+                                    GrSLPrecision fsPrecision) {
     SkASSERT(varying);
     if (varying->vsVarying()) {
         fVS.addVarying(name, varying);
@@ -172,7 +172,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(uint32
     // to use the default FS precision.
     if ((kVertex_Visibility | kFragment_Visibility) == visibility) {
         // the fragment and vertex precisions must match
-        uni.fVariable.setPrecision(GrShaderVar::kDefault_Precision);
+        uni.fVariable.setPrecision(kDefault_GrSLPrecision);
     }
 
     if (outName) {

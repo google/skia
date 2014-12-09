@@ -353,7 +353,7 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
     const GrCubicEffect& gp = args.fGP.cast<GrCubicEffect>();
 
     GrGLVertToFrag v(kVec4f_GrSLType);
-    args.fPB->addVarying("CubicCoeffs", &v, GrGLShaderVar::kHigh_Precision);
+    args.fPB->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
 
     // setup coord outputs
@@ -366,14 +366,14 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
-    GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar gF("gF", kVec2f_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar gFM("gFM", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
-    GrGLShaderVar func("func", kFloat_GrSLType, 0, GrGLShaderVar::kHigh_Precision);
+    GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
 
     fsBuilder->declAppend(edgeAlpha);
     fsBuilder->declAppend(dklmdx);

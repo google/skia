@@ -117,7 +117,7 @@ private:
     /*
      * An internal call for GrGLProgramBuilder to use to add varyings to the vertex shader
      */
-    void addVarying(GrGLVarying*, GrGLShaderVar::Precision);
+    void addVarying(GrGLVarying*, GrSLPrecision);
 
     /**
      * Features that should only be enabled by GrGLFragmentShaderBuilder itself.

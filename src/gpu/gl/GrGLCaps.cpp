@@ -776,13 +776,13 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
     fStencilVerifiedColorConfigs.push_back_n(fStencilFormats.count());
 }
 
-static GrGLenum precision_to_gl_float_type(GrShaderVar::Precision p) {
+static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
     switch (p) {
-        case GrShaderVar::kLow_Precision:
+        case kLow_GrSLPrecision:
             return GR_GL_LOW_FLOAT;
-        case GrShaderVar::kMedium_Precision:
+        case kMedium_GrSLPrecision:
             return GR_GL_MEDIUM_FLOAT;
-        case GrShaderVar::kHigh_Precision:
+        case kHigh_GrSLPrecision:
             return GR_GL_HIGH_FLOAT;
     }
     SkFAIL("Unknown precision.");
@@ -811,8 +811,8 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo, const Gr
                 GrGLenum glShader = shader_type_to_gl_shader(shaderType);
                 PrecisionInfo* first = NULL;
                 fShaderPrecisionVaries = false;
-                for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
-                    GrShaderVar::Precision precision = static_cast<GrShaderVar::Precision>(p);
+                for (int p = 0; p < kGrSLPrecisionCount; ++p) {
+                    GrSLPrecision precision = static_cast<GrSLPrecision>(p);
                     GrGLenum glPrecision = precision_to_gl_float_type(precision);
                     GrGLint range[2];
                     GrGLint bits;
@@ -835,7 +835,7 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo, const Gr
         fShaderPrecisionVaries = false;
         for (int s = 0; s < kGrShaderTypeCount; ++s) {
             if (kGeometry_GrShaderType != s || fGeometryShaderSupport) {
-                for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+                for (int p = 0; p < kGrSLPrecisionCount; ++p) {
                     fFloatPrecisions[s][p].fLogRangeLow = 127;
                     fFloatPrecisions[s][p].fLogRangeHigh = 127;
                     fFloatPrecisions[s][p].fBits = 23;

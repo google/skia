@@ -69,7 +69,7 @@ enum {
     kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 1,
 };
 
-GR_STATIC_ASSERT(GrShaderVar::kHigh_Precision < (1 << kPrecisionBits));
+GR_STATIC_ASSERT(kHigh_GrSLPrecision < (1 << kPrecisionBits));
 
 /**
  * We specialize the vertex code for each of these matrix types.
@@ -95,7 +95,7 @@ static uint32_t gen_transform_key(const GrPendingFragmentStage& stage, bool useE
             key |= kPositionCoords_Flag;
         }
 
-        GR_STATIC_ASSERT(GrShaderVar::kPrecisionCount <= (1 << kPrecisionBits));
+        GR_STATIC_ASSERT(kGrSLPrecisionCount <= (1 << kPrecisionBits));
         key |= (coordTransform.precision() << kPrecisionShift);
 
         key <<= kTransformKeyBits * t;

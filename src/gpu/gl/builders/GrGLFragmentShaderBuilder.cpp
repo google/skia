@@ -16,19 +16,19 @@
 const char* GrGLFragmentShaderBuilder::kDstCopyColorName = "_dstColor";
 static const char* declared_color_output_name() { return "fsColorOut"; }
 static const char* dual_source_output_name() { return "dualSourceOut"; }
-static void append_default_precision_qualifier(GrGLShaderVar::Precision p,
+static void append_default_precision_qualifier(GrSLPrecision p,
                                                GrGLStandard standard,
                                                SkString* str) {
     // Desktop GLSL has added precision qualifiers but they don't do anything.
     if (kGLES_GrGLStandard == standard) {
         switch (p) {
-            case GrGLShaderVar::kHigh_Precision:
+            case kHigh_GrSLPrecision:
                 str->append("precision highp float;\n");
                 break;
-            case GrGLShaderVar::kMedium_Precision:
+            case kMedium_GrSLPrecision:
                 str->append("precision mediump float;\n");
                 break;
-            case GrGLShaderVar::kLow_Precision:
+            case kLow_GrSLPrecision:
                 str->append("precision lowp float;\n");
                 break;
             default:
@@ -131,7 +131,7 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
             fInputs.push_back().set(kVec4f_GrSLType,
                                     GrGLShaderVar::kIn_TypeModifier,
                                     "gl_FragCoord",
-                                    GrGLShaderVar::kDefault_Precision,
+                                    kDefault_GrSLPrecision,
                                     GrGLShaderVar::kUpperLeft_Origin);
             fSetupFragPosition = true;
         }
@@ -306,7 +306,7 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
     GrGpuGL* gpu = fProgramBuilder->gpu();
     SkString fragShaderSrc(GrGetGLSLVersionDecl(gpu->ctxInfo()));
     fragShaderSrc.append(fExtensions);
-    append_default_precision_qualifier(GrShaderVar::kDefault_Precision,
+    append_default_precision_qualifier(kDefault_GrSLPrecision,
                                        gpu->glStandard(),
                                        &fragShaderSrc);
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility, &fragShaderSrc);
@@ -342,7 +342,7 @@ void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) 
     }
 }
 
-void GrGLFragmentShaderBuilder::addVarying(GrGLVarying* v, GrGLShaderVar::Precision fsPrec) {
+void GrGLFragmentShaderBuilder::addVarying(GrGLVarying* v, GrSLPrecision fsPrec) {
     v->fFsIn = v->fVsOut;
     if (v->fGsOut) {
         v->fFsIn = v->fGsOut;

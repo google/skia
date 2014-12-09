@@ -134,7 +134,7 @@ public:
      */
     virtual void addVarying(const char* name,
                             GrGLVarying*,
-                            GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision) = 0;
+                            GrSLPrecision fsPrecision = kDefault_GrSLPrecision) = 0;
 
     /*
      * This call can be used by GP to pass an attribute through all shaders directly to 'output' in
@@ -218,7 +218,7 @@ public:
     virtual void addVarying(
             const char* name,
             GrGLVarying*,
-            GrGLShaderVar::Precision fsPrecision=GrGLShaderVar::kDefault_Precision) SK_OVERRIDE;
+            GrSLPrecision fsPrecision = kDefault_GrSLPrecision) SK_OVERRIDE;
 
     virtual void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
                                          const char* output) SK_OVERRIDE;

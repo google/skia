@@ -1046,7 +1046,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
 
     fShaderPrecisionVaries = other.fShaderPrecisionVaries;
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
-        for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
             fFloatPrecisions[s][p] = other.fFloatPrecisions[s][p];
         }
     }
@@ -1085,13 +1085,13 @@ static const char* shader_type_to_string(GrShaderType type) {
     return "";
 }
 
-static const char* precision_to_string(GrShaderVar::Precision p) {
+static const char* precision_to_string(GrSLPrecision p) {
     switch (p) {
-        case GrShaderVar::kLow_Precision:
+        case kLow_GrSLPrecision:
             return "low";
-        case GrShaderVar::kMedium_Precision:
+        case kMedium_GrSLPrecision:
             return "medium";
-        case GrShaderVar::kHigh_Precision:
+        case kHigh_GrSLPrecision:
             return "high";
     }
     return "";
@@ -1177,9 +1177,9 @@ SkString GrDrawTargetCaps::dump() const {
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
         GrShaderType shaderType = static_cast<GrShaderType>(s);
         r.appendf("\t%s:\n", shader_type_to_string(shaderType));
-        for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
             if (fFloatPrecisions[s][p].supported()) {
-                GrShaderVar::Precision precision = static_cast<GrShaderVar::Precision>(p);
+                GrSLPrecision precision = static_cast<GrSLPrecision>(p);
                 r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
                           precision_to_string(precision),
                           fFloatPrecisions[s][p].fLogRangeLow,

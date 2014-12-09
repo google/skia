@@ -37,7 +37,7 @@ public:
     }
 
     GrGLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
-                  Precision precision = kDefault_Precision)
+                  GrSLPrecision precision = kDefault_GrSLPrecision)
         : GrShaderVar(name, type, arrayCount, precision)
         , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
@@ -47,7 +47,7 @@ public:
     }
 
     GrGLShaderVar(const char* name, GrSLType type, TypeModifier typeModifier,
-                  int arrayCount = kNonArray, Precision precision = kDefault_Precision)
+                  int arrayCount = kNonArray, GrSLPrecision precision = kDefault_GrSLPrecision)
         : GrShaderVar(name, type, typeModifier, arrayCount, precision)
         , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
@@ -83,7 +83,7 @@ public:
     void set(GrSLType type,
              TypeModifier typeModifier,
              const SkString& name,
-             Precision precision = kDefault_Precision,
+             GrSLPrecision precision = kDefault_GrSLPrecision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
@@ -98,7 +98,7 @@ public:
     void set(GrSLType type,
              TypeModifier typeModifier,
              const char* name,
-             Precision precision = kDefault_Precision,
+             GrSLPrecision precision = kDefault_GrSLPrecision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
@@ -114,7 +114,7 @@ public:
              TypeModifier typeModifier,
              const SkString& name,
              int count,
-             Precision precision = kDefault_Precision,
+             GrSLPrecision precision = kDefault_GrSLPrecision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
@@ -130,7 +130,7 @@ public:
              TypeModifier typeModifier,
              const char* name,
              int count,
-             Precision precision = kDefault_Precision,
+             GrSLPrecision precision = kDefault_GrSLPrecision,
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
@@ -197,15 +197,15 @@ public:
                      fUseUniformFloatArrays ? "" : ".x");
     }
 
-    static const char* PrecisionString(Precision p, GrGLStandard standard) {
+    static const char* PrecisionString(GrSLPrecision p, GrGLStandard standard) {
         // Desktop GLSL has added precision qualifiers but they don't do anything.
         if (kGLES_GrGLStandard == standard) {
             switch (p) {
-                case kLow_Precision:
+                case kLow_GrSLPrecision:
                     return "lowp ";
-                case kMedium_Precision:
+                case kMedium_GrSLPrecision:
                     return "mediump ";
-                case kHigh_Precision:
+                case kHigh_GrSLPrecision:
                     return "highp ";
                 default:
                     SkFAIL("Unexpected precision type.");

@@ -22,7 +22,7 @@ public:
     SK_DECLARE_INST_COUNT(GrDrawTargetCaps)
 
     /** Info about shader variable precision within a given shader stage. That is, this info
-        is relevant to a float (or vecNf) variable declared with a GrShaderVar::Precision 
+        is relevant to a float (or vecNf) variable declared with a GrSLPrecision
         in a given GrShaderType. The info here is hoisted from the OpenGL spec. */
     struct PrecisionInfo {
         PrecisionInfo() {
@@ -127,7 +127,7 @@ public:
      * called.
      */
     const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
-                                                     GrShaderVar::Precision precision) const {
+                                                     GrSLPrecision precision) const {
         return fFloatPrecisions[shaderType][precision];
     };
 
@@ -175,7 +175,7 @@ protected:
     bool fConfigTextureSupport[kGrPixelConfigCnt];
 
     bool fShaderPrecisionVaries;
-    PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][GrShaderVar::kPrecisionCount];
+    PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
 
 private:
     static uint32_t CreateUniqueID();
