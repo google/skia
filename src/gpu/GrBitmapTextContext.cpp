@@ -515,13 +515,6 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     fCurrVertex += 4;
 }
 
-static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
-    unsigned r = SkColorGetR(c);
-    unsigned g = SkColorGetG(c);
-    unsigned b = SkColorGetB(c);
-    return GrColorPackRGBA(r, g, b, 0xff);
-}
-
 void GrBitmapTextContext::flush() {
     if (NULL == fDrawTarget) {
         return;
