@@ -24,6 +24,7 @@
 #include "GrInvariantOutput.h"
 #include "SkGrPixelRef.h"
 #include "SkDraw.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -1223,15 +1224,15 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
         paint.addColorProcessor(GrSimpleTextureEffect::Create(src, matrix))->unref();
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
-            paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
+            paint.setPorterDuffXPFactory(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
         } else if (kSolid_SkBlurStyle == fBlurStyle) {
             // solid:  dst = src + dst - src * dst
             //             = (1 - dst) * src + 1 * dst
-            paint.setBlendFunc(kIDC_GrBlendCoeff, kOne_GrBlendCoeff);
+            paint.setPorterDuffXPFactory(kIDC_GrBlendCoeff, kOne_GrBlendCoeff);
         } else if (kOuter_SkBlurStyle == fBlurStyle) {
             // outer:  dst = dst * (1 - src)
             //             = 0 * src + (1 - src) * dst
-            paint.setBlendFunc(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
+            paint.setPorterDuffXPFactory(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
         }
         context->drawRect(paint, clipRect);
     }

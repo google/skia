@@ -561,7 +561,6 @@ void GrBitmapTextContext::flush() {
                 // Color bitmap text
             case kARGB_GrMaskFormat:
                 SkASSERT(!drawState.hasColorVertexAttribute());
-                drawState.setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
                 drawState.setAlpha(fSkPaint.getAlpha());
                 break;
                 // LCD text
@@ -573,24 +572,12 @@ void GrBitmapTextContext::flush() {
                     SkDebugf("LCD Text will not draw correctly.\n");
                 }
                 SkASSERT(!drawState.hasColorVertexAttribute());
-                // We don't use the GrPaint's color in this case because it's been premultiplied by
-                // alpha. Instead we feed in a non-premultiplied color, and multiply its alpha by
-                // the mask texture color. The end result is that we get
-                //            mask*paintAlpha*paintColor + (1-mask*paintAlpha)*dstColor
-                int a = SkColorGetA(fSkPaint.getColor());
-                // paintAlpha
-                drawState.setColor(SkColorSetARGB(a, a, a, a));
-                // paintColor
-                drawState.setBlendConstant(skcolor_to_grcolor_nopremultiply(fSkPaint.getColor()));
-                drawState.setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
                 break;
             }
                 // Grayscale/BW text
             case kA8_GrMaskFormat:
                 drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint,
                                    0xFF == GrColorUnpackA(fPaint.getColor()));
-                // set back to normal in case we took LCD path previously.
-                drawState.setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
                 // We're using per-vertex color.
                 SkASSERT(drawState.hasColorVertexAttribute());
                 break;

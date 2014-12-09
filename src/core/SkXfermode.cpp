@@ -689,25 +689,19 @@ bool SkXfermode::asXPFactory(GrXPFactory**) const {
 
 bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
                                                 GrFragmentProcessor** fp,
-                                                GrXPFactory** xpf,
-                                                Coeff* src, Coeff* dst) {
+                                                GrXPFactory** xpf) {
+    Coeff src, dst;
     Mode mode;
     if (NULL == xfermode) {
-        SkAssertResult(ModeAsCoeff(kSrcOver_Mode, src, dst));
-        *xpf = GrPorterDuffXPFactory::Create(*src, *dst);
+        *xpf = GrPorterDuffXPFactory::Create(kSrcOver_Mode);
         return true;
     } else if (xfermode->asMode(&mode) && mode <= kLastCoeffMode) {
         *xpf = GrPorterDuffXPFactory::Create(mode);
-        // TODO: This Line will be removed in follow up cl that handles blending and thus we won't
-        // have to set coeffs here.
-        SkAssertResult(ModeAsCoeff(mode, src, dst));
         return true;
-    } else if (xfermode->asCoeff(src, dst)) {
-        *xpf = GrPorterDuffXPFactory::Create(*src, *dst);
+    } else if (xfermode->asCoeff(&src, &dst)) {
+        *xpf = GrPorterDuffXPFactory::Create(src, dst);
         return true;
     } else if (xfermode->asXPFactory(xpf)) {
-        *src = SkXfermode::kOne_Coeff;
-        *dst = SkXfermode::kZero_Coeff;
         return true;
     } else {
         return xfermode->asFragmentProcessor(fp);
@@ -716,8 +710,7 @@ bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
 #else
 bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
                                                 GrFragmentProcessor** fp,
-                                                GrXPFactory** xpf,
-                                                Coeff* src, Coeff* dst) {
+                                                GrXPFactory** xpf) {
     return false;
 }
 #endif

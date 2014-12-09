@@ -18,9 +18,10 @@
 #include "SkRasterClip.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
-#include "effects/GrTextureDomain.h"
 #include "effects/GrConvexPolyEffect.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrRRectEffect.h"
+#include "effects/GrTextureDomain.h"
 
 #define GR_AA_CLIP 1
 typedef SkClipStack::Element Element;
@@ -332,24 +333,25 @@ namespace {
 // set up the OpenGL blend function to perform the specified
 // boolean operation for alpha clip mask creation
 void setup_boolean_blendcoeffs(SkRegion::Op op, GrDrawState* drawState) {
+    // TODO: once we have a coverageDrawing XP this will all use that instead of PD
     switch (op) {
         case SkRegion::kReplace_Op:
-            drawState->setBlendFunc(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
+            drawState->setPorterDuffXPFactory(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
             break;
         case SkRegion::kIntersect_Op:
-            drawState->setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
+            drawState->setPorterDuffXPFactory(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
             break;
         case SkRegion::kUnion_Op:
-            drawState->setBlendFunc(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
+            drawState->setPorterDuffXPFactory(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
             break;
         case SkRegion::kXOR_Op:
-            drawState->setBlendFunc(kIDC_GrBlendCoeff, kISC_GrBlendCoeff);
+            drawState->setPorterDuffXPFactory(kIDC_GrBlendCoeff, kISC_GrBlendCoeff);
             break;
         case SkRegion::kDifference_Op:
-            drawState->setBlendFunc(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
+            drawState->setPorterDuffXPFactory(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
             break;
         case SkRegion::kReverseDifference_Op:
-            drawState->setBlendFunc(kIDC_GrBlendCoeff, kZero_GrBlendCoeff);
+            drawState->setPorterDuffXPFactory(kIDC_GrBlendCoeff, kZero_GrBlendCoeff);
             break;
         default:
             SkASSERT(false);

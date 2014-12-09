@@ -12,7 +12,9 @@
 #include "GrInvariantOutput.h"
 
 class GrFragmentStage;
+class GrFragmentProcessor;
 class GrGeometryProcessor;
+class GrProcessor;
 
 /**
  * GrProcOptInfo gathers invariant data from a set of processor stages.It is used to recognize
@@ -27,7 +29,8 @@ public:
         , fInputColorIsUsed(true)
         , fInputColor(0)
         , fRemoveVertexAttrib(false)
-        , fReadsDst(false) {}
+        , fReadsDst(false)
+        , fReadsFragPosition(false) {}
 
     void calcWithInitialValues(const GrFragmentStage*, int stageCount, GrColor startColor,
                                GrColorComponentFlags flags, bool areCoverageStages,
@@ -80,6 +83,11 @@ public:
      */
     bool readsDst() const { return fReadsDst; }
 
+    /**
+     * Returns true if any of the stages preserved by GrProcOptInfo read the frag position.
+     */
+    bool readsFragPosition() const { return fReadsFragPosition; }
+
 private:
     GrInvariantOutput fInOut;
     int fFirstEffectStageIndex;
@@ -87,6 +95,7 @@ private:
     GrColor fInputColor;
     bool fRemoveVertexAttrib;
     bool fReadsDst;
+    bool fReadsFragPosition;
 };
 
 #endif
