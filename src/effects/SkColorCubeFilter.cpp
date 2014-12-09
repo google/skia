@@ -281,10 +281,12 @@ void GrColorCubeEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
     }
 
     fColorCubeSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kFloat_GrSLType, "Size");
+                                            kFloat_GrSLType, kDefault_GrSLPrecision,
+                                            "Size");
     const char* colorCubeSizeUni = builder->getUniformCStr(fColorCubeSizeUni);
     fColorCubeInvSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                               kFloat_GrSLType, "InvSize");
+                                               kFloat_GrSLType, kDefault_GrSLPrecision,
+                                               "InvSize");
     const char* colorCubeInvSizeUni = builder->getUniformCStr(fColorCubeInvSizeUni);
 
     const char* nonZeroAlpha = "nonZeroAlpha";

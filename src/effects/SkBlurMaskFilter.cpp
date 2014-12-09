@@ -707,10 +707,12 @@ void GrGLRectBlurEffect::emitCode(GrGLFPBuilder* builder,
 
     fProxyRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
+                                            kDefault_GrSLPrecision,
                                             "proxyRect",
                                             &rectName);
     fProfileSizeUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kFloat_GrSLType,
+                                            kDefault_GrSLPrecision,
                                             "profileSize",
                                             &profileSizeName);
 
@@ -1047,16 +1049,19 @@ void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
 
     fProxyRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
+                                            kDefault_GrSLPrecision,
                                             "proxyRect",
                                             &rectName);
     fCornerRadiusUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                 kFloat_GrSLType,
-                                                 "cornerRadius",
-                                                 &cornerRadiusName);
+                                               kFloat_GrSLType,
+                                               kDefault_GrSLPrecision,
+                                               "cornerRadius",
+                                               &cornerRadiusName);
     fBlurRadiusUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                 kFloat_GrSLType,
-                                                 "blurRadius",
-                                                 &blurRadiusName);
+                                             kFloat_GrSLType,
+                                              kDefault_GrSLPrecision,
+                                              "blurRadius",
+                                              &blurRadiusName);
 
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();

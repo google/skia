@@ -131,7 +131,7 @@ void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
     // The circle uniform is (center.x, center.y, radius + 0.5) for regular fills and
     // (... ,radius - 0.5) for inverse fills.
     fCircleUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                         kVec3f_GrSLType,
+                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
                                          "circle",
                                          &circleName);
 
@@ -308,7 +308,7 @@ void GLEllipseEffect::emitCode(GrGLFPBuilder* builder,
     const char *ellipseName;
     // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
     fEllipseUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                         kVec4f_GrSLType,
+                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                                          "ellipse",
                                          &ellipseName);
 

@@ -51,6 +51,7 @@ public:
         , fName(name)
         , fCount(arrayCount)
         , fPrecision(precision) {
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         SkASSERT(kVoid_GrSLType != type);
     }
 
@@ -61,6 +62,7 @@ public:
         , fName(name)
         , fCount(arrayCount)
         , fPrecision(precision) {
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         SkASSERT(kVoid_GrSLType != type);
     }
 
@@ -71,6 +73,7 @@ public:
         , fName(name)
         , fCount(arrayCount)
         , fPrecision(precision) {
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         SkASSERT(kVoid_GrSLType != type);
     }
 
@@ -90,6 +93,7 @@ public:
              const SkString& name,
              GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -105,6 +109,7 @@ public:
              const char* name,
              GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -121,6 +126,7 @@ public:
              int count,
              GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -137,6 +143,7 @@ public:
              int count,
              GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;

@@ -371,7 +371,8 @@ void GrGLArithmeticEffect::emitCode(GrGLFPBuilder* builder,
 
     SkASSERT(dstColor);
     fKUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                kVec4f_GrSLType, "k");
+                                kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                "k");
     const char* kUni = builder->getUniformCStr(fKUni);
 
     // We don't try to optimize for this case at all

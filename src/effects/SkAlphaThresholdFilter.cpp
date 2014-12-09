@@ -143,10 +143,12 @@ void GrGLAlphaThresholdEffect::emitCode(GrGLFPBuilder* builder,
                                         const TextureSamplerArray& samplers) {
     fInnerThresholdVar = builder->addUniform(
         GrGLProgramBuilder::kFragment_Visibility,
-        kFloat_GrSLType, "inner_threshold");
+        kFloat_GrSLType, kDefault_GrSLPrecision,
+        "inner_threshold");
     fOuterThresholdVar = builder->addUniform(
         GrGLProgramBuilder::kFragment_Visibility,
-        kFloat_GrSLType, "outer_threshold");
+        kFloat_GrSLType, kDefault_GrSLPrecision,
+        "outer_threshold");
 
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);

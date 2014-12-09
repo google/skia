@@ -235,7 +235,8 @@ void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     const Edge2PtConicalEffect& ge = fp.cast<Edge2PtConicalEffect>();
     this->emitUniforms(builder, ge);
     fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
-                                         kFloat_GrSLType, "Conical2FSParams", 3);
+                                         kFloat_GrSLType, kDefault_GrSLPrecision,
+                                         "Conical2FSParams", 3);
 
     SkString cName("c");
     SkString tName("t");
@@ -520,7 +521,8 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     const FocalOutside2PtConicalEffect& ge = fp.cast<FocalOutside2PtConicalEffect>();
     this->emitUniforms(builder, ge);
     fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
-                                         kFloat_GrSLType, "Conical2FSParams", 2);
+                                         kFloat_GrSLType, kDefault_GrSLPrecision,
+                                         "Conical2FSParams", 2);
     SkString tName("t");
     SkString p0; // focalX
     SkString p1; // 1 - focalX * focalX
@@ -734,7 +736,8 @@ void GLFocalInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     const FocalInside2PtConicalEffect& ge = fp.cast<FocalInside2PtConicalEffect>();
     this->emitUniforms(builder, ge);
     fFocalUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kFloat_GrSLType, "Conical2FSParams");
+                                    kFloat_GrSLType, kDefault_GrSLPrecision,
+                                    "Conical2FSParams");
     SkString tName("t");
 
     // this is the distance along x-axis from the end center to focal point in
@@ -990,9 +993,11 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     const CircleInside2PtConicalEffect& ge = fp.cast<CircleInside2PtConicalEffect>();
     this->emitUniforms(builder, ge);
     fCenterUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec2f_GrSLType, "Conical2FSCenter");
+                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                     "Conical2FSCenter");
     fParamUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kVec3f_GrSLType, "Conical2FSParams");
+                                    kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                    "Conical2FSParams");
     SkString tName("t");
 
     GrGLShaderVar center = builder->getUniformVariable(fCenterUni);
@@ -1231,9 +1236,11 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     const CircleOutside2PtConicalEffect& ge = fp.cast<CircleOutside2PtConicalEffect>();
     this->emitUniforms(builder, ge);
     fCenterUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec2f_GrSLType, "Conical2FSCenter");
+                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                     "Conical2FSCenter");
     fParamUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kVec4f_GrSLType, "Conical2FSParams");
+                                    kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                    "Conical2FSParams");
     SkString tName("t");
 
     GrGLShaderVar center = builder->getUniformVariable(fCenterUni);

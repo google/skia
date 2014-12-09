@@ -48,8 +48,8 @@ public:
 
             const char* yuvMatrix   = NULL;
             fMatrixUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kMat44f_GrSLType, "YUVMatrix",
-                                             &yuvMatrix);
+                                             kMat44f_GrSLType, kDefault_GrSLPrecision,
+                                             "YUVMatrix", &yuvMatrix);
             fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", outputColor);
             fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
             fsBuilder->codeAppend(".r,\n\t\t");

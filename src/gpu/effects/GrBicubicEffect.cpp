@@ -60,9 +60,11 @@ void GrGLBicubicEffect::emitCode(GrGLFPBuilder* builder,
     const GrTextureDomain& domain = effect.cast<GrBicubicEffect>().domain();
 
     fCoefficientsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                           kMat44f_GrSLType, "Coefficients");
+                                           kMat44f_GrSLType, kDefault_GrSLPrecision,
+                                           "Coefficients");
     fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "ImageIncrement");
+                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                             "ImageIncrement");
 
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
     const char* coeff = builder->getUniformCStr(fCoefficientsUni);

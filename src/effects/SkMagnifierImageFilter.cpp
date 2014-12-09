@@ -125,15 +125,15 @@ void GrGLMagnifierEffect::emitCode(GrGLFPBuilder* builder,
     fOffsetVar = builder->addUniform(
         GrGLProgramBuilder::kFragment_Visibility |
         GrGLProgramBuilder::kVertex_Visibility,
-        kVec2f_GrSLType, "Offset");
+        kVec2f_GrSLType, kDefault_GrSLPrecision, "Offset");
     fInvZoomVar = builder->addUniform(
         GrGLProgramBuilder::kFragment_Visibility |
         GrGLProgramBuilder::kVertex_Visibility,
-        kVec2f_GrSLType, "InvZoom");
+        kVec2f_GrSLType, kDefault_GrSLPrecision, "InvZoom");
     fInvInsetVar = builder->addUniform(
         GrGLProgramBuilder::kFragment_Visibility |
         GrGLProgramBuilder::kVertex_Visibility,
-        kVec2f_GrSLType, "InvInset");
+        kVec2f_GrSLType, kDefault_GrSLPrecision, "InvInset");
 
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);

@@ -147,6 +147,7 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
             fProgramBuilder->fUniformHandles.fRTHeightUni =
                     fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                 kFloat_GrSLType,
+                                                kDefault_GrSLPrecision,
                                                 "RTHeight",
                                                 &rtHeightName);
 
@@ -199,16 +200,19 @@ void GrGLFragmentShaderBuilder::emitCodeToReadDstTexture() {
     fProgramBuilder->fUniformHandles.fDstCopySamplerUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                         kSampler2D_GrSLType,
+                                        kDefault_GrSLPrecision,
                                         "DstCopySampler",
                                         &dstCopySamplerName);
     fProgramBuilder->fUniformHandles.fDstCopyTopLeftUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                         kVec2f_GrSLType,
+                                        kDefault_GrSLPrecision,
                                         "DstCopyUpperLeft",
                                         &dstCopyTopLeftName);
     fProgramBuilder->fUniformHandles.fDstCopyScaleUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                         kVec2f_GrSLType,
+                                        kDefault_GrSLPrecision,
                                         "DstCopyCoordScale",
                                         &dstCopyCoordScaleName);
     const char* fragPos = this->fragmentPosition();

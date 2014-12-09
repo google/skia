@@ -900,21 +900,27 @@ void GrGLGradientEffect::emitUniforms(GrGLFPBuilder* builder, const GrGradientEf
 
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()) { // 2 Color case
         fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec4f_GrSLType, "GradientStartColor");
+                                             kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                            "GradientStartColor");
         fColorEndUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                           kVec4f_GrSLType, "GradientEndColor");
+                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                           "GradientEndColor");
 
     } else if (SkGradientShaderBase::kThree_GpuColorType == ge.getColorType()) { // 3 Color Case
         fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec4f_GrSLType, "GradientStartColor");
+                                             kVec4f_GrSLType,  kDefault_GrSLPrecision,
+                                             "GradientStartColor");
         fColorMidUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                           kVec4f_GrSLType, "GradientMidColor");
+                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                           "GradientMidColor");
         fColorEndUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec4f_GrSLType, "GradientEndColor");
+                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                           "GradientEndColor");
 
     } else { // if not a fast case
         fFSYUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                      kFloat_GrSLType, "GradientYCoordFS");
+                                      kFloat_GrSLType, kDefault_GrSLPrecision,
+                                      "GradientYCoordFS");
     }
 }
 

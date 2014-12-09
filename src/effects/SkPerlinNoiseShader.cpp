@@ -651,16 +651,19 @@ void GrGLPerlinNoise::emitCode(GrGLFPBuilder* builder,
     SkString vCoords = fsBuilder->ensureFSCoords2D(coords, 0);
 
     fBaseFrequencyUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kVec2f_GrSLType, "baseFrequency");
+                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                            "baseFrequency");
     const char* baseFrequencyUni = builder->getUniformCStr(fBaseFrequencyUni);
     fAlphaUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kFloat_GrSLType, "alpha");
+                                    kFloat_GrSLType, kDefault_GrSLPrecision,
+                                    "alpha");
     const char* alphaUni = builder->getUniformCStr(fAlphaUni);
 
     const char* stitchDataUni = NULL;
     if (fStitchTiles) {
         fStitchDataUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "stitchData");
+                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                             "stitchData");
         stitchDataUni = builder->getUniformCStr(fStitchDataUni);
     }
 

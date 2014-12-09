@@ -55,19 +55,20 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
     const GrTextureDomain& domain = fp.cast<GrMatrixConvolutionEffect>().domain();
 
     fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec4f_GrSLType, "Bounds");
+                                     kVec4f_GrSLType, kDefault_GrSLPrecision, "Bounds");
     fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "ImageIncrement");
+                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                             "ImageIncrement");
     fKernelUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
-                                          kFloat_GrSLType,
+                                          kFloat_GrSLType, kDefault_GrSLPrecision,
                                           "Kernel",
                                           fKernelSize.width() * fKernelSize.height());
     fKernelOffsetUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                           kVec2f_GrSLType, "KernelOffset");
+                                           kVec2f_GrSLType, kDefault_GrSLPrecision, "KernelOffset");
     fGainUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                   kFloat_GrSLType, "Gain");
+                                   kFloat_GrSLType, kDefault_GrSLPrecision, "Gain");
     fBiasUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                   kFloat_GrSLType, "Bias");
+                                   kFloat_GrSLType, kDefault_GrSLPrecision, "Bias");
 
     const char* kernelOffset = builder->getUniformCStr(fKernelOffsetUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);

@@ -58,8 +58,8 @@ public:
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                               kVec2f_GrSLType, "TextureSize",
-                                               &textureSizeUniName);
+                                               kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                               "TextureSize", &textureSizeUniName);
 
         fsBuilder->codeAppend("\tvec4 texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
@@ -107,8 +107,8 @@ public:
         const char* luminanceUniName = NULL;
         // width, height, 1/(3*width)
         fLuminanceUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kFloat_GrSLType, "Luminance",
-                                             &luminanceUniName);
+                                             kFloat_GrSLType, kDefault_GrSLPrecision,
+                                             "Luminance", &luminanceUniName);
 
         fsBuilder->codeAppendf("\tuv = vec2(val, %s);\n", luminanceUniName);
         fsBuilder->codeAppend("\tvec4 gammaColor = ");
@@ -297,8 +297,8 @@ public:
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                              kVec2f_GrSLType, "TextureSize",
-                                              &textureSizeUniName);
+                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                              "TextureSize", &textureSizeUniName);
 
         fsBuilder->codeAppend("vec4 texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
@@ -474,8 +474,8 @@ public:
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                              kVec3f_GrSLType, "TextureSize",
-                                              &textureSizeUniName);
+                                              kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                              "TextureSize", &textureSizeUniName);
 
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -555,8 +555,8 @@ public:
         const char* textColorUniName = NULL;
         // width, height, 1/(3*width)
         fTextColorUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec3f_GrSLType, "TextColor",
-                                             &textColorUniName);
+                                             kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                             "TextColor", &textColorUniName);
 
         fsBuilder->codeAppendf("\tuv = vec2(val.x, %s.x);\n", textColorUniName);
         fsBuilder->codeAppend("\tvec4 gammaColor = ");

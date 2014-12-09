@@ -45,15 +45,21 @@ public:
         supported at this time. The actual uniform name will be mangled. If outName is not NULL then
         it will refer to the final uniform name after return. Use the addUniformArray variant to add
         an array of uniforms. */
-    virtual UniformHandle addUniform(uint32_t visibility,
-                                     GrSLType type,
-                                     const char* name,
-                                     const char** outName = NULL) = 0;
-    virtual UniformHandle addUniformArray(uint32_t visibility,
-                                          GrSLType type,
-                                          const char* name,
-                                          int arrayCount,
-                                          const char** outName = NULL) = 0;
+    UniformHandle addUniform(uint32_t visibility,
+                             GrSLType type,
+                             GrSLPrecision precision,
+                             const char* name,
+                             const char** outName = NULL) {
+        return this->addUniformArray(visibility, type, precision, name, 0, outName);
+    }
+
+    virtual UniformHandle addUniformArray(
+        uint32_t visibility,
+        GrSLType type,
+        GrSLPrecision precision,
+        const char* name,
+        int arrayCount,
+        const char** outName = NULL) = 0;
 
     virtual const GrGLShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
@@ -188,39 +194,34 @@ public:
      */
     static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGpuGL*);
 
-    virtual UniformHandle addUniform(uint32_t visibility,
-                                     GrSLType type,
-                                     const char* name,
-                                     const char** outName = NULL) SK_OVERRIDE {
-        return this->addUniformArray(visibility, type, name, GrGLShaderVar::kNonArray, outName);
-    }
-    virtual UniformHandle addUniformArray(uint32_t visibility,
-                                          GrSLType type,
-                                          const char* name,
-                                          int arrayCount,
-                                          const char** outName = NULL) SK_OVERRIDE;
+    UniformHandle addUniformArray(uint32_t visibility,
+                                  GrSLType type,
+                                  GrSLPrecision precision,
+                                  const char* name,
+                                  int arrayCount,
+                                  const char** outName) SK_OVERRIDE;
 
-    virtual const GrGLShaderVar& getUniformVariable(UniformHandle u) const SK_OVERRIDE {
+    const GrGLShaderVar& getUniformVariable(UniformHandle u) const SK_OVERRIDE {
         return fUniforms[u.toShaderBuilderIndex()].fVariable;
     }
 
-    virtual const char* getUniformCStr(UniformHandle u) const SK_OVERRIDE {
+    const char* getUniformCStr(UniformHandle u) const SK_OVERRIDE {
         return this->getUniformVariable(u).c_str();
     }
 
-    virtual const GrGLContextInfo& ctxInfo() const SK_OVERRIDE;
+    const GrGLContextInfo& ctxInfo() const SK_OVERRIDE;
 
-    virtual GrGpuGL* gpu() const SK_OVERRIDE { return fGpu; }
+    GrGpuGL* gpu() const SK_OVERRIDE { return fGpu; }
 
-    virtual GrGLFPFragmentBuilder* getFragmentShaderBuilder() SK_OVERRIDE { return &fFS; }
-    virtual GrGLVertexBuilder* getVertexShaderBuilder() SK_OVERRIDE { return &fVS; }
+    GrGLFPFragmentBuilder* getFragmentShaderBuilder() SK_OVERRIDE { return &fFS; }
+    GrGLVertexBuilder* getVertexShaderBuilder() SK_OVERRIDE { return &fVS; }
 
-    virtual void addVarying(
+    void addVarying(
             const char* name,
             GrGLVarying*,
             GrSLPrecision fsPrecision = kDefault_GrSLPrecision) SK_OVERRIDE;
 
-    virtual void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
+    void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
                                          const char* output) SK_OVERRIDE;
 
 

@@ -539,9 +539,8 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     // The param uniforms, xyz, refer to circle radius - 0.5, cicles center x coord, and
     // the total interval length of the dash.
     fParamUniform = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                         kVec3f_GrSLType,
-                                         "params",
-                                         &paramName);
+                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                         "params", &paramName);
 
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
@@ -762,13 +761,13 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     fRectUniform = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                       kVec4f_GrSLType,
+                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
                                        "rect",
                                        &rectName);
     const char *intervalName;
     // The interval uniform's refers to the total length of the interval (on + off)
     fIntervalUniform = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kFloat_GrSLType,
+                                            kFloat_GrSLType, kDefault_GrSLPrecision,
                                             "interval",
                                             &intervalName);
 

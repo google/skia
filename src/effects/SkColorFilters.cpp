@@ -225,7 +225,8 @@ public:
             const char* colorFilterColorUniName = NULL;
             if (fp.cast<ModeColorFilterEffect>().willUseFilterColor()) {
                 fFilterColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                      kVec4f_GrSLType, "FilterColor",
+                                                      kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                      "FilterColor",
                                                       &colorFilterColorUniName);
             }
 

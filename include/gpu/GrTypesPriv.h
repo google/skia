@@ -40,7 +40,8 @@ static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
 
 /**
  * Precisions of shader language variables. Not all shading languages support precisions or actually
- * vary the internal precision based on the qualifiers.
+ * vary the internal precision based on the qualifiers. These currently only apply to float types (
+ * including float vectors and matrices).
  */
 enum GrSLPrecision {
     kLow_GrSLPrecision,
@@ -87,6 +88,21 @@ static inline GrSLType GrSLFloatVectorType(int count) {
     GR_STATIC_ASSERT(kVec4f_GrSLType == 4);
 }
 
+/** Is the shading language type floating point (or vector/matrix of fp)? */
+static inline bool GrSLTypeIsFloatType(GrSLType type) {
+    SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
+    return type >= 1 && type <= 6;
+
+    GR_STATIC_ASSERT(0 == kVoid_GrSLType);
+    GR_STATIC_ASSERT(1 == kFloat_GrSLType);
+    GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
+    GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
+    GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
+    GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
+    GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
+    GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(8 == kGrSLTypeCount);
+}
 //////////////////////////////////////////////////////////////////////////////
 
 /**

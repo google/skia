@@ -56,8 +56,9 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
         if (textureDomain.fIndex >= 0) {
             uniName.appendS32(textureDomain.fIndex);
         }
-        fDomainUni = program->addUniform(GrGLProgramBuilder::kFragment_Visibility, kVec4f_GrSLType,
-                uniName.c_str(), &name);
+        fDomainUni = program->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                         uniName.c_str(), &name);
         fDomainName = name;
     }
 

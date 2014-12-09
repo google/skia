@@ -533,7 +533,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
     sk_ignore_unused_variable(inputColor);
 
     fScaleUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kVec2f_GrSLType, "Scale");
+                                    kVec2f_GrSLType, kDefault_GrSLPrecision, "Scale");
     const char* scaleUni = builder->getUniformCStr(fScaleUni);
     const char* dColor = "dColor";
     const char* cCoords = "cCoords";

@@ -566,7 +566,8 @@ void GrGLRadial2Gradient::emitCode(GrGLFPBuilder* builder,
     const GrRadial2Gradient& ge = fp.cast<GrRadial2Gradient>();
     this->emitUniforms(builder, ge);
     fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
-                                         kFloat_GrSLType, "Radial2FSParams", 6);
+                                         kFloat_GrSLType, kDefault_GrSLPrecision,
+                                         "Radial2FSParams", 6);
 
     SkString cName("c");
     SkString ac4Name("ac4");

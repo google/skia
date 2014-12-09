@@ -362,10 +362,10 @@ public:
                               const TransformedCoordsArray&,
                               const TextureSamplerArray&) SK_OVERRIDE {
             fMatrixHandle = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                kMat44f_GrSLType,
+                                                kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                 "ColorMatrix");
             fVectorHandle = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                kVec4f_GrSLType,
+                                                kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                 "ColorMatrixVector");
 
             if (NULL == inputColor) {

@@ -58,13 +58,16 @@ void GrGLConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                      const TransformedCoordsArray& coords,
                                      const TextureSamplerArray& samplers) {
     fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "ImageIncrement");
+                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                             "ImageIncrement");
     if (this->useBounds()) {
         fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                         kVec2f_GrSLType, "Bounds");
+                                         kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                         "Bounds");
     }
     fKernelUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
-                                          kFloat_GrSLType, "Kernel", this->width());
+                                          kFloat_GrSLType, kDefault_GrSLPrecision,
+                                          "Kernel", this->width());
 
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);

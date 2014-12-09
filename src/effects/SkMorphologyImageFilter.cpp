@@ -353,7 +353,8 @@ void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
                                     const TransformedCoordsArray& coords,
                                     const TextureSamplerArray& samplers) {
     fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "ImageIncrement");
+                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                             "ImageIncrement");
 
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);

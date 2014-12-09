@@ -29,7 +29,7 @@ void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {
 void GrGLVertexBuilder::setupUniformViewMatrix() {
     fProgramBuilder->fUniformHandles.fViewMatrixUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                        kMat33f_GrSLType,
+                                        kMat33f_GrSLType, kDefault_GrSLPrecision,
                                         this->uViewM());
 }
 
@@ -46,7 +46,7 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace() {
     // setup RT Uniform
     fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                        kVec4f_GrSLType,
+                                        kVec4f_GrSLType, kDefault_GrSLPrecision,
                                         fProgramBuilder->rtAdjustment(),
                                         &fRtAdjustName);
     // Wire transforms

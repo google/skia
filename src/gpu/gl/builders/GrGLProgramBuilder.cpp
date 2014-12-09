@@ -140,15 +140,18 @@ void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* na
     }
 }
 
-GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(uint32_t visibility,
-                                                                          GrSLType type,
-                                                                          const char* name,
-                                                                          int count,
-                                                                          const char** outName) {
+GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
+                                                                uint32_t visibility,
+                                                                GrSLType type,
+                                                                GrSLPrecision precision,
+                                                                const char* name,
+                                                                int count,
+                                                                const char** outName) {
     SkASSERT(name && strlen(name));
     SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_Visibility | kFragment_Visibility);
     SkASSERT(0 == (~kVisibilityMask & visibility));
     SkASSERT(0 != visibility);
+    SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
 
     UniformInfo& uni = fUniforms.push_back();
     uni.fVariable.setType(type);
@@ -166,14 +169,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(uint32
     this->nameVariable(uni.fVariable.accessName(), prefix, name);
     uni.fVariable.setArrayCount(count);
     uni.fVisibility = visibility;
-
-    // If it is visible in both the VS and FS, the precision must match.
-    // We declare a default FS precision, but not a default VS. So set the var
-    // to use the default FS precision.
-    if ((kVertex_Visibility | kFragment_Visibility) == visibility) {
-        // the fragment and vertex precisions must match
-        uni.fVariable.setPrecision(kDefault_GrSLPrecision);
-    }
+    uni.fVariable.setPrecision(precision);
 
     if (outName) {
         *outName = uni.fVariable.c_str();
@@ -202,9 +198,8 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
         const char* name;
         fUniformHandles.fColorUni =
             this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                             kVec4f_GrSLType,
-                             "Color",
-                             &name);
+                             kVec4f_GrSLType, kDefault_GrSLPrecision,
+                             "Color", &name);
         *inputColor = GrGLSLExpr4(name);
     } else if (GrProgramDesc::kAllOnes_ColorInput == header.fColorInput) {
         *inputColor = GrGLSLExpr4(1);
@@ -213,9 +208,8 @@ void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* input
         const char* name;
         fUniformHandles.fCoverageUni =
             this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                             kFloat_GrSLType,
-                             "Coverage",
-                             &name);
+                             kFloat_GrSLType, kDefault_GrSLPrecision,
+                             "Coverage",&name);
         *inputCoverage = GrGLSLExpr1(name);
     } else if (GrProgramDesc::kAllOnes_ColorInput == header.fCoverageInput) {
         *inputCoverage = GrGLSLExpr1(1);
@@ -397,7 +391,7 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
             uniName = suffixedUniName.c_str();
         }
         ifp->fTransforms[t].fHandle = this->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                                       kMat33f_GrSLType,
+                                                       kMat33f_GrSLType, kDefault_GrSLPrecision,
                                                        uniName,
                                                        &uniName).toShaderBuilderIndex();
 
@@ -431,7 +425,7 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
         ip->fSamplers[t].fUniform = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                     kSampler2D_GrSLType,
+                                                     kSampler2D_GrSLType, kDefault_GrSLPrecision,
                                                      name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLProcessor::TextureSampler,
                                (ip->fSamplers[t].fUniform, processor.textureAccess(t)));

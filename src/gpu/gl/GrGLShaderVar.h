@@ -87,6 +87,7 @@ public:
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, typeModifier, name, precision);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -102,6 +103,7 @@ public:
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, typeModifier, name, precision);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -118,6 +120,7 @@ public:
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, typeModifier, name, count, precision);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -134,6 +137,7 @@ public:
              Origin origin = kDefault_Origin,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, typeModifier, name, count, precision);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -153,6 +157,7 @@ public:
      * Write a declaration of this variable to out.
      */
     void appendDecl(const GrGLContextInfo& ctxInfo, SkString* out) const {
+        SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeIsFloatType(fType));
         if (kUpperLeft_Origin == fOrigin) {
             // this is the only place where we specify a layout modifier. If we use other layout
             // modifiers in the future then they should be placed in a list.

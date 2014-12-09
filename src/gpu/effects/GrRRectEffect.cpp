@@ -168,11 +168,11 @@ void GLCircularRRectEffect::emitCode(GrGLFPBuilder* builder,
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
     fInnerRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kVec4f_GrSLType,
+                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "innerRect",
                                             &rectName);
     fRadiusPlusHalfUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                 kFloat_GrSLType,
+                                                 kFloat_GrSLType, kDefault_GrSLPrecision,
                                                  "radiusPlusHalf",
                                                  &radiusPlusHalfName);
 
@@ -521,7 +521,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
     const char *rectName;
     // The inner rect is the rrect bounds inset by the x/y radii
     fInnerRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                            kVec4f_GrSLType,
+                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "innerRect",
                                             &rectName);
 
@@ -544,7 +544,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
             fInvRadiiSqdUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                      kVec2f_GrSLType,
+                                                      kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                       "invRadiiXY",
                                                       &invRadiiXYSqdName);
             fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
@@ -555,7 +555,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
             fInvRadiiSqdUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                      kVec4f_GrSLType,
+                                                      kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                       "invRadiiLTRB",
                                                       &invRadiiLTRBSqdName);
             fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");

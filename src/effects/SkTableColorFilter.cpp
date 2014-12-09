@@ -343,7 +343,8 @@ void GLColorTableEffect::emitCode(GrGLFPBuilder* builder,
                                   const TextureSamplerArray& samplers) {
     const char* yoffsets;
     fRGBAYValuesUni = builder->addUniform(GrGLFPBuilder::kFragment_Visibility,
-                                          kVec4f_GrSLType, "yoffsets", &yoffsets);
+                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                          "yoffsets", &yoffsets);
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();

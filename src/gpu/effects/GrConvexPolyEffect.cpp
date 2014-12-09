@@ -118,6 +118,7 @@ void GLAARectEffect::emitCode(GrGLFPBuilder* builder,
     // respectively.
     fRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec4f_GrSLType,
+                                       kDefault_GrSLPrecision,
                                        "rect",
                                        &rectName);
 
@@ -211,7 +212,8 @@ void GrGLConvexPolyEffect::emitCode(GrGLFPBuilder* builder,
     const char *edgeArrayName;
     fEdgeUniform = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec3f_GrSLType,
-                                            "edges",
+                                             kDefault_GrSLPrecision,
+                                             "edges",
                                             cpe.getEdgeCount(),
                                             &edgeArrayName);
     GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
