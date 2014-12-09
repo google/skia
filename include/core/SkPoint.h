@@ -258,25 +258,25 @@ struct SK_API SkPoint {
 
     /** Set the point (vector) to be unit-length in the same direction as it
         already points.  If the point has a degenerate length (i.e. nearly 0)
-        then return false and do nothing; otherwise return true.
+        then set it to (0,0) and return false; otherwise return true.
     */
     bool normalize();
 
     /** Set the point (vector) to be unit-length in the same direction as the
         x,y params. If the vector (x,y) has a degenerate length (i.e. nearly 0)
-        then return false and do nothing, otherwise return true.
+        then set it to (0,0) and return false, otherwise return true.
     */
     bool setNormalize(SkScalar x, SkScalar y);
 
     /** Scale the point (vector) to have the specified length, and return that
         length. If the original length is degenerately small (nearly zero),
-        do nothing and return false, otherwise return true.
+        set it to (0,0) and return false, otherwise return true.
     */
     bool setLength(SkScalar length);
 
     /** Set the point (vector) to have the specified length in the same
      direction as (x,y). If the vector (x,y) has a degenerate length
-     (i.e. nearly 0) then return false and do nothing, otherwise return true.
+     (i.e. nearly 0) then set it to (0,0) and return false, otherwise return true.
     */
     bool setLength(SkScalar x, SkScalar y, SkScalar length);
 
@@ -423,7 +423,7 @@ struct SK_API SkPoint {
     static SkScalar Length(SkScalar x, SkScalar y);
 
     /** Normalize pt, returning its previous length. If the prev length is too
-        small (degenerate), return 0 and leave pt unchanged. This uses the same
+        small (degenerate), set pt to (0,0) and return 0. This uses the same
         tolerance as CanNormalize.
 
         Note that this method may be significantly more expensive than

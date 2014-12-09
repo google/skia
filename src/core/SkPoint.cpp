@@ -100,6 +100,7 @@ SkScalar SkPoint::Normalize(SkPoint* pt) {
     float y = pt->fY;
     float mag2;
     if (isLengthNearlyZero(x, y, &mag2)) {
+        pt->set(0, 0);
         return 0;
     }
 
@@ -147,6 +148,7 @@ SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
 bool SkPoint::setLength(float x, float y, float length) {
     float mag2;
     if (isLengthNearlyZero(x, y, &mag2)) {
+        this->set(0, 0);
         return false;
     }
 
@@ -183,6 +185,7 @@ bool SkPoint::setLengthFast(float length) {
 bool SkPoint::setLengthFast(float x, float y, float length) {
     float mag2;
     if (isLengthNearlyZero(x, y, &mag2)) {
+        this->set(0, 0);
         return false;
     }
 

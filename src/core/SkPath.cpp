@@ -1287,7 +1287,12 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
 */
 void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                    SkScalar radius) {
-    SkVector    before, after;
+    if (radius == 0) {
+        this->lineTo(x1, y1);
+        return;
+    }
+
+    SkVector before, after;
 
     // need to know our prev pt so we can construct tangent vectors
     {
@@ -1295,12 +1300,6 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         this->getLastPt(&start);
         // Handle degenerate cases by adding a line to the first point and
         // bailing out.
-        if ((x1 == start.fX && y1 == start.fY) ||
-            (x1 == x2 && y1 == y2) ||
-            radius == 0) {
-            this->lineTo(x1, y1);
-            return;
-        }
         before.setNormalize(x1 - start.fX, y1 - start.fY);
         after.setNormalize(x2 - x1, y2 - y1);
     }
