@@ -48,24 +48,26 @@ public:
 
     /**
      * Create a transformation that maps [0, 1] to a texture's boundaries. The precision is inferred
-     * from the texture size.
+     * from the texture size and filter. The texture origin also implies whether a y-reversal should
+     * be performed.
      */
-    GrCoordTransform(GrCoordSet sourceCoords, const GrTexture* texture) {
+    GrCoordTransform(GrCoordSet sourceCoords,
+                     const GrTexture* texture,
+                     GrTextureParams::FilterMode filter) {
         SkASSERT(texture);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(sourceCoords, texture);
+        this->reset(sourceCoords, texture, filter);
     }
 
     /**
-     * Create a transformation from a matrix. The texture parameter is used to infer if the
-     * framework should internally do a y reversal to account for it being upside down by Skia's
-     * coord convention and the precision of the shader variables used to implement the coord
-     * transform.
+     * Create a transformation from a matrix. The precision is inferred from the texture size and
+     * filter. The texture origin also implies whether a y-reversal should be performed.
      */
-    GrCoordTransform(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture) {
+    GrCoordTransform(GrCoordSet sourceCoords, const SkMatrix& m,
+                     const GrTexture* texture, GrTextureParams::FilterMode filter) {
         SkDEBUGCODE(fInProcessor = false);
         SkASSERT(texture);
-        this->reset(sourceCoords, m, texture);
+        this->reset(sourceCoords, m, texture, filter);
     }
 
     /**
@@ -77,13 +79,14 @@ public:
         this->reset(sourceCoords, m, precision);
     }
 
-    void reset(GrCoordSet sourceCoords, const GrTexture* texture) {
+    void reset(GrCoordSet sourceCoords, const GrTexture* texture,
+               GrTextureParams::FilterMode filter) {
         SkASSERT(!fInProcessor);
         SkASSERT(texture);
-        this->reset(sourceCoords, MakeDivByTextureWHMatrix(texture), texture);
+        this->reset(sourceCoords, MakeDivByTextureWHMatrix(texture), texture, filter);
     }
 
-    void reset(GrCoordSet, const SkMatrix&, const GrTexture*);
+    void reset(GrCoordSet, const SkMatrix&, const GrTexture*, GrTextureParams::FilterMode filter);
     void reset(GrCoordSet sourceCoords, const SkMatrix& m,
                GrSLPrecision precision = kDefault_GrSLPrecision);
 

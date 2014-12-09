@@ -315,7 +315,8 @@ GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4,
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticEffect>();
     if (background) {
-        fBackgroundTransform.reset(kLocal_GrCoordSet, background);
+        fBackgroundTransform.reset(kLocal_GrCoordSet, background,
+                                   GrTextureParams::kNone_FilterMode);
         this->addCoordTransform(&fBackgroundTransform);
         fBackgroundAccess.reset(background);
         this->addTextureAccess(&fBackgroundAccess);

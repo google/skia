@@ -86,10 +86,12 @@ private:
         : fInnerThreshold(innerThreshold)
         , fOuterThreshold(outerThreshold)
         , fImageCoordTransform(kLocal_GrCoordSet,
-                               GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture)
+                               GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture,
+                               GrTextureParams::kNone_FilterMode)
         , fImageTextureAccess(texture)
         , fMaskCoordTransform(kLocal_GrCoordSet,
-                              GrCoordTransform::MakeDivByTextureWHMatrix(maskTexture), maskTexture)
+                              GrCoordTransform::MakeDivByTextureWHMatrix(maskTexture), maskTexture,
+                              GrTextureParams::kNone_FilterMode)
         , fMaskTextureAccess(maskTexture) {
         this->initClassID<AlphaThresholdEffect>();
         this->addCoordTransform(&fImageCoordTransform);

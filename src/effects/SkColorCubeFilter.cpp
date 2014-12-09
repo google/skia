@@ -240,7 +240,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
-    : fColorCubeTransform(kLocal_GrCoordSet, colorCube)
+    : fColorCubeTransform(kLocal_GrCoordSet, colorCube, GrTextureParams::kBilerp_FilterMode)
     , fColorCubeAccess(colorCube, "bgra", GrTextureParams::kBilerp_FilterMode) {
     this->initClassID<GrColorCubeEffect>();
     this->addCoordTransform(&fColorCubeTransform);

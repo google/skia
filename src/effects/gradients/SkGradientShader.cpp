@@ -1106,11 +1106,11 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         fRow = fAtlas->lockRow(bitmap);
         if (-1 != fRow) {
             fYCoord = fAtlas->getYOffset(fRow) + SK_ScalarHalf * fAtlas->getNormalizedTexelHeight();
-            fCoordTransform.reset(kCoordSet, matrix, fAtlas->getTexture());
+            fCoordTransform.reset(kCoordSet, matrix, fAtlas->getTexture(), params.filterMode());
             fTextureAccess.reset(fAtlas->getTexture(), params);
         } else {
             SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(ctx, bitmap, &params));
-            fCoordTransform.reset(kCoordSet, matrix, texture);
+            fCoordTransform.reset(kCoordSet, matrix, texture, params.filterMode());
             fTextureAccess.reset(texture, params);
             fYCoord = SK_ScalarHalf;
         }

@@ -1233,7 +1233,8 @@ private:
         : fMode(mode) {
         this->initClassID<XferEffect>();
         if (background) {
-            fBackgroundTransform.reset(kLocal_GrCoordSet, background);
+            fBackgroundTransform.reset(kLocal_GrCoordSet, background, 
+                                       GrTextureParams::kNone_FilterMode);
             this->addCoordTransform(&fBackgroundTransform);
             fBackgroundAccess.reset(background);
             this->addTextureAccess(&fBackgroundAccess);

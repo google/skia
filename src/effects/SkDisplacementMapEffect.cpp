@@ -454,9 +454,10 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                              GrTexture* displacement,
                              const SkMatrix& offsetMatrix,
                              GrTexture* color)
-    : fDisplacementTransform(kLocal_GrCoordSet, offsetMatrix, displacement)
+    : fDisplacementTransform(kLocal_GrCoordSet, offsetMatrix, displacement,
+                             GrTextureParams::kNone_FilterMode)
     , fDisplacementAccess(displacement)
-    , fColorTransform(kLocal_GrCoordSet, color)
+    , fColorTransform(kLocal_GrCoordSet, color, GrTextureParams::kNone_FilterMode)
     , fColorAccess(color)
     , fXChannelSelector(xChannelSelector)
     , fYChannelSelector(yChannelSelector)

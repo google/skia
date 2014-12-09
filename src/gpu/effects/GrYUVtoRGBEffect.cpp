@@ -90,8 +90,9 @@ public:
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
                    SkYUVColorSpace colorSpace)
-     : fCoordTransform(kLocal_GrCoordSet, GrCoordTransform::MakeDivByTextureWHMatrix(yTexture),
-                       yTexture)
+     : fCoordTransform(kLocal_GrCoordSet,
+                       GrCoordTransform::MakeDivByTextureWHMatrix(yTexture),
+                       yTexture, GrTextureParams::kNone_FilterMode)
     , fYAccess(yTexture)
     , fUAccess(uTexture)
     , fVAccess(vTexture)
