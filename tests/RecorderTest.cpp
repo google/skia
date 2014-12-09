@@ -155,7 +155,7 @@ DEF_TEST(Recorder_drawImage_takeReference, reporter) {
 
     SkAutoTUnref<SkImage> image;
     {
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
         surface->getCanvas()->clear(SK_ColorGREEN);
         image.reset(surface->newImageSnapshot());
     }

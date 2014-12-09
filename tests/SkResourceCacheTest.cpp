@@ -11,7 +11,6 @@
 #include "SkDiscardableMemoryPool.h"
 #include "SkGraphics.h"
 #include "SkResourceCache.h"
-#include "SkSurface.h"
 
 static const int kCanvasSize = 1;
 static const int kBitmapSize = 16;
@@ -28,8 +27,8 @@ static bool is_in_scaled_image_cache(const SkBitmap& orig,
 
 // Draw a scaled bitmap, then return true iff it has been cached.
 static bool test_scaled_image_cache_useage() {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kCanvasSize, kCanvasSize));
-    SkCanvas* canvas = surface->getCanvas();
+    SkAutoTUnref<SkCanvas> canvas(
+            SkCanvas::NewRasterN32(kCanvasSize, kCanvasSize));
     SkBitmap bitmap;
     bitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
     bitmap.eraseColor(0xFFFFFFFF);

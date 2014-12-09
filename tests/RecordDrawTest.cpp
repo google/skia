@@ -286,7 +286,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         bool fDrawImageRectCalled;
     };
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(10, 10));
     surface->getCanvas()->clear(SK_ColorGREEN);
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
 

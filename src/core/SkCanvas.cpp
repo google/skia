@@ -2529,6 +2529,23 @@ static bool supported_for_raster_canvas(const SkImageInfo& info) {
     return true;
 }
 
+SkCanvas* SkCanvas::NewRaster(const SkImageInfo& info) {
+    if (!supported_for_raster_canvas(info)) {
+        return NULL;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(info)) {
+        return NULL;
+    }
+
+    // should this functionality be moved into allocPixels()?
+    if (!bitmap.info().isOpaque()) {
+        bitmap.eraseColor(0);
+    }
+    return SkNEW_ARGS(SkCanvas, (bitmap));
+}
+
 SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     if (!supported_for_raster_canvas(info)) {
         return NULL;
