@@ -98,11 +98,8 @@ void SkMatrixImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) cons
     if (getInput(0)) {
         getInput(0)->computeFastBounds(src, &bounds);
     }
-    SkMatrix matrix;
-    matrix.setTranslate(-bounds.x(), -bounds.y());
-    matrix.postConcat(fTransform);
-    matrix.postTranslate(bounds.x(), bounds.y());
-    matrix.mapRect(dst, bounds);
+    fTransform.mapRect(dst, bounds);
+    dst->join(bounds);   // Work around for skia:3194
 }
 
 bool SkMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
