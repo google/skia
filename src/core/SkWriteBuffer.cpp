@@ -20,7 +20,8 @@ SkWriteBuffer::SkWriteBuffer(uint32_t flags)
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fBitmapHeap(NULL)
-    , fTFSet(NULL) {
+    , fTFSet(NULL)
+    , fBitmapEncoder(NULL) {
 }
 
 SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
@@ -29,7 +30,8 @@ SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
     , fNamedFactorySet(NULL)
     , fWriter(storage, storageSize)
     , fBitmapHeap(NULL)
-    , fTFSet(NULL) {
+    , fTFSet(NULL)
+    , fBitmapEncoder(NULL) {
 }
 
 SkWriteBuffer::~SkWriteBuffer() {
@@ -170,7 +172,7 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     // SkBitmapHeapReader to read the SkBitmap. False if the bitmap was serialized another way.
     this->writeBool(useBitmapHeap);
     if (useBitmapHeap) {
-        SkASSERT(NULL == fPixelSerializer);
+        SkASSERT(NULL == fBitmapEncoder);
         int32_t slot = fBitmapHeap->insert(bitmap);
         fWriter.write32(slot);
         // crbug.com/155875
@@ -183,33 +185,25 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         return;
     }
 
-    SkPixelRef* pixelRef = bitmap.pixelRef();
-    if (pixelRef) {
-        // see if the pixelref already has an encoded version
-        SkAutoDataUnref existingData(bitmap.pixelRef()->refEncodedData());
-        if (existingData.get() != NULL) {
-            // Assumes that if the client did not set a serializer, they are
-            // happy to get the encoded data.
-            if (!fPixelSerializer || fPixelSerializer->useEncodedData(existingData->data(),
-                                                                      existingData->size())) {
-                write_encoded_bitmap(this, existingData, bitmap.pixelRefOrigin());
-                return;
-            }
+    // see if the pixelref already has an encoded version
+    if (bitmap.pixelRef()) {
+        SkAutoDataUnref data(bitmap.pixelRef()->refEncodedData());
+        if (data.get() != NULL) {
+            write_encoded_bitmap(this, data, bitmap.pixelRefOrigin());
+            return;
         }
+    }
 
-        // see if the caller wants to manually encode
-        if (fPixelSerializer) {
-            SkASSERT(NULL == fBitmapHeap);
-            SkAutoLockPixels alp(bitmap);
-            SkAutoDataUnref data(fPixelSerializer->encodePixels(bitmap.info(),
-                                                                bitmap.getPixels(),
-                                                                bitmap.rowBytes()));
-            if (data.get() != NULL) {
-                // if we have to "encode" the bitmap, then we assume there is no
-                // offset to share, since we are effectively creating a new pixelref
-                write_encoded_bitmap(this, data, SkIPoint::Make(0, 0));
-                return;
-            }
+    // see if the caller wants to manually encode
+    if (fBitmapEncoder != NULL) {
+        SkASSERT(NULL == fBitmapHeap);
+        size_t offset = 0;  // this parameter is deprecated/ignored
+        // if we have to "encode" the bitmap, then we assume there is no
+        // offset to share, since we are effectively creating a new pixelref
+        SkAutoDataUnref data(fBitmapEncoder(&offset, bitmap));
+        if (data.get() != NULL) {
+            write_encoded_bitmap(this, data, SkIPoint::Make(0, 0));
+            return;
         }
     }
 
@@ -251,15 +245,14 @@ SkRefCntSet* SkWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
 void SkWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
     SkRefCnt_SafeAssign(fBitmapHeap, bitmapHeap);
     if (bitmapHeap != NULL) {
-        SkASSERT(NULL == fPixelSerializer);
-        fPixelSerializer.reset(NULL);
+        SkASSERT(NULL == fBitmapEncoder);
+        fBitmapEncoder = NULL;
     }
 }
 
-void SkWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
-    fPixelSerializer.reset(serializer);
-    if (serializer) {
-        serializer->ref();
+void SkWriteBuffer::setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder) {
+    fBitmapEncoder = bitmapEncoder;
+    if (bitmapEncoder != NULL) {
         SkASSERT(NULL == fBitmapHeap);
         SkSafeUnref(fBitmapHeap);
         fBitmapHeap = NULL;

@@ -1039,7 +1039,7 @@ public:
 
     static SkPicture* stream_to_new_picture(const SkPicture& src) {
         SkDynamicMemoryWStream storage;
-        src.serialize(&storage);
+        src.serialize(&storage, NULL);
         SkAutoTUnref<SkStreamAsset> pictReadback(storage.detachAsStream());
         SkPicture* retval = SkPicture::CreateFromStream(pictReadback,
                                                         &SkImageDecoder::DecodeMemory);
