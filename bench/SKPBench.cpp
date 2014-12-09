@@ -40,10 +40,6 @@ const char* SKPBench::onGetUniqueName() {
 }
 
 void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
-    if (!fUseMultiPictureDraw) {
-        return;
-    }
-
     SkIRect bounds;
     SkAssertResult(canvas->getClipDeviceBounds(&bounds));
 
@@ -74,10 +70,6 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
 }
 
 void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
-    if (!fUseMultiPictureDraw) {
-        return;
-    }
-
     // Draw the last set of tiles into the master canvas in case we're
     // saving the images
     for (int i = 0; i < fTileRects.count(); ++i) {
@@ -104,38 +96,31 @@ void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
         for (int i = 0; i < loops; i++) {
             SkMultiPictureDraw mpd;
 
-            for (int i = 0; i < fTileRects.count(); ++i) {
+            for (int j = 0; j < fTileRects.count(); ++j) {
                 SkMatrix trans;
-                trans.setTranslate(-fTileRects[i].fLeft/fScale,
-                                   -fTileRects[i].fTop/fScale);
-                mpd.add(fSurfaces[i]->getCanvas(), fPic, &trans);
+                trans.setTranslate(-fTileRects[j].fLeft/fScale,
+                                   -fTileRects[j].fTop/fScale);
+                mpd.add(fSurfaces[j]->getCanvas(), fPic, &trans);
             }
 
             mpd.draw();
 
-            for (int i = 0; i < fTileRects.count(); ++i) {
-                fSurfaces[i]->getCanvas()->flush();
+            for (int j = 0; j < fTileRects.count(); ++j) {
+                fSurfaces[j]->getCanvas()->flush();
             }
         }
     } else {
-        SkIRect bounds;
-        SkAssertResult(canvas->getClipDeviceBounds(&bounds));
-
-        SkAutoCanvasRestore overall(canvas, true/*save now*/);
-        canvas->scale(fScale, fScale);
-
         for (int i = 0; i < loops; i++) {
-            for (int y = bounds.fTop; y < bounds.fBottom; y += FLAGS_benchTile) {
-                for (int x = bounds.fLeft; x < bounds.fRight; x += FLAGS_benchTile) {
-                    SkAutoCanvasRestore perTile(canvas, true/*save now*/);
-                    canvas->clipRect(SkRect::MakeXYWH(x/fScale, y/fScale,
-                                                      FLAGS_benchTile/fScale,
-                                                      FLAGS_benchTile/fScale));
-                    fPic->playback(canvas);
-                }
+            for (int j = 0; j < fTileRects.count(); ++j) {
+                SkMatrix trans;
+                trans.setTranslate(-fTileRects[j].fLeft / fScale,
+                                   -fTileRects[j].fTop / fScale);
+                fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, NULL);
             }
 
-            canvas->flush();
+            for (int j = 0; j < fTileRects.count(); ++j) {
+                fSurfaces[j]->getCanvas()->flush();
+            }
         }
     }
 }
