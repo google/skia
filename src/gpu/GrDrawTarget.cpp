@@ -1011,6 +1011,8 @@ void GrDrawTargetCaps::reset() {
     fMaxTextureSize = 0;
     fMaxSampleCount = 0;
 
+    fShaderPrecisionVaries = false;
+
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
     memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
 }
@@ -1042,6 +1044,12 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
     memcpy(fConfigTextureSupport, other.fConfigTextureSupport, sizeof(fConfigTextureSupport));
 
+    fShaderPrecisionVaries = other.fShaderPrecisionVaries;
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+            fFloatPrecisions[s][p] = other.fFloatPrecisions[s][p];
+        }
+    }
     return *this;
 }
 
@@ -1063,6 +1071,30 @@ static SkString map_flags_to_string(uint32_t flags) {
     }
     SkASSERT(0 == flags); // Make sure we handled all the flags.
     return str;
+}
+
+static const char* shader_type_to_string(GrShaderType type) {
+    switch (type) {
+        case kVertex_GrShaderType:
+            return "vertex";
+        case kGeometry_GrShaderType:
+            return "geometry";
+        case kFragment_GrShaderType:
+            return "fragment";
+    }
+    return "";
+}
+
+static const char* precision_to_string(GrShaderVar::Precision p) {
+    switch (p) {
+        case GrShaderVar::kLow_Precision:
+            return "low";
+        case GrShaderVar::kMedium_Precision:
+            return "medium";
+        case GrShaderVar::kHigh_Precision:
+            return "high";
+    }
+    return "";
 }
 
 SkString GrDrawTargetCaps::dump() const {
@@ -1138,6 +1170,23 @@ SkString GrDrawTargetCaps::dump() const {
         r.appendf("%s is uploadable to a texture: %s\n",
                   kConfigNames[i],
                   gNY[fConfigTextureSupport[i]]);
+    }
+
+    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
+
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        GrShaderType shaderType = static_cast<GrShaderType>(s);
+        r.appendf("\t%s:\n", shader_type_to_string(shaderType));
+        for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+            if (fFloatPrecisions[s][p].supported()) {
+                GrShaderVar::Precision precision = static_cast<GrShaderVar::Precision>(p);
+                r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
+                          precision_to_string(precision),
+                          fFloatPrecisions[s][p].fLogRangeLow,
+                          fFloatPrecisions[s][p].fLogRangeHigh,
+                          fFloatPrecisions[s][p].fBits);
+            }
+        }
     }
 
     return r;

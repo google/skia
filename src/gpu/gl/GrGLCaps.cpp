@@ -386,6 +386,8 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     this->initConfigTexturableTable(ctxInfo, gli);
     this->initConfigRenderableTable(ctxInfo);
 
+    this->initShaderPrecisionTable(ctxInfo, gli);
+
     return true;
 }
 
@@ -773,6 +775,76 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
     SkASSERT(0 == fStencilVerifiedColorConfigs.count());
     fStencilVerifiedColorConfigs.push_back_n(fStencilFormats.count());
 }
+
+static GrGLenum precision_to_gl_float_type(GrShaderVar::Precision p) {
+    switch (p) {
+        case GrShaderVar::kLow_Precision:
+            return GR_GL_LOW_FLOAT;
+        case GrShaderVar::kMedium_Precision:
+            return GR_GL_MEDIUM_FLOAT;
+        case GrShaderVar::kHigh_Precision:
+            return GR_GL_HIGH_FLOAT;
+    }
+    SkFAIL("Unknown precision.");
+    return -1;
+}
+
+static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
+    switch (type) {
+        case kVertex_GrShaderType:
+            return GR_GL_VERTEX_SHADER;
+        case kGeometry_GrShaderType:
+            return GR_GL_GEOMETRY_SHADER;
+        case kFragment_GrShaderType:
+            return GR_GL_FRAGMENT_SHADER;
+    }
+    SkFAIL("Unknown shader type.");
+    return -1;
+}
+
+void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* intf) {
+    if (kGLES_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(4,1) ||
+        ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
+        for (int s = 0; s < kGrShaderTypeCount; ++s) {
+            if (kGeometry_GrShaderType != s || fGeometryShaderSupport) {
+                GrShaderType shaderType = static_cast<GrShaderType>(s);
+                GrGLenum glShader = shader_type_to_gl_shader(shaderType);
+                PrecisionInfo* first = NULL;
+                fShaderPrecisionVaries = false;
+                for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+                    GrShaderVar::Precision precision = static_cast<GrShaderVar::Precision>(p);
+                    GrGLenum glPrecision = precision_to_gl_float_type(precision);
+                    GrGLint range[2];
+                    GrGLint bits;
+                    GR_GL_GetShaderPrecisionFormat(intf, glShader, glPrecision, range, &bits);
+                    if (bits) {
+                        fFloatPrecisions[s][p].fLogRangeLow = range[0];
+                        fFloatPrecisions[s][p].fLogRangeHigh = range[1];
+                        fFloatPrecisions[s][p].fBits = bits;
+                        if (!first) {
+                            first = &fFloatPrecisions[s][p];
+                        } else if (!fShaderPrecisionVaries) {
+                            fShaderPrecisionVaries = (*first != fFloatPrecisions[s][p]);
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        // We're on a desktop GL that doesn't have precision info. Assume they're all 32bit float.
+        fShaderPrecisionVaries = false;
+        for (int s = 0; s < kGrShaderTypeCount; ++s) {
+            if (kGeometry_GrShaderType != s || fGeometryShaderSupport) {
+                for (int p = 0; p < GrShaderVar::kPrecisionCount; ++p) {
+                    fFloatPrecisions[s][p].fLogRangeLow = 127;
+                    fFloatPrecisions[s][p].fLogRangeHigh = 127;
+                    fFloatPrecisions[s][p].fBits = 23;
+                }
+            }
+        }
+    }
+}
+
 
 void GrGLCaps::markColorConfigAndStencilFormatAsVerified(
                                     GrPixelConfig config,

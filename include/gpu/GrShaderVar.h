@@ -42,7 +42,10 @@ public:
         // Default precision is medium. This is because on OpenGL ES 2 highp support is not
         // guaranteed. On (non-ES) OpenGL the specifiers have no effect on precision.
         kDefault_Precision = kMedium_Precision,
+
+        kLast_Precision = kHigh_Precision
     };
+    static const int kPrecisionCount = kLast_Precision + 1;
 
     /**
      * Defaults to a float with no precision specifier

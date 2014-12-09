@@ -30,9 +30,9 @@
 class GrGLUniformBuilder {
 public:
     enum ShaderVisibility {
-        kVertex_Visibility   = 0x1,
-        kGeometry_Visibility = 0x2,
-        kFragment_Visibility = 0x4,
+        kVertex_Visibility   = 1 << kVertex_GrShaderType,
+        kGeometry_Visibility = 1 << kGeometry_GrShaderType,
+        kFragment_Visibility = 1 << kFragment_GrShaderType,
     };
 
     virtual ~GrGLUniformBuilder() {}
@@ -343,12 +343,6 @@ protected:
         SkString fUniName;
         SkString fSourceCoords;
     };
-
-    void addCoordVarying(const char* name, GrGLVarying* v, const char* uniName,
-                         const char* sourceCoords) {
-        this->addVarying(name, v);
-        fCoordVaryings.push_back(TransformVarying(*v, uniName, sourceCoords));
-    }
 
     const char* rtAdjustment() const { return "rtAdjustment"; }
 

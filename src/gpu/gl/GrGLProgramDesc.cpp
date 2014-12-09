@@ -14,25 +14,6 @@
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 
 /**
- * The key for an individual coord transform is made up of a matrix type and a bit that
- * indicates the source of the input coords.
- */
-enum {
-    kMatrixTypeKeyBits   = 1,
-    kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
-    kPositionCoords_Flag = (1 << kMatrixTypeKeyBits),
-    kTransformKeyBits    = kMatrixTypeKeyBits + 1,
-};
-
-/**
- * We specialize the vertex code for each of these matrix types.
- */
-enum MatrixType {
-    kNoPersp_MatrixType  = 0,
-    kGeneral_MatrixType  = 1,
-};
-
-/**
  * Do we need to either map r,g,b->a or a->r. configComponentMask indicates which channels are
  * present in the texture's config. swizzleComponentMask indicates the channels present in the
  * shader swizzle.
@@ -72,8 +53,33 @@ static uint32_t gen_attrib_key(const GrGeometryProcessor& proc) {
     return key;
 }
 
-static uint32_t gen_transform_key(const GrPendingFragmentStage& stage,
-                                  bool useExplicitLocalCoords) {
+/**
+ * The key for an individual coord transform is made up of a matrix type, a precision, and a bit
+ * that indicates the source of the input coords.
+ */
+enum {
+    kMatrixTypeKeyBits   = 1,
+    kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
+    
+    kPrecisionBits       = 2,
+    kPrecisionShift      = kMatrixTypeKeyBits,
+
+    kPositionCoords_Flag = (1 << (kPrecisionShift + kPrecisionBits)),
+
+    kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 1,
+};
+
+GR_STATIC_ASSERT(GrShaderVar::kHigh_Precision < (1 << kPrecisionBits));
+
+/**
+ * We specialize the vertex code for each of these matrix types.
+ */
+enum MatrixType {
+    kNoPersp_MatrixType  = 0,
+    kGeneral_MatrixType  = 1,
+};
+
+static uint32_t gen_transform_key(const GrPendingFragmentStage& stage, bool useExplicitLocalCoords) {
     uint32_t totalKey = 0;
     int numTransforms = stage.getProcessor()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
@@ -88,7 +94,12 @@ static uint32_t gen_transform_key(const GrPendingFragmentStage& stage,
         if (kLocal_GrCoordSet != coordTransform.sourceCoords() && useExplicitLocalCoords) {
             key |= kPositionCoords_Flag;
         }
+
+        GR_STATIC_ASSERT(GrShaderVar::kPrecisionCount <= (1 << kPrecisionBits));
+        key |= (coordTransform.precision() << kPrecisionShift);
+
         key <<= kTransformKeyBits * t;
+
         SkASSERT(0 == (totalKey & key)); // keys for each transform ought not to overlap
         totalKey |= key;
     }

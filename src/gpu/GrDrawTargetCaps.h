@@ -9,6 +9,8 @@
 #define GrDrawTargetCaps_DEFINED
 
 #include "GrTypes.h"
+#include "GrTypesPriv.h"
+#include "GrShaderVar.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
@@ -18,6 +20,41 @@
 class GrDrawTargetCaps : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawTargetCaps)
+
+    /** Info about shader variable precision within a given shader stage. That is, this info
+        is relevant to a float (or vecNf) variable declared with a GrShaderVar::Precision 
+        in a given GrShaderType. The info here is hoisted from the OpenGL spec. */
+    struct PrecisionInfo {
+        PrecisionInfo() {
+            fLogRangeLow = 0;
+            fLogRangeHigh = 0;
+            fBits = 0;
+        }
+
+        /** Is this precision level allowed in the shader stage? */
+        bool supported() const { return 0 != fBits; }
+
+        bool operator==(const PrecisionInfo& that) const {
+            return fLogRangeLow == that.fLogRangeLow && fLogRangeHigh == that.fLogRangeHigh &&
+                   fBits == that.fBits;
+        }
+        bool operator!=(const PrecisionInfo& that) const { return !(*this == that); }
+
+        /** floor(log2(|min_value|)) */
+        int fLogRangeLow;
+        /** floor(log2(|max_value|)) */
+        int fLogRangeHigh;
+        /** Number of bits of precision. As defined in OpenGL (with names modified to reflect this 
+            struct) :
+            """
+                If the smallest representable value greater than 1 is 1 + e, then fBits will
+                contain floor(log2(e)), and every value in the range [2^fLogRangeLow,
+                2^fLogRangeHigh] can be represented to at least one part in 2^fBits.
+            """  
+          */
+        int fBits;
+    };
+
 
     GrDrawTargetCaps() : fUniqueID(CreateUniqueID()) {
         this->reset();
@@ -84,6 +121,24 @@ public:
     }
 
     /**
+     * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
+     * given shader type. If the shader type is not supported or the precision level is not
+     * supported in that shader type then the returned struct will report false when supported() is
+     * called.
+     */
+    const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
+                                                     GrShaderVar::Precision precision) const {
+        return fFloatPrecisions[shaderType][precision];
+    };
+
+    /**
+     * Is there any difference between the float shader variable precision types? If this is true
+     * then unless the shader type is not supported, any call to getFloatShaderPrecisionInfo() would
+     * report the same info for all precisions in all shader types.
+     */
+    bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
+
+    /**
      * Gets an id that is unique for this GrDrawTargetCaps object. It is static in that it does
      * not change when the content of the GrDrawTargetCaps object changes. This will never return
      * 0.
@@ -118,6 +173,9 @@ protected:
     // The first entry for each config is without msaa and the second is with.
     bool fConfigRenderSupport[kGrPixelConfigCnt][2];
     bool fConfigTextureSupport[kGrPixelConfigCnt];
+
+    bool fShaderPrecisionVaries;
+    PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][GrShaderVar::kPrecisionCount];
 
 private:
     static uint32_t CreateUniqueID();

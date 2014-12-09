@@ -12,10 +12,13 @@
 #include "SkMatrix.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
+#include "GrShaderVar.h"
 
 /**
  * Coordinates available to GrProcessor subclasses for requesting transformations. Transformed
  * coordinates are made available in the the portion of fragment shader emitted by the effect.
+ *
+ * The precision of the shader var that interpolates the transformed coordinates can be specified.
  */
 enum GrCoordSet {
     /**
@@ -44,21 +47,34 @@ public:
     GrCoordTransform() { SkDEBUGCODE(fInProcessor = false); }
 
     /**
-     * Create a transformation that maps [0, 1] to a texture's boundaries.
+     * Create a transformation that maps [0, 1] to a texture's boundaries. The precision is inferred
+     * from the texture size.
      */
     GrCoordTransform(GrCoordSet sourceCoords, const GrTexture* texture) {
+        SkASSERT(texture);
         SkDEBUGCODE(fInProcessor = false);
         this->reset(sourceCoords, texture);
     }
 
     /**
-     * Create a transformation from a matrix. The optional texture parameter is used to infer if the
+     * Create a transformation from a matrix. The texture parameter is used to infer if the
      * framework should internally do a y reversal to account for it being upside down by Skia's
-     * coord convention.
+     * coord convention and the precision of the shader variables used to implement the coord
+     * transform.
      */
-    GrCoordTransform(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture = NULL) {
+    GrCoordTransform(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture) {
         SkDEBUGCODE(fInProcessor = false);
+        SkASSERT(texture);
         this->reset(sourceCoords, m, texture);
+    }
+
+    /**
+     * Create a transformation that applies the matrix to a coord set.
+     */
+    GrCoordTransform(GrCoordSet sourceCoords, const SkMatrix& m,
+                     GrShaderVar::Precision precision = GrShaderVar::kDefault_Precision) {
+        SkDEBUGCODE(fInProcessor = false);
+        this->reset(sourceCoords, m, precision);
     }
 
     void reset(GrCoordSet sourceCoords, const GrTexture* texture) {
@@ -67,18 +83,16 @@ public:
         this->reset(sourceCoords, MakeDivByTextureWHMatrix(texture), texture);
     }
 
-    void reset(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture = NULL) {
-        SkASSERT(!fInProcessor);
-        fSourceCoords = sourceCoords;
-        fMatrix = m;
-        fReverseY = texture && kBottomLeft_GrSurfaceOrigin == texture->origin();
-    }
+    void reset(GrCoordSet, const SkMatrix&, const GrTexture*);
+    void reset(GrCoordSet sourceCoords, const SkMatrix& m,
+               GrShaderVar::Precision precision = GrShaderVar::kDefault_Precision);
 
-    GrCoordTransform& operator= (const GrCoordTransform& other) {
+    GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
-        fSourceCoords = other.fSourceCoords;
-        fMatrix = other.fMatrix;
-        fReverseY = other.fReverseY;
+        fSourceCoords = that.fSourceCoords;
+        fMatrix = that.fMatrix;
+        fReverseY = that.fReverseY;
+        fPrecision = that.fPrecision;
         return *this;
     }
 
@@ -91,17 +105,19 @@ public:
         return &fMatrix;
     }
 
-    bool operator== (const GrCoordTransform& that) const {
+    bool operator==(const GrCoordTransform& that) const {
         return fSourceCoords == that.fSourceCoords &&
                fMatrix.cheapEqualTo(that.fMatrix) &&
-               fReverseY == that.fReverseY;
+               fReverseY == that.fReverseY &&
+               fPrecision == that.fPrecision;
     }
 
-    bool operator!= (const GrCoordTransform& that) const { return !(*this == that); }
+    bool operator!=(const GrCoordTransform& that) const { return !(*this == that); }
 
     GrCoordSet sourceCoords() const { return fSourceCoords; }
     const SkMatrix& getMatrix() const { return fMatrix; }
     bool reverseY() const { return fReverseY; }
+    GrShaderVar::Precision precision() const { return fPrecision; }
 
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
         dimensions */
@@ -113,10 +129,10 @@ public:
     }
 
 private:
-    GrCoordSet fSourceCoords;
-    SkMatrix   fMatrix;
-    bool       fReverseY;
-
+    GrCoordSet              fSourceCoords;
+    SkMatrix                fMatrix;
+    bool                    fReverseY;
+    GrShaderVar::Precision  fPrecision;
     typedef SkNoncopyable INHERITED;
 
 #ifdef SK_DEBUG

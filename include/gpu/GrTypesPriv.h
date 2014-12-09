@@ -29,6 +29,15 @@ enum GrSLType {
 };
 static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
+enum GrShaderType {
+    kVertex_GrShaderType,
+    kGeometry_GrShaderType,
+    kFragment_GrShaderType,
+
+    kLastkFragment_GrShaderType = kFragment_GrShaderType
+};
+static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
+
 /**
  * Gets the vector size of the SLType. Returns -1 for void, matrices, and samplers.
  */

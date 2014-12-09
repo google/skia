@@ -62,3 +62,26 @@ pictureimagefilter
 
 # robertphillips
 imagefiltersscaled
+
+#bsalomon - changes to texture coord precision
+imageblur2
+imageblur_large
+imageblur
+downsamplebitmap_checkerboard_high_512_256
+downsamplebitmap_checkerboard_medium_512_256
+downsamplebitmap_checkerboard_low_512_256
+imagefilterscropped
+downsamplebitmap_text_medium_72.00pt
+downsamplebitmap_text_high_72.00pt
+downsamplebitmap_text_low_72.00pt
+downsamplebitmap_image_high_mandrill_132x132_12x12.astc
+downsamplebitmap_image_medium_mandrill_132x132_12x12.astc
+downsamplebitmap_image_low_mandrill_132x132_12x12.astc
+downsamplebitmap_image_high_mandrill_512.png
+downsamplebitmap_image_medium_mandrill_512.png
+downsamplebitmap_image_low_mandrill_512.png
+imagefiltersbase
+simpleblurroundrect
+blurcircles
+colortype_xfermodes
+

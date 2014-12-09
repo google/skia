@@ -413,7 +413,8 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
         const char* coords = useLocalCoords ? fVS.localCoords() : fVS.positionCoords();
 
         GrGLVertToFrag v(varyingType);
-        this->addCoordVarying(varyingName, &v, uniName, coords);
+        this->addVarying(varyingName, &v, processor->coordTransform(t).precision());
+        fCoordVaryings.push_back(TransformVarying(v, uniName, coords));
 
         SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,

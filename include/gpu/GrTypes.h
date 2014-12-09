@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 

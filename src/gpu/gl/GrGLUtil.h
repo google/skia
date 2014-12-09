@@ -71,10 +71,19 @@ enum GrGLRenderer {
         *(p) = GR_GL_INIT_ZERO;                                                \
         GR_GL_CALL(gl, GetRenderbufferParameteriv(t, pname, p));               \
     } while (0)
+
 #define GR_GL_GetTexLevelParameteriv(gl, t, l, pname, p)                       \
     do {                                                                       \
         *(p) = GR_GL_INIT_ZERO;                                                \
         GR_GL_CALL(gl, GetTexLevelParameteriv(t, l, pname, p));                \
+    } while (0)
+
+#define GR_GL_GetShaderPrecisionFormat(gl, st, pt, range, precision)           \
+    do {                                                                       \
+        (range)[0] = GR_GL_INIT_ZERO;                                          \
+        (range)[1] = GR_GL_INIT_ZERO;                                          \
+        (*precision) = GR_GL_INIT_ZERO;                                        \
+        GR_GL_CALL(gl, GetShaderPrecisionFormat(st, pt, range, precision));    \
     } while (0)
 
 ////////////////////////////////////////////////////////////////////////////////
