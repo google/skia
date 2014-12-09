@@ -54,7 +54,7 @@ static void make_path_crbug364224_simplified(SkPath* path) {
 static void test_path_crbug364224() {
     SkPath path;
     SkPaint paint;
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(84, 88));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(84, 88));
     SkCanvas* canvas = surface->getCanvas();
 
     make_path_crbug364224_simplified(&path);
@@ -299,7 +299,7 @@ static void test_bad_cubic_crbug234190() {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(84, 88));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(84, 88));
     surface->getCanvas()->drawPath(path, paint);
 }
 
@@ -418,7 +418,7 @@ static void test_crbug_170666() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(1000, 1000));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
 
     build_path_simple_170666(path);
     surface->getCanvas()->drawPath(path, paint);
@@ -497,7 +497,7 @@ static void build_big_path(SkPath* path, bool reducedCase) {
 }
 
 static void test_clipped_cubic() {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(640, 480));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
 
     // This path used to assert, because our cubic-chopping code incorrectly
     // moved control points after the chop. This test should be run in SK_DEBUG
@@ -533,7 +533,7 @@ static void test_tricky_cubic() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkSurface* surface = SkSurface::NewRasterPMColor(19, 130);
+    SkSurface* surface = SkSurface::NewRasterN32Premul(19, 130);
     surface->getCanvas()->drawPath(path, paint);
     surface->unref();
 }
