@@ -212,6 +212,35 @@ public:
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
 
+    /**
+     *  Copy the pixels from the surface into the specified buffer (pixels + rowBytes),
+     *  converting them into the requested format (dstInfo). The base-layer pixels are read
+     *  starting at the specified (srcX,srcY) location in the coordinate system of the base-layer.
+     *
+     *  The specified ImageInfo and (srcX,srcY) offset specifies a source rectangle
+     *
+     *      srcR.setXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
+     *
+     *  srcR is intersected with the bounds of the base-layer. If this intersection is not empty,
+     *  then we have two sets of pixels (of equal size). Replace the dst pixels with the
+     *  corresponding src pixels, performing any colortype/alphatype transformations needed
+     *  (in the case where the src and dst have different colortypes or alphatypes).
+     *
+     *  This call can fail, returning false, for several reasons:
+     *  - If srcR does not intersect the surface bounds.
+     *  - If the requested colortype/alphatype cannot be converted from the base-layer's types.
+     */
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY);
+
+    /**
+     *  Helper for allocating pixels and then calling readPixels(info, ...). The bitmap is resized
+     *  to the intersection of srcRect and the surface bounds (if srcRect is non-null).
+     *  On success, pixels will be allocated in bitmap and true returned. On failure,
+     *  false is returned and bitmap will be set to empty.
+     */
+    bool readPixels(SkBitmap* dst, const SkIRect* srcRect = NULL);
+
     const SkSurfaceProps& props() const { return fProps; }
 
 protected:
