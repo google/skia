@@ -27,7 +27,8 @@ public:
     static SkPictureImageFilter* Create(const SkPicture* picture, const SkRect& cropRect,
                                         uint32_t uniqueID = 0) {
         return SkNEW_ARGS(SkPictureImageFilter, (picture, cropRect, uniqueID,
-                                                 kDeviceSpace_PictureResolution));
+                                                 kDeviceSpace_PictureResolution,
+                                                 SkPaint::kLow_FilterLevel));
     }
 
     /**
@@ -39,9 +40,10 @@ public:
      */
     static SkPictureImageFilter* CreateForLocalSpace(const SkPicture* picture,
                                                      const SkRect& cropRect,
+                                                     SkPaint::FilterLevel filterLevel,
                                                      uint32_t uniqueID = 0) {
         return SkNEW_ARGS(SkPictureImageFilter, (picture, cropRect, uniqueID,
-                                                 kLocalSpace_PictureResolution));
+                                                 kLocalSpace_PictureResolution, filterLevel));
     }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)
@@ -54,7 +56,7 @@ protected:
 
     explicit SkPictureImageFilter(const SkPicture* picture, uint32_t uniqueID);
     SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect, uint32_t uniqueID,
-                         PictureResolution);
+                         PictureResolution, SkPaint::FilterLevel);
     virtual ~SkPictureImageFilter();
     /*  Constructs an SkPictureImageFilter object from an SkReadBuffer.
      *  Note: If the SkPictureImageFilter object construction requires bitmap
@@ -77,6 +79,7 @@ private:
     const SkPicture*      fPicture;
     SkRect                fCropRect;
     PictureResolution     fPictureResolution;
+    SkPaint::FilterLevel  fFilterLevel;
     typedef SkImageFilter INHERITED;
 };
 

@@ -36,7 +36,7 @@ protected:
         fPicture.reset(recorder.endRecording());
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(400, 300); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(600, 300); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         this->makePicture();
@@ -64,7 +64,11 @@ protected:
             SkAutoTUnref<SkPictureImageFilter> pictureSourceEmptyRect(
                 SkPictureImageFilter::Create(fPicture, emptyRect));
             SkAutoTUnref<SkPictureImageFilter> pictureSourceResampled(
-                SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect()));
+                SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
+                    SkPaint::kLow_FilterLevel));
+            SkAutoTUnref<SkPictureImageFilter> pictureSourcePixelated(
+                SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
+                    SkPaint::kNone_FilterLevel));
 
             canvas->save();
             // Draw the picture unscaled.
@@ -90,6 +94,10 @@ protected:
             // Draw the picture scaled, but rasterized at original resolution
             canvas->translate(srcRect.width(), 0);
             fillRectFiltered(canvas, srcRect, pictureSourceResampled);
+
+            // Draw the picture scaled, pixelated
+            canvas->translate(srcRect.width(), 0);
+            fillRectFiltered(canvas, srcRect, pictureSourcePixelated);
         }
     }
 
