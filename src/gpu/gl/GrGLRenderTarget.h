@@ -76,6 +76,10 @@ private:
     GrGLuint      fTexFBOID;
     GrGLuint      fMSColorRenderbufferID;
 
+    // We track this separately from GrGpuResource because this may be both a texture and a render
+    // target, and the texture may be wrapped while the render target is not.
+    bool fIsWrapped;
+
     // when we switch to this render target we want to set the viewport to
     // only render to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
