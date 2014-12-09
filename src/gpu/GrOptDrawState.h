@@ -30,8 +30,8 @@ public:
 
     typedef GrClipMaskManager::ScissorState ScissorState;
 
-    GrOptDrawState(const GrDrawState& drawState, const GrDrawTargetCaps&, const ScissorState&,
-                   const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
+    GrOptDrawState(const GrDrawState& drawState, GrColor, uint8_t coverage, const GrDrawTargetCaps&,
+                   const ScissorState&, const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
     bool operator== (const GrOptDrawState& that) const;
     bool operator!= (const GrOptDrawState& that) const { return !(*this == that); }
@@ -206,7 +206,7 @@ private:
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawState& ds, GrXferProcessor::OptFlags,
+    void setOutputStateInfo(const GrDrawState& ds, GrColor coverage, GrXferProcessor::OptFlags,
                             const GrDrawTargetCaps&);
 
     enum Flags {

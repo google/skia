@@ -91,6 +91,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrDrawState* drawState,
+                                               GrColor color,
                                                const SkPath& path,
                                                const SkStrokeRec& stroke,
                                                bool antiAlias) {
@@ -133,7 +134,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
         } else {
             avmr.setIdentity(drawState);
         }
-        target->drawSimpleRect(drawState, bounds);
+        target->drawSimpleRect(drawState, color, bounds);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,
@@ -144,7 +145,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
             0xffff);
 
         drawState->setStencil(kStencilPass);
-        target->drawPath(drawState, p, convert_skpath_filltype(path.getFillType()));
+        target->drawPath(drawState, color, p, convert_skpath_filltype(path.getFillType()));
     }
 
     drawState->stencil()->setDisabled();

@@ -362,6 +362,7 @@ void setup_boolean_blendcoeffs(SkRegion::Op op, GrDrawState* drawState) {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawElement(GrDrawState* drawState,
+                                    GrColor color,
                                     GrTexture* target,
                                     const SkClipStack::Element* element,
                                     GrPathRenderer* pr) {
@@ -380,11 +381,12 @@ bool GrClipMaskManager::drawElement(GrDrawState* drawState,
             if (element->isAA()) {
                 this->getContext()->getAARectRenderer()->fillAARect(fClipTarget,
                                                                     drawState,
+                                                                    color,
                                                                     element->getRect(),
                                                                     SkMatrix::I(),
                                                                     element->getRect());
             } else {
-                fClipTarget->drawSimpleRect(drawState, element->getRect());
+                fClipTarget->drawSimpleRect(drawState, color, element->getRect());
             }
             return true;
         default: {
@@ -406,7 +408,7 @@ bool GrClipMaskManager::drawElement(GrDrawState* drawState,
                 return false;
             }
 
-            pr->drawPath(fClipTarget, drawState, path, stroke, element->isAA());
+            pr->drawPath(fClipTarget, drawState, color, path, stroke, element->isAA());
             break;
         }
     }
@@ -460,7 +462,7 @@ void GrClipMaskManager::mergeMask(GrDrawState* drawState,
                                       GrTextureDomain::MakeTexelDomain(srcMask, srcBound),
                                       GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode))->unref();
-    fClipTarget->drawSimpleRect(drawState, SkRect::Make(dstBound));
+    fClipTarget->drawSimpleRect(drawState, GrColor_WHITE, SkRect::Make(dstBound));
 }
 
 GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
@@ -617,13 +619,12 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 setup_boolean_blendcoeffs(op, &drawState);
             }
 
-            drawState.setAlpha(invert ? 0x00 : 0xff);
-
             // We have to backup the drawstate because the drawElement call may call into
             // renderers which consume it.
             GrDrawState backupDrawState(drawState);
 
-            if (!this->drawElement(&drawState, dst, element, pr)) {
+            if (!this->drawElement(&drawState, invert ? GrColor_TRANS_BLACK :
+                                                        GrColor_WHITE, dst, element, pr)) {
                 fAACache.reset();
                 return NULL;
             }
@@ -639,7 +640,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                 maskSpaceElementIBounds);
             } else {
                 // Draw to the exterior pixels (those with a zero stencil value).
-                backupDrawState.setAlpha(invert ? 0xff : 0x00);
                 GR_STATIC_CONST_SAME_STENCIL(kDrawOutsideElement,
                                              kZero_StencilOp,
                                              kZero_StencilOp,
@@ -648,7 +648,9 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                              0x0000,
                                              0xffff);
                 backupDrawState.setStencil(kDrawOutsideElement);
-                fClipTarget->drawSimpleRect(&backupDrawState, clipSpaceIBounds);
+                fClipTarget->drawSimpleRect(&backupDrawState,
+                                            invert ? GrColor_WHITE : GrColor_TRANS_BLACK,
+                                            clipSpaceIBounds);
             }
         } else {
             GrDrawState drawState(translate);
@@ -656,9 +658,8 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                   GrDrawState::kClip_StateBit);
 
             // all the remaining ops can just be directly draw into the accumulation buffer
-            drawState.setAlpha(0xff);
             setup_boolean_blendcoeffs(op, &drawState);
-            this->drawElement(&drawState, result, element);
+            this->drawElement(&drawState, GrColor_WHITE, result, element);
         }
     }
 
@@ -783,13 +784,14 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                              0xffff);
                 if (Element::kRect_Type == element->getType()) {
                     *drawState.stencil() = gDrawToStencil;
-                    fClipTarget->drawSimpleRect(&drawState, element->getRect());
+                    fClipTarget->drawSimpleRect(&drawState, GrColor_WHITE, element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         GrDrawTarget::AutoGeometryPush agp(fClipTarget);
                         if (canRenderDirectToStencil) {
                             *drawState.stencil() = gDrawToStencil;
-                            pr->drawPath(fClipTarget, &drawState, clipPath, stroke, false);
+                            pr->drawPath(fClipTarget, &drawState, GrColor_WHITE, clipPath, stroke,
+                                         false);
                         } else {
                             pr->stencilPath(fClipTarget, &drawState, clipPath, stroke);
                         }
@@ -806,15 +808,17 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
                 if (canDrawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
-                        fClipTarget->drawSimpleRect(&drawStateCopy, element->getRect());
+                        fClipTarget->drawSimpleRect(&drawStateCopy, GrColor_WHITE,
+                                                    element->getRect());
                     } else {
                         GrDrawTarget::AutoGeometryPush agp(fClipTarget);
-                        pr->drawPath(fClipTarget, &drawStateCopy, clipPath, stroke, false);
+                        pr->drawPath(fClipTarget, &drawStateCopy, GrColor_WHITE, clipPath, stroke, false);
                     }
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    fClipTarget->drawSimpleRect(&drawStateCopy, SkRect::Make(clipSpaceIBounds));
+                    fClipTarget->drawSimpleRect(&drawStateCopy, GrColor_WHITE,
+                                                SkRect::Make(clipSpaceIBounds));
                 }
             }
         }

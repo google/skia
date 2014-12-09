@@ -25,16 +25,16 @@ enum CoverageAttribType {
 };
 }
 
-static CoverageAttribType set_rect_attribs(GrDrawState* drawState) {
+static CoverageAttribType set_rect_attribs(GrDrawState* drawState, GrColor color) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     if (drawState->canTweakAlphaForCoverage()) {
-        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
         SkASSERT(drawState->getGeometryProcessor()->getVertexStride() ==
                  sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         return kUseColor_CoverageAttribType;
     } else {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
         SkASSERT(drawState->getGeometryProcessor()->getVertexStride() ==
                  sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
         return kUseCoverage_CoverageAttribType;
@@ -176,14 +176,13 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
 
 void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           GrDrawState* drawState,
+                                          GrColor color,
                                           const SkRect& rect,
                                           const SkMatrix& combinedMatrix,
                                           const SkRect& devRect) {
     GrDrawState::AutoRestoreEffects are(drawState);
 
-    GrColor color = drawState->getColor();
-
-    CoverageAttribType covAttribType = set_rect_attribs(drawState);
+    CoverageAttribType covAttribType = set_rect_attribs(drawState, color);
     if (kUseCoverage_CoverageAttribType == covAttribType && GrColorIsOpaque(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
@@ -308,6 +307,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
 
 void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
                                     GrDrawState* drawState,
+                                    GrColor color,
                                     const SkRect& rect,
                                     const SkMatrix& combinedMatrix,
                                     const SkRect& devRect,
@@ -354,7 +354,7 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, drawState, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, drawState, color, devOutside, SkMatrix::I(), devOutside);
         return;
     }
 
@@ -371,20 +371,20 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(target, drawState, devOutside, devOutsideAssist, devInside,
+    this->geometryStrokeAARect(target, drawState, color, devOutside, devOutsideAssist, devInside,
                                miterStroke);
 }
 
 void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             GrDrawState* drawState,
+                                            GrColor color,
                                             const SkRect& devOutside,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
                                             bool miterStroke) {
     GrDrawState::AutoRestoreEffects are(drawState);
-    CoverageAttribType covAttribType = set_rect_attribs(drawState);
+    CoverageAttribType covAttribType = set_rect_attribs(drawState, color);
 
-    GrColor color = drawState->getColor();
     if (kUseCoverage_CoverageAttribType == covAttribType && GrColorIsOpaque(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
@@ -510,6 +510,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 
 void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
                                          GrDrawState* drawState,
+                                         GrColor color,
                                          const SkRect rects[2],
                                          const SkMatrix& combinedMatrix) {
     SkASSERT(combinedMatrix.rectStaysRect());
@@ -521,9 +522,10 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     combinedMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, drawState, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, drawState, color, devOutside, SkMatrix::I(), devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(target, drawState, devOutside, devOutsideAssist, devInside, true);
+    this->geometryStrokeAARect(target, drawState, color, devOutside, devOutsideAssist, devInside,
+                               true);
 }

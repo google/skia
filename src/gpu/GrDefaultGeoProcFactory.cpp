@@ -21,8 +21,8 @@ typedef GrDefaultGeoProcFactory Flag;
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(uint32_t gpTypeFlags) {
-        return SkNEW_ARGS(DefaultGeoProc, (gpTypeFlags));
+    static GrGeometryProcessor* Create(GrColor color, uint8_t coverage, uint32_t gpTypeFlags) {
+        return SkNEW_ARGS(DefaultGeoProc, (color, coverage, gpTypeFlags));
     }
 
     virtual const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
@@ -95,8 +95,9 @@ public:
     }
 
 private:
-    DefaultGeoProc(uint32_t gpTypeFlags)
-        : fInPosition(NULL)
+    DefaultGeoProc(GrColor color, uint8_t coverage, uint32_t gpTypeFlags)
+        : INHERITED(color, coverage)
+        , fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
         , fInCoverage(NULL)
@@ -143,7 +144,7 @@ private:
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
-    typedef GrFragmentProcessor INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
@@ -163,9 +164,10 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
         flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
     }
 
-    return DefaultGeoProc::Create(flags);
+    return DefaultGeoProc::Create(GrRandomColor(random), GrRandomCoverage(random), flags);
 }
 
-const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags) {
-    return DefaultGeoProc::Create(gpTypeFlags);
+const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(GrColor color, uint32_t gpTypeFlags,
+                                                           uint8_t coverage) {
+    return DefaultGeoProc::Create(color, coverage, gpTypeFlags);
 }

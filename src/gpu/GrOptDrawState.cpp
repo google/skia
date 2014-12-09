@@ -14,18 +14,21 @@
 #include "GrXferProcessor.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
+                               GrColor color,
+                               uint8_t coverage,
                                const GrDrawTargetCaps& caps,
                                const ScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
                                GrGpu::DrawType drawType)
     : fFinalized(false) {
+    GrColor coverageColor = GrColorPackRGBA(coverage, coverage, coverage, coverage);
     fDrawType = drawType;
 
-    const GrProcOptInfo& colorPOI = drawState.colorProcInfo();
-    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo();
+    const GrProcOptInfo& colorPOI = drawState.colorProcInfo(color);
+    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(coverageColor);
     
     fColor = colorPOI.inputColorToEffectiveStage();
-    fCoverage = drawState.getCoverage();
+    fCoverage = coverage;
 
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
@@ -144,10 +147,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fGeometryProcessor->initBatchTracker(&fBatchTracker, init);
     }
 
-    this->setOutputStateInfo(drawState, optFlags, caps);
+    this->setOutputStateInfo(drawState, coverageColor, optFlags, caps);
 }
 
 void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
+                                        GrColor coverage,
                                         GrXferProcessor::OptFlags optFlags,
                                         const GrDrawTargetCaps& caps) {
     // Set this default and then possibly change our mind if there is coverage.
@@ -157,7 +161,7 @@ void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
     // Determine whether we should use dual source blending or shader code to keep coverage
     // separate from color.
     bool keepCoverageSeparate = !(optFlags & GrXferProcessor::kSetCoverageDrawing_OptFlag);
-    if (keepCoverageSeparate && !ds.hasSolidCoverage()) {
+    if (keepCoverageSeparate && !ds.hasSolidCoverage(coverage)) {
         if (caps.dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color

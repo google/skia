@@ -78,6 +78,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 ////////////////////////////////////////////////////////////////////////////////
 void draw_around_inv_path(GrDrawTarget* target,
                           GrDrawState* drawState,
+                          GrColor color,
                           const SkIRect& devClipBounds,
                           const SkIRect& devPathBounds) {
     GrDrawState::AutoViewMatrixRestore avmr;
@@ -88,22 +89,22 @@ void draw_around_inv_path(GrDrawTarget* target,
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
-        target->drawSimpleRect(drawState, rect);
+        target->drawSimpleRect(drawState, color, rect);
     }
     if (devClipBounds.fLeft < devPathBounds.fLeft) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fTop,
                   devPathBounds.fLeft, devPathBounds.fBottom);
-        target->drawSimpleRect(drawState, rect);
+        target->drawSimpleRect(drawState, color, rect);
     }
     if (devClipBounds.fRight > devPathBounds.fRight) {
         rect.iset(devPathBounds.fRight, devPathBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fBottom);
-        target->drawSimpleRect(drawState, rect);
+        target->drawSimpleRect(drawState, color, rect);
     }
     if (devClipBounds.fBottom > devPathBounds.fBottom) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fBottom,
                   devClipBounds.fRight, devClipBounds.fBottom);
-        target->drawSimpleRect(drawState, rect);
+        target->drawSimpleRect(drawState, color, rect);
     }
 }
 
@@ -113,6 +114,7 @@ void draw_around_inv_path(GrDrawTarget* target,
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrDrawState* drawState,
+                                        GrColor color,
                                         const SkPath& path,
                                         const SkStrokeRec& stroke,
                                         bool antiAlias) {
@@ -127,7 +129,7 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
     if (!get_path_and_clip_bounds(target, drawState, path, vm,
                                   &devPathBounds, &devClipBounds)) {
         if (path.isInverseFillType()) {
-            draw_around_inv_path(target, drawState, devClipBounds, devPathBounds);
+            draw_around_inv_path(target, drawState, color, devClipBounds, devPathBounds);
         }
         return true;
     }
@@ -141,10 +143,10 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     GrDrawState copy = *drawState;
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, &copy, devPathBounds);
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, &copy, color, devPathBounds);
 
     if (path.isInverseFillType()) {
-        draw_around_inv_path(target, drawState, devClipBounds, devPathBounds);
+        draw_around_inv_path(target, drawState, color, devClipBounds, devPathBounds);
     }
 
     return true;

@@ -47,16 +47,16 @@ enum GrDistanceFieldEffectFlags {
 class GrDistanceFieldTextureEffect : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
-    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& params,
+    static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
                                        GrTexture* gamma, const GrTextureParams& gammaParams,
                                        float lum, uint32_t flags) {
-       return SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, gamma, gammaParams, lum,
+       return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, tex, params, gamma, gammaParams, lum,
                                                         flags));
     }
 #else
-    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& params,
+    static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
                                        uint32_t flags) {
-        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (tex, params, flags));
+        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, tex, params, flags));
     }
 #endif
 
@@ -79,7 +79,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrDistanceFieldTextureEffect(GrTexture* texture, const GrTextureParams& params,
+    GrDistanceFieldTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  GrTexture* gamma, const GrTextureParams& gammaParams, float lum,
 #endif
@@ -113,9 +113,9 @@ private:
 */
 class GrDistanceFieldNoGammaTextureEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& params,
+    static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
                                        uint32_t flags) {
-        return SkNEW_ARGS(GrDistanceFieldNoGammaTextureEffect, (tex, params, flags));
+        return SkNEW_ARGS(GrDistanceFieldNoGammaTextureEffect, (color, tex, params, flags));
     }
 
     virtual ~GrDistanceFieldNoGammaTextureEffect() {}
@@ -134,7 +134,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrDistanceFieldNoGammaTextureEffect(GrTexture* texture, const GrTextureParams& params,
+    GrDistanceFieldNoGammaTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
                                         uint32_t flags);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
@@ -160,11 +160,11 @@ private:
  */
 class GrDistanceFieldLCDTextureEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrTexture* tex, const GrTextureParams& params,
+    static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
                                        GrTexture* gamma, const GrTextureParams& gammaParams,
                                        SkColor textColor, uint32_t flags) {
         return SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
-                          (tex, params, gamma, gammaParams, textColor, flags));
+                          (color, tex, params, gamma, gammaParams, textColor, flags));
     }
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}
@@ -183,7 +183,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrDistanceFieldLCDTextureEffect(GrTexture* texture, const GrTextureParams& params,
+    GrDistanceFieldLCDTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
                                     GrTexture* gamma, const GrTextureParams& gammaParams,
                                     SkColor textColor,
                                     uint32_t flags);

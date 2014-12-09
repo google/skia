@@ -315,7 +315,7 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
 
         uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
                          GrDefaultGeoProcFactory::kLocalCoord_GPType;
-        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(flags);
+        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(GrColor_WHITE, flags);
         drawState.setGeometryProcessor(gp)->unref();
 
         GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, gp->getVertexStride(),  0);
@@ -622,8 +622,10 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              SkRect* devBoundRect,
                              const SkRect& rect,
                              SkScalar strokeWidth,
-                             const SkMatrix& combinedMatrix) {
-    if (!ds->canTweakAlphaForCoverage() && !ds->couldApplyCoverage(*target->caps())) {
+                             const SkMatrix& combinedMatrix,
+                             GrColor color) {
+    if (!ds->canTweakAlphaForCoverage() && !ds->canUseFracCoveragePrimProc(color,
+                                                                           *target->caps())) {
 #ifdef SK_DEBUG
         //SkDebugf("Turning off AA to correctly apply blend.\n");
 #endif
@@ -722,9 +724,11 @@ void GrContext::drawRect(const GrPaint& paint,
         }
     }
 
+    GrColor color = paint.getColor();
     SkRect devBoundRect;
     bool needAA = paint.isAntiAlias() && !drawState.getRenderTarget()->isMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(target, &drawState, &devBoundRect, rect, width, matrix);
+    bool doAA = needAA && apply_aa_to_rect(target, &drawState, &devBoundRect, rect, width, matrix,
+                                           color);
 
     if (doAA) {
         GrDrawState::AutoViewMatrixRestore avmr;
@@ -736,13 +740,14 @@ void GrContext::drawRect(const GrPaint& paint,
             const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
             fAARectRenderer->strokeAARect(target,
                                           &drawState,
+                                          color,
                                           rect,
                                           matrix,
                                           devBoundRect,
                                           strokeRec);
         } else {
             // filled AA rect
-            fAARectRenderer->fillAARect(target, &drawState, rect, matrix, devBoundRect);
+            fAARectRenderer->fillAARect(target, &drawState, color, rect, matrix, devBoundRect);
         }
         return;
     }
@@ -753,7 +758,7 @@ void GrContext::drawRect(const GrPaint& paint,
         // unitSquareVertexBuffer()
 
         static const int worstCaseVertCount = 10;
-        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create();
+        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(color);
         drawState.setGeometryProcessor(gp)->unref();
         GrDrawTarget::AutoReleaseGeometry geo(target,
                                               worstCaseVertCount,
@@ -788,7 +793,7 @@ void GrContext::drawRect(const GrPaint& paint,
         target->drawNonIndexed(&drawState, primType, 0, vertCount);
     } else {
         // filled BW rect
-        target->drawSimpleRect(&drawState, rect);
+        target->drawSimpleRect(&drawState, color, rect);
     }
 }
 
@@ -805,14 +810,15 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
 
-    target->drawRect(&drawState, dstRect, &localRect, localMatrix);
+    target->drawRect(&drawState, paint.getColor(), dstRect, &localRect, localMatrix);
 }
 
 static void set_vertex_attributes(GrDrawState* drawState,
                                   const SkPoint* texCoords,
                                   const GrColor* colors,
                                   int* colorOffset,
-                                  int* texOffset) {
+                                  int* texOffset,
+                                  GrColor color) {
     *texOffset = -1;
     *colorOffset = -1;
 
@@ -829,7 +835,7 @@ static void set_vertex_attributes(GrDrawState* drawState,
         *colorOffset = sizeof(SkPoint);
         flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
-    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
 }
 
 void GrContext::drawVertices(const GrPaint& paint,
@@ -852,7 +858,8 @@ void GrContext::drawVertices(const GrPaint& paint,
     GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
 
     int colorOffset = -1, texOffset = -1;
-    set_vertex_attributes(&drawState, texCoords, colors, &colorOffset, &texOffset);
+    set_vertex_attributes(&drawState, texCoords, colors, &colorOffset, &texOffset,
+                          paint.getColor());
 
     size_t vertexStride = drawState.getGeometryProcessor()->getVertexStride();
     SkASSERT(vertexStride == sizeof(SkPoint) + (SkToBool(texCoords) ? sizeof(SkPoint) : 0)
@@ -915,11 +922,12 @@ void GrContext::drawRRect(const GrPaint& paint,
 
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
-    if (!fOvalRenderer->drawRRect(target, &drawState, this, paint.isAntiAlias(), rrect,
+    GrColor color = paint.getColor();
+    if (!fOvalRenderer->drawRRect(target, &drawState, color, this, paint.isAntiAlias(), rrect,
                                   strokeRec)) {
         SkPath path;
         path.addRRect(rrect);
-        this->internalDrawPath(target, &drawState, paint.isAntiAlias(), path, strokeInfo);
+        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, strokeInfo);
     }
 }
 
@@ -938,14 +946,16 @@ void GrContext::drawDRRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawDRRect", target);
 
-    if (!fOvalRenderer->drawDRRect(target, &drawState, this, paint.isAntiAlias(), outer, inner)) {
+    GrColor color = paint.getColor();
+    if (!fOvalRenderer->drawDRRect(target, &drawState, color, this, paint.isAntiAlias(), outer,
+                                   inner)) {
         SkPath path;
         path.addRRect(inner);
         path.addRRect(outer);
         path.setFillType(SkPath::kEvenOdd_FillType);
 
         GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
-        this->internalDrawPath(target, &drawState, paint.isAntiAlias(), path, fillRec);
+        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, fillRec);
     }
 }
 
@@ -976,17 +986,19 @@ void GrContext::drawOval(const GrPaint& paint,
 
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
-
-    if (!fOvalRenderer->drawOval(target, &drawState, this, paint.isAntiAlias(), oval, strokeRec)) {
+    GrColor color = paint.getColor();
+    if (!fOvalRenderer->drawOval(target, &drawState, color, this, paint.isAntiAlias(), oval,
+                                 strokeRec)) {
         SkPath path;
         path.addOval(oval);
-        this->internalDrawPath(target, &drawState, paint.isAntiAlias(), path, strokeInfo);
+        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, strokeInfo);
     }
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
 static bool is_nested_rects(GrDrawTarget* target,
                             GrDrawState* drawState,
+                            GrColor color,
                             const SkPath& path,
                             const SkStrokeRec& stroke,
                             SkRect rects[2]) {
@@ -1002,7 +1014,8 @@ static bool is_nested_rects(GrDrawTarget* target,
         return false;
     }
 
-    if (!drawState->canTweakAlphaForCoverage() && !drawState->couldApplyCoverage(*target->caps())) {
+    if (!drawState->canTweakAlphaForCoverage() &&
+        !drawState->canUseFracCoveragePrimProc(color, *target->caps())) {
         return false;
     }
 
@@ -1048,6 +1061,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
        return;
     }
 
+    GrColor color = paint.getColor();
     if (strokeInfo.isDashed()) {
         SkPoint pts[2];
         if (path.isLine(pts)) {
@@ -1061,7 +1075,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
             SkMatrix origViewMatrix = drawState.getViewMatrix();
             GrDrawState::AutoViewMatrixRestore avmr;
             if (avmr.setIdentity(&drawState)) {
-                if (GrDashingEffect::DrawDashLine(fGpu, target, &drawState, pts, paint,
+                if (GrDashingEffect::DrawDashLine(fGpu, target, &drawState, color, pts, paint,
                                                   strokeInfo, origViewMatrix)) {
                     return;
                 }
@@ -1104,14 +1118,14 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
         // Concave AA paths are expensive - try to avoid them for special cases
         SkRect rects[2];
 
-        if (is_nested_rects(target, &drawState, path, strokeRec, rects)) {
+        if (is_nested_rects(target, &drawState, color, path, strokeRec, rects)) {
             SkMatrix origViewMatrix = drawState.getViewMatrix();
             GrDrawState::AutoViewMatrixRestore avmr;
             if (!avmr.setIdentity(&drawState)) {
                 return;
             }
 
-            fAARectRenderer->fillAANestedRects(target, &drawState, rects, origViewMatrix);
+            fAARectRenderer->fillAANestedRects(target, &drawState, color, rects, origViewMatrix);
             return;
         }
     }
@@ -1120,14 +1134,15 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     bool isOval = path.isOval(&ovalRect);
 
     if (!isOval || path.isInverseFillType()
-        || !fOvalRenderer->drawOval(target, &drawState, this, paint.isAntiAlias(), ovalRect,
+        || !fOvalRenderer->drawOval(target, &drawState, color, this, paint.isAntiAlias(), ovalRect,
                                     strokeRec)) {
-        this->internalDrawPath(target, &drawState, paint.isAntiAlias(), path, strokeInfo);
+        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, strokeInfo);
     }
 }
 
 void GrContext::internalDrawPath(GrDrawTarget* target,
                                  GrDrawState* drawState,
+                                 GrColor color,
                                  bool useAA,
                                  const SkPath& path,
                                  const GrStrokeInfo& strokeInfo) {
@@ -1142,7 +1157,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
     // thing WRT to the blend then we'll need some query on the PR.
     bool useCoverageAA = useAA &&
         !drawState->getRenderTarget()->isMultisampled() &&
-        drawState->couldApplyCoverage(*target->caps());
+        drawState->canUseFracCoveragePrimProc(color, *target->caps());
 
 
     GrPathRendererChain::DrawType type =
@@ -1179,7 +1194,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
         return;
     }
 
-    pr->drawPath(target, drawState, *pathPtr, *stroke, useCoverageAA);
+    pr->drawPath(target, drawState, color, *pathPtr, *stroke, useCoverageAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1320,8 +1335,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         GrDrawState drawState(matrix);
         drawState.addColorProcessor(fp);
         drawState.setRenderTarget(renderTarget);
-        drawTarget->drawSimpleRect(&drawState, SkRect::MakeWH(SkIntToScalar(width),
-                                                              SkIntToScalar(height)));
+        drawTarget->drawSimpleRect(&drawState, GrColor_WHITE,SkRect::MakeWH(SkIntToScalar(width),
+                                                                            SkIntToScalar(height)));
     }
 
     if (kFlushWrites_PixelOp & pixelOpsFlags) {
@@ -1442,7 +1457,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 
                     drawState.setRenderTarget(tempTexture->asRenderTarget());
                     SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                    fDrawBuffer->drawSimpleRect(&drawState, rect);
+                    fDrawBuffer->drawSimpleRect(&drawState, GrColor_WHITE, rect);
                     // we want to read back from the scratch's origin
                     left = 0;
                     top = 0;
@@ -1543,8 +1558,8 @@ GrDrawTarget* GrContext::prepareToDraw(GrDrawState* ds,
             SkASSERT(acf);
             ds->setFromPaint(*paint, fViewMatrix, fRenderTarget.get());
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
-            if ((paint->hasMask() || 0xff != paint->fCoverage) &&
-                !fDrawState->couldApplyCoverage(fGpu->caps())) {
+            if ((paint->hasMask()) &&
+                !fDrawState->canUseFracCoveragePrimProc(paint.getColor(), fGpu->caps())) {
                 SkDebugf("Partial pixel coverage will be incorrectly blended.\n");
             }
 #endif

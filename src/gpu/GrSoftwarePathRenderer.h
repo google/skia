@@ -36,6 +36,7 @@ protected:
 
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
+                            GrColor,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;

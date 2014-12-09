@@ -165,7 +165,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
+GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
+                                                           GrTexture* texture,
                                                            const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            GrTexture* gamma,
@@ -173,7 +174,8 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrTexture* texture,
                                                            float luminance,
 #endif
                                                            uint32_t flags)
-    : fTextureAccess(texture, params)
+    : INHERITED(color)
+    , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fGammaTextureAccess(gamma, gammaParams)
     , fLuminance(luminance)
@@ -249,7 +251,7 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
                                                             GrTextureParams::kNone_FilterMode);
 #endif
 
-    return GrDistanceFieldTextureEffect::Create(textures[texIdx], params,
+    return GrDistanceFieldTextureEffect::Create(GrRandomColor(random), textures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                 textures[texIdx2], params2,
                                                 random->nextF(),
@@ -378,10 +380,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(GrTexture* texture,
-                                                                    const GrTextureParams& params,
-                                                                    uint32_t flags)
-    : fTextureAccess(texture, params)
+GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
+        GrColor color,
+        GrTexture* texture,
+        const GrTextureParams& params,
+        uint32_t flags)
+    : INHERITED(color)
+    , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
@@ -439,7 +444,8 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode 
                                                          : GrTextureParams::kNone_FilterMode);
 
-    return GrDistanceFieldNoGammaTextureEffect::Create(textures[texIdx], params,
+    return GrDistanceFieldNoGammaTextureEffect::Create(GrRandomColor(random), textures[texIdx],
+                                                       params,
         random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0);
 }
 
@@ -634,11 +640,13 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
+                                                  GrColor color,
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   GrTexture* gamma, const GrTextureParams& gParams,
                                                   SkColor textColor,
                                                   uint32_t flags)
-    : fTextureAccess(texture, params)
+    : INHERITED(color)
+    , fTextureAccess(texture, params)
     , fGammaTextureAccess(gamma, gParams)
     , fTextColor(textColor)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){
@@ -705,7 +713,7 @@ GrGeometryProcessor* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* rando
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
     flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    return GrDistanceFieldLCDTextureEffect::Create(textures[texIdx], params,
+    return GrDistanceFieldLCDTextureEffect::Create(GrRandomColor(random), textures[texIdx], params,
                                                    textures[texIdx2], params2,
                                                    textColor,
                                                    flags);

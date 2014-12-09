@@ -9,6 +9,7 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrGeometryData.h"
+#include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
 #include "GrXferProcessor.h"
@@ -166,6 +167,12 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
         }
     }
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GrGeometryProcessor::computeInvariantColor(GrInvariantOutput* intout) const {
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

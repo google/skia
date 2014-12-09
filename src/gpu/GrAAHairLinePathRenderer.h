@@ -30,6 +30,7 @@ public:
 protected:
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
+                            GrColor,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;
@@ -41,6 +42,7 @@ private:
 
     bool createLineGeom(GrDrawTarget* target,
                         GrDrawState*,
+                        uint8_t coverage,
                         GrDrawTarget::AutoReleaseGeometry* arg,
                         SkRect* devBounds,
                         const SkPath& path,

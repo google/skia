@@ -59,8 +59,8 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 
 class CircleEdgeEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(bool stroke) {
-        return SkNEW_ARGS(CircleEdgeEffect, (stroke));
+    static GrGeometryProcessor* Create(GrColor color, bool stroke) {
+        return SkNEW_ARGS(CircleEdgeEffect, (color, stroke));
     }
 
     const GrAttribute* inPosition() const { return fInPosition; }
@@ -131,7 +131,7 @@ public:
     }
 
 private:
-    CircleEdgeEffect(bool stroke) {
+    CircleEdgeEffect(GrColor color, bool stroke) : INHERITED(color) {
         this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInCircleEdge = &this->addVertexAttrib(GrAttribute("inCircleEdge",
@@ -163,7 +163,7 @@ GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
                                                   const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {
-    return CircleEdgeEffect::Create(random->nextBool());
+    return CircleEdgeEffect::Create(GrRandomColor(random), random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,8 +178,8 @@ GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
 
 class EllipseEdgeEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(bool stroke) {
-        return SkNEW_ARGS(EllipseEdgeEffect, (stroke));
+    static GrGeometryProcessor* Create(GrColor color, bool stroke) {
+        return SkNEW_ARGS(EllipseEdgeEffect, (color, stroke));
     }
 
     virtual ~EllipseEdgeEffect() {}
@@ -275,7 +275,7 @@ public:
     }
 
 private:
-    EllipseEdgeEffect(bool stroke) {
+    EllipseEdgeEffect(GrColor color, bool stroke) : INHERITED(color) {
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(GrAttribute("inEllipseOffset",
@@ -310,7 +310,7 @@ GrGeometryProcessor* EllipseEdgeEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
                                                    const GrDrawTargetCaps&,
                                                    GrTexture* textures[]) {
-    return EllipseEdgeEffect::Create(random->nextBool());
+    return EllipseEdgeEffect::Create(GrRandomColor(random), random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,8 +328,8 @@ class DIEllipseEdgeEffect : public GrGeometryProcessor {
 public:
     enum Mode { kStroke = 0, kHairline, kFill };
 
-    static GrGeometryProcessor* Create(Mode mode) {
-        return SkNEW_ARGS(DIEllipseEdgeEffect, (mode));
+    static GrGeometryProcessor* Create(GrColor color, Mode mode) {
+        return SkNEW_ARGS(DIEllipseEdgeEffect, (color, mode));
     }
 
     virtual ~DIEllipseEdgeEffect() {}
@@ -440,7 +440,7 @@ public:
     }
 
 private:
-    DIEllipseEdgeEffect(Mode mode) {
+    DIEllipseEdgeEffect(GrColor color, Mode mode) : INHERITED(color) {
         this->initClassID<DIEllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffsets0 = &this->addVertexAttrib(GrAttribute("inEllipseOffsets0",
@@ -475,7 +475,7 @@ GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
                                                      GrContext* context,
                                                      const GrDrawTargetCaps&,
                                                      GrTexture* textures[]) {
-    return DIEllipseEdgeEffect::Create((Mode)(random->nextRangeU(0,2)));
+    return DIEllipseEdgeEffect::Create(GrRandomColor(random), (Mode)(random->nextRangeU(0,2)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -487,6 +487,7 @@ void GrOvalRenderer::reset() {
 
 bool GrOvalRenderer::drawOval(GrDrawTarget* target,
                               GrDrawState* drawState,
+                              GrColor color,
                               const GrContext* context,
                               bool useAA,
                               const SkRect& oval,
@@ -494,7 +495,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 {
     bool useCoverageAA = useAA &&
         !drawState->getRenderTarget()->isMultisampled() &&
-        drawState->couldApplyCoverage(*target->caps());
+        drawState->canUseFracCoveragePrimProc(color, *target->caps());
 
     if (!useCoverageAA) {
         return false;
@@ -505,13 +506,13 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
-        this->drawCircle(target, drawState, context, useCoverageAA, oval, stroke);
+        this->drawCircle(target, drawState, color, context, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, drawState, context, useCoverageAA, oval, stroke);
+        return this->drawDIEllipse(target, drawState, color, context, useCoverageAA, oval, stroke);
     // otherwise axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        return this->drawEllipse(target, drawState, context, useCoverageAA, oval, stroke);
+        return this->drawEllipse(target, drawState, color, context, useCoverageAA, oval, stroke);
     } else {
         return false;
     }
@@ -523,6 +524,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 GrDrawState* drawState,
+                                GrColor color,
                                 const GrContext* context,
                                 bool useCoverageAA,
                                 const SkRect& circle,
@@ -560,7 +562,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         }
     }
 
-    GrGeometryProcessor* gp = CircleEdgeEffect::Create(isStrokeOnly && innerRadius > 0);
+    GrGeometryProcessor* gp = CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0);
     drawState->setGeometryProcessor(gp)->unref();
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
@@ -615,6 +617,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  GrDrawState* drawState,
+                                 GrColor color,
                                  const GrContext* context,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
@@ -686,7 +689,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    GrGeometryProcessor* gp = EllipseEdgeEffect::Create(isStrokeOnly &&
+    GrGeometryProcessor* gp = EllipseEdgeEffect::Create(color,
+                                                        isStrokeOnly &&
                                                         innerXRadius > 0 && innerYRadius > 0);
 
     drawState->setGeometryProcessor(gp)->unref();
@@ -748,6 +752,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
                                    GrDrawState* drawState,
+                                   GrColor color,
                                    const GrContext* context,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
@@ -804,7 +809,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     SkScalar innerRatioX = SkScalarDiv(xRadius, innerXRadius);
     SkScalar innerRatioY = SkScalarDiv(yRadius, innerYRadius);
 
-    GrGeometryProcessor* gp = DIEllipseEdgeEffect::Create(mode);
+    GrGeometryProcessor* gp = DIEllipseEdgeEffect::Create(color, mode);
 
     drawState->setGeometryProcessor(gp)->unref();
 
@@ -905,13 +910,14 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu) {
 
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
                                 GrDrawState* drawState,
+                                GrColor color,
                                 GrContext* context,
                                 bool useAA,
                                 const SkRRect& origOuter,
                                 const SkRRect& origInner) {
     bool applyAA = useAA &&
                    !drawState->getRenderTarget()->isMultisampled() &&
-                   drawState->couldApplyCoverage(*target->caps());
+                   drawState->canUseFracCoveragePrimProc(color, *target->caps());
     GrDrawState::AutoRestoreEffects are;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
@@ -923,6 +929,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
         GrPrimitiveEdgeType edgeType = applyAA ?
                 kInverseFillAA_GrProcessorEdgeType :
                 kInverseFillBW_GrProcessorEdgeType;
+        // TODO this needs to be a geometry processor
         GrFragmentProcessor* fp = GrRRectEffect::Create(edgeType, *inner);
         if (NULL == fp) {
             return false;
@@ -932,7 +939,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (this->drawRRect(target, drawState, context, useAA, origOuter, fillRec)) {
+    if (this->drawRRect(target, drawState, color, context, useAA, origOuter, fillRec)) {
         return true;
     }
 
@@ -961,23 +968,24 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(drawState, bounds, NULL, NULL);
+    target->drawRect(drawState, color, bounds, NULL, NULL);
     return true;
 }
 
 bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
                                GrDrawState* drawState,
+                               GrColor color,
                                GrContext* context,
                                bool useAA,
                                const SkRRect& rrect,
                                const SkStrokeRec& stroke) {
     if (rrect.isOval()) {
-        return this->drawOval(target, drawState, context, useAA, rrect.getBounds(), stroke);
+        return this->drawOval(target, drawState, color, context, useAA, rrect.getBounds(), stroke);
     }
 
     bool useCoverageAA = useAA &&
         !drawState->getRenderTarget()->isMultisampled() &&
-        drawState->couldApplyCoverage(*target->caps());
+        drawState->canUseFracCoveragePrimProc(color, *target->caps());
 
     // only anti-aliased rrects for now
     if (!useCoverageAA) {
@@ -1069,7 +1077,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
 
-        GrGeometryProcessor* effect = CircleEdgeEffect::Create(isStrokeOnly);
+        GrGeometryProcessor* effect = CircleEdgeEffect::Create(color, isStrokeOnly);
         drawState->setGeometryProcessor(effect)->unref();
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);
@@ -1171,7 +1179,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
-        GrGeometryProcessor* effect = EllipseEdgeEffect::Create(isStrokeOnly);
+        GrGeometryProcessor* effect = EllipseEdgeEffect::Create(color, isStrokeOnly);
         drawState->setGeometryProcessor(effect)->unref();
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);

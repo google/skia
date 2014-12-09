@@ -58,21 +58,24 @@ class GrGLConicEffect;
 
 class GrConicEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
-                                       const GrDrawTargetCaps& caps) {
+    static GrGeometryProcessor* Create(GrColor color,
+                                       const GrPrimitiveEdgeType edgeType,
+                                       const GrDrawTargetCaps& caps,
+                                       uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrConicEffect, (kFillAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrConicEffect, (color, coverage, kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrConicEffect, (kHairlineAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrConicEffect, (color, coverage,
+                                                  kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrConicEffect, (kFillBW_GrProcessorEdgeType));;
+                return SkNEW_ARGS(GrConicEffect, (color, coverage, kFillBW_GrProcessorEdgeType));;
             default:
                 return NULL;
         }
@@ -95,7 +98,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrConicEffect(GrPrimitiveEdgeType);
+    GrConicEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
@@ -125,21 +128,23 @@ class GrGLQuadEffect;
 
 class GrQuadEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
-                                       const GrDrawTargetCaps& caps) {
+    static GrGeometryProcessor* Create(GrColor color,
+                                       const GrPrimitiveEdgeType edgeType,
+                                       const GrDrawTargetCaps& caps,
+                                       uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrQuadEffect, (kFillAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrQuadEffect, (kHairlineAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrQuadEffect, (kFillBW_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kFillBW_GrProcessorEdgeType));
             default:
                 return NULL;
         }
@@ -162,7 +167,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrQuadEffect(GrPrimitiveEdgeType);
+    GrQuadEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
@@ -194,21 +199,22 @@ class GrGLCubicEffect;
 
 class GrCubicEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(const GrPrimitiveEdgeType edgeType,
+    static GrGeometryProcessor* Create(GrColor color,
+                                       const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrCubicEffect, (kFillAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrCubicEffect, (color, kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrCubicEffect, (kHairlineAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrCubicEffect, (color, kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrCubicEffect, (kFillBW_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrCubicEffect, (color, kFillBW_GrProcessorEdgeType));
             default:
                 return NULL;
         }
@@ -231,7 +237,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrCubicEffect(GrPrimitiveEdgeType);
+    GrCubicEffect(GrColor, GrPrimitiveEdgeType);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 

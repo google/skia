@@ -34,6 +34,7 @@ private:
 
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
+                            GrColor,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;
@@ -45,6 +46,7 @@ private:
 
     bool internalDrawPath(GrDrawTarget*,
                           GrDrawState*,
+                          GrColor,
                           const SkPath&,
                           const SkStrokeRec&,
                           bool stencilOnly);

@@ -93,6 +93,7 @@ public:
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,
                                          GrDrawState* drawState,
+                                         GrColor,
                                          const SkIRect& rect);
 
 private:

@@ -233,12 +233,10 @@ bool GrDefaultPathRenderer::createGeom(GrDrawTarget* target,
         }
     }
 
-    // TODO this is really wierd, I just need default vertex stride, can I think of a better way?
-    SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create());
-    if (!arg->set(target, maxPts, gp->getVertexStride(), maxIdxs)) {
+    if (!arg->set(target, maxPts, GrDefaultGeoProcFactory::DefaultVertexStride(), maxIdxs)) {
         return false;
     }
-    SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
+    SkASSERT(GrDefaultGeoProcFactory::DefaultVertexStride() == sizeof(SkPoint));
 
     uint16_t* idxBase = reinterpret_cast<uint16_t*>(arg->indices());
     uint16_t* idx = idxBase;
@@ -330,6 +328,7 @@ FINISHED:
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                              GrDrawState* drawState,
+                                             GrColor color,
                                              const SkPath& path,
                                              const SkStrokeRec& origStroke,
                                              bool stencilOnly) {
@@ -337,10 +336,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
 
     SkScalar hairlineCoverage;
+    uint8_t newCoverage = 0xff;
     if (IsStrokeHairlineOrEquivalent(*stroke, drawState->getViewMatrix(),
                                      &hairlineCoverage)) {
-        uint8_t newCoverage = SkScalarRoundToInt(hairlineCoverage * drawState->getCoverage());
-        drawState->setCoverage(newCoverage);
+        newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
 
         if (!stroke->isHairlineStyle()) {
             stroke.writable()->setHairlineStyle();
@@ -493,13 +492,16 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                 bounds = path.getBounds();
             }
             GrDrawTarget::AutoGeometryPush agp(target);
-            target->drawSimpleRect(drawState, bounds);
+            target->drawSimpleRect(drawState, color, bounds);
         } else {
             if (passCount > 1) {
                 drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
             }
             GrDrawState::AutoRestoreEffects are(drawState);
-            drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create())->unref();
+            drawState->setGeometryProcessor(
+                    GrDefaultGeoProcFactory::Create(color,
+                                                    GrDefaultGeoProcFactory::kPosition_GPType,
+                                                    newCoverage))->unref();
             if (indexCnt) {
                 target->drawIndexed(drawState,
                                     primType,
@@ -530,11 +532,13 @@ bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget* target,
 
 bool GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
                                        GrDrawState* drawState,
+                                       GrColor color,
                                        const SkPath& path,
                                        const SkStrokeRec& stroke,
                                        bool antiAlias) {
     return this->internalDrawPath(target,
                                   drawState,
+                                  color,
                                   path,
                                   stroke,
                                   false);
@@ -546,5 +550,5 @@ void GrDefaultPathRenderer::onStencilPath(GrDrawTarget* target,
                                           const SkStrokeRec& stroke) {
     SkASSERT(SkPath::kInverseEvenOdd_FillType != path.getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != path.getFillType());
-    this->internalDrawPath(target, drawState, path, stroke, true);
+    this->internalDrawPath(target, drawState, GrColor_WHITE, path, stroke, true);
 }

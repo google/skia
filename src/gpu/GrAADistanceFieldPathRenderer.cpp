@@ -105,6 +105,7 @@ GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
 
 bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrDrawState* drawState,
+                                               GrColor color,
                                                const SkPath& path,
                                                const SkStrokeRec& stroke,
                                                bool antiAlias) {
@@ -143,7 +144,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     // use signed distance field to render
-    return this->internalDrawPath(target, drawState, path, pathData);
+    return this->internalDrawPath(target, drawState, color, path, pathData);
 }
 
 // padding around path bounds to allow for antialiased pixels
@@ -306,6 +307,7 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
 
 bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
                                                      GrDrawState* drawState,
+                                                     GrColor color,
                                                      const SkPath& path,
                                                      const PathData* pathData) {
     GrTexture* texture = fAtlas->getTexture();
@@ -321,8 +323,9 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     flags |= vm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
 
     GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
-    if (flags != fEffectFlags) {
-        fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(texture,
+    if (flags != fEffectFlags || fCachedGeometryProcessor->getColor() != color) {
+        fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(color,
+                                                                                   texture,
                                                                                    params,
                                                                                    flags));
         fEffectFlags = flags;

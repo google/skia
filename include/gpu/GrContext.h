@@ -983,6 +983,7 @@ private:
 
     void internalDrawPath(GrDrawTarget*,
                           GrDrawState*,
+                          GrColor,
                           bool useAA,
                           const SkPath&,
                           const GrStrokeInfo&);

@@ -92,73 +92,21 @@ public:
      *
      * This function considers the current draw state and the draw target's capabilities to
      * determine whether coverage can be handled correctly. This function assumes that the caller
-     * intends to specify fractional pixel coverage (via setCoverage(), through a coverage vertex
-     * attribute, or a coverage effect) but may not have specified it yet.
+     * intends to specify fractional pixel coverage via a primitive processor but may not have
+     * specified it yet.
      */
-    bool couldApplyCoverage(const GrDrawTargetCaps& caps) const;
+    bool canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCaps& caps) const;
 
     /**
      * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
      */
-    bool hasSolidCoverage() const;
+    bool hasSolidCoverage(GrColor coverage) const;
 
     /**
      * This function returns true if the render target destination pixel values will be read for
      * blending during draw.
      */
-    bool willBlendWithDst() const;
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Color
-    ////
-
-    GrColor getColor() const { return fColor; }
-
-    /**
-     *  Sets color for next draw to a premultiplied-alpha color.
-     *
-     *  @param color    the color to set.
-     */
-    void setColor(GrColor color) {
-        if (color != fColor) {
-            fColor = color;
-            fColorProcInfoValid = false;
-        }
-    }
-
-    /**
-     *  Sets the color to be used for the next draw to be
-     *  (r,g,b,a) = (alpha, alpha, alpha, alpha).
-     *
-     *  @param alpha The alpha value to set as the color.
-     */
-    void setAlpha(uint8_t a) { this->setColor((a << 24) | (a << 16) | (a << 8) | a); }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Coverage
-    ////
-
-    uint8_t getCoverage() const { return fCoverage; }
-
-    GrColor getCoverageColor() const {
-        return GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
-    }
-
-    /**
-     * Sets a constant fractional coverage to be applied to the draw. The
-     * initial value (after construction or reset()) is 0xff. The constant
-     * coverage is ignored when per-vertex coverage is provided.
-     */
-    void setCoverage(uint8_t coverage) {
-        if (coverage != fCoverage) {
-            fCoverage = coverage;
-            fCoverageProcInfoValid = false;
-        }
-    }
+    bool willBlendWithDst(GrColor color, GrColor coverage) const;
 
     /// @}
 
@@ -213,8 +161,9 @@ public:
 
     /**
      * Checks whether any of the effects will read the dst pixel color.
+     * TODO remove when we have an XP
      */
-    bool willEffectReadDstColor() const;
+    bool willEffectReadDstColor(GrColor color, GrColor coverage) const;
 
     /**
      * The xfer processor factory.
@@ -608,32 +557,32 @@ public:
 private:
     bool isEqual(const GrDrawState& that) const;
 
-    const GrProcOptInfo& colorProcInfo() const { 
-        this->calcColorInvariantOutput();
+    const GrProcOptInfo& colorProcInfo(GrColor color) const { 
+        this->calcColorInvariantOutput(color);
         return fColorProcInfo;
     }
 
-    const GrProcOptInfo& coverageProcInfo() const {
-        this->calcCoverageInvariantOutput();
+    const GrProcOptInfo& coverageProcInfo(GrColor coverage) const {
+        this->calcCoverageInvariantOutput(coverage);
         return fCoverageProcInfo;
     }
 
     /**
      * Determines whether src alpha is guaranteed to be one for all src pixels
      */
-    bool srcAlphaWillBeOne() const;
+    bool srcAlphaWillBeOne(GrColor color, GrColor coverage) const;
 
     /**
      * If fColorProcInfoValid is false, function calculates the invariant output for the color
      * stages and results are stored in fColorProcInfo.
      */
-    void calcColorInvariantOutput() const;
+    void calcColorInvariantOutput(GrColor) const;
 
     /**
      * If fCoverageProcInfoValid is false, function calculates the invariant output for the coverage
      * stages and results are stored in fCoverageProcInfo.
      */
-    void calcCoverageInvariantOutput() const;
+    void calcCoverageInvariantOutput(GrColor) const;
 
     void onReset(const SkMatrix* initialViewMatrix);
 
@@ -644,11 +593,9 @@ private:
     typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
 
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
-    GrColor                                 fColor;
     SkMatrix                                fViewMatrix;
     uint32_t                                fFlagBits;
     GrStencilSettings                       fStencilSettings;
-    uint8_t                                 fCoverage;
     DrawFace                                fDrawFace;
     SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
     SkAutoTUnref<const GrXPFactory>         fXPFactory;
@@ -660,6 +607,8 @@ private:
     mutable GrProcOptInfo fCoverageProcInfo;
     mutable bool fColorProcInfoValid;
     mutable bool fCoverageProcInfoValid;
+    mutable GrColor fColorCache;
+    mutable GrColor fCoverageCache;
 
     friend class GrOptDrawState;
 };

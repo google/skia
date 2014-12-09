@@ -66,6 +66,9 @@ static inline GrColor GrColorPackRGBA(unsigned r, unsigned g,
  */
 #define GrColor_ILLEGAL     (~(0xFF << GrColor_SHIFT_A))
 
+#define GrColor_WHITE 0xFFFFFFFF
+#define GrColor_TRANS_BLACK 0x0
+
 /**
  * Assert in debug builds that a GrColor is premultiplied.
  */

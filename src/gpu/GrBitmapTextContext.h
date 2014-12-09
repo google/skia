@@ -31,7 +31,8 @@ private:
     SkRect                            fVertexBounds;
     GrTexture*                        fCurrTexture;
     GrMaskFormat                      fCurrMaskFormat;
-    SkAutoTUnref<GrGeometryProcessor> fCachedGeometryProcessor;
+    SkAutoTUnref<const GrGeometryProcessor> fCachedGeometryProcessor;
+    SkAutoTUnref<const GrFragmentProcessor> fCachedTextureProcessor;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                          fEffectTextureUniqueID;
 

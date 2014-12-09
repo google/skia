@@ -132,10 +132,9 @@ protected:
                     viewMatrix.setTranslate(x, y);
                     GrDrawState drawState(viewMatrix);
                     drawState.setRenderTarget(rt);
-                    drawState.setColor(0xffffffff);
                     drawState.addColorProcessor(fp);
 
-                    tt.target()->drawSimpleRect(&drawState, renderRect);
+                    tt.target()->drawSimpleRect(&drawState, GrColor_WHITE, renderRect);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

@@ -505,8 +505,8 @@ static void create_vertices(const SegmentArray&  segments,
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
 
-    static GrGeometryProcessor* Create() {
-        return SkNEW(QuadEdgeEffect);
+    static GrGeometryProcessor* Create(GrColor color) {
+        return SkNEW_ARGS(QuadEdgeEffect, (color));
     }
 
     virtual ~QuadEdgeEffect() {}
@@ -586,7 +586,7 @@ public:
     }
 
 private:
-    QuadEdgeEffect() {
+    QuadEdgeEffect(GrColor color) : INHERITED(color) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
@@ -605,7 +605,7 @@ private:
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
-    typedef GrFragmentProcessor INHERITED;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
@@ -615,7 +615,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
                                                 const GrDrawTargetCaps& caps,
                                                 GrTexture*[]) {
     // Doesn't work without derivative instructions.
-    return caps.shaderDerivativeSupport() ? QuadEdgeEffect::Create() : NULL;
+    return caps.shaderDerivativeSupport() ? QuadEdgeEffect::Create(GrRandomColor(random)) : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -631,6 +631,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
 
 bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrDrawState* drawState,
+                                        GrColor color,
                                         const SkPath& origPath,
                                         const SkStrokeRec&,
                                         bool antiAlias) {
@@ -678,7 +679,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     // Our computed verts should all be within one pixel of the segment control points.
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
-    GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Create();
+    GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Create(color);
     drawState->setGeometryProcessor(quadProcessor)->unref();
 
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, quadProcessor->getVertexStride(), iCount);

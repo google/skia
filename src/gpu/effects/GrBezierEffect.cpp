@@ -139,8 +139,8 @@ GrGLGeometryProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt)
     return SkNEW_ARGS(GrGLConicEffect, (*this, bt));
 }
 
-GrConicEffect::GrConicEffect(GrPrimitiveEdgeType edgeType)
-    : fEdgeType(edgeType) {
+GrConicEffect::GrConicEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType)
+    : INHERITED(color, coverage), fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInConicCoeffs = &this->addVertexAttrib(GrAttribute("inConicCoeffs",
@@ -164,7 +164,7 @@ GrGeometryProcessor* GrConicEffect::TestCreate(SkRandom* random,
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                                                     random->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrConicEffect::Create(edgeType, caps);
+        gp = GrConicEffect::Create(GrRandomColor(random), edgeType, caps);
     } while (NULL == gp);
     return gp;
 }
@@ -286,8 +286,8 @@ GrGLGeometryProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt) 
     return SkNEW_ARGS(GrGLQuadEffect, (*this, bt));
 }
 
-GrQuadEffect::GrQuadEffect(GrPrimitiveEdgeType edgeType)
-    : fEdgeType(edgeType) {
+GrQuadEffect::GrQuadEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType)
+    : INHERITED(color, coverage), fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInHairQuadEdge = &this->addVertexAttrib(GrAttribute("inHairQuadEdge",
@@ -311,7 +311,7 @@ GrGeometryProcessor* GrQuadEffect::TestCreate(SkRandom* random,
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 random->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrQuadEffect::Create(edgeType, caps);
+        gp = GrQuadEffect::Create(GrRandomColor(random), edgeType, caps);
     } while (NULL == gp);
     return gp;
 }
@@ -474,8 +474,8 @@ GrGLGeometryProcessor* GrCubicEffect::createGLInstance(const GrBatchTracker& bt)
     return SkNEW_ARGS(GrGLCubicEffect, (*this, bt));
 }
 
-GrCubicEffect::GrCubicEffect(GrPrimitiveEdgeType edgeType)
-    : fEdgeType(edgeType) {
+GrCubicEffect::GrCubicEffect(GrColor color, GrPrimitiveEdgeType edgeType)
+    : INHERITED(color), fEdgeType(edgeType) {
     this->initClassID<GrCubicEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInCubicCoeffs = &this->addVertexAttrib(GrAttribute("inCubicCoeffs",
@@ -499,7 +499,7 @@ GrGeometryProcessor* GrCubicEffect::TestCreate(SkRandom* random,
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                                                     random->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrCubicEffect::Create(edgeType, caps);
+        gp = GrCubicEffect::Create(GrRandomColor(random), edgeType, caps);
     } while (NULL == gp);
     return gp;
 }

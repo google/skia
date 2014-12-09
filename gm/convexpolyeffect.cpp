@@ -133,12 +133,11 @@ protected:
                 }
 
                 GrDrawState ds;
-                const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create();
+                const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(0xff000000);
                 ds.setGeometryProcessor(gp)->unref();
                 ds.addCoverageProcessor(fp);
                 ds.setIdentityViewMatrix();
                 ds.setRenderTarget(rt);
-                ds.setColor(0xff000000);
 
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                 SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
@@ -191,12 +190,11 @@ protected:
                 }
 
                 GrDrawState ds;
-                const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create();
+                const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(0xff000000);
                 ds.setGeometryProcessor(gp)->unref();
                 ds.addCoverageProcessor(fp);
                 ds.setIdentityViewMatrix();
                 ds.setRenderTarget(rt);
-                ds.setColor(0xff000000);
 
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                 SkASSERT(gp->getVertexStride() == sizeof(SkPoint));

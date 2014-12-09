@@ -643,6 +643,7 @@ void add_line(const SkPoint p[2],
 
 bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
                                               GrDrawState* drawState,
+                                              uint8_t coverage,
                                               GrDrawTarget::AutoReleaseGeometry* arg,
                                               SkRect* devBounds,
                                               const SkPath& path,
@@ -670,7 +671,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
     }
     devBounds->set(lines.begin(), lines.count());
     for (int i = 0; i < lineCnt; ++i) {
-        add_line(&lines[2*i], toSrc, drawState->getCoverage(), &verts);
+        add_line(&lines[2*i], toSrc, coverage, &verts);
     }
     // All the verts computed by add_line are within sqrt(1^2 + 0.5^2) of the end points.
     static const SkScalar kSqrtOfOneAndAQuarter = 1.118f;
@@ -803,14 +804,15 @@ bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertice
 
 bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                           GrDrawState* drawState,
+                                          GrColor color,
                                           const SkPath& path,
                                           const SkStrokeRec& stroke,
                                           bool antiAlias) {
     SkScalar hairlineCoverage;
+    uint8_t newCoverage = 0xff;
     if (IsStrokeHairlineOrEquivalent(stroke, drawState->getViewMatrix(),
                                      &hairlineCoverage)) {
-        uint8_t newCoverage = SkScalarRoundToInt(hairlineCoverage * drawState->getCoverage());
-        drawState->setCoverage(newCoverage);
+        newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
     }
 
     SkIRect devClipBounds;
@@ -837,10 +839,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
                            GrDefaultGeoProcFactory::kCoverage_GPType;
         GrDrawState::AutoRestoreEffects are(drawState);
-        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(gpFlags))->unref();
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color,
+                                                                        gpFlags,
+                                                                        newCoverage))->unref();
 
         if (!this->createLineGeom(target,
                                   drawState,
+                                  newCoverage,
                                   &arg,
                                   &devBounds,
                                   path,
@@ -911,7 +916,10 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
 
         if (quadCnt > 0) {
             GrGeometryProcessor* hairQuadProcessor =
-                    GrQuadEffect::Create(kHairlineAA_GrProcessorEdgeType, *target->caps());
+                    GrQuadEffect::Create(color,
+                                         kHairlineAA_GrProcessorEdgeType,
+                                         *target->caps(),
+                                         newCoverage);
             SkASSERT(hairQuadProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
@@ -934,7 +942,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         if (conicCnt > 0) {
             GrDrawState::AutoRestoreEffects are(drawState);
             GrGeometryProcessor* hairConicProcessor = GrConicEffect::Create(
-                    kHairlineAA_GrProcessorEdgeType, *target->caps());
+                    color, kHairlineAA_GrProcessorEdgeType, *target->caps(), newCoverage);
             SkASSERT(hairConicProcessor);
 
             drawState->setGeometryProcessor(hairConicProcessor)->unref();

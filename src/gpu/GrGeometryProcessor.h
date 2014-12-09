@@ -8,6 +8,7 @@
 #ifndef GrGeometryProcessor_DEFINED
 #define GrGeometryProcessor_DEFINED
 
+#include "GrColor.h"
 #include "GrGeometryData.h"
 #include "GrProcessor.h"
 #include "GrShaderVar.h"
@@ -50,8 +51,10 @@ class GrOptDrawState;
  */
 class GrGeometryProcessor : public GrProcessor {
 public:
-    GrGeometryProcessor()
+    GrGeometryProcessor(GrColor color, uint8_t coverage = 0xff)
         : fVertexStride(0)
+        , fColor(color)
+        , fCoverage(coverage)
         , fWillUseGeoShader(false)
         , fHasVertexColor(false)
         , fHasVertexCoverage(false)
@@ -107,6 +110,14 @@ public:
         if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
             return false;
         }
+
+        if (!fHasVertexColor && this->getColor() != that.getColor()) {
+            return false;
+        }
+
+        if (!fHasVertexCoverage && this->getCoverage() != that.getCoverage()) {
+            return false;
+        }
         return this->onIsEqual(that);
     }
 
@@ -119,11 +130,16 @@ public:
 
     virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const {}
 
+    GrColor getColor() const { return fColor; }
+    uint8_t getCoverage() const { return fCoverage; }
+
     // TODO this is a total hack until the gp can own whether or not it uses uniform
     // color / coverage
     bool hasVertexColor() const { return fHasVertexColor; }
     bool hasVertexCoverage() const { return fHasVertexCoverage; }
     bool hasLocalCoords() const { return fHasLocalCoords; }
+
+    void computeInvariantColor(GrInvariantOutput* inout) const;
 
 protected:
     /**
@@ -149,6 +165,8 @@ private:
 
     SkSTArray<kMaxVertexAttribs, GrAttribute, true> fAttribs;
     size_t fVertexStride;
+    GrColor fColor;
+    uint8_t fCoverage;
     bool fWillUseGeoShader;
     bool fHasVertexColor;
     bool fHasVertexCoverage;

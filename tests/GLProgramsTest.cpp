@@ -181,68 +181,6 @@ static void set_random_color_coverage_stages(GrGpuGL* gpu,
     }
 }
 
-// There are only a few cases of random colors which interest us
-enum ColorMode {
-    kAllOnes_ColorMode,
-    kAllZeros_ColorMode,
-    kAlphaOne_ColorMode,
-    kRandom_ColorMode,
-    kLast_ColorMode = kRandom_ColorMode
-};
-
-static void set_random_color(GrDrawState* ds, SkRandom* random) {
-    ColorMode colorMode = ColorMode(random->nextULessThan(kLast_ColorMode + 1));
-    GrColor color;
-    switch (colorMode) {
-        case kAllOnes_ColorMode:
-            color = GrColorPackRGBA(0xFF, 0xFF, 0xFF, 0xFF);
-            break;
-        case kAllZeros_ColorMode:
-            color = GrColorPackRGBA(0, 0, 0, 0);
-            break;
-        case kAlphaOne_ColorMode:
-            color = GrColorPackRGBA(random->nextULessThan(256),
-                                    random->nextULessThan(256),
-                                    random->nextULessThan(256),
-                                    0xFF);
-            break;
-        case kRandom_ColorMode:
-            uint8_t alpha = random->nextULessThan(256);
-            color = GrColorPackRGBA(random->nextRangeU(0, alpha),
-                                    random->nextRangeU(0, alpha),
-                                    random->nextRangeU(0, alpha),
-                                    alpha);
-            break;
-    }
-    GrColorIsPMAssert(color);
-    ds->setColor(color);
-}
-
-// There are only a few cases of random coverages which interest us
-enum CoverageMode {
-    kZero_CoverageMode,
-    kFF_CoverageMode,
-    kRandom_CoverageMode,
-    kLast_CoverageMode = kRandom_CoverageMode
-};
-
-static void set_random_coverage(GrDrawState* ds, SkRandom* random) {
-    CoverageMode coverageMode = CoverageMode(random->nextULessThan(kLast_CoverageMode + 1));
-    uint8_t coverage;
-    switch (coverageMode) {
-        case kZero_CoverageMode:
-            coverage = 0;
-            break;
-        case kFF_CoverageMode:
-            coverage = 0xFF;
-            break;
-        case kRandom_CoverageMode:
-            coverage = uint8_t(random->nextU());
-            break;
-    }
-    ds->setCoverage(coverage);
-}
-
 static void set_random_hints(GrDrawState* ds, SkRandom* random) {
     for (int i = 1; i <= GrDrawState::kLast_Hint; i <<= 1) {
         ds->setHint(GrDrawState::Hints(i), random->nextBool());
@@ -372,8 +310,6 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
                                          usePathRendering,
                                          &random,
                                          dummyTextures);
-        set_random_color(&ds, &random);
-        set_random_coverage(&ds, &random);
         set_random_hints(&ds, &random);
         set_random_state(&ds, &random);
         set_random_blend_func(&ds, &random);
@@ -381,14 +317,19 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         GrDeviceCoordTexture dstCopy;
 
-        if (!this->setupDstReadIfNecessary(&ds, &dstCopy, NULL)) {
+        // TODO take color off the PP when its installed
+        GrColor color = ds.hasGeometryProcessor() ? ds.getGeometryProcessor()->getColor() :
+                                                    GrColor_WHITE;
+        uint8_t coverage = ds.hasGeometryProcessor() ? ds.getGeometryProcessor()->getCoverage() :
+                                                       0xff;
+        if (!this->setupDstReadIfNecessary(&ds, color, coverage, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        GrOptDrawState ods(ds, *gpu->caps(), scissor, &dstCopy, drawType);
+        GrOptDrawState ods(ds, color, coverage, *gpu->caps(), scissor, &dstCopy, drawType);
         if (ods.mustSkip()) {
             continue;
         }

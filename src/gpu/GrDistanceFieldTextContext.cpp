@@ -403,9 +403,11 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     if (textureUniqueID != fEffectTextureUniqueID ||
         filteredColor != fEffectColor ||
         flags != fEffectFlags) {
+        GrColor color = fPaint.getColor();
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
-            fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextureEffect::Create(fCurrTexture,
+            fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextureEffect::Create(color,
+                                                                                   fCurrTexture,
                                                                                    params,
                                                                                    fGammaTexture,
                                                                                    gammaParams,
@@ -416,15 +418,18 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
 #ifdef SK_GAMMA_APPLY_TO_A8
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.gamma(),
                                                                 filteredColor);
-            fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(fCurrTexture,
+            fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
+                                                                                fCurrTexture,
                                                                                 params,
                                                                                 fGammaTexture,
                                                                                 gammaParams,
                                                                                 lum/255.f,
                                                                                 flags));
 #else
-            fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(fCurrTexture,
-                                                                                params, flags));
+            fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(color,
+                                                                                       fCurrTexture,
+                                                                                       params,
+                                                                                       flags));
 #endif
         }
         fEffectTextureUniqueID = textureUniqueID;

@@ -92,7 +92,7 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrCubicEffect::Create(et, *tt.target()->caps()));
+                    gp.reset(GrCubicEffect::Create(0xff000000, et, *tt.target()->caps()));
                     if (!gp) {
                         continue;
                     }
@@ -166,7 +166,6 @@ protected:
 
                     ds.setGeometryProcessor(gp);
                     ds.setRenderTarget(rt);
-                    ds.setColor(0xff000000);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
                     tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
@@ -252,7 +251,7 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrConicEffect::Create(et, *tt.target()->caps()));
+                    gp.reset(GrConicEffect::Create(0xff000000, et, *tt.target()->caps()));
                     if (!gp) {
                         continue;
                     }
@@ -323,7 +322,6 @@ protected:
 
                     ds.setGeometryProcessor(gp);
                     ds.setRenderTarget(rt);
-                    ds.setColor(0xff000000);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
                     tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
@@ -443,7 +441,7 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrQuadEffect::Create(et, *tt.target()->caps()));
+                    gp.reset(GrQuadEffect::Create(0xff000000, et, *tt.target()->caps()));
                     if (!gp) {
                         continue;
                     }
@@ -509,7 +507,6 @@ protected:
 
                     ds.setGeometryProcessor(gp);
                     ds.setRenderTarget(rt);
-                    ds.setColor(0xff000000);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
                     tt.target()->drawIndexed(&ds, kTriangles_GrPrimitiveType, 0, 0, 4, 6);

@@ -528,34 +528,15 @@ void GrBitmapTextContext::flush() {
         SkASSERT(SkIsAlign4(fCurrVertex));
         SkASSERT(fCurrTexture);
 
-        // This effect could be stored with one of the cache objects (atlas?)
-        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
-        if (kARGB_GrMaskFormat == fCurrMaskFormat) {
-            uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
-            drawState.setGeometryProcessor(GrDefaultGeoProcFactory::Create(flags))->unref();
-            GrFragmentProcessor* fragProcessor = GrSimpleTextureEffect::Create(fCurrTexture,
-                                                                               SkMatrix::I(),
-                                                                               params);
-            drawState.addColorProcessor(fragProcessor)->unref();
-        } else {
-            uint32_t textureUniqueID = fCurrTexture->getUniqueID();
-            if (textureUniqueID != fEffectTextureUniqueID) {
-                bool useColorAttrib = kA8_GrMaskFormat == fCurrMaskFormat;
-                fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(fCurrTexture,
-                                                                           params,
-                                                                           useColorAttrib));
-                fEffectTextureUniqueID = textureUniqueID;
-            }
-            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
-        }
-
         SkASSERT(fStrike);
+        GrColor color = fPaint.getColor();
         switch (fCurrMaskFormat) {
                 // Color bitmap text
-            case kARGB_GrMaskFormat:
-                SkASSERT(!drawState.hasColorVertexAttribute());
-                drawState.setAlpha(fSkPaint.getAlpha());
+            case kARGB_GrMaskFormat: {
+                int a = fSkPaint.getAlpha();
+                color = SkColorSetARGB(a, a, a, a);
                 break;
+            }
                 // LCD text
             case kA565_GrMaskFormat: {
                 // TODO: move supportsRGBCoverage check to setupCoverageEffect and only add LCD
@@ -564,19 +545,45 @@ void GrBitmapTextContext::flush() {
                 if (!drawState.getXPFactory()->supportsRGBCoverage(0, kRGBA_GrColorComponentFlags)) {
                     SkDebugf("LCD Text will not draw correctly.\n");
                 }
-                SkASSERT(!drawState.hasColorVertexAttribute());
                 break;
             }
                 // Grayscale/BW text
             case kA8_GrMaskFormat:
                 drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint,
                                    0xFF == GrColorUnpackA(fPaint.getColor()));
-                // We're using per-vertex color.
-                SkASSERT(drawState.hasColorVertexAttribute());
                 break;
             default:
                 SkFAIL("Unexpected mask format.");
         }
+
+        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
+        // TODO cache these GPs
+        if (kARGB_GrMaskFormat == fCurrMaskFormat) {
+            uint32_t textureUniqueID = fCurrTexture->getUniqueID();
+            if (textureUniqueID != fEffectTextureUniqueID ||
+                fCachedGeometryProcessor->getColor() != color) {
+                uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
+                fCachedGeometryProcessor.reset(GrDefaultGeoProcFactory::Create(color, flags));
+                fCachedTextureProcessor.reset(GrSimpleTextureEffect::Create(fCurrTexture,
+                                                                            SkMatrix::I(),
+                                                                            params));
+            }
+            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
+            drawState.addColorProcessor(fCachedTextureProcessor.get());
+        } else {
+            uint32_t textureUniqueID = fCurrTexture->getUniqueID();
+            if (textureUniqueID != fEffectTextureUniqueID ||
+                fCachedGeometryProcessor->getColor() != color) {
+                bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
+                fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(color,
+                                                                                   fCurrTexture,
+                                                                                   params,
+                                                                                   hasColor));
+                fEffectTextureUniqueID = textureUniqueID;
+            }
+            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
+        }
+
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(&drawState,

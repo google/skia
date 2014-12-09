@@ -123,12 +123,11 @@ protected:
                             drawState.addCoverageProcessor(fp);
                             drawState.setIdentityViewMatrix();
                             drawState.setRenderTarget(rt);
-                            drawState.setColor(0xff000000);
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            tt.target()->drawSimpleRect(&drawState, bounds);
+                            tt.target()->drawSimpleRect(&drawState, 0xff000000, bounds);
                         } else {
                             drew = false;
                         }

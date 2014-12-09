@@ -171,11 +171,11 @@ private:
     };
 
     struct SetState : public Cmd {
-        SetState(const GrDrawState& drawState, const GrDrawTargetCaps& caps,
-                 const ScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
-                 GrGpu::DrawType drawType)
+        SetState(const GrDrawState& drawState, GrColor color, uint8_t coverage,
+                 const GrDrawTargetCaps& caps, const ScissorState& scissor,
+                 const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
-        , fState(drawState, caps, scissor, dstCopy, drawType) {}
+        , fState(drawState, color, coverage, caps, scissor, dstCopy, drawType) {}
 
         void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
@@ -194,6 +194,7 @@ private:
                 const ScissorState&,
                 const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawRect(GrDrawState*,
+                    GrColor,
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix) SK_OVERRIDE;
@@ -203,11 +204,13 @@ private:
                        const ScissorState&,
                        const GrStencilSettings&) SK_OVERRIDE;
     void onDrawPath(const GrDrawState&,
+                    GrColor,
                     const GrPath*,
                     const ScissorState&,
                     const GrStencilSettings&,
                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawPaths(const GrDrawState&,
+                     GrColor,
                      const GrPathRange*,
                      const void* indices,
                      PathIndexType,
@@ -234,6 +237,8 @@ private:
     // records it. If the draw can be skipped false is returned and no new GrOptDrawState is
     // recorded.
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrDrawState&,
+                                                        GrColor,
+                                                        uint8_t coverage,
                                                         GrGpu::DrawType,
                                                         const GrClipMaskManager::ScissorState&,
                                                         const GrDeviceCoordTexture*);

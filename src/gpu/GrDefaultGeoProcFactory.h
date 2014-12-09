@@ -80,7 +80,9 @@ public:
      *
      * You must unref the return from Create.
      */
-    static const GrGeometryProcessor* Create(uint32_t gpTypeFlags = 0);
+    static const GrGeometryProcessor* Create(GrColor, uint32_t gpTypeFlags = 0,
+                                             uint8_t coverage = 0xff);
+    static size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };
 
 #endif

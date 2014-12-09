@@ -269,7 +269,7 @@ public:
      * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the draw state (if possible in the 3D API).
      */
-    void drawPath(GrDrawState*, const GrPath*, GrPathRendering::FillType fill);
+    void drawPath(GrDrawState*, GrColor, const GrPath*, GrPathRendering::FillType fill);
 
     /**
      * Draws the aggregate path from combining multiple. Note that this will not
@@ -284,7 +284,9 @@ public:
      * @param count           Number of paths to draw
      * @param fill            Fill type for drawing all the paths
      */
-    void drawPaths(GrDrawState*, const GrPathRange* pathRange,
+    void drawPaths(GrDrawState*,
+                   GrColor,
+                   const GrPathRange* pathRange,
                    const void* indices,
                    PathIndexType indexType,
                    const float transformValues[],
@@ -305,22 +307,23 @@ public:
      *                    srcMatrix can be NULL when no srcMatrix is desired.
      */
     void drawRect(GrDrawState* ds,
+                  GrColor color,
                   const SkRect& rect,
                   const SkRect* localRect,
                   const SkMatrix* localMatrix) {
         AutoGeometryPush agp(this);
-        this->onDrawRect(ds, rect, localRect, localMatrix);
+        this->onDrawRect(ds, color, rect, localRect, localMatrix);
     }
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(GrDrawState* ds, const SkRect& rect) {
-        this->drawRect(ds, rect, NULL, NULL);
+    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkRect& rect) {
+        this->drawRect(ds, color, rect, NULL, NULL);
     }
-    void drawSimpleRect(GrDrawState* ds, const SkIRect& irect) {
+    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawRect(ds, rect, NULL, NULL);
+        this->drawRect(ds, color, rect, NULL, NULL);
     }
 
     /**
@@ -653,6 +656,8 @@ protected:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(GrDrawState*,
+                                 GrColor,
+                                 uint8_t,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
 
@@ -698,6 +703,7 @@ private:
                         const GrDeviceCoordTexture* dstCopy) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrDrawState*,
+                            GrColor color,
                             const SkRect& rect,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) = 0;
@@ -707,11 +713,13 @@ private:
                                const GrClipMaskManager::ScissorState&,
                                const GrStencilSettings&) = 0;
     virtual void onDrawPath(const GrDrawState&,
+                            GrColor,
                             const GrPath*,
                             const GrClipMaskManager::ScissorState&,
                             const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrDrawState&,
+                             GrColor,
                              const GrPathRange*,
                              const void* indices,
                              PathIndexType,

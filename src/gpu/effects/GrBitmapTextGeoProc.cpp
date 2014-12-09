@@ -65,9 +65,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrTexture* texture, const GrTextureParams& params,
-                                         bool useColorAttrib)
-    : fTextureAccess(texture, params), fInColor(NULL) {
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
+                                         const GrTextureParams& params, bool useColorAttrib)
+    : INHERITED(color), fTextureAccess(texture, params), fInColor(NULL) {
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     if (useColorAttrib) {
@@ -128,5 +128,6 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    return GrBitmapTextGeoProc::Create(textures[texIdx], params, random->nextBool());
+    return GrBitmapTextGeoProc::Create(GrRandomColor(random), textures[texIdx], params,
+                                       random->nextBool());
 }

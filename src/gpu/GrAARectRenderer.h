@@ -8,6 +8,7 @@
 #ifndef GrAARectRenderer_DEFINED
 #define GrAARectRenderer_DEFINED
 
+#include "GrColor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -43,14 +44,16 @@ public:
 
     void fillAARect(GrDrawTarget* target,
                     GrDrawState* ds,
+                    GrColor color,
                     const SkRect& rect,
                     const SkMatrix& combinedMatrix,
                     const SkRect& devRect) {
-        this->geometryFillAARect(target, ds, rect, combinedMatrix, devRect);
+        this->geometryFillAARect(target, ds, color, rect, combinedMatrix, devRect);
     }
 
     void strokeAARect(GrDrawTarget*,
                       GrDrawState*,
+                      GrColor,
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
@@ -59,6 +62,7 @@ public:
     // First rect is outer; second rect is inner
     void fillAANestedRects(GrDrawTarget*,
                            GrDrawState*,
+                           GrColor,
                            const SkRect rects[2],
                            const SkMatrix& combinedMatrix);
 
@@ -67,12 +71,14 @@ private:
 
     void geometryFillAARect(GrDrawTarget*,
                             GrDrawState*,
+                            GrColor,
                             const SkRect& rect,
                             const SkMatrix& combinedMatrix,
                             const SkRect& devRect);
 
     void geometryStrokeAARect(GrDrawTarget*,
                               GrDrawState*,
+                              GrColor,
                               const SkRect& devOutside,
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,

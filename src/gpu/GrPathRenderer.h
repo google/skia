@@ -117,6 +117,7 @@ public:
      */
     bool drawPath(GrDrawTarget* target,
                   GrDrawState* ds,
+                  GrColor color,
                   const SkPath& path,
                   const SkStrokeRec& stroke,
                   bool antiAlias) {
@@ -125,7 +126,7 @@ public:
         SkASSERT(ds->getStencil().isDisabled() ||
                  kNoRestriction_StencilSupport == this->getStencilSupport(target, ds, path,
                                                                           stroke));
-        return this->onDrawPath(target, ds, path, stroke, antiAlias);
+        return this->onDrawPath(target, ds, color, path, stroke, antiAlias);
     }
 
     /**
@@ -175,6 +176,7 @@ protected:
      */
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
+                            GrColor,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) = 0;
@@ -196,7 +198,7 @@ protected:
                                      0xffff);
         drawState->setStencil(kIncrementStencil);
         drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
-        this->drawPath(target, drawState, path, stroke, false);
+        this->drawPath(target, drawState, GrColor_WHITE,  path, stroke, false);
     }
 
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set
