@@ -15,6 +15,7 @@
 
 class SkData;
 class SkPictureRecord;
+class SkPixelSerializer;
 class SkReader32;
 class SkStream;
 class SkWStream;
@@ -64,7 +65,7 @@ public:
 
     virtual ~SkPictureData();
 
-    void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
+    void serialize(SkWStream*, SkPixelSerializer*) const;
     void flatten(SkWriteBuffer&) const;
 
     bool containsBitmaps() const;

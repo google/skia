@@ -21,7 +21,7 @@ void SerializeTask::draw() {
     SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(), NULL/*no BBH*/));
 
     SkDynamicMemoryWStream wStream;
-    recorded->serialize(&wStream, NULL);
+    recorded->serialize(&wStream);
     SkAutoTUnref<SkStream> rStream(wStream.detachAsStream());
     SkAutoTUnref<SkPicture> reconstructed(SkPicture::CreateFromStream(rStream));
 
