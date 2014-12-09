@@ -31,6 +31,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fRTFBOID                = idDesc.fRTFBOID;
     fTexFBOID               = idDesc.fTexFBOID;
     fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
+    fIsWrapped              = idDesc.fIsWrapped;
 
     fViewport.fLeft   = 0;
     fViewport.fBottom = 0;
@@ -54,7 +55,7 @@ size_t GrGLRenderTarget::gpuMemorySize() const {
 }
 
 void GrGLRenderTarget::onRelease() {
-    if (!this->isWrapped()) {
+    if (!fIsWrapped) {
         if (fTexFBOID) {
             GL_CALL(DeleteFramebuffers(1, &fTexFBOID));
         }
@@ -68,6 +69,7 @@ void GrGLRenderTarget::onRelease() {
     fRTFBOID                = 0;
     fTexFBOID               = 0;
     fMSColorRenderbufferID  = 0;
+    fIsWrapped              = false;
     INHERITED::onRelease();
 }
 
@@ -75,5 +77,6 @@ void GrGLRenderTarget::onAbandon() {
     fRTFBOID                = 0;
     fTexFBOID               = 0;
     fMSColorRenderbufferID  = 0;
+    fIsWrapped              = false;
     INHERITED::onAbandon();
 }
