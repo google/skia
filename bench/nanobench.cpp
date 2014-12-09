@@ -548,7 +548,8 @@ public:
                         static const int kFlags = SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag;
                         pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                               pic->cullRect().height(),
-                                                              &factory, kFlags));
+                                                              &factory, 
+                                                              fUseMPDs[fCurrentUseMPD] ? kFlags : 0));
                         pic.reset(recorder.endRecording());
                     }
                     SkString name = SkOSPath::Basename(path.c_str());
