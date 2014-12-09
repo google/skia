@@ -653,7 +653,8 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x,
 
     // FIXME: push blob info
     fInfo.push(SkObjectParser::ScalarToString(x, "XPOS: "));
-    fInfo.push(SkObjectParser::ScalarToString(x, "YPOS: "));
+    fInfo.push(SkObjectParser::ScalarToString(y, "YPOS: "));
+    fInfo.push(SkObjectParser::RectToString(fBlob->bounds(), "Bounds: "));
     fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
