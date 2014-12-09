@@ -57,31 +57,54 @@ static const struct {
     { -0.25f, -0.25f,    1, 0.5f,      0,    0 },
 };
 
+static void draw_scene(SkCanvas* canvas, SkScalar pictureSize) {
+    canvas->clear(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorGREEN);
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setAntiAlias(true);
+
+    canvas->drawCircle(pictureSize / 4, pictureSize / 4, pictureSize / 4, paint);
+    canvas->drawRect(SkRect::MakeXYWH(pictureSize / 2, pictureSize / 2,
+                                      pictureSize / 2, pictureSize / 2), paint);
+
+    paint.setColor(SK_ColorRED);
+    canvas->drawLine(pictureSize / 2, pictureSize * 1 / 3,
+                     pictureSize / 2, pictureSize * 2 / 3, paint);
+    canvas->drawLine(pictureSize * 1 / 3, pictureSize / 2,
+                     pictureSize * 2 / 3, pictureSize / 2, paint);
+
+    paint.setColor(SK_ColorBLACK);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(SkRect::MakeWH(pictureSize, pictureSize), paint);
+}
+
 class PictureShaderTileGM : public skiagm::GM {
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("pictureshadertile");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(800, 600);
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkPictureRecorder recorder;
         SkCanvas* pictureCanvas = recorder.beginRecording(kPictureSize, kPictureSize);
-        drawScene(pictureCanvas, kPictureSize);
+        draw_scene(pictureCanvas, kPictureSize);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
         SkPoint offset = SkPoint::Make(100, 100);
         pictureCanvas = recorder.beginRecording(SkRect::MakeXYWH(offset.x(), offset.y(),
                                                                  kPictureSize, kPictureSize));
         pictureCanvas->translate(offset.x(), offset.y());
-        drawScene(pictureCanvas, kPictureSize);
+        draw_scene(pictureCanvas, kPictureSize);
         SkAutoTUnref<SkPicture> offsetPicture(recorder.endRecording());
 
         for (unsigned i = 0; i < SK_ARRAY_COUNT(tiles); ++i) {
@@ -105,14 +128,14 @@ protected:
             }
 
             fShaders[i].reset(SkShader::CreatePictureShader(picturePtr,
-                              SkShader::kRepeat_TileMode,
-                              SkShader::kRepeat_TileMode,
-                              &localMatrix,
-                              tilePtr));
+                                                            SkShader::kRepeat_TileMode,
+                                                            SkShader::kRepeat_TileMode,
+                                                            &localMatrix,
+                                                            tilePtr));
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(SK_ColorBLACK);
 
         SkPaint paint;
@@ -130,29 +153,6 @@ protected:
     }
 
 private:
-    void drawScene(SkCanvas* canvas, SkScalar pictureSize) {
-        canvas->clear(SK_ColorWHITE);
-
-        SkPaint paint;
-        paint.setColor(SK_ColorGREEN);
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setAntiAlias(true);
-
-        canvas->drawCircle(pictureSize / 4, pictureSize / 4, pictureSize / 4, paint);
-        canvas->drawRect(SkRect::MakeXYWH(pictureSize / 2, pictureSize / 2,
-                                          pictureSize / 2, pictureSize / 2), paint);
-
-        paint.setColor(SK_ColorRED);
-        canvas->drawLine(pictureSize / 2, pictureSize * 1 / 3,
-                         pictureSize / 2, pictureSize * 2 / 3, paint);
-        canvas->drawLine(pictureSize * 1 / 3, pictureSize / 2,
-                         pictureSize * 2 / 3, pictureSize / 2, paint);
-
-        paint.setColor(SK_ColorBLACK);
-        paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawRect(SkRect::MakeWH(pictureSize, pictureSize), paint);
-    }
-
     SkAutoTUnref<SkShader> fShaders[SK_ARRAY_COUNT(tiles)];
 
     typedef GM INHERITED;
