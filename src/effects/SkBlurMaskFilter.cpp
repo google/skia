@@ -817,7 +817,7 @@ bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 }
 
 void GrRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
+    inout->mulByUnknownAlpha();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
@@ -979,7 +979,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
 }
 
 void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
+    inout->mulByUnknownAlpha();
 }
 
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture *ninePatchTexture)

@@ -315,8 +315,8 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
 
         uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
                          GrDefaultGeoProcFactory::kLocalCoord_GPType;
-        SkAutoTUnref<const GrGeometryProcessor> gp(
-                GrDefaultGeoProcFactory::Create(GrColor_WHITE, flags));
+        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(GrColor_WHITE, flags);
+        drawState.setGeometryProcessor(gp)->unref();
 
         GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, gp->getVertexStride(),  0);
         SkASSERT(gp->getVertexStride() == 2 * sizeof(SkPoint));
@@ -325,7 +325,7 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
             SkPoint* verts = (SkPoint*) arg.vertices();
             verts[0].setIRectFan(0, 0, texture->width(), texture->height(), 2 * sizeof(SkPoint));
             verts[1].setIRectFan(0, 0, 1, 1, 2 * sizeof(SkPoint));
-            fDrawBuffer->drawNonIndexed(&drawState, gp, kTriangleFan_GrPrimitiveType, 0, 4);
+            fDrawBuffer->drawNonIndexed(&drawState, kTriangleFan_GrPrimitiveType, 0, 4);
         }
     } else {
         // TODO: Our CPU stretch doesn't filter. But we create separate
@@ -758,7 +758,8 @@ void GrContext::drawRect(const GrPaint& paint,
         // unitSquareVertexBuffer()
 
         static const int worstCaseVertCount = 10;
-        SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create(color));
+        const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(color);
+        drawState.setGeometryProcessor(gp)->unref();
         GrDrawTarget::AutoReleaseGeometry geo(target,
                                               worstCaseVertCount,
                                               gp->getVertexStride(),
@@ -789,7 +790,7 @@ void GrContext::drawRect(const GrPaint& paint,
             vertex[4].set(rect.fLeft, rect.fTop);
         }
 
-        target->drawNonIndexed(&drawState, gp, primType, 0, vertCount);
+        target->drawNonIndexed(&drawState, primType, 0, vertCount);
     } else {
         // filled BW rect
         target->drawSimpleRect(&drawState, color, rect);
@@ -812,11 +813,12 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     target->drawRect(&drawState, paint.getColor(), dstRect, &localRect, localMatrix);
 }
 
-static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords,
-                                                        const GrColor* colors,
-                                                        int* colorOffset,
-                                                        int* texOffset,
-                                                        GrColor color) {
+static void set_vertex_attributes(GrDrawState* drawState,
+                                  const SkPoint* texCoords,
+                                  const GrColor* colors,
+                                  int* colorOffset,
+                                  int* texOffset,
+                                  GrColor color) {
     *texOffset = -1;
     *colorOffset = -1;
 
@@ -833,7 +835,7 @@ static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords
         *colorOffset = sizeof(SkPoint);
         flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
-    return GrDefaultGeoProcFactory::Create(color, flags);
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
 }
 
 void GrContext::drawVertices(const GrPaint& paint,
@@ -856,10 +858,10 @@ void GrContext::drawVertices(const GrPaint& paint,
     GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
 
     int colorOffset = -1, texOffset = -1;
-    SkAutoTUnref<const GrGeometryProcessor> gp(
-            set_vertex_attributes(texCoords, colors, &colorOffset, &texOffset, paint.getColor()));
+    set_vertex_attributes(&drawState, texCoords, colors, &colorOffset, &texOffset,
+                          paint.getColor());
 
-    size_t vertexStride = gp->getVertexStride();
+    size_t vertexStride = drawState.getGeometryProcessor()->getVertexStride();
     SkASSERT(vertexStride == sizeof(SkPoint) + (SkToBool(texCoords) ? sizeof(SkPoint) : 0)
                                              + (SkToBool(colors) ? sizeof(GrColor) : 0));
     if (!geo.set(target, vertexCount, vertexStride, indexCount)) {
@@ -887,9 +889,9 @@ void GrContext::drawVertices(const GrPaint& paint,
         for (int i = 0; i < indexCount; ++i) {
             curIndex[i] = indices[i];
         }
-        target->drawIndexed(&drawState, gp, primitiveType, 0, 0, vertexCount, indexCount);
+        target->drawIndexed(&drawState, primitiveType, 0, 0, vertexCount, indexCount);
     } else {
-        target->drawNonIndexed(&drawState, gp, primitiveType, 0, vertexCount);
+        target->drawNonIndexed(&drawState, primitiveType, 0, vertexCount);
     }
 }
 

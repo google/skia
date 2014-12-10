@@ -164,10 +164,11 @@ protected:
                         verts[v].fKLM[2] = eval_line(verts[v].fPosition, klmEqs + 6, 1.f);
                     }
 
+                    ds.setGeometryProcessor(gp);
                     ds.setRenderTarget(rt);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0,4,6);
+                    tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {
@@ -319,10 +320,11 @@ protected:
                         verts[v].fKLM[2] = eval_line(verts[v].fPosition, klmEqs + 6, 1.f);
                     }
 
+                    ds.setGeometryProcessor(gp);
                     ds.setRenderTarget(rt);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0,4,6);
+                    tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {
@@ -503,10 +505,11 @@ protected:
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
                     DevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
 
+                    ds.setGeometryProcessor(gp);
                     ds.setRenderTarget(rt);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(&ds, gp, kTriangles_GrPrimitiveType, 0, 0, 4, 6);
+                    tt.target()->drawIndexed(&ds, kTriangles_GrPrimitiveType, 0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {

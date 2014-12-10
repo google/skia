@@ -39,23 +39,6 @@ class GrGLCaps;
 class GrGLGeometryProcessor;
 class GrOptDrawState;
 
-struct GrInitInvariantOutput;
-
-/*
- * GrGeometryProcessors and GrPathProcessors may effect invariantColor
- */
-class GrPrimitiveProcessor : public GrProcessor {
-public:
-    // TODO GPs and PPs have to provide an initial coverage because the coverage invariant code is
-    // broken right now
-    virtual uint8_t coverage() const = 0;
-    virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
-    virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
-
-private:
-    typedef GrProcessor INHERITED;
-};
-
 /**
  * A GrGeometryProcessor is used to perform computation in the vertex shader and
  * add support for custom vertex attributes. A GrGemeotryProcessor is typically
@@ -66,7 +49,7 @@ private:
  * added to the vertex attribute array specified on the GrDrawState.
  * GrGeometryProcessor subclasses should be immutable after construction.
  */
-class GrGeometryProcessor : public GrPrimitiveProcessor {
+class GrGeometryProcessor : public GrProcessor {
 public:
     GrGeometryProcessor(GrColor color, uint8_t coverage = 0xff)
         : fVertexStride(0)
@@ -131,13 +114,11 @@ public:
             return false;
         }
 
-        if (!fHasVertexColor && this->color() != that.color()) {
+        if (!fHasVertexColor && this->getColor() != that.getColor()) {
             return false;
         }
 
-        // TODO this is fragile, most gps set their coverage to 0xff so this is okay.  In the long
-        // term this should move to subclasses which set explicit coverage
-        if (!fHasVertexCoverage && this->coverage() != that.coverage()) {
+        if (!fHasVertexCoverage && this->getCoverage() != that.getCoverage()) {
             return false;
         }
         return this->onIsEqual(that);
@@ -152,8 +133,8 @@ public:
 
     virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const {}
 
-    GrColor color() const { return fColor; }
-    uint8_t coverage() const { return fCoverage; }
+    GrColor getColor() const { return fColor; }
+    uint8_t getCoverage() const { return fCoverage; }
 
     // TODO this is a total hack until the gp can own whether or not it uses uniform
     // color / coverage
@@ -161,8 +142,7 @@ public:
     bool hasVertexCoverage() const { return fHasVertexCoverage; }
     bool hasLocalCoords() const { return fHasLocalCoords; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
+    void computeInvariantColor(GrInvariantOutput* inout) const;
 
 protected:
     /**
@@ -183,9 +163,6 @@ protected:
     void setHasVertexCoverage() { fHasVertexCoverage = true; }
     void setHasLocalCoords() { fHasLocalCoords = true; }
 
-    virtual void onGetInvariantOutputColor(GrInitInvariantOutput*) const {}
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const = 0;
-
 private:
     virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
 
@@ -197,28 +174,6 @@ private:
     bool fHasVertexColor;
     bool fHasVertexCoverage;
     bool fHasLocalCoords;
-
-    typedef GrProcessor INHERITED;
-};
-
-/*
- * The path equivalent of the GP.  For now this just manages color. In the long term we plan on
- * extending this class to handle all nvpr uniform / varying / program work.
- */
-class GrPathProcessor : public GrPrimitiveProcessor {
-public:
-    static GrPathProcessor* Create(GrColor color) {
-        return SkNEW_ARGS(GrPathProcessor, (color));
-    }
-
-    const char* name() const SK_OVERRIDE { return "PathProcessor"; }
-    uint8_t coverage() const SK_OVERRIDE { return 0xff; }
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
-
-private:
-    GrPathProcessor(GrColor color) : fColor(color) {}
-    GrColor fColor;
 
     typedef GrProcessor INHERITED;
 };

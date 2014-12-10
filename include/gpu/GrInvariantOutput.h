@@ -10,49 +10,6 @@
 
 #include "GrColor.h"
 
-struct GrInitInvariantOutput {
-    GrInitInvariantOutput()
-        : fValidFlags(0)
-        , fColor(0)
-        , fIsSingleComponent(false)
-        , fIsLCDCoverage(false) {}
-
-    void setKnownFourComponents(GrColor color) {
-        fColor = color;
-        fValidFlags = kRGBA_GrColorComponentFlags;
-        fIsSingleComponent = false;
-    }
-
-    void setUnknownFourComponents() {
-        fValidFlags = 0;
-        fIsSingleComponent = false;
-    }
-
-    void setUnknownOpaqueFourComponents() {
-        fColor = 0xff << GrColor_SHIFT_A;
-        fValidFlags = kA_GrColorComponentFlag;
-        fIsSingleComponent = false;
-    }
-
-    void setKnownSingleComponent(uint8_t alpha) {
-        fColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
-        fValidFlags = kRGBA_GrColorComponentFlags;
-        fIsSingleComponent = true;
-    }
-
-    void setUnknownSingleComponent() {
-        fValidFlags = 0;
-        fIsSingleComponent = true;
-    }
-
-    void setUsingLCDCoverage() { fIsLCDCoverage = true; }
-
-    uint32_t fValidFlags;
-    GrColor fColor;
-    bool fIsSingleComponent;
-    bool fIsLCDCoverage; // Temorary data member until texture pixel configs are updated
-};
-
 class GrInvariantOutput {
 public:
     GrInvariantOutput(GrColor color, GrColorComponentFlags flags, bool isSingleComponent)
@@ -63,14 +20,6 @@ public:
         , fWillUseInputColor(true)
         , fIsLCDCoverage(false) {}
 
-    GrInvariantOutput(const GrInitInvariantOutput& io)
-        : fColor(io.fColor)
-        , fValidFlags(io.fValidFlags)
-        , fIsSingleComponent(io.fIsSingleComponent)
-        , fNonMulStageFound(false)
-        , fWillUseInputColor(false)
-        , fIsLCDCoverage(io.fIsLCDCoverage) {}
-
     virtual ~GrInvariantOutput() {}
 
     enum ReadInput {
@@ -78,18 +27,18 @@ public:
         kWillNot_ReadInput,
     };
 
-    void mulByUnknownOpaqueFourComponents() {
+    void mulByUnknownOpaqueColor() {
         if (this->isOpaque()) {
             fValidFlags = kA_GrColorComponentFlag;
             fIsSingleComponent = false;
         } else {
             // Since the current state is not opaque we no longer care if the color being
             // multiplied is opaque.
-            this->mulByUnknownFourComponents();
+            this->mulByUnknownColor(); 
         }
     }
 
-    void mulByUnknownFourComponents() {
+    void mulByUnknownColor() {
         if (this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
         } else {
@@ -97,7 +46,7 @@ public:
         }
     }
 
-    void mulByUnknownSingleComponent() {
+    void mulByUnknownAlpha() {
         if (this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
         } else {
@@ -106,7 +55,7 @@ public:
         }
     }
 
-    void mulByKnownSingleComponent(uint8_t alpha) {
+    void mulByKnownAlpha(uint8_t alpha) {
         if (this->hasZeroAlpha() || 0 == alpha) {
             this->internalSetToTransparentBlack();
         } else {
@@ -171,15 +120,6 @@ private:
         fIsSingleComponent = isSingleComponent;
         fNonMulStageFound = false;
         fWillUseInputColor = true;
-    }
-
-    void reset(const GrInitInvariantOutput& io) {
-        fColor = io.fColor;
-        fValidFlags = io.fValidFlags;
-        fIsSingleComponent = io.fIsSingleComponent;
-        fNonMulStageFound = false;
-        fWillUseInputColor = true;
-        fIsLCDCoverage = io.fIsLCDCoverage;
     }
 
     void internalSetToTransparentBlack() {

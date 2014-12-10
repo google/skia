@@ -644,7 +644,6 @@ void add_line(const SkPoint p[2],
 bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
                                               GrDrawState* drawState,
                                               uint8_t coverage,
-                                              size_t vertexStride,
                                               GrDrawTarget::AutoReleaseGeometry* arg,
                                               SkRect* devBounds,
                                               const SkPath& path,
@@ -654,8 +653,9 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
 
     int vertCnt = kLineSegNumVertices * lineCnt;
 
-    SkASSERT(vertexStride == sizeof(LineVertex));
-    if (!arg->set(target, vertCnt, vertexStride,  0)) {
+    size_t vstride = drawState->getGeometryProcessor()->getVertexStride();
+    SkASSERT(vstride == sizeof(LineVertex));
+    if (!arg->set(target, vertCnt, vstride,  0)) {
         return false;
     }
 
@@ -839,14 +839,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
                            GrDefaultGeoProcFactory::kCoverage_GPType;
         GrDrawState::AutoRestoreEffects are(drawState);
-        SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create(color,
-                                                                                   gpFlags,
-                                                                                   newCoverage));
+        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color,
+                                                                        gpFlags,
+                                                                        newCoverage))->unref();
 
         if (!this->createLineGeom(target,
                                   drawState,
                                   newCoverage,
-                                  gp->getVertexStride(),
                                   &arg,
                                   &devBounds,
                                   path,
@@ -872,7 +871,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
             while (lines < lineCnt) {
                 int n = SkTMin(lineCnt - lines, kLineSegsNumInIdxBuffer);
                 target->drawIndexed(drawState,
-                                    gp,
                                     kTriangles_GrPrimitiveType,
                                     kLineSegNumVertices*lines,     // startV
                                     0,                             // startI
@@ -917,20 +915,20 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                             kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt));
 
         if (quadCnt > 0) {
-            SkAutoTUnref<GrGeometryProcessor> hairQuadProcessor(
+            GrGeometryProcessor* hairQuadProcessor =
                     GrQuadEffect::Create(color,
                                          kHairlineAA_GrProcessorEdgeType,
                                          *target->caps(),
-                                         newCoverage));
+                                         newCoverage);
             SkASSERT(hairQuadProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
 
+            drawState->setGeometryProcessor(hairQuadProcessor)->unref();
             int quads = 0;
             while (quads < quadCnt) {
                 int n = SkTMin(quadCnt - quads, kQuadsNumInIdxBuffer);
                 target->drawIndexed(drawState,
-                                    hairQuadProcessor,
                                     kTriangles_GrPrimitiveType,
                                     kQuadNumVertices*quads,               // startV
                                     0,                                    // startI
@@ -943,16 +941,15 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
 
         if (conicCnt > 0) {
             GrDrawState::AutoRestoreEffects are(drawState);
-            SkAutoTUnref<GrGeometryProcessor> hairConicProcessor(
-                    GrConicEffect::Create(color, kHairlineAA_GrProcessorEdgeType, *target->caps(),
-                                          newCoverage));
+            GrGeometryProcessor* hairConicProcessor = GrConicEffect::Create(
+                    color, kHairlineAA_GrProcessorEdgeType, *target->caps(), newCoverage);
             SkASSERT(hairConicProcessor);
 
+            drawState->setGeometryProcessor(hairConicProcessor)->unref();
             int conics = 0;
             while (conics < conicCnt) {
                 int n = SkTMin(conicCnt - conics, kQuadsNumInIdxBuffer);
                 target->drawIndexed(drawState,
-                                    hairConicProcessor,
                                     kTriangles_GrPrimitiveType,
                                     kQuadNumVertices*(quadCnt + conics),  // startV
                                     0,                                    // startI

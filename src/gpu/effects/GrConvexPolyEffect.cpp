@@ -44,9 +44,9 @@ private:
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         if (fRect.isEmpty()) {
             // An empty rect will have no coverage anywhere.
-            inout->mulByKnownSingleComponent(0);
+            inout->mulByKnownAlpha(0);
         } else {
-            inout->mulByUnknownSingleComponent();
+            inout->mulByUnknownAlpha();
         }
     }
 
@@ -323,7 +323,7 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType edgeType, co
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
 void GrConvexPolyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
+    inout->mulByUnknownAlpha();
 }
 
 void GrConvexPolyEffect::getGLProcessorKey(const GrGLCaps& caps,

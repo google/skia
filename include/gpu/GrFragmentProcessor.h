@@ -67,16 +67,6 @@ public:
         return this->onIsEqual(that);
     }
 
-    /**
-     * This function is used to perform optimizations. When called the invarientOuput param
-     * indicate whether the input components to this processor in the FS will have known values.
-     * In inout the validFlags member is a bitfield of GrColorComponentFlags. The isSingleComponent
-     * member indicates whether the input will be 1 or 4 bytes. The function updates the members of
-     * inout to indicate known values of its output. A component of the color member only has
-     * meaning if the corresponding bit in validFlags is set.
-     */
-    void computeInvariantOutput(GrInvariantOutput* inout) const;
-
 protected:
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
@@ -110,11 +100,6 @@ protected:
      * code might fail during variable binding due to unused variables.
      */
     void setWillNotUseInputColor() { fWillUseInputColor = false; }
-
-    /**
-     * Subclass implements this to support getConstantColorComponents(...).
-     */
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
 
 private:
     /**

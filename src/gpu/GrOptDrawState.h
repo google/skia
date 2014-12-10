@@ -19,7 +19,6 @@
 
 class GrDeviceCoordTexture;
 class GrDrawState;
-class GrPathProcessor;
 
 /**
  * Class that holds an optimized version of a GrDrawState. It is meant to be an immutable class,
@@ -31,9 +30,8 @@ public:
 
     typedef GrClipMaskManager::ScissorState ScissorState;
 
-    GrOptDrawState(const GrDrawState& drawState, const GrGeometryProcessor*, const GrPathProcessor*,
-                   const GrDrawTargetCaps&, const ScissorState&,
-                   const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
+    GrOptDrawState(const GrDrawState& drawState, GrColor, uint8_t coverage, const GrDrawTargetCaps&,
+                   const ScissorState&, const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
     bool operator== (const GrOptDrawState& that) const;
     bool operator!= (const GrOptDrawState& that) const { return !(*this == that); }
@@ -209,7 +207,7 @@ private:
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawState& ds, GrXferProcessor::OptFlags,
+    void setOutputStateInfo(const GrDrawState& ds, GrColor coverage, GrXferProcessor::OptFlags,
                             const GrDrawTargetCaps&);
 
     enum Flags {
@@ -221,7 +219,6 @@ private:
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
     typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
     typedef GrPendingProgramElement<const GrGeometryProcessor> ProgramGeometryProcessor;
-    typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     ScissorState                        fScissorState;
@@ -236,7 +233,6 @@ private:
     GrBlendCoeff                        fDstBlend;
     uint32_t                            fFlags;
     ProgramGeometryProcessor            fGeometryProcessor;
-    ProgramPrimitiveProcessor           fPrimitiveProcessor;
     GrBatchTracker                      fBatchTracker;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;

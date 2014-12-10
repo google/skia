@@ -68,6 +68,21 @@ public:
      */
     void setFromPaint(const GrPaint& , const SkMatrix& viewMatrix, GrRenderTarget*);
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Vertex Attributes
+    ////
+
+    // TODO when we move this info off of GrGeometryProcessor, delete these
+    bool hasLocalCoordAttribute() const {
+        return this->hasGeometryProcessor() && this->getGeometryProcessor()->hasLocalCoords();
+    }
+    bool hasColorVertexAttribute() const {
+        return this->hasGeometryProcessor() && this->getGeometryProcessor()->hasVertexColor();
+    }
+    bool hasCoverageVertexAttribute() const {
+        return this->hasGeometryProcessor() && this->getGeometryProcessor()->hasVertexCoverage();
+    }
+
     /// @}
 
     /**
@@ -85,13 +100,29 @@ public:
     /**
      * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
      */
-    bool hasSolidCoverage(const GrPrimitiveProcessor*) const;
+    bool hasSolidCoverage(GrColor coverage) const;
 
     /**
      * This function returns true if the render target destination pixel values will be read for
      * blending during draw.
      */
-    bool willBlendWithDst(const GrPrimitiveProcessor*) const;
+    bool willBlendWithDst(GrColor color, GrColor coverage) const;
+
+    /// @}
+
+    /**
+     * The geometry processor is the sole element of the skia pipeline which can use the vertex,
+     * geometry, and tesselation shaders.  The GP may also compute a coverage in its fragment shader
+     * but is never put in the color processing pipeline.
+     */
+
+    const GrGeometryProcessor* setGeometryProcessor(const GrGeometryProcessor* geometryProcessor) {
+        SkASSERT(geometryProcessor);
+        SkASSERT(!this->hasGeometryProcessor());
+        fGeometryProcessor.reset(SkRef(geometryProcessor));
+        fCoverageProcInfoValid = false;
+        return geometryProcessor;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Effect Stages
@@ -116,6 +147,12 @@ public:
     int numColorStages() const { return fColorStages.count(); }
     int numCoverageStages() const { return fCoverageStages.count(); }
     int numFragmentStages() const { return this->numColorStages() + this->numCoverageStages(); }
+    int numTotalStages() const {
+         return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0);
+    }
+
+    bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
+    const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
 
     const GrXPFactory* getXPFactory() const { return fXPFactory.get(); }
 
@@ -126,7 +163,7 @@ public:
      * Checks whether any of the effects will read the dst pixel color.
      * TODO remove when we have an XP
      */
-    bool willEffectReadDstColor(const GrPrimitiveProcessor*) const;
+    bool willEffectReadDstColor(GrColor color, GrColor coverage) const;
 
     /**
      * The xfer processor factory.
@@ -201,11 +238,13 @@ public:
     public:
         AutoRestoreEffects() 
             : fDrawState(NULL)
+            , fOriginalGPID(SK_InvalidUniqueID)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {}
 
         AutoRestoreEffects(GrDrawState* ds)
             : fDrawState(NULL)
+            , fOriginalGPID(SK_InvalidUniqueID)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {
             this->set(ds);
@@ -219,6 +258,7 @@ public:
 
     private:
         GrDrawState*    fDrawState;
+        uint32_t        fOriginalGPID;
         int             fColorEffectCnt;
         int             fCoverageEffectCnt;
     };
@@ -515,29 +555,22 @@ public:
     GrDrawState& operator= (const GrDrawState& that);
 
 private:
-    bool isEqual(const GrDrawState& that, bool explicitLocalCoords) const;
+    bool isEqual(const GrDrawState& that) const;
 
-    const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
-        this->calcColorInvariantOutput(pp);
+    const GrProcOptInfo& colorProcInfo(GrColor color) const { 
+        this->calcColorInvariantOutput(color);
         return fColorProcInfo;
     }
 
-    const GrProcOptInfo& coverageProcInfo(const GrPrimitiveProcessor* pp) const {
-        this->calcCoverageInvariantOutput(pp);
+    const GrProcOptInfo& coverageProcInfo(GrColor coverage) const {
+        this->calcCoverageInvariantOutput(coverage);
         return fCoverageProcInfo;
     }
 
     /**
-     * If fColorProcInfoValid is false, function calculates the invariant output for the color
-     * stages and results are stored in fColorProcInfo.
+     * Determines whether src alpha is guaranteed to be one for all src pixels
      */
-    void calcColorInvariantOutput(const GrPrimitiveProcessor*) const;
-
-    /**
-     * If fCoverageProcInfoValid is false, function calculates the invariant output for the coverage
-     * stages and results are stored in fCoverageProcInfo.
-     */
-    void calcCoverageInvariantOutput(const GrPrimitiveProcessor*) const;
+    bool srcAlphaWillBeOne(GrColor color, GrColor coverage) const;
 
     /**
      * If fColorProcInfoValid is false, function calculates the invariant output for the color
@@ -564,6 +597,7 @@ private:
     uint32_t                                fFlagBits;
     GrStencilSettings                       fStencilSettings;
     DrawFace                                fDrawFace;
+    SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
     SkAutoTUnref<const GrXPFactory>         fXPFactory;
     FragmentStageArray                      fColorStages;
     FragmentStageArray                      fCoverageStages;
@@ -575,8 +609,6 @@ private:
     mutable bool fCoverageProcInfoValid;
     mutable GrColor fColorCache;
     mutable GrColor fCoverageCache;
-    mutable const GrPrimitiveProcessor* fColorPrimProc;
-    mutable const GrPrimitiveProcessor* fCoveragePrimProc;
 
     friend class GrOptDrawState;
 };

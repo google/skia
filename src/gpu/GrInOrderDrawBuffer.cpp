@@ -62,17 +62,14 @@ void get_vertex_bounds(const void* vertices,
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static const GrGeometryProcessor* create_rect_gp(GrDrawState* drawState,
-                                                 bool hasLocalCoords,
-                                                 GrColor color) {
+static void set_vertex_attributes(GrDrawState* drawState, bool hasLocalCoords, GrColor color) {
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
                      GrDefaultGeoProcFactory::kColor_GPType;
     flags |= hasLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
-    const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(color, flags);
+    drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
     if (0xFF == GrColorUnpackA(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
-    return gp;
 }
 
 static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettings) {
@@ -119,10 +116,9 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
                                      const SkMatrix* localMatrix) {
     GrDrawState::AutoRestoreEffects are(ds);
 
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(ds, SkToBool(localRect),
-                                                                     color));
+    set_vertex_attributes(ds, SkToBool(localRect),  color);
 
-    size_t vstride = gp->getVertexStride();
+    size_t vstride = ds->getGeometryProcessor()->getVertexStride();
     SkASSERT(vstride == sizeof(SkPoint) + sizeof(GrColor) + (SkToBool(localRect) ? sizeof(SkPoint) :
                                                                                    0));
     AutoReleaseGeometry geo(this, 4, vstride, 0);
@@ -169,7 +165,7 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
     }
 
     this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
-    this->drawIndexedInstances(ds, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &devBounds);
+    this->drawIndexedInstances(ds, kTriangles_GrPrimitiveType, 1, 4, 6, &devBounds);
 }
 
 int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds, const DrawInfo& info) {
@@ -225,13 +221,13 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds, const DrawIn
 }
 
 void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
-                                 const GrGeometryProcessor* gp,
                                  const DrawInfo& info,
                                  const ScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
-    if (!this->recordStateAndShouldDraw(ds, gp, NULL,
+    const GrGeometryProcessor* gp = ds.getGeometryProcessor();
+    if (!this->recordStateAndShouldDraw(ds, gp->getColor(), gp->getCoverage(),
                                         GrGpu::PrimTypeToDrawType(info.primitiveType()),
                                         scissorState, dstCopy)) {
         return;
@@ -253,12 +249,11 @@ void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
 }
 
 void GrInOrderDrawBuffer::onStencilPath(const GrDrawState& ds,
-                                        const GrPathProcessor* pathProc,
                                         const GrPath* path,
                                         const GrClipMaskManager::ScissorState& scissorState,
                                         const GrStencilSettings& stencilSettings) {
     // Only compare the subset of GrDrawState relevant to path stenciling?
-    if (!this->recordStateAndShouldDraw(ds, NULL, pathProc, GrGpu::kStencilPath_DrawType,
+    if (!this->recordStateAndShouldDraw(ds, GrColor_WHITE, 0xff, GrGpu::kStencilPath_DrawType,
                                         scissorState, NULL)) {
         return;
     }
@@ -268,14 +263,14 @@ void GrInOrderDrawBuffer::onStencilPath(const GrDrawState& ds,
 }
 
 void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
-                                     const GrPathProcessor* pathProc,
+                                     GrColor color,
                                      const GrPath* path,
                                      const GrClipMaskManager::ScissorState& scissorState,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
-    if (!this->recordStateAndShouldDraw(ds, NULL, pathProc, GrGpu::kDrawPath_DrawType,
-                                        scissorState, dstCopy)) {
+    if (!this->recordStateAndShouldDraw(ds, color, 0xff, GrGpu::kDrawPath_DrawType, scissorState,
+                                        dstCopy)) {
         return;
     }
     DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
@@ -284,7 +279,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
 }
 
 void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
-                                      const GrPathProcessor* pathProc,
+                                      GrColor color,
                                       const GrPathRange* pathRange,
                                       const void* indices,
                                       PathIndexType indexType,
@@ -298,7 +293,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     SkASSERT(indices);
     SkASSERT(transformValues);
 
-    if (!this->recordStateAndShouldDraw(ds, NULL, pathProc, GrGpu::kDrawPath_DrawType, scissorState,
+    if (!this->recordStateAndShouldDraw(ds, color, 0xff, GrGpu::kDrawPath_DrawType, scissorState,
                                         dstCopy)) {
         return;
     }
@@ -329,7 +324,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
             transformType == previous->fTransformType &&
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
-            !ds.willBlendWithDst(pathProc)) {
+            !ds.willBlendWithDst(color, GrColor_WHITE)) {
             // Fold this DrawPaths call into the one previous.
             previous->fCount += count;
             return;
@@ -495,13 +490,13 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
 }
 
 bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
-                                                   const GrGeometryProcessor* gp,
-                                                   const GrPathProcessor* pathProc,
+                                                   GrColor color,
+                                                   uint8_t coverage,
                                                    GrGpu::DrawType drawType,
                                                    const GrClipMaskManager::ScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
     SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
-                                            (ds, gp, pathProc, *this->getGpu()->caps(), scissor,
+                                            (ds, color, coverage, *this->getGpu()->caps(), scissor,
                                              dstCopy, drawType));
     if (ss->fState.mustSkip()) {
         fCmdBuffer.pop_back();

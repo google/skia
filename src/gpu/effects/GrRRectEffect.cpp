@@ -86,7 +86,7 @@ GrFragmentProcessor* CircularRRectEffect::Create(GrPrimitiveEdgeType edgeType,
 }
 
 void CircularRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
+    inout->mulByUnknownAlpha();
 }
 
 CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t circularCornerFlags,
@@ -426,7 +426,7 @@ EllipticalRRectEffect::Create(GrPrimitiveEdgeType edgeType, const SkRRect& rrect
 }
 
 void EllipticalRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
+    inout->mulByUnknownAlpha();
 }
 
 EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const SkRRect& rrect)

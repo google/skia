@@ -637,6 +637,9 @@ void GrDistanceFieldTextContext::flush() {
         }
         this->setupCoverageEffect(filteredColor);
 
+        // Effects could be stored with one of the cache objects (atlas?)
+        drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
+
         // Set draw state
         if (fUseLCDText) {
             // TODO: move supportsRGBCoverage check to setupCoverageEffect and only add LCD
@@ -645,18 +648,17 @@ void GrDistanceFieldTextContext::flush() {
             if (!drawState.getXPFactory()->supportsRGBCoverage(0, kRGBA_GrColorComponentFlags)) {
                 SkDebugf("LCD Text will not draw correctly.\n");
             }
-            SkASSERT(!fCachedGeometryProcessor->hasVertexColor());
+            SkASSERT(!drawState.hasColorVertexAttribute());
         } else {
             if (0xFF == GrColorUnpackA(fPaint.getColor())) {
                 drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
             }
             // We're using per-vertex color.
-            SkASSERT(fCachedGeometryProcessor->hasVertexColor());
+            SkASSERT(drawState.hasColorVertexAttribute());
         }
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(&drawState,
-                                          fCachedGeometryProcessor.get(),
                                           kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           kVerticesPerGlyph,

@@ -102,8 +102,8 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
-        out->setUnknownSingleComponent();
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+        inout->mulByUnknownAlpha();
     }
 
     GrPrimitiveEdgeType   fEdgeType;
@@ -171,8 +171,8 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
-        out->setUnknownSingleComponent();
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+        inout->mulByUnknownAlpha();
     }
 
     GrPrimitiveEdgeType   fEdgeType;
@@ -241,8 +241,8 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
-        out->setUnknownSingleComponent();
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+        inout->mulByUnknownAlpha();
     }
 
     GrPrimitiveEdgeType   fEdgeType;
