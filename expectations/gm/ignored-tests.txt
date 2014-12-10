@@ -68,9 +68,6 @@ drawbitmapmatrix
 #junov skbug.com/3176
 pictureimagefilter
 
-# robertphillips
-imagefiltersscaled
-
 # fmalita
 clipped-bitmap-shaders-clamp
 clipped-bitmap-shaders-clamp-hq
