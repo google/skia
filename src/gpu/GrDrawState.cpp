@@ -117,6 +117,9 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
 
     fColorProcInfoValid = false;
     fCoverageProcInfoValid = false;
+
+    fColorCache = GrColor_ILLEGAL;
+    fCoverageCache = GrColor_ILLEGAL;
 }
 
 bool GrDrawState::setIdentityViewMatrix()  {
