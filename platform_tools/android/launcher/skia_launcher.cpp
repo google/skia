@@ -98,17 +98,6 @@ int main(int argc, const char** argv) {
         return -1;
     }
 
-    // find the address of the SkPrintToConsole function
-    void (*app_SkDebugToStdOut)(bool);
-    *(void **) (&app_SkDebugToStdOut) = dlsym(skiaLibrary, "AndroidSkDebugToStdOut");
-
-    if (app_SkDebugToStdOut) {
-        (*app_SkDebugToStdOut)(true);
-    } else {
-        printf("WARNING: Unable to redirect output to the console.\n");
-        printf("WARNING: %s\n", dlerror());
-    }
-
     // pass all additional arguments to the main function
     return launch_app(app_main, argc - 1, ++argv);
 }
