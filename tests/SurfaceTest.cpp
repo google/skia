@@ -85,8 +85,7 @@ static void test_image(skiatest::Reporter* reporter) {
     data->unref();
 }
 
-static SkImage* createImage(ImageType imageType, GrContext* context,
-                            SkColor color) {
+static SkImage* createImage(ImageType imageType, GrContext* context, SkColor color) {
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
     const size_t rowBytes = info.minRowBytes();
@@ -101,42 +100,51 @@ static SkImage* createImage(ImageType imageType, GrContext* context,
             return SkImage::NewRasterCopy(info, addr, rowBytes);
         case kRasterData_ImageType:
             return SkImage::NewRasterData(info, data, rowBytes);
-        case kGpu_ImageType:
-            return NULL;        // TODO
+        case kGpu_ImageType: {
+            SkAutoTUnref<SkSurface> surf(SkSurface::NewRenderTarget(context, info, 0));
+            surf->getCanvas()->clear(color);
+            return surf->newImageSnapshot();
+        }
         case kCodec_ImageType: {
             SkBitmap bitmap;
             bitmap.installPixels(info, addr, rowBytes);
             SkAutoTUnref<SkData> src(
-                 SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type,
-                                            100));
+                 SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type, 100));
             return SkImage::NewFromGenerator(
-                SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()));
+                SkDecodingImageGenerator::Create(src, SkDecodingImageGenerator::Options()));
         }
     }
     SkASSERT(false);
     return NULL;
 }
 
-static void test_imagepeek(skiatest::Reporter* reporter) {
+static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* factory) {
     static const struct {
         ImageType   fType;
         bool        fPeekShouldSucceed;
+        const char* fName;
     } gRec[] = {
-        { kRasterCopy_ImageType,    true    },
-        { kRasterData_ImageType,    true    },
-        { kGpu_ImageType,           false   },
-        { kCodec_ImageType,         false   },
+        { kRasterCopy_ImageType,    true,       "RasterCopy"    },
+        { kRasterData_ImageType,    true,       "RasterData"    },
+        { kGpu_ImageType,           false,      "Gpu"           },
+        { kCodec_ImageType,         false,      "Codec"         },
     };
 
     const SkColor color = SK_ColorRED;
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
 
+    GrContext* ctx = NULL;
+#if SK_SUPPORT_GPU
+    ctx = factory->get(GrContextFactory::kNative_GLContextType);
+#endif
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkImageInfo info;
         size_t rowBytes;
 
-        SkAutoTUnref<SkImage> image(createImage(gRec[i].fType, NULL, color));
+        SkAutoTUnref<SkImage> image(createImage(gRec[i].fType, ctx, color));
         if (!image.get()) {
+            SkDebugf("failed to createImage[%d] %s\n", i, gRec[i].fName);
             continue;   // gpu may not be enabled
         }
         const void* addr = image->peekPixels(&info, &rowBytes);
@@ -413,7 +421,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kDiscard_ContentChangeMode);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kRetain_ContentChangeMode);
 
-    test_imagepeek(reporter);
+    test_imagepeek(reporter, factory);
     test_canvaspeek(reporter, factory);
 
 #if SK_SUPPORT_GPU
