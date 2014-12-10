@@ -39,8 +39,6 @@ struct TwoPtRadial {
 
 class SkTwoPointConicalGradient : public SkGradientShaderBase {
     TwoPtRadial fRec;
-    void init();
-
 public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,

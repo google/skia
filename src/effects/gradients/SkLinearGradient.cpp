@@ -39,25 +39,25 @@ static inline int mirror_8bits(int x) {
 #pragma optimize("", on)
 #endif
 
-static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix) {
+static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     SkVector    vec = pts[1] - pts[0];
     SkScalar    mag = vec.length();
     SkScalar    inv = mag ? SkScalarInvert(mag) : 0;
 
     vec.scale(inv);
-    matrix->setSinCos(-vec.fY, vec.fX, pts[0].fX, pts[0].fY);
-    matrix->postTranslate(-pts[0].fX, -pts[0].fY);
-    matrix->postScale(inv, inv);
+    SkMatrix matrix;
+    matrix.setSinCos(-vec.fY, vec.fX, pts[0].fX, pts[0].fY);
+    matrix.postTranslate(-pts[0].fX, -pts[0].fY);
+    matrix.postScale(inv, inv);
+    return matrix;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
-    : SkGradientShaderBase(desc)
+    : SkGradientShaderBase(desc, pts_to_unit_matrix(pts))
     , fStart(pts[0])
-    , fEnd(pts[1])
-{
-    pts_to_unit_matrix(pts, &fPtsToUnit);
+    , fEnd(pts[1]) {
 }
 
 SkFlattenable* SkLinearGradient::CreateProc(SkReadBuffer& buffer) {

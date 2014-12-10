@@ -12,6 +12,8 @@
 #define kSQRT_TABLE_BITS    11
 #define kSQRT_TABLE_SIZE    (1 << kSQRT_TABLE_BITS)
 
+SK_COMPILE_ASSERT(sizeof(gSqrt8Table) == kSQRT_TABLE_SIZE, SqrtTableSizesMatch);
+
 #if 0
 
 #include <stdio.h>
@@ -55,12 +57,13 @@ inline SkFixed repeat_tileproc_nonstatic(SkFixed x) {
     return repeat_tileproc(x);
 }
 
-void rad_to_unit_matrix(const SkPoint& center, SkScalar radius,
-                               SkMatrix* matrix) {
+SkMatrix rad_to_unit_matrix(const SkPoint& center, SkScalar radius) {
     SkScalar    inv = SkScalarInvert(radius);
 
-    matrix->setTranslate(-center.fX, -center.fY);
-    matrix->postScale(inv, inv);
+    SkMatrix matrix;
+    matrix.setTranslate(-center.fX, -center.fY);
+    matrix.postScale(inv, inv);
+    return matrix;
 }
 
 typedef void (* RadialShade16Proc)(SkScalar sfx, SkScalar sdx,
@@ -146,14 +149,9 @@ void shadeSpan16_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar d
 /////////////////////////////////////////////////////////////////////
 
 SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor& desc)
-    : SkGradientShaderBase(desc)
+    : SkGradientShaderBase(desc, rad_to_unit_matrix(center, radius))
     , fCenter(center)
-    , fRadius(radius)
-{
-    // make sure our table is insync with our current #define for kSQRT_TABLE_SIZE
-    SkASSERT(sizeof(gSqrt8Table) == kSQRT_TABLE_SIZE);
-
-    rad_to_unit_matrix(center, radius, &fPtsToUnit);
+    , fRadius(radius) {
 }
 
 size_t SkRadialGradient::contextSize() const {

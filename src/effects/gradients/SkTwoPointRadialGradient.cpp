@@ -167,16 +167,33 @@ void shadeSpan_twopoint_repeat(SkScalar fx, SkScalar dx,
 
 /////////////////////////////////////////////////////////////////////
 
+static SkMatrix pts_to_unit(const SkPoint& start, SkScalar diffRadius) {
+    SkScalar inv = diffRadius ? SkScalarInvert(diffRadius) : 0;
+    SkMatrix matrix;
+    matrix.setTranslate(-start.fX, -start.fY);
+    matrix.postScale(inv, inv);
+    return matrix;
+}
+
 SkTwoPointRadialGradient::SkTwoPointRadialGradient(const SkPoint& start, SkScalar startRadius,
                                                    const SkPoint& end, SkScalar endRadius,
                                                    const Descriptor& desc)
-    : SkGradientShaderBase(desc)
+    : SkGradientShaderBase(desc, pts_to_unit(start, endRadius - startRadius))
     , fCenter1(start)
     , fCenter2(end)
     , fRadius1(startRadius)
     , fRadius2(endRadius)
 {
-    init();
+    fDiff = fCenter1 - fCenter2;
+    fDiffRadius = fRadius2 - fRadius1;
+    // hack to avoid zero-divide for now
+    SkScalar inv = fDiffRadius ? SkScalarInvert(fDiffRadius) : 0;
+    fDiff.fX = SkScalarMul(fDiff.fX, inv);
+    fDiff.fY = SkScalarMul(fDiff.fY, inv);
+    fStartRadius = SkScalarMul(fRadius1, inv);
+    fSr2D2 = SkScalarSquare(fStartRadius);
+    fA = SkScalarSquare(fDiff.fX) + SkScalarSquare(fDiff.fY) - SK_Scalar1;
+    fOneOverTwoA = fA ? SkScalarInvert(fA * 2) : 0;
 }
 
 SkShader::BitmapType SkTwoPointRadialGradient::asABitmap(
@@ -364,22 +381,6 @@ void SkTwoPointRadialGradient::flatten(
     buffer.writePoint(fCenter2);
     buffer.writeScalar(fRadius1);
     buffer.writeScalar(fRadius2);
-}
-
-void SkTwoPointRadialGradient::init() {
-    fDiff = fCenter1 - fCenter2;
-    fDiffRadius = fRadius2 - fRadius1;
-    // hack to avoid zero-divide for now
-    SkScalar inv = fDiffRadius ? SkScalarInvert(fDiffRadius) : 0;
-    fDiff.fX = SkScalarMul(fDiff.fX, inv);
-    fDiff.fY = SkScalarMul(fDiff.fY, inv);
-    fStartRadius = SkScalarMul(fRadius1, inv);
-    fSr2D2 = SkScalarSquare(fStartRadius);
-    fA = SkScalarSquare(fDiff.fX) + SkScalarSquare(fDiff.fY) - SK_Scalar1;
-    fOneOverTwoA = fA ? SkScalarInvert(fA * 2) : 0;
-
-    fPtsToUnit.setTranslate(-fCenter1.fX, -fCenter1.fY);
-    fPtsToUnit.postScale(inv, inv);
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -67,9 +67,11 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc)
+SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
     : INHERITED(desc.fLocalMatrix)
+    , fPtsToUnit(ptsToUnit)
 {
+    fPtsToUnit.getType();  // Precache so reads are threadsafe.
     SkASSERT(desc.fCount > 1);
 
     fGradFlags = SkToU8(desc.fGradFlags);

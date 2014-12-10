@@ -186,18 +186,13 @@ static void twopoint_mirror(TwoPtRadialContext* rec, SkPMColor* SK_RESTRICT dstC
     }
 }
 
-void SkTwoPointConicalGradient::init() {
-    fRec.init(fCenter1, fRadius1, fCenter2, fRadius2, fFlippedGrad);
-    fPtsToUnit.reset();
-}
-
 /////////////////////////////////////////////////////////////////////
 
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
         const SkPoint& start, SkScalar startRadius,
         const SkPoint& end, SkScalar endRadius,
         bool flippedGrad, const Descriptor& desc)
-    : SkGradientShaderBase(desc)
+    : SkGradientShaderBase(desc, SkMatrix::I())
     , fCenter1(start)
     , fCenter2(end)
     , fRadius1(startRadius)
@@ -206,7 +201,7 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
 {
     // this is degenerate, and should be caught by our caller
     SkASSERT(fCenter1 != fCenter2 || fRadius1 != fRadius2);
-    this->init();
+    fRec.init(fCenter1, fRadius1, fCenter2, fRadius2, fFlippedGrad);
 }
 
 bool SkTwoPointConicalGradient::isOpaque() const {

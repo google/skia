@@ -8,12 +8,16 @@
 
 #include "SkSweepGradient.h"
 
+static SkMatrix translate(SkScalar dx, SkScalar dy) {
+    SkMatrix matrix;
+    matrix.setTranslate(dx, dy);
+    return matrix;
+}
+
 SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor& desc)
-    : SkGradientShaderBase(desc)
+    : SkGradientShaderBase(desc, translate(-cx, -cy))
     , fCenter(SkPoint::Make(cx, cy))
 {
-    fPtsToUnit.setTranslate(-cx, -cy);
-
     // overwrite the tilemode to a canonical value (since sweep ignores it)
     fTileMode = SkShader::kClamp_TileMode;
 }

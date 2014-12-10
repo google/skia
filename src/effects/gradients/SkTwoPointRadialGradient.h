@@ -56,8 +56,6 @@ private:
     SkPoint fDiff;
     SkScalar fStartRadius, fDiffRadius, fSr2D2, fA, fOneOverTwoA;
 
-    void init();
-
     friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;
 };

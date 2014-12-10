@@ -121,7 +121,7 @@ public:
     };
 
 public:
-    SkGradientShaderBase(const Descriptor& desc);
+    SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
     virtual ~SkGradientShaderBase();
 
     // The cache is initialized on-demand when getCache16/32 is called.
@@ -223,7 +223,7 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     SK_TO_STRING_OVERRIDE()
 
-    SkMatrix    fPtsToUnit;     // set by subclass
+    const SkMatrix fPtsToUnit;
     TileMode    fTileMode;
     TileProc    fTileProc;
     int         fColorCount;
