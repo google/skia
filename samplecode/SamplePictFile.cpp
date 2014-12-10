@@ -136,12 +136,6 @@ private:
                 SkDebugf("coun't load picture at \"path\"\n", path);
             }
 
-            if (false) {
-                SkSurface* surf = SkSurface::NewRasterPMColor(SkScalarCeilToInt(pic->cullRect().width()), 
-                                                              SkScalarCeilToInt(pic->cullRect().height()));
-                surf->getCanvas()->drawPicture(pic);
-                surf->unref();
-            }
             if (false) { // re-record
                 SkPictureRecorder recorder;
                 pic->playback(recorder.beginRecording(pic->cullRect().width(),

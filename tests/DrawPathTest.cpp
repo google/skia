@@ -17,7 +17,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     SkPMColor pixel[1];
     output.installPixels(SkImageInfo::MakeN32Premul(1, 1), pixel, 4);
 
-    SkSurface* surf = SkSurface::NewRasterPMColor(300, 33300);
+    SkSurface* surf = SkSurface::NewRasterN32Premul(300, 33300);
     SkCanvas* canvas = surf->getCanvas();
 
     SkRect r = { 0, 33000, 300, 33300 };
@@ -94,11 +94,11 @@ static void test_crbug131181() {
     moveToH(&path, &data[0]);
     cubicToH(&path, &data[2]);
 
-    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    canvas->drawPath(path, paint);
+    surface->getCanvas()->drawPath(path, paint);
 }
 
 // This used to assert in debug builds (and crash writing bad memory in release)
@@ -125,38 +125,36 @@ static void test_crbug_140803() {
 static void test_inversepathwithclip() {
     SkPath path;
 
-    path.moveTo(0, SkIntToScalar(20));
-    path.quadTo(SkIntToScalar(10), SkIntToScalar(10),
-                SkIntToScalar(20), SkIntToScalar(20));
+    path.moveTo(0, 20);
+    path.quadTo(10, 10, 20, 20);
     path.toggleInverseFillType();
 
     SkPaint paint;
 
-    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
-    canvas.get()->save();
-    canvas.get()->clipRect(SkRect::MakeWH(SkIntToScalar(19), SkIntToScalar(11)));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->save();
+    canvas->clipRect(SkRect::MakeWH(19, 11));
 
     paint.setAntiAlias(false);
-    canvas.get()->drawPath(path, paint);
+    canvas->drawPath(path, paint);
     paint.setAntiAlias(true);
-    canvas.get()->drawPath(path, paint);
+    canvas->drawPath(path, paint);
 
-    canvas.get()->restore();
+    canvas->restore();
 
     // Now do the test again, with the path flipped, so we only draw in the
     // top half of our bounds, and have the clip intersect our bounds at the
     // bottom.
     path.reset();   // preserves our filltype
-    path.moveTo(0, SkIntToScalar(10));
-    path.quadTo(SkIntToScalar(10), SkIntToScalar(20),
-                SkIntToScalar(20), SkIntToScalar(10));
-    canvas.get()->clipRect(SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(19),
-                                            SkIntToScalar(19), SkIntToScalar(11)));
+    path.moveTo(0, 10);
+    path.quadTo(10, 20, 20, 10);
+    canvas->clipRect(SkRect::MakeXYWH(0, 19, 19, 11));
 
     paint.setAntiAlias(false);
-    canvas.get()->drawPath(path, paint);
+    canvas->drawPath(path, paint);
     paint.setAntiAlias(true);
-    canvas.get()->drawPath(path, paint);
+    canvas->drawPath(path, paint);
 }
 
 static void test_bug533() {
@@ -172,8 +170,8 @@ static void test_bug533() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
-    canvas.get()->drawPath(path, paint);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    surface->getCanvas()->drawPath(path, paint);
 }
 
 static void test_crbug_140642() {
@@ -214,8 +212,8 @@ static void test_bigcubic() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
-    canvas.get()->drawPath(path, paint);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    surface->getCanvas()->drawPath(path, paint);
 }
 
 // we used to assert if the bounds of the device (clip) was larger than 32K
@@ -224,13 +222,13 @@ static void test_bigcubic() {
 static void test_giantaa() {
     const int W = 400;
     const int H = 400;
-    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(33000, 10));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(33000, 10));
 
     SkPaint paint;
     paint.setAntiAlias(true);
     SkPath path;
     path.addOval(SkRect::MakeXYWH(-10, -10, 20 + W, 20 + H));
-    canvas.get()->drawPath(path, paint);
+    surface->getCanvas()->drawPath(path, paint);
 }
 
 // Extremely large path_length/dash_length ratios may cause infinite looping

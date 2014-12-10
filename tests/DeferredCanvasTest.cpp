@@ -32,7 +32,7 @@ static void create(SkBitmap* bm, SkColor color) {
 }
 
 static SkSurface* createSurface(SkColor color) {
-    SkSurface* surface = SkSurface::NewRasterPMColor(gWidth, gHeight);
+    SkSurface* surface = SkSurface::NewRasterN32Premul(gWidth, gHeight);
     surface->getCanvas()->clear(color);
     return surface;
 }
@@ -451,7 +451,7 @@ private:
 // Verifies that the deferred canvas triggers a flush when its memory
 // limit is exceeded
 static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
 
     NotificationCounter notificationCounter;
@@ -486,7 +486,7 @@ static void TestDeferredCanvasSilentFlush(skiatest::Reporter* reporter) {
 }
 
 static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
 
     NotificationCounter notificationCounter;
@@ -566,7 +566,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
 }
 
 static void TestDeferredCanvasSkip(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
 
     NotificationCounter notificationCounter;
@@ -585,7 +585,7 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
     // This test covers a code path that inserts bitmaps into the bitmap heap through the
     // flattening of SkBitmapProcShaders. The refcount in the bitmap heap is maintained through
     // the flattening and unflattening of the shader.
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
     // test will fail if nbIterations is not in sync with
     // BITMAPS_TO_KEEP in SkGPipeWrite.cpp
@@ -620,7 +620,7 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
 }
 
 static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
 
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
@@ -811,7 +811,7 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
 }
 
 static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
 
     NotificationCounter notificationCounter;
@@ -842,7 +842,7 @@ static void TestDeferredCanvasGetCanvasSize(skiatest::Reporter* reporter) {
 
     SkAutoTUnref<SkSurface> surface(createSurface(0xFFFFFFFF));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
-    SkSurface* newSurface = SkSurface::NewRasterPMColor(4, 4);
+    SkSurface* newSurface = SkSurface::NewRasterN32Premul(4, 4);
     SkAutoTUnref<SkSurface> aur(newSurface);
 
     for (int i = 0; i < 2; ++i) {

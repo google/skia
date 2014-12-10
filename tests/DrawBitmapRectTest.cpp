@@ -43,7 +43,7 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, installSuccess);
     // now our bitmap has a pixelref, but we know it will fail to lock
 
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(200, 200));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(200, 200));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkPaint::FilterLevel levels[] = {

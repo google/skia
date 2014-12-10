@@ -73,7 +73,7 @@ static void createBitmap(SkBitmap* bm, SkColor color) {
 }
 
 static SkSurface* createSurface(SkColor color) {
-    SkSurface* surface = SkSurface::NewRasterPMColor(kWidth, kHeight);
+    SkSurface* surface = SkSurface::NewRasterN32Premul(kWidth, kHeight);
     surface->getCanvas()->clear(color);
     return surface;
 }
@@ -748,7 +748,13 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
 
 static void test_newraster(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
-    SkCanvas* canvas = SkCanvas::NewRaster(info);
+    const size_t minRowBytes = info.minRowBytes();
+    const size_t size = info.getSafeSize(minRowBytes);
+    SkAutoMalloc storage(size);
+    SkPMColor* baseAddr = static_cast<SkPMColor*>(storage.get());
+    sk_bzero(baseAddr, size);
+
+    SkCanvas* canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
 
     SkImageInfo info2;
@@ -756,6 +762,7 @@ static void test_newraster(skiatest::Reporter* reporter) {
     const SkPMColor* addr = (const SkPMColor*)canvas->peekPixels(&info2, &rowBytes);
     REPORTER_ASSERT(reporter, addr);
     REPORTER_ASSERT(reporter, info == info2);
+    REPORTER_ASSERT(reporter, minRowBytes == rowBytes);
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             REPORTER_ASSERT(reporter, 0 == addr[x]);
@@ -766,19 +773,19 @@ static void test_newraster(skiatest::Reporter* reporter) {
 
     // now try a deliberately bad info
     info = info.makeWH(-1, info.height());
-    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
+    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
 
     // too big
     info = info.makeWH(1 << 30, 1 << 30);
-    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
+    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
 
     // not a valid pixel type
     info = SkImageInfo::Make(10, 10, kUnknown_SkColorType, info.alphaType());
-    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
+    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
 
     // We should succeed with a zero-sized valid info
     info = SkImageInfo::MakeN32Premul(0, 0);
-    canvas = SkCanvas::NewRaster(info);
+    canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
     SkDELETE(canvas);
 }
