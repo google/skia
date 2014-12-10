@@ -63,9 +63,6 @@ public:
                               const SkRect& dst,
                               const SkPaint* paint = NULL,
                               DrawBitmapRectFlags flags = kNone_DrawBitmapRectFlag) SK_OVERRIDE;
-    void drawBitmapMatrix(const SkBitmap& bitmap,
-                          const SkMatrix& m,
-                          const SkPaint* paint = NULL) SK_OVERRIDE;
     void drawBitmapNine(const SkBitmap& bitmap,
                         const SkIRect& center,
                         const SkRect& dst,

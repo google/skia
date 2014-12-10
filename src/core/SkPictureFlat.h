@@ -27,7 +27,7 @@ enum DrawType {
     CLIP_RRECT,
     CONCAT,
     DRAW_BITMAP,
-    DRAW_BITMAP_MATRIX,
+    DRAW_BITMAP_MATRIX, // deprecated, M41 was last Chromium version to write this to an .skp
     DRAW_BITMAP_NINE,
     DRAW_BITMAP_RECT_TO_RECT,
     DRAW_CLEAR,

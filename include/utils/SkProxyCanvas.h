@@ -38,8 +38,6 @@ public:
     virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst, const SkPaint* paint,
                                       DrawBitmapRectFlags flags) SK_OVERRIDE;
-    virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                  const SkPaint* paint = NULL) SK_OVERRIDE;
     virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
                            const SkPaint* paint = NULL) SK_OVERRIDE;
     virtual void drawImageRect(const SkImage* image, const SkRect* src,

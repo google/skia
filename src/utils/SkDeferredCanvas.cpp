@@ -829,17 +829,6 @@ void SkDeferredCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
     this->recordedDrawCommand();
 }
 
-
-void SkDeferredCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
-                                        const SkMatrix& m,
-                                        const SkPaint* paint) {
-    // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
-    // covers canvas entirely and transformed bitmap covers canvas entirely
-    AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
-    this->drawingCanvas()->drawBitmapMatrix(bitmap, m, paint);
-    this->recordedDrawCommand();
-}
-
 void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {

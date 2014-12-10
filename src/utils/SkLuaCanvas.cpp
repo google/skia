@@ -223,14 +223,6 @@ void SkLuaCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src
     }
 }
 
-void SkLuaCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                   const SkPaint* paint) {
-    AUTO_LUA("drawBitmapMatrix");
-    if (paint) {
-        lua.pushPaint(*paint, "paint");
-    }
-}
-
 void SkLuaCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                                const SkPaint* paint) {
     AUTO_LUA("drawSprite");

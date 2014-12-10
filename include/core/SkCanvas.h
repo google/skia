@@ -853,9 +853,6 @@ public:
         this->drawBitmapRectToRect(bitmap, realSrcPtr, dst, paint, flags);
     }
 
-    virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                  const SkPaint* paint = NULL);
-
     /**
      *  Draw the bitmap stretched differentially to fit into dst.
      *  center is a rect within the bitmap, and logically divides the bitmap

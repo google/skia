@@ -189,21 +189,6 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkDrawBitmapMatrixCommand : public SkDrawCommand {
-public:
-    SkDrawBitmapMatrixCommand(const SkBitmap& bitmap, const SkMatrix& matrix,
-                              const SkPaint* paint);
-    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
-    virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
-private:
-    SkBitmap fBitmap;
-    SkMatrix fMatrix;
-    SkPaint  fPaint;
-    SkPaint* fPaintPtr;
-
-    typedef SkDrawCommand INHERITED;
-};
-
 class SkDrawBitmapNineCommand : public SkDrawCommand {
 public:
     SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,

@@ -240,10 +240,6 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
     const SkRect testRect =
         SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
                          SkIntToScalar(4), SkIntToScalar(5));
-    SkMatrix testMatrix;
-    testMatrix.reset();
-    testMatrix.setScale(SkIntToScalar(2), SkIntToScalar(3));
-
     SkPath testPath;
     testPath.addRect(SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
                                       SkIntToScalar(2), SkIntToScalar(1)));
@@ -305,7 +301,6 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
     EXPECT_COPY_ON_WRITE(drawPath(testPath, testPaint))
     EXPECT_COPY_ON_WRITE(drawBitmap(testBitmap, 0, 0))
     EXPECT_COPY_ON_WRITE(drawBitmapRect(testBitmap, NULL, testRect))
-    EXPECT_COPY_ON_WRITE(drawBitmapMatrix(testBitmap, testMatrix, NULL))
     EXPECT_COPY_ON_WRITE(drawBitmapNine(testBitmap, testIRect, testRect, NULL))
     EXPECT_COPY_ON_WRITE(drawSprite(testBitmap, 0, 0, NULL))
     EXPECT_COPY_ON_WRITE(drawText(testText.c_str(), testText.size(), 0, 1, testPaint))

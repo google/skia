@@ -42,7 +42,6 @@ namespace SkRecords {
     M(AddComment)                                                   \
     M(EndCommentGroup)                                              \
     M(DrawBitmap)                                                   \
-    M(DrawBitmapMatrix)                                             \
     M(DrawBitmapNine)                                               \
     M(DrawBitmapRectToRect)                                         \
     M(DrawBitmapRectToRectBleed)                                    \
@@ -246,7 +245,6 @@ RECORD4(DrawBitmap, Optional<SkPaint>, paint,
                     ImmutableBitmap, bitmap,
                     SkScalar, left,
                     SkScalar, top);
-RECORD3(DrawBitmapMatrix, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, TypedMatrix, matrix);
 RECORD4(DrawBitmapNine, Optional<SkPaint>, paint,
                         ImmutableBitmap, bitmap,
                         SkIRect, center,

@@ -202,14 +202,6 @@ void SkNWayCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* sr
     }
 }
 
-void SkNWayCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                    const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawBitmapMatrix(bitmap, m, paint);
-    }
-}
-
 void SkNWayCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                   const SkRect& dst, const SkPaint* paint) {
     Iter iter(fList);

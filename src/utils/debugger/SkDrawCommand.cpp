@@ -300,35 +300,6 @@ bool SkDrawBitmapCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawBitmapMatrixCommand::SkDrawBitmapMatrixCommand(const SkBitmap& bitmap,
-                                                     const SkMatrix& matrix,
-                                                     const SkPaint* paint)
-    : INHERITED(DRAW_BITMAP_MATRIX) {
-    fBitmap = bitmap;
-    fMatrix = matrix;
-    if (paint) {
-        fPaint = *paint;
-        fPaintPtr = &fPaint;
-    } else {
-        fPaintPtr = NULL;
-    }
-
-    fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    fInfo.push(SkObjectParser::MatrixToString(matrix));
-    if (paint) {
-        fInfo.push(SkObjectParser::PaintToString(*paint));
-    }
-}
-
-void SkDrawBitmapMatrixCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapMatrix(fBitmap, fMatrix, fPaintPtr);
-}
-
-bool SkDrawBitmapMatrixCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap);
-    return true;
-}
-
 SkDrawBitmapNineCommand::SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
                                                  const SkRect& dst, const SkPaint* paint)
     : INHERITED(DRAW_BITMAP_NINE) {

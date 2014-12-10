@@ -94,7 +94,8 @@ protected:
 
         paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
         fInputBitmap.notifyPixelsChanged();
-        canvas.drawBitmapMatrix( fInputBitmap, fMatrix, &paint );
+        canvas.concat(fMatrix);
+        canvas.drawBitmap(fInputBitmap, 0, 0, &paint );
     }
 private:
     typedef BitmapScaleBench INHERITED;

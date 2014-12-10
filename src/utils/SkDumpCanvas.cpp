@@ -373,15 +373,6 @@ void SkDumpCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* sr
                bs.c_str(), rs.c_str());
 }
 
-void SkDumpCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                     const SkPaint* paint) {
-    SkString bs, ms;
-    bitmap.toString(&bs);
-    m.toString(&ms);
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmapMatrix(%s %s)",
-               bs.c_str(), ms.c_str());
-}
-
 void SkDumpCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                                const SkPaint* paint) {
     SkString str;

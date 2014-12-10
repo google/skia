@@ -78,7 +78,8 @@ protected:
 
             canvas->save();
             canvas->translate(0, (SkScalar)curY);
-            canvas->drawBitmapMatrix( fBM, matrix, &paint );
+            canvas->concat(matrix);
+            canvas->drawBitmap(fBM, 0, 0, &paint);
             canvas->restore();
 
             curHeight = (int) (fBM.height() * curScale + 2);

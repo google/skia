@@ -1779,7 +1779,6 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
     // Don't care what these record, as long as they're legal.
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
     canvas->drawBitmapRectToRect(bitmap, &rect, rect, &paint, SkCanvas::kNone_DrawBitmapRectFlag);
-    canvas->drawBitmapMatrix(bitmap, SkMatrix::I(), &paint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
     canvas->drawSprite(bitmap, 1, 1);
 }

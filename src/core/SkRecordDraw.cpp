@@ -101,7 +101,6 @@ DRAW(AddComment, addComment(r.key, r.value));
 DRAW(EndCommentGroup, endCommentGroup());
 
 DRAW(DrawBitmap, drawBitmap(shallow_copy(r.bitmap), r.left, r.top, r.paint));
-DRAW(DrawBitmapMatrix, drawBitmapMatrix(shallow_copy(r.bitmap), r.matrix, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(shallow_copy(r.bitmap), r.center, r.dst, r.paint));
 DRAW(DrawBitmapRectToRect,
         drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint,
@@ -435,11 +434,6 @@ private:
         return this->adjustAndMap(
                 SkRect::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height()),
                 op.paint);
-    }
-    Bounds bounds(const DrawBitmapMatrix& op) const {
-        SkRect dst = SkRect::MakeWH(op.bitmap.width(), op.bitmap.height());
-        op.matrix.mapRect(&dst);
-        return this->adjustAndMap(dst, op.paint);
     }
 
     Bounds bounds(const DrawPath& op) const {

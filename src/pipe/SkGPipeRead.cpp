@@ -590,19 +590,6 @@ static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     }
 }
 
-static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
-                                SkGPipeState* state) {
-    BitmapHolder holder(reader, op32, state);
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
-    SkMatrix matrix;
-    reader->readMatrix(&matrix);
-    const SkBitmap* bitmap = holder.getBitmap();
-    if (state->shouldDraw()) {
-        canvas->drawBitmapMatrix(*bitmap, matrix,
-                                 hasPaint ? &state->paint() : NULL);
-    }
-}
-
 static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
                               uint32_t op32, SkGPipeState* state) {
     BitmapHolder holder(reader, op32, state);
@@ -825,7 +812,6 @@ static const ReadProc gReadTable[] = {
     clipRRect_rp,
     concat_rp,
     drawBitmap_rp,
-    drawBitmapMatrix_rp,
     drawBitmapNine_rp,
     drawBitmapRect_rp,
     drawClear_rp,

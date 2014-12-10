@@ -24,24 +24,22 @@ static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
     return SkSize::Make(bounds.width(), bounds.height());
 }
 
-static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, SkScalar dx) {
+static void draw_cell(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, SkScalar dx,
+                      SkPaint::FilterLevel lvl) {
     SkPaint paint;
+    paint.setFilterLevel(lvl);
 
     SkAutoCanvasRestore acr(canvas, true);
-
-    canvas->drawBitmapMatrix(bm, mat, &paint);
-
-    paint.setFilterLevel(SkPaint::kLow_FilterLevel);
     canvas->translate(dx, 0);
-    canvas->drawBitmapMatrix(bm, mat, &paint);
+    canvas->concat(mat);
+    canvas->drawBitmap(bm, 0, 0, &paint);
+}
 
-    paint.setFilterLevel(SkPaint::kMedium_FilterLevel);
-    canvas->translate(dx, 0);
-    canvas->drawBitmapMatrix(bm, mat, &paint);
-
-    paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
-    canvas->translate(dx, 0);
-    canvas->drawBitmapMatrix(bm, mat, &paint);
+static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, SkScalar dx) {
+    draw_cell(canvas, bm, mat, 0 * dx, SkPaint::kNone_FilterLevel);
+    draw_cell(canvas, bm, mat, 1 * dx, SkPaint::kLow_FilterLevel);
+    draw_cell(canvas, bm, mat, 2 * dx, SkPaint::kMedium_FilterLevel);
+    draw_cell(canvas, bm, mat, 3 * dx, SkPaint::kHigh_FilterLevel);
 }
 
 class FilterBitmapGM : public skiagm::GM {

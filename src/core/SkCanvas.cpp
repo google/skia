@@ -1961,13 +1961,6 @@ void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
     this->internalDrawBitmapRect(bitmap, src, dst, paint, flags);
 }
 
-void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
-                                const SkPaint* paint) {
-    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapMatrix()");
-    SkDEBUGCODE(bitmap.validate();)
-    this->internalDrawBitmap(bitmap, matrix, paint);
-}
-
 void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {

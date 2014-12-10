@@ -245,8 +245,6 @@ public:
     virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
                                       const SkRect& dst, const SkPaint* paint,
                                       DrawBitmapRectFlags flags) SK_OVERRIDE;
-    virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
-                                  const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,
@@ -817,16 +815,6 @@ void SkGPipeCanvas::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src,
             fWriter.writeRect(*src);
         }
         fWriter.writeRect(dst);
-    }
-}
-
-void SkGPipeCanvas::drawBitmapMatrix(const SkBitmap& bm, const SkMatrix& matrix,
-                                     const SkPaint* paint) {
-    NOTIFY_SETUP(this);
-    size_t opBytesNeeded = matrix.writeToMemory(NULL);
-
-    if (this->commonDrawBitmap(bm, kDrawBitmapMatrix_DrawOp, 0, opBytesNeeded, paint)) {
-        fWriter.writeMatrix(matrix);
     }
 }
 

@@ -40,8 +40,6 @@ public:
     virtual void drawImageRect(const SkImage* image, const SkRect* src,
                                const SkRect& dst,
                                const SkPaint* paint) SK_OVERRIDE;
-    virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                  const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst,
                                 const SkPaint* paint = NULL) SK_OVERRIDE;

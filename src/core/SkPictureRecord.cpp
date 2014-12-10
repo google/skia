@@ -57,7 +57,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         0,  // CLIP_RRECT - no paint
         0,  // CONCAT - no paint
         1,  // DRAW_BITMAP - right after op code
-        1,  // DRAW_BITMAP_MATRIX - right after op code
+        1,  // DRAW_BITMAP_MATRIX - right after op code, deprecated
         1,  // DRAW_BITMAP_NINE - right after op code
         1,  // DRAW_BITMAP_RECT_TO_RECT - right after op code
         0,  // DRAW_CLEAR - no paint
@@ -570,18 +570,6 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
     this->addRectPtr(src);  // may be null
     this->addRect(dst);
     this->addInt(flags);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
-                                       const SkPaint* paint) {
-    // id + paint index + bitmap index + matrix
-    size_t size = 3 * kUInt32Size + matrix.writeToMemory(NULL);
-    size_t initialOffset = this->addDraw(DRAW_BITMAP_MATRIX, &size);
-    SkASSERT(initialOffset+get_paint_offset(DRAW_BITMAP_MATRIX, size) == fWriter.bytesWritten());
-    this->addPaintPtr(paint);
-    this->addBitmap(bitmap);
-    this->addMatrix(matrix);
     this->validate(initialOffset, size);
 }
 

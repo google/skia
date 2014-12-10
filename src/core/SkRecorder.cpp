@@ -179,12 +179,6 @@ void SkRecorder::drawBitmapRectToRect(const SkBitmap& bitmap,
            this->copy(paint), delay_copy(bitmap), this->copy(src), dst);
 }
 
-void SkRecorder::drawBitmapMatrix(const SkBitmap& bitmap,
-                                  const SkMatrix& matrix,
-                                  const SkPaint* paint) {
-    APPEND(DrawBitmapMatrix, this->copy(paint), delay_copy(bitmap), matrix);
-}
-
 void SkRecorder::drawBitmapNine(const SkBitmap& bitmap,
                                 const SkIRect& center,
                                 const SkRect& dst,

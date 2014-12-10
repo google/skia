@@ -469,6 +469,12 @@ static SkString sweepCode(const SkShader::GradientInfo& info,
     return function;
 }
 
+static void drawBitmapMatrix(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& matrix) {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->concat(matrix);
+    canvas->drawBitmap(bm, 0, 0);
+}
+
 class SkPDFShader::State {
 public:
     SkShader::GradientType fType;
@@ -1015,14 +1021,14 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
         SkMatrix xMirror;
         xMirror.setScale(-1, 1);
         xMirror.postTranslate(2 * width, 0);
-        canvas.drawBitmapMatrix(*image, xMirror);
+        drawBitmapMatrix(&canvas, *image, xMirror);
         patternBBox.fRight += width;
     }
     if (tileModes[1] == SkShader::kMirror_TileMode) {
         SkMatrix yMirror;
         yMirror.setScale(SK_Scalar1, -SK_Scalar1);
         yMirror.postTranslate(0, 2 * height);
-        canvas.drawBitmapMatrix(*image, yMirror);
+        drawBitmapMatrix(&canvas, *image, yMirror);
         patternBBox.fBottom += height;
     }
     if (tileModes[0] == SkShader::kMirror_TileMode &&
@@ -1030,7 +1036,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
         SkMatrix mirror;
         mirror.setScale(-1, -1);
         mirror.postTranslate(2 * width, 2 * height);
-        canvas.drawBitmapMatrix(*image, mirror);
+        drawBitmapMatrix(&canvas, *image, mirror);
     }
 
     // Then handle Clamping, which requires expanding the pattern canvas to
@@ -1081,12 +1087,12 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
             SkMatrix leftMatrix;
             leftMatrix.setScale(-deviceBounds.left(), 1);
             leftMatrix.postTranslate(deviceBounds.left(), 0);
-            canvas.drawBitmapMatrix(left, leftMatrix);
+            drawBitmapMatrix(&canvas, left, leftMatrix);
 
             if (tileModes[1] == SkShader::kMirror_TileMode) {
                 leftMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 leftMatrix.postTranslate(0, 2 * height);
-                canvas.drawBitmapMatrix(left, leftMatrix);
+                drawBitmapMatrix(&canvas, left, leftMatrix);
             }
             patternBBox.fLeft = 0;
         }
@@ -1099,12 +1105,12 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
             SkMatrix rightMatrix;
             rightMatrix.setScale(deviceBounds.right() - width, 1);
             rightMatrix.postTranslate(width, 0);
-            canvas.drawBitmapMatrix(right, rightMatrix);
+            drawBitmapMatrix(&canvas, right, rightMatrix);
 
             if (tileModes[1] == SkShader::kMirror_TileMode) {
                 rightMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 rightMatrix.postTranslate(0, 2 * height);
-                canvas.drawBitmapMatrix(right, rightMatrix);
+                drawBitmapMatrix(&canvas, right, rightMatrix);
             }
             patternBBox.fRight = deviceBounds.width();
         }
@@ -1119,12 +1125,12 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
             SkMatrix topMatrix;
             topMatrix.setScale(SK_Scalar1, -deviceBounds.top());
             topMatrix.postTranslate(0, deviceBounds.top());
-            canvas.drawBitmapMatrix(top, topMatrix);
+            drawBitmapMatrix(&canvas, top, topMatrix);
 
             if (tileModes[0] == SkShader::kMirror_TileMode) {
                 topMatrix.postScale(-1, 1);
                 topMatrix.postTranslate(2 * width, 0);
-                canvas.drawBitmapMatrix(top, topMatrix);
+                drawBitmapMatrix(&canvas, top, topMatrix);
             }
             patternBBox.fTop = 0;
         }
@@ -1137,12 +1143,12 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
             SkMatrix bottomMatrix;
             bottomMatrix.setScale(SK_Scalar1, deviceBounds.bottom() - height);
             bottomMatrix.postTranslate(0, height);
-            canvas.drawBitmapMatrix(bottom, bottomMatrix);
+            drawBitmapMatrix(&canvas, bottom, bottomMatrix);
 
             if (tileModes[0] == SkShader::kMirror_TileMode) {
                 bottomMatrix.postScale(-1, 1);
                 bottomMatrix.postTranslate(2 * width, 0);
-                canvas.drawBitmapMatrix(bottom, bottomMatrix);
+                drawBitmapMatrix(&canvas, bottom, bottomMatrix);
             }
             patternBBox.fBottom = deviceBounds.height();
         }

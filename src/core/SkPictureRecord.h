@@ -41,8 +41,6 @@ public:
     virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
                                       const SkRect& dst, const SkPaint* paint,
                                       DrawBitmapRectFlags flags) SK_OVERRIDE;
-    virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
-                                  const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap&, int left, int top,

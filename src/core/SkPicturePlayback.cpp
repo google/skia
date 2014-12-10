@@ -186,7 +186,10 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
             SkMatrix matrix;
             reader->readMatrix(&matrix);
-            canvas->drawBitmapMatrix(bitmap, matrix, paint);
+
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->concat(matrix);
+            canvas->drawBitmap(bitmap, 0, 0, paint);
         } break;
         case DRAW_BITMAP_NINE: {
             const SkPaint* paint = fPictureData->getPaint(reader);

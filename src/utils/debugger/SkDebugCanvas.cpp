@@ -472,11 +472,6 @@ void SkDebugCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
     this->addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint, flags));
 }
 
-void SkDebugCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
-                                     const SkMatrix& matrix, const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawBitmapMatrixCommand(bitmap, matrix, paint));
-}
-
 void SkDebugCanvas::drawBitmapNine(const SkBitmap& bitmap,
         const SkIRect& center, const SkRect& dst, const SkPaint* paint) {
     this->addDrawCommand(new SkDrawBitmapNineCommand(bitmap, center, dst, paint));

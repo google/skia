@@ -40,8 +40,6 @@ public:
                                       const SkRect& dst,
                                       const SkPaint* paint,
                                       DrawBitmapRectFlags flags) SK_OVERRIDE {}
-    virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
-                                  const SkPaint* paint = NULL) SK_OVERRIDE {}
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE {}
     virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
