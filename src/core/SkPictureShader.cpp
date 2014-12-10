@@ -34,14 +34,17 @@ public:
         , fTile(tile)
         , fTmx(tmx)
         , fTmy(tmy)
-        , fScale(scale)
-        , fLocalMatrix(localMatrix) {
+        , fScale(scale) {
+
+        for (int i = 0; i < 9; ++i) {
+            fLocalMatrixStorage[i] = localMatrix[i];
+        }
 
         static const size_t keySize = sizeof(fPictureID) +
                                       sizeof(fTile) +
                                       sizeof(fTmx) + sizeof(fTmy) +
                                       sizeof(fScale) +
-                                      sizeof(fLocalMatrix);
+                                      sizeof(fLocalMatrixStorage);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fPictureID) == keySize);
         this->init(&gBitmapSkaderKeyNamespaceLabel, keySize);
@@ -52,7 +55,7 @@ private:
     SkRect             fTile;
     SkShader::TileMode fTmx, fTmy;
     SkSize             fScale;
-    SkMatrix           fLocalMatrix;
+    SkScalar           fLocalMatrixStorage[9];
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
 };
