@@ -45,6 +45,5 @@ void GrGLLegacyNvprProgramBuilder::emitTransforms(const GrPendingFragmentStage& 
 
 GrGLProgram* GrGLLegacyNvprProgramBuilder::createProgram(GrGLuint programID) {
     return SkNEW_ARGS(GrGLLegacyNvprProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
-                                              fXferProcessor, fFragmentProcessors.get(),
-                                              fTexCoordSetCnt));
+                                              fFragmentProcessors.get(),  fTexCoordSetCnt));
 }

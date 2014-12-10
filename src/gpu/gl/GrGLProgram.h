@@ -141,7 +141,6 @@ protected:
                 GrGLuint programID,
                 const UniformInfoArray&,
                 GrGLInstalledGeoProc* geometryProcessor,
-                GrGLInstalledXferProc* xferProcessor,
                 GrGLInstalledFragProcs* fragmentProcessors);
 
     // Sets the texture units for samplers.
@@ -181,7 +180,6 @@ protected:
 
     // the installed effects
     SkAutoTDelete<GrGLInstalledGeoProc> fGeometryProcessor;
-    SkAutoTDelete<GrGLInstalledXferProc> fXferProcessor;
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
     GrProgramDesc fDesc;
@@ -207,7 +205,6 @@ protected:
                         const BuiltinUniformHandles&,
                         GrGLuint programID,
                         const UniformInfoArray&,
-                        GrGLInstalledXferProc* xferProcessor,
                         GrGLInstalledFragProcs* fragmentProcessors);
     virtual void onSetMatrixAndRenderTargetHeight(const GrOptDrawState&);
 
@@ -226,7 +223,6 @@ private:
                     const BuiltinUniformHandles&,
                     GrGLuint programID,
                     const UniformInfoArray&,
-                    GrGLInstalledXferProc* xferProcessor,
                     GrGLInstalledFragProcs* fragmentProcessors,
                     const SeparableVaryingInfoArray& separableVaryings);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
@@ -256,8 +252,7 @@ private:
                           const BuiltinUniformHandles&,
                           GrGLuint programID,
                           const UniformInfoArray&,
-                          GrGLInstalledXferProc* xp,
-                          GrGLInstalledFragProcs* fps,
+                          GrGLInstalledFragProcs* fragmentProcessors,
                           int texCoordSetCnt);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
     virtual void setTransformData(const GrPendingFragmentStage&,

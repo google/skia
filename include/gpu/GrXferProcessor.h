@@ -9,13 +9,10 @@
 #define GrXferProcessor_DEFINED
 
 #include "GrColor.h"
-#include "GrProcessor.h"
+#include "GrFragmentProcessor.h"
 #include "GrTypes.h"
 #include "SkXfermode.h"
 
-class GrDrawTargetCaps;
-class GrGLCaps;
-class GrGLXferProcessor;
 class GrProcOptInfo;
 
 /**
@@ -31,20 +28,8 @@ class GrProcOptInfo;
  * A GrXferProcessor is never installed directly into our draw state, but instead is created from a
  * GrXPFactory once we have finalized the state of our draw.
  */
-class GrXferProcessor : public GrProcessor {
+class GrXferProcessor : public GrFragmentProcessor {
 public:
-    /**
-     * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
-     * processor's GL backend implementation.
-     */
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const = 0;
-
-    /** Returns a new instance of the appropriate *GL* implementation class
-        for the given GrXferProcessor; caller is responsible for deleting
-        the object. */
-    virtual GrGLXferProcessor* createGLInstance() const = 0;
-
     /**
      * Optimizations for blending / coverage that an OptDrawState should apply to itself.
      */
@@ -89,8 +74,7 @@ public:
                                       bool colorWriteDisabled,
                                       bool doesStencilWrite,
                                       GrColor* color,
-                                      uint8_t* coverage,
-                                      const GrDrawTargetCaps& caps) = 0;
+                                      uint8_t* coverage) = 0;
 
     struct BlendInfo {
         GrBlendCoeff fSrcBlend;
@@ -103,27 +87,6 @@ public:
     /** Will this prceossor read the destination pixel value? */
     bool willReadDstColor() const { return fWillReadDstColor; }
 
-    /** 
-     * Returns whether or not this xferProcossor will set a secondary output to be used with dual
-     * source blending.
-     */
-    virtual bool hasSecondaryOutput() const { return false; }
-
-    /** Returns true if this and other processor conservatively draw identically. It can only return
-        true when the two processor are of the same subclass (i.e. they return the same object from
-        from getFactory()).
-
-        A return value of true from isEqual() should not be used to test whether the processor would
-        generate the same shader code. To test for identical code generation use getGLProcessorKey*/
-    
-    bool isEqual(const GrXferProcessor& that) const {
-        if (this->classID() != that.classID()) {
-            return false;
-        }
-        return this->onIsEqual(that);
-    }
-   
-
 protected:
     GrXferProcessor() : fWillReadDstColor(false) {}
 
@@ -135,7 +98,6 @@ protected:
     void setWillReadDstColor() { fWillReadDstColor = true; }
 
 private:
-    virtual bool onIsEqual(const GrXferProcessor&) const = 0;
 
     bool         fWillReadDstColor;
 

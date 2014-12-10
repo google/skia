@@ -62,10 +62,7 @@ public:
 
     virtual const char* name() const = 0;
 
-    /**
-     * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
-     * processor's GL backend implementation.
-     */
+    /** Implemented using GLProcessor::GenKey as described in this class's comment. */
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const = 0;

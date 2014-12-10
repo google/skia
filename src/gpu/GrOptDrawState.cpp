@@ -44,8 +44,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                                    drawState.isColorWriteDisabled(),
                                                    drawState.getStencil().doesWrite(),
                                                    &fColor,
-                                                   &fCoverage,
-                                                   caps);
+                                                   &fCoverage);
     }
 
     // When path rendering the stencil settings are not always set on the draw state
@@ -147,6 +146,42 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         init.fCoverage = this->getCoverage();
         fGeometryProcessor->initBatchTracker(&fBatchTracker, init);
     }
+
+    this->setOutputStateInfo(drawState, coverageColor, optFlags, caps);
+}
+
+void GrOptDrawState::setOutputStateInfo(const GrDrawState& ds,
+                                        GrColor coverage,
+                                        GrXferProcessor::OptFlags optFlags,
+                                        const GrDrawTargetCaps& caps) {
+    // Set this default and then possibly change our mind if there is coverage.
+    fDescInfo.fPrimaryOutputType = GrProgramDesc::kModulate_PrimaryOutputType;
+    fDescInfo.fSecondaryOutputType = GrProgramDesc::kNone_SecondaryOutputType;
+
+    // Determine whether we should use dual source blending or shader code to keep coverage
+    // separate from color.
+    bool keepCoverageSeparate = !(optFlags & GrXferProcessor::kSetCoverageDrawing_OptFlag);
+    if (keepCoverageSeparate && !ds.hasSolidCoverage(coverage)) {
+        if (caps.dualSourceBlendingSupport()) {
+            if (kZero_GrBlendCoeff == fDstBlend) {
+                // write the coverage value to second color
+                fDescInfo.fSecondaryOutputType = GrProgramDesc::kCoverage_SecondaryOutputType;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            } else if (kSA_GrBlendCoeff == fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
+                fDescInfo.fSecondaryOutputType = GrProgramDesc::kCoverageISA_SecondaryOutputType;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            } else if (kSC_GrBlendCoeff == fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
+                fDescInfo.fSecondaryOutputType = GrProgramDesc::kCoverageISC_SecondaryOutputType;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            }
+        } else if (fDescInfo.fReadsDst &&
+                   kOne_GrBlendCoeff == fSrcBlend &&
+                   kZero_GrBlendCoeff == fDstBlend) {
+            fDescInfo.fPrimaryOutputType = GrProgramDesc::kCombineWithDst_PrimaryOutputType;
+        }
+    }
 }
 
 void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
@@ -224,10 +259,6 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
             return false;
         }
     } else if (that.hasGeometryProcessor()) {
-        return false;
-    }
-
-    if (!this->getXferProcessor()->isEqual(*that.getXferProcessor())) {
         return false;
     }
 

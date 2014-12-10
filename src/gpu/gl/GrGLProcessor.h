@@ -117,4 +117,14 @@ private:
     typedef GrGLProcessor INHERITED;
 };
 
+class GrGLXferProcessor : public GrGLFragmentProcessor {
+public:
+    GrGLXferProcessor() {}
+    
+    virtual ~GrGLXferProcessor() {}
+
+private:
+    typedef GrGLFragmentProcessor INHERITED;
+};
+
 #endif

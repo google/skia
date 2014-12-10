@@ -55,6 +55,36 @@ public:
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Stage Output Types
+    ////
+
+    enum PrimaryOutputType {
+        // Modulate color and coverage, write result as the color output.
+        kModulate_PrimaryOutputType,
+        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
+        // can only be set if fDstReadKey is non-zero.
+        kCombineWithDst_PrimaryOutputType,
+
+        kPrimaryOutputTypeCnt,
+    };
+
+    enum SecondaryOutputType {
+        // There is no secondary output
+        kNone_SecondaryOutputType,
+        // Writes coverage as the secondary output. Only set if dual source blending is supported
+        // and primary output is kModulate.
+        kCoverage_SecondaryOutputType,
+        // Writes coverage * (1 - colorA) as the secondary output. Only set if dual source blending
+        // is supported and primary output is kModulate.
+        kCoverageISA_SecondaryOutputType,
+        // Writes coverage * (1 - colorRGBA) as the secondary output. Only set if dual source
+        // blending is supported and primary output is kModulate.
+        kCoverageISC_SecondaryOutputType,
+
+        kSecondaryOutputTypeCnt,
+    };
+
     // Specifies where the initial color comes from before the stages are applied.
     enum ColorInput {
         kAllOnes_ColorInput,
@@ -74,6 +104,9 @@ public:
 
         ColorInput                  fColorInput : 8;
         ColorInput                  fCoverageInput : 8;
+
+        PrimaryOutputType           fPrimaryOutputType : 8;
+        SecondaryOutputType         fSecondaryOutputType : 8;
 
         SkBool8                     fHasGeometryProcessor;
         int8_t                      fColorEffectCnt;
@@ -107,7 +140,10 @@ public:
                    fInputCoverageIsUsed == that.fInputCoverageIsUsed &&
                    fReadsDst == that.fReadsDst &&
                    fReadsFragPosition == that.fReadsFragPosition &&
-                   fRequiresLocalCoordAttrib == that.fRequiresLocalCoordAttrib;
+                   fRequiresLocalCoordAttrib == that.fRequiresLocalCoordAttrib &&
+                   fPrimaryOutputType == that.fPrimaryOutputType &&
+                   fSecondaryOutputType == that.fSecondaryOutputType;
+
         }
         bool operator!=(const DescInfo& that) const { return !(*this == that); };
         // TODO when GPs control uniform / attribute handling of color / coverage, then we can
@@ -126,6 +162,9 @@ public:
         bool            fReadsFragPosition;
         bool            fRequiresLocalCoordAttrib;
 
+        // Fragment shader color outputs
+        GrProgramDesc::PrimaryOutputType  fPrimaryOutputType : 8;
+        GrProgramDesc::SecondaryOutputType  fSecondaryOutputType : 8;
     };
 
 private:

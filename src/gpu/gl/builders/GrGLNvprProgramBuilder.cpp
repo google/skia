@@ -72,6 +72,5 @@ GrGLProgram* GrGLNvprProgramBuilder::createProgram(GrGLuint programID) {
     // building
     this->resolveSeparableVaryings(programID);
     return SkNEW_ARGS(GrGLNvprProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
-                                        fXferProcessor, fFragmentProcessors.get(),
-                                        fSeparableVaryingInfos));
+                                        fFragmentProcessors.get(), fSeparableVaryingInfos));
 }

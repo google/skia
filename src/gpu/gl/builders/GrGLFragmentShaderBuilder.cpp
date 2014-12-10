@@ -256,6 +256,55 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
     return dual_source_output_name();
 }
 
+void GrGLFragmentShaderBuilder::enableSecondaryOutput(const GrGLSLExpr4& inputColor,
+                                                      const GrGLSLExpr4& inputCoverage) {
+    this->enableSecondaryOutput();
+    const char* secondaryOutputName = this->getSecondaryColorOutputName();
+    GrGLSLExpr4 coeff(1);
+    switch (fProgramBuilder->header().fSecondaryOutputType) {
+        case GrProgramDesc::kCoverage_SecondaryOutputType:
+            break;
+        case GrProgramDesc::kCoverageISA_SecondaryOutputType:
+            // Get (1-A) into coeff
+            coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inputColor.a());
+            break;
+        case GrProgramDesc::kCoverageISC_SecondaryOutputType:
+            // Get (1-RGBA) into coeff
+            coeff = GrGLSLExpr4(1) - inputColor;
+            break;
+        default:
+            SkFAIL("Unexpected Secondary Output");
+    }
+    // Get coeff * coverage into modulate and then write that to the dual source output.
+    this->codeAppendf("\t%s = %s;\n", secondaryOutputName, (coeff * inputCoverage).c_str());
+}
+
+void GrGLFragmentShaderBuilder::combineColorAndCoverage(const GrGLSLExpr4& inputColor,
+                                                        const GrGLSLExpr4& inputCoverage) {
+    GrGLSLExpr4 fragColor = inputColor * inputCoverage;
+    switch (fProgramBuilder->header().fPrimaryOutputType) {
+        case GrProgramDesc::kModulate_PrimaryOutputType:
+            break;
+        case GrProgramDesc::kCombineWithDst_PrimaryOutputType:
+            {
+                // Tack on "+(1-coverage)dst onto the frag color.
+                GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inputCoverage;
+                GrGLSLExpr4 dstContribution = dstCoeff * GrGLSLExpr4(this->dstColor());
+                fragColor = fragColor + dstContribution;
+            }
+            break;
+        default:
+            SkFAIL("Unknown Primary Output");
+    }
+
+    // On any post 1.10 GLSL supporting GPU, we declare custom output
+    if (k110_GrGLSLGeneration != fProgramBuilder->gpu()->glslGeneration()) {
+        this->enableCustomOutput();
+    }
+
+    this->codeAppendf("\t%s = %s;\n", this->getPrimaryColorOutputName(), fragColor.c_str());
+}
+
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                                                         SkTDArray<GrGLuint>* shaderIds) const {
     GrGpuGL* gpu = fProgramBuilder->gpu();
