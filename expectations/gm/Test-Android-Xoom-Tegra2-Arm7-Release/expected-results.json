@@ -9624,6 +9624,33 @@
       ], 
       "ignore-failure": false
     }, 
+    "tall_stretched_bitmaps_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12451645785916622887
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "tall_stretched_bitmaps_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5504452293780763886
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "tall_stretched_bitmaps_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2480618985045615699
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "testimagefilters_565.png": {
       "allowed-digests": [
         [

@@ -9181,6 +9181,15 @@
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
+    "tall_stretched_bitmaps_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10026647028554335822
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "testimagefilters_565.png": {
       "allowed-digests": [
         [

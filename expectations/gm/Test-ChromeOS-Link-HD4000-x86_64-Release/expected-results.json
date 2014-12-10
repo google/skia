@@ -6936,6 +6936,24 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "tall_stretched_bitmaps_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15371559998374992536
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "tall_stretched_bitmaps_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2202003902911080027
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "testimagefilters_565.png": {
       "allowed-digests": [
         [

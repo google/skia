@@ -14680,6 +14680,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "tall_stretched_bitmaps_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8677038591906448763
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "testimagefilters_565.png": {
       "allowed-digests": [
         [
