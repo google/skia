@@ -31,6 +31,7 @@
     '../bench/BlurBench.cpp',
     '../bench/BlurImageFilterBench.cpp',
     '../bench/BlurRectBench.cpp',
+    '../bench/BlurRectsBench.cpp',
     '../bench/BlurRoundRectBench.cpp',
     '../bench/ChartBench.cpp',
     '../bench/ChecksumBench.cpp',
