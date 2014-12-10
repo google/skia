@@ -36,6 +36,14 @@ public:
     /// @name Stage Output Types
     ////
 
+    enum PrimaryOutputType {
+        // Modulate color and coverage, write result as the color output.
+        kModulate_PrimaryOutputType,
+        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
+        // can only be set if fDstReadKey is non-zero.
+        kCombineWithDst_PrimaryOutputType,
+    };
+
     enum SecondaryOutputType {
         // There is no secondary output
         kNone_SecondaryOutputType,
@@ -52,6 +60,7 @@ public:
         kSecondaryOutputTypeCnt,
     };
 
+    PrimaryOutputType primaryOutputType() const { return fPrimaryOutputType; }
     SecondaryOutputType secondaryOutputType() const { return fSecondaryOutputType; }
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
@@ -77,6 +86,7 @@ private:
         if (fSrcBlend != xp.fSrcBlend ||
             fDstBlend != xp.fDstBlend ||
             fBlendConstant != xp.fBlendConstant ||
+            fPrimaryOutputType != xp.fPrimaryOutputType || 
             fSecondaryOutputType != xp.fSecondaryOutputType) {
             return false;
         }
@@ -99,6 +109,7 @@ private:
     GrBlendCoeff fSrcBlend;
     GrBlendCoeff fDstBlend;
     GrColor      fBlendConstant;
+    PrimaryOutputType fPrimaryOutputType;
     SecondaryOutputType fSecondaryOutputType;
 
     typedef GrXferProcessor INHERITED;

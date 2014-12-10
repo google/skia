@@ -68,6 +68,10 @@ public:
         
         fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
                                args.fInputCoverage);
+        if (GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType == xp.primaryOutputType()){
+            fsBuilder->codeAppendf("%s += (vec4(1.0) - %s) * %s;", args.fOutputPrimary,
+                                   args.fInputCoverage, fsBuilder->dstColor());
+        }
     }
 
     virtual void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
@@ -75,6 +79,7 @@ public:
     static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
                        GrProcessorKeyBuilder* b) {
         const GrPorterDuffXferProcessor& xp = processor.cast<GrPorterDuffXferProcessor>();
+        b->add32(xp.primaryOutputType());
         b->add32(xp.secondaryOutputType());
     };
 
@@ -89,6 +94,7 @@ GrPorterDuffXferProcessor::GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBl
     : fSrcBlend(srcBlend)
     , fDstBlend(dstBlend)
     , fBlendConstant(constant)
+    , fPrimaryOutputType(kModulate_PrimaryOutputType) 
     , fSecondaryOutputType(kNone_SecondaryOutputType) {
     this->initClassID<GrPorterDuffXferProcessor>();
 }
@@ -152,6 +158,10 @@ void GrPorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFla
                 fSecondaryOutputType = kCoverageISC_SecondaryOutputType;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             }
+        } else if (readsDst &&
+                   kOne_GrBlendCoeff == fSrcBlend &&
+                   kZero_GrBlendCoeff == fDstBlend) {
+            fPrimaryOutputType = kCombineWithDst_PrimaryOutputType;
         }
     }
 }
