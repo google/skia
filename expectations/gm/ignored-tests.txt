@@ -71,3 +71,7 @@ pictureimagefilter
 # robertphillips
 imagefiltersscaled
 
+# fmalita
+clipped-bitmap-shaders-clamp
+clipped-bitmap-shaders-clamp-hq
+
