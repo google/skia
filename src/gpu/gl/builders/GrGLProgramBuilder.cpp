@@ -237,9 +237,13 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
         if (GrProgramDesc::kAttribute_ColorInput == header.fColorInput) {
             *inputColor = outputColor;
         }
-        if (GrProgramDesc::kUniform_ColorInput != header.fCoverageInput) {
-            *inputCoverage = outputCoverage;
+
+        // We may have uniform coverage, if so we need to multiply the GPs output by the uniform
+        // coverage
+        if (GrProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
+            fFS.codeAppendf("%s *= %s;", outputCoverage.c_str(), inputCoverage->c_str());
         }
+        *inputCoverage = outputCoverage;
     }
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));

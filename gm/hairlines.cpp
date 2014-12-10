@@ -22,7 +22,7 @@ protected:
         return SkString("hairlines");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(800, 600); }
+    virtual SkISize onISize() { return SkISize::Make(1250, 1250); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         {
@@ -166,6 +166,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         static const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
+        static const SkScalar kWidths[] = { 0, 0.5f, 1.5f };
 
         enum {
             kMargin = 5,
@@ -180,32 +181,34 @@ protected:
         for (int p = 0; p < fPaths.count(); ++p) {
             for (size_t a = 0; a < SK_ARRAY_COUNT(kAlphaValue); ++a) {
                 for (int aa = 0; aa < 2; ++aa) {
-                    const SkRect& bounds = fPaths[p].getBounds();
+                    for (size_t w = 0; w < SK_ARRAY_COUNT(kWidths); w++) {
+                        const SkRect& bounds = fPaths[p].getBounds();
 
-                    if (x + bounds.width() > wrapX) {
-                        canvas->restore();
-                        canvas->translate(0, maxH + SkIntToScalar(kMargin));
+                        if (x + bounds.width() > wrapX) {
+                            canvas->restore();
+                            canvas->translate(0, maxH + SkIntToScalar(kMargin));
+                            canvas->save();
+                            maxH = 0;
+                            x = SkIntToScalar(kMargin);
+                        }
+
+                        SkPaint paint;
+                        paint.setARGB(kAlphaValue[a], 0, 0, 0);
+                        paint.setAntiAlias(SkToBool(aa));
+                        paint.setStyle(SkPaint::kStroke_Style);
+                        paint.setStrokeWidth(kWidths[w]);
+
                         canvas->save();
-                        maxH = 0;
-                        x = SkIntToScalar(kMargin);
+                        canvas->translate(-bounds.fLeft, -bounds.fTop);
+                        canvas->drawPath(fPaths[p], paint);
+                        canvas->restore();
+
+                        maxH = SkMaxScalar(maxH, bounds.height());
+
+                        SkScalar dx = bounds.width() + SkIntToScalar(kMargin);
+                        x += dx;
+                        canvas->translate(dx, 0);
                     }
-
-                    SkPaint paint;
-                    paint.setARGB(kAlphaValue[a], 0, 0, 0);
-                    paint.setAntiAlias(SkToBool(aa));
-                    paint.setStyle(SkPaint::kStroke_Style);
-                    paint.setStrokeWidth(0);
-
-                    canvas->save();
-                    canvas->translate(-bounds.fLeft, -bounds.fTop);
-                    canvas->drawPath(fPaths[p], paint);
-                    canvas->restore();
-
-                    maxH = SkMaxScalar(maxH, bounds.height());
-
-                    SkScalar dx = bounds.width() + SkIntToScalar(kMargin);
-                    x += dx;
-                    canvas->translate(dx, 0);
                 }
             }
         }
