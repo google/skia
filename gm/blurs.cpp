@@ -133,3 +133,37 @@ public:
     }
 };
 DEF_GM( return new Blur2RectsGM; )
+
+class Blur2RectsNonNinePatchGM : public skiagm::GM {
+public:
+    SkString onShortName() SK_OVERRIDE {
+        return SkString("blur2rectsnonninepatch");
+    }
+
+    SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(700, 500);
+    }
+
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
+                                                     4.3f))->unref();
+
+        SkRect outer = SkRect::MakeXYWH(10, 110, 100, 100);
+        SkRect inner = SkRect::MakeXYWH(50, 150, 10, 10);
+        SkPath path;
+        path.addRect(outer, SkPath::kCW_Direction);
+        path.addRect(inner, SkPath::kCW_Direction);
+        canvas->drawPath(path, paint);
+
+        SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 40 + 0.25f;
+        canvas->translate(dx, 0);
+        canvas->drawPath(path, paint);
+
+        // Translate to outside of clip bounds.
+        canvas->translate(-dx, 0);
+        canvas->translate(-30, -150);
+        canvas->drawPath(path, paint);
+    }
+};
+DEF_GM( return new Blur2RectsNonNinePatchGM; )
