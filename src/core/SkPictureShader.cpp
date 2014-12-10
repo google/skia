@@ -77,7 +77,14 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
         SkAutoTUnref<SkShader>* result = reinterpret_cast<SkAutoTUnref<SkShader>*>(contextShader);
 
         result->reset(SkRef(rec.fShader.get()));
-        return true;
+
+        SkBitmap tile;
+        rec.fShader.get()->asABitmap(&tile, NULL, NULL);
+        // FIXME: this doesn't protect the pixels from being discarded as soon as we unlock.
+        // Should be handled via a pixel ref generator instead
+        // (https://code.google.com/p/skia/issues/detail?id=3220).
+        SkAutoLockPixels alp(tile, true);
+        return tile.getPixels() != NULL;
     }
 };
 
