@@ -41,11 +41,11 @@ protected:
      */
     void updateInvariantOutputForModulation(GrInvariantOutput* inout) const {
         if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
-            inout->mulByUnknownAlpha();
+            inout->mulByUnknownSingleComponent();
         } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
-            inout->mulByUnknownOpaqueColor();
+            inout->mulByUnknownOpaqueFourComponents();
         } else {
-            inout->mulByUnknownColor();
+            inout->mulByUnknownFourComponents();
         }
     }
 

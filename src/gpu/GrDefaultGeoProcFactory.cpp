@@ -128,11 +128,12 @@ private:
         return gp.fFlags == this->fFlags;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         if (fInCoverage) {
-            inout->mulByUnknownAlpha();
+            out->setUnknownSingleComponent();
         } else {
-            inout->mulByKnownAlpha(255);
+            // uniform coverage
+            out->setKnownSingleComponent(this->coverage());
         }
     }
 

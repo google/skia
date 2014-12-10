@@ -134,6 +134,11 @@ protected:
      */
     void setWillReadDstColor() { fWillReadDstColor = true; }
 
+    /**
+     * Subclass implements this to support getConstantColorComponents(...).
+     */
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
+
 private:
     virtual bool onIsEqual(const GrXferProcessor&) const = 0;
 

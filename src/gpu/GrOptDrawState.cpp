@@ -14,21 +14,36 @@
 #include "GrXferProcessor.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
-                               GrColor color,
-                               uint8_t coverage,
+                               const GrGeometryProcessor* gp,
+                               const GrPathProcessor* pathProc,
                                const GrDrawTargetCaps& caps,
                                const ScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
                                GrGpu::DrawType drawType)
     : fFinalized(false) {
-    GrColor coverageColor = GrColorPackRGBA(coverage, coverage, coverage, coverage);
     fDrawType = drawType;
 
-    const GrProcOptInfo& colorPOI = drawState.colorProcInfo(color);
-    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(coverageColor);
+    // Copy GeometryProcesssor from DS or ODS
+    if (gp) {
+        SkASSERT(!pathProc);
+        SkASSERT(!(GrGpu::IsPathRenderingDrawType(drawType) ||
+                   GrGpu::kStencilPath_DrawType == drawType));
+        fGeometryProcessor.reset(gp);
+        fPrimitiveProcessor.reset(gp);
+    } else {
+        SkASSERT(!gp && pathProc && (GrGpu::IsPathRenderingDrawType(drawType) ||
+                               GrGpu::kStencilPath_DrawType == drawType));
+        fPrimitiveProcessor.reset(pathProc);
+    }
+
+
+    const GrProcOptInfo& colorPOI = drawState.colorProcInfo(fPrimitiveProcessor);
+    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(fPrimitiveProcessor);
     
     fColor = colorPOI.inputColorToEffectiveStage();
-    fCoverage = coverage;
+    // TODO fix this when coverage stages work correctly
+    // fCoverage = coveragePOI.inputColorToEffectiveStage();
+    fCoverage = fPrimitiveProcessor->coverage();
 
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
@@ -86,14 +101,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fFlags |= kDither_Flag;
     }
 
-    fDescInfo.fHasVertexColor = drawState.hasGeometryProcessor() &&
-                                drawState.getGeometryProcessor()->hasVertexColor();
+    fDescInfo.fHasVertexColor = gp && gp->hasVertexColor();
 
-    fDescInfo.fHasVertexCoverage = drawState.hasGeometryProcessor() &&
-                                   drawState.getGeometryProcessor()->hasVertexCoverage();
+    fDescInfo.fHasVertexCoverage = gp && gp->hasVertexCoverage();
 
-    bool hasLocalCoords = drawState.hasGeometryProcessor() &&
-                          drawState.getGeometryProcessor()->hasLocalCoords();
+    bool hasLocalCoords = gp && gp->hasLocalCoords();
 
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
     fDescInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
@@ -106,7 +118,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     int firstCoverageStageIdx = 0;
     fDescInfo.fInputCoverageIsUsed = true;
 
-
     GrXferProcessor::BlendInfo blendInfo;
     fXferProcessor->getBlendInfo(&blendInfo);
     fSrcBlend = blendInfo.fSrcBlend;
@@ -117,12 +128,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                          &firstColorStageIdx, &firstCoverageStageIdx);
 
     fDescInfo.fRequiresLocalCoordAttrib = hasLocalCoords;
-
-    // Copy GeometryProcesssor from DS or ODS
-    SkASSERT(GrGpu::IsPathRenderingDrawType(drawType) ||
-             GrGpu::kStencilPath_DrawType ||
-             drawState.hasGeometryProcessor());
-    fGeometryProcessor.reset(drawState.getGeometryProcessor());
 
     // Copy Stages from DS to ODS
     for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
@@ -139,7 +144,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     }
 
     // let the GP init the batch tracker
-    if (drawState.hasGeometryProcessor()) {
+    if (gp) {
         GrGeometryProcessor::InitBT init;
         init.fOutputColor = fDescInfo.fInputColorIsUsed;
         init.fOutputCoverage = fDescInfo.fInputCoverageIsUsed;

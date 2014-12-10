@@ -72,3 +72,8 @@ pictureimagefilter
 clipped-bitmap-shaders-clamp
 clipped-bitmap-shaders-clamp-hq
 
+# joshualitt
+path_primitive
+xfermodes3
+multipicturedraw_sierpinski_tiled
+multipicturedraw_sierpinski_simple

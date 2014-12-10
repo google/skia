@@ -171,11 +171,12 @@ private:
     };
 
     struct SetState : public Cmd {
-        SetState(const GrDrawState& drawState, GrColor color, uint8_t coverage,
-                 const GrDrawTargetCaps& caps, const ScissorState& scissor,
-                 const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType drawType)
+        SetState(const GrDrawState& drawState, const GrGeometryProcessor* gp,
+                 const GrPathProcessor* pp, const GrDrawTargetCaps& caps,
+                 const ScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
+                 GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
-        , fState(drawState, color, coverage, caps, scissor, dstCopy, drawType) {}
+        , fState(drawState, gp, pp, caps, scissor, dstCopy, drawType) {}
 
         void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
@@ -190,6 +191,7 @@ private:
 
     // overrides from GrDrawTarget
     void onDraw(const GrDrawState&,
+                const GrGeometryProcessor*,
                 const DrawInfo&,
                 const ScissorState&,
                 const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
@@ -200,17 +202,18 @@ private:
                     const SkMatrix* localMatrix) SK_OVERRIDE;
 
     void onStencilPath(const GrDrawState&,
+                       const GrPathProcessor*,
                        const GrPath*,
                        const ScissorState&,
                        const GrStencilSettings&) SK_OVERRIDE;
     void onDrawPath(const GrDrawState&,
-                    GrColor,
+                    const GrPathProcessor*,
                     const GrPath*,
                     const ScissorState&,
                     const GrStencilSettings&,
                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawPaths(const GrDrawState&,
-                     GrColor,
+                     const GrPathProcessor*,
                      const GrPathRange*,
                      const void* indices,
                      PathIndexType,
@@ -237,8 +240,8 @@ private:
     // records it. If the draw can be skipped false is returned and no new GrOptDrawState is
     // recorded.
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrDrawState&,
-                                                        GrColor,
-                                                        uint8_t coverage,
+                                                        const GrGeometryProcessor*,
+                                                        const GrPathProcessor*,
                                                         GrGpu::DrawType,
                                                         const GrClipMaskManager::ScissorState&,
                                                         const GrDeviceCoordTexture*);

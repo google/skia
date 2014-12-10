@@ -85,8 +85,9 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
                                                   const SkPath& path,
                                                   const SkStrokeRec& stroke) {
     SkASSERT(!path.isInverseFillType());
+    SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE));
     SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
-    target->stencilPath(drawState, p, convert_skpath_filltype(path.getFillType()));
+    target->stencilPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
@@ -117,7 +118,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
         drawState->setStencil(kInvertedStencilPass);
 
         // fake inverse with a stencil and cover
-        target->stencilPath(drawState, p, convert_skpath_filltype(path.getFillType()));
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE));
+        target->stencilPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
 
         GrDrawState::AutoViewMatrixRestore avmr;
         SkRect bounds = SkRect::MakeLTRB(0, 0,
@@ -145,7 +147,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
             0xffff);
 
         drawState->setStencil(kStencilPass);
-        target->drawPath(drawState, color, p, convert_skpath_filltype(path.getFillType()));
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(color));
+        target->drawPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
     }
 
     drawState->stencil()->setDisabled();

@@ -43,6 +43,7 @@ private:
     bool createLineGeom(GrDrawTarget* target,
                         GrDrawState*,
                         uint8_t coverage,
+                        size_t vertexStride,
                         GrDrawTarget::AutoReleaseGeometry* arg,
                         SkRect* devBounds,
                         const SkPath& path,

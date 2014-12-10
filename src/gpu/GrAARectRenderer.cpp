@@ -25,20 +25,21 @@ enum CoverageAttribType {
 };
 }
 
-static CoverageAttribType set_rect_attribs(GrDrawState* drawState, GrColor color) {
+static const GrGeometryProcessor* create_rect_gp(const GrDrawState& drawState, GrColor color,
+                                                 CoverageAttribType* type) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
-    if (drawState->canTweakAlphaForCoverage()) {
-        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
-        SkASSERT(drawState->getGeometryProcessor()->getVertexStride() ==
-                 sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
-        return kUseColor_CoverageAttribType;
+    const GrGeometryProcessor* gp;
+    if (drawState.canTweakAlphaForCoverage()) {
+        gp = GrDefaultGeoProcFactory::Create(color, flags);
+        SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+        *type = kUseColor_CoverageAttribType;
     } else {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-        drawState->setGeometryProcessor(GrDefaultGeoProcFactory::Create(color, flags))->unref();
-        SkASSERT(drawState->getGeometryProcessor()->getVertexStride() ==
-                 sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
-        return kUseCoverage_CoverageAttribType;
+        gp = GrDefaultGeoProcFactory::Create(color, flags);
+        SkASSERT(gp->getVertexStride()==sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
+        *type = kUseCoverage_CoverageAttribType;
     }
+    return gp;
 }
 
 static void set_inset_fan(SkPoint* pts, size_t stride,
@@ -182,13 +183,14 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           const SkRect& devRect) {
     GrDrawState::AutoRestoreEffects are(drawState);
 
-    CoverageAttribType covAttribType = set_rect_attribs(drawState, color);
-    if (kUseCoverage_CoverageAttribType == covAttribType && GrColorIsOpaque(color)) {
+    CoverageAttribType type;
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type));
+    if (kUseCoverage_CoverageAttribType == type && GrColorIsOpaque(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
 
-    size_t vstride = drawState->getGeometryProcessor()->getVertexStride();
-    GrDrawTarget::AutoReleaseGeometry geo(target, 8, vstride, 0);
+    size_t vertexStride = gp->getVertexStride();
+    GrDrawTarget::AutoReleaseGeometry geo(target, 8, vertexStride, 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
         return;
@@ -209,7 +211,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
 
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
-    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vstride);
+    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
 
     SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
     inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
@@ -223,8 +225,8 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
         combinedMatrix.mapRect(&devRect, rect);
 #endif
 
-        set_inset_fan(fan0Pos, vstride, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
-        set_inset_fan(fan1Pos, vstride, devRect, inset,  inset);
+        set_inset_fan(fan0Pos, vertexStride, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan1Pos, vertexStride, devRect, inset,  inset);
     } else {
         // compute transformed (1, 0) and (0, 1) vectors
         SkVector vec[2] = {
@@ -239,38 +241,38 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
 
         // create the rotated rect
         fan0Pos->setRectFan(rect.fLeft, rect.fTop,
-                            rect.fRight, rect.fBottom, vstride);
-        combinedMatrix.mapPointsWithStride(fan0Pos, vstride, 4);
+                            rect.fRight, rect.fBottom, vertexStride);
+        combinedMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
 
         // Now create the inset points and then outset the original
         // rotated points
 
         // TL
-        *((SkPoint*)((intptr_t)fan1Pos + 0 * vstride)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 0 * vstride)) + vec[0] + vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 0 * vstride)) -= vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 0 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 0 * vertexStride)) + vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 0 * vertexStride)) -= vec[0] + vec[1];
         // BL
-        *((SkPoint*)((intptr_t)fan1Pos + 1 * vstride)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 1 * vstride)) + vec[0] - vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 1 * vstride)) -= vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 1 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 1 * vertexStride)) + vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 1 * vertexStride)) -= vec[0] - vec[1];
         // BR
-        *((SkPoint*)((intptr_t)fan1Pos + 2 * vstride)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 2 * vstride)) - vec[0] - vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 2 * vstride)) += vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 2 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 2 * vertexStride)) - vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 2 * vertexStride)) += vec[0] + vec[1];
         // TR
-        *((SkPoint*)((intptr_t)fan1Pos + 3 * vstride)) =
-            *((SkPoint*)((intptr_t)fan0Pos + 3 * vstride)) - vec[0] + vec[1];
-        *((SkPoint*)((intptr_t)fan0Pos + 3 * vstride)) += vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan1Pos + 3 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) - vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) += vec[0] - vec[1];
     }
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs values.
     verts += sizeof(SkPoint);
     for (int i = 0; i < 4; ++i) {
-        if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
-            *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = 0;
+        if (kUseCoverage_CoverageAttribType == type) {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 0;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vstride) = 0;
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = 0;
         }
     }
 
@@ -282,22 +284,23 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
         scale = 0xff;
     }
 
-    verts += 4 * vstride;
+    verts += 4 * vertexStride;
 
     float innerCoverage = GrNormalizeByteToFloat(scale);
     GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
 
     for (int i = 0; i < 4; ++i) {
-        if (kUseCoverage_CoverageAttribType == covAttribType) {
-            *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
-            *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
+        if (kUseCoverage_CoverageAttribType == type) {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = innerCoverage;
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vstride) = scaledColor; 
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
         }
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
     target->drawIndexedInstances(drawState,
+                                 gp,
                                  kTriangles_GrPrimitiveType,
                                  1,
                                  kVertsPerAAFillRect,
@@ -383,9 +386,11 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             const SkRect& devInside,
                                             bool miterStroke) {
     GrDrawState::AutoRestoreEffects are(drawState);
-    CoverageAttribType covAttribType = set_rect_attribs(drawState, color);
 
-    if (kUseCoverage_CoverageAttribType == covAttribType && GrColorIsOpaque(color)) {
+    CoverageAttribType type;
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type));
+
+    if (kUseCoverage_CoverageAttribType == type && GrColorIsOpaque(color)) {
         drawState->setHint(GrDrawState::kVertexColorsAreOpaque_Hint, true);
     }
 
@@ -393,7 +398,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     int outerVertexNum = miterStroke ? 4 : 8;
     int totalVertexNum = (outerVertexNum + innerVertexNum) * 2;
 
-    size_t vstride = drawState->getGeometryProcessor()->getVertexStride();
+    size_t vstride = gp->getVertexStride();
     GrDrawTarget::AutoReleaseGeometry geo(target, totalVertexNum, vstride, 0);
     if (!geo.succeeded()) {
         SkDebugf("Failed to get space for vertices!\n");
@@ -458,7 +463,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     // The outermost rect has 0 coverage
     verts += sizeof(SkPoint);
     for (int i = 0; i < outerVertexNum; ++i) {
-        if (kUseCoverage_CoverageAttribType == covAttribType) {
+        if (kUseCoverage_CoverageAttribType == type) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
             *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
@@ -480,7 +485,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 
     verts += outerVertexNum * vstride;
     for (int i = 0; i < outerVertexNum + innerVertexNum; ++i) {
-        if (kUseCoverage_CoverageAttribType == covAttribType) {
+        if (kUseCoverage_CoverageAttribType == type) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
             *reinterpret_cast<float*>(verts + i * vstride + sizeof(GrColor)) = innerCoverage;
         } else {
@@ -491,7 +496,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     // The innermost rect has 0 coverage
     verts += (outerVertexNum + innerVertexNum) * vstride;
     for (int i = 0; i < innerVertexNum; ++i) {
-        if (kUseCoverage_CoverageAttribType == covAttribType) {
+        if (kUseCoverage_CoverageAttribType == type) {
             *reinterpret_cast<GrColor*>(verts + i * vstride) = color;
             *reinterpret_cast<GrColor*>(verts + i * vstride + sizeof(GrColor)) = 0;
         } else {
@@ -501,6 +506,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 
     target->setIndexSourceToBuffer(indexBuffer);
     target->drawIndexedInstances(drawState,
+                                 gp,
                                  kTriangles_GrPrimitiveType,
                                  1,
                                  totalVertexNum,

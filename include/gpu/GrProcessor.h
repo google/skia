@@ -61,16 +61,6 @@ public:
 
     virtual ~GrProcessor();
 
-    /**
-     * This function is used to perform optimizations. When called the invarientOuput param
-     * indicate whether the input components to this processor in the FS will have known values.
-     * In inout the validFlags member is a bitfield of GrColorComponentFlags. The isSingleComponent
-     * member indicates whether the input will be 1 or 4 bytes. The function updates the members of
-     * inout to indicate known values of its output. A component of the color member only has
-     * meaning if the corresponding bit in validFlags is set.
-     */
-    void computeInvariantOutput(GrInvariantOutput* inout) const; 
-
     /** Human-meaningful string to identify this prcoessor; may be embedded
         in generated shader code. */
     virtual const char* name() const = 0;
@@ -132,11 +122,6 @@ protected:
     uint32_t fClassID;
 
 private:
-    /** 
-     * Subclass implements this to support getConstantColorComponents(...).
-     */
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
-    
     static uint32_t GenClassID() {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
         // atomic inc returns the old value not the incremented value. So we add

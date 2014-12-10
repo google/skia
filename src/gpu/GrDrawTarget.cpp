@@ -307,6 +307,7 @@ void GrDrawTarget::popGeometrySource() {
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
+                             const GrGeometryProcessor* gp,
                              GrPrimitiveType type,
                              int startVertex,
                              int startIndex,
@@ -349,8 +350,7 @@ bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
 
     SkASSERT(drawState.getRenderTarget());
 
-    if (drawState.hasGeometryProcessor()) {
-        const GrGeometryProcessor* gp = drawState.getGeometryProcessor();
+    if (gp) {
         int numTextures = gp->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = gp->texture(t);
@@ -383,12 +383,10 @@ bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
 }
 
 bool GrDrawTarget::setupDstReadIfNecessary(GrDrawState* ds,
-                                           GrColor color,
-                                           uint8_t coverage,
+                                           const GrPrimitiveProcessor* primProc,
                                            GrDeviceCoordTexture* dstCopy,
                                            const SkRect* drawBounds) {
-    GrColor c = GrColorPackRGBA(coverage, coverage, coverage, coverage);
-    if (this->caps()->dstReadInShaderSupport() || !ds->willEffectReadDstColor(color, c)) {
+    if (this->caps()->dstReadInShaderSupport() || !ds->willEffectReadDstColor(primProc)) {
         return true;
     }
     SkIRect copyRect;
@@ -436,6 +434,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(GrDrawState* ds,
 }
 
 void GrDrawTarget::drawIndexed(GrDrawState* ds,
+                               const GrGeometryProcessor* gp,
                                GrPrimitiveType type,
                                int startVertex,
                                int startIndex,
@@ -444,7 +443,7 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
                                const SkRect* devBounds) {
     SkASSERT(ds);
     if (indexCount > 0 &&
-        this->checkDraw(*ds, type, startVertex, startIndex, vertexCount, indexCount)) {
+        this->checkDraw(*ds, gp, type, startVertex, startIndex, vertexCount, indexCount)) {
 
         // Setup clip
         GrClipMaskManager::ScissorState scissorState;
@@ -471,24 +470,23 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
 
         // TODO: We should continue with incorrect blending.
         GrDeviceCoordTexture dstCopy;
-        const GrGeometryProcessor* gp = ds->getGeometryProcessor();
-        if (!this->setupDstReadIfNecessary(ds, gp->getColor(), gp->getCoverage(), &dstCopy,
-                                           devBounds)) {
+        if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy, devBounds)) {
             return;
         }
         this->setDrawBuffers(&info, gp->getVertexStride());
 
-        this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
+        this->onDraw(*ds, gp, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
 }
 
 void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
+                                  const GrGeometryProcessor* gp,
                                   GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount,
                                   const SkRect* devBounds) {
     SkASSERT(ds);
-    if (vertexCount > 0 && this->checkDraw(*ds, type, startVertex, -1, vertexCount, -1)) {
+    if (vertexCount > 0 && this->checkDraw(*ds, gp, type, startVertex, -1, vertexCount, -1)) {
 
         // Setup clip
         GrClipMaskManager::ScissorState scissorState;
@@ -515,15 +513,13 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
 
         // TODO: We should continue with incorrect blending.
         GrDeviceCoordTexture dstCopy;
-        const GrGeometryProcessor* gp = ds->getGeometryProcessor();
-        if (!this->setupDstReadIfNecessary(ds, gp->getColor(), gp->getCoverage(), &dstCopy,
-                                           devBounds)) {
+        if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy, devBounds)) {
             return;
         }
 
         this->setDrawBuffers(&info, gp->getVertexStride());
 
-        this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
+        this->onDraw(*ds, gp, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
 }
 
@@ -563,6 +559,7 @@ void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType f
 }
 
 void GrDrawTarget::stencilPath(GrDrawState* ds,
+                               const GrPathProcessor* pathProc,
                                const GrPath* path,
                                GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
@@ -584,11 +581,11 @@ void GrDrawTarget::stencilPath(GrDrawState* ds,
                                             ds->getRenderTarget()->getStencilBuffer(),
                                             &stencilSettings);
 
-    this->onStencilPath(*ds, path, scissorState, stencilSettings);
+    this->onStencilPath(*ds, pathProc, path, scissorState, stencilSettings);
 }
 
 void GrDrawTarget::drawPath(GrDrawState* ds,
-                            GrColor color,
+                            const GrPathProcessor* pathProc,
                             const GrPath* path,
                             GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path rendering.
@@ -615,16 +612,16 @@ void GrDrawTarget::drawPath(GrDrawState* ds,
                                             &stencilSettings);
 
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(ds, color, 0xff, &dstCopy, &devBounds)) {
+    if (!this->setupDstReadIfNecessary(ds, pathProc, &dstCopy, &devBounds)) {
         return;
     }
 
-    this->onDrawPath(*ds, color, path, scissorState, stencilSettings, dstCopy.texture() ? &dstCopy :
-                                                                                          NULL);
+    this->onDrawPath(*ds, pathProc, path, scissorState, stencilSettings, dstCopy.texture() ? &dstCopy :
+                                                                                       NULL);
 }
 
 void GrDrawTarget::drawPaths(GrDrawState* ds,
-                             GrColor color,
+                             const GrPathProcessor* pathProc,
                              const GrPathRange* pathRange,
                              const void* indices,
                              PathIndexType indexType,
@@ -659,11 +656,11 @@ void GrDrawTarget::drawPaths(GrDrawState* ds,
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(ds, color, 0xff, &dstCopy, NULL)) {
+    if (!this->setupDstReadIfNecessary(ds, pathProc, &dstCopy, NULL)) {
         return;
     }
 
-    this->onDrawPaths(*ds, color, pathRange, indices, indexType, transformValues, transformType,
+    this->onDrawPaths(*ds, pathProc, pathRange, indices, indexType, transformValues, transformType,
                       count, scissorState, stencilSettings, dstCopy.texture() ? &dstCopy : NULL);
 }
 
@@ -733,6 +730,7 @@ void GrDrawTarget::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
+                                        const GrGeometryProcessor* gp,
                                         GrPrimitiveType type,
                                         int instanceCount,
                                         int verticesPerInstance,
@@ -771,8 +769,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
 
     // TODO: We should continue with incorrect blending.
     GrDeviceCoordTexture dstCopy;
-    const GrGeometryProcessor* gp = ds->getGeometryProcessor();
-    if (!this->setupDstReadIfNecessary(ds, gp->getColor(), gp->getCoverage(), &dstCopy,devBounds)) {
+    if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy,devBounds)) {
         return;
     }
 
@@ -782,13 +779,14 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
         info.fIndexCount = info.fInstanceCount * indicesPerInstance;
 
         if (this->checkDraw(*ds,
+                            gp,
                             type,
                             info.fStartVertex,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
             this->setDrawBuffers(&info, gp->getVertexStride());
-            this->onDraw(*ds, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
+            this->onDraw(*ds, gp, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
         }
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;

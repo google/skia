@@ -498,12 +498,13 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                 drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
             }
             GrDrawState::AutoRestoreEffects are(drawState);
-            drawState->setGeometryProcessor(
+            SkAutoTUnref<const GrGeometryProcessor> gp(
                     GrDefaultGeoProcFactory::Create(color,
                                                     GrDefaultGeoProcFactory::kPosition_GPType,
-                                                    newCoverage))->unref();
+                                                    newCoverage));
             if (indexCnt) {
                 target->drawIndexed(drawState,
+                                    gp,
                                     primType,
                                     0,
                                     0,
@@ -511,7 +512,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                     indexCnt,
                                     &devBounds);
             } else {
-                target->drawNonIndexed(drawState, primType, 0, vertexCnt, &devBounds);
+                target->drawNonIndexed(drawState, gp, primType, 0, vertexCnt, &devBounds);
             }
         }
     }

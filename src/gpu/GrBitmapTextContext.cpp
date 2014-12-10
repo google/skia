@@ -561,19 +561,18 @@ void GrBitmapTextContext::flush() {
         if (kARGB_GrMaskFormat == fCurrMaskFormat) {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->getColor() != color) {
+                fCachedGeometryProcessor->color() != color) {
                 uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
                 fCachedGeometryProcessor.reset(GrDefaultGeoProcFactory::Create(color, flags));
                 fCachedTextureProcessor.reset(GrSimpleTextureEffect::Create(fCurrTexture,
                                                                             SkMatrix::I(),
                                                                             params));
             }
-            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
             drawState.addColorProcessor(fCachedTextureProcessor.get());
         } else {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->getColor() != color) {
+                fCachedGeometryProcessor->color() != color) {
                 bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
                 fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(color,
                                                                                    fCurrTexture,
@@ -581,12 +580,12 @@ void GrBitmapTextContext::flush() {
                                                                                    hasColor));
                 fEffectTextureUniqueID = textureUniqueID;
             }
-            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
         }
 
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(&drawState,
+                                          fCachedGeometryProcessor.get(),
                                           kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           kVerticesPerGlyph,

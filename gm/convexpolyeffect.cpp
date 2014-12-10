@@ -133,8 +133,8 @@ protected:
                 }
 
                 GrDrawState ds;
-                const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(0xff000000);
-                ds.setGeometryProcessor(gp)->unref();
+                SkAutoTUnref<const GrGeometryProcessor> gp(
+                        GrDefaultGeoProcFactory::Create(0xff000000));
                 ds.addCoverageProcessor(fp);
                 ds.setIdentityViewMatrix();
                 ds.setRenderTarget(rt);
@@ -150,7 +150,7 @@ protected:
                 bounds.toQuad(verts);
 
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
@@ -190,8 +190,8 @@ protected:
                 }
 
                 GrDrawState ds;
-                const GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Create(0xff000000);
-                ds.setGeometryProcessor(gp)->unref();
+                SkAutoTUnref<const GrGeometryProcessor> gp(
+                        GrDefaultGeoProcFactory::Create(0xff000000));
                 ds.addCoverageProcessor(fp);
                 ds.setIdentityViewMatrix();
                 ds.setRenderTarget(rt);
@@ -205,7 +205,7 @@ protected:
                 bounds.toQuad(verts);
 
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                tt.target()->drawIndexed(&ds, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 
                 x += SkScalarCeilToScalar(rect.width() + 10.f);
             }

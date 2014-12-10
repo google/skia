@@ -84,15 +84,15 @@ bool GrBitmapTextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
     return SkToBool(this->inColor()) == SkToBool(gp.inColor());
 }
 
-void GrBitmapTextGeoProc::onComputeInvariantOutput(GrInvariantOutput* inout) const {
+void GrBitmapTextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
-        inout->mulByUnknownAlpha();
+        out->setUnknownSingleComponent();
     } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
-        inout->mulByUnknownOpaqueColor();
-        inout->setUsingLCDCoverage();
+        out->setUnknownOpaqueFourComponents();
+        out->setUsingLCDCoverage();
     } else {
-        inout->mulByUnknownColor();
-        inout->setUsingLCDCoverage();
+        out->setUnknownFourComponents();
+        out->setUsingLCDCoverage();
     }
 }
 

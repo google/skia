@@ -323,14 +323,13 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     flags |= vm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
 
     GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
-    if (flags != fEffectFlags || fCachedGeometryProcessor->getColor() != color) {
+    if (flags != fEffectFlags || fCachedGeometryProcessor->color() != color) {
         fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(color,
                                                                                    texture,
                                                                                    params,
                                                                                    flags));
         fEffectFlags = flags;
     }
-    drawState->setGeometryProcessor(fCachedGeometryProcessor.get());
 
     void* vertices = NULL;
     bool success = target->reserveVertexAndIndexSpace(4,
@@ -372,7 +371,8 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     
     vm.mapRect(&r);
     target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &r);
+    target->drawIndexedInstances(drawState, fCachedGeometryProcessor.get(),
+                                 kTriangles_GrPrimitiveType, 1, 4, 6, &r);
     target->resetVertexSource();
     
     return true;

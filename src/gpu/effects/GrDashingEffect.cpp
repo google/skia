@@ -335,7 +335,7 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
         devIntervals[0] = lineLength;
     }
 
-    const GrGeometryProcessor* gp;
+    SkAutoTUnref<const GrGeometryProcessor> gp;
     bool fullDash = devIntervals[1] > 0.f || useAA;
     if (fullDash) {
         SkPathEffect::DashInfo devInfo;
@@ -347,13 +347,11 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
         bool isRoundCap = SkPaint::kRound_Cap == cap;
         GrDashingEffect::DashCap capType = isRoundCap ? GrDashingEffect::kRound_DashCap :
                                                         GrDashingEffect::kNonRound_DashCap;
-        gp = GrDashingEffect::Create(color, edgeType, devInfo, strokeWidth, capType);
+        gp.reset(GrDashingEffect::Create(color, edgeType, devInfo, strokeWidth, capType));
     } else {
         // Set up the vertex data for the line and start/end dashes
-        gp = GrDefaultGeoProcFactory::Create(color, GrDefaultGeoProcFactory::kPosition_GPType);
+        gp.reset(GrDefaultGeoProcFactory::Create(color, GrDefaultGeoProcFactory::kPosition_GPType));
     }
-
-    drawState->setGeometryProcessor(gp)->unref();
 
     int totalRectCnt = 0;
 
@@ -435,7 +433,7 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
     }
 
     target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, totalRectCnt, 4, 6);
+    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, totalRectCnt, 4, 6);
     target->resetIndexSource();
     return true;
 }
@@ -489,7 +487,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType fEdgeType;
     const GrAttribute*  fInPosition;
@@ -614,8 +612,8 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
 
 DashingCircleEffect::~DashingCircleEffect() {}
 
-void DashingCircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownAlpha();
+void DashingCircleEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownSingleComponent();
 }
 
 void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
@@ -719,7 +717,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType fEdgeType;
     const GrAttribute*  fInPosition;
@@ -857,8 +855,8 @@ GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
 
 DashingLineEffect::~DashingLineEffect() {}
 
-void DashingLineEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownAlpha();
+void DashingLineEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownSingleComponent();
 }
 
 void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,

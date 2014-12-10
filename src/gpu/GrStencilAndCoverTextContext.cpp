@@ -399,7 +399,8 @@ static const SkScalar* get_xy_scalar_array(const SkPoint* pointArray) {
 
 void GrStencilAndCoverTextContext::flush() {
     if (fQueuedGlyphCount > 0) {
-        fDrawTarget->drawPaths(&fDrawState, fPaint.getColor(), fGlyphs,
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor()));
+        fDrawTarget->drawPaths(&fDrawState, pp, fGlyphs,
                                fGlyphIndices, GrPathRange::kU16_PathIndexType,
                                get_xy_scalar_array(fGlyphPositions),
                                GrPathRendering::kTranslate_PathTransformType,

@@ -56,7 +56,7 @@ GrFragmentProcessor* CircleEffect::Create(GrPrimitiveEdgeType edgeType, const Sk
 }
 
 void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownAlpha();
+    inout->mulByUnknownSingleComponent();
 }
 
 CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
@@ -233,7 +233,7 @@ GrFragmentProcessor* EllipseEffect::Create(GrPrimitiveEdgeType edgeType,
 }
 
 void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownAlpha();
+    inout->mulByUnknownSingleComponent();
 }
 
 EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx, SkScalar ry)

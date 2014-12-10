@@ -273,9 +273,9 @@ bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrTextureDomain::kDecal_Mode == fTextureDomain.mode()) { // TODO: helper
         if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
-            inout->mulByUnknownAlpha();
+            inout->mulByUnknownSingleComponent();
         } else {
-            inout->mulByUnknownColor();
+            inout->mulByUnknownFourComponents();
         }
     } else {
         this->updateInvariantOutputForModulation(inout);
