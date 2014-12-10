@@ -118,6 +118,63 @@ static SkImage* createImage(ImageType imageType, GrContext* context, SkColor col
     return NULL;
 }
 
+static void set_pixels(SkPMColor pixels[], int count, SkPMColor color) {
+    sk_memset32(pixels, color, count);
+}
+static bool has_pixels(const SkPMColor pixels[], int count, SkPMColor expected) {
+    for (int i = 0; i < count; ++i) {
+        if (pixels[i] != expected) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static void test_image_readpixels(skiatest::Reporter* reporter, SkImage* image,
+                                  SkPMColor expected) {
+    const SkPMColor notExpected = ~expected;
+
+    const int w = 2, h = 2;
+    const size_t rowBytes = w * sizeof(SkPMColor);
+    SkPMColor pixels[w*h];
+
+    SkImageInfo info;
+
+    info = SkImageInfo::MakeUnknown(w, h);
+    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, 0, 0));
+
+    // out-of-bounds should fail
+    info = SkImageInfo::MakeN32Premul(w, h);
+    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, -w, 0));
+    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, 0, -h));
+    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, image->width(), 0));
+    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, 0, image->height()));
+
+    // top-left should succeed
+    set_pixels(pixels, w*h, notExpected);
+    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes, 0, 0));
+    REPORTER_ASSERT(reporter, has_pixels(pixels, w*h, expected));
+
+    // bottom-right should succeed
+    set_pixels(pixels, w*h, notExpected);
+    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes,
+                                                image->width() - w, image->height() - h));
+    REPORTER_ASSERT(reporter, has_pixels(pixels, w*h, expected));
+
+    // partial top-left should succeed
+    set_pixels(pixels, w*h, notExpected);
+    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes, -1, -1));
+    REPORTER_ASSERT(reporter, pixels[3] == expected);
+    REPORTER_ASSERT(reporter, has_pixels(pixels, w*h - 1, notExpected));
+
+    // partial bottom-right should succeed
+    set_pixels(pixels, w*h, notExpected);
+    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes,
+                                                image->width() - 1, image->height() - 1));
+    REPORTER_ASSERT(reporter, pixels[0] == expected);
+    REPORTER_ASSERT(reporter, has_pixels(&pixels[1], w*h - 1, notExpected));
+}
+
 static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* factory) {
     static const struct {
         ImageType   fType;
@@ -159,6 +216,8 @@ static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* facto
             REPORTER_ASSERT(reporter, info.minRowBytes() <= rowBytes);
             REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
         }
+
+        test_image_readpixels(reporter, image, pmcolor);
     }
 }
 

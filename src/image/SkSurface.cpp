@@ -175,15 +175,6 @@ bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t d
     return this->getCanvas()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
 
-bool SkSurface::readPixels(SkBitmap* dst, const SkIRect* srcRect) {
-    SkIRect storage;
-    if (NULL == srcRect) {
-        storage.set(0, 0, this->width(), this->height());
-        srcRect = &storage;
-    }
-    return this->getCanvas()->readPixels(*srcRect, dst);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 #ifdef SK_SUPPORT_LEGACY_TEXTRENDERMODE
 

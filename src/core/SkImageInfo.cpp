@@ -76,3 +76,47 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
     }
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkReadPixelsRec.h"
+
+bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
+    switch (fInfo.colorType()) {
+        case kUnknown_SkColorType:
+        case kIndex_8_SkColorType:
+            return false;
+        default:
+            break;
+    }
+    if (NULL == fPixels || fRowBytes < fInfo.minRowBytes()) {
+        return false;
+    }
+    if (0 == fInfo.width() || 0 == fInfo.height()) {
+        return false;
+    }
+
+    int x = fX;
+    int y = fY;
+    SkIRect srcR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
+    if (!srcR.intersect(0, 0, srcWidth, srcHeight)) {
+        return false;
+    }
+
+    // if x or y are negative, then we have to adjust pixels
+    if (x > 0) {
+        x = 0;
+    }
+    if (y > 0) {
+        y = 0;
+    }
+    // here x,y are either 0 or negative
+    fPixels = ((char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // the intersect may have shrunk info's logical size
+    fInfo = fInfo.makeWH(srcR.width(), srcR.height());
+    fX = srcR.x();
+    fY = srcR.y();
+
+    return true;
+}
+

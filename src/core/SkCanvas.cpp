@@ -19,6 +19,7 @@
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
+#include "SkReadPixelsRec.h"
 #include "SkRRect.h"
 #include "SkSmallAllocator.h"
 #include "SkSurface_Base.h"
@@ -686,47 +687,20 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     return true;
 }
 
-bool SkCanvas::readPixels(const SkImageInfo& origInfo, void* dstP, size_t rowBytes, int x, int y) {
-    switch (origInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kIndex_8_SkColorType:
-            return false;
-        default:
-            break;
-    }
-    if (NULL == dstP || rowBytes < origInfo.minRowBytes()) {
-        return false;
-    }
-    if (0 == origInfo.width() || 0 == origInfo.height()) {
-        return false;
-    }
-
+bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowBytes, int x, int y) {
     SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
-
     const SkISize size = this->getBaseLayerSize();
-    SkIRect srcR = SkIRect::MakeXYWH(x, y, origInfo.width(), origInfo.height());
-    if (!srcR.intersect(0, 0, size.width(), size.height())) {
+    
+    SkReadPixelsRec rec(dstInfo, dstP, rowBytes, x, y);
+    if (!rec.trim(size.width(), size.height())) {
         return false;
     }
 
-    // the intersect may have shrunk info's logical size
-    const SkImageInfo info = origInfo.makeWH(srcR.width(), srcR.height());
-
-    // if x or y are negative, then we have to adjust pixels
-    if (x > 0) {
-        x = 0;
-    }
-    if (y > 0) {
-        y = 0;
-    }
-    // here x,y are either 0 or negative
-    dstP = ((char*)dstP - y * rowBytes - x * info.bytesPerPixel());
-
     // The device can assert that the requested area is always contained in its bounds
-    return device->readPixels(info, dstP, rowBytes, srcR.x(), srcR.y());
+    return device->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {

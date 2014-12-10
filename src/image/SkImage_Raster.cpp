@@ -57,7 +57,7 @@ public:
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const SK_OVERRIDE;
     void onDrawRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) const SK_OVERRIDE;
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const SK_OVERRIDE;
-    bool onReadPixels(SkBitmap*, const SkIRect&) const SK_OVERRIDE;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const SK_OVERRIDE;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
     bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
@@ -143,16 +143,9 @@ SkSurface* SkImage_Raster::onNewSurface(const SkImageInfo& info, const SkSurface
     return SkSurface::NewRaster(info, &props);
 }
 
-bool SkImage_Raster::onReadPixels(SkBitmap* dst, const SkIRect& subset) const {
-    if (dst->pixelRef()) {
-        return this->INHERITED::onReadPixels(dst, subset);
-    } else {
-        SkBitmap src;
-        if (!fBitmap.extractSubset(&src, subset)) {
-            return false;
-        }
-        return src.copyTo(dst, src.colorType());
-    }
+bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                                  int srcX, int srcY) const {
+    return fBitmap.readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
 
 const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesPtr) const {

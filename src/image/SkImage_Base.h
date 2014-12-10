@@ -41,13 +41,14 @@ public:
                                   const SkRect& dst, const SkPaint*) const = 0;
     virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const = 0;
 
-    // Default impl calls onDraw
-    virtual bool onReadPixels(SkBitmap*, const SkIRect& subset) const;
-
     virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const {
         return NULL;
     }
 
+    // Default impl calls onDraw
+    virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                              int srcX, int srcY) const;
+    
     virtual GrTexture* onGetTexture() const { return NULL; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
