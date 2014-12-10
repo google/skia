@@ -10572,6 +10572,60 @@
       "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
+    "filterfastbounds_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1818391908052024401
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13655332983770120297
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11979685514839994952
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17026535137974672090
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          269206331898094658
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8087165608864358738
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "filterindiabox_565.png": {
       "allowed-digests": [
         [

@@ -6639,6 +6639,33 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "filterfastbounds_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12567077521204865249
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15463418104783569795
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterfastbounds_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13673953230363301373
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "filterindiabox_565.png": {
       "allowed-digests": [
         [

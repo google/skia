@@ -4589,6 +4589,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "filterfastbounds_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2588281262843365914
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "filterindiabox_565.png": {
       "allowed-digests": [
         [

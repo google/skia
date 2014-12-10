@@ -8014,6 +8014,15 @@
       "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
+    "filterfastbounds_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8462287010795944360
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "filterindiabox_angle.png": {
       "allowed-digests": [
         [
