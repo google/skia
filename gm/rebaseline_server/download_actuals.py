@@ -162,8 +162,8 @@ class RietveldIssueActuals(object):
     """
     result = dict()
     json_filename_re = re.compile(
-        '^Created: gs://([^/]+)/((?:[^/]+/)+%s)#(\d+)$'
-        % re.escape(self._json_filename), re.MULTILINE)
+        'Created: gs://([^/]+)/((?:[^/]+/)+%s)#(\d+)'
+        % re.escape(self._json_filename))
     codereview_api_url = 'https://codereview.chromium.org/api'
     upload_gm_step_url = '/steps/Upload GM Results/logs/stdio'
 
