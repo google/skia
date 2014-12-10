@@ -79,7 +79,8 @@ public:
     int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
     int numFragmentStages() const { return fFragmentStages.count(); }
     int numTotalStages() const {
-         return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0);
+        // the + 1 at the end is for the xferProcessor which will always be present
+        return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0) + 1;
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }

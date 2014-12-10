@@ -9,6 +9,7 @@
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLUniformHandle.h"
+#include "../GrGLXferProcessor.h"
 #include "../GrGpuGL.h"
 #include "GrCoordTransform.h"
 #include "GrGLLegacyNvprProgramBuilder.h"
@@ -55,20 +56,12 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, G
 
     pb->emitAndInstallProcs(&inputColor, &inputCoverageVec4);
 
-    // write the secondary color output if necessary
-    if (GrProgramDesc::kNone_SecondaryOutputType != header.fSecondaryOutputType) {
-        pb->fFS.enableSecondaryOutput(inputColor, inputCoverageVec4);
-    }
-
-    pb->fFS.combineColorAndCoverage(inputColor, inputCoverageVec4);
-
     return pb->finalize();
 }
 
-GrGLProgramBuilder*
-GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
-                                         bool hasGeometryProcessor,
-                                         GrGpuGL* gpu) {
+GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
+                                                             bool hasGeometryProcessor,
+                                                             GrGpuGL* gpu) {
     const GrProgramDesc& desc = optState.programDesc();
     if (GrGLProgramDescBuilder::GetHeader(desc).fUseNvpr) {
         SkASSERT(gpu->glCaps().pathRenderingSupport());
@@ -95,6 +88,7 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optSt
     , fOutOfStage(true)
     , fStageIndex(-1)
     , fGeometryProcessor(NULL)
+    , fXferProcessor(NULL)
     , fOptState(optState)
     , fDesc(optState.programDesc())
     , fGpu(gpu)
@@ -256,6 +250,8 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     if (fOptState.hasGeometryProcessor()) {
         fVS.transformToNormalizedDeviceSpace();
     }
+
+    this->emitAndInstallXferProc(*fOptState.getXferProcessor(), *inputColor, *inputCoverage);
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
@@ -364,8 +360,53 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
     verify(gp);
 }
 
+void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
+                                                const GrGLSLExpr4& colorIn,
+                                                const GrGLSLExpr4& coverageIn) {
+    // Program builders have a bit of state we need to clear with each effect
+    AutoStageAdvance adv(this);
+
+    SkASSERT(!fXferProcessor);
+    fXferProcessor = SkNEW(GrGLInstalledXferProc);
+
+    fXferProcessor->fGLProc.reset(xp.createGLInstance());
+
+    // Enable dual source secondary output if we have one
+    if (xp.hasSecondaryOutput()) {
+        fFS.enableSecondaryOutput();
+    }
+
+    // On any post 1.10 GLSL supporting GPU, we declare custom output
+    if (k110_GrGLSLGeneration != fFS.fProgramBuilder->gpu()->glslGeneration()) {
+        fFS.enableCustomOutput();
+    }
+
+    SkString openBrace;
+    openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
+    fFS.codeAppend(openBrace.c_str());
+
+    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(xp.numTextures());
+    this->emitSamplers(xp, &samplers, fXferProcessor);
+
+    GrGLXferProcessor::EmitArgs args(this, xp, colorIn.c_str(), coverageIn.c_str(),
+                                     fFS.getPrimaryColorOutputName(),
+                                     fFS.getSecondaryColorOutputName(), samplers);
+    fXferProcessor->fGLProc->emitCode(args);
+
+    // We have to check that effects and the code they emit are consistent, ie if an effect
+    // asks for dst color, then the emit code needs to follow suit
+    verify(xp);
+    fFS.codeAppend("}");
+}
+
 void GrGLProgramBuilder::verify(const GrGeometryProcessor& gp) {
     SkASSERT(fFS.hasReadFragmentPosition() == gp.willReadFragmentPosition());
+}
+
+void GrGLProgramBuilder::verify(const GrXferProcessor& xp) {
+    // TODO: Once will readDst is only xp enable this assert and remove it from the
+    // FragmentProcessor verify()
+    //SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
 }
 
 void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
@@ -539,7 +580,7 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return SkNEW_ARGS(GrGLProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
-                                    fGeometryProcessor, fFragmentProcessors.get()));
+                                    fGeometryProcessor, fXferProcessor, fFragmentProcessors.get()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

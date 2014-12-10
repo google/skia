@@ -26,20 +26,44 @@ public:
 
     virtual const char* name() const { return "Porter Duff"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
 
-    virtual GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                                       const GrProcOptInfo& coveragePOI,
-                                                       bool isCoverageDrawing,
-                                                       bool colorWriteDisabled,
-                                                       bool doesStencilWrite,
-                                                       GrColor* color,
-                                                       uint8_t* coverage) SK_OVERRIDE;
+    virtual bool hasSecondaryOutput() const SK_OVERRIDE;
 
-    virtual void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Stage Output Types
+    ////
+
+    enum SecondaryOutputType {
+        // There is no secondary output
+        kNone_SecondaryOutputType,
+        // Writes coverage as the secondary output. Only set if dual source blending is supported
+        // and primary output is kModulate.
+        kCoverage_SecondaryOutputType,
+        // Writes coverage * (1 - colorA) as the secondary output. Only set if dual source blending
+        // is supported and primary output is kModulate.
+        kCoverageISA_SecondaryOutputType,
+        // Writes coverage * (1 - colorRGBA) as the secondary output. Only set if dual source
+        // blending is supported and primary output is kModulate.
+        kCoverageISC_SecondaryOutputType,
+
+        kSecondaryOutputTypeCnt,
+    };
+
+    SecondaryOutputType secondaryOutputType() const { return fSecondaryOutputType; }
+
+    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
+                                               const GrProcOptInfo& coveragePOI,
+                                               bool isCoverageDrawing,
+                                               bool colorWriteDisabled,
+                                               bool doesStencilWrite,
+                                               GrColor* color,
+                                               uint8_t* coverage,
+                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
         blendInfo->fSrcBlend = fSrcBlend;
         blendInfo->fDstBlend = fDstBlend;
         blendInfo->fBlendConstant = fBlendConstant;
@@ -48,21 +72,34 @@ public:
 private:
     GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant);
 
-    virtual bool onIsEqual(const GrFragmentProcessor& fpBase) const SK_OVERRIDE {
-        const GrPorterDuffXferProcessor& xp = fpBase.cast<GrPorterDuffXferProcessor>();
+    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
+        const GrPorterDuffXferProcessor& xp = xpBase.cast<GrPorterDuffXferProcessor>();
         if (fSrcBlend != xp.fSrcBlend ||
             fDstBlend != xp.fDstBlend ||
-            fBlendConstant != xp.fBlendConstant) {
+            fBlendConstant != xp.fBlendConstant ||
+            fSecondaryOutputType != xp.fSecondaryOutputType) {
             return false;
         }
         return true;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+
+    GrXferProcessor::OptFlags internalGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                       const GrProcOptInfo& coveragePOI,
+                                                       bool isCoverageDrawing,
+                                                       bool colorWriteDisabled,
+                                                       bool doesStencilWrite,
+                                                       GrColor* color,
+                                                       uint8_t* coverage);
+
+    void calcOutputTypes(GrXferProcessor::OptFlags blendOpts, const GrDrawTargetCaps& caps,
+                         bool isCoverageDrawing, bool readDst);
 
     GrBlendCoeff fSrcBlend;
     GrBlendCoeff fDstBlend;
     GrColor      fBlendConstant;
+    SecondaryOutputType fSecondaryOutputType;
 
     typedef GrXferProcessor INHERITED;
 };
@@ -106,6 +143,8 @@ private:
         const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();
         return (fSrcCoeff == xpf.fSrcCoeff && fDstCoeff == xpf.fDstCoeff);
     }
+
+    GR_DECLARE_XP_FACTORY_TEST;
 
     GrBlendCoeff fSrcCoeff;
     GrBlendCoeff fDstCoeff;
