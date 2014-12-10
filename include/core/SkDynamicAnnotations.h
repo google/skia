@@ -8,6 +8,9 @@
 #ifndef SkDynamicAnnotations_DEFINED
 #define SkDynamicAnnotations_DEFINED
 
+// Make sure we see anything set via SkUserConfig.h (e.g. SK_DYNAMIC_ANNOTATIONS_ENABLED).
+#include "SkTypes.h"
+
 // This file contains macros used to send out-of-band signals to dynamic instrumentation systems,
 // namely thread sanitizer.  This is a cut-down version of the full dynamic_annotations library with
 // only the features used by Skia.
