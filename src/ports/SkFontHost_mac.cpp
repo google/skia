@@ -25,6 +25,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFloatingPoint.h"
 #include "SkGlyph.h"
+#include "SkLazyFnPtr.h"
 #include "SkMaskGamma.h"
 #include "SkSFNTHeader.h"
 #include "SkOTTable_glyf.h"
@@ -43,7 +44,7 @@
 #include "SkFontMgr.h"
 #include "SkUtils.h"
 
-//#define HACK_COLORGLYPHS
+#include <dlfcn.h>
 
 class SkScalerContext_Mac;
 
@@ -273,7 +274,6 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix,
 ///////////////////////////////////////////////////////////////////////////////
 
 #define BITMAP_INFO_RGB (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
-#define BITMAP_INFO_GRAY (kCGImageAlphaNone)
 
 /**
  * There does not appear to be a publicly accessable API for determining if lcd
@@ -304,7 +304,14 @@ static bool supports_LCD() {
 
 class Offscreen {
 public:
-    Offscreen();
+    Offscreen()
+        : fRGBSpace(NULL)
+        , fCG(NULL)
+        , fDoAA(false)
+        , fDoLCD(false)
+    {
+        fSize.set(0, 0);
+    }
 
     CGRGBPixel* getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                       CGGlyph glyphID, size_t* rowBytesPtr,
@@ -327,11 +334,6 @@ private:
         return SkNextPow2(dimension);
     }
 };
-
-Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL),
-                         fDoAA(false), fDoLCD(false) {
-    fSize.set(0, 0);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -440,8 +442,21 @@ public:
         , fRequestedName(requestedName)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fIsLocalStream(isLocalStream)
+        , fHasSbixTable(false)
     {
         SkASSERT(fontRef);
+
+        AutoCFRelease<CFArrayRef> tags(CTFontCopyAvailableTables(fFontRef,kCTFontTableOptionNoOptions));
+        if (tags) {
+            int count = SkToInt(CFArrayGetCount(tags));
+            for (int i = 0; i < count; ++i) {
+                uintptr_t tag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags, i));
+                if ('sbix' == tag) {
+                    fHasSbixTable = true;
+                    break;
+                }
+            }
+        }
     }
 
     SkString fRequestedName;
@@ -469,6 +484,7 @@ protected:
 
 private:
     bool fIsLocalStream;
+    bool fHasSbixTable;
 
     typedef SkTypeface INHERITED;
 };
@@ -663,6 +679,7 @@ private:
 
     Offscreen fOffscreen;
     AutoCFRelease<CTFontRef> fCTFont;
+    CGAffineTransform fInvTransform;
 
     /** Vertical variant of fCTFont.
      *
@@ -701,9 +718,14 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
 
+    // CT on (at least) 10.9 will size color glyphs down from the requested size, but not up.
+    // As a result, it is necessary to know the actual device size and request that.
+    SkVector scale;
     SkMatrix skTransform;
-    fRec.getSingleMatrixWithoutTextSize(&skTransform);
+    fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale, &scale, &skTransform,
+                         NULL, NULL, &fFUnitMatrix);
     CGAffineTransform transform = MatrixToCGAffineTransform(skTransform);
+    fInvTransform = CGAffineTransformInvert(transform);
 
     AutoCFRelease<CTFontDescriptorRef> ctFontDesc;
     if (fVertical) {
@@ -722,13 +744,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
 
     // The transform contains everything except the requested text size.
     // Some properties, like 'trak', are based on the text size (before applying the matrix).
-    CGFloat textSize = ScalarToCG(fRec.fTextSize);
-
-    // If a text size of 0 is requested, CoreGraphics will use 12 instead.
-    // If the text size is 0, set it to something tiny.
-    if (textSize < CGFLOAT_MIN) {
-        textSize = CGFLOAT_MIN;
-    }
+    CGFloat textSize = ScalarToCG(scale.y());
 
     fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &transform, ctFontDesc));
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont, NULL));
@@ -739,14 +755,39 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     }
 
     // The fUnitMatrix includes the text size (and em) as it is used to scale the raw font data.
-    fRec.getSingleMatrix(&fFUnitMatrix);
     SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont)));
     fFUnitMatrix.preScale(emPerFUnit, -emPerFUnit);
 }
 
+extern "C" {
+
+/** CTFontDrawGlyphs was introduced in 10.7. */
+typedef void (*CTFontDrawGlyphsProc)(CTFontRef, const CGGlyph[], const CGPoint[],
+                                     size_t, CGContextRef);
+
+/** This is an implementation of CTFontDrawGlyphs for 10.6. */
+static void sk_legacy_CTFontDrawGlyphs(CTFontRef, const CGGlyph glyphs[], const CGPoint points[],
+                                       size_t count, CGContextRef cg)
+{
+    CGContextShowGlyphsAtPositions(cg, glyphs, points, count);
+}
+
+}
+
+CTFontDrawGlyphsProc SkChooseCTFontDrawGlyphs() {
+    CTFontDrawGlyphsProc realCTFontDrawGlyphs;
+    *reinterpret_cast<void**>(&realCTFontDrawGlyphs) = dlsym(RTLD_DEFAULT, "CTFontDrawGlyphs");
+    return realCTFontDrawGlyphs ? realCTFontDrawGlyphs : sk_legacy_CTFontDrawGlyphs;
+};
+
+SK_DECLARE_STATIC_LAZY_FN_PTR(CTFontDrawGlyphsProc, gCTFontDrawGlyphs, SkChooseCTFontDrawGlyphs);
+
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                              CGGlyph glyphID, size_t* rowBytesPtr,
-                             bool generateA8FromLCD) {
+                             bool generateA8FromLCD)
+{
+    CTFontDrawGlyphsProc ctFontDrawGlyphs = gCTFontDrawGlyphs.get();
+
     if (!fRGBSpace) {
         //It doesn't appear to matter what color space is specified.
         //Regular blends and antialiased text are always (s*a + d*(1-a))
@@ -769,6 +810,13 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         doAA = true;
     }
 
+    // If this font might have color glyphs, disable LCD as there's no way to support it.
+    // CoreText doesn't tell us which format it ended up using, so we can't detect it.
+    // A8 will be ugly too (white on transparent), but TODO: we can detect gray and set to A8.
+    if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+        doLCD = false;
+    }
+
     size_t rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
     if (!fCG || fSize.fWidth < glyph.fWidth || fSize.fHeight < glyph.fHeight) {
         if (fSize.fWidth < glyph.fWidth) {
@@ -780,24 +828,25 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
         rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
         void* image = fImageStorage.reset(rowBytes * fSize.fHeight);
+        const CGImageAlphaInfo alpha = (SkMask::kARGB32_Format == glyph.fMaskFormat)
+                                     ? kCGImageAlphaPremultipliedFirst
+                                     : kCGImageAlphaNoneSkipFirst;
+        const CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | alpha;
         fCG.reset(CGBitmapContextCreate(image, fSize.fWidth, fSize.fHeight, 8,
-                                        rowBytes, fRGBSpace, BITMAP_INFO_RGB));
+                                        rowBytes, fRGBSpace, bitmapInfo));
 
-        // skia handles quantization itself, so we disable this for cg to get
-        // full fractional data from them.
+        // Skia handles quantization and subpixel positioning,
+        // so disable quantization and enabe subpixel positioning in CG.
         CGContextSetAllowsFontSubpixelQuantization(fCG, false);
         CGContextSetShouldSubpixelQuantizeFonts(fCG, false);
-
-        CGContextSetTextDrawingMode(fCG, kCGTextFill);
-        CGContextSetFont(fCG, context.fCGFont);
-        CGContextSetFontSize(fCG, CTFontGetSize(context.fCTFont));
-        CGContextSetTextMatrix(fCG, CTFontGetMatrix(context.fCTFont));
 
         // Because CG always draws from the horizontal baseline,
         // if there is a non-integral translation from the horizontal origin to the vertical origin,
         // then CG cannot draw the glyph in the correct location without subpixel positioning.
-        CGContextSetAllowsFontSubpixelPositioning(fCG, context.fDoSubPosition || context.fVertical);
-        CGContextSetShouldSubpixelPositionFonts(fCG, context.fDoSubPosition || context.fVertical);
+        CGContextSetAllowsFontSubpixelPositioning(fCG, true);
+        CGContextSetShouldSubpixelPositionFonts(fCG, true);
+
+        CGContextSetTextDrawingMode(fCG, kCGTextFill);
 
         // Draw white on black to create mask.
         // TODO: Draw black on white and invert, CG has a special case codepath.
@@ -806,6 +855,14 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         // force our checks below to happen
         fDoAA = !doAA;
         fDoLCD = !doLCD;
+
+        if (sk_legacy_CTFontDrawGlyphs == ctFontDrawGlyphs) {
+            // CTFontDrawGlyphs will apply the font, font size, and font matrix to the CGContext.
+            // Our 'fake' one does not, so set up the CGContext here.
+            CGContextSetFont(fCG, context.fCGFont);
+            CGContextSetFontSize(fCG, CTFontGetSize(context.fCTFont));
+            CGContextSetTextMatrix(fCG, CTFontGetMatrix(context.fCTFont));
+        }
     }
 
     if (fDoAA != doAA) {
@@ -831,7 +888,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         subY = SkFixedToFloat(glyph.getSubYFixed());
     }
 
-    // CGContextShowGlyphsAtPoint always draws using the horizontal baseline origin.
+    // CoreText and CoreGraphics always draw using the horizontal baseline origin.
     if (context.fVertical) {
         SkPoint offset;
         context.getVerticalOffset(glyphID, &offset);
@@ -839,9 +896,12 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         subY += offset.fY;
     }
 
-    CGContextShowGlyphsAtPoint(fCG, -glyph.fLeft + subX,
-                               glyph.fTop + glyph.fHeight - subY,
-                               &glyphID, 1);
+    // CTFontDrawGlyphs and CGContextShowGlyphsAtPositions take 'positions' which are in text space.
+    // The glyph location (in device space) must be mapped into text space, so that CG can convert
+    // it back into device space.
+    CGPoint point = CGPointMake(-glyph.fLeft + subX, glyph.fTop + glyph.fHeight - subY);
+    point = CGPointApplyAffineTransform(point, context.fInvTransform);
+    ctFontDrawGlyphs(context.fCTFont, &glyphID, &point, 1, fCG);
 
     SkASSERT(rowBytesPtr);
     *rowBytesPtr = rowBytes;
@@ -1045,10 +1105,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fTop = SkToS16(skIBounds.fTop);
     glyph->fWidth = SkToU16(skIBounds.width());
     glyph->fHeight = SkToU16(skIBounds.height());
-
-#ifdef HACK_COLORGLYPHS
-    glyph->fMaskFormat = SkMask::kARGB32_Format;
-#endif
 }
 
 #include "SkColorPriv.h"
@@ -1140,22 +1196,14 @@ static void rgb_to_lcd16(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowByt
     }
 }
 
-#ifdef HACK_COLORGLYPHS
-// hack to colorize the output for testing kARGB32_Format
-static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb, const SkGlyph& glyph,
-                                     int x, int y) {
+static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb) {
+    U8CPU a = (rgb >> 24) & 0xFF;
     U8CPU r = (rgb >> 16) & 0xFF;
     U8CPU g = (rgb >>  8) & 0xFF;
     U8CPU b = (rgb >>  0) & 0xFF;
-    unsigned a = SkComputeLuminance(r, g, b);
 
-    // compute gradient from x,y
-    r = x * 255 / glyph.fWidth;
-    g = 0;
-    b = (glyph.fHeight - y) * 255 / glyph.fHeight;
-    return SkPreMultiplyARGB(a, r, g, b);    // red
+    return SkPackARGB32(a, r, g, b);
 }
-#endif
 
 template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
     return (T*)((char*)ptr + byteOffset);
@@ -1228,20 +1276,18 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 dst += dstRB;
             }
         } break;
-#ifdef HACK_COLORGLYPHS
         case SkMask::kARGB32_Format: {
             const int width = glyph.fWidth;
             size_t dstRB = glyph.rowBytes();
             SkPMColor* dst = (SkPMColor*)glyph.fImage;
             for (int y = 0; y < glyph.fHeight; y++) {
                 for (int x = 0; x < width; ++x) {
-                    dst[x] = cgpixels_to_pmcolor(cgPixels[x], glyph, x, y);
+                    dst[x] = cgpixels_to_pmcolor(cgPixels[x]);
                 }
                 cgPixels = (CGRGBPixel*)((char*)cgPixels + cgRowBytes);
                 dst = (SkPMColor*)((char*)dst + dstRB);
             }
         } break;
-#endif
         default:
             SkDEBUGFAIL("unexpected mask format");
             break;
@@ -1826,6 +1872,13 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         } else {
             rec->fMaskFormat = SkMask::kA8_Format;
         }
+    }
+
+    // CoreText provides no information as to whether a glyph will be color or not.
+    // Fonts may mix outlines and bitmaps, so information is needed on a glyph by glyph basis.
+    // If a font contains an 'sbix' table, consider it to be a color font, and disable lcd.
+    if (fHasSbixTable) {
+        rec->fMaskFormat = SkMask::kARGB32_Format;
     }
 
     // Unhinted A8 masks (those not derived from LCD masks) must respect SK_GAMMA_APPLY_TO_A8.

@@ -735,6 +735,29 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
         *A_out = A;
     }
 
+    // If the 'total' matrix is singular, set the 'scale' to something finite and zero the matrices.
+    // All underlying ports have issues with zero text size, so use the matricies to zero.
+
+    // Map the vectors [1,1] and [1,-1] (the EM) through the 'total' matrix.
+    // If the length of one of these vectors is less than 1/256 then an EM filling square will
+    // never affect any pixels.
+    SkVector diag[2] = { { A.getScaleX() + A.getSkewX(), A.getScaleY() + A.getSkewY() },
+                         { A.getScaleX() - A.getSkewX(), A.getScaleY() - A.getSkewY() }, };
+    if (diag[0].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
+        diag[1].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero)
+    {
+        s->fX = SK_Scalar1;
+        s->fY = SK_Scalar1;
+        sA->setScale(0, 0);
+        if (GsA) {
+            GsA->setScale(0, 0);
+        }
+        if (G_inv) {
+            G_inv->reset();
+        }
+        return;
+    }
+
     // GA is the matrix A with rotation removed.
     SkMatrix GA;
     bool skewedOrFlipped = A.getSkewX() || A.getSkewY() || A.getScaleX() < 0 || A.getScaleY() < 0;
@@ -789,12 +812,18 @@ void SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     }
 
     // The 'remaining' matrix sA is the total matrix A without the scale.
-    if (!skewedOrFlipped && kFull_PreMatrixScale == preMatrixScale) {
+    if (!skewedOrFlipped && (
+            (kFull_PreMatrixScale == preMatrixScale) ||
+            (kVertical_PreMatrixScale == preMatrixScale && A.getScaleX() == A.getScaleY())))
+    {
         // If GA == A and kFull_PreMatrixScale, sA is identity.
+        // If GA == A and kVertical_PreMatrixScale and A.scaleX == A.scaleY, sA is identity.
         sA->reset();
+    } else if (!skewedOrFlipped && kVertical_PreMatrixScale == preMatrixScale) {
+        // If GA == A and kVertical_PreMatrixScale, sA.scaleY is SK_Scalar1.
+        sA->reset();
+        sA->setScaleX(A.getScaleX() / s->fY);
     } else {
-        // TODO: If GA == A and kVertical_PreMatrixScale, sA.scaleY is SK_Scalar1.
-        // TODO: If GA == A and kVertical_PreMatrixScale and A.scaleX == A.scaleY, sA is identity.
         // TODO: like kVertical_PreMatrixScale, kVerticalInteger_PreMatrixScale with int scales.
         *sA = A;
         sA->preScale(SkScalarInvert(s->fX), SkScalarInvert(s->fY));

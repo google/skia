@@ -5247,7 +5247,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11789348685223172819
+          13032493291667632017
         ]
       ], 
       "reviewed-by-human": true
@@ -5256,7 +5256,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15149178935785271539
+          11273349171545726106
         ]
       ], 
       "reviewed-by-human": true
@@ -5265,7 +5265,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15438356327428870853
+          4366598485015533839
         ]
       ], 
       "reviewed-by-human": true
@@ -8234,10 +8234,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13789531822458450208
+          1555170927970049036
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "fontscaler_8888.png": {
       "allowed-digests": [
@@ -8252,10 +8253,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3435885476716320759
+          17388530483934778471
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "fontscaler_mesa.png": {
       "allowed-digests": [
@@ -14364,7 +14366,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9662049661835088514
+          18234606030589341199
         ]
       ], 
       "ignore-failure": false, 
@@ -14374,7 +14376,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6893029029115312480
+          264636000130053487
         ]
       ], 
       "reviewed-by-human": true
