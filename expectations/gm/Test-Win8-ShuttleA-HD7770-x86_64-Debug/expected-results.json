@@ -8695,13 +8695,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4862853586389553678
+          1895277231589223401
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hairlines_pdf-poppler.png": {
       "allowed-digests": [

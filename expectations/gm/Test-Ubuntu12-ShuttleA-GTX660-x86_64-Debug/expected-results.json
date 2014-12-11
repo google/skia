@@ -13104,19 +13104,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4510143230044868465
+          12198991168110095220
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hairlines_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10922500124714034872
+          7481353339810631908
         ]
       ], 
       "reviewed-by-human": true
@@ -13125,13 +13122,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4500080431774904935
+          1813656516305436585
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hairlines_pdf-poppler.png": {
       "allowed-digests": [
