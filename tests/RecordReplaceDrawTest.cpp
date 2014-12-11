@@ -85,8 +85,8 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
 
     GrRecordReplaceDraw(pic, &canvas, NULL, SkMatrix::I(), NULL/*callback*/);
 
-    // ensure rerecord is balanced (in this case by checking that the count is even)
-    REPORTER_ASSERT(r, (rerecord.count() & 1) == 0);
+    // ensure rerecord is balanced (in this case by checking that the count is odd)
+    REPORTER_ASSERT(r, (rerecord.count() & 1) == 1);
 }
 
 // Test out the layer replacement functionality with and w/o a BBH
