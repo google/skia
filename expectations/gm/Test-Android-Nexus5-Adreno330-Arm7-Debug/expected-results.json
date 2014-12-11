@@ -6453,7 +6453,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9293293797458777202
+          18122502157273537720
         ]
       ], 
       "reviewed-by-human": true
@@ -6462,13 +6462,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13269473576016756464
+          4408059671304210250
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hairlines_gpu.png": {
       "allowed-digests": [

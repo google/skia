@@ -9811,17 +9811,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3746404902639900755
+          3604596372390003310
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "hairlines_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13269473576016756464
+          4408059671304210250
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "hairlines_gpu.png": {
       "allowed-digests": [

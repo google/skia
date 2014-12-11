@@ -10021,17 +10021,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9293293797458777202
+          7131507694360996645
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "hairlines_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13269473576016756464
+          9691962492787154982
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "hairlines_gpu.png": {
       "allowed-digests": [
@@ -10046,9 +10048,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3284572164575237877
+          1477239754483441075
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "hairmodes_565.png": {
       "allowed-digests": [
