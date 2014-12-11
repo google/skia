@@ -14,6 +14,7 @@
 #include "../GrGLProgramDataManager.h"
 #include "../GrGLUniformHandle.h"
 #include "../GrGLGeometryProcessor.h"
+#include "../GrGLXferProcessor.h"
 #include "../../GrOptDrawState.h"
 #include "../../GrPendingFragmentStage.h"
 
@@ -111,6 +112,7 @@ private:
 
     friend class GrGLVertexBuilder;
     friend class GrGLGeometryBuilder;
+    friend class GrGLXferBuilder;
     friend class GrGLFragmentShaderBuilder;
 };
 
@@ -170,8 +172,18 @@ public:
      */
 };
 
+/* a specializations for XPs. Lets the user add uniforms and FS code */
+class GrGLXPBuilder : public virtual GrGLUniformBuilder {
+public:
+    virtual GrGLFPFragmentBuilder* getFragmentShaderBuilder() = 0;
+
+    /*
+     * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
+     */
+};
 struct GrGLInstalledProc;
 struct GrGLInstalledGeoProc;
+struct GrGLInstalledXferProc;
 struct GrGLInstalledFragProc;
 struct GrGLInstalledFragProcs;
 
@@ -183,7 +195,8 @@ struct GrGLInstalledFragProcs;
  * respective builders
 */
 class GrGLProgramBuilder : public GrGLGPBuilder,
-                           public GrGLFPBuilder {
+                           public GrGLFPBuilder,
+                           public GrGLXPBuilder {
 public:
     /** Generates a shader program.
      *
@@ -283,8 +296,12 @@ protected:
     void emitAndInstallProc(const GrGeometryProcessor&,
                             const char* outColor,
                             const char* outCoverage);
+    void emitAndInstallXferProc(const GrXferProcessor&,
+                                const GrGLSLExpr4& colorIn,
+                                const GrGLSLExpr4& coverageIn);
 
     void verify(const GrGeometryProcessor&);
+    void verify(const GrXferProcessor&);
     void verify(const GrFragmentProcessor&);
     void emitSamplers(const GrProcessor&,
                       GrGLProcessor::TextureSamplerArray* outSamplers,
@@ -358,6 +375,7 @@ protected:
     int fStageIndex;
 
     GrGLInstalledGeoProc* fGeometryProcessor;
+    GrGLInstalledXferProc* fXferProcessor;
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
     const GrOptDrawState& fOptState;
@@ -389,6 +407,10 @@ struct GrGLInstalledProc {
 
 struct GrGLInstalledGeoProc : public GrGLInstalledProc {
     SkAutoTDelete<GrGLGeometryProcessor> fGLProc;
+};
+
+struct GrGLInstalledXferProc : public GrGLInstalledProc {
+    SkAutoTDelete<GrGLXferProcessor> fGLProc;
 };
 
 struct GrGLInstalledFragProc : public GrGLInstalledProc {

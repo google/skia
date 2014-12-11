@@ -172,11 +172,7 @@ private:
                        size_t* indexOffsetInBytes);
 
     // Subclasses should call this to flush the blend state.
-    // The params should be the final coefficients to apply
-    // (after any blending optimizations or dual source blending considerations
-    // have been accounted for).
-    void flushBlend(const GrOptDrawState& optState, bool isLines,
-                    GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
+    void flushBlend(const GrOptDrawState& optState);
 
     bool hasExtension(const char* ext) const { return fGLContext.hasExtension(ext); }
 

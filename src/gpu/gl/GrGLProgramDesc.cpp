@@ -189,11 +189,19 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
         const GrFragmentProcessor& fp = *fps.getProcessor();
         GrProcessorKeyBuilder b(&desc->fKey);
         fp.getGLProcessorKey(gpu->glCaps(), &b);
-        if (!get_meta_key(*fps.getProcessor(), gpu->glCaps(),
-                         gen_transform_key(fps, requiresLocalCoordAttrib), 0, &b)) {
+        if (!get_meta_key(fp, gpu->glCaps(),
+                          gen_transform_key(fps, requiresLocalCoordAttrib), 0, &b)) {
             desc->fKey.reset();
             return false;
         }
+    }
+
+    const GrXferProcessor& xp = *optState.getXferProcessor();
+    GrProcessorKeyBuilder b(&desc->fKey);
+    xp.getGLProcessorKey(gpu->glCaps(), &b);
+    if (!get_meta_key(xp, gpu->glCaps(), 0, 0, &b)) {
+        desc->fKey.reset();
+        return false;
     }
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
@@ -259,9 +267,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     } else {
         header->fFragPosKey = 0;
     }
-
-    header->fPrimaryOutputType = descInfo.fPrimaryOutputType;
-    header->fSecondaryOutputType = descInfo.fSecondaryOutputType;
 
     header->fColorEffectCnt = optState.numColorStages();
     header->fCoverageEffectCnt = optState.numCoverageStages();

@@ -100,8 +100,6 @@ private:
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
-    void enableSecondaryOutput(const GrGLSLExpr4& inputColor, const GrGLSLExpr4& inputCoverage);
-    void combineColorAndCoverage(const GrGLSLExpr4& inputColor, const GrGLSLExpr4& inputCoverage);
     bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
     void bindFragmentShaderLocations(GrGLuint programID);
 

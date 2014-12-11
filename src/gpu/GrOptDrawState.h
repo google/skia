@@ -79,7 +79,8 @@ public:
     int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
     int numFragmentStages() const { return fFragmentStages.count(); }
     int numTotalStages() const {
-         return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0);
+        // the + 1 at the end is for the xferProcessor which will always be present
+        return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0) + 1;
     }
 
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
@@ -99,21 +100,6 @@ public:
     const GrPendingFragmentStage& getFragmentStage(int idx) const {
         return fFragmentStages[idx];
     }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Blending
-    ////
-
-    GrBlendCoeff getSrcBlendCoeff() const { return fSrcBlend; }
-    GrBlendCoeff getDstBlendCoeff() const { return fDstBlend; }
-
-    /**
-     * Retrieves the last value set by setBlendConstant()
-     * @return the blending constant value
-     */
-    GrColor getBlendConstant() const { return fBlendConstant; }
 
     /// @}
 
@@ -223,13 +209,10 @@ private:
     ScissorState                        fScissorState;
     GrColor                             fColor;
     SkMatrix                            fViewMatrix;
-    GrColor                             fBlendConstant;
     GrStencilSettings                   fStencilSettings;
     uint8_t                             fCoverage;
     GrDrawState::DrawFace               fDrawFace;
     GrDeviceCoordTexture                fDstCopy;
-    GrBlendCoeff                        fSrcBlend;
-    GrBlendCoeff                        fDstBlend;
     uint32_t                            fFlags;
     ProgramGeometryProcessor            fGeometryProcessor;
     GrBatchTracker                      fBatchTracker;

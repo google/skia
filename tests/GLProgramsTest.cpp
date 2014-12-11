@@ -121,6 +121,14 @@ static GrRenderTarget* random_render_target(GrContext* context,
     return SkRef(texture->asRenderTarget());
 }
 
+static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps, GrDrawState* ds,
+                           SkRandom* random, GrTexture* dummyTextures[]) {
+    SkAutoTUnref<const GrXPFactory> xpf(
+        GrProcessorTestFactory<GrXPFactory>::CreateStage(random, context, caps, dummyTextures));
+    SkASSERT(xpf);
+    ds->setXPFactory(xpf.get());
+}
+
 static void set_random_gp(GrContext* context,
                           const GrDrawTargetCaps& caps,
                           GrDrawState* ds,
@@ -193,22 +201,6 @@ static void set_random_state(GrDrawState* ds, SkRandom* random) {
         state |= random->nextBool() * i;
     }
     ds->enableState(state);
-}
-
-// this function will randomly pick non-self referencing blend modes
-static void set_random_blend_func(GrDrawState* ds, SkRandom* random) {
-    GrBlendCoeff src;
-    do {
-        src = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
-    } while (GrBlendCoeffRefsSrc(src));
-
-    GrBlendCoeff dst;
-    do {
-        dst = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
-    } while (GrBlendCoeffRefsDst(dst));
-
-    GrXPFactory* xpFactory = GrPorterDuffXPFactory::Create(src, dst);
-    ds->setXPFactory(xpFactory)->unref();
 }
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
@@ -310,9 +302,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
                                          usePathRendering,
                                          &random,
                                          dummyTextures);
+
+        // creates a random xfer processor factory on the draw state 
+        set_random_xpf(fContext, gpu->glCaps(), &ds, &random, dummyTextures);
+
         set_random_hints(&ds, &random);
         set_random_state(&ds, &random);
-        set_random_blend_func(&ds, &random);
         set_random_stencil(&ds, &random);
 
         GrDeviceCoordTexture dstCopy;

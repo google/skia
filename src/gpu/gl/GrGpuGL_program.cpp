@@ -213,9 +213,6 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState) {
     } else {
         this->flushMiscFixedFunctionState(optState);
 
-        GrBlendCoeff srcCoeff = optState.getSrcBlendCoeff();
-        GrBlendCoeff dstCoeff = optState.getDstBlendCoeff();
-
         fCurrentProgram.reset(fProgramCache->getProgram(optState));
         if (NULL == fCurrentProgram.get()) {
             SkDEBUGFAIL("Failed to create program!");
@@ -230,7 +227,7 @@ bool GrGpuGL::flushGraphicsState(const GrOptDrawState& optState) {
             fHWProgramID = programID;
         }
 
-        this->flushBlend(optState, kDrawLines_DrawType == optState.drawType(), srcCoeff, dstCoeff);
+        this->flushBlend(optState);
 
         fCurrentProgram->setData(optState);
     }

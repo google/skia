@@ -9,11 +9,12 @@
 
 #include "GrBlend.h"
 #include "GrDrawState.h"
+#include "GrDrawTargetCaps.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
@@ -42,19 +43,45 @@ public:
 
     virtual ~GrGLPorterDuffXferProcessor() {}
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor& fp,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
-        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("%s = %s;", outputColor, inputColor);
+    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        const GrPorterDuffXferProcessor& xp = args.fXP.cast<GrPorterDuffXferProcessor>();
+        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        if (xp.hasSecondaryOutput()) {
+            switch(xp.secondaryOutputType()) {
+                case GrPorterDuffXferProcessor::kCoverage_SecondaryOutputType:
+                    fsBuilder->codeAppendf("%s = %s;", args.fOutputSecondary, args.fInputCoverage);
+                    break;
+                case GrPorterDuffXferProcessor::kCoverageISA_SecondaryOutputType:
+                    fsBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;",
+                                           args.fOutputSecondary, args.fInputColor,
+                                           args.fInputCoverage);
+                    break;
+                case GrPorterDuffXferProcessor::kCoverageISC_SecondaryOutputType:
+                    fsBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;",
+                                           args.fOutputSecondary, args.fInputColor,
+                                           args.fInputCoverage);
+                    break;
+                default:
+                    SkFAIL("Unexpected Secondary Output");
+            }
+        }
+        
+        fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
+                               args.fInputCoverage);
+        if (GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType == xp.primaryOutputType()){
+            fsBuilder->codeAppendf("%s += (vec4(1.0) - %s) * %s;", args.fOutputPrimary,
+                                   args.fInputCoverage, fsBuilder->dstColor());
+        }
     }
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {};
+    virtual void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b) {};
+    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+                       GrProcessorKeyBuilder* b) {
+        const GrPorterDuffXferProcessor& xp = processor.cast<GrPorterDuffXferProcessor>();
+        b->add32(xp.primaryOutputType());
+        b->add32(xp.secondaryOutputType());
+    };
 
 private:
     typedef GrGLXferProcessor INHERITED;
@@ -64,7 +91,11 @@ private:
 
 GrPorterDuffXferProcessor::GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend,
                                                      GrColor constant)
-    : fSrcBlend(srcBlend), fDstBlend(dstBlend), fBlendConstant(constant) {
+    : fSrcBlend(srcBlend)
+    , fDstBlend(dstBlend)
+    , fBlendConstant(constant)
+    , fPrimaryOutputType(kModulate_PrimaryOutputType) 
+    , fSecondaryOutputType(kNone_SecondaryOutputType) {
     this->initClassID<GrPorterDuffXferProcessor>();
 }
 
@@ -76,7 +107,7 @@ void GrPorterDuffXferProcessor::getGLProcessorKey(const GrGLCaps& caps,
     GrGLPorterDuffXferProcessor::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrPorterDuffXferProcessor::createGLInstance() const {
+GrGLXferProcessor* GrPorterDuffXferProcessor::createGLInstance() const {
     return SkNEW_ARGS(GrGLPorterDuffXferProcessor, (*this));
 }
 
@@ -90,7 +121,58 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
                                             bool isCoverageDrawing,
                                             bool colorWriteDisabled,
                                             bool doesStencilWrite,
-                                            GrColor* color, uint8_t* coverage) {
+                                            GrColor* color, uint8_t* coverage,
+                                            const GrDrawTargetCaps& caps) {
+    GrXferProcessor::OptFlags optFlags = this->internalGetOptimizations(colorPOI,
+                                                                        coveragePOI,
+                                                                        isCoverageDrawing,
+                                                                        colorWriteDisabled,
+                                                                        doesStencilWrite,
+                                                                        color,
+                                                                        coverage);
+
+    this->calcOutputTypes(optFlags, caps, isCoverageDrawing || coveragePOI.isSolidWhite(),
+                          colorPOI.readsDst() || coveragePOI.readsDst());
+    return optFlags;
+}
+
+void GrPorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFlags,
+                                                const GrDrawTargetCaps& caps,
+                                                bool hasSolidCoverage, bool readsDst) {
+    // If we do have coverage determine whether it matters.  Dual source blending is expensive so
+    // we don't do it if we are doing coverage drawing.  If we aren't then We always do dual source
+    // blending if we have any effective coverage stages OR the geometry processor doesn't emits
+    // solid coverage.
+    if (!(optFlags & kSetCoverageDrawing_OptFlag) && !hasSolidCoverage) {
+        if (caps.dualSourceBlendingSupport()) {
+            if (kZero_GrBlendCoeff == fDstBlend) {
+                // write the coverage value to second color
+                fSecondaryOutputType = kCoverage_SecondaryOutputType;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            } else if (kSA_GrBlendCoeff == fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
+                fSecondaryOutputType = kCoverageISA_SecondaryOutputType;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            } else if (kSC_GrBlendCoeff == fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
+                fSecondaryOutputType = kCoverageISC_SecondaryOutputType;
+                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+            }
+        } else if (readsDst &&
+                   kOne_GrBlendCoeff == fSrcBlend &&
+                   kZero_GrBlendCoeff == fDstBlend) {
+            fPrimaryOutputType = kCombineWithDst_PrimaryOutputType;
+        }
+    }
+}
+
+GrXferProcessor::OptFlags
+GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                    const GrProcOptInfo& coveragePOI,
+                                                    bool isCoverageDrawing,
+                                                    bool colorWriteDisabled,
+                                                    bool doesStencilWrite,
+                                                    GrColor* color, uint8_t* coverage) {
     if (colorWriteDisabled) {
         fSrcBlend = kZero_GrBlendCoeff;
         fDstBlend = kOne_GrBlendCoeff;
@@ -192,6 +274,11 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
 
     return GrXferProcessor::kNone_Opt;
 }
+
+bool GrPorterDuffXferProcessor::hasSecondaryOutput() const {
+    return kNone_SecondaryOutputType != fSecondaryOutputType;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrPorterDuffXPFactory::GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst)
@@ -450,4 +537,22 @@ bool GrPorterDuffXPFactory::getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI
     return opaque;
 }
 
+GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
+
+GrXPFactory* GrPorterDuffXPFactory::TestCreate(SkRandom* random,
+                                               GrContext*,
+                                               const GrDrawTargetCaps&,
+                                               GrTexture*[]) {
+    GrBlendCoeff src;
+    do {
+        src = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
+    } while (GrBlendCoeffRefsSrc(src));
+
+    GrBlendCoeff dst;
+    do {
+        dst = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
+    } while (GrBlendCoeffRefsDst(dst));
+
+    return GrPorterDuffXPFactory::Create(src, dst);
+}
 

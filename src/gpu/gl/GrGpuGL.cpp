@@ -1919,10 +1919,14 @@ void GrGpuGL::flushAAState(const GrOptDrawState& optState) {
     }
 }
 
-void GrGpuGL::flushBlend(const GrOptDrawState& optState, bool isLines,
-                         GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
+void GrGpuGL::flushBlend(const GrOptDrawState& optState) {
     // Any optimization to disable blending should have already been applied and
     // tweaked the coeffs to (1, 0).
+    
+    GrXferProcessor::BlendInfo blendInfo;
+    optState.getXferProcessor()->getBlendInfo(&blendInfo);
+    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     bool blendOff = kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
     if (blendOff) {
         if (kNo_TriState != fHWBlendState.fEnabled) {
@@ -1941,7 +1945,7 @@ void GrGpuGL::flushBlend(const GrOptDrawState& optState, bool isLines,
             fHWBlendState.fSrcCoeff = srcCoeff;
             fHWBlendState.fDstCoeff = dstCoeff;
         }
-        GrColor blendConst = optState.getBlendConstant();
+        GrColor blendConst = blendInfo.fBlendConstant;
         if ((BlendCoeffReferencesConstant(srcCoeff) ||
              BlendCoeffReferencesConstant(dstCoeff)) &&
             (!fHWBlendState.fConstColorValid ||

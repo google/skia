@@ -51,6 +51,14 @@ imagemagnifier
 #reed
 modecolorfilters
 
+#egdaniel
+xfermodes
+xfermodes2
+xfermodes3
+mixed_xfermodes
+lumafilter
+xfermodeimagefilter
+
 #humper skia:2049
 dashcubics
 

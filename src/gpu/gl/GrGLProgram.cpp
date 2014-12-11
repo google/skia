@@ -12,11 +12,13 @@
 #include "GrCoordTransform.h"
 #include "GrGLGeometryProcessor.h"
 #include "GrGLProcessor.h"
+#include "GrGLXferProcessor.h"
 #include "GrGpuGL.h"
 #include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 #include "GrOptDrawState.h"
+#include "GrXferProcessor.h"
 #include "SkXfermode.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
@@ -57,6 +59,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
                          GrGLInstalledGeoProc* geometryProcessor,
+                         GrGLInstalledXferProc* xferProcessor,
                          GrGLInstalledFragProcs* fragmentProcessors)
     : fColor(GrColor_ILLEGAL)
     , fCoverage(0)
@@ -64,6 +67,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
     , fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
     , fGeometryProcessor(geometryProcessor)
+    , fXferProcessor(xferProcessor)
     , fFragmentProcessors(SkRef(fragmentProcessors))
     , fDesc(desc)
     , fGpu(gpu)
@@ -90,6 +94,9 @@ void GrGLProgram::initSamplerUniforms() {
     }
     if (fGeometryProcessor.get()) {
         this->initSamplers(fGeometryProcessor.get(), &texUnitIdx);
+    }
+    if (fXferProcessor.get()) {
+        this->initSamplers(fXferProcessor.get(), &texUnitIdx);
     }
     int numProcs = fFragmentProcessors->fProcs.count();
     for (int i = 0; i < numProcs; i++) {
@@ -161,6 +168,11 @@ void GrGLProgram::setData(const GrOptDrawState& optState) {
         const GrBatchTracker& bt = optState.getBatchTracker();
         fGeometryProcessor->fGLProc->setData(fProgramDataManager, gp, bt);
         this->bindTextures(fGeometryProcessor, gp);
+    }
+    if (fXferProcessor.get()) {
+        const GrXferProcessor& xp = *optState.getXferProcessor();
+        fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
+        this->bindTextures(fXferProcessor, xp);
     }
     this->setFragmentData(optState);
 
@@ -284,8 +296,10 @@ GrGLNvprProgramBase::GrGLNvprProgramBase(GrGpuGL* gpu,
                                          const BuiltinUniformHandles& builtinUniforms,
                                          GrGLuint programID,
                                          const UniformInfoArray& uniforms,
+                                         GrGLInstalledXferProc* xferProcessor,
                                          GrGLInstalledFragProcs* fragmentProcessors)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, NULL, fragmentProcessors) {
+    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, NULL,
+                xferProcessor, fragmentProcessors) {
 }
 
 void GrGLNvprProgramBase::onSetMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
@@ -303,9 +317,11 @@ GrGLNvprProgram::GrGLNvprProgram(GrGpuGL* gpu,
                                  const BuiltinUniformHandles& builtinUniforms,
                                  GrGLuint programID,
                                  const UniformInfoArray& uniforms,
+                                 GrGLInstalledXferProc* xferProcessor,
                                  GrGLInstalledFragProcs* fragmentProcessors,
                                  const SeparableVaryingInfoArray& separableVaryings)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, fragmentProcessors) {
+    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms,
+                xferProcessor, fragmentProcessors) {
     int count = separableVaryings.count();
     fVaryings.push_back_n(count);
     for (int i = 0; i < count; i++) {
@@ -353,9 +369,10 @@ GrGLLegacyNvprProgram::GrGLLegacyNvprProgram(GrGpuGL* gpu,
                                              const BuiltinUniformHandles& builtinUniforms,
                                              GrGLuint programID,
                                              const UniformInfoArray& uniforms,
+                                             GrGLInstalledXferProc* xp,
                                              GrGLInstalledFragProcs* fps,
                                              int texCoordSetCnt)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, fps)
+    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, xp, fps)
     , fTexCoordSetCnt(texCoordSetCnt) {
 }
 
