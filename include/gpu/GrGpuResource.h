@@ -174,6 +174,16 @@ public:
     inline CacheAccess cacheAccess();
     inline const CacheAccess cacheAccess() const;
 
+    /**
+     * Removes references to objects in the underlying 3D API without freeing them.
+     * Called by CacheAccess.
+     * In general this method should not be called outside of skia. It was
+     * made by public for a special case where it needs to be called in Blink
+     * when a texture becomes unsafe to use after having been shared through
+     * a texture mailbox.
+     */
+    void abandon();
+
 protected:
     // This must be called by every GrGpuObject. It should be called once the object is fully
     // initialized (i.e. not in a base class constructor).
@@ -210,12 +220,6 @@ private:
      * Frees the object in the underlying 3D API. Called by CacheAccess.
      */
     void release();
-
-    /**
-     * Removes references to objects in the underlying 3D API without freeing them. 
-     * Called by CacheAccess.
-     */
-    void abandon();
 
     virtual size_t onGpuMemorySize() const = 0;
 
