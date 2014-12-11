@@ -19,7 +19,7 @@ public:
 
         char* ptr = fByte;
         fByte += bytes;
-        fRemaining -= bytes;
+        fRemaining = SkToU32(fRemaining - bytes);
         return ptr;
     }
 

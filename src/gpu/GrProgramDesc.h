@@ -35,7 +35,7 @@ public:
     uint32_t getChecksum() const { return *this->atOffset<uint32_t, kChecksumOffset>(); }
 
     GrProgramDesc& operator= (const GrProgramDesc& other) {
-        size_t keyLength = other.keyLength();
+        uint32_t keyLength = other.keyLength();
         fKey.reset(keyLength);
         memcpy(fKey.begin(), other.fKey.begin(), keyLength);
         return *this;

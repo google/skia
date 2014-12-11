@@ -42,7 +42,7 @@ public:
         SkASSERT(SkAlign4(length) == length);
         SkASSERT(this->findEntry(tag, NULL) == NULL);
 
-        Entry*  entry = (Entry*)((char*)this + fLength);
+        Entry* entry = (Entry*)((char*)this + fLength);
         entry->fTag = tag;
         entry->fLen = SkToU32(length);
         if (data) {
@@ -50,7 +50,7 @@ public:
         }
 
         fCount += 1;
-        fLength += sizeof(Entry) + length;
+        fLength = SkToU32(fLength + sizeof(Entry) + length);
         return (entry + 1); // return its data
     }
 
