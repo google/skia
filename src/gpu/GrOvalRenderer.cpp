@@ -144,8 +144,8 @@ private:
         return cee.fStroke == fStroke;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
-        inout->mulByUnknownAlpha();
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
     }
 
     const GrAttribute* fInPosition;
@@ -290,8 +290,8 @@ private:
         return eee.fStroke == fStroke;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
-        inout->mulByUnknownAlpha();
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
     }
 
     const GrAttribute* fInPosition;
@@ -455,8 +455,8 @@ private:
         return eee.fMode == fMode;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
-        inout->mulByUnknownAlpha();
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
     }
 
     const GrAttribute* fInPosition;
@@ -562,8 +562,8 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         }
     }
 
-    GrGeometryProcessor* gp = CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0);
-    drawState->setGeometryProcessor(gp)->unref();
+    SkAutoTUnref<GrGeometryProcessor> gp(
+            CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(CircleVertex));
@@ -609,7 +609,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     verts[3].fInnerRadius = innerRadius;
 
     target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 }
 
@@ -689,11 +689,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    GrGeometryProcessor* gp = EllipseEdgeEffect::Create(color,
-                                                        isStrokeOnly &&
-                                                        innerXRadius > 0 && innerYRadius > 0);
-
-    drawState->setGeometryProcessor(gp)->unref();
+    SkAutoTUnref<GrGeometryProcessor> gp(
+            EllipseEdgeEffect::Create(color, isStrokeOnly && innerXRadius > 0 && innerYRadius > 0));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(EllipseVertex));
@@ -744,7 +741,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
     target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
     return true;
@@ -809,9 +806,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     SkScalar innerRatioX = SkScalarDiv(xRadius, innerXRadius);
     SkScalar innerRatioY = SkScalarDiv(yRadius, innerYRadius);
 
-    GrGeometryProcessor* gp = DIEllipseEdgeEffect::Create(color, mode);
-
-    drawState->setGeometryProcessor(gp)->unref();
+    SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(color, mode));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(DIEllipseVertex));
@@ -857,7 +852,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
     target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
     return true;
@@ -1077,8 +1072,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
 
-        GrGeometryProcessor* effect = CircleEdgeEffect::Create(color, isStrokeOnly);
-        drawState->setGeometryProcessor(effect)->unref();
+        SkAutoTUnref<GrGeometryProcessor> effect(CircleEdgeEffect::Create(color, isStrokeOnly));
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);
         SkASSERT(effect->getVertexStride() == sizeof(CircleVertex));
@@ -1140,7 +1134,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
+        target->drawIndexedInstances(drawState, effect, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
                                      &bounds);
 
     // otherwise we use the ellipse renderer
@@ -1179,8 +1173,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
-        GrGeometryProcessor* effect = EllipseEdgeEffect::Create(color, isStrokeOnly);
-        drawState->setGeometryProcessor(effect)->unref();
+        SkAutoTUnref<GrGeometryProcessor> effect(EllipseEdgeEffect::Create(color, isStrokeOnly));
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);
         SkASSERT(effect->getVertexStride() == sizeof(EllipseVertex));
@@ -1247,7 +1240,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexedInstances(drawState, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
+        target->drawIndexedInstances(drawState, effect, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
                                      &bounds);
     }
 

@@ -145,10 +145,6 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
     return true;
 }
 
-void GrProcessor::computeInvariantOutput(GrInvariantOutput* inout) const {
-    this->onComputeInvariantOutput(inout);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
@@ -169,10 +165,37 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     return true;
 }
 
+void GrFragmentProcessor::computeInvariantOutput(GrInvariantOutput* inout) const {
+    this->onComputeInvariantOutput(inout);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GrGeometryProcessor::computeInvariantColor(GrInvariantOutput* intout) const {
+void GrGeometryProcessor::getInvariantOutputColor(GrInitInvariantOutput* out) const {
+    if (fHasVertexColor) {
+        if (fOpaqueVertexColors) {
+            out->setUnknownOpaqueFourComponents();
+        } else {
+            out->setUnknownFourComponents();
+        }
+    } else {
+        out->setKnownFourComponents(fColor);
+    }
+    this->onGetInvariantOutputColor(out);
+}
 
+void GrGeometryProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    this->onGetInvariantOutputCoverage(out);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GrPathProcessor::getInvariantOutputColor(GrInitInvariantOutput* out) const {
+    out->setKnownFourComponents(fColor);
+}
+
+void GrPathProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setKnownSingleComponent(0xff);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,4 +216,3 @@ void GrGeometryData::operator delete(void* target) {
 // Initial static variable from GrXPFactory
 int32_t GrXPFactory::gCurrXPFClassID =
         GrXPFactory::kIllegalXPFClassID;
-

@@ -21,8 +21,9 @@ typedef GrDefaultGeoProcFactory Flag;
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, uint8_t coverage, uint32_t gpTypeFlags) {
-        return SkNEW_ARGS(DefaultGeoProc, (color, coverage, gpTypeFlags));
+    static GrGeometryProcessor* Create(GrColor color, uint8_t coverage, uint32_t gpTypeFlags,
+                                       bool opaqueVertexColors) {
+        return SkNEW_ARGS(DefaultGeoProc, (color, coverage, gpTypeFlags, opaqueVertexColors));
     }
 
     virtual const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
@@ -95,8 +96,8 @@ public:
     }
 
 private:
-    DefaultGeoProc(GrColor color, uint8_t coverage, uint32_t gpTypeFlags)
-        : INHERITED(color, coverage)
+    DefaultGeoProc(GrColor color, uint8_t coverage, uint32_t gpTypeFlags, bool opaqueVertexColors)
+        : INHERITED(color, opaqueVertexColors, coverage)
         , fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
@@ -128,11 +129,12 @@ private:
         return gp.fFlags == this->fFlags;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         if (fInCoverage) {
-            inout->mulByUnknownAlpha();
+            out->setUnknownSingleComponent();
         } else {
-            inout->mulByKnownAlpha(255);
+            // uniform coverage
+            out->setKnownSingleComponent(this->coverage());
         }
     }
 
@@ -164,10 +166,13 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
         flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
     }
 
-    return DefaultGeoProc::Create(GrRandomColor(random), GrRandomCoverage(random), flags);
+    return DefaultGeoProc::Create(GrRandomColor(random), GrRandomCoverage(random),
+                                  flags, random->nextBool());
 }
 
-const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(GrColor color, uint32_t gpTypeFlags,
+const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(GrColor color,
+                                                           uint32_t gpTypeFlags,
+                                                           bool opaqueVertexColors,
                                                            uint8_t coverage) {
-    return DefaultGeoProc::Create(color, coverage, gpTypeFlags);
+    return DefaultGeoProc::Create(color, coverage, gpTypeFlags, opaqueVertexColors);
 }

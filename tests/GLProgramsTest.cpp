@@ -129,19 +129,14 @@ static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps, GrD
     ds->setXPFactory(xpf.get());
 }
 
-static void set_random_gp(GrContext* context,
-                          const GrDrawTargetCaps& caps,
-                          GrDrawState* ds,
-                          SkRandom* random,
-                          GrTexture* dummyTextures[]) {
-    SkAutoTUnref<const GrGeometryProcessor> gp(
-            GrProcessorTestFactory<GrGeometryProcessor>::CreateStage(random,
-                                                                     context,
-                                                                     caps,
-                                                                     dummyTextures));
-    SkASSERT(gp);
-
-    ds->setGeometryProcessor(gp);
+static const GrGeometryProcessor* get_random_gp(GrContext* context,
+                                                const GrDrawTargetCaps& caps,
+                                                SkRandom* random,
+                                                GrTexture* dummyTextures[]) {
+    return GrProcessorTestFactory<GrGeometryProcessor>::CreateStage(random,
+                                                                    context,
+                                                                    caps,
+                                                                    dummyTextures);
 }
 
 static void set_random_color_coverage_stages(GrGpuGL* gpu,
@@ -186,12 +181,6 @@ static void set_random_color_coverage_stages(GrGpuGL* gpu,
             ds->addCoverageProcessor(fp);
         }
         ++s;
-    }
-}
-
-static void set_random_hints(GrDrawState* ds, SkRandom* random) {
-    for (int i = 1; i <= GrDrawState::kLast_Hint; i <<= 1) {
-        ds->setHint(GrDrawState::Hints(i), random->nextBool());
     }
 }
 
@@ -293,8 +282,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         // twiddle drawstate knobs randomly
         bool hasGeometryProcessor = !usePathRendering;
+        const GrGeometryProcessor* gp = NULL;
+        const GrPathProcessor* pathProc = NULL;
         if (hasGeometryProcessor) {
-            set_random_gp(fContext, gpu->glCaps(), &ds, &random, dummyTextures);
+            gp = get_random_gp(fContext, gpu->glCaps(), &random, dummyTextures);
+        } else {
+            pathProc = GrPathProcessor::Create(GrColor_WHITE);
         }
         set_random_color_coverage_stages(gpu,
                                          &ds,
@@ -306,25 +299,25 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         // creates a random xfer processor factory on the draw state 
         set_random_xpf(fContext, gpu->glCaps(), &ds, &random, dummyTextures);
 
-        set_random_hints(&ds, &random);
         set_random_state(&ds, &random);
         set_random_stencil(&ds, &random);
 
         GrDeviceCoordTexture dstCopy;
 
-        // TODO take color off the PP when its installed
-        GrColor color = ds.hasGeometryProcessor() ? ds.getGeometryProcessor()->getColor() :
-                                                    GrColor_WHITE;
-        uint8_t coverage = ds.hasGeometryProcessor() ? ds.getGeometryProcessor()->getCoverage() :
-                                                       0xff;
-        if (!this->setupDstReadIfNecessary(&ds, color, coverage, &dstCopy, NULL)) {
+        const GrPrimitiveProcessor* primProc;
+        if (hasGeometryProcessor) {
+            primProc = gp;
+        } else {
+            primProc = pathProc;
+        }
+        if (!this->setupDstReadIfNecessary(&ds, primProc, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        GrOptDrawState ods(ds, color, coverage, *gpu->caps(), scissor, &dstCopy, drawType);
+        GrOptDrawState ods(ds, gp, pathProc, *gpu->caps(), scissor, &dstCopy, drawType);
         if (ods.mustSkip()) {
             continue;
         }

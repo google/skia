@@ -549,8 +549,6 @@ void GrBitmapTextContext::flush() {
             }
                 // Grayscale/BW text
             case kA8_GrMaskFormat:
-                drawState.setHint(GrDrawState::kVertexColorsAreOpaque_Hint,
-                                   0xFF == GrColorUnpackA(fPaint.getColor()));
                 break;
             default:
                 SkFAIL("Unexpected mask format.");
@@ -561,32 +559,33 @@ void GrBitmapTextContext::flush() {
         if (kARGB_GrMaskFormat == fCurrMaskFormat) {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->getColor() != color) {
+                fCachedGeometryProcessor->color() != color) {
                 uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
                 fCachedGeometryProcessor.reset(GrDefaultGeoProcFactory::Create(color, flags));
                 fCachedTextureProcessor.reset(GrSimpleTextureEffect::Create(fCurrTexture,
                                                                             SkMatrix::I(),
                                                                             params));
             }
-            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
             drawState.addColorProcessor(fCachedTextureProcessor.get());
         } else {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->getColor() != color) {
+                fCachedGeometryProcessor->color() != color) {
                 bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
+                bool opaqueVertexColors = GrColorIsOpaque(fPaint.getColor());
                 fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(color,
-                                                                                   fCurrTexture,
-                                                                                   params,
-                                                                                   hasColor));
+                                                                           fCurrTexture,
+                                                                           params,
+                                                                           hasColor,
+                                                                           opaqueVertexColors));
                 fEffectTextureUniqueID = textureUniqueID;
             }
-            drawState.setGeometryProcessor(fCachedGeometryProcessor.get());
         }
 
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(&drawState,
+                                          fCachedGeometryProcessor.get(),
                                           kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           kVerticesPerGlyph,

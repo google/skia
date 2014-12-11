@@ -173,8 +173,8 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
                                                            const GrTextureParams& gammaParams,
                                                            float luminance,
 #endif
-                                                           uint32_t flags)
-    : INHERITED(color)
+                                                           uint32_t flags, bool opaqueVertexColors)
+    : INHERITED(color, opaqueVertexColors)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fGammaTextureAccess(gamma, gammaParams)
@@ -206,8 +206,8 @@ bool GrDistanceFieldTextureEffect::onIsEqual(const GrGeometryProcessor& other) c
            fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownAlpha();
+void GrDistanceFieldTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownSingleComponent();
 }
 
 void GrDistanceFieldTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
@@ -257,7 +257,8 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
                                                 random->nextF(),
 #endif
                                                 random->nextBool() ?
-                                                    kSimilarity_DistanceFieldEffectFlag : 0);
+                                                    kSimilarity_DistanceFieldEffectFlag : 0,
+                                                random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -384,8 +385,9 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
         GrColor color,
         GrTexture* texture,
         const GrTextureParams& params,
-        uint32_t flags)
-    : INHERITED(color)
+        uint32_t flags,
+        bool opaqueVertexColors)
+    : INHERITED(color, opaqueVertexColors)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
@@ -407,8 +409,8 @@ bool GrDistanceFieldNoGammaTextureEffect::onIsEqual(const GrGeometryProcessor& o
     return fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldNoGammaTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownAlpha();
+void GrDistanceFieldNoGammaTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const{
+    out->setUnknownSingleComponent();
 }
 
 void GrDistanceFieldNoGammaTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
@@ -446,7 +448,7 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
 
     return GrDistanceFieldNoGammaTextureEffect::Create(GrRandomColor(random), textures[texIdx],
                                                        params,
-        random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0);
+        random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0, random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -665,9 +667,9 @@ bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrGeometryProcessor& other
             fFlags == cte.fFlags);
 }
 
-void GrDistanceFieldLCDTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownColor();
-    inout->setUsingLCDCoverage();
+void GrDistanceFieldLCDTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownFourComponents();
+    out->setUsingLCDCoverage();
 }
 
 void GrDistanceFieldLCDTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,

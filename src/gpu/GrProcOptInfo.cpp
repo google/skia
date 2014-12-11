@@ -11,37 +11,58 @@
 #include "GrFragmentStage.h"
 #include "GrGeometryProcessor.h"
 
+void GrProcOptInfo::calcColorWithPrimProc(const GrPrimitiveProcessor* primProc,
+                                          const GrFragmentStage* stages,
+                                          int stageCount) {
+    GrInitInvariantOutput out;
+    primProc->getInvariantOutputColor(&out);
+    fInOut.reset(out);
+    this->internalCalc(stages, stageCount, primProc->willReadFragmentPosition());
+}
+
+void GrProcOptInfo::calcCoverageWithPrimProc(const GrPrimitiveProcessor* primProc,
+                                             const GrFragmentStage* stages,
+                                             int stageCount) {
+    GrInitInvariantOutput out;
+    primProc->getInvariantOutputCoverage(&out);
+    fInOut.reset(out);
+    this->internalCalc(stages, stageCount, primProc->willReadFragmentPosition());
+}
+
 void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
                                           int stageCount,
                                           GrColor startColor,
                                           GrColorComponentFlags flags,
-                                          bool areCoverageStages,
-                                          const GrGeometryProcessor* gp) {
-    fInOut.reset(startColor, flags, areCoverageStages);
+                                          bool areCoverageStages) {
+    GrInitInvariantOutput out;
+    out.fIsSingleComponent = areCoverageStages;
+    out.fColor = startColor;
+    out.fValidFlags = flags;
+    fInOut.reset(out);
+    this->internalCalc(stages, stageCount, false);
+}
+
+void GrProcOptInfo::internalCalc(const GrFragmentStage* stages,
+                                 int stageCount,
+                                 bool initWillReadFragmentPosition) {
     fFirstEffectStageIndex = 0;
     fInputColorIsUsed = true;
-    fInputColor = startColor;
+    fInputColor = fInOut.color();
     fRemoveVertexAttrib = false;
     fReadsDst = false;
-    fReadsFragPosition = false;
-
-    if (areCoverageStages && gp) {
-        gp->computeInvariantOutput(&fInOut);
-    }
+    fReadsFragPosition = initWillReadFragmentPosition;
 
     for (int i = 0; i < stageCount; ++i) {
         const GrFragmentProcessor* processor = stages[i].getProcessor();
         fInOut.resetWillUseInputColor();
         processor->computeInvariantOutput(&fInOut);
-#ifdef SK_DEBUG
-        fInOut.validate();
-#endif
+        SkDEBUGCODE(fInOut.validate());
         if (!fInOut.willUseInputColor()) {
             fFirstEffectStageIndex = i;
             fInputColorIsUsed = false;
             // Reset these since we don't care if previous stages read these values
             fReadsDst = false;
-            fReadsFragPosition = false;
+            fReadsFragPosition = initWillReadFragmentPosition;
         }
         if (processor->willReadDstColor()) {
             fReadsDst = true;
@@ -59,8 +80,7 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentStage* stages,
             fInOut.resetNonMulStageFound();
             // Reset these since we don't care if previous stages read these values
             fReadsDst = false;
-            fReadsFragPosition = false;
+            fReadsFragPosition = initWillReadFragmentPosition;
         }
     }
 }
-

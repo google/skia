@@ -66,8 +66,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
-                                         const GrTextureParams& params, bool useColorAttrib)
-    : INHERITED(color), fTextureAccess(texture, params), fInColor(NULL) {
+                                         const GrTextureParams& params, bool useColorAttrib,
+                                         bool opaqueVertexColors)
+    : INHERITED(color, opaqueVertexColors), fTextureAccess(texture, params), fInColor(NULL) {
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     if (useColorAttrib) {
@@ -84,15 +85,15 @@ bool GrBitmapTextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
     return SkToBool(this->inColor()) == SkToBool(gp.inColor());
 }
 
-void GrBitmapTextGeoProc::onComputeInvariantOutput(GrInvariantOutput* inout) const {
+void GrBitmapTextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
-        inout->mulByUnknownAlpha();
+        out->setUnknownSingleComponent();
     } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
-        inout->mulByUnknownOpaqueColor();
-        inout->setUsingLCDCoverage();
+        out->setUnknownOpaqueFourComponents();
+        out->setUsingLCDCoverage();
     } else {
-        inout->mulByUnknownColor();
-        inout->setUsingLCDCoverage();
+        out->setUnknownFourComponents();
+        out->setUsingLCDCoverage();
     }
 }
 
@@ -129,5 +130,5 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
                                                            GrTextureParams::kNone_FilterMode);
 
     return GrBitmapTextGeoProc::Create(GrRandomColor(random), textures[texIdx], params,
-                                       random->nextBool());
+                                       random->nextBool(), random->nextBool());
 }

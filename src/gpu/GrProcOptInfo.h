@@ -13,7 +13,7 @@
 
 class GrFragmentStage;
 class GrFragmentProcessor;
-class GrGeometryProcessor;
+class GrPrimitiveProcessor;
 class GrProcessor;
 
 /**
@@ -33,8 +33,11 @@ public:
         , fReadsFragPosition(false) {}
 
     void calcWithInitialValues(const GrFragmentStage*, int stageCount, GrColor startColor,
-                               GrColorComponentFlags flags, bool areCoverageStages,
-                               const GrGeometryProcessor* gp = NULL);
+                               GrColorComponentFlags flags, bool areCoverageStages);
+
+    void calcColorWithPrimProc(const GrPrimitiveProcessor*, const GrFragmentStage*, int stagecount);
+    void calcCoverageWithPrimProc(const GrPrimitiveProcessor*, const GrFragmentStage*,
+                                  int stagecount);
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
@@ -89,6 +92,8 @@ public:
     bool readsFragPosition() const { return fReadsFragPosition; }
 
 private:
+    void internalCalc(const GrFragmentStage*, int stagecount, bool initWillReadFragPosition);
+
     GrInvariantOutput fInOut;
     int fFirstEffectStageIndex;
     bool fInputColorIsUsed;

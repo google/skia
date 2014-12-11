@@ -233,6 +233,7 @@ public:
      *                     not a request for clipping.
      */
     void drawIndexed(GrDrawState*,
+                     const GrGeometryProcessor*,
                      GrPrimitiveType type,
                      int startVertex,
                      int startIndex,
@@ -252,6 +253,7 @@ public:
      *                     not a request for clipping.
      */
     void drawNonIndexed(GrDrawState*,
+                        const GrGeometryProcessor*,
                         GrPrimitiveType type,
                         int startVertex,
                         int vertexCount,
@@ -263,13 +265,13 @@ public:
      * on the draw state (if possible in the 3D API).  Note, we will never have an inverse fill
      * with stencil path
      */
-    void stencilPath(GrDrawState*, const GrPath*, GrPathRendering::FillType fill);
+    void stencilPath(GrDrawState*, const GrPathProcessor*, const GrPath*,GrPathRendering::FillType);
 
     /**
      * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the draw state (if possible in the 3D API).
      */
-    void drawPath(GrDrawState*, GrColor, const GrPath*, GrPathRendering::FillType fill);
+    void drawPath(GrDrawState*, const GrPathProcessor*, const GrPath*, GrPathRendering::FillType);
 
     /**
      * Draws the aggregate path from combining multiple. Note that this will not
@@ -285,7 +287,7 @@ public:
      * @param fill            Fill type for drawing all the paths
      */
     void drawPaths(GrDrawState*,
-                   GrColor,
+                   const GrPathProcessor*,
                    const GrPathRange* pathRange,
                    const void* indices,
                    PathIndexType indexType,
@@ -357,6 +359,7 @@ public:
      *                     not a request for clipping.
      */
     void drawIndexedInstances(GrDrawState*,
+                              const GrGeometryProcessor*,
                               GrPrimitiveType type,
                               int instanceCount,
                               int verticesPerInstance,
@@ -656,8 +659,7 @@ protected:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(GrDrawState*,
-                                 GrColor,
-                                 uint8_t,
+                                 const GrPrimitiveProcessor*,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
 
@@ -698,6 +700,7 @@ private:
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
     virtual void onDraw(const GrDrawState&,
+                        const GrGeometryProcessor*,
                         const DrawInfo&,
                         const GrClipMaskManager::ScissorState&,
                         const GrDeviceCoordTexture* dstCopy) = 0;
@@ -709,17 +712,18 @@ private:
                             const SkMatrix* localMatrix) = 0;
 
     virtual void onStencilPath(const GrDrawState&,
+                               const GrPathProcessor*,
                                const GrPath*,
                                const GrClipMaskManager::ScissorState&,
                                const GrStencilSettings&) = 0;
     virtual void onDrawPath(const GrDrawState&,
-                            GrColor,
+                            const GrPathProcessor*,
                             const GrPath*,
                             const GrClipMaskManager::ScissorState&,
                             const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrDrawState&,
-                             GrColor,
+                             const GrPathProcessor*,
                              const GrPathRange*,
                              const void* indices,
                              PathIndexType,
@@ -766,6 +770,7 @@ private:
     // called by drawIndexed and drawNonIndexed. Use a negative indexCount to
     // indicate non-indexed drawing.
     bool checkDraw(const GrDrawState&,
+                   const GrGeometryProcessor*,
                    GrPrimitiveType type,
                    int startVertex,
                    int startIndex,

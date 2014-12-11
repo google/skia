@@ -596,8 +596,8 @@ private:
         return true;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
-        inout->mulByUnknownAlpha();
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
     }
 
     const GrAttribute* fInPosition;
@@ -679,8 +679,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     // Our computed verts should all be within one pixel of the segment control points.
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
-    GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Create(color);
-    drawState->setGeometryProcessor(quadProcessor)->unref();
+    SkAutoTUnref<GrGeometryProcessor> quadProcessor(QuadEdgeEffect::Create(color));
 
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, quadProcessor->getVertexStride(), iCount);
     SkASSERT(quadProcessor->getVertexStride() == sizeof(QuadVertex));
@@ -709,6 +708,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     for (int i = 0; i < draws.count(); ++i) {
         const Draw& draw = draws[i];
         target->drawIndexed(drawState,
+                            quadProcessor,
                             kTriangles_GrPrimitiveType,
                             vOffset,  // start vertex
                             0,        // start index

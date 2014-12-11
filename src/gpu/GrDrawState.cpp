@@ -14,7 +14,7 @@
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
-bool GrDrawState::isEqual(const GrDrawState& that) const {
+bool GrDrawState::isEqual(const GrDrawState& that, bool explicitLocalCoords) const {
     if (this->getRenderTarget() != that.getRenderTarget() ||
         this->fColorStages.count() != that.fColorStages.count() ||
         this->fCoverageStages.count() != that.fCoverageStages.count() ||
@@ -22,17 +22,6 @@ bool GrDrawState::isEqual(const GrDrawState& that) const {
         this->fFlagBits != that.fFlagBits ||
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace) {
-        return false;
-    }
-
-    bool explicitLocalCoords = this->hasLocalCoordAttribute();
-    if (this->hasGeometryProcessor()) {
-        if (!that.hasGeometryProcessor()) {
-            return false;
-        } else if (!this->getGeometryProcessor()->isEqual(*that.getGeometryProcessor())) {
-            return false;
-        }
-    } else if (that.hasGeometryProcessor()) {
         return false;
     }
 
@@ -77,12 +66,9 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fFlagBits = that.fFlagBits;
     fStencilSettings = that.fStencilSettings;
     fDrawFace = that.fDrawFace;
-    fGeometryProcessor.reset(SkSafeRef(that.fGeometryProcessor.get()));
     fXPFactory.reset(SkRef(that.getXPFactory()));
     fColorStages = that.fColorStages;
     fCoverageStages = that.fCoverageStages;
-
-    fHints = that.fHints;
 
     fColorProcInfoValid = that.fColorProcInfoValid;
     fCoverageProcInfoValid = that.fCoverageProcInfoValid;
@@ -98,10 +84,9 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
 }
 
 void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
-    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
+    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
     fRenderTarget.reset(NULL);
 
-    fGeometryProcessor.reset(NULL);
     fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
     fColorStages.reset();
     fCoverageStages.reset();
@@ -115,13 +100,15 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fStencilSettings.setDisabled();
     fDrawFace = kBoth_DrawFace;
 
-    fHints = 0;
-
     fColorProcInfoValid = false;
     fCoverageProcInfoValid = false;
 
     fColorCache = GrColor_ILLEGAL;
     fCoverageCache = GrColor_ILLEGAL;
+
+    fColorPrimProc = NULL;
+    fCoveragePrimProc = NULL;
+
 }
 
 bool GrDrawState::setIdentityViewMatrix()  {
@@ -143,9 +130,8 @@ bool GrDrawState::setIdentityViewMatrix()  {
 }
 
 void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRenderTarget* rt) {
-    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numTotalStages());
+    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
 
-    fGeometryProcessor.reset(NULL);
     fColorStages.reset();
     fCoverageStages.reset();
 
@@ -167,7 +153,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     fDrawFace = kBoth_DrawFace;
     fStencilSettings.setDisabled();
     fFlagBits = 0;
-    fHints = 0;
 
     // Enable the clip bit
     this->enableState(GrDrawState::kClip_StateBit);
@@ -199,7 +184,7 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
                                         this->isCoverageDrawing(), this->isColorWriteDisabled());
 }
 
-bool GrDrawState::hasSolidCoverage(GrColor coverage) const {
+bool GrDrawState::hasSolidCoverage(const GrPrimitiveProcessor* pp) const {
     // If we're drawing coverage directly then coverage is effectively treated as color.
     if (this->isCoverageDrawing()) {
         return true;
@@ -209,15 +194,15 @@ bool GrDrawState::hasSolidCoverage(GrColor coverage) const {
         return false;
     }
 
-    this->calcCoverageInvariantOutput(coverage);
+    this->calcCoverageInvariantOutput(pp);
     return fCoverageProcInfo.isSolidWhite();
 }
 
 //////////////////////////////////////////////////////////////////////////////s
 
-bool GrDrawState::willEffectReadDstColor(GrColor color, GrColor coverage) const {
-    this->calcColorInvariantOutput(color);
-    this->calcCoverageInvariantOutput(coverage);
+bool GrDrawState::willEffectReadDstColor(const GrPrimitiveProcessor* pp) const {
+    this->calcColorInvariantOutput(pp);
+    this->calcCoverageInvariantOutput(pp);
     // TODO: Remove need to create the XP here.
     //       Also once all custom blends are turned into XPs we can remove the need
     //       to check other stages since only xp's will be able to read dst
@@ -237,15 +222,6 @@ bool GrDrawState::willEffectReadDstColor(GrColor color, GrColor coverage) const 
 
 void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
     if (fDrawState) {
-        // See the big comment on the class definition about GPs.
-        if (SK_InvalidUniqueID == fOriginalGPID) {
-            fDrawState->fGeometryProcessor.reset(NULL);
-        } else {
-            SkASSERT(fDrawState->getGeometryProcessor()->getUniqueID() ==
-                     fOriginalGPID);
-            fOriginalGPID = SK_InvalidUniqueID;
-        }
-
         int m = fDrawState->numColorStages() - fColorEffectCnt;
         SkASSERT(m >= 0);
         fDrawState->fColorStages.pop_back_n(m);
@@ -261,10 +237,6 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
     }
     fDrawState = ds;
     if (NULL != ds) {
-        SkASSERT(SK_InvalidUniqueID == fOriginalGPID);
-        if (NULL != ds->getGeometryProcessor()) {
-            fOriginalGPID = ds->getGeometryProcessor()->getUniqueID();
-        }
         fColorEffectCnt = ds->numColorStages();
         fCoverageEffectCnt = ds->numCoverageStages();
         SkDEBUGCODE(++ds->fBlockEffectRemovalCnt;)
@@ -374,38 +346,35 @@ GrDrawState::~GrDrawState() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawState::srcAlphaWillBeOne(GrColor color, GrColor coverage) const {
-    this->calcColorInvariantOutput(color);
-    if (this->isCoverageDrawing()) {
-        this->calcCoverageInvariantOutput(coverage);
-        return (fColorProcInfo.isOpaque() && fCoverageProcInfo.isOpaque());
-    }
-    return fColorProcInfo.isOpaque();
-}
-
-bool GrDrawState::willBlendWithDst(GrColor color, GrColor coverage) const {
-    this->calcColorInvariantOutput(color);
-    this->calcCoverageInvariantOutput(coverage);
+bool GrDrawState::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
+    this->calcColorInvariantOutput(pp);
+    this->calcCoverageInvariantOutput(pp);
     return fXPFactory->willBlendWithDst(fColorProcInfo, fCoverageProcInfo,
                                         this->isCoverageDrawing(), this->isColorWriteDisabled());
 }
 
+void GrDrawState::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
+    if (!fColorProcInfoValid || fColorPrimProc != pp) {
+        fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorStages());
+        fColorProcInfoValid = true;
+        fColorPrimProc = pp;
+    }
+}
+
+void GrDrawState::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
+    if (!fCoverageProcInfoValid ||  fCoveragePrimProc != pp) {
+        fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageStages.begin(),
+                                                   this->numCoverageStages());
+        fCoverageProcInfoValid = true;
+        fCoveragePrimProc = pp;
+    }
+}
+
 void GrDrawState::calcColorInvariantOutput(GrColor color) const {
     if (!fColorProcInfoValid || color != fColorCache) {
-        GrColorComponentFlags flags;
-        if (this->hasColorVertexAttribute()) {
-            if (fHints & kVertexColorsAreOpaque_Hint) {
-                flags = kA_GrColorComponentFlag;
-                color = 0xFF << GrColor_SHIFT_A;
-            } else {
-                flags = static_cast<GrColorComponentFlags>(0);
-                color = 0;
-            }
-        } else {
-            flags = kRGBA_GrColorComponentFlags;
-        }
-        fColorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(),
-                                             color, flags, false);
+        GrColorComponentFlags flags = kRGBA_GrColorComponentFlags;
+        fColorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), color,
+                                             flags, false);
         fColorProcInfoValid = true;
         fColorCache = color;
     }
@@ -413,16 +382,10 @@ void GrDrawState::calcColorInvariantOutput(GrColor color) const {
 
 void GrDrawState::calcCoverageInvariantOutput(GrColor coverage) const {
     if (!fCoverageProcInfoValid || coverage != fCoverageCache) {
-        GrColorComponentFlags flags;
-        // Check if per-vertex or constant color may have partial alpha
-        if (this->hasCoverageVertexAttribute()) {
-            flags = static_cast<GrColorComponentFlags>(0);
-            coverage = 0;
-        } else {
-            flags = kRGBA_GrColorComponentFlags;
-        }
-        fCoverageProcInfo.calcWithInitialValues(fCoverageStages.begin(), this->numCoverageStages(),
-                                                coverage, flags, true, fGeometryProcessor.get());
+        GrColorComponentFlags flags = kRGBA_GrColorComponentFlags;
+        fCoverageProcInfo.calcWithInitialValues(fCoverageStages.begin(),
+                                                this->numCoverageStages(), coverage, flags,
+                                                true);
         fCoverageProcInfoValid = true;
         fCoverageCache = coverage;
     }

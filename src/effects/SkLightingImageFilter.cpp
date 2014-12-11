@@ -349,7 +349,7 @@ protected:
 
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // lighting shaders are complicated. We just throw up our hands.
-        inout->mulByUnknownColor();
+        inout->mulByUnknownFourComponents();
     }
 
 private:

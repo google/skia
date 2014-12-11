@@ -140,7 +140,7 @@ GrGLGeometryProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt)
 }
 
 GrConicEffect::GrConicEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType)
-    : INHERITED(color, coverage), fEdgeType(edgeType) {
+    : INHERITED(color, false, coverage), fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInConicCoeffs = &this->addVertexAttrib(GrAttribute("inConicCoeffs",
@@ -287,7 +287,7 @@ GrGLGeometryProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt) 
 }
 
 GrQuadEffect::GrQuadEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType)
-    : INHERITED(color, coverage), fEdgeType(edgeType) {
+    : INHERITED(color, false, coverage), fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInHairQuadEdge = &this->addVertexAttrib(GrAttribute("inHairQuadEdge",

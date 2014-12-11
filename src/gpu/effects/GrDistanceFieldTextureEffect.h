@@ -49,14 +49,15 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
                                        GrTexture* gamma, const GrTextureParams& gammaParams,
-                                       float lum, uint32_t flags) {
+                                       float lum, uint32_t flags, bool opaqueVertexColors) {
        return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, tex, params, gamma, gammaParams, lum,
-                                                        flags));
+                                                        flags, opaqueVertexColors));
     }
 #else
     static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
-                                       uint32_t flags) {
-        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, tex, params, flags));
+                                       uint32_t flags, bool opaqueVertexColors) {
+        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, tex, params, flags,
+                                                          opaqueVertexColors));
     }
 #endif
 
@@ -83,11 +84,11 @@ private:
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  GrTexture* gamma, const GrTextureParams& gammaParams, float lum,
 #endif
-                                 uint32_t flags);
+                                 uint32_t flags, bool opaqueVertexColors);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -114,8 +115,9 @@ private:
 class GrDistanceFieldNoGammaTextureEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& params,
-                                       uint32_t flags) {
-        return SkNEW_ARGS(GrDistanceFieldNoGammaTextureEffect, (color, tex, params, flags));
+                                       uint32_t flags, bool opaqueVertexColors) {
+        return SkNEW_ARGS(GrDistanceFieldNoGammaTextureEffect, (color, tex, params, flags,
+                                                                opaqueVertexColors));
     }
 
     virtual ~GrDistanceFieldNoGammaTextureEffect() {}
@@ -135,11 +137,11 @@ public:
 
 private:
     GrDistanceFieldNoGammaTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
-                                        uint32_t flags);
+                                        uint32_t flags, bool opaqueVertexColors);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     uint32_t           fFlags;
@@ -190,7 +192,7 @@ private:
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     GrTextureAccess    fGammaTextureAccess;

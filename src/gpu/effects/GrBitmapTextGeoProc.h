@@ -22,8 +22,8 @@ class GrInvariantOutput;
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& p,
-                                       bool useColorAttrib) {
-        return SkNEW_ARGS(GrBitmapTextGeoProc, (color, tex, p, useColorAttrib));
+                                       bool useColorAttrib, bool opaqueVertexColors) {
+        return SkNEW_ARGS(GrBitmapTextGeoProc, (color, tex, p, useColorAttrib, opaqueVertexColors));
     }
 
     virtual ~GrBitmapTextGeoProc() {}
@@ -41,11 +41,12 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params, bool useColorAttrib);
+    GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params,
+                        bool useColorAttrib, bool opaqueVertexColors);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     const GrAttribute* fInPosition;
