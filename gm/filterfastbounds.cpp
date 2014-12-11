@@ -162,10 +162,10 @@ protected:
 
     // SkPictureImageFilter doesn't support serialization yet.
     uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipPicture_Flag |
-               kSkipPipe_Flag |
-               kSkipPipeCrossProcess_Flag |
-               kSkipTiled_Flag |
+        return kSkipPicture_Flag            |
+               kSkipPipe_Flag               |
+               kSkipPipeCrossProcess_Flag   |
+               kSkipTiled_Flag              |
                kSkipScaledReplay_Flag;
     }
 
