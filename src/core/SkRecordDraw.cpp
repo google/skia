@@ -74,11 +74,6 @@ void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
 
 namespace SkRecords {
 
-// FIXME: SkBitmaps are stateful, so we need to copy them to play back in multiple threads.
-static SkBitmap shallow_copy(const SkBitmap& bitmap) {
-    return bitmap;
-}
-
 // NoOps draw nothing.
 template <> void Draw::draw(const NoOp&) {}
 
@@ -100,13 +95,13 @@ DRAW(BeginCommentGroup, beginCommentGroup(r.description));
 DRAW(AddComment, addComment(r.key, r.value));
 DRAW(EndCommentGroup, endCommentGroup());
 
-DRAW(DrawBitmap, drawBitmap(shallow_copy(r.bitmap), r.left, r.top, r.paint));
-DRAW(DrawBitmapNine, drawBitmapNine(shallow_copy(r.bitmap), r.center, r.dst, r.paint));
+DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
+DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
 DRAW(DrawBitmapRectToRect,
-        drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint,
+        drawBitmapRectToRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
                              SkCanvas::kNone_DrawBitmapRectFlag));
 DRAW(DrawBitmapRectToRectBleed,
-        drawBitmapRectToRect(shallow_copy(r.bitmap), r.src, r.dst, r.paint,
+        drawBitmapRectToRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
                              SkCanvas::kBleed_DrawBitmapRectFlag));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
@@ -121,7 +116,7 @@ DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
-DRAW(DrawSprite, drawSprite(shallow_copy(r.bitmap), r.left, r.top, r.paint));
+DRAW(DrawSprite, drawSprite(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));

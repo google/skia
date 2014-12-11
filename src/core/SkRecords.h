@@ -183,15 +183,24 @@ private:
 
 // Like SkBitmap, but deep copies pixels if they're not immutable.
 // Using this, we guarantee the immutability of all bitmaps we record.
-struct ImmutableBitmap : public SkBitmap {
+class ImmutableBitmap : SkNoncopyable {
+public:
     explicit ImmutableBitmap(const SkBitmap& bitmap) {
         if (bitmap.isImmutable()) {
-            *(SkBitmap*)this = bitmap;
+            fBitmap = bitmap;
         } else {
-            bitmap.copyTo(this);
+            bitmap.copyTo(&fBitmap);
         }
-        this->setImmutable();
+        fBitmap.setImmutable();
     }
+
+    int width()  const { return fBitmap.width();  }
+    int height() const { return fBitmap.height(); }
+
+    // While the pixels are immutable, SkBitmap itself is not thread-safe, so return a copy.
+    SkBitmap shallowCopy() const { return fBitmap; }
+private:
+    SkBitmap fBitmap;
 };
 
 // SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
