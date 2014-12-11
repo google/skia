@@ -8248,6 +8248,7 @@
           9966730557110500201
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "hairlines_pdf-poppler.png": {
