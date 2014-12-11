@@ -10,29 +10,9 @@
 #include "SkImage_Base.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
+#include "SkSurface_Gpu.h"
 
 #if SK_SUPPORT_GPU
-
-class SkSurface_Gpu : public SkSurface_Base {
-public:
-    SK_DECLARE_INST_COUNT(SkSurface_Gpu)
-
-    SkSurface_Gpu(GrRenderTarget*, const SkSurfaceProps*, bool doClear);
-    virtual ~SkSurface_Gpu();
-
-    virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
-    virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
-    virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
-                        const SkPaint*) SK_OVERRIDE;
-    virtual void onCopyOnWrite(ContentChangeMode) SK_OVERRIDE;
-    virtual void onDiscard() SK_OVERRIDE;
-
-private:
-    SkGpuDevice* fDevice;
-
-    typedef SkSurface_Base INHERITED;
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 

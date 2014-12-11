@@ -124,6 +124,10 @@ public:
                              const SkImageFilter::Context&,
                              SkBitmap*, SkIPoint*) SK_OVERRIDE;
 
+    bool filterTexture(GrContext*, GrTexture*, const SkImageFilter*,
+                       const SkImageFilter::Context&,
+                       SkBitmap* result, SkIPoint* offset);
+
 protected:
     virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
@@ -202,10 +206,6 @@ private:
                          bool bicubic);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
-
-    bool filterTexture(GrContext*, GrTexture*, const SkImageFilter*,
-                       const SkImageFilter::Context&,
-                       SkBitmap* result, SkIPoint* offset);
 
     static SkPicture::AccelData::Key ComputeAccelDataKey();
 

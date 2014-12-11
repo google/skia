@@ -10,10 +10,12 @@
 #include "GrRecordReplaceDraw.h"
 
 #include "SkCanvas.h"
+#include "SkGpuDevice.h"
 #include "SkGrPixelRef.h"
 #include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkSurface.h"
+#include "SkSurface_Gpu.h"
 
 // Create the layer information for the hoisted layer and secure the
 // required texture/render target resources.
@@ -200,6 +202,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
             SkDEBUGCODE(const SkPaint* layerPaint = layer->paint();)
 
             SkASSERT(!layerPaint || !layerPaint->getImageFilter());
+            SkASSERT(!layer->filter());
 
             atlasCanvas->save();
 
@@ -228,6 +231,37 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
         }
 
         atlasCanvas->flush();
+    }
+}
+
+void GrLayerHoister::FilterLayer(GrContext* context, SkGpuDevice* device, GrCachedLayer* layer) {
+    SkASSERT(layer->filter());
+
+    static const int kDefaultCacheSize = 32 * 1024 * 1024;
+
+    if (layer->filter()->canFilterImageGPU()) {
+        SkBitmap filteredBitmap;
+        SkIPoint offset = SkIPoint::Make(0, 0);
+
+        SkASSERT(0 == layer->rect().fLeft && 0 == layer->rect().fTop);
+        SkIRect clipBounds = layer->rect();
+
+        // This cache is transient, and is freed (along with all its contained
+        // textures) when it goes out of scope.
+        SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
+        SkImageFilter::Context filterContext(SkMatrix::I(), clipBounds, cache);
+
+        if (!device->filterTexture(context, layer->texture(), layer->filter(),
+                                   filterContext, &filteredBitmap, &offset)) {
+            // Filtering failed. Press on with the unfiltered version
+            return;
+        }
+
+        // TODO: need to fix up offset
+        SkASSERT(0 == offset.fX && 0 == offset.fY);
+
+        SkIRect newRect = SkIRect::MakeWH(filteredBitmap.width(), filteredBitmap.height());
+        layer->setTexture(filteredBitmap.getTexture(), newRect);
     }
 }
 
@@ -263,6 +297,12 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
                             layer->start()+1, layer->stop(), initialCTM);
 
         layerCanvas->flush();
+
+        if (layer->filter()) {
+            SkSurface_Gpu* gpuSurf = static_cast<SkSurface_Gpu*>(surface.get());
+
+            FilterLayer(context, gpuSurf->getDevice(), layer);
+        }
     }
 }
 

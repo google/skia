@@ -13,6 +13,7 @@
 
 struct GrCachedLayer;
 class GrReplacements;
+class SkGpuDevice;
 struct SkRect;
 
 class GrHoistedLayer {
@@ -102,6 +103,15 @@ public:
         @param context    Owner of the layer cache (and thus the layers)
      */
     static void PurgeCache(GrContext* context);
+
+private:
+    /** Update the GrTexture in 'layer' with its filtered version
+        @param context    Owner of the layer cache (and thus the layers)
+        @param device     Required by the filtering code
+        @param layer      A layer needing filtering prior to being composited
+     */
+    static void FilterLayer(GrContext* context, SkGpuDevice* device, GrCachedLayer* layer);
+
 };
 
 #endif

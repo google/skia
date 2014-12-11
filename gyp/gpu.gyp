@@ -96,6 +96,7 @@
         '../include/gpu',
         '../src/core',
         '../src/gpu',
+        '../src/image/',
       ],
       'sources': [
         '<@(skgpu_sources)',

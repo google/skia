@@ -1528,9 +1528,9 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         return;
     }
 
-    const SkBitmap& bm = dev->accessBitmap(false);
-    int w = bm.width();
-    int h = bm.height();
+    const SkImageInfo ii = dev->imageInfo();
+    int w = ii.width();
+    int h = ii.height();
 
     SkImageFilter* filter = paint.getImageFilter();
     // This bitmap will own the filtered result as a texture.

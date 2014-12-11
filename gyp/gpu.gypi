@@ -299,6 +299,7 @@
       '<(skia_src_path)/gpu/SkGrTexturePixelRef.cpp',
 
       '<(skia_src_path)/image/SkImage_Gpu.cpp',
+      '<(skia_src_path)/image/SkSurface_Gpu.h',
       '<(skia_src_path)/image/SkSurface_Gpu.cpp',
 
       '<(skia_src_path)/gpu/gl/SkGLContext.cpp'

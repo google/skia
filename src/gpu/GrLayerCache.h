@@ -12,6 +12,7 @@
 #include "GrRect.h"
 
 #include "SkChecksum.h"
+#include "SkImageFilter.h"
 #include "SkMessageBus.h"
 #include "SkPicture.h"
 #include "SkTDynamicHash.h"
@@ -151,16 +152,23 @@ public:
         , fStop(stop)
         , fBounds(bounds)
         , fPaint(paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL)
+        , fFilter(NULL)
         , fTexture(NULL)
         , fRect(SkIRect::MakeEmpty())
         , fPlot(NULL)
         , fUses(0)
         , fLocked(false) {
         SkASSERT(SK_InvalidGenID != pictureID);
+
+        if (fPaint) {
+            fFilter = SkSafeRef(fPaint->getImageFilter());
+            fPaint->setImageFilter(NULL);
+        }
     }
 
     ~GrCachedLayer() {
         SkSafeUnref(fTexture);
+        SkSafeUnref(fFilter);
         SkDELETE(fPaint);
     }
 
@@ -179,6 +187,7 @@ public:
     }
     GrTexture* texture() { return fTexture; }
     const SkPaint* paint() const { return fPaint; }
+    const SkImageFilter* filter() const { return fFilter; }
     const SkIRect& rect() const { return fRect; }
 
     void setPlot(GrPlot* plot) {
@@ -207,7 +216,11 @@ private:
 
     // The paint used when dropping the layer down into the owning canvas.
     // Can be NULL. This class makes a copy for itself.
-    const SkPaint*  fPaint;
+    SkPaint*  fPaint;
+
+    // The imagefilter that needs to be applied to the layer prior to it being
+    // composited with the rest of the scene.
+    const SkImageFilter* fFilter;
 
     // fTexture is a ref on the atlasing texture for atlased layers and a
     // ref on a GrTexture for non-atlased textures.
