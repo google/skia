@@ -56,6 +56,12 @@ void GrGpuResource::abandon() {
     fGpuMemorySize = 0;
 }
 
+const SkData* GrGpuResource::setCustomData(const SkData* data) {
+    SkSafeRef(data);
+    fData.reset(data);
+    return data;
+}
+
 const GrContext* GrGpuResource::getContext() const {
     if (fGpu) {
         return fGpu->getContext();

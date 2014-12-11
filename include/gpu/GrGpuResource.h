@@ -10,6 +10,7 @@
 
 #include "GrResourceKey.h"
 #include "GrTypesPriv.h"
+#include "SkData.h"
 #include "SkInstCnt.h"
 #include "SkTInternalLList.h"
 
@@ -168,6 +169,20 @@ public:
     uint32_t getUniqueID() const { return fUniqueID; }
 
     /**
+     * Attach a custom data object to this resource. The data will remain attached
+     * for the lifetime of this resource (until it is abandoned or released).
+     * Takes a ref on data. Previously attached data, if any, is unrefed.
+     * Returns the data argument, for convenience.
+     */
+    const SkData* setCustomData(const SkData* data);
+
+    /**
+     * Returns the custom data object that was attached to this resource by
+     * calling setCustomData.
+     */
+    const SkData* getCustomData() const { return fData.get(); }
+
+    /**
      * Internal-only helper class used for cache manipulations of the reosurce.
      */
     class CacheAccess;
@@ -271,6 +286,8 @@ private:
 
     uint32_t                fFlags;
     const uint32_t          fUniqueID;
+
+    SkAutoTUnref<const SkData> fData;
 
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyIsPurgable.
