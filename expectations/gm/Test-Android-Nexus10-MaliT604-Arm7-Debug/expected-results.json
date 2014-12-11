@@ -334,9 +334,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18040100494761194657
+          18158768619469309429
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "astcbitmap_565.png": {
@@ -5468,9 +5472,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12915355070552617107
+          6621739772239859260
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "deviceproperties_565.png": {
@@ -10169,10 +10177,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5181661499563292763
+          15167981608166045009
         ]
       ], 
-      "ignore-failure": false, 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "imageblurtiled_565.png": {
@@ -14015,9 +14026,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11413503683611933418
+          12263920895807237973
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "scaled_tilemode_gradient_565.png": {
@@ -14060,9 +14075,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17054873974744207470
+          3187213795385990809
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "scaled_tilemodes_565.png": {
@@ -14150,9 +14169,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11210585955497403115
+          18424509440000101006
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "selftest1_565.png": {
@@ -15965,9 +15988,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16226603286091138884
+          17615002096519718760
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "tilemode_gradient_565.png": {
@@ -16010,9 +16037,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2102847291135711729
+          3329902761194744524
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "tilemodes_565.png": {
@@ -16055,9 +16086,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4453398731551549771
+          914975249280030231
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "tilemodes_npot_565.png": {
@@ -16100,9 +16135,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9169447055202681741
+          5696948720978940769
         ]
       ], 
+      "bugs": [
+        3226
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "tinybitmap_565.png": {
