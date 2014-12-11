@@ -170,8 +170,6 @@ private:
 */
 class SkCanvas::MCRec {
 public:
-    SkRasterClip    fRasterClip;
-    SkMatrix        fMatrix;
     SkDrawFilter*   fFilter;    // the current filter (or null)
     DeviceCM*       fLayer;
     /*  If there are any layers in the stack, this points to the top-most
@@ -180,22 +178,26 @@ public:
         reference counted, since the real owner is either our fLayer field,
         or a previous one in a lower level.)
     */
-    DeviceCM*   fTopLayer;
+    DeviceCM*       fTopLayer;
+    SkRasterClip    fRasterClip;
+    SkMatrix        fMatrix;
+    int             fDeferredSaveCount;
 
     MCRec(bool conservativeRasterClip) : fRasterClip(conservativeRasterClip) {
-        fMatrix.reset();
         fFilter     = NULL;
         fLayer      = NULL;
         fTopLayer   = NULL;
+        fMatrix.reset();
+        fDeferredSaveCount = 0;
 
         // don't bother initializing fNext
         inc_rec();
     }
-    MCRec(const MCRec& prev) : fRasterClip(prev.fRasterClip) {
-        fMatrix = prev.fMatrix;
+    MCRec(const MCRec& prev) : fRasterClip(prev.fRasterClip), fMatrix(prev.fMatrix) {
         fFilter = SkSafeRef(prev.fFilter);
         fLayer = NULL;
         fTopLayer = prev.fTopLayer;
+        fDeferredSaveCount = 0;
 
         // don't bother initializing fNext
         inc_rec();
@@ -413,6 +415,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fAllowSoftClip = true;
     fAllowSimplifyClip = false;
     fDeviceCMDirty = true;
+    fSaveCount = 1;
     fSaveLayerCount = 0;
     fCullCount = 0;
     fMetaData = NULL;
@@ -785,21 +788,54 @@ void SkCanvas::updateDeviceCMCache() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkCanvas::checkForDeferredSave() {
+    if (fMCRec->fDeferredSaveCount > 0) {
+        fMCRec->fDeferredSaveCount -= 1;
+        this->doSave();
+    }
+}
+
 int SkCanvas::getSaveCount() const {
-    return fMCStack.count();
+#ifdef SK_DEBUG
+    int count = 0;
+    SkDeque::Iter iter(fMCStack, SkDeque::Iter::kFront_IterStart);
+    for (;;) {
+        const MCRec* rec = (const MCRec*)iter.next();
+        if (!rec) {
+            break;
+        }
+        count += 1 + rec->fDeferredSaveCount;
+    }
+    SkASSERT(count == fSaveCount);
+#endif
+    return fSaveCount;
 }
 
 int SkCanvas::save() {
+    fSaveCount += 1;
+    fMCRec->fDeferredSaveCount += 1;
+    return this->getSaveCount() - 1;  // return our prev value
+}
+
+void SkCanvas::doSave() {
     this->willSave();
-    return this->internalSave();
+    this->internalSave();
 }
 
 void SkCanvas::restore() {
-    // check for underflow
-    if (fMCStack.count() > 1) {
-        this->willRestore();
-        this->internalRestore();
-        this->didRestore();
+    if (fMCRec->fDeferredSaveCount > 0) {
+        SkASSERT(fSaveCount > 1);
+        fSaveCount -= 1;
+        fMCRec->fDeferredSaveCount -= 1;
+    } else {
+        // check for underflow
+        if (fMCStack.count() > 1) {
+            this->willRestore();
+            SkASSERT(fSaveCount > 1);
+            fSaveCount -= 1;
+            this->internalRestore();
+            this->didRestore();
+        }
     }
 }
 
@@ -815,16 +851,12 @@ void SkCanvas::restoreToCount(int count) {
     }
 }
 
-int SkCanvas::internalSave() {
-    int saveCount = this->getSaveCount(); // record this before the actual save
-
+void SkCanvas::internalSave() {
     MCRec* newTop = (MCRec*)fMCStack.push_back();
     new (newTop) MCRec(*fMCRec);    // balanced in restore()
     fMCRec = newTop;
 
     fClipStack.save();
-
-    return saveCount;
 }
 
 static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
@@ -881,16 +913,19 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag);
-    return this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, false, strategy);
+    fSaveCount += 1;
+    this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, false, strategy);
+    return this->getSaveCount() - 1;
 }
 
-int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                        SaveFlags flags) {
+int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags) {
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
-    return this->internalSaveLayer(bounds, paint, flags, false, strategy);
+    fSaveCount += 1;
+    this->internalSaveLayer(bounds, paint, flags, false, strategy);
+    return this->getSaveCount() - 1;
 }
 
-int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
+void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
                                 bool justForImageFilter, SaveLayerStrategy strategy) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     flags |= kClipToLayer_SaveFlag;
@@ -898,19 +933,19 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
 
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
-    int count = this->internalSave();
+    this->internalSave();
 
     fDeviceCMDirty = true;
 
     SkIRect ir;
     if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : NULL)) {
-        return count;
+        return;
     }
 
     // FIXME: do willSaveLayer() overriders returning kNoLayer_SaveLayerStrategy really care about
     // the clipRectBounds() call above?
     if (kNoLayer_SaveLayerStrategy == strategy) {
-        return count;
+        return;
     }
 
     // Kill the imagefilter if our device doesn't allow it
@@ -919,7 +954,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
         if (!this->getTopDevice()->allowImageFilter(paint->getImageFilter())) {
             if (justForImageFilter) {
                 // early exit if the layer was just for the imageFilter
-                return count;
+                return;
             }
             SkPaint* p = lazyP.set(*paint);
             p->setImageFilter(NULL);
@@ -934,7 +969,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
     SkBaseDevice* device = this->getTopDevice();
     if (NULL == device) {
         SkDebugf("Unable to find device for layer.");
-        return count;
+        return;
     }
 
     SkBaseDevice::Usage usage = SkBaseDevice::kSaveLayer_Usage;
@@ -945,7 +980,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
                                                                        fProps.pixelGeometry()));
     if (NULL == device) {
         SkDebugf("Unable to create device for layer.");
-        return count;
+        return;
     }
 
     device->setOrigin(ir.fLeft, ir.fTop);
@@ -958,7 +993,6 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
     fSaveLayerCount += 1;
-    return count;
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
@@ -1115,6 +1149,7 @@ void SkCanvas::validateCull(const SkIRect& devCull) {
 #endif
 
 void SkCanvas::pushCull(const SkRect& cullRect) {
+    this->checkForDeferredSave();
     ++fCullCount;
     this->onPushCull(cullRect);
 
@@ -1286,6 +1321,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
         return;
     }
 
+    this->checkForDeferredSave();
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
     fMCRec->fMatrix.preConcat(matrix);
@@ -1294,6 +1330,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
+    this->checkForDeferredSave();
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
     fMCRec->fMatrix = matrix;
@@ -1310,6 +1347,7 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+    this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
 }
@@ -1367,6 +1405,7 @@ static void rasterclip_path(SkRasterClip* rc, const SkCanvas* canvas, const SkPa
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+    this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
         this->onClipRect(rrect.getBounds(), op, edgeStyle);
@@ -1402,6 +1441,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+    this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     SkRect r;
     if (!path.isInverseFillType() && path.isRect(&r)) {
@@ -1484,6 +1524,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
 }
 
 void SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
+    this->checkForDeferredSave();
     this->onClipRegion(rgn, op);
 }
 

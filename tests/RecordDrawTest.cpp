@@ -30,6 +30,33 @@ private:
     int fCalls;
 };
 
+DEF_TEST(RecordDraw_LazySaves, r) {
+    // Record two commands.
+    SkRecord record;
+    SkRecorder recorder(&record, W, H);
+
+    REPORTER_ASSERT(r, 0 == record.count());
+    recorder.save();
+    REPORTER_ASSERT(r, 0 == record.count());    // the save was not recorded (yet)
+    recorder.drawColor(SK_ColorRED);
+    REPORTER_ASSERT(r, 1 == record.count());
+    recorder.scale(2, 2);
+    REPORTER_ASSERT(r, 3 == record.count());    // now we see the save
+    recorder.restore();
+    REPORTER_ASSERT(r, 4 == record.count());
+
+    assert_type<SkRecords::DrawPaint>(r, record, 0);
+    assert_type<SkRecords::Save>     (r, record, 1);
+    assert_type<SkRecords::SetMatrix>(r, record, 2);
+    assert_type<SkRecords::Restore>  (r, record, 3);
+
+    recorder.save();
+    recorder.save();
+    recorder.restore();
+    recorder.restore();
+    REPORTER_ASSERT(r, 4 == record.count());
+}
+
 DEF_TEST(RecordDraw_Abort, r) {
     // Record two commands.
     SkRecord record;
@@ -43,26 +70,23 @@ DEF_TEST(RecordDraw_Abort, r) {
     JustOneDraw callback;
     SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL/*bbh*/, &callback);
 
-    REPORTER_ASSERT(r, 3 == rerecord.count());
-    assert_type<SkRecords::Save>    (r, rerecord, 0);
-    assert_type<SkRecords::DrawRect>(r, rerecord, 1);
-    assert_type<SkRecords::Restore> (r, rerecord, 2);
+    REPORTER_ASSERT(r, 1 == count_instances_of_type<SkRecords::DrawRect>(rerecord));
+    REPORTER_ASSERT(r, 0 == count_instances_of_type<SkRecords::ClipRect>(rerecord));
 }
 
 DEF_TEST(RecordDraw_Unbalanced, r) {
     SkRecord record;
     SkRecorder recorder(&record, W, H);
     recorder.save();  // We won't balance this, but SkRecordDraw will for us.
+    recorder.scale(2, 2);
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, W, H);
     SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL/*bbh*/, NULL/*callback*/);
 
-    REPORTER_ASSERT(r, 4 == rerecord.count());
-    assert_type<SkRecords::Save>    (r, rerecord, 0);
-    assert_type<SkRecords::Save>    (r, rerecord, 1);
-    assert_type<SkRecords::Restore> (r, rerecord, 2);
-    assert_type<SkRecords::Restore> (r, rerecord, 3);
+    int save_count = count_instances_of_type<SkRecords::Save>(rerecord);
+    int restore_count = count_instances_of_type<SkRecords::Save>(rerecord);
+    REPORTER_ASSERT(r, save_count == restore_count);
 }
 
 DEF_TEST(RecordDraw_SetMatrixClobber, r) {
@@ -193,12 +217,9 @@ DEF_TEST(RecordDraw_PartialStartStop, r) {
     SkRecorder canvas(&rerecord, kWidth, kHeight);
     SkRecordPartialDraw(record, &canvas, NULL, 0, 1, 2, SkMatrix::I()); // replay just drawRect of r2
 
-    REPORTER_ASSERT(r, 3 == rerecord.count());
-    assert_type<SkRecords::Save>     (r, rerecord, 0);
-    assert_type<SkRecords::DrawRect> (r, rerecord, 1);
-    assert_type<SkRecords::Restore>  (r, rerecord, 2);
-
-    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+    REPORTER_ASSERT(r, 1 == count_instances_of_type<SkRecords::DrawRect>(rerecord));
+    int index = find_first_instances_of_type<SkRecords::DrawRect>(rerecord);
+    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, index);
     REPORTER_ASSERT(r, drawRect->rect == r2);
 }
 

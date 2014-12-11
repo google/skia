@@ -52,10 +52,18 @@ DEF_TEST(RecordReplaceDraw_Abort, r) {
     JustOneDraw callback;
     GrRecordReplaceDraw(pic, &canvas, NULL, SkMatrix::I(), &callback);
 
-    REPORTER_ASSERT(r, 3 == rerecord.count());
-    assert_type<SkRecords::Save>(r, rerecord, 0);
-    assert_type<SkRecords::DrawRect>(r, rerecord, 1);
-    assert_type<SkRecords::Restore>(r, rerecord, 2);
+    switch (rerecord.count()) {
+        case 3:
+            assert_type<SkRecords::Save>(r, rerecord, 0);
+            assert_type<SkRecords::DrawRect>(r, rerecord, 1);
+            assert_type<SkRecords::Restore>(r, rerecord, 2);
+            break;
+        case 1:
+            assert_type<SkRecords::DrawRect>(r, rerecord, 0);
+            break;
+        default:
+            REPORTER_ASSERT(r, false);
+    }
 }
 
 // Make sure GrRecordReplaceDraw balances unbalanced saves
@@ -68,7 +76,7 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
 
         // We won't balance this, but GrRecordReplaceDraw will for us.
         canvas->save();
-
+        canvas->scale(2, 2);
         pic.reset(recorder.endRecording());
     }
 
@@ -77,11 +85,8 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
 
     GrRecordReplaceDraw(pic, &canvas, NULL, SkMatrix::I(), NULL/*callback*/);
 
-    REPORTER_ASSERT(r, 4 == rerecord.count());
-    assert_type<SkRecords::Save>(r, rerecord, 0);
-    assert_type<SkRecords::Save>(r, rerecord, 1);
-    assert_type<SkRecords::Restore>(r, rerecord, 2);
-    assert_type<SkRecords::Restore>(r, rerecord, 3);
+    // ensure rerecord is balanced (in this case by checking that the count is even)
+    REPORTER_ASSERT(r, (rerecord.count() & 1) == 0);
 }
 
 // Test out the layer replacement functionality with and w/o a BBH
@@ -127,14 +132,22 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     SkRecorder canvas(&rerecord, kWidth, kHeight);
     GrRecordReplaceDraw(pic, &canvas, layerCache, SkMatrix::I(), NULL/*callback*/);
 
-    REPORTER_ASSERT(r, 7 == rerecord.count());
-    assert_type<SkRecords::Save>(r, rerecord, 0);
-    assert_type<SkRecords::Save>(r, rerecord, 1);
-    assert_type<SkRecords::SetMatrix>(r, rerecord, 2);
-    assert_type<SkRecords::DrawBitmapRectToRect>(r, rerecord, 3);
-    assert_type<SkRecords::Restore>(r, rerecord, 4);
-    assert_type<SkRecords::DrawRect>(r, rerecord, 5);
-    assert_type<SkRecords::Restore>(r, rerecord, 6);
+    int recount = rerecord.count();
+    REPORTER_ASSERT(r, 5 == recount || 7 == recount);
+
+    int index = 0;
+    if (7 == recount) {
+        assert_type<SkRecords::Save>(r, rerecord, 0);
+        index += 1;
+    }
+    assert_type<SkRecords::Save>(r, rerecord, index + 0);
+    assert_type<SkRecords::SetMatrix>(r, rerecord, index + 1);
+    assert_type<SkRecords::DrawBitmapRectToRect>(r, rerecord, index + 2);
+    assert_type<SkRecords::Restore>(r, rerecord, index + 3);
+    assert_type<SkRecords::DrawRect>(r, rerecord, index + 4);
+    if (7 == recount) {
+        assert_type<SkRecords::Restore>(r, rerecord, 6);
+    }
 }
 
 DEF_GPUTEST(RecordReplaceDraw, r, factory) { 

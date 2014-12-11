@@ -28,4 +28,28 @@ static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, unsig
     return reader.ptr;
 }
 
+template <typename DrawT> struct MatchType {
+    template <typename T> int operator()(const T&) { return 0; }
+    int operator()(const DrawT&) { return 1; }
+};
+
+template <typename DrawT> int count_instances_of_type(const SkRecord& record) {
+    MatchType<DrawT> matcher;
+    int counter = 0;
+    for (unsigned i = 0; i < record.count(); i++) {
+        counter += record.visit<int>(i, matcher);
+    }
+    return counter;
+}
+
+template <typename DrawT> int find_first_instances_of_type(const SkRecord& record) {
+    MatchType<DrawT> matcher;
+    for (unsigned i = 0; i < record.count(); i++) {
+        if (record.visit<int>(i, matcher)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 #endif//RecordTestUtils_DEFINED

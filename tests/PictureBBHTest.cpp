@@ -119,7 +119,8 @@ static void test_clear(skiatest::Reporter* r, SkBBHFactory* factory) {
 
     // Should be Clip - Save - Clear - Restore.
     // Buggy implementations might return 1 (just Clip) or 3 (Clip - Save - Restore).
-    REPORTER_ASSERT(r, dstPic->approximateOpCount() == 4);
+    // TODO: can we just search that it contains "clear"? <reed>
+    REPORTER_ASSERT(r, dstPic->approximateOpCount() == 4 || dstPic->approximateOpCount() == 2);
 }
 
 DEF_TEST(PictureBBH_Clear, r) {

@@ -16,26 +16,19 @@
 
 static const int W = 1920, H = 1080;
 
-DEF_TEST(RecordOpts_NoopDrawSaveRestore, r) {
+DEF_TEST(RecordOpts_NoopDraw, r) {
     SkRecord record;
     SkRecorder recorder(&record, W, H);
 
-    // The save and restore are pointless if there's only draw commands in the middle.
-    recorder.save();
-        recorder.drawRect(SkRect::MakeWH(200, 200), SkPaint());
-        recorder.drawRect(SkRect::MakeWH(300, 300), SkPaint());
-        recorder.drawRect(SkRect::MakeWH(100, 100), SkPaint());
-    recorder.restore();
+    recorder.drawRect(SkRect::MakeWH(200, 200), SkPaint());
+    recorder.drawRect(SkRect::MakeWH(300, 300), SkPaint());
+    recorder.drawRect(SkRect::MakeWH(100, 100), SkPaint());
 
-    record.replace<SkRecords::NoOp>(2);  // NoOps should be allowed.
+    record.replace<SkRecords::NoOp>(1);  // NoOps should be allowed.
 
     SkRecordNoopSaveRestores(&record);
 
-    assert_type<SkRecords::NoOp>(r, record, 0);
-    assert_type<SkRecords::DrawRect>(r, record, 1);
-    assert_type<SkRecords::NoOp>(r, record, 2);
-    assert_type<SkRecords::DrawRect>(r, record, 3);
-    assert_type<SkRecords::NoOp>(r, record, 4);
+    REPORTER_ASSERT(r, 2 == count_instances_of_type<SkRecords::DrawRect>(record));
 }
 
 DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
@@ -70,7 +63,7 @@ DEF_TEST(RecordOpts_NoopSaveRestores, r) {
     recorder.restore();
 
     SkRecordNoopSaveRestores(&record);
-    for (unsigned index = 0; index < 8; index++) {
+    for (unsigned index = 0; index < record.count(); index++) {
         assert_type<SkRecords::NoOp>(r, record, index);
     }
 }
@@ -86,10 +79,22 @@ DEF_TEST(RecordOpts_SaveSaveLayerRestoreRestore, r) {
     recorder.restore();
 
     SkRecordNoopSaveRestores(&record);
-    assert_type<SkRecords::Save>     (r, record, 0);
-    assert_type<SkRecords::SaveLayer>(r, record, 1);
-    assert_type<SkRecords::Restore>  (r, record, 2);
-    assert_type<SkRecords::Restore>  (r, record, 3);
+    switch (record.count()) {
+        case 4:
+            assert_type<SkRecords::Save>     (r, record, 0);
+            assert_type<SkRecords::SaveLayer>(r, record, 1);
+            assert_type<SkRecords::Restore>  (r, record, 2);
+            assert_type<SkRecords::Restore>  (r, record, 3);
+            break;
+        case 2:
+            assert_type<SkRecords::SaveLayer>(r, record, 0);
+            assert_type<SkRecords::Restore>  (r, record, 1);
+            break;
+        case 0:
+            break;
+        default:
+            REPORTER_ASSERT(r, false);
+    }
 }
 
 static void assert_savelayer_restore(skiatest::Reporter* r,

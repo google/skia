@@ -324,10 +324,13 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t
     }
 
 #ifdef SK_DEBUG
-    // assert that the final offset value points to a save verb
-    uint32_t opSize;
-    DrawType drawOp = peek_op_and_size(&fWriter, -offset, &opSize);
-    SkASSERT(SAVE == drawOp || SAVE_LAYER == drawOp);
+    // offset of 0 has been disabled, so we skip it
+    if (offset > 0) {
+        // assert that the final offset value points to a save verb
+        uint32_t opSize;
+        DrawType drawOp = peek_op_and_size(&fWriter, -offset, &opSize);
+        SkASSERT(SAVE == drawOp || SAVE_LAYER == drawOp);
+    }
 #endif
 }
 

@@ -1265,6 +1265,7 @@ private:
 
     const SkSurfaceProps fProps;
 
+    int         fSaveCount;         // value returned by getSaveCount()
     int         fSaveLayerCount;    // number of successful saveLayer calls
     int         fCullCount;         // number of active culls
 
@@ -1280,6 +1281,9 @@ private:
 
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();
+
+    void doSave();
+    void checkForDeferredSave();
 
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
@@ -1334,12 +1338,12 @@ private:
     void internalDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint* paint);
     void internalDrawPaint(const SkPaint& paint);
-    int internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags, bool justForImageFilter, SaveLayerStrategy strategy);
+    void internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                           SaveFlags, bool justForImageFilter, SaveLayerStrategy strategy);
     void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*);
 
     // shared by save() and saveLayer()
-    int internalSave();
+    void internalSave();
     void internalRestore();
     static void DrawRect(const SkDraw& draw, const SkPaint& paint,
                          const SkRect& r, SkScalar textSize);
