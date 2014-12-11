@@ -86,6 +86,8 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
 
     fColorProcInfoValid = that.fColorProcInfoValid;
     fCoverageProcInfoValid = that.fCoverageProcInfoValid;
+    fColorCache = that.fColorCache;
+    fCoverageCache = that.fCoverageCache;
     if (fColorProcInfoValid) {
         fColorProcInfo = that.fColorProcInfo;
     }
