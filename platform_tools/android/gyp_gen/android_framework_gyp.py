@@ -22,23 +22,8 @@ SKIA_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, os.pardir, os.pardir,
 DIR_CONTENTS = os.listdir(SKIA_DIR)
 assert 'gyp' in DIR_CONTENTS
 
-# Directory within which we can find the gyp source.
-gyp_source_dir = os.path.join(SKIA_DIR, 'third_party', 'externals', 'gyp')
-if not os.path.exists(gyp_source_dir):
-  # In an Android tree, there is no third_party/externals/gyp, which would
-  # require running gclient sync. Use chromium's instead.
-  gyp_source_dir = os.path.join(SKIA_DIR, os.pardir, 'chromium_org', 'tools',
-                                'gyp')
-
-assert os.path.exists(gyp_source_dir)
-
-# Ensure we import our current gyp source's module, not any version
-# pre-installed in your PYTHONPATH.
-sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
-
-import gyp
-
-def main(target_dir, target_file, skia_arch_type, have_neon):
+def main(target_dir, target_file, skia_arch_type, have_neon,
+         gyp_source_dir=None):
   """Create gypd files based on target_file.
 
   Args:
@@ -48,10 +33,22 @@ def main(target_dir, target_file, skia_arch_type, have_neon):
     skia_arch_type: Target architecture to pass to gyp.
     have_neon: Whether to generate files including neon optimizations.
       Only meaningful if skia_arch_type is 'arm'.
+    gyp_source_dir: Directory of the gyp source code. The default is in
+      third_party/externals/gyp.
 
   Returns:
     path: Path to root gypd file created by running gyp.
   """
+  # Ensure we import our current gyp source's module, not any version
+  # pre-installed in your PYTHONPATH.
+  if not gyp_source_dir:
+    gyp_source_dir = os.path.join(SKIA_DIR, 'third_party', 'externals', 'gyp')
+  assert os.path.exists(gyp_source_dir)
+
+  sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
+
+  import gyp
+
   # Set GYP_DEFINES for building for the android framework.
   gyp_defines = ('skia_android_framework=1 OS=android skia_arch_type=%s '
                  % skia_arch_type)
