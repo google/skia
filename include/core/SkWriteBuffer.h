@@ -12,6 +12,7 @@
 #include "SkData.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "SkPixelSerializer.h"
 #include "SkRefCnt.h"
 #include "SkWriter32.h"
 
@@ -87,21 +88,24 @@ public:
     /**
      * Set an SkBitmapHeap to store bitmaps rather than flattening.
      *
-     * Incompatible with an EncodeBitmap function. If an EncodeBitmap function is set, setting an
-     * SkBitmapHeap will set the function to NULL in release mode and crash in debug.
+     * Incompatible with an SkPixelSerializer. If an SkPixelSerializer is set,
+     * setting an SkBitmapHeap will set the SkPixelSerializer to NULL in release
+     * and crash in debug.
      */
     void setBitmapHeap(SkBitmapHeap*);
 
     /**
-     * Provide a function to encode an SkBitmap to an SkData. writeBitmap will attempt to use
-     * bitmapEncoder to store the SkBitmap. If the reader does not provide a function to decode, it
-     * will not be able to restore SkBitmaps, but will still be able to read the rest of the stream.
-     * bitmapEncoder will never be called with a NULL pixelRefOffset.
+     * Set an SkPixelSerializer to store an encoded representation of pixels,
+     * e.g. SkBitmaps.
      *
-     * Incompatible with the SkBitmapHeap. If an encoder is set fBitmapHeap will be set to NULL in
-     * release and crash in debug.
+     * Calls ref() on the serializer.
+     *
+     * TODO: Encode SkImage pixels as well.
+     *
+     * Incompatible with the SkBitmapHeap. If an encoder is set fBitmapHeap will
+     * be set to NULL in release and crash in debug.
      */
-    void setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder);
+    void setPixelSerializer(SkPixelSerializer*);
 
 private:
     bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
@@ -114,7 +118,7 @@ private:
     SkBitmapHeap* fBitmapHeap;
     SkRefCntSet* fTFSet;
 
-    SkPicture::EncodeBitmap fBitmapEncoder;
+    SkAutoTUnref<SkPixelSerializer> fPixelSerializer;
 };
 
 #endif // SkWriteBuffer_DEFINED

@@ -24,6 +24,7 @@ class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
 class SkPictureData;
+class SkPixelSerializer;
 class SkStream;
 class SkWStream;
 
@@ -34,6 +35,8 @@ class SkRecord;
 namespace SkRecords {
     class CollectLayers;
 };
+
+//#define SK_LEGACY_ENCODE_BITMAP
 
 /** \class SkPicture
 
@@ -141,15 +144,30 @@ public:
      *  @param pixelRefOffset DEPRECATED -- caller assumes it will return 0.
      *  @return SkData If non-NULL, holds encoded data representing the passed
      *      in bitmap. The caller is responsible for calling unref().
+     *
+     *  TODO: No longer used by SkPicture (except when SK_LEGACY_ENCODE_BITMAP
+     *  is defined. Still used by PDF though. Move into PDF.
      */
     typedef SkData* (*EncodeBitmap)(size_t* pixelRefOffset, const SkBitmap& bm);
 
+#ifdef SK_LEGACY_ENCODE_BITMAP
     /**
      *  Serialize to a stream. If non NULL, encoder will be used to encode
      *  any bitmaps in the picture.
      *  encoder will never be called with a NULL pixelRefOffset.
+     *  DEPRECATED - use serialize(SkWStream*, SkPixelSerializer* serializer)
+     *  instead.
      */
-    void serialize(SkWStream*, EncodeBitmap encoder = NULL) const;
+    void serialize(SkWStream* wStream, EncodeBitmap encoder) const;
+#endif
+
+    /**
+     *  Serialize to a stream. If non NULL, serializer will be used to serialize
+     *  any bitmaps in the picture.
+     *
+     *  TODO: Use serializer to serialize SkImages as well.
+     */
+    void serialize(SkWStream*, SkPixelSerializer* serializer = NULL) const;
 
     /**
      *  Serialize to a buffer.

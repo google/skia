@@ -22,6 +22,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
 #include "SkPixelRef.h"
+#include "SkPixelSerializer.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkRecord.h"
@@ -1442,9 +1443,21 @@ static void test_bad_bitmap() {
 }
 #endif
 
-static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
-    return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
-}
+// Encodes to PNG, unless there is already encoded data, in which case that gets
+// used.
+// FIXME: Share with PictureRenderer.cpp?
+class PngPixelSerializer : public SkPixelSerializer {
+public:
+    virtual bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
+    virtual SkData* onEncodePixels(const SkImageInfo& info, void* pixels,
+                                   size_t rowBytes) SK_OVERRIDE {
+        SkBitmap bm;
+        if (!bm.installPixels(info, pixels, rowBytes)) {
+            return NULL;
+        }
+        return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
+    }
+};
 
 static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkPictureRecorder recorder;
@@ -1454,7 +1467,8 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     SkDynamicMemoryWStream wStream;
-    picture->serialize(&wStream, &encode_bitmap_to_data);
+    PngPixelSerializer serializer;
+    picture->serialize(&wStream, &serializer);
     return wStream.copyToData();
 }
 

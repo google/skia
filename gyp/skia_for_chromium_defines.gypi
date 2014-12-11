@@ -16,6 +16,8 @@
       'SK_SUPPORT_LEGACY_TEXTRENDERMODE',
       'SK_IGNORE_GPU_LAYER_HOISTING',
       'SK_SUPPORT_LEGACY_NewRasterPMColor',
+      # Transition for skbug.com/3190
+      'SK_LEGACY_ENCODE_BITMAP',
     ],
   },
 }
