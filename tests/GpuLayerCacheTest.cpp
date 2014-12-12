@@ -94,7 +94,7 @@ static void lock_layer(skiatest::Reporter* reporter,
 // locking & unlocking textures).
 // TODO: need to add checks on VRAM usage!
 DEF_GPUTEST(GpuLayerCache, reporter, factory) {
-    static const int kInitialNumLayers = 5;
+    static const unsigned kInitialNumLayers = 5;
 
     for (int i= 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
         GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
