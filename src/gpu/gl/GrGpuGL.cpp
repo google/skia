@@ -718,7 +718,7 @@ bool GrGpuGL::uploadCompressedTexData(const GrSurfaceDesc& desc,
 
     // Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    int dataSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
+    size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
 
     // We only need the internal format for compressed 2D textures.
     GrGLenum internalFormat = 0;
@@ -734,7 +734,7 @@ bool GrGpuGL::uploadCompressedTexData(const GrSurfaceDesc& desc,
                                            internalFormat,
                                            width, height,
                                            0, // border
-                                           dataSize,
+                                           SkToInt(dataSize),
                                            data));
         GrGLenum error = check_alloc_error(desc, this->glInterface());
         if (error != GR_GL_NO_ERROR) {
@@ -750,7 +750,7 @@ bool GrGpuGL::uploadCompressedTexData(const GrSurfaceDesc& desc,
                                         left, top,
                                         width, height,
                                         internalFormat,
-                                        dataSize,
+                                        SkToInt(dataSize),
                                         data));
     }
 

@@ -787,7 +787,7 @@ static void test_addPoly(skiatest::Reporter* reporter) {
     for (int doClose = 0; doClose <= 1; ++doClose) {
         for (size_t count = 1; count <= SK_ARRAY_COUNT(pts); ++count) {
             SkPath path;
-            path.addPoly(pts, count, SkToBool(doClose));
+            path.addPoly(pts, SkToInt(count), SkToBool(doClose));
             test_poly(reporter, path, pts, SkToBool(doClose));
         }
     }
@@ -1706,7 +1706,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
 
     struct IsRectTest {
         SkPoint *fPoints;
-        size_t fPointCount;
+        int fPointCount;
         bool fClose;
         bool fIsRect;
     } tests[] = {
@@ -1748,7 +1748,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     };
 
     const size_t testCount = SK_ARRAY_COUNT(tests);
-    size_t index;
+    int index;
     for (size_t testIndex = 0; testIndex < testCount; ++testIndex) {
         SkPath path;
         path.moveTo(tests[testIndex].fPoints[0].fX, tests[testIndex].fPoints[0].fY);
@@ -1803,7 +1803,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     // fail, close then line
     SkPath path1;
     path1.moveTo(r1[0].fX, r1[0].fY);
-    for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+    for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
         path1.lineTo(r1[index].fX, r1[index].fY);
     }
     path1.close();
@@ -1813,7 +1813,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     // fail, move in the middle
     path1.reset();
     path1.moveTo(r1[0].fX, r1[0].fY);
-    for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+    for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
         if (index == 2) {
             path1.moveTo(1, .5f);
         }
@@ -1824,7 +1824,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
 
     // fail, move on the edge
     path1.reset();
-    for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+    for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
         path1.moveTo(r1[index - 1].fX, r1[index - 1].fY);
         path1.lineTo(r1[index].fX, r1[index].fY);
     }
@@ -1834,7 +1834,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     // fail, quad
     path1.reset();
     path1.moveTo(r1[0].fX, r1[0].fY);
-    for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+    for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
         if (index == 2) {
             path1.quadTo(1, .5f, 1, .5f);
         }
@@ -1846,7 +1846,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     // fail, cubic
     path1.reset();
     path1.moveTo(r1[0].fX, r1[0].fY);
-    for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+    for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
         if (index == 2) {
             path1.cubicTo(1, .5f, 1, .5f, 1, .5f);
         }
@@ -1889,7 +1889,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
 
     struct IsNestedRectTest {
         SkPoint *fPoints;
-        size_t fPointCount;
+        int fPointCount;
         SkPath::Direction fDirection;
         bool fClose;
         bool fIsNestedRect; // nests with path.addRect(-1, -1, 2, 2);
@@ -1923,7 +1923,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
     };
 
     const size_t testCount = SK_ARRAY_COUNT(tests);
-    size_t index;
+    int index;
     for (int rectFirst = 0; rectFirst <= 1; ++rectFirst) {
         for (size_t testIndex = 0; testIndex < testCount; ++testIndex) {
             SkPath path;
@@ -1968,7 +1968,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
         }
         path1.moveTo(r1[0].fX, r1[0].fY);
-        for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+        for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
             path1.lineTo(r1[index].fX, r1[index].fY);
         }
         path1.close();
@@ -1984,7 +1984,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
         }
         path1.moveTo(r1[0].fX, r1[0].fY);
-        for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+        for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
             if (index == 2) {
                 path1.moveTo(1, .5f);
             }
@@ -2001,7 +2001,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
         if (rectFirst) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
         }
-        for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+        for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
             path1.moveTo(r1[index - 1].fX, r1[index - 1].fY);
             path1.lineTo(r1[index].fX, r1[index].fY);
         }
@@ -2017,7 +2017,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
         }
         path1.moveTo(r1[0].fX, r1[0].fY);
-        for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+        for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
             if (index == 2) {
                 path1.quadTo(1, .5f, 1, .5f);
             }
@@ -2035,7 +2035,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
         }
         path1.moveTo(r1[0].fX, r1[0].fY);
-        for (index = 1; index < SK_ARRAY_COUNT(r1); ++index) {
+        for (index = 1; index < SkToInt(SK_ARRAY_COUNT(r1)); ++index) {
             if (index == 2) {
                 path1.cubicTo(1, .5f, 1, .5f, 1, .5f);
             }

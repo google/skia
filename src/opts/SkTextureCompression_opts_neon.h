@@ -9,6 +9,6 @@
 #define SkTextureCompression_opts_neon_h_
 
 bool CompressA8toR11EAC_NEON(uint8_t* dst, const uint8_t* src,
-                             int width, int height, int rowBytes);
+                             int width, int height, size_t rowBytes);
 
 #endif  // SkTextureCompression_opts_neon_h_

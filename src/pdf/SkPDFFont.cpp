@@ -234,7 +234,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
         SkAutoTMalloc<uint8_t> buffer(length);
 
         memcpy(buffer.get(), src, *headerLen);
-        uint8_t* const resultData = &(buffer[*headerLen]);
+        uint8_t* const resultData = &(buffer[SkToInt(*headerLen)]);
 
         const uint8_t* hexData = src + *headerLen;
         const uint8_t* trailer = hexData + hexDataLen;
@@ -260,7 +260,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
         }
         SkASSERT(outputOffset == *dataLen);
 
-        uint8_t* const resultTrailer = &(buffer[*headerLen + outputOffset]);
+        uint8_t* const resultTrailer = &(buffer[SkToInt(*headerLen + outputOffset)]);
         memcpy(resultTrailer, src + *headerLen + hexDataLen, *trailerLen);
 
         return SkData::NewFromMalloc(buffer.detach(), length);

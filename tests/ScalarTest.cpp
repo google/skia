@@ -54,7 +54,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
 
     static const struct {
         const SkPoint* fPts;
-        size_t         fCount;
+        int            fCount;
         bool           fIsFinite;
     } gSets[] = {
         { gF0, SK_ARRAY_COUNT(gF0), true },

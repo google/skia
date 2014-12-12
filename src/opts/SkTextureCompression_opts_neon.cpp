@@ -147,7 +147,7 @@ static inline uint64x2_t fix_endianness(uint64x2_t x) {
 }
 #endif
 
-static void compress_r11eac_blocks(uint64_t* dst, const uint8_t* src, int rowBytes) {
+static void compress_r11eac_blocks(uint64_t* dst, const uint8_t* src, size_t rowBytes) {
 
     // Try to avoid switching between vector and non-vector ops...
     const uint8_t *const src1 = src;
@@ -208,7 +208,7 @@ static void compress_r11eac_blocks(uint64_t* dst, const uint8_t* src, int rowByt
 }
 
 bool CompressA8toR11EAC_NEON(uint8_t* dst, const uint8_t* src,
-                             int width, int height, int rowBytes) {
+                             int width, int height, size_t rowBytes) {
 
     // Since we're going to operate on 4 blocks at a time, the src width
     // must be a multiple of 16. However, the height only needs to be a

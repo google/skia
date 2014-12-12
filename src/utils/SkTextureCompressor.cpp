@@ -23,9 +23,9 @@
 
 // Convert ETC1 functions to our function signatures
 static bool compress_etc1_565(uint8_t* dst, const uint8_t* src,
-                              int width, int height, int rowBytes) {
+                              int width, int height, size_t rowBytes) {
 #ifndef SK_IGNORE_ETC1_SUPPORT
-    return 0 == etc1_encode_image(src, width, height, 2, rowBytes, dst);
+    return 0 == etc1_encode_image(src, width, height, 2, SkToInt(rowBytes), dst);
 #else
     return false;
 #endif
@@ -120,7 +120,7 @@ int GetCompressedDataSize(Format fmt, int width, int height) {
 }
 
 bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcColorType,
-                            int width, int height, int rowBytes, Format format, bool opt) {
+                            int width, int height, size_t rowBytes, Format format, bool opt) {
     CompressionProc proc = NULL;
     if (opt) {
         proc = SkTextureCompressorGetPlatformProc(srcColorType, format);

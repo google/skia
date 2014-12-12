@@ -134,14 +134,14 @@ static const int8_t k6x5To12x12Table[30][60] = {
 
 // Returns the alpha value of a texel at position (x, y) from src.
 // (x, y) are assumed to be in the range [0, 12).
-inline uint8_t GetAlpha(const uint8_t *src, int rowBytes, int x, int y) {
+inline uint8_t GetAlpha(const uint8_t *src, size_t rowBytes, int x, int y) {
     SkASSERT(x >= 0 && x < 12);
     SkASSERT(y >= 0 && y < 12);
     SkASSERT(rowBytes >= 12);
     return *(src + y*rowBytes + x);
 }
 
-inline uint8_t GetAlphaTranspose(const uint8_t *src, int rowBytes, int x, int y) {
+inline uint8_t GetAlphaTranspose(const uint8_t *src, size_t rowBytes, int x, int y) {
     return GetAlpha(src, rowBytes, y, x);
 }
 
@@ -157,10 +157,10 @@ static inline void send_packing(uint8_t** dst, const uint64_t top, const uint64_
 
 // Compresses an ASTC block, by looking up the proper contributions from
 // k6x5To12x12Table and computing an index from the associated values.
-typedef uint8_t (*GetAlphaProc)(const uint8_t* src, int rowBytes, int x, int y);
+typedef uint8_t (*GetAlphaProc)(const uint8_t* src, size_t rowBytes, int x, int y);
 
 template<GetAlphaProc getAlphaProc>
-static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, int rowBytes) {
+static void compress_a8_astc_block(uint8_t** dst, const uint8_t* src, size_t rowBytes) {
     // Check for single color
     bool constant = true;
     const uint32_t firstInt = *(reinterpret_cast<const uint32_t*>(src));
@@ -2039,7 +2039,7 @@ struct CompressorASTC {
 namespace SkTextureCompressor {
 
 bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src,
-                           int width, int height, int rowBytes) {
+                           int width, int height, size_t rowBytes) {
     if (width < 0 || ((width % 12) != 0) || height < 0 || ((height % 12) != 0)) {
         return false;
     }

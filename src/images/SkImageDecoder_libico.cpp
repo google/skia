@@ -229,7 +229,7 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     //int colorsUsed = read4Bytes(buf, offset+32)         //0 - might have an actual value though
     //int colorsImportant = read4Bytes(buf, offset+36);   //0
 
-    int begin = offset + 40;
+    int begin = SkToInt(offset + 40);
     //this array represents the colortable
     //if i allow other types of bitmaps, it may actually be used as a part of the bitmap
     SkPMColor* colors = NULL;

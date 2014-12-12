@@ -149,7 +149,7 @@ endbfrange\n";
     //           I  n  s  t  a  l
     // Glyph id 2c 51 56 57 44 4f
     // Unicode  49 6e 73 74 61 6c
-    for (size_t i = 0; i < 100; ++i) {
+    for (SkUnichar i = 0; i < 100; ++i) {
       glyphToUnicode.push(i + 29);
     }
 

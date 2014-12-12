@@ -56,7 +56,7 @@ static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache, boo
 
     if (testPurge) {
         // stress test, should trigger purges
-        for (size_t i = 0; i < COUNT * 100; ++i) {
+        for (int i = 0; i < COUNT * 100; ++i) {
             TestingKey key(i);
             cache.add(SkNEW_ARGS(TestingRec, (key, i)));
         }

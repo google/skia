@@ -275,7 +275,7 @@ static uint64_t compress_r11eac_block(const uint8_t block[16]) {
 typedef uint64_t (*A84x4To64BitProc)(const uint8_t block[]);
 
 static bool compress_4x4_a8_to_64bit(uint8_t* dst, const uint8_t* src,
-                                     int width, int height, int rowBytes,
+                                     int width, int height, size_t rowBytes,
                                      A84x4To64BitProc proc) {
     // Make sure that our data is well-formed enough to be considered for compression
     if (0 == width || 0 == height || (width % 4) != 0 || (height % 4) != 0) {
@@ -421,7 +421,7 @@ static inline uint64_t interleave6(uint64_t topRows, uint64_t bottomRows) {
 // This function follows the same basic procedure as compress_heterogeneous_r11eac_block
 // above when COMPRESS_R11_EAC_FAST is defined, but it avoids a few loads/stores and
 // tries to optimize where it can using SIMD.
-static uint64_t compress_r11eac_block_fast(const uint8_t* src, int rowBytes) {
+static uint64_t compress_r11eac_block_fast(const uint8_t* src, size_t rowBytes) {
     // Store each row of alpha values in an integer
     const uint32_t alphaRow1 = *(reinterpret_cast<const uint32_t*>(src));
     const uint32_t alphaRow2 = *(reinterpret_cast<const uint32_t*>(src + rowBytes));
@@ -462,7 +462,7 @@ static uint64_t compress_r11eac_block_fast(const uint8_t* src, int rowBytes) {
 }
 
 static bool compress_a8_to_r11eac_fast(uint8_t* dst, const uint8_t* src,
-                                       int width, int height, int rowBytes) {
+                                       int width, int height, size_t rowBytes) {
     // Make sure that our data is well-formed enough to be considered for compression
     if (0 == width || 0 == height || (width % 4) != 0 || (height % 4) != 0) {
         return false;
@@ -619,7 +619,7 @@ struct CompressorR11EAC {
 
 namespace SkTextureCompressor {
 
-bool CompressA8ToR11EAC(uint8_t* dst, const uint8_t* src, int width, int height, int rowBytes) {
+bool CompressA8ToR11EAC(uint8_t* dst, const uint8_t* src, int width, int height, size_t rowBytes) {
 
 #if (COMPRESS_R11_EAC_SLOW) || (COMPRESS_R11_EAC_FAST)
 

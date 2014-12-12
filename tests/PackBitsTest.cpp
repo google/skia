@@ -43,7 +43,7 @@ static void test_pack16(skiatest::Reporter* reporter) {
     }
 
     for (int n = 1000; n; n--) {
-        size_t size = 50;
+        int size = 50;
         uint16_t src[100], src2[100];
         uint8_t dst[200];
         rand_fill(src, size);
@@ -52,7 +52,7 @@ static void test_pack16(skiatest::Reporter* reporter) {
         size_t maxSize = SkPackBits::ComputeMaxSize16(size);
         REPORTER_ASSERT(reporter, maxSize >= dstSize);
 
-        size_t srcCount = SkPackBits::Unpack16(dst, dstSize, src2);
+        int srcCount = SkPackBits::Unpack16(dst, dstSize, src2);
         REPORTER_ASSERT(reporter, size == srcCount);
         bool match = memcmp(src, src2, size * sizeof(uint16_t)) == 0;
         REPORTER_ASSERT(reporter, match);
@@ -96,7 +96,7 @@ static void test_pack8(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, match);
     }
 
-    for (size_t size = 1; size <= 512; size += 1) {
+    for (uint32_t size = 1; size <= 512; size += 1) {
         for (int n = 100; n; n--) {
             uint8_t src[600], src2[600];
             uint8_t dst[600];
@@ -112,8 +112,8 @@ static void test_pack8(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, match);
 
             for (int j = 0; j < 100; j++) {
-                size_t skip = gRand.nextU() % size;
-                size_t write = gRand.nextU() % size;
+                uint32_t skip = gRand.nextU() % size;
+                uint32_t write = gRand.nextU() % size;
                 if (skip + write > size) {
                     write = size - skip;
                 }
