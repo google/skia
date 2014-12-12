@@ -94,7 +94,7 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
         }
 
         SkASSERT(minX < maxX);
-        if (maxX < bounds.fLeft || minX > bounds.fRight) {
+        if (maxX <= bounds.fLeft || minX >= bounds.fRight) {
             return false;
         }
 
@@ -125,7 +125,7 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
         }
 
         SkASSERT(minY < maxY);
-        if (maxY < bounds.fTop || minY > bounds.fBottom) {
+        if (maxY <= bounds.fTop || minY >= bounds.fBottom) {
             return false;
         }
 
