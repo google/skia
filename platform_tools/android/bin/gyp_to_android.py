@@ -145,7 +145,8 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_nanobench',
                                        local_module_tags=['tests'],
-                                       desired_targets=['nanobench'])
+                                       desired_targets=['nanobench'],
+                                       gyp_source_dir=gyp_source_dir)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='gm.gyp',
@@ -154,7 +155,8 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_gm',
                                        local_module_tags=['tests'],
-                                       desired_targets=['gm'])
+                                       desired_targets=['gm'],
+                                       gyp_source_dir=gyp_source_dir)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='dm.gyp',
@@ -163,7 +165,8 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
                                        skia_lib_var_dict=common,
                                        local_module_name='skia_dm',
                                        local_module_tags=['tests'],
-                                       desired_targets=['dm'])
+                                       desired_targets=['dm'],
+                                       gyp_source_dir=gyp_source_dir)
 
     # Now that the defines have been written to SkUserConfig and they've been
     # used to skip adding them to the tools makefiles, they are not needed in

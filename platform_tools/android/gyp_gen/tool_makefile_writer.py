@@ -39,7 +39,7 @@ def write_tool_android_mk(target_dir, var_dict):
 
 def generate_tool(gyp_dir, target_file, skia_trunk, dest_dir,
                   skia_lib_var_dict, local_module_name, local_module_tags,
-                  desired_targets):
+                  desired_targets, gyp_source_dir=None):
   """Common steps for building one of the skia tools.
 
   Parse a gyp file and create an Android.mk for this tool.
@@ -57,11 +57,13 @@ def generate_tool(gyp_dir, target_file, skia_trunk, dest_dir,
     local_module_name: Name for this tool, to set as LOCAL_MODULE.
     local_module_tags: Tags to pass to LOCAL_MODULE_TAG.
     desired_targets: List of targets to parse.
+    gyp_source_dir: Source directory for gyp.
   """
   result_file = android_framework_gyp.main(target_dir=gyp_dir,
                                            target_file=target_file,
                                            skia_arch_type='other',
-                                           have_neon=False)
+                                           have_neon=False,
+                                           gyp_source_dir=gyp_source_dir)
 
   var_dict = vars_dict_lib.VarsDict()
 
