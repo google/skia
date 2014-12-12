@@ -4108,6 +4108,7 @@
           9799652110156767003
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip_bw_565.png": {
@@ -4180,6 +4181,7 @@
           2723021135148480001
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "composeshader_565.png": {
@@ -9024,6 +9026,7 @@
           7258621849282010524
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "lcdtextsize_565.png": {

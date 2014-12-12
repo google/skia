@@ -15017,6 +15017,7 @@
           7455993603061352328
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "multipicturedraw_invpathclip_tiled_nvprmsaa4.png": {

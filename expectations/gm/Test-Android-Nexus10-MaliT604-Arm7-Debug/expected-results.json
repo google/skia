@@ -4724,6 +4724,7 @@
           12196869759529540877
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "composeshader_565.png": {
@@ -9062,6 +9063,7 @@
           1836535283550760371
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "glyph_pos_n_f_565.png": {
@@ -10459,6 +10461,7 @@
           15496402527902048731
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "imagemagnifier_565.png": {
