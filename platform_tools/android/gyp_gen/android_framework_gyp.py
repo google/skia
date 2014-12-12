@@ -22,6 +22,8 @@ SKIA_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, os.pardir, os.pardir,
 DIR_CONTENTS = os.listdir(SKIA_DIR)
 assert 'gyp' in DIR_CONTENTS
 
+DEBUG_FAILURE = True
+
 def main(target_dir, target_file, skia_arch_type, have_neon,
          gyp_source_dir=None):
   """Create gypd files based on target_file.
@@ -42,7 +44,15 @@ def main(target_dir, target_file, skia_arch_type, have_neon,
   # Ensure we import our current gyp source's module, not any version
   # pre-installed in your PYTHONPATH.
   if not gyp_source_dir:
+    if DEBUG_FAILURE:
+      print 'gyp_source_dir not provided. using the default!'
     gyp_source_dir = os.path.join(SKIA_DIR, 'third_party', 'externals', 'gyp')
+
+  if DEBUG_FAILURE:
+    print 'gyp_source_dir is "%s"' % gyp_source_dir
+    if not os.path.exists(gyp_source_dir):
+      print 'and it does not exist!'
+
   assert os.path.exists(gyp_source_dir)
 
   sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
