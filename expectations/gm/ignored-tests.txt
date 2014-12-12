@@ -67,10 +67,3 @@ drawbitmapmatrix
 
 #junov skbug.com/3176
 pictureimagefilter
-
-#joshualitt
-hairlines
-patch_primitive
-xfermodes3
-multipicturedraw_sierpinski_tiled
-multipicturedraw_sierpinski_simple
