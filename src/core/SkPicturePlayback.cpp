@@ -148,18 +148,8 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
                 reader->setOffset(offsetToRestore);
             }
         } break;
-        case PUSH_CULL: {
-            const SkRect& cullRect = reader->skipT<SkRect>();
-            size_t offsetToRestore = reader->readInt();
-            if (offsetToRestore && canvas->quickReject(cullRect)) {
-                reader->setOffset(offsetToRestore);
-            } else {
-                canvas->pushCull(cullRect);
-            }
-        } break;
-        case POP_CULL:
-            canvas->popCull();
-            break;
+        case PUSH_CULL: break;  // Deprecated, safe to ignore both push and pop.
+        case POP_CULL:  break;
         case CONCAT: {
             SkMatrix matrix;
             reader->readMatrix(&matrix);

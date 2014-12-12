@@ -46,23 +46,16 @@ public:
         subclasses to track unresolved save() calls. */
     virtual void trackSaveState(int* state) {}
 
-    // The next "active" system is only used by save, saveLayer, restore,
-    // pushCull and popCull. It is used in two ways:
-    // To determine which saveLayers are currently active (at a
+    // The next "active" system is only used by save, saveLayer, and restore.
+    // It is used to determine which saveLayers are currently active (at a
     // given point in the rendering).
     //      saves just return a kPushLayer action but don't track active state
     //      restores just return a kPopLayer action
     //      saveLayers return kPushLayer but also track the active state
-    // To determine which culls are currently active (at a given point)
-    // in the rendering).
-    //      pushCulls return a kPushCull action
-    //      popCulls  return a kPopCull action
     enum Action {
         kNone_Action,
         kPopLayer_Action,
         kPushLayer_Action,
-        kPopCull_Action,
-        kPushCull_Action
     };
     virtual Action action() const { return kNone_Action; }
     virtual void setActive(bool active) {}
@@ -610,30 +603,6 @@ private:
     SkScalar fDx;
     SkScalar fDy;
 
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkPushCullCommand : public SkDrawCommand {
-public:
-    SkPushCullCommand(const SkRect&);
-    virtual void execute(SkCanvas*) const SK_OVERRIDE;
-    virtual void vizExecute(SkCanvas* canvas) const SK_OVERRIDE;
-    virtual Action action() const { return kPushCull_Action; }
-    virtual void setActive(bool active) { fActive = active; }
-    virtual bool active() const { return fActive; }
-private:
-    SkRect fCullRect;
-    bool   fActive;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkPopCullCommand : public SkDrawCommand {
-public:
-    SkPopCullCommand();
-    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
-    virtual Action action() const { return kPopCull_Action; }
-private:
     typedef SkDrawCommand INHERITED;
 };
 

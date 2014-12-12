@@ -122,10 +122,8 @@ DEF_TEST(RecordPattern_Complex, r) {
 
     start = record.count();
     recorder.save();
-        recorder.pushCull(SkRect::MakeWH(300, 200));
         recorder.clipRect(SkRect::MakeWH(300, 200));
         recorder.clipRect(SkRect::MakeWH(100, 400));
-        recorder.popCull();
     recorder.restore();
     REPORTER_ASSERT(r, pattern.match(&record, start) == record.count());
     end = start;

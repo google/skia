@@ -292,15 +292,6 @@ void SkDumpCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     this->INHERITED::onClipRegion(deviceRgn, op);
 }
 
-void SkDumpCanvas::onPushCull(const SkRect& cullRect) {
-    SkString str;
-    toString(cullRect, &str);
-    this->dump(kCull_Verb, NULL, "pushCull(%s)", str.c_str());
-}
-
-void SkDumpCanvas::onPopCull() {
-    this->dump(kCull_Verb, NULL, "popCull()");
-}
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkDumpCanvas::drawPaint(const SkPaint& paint) {

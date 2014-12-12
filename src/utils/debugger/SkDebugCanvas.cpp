@@ -209,7 +209,6 @@ private:
 // return true in their 'active' method
 void SkDebugCanvas::markActiveCommands(int index) {
     fActiveLayers.rewind();
-    fActiveCulls.rewind();
 
     for (int i = 0; i < fCommandVector.count(); ++i) {
         fCommandVector[i]->setActive(false);
@@ -221,10 +220,6 @@ void SkDebugCanvas::markActiveCommands(int index) {
             fActiveLayers.push(fCommandVector[i]);
         } else if (SkDrawCommand::kPopLayer_Action == result) {
             fActiveLayers.pop();
-        } else if (SkDrawCommand::kPushCull_Action == result) {
-            fActiveCulls.push(fCommandVector[i]);
-        } else if (SkDrawCommand::kPopCull_Action == result) {
-            fActiveCulls.pop();
         }
     }
 
@@ -232,9 +227,6 @@ void SkDebugCanvas::markActiveCommands(int index) {
         fActiveLayers[i]->setActive(true);
     }
 
-    for (int i = 0; i < fActiveCulls.count(); ++i) {
-        fActiveCulls[i]->setActive(true);
-    }
 }
 
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
@@ -315,7 +307,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     }
 
     if (fMegaVizMode) {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(fWindowSize.fWidth), 
+        SkRect r = SkRect::MakeWH(SkIntToScalar(fWindowSize.fWidth),
                                   SkIntToScalar(fWindowSize.fHeight));
         r.outset(SK_Scalar1, SK_Scalar1);
 
@@ -505,8 +497,8 @@ void SkDebugCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPathCommand(path, paint));
 }
 
-void SkDebugCanvas::onDrawPicture(const SkPicture* picture, 
-                                  const SkMatrix* matrix, 
+void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
+                                  const SkMatrix* matrix,
                                   const SkPaint* paint) {
     this->addDrawCommand(new SkDrawPictureCommand(picture, matrix, paint));
 }
@@ -568,14 +560,6 @@ void SkDebugCanvas::drawVertices(VertexMode vmode, int vertexCount,
         const SkPaint& paint) {
     this->addDrawCommand(new SkDrawVerticesCommand(vmode, vertexCount, vertices,
                          texs, colors, NULL, indices, indexCount, paint));
-}
-
-void SkDebugCanvas::onPushCull(const SkRect& cullRect) {
-    this->addDrawCommand(new SkPushCullCommand(cullRect));
-}
-
-void SkDebugCanvas::onPopCull() {
-    this->addDrawCommand(new SkPopCullCommand());
 }
 
 void SkDebugCanvas::willRestore() {

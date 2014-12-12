@@ -847,36 +847,6 @@ void SkPictureRecord::endCommentGroup() {
     this->validate(initialOffset, size);
 }
 
-// [op/size] [rect] [skip offset]
-static const uint32_t kPushCullOpSize = 2 * kUInt32Size + sizeof(SkRect);
-void SkPictureRecord::onPushCull(const SkRect& cullRect) {
-    size_t size = kPushCullOpSize;
-    size_t initialOffset = this->addDraw(PUSH_CULL, &size);
-    // PUSH_CULL's size should stay constant (used to rewind).
-    SkASSERT(size == kPushCullOpSize);
-
-    this->addRect(cullRect);
-    fCullOffsetStack.push(SkToU32(fWriter.bytesWritten()));
-    this->addInt(0);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::onPopCull() {
-    SkASSERT(!fCullOffsetStack.isEmpty());
-
-    uint32_t cullSkipOffset = fCullOffsetStack.top();
-    fCullOffsetStack.pop();
-
-    // op only
-    size_t size = kUInt32Size;
-    size_t initialOffset = this->addDraw(POP_CULL, &size);
-
-    // update the cull skip offset to point past this op.
-    fWriter.overwriteTAt<uint32_t>(cullSkipOffset, SkToU32(fWriter.bytesWritten()));
-
-    this->validate(initialOffset, size);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {

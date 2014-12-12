@@ -237,8 +237,6 @@ protected:
                                   const SkMatrix* matrix, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) SK_OVERRIDE;
-    virtual void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
-    virtual void onPopCull() SK_OVERRIDE;
 
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
@@ -284,12 +282,6 @@ private:
         Only used when "mega" visualization is enabled.
     */
     SkTDArray<SkDrawCommand*> fActiveLayers;
-
-    /**
-        The active cull commands at a given point in the rendering.
-        Only used when "mega" visualization is enabled.
-    */
-    SkTDArray<SkDrawCommand*> fActiveCulls;
 
     /**
         Adds the command to the classes vector of commands.

@@ -63,8 +63,8 @@ enum DrawType {
 
     // new ops -- feel free to re-alphabetize on next version bump
     DRAW_DRRECT,
-    PUSH_CULL,
-    POP_CULL,
+    PUSH_CULL,  // deprecated, M41 was last Chromium version to write this to an .skp
+    POP_CULL,   // deprecated, M41 was last Chromium version to write this to an .skp
 
     DRAW_PATCH, // could not add in aphabetical order
     DRAW_PICTURE_MATRIX_PAINT,

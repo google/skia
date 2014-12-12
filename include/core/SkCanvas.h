@@ -1055,19 +1055,6 @@ public:
         // do nothing. Subclasses may do something
     }
 
-    /**
-     *  With this call the client asserts that subsequent draw operations (up to the
-     *  matching popCull()) are fully contained within the given bounding box. The assertion
-     *  is not enforced, but the information might be used to quick-reject command blocks,
-     *  so an incorrect bounding box may result in incomplete rendering.
-     */
-    void pushCull(const SkRect& cullRect);
-
-    /**
-     *  Terminates the current culling block, and restores the previous one (if any).
-     */
-    void popCull();
-
     //////////////////////////////////////////////////////////////////////////
 
     /** Get the current filter object. The filter's reference count is not
@@ -1250,9 +1237,6 @@ protected:
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
 
-    virtual void onPushCull(const SkRect& cullRect);
-    virtual void onPopCull();
-
 private:
     class MCRec;
 
@@ -1267,7 +1251,6 @@ private:
 
     int         fSaveCount;         // value returned by getSaveCount()
     int         fSaveLayerCount;    // number of successful saveLayer calls
-    int         fCullCount;         // number of active culls
 
     SkMetaData* fMetaData;
 
@@ -1385,9 +1368,6 @@ private:
     };
 
 #ifdef SK_DEBUG
-    // The cull stack rects are in device-space
-    SkTDArray<SkIRect> fCullStack;
-    void validateCull(const SkIRect&);
     void validateClip() const;
 #else
     void validateClip() const {}

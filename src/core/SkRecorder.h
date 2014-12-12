@@ -130,9 +130,6 @@ public:
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
 
-    void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
-    void onPopCull() SK_OVERRIDE;
-
     void beginCommentGroup(const char*) SK_OVERRIDE;
     void addComment(const char*, const char*) SK_OVERRIDE;
     void endCommentGroup() SK_OVERRIDE;

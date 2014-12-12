@@ -417,7 +417,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fDeviceCMDirty = true;
     fSaveCount = 1;
     fSaveLayerCount = 0;
-    fCullCount = 0;
     fMetaData = NULL;
 
     fMCRec = (MCRec*)fMCStack.push_back();
@@ -696,7 +695,7 @@ bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowByte
         return false;
     }
     const SkISize size = this->getBaseLayerSize();
-    
+
     SkReadPixelsRec rec(dstInfo, dstP, rowBytes, x, y);
     if (!rec.trim(size.width(), size.height())) {
         return false;
@@ -844,7 +843,7 @@ void SkCanvas::restoreToCount(int count) {
     if (count < 1) {
         count = 1;
     }
-    
+
     int n = this->getSaveCount() - count;
     for (int i = 0; i < n; ++i) {
         this->restore();
@@ -1119,71 +1118,7 @@ bool SkAutoROCanvasPixels::asROBitmap(SkBitmap* bitmap) const {
     }
 }
 
-void SkCanvas::onPushCull(const SkRect& cullRect) {
-    // do nothing. Subclasses may do something
-}
-
-void SkCanvas::onPopCull() {
-    // do nothing. Subclasses may do something
-}
-
 /////////////////////////////////////////////////////////////////////////////
-#ifdef SK_DEBUG
-// Ensure that cull rects are monotonically nested in device space.
-void SkCanvas::validateCull(const SkIRect& devCull) {
-    if (fCullStack.isEmpty()
-        || devCull.isEmpty()
-        || fCullStack.top().contains(devCull)) {
-        return;
-    }
-
-    SkDEBUGF(("Invalid cull: [%d %d %d %d] (previous cull: [%d %d %d %d])\n",
-              devCull.x(), devCull.y(), devCull.right(), devCull.bottom(),
-              fCullStack.top().x(), fCullStack.top().y(),
-              fCullStack.top().right(), fCullStack.top().bottom()));
-
-#ifdef ASSERT_NESTED_CULLING
-    SkDEBUGFAIL("Invalid cull.");
-#endif
-}
-#endif
-
-void SkCanvas::pushCull(const SkRect& cullRect) {
-    this->checkForDeferredSave();
-    ++fCullCount;
-    this->onPushCull(cullRect);
-
-#ifdef SK_DEBUG
-    // Map the cull rect into device space.
-    SkRect mappedCull;
-    this->getTotalMatrix().mapRect(&mappedCull, cullRect);
-
-    // Take clipping into account.
-    SkIRect devClip, devCull;
-    mappedCull.roundOut(&devCull);
-    this->getClipDeviceBounds(&devClip);
-    if (!devCull.intersect(devClip)) {
-        devCull.setEmpty();
-    }
-
-    this->validateCull(devCull);
-    fCullStack.push(devCull); // balanced in popCull
-#endif
-}
-
-void SkCanvas::popCull() {
-    SkASSERT(fCullStack.count() == fCullCount);
-
-    if (fCullCount > 0) {
-        --fCullCount;
-        this->onPopCull();
-
-        SkDEBUGCODE(fCullStack.pop());
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint* paint) {
     if (bitmap.drawsNothing()) {

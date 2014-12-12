@@ -295,14 +295,6 @@ void SkRecorder::didRestore() {
     APPEND(Restore, this->devBounds(), this->getTotalMatrix());
 }
 
-void SkRecorder::onPushCull(const SkRect& rect) {
-    APPEND(PushCull, rect);
-}
-
-void SkRecorder::onPopCull() {
-    APPEND(PopCull);
-}
-
 void SkRecorder::didConcat(const SkMatrix& matrix) {
     this->didSetMatrix(this->getTotalMatrix());
 }

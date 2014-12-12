@@ -81,8 +81,6 @@ template <> void Draw::draw(const NoOp&) {}
 DRAW(Restore, restore());
 DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
-DRAW(PopCull, popCull());
-DRAW(PushCull, pushCull(r.rect));
 DRAW(Clear, clear(r.color));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 
@@ -286,8 +284,6 @@ private:
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
     void trackBounds(const ClipRegion&)        { this->pushControl(); }
-    void trackBounds(const PushCull&)          { this->pushControl(); }
-    void trackBounds(const PopCull&)           { this->pushControl(); }
     void trackBounds(const BeginCommentGroup&) { this->pushControl(); }
     void trackBounds(const AddComment&)        { this->pushControl(); }
     void trackBounds(const EndCommentGroup&)   { this->pushControl(); }
