@@ -30,33 +30,33 @@
          ],
          "ignore-failure" : false
       },
-      "5-sm-webp-[123,39,267,118]_8888.png" : {
+      "5-sm-webp-123_39_267_118_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 8305989916569023174 ]
          ],
          "ignore-failure" : false
       },
-      "5-sm-webp-[125,106,235,142]_8888.png" : {
+      "5-sm-webp-125_106_235_142_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 9624100960294255012 ]
          ],
          "ignore-failure" : false
       },
-      "5-sm-webp-[175,57,192,180]_8888.png" : {
+      "5-sm-webp-175_57_192_180_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 2516216405763465877 ]
          ],
          "ignore-failure" : false
       },
-      "5-sm-webp-[9,135,53,181]_8888.png" : {
+      "5-sm-webp-96_203_108_205_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 10900471035558488354 ]
+            [ "bitmap-64bitMD5", 17942269483021635879 ]
          ],
          "ignore-failure" : false
       },
-      "5-sm-webp-[96,203,108,205]_8888.png" : {
+      "5-sm-webp-9_135_53_181_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 17942269483021635879 ]
+            [ "bitmap-64bitMD5", 10900471035558488354 ]
          ],
          "ignore-failure" : false
       },
@@ -92,7 +92,7 @@
       },
       "Softskin-Series-Folder-Folder-TV-DEXTER-2-ico_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 16114358301818854352 ]
+            [ "bitmap-64bitMD5", 6383196142855109799 ]
          ],
          "ignore-failure" : false
       },
@@ -174,31 +174,31 @@
          ],
          "ignore-failure" : false
       },
-      "webp-test-webp-[108,270,416,348]_8888.png" : {
+      "webp-test-webp-108_270_416_348_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 11199126684650393979 ]
          ],
          "ignore-failure" : false
       },
-      "webp-test-webp-[123,263,587,394]_8888.png" : {
+      "webp-test-webp-123_263_587_394_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 16263897892077508819 ]
          ],
          "ignore-failure" : false
       },
-      "webp-test-webp-[192,90,495,267]_8888.png" : {
+      "webp-test-webp-192_90_495_267_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 18306831335099361730 ]
          ],
          "ignore-failure" : false
       },
-      "webp-test-webp-[329,61,373,380]_8888.png" : {
+      "webp-test-webp-329_61_373_380_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 14953310006143786464 ]
          ],
          "ignore-failure" : false
       },
-      "webp-test-webp-[445,116,555,172]_8888.png" : {
+      "webp-test-webp-445_116_555_172_8888.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 1478691171816983364 ]
          ],
