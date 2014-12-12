@@ -191,6 +191,20 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4],
 int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4],
                                bool* ambiguous = NULL);
 
+enum SkCubicType {
+    kSerpentine_SkCubicType,
+    kCusp_SkCubicType,
+    kLoop_SkCubicType,
+    kQuadratic_SkCubicType,
+    kLine_SkCubicType,
+    kPoint_SkCubicType
+};
+
+/** Returns the cubic classification. Pass scratch storage for computing inflection data,
+    which can be used with additional work to find the loop intersections and so on.
+*/
+SkCubicType SkClassifyCubic(const SkPoint p[4], SkScalar inflection[3]);
+
 ///////////////////////////////////////////////////////////////////////////////
 
 enum SkRotationDirection {

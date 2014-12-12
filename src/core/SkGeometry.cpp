@@ -654,6 +654,75 @@ int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
     return count + 1;
 }
 
+// See http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html (from the book GPU Gems 3)
+// discr(I) = d0^2 * (3*d1^2 - 4*d0*d2)
+// Classification:
+// discr(I) > 0        Serpentine
+// discr(I) = 0        Cusp
+// discr(I) < 0        Loop
+// d0 = d1 = 0         Quadratic
+// d0 = d1 = d2 = 0    Line
+// p0 = p1 = p2 = p3   Point
+static SkCubicType classify_cubic(const SkPoint p[4], const SkScalar d[3]) {
+    if (p[0] == p[1] && p[0] == p[2] && p[0] == p[3]) {
+        return kPoint_SkCubicType;
+    }
+    const SkScalar discr = d[0] * d[0] * (3.f * d[1] * d[1] - 4.f * d[0] * d[2]);
+    if (discr > SK_ScalarNearlyZero) {
+        return kSerpentine_SkCubicType;
+    } else if (discr < -SK_ScalarNearlyZero) {
+        return kLoop_SkCubicType;
+    } else {
+        if (0.f == d[0] && 0.f == d[1]) {
+            return (0.f == d[2] ? kLine_SkCubicType : kQuadratic_SkCubicType);
+        } else {
+            return kCusp_SkCubicType;
+        }
+    }
+}
+
+// Assumes the third component of points is 1.
+// Calcs p0 . (p1 x p2)
+static SkScalar calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    const SkScalar xComp = p0.fX * (p1.fY - p2.fY);
+    const SkScalar yComp = p0.fY * (p2.fX - p1.fX);
+    const SkScalar wComp = p1.fX * p2.fY - p1.fY * p2.fX;
+    return (xComp + yComp + wComp);
+}
+
+// Calc coefficients of I(s,t) where roots of I are inflection points of curve
+// I(s,t) = t*(3*d0*s^2 - 3*d1*s*t + d2*t^2)
+// d0 = a1 - 2*a2+3*a3
+// d1 = -a2 + 3*a3
+// d2 = 3*a3
+// a1 = p0 . (p3 x p2)
+// a2 = p1 . (p0 x p3)
+// a3 = p2 . (p1 x p0)
+// Places the values of d1, d2, d3 in array d passed in
+static void calc_cubic_inflection_func(const SkPoint p[4], SkScalar d[3]) {
+    SkScalar a1 = calc_dot_cross_cubic(p[0], p[3], p[2]);
+    SkScalar a2 = calc_dot_cross_cubic(p[1], p[0], p[3]);
+    SkScalar a3 = calc_dot_cross_cubic(p[2], p[1], p[0]);
+
+    // need to scale a's or values in later calculations will grow to high
+    SkScalar max = SkScalarAbs(a1);
+    max = SkMaxScalar(max, SkScalarAbs(a2));
+    max = SkMaxScalar(max, SkScalarAbs(a3));
+    max = 1.f/max;
+    a1 = a1 * max;
+    a2 = a2 * max;
+    a3 = a3 * max;
+
+    d[2] = 3.f * a3;
+    d[1] = d[2] - a2;
+    d[0] = d[1] - a2 + a1;
+}
+
+SkCubicType SkClassifyCubic(const SkPoint src[4], SkScalar d[3]) {
+    calc_cubic_inflection_func(src, d);
+    return classify_cubic(src, d);
+}
+
 template <typename T> void bubble_sort(T array[], int count) {
     for (int i = count - 1; i > 0; --i)
         for (int j = i; j > 0; --j)
