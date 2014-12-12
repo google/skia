@@ -2,7 +2,7 @@
 #include "SkVarAlloc.h"
 
 DEF_TEST(VarAlloc, r) {
-    SkVarAlloc va;
+    SkVarAlloc va(4/*start allocating at 16B*/);
     char* p = va.alloc(128, SK_MALLOC_THROW);
     sk_bzero(p, 128);  // Just checking this is safe.
 

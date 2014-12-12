@@ -5,7 +5,8 @@
 
 class SkVarAlloc : SkNoncopyable {
 public:
-    SkVarAlloc();
+    // Smallest block we'll allocate is 2**N bytes.
+    explicit SkVarAlloc(size_t minLgSize);
     ~SkVarAlloc();
 
     // Returns contiguous bytes aligned at least for pointers.  You may pass SK_MALLOC_THROW, etc.
@@ -32,7 +33,7 @@ private:
 
     char* fByte;
     unsigned fRemaining;
-    unsigned fLgSize;  // This is always in the range [4, 16], so it really only needs 4 bits.
+    unsigned fLgSize;
 
     struct Block;
     Block* fBlock;

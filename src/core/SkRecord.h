@@ -30,7 +30,7 @@ class SkRecord : public SkNVRefCnt<SkRecord> {
         kFirstReserveCount = 64 / sizeof(void*),
     };
 public:
-    SkRecord() : fCount(0), fReserved(0) {}
+    SkRecord() : fCount(0), fReserved(0), fAlloc(8/*start block sizes at 256 bytes*/) {}
     ~SkRecord();
 
     // Returns the number of canvas commands in this SkRecord.
