@@ -74,6 +74,8 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fCoverageProcInfoValid = that.fCoverageProcInfoValid;
     fColorCache = that.fColorCache;
     fCoverageCache = that.fCoverageCache;
+    fColorPrimProc = that.fColorPrimProc;
+    fCoveragePrimProc = that.fCoveragePrimProc;
     if (fColorProcInfoValid) {
         fColorProcInfo = that.fColorProcInfo;
     }
@@ -108,7 +110,6 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
 
     fColorPrimProc = NULL;
     fCoveragePrimProc = NULL;
-
 }
 
 bool GrDrawState::setIdentityViewMatrix()  {
@@ -165,6 +166,9 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
 
     fColorCache = GrColor_ILLEGAL;
     fCoverageCache = GrColor_ILLEGAL;
+
+    fColorPrimProc = NULL;
+    fCoveragePrimProc = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
