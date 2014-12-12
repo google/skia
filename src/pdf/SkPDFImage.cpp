@@ -222,7 +222,11 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
     bool transparent = extractAlpha;
     SkStream* stream = NULL;
 
-    bitmap.lockPixels();
+    SkAutoLockPixels lock(bitmap);
+    if (NULL == bitmap.getPixels()) {
+        return NULL;
+    }
+
     switch (colorType) {
         case kIndex_8_SkColorType:
             if (!extractAlpha) {
@@ -253,7 +257,6 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
         default:
             SkASSERT(false);
     }
-    bitmap.unlockPixels();
 
     if (isTransparent != NULL) {
         *isTransparent = transparent;

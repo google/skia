@@ -147,6 +147,7 @@
     '../tests/NameAllocatorTest.cpp',
     '../tests/OSPathTest.cpp',
     '../tests/OnceTest.cpp',
+    '../tests/PDFInvalidBitmapTest.cpp',
     '../tests/PDFJpegEmbedTest.cpp',
     '../tests/PDFPrimitivesTest.cpp',
     '../tests/PackBitsTest.cpp',
