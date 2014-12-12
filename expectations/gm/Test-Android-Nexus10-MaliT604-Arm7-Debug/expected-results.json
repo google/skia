@@ -16240,9 +16240,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11076894542393220883
+          5171729066415215230
         ]
       ], 
+      "bugs": [
+        3205
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "typeface_565.png": {
@@ -16512,9 +16516,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1602587625386148569
+          12491781726055918750
         ]
       ], 
+      "bugs": [
+        3205
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "varied_text_ignorable_clip_no_lcd_565.png": {
@@ -16557,9 +16565,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1602587625386148569
+          12491781726055918750
         ]
       ], 
+      "bugs": [
+        3205
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "vertices_565.png": {

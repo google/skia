@@ -12541,9 +12541,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4761609321426314334
+          6346058539920426001
         ]
       ], 
+      "bugs": [
+        3205
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "stringart_565.png": {
