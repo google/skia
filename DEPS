@@ -9,7 +9,7 @@ deps = {
   #   - both Android and ChromeOS pull the same giflib;
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
 
-  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@23a8a433529d9db23882c702a29d5e594841563d",
+  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@53c1a456a1886d9020d0cea81e0059f7e8caeb66",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@f1c42f73e4cc2912460aab113f9cd31ee3fafd38",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
