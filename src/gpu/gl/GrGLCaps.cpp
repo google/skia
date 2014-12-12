@@ -470,21 +470,28 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
     }
 
     if (this->isConfigTexturable(kRGBA_float_GrPixelConfig)) {
-        fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
         if (kGL_GrGLStandard == standard) {
+            fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
             fConfigRenderSupport[kRGBA_float_GrPixelConfig][kYes_MSAA] = true;
         } else {
-            // for now we don't support float point MSAA on ES
+            if (ctxInfo.hasExtension("GL_EXT_color_buffer_float")) {
+                fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
+            } else {
+                fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = false;
+            }
+            // for now we don't support floating point MSAA on ES
             fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = false;
         }
     }
 
     if (this->isConfigTexturable(kAlpha_half_GrPixelConfig)) {
-        fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = true;
         if (kGL_GrGLStandard == standard) {
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = true;
             fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = true;
         } else {
-            // for now we don't support float point MSAA on ES
+            // in theory, check for "GL_EXT_color_buffer_half_float" 
+            // for now we don't support half float alpha render target on ES
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = false;
             fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = false;
         }
     }
@@ -620,7 +627,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     bool hasFPTextures = version >= GR_GL_VER(3, 1);
     if (!hasFPTextures) {
         hasFPTextures = ctxInfo.hasExtension("GL_ARB_texture_float") ||
-                        (ctxInfo.hasExtension("OES_texture_float_linear") &&
+                        (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
                          ctxInfo.hasExtension("GL_OES_texture_float"));
     }
     fConfigTextureSupport[kRGBA_float_GrPixelConfig] = hasFPTextures;
@@ -633,7 +640,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     bool hasHalfFPTextures = version >= GR_GL_VER(3, 1);
     if (!hasHalfFPTextures) {
         hasHalfFPTextures = ctxInfo.hasExtension("GL_ARB_texture_float") ||
-        (ctxInfo.hasExtension("OES_texture_half_float_linear") &&
+        (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
          ctxInfo.hasExtension("GL_OES_texture_half_float"));
     }
     fConfigTextureSupport[kAlpha_half_GrPixelConfig] = hasHalfFPTextures && fTextureRedSupport;

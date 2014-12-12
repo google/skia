@@ -127,7 +127,6 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
             fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData, 0);
             fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer, 0);
             for (int j = 0; j < HALF_CONTROL_ARRAY_SIZE; ++j) {
-                SkASSERT(readBuffer[j] == controlPixelData[j]);
                 REPORTER_ASSERT(reporter, readBuffer[j] == controlPixelData[j]);
             }
         }
