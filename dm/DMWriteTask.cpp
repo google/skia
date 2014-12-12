@@ -25,7 +25,7 @@ static int split_suffixes(int N, const char* name, SkTArray<SkString>* out) {
     for (int i = 0; i < N; i++) {
         // We're splitting off suffixes from the back to front.
         out->push_back(split[split.count()-i-1]);
-        consumed += out->back().size() + 1;  // Add one for the _.
+        consumed += SkToInt(out->back().size() + 1);  // Add one for the _.
     }
     return consumed;
 }

@@ -252,7 +252,7 @@ GrTexture* GrSWMaskHelper::createTexture() {
 }
 
 void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& desc,
-                                     const void *data, int rowbytes) {
+                                     const void *data, size_t rowbytes) {
     // If we aren't reusing scratch textures we don't need to flush before
     // writing since no one else will be using 'texture'
     bool reuseScratch = fContext->getGpu()->caps()->reuseScratchTextures();

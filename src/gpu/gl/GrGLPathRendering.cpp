@@ -136,7 +136,7 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
     const void* fontData = fontStream->getMemoryBase();
     if (NULL == fontData) {
         // TODO: Find a more efficient way to pass the font data (e.g. open file descriptor).
-        fontTempBuffer.reset(SkToU32(fontDataLength));
+        fontTempBuffer.reset(SkToInt(fontDataLength));
         fontStream->read(&fontTempBuffer.front(), fontDataLength);
         fontData = &fontTempBuffer.front();
     }

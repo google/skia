@@ -128,7 +128,7 @@ private:
     // Actually sends the texture data to the GPU. This is called from
     // toTexture with the data filled in depending on the texture config.
     void sendTextureData(GrTexture *texture, const GrSurfaceDesc& desc,
-                         const void *data, int rowbytes);
+                         const void *data, size_t rowbytes);
 
     // Compresses the bitmap stored in fBM and sends the compressed data
     // to the GPU to be stored in 'texture' using sendTextureData.

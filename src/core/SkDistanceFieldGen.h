@@ -35,7 +35,7 @@
  */
 bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
                                         const unsigned char* image,
-                                        int w, int h, int rowBytes);
+                                        int w, int h, size_t rowBytes);
 
 /** Given 1-bit mask data, generate the associated distance field
 
@@ -48,7 +48,7 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
  */
 bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
                                         const unsigned char* image,
-                                        int w, int h, int rowBytes);
+                                        int w, int h, size_t rowBytes);
 
 /** Given width and height of original image, return size (in bytes) of distance field
  *  @param w                 Width of the original image.

@@ -306,7 +306,7 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                                                      glyph.getSubYFixed()),
                                        x, y, fontScaler)) {
                     // couldn't append, send to fallback
-                    fallbackTxt.push_back_n(SkToU32(text-lastText), lastText);
+                    fallbackTxt.push_back_n(SkToInt(text-lastText), lastText);
                     fallbackPos.push_back(pos[0]);
                     if (2 == scalarsPerPosition) {
                         fallbackPos.push_back(pos[1]);
@@ -335,7 +335,7 @@ void GrDistanceFieldTextContext::onDrawPosText(const GrPaint& paint, const SkPai
                                                      glyph.getSubYFixed()),
                                        x - advanceX, y - advanceY, fontScaler)) {
                     // couldn't append, send to fallback
-                    fallbackTxt.push_back_n(SkToU32(text-lastText), lastText);
+                    fallbackTxt.push_back_n(SkToInt(text-lastText), lastText);
                     fallbackPos.push_back(pos[0]);
                     if (2 == scalarsPerPosition) {
                         fallbackPos.push_back(pos[1]);

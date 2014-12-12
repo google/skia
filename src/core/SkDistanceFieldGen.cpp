@@ -461,7 +461,7 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
 // assumes an 8-bit image and distance field
 bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
                                         const unsigned char* image,
-                                        int width, int height, int rowBytes) {
+                                        int width, int height, size_t rowBytes) {
     SkASSERT(distanceField);
     SkASSERT(image);
 
@@ -489,7 +489,7 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
 // assumes a 1-bit image and 8-bit distance field
 bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
                                         const unsigned char* image,
-                                        int width, int height, int rowBytes) {
+                                        int width, int height, size_t rowBytes) {
     SkASSERT(distanceField);
     SkASSERT(image);
 

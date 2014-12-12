@@ -129,7 +129,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int font
         nameRecords[i].languageID.windows.value = SkOTTableName::Record::LanguageID::Windows::English_UnitedStates;
         nameRecords[i].nameID.predefined.value = namesToCreate[i];
         nameRecords[i].offset = SkEndian_SwapBE16(0);
-        nameRecords[i].length = SkEndian_SwapBE16(fontNameLen * sizeof(wchar_t));
+        nameRecords[i].length = SkEndian_SwapBE16(SkToU16(fontNameLen * sizeof(wchar_t)));
     }
 
     SK_OT_USHORT* nameString = reinterpret_cast<SK_OT_USHORT*>(data + originalDataSize + stringOffset);

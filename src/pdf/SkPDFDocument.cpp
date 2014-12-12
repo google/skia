@@ -160,14 +160,12 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         perform_font_subsetting(fCatalog.get(), fPages, &fSubstitutes);
 
         // Figure out the size of things and inform the catalog of file offsets.
-        off_t fileOffset = headerSize();
-        fileOffset += fCatalog->setFileOffset(fDocCatalog, fileOffset);
-        fileOffset += fCatalog->setFileOffset(fPages[0], fileOffset);
-        fileOffset += fPages[0]->getPageSize(fCatalog.get(),
-                (size_t) fileOffset);
+        off_t fileOffset = SkToOffT(this->headerSize());
+        fileOffset += SkToOffT(fCatalog->setFileOffset(fDocCatalog, fileOffset));
+        fileOffset += SkToOffT(fCatalog->setFileOffset(fPages[0], fileOffset));
+        fileOffset += fPages[0]->getPageSize(fCatalog.get(), fileOffset);
         for (int i = 0; i < fFirstPageResources->count(); i++) {
-            fileOffset += fCatalog->setFileOffset((*fFirstPageResources)[i],
-                                                  fileOffset);
+            fileOffset += SkToOffT(fCatalog->setFileOffset((*fFirstPageResources)[i], fileOffset));
         }
         // Add the size of resources of substitute objects used on page 1.
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset, true);
@@ -177,7 +175,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         }
 
         for (int i = 0; i < fPageTree.count(); i++) {
-            fileOffset += fCatalog->setFileOffset(fPageTree[i], fileOffset);
+            fileOffset += SkToOffT(fCatalog->setFileOffset(fPageTree[i], fileOffset));
         }
 
         for (int i = 1; i < fPages.count(); i++) {
@@ -185,12 +183,10 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         }
 
         for (int i = 0; i < fOtherPageResources->count(); i++) {
-            fileOffset += fCatalog->setFileOffset(
-                (*fOtherPageResources)[i], fileOffset);
+            fileOffset += SkToOffT(fCatalog->setFileOffset((*fOtherPageResources)[i], fileOffset));
         }
 
-        fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset,
-                                                              false);
+        fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset, false);
         fXRefFileOffset = fileOffset;
     }
 

@@ -69,7 +69,7 @@ protected:
 
     void onOnceBeforeDraw() SK_OVERRIDE {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fTallBmps); ++i) {
-            int h = (4 + i) * 1024;
+            int h = SkToInt((4 + i) * 1024);
 
             fTallBmps[i].fItemCnt = make_bm(&fTallBmps[i].fBmp, h);
         }

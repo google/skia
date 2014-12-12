@@ -36,7 +36,7 @@ public:
 
     GrProgramDesc& operator= (const GrProgramDesc& other) {
         uint32_t keyLength = other.keyLength();
-        fKey.reset(keyLength);
+        fKey.reset(SkToInt(keyLength));
         memcpy(fKey.begin(), other.fKey.begin(), keyLength);
         return *this;
     }

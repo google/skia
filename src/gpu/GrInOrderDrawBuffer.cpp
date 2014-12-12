@@ -332,9 +332,9 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     }
 
     DrawPaths* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPaths, (pathRange));
-    dp->fIndicesLocation = savedIndices - fPathIndexBuffer.begin();
+    dp->fIndicesLocation = SkToU32(savedIndices - fPathIndexBuffer.begin());
     dp->fIndexType = indexType;
-    dp->fTransformsLocation = savedTransforms - fPathTransformBuffer.begin();
+    dp->fTransformsLocation = SkToU32(savedTransforms - fPathTransformBuffer.begin());
     dp->fTransformType = transformType;
     dp->fCount = count;
     dp->fStencilSettings = stencilSettings;
