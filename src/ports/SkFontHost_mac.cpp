@@ -741,9 +741,12 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     CGFloat textSize = ScalarToCG(fRec.fTextSize);
 
     // If a text size of 0 is requested, CoreGraphics will use 12 instead.
-    // If the text size is 0, set it to something tiny.
+    // It would make sense to force the text size to something tiny,
+    // but this causes assertion failures inside CG (drawing glyphs at CGFLOAT_MIN size).
+    // Instead, set such tiny sizes to 1, and transform them down to 0 with a singular transform.
     if (textSize < CGFLOAT_MIN) {
-        textSize = CGFLOAT_MIN;
+        textSize = 1;
+        transform = CGAffineTransformMakeScale(0, 0);
     }
 
     fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &transform, ctFontDesc));
