@@ -30,7 +30,7 @@ public:
 static SkData* new_test_data(size_t dataSize) {
     SkAutoTMalloc<uint8_t> testBuffer(dataSize);
     for (size_t i = 0; i < dataSize; ++i) {
-        testBuffer[i] = i % 64;
+        testBuffer[SkToInt(i)] = i % 64;
     }
     return SkData::NewFromMalloc(testBuffer.detach(), dataSize);
 }

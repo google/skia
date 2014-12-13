@@ -58,9 +58,9 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 static bool stream_contains(const SkDynamicMemoryWStream& stream,
                             const char* buffer) {
     SkAutoDataUnref data(stream.copyToData());
-    int len = strlen(buffer);  // our buffer does not have EOSs.
+    size_t len = strlen(buffer);  // our buffer does not have EOSs.
 
-    for (int offset = 0 ; offset < (int)data->size() - len; offset++) {
+    for (size_t offset = 0 ; offset < data->size() - len; offset++) {
         if (memcmp(data->bytes() + offset, buffer, len) == 0) {
             return true;
         }

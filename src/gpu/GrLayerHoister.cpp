@@ -31,8 +31,8 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     const SkPicture* pict = info.fPicture ? info.fPicture : topLevelPicture;
 
     GrCachedLayer* layer = layerCache->findLayerOrCreate(topLevelPicture->uniqueID(),
-                                                         info.fSaveLayerOpID,
-                                                         info.fRestoreOpID,
+                                                         SkToInt(info.fSaveLayerOpID),
+                                                         SkToInt(info.fRestoreOpID),
                                                          layerRect,
                                                          initialMat,
                                                          info.fKey,

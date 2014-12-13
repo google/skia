@@ -500,7 +500,7 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
         size_t kvsize = kv->size();
         kvsize += 4;
         kvsize = (kvsize + 3) & ~3;
-        hdr.fBytesOfKeyValueData += kvsize;
+        hdr.fBytesOfKeyValueData = SkToU32(hdr.fBytesOfKeyValueData + kvsize);
     }
 
     // Write the header

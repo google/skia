@@ -49,7 +49,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
 off_t SkPDFPage::getPageSize(SkPDFCatalog* catalog, off_t fileOffset) {
     SkASSERT(fContentStream.get() != NULL);
     catalog->setFileOffset(fContentStream.get(), fileOffset);
-    return fContentStream->getOutputSize(catalog, true);
+    return SkToOffT(fContentStream->getOutputSize(catalog, true));
 }
 
 void SkPDFPage::emitPage(SkWStream* stream, SkPDFCatalog* catalog) {

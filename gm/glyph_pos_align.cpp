@@ -59,7 +59,7 @@ protected:
         SkScalar widths[kMaxStringLength];
         SkScalar posX[kMaxStringLength];
         SkPoint pos[kMaxStringLength];
-        int length = strlen(text);
+        int length = SkToInt(strlen(text));
         SkASSERT(length <= kMaxStringLength);
 
         paint.getTextWidths(text, length, widths);

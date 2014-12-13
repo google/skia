@@ -163,7 +163,7 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
         }
     }
 
-    uint32_t totalBytes = writer->bytesWritten();
+    size_t totalBytes = writer->bytesWritten();
 
     SkAutoMalloc readStorage(totalBytes);
     writer->flatten(readStorage.get());

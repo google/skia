@@ -138,8 +138,8 @@ protected:
 
             canvas->scale(2.0f, 2.0f);
 
-            SkAutoTArray<SkPoint>  pos(textLen);
-            SkAutoTArray<SkScalar> widths(textLen);
+            SkAutoTArray<SkPoint>  pos(SkToInt(textLen));
+            SkAutoTArray<SkScalar> widths(SkToInt(textLen));
             paint.setTextSize(textSizes[0]);
 
             paint.getTextWidths(text, textLen, &widths[0]);
