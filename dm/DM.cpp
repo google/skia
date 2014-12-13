@@ -18,6 +18,7 @@
 #include "DMCpuGMTask.h"
 #include "DMGpuGMTask.h"
 #include "DMGpuSupport.h"
+#include "DMImageTask.h"
 #include "DMJsonWriter.h"
 #include "DMPDFTask.h"
 #include "DMReporter.h"
@@ -50,6 +51,7 @@ DEFINE_bool(gms, true, "Run GMs?");
 DEFINE_bool(tests, true, "Run tests?");
 DEFINE_bool(reportUsedChars, false, "Output test font construction data to be pasted into"
                                     " create_test_font.cpp.");
+DEFINE_string(images, "resources", "Path to directory containing images to decode.");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -119,16 +121,21 @@ static void kick_off_tests(const SkTDArray<TestRegistry::Factory>& tests,
     }
 }
 
-static void find_skps(SkTArray<SkString>* skps) {
-    if (FLAGS_skps.isEmpty()) {
+static void find_files(const char* dir,
+                       const char* suffixes[],
+                       size_t num_suffixes,
+                       SkTArray<SkString>* files) {
+    if (0 == strcmp(dir, "")) {
         return;
     }
 
-    SkOSFile::Iter it(FLAGS_skps[0], ".skp");
     SkString filename;
-    while (it.next(&filename)) {
-        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
-            skps->push_back(SkOSPath::Join(FLAGS_skps[0], filename.c_str()));
+    for (size_t i = 0; i < num_suffixes; i++) {
+        SkOSFile::Iter it(dir, suffixes[i]);
+        while (it.next(&filename)) {
+            if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
+                files->push_back(SkOSPath::Join(dir, filename.c_str()));
+            }
         }
     }
 }
@@ -154,6 +161,22 @@ static void kick_off_skps(const SkTArray<SkString>& skps,
         tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename, RASTERIZE_PDF_PROC)));
     }
 }
+
+static void kick_off_images(const SkTArray<SkString>& images,
+                            DM::Reporter* reporter,
+                            DM::TaskRunner* tasks) {
+    for (int i = 0; i < images.count(); i++) {
+        SkAutoTUnref<SkData> image(SkData::NewFromFileName(images[i].c_str()));
+        if (!image) {
+            SkDebugf("Could not read %s.\n", images[i].c_str());
+            exit(1);
+        }
+        SkString filename = SkOSPath::Basename(images[i].c_str());
+        tasks->add(SkNEW_ARGS(DM::ImageTask, (reporter, tasks, image, filename)));
+        tasks->add(SkNEW_ARGS(DM::ImageTask, (reporter, tasks, image, filename, 5/*subsets*/)));
+    }
+}
+
 
 static void report_failures(const SkTArray<SkString>& failures) {
     if (failures.count() == 0) {
@@ -217,17 +240,28 @@ int dm_main() {
         append_matching_factories<Test>(TestRegistry::Head(), &tests);
     }
 
-    SkTArray<SkString> skps;
-    find_skps(&skps);
 
-    SkDebugf("%d GMs x %d configs, %d tests, %d pictures\n",
-             gms.count(), configs.count(), tests.count(), skps.count());
+    SkTArray<SkString> skps;
+    if (!FLAGS_skps.isEmpty()) {
+        const char* suffixes[] = { "skp" };
+        find_files(FLAGS_skps[0], suffixes, SK_ARRAY_COUNT(suffixes), &skps);
+    }
+
+    SkTArray<SkString> images;
+    if (!FLAGS_images.isEmpty()) {
+        const char* suffixes[] = { "bmp", "gif", "jpg", "png", "webp", "ktx", "astc" };
+        find_files(FLAGS_images[0], suffixes, SK_ARRAY_COUNT(suffixes), &images);
+    }
+
+    SkDebugf("%d GMs x %d configs, %d tests, %d pictures, %d images\n",
+             gms.count(), configs.count(), tests.count(), skps.count(), images.count());
     DM::Reporter reporter;
 
     DM::TaskRunner tasks;
     kick_off_tests(tests, &reporter, &tasks);
     kick_off_gms(gms, configs, gpuAPI, &reporter, &tasks);
     kick_off_skps(skps, &reporter, &tasks);
+    kick_off_images(images, &reporter, &tasks);
     tasks.wait();
 
     DM::JsonWriter::DumpJson();

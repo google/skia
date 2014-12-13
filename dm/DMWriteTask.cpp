@@ -60,8 +60,9 @@ WriteTask::WriteTask(const Task& parent,
 }
 
 void WriteTask::makeDirOrFail(SkString dir) {
-    if (!sk_mkdir(dir.c_str())) {
-        this->fail();
+    // This can be a little racy, so if it fails check to see if someone else succeeded.
+    if (!sk_mkdir(dir.c_str()) && !sk_isdir(dir.c_str())) {
+        this->fail("Can't make directory.");
     }
 }
 
@@ -90,6 +91,19 @@ static SkString get_md5(SkStreamAsset* stream) {
     SkMD5 hasher;
     write_asset(stream, &hasher);
     return get_md5_string(&hasher);
+}
+
+static bool encode_png(const SkBitmap& src, SkFILEWStream* file) {
+    SkBitmap bm;
+    // We can't encode A8 bitmaps as PNGs.  Convert them to 8888 first.
+    if (src.info().colorType() == kAlpha_8_SkColorType) {
+        if (!src.copyTo(&bm, kN32_SkColorType)) {
+            return false;
+        }
+    } else {
+        bm = src;
+    }
+    return SkImageEncoder::EncodeStream(file, bm, SkImageEncoder::kPNG_Type, 100);
 }
 
 void WriteTask::draw() {
@@ -153,7 +167,7 @@ void WriteTask::draw() {
     }
 
     bool ok = fData ? write_asset(fData, &file)
-                    : SkImageEncoder::EncodeStream(&file, fBitmap, SkImageEncoder::kPNG_Type, 100);
+                    : encode_png(fBitmap, &file);
     if (!ok) {
         return this->fail("Can't write to file.");
     }

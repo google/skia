@@ -32,6 +32,7 @@
     '../dm/DMCpuGMTask.cpp',
     '../dm/DMGpuGMTask.cpp',
     '../dm/DMPDFRasterizeTask.cpp',
+    '../dm/DMImageTask.cpp',
     '../dm/DMJsonWriter.cpp',
     '../dm/DMPDFTask.cpp',
     '../dm/DMPipeTask.cpp',
