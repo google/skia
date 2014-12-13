@@ -282,12 +282,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         // twiddle drawstate knobs randomly
         bool hasGeometryProcessor = !usePathRendering;
-        const GrGeometryProcessor* gp = NULL;
-        const GrPathProcessor* pathProc = NULL;
+        SkAutoTUnref<const GrGeometryProcessor> gp;
+        SkAutoTUnref<const GrPathProcessor> pathProc;
         if (hasGeometryProcessor) {
-            gp = get_random_gp(fContext, gpu->glCaps(), &random, dummyTextures);
+            gp.reset(get_random_gp(fContext, gpu->glCaps(), &random, dummyTextures));
         } else {
-            pathProc = GrPathProcessor::Create(GrColor_WHITE);
+            pathProc.reset(GrPathProcessor::Create(GrColor_WHITE));
         }
         set_random_color_coverage_stages(gpu,
                                          &ds,
@@ -306,9 +306,9 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         const GrPrimitiveProcessor* primProc;
         if (hasGeometryProcessor) {
-            primProc = gp;
+            primProc = gp.get();
         } else {
-            primProc = pathProc;
+            primProc = pathProc.get();
         }
         if (!this->setupDstReadIfNecessary(&ds, primProc, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
