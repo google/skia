@@ -71,6 +71,45 @@ static bool is_identity(const SkMatrix& m) {
     return nearly_equal(m, identity);
 }
 
+static void assert9(skiatest::Reporter* reporter, const SkMatrix& m,
+                    SkScalar a, SkScalar b, SkScalar c,
+                    SkScalar d, SkScalar e, SkScalar f,
+                    SkScalar g, SkScalar h, SkScalar i) {
+    SkScalar buffer[9];
+    m.get9(buffer);
+    REPORTER_ASSERT(reporter, buffer[0] == a);
+    REPORTER_ASSERT(reporter, buffer[1] == b);
+    REPORTER_ASSERT(reporter, buffer[2] == c);
+    REPORTER_ASSERT(reporter, buffer[3] == d);
+    REPORTER_ASSERT(reporter, buffer[4] == e);
+    REPORTER_ASSERT(reporter, buffer[5] == f);
+    REPORTER_ASSERT(reporter, buffer[6] == g);
+    REPORTER_ASSERT(reporter, buffer[7] == h);
+    REPORTER_ASSERT(reporter, buffer[8] == i);
+}
+
+static void test_set9(skiatest::Reporter* reporter) {
+
+    SkMatrix m;
+    m.reset();
+    assert9(reporter, m, 1, 0, 0, 0, 1, 0, 0, 0, 1);
+    
+    m.setScale(2, 3);
+    assert9(reporter, m, 2, 0, 0, 0, 3, 0, 0, 0, 1);
+    
+    m.postTranslate(4, 5);
+    assert9(reporter, m, 2, 0, 4, 0, 3, 5, 0, 0, 1);
+
+    SkScalar buffer[9];
+    sk_bzero(buffer, sizeof(buffer));
+    buffer[SkMatrix::kMScaleX] = 1;
+    buffer[SkMatrix::kMScaleY] = 1;
+    buffer[SkMatrix::kMPersp2] = 1;
+    REPORTER_ASSERT(reporter, !m.isIdentity());
+    m.set9(buffer);
+    REPORTER_ASSERT(reporter, m.isIdentity());
+}
+
 static void test_matrix_recttorect(skiatest::Reporter* reporter) {
     SkRect src, dst;
     SkMatrix matrix;
@@ -849,6 +888,7 @@ DEF_TEST(Matrix, reporter) {
     test_matrix_recttorect(reporter);
     test_matrix_decomposition(reporter);
     test_matrix_homogeneous(reporter);
+    test_set9(reporter);
 }
 
 DEF_TEST(Matrix_Concat, r) {

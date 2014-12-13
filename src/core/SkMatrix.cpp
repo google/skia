@@ -11,6 +11,29 @@
 
 #include <stddef.h>
 
+static void normalize_perspective(SkScalar mat[9]) {
+    // If it was interesting to never store the last element, we could divide all 8 other
+    // elements here by the 9th, making it 1.0...
+    //
+    // When SkScalar was SkFixed, we would sometimes rescale the entire matrix to keep its
+    // component values from getting too large. This is not a concern when using floats/doubles,
+    // so we do nothing now.
+
+    // Disable this for now, but it could be enabled.
+#if 0
+    if (0 == mat[SkMatrix::kMPersp0] && 0 == mat[SkMatrix::kMPersp1]) {
+        SkScalar p2 = mat[SkMatrix::kMPersp2];
+        if (p2 != 0 && p2 != 1) {
+            double inv = 1.0 / p2;
+            for (int i = 0; i < 6; ++i) {
+                mat[i] = SkDoubleToScalar(mat[i] * inv);
+            }
+            mat[SkMatrix::kMPersp2] = 1;
+        }
+    }
+#endif
+}
+
 // In a few places, we performed the following
 //      a * b + c * d + e
 // as
@@ -40,8 +63,26 @@ void SkMatrix::reset() {
     fMat[kMSkewX]  = fMat[kMSkewY] =
     fMat[kMTransX] = fMat[kMTransY] =
     fMat[kMPersp0] = fMat[kMPersp1] = 0;
-
     this->setTypeMask(kIdentity_Mask | kRectStaysRect_Mask);
+}
+
+void SkMatrix::set9(const SkScalar buffer[]) {
+    memcpy(fMat, buffer, 9 * sizeof(SkScalar));
+    normalize_perspective(fMat);
+    this->setTypeMask(kUnknown_Mask);
+}
+
+void SkMatrix::setAffine(const SkScalar buffer[]) {
+    fMat[kMScaleX] = buffer[kAScaleX];
+    fMat[kMSkewX]  = buffer[kASkewX];
+    fMat[kMTransX] = buffer[kATransX];
+    fMat[kMSkewY]  = buffer[kASkewY];
+    fMat[kMScaleY] = buffer[kAScaleY];
+    fMat[kMTransY] = buffer[kATransY];
+    fMat[kMPersp0] = 0;
+    fMat[kMPersp1] = 0;
+    fMat[kMPersp2] = 1;
+    this->setTypeMask(kUnknown_Mask);
 }
 
 // this guy aligns with the masks, so we can compute a mask from a varaible 0/1
@@ -566,15 +607,6 @@ static inline float muladdmul(float a, float b, float c, float d) {
 
 static inline float rowcol3(const float row[], const float col[]) {
     return row[0] * col[0] + row[1] * col[3] + row[2] * col[6];
-}
-
-static void normalize_perspective(SkScalar mat[9]) {
-    // If it was interesting to never store the last element, we could divide all 8 other
-    // elements here by the 9th, making it 1.0...
-    //
-    // When SkScalar was SkFixed, we would sometimes rescale the entire matrix to keep its
-    // component values from getting too large. This is not a concern when using floats/doubles,
-    // so we do nothing now.
 }
 
 static bool only_scale_and_translate(unsigned mask) {

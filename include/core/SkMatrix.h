@@ -174,6 +174,23 @@ public:
         this->setTypeMask(kUnknown_Mask);
     }
 
+    /**
+     *  Copy the 9 scalars for this matrix into buffer, in the same order as the kMScaleX
+     *  enum... scalex, skewx, transx, skewy, scaley, transy, persp0, persp1, persp2
+     */
+    void get9(SkScalar buffer[9]) const {
+        memcpy(buffer, fMat, 9 * sizeof(SkScalar));
+    }
+
+    /**
+     *  Set this matrix to the 9 scalars from the buffer, in the same order as the kMScaleX
+     *  enum... scalex, skewx, transx, skewy, scaley, transy, persp0, persp1, persp2
+     *
+     *  Note: calling set9 followed by get9 may not return the exact same values. Since the matrix
+     *  is used to map non-homogeneous coordinates, it is free to rescale the 9 values as needed.
+     */
+    void set9(const SkScalar buffer[9]);
+
     /** Set the matrix to identity
     */
     void reset();
@@ -372,7 +389,12 @@ public:
         and does not change the passed array.
         @param affine  The array to fill with affine values. Ignored if NULL.
     */
-    bool asAffine(SkScalar affine[6]) const;
+    bool SK_WARN_UNUSED_RESULT asAffine(SkScalar affine[6]) const;
+
+    /** Set the matrix to the specified affine values.
+     *  Note: these are passed in column major order.
+     */
+    void setAffine(const SkScalar affine[6]);
 
     /** Apply this matrix to the array of points specified by src, and write
         the transformed points into the array of points specified by dst.
