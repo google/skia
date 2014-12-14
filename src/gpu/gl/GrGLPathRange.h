@@ -42,7 +42,7 @@ public:
     GrGLuint basePathID() const { return fBasePathID; }
 
 protected:
-    virtual void onInitPath(int index, const SkPath&) const;
+    virtual void onInitPath(int index, const SkPath&) const SK_OVERRIDE;
 
     virtual void onRelease() SK_OVERRIDE;
     virtual void onAbandon() SK_OVERRIDE;

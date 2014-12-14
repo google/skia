@@ -14,7 +14,7 @@ class GrGLLegacyNvprProgramBuilder : public GrGLProgramBuilder {
 public:
     GrGLLegacyNvprProgramBuilder(GrGpuGL*, const GrOptDrawState&);
 
-    virtual GrGLProgram* createProgram(GrGLuint programID);
+    virtual GrGLProgram* createProgram(GrGLuint programID) SK_OVERRIDE;
 
 private:
     int addTexCoordSets(int count);

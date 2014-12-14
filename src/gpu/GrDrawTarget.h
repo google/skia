@@ -844,7 +844,7 @@ protected:
     GrClipMaskManager           fClipMaskManager;
 
 private:
-    GrClipMaskManager* clipMaskManager() { return &fClipMaskManager; }
+    GrClipMaskManager* clipMaskManager() SK_OVERRIDE { return &fClipMaskManager; }
 
     virtual bool setupClip(const SkRect* devBounds,
                            GrDrawState::AutoRestoreEffects* are,

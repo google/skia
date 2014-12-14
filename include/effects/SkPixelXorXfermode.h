@@ -29,7 +29,7 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkXfermode
-    virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
+    virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const SK_OVERRIDE;
 
 private:
     SkColor fOpColor;

@@ -42,7 +42,7 @@ public:
     ~GrInOrderDrawBuffer() SK_OVERRIDE;
 
     // tracking for draws
-    DrawToken getCurrentDrawToken() { return DrawToken(this, fDrawID); }
+    DrawToken getCurrentDrawToken() SK_OVERRIDE { return DrawToken(this, fDrawID); }
 
     void clearStencilClip(const SkIRect& rect,
                           bool insideClip,
@@ -250,7 +250,7 @@ private:
     // Records any trace markers for a command after adding it to the buffer.
     void recordTraceMarkersIfNecessary();
 
-    virtual bool isIssued(uint32_t drawID) { return drawID != fDrawID; }
+    virtual bool isIssued(uint32_t drawID) SK_OVERRIDE { return drawID != fDrawID; }
 
     // TODO: Use a single allocator for commands and records
     enum {

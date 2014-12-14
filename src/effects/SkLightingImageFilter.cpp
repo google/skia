@@ -590,7 +590,7 @@ public:
         return fDirection;
     };
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
-    virtual LightType type() const { return kDistant_LightType; }
+    virtual LightType type() const SK_OVERRIDE { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
     virtual GrGLLight* createGLLight() const SK_OVERRIDE {
 #if SK_SUPPORT_GPU
@@ -620,7 +620,7 @@ protected:
     SkDistantLight(const SkPoint3& direction, const SkPoint3& color)
       : INHERITED(color), fDirection(direction) {
     }
-    virtual SkLight* transform(const SkMatrix& matrix) const {
+    virtual SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
         return new SkDistantLight(direction(), color());
     }
     virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
@@ -647,7 +647,7 @@ public:
         return direction;
     };
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
-    virtual LightType type() const { return kPoint_LightType; }
+    virtual LightType type() const SK_OVERRIDE { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
     virtual GrGLLight* createGLLight() const SK_OVERRIDE {
 #if SK_SUPPORT_GPU
@@ -666,7 +666,7 @@ public:
         return INHERITED::isEqual(other) &&
                fLocation == o.fLocation;
     }
-    virtual SkLight* transform(const SkMatrix& matrix) const {
+    virtual SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
         // Use X scale and Y scale on Z and average the result
@@ -710,7 +710,7 @@ public:
        fConeScale = SkScalarInvert(antiAliasThreshold);
     }
 
-    virtual SkLight* transform(const SkMatrix& matrix) const {
+    virtual SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
         // Use X scale and Y scale on Z and average the result
@@ -755,7 +755,7 @@ public:
 #endif
     }
     virtual bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
-    virtual LightType type() const { return kSpot_LightType; }
+    virtual LightType type() const SK_OVERRIDE { return kSpot_LightType; }
     const SkPoint3& location() const { return fLocation; }
     const SkPoint3& target() const { return fTarget; }
     SkScalar specularExponent() const { return fSpecularExponent; }

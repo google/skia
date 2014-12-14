@@ -229,7 +229,7 @@ public:
     }
 #endif
 
-    virtual Format getFormat() const {
+    virtual Format getFormat() const SK_OVERRIDE {
         return kJPEG_Format;
     }
 

@@ -378,7 +378,7 @@ public:
      * to preserve semantics if blitAntiH doesn't get called in too many
      * weird ways...
      */
-    virtual int requestRowsPreserved() const { return BlockDim; }
+    virtual int requestRowsPreserved() const SK_OVERRIDE { return BlockDim; }
 
 private:
     static const int kPixelsPerBlock = BlockDim * BlockDim;

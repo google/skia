@@ -80,8 +80,6 @@ public:
         , fHasVertexCoverage(false)
         , fHasLocalCoords(false) {}
 
-    virtual const char* name() const = 0;
-
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
      * processor's GL backend implementation.
@@ -161,7 +159,7 @@ public:
     virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const {}
 
     GrColor color() const { return fColor; }
-    uint8_t coverage() const { return fCoverage; }
+    uint8_t coverage() const SK_OVERRIDE { return fCoverage; }
 
     // TODO this is a total hack until the gp can own whether or not it uses uniform
     // color / coverage

@@ -42,9 +42,9 @@ public:
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
     // override of GrRenderTarget
-    virtual GrBackendObject getRenderTargetHandle() const { return this->renderFBOID(); }
-    virtual GrBackendObject getRenderTargetResolvedHandle() const { return this->textureFBOID(); }
-    virtual ResolveType getResolveType() const {
+    virtual GrBackendObject getRenderTargetHandle() const SK_OVERRIDE { return this->renderFBOID(); }
+    virtual GrBackendObject getRenderTargetResolvedHandle() const SK_OVERRIDE { return this->textureFBOID(); }
+    virtual ResolveType getResolveType() const SK_OVERRIDE {
         if (!this->isMultisampled() ||
             fRTFBOID == fTexFBOID) {
             // catches FBO 0 and non MSAA case

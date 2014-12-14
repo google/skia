@@ -104,7 +104,7 @@ private:
         this->addTextureAccess(&fVAccess);
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const {
+    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
         return fColorSpace == s.getColorSpace();
     }

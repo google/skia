@@ -235,7 +235,7 @@ public:
     };
 
 protected:
-    virtual SkCanvas* canvasForDrawIter();
+    virtual SkCanvas* canvasForDrawIter() SK_OVERRIDE;
     SkDeferredDevice* getDeferredDevice() const;
 
 private:

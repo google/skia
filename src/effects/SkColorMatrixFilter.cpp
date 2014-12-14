@@ -416,7 +416,7 @@ private:
         this->initClassID<ColorMatrixEffect>();
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor& s) const {
+    virtual bool onIsEqual(const GrFragmentProcessor& s) const SK_OVERRIDE {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return cme.fMatrix == fMatrix;
     }

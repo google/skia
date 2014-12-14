@@ -60,7 +60,7 @@ public:
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
-                                 TileMode* xy) const;
+                                 TileMode* xy) const SK_OVERRIDE;
     virtual SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE;
     virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
                                      GrFragmentProcessor**) const SK_OVERRIDE;

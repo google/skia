@@ -96,7 +96,7 @@ private:
 
     virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const {
+    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // If the texture was opaque we could know that the output color if we knew the sum of the
         // kernel values.
         inout->mulByUnknownFourComponents();

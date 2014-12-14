@@ -24,7 +24,7 @@ public:
 
     virtual ~GrPorterDuffXferProcessor();
 
-    virtual const char* name() const { return "Porter Duff"; }
+    virtual const char* name() const SK_OVERRIDE { return "Porter Duff"; }
 
     void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 

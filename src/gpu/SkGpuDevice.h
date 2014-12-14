@@ -95,7 +95,7 @@ public:
                                 const SkPaint& paint,
                                 SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE;
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
-                            int x, int y, const SkPaint& paint);
+                            int x, int y, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawText(const SkDraw&, const void* text, size_t len,
                           SkScalar x, SkScalar y, const SkPaint&) SK_OVERRIDE;
     virtual void drawPosText(const SkDraw&, const void* text, size_t len,
