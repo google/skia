@@ -22,10 +22,6 @@ namespace sk_tools {
 
     /**
      * Replaces all instances of oldChar with newChar in str.
-     *
-     * TODO: This function appears here and in skimage_main.cpp ;
-     * we should add the implementation to src/core/SkString.cpp, write tests for it,
-     * and remove it from elsewhere.
      */
     void replace_char(SkString* str, const char oldChar, const char newChar);
 

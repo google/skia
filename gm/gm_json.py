@@ -104,12 +104,6 @@ GM_ACTUALS_ROOT_HTTP_URL = (
 #  as a GS URL that allows credential-protected write access:
 GM_ACTUALS_ROOT_GS_URL = 'gs://chromium-skia-gm/gm'
 
-# Root directory where buildbots store skimage actual results json files.
-SKIMAGE_ACTUALS_BASE_URL = (
-    'http://chromium-skia-gm.commondatastorage.googleapis.com/skimage/actuals')
-# Root directory inside trunk where skimage expectations are stored.
-SKIMAGE_EXPECTATIONS_ROOT = os.path.join('expectations', 'skimage')
-
 # Pattern used to assemble each image's filename
 IMAGE_FILENAME_PATTERN = '(.+)_(.+)\.png'  # matches (testname, config)
 

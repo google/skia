@@ -28,7 +28,6 @@
         'skpdiff',
         'skpinfo',
         'skpmaker',
-        'skimage',
         'test_image_decoder',
         'test_public_includes',
       ],
@@ -42,7 +41,7 @@
         ],
       ],
     },
-    {  # This would go in gm.gyp, but it's also used by skimage below.
+    {
       'target_name': 'gm_expectations',
       'type': 'static_library',
       'include_dirs' : [ '../src/utils/' ],
@@ -264,24 +263,6 @@
             'pdf.gyp:pdf',
           ],
         }],
-      ],
-    },
-    {
-      'target_name': 'skimage',
-      'type': 'executable',
-      'sources': [
-        '../tools/skimage_main.cpp',
-      ],
-      'include_dirs': [
-        # For SkBitmapHasher.h
-        '../src/utils/',
-        '../tools/',
-      ],
-      'dependencies': [
-        'gm_expectations',
-        'flags.gyp:flags',
-        'jsoncpp.gyp:jsoncpp',
-        'skia_lib.gyp:skia_lib',
       ],
     },
     {
