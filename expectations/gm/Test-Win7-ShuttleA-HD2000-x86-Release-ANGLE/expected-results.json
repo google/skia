@@ -9811,7 +9811,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3972297198646724364
+          767755014954954375
         ]
       ], 
       "reviewed-by-human": true
@@ -13567,10 +13567,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          883010053639361515
+          2985002905646249658
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadows_gpu.png": {
       "allowed-digests": [
