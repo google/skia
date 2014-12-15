@@ -819,7 +819,6 @@ static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords
                                                         GrColor color) {
     *texOffset = -1;
     *colorOffset = -1;
-
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
     if (texCoords && colors) {
         *colorOffset = sizeof(SkPoint);
