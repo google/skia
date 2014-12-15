@@ -31,7 +31,6 @@ static const uint32_t kSaveLayerWithBoundsSize = 4 * kUInt32Size + sizeof(SkRect
 
 SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
     : INHERITED(dimensions.width(), dimensions.height())
-    , fFirstSavedLayerIndex(kNoSavedLayerIndex)
     , fRecordFlags(flags)
     , fInitialSaveCount(kNoInitialSave) {
 }
@@ -151,9 +150,6 @@ SkCanvas::SaveLayerStrategy SkPictureRecord::willSaveLayer(const SkRect* bounds,
     // from a clip entry.
     fRestoreOffsetStack.push(-(int32_t)fWriter.bytesWritten());
     this->recordSaveLayer(bounds, paint, flags);
-    if (kNoSavedLayerIndex == fFirstSavedLayerIndex) {
-        fFirstSavedLayerIndex = fRestoreOffsetStack.count();
-    }
 
     this->INHERITED::willSaveLayer(bounds, paint, flags);
     /*  No need for a (potentially very big) layer which we don't actually need
@@ -187,10 +183,6 @@ void SkPictureRecord::recordSaveLayer(const SkRect* bounds, const SkPaint* paint
     this->validate(initialOffset, size);
 }
 
-bool SkPictureRecord::isDrawingToLayer() const {
-    return fFirstSavedLayerIndex != kNoSavedLayerIndex;
-}
-
 #ifdef SK_DEBUG
 /*
  * Read the op code from 'offset' in 'writer' and extract the size too.
@@ -219,10 +211,6 @@ void SkPictureRecord::willRestore() {
     // check for underflow
     if (fRestoreOffsetStack.count() == 0) {
         return;
-    }
-
-    if (fRestoreOffsetStack.count() == fFirstSavedLayerIndex) {
-        fFirstSavedLayerIndex = kNoSavedLayerIndex;
     }
 
     this->recordRestore();

@@ -135,7 +135,6 @@ public:
     void endCommentGroup() SK_OVERRIDE;
     void drawData(const void*, size_t) SK_OVERRIDE;
 
-    bool isDrawingToLayer() const SK_OVERRIDE;
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE { return NULL; }
 
 private:
@@ -153,8 +152,6 @@ private:
 
     SkRecord* fRecord;
 
-    int fSaveLayerCount;
-    SkTDArray<SkBool8> fSaveIsSaveLayer;
     SkAutoTDelete<SkCanvasDrawableList> fDrawableList;
 };
 

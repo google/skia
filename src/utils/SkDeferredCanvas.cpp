@@ -23,6 +23,8 @@ enum {
     // Deferred canvas will auto-flush when recording reaches this limit
     kDefaultMaxRecordingStorageBytes = 64*1024*1024,
     kDeferredCanvasBitmapSizeThreshold = ~0U, // Disables this feature
+
+    kNoSaveLayerIndex = -1,
 };
 
 enum PlaybackMode {
@@ -154,6 +156,7 @@ public:
     void skipPendingCommands();
     void setMaxRecordingStorage(size_t);
     void recordedDrawCommand();
+    void setIsDrawingToLayer(bool value) {fIsDrawingToLayer = value;}
 
     virtual SkImageInfo imageInfo() const SK_OVERRIDE;
 
@@ -256,6 +259,7 @@ private:
     SkDeferredCanvas::NotificationClient* fNotificationClient;
     bool fFreshFrame;
     bool fCanDiscardCanvasContents;
+    bool fIsDrawingToLayer;
     size_t fMaxRecordingStorageBytes;
     size_t fPreviousStorageAllocated;
 };
@@ -278,6 +282,7 @@ void SkDeferredDevice::setSurface(SkSurface* surface) {
 void SkDeferredDevice::init() {
     fRecordingCanvas = NULL;
     fFreshFrame = true;
+    fIsDrawingToLayer = false;
     fCanDiscardCanvasContents = false;
     fPreviousStorageAllocated = 0;
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
@@ -308,7 +313,7 @@ void SkDeferredDevice::setNotificationClient(
 }
 
 void SkDeferredDevice::skipPendingCommands() {
-    if (!fRecordingCanvas->isDrawingToLayer()) {
+    if (!fIsDrawingToLayer) {
         fCanDiscardCanvasContents = true;
         if (fPipeController.hasPendingCommands()) {
             fFreshFrame = true;
@@ -522,6 +527,8 @@ void SkDeferredCanvas::init() {
     fDeferredDrawing = true; // On by default
     fCachedCanvasSize.setEmpty();
     fCachedCanvasSizeDirty = true;
+    fSaveLevel = 0;
+    fFirstSaveLayerIndex = kNoSaveLayerIndex;
 }
 
 void SkDeferredCanvas::setMaxRecordingStorage(size_t maxStorage) {
@@ -673,6 +680,7 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
 }
 
 void SkDeferredCanvas::willSave() {
+    fSaveLevel++;
     this->drawingCanvas()->save();
     this->recordedDrawCommand();
     this->INHERITED::willSave();
@@ -680,6 +688,11 @@ void SkDeferredCanvas::willSave() {
 
 SkCanvas::SaveLayerStrategy SkDeferredCanvas::willSaveLayer(const SkRect* bounds,
                                                             const SkPaint* paint, SaveFlags flags) {
+    fSaveLevel++;
+    if (fFirstSaveLayerIndex == kNoSaveLayerIndex) {
+        fFirstSaveLayerIndex = fSaveLevel;
+        this->getDeferredDevice()->setIsDrawingToLayer(true);
+    }
     this->drawingCanvas()->saveLayer(bounds, paint, flags);
     this->recordedDrawCommand();
     this->INHERITED::willSaveLayer(bounds, paint, flags);
@@ -688,13 +701,15 @@ SkCanvas::SaveLayerStrategy SkDeferredCanvas::willSaveLayer(const SkRect* bounds
 }
 
 void SkDeferredCanvas::willRestore() {
+    SkASSERT(fFirstSaveLayerIndex == kNoSaveLayerIndex || fFirstSaveLayerIndex <= fSaveLevel);
+    if (fFirstSaveLayerIndex == fSaveLevel) {
+        fFirstSaveLayerIndex = kNoSaveLayerIndex;
+        this->getDeferredDevice()->setIsDrawingToLayer(false);
+    }
+    fSaveLevel--;
     this->drawingCanvas()->restore();
     this->recordedDrawCommand();
     this->INHERITED::willRestore();
-}
-
-bool SkDeferredCanvas::isDrawingToLayer() const {
-    return this->drawingCanvas()->isDrawingToLayer();
 }
 
 void SkDeferredCanvas::didConcat(const SkMatrix& matrix) {

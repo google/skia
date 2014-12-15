@@ -54,7 +54,6 @@ public:
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
     virtual void endCommentGroup() SK_OVERRIDE;
-    virtual bool isDrawingToLayer() const SK_OVERRIDE;
 
     const SkTDArray<const SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
@@ -102,10 +101,6 @@ private:
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
     SkTDArray<int32_t> fRestoreOffsetStack;
-    int fFirstSavedLayerIndex;
-    enum {
-        kNoSavedLayerIndex = -1
-    };
 
     SkTDArray<uint32_t> fCullOffsetStack;
 

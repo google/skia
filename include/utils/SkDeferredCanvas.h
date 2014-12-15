@@ -144,7 +144,6 @@ public:
     void silentFlush();
 
     // Overrides of the SkCanvas interface
-    virtual bool isDrawingToLayer() const SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) SK_OVERRIDE;
@@ -248,6 +247,9 @@ private:
     void validate() const;
     void init();
 
+
+    int fSaveLevel;
+    int fFirstSaveLayerIndex;
     size_t fBitmapSizeThreshold;
     bool   fDeferredDrawing;
 

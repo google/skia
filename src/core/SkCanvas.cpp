@@ -416,7 +416,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fAllowSimplifyClip = false;
     fDeviceCMDirty = true;
     fSaveCount = 1;
-    fSaveLayerCount = 0;
     fMetaData = NULL;
 
     fMCRec = (MCRec*)fMCStack.push_back();
@@ -527,7 +526,6 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 SkCanvas::~SkCanvas() {
     // free up the contents of our deque
     this->restoreToCount(1);    // restore everything but the last
-    SkASSERT(0 == fSaveLayerCount);
 
     this->internalRestore();    // restore the last, since we're going away
 
@@ -990,8 +988,6 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     layer->fNext = fMCRec->fTopLayer;
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
-
-    fSaveLayerCount += 1;
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
@@ -1038,16 +1034,9 @@ void SkCanvas::internalRestore() {
                                      layer->fPaint);
             // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
-
-            SkASSERT(fSaveLayerCount > 0);
-            fSaveLayerCount -= 1;
         }
         SkDELETE(layer);
     }
-}
-
-bool SkCanvas::isDrawingToLayer() const {
-    return fSaveLayerCount > 0;
 }
 
 SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) {

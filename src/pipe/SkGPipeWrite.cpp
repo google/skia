@@ -232,7 +232,6 @@ public:
     }
 
     // overrides from SkCanvas
-    virtual bool isDrawingToLayer() const SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
@@ -299,11 +298,7 @@ private:
     void recordScale(const SkMatrix&);
     void recordConcat(const SkMatrix&);
 
-    enum {
-        kNoSaveLayer = -1,
-    };
     SkNamedFactorySet* fFactorySet;
-    int                fFirstSaveLayerStackLevel;
     SkBitmapHeap*      fBitmapHeap;
     SkGPipeController* fController;
     SkWriter32&        fWriter;
@@ -448,7 +443,6 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     fDone = false;
     fBlockSize = 0; // need first block from controller
     fBytesNotified = 0;
-    fFirstSaveLayerStackLevel = kNoSaveLayer;
     sk_bzero(fCurrFlatIndex, sizeof(fCurrFlatIndex));
 
     // Tell the reader the appropriate flags to use.
@@ -556,10 +550,6 @@ SkCanvas::SaveLayerStrategy SkGPipeCanvas::willSaveLayer(const SkRect* bounds, c
         }
     }
 
-    if (kNoSaveLayer == fFirstSaveLayerStackLevel){
-        fFirstSaveLayerStackLevel = this->getSaveCount();
-    }
-
     this->INHERITED::willSaveLayer(bounds, paint, saveFlags);
     // we don't create a layer
     return kNoLayer_SaveLayerStrategy;
@@ -571,15 +561,7 @@ void SkGPipeCanvas::willRestore() {
         this->writeOp(kRestore_DrawOp);
     }
 
-    if (this->getSaveCount() - 1 == fFirstSaveLayerStackLevel){
-        fFirstSaveLayerStackLevel = kNoSaveLayer;
-    }
-
     this->INHERITED::willRestore();
-}
-
-bool SkGPipeCanvas::isDrawingToLayer() const {
-    return kNoSaveLayer != fFirstSaveLayerStackLevel;
 }
 
 void SkGPipeCanvas::recordTranslate(const SkMatrix& m) {

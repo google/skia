@@ -125,32 +125,6 @@ DEF_TEST(Recorder_RefPictures, r) {
     REPORTER_ASSERT(r, pic->unique());
 }
 
-DEF_TEST(Recorder_IsDrawingToLayer, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, 100, 100);
-
-    // We'll save, saveLayer, save, and saveLayer, then restore them all,
-    // checking that isDrawingToLayer() is correct at each step.
-
-    REPORTER_ASSERT(r, !recorder.isDrawingToLayer());
-    recorder.save();
-        REPORTER_ASSERT(r, !recorder.isDrawingToLayer());
-        recorder.saveLayer(NULL, NULL);
-            REPORTER_ASSERT(r, recorder.isDrawingToLayer());
-            recorder.save();
-                REPORTER_ASSERT(r, recorder.isDrawingToLayer());
-                recorder.saveLayer(NULL, NULL);
-                    REPORTER_ASSERT(r, recorder.isDrawingToLayer());
-                recorder.restore();
-                REPORTER_ASSERT(r, recorder.isDrawingToLayer());
-            recorder.restore();
-            REPORTER_ASSERT(r, recorder.isDrawingToLayer());
-        recorder.restore();
-        REPORTER_ASSERT(r, !recorder.isDrawingToLayer());
-    recorder.restore();
-    REPORTER_ASSERT(r, !recorder.isDrawingToLayer());
-}
-
 DEF_TEST(Recorder_drawImage_takeReference, reporter) {
 
     SkAutoTUnref<SkImage> image;

@@ -471,39 +471,6 @@ static void SaveRestoreTestStep(SkCanvas* canvas, const TestData& d,
 }
 TEST_STEP(SaveRestore, SaveRestoreTestStep);
 
-static void DrawLayerTestStep(SkCanvas* canvas, const TestData& d,
-                              skiatest::Reporter* reporter, CanvasTestStep* testStep) {
-    REPORTER_ASSERT_MESSAGE(reporter, !canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-    canvas->save();
-    REPORTER_ASSERT_MESSAGE(reporter, !canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-    canvas->restore();
-
-    const SkRect* bounds = NULL;    // null means include entire bounds
-    const SkPaint* paint = NULL;
-
-    canvas->saveLayer(bounds, paint);
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-    canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, !canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-
-    canvas->saveLayer(bounds, paint);
-    canvas->saveLayer(bounds, paint);
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-    canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-    canvas->restore();
-    // now layer count should be 0
-    REPORTER_ASSERT_MESSAGE(reporter, !canvas->isDrawingToLayer(),
-        testStep->assertMessage());
-}
-TEST_STEP(DrawLayer, DrawLayerTestStep);
-
 static void NestedSaveRestoreWithSolidPaintTestStep(SkCanvas* canvas, const TestData& d,
                                                     skiatest::Reporter*, CanvasTestStep*) {
     // This test step challenges the TestDeferredCanvasStateConsistency
@@ -551,8 +518,6 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
         canvas2->getDeviceSize(), testStep->assertMessage());
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->getSaveCount() ==
         canvas2->getSaveCount(), testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas1->isDrawingToLayer() ==
-        canvas2->isDrawingToLayer(), testStep->assertMessage());
 
     SkRect bounds1, bounds2;
     REPORTER_ASSERT_MESSAGE(reporter,
