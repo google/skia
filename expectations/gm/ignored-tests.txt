@@ -64,6 +64,7 @@ pictureimagefilter
 # replacing SkLCGRandom with SkRandom
 beziers
 circles
+convexpaths
 complexclip2
 complexclip2_rect_aa
 complexclip2_rect_bw
