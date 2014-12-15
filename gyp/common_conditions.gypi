@@ -459,7 +459,7 @@
             ],
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
-                'defines': [ 'SK_DYNAMIC_ANNOTATIONS_ENABLED=1' ],
+                'defines': [ 'DYNAMIC_ANNOTATIONS_ENABLED=1' ],
               }],
               [ 'skia_sanitizer == "undefined"', {
                 'cflags_cc!': ['-fno-rtti'],
