@@ -332,7 +332,7 @@ public:
     }
 
     // overrides
-    virtual void blitH(int x, int y, int width) {
+    virtual void blitH(int x, int y, int width) SK_OVERRIDE {
         int invWidth = x - fPrevX;
         if (invWidth > 0) {
             fBlitter->blitH(fPrevX, y, invWidth);
@@ -341,19 +341,19 @@ public:
     }
 
     // we do not expect to get called with these entrypoints
-    virtual void blitAntiH(int, int, const SkAlpha[], const int16_t runs[]) {
+    virtual void blitAntiH(int, int, const SkAlpha[], const int16_t runs[]) SK_OVERRIDE {
         SkDEBUGFAIL("blitAntiH unexpected");
     }
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) {
+    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         SkDEBUGFAIL("blitV unexpected");
     }
-    virtual void blitRect(int x, int y, int width, int height) {
+    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         SkDEBUGFAIL("blitRect unexpected");
     }
-    virtual void blitMask(const SkMask&, const SkIRect& clip) {
+    virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE {
         SkDEBUGFAIL("blitMask unexpected");
     }
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) {
+    virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE {
         SkDEBUGFAIL("justAnOpaqueColor unexpected");
         return NULL;
     }

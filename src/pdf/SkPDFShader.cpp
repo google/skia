@@ -515,10 +515,10 @@ public:
         fResources.unrefAll();
     }
 
-    virtual bool isValid() { return fResources.count() > 0; }
+    virtual bool isValid() SK_OVERRIDE { return fResources.count() > 0; }
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                      SkTSet<SkPDFObject*>* newResourceObjects) {
+                      SkTSet<SkPDFObject*>* newResourceObjects) SK_OVERRIDE {
         GetResourcesHelper(&fResources,
                            knownResourceObjects,
                            newResourceObjects);
@@ -548,7 +548,7 @@ public:
         }
     }
 
-    virtual bool isValid() {
+    virtual bool isValid() SK_OVERRIDE {
         return fColorShader.get() != NULL;
     }
 
@@ -558,7 +558,7 @@ private:
     SkPDFGraphicState* CreateSMaskGraphicState();
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                      SkTSet<SkPDFObject*>* newResourceObjects) {
+                      SkTSet<SkPDFObject*>* newResourceObjects) SK_OVERRIDE {
         fResourceDict->getReferencedResources(knownResourceObjects,
                                               newResourceObjects,
                                               true);
@@ -578,10 +578,10 @@ public:
         fResources.unrefAll();
     }
 
-    virtual bool isValid() { return size() > 0; }
+    virtual bool isValid() SK_OVERRIDE { return size() > 0; }
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                      SkTSet<SkPDFObject*>* newResourceObjects) {
+                      SkTSet<SkPDFObject*>* newResourceObjects) SK_OVERRIDE {
         GetResourcesHelper(&fResources.toArray(),
                            knownResourceObjects,
                            newResourceObjects);

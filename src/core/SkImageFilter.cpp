@@ -434,7 +434,7 @@ public:
         }
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };
-    virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const {
+    virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             *result = v->fBitmap;
@@ -447,7 +447,7 @@ public:
         }
         return false;
     }
-    virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) {
+    virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) SK_OVERRIDE {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             removeInternal(v);

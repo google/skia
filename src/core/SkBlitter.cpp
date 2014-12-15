@@ -736,24 +736,24 @@ public:
         , fShaderContext(shaderContext)
     {}
 
-    virtual void blitH(int x, int y, int width) {
+    virtual void blitH(int x, int y, int width) SK_OVERRIDE {
         fProxy->blitH(x, y, width);
     }
 
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]) {
+                           const int16_t runs[]) SK_OVERRIDE {
         fProxy->blitAntiH(x, y, antialias, runs);
     }
 
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) {
+    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         fProxy->blitV(x, y, height, alpha);
     }
 
-    virtual void blitRect(int x, int y, int width, int height) {
+    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         fProxy->blitRect(x, y, width, height);
     }
 
-    virtual void blitMask(const SkMask& mask, const SkIRect& clip) {
+    virtual void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
         if (mask.fFormat == SkMask::k3D_Format) {
             fShaderContext->set3DMask(&mask);
 
