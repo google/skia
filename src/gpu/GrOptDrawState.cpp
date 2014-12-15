@@ -157,7 +157,8 @@ void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
     fDescInfo.fReadsDst = false;
     fDescInfo.fReadsFragPosition = false;
 
-    if (flags & GrXferProcessor::kClearColorStages_OptFlag) {
+    if (flags & GrXferProcessor::kClearColorStages_OptFlag ||
+        flags & GrXferProcessor::kOverrideColor_OptFlag) {
         fDescInfo.fInputColorIsUsed = true;
         *firstColorStageIdx = ds.numColorStages();
         fDescInfo.fHasVertexColor = false;

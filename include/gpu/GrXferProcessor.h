@@ -66,9 +66,13 @@ public:
          */
         kClearCoverageStages_OptFlag      = 0x4,
         /**
+         * Clear color stages and override input color to that returned by getOptimizations
+         */
+        kOverrideColor_OptFlag            = 0x8,
+        /**
          * Set CoverageDrawing_StateBit
          */
-        kSetCoverageDrawing_OptFlag       = 0x8,
+        kSetCoverageDrawing_OptFlag       = 0x10,
     };
 
     GR_DECL_BITFIELD_OPS_FRIENDS(OptFlags);
@@ -76,10 +80,11 @@ public:
     /**
      * Determines which optimizations (as described by the ptFlags above) can be performed by
      * the draw with this xfer processor. If this function is called, the xfer processor may change
-     * its state to reflected the given blend optimizations. It will also set the output parameters,
-     * color and coverage, to specific values if it decides to remove all color or coverage stages.
+     * its state to reflected the given blend optimizations. If the XP needs to see a specific input
+     * color to blend correctly, it will set the OverrideColor flag and the output parameter
+     * overrideColor will be the required value that should be passed into the XP. 
      * A caller who calls this function on a XP is required to honor the returned OptFlags
-     * and color/coverage values for its draw.
+     * and color values for its draw.
      */
     // TODO: remove need for isCoverageDrawing once coverageDrawing is its own XP.
     // TODO: remove need for colorWriteDisabled once colorWriteDisabled is its own XP.
@@ -88,8 +93,8 @@ public:
                                       bool isCoverageDrawing,
                                       bool colorWriteDisabled,
                                       bool doesStencilWrite,
-                                      GrColor* color,
-                                      uint8_t* coverage,
+                                      GrColor* overrideColor,
+                                      uint8_t* overrideCoverage,
                                       const GrDrawTargetCaps& caps) = 0;
 
     struct BlendInfo {

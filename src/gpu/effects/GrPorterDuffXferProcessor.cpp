@@ -121,16 +121,28 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
                                             bool isCoverageDrawing,
                                             bool colorWriteDisabled,
                                             bool doesStencilWrite,
-                                            GrColor* color, uint8_t* coverage,
+                                            GrColor* overrideColor,
+                                            uint8_t* overrideCoverage,
                                             const GrDrawTargetCaps& caps) {
-    GrXferProcessor::OptFlags optFlags = this->internalGetOptimizations(colorPOI,
-                                                                        coveragePOI,
-                                                                        isCoverageDrawing,
-                                                                        colorWriteDisabled,
-                                                                        doesStencilWrite,
-                                                                        color,
-                                                                        coverage);
-
+    GrXferProcessor::OptFlags optFlags;
+    // Optimizations when doing RGB Coverage
+    if (coveragePOI.isFourChannelOutput()) {
+        // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
+        // value of the blend the constant. We should already have valid blend coeff's if we are at
+        // a point where we have RGB coverage. We don't need any color stages since the known color
+        // output is already baked into the blendConstant.
+        uint8_t alpha = GrColorUnpackA(fBlendConstant);
+        *overrideColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
+        optFlags = GrXferProcessor::kOverrideColor_OptFlag;
+    } else {
+        optFlags = this->internalGetOptimizations(colorPOI,
+                                                  coveragePOI,
+                                                  isCoverageDrawing,
+                                                  colorWriteDisabled,
+                                                  doesStencilWrite,
+                                                  overrideColor,
+                                                  overrideCoverage);
+    }
     this->calcOutputTypes(optFlags, caps, isCoverageDrawing || coveragePOI.isSolidWhite(),
                           colorPOI.readsDst() || coveragePOI.readsDst());
     return optFlags;
@@ -172,7 +184,8 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                                                     bool isCoverageDrawing,
                                                     bool colorWriteDisabled,
                                                     bool doesStencilWrite,
-                                                    GrColor* color, uint8_t* coverage) {
+                                                    GrColor* overrideColor,
+                                                    uint8_t* overrideCoverage) {
     if (colorWriteDisabled) {
         fSrcBlend = kZero_GrBlendCoeff;
         fDstBlend = kOne_GrBlendCoeff;
@@ -193,23 +206,12 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
     bool dstCoeffIsZero = kZero_GrBlendCoeff == fDstBlend ||
                          (kISA_GrBlendCoeff == fDstBlend && srcAIsOne);
 
-    // Optimizations when doing RGB Coverage
-    if (coveragePOI.isFourChannelOutput()) {
-        // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
-        // value of the blend the constant. We should already have valid blend coeff's if we are at
-        // a point where we have RGB coverage. We don't need any color stages since the known color
-        // output is already baked into the blendConstant.
-        uint8_t alpha = GrColorUnpackA(fBlendConstant);
-        *color = GrColorPackRGBA(alpha, alpha, alpha, alpha);
-        return GrXferProcessor::kClearColorStages_OptFlag;
-    }
-
     // When coeffs are (0,1) there is no reason to draw at all, unless
     // stenciling is enabled. Having color writes disabled is effectively
     // (0,1).
     if ((kZero_GrBlendCoeff == fSrcBlend && dstCoeffIsOne)) {
         if (doesStencilWrite) {
-            *color = 0xffffffff;
+            *overrideColor = 0xffffffff;
             return GrXferProcessor::kClearColorStages_OptFlag |
                    GrXferProcessor::kSetCoverageDrawing_OptFlag;
         } else {
@@ -232,8 +234,8 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                 // or blend, just write transparent black into the dst.
                 fSrcBlend = kOne_GrBlendCoeff;
                 fDstBlend = kZero_GrBlendCoeff;
-                *color = 0;
-                *coverage = 0xff;
+                *overrideColor = 0;
+                *overrideCoverage = 0xff;
                 return GrXferProcessor::kClearColorStages_OptFlag |
                        GrXferProcessor::kClearCoverageStages_OptFlag;
             }
@@ -253,7 +255,7 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                 // the dst coeff is effectively zero so blend works out to:
                 // (c)(0)D + (1-c)D = (1-c)D.
                 fDstBlend = kISA_GrBlendCoeff;
-                *color = 0xffffffff;
+                *overrideColor = 0xffffffff;
                 return GrXferProcessor::kClearColorStages_OptFlag |
                        GrXferProcessor::kSetCoverageDrawing_OptFlag;
             } else if (srcAIsOne) {
