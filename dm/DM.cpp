@@ -249,7 +249,10 @@ int dm_main() {
 
     SkTArray<SkString> images;
     if (!FLAGS_images.isEmpty()) {
-        const char* suffixes[] = { "bmp", "gif", "jpg", "png", "webp", "ktx", "astc" };
+        const char* suffixes[] = {
+            "bmp", "gif", "jpg", "jpeg", "png", "webp", "ktx", "astc", "wbmp", "ico",
+            "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "KTX", "ASTC", "WBMP", "ICO",
+        };
         find_files(FLAGS_images[0], suffixes, SK_ARRAY_COUNT(suffixes), &images);
     }
 
