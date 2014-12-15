@@ -79,6 +79,10 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
+
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+
 private:
     GrDistanceFieldTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -135,6 +139,10 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
+
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+
 private:
     GrDistanceFieldNoGammaTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
                                         uint32_t flags, bool opaqueVertexColors);
@@ -183,6 +191,10 @@ public:
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
+
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldLCDTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,

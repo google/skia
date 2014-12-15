@@ -32,22 +32,22 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fPrimitiveProcessor.reset(gp);
     } else {
         SkASSERT(!gp && pathProc && (GrGpu::IsPathRenderingDrawType(drawType) ||
-                               GrGpu::kStencilPath_DrawType == drawType));
+                 GrGpu::kStencilPath_DrawType == drawType));
         fPrimitiveProcessor.reset(pathProc);
     }
 
 
     const GrProcOptInfo& colorPOI = drawState.colorProcInfo(fPrimitiveProcessor);
     const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(fPrimitiveProcessor);
-    
-    fColor = colorPOI.inputColorToEffectiveStage();
-    // TODO fix this when coverage stages work correctly
-    // fCoverage = coveragePOI.inputColorToEffectiveStage();
-    fCoverage = fPrimitiveProcessor->coverage();
 
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
         drawState.getXPFactory()->createXferProcessor(colorPOI, coveragePOI));
+
+    GrColor overrideColor = GrColor_ILLEGAL;
+    if (colorPOI.firstEffectiveStageIndex() != 0) {
+        overrideColor = colorPOI.inputColorToEffectiveStage();
+    }
 
     GrXferProcessor::OptFlags optFlags;
     if (xferProcessor) {
@@ -58,8 +58,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                                    drawState.isCoverageDrawing(),
                                                    drawState.isColorWriteDisabled(),
                                                    drawState.getStencil().doesWrite(),
-                                                   &fColor,
-                                                   &fCoverage,
+                                                   &overrideColor,
                                                    caps);
     }
 
@@ -98,22 +97,14 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fFlags |= kDither_Flag;
     }
 
-    fDescInfo.fHasVertexColor = gp && gp->hasVertexColor();
-
-    fDescInfo.fHasVertexCoverage = gp && gp->hasVertexCoverage();
-
+    // TODO move local coords completely into GP
     bool hasLocalCoords = gp && gp->hasLocalCoords();
 
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
-    fDescInfo.fInputColorIsUsed = colorPOI.inputColorIsUsed();
-    if (colorPOI.removeVertexAttrib()) {
-        fDescInfo.fHasVertexColor = false;
-    }
 
     // TODO: Once we can handle single or four channel input into coverage stages then we can use
     // drawState's coverageProcInfo (like color above) to set this initial information.
     int firstCoverageStageIdx = 0;
-    fDescInfo.fInputCoverageIsUsed = true;
 
     GrXferProcessor::BlendInfo blendInfo;
     fXferProcessor->getBlendInfo(&blendInfo);
@@ -138,14 +129,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     }
 
     // let the GP init the batch tracker
-    if (gp) {
-        GrGeometryProcessor::InitBT init;
-        init.fOutputColor = fDescInfo.fInputColorIsUsed;
-        init.fOutputCoverage = fDescInfo.fInputCoverageIsUsed;
-        init.fColor = this->getColor();
-        init.fCoverage = this->getCoverage();
-        fGeometryProcessor->initBatchTracker(&fBatchTracker, init);
-    }
+    GrGeometryProcessor::InitBT init;
+    init.fColorIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag);
+    init.fOverrideColor = init.fColorIgnored ? GrColor_ILLEGAL : overrideColor;
+    init.fCoverageIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag);
+    fPrimitiveProcessor->initBatchTracker(&fBatchTracker, init);
 }
 
 void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
@@ -157,20 +145,16 @@ void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
     fDescInfo.fReadsDst = false;
     fDescInfo.fReadsFragPosition = false;
 
-    if (flags & GrXferProcessor::kClearColorStages_OptFlag ||
-        flags & GrXferProcessor::kOverrideColor_OptFlag) {
-        fDescInfo.fInputColorIsUsed = true;
+    if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
+        (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorStageIdx = ds.numColorStages();
-        fDescInfo.fHasVertexColor = false;
     } else {
         fDescInfo.fReadsDst = colorPOI.readsDst();
         fDescInfo.fReadsFragPosition = colorPOI.readsFragPosition();
     }
 
-    if (flags & GrXferProcessor::kClearCoverageStages_OptFlag) {
-        fDescInfo.fInputCoverageIsUsed = true;
+    if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
         *firstCoverageStageIdx = ds.numCoverageStages();
-        fDescInfo.fHasVertexCoverage = false;
     } else {
         if (coveragePOI.readsDst()) {
             fDescInfo.fReadsDst = true;
@@ -188,12 +172,8 @@ void GrOptDrawState::finalize(GrGpu* gpu) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
+bool GrOptDrawState::combineIfPossible(const GrOptDrawState& that) {
     if (fDescInfo != that.fDescInfo) {
-        return false;
-    }
-
-    if (!fDescInfo.fHasVertexColor && this->fColor != that.fColor) {
         return false;
     }
 
@@ -210,17 +190,9 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
         return false;
     }
 
-    if (!fDescInfo.fHasVertexCoverage && this->fCoverage != that.fCoverage) {
-        return false;
-    }
-
-    if (this->hasGeometryProcessor()) {
-        if (!that.hasGeometryProcessor()) {
-            return false;
-        } else if (!this->getGeometryProcessor()->isEqual(*that.getGeometryProcessor())) {
-            return false;
-        }
-    } else if (that.hasGeometryProcessor()) {
+    if (!this->getPrimitiveProcessor()->canMakeEqual(fBatchTracker,
+                                                     *that.getPrimitiveProcessor(),
+                                                     that.getBatchTracker())) {
         return false;
     }
 
@@ -236,6 +208,9 @@ bool GrOptDrawState::operator== (const GrOptDrawState& that) const {
             return false;
         }
     }
+
+    // Now update the GrPrimitiveProcessor's batch tracker
+    fPrimitiveProcessor->makeEqual(&fBatchTracker, that.getBatchTracker());
     return true;
 }
 

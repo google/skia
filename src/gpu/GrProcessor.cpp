@@ -171,35 +171,6 @@ void GrFragmentProcessor::computeInvariantOutput(GrInvariantOutput* inout) const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GrGeometryProcessor::getInvariantOutputColor(GrInitInvariantOutput* out) const {
-    if (fHasVertexColor) {
-        if (fOpaqueVertexColors) {
-            out->setUnknownOpaqueFourComponents();
-        } else {
-            out->setUnknownFourComponents();
-        }
-    } else {
-        out->setKnownFourComponents(fColor);
-    }
-    this->onGetInvariantOutputColor(out);
-}
-
-void GrGeometryProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
-    this->onGetInvariantOutputCoverage(out);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-void GrPathProcessor::getInvariantOutputColor(GrInitInvariantOutput* out) const {
-    out->setKnownFourComponents(fColor);
-}
-
-void GrPathProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
-    out->setKnownSingleComponent(0xff);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 /*
  * GrGeometryData shares the same pool so it lives in this file too
  */

@@ -464,6 +464,7 @@ private:
 template <size_t N> class SkAlignedSStorage : SkNoncopyable {
 public:
     void* get() { return fData; }
+    const void* get() const { return fData; }
 private:
     union {
         void*   fPtr;

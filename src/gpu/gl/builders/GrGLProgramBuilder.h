@@ -242,8 +242,6 @@ public:
     struct BuiltinUniformHandles {
         UniformHandle       fViewMatrixUni;
         UniformHandle       fRTAdjustmentUni;
-        UniformHandle       fColorUni;
-        UniformHandle       fCoverageUni;
 
         // We use the render target height to provide a y-down frag coord when specifying
         // origin_upper_left is not supported.
@@ -273,7 +271,6 @@ protected:
     // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
     // generating stage code.
     void nameVariable(SkString* out, char prefix, const char* name);
-    void setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor, GrGLSLExpr1* inputCoverage);
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     // If GrGLSLExpr4 has a valid name then it will use that instead
     void nameExpression(GrGLSLExpr4*, const char* baseName);
@@ -285,7 +282,7 @@ protected:
                             const GrGLSLExpr4& input,
                             GrGLSLExpr4* output);
 
-    void emitAndInstallProc(const GrGeometryProcessor&,
+    void emitAndInstallProc(const GrPrimitiveProcessor&,
                             GrGLSLExpr4* outputColor,
                             GrGLSLExpr4* outputCoverage);
 
@@ -293,14 +290,14 @@ protected:
     void emitAndInstallProc(const GrPendingFragmentStage&,
                             const char* outColor,
                             const char* inColor);
-    void emitAndInstallProc(const GrGeometryProcessor&,
+    void emitAndInstallProc(const GrPrimitiveProcessor&,
                             const char* outColor,
                             const char* outCoverage);
     void emitAndInstallXferProc(const GrXferProcessor&,
                                 const GrGLSLExpr4& colorIn,
                                 const GrGLSLExpr4& coverageIn);
 
-    void verify(const GrGeometryProcessor&);
+    void verify(const GrPrimitiveProcessor&);
     void verify(const GrXferProcessor&);
     void verify(const GrFragmentProcessor&);
     void emitSamplers(const GrProcessor&,

@@ -35,28 +35,11 @@ public:
                    const GrDrawTargetCaps&, const ScissorState&,
                    const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
-    bool operator== (const GrOptDrawState& that) const;
-    bool operator!= (const GrOptDrawState& that) const { return !(*this == that); }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Color
-    ////
-
-    GrColor getColor() const { return fColor; }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Coverage
-    ////
-
-    uint8_t getCoverage() const { return fCoverage; }
-
-    GrColor getCoverageColor() const {
-        return GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
-    }
+    /*
+     * Returns true if it is possible to combine the two GrOptDrawStates and it will update 'this'
+     * to subsume 'that''s draw.
+     */
+    bool combineIfPossible(const GrOptDrawState& that);
 
     /// @}
 
@@ -80,13 +63,11 @@ public:
     int numColorStages() const { return fNumColorStages; }
     int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
     int numFragmentStages() const { return fFragmentStages.count(); }
-    int numTotalStages() const {
-        // the + 1 at the end is for the xferProcessor which will always be present
-        return this->numFragmentStages() + (this->hasGeometryProcessor() ? 1 : 0) + 1;
-    }
 
+    // TODO remove the GP specific calls when the PathProc can provide the same interface
     bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
     const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
+    const GrPrimitiveProcessor* getPrimitiveProcessor() const { return fPrimitiveProcessor.get(); }
     const GrBatchTracker& getBatchTracker() const { return fBatchTracker; }
 
     const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
@@ -210,10 +191,8 @@ private:
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     ScissorState                        fScissorState;
-    GrColor                             fColor;
     SkMatrix                            fViewMatrix;
     GrStencilSettings                   fStencilSettings;
-    uint8_t                             fCoverage;
     GrDrawState::DrawFace               fDrawFace;
     GrDeviceCoordTexture                fDstCopy;
     uint32_t                            fFlags;

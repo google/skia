@@ -148,14 +148,6 @@ protected:
     void initSamplerUniforms();
     void initSamplers(GrGLInstalledProc*, int* texUnitIdx);
 
-    // Helper for setData(). Makes GL calls to specify the initial color when there is not
-    // per-vertex colors.
-    void setColor(const GrOptDrawState&, GrColor color);
-
-    // Helper for setData(). Makes GL calls to specify the initial coverage when there is not
-    // per-vertex coverages.
-    void setCoverage(const GrOptDrawState&, uint8_t coverage);
-
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrOptDrawState&);
     virtual void setTransformData(const GrPendingFragmentStage&, GrGLInstalledFragProc*);
@@ -207,6 +199,7 @@ protected:
                         const BuiltinUniformHandles&,
                         GrGLuint programID,
                         const UniformInfoArray&,
+                        GrGLInstalledGeoProc*,
                         GrGLInstalledXferProc* xferProcessor,
                         GrGLInstalledFragProcs* fragmentProcessors);
     virtual void onSetMatrixAndRenderTargetHeight(const GrOptDrawState&);
@@ -226,6 +219,7 @@ private:
                     const BuiltinUniformHandles&,
                     GrGLuint programID,
                     const UniformInfoArray&,
+                    GrGLInstalledGeoProc*,
                     GrGLInstalledXferProc* xferProcessor,
                     GrGLInstalledFragProcs* fragmentProcessors,
                     const SeparableVaryingInfoArray& separableVaryings);
@@ -256,6 +250,7 @@ private:
                           const BuiltinUniformHandles&,
                           GrGLuint programID,
                           const UniformInfoArray&,
+                          GrGLInstalledGeoProc*,
                           GrGLInstalledXferProc* xp,
                           GrGLInstalledFragProcs* fps,
                           int texCoordSetCnt);

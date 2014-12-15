@@ -37,6 +37,9 @@ public:
     ////
 
     enum PrimaryOutputType {
+        kNone_PrimaryOutputType,
+        kColor_PrimaryOutputType,
+        kCoverage_PrimaryOutputType,
         // Modulate color and coverage, write result as the color output.
         kModulate_PrimaryOutputType,
         // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
@@ -68,8 +71,7 @@ public:
                                                bool isCoverageDrawing,
                                                bool colorWriteDisabled,
                                                bool doesStencilWrite,
-                                               GrColor* color,
-                                               uint8_t* coverage,
+                                               GrColor* overrideColor,
                                                const GrDrawTargetCaps& caps) SK_OVERRIDE;
 
     void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
@@ -99,9 +101,7 @@ private:
                                                        const GrProcOptInfo& coveragePOI,
                                                        bool isCoverageDrawing,
                                                        bool colorWriteDisabled,
-                                                       bool doesStencilWrite,
-                                                       GrColor* color,
-                                                       uint8_t* coverage);
+                                                       bool doesStencilWrite);
 
     void calcOutputTypes(GrXferProcessor::OptFlags blendOpts, const GrDrawTargetCaps& caps,
                          bool hasSolidCoverage, bool readDst);

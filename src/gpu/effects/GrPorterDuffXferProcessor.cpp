@@ -66,11 +66,28 @@ public:
             }
         }
         
-        fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
-                               args.fInputCoverage);
-        if (GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType == xp.primaryOutputType()){
-            fsBuilder->codeAppendf("%s += (vec4(1.0) - %s) * %s;", args.fOutputPrimary,
-                                   args.fInputCoverage, fsBuilder->dstColor());
+        switch (xp.primaryOutputType()) {
+            case GrPorterDuffXferProcessor::kNone_PrimaryOutputType:
+                fsBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
+                break;
+            case GrPorterDuffXferProcessor::kColor_PrimaryOutputType:
+                fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputColor);
+                break;
+            case GrPorterDuffXferProcessor::kCoverage_PrimaryOutputType:
+                fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputCoverage);
+                break;
+            case GrPorterDuffXferProcessor::kModulate_PrimaryOutputType:
+            case GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType:
+                fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
+                                       args.fInputCoverage);
+                if (GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType ==
+                    xp.primaryOutputType()){
+                    fsBuilder->codeAppendf("%s += (vec4(1.0) - %s) * %s;", args.fOutputPrimary,
+                                           args.fInputCoverage, fsBuilder->dstColor());
+                }
+                break;
+            default:
+                SkFAIL("Unexpected Primary Output");
         }
     }
 
@@ -122,7 +139,6 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
                                             bool colorWriteDisabled,
                                             bool doesStencilWrite,
                                             GrColor* overrideColor,
-                                            uint8_t* overrideCoverage,
                                             const GrDrawTargetCaps& caps) {
     GrXferProcessor::OptFlags optFlags;
     // Optimizations when doing RGB Coverage
@@ -139,9 +155,7 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
                                                   coveragePOI,
                                                   isCoverageDrawing,
                                                   colorWriteDisabled,
-                                                  doesStencilWrite,
-                                                  overrideColor,
-                                                  overrideCoverage);
+                                                  doesStencilWrite);
     }
     this->calcOutputTypes(optFlags, caps, isCoverageDrawing || coveragePOI.isSolidWhite(),
                           colorPOI.readsDst() || coveragePOI.readsDst());
@@ -151,6 +165,19 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
 void GrPorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFlags,
                                                 const GrDrawTargetCaps& caps,
                                                 bool hasSolidCoverage, bool readsDst) {
+    if (optFlags & kIgnoreColor_OptFlag) {
+        if (optFlags & kIgnoreCoverage_OptFlag) {
+            fPrimaryOutputType = kNone_PrimaryOutputType;
+            return;
+        } else {
+            fPrimaryOutputType = kCoverage_PrimaryOutputType;
+            return;
+        }
+    } else if (optFlags & kIgnoreCoverage_OptFlag) {
+        fPrimaryOutputType = kColor_PrimaryOutputType;
+        return;
+    }
+
     // If we do have coverage determine whether it matters.  Dual source blending is expensive so
     // we don't do it if we are doing coverage drawing.  If we aren't then We always do dual source
     // blending if we have any effective coverage stages OR the geometry processor doesn't emits
@@ -183,9 +210,7 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                                                     const GrProcOptInfo& coveragePOI,
                                                     bool isCoverageDrawing,
                                                     bool colorWriteDisabled,
-                                                    bool doesStencilWrite,
-                                                    GrColor* overrideColor,
-                                                    uint8_t* overrideCoverage) {
+                                                    bool doesStencilWrite) {
     if (colorWriteDisabled) {
         fSrcBlend = kZero_GrBlendCoeff;
         fDstBlend = kOne_GrBlendCoeff;
@@ -211,8 +236,7 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
     // (0,1).
     if ((kZero_GrBlendCoeff == fSrcBlend && dstCoeffIsOne)) {
         if (doesStencilWrite) {
-            *overrideColor = 0xffffffff;
-            return GrXferProcessor::kClearColorStages_OptFlag |
+            return GrXferProcessor::kIgnoreColor_OptFlag |
                    GrXferProcessor::kSetCoverageDrawing_OptFlag;
         } else {
             fDstBlend = kOne_GrBlendCoeff;
@@ -234,10 +258,8 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                 // or blend, just write transparent black into the dst.
                 fSrcBlend = kOne_GrBlendCoeff;
                 fDstBlend = kZero_GrBlendCoeff;
-                *overrideColor = 0;
-                *overrideCoverage = 0xff;
-                return GrXferProcessor::kClearColorStages_OptFlag |
-                       GrXferProcessor::kClearCoverageStages_OptFlag;
+                return GrXferProcessor::kIgnoreColor_OptFlag |
+                       GrXferProcessor::kIgnoreCoverage_OptFlag;
             }
         }
     } else if (isCoverageDrawing) {
@@ -255,8 +277,7 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                 // the dst coeff is effectively zero so blend works out to:
                 // (c)(0)D + (1-c)D = (1-c)D.
                 fDstBlend = kISA_GrBlendCoeff;
-                *overrideColor = 0xffffffff;
-                return GrXferProcessor::kClearColorStages_OptFlag |
+                return GrXferProcessor::kIgnoreColor_OptFlag |
                        GrXferProcessor::kSetCoverageDrawing_OptFlag;
             } else if (srcAIsOne) {
                 // the dst coeff is effectively zero so blend works out to:

@@ -60,6 +60,9 @@ drawbitmapmatrix
 #junov skbug.com/3176
 pictureimagefilter
 
+#joshualitt
+hairlines
+
 #scroggo skbug.com/3241
 # replacing SkLCGRandom with SkRandom
 beziers

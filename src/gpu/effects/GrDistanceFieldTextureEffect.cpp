@@ -18,11 +18,17 @@
 // Assuming a radius of the diagonal of the fragment, hence a factor of sqrt(2)/2
 #define SK_DistanceFieldAAFactor     "0.7071"
 
+struct DistanceFieldBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+};
+
 class GrGLDistanceFieldTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldTextureEffect(const GrGeometryProcessor&,
                                    const GrBatchTracker&)
-        : fTextureSize(SkISize::Make(-1,-1))
+        : fColor(GrColor_ILLEGAL)
+        , fTextureSize(SkISize::Make(-1,-1))
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fLuminance(-1.0f)
 #endif
@@ -31,7 +37,8 @@ public:
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldTextureEffect>();
-
+        const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
+        GrGLGPBuilder* pb = args.fPB;
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -41,10 +48,9 @@ public:
         args.fPB->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
-        // setup color attribute
-        if(dfTexEffect.inColor()) {
-            args.fPB->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        // Setup pass through color
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
+                                    dfTexEffect.inColor(), &fColorUniform);
 
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
@@ -121,8 +127,8 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrGeometryProcessor& proc,
-                         const GrBatchTracker&) SK_OVERRIDE {
+                         const GrPrimitiveProcessor& proc,
+                         const GrBatchTracker& bt) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
@@ -142,23 +148,34 @@ public:
             fLuminance = luminance;
         }
 #endif
+
+        const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+            GrGLfloat c[4];
+            GrColorToRGBAFloat(local.fColor, c);
+            pdman.set4fv(fColorUniform, 1, c);
+            fColor = local.fColor;
+        }
     }
 
     static inline void GenKey(const GrGeometryProcessor& processor,
-                              const GrBatchTracker&,
+                              const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldTextureEffect>();
-
+        const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         b->add32(dfTexEffect.getFlags());
+        b->add32(local.fInputColorType);
     }
 
 private:
-    GrGLProgramDataManager::UniformHandle fTextureSizeUni;
-    SkISize                               fTextureSize;
-    GrGLProgramDataManager::UniformHandle fLuminanceUni;
-    float                                 fLuminance;
+    GrColor       fColor;
+    UniformHandle fColorUniform;
+    UniformHandle fTextureSizeUni;
+    SkISize       fTextureSize;
+    UniformHandle fLuminanceUni;
+    float         fLuminance;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
@@ -221,6 +238,20 @@ GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
     return SkNEW_ARGS(GrGLDistanceFieldTextureEffect, (*this, bt));
 }
 
+void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+    DistanceFieldBatchTracker* local = bt->cast<DistanceFieldBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
+                                               SkToBool(fInColor));
+}
+
+bool GrDistanceFieldTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                                  const GrBatchTracker& t) const {
+    const DistanceFieldBatchTracker& mine = m.cast<DistanceFieldBatchTracker>();
+    const DistanceFieldBatchTracker& theirs = t.cast<DistanceFieldBatchTracker>();
+    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldTextureEffect);
@@ -263,16 +294,24 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct DistanceFieldNoGammaBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+};
+
 class GrGLDistanceFieldNoGammaTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldNoGammaTextureEffect(const GrGeometryProcessor&,
                                           const GrBatchTracker&)
-        : fTextureSize(SkISize::Make(-1, -1)) {}
+        : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
 
+        const DistanceFieldNoGammaBatchTracker& local =
+                args.fBT.cast<DistanceFieldNoGammaBatchTracker>();
+        GrGLGPBuilder* pb = args.fPB;
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -281,10 +320,9 @@ public:
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
 
-        // setup color attribute
-        if(dfTexEffect.inColor()) {
-            args.fPB->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        // setup pass through color
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
+                                    dfTexEffect.inColor(), &fColorUniform);
 
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
@@ -348,8 +386,8 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrGeometryProcessor& proc,
-                         const GrBatchTracker&) SK_OVERRIDE {
+                         const GrPrimitiveProcessor& proc,
+                         const GrBatchTracker& bt) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
@@ -360,21 +398,33 @@ public:
                         SkIntToScalar(fTextureSize.width()),
                         SkIntToScalar(fTextureSize.height()));
         }
+
+        const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+            GrGLfloat c[4];
+            GrColorToRGBAFloat(local.fColor, c);
+            pdman.set4fv(fColorUniform, 1, c);
+            fColor = local.fColor;
+        }
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrBatchTracker&,
+                              const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
             proc.cast<GrDistanceFieldNoGammaTextureEffect>();
 
+        const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
         b->add32(dfTexEffect.getFlags());
+        b->add32(local.fInputColorType);
     }
 
 private:
-    GrGLProgramDataManager::UniformHandle fTextureSizeUni;
-    SkISize                               fTextureSize;
+    UniformHandle fColorUniform;
+    UniformHandle fTextureSizeUni;
+    GrColor       fColor;
+    SkISize       fTextureSize;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
@@ -424,6 +474,21 @@ GrDistanceFieldNoGammaTextureEffect::createGLInstance(const GrBatchTracker& bt) 
     return SkNEW_ARGS(GrGLDistanceFieldNoGammaTextureEffect, (*this, bt));
 }
 
+void GrDistanceFieldNoGammaTextureEffect::initBatchTracker(GrBatchTracker* bt,
+                                                           const InitBT& init) const {
+    DistanceFieldNoGammaBatchTracker* local = bt->cast<DistanceFieldNoGammaBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
+                                               SkToBool(fInColor));
+}
+
+bool GrDistanceFieldNoGammaTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                                         const GrBatchTracker& t) const {
+    const DistanceFieldNoGammaBatchTracker& mine = m.cast<DistanceFieldNoGammaBatchTracker>();
+    const DistanceFieldNoGammaBatchTracker& theirs = t.cast<DistanceFieldNoGammaBatchTracker>();
+    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldNoGammaTextureEffect);
@@ -453,21 +518,33 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct DistanceFieldLCDBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+};
+
 class GrGLDistanceFieldLCDTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldLCDTextureEffect(const GrGeometryProcessor&,
                                       const GrBatchTracker&)
-    : fTextureSize(SkISize::Make(-1,-1))
+    : fColor(GrColor_ILLEGAL)
+    , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
+        const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();
+        GrGLGPBuilder* pb = args.fPB;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
+
+        // setup pass through color
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
+                                    &fColorUniform);
 
         // setup coord outputs
         vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
@@ -588,8 +665,8 @@ public:
     }
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrGeometryProcessor& processor,
-                         const GrBatchTracker&) SK_OVERRIDE {
+                         const GrPrimitiveProcessor& processor,
+                         const GrBatchTracker& bt) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
         SkASSERT(fTextColorUni.isValid());
 
@@ -618,23 +695,35 @@ public:
                         GrColorUnpackB(textColor) * ONE_OVER_255);
             fTextColor = textColor;
         }
+
+        const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+            GrGLfloat c[4];
+            GrColorToRGBAFloat(local.fColor, c);
+            pdman.set4fv(fColorUniform, 1, c);
+            fColor = local.fColor;
+        }
     }
 
     static inline void GenKey(const GrGeometryProcessor& processor,
-                              const GrBatchTracker&,
+                              const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldLCDTextureEffect>();
 
+        const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         b->add32(dfTexEffect.getFlags());
+        b->add32(local.fInputColorType);
     }
 
 private:
-    GrGLProgramDataManager::UniformHandle fTextureSizeUni;
-    SkISize                               fTextureSize;
-    GrGLProgramDataManager::UniformHandle fTextColorUni;
-    SkColor                               fTextColor;
+    GrColor       fColor;
+    UniformHandle fColorUniform;
+    UniformHandle fTextureSizeUni;
+    SkISize       fTextureSize;
+    UniformHandle fTextColorUni;
+    SkColor       fTextColor;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
@@ -681,6 +770,20 @@ void GrDistanceFieldLCDTextureEffect::getGLProcessorKey(const GrBatchTracker& bt
 GrGLGeometryProcessor*
 GrDistanceFieldLCDTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
     return SkNEW_ARGS(GrGLDistanceFieldLCDTextureEffect, (*this, bt));
+}
+
+void GrDistanceFieldLCDTextureEffect::initBatchTracker(GrBatchTracker* bt,
+                                                       const InitBT& init) const {
+    DistanceFieldLCDBatchTracker* local = bt->cast<DistanceFieldLCDBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+}
+
+bool GrDistanceFieldLCDTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                                     const GrBatchTracker& t) const {
+    const DistanceFieldLCDBatchTracker& mine = m.cast<DistanceFieldLCDBatchTracker>();
+    const DistanceFieldLCDBatchTracker& theirs = t.cast<DistanceFieldLCDBatchTracker>();
+    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

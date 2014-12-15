@@ -48,7 +48,6 @@ void GrProcOptInfo::internalCalc(const GrFragmentStage* stages,
     fFirstEffectStageIndex = 0;
     fInputColorIsUsed = true;
     fInputColor = fInOut.color();
-    fRemoveVertexAttrib = false;
     fReadsDst = false;
     fReadsFragPosition = initWillReadFragmentPosition;
 
@@ -74,7 +73,6 @@ void GrProcOptInfo::internalCalc(const GrFragmentStage* stages,
             fFirstEffectStageIndex = i + 1;
             fInputColor = fInOut.color();
             fInputColorIsUsed = true;
-            fRemoveVertexAttrib = true;
             // Since we are clearing all previous color stages we are in a state where we have found
             // zero stages that don't multiply the inputColor.
             fInOut.resetNonMulStageFound();

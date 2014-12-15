@@ -97,6 +97,9 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
+    void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+
 private:
     GrConicEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType);
 
@@ -106,6 +109,7 @@ private:
         out->setUnknownSingleComponent();
     }
 
+    uint8_t               fCoverageScale;
     GrPrimitiveEdgeType   fEdgeType;
     const GrAttribute*    fInPosition;
     const GrAttribute*    fInConicCoeffs;
@@ -166,6 +170,9 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
+    void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+
 private:
     GrQuadEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType);
 
@@ -175,6 +182,7 @@ private:
         out->setUnknownSingleComponent();
     }
 
+    uint8_t               fCoverageScale;
     GrPrimitiveEdgeType   fEdgeType;
     const GrAttribute*    fInPosition;
     const GrAttribute*    fInHairQuadEdge;
@@ -235,6 +243,9 @@ public:
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+
+    void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     GrCubicEffect(GrColor, GrPrimitiveEdgeType);

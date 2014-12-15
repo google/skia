@@ -502,7 +502,7 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
         fCmdBuffer.pop_back();
         return false;
     }
-    if (fPrevState && *fPrevState == ss->fState) {
+    if (fPrevState && fPrevState->combineIfPossible(ss->fState)) {
         fCmdBuffer.pop_back();
     } else {
         fPrevState = &ss->fState;

@@ -441,6 +441,12 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
 //////////////////////////////////////////////////////////////////////////////
 
 class GLDashingCircleEffect;
+
+struct DashingCircleBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+};
+
 /*
  * This effect will draw a dotted line (defined as a dashed lined with round caps and no on
  * interval). The radius of the dots is given by the strokeWidth and the spacing by the DashInfo.
@@ -481,6 +487,10 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker&) const SK_OVERRIDE;
 
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
+
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+
 private:
     DashingCircleEffect(GrColor, GrPrimitiveEdgeType edgeType, const DashInfo& info,
                         SkScalar radius);
@@ -515,19 +525,22 @@ public:
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager&,
-                         const GrGeometryProcessor&,
+                         const GrPrimitiveProcessor&,
                          const GrBatchTracker&) SK_OVERRIDE;
 
 private:
-    GrGLProgramDataManager::UniformHandle fParamUniform;
-    SkScalar                              fPrevRadius;
-    SkScalar                              fPrevCenterX;
-    SkScalar                              fPrevIntervalLength;
+    UniformHandle fParamUniform;
+    UniformHandle fColorUniform;
+    GrColor       fColor;
+    SkScalar      fPrevRadius;
+    SkScalar      fPrevCenterX;
+    SkScalar      fPrevIntervalLength;
     typedef GrGLGeometryProcessor INHERITED;
 };
 
 GLDashingCircleEffect::GLDashingCircleEffect(const GrGeometryProcessor&,
                                              const GrBatchTracker&) {
+    fColor = GrColor_ILLEGAL;
     fPrevRadius = SK_ScalarMin;
     fPrevCenterX = SK_ScalarMin;
     fPrevIntervalLength = SK_ScalarMax;
@@ -535,6 +548,8 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrGeometryProcessor&,
 
 void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
+    const DashingCircleBatchTracker local = args.fBT.cast<DashingCircleBatchTracker>();
+    GrGLGPBuilder* pb = args.fPB;
     const char *paramName;
     // The param uniforms, xyz, refer to circle radius - 0.5, cicles center x coord, and
     // the total interval length of the dash.
@@ -547,6 +562,9 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     GrGLVertToFrag v(kVec2f_GrSLType);
     args.fPB->addVarying("Coord", &v);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dce.inCoord()->fName);
+
+    // Setup pass through color
+    this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
     // setup coord outputs
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), dce.inPosition()->fName);
@@ -575,8 +593,8 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
 }
 
 void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
-                                    const GrGeometryProcessor& processor,
-                                    const GrBatchTracker&) {
+                                    const GrPrimitiveProcessor& processor,
+                                    const GrBatchTracker& bt) {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     SkScalar radius = dce.getRadius();
     SkScalar centerX = dce.getCenterX();
@@ -587,14 +605,23 @@ void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
         fPrevCenterX = centerX;
         fPrevIntervalLength = intervalLength;
     }
+
+    const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
+    if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+        GrGLfloat c[4];
+        GrColorToRGBAFloat(local.fColor, c);
+        pdman.set4fv(fColorUniform, 1, c);
+        fColor = local.fColor;
+    }
 }
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& processor,
-                                   const GrBatchTracker&,
+                                   const GrBatchTracker& bt,
                                    const GrGLCaps&,
                                    GrProcessorKeyBuilder* b) {
+    const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
-    b->add32(dce.getEdgeType());
+    b->add32(dce.getEdgeType() << 16 | local.fInputColorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -649,6 +676,18 @@ bool DashingCircleEffect::onIsEqual(const GrGeometryProcessor& other) const {
             fCenterX == dce.fCenterX);
 }
 
+void DashingCircleEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+    DashingCircleBatchTracker* local = bt->cast<DashingCircleBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+}
+
+bool DashingCircleEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+    const DashingCircleBatchTracker& mine = m.cast<DashingCircleBatchTracker>();
+    const DashingCircleBatchTracker& theirs = t.cast<DashingCircleBatchTracker>();
+    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
+}
+
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 
 GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
@@ -672,6 +711,11 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
 //////////////////////////////////////////////////////////////////////////////
 
 class GLDashingLineEffect;
+
+struct DashingLineBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor  fColor;
+};
 
 /*
  * This effect will draw a dashed line. The width of the dash is given by the strokeWidth and the
@@ -711,6 +755,10 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
+
+    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+
 private:
     DashingLineEffect(GrColor, GrPrimitiveEdgeType edgeType, const DashInfo& info,
                       SkScalar strokeWidth);
@@ -744,25 +792,30 @@ public:
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager&,
-                         const GrGeometryProcessor&,
+                         const GrPrimitiveProcessor&,
                          const GrBatchTracker&) SK_OVERRIDE;
 
 private:
-    GrGLProgramDataManager::UniformHandle fRectUniform;
-    GrGLProgramDataManager::UniformHandle fIntervalUniform;
-    SkRect                                fPrevRect;
-    SkScalar                              fPrevIntervalLength;
+    GrColor       fColor;
+    UniformHandle fRectUniform;
+    UniformHandle fIntervalUniform;
+    UniformHandle fColorUniform;
+    SkRect        fPrevRect;
+    SkScalar      fPrevIntervalLength;
     typedef GrGLGeometryProcessor INHERITED;
 };
 
 GLDashingLineEffect::GLDashingLineEffect(const GrGeometryProcessor&,
                                          const GrBatchTracker&) {
+    fColor = GrColor_ILLEGAL;
     fPrevRect.fLeft = SK_ScalarNaN;
     fPrevIntervalLength = SK_ScalarMax;
 }
 
 void GLDashingLineEffect::emitCode(const EmitArgs& args) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
+    const DashingLineBatchTracker& local = args.fBT.cast<DashingLineBatchTracker>();
+    GrGLGPBuilder* pb = args.fPB;
     const char *rectName;
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
@@ -783,6 +836,9 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
     GrGLVertToFrag v(kVec2f_GrSLType);
     args.fPB->addVarying("Coord", &v);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), de.inCoord()->fName);
+
+    // Setup pass through color
+    this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
     // setup coord outputs
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), de.inPosition()->fName);
@@ -818,8 +874,8 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
 }
 
 void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
-                                  const GrGeometryProcessor& processor,
-                                  const GrBatchTracker&) {
+                                  const GrPrimitiveProcessor& processor,
+                                  const GrBatchTracker& bt) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     const SkRect& rect = de.getRect();
     SkScalar intervalLength = de.getIntervalLength();
@@ -830,14 +886,23 @@ void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
         fPrevRect = rect;
         fPrevIntervalLength = intervalLength;
     }
+
+    const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
+    if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+        GrGLfloat c[4];
+        GrColorToRGBAFloat(local.fColor, c);
+        pdman.set4fv(fColorUniform, 1, c);
+        fColor = local.fColor;
+    }
 }
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& processor,
-                                 const GrBatchTracker&,
+                                 const GrBatchTracker& bt,
                                  const GrGLCaps&,
                                  GrProcessorKeyBuilder* b) {
+    const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
-    b->add32(de.getEdgeType());
+    b->add32(de.getEdgeType() << 16 | local.fInputColorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -890,6 +955,18 @@ bool DashingLineEffect::onIsEqual(const GrGeometryProcessor& other) const {
     return (fEdgeType == de.fEdgeType &&
             fRect == de.fRect &&
             fIntervalLength == de.fIntervalLength);
+}
+
+void DashingLineEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+    DashingLineBatchTracker* local = bt->cast<DashingLineBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+}
+
+bool DashingLineEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+    const DashingLineBatchTracker& mine = m.cast<DashingLineBatchTracker>();
+    const DashingLineBatchTracker& theirs = t.cast<DashingLineBatchTracker>();
+    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);

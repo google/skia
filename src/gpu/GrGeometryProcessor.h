@@ -14,6 +14,36 @@
 #include "GrShaderVar.h"
 
 /*
+ * The GrPrimitiveProcessor represents some kind of geometric primitive.  This includes the shape
+ * of the primitive and the inherent color of the primitive.  The GrPrimitiveProcessor is
+ * responsible for providing a color and coverage input into the Ganesh rendering pipeline.  Through
+ * optimization, Ganesh may decide a different color, no color, and / or no coverage are required
+ * from the GrPrimitiveProcessor, so the GrPrimitiveProcessor must be able to support this
+ * functionality.  We also use the GrPrimitiveProcessor to make batching decisions.
+ *
+ * There are two feedback loops between the GrFragmentProcessors, the GrXferProcessor, and the
+ * GrPrimitiveProcessor.  These loops run on the CPU and compute any invariant components which
+ * might be useful for correctness / optimization decisions.  The GrPrimitiveProcessor seeds these
+ * loops, one with initial color and one with initial coverage, in its
+ * onComputeInvariantColor / Coverage calls.  These seed values are processed by the subsequent
+ * stages of the rendering pipeline and the output is then fed back into the GrPrimitiveProcessor in
+ * the initBatchTracker call, where the GrPrimitiveProcessor can then initialize the GrBatchTracker
+ * struct with the appropriate values.
+ *
+ * We are evolving this system to move towards generating geometric meshes and their associated
+ * vertex data after we have batched and reordered draws.  This system, known as 'deferred geometry'
+ * will allow the GrPrimitiveProcessor much greater control over how data is transmitted to shaders.
+ *
+ * In a deferred geometry world, the GrPrimitiveProcessor can always 'batch'  To do this, each
+ * primitive type is associated with one GrPrimitiveProcessor, who has complete control of how
+ * it draws.  Each primitive draw will bundle all required data to perform the draw, and these
+ * bundles of data will be owned by an instance of the associated GrPrimitiveProcessor.  Bundles
+ * can be updated alongside the GrBatchTracker struct itself, ultimately allowing the
+ * GrPrimitiveProcessor complete control of how it gets data into the fragment shader as long as
+ * it emits the appropriate color, or none at all, as directed.
+ */
+
+/*
  * A struct for tracking batching decisions.  While this lives on GrOptState, it is managed
  * entirely by the derived classes of the GP.
  */
@@ -21,18 +51,18 @@ class GrBatchTracker {
 public:
     template <typename T> const T& cast() const {
         SkASSERT(sizeof(T) <= kMaxSize);
-        return *reinterpret_cast<const T*>(fData);
+        return *reinterpret_cast<const T*>(fData.get());
     }
 
     template <typename T> T* cast() {
         SkASSERT(sizeof(T) <= kMaxSize);
-        return reinterpret_cast<T*>(fData);
+        return reinterpret_cast<T*>(fData.get());
     }
 
     static const size_t kMaxSize = 32;
 
 private:
-    uint8_t fData[kMaxSize];
+    SkAlignedSStorage<kMaxSize> fData;
 };
 
 class GrGLCaps;
@@ -41,44 +71,49 @@ class GrOptDrawState;
 
 struct GrInitInvariantOutput;
 
+
 /*
- * GrGeometryProcessors and GrPathProcessors may effect invariantColor
+ * This enum is shared by GrPrimitiveProcessors and GrGLPrimitiveProcessors to coordinate shaders
+ * with vertex attributes / uniforms.
+ */
+enum GrGPInput {
+    kAllOnes_GrGPInput,
+    kAttribute_GrGPInput,
+    kUniform_GrGPInput,
+    kIgnored_GrGPInput,
+};
+
+/*
+ * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
+ * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
+ * pipelines, and they must provide some notion of equality
  */
 class GrPrimitiveProcessor : public GrProcessor {
 public:
-    // TODO GPs and PPs have to provide an initial coverage because the coverage invariant code is
-    // broken right now
-    virtual uint8_t coverage() const = 0;
+    /*
+     * This struct allows the optstate to communicate requirements to the GrPrimitiveProcessor.
+     */
+    struct InitBT {
+        bool fColorIgnored;
+        bool fCoverageIgnored;
+        GrColor fOverrideColor;
+    };
+
+    virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const = 0;
+
+    virtual bool canMakeEqual(const GrBatchTracker& mine,
+                              const GrPrimitiveProcessor& that,
+                              const GrBatchTracker& theirs) const = 0;
+
+    /*
+     * We always call canMakeEqual before makeEqual so there is no need to do any kind of equality
+     * testing here
+     * TODO make this pure virtual when primProcs can actually use it
+     */
+    virtual void makeEqual(GrBatchTracker*, const GrBatchTracker&) const {}
+
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
-
-private:
-    typedef GrProcessor INHERITED;
-};
-
-/**
- * A GrGeometryProcessor is used to perform computation in the vertex shader and
- * add support for custom vertex attributes. A GrGemeotryProcessor is typically
- * tied to the code that does a specific type of high-level primitive rendering
- * (e.g. anti-aliased circle rendering). The GrGeometryProcessor used for a draw is
- * specified using GrDrawState. There can only be one geometry processor active for
- * a draw. The custom vertex attributes required by the geometry processor must be
- * added to the vertex attribute array specified on the GrDrawState.
- * GrGeometryProcessor subclasses should be immutable after construction.
- */
-class GrGeometryProcessor : public GrPrimitiveProcessor {
-public:
-    // TODO the Hint can be handled in a much more clean way when we have deferred geometry or
-    // atleast bundles
-    GrGeometryProcessor(GrColor color, bool opaqueVertexColors = false, uint8_t coverage = 0xff)
-        : fVertexStride(0)
-        , fColor(color)
-        , fCoverage(coverage)
-        , fOpaqueVertexColors(opaqueVertexColors)
-        , fWillUseGeoShader(false)
-        , fHasVertexColor(false)
-        , fHasVertexCoverage(false)
-        , fHasLocalCoords(false) {}
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
@@ -93,6 +128,48 @@ public:
         for the given GrProcessor; caller is responsible for deleting
         the object. */
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const = 0;
+
+protected:
+    /*
+     * CanCombineOutput will return true if two draws are 'batchable' from a color perspective.
+     * TODO remove this when GPs can upgrade to attribute color
+     */
+    static bool CanCombineOutput(GrGPInput left, GrColor lColor, GrGPInput right, GrColor rColor) {
+        if (left != right) {
+            return false;
+        }
+
+        if (kUniform_GrGPInput == left && lColor != rColor) {
+            return false;
+        }
+
+        return true;
+    }
+
+private:
+    typedef GrProcessor INHERITED;
+};
+
+/**
+ * A GrGeometryProcessor is a flexible method for rendering a primitive.  The GrGeometryProcessor
+ * has complete control over vertex attributes and uniforms(aside from the render target) but it
+ * must obey the same contract as any GrPrimitiveProcessor, specifically it must emit a color and
+ * coverage into the fragment shader.  Where this color and coverage come from is completely the
+ * responsibility of the GrGeometryProcessor.
+ */
+class GrGeometryProcessor : public GrPrimitiveProcessor {
+public:
+    // TODO the Hint can be handled in a much more clean way when we have deferred geometry or
+    // atleast bundles
+    GrGeometryProcessor(GrColor color, bool opaqueVertexColors = false)
+        : fVertexStride(0)
+        , fColor(color)
+        , fOpaqueVertexColors(opaqueVertexColors)
+        , fWillUseGeoShader(false)
+        , fHasVertexColor(false)
+        , fHasLocalCoords(false) {}
+
+    virtual const char* name() const = 0;
 
     /*
      * This is a safeguard to prevent GPs from going beyond platform specific attribute limits.
@@ -121,61 +198,87 @@ public:
 
     bool willUseGeoShader() const { return fWillUseGeoShader; }
 
-    /** Returns true if this and other processor conservatively draw identically. It can only return
-        true when the two prcoessors are of the same subclass (i.e. they return the same object from
-        from getFactory()).
-        A return value of true from isEqual() should not be used to test whether the processors
-        would generate the same shader code. To test for identical code generation use the
-        processors' keys computed by the GrBackendEffectFactory. */
-    bool isEqual(const GrGeometryProcessor& that) const {
+    /*
+     * In an ideal world, two GrGeometryProcessors with the same class id and texture accesses
+     * would ALWAYS be able to batch together.  If two GrGeometryProcesosrs are the same then we
+     * will only keep one of them.  The remaining GrGeometryProcessor then updates its
+     * GrBatchTracker to incorporate the draw information from the GrGeometryProcessor we discard.
+     * Any bundles associated with the discarded GrGeometryProcessor will be attached to the
+     * remaining GrGeometryProcessor.
+     */
+    bool canMakeEqual(const GrBatchTracker& mine,
+                      const GrPrimitiveProcessor& that,
+                      const GrBatchTracker& theirs) const SK_OVERRIDE {
         if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
             return false;
         }
 
         // TODO remove the hint
-        if (fHasVertexColor && fOpaqueVertexColors != that.fOpaqueVertexColors) {
+        const GrGeometryProcessor& other = that.cast<GrGeometryProcessor>();
+        if (fHasVertexColor && fOpaqueVertexColors != other.fOpaqueVertexColors) {
             return false;
         }
 
-        if (!fHasVertexColor && this->color() != that.color()) {
+        // TODO this equality test should really be broken up, some of this can live on the batch
+        // tracker test and some of this should be in bundles
+        if (!this->onIsEqual(other)) {
             return false;
         }
 
-        // TODO this is fragile, most gps set their coverage to 0xff so this is okay.  In the long
-        // term this should move to subclasses which set explicit coverage
-        if (!fHasVertexCoverage && this->coverage() != that.coverage()) {
-            return false;
-        }
-        return this->onIsEqual(that);
+        return this->onCanMakeEqual(mine, theirs);
     }
 
-    struct InitBT {
-        bool fOutputColor;
-        bool fOutputCoverage;
-        GrColor fColor;
-        GrColor fCoverage;
-    };
-
-    virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const {}
-
+    
+    // TODO we can remove color from the GrGeometryProcessor base class once we have bundles of
+    // primitive data
     GrColor color() const { return fColor; }
-    uint8_t coverage() const SK_OVERRIDE { return fCoverage; }
 
-    // TODO this is a total hack until the gp can own whether or not it uses uniform
-    // color / coverage
+    // TODO this is a total hack until the gp can do deferred geometry
     bool hasVertexColor() const { return fHasVertexColor; }
-    bool hasVertexCoverage() const { return fHasVertexCoverage; }
+
+    // TODO this is a total hack until gp can setup and manage local coords
     bool hasLocalCoords() const { return fHasLocalCoords; }
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
 
 protected:
+    /*
+     * An optional simple helper function to determine by what means the GrGeometryProcessor should
+     * use to provide color.  If we are given an override color(ie the given overridecolor is NOT
+     * GrColor_ILLEGAL) then we must always emit that color(currently overrides are only supported
+     * via uniform, but with deferred Geometry we could use attributes).  Otherwise, if our color is
+     * ignored then we should not emit a color.  Lastly, if we don't have vertex colors then we must
+     * emit a color via uniform
+     * TODO this function changes quite a bit with deferred geometry.  There the GrGeometryProcessor
+     * can upload a new color via attribute if needed.
+     */
+    static GrGPInput GetColorInputType(GrColor* color, GrColor primitiveColor, const InitBT& init,
+                                       bool hasVertexColor) {
+        if (init.fColorIgnored) {
+            *color = GrColor_ILLEGAL;
+            return kIgnored_GrGPInput;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            *color = init.fOverrideColor;
+            return kUniform_GrGPInput;
+        }
+
+        *color = primitiveColor;
+        if (hasVertexColor) {
+            return kAttribute_GrGPInput;
+        } else {
+            return kUniform_GrGPInput;
+        }
+    }
+
     /**
      * Subclasses call this from their constructor to register vertex attributes.  Attributes
      * will be padded to the nearest 4 bytes for performance reasons.
      * TODO After deferred geometry, we should do all of this inline in GenerateGeometry alongside
-     * the struct used to actually populate the attributes
+     * the struct used to actually populate the attributes.  This is all extremely fragile, vertex
+     * attributes have to be added in the order they will appear in the struct which maps memory.
+     * The processor key should reflect the vertex attributes, or there lack thereof in the
+     * GrGeometryProcessor.
      */
     const GrAttribute& addVertexAttrib(const GrAttribute& attribute) {
         fVertexStride += attribute.fOffset;
@@ -186,23 +289,22 @@ protected:
 
     // TODO hack see above
     void setHasVertexColor() { fHasVertexColor = true; }
-    void setHasVertexCoverage() { fHasVertexCoverage = true; }
     void setHasLocalCoords() { fHasLocalCoords = true; }
 
     virtual void onGetInvariantOutputColor(GrInitInvariantOutput*) const {}
     virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const = 0;
 
 private:
+    virtual bool onCanMakeEqual(const GrBatchTracker& mine, const GrBatchTracker& theirs) const = 0;
+    // TODO delete this when we have more advanced equality testing via bundles and the BT
     virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
 
     SkSTArray<kMaxVertexAttribs, GrAttribute, true> fAttribs;
     size_t fVertexStride;
     GrColor fColor;
-    uint8_t fCoverage;
     bool fOpaqueVertexColors;
     bool fWillUseGeoShader;
     bool fHasVertexColor;
-    bool fHasVertexCoverage;
     bool fHasLocalCoords;
 
     typedef GrProcessor INHERITED;
@@ -217,14 +319,28 @@ public:
     static GrPathProcessor* Create(GrColor color) {
         return SkNEW_ARGS(GrPathProcessor, (color));
     }
+    
+    void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
+
+    bool canMakeEqual(const GrBatchTracker& mine,
+                      const GrPrimitiveProcessor& that,
+                      const GrBatchTracker& theirs) const SK_OVERRIDE;
 
     const char* name() const SK_OVERRIDE { return "PathProcessor"; }
-    uint8_t coverage() const SK_OVERRIDE { return 0xff; }
+
+    GrColor color() const { return fColor; }
+
     void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
 
+    virtual void getGLProcessorKey(const GrBatchTracker& bt,
+                                   const GrGLCaps& caps,
+                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+
+    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+
 private:
-    GrPathProcessor(GrColor color) : fColor(color) {}
+    GrPathProcessor(GrColor color);
     GrColor fColor;
 
     typedef GrProcessor INHERITED;

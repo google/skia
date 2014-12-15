@@ -131,11 +131,6 @@ void GrGLProgram::bindTextures(const GrGLInstalledProc* ip, const GrProcessor& p
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLProgram::setData(const GrOptDrawState& optState) {
-    GrColor color = optState.getColor();
-    uint8_t coverage = optState.getCoverage();
-
-    this->setColor(optState, color);
-    this->setCoverage(optState, coverage);
     this->setMatrixAndRenderTargetHeight(optState);
 
     const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
@@ -162,13 +157,11 @@ void GrGLProgram::setData(const GrOptDrawState& optState) {
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
-    if (fGeometryProcessor.get()) {
-        SkASSERT(optState.hasGeometryProcessor());
-        const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
-        const GrBatchTracker& bt = optState.getBatchTracker();
-        fGeometryProcessor->fGLProc->setData(fProgramDataManager, gp, bt);
-        this->bindTextures(fGeometryProcessor, gp);
-    }
+    const GrPrimitiveProcessor& primProc = *optState.getPrimitiveProcessor();
+    const GrBatchTracker& bt = optState.getBatchTracker();
+    fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc, bt);
+    this->bindTextures(fGeometryProcessor, primProc);
+
     if (fXferProcessor.get()) {
         const GrXferProcessor& xp = *optState.getXferProcessor();
         fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
@@ -207,51 +200,6 @@ void GrGLProgram::setTransformData(const GrPendingFragmentStage& processor,
 
 void GrGLProgram::didSetData(GrGpu::DrawType drawType) {
     SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType));
-}
-
-void GrGLProgram::setColor(const GrOptDrawState& optState, GrColor color) {
-    const GrProgramDesc::KeyHeader& header = fDesc.header();
-    switch (header.fColorInput) {
-        case GrProgramDesc::kAttribute_ColorInput:
-            // Attribute case is handled in GrGpuGL::setupGeometry
-            break;
-        case GrProgramDesc::kUniform_ColorInput:
-            if (fColor != color && fBuiltinUniformHandles.fColorUni.isValid()) {
-                // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                GrGLfloat c[4];
-                GrColorToRGBAFloat(color, c);
-                fProgramDataManager.set4fv(fBuiltinUniformHandles.fColorUni, 1, c);
-                fColor = color;
-            }
-            break;
-        case GrProgramDesc::kAllOnes_ColorInput:
-            // Handled by shader creation
-            break;
-        default:
-            SkFAIL("Unexpected color type.");
-    }
-}
-
-void GrGLProgram::setCoverage(const GrOptDrawState& optState, uint8_t coverage) {
-    const GrProgramDesc::KeyHeader& header = fDesc.header();
-    switch (header.fCoverageInput) {
-        case GrProgramDesc::kAttribute_ColorInput:
-            // Attribute case is handled in GrGpuGL::setupGeometry
-            break;
-        case GrProgramDesc::kUniform_ColorInput:
-            if (fCoverage != coverage) {
-                // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                GrGLfloat c = GrNormalizeByteToFloat(coverage);
-                fProgramDataManager.set1f(fBuiltinUniformHandles.fCoverageUni, c);
-                fCoverage = coverage;
-            }
-            break;
-        case GrProgramDesc::kAllOnes_ColorInput:
-            // Handled by shader creation
-            break;
-        default:
-            SkFAIL("Unexpected coverage type.");
-    }
 }
 
 void GrGLProgram::setMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
@@ -296,9 +244,10 @@ GrGLNvprProgramBase::GrGLNvprProgramBase(GrGpuGL* gpu,
                                          const BuiltinUniformHandles& builtinUniforms,
                                          GrGLuint programID,
                                          const UniformInfoArray& uniforms,
+                                         GrGLInstalledGeoProc* primProc,
                                          GrGLInstalledXferProc* xferProcessor,
                                          GrGLInstalledFragProcs* fragmentProcessors)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, NULL,
+    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, primProc,
                 xferProcessor, fragmentProcessors) {
 }
 
@@ -317,10 +266,11 @@ GrGLNvprProgram::GrGLNvprProgram(GrGpuGL* gpu,
                                  const BuiltinUniformHandles& builtinUniforms,
                                  GrGLuint programID,
                                  const UniformInfoArray& uniforms,
+                                 GrGLInstalledGeoProc* primProc,
                                  GrGLInstalledXferProc* xferProcessor,
                                  GrGLInstalledFragProcs* fragmentProcessors,
                                  const SeparableVaryingInfoArray& separableVaryings)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms,
+    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, primProc,
                 xferProcessor, fragmentProcessors) {
     int count = separableVaryings.count();
     fVaryings.push_back_n(count);
@@ -369,10 +319,11 @@ GrGLLegacyNvprProgram::GrGLLegacyNvprProgram(GrGpuGL* gpu,
                                              const BuiltinUniformHandles& builtinUniforms,
                                              GrGLuint programID,
                                              const UniformInfoArray& uniforms,
+                                             GrGLInstalledGeoProc* primProc,
                                              GrGLInstalledXferProc* xp,
                                              GrGLInstalledFragProcs* fps,
                                              int texCoordSetCnt)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, xp, fps)
+    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, primProc, xp, fps)
     , fTexCoordSetCnt(texCoordSetCnt) {
 }
 

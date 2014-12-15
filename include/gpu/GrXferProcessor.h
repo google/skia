@@ -58,13 +58,13 @@ public:
          */
         kSkipDraw_OptFlag                 = 0x1,
         /**
-         * Clear color stages, remove color vertex attribs, and use input color
+         * GrXferProcessor will ignore color, thus no need to provide
          */
-        kClearColorStages_OptFlag         = 0x2,
+        kIgnoreColor_OptFlag              = 0x2,
         /**
-         * Clear coverage stages, remove coverage vertex attribs, and use input coverage
+         * GrXferProcessor will ignore coverage, thus no need to provide
          */
-        kClearCoverageStages_OptFlag      = 0x4,
+        kIgnoreCoverage_OptFlag           = 0x4,
         /**
          * Clear color stages and override input color to that returned by getOptimizations
          */
@@ -94,7 +94,6 @@ public:
                                       bool colorWriteDisabled,
                                       bool doesStencilWrite,
                                       GrColor* overrideColor,
-                                      uint8_t* overrideCoverage,
                                       const GrDrawTargetCaps& caps) = 0;
 
     struct BlendInfo {

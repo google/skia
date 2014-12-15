@@ -40,19 +40,6 @@ static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
     return false;
 }
 
-static uint32_t gen_attrib_key(const GrGeometryProcessor& proc) {
-    uint32_t key = 0;
-
-    const GrGeometryProcessor::VertexAttribArray& vars = proc.getAttribs();
-    int numAttributes = vars.count();
-    SkASSERT(numAttributes <= GrGeometryProcessor::kMaxVertexAttribs);
-    for (int a = 0; a < numAttributes; ++a) {
-        uint32_t value = 1 << a;
-        key |= value;
-    }
-    return key;
-}
-
 /**
  * The key for an individual coord transform is made up of a matrix type, a precision, and a bit
  * that indicates the source of the input coords.
@@ -131,7 +118,6 @@ static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
 static bool get_meta_key(const GrProcessor& proc,
                          const GrGLCaps& caps,
                          uint32_t transformKey,
-                         uint32_t attribKey,
                          GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
     uint32_t textureKey = gen_texture_key(proc, caps);
@@ -158,9 +144,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
                                    GrGpu::DrawType drawType,
                                    GrGpuGL* gpu,
                                    GrProgramDesc* desc) {
-    bool inputColorIsUsed = descInfo.fInputColorIsUsed;
-    bool inputCoverageIsUsed = descInfo.fInputCoverageIsUsed;
-
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
@@ -173,33 +156,29 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     desc->fKey.reset();
     desc->fKey.push_back_n(kProcessorKeysOffset);
 
-    // We can only have one effect which touches the vertex shader
-    if (optState.hasGeometryProcessor()) {
-        const GrGeometryProcessor& gp = *optState.getGeometryProcessor();
-        GrProcessorKeyBuilder b(&desc->fKey);
-        gp.getGLProcessorKey(optState.getBatchTracker(), gpu->glCaps(), &b);
-        if (!get_meta_key(gp, gpu->glCaps(), 0, gen_attrib_key(gp), &b)) {
-            desc->fKey.reset();
-            return false;
-        }
+    GrProcessorKeyBuilder b(&desc->fKey);
+
+    const GrPrimitiveProcessor& primProc = *optState.getPrimitiveProcessor();
+    primProc.getGLProcessorKey(optState.getBatchTracker(), gpu->glCaps(), &b);
+    if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
+        desc->fKey.reset();
+        return false;
     }
 
     for (int s = 0; s < optState.numFragmentStages(); ++s) {
         const GrPendingFragmentStage& fps = optState.getFragmentStage(s);
         const GrFragmentProcessor& fp = *fps.getProcessor();
-        GrProcessorKeyBuilder b(&desc->fKey);
         fp.getGLProcessorKey(gpu->glCaps(), &b);
         if (!get_meta_key(fp, gpu->glCaps(),
-                          gen_transform_key(fps, requiresLocalCoordAttrib), 0, &b)) {
+                          gen_transform_key(fps, requiresLocalCoordAttrib), &b)) {
             desc->fKey.reset();
             return false;
         }
     }
 
     const GrXferProcessor& xp = *optState.getXferProcessor();
-    GrProcessorKeyBuilder b(&desc->fKey);
     xp.getGLProcessorKey(gpu->glCaps(), &b);
-    if (!get_meta_key(xp, gpu->glCaps(), 0, 0, &b)) {
+    if (!get_meta_key(xp, gpu->glCaps(), 0, &b)) {
         desc->fKey.reset();
         return false;
     }
@@ -212,38 +191,12 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    header->fHasGeometryProcessor = optState.hasGeometryProcessor();
-
     bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
     if (gpu->caps()->pathRenderingSupport() && isPathRendering) {
         header->fUseNvpr = true;
         SkASSERT(!optState.hasGeometryProcessor());
     } else {
         header->fUseNvpr = false;
-    }
-
-    bool hasUniformColor = inputColorIsUsed && (isPathRendering || !descInfo.fHasVertexColor);
-
-    if (!inputColorIsUsed) {
-        header->fColorInput = GrProgramDesc::kAllOnes_ColorInput;
-    } else if (hasUniformColor) {
-        header->fColorInput = GrProgramDesc::kUniform_ColorInput;
-    } else {
-        header->fColorInput = GrProgramDesc::kAttribute_ColorInput;
-        SkASSERT(!header->fUseNvpr);
-    }
-
-    bool hasVertexCoverage = !isPathRendering && descInfo.fHasVertexCoverage;
-
-    bool covIsSolidWhite = !hasVertexCoverage && 0xffffffff == optState.getCoverageColor();
-
-    if (covIsSolidWhite || !inputCoverageIsUsed) {
-        header->fCoverageInput = GrProgramDesc::kAllOnes_ColorInput;
-    } else if (!hasVertexCoverage) {
-        header->fCoverageInput = GrProgramDesc::kUniform_ColorInput;
-    } else {
-        header->fCoverageInput = GrProgramDesc::kAttribute_ColorInput;
-        SkASSERT(!header->fUseNvpr);
     }
 
     if (descInfo.fReadsDst) {

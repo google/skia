@@ -23,10 +23,12 @@ public:
     GrGLGeometryProcessor() {}
     virtual ~GrGLGeometryProcessor() {}
 
+    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
+
     struct EmitArgs {
         EmitArgs(GrGLGPBuilder* pb,
-                 const GrGeometryProcessor& gp,
+                 const GrPrimitiveProcessor& gp,
                  const GrBatchTracker& bt,
                  const char* outputColor,
                  const char* outputCoverage,
@@ -38,12 +40,13 @@ public:
             , fOutputCoverage(outputCoverage)
             , fSamplers(samplers) {}
         GrGLGPBuilder* fPB;
-        const GrGeometryProcessor& fGP;
+        const GrPrimitiveProcessor& fGP;
         const GrBatchTracker& fBT;
         const char* fOutputColor;
         const char* fOutputCoverage;
         const TextureSamplerArray& fSamplers;
     };
+
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
      * This allows the effect subclass to emit vertex code.
@@ -56,8 +59,20 @@ public:
         parameter is guaranteed to be of the same type that created this GrGLGeometryProcessor and
         to have an identical processor key as the one that created this GrGLGeometryProcessor.  */
     virtual void setData(const GrGLProgramDataManager&,
-                         const GrGeometryProcessor&,
+                         const GrPrimitiveProcessor&,
                          const GrBatchTracker&) = 0;
+
+protected:
+    /** a helper which can setup vertex, constant, or uniform color depending on inputType.
+     *  This function will only do the minimum required to emit the correct shader code.  If
+     *  inputType == attribute, then colorAttr must not be NULL.  Likewise, if inputType == Uniform
+     *  then colorUniform must not be NULL.
+     */
+    void setupColorPassThrough(GrGLGPBuilder* pb,
+                               GrGPInput inputType,
+                               const char* inputName,
+                               const GrGeometryProcessor::GrAttribute* colorAttr,
+                               UniformHandle* colorUniform);
 
 private:
     typedef GrGLProcessor INHERITED;

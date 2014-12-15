@@ -260,7 +260,7 @@ private:
     };
 
     CmdBuffer                           fCmdBuffer;
-    const GrOptDrawState*               fPrevState;
+    GrOptDrawState*                     fPrevState;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
     SkTDArray<char>                     fPathIndexBuffer;
     SkTDArray<float>                    fPathTransformBuffer;

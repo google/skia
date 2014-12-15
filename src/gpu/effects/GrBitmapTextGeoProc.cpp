@@ -14,22 +14,30 @@
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
+struct BitmapTextBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+};
+
 class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&) {}
+    GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
+        : fColor(GrColor_ILLEGAL) {}
 
     virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
+        const BitmapTextBatchTracker& local = args.fBT.cast<BitmapTextBatchTracker>();
 
-        GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+        GrGLGPBuilder* pb = args.fPB;
+        GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
         GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        pb->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), cte.inTextureCoords()->fName);
 
-        if (cte.inColor()) {
-            args.fPB->addPassThroughAttribute(cte.inColor(), args.fOutputColor);
-        }
+        // Setup pass through color
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, cte.inColor(),
+                                    &fColorUniform);
 
         // setup output coords
         vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), cte.inPosition()->fName);
@@ -39,27 +47,41 @@ public:
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
                                vsBuilder->uViewM(), cte.inPosition()->fName);
 
-        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLGPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("%s = ", args.fOutputCoverage);
         fsBuilder->appendTextureLookup(args.fSamplers[0], v.fsIn(), kVec2f_GrSLType);
         fsBuilder->codeAppend(";");
     }
 
-    virtual void setData(const GrGLProgramDataManager&,
-                         const GrGeometryProcessor&,
-                         const GrBatchTracker&) SK_OVERRIDE {}
-
-    static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrBatchTracker&,
-                              const GrGLCaps&,
-                              GrProcessorKeyBuilder* b) {
-        const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
-
-        b->add32(SkToBool(gp.inColor()));
+    virtual void setData(const GrGLProgramDataManager& pdman,
+                         const GrPrimitiveProcessor& gp,
+                         const GrBatchTracker& bt) SK_OVERRIDE {
+        const BitmapTextBatchTracker& local = bt.cast<BitmapTextBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+            GrGLfloat c[4];
+            GrColorToRGBAFloat(local.fColor, c);
+            pdman.set4fv(fColorUniform, 1, c);
+            fColor = local.fColor;
+        }
     }
 
+    static inline void GenKey(const GrGeometryProcessor& proc,
+                              const GrBatchTracker& bt,
+                              const GrGLCaps&,
+                              GrProcessorKeyBuilder* b) {
+        const BitmapTextBatchTracker& local = bt.cast<BitmapTextBatchTracker>();
+        // We have to put the optional vertex attribute as part of the key.  See the comment
+        // on addVertexAttrib.
+        // TODO When we have deferred geometry we can fix this
+        const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
+        b->add32(SkToBool(gp.inColor()));
+        b->add32(local.fInputColorType);
+    }
 
 private:
+    GrColor fColor;
+    UniformHandle fColorUniform;
+
     typedef GrGLGeometryProcessor INHERITED;
 };
 
@@ -107,6 +129,20 @@ GrGLGeometryProcessor*
 GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt) const {
     return SkNEW_ARGS(GrGLBitmapTextGeoProc, (*this, bt));
 }
+
+void GrBitmapTextGeoProc::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+    BitmapTextBatchTracker* local = bt->cast<BitmapTextBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
+                                               SkToBool(fInColor));
+}
+
+bool GrBitmapTextGeoProc::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+    const BitmapTextBatchTracker& mine = m.cast<BitmapTextBatchTracker>();
+    const BitmapTextBatchTracker& theirs = t.cast<BitmapTextBatchTracker>();
+    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);

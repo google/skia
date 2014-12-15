@@ -32,22 +32,54 @@ public:
     const GrAttribute* inColor() const { return fInColor; }
     const GrAttribute* inLocalCoords() const { return fInLocalCoords; }
     const GrAttribute* inCoverage() const { return fInCoverage; }
+    uint8_t coverage() const { return fCoverage; }
+
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE {
+        BatchTracker* local = bt->cast<BatchTracker>();
+        local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
+                                                   SkToBool(fInColor));
+
+        bool hasVertexCoverage = SkToBool(fInCoverage) && !init.fCoverageIgnored;
+        bool covIsSolidWhite = !hasVertexCoverage && 0xff == this->coverage();
+        if (covIsSolidWhite) {
+            local->fInputCoverageType = kAllOnes_GrGPInput;
+        } else if (!hasVertexCoverage) {
+            local->fInputCoverageType = kUniform_GrGPInput;
+            local->fCoverage = this->coverage();
+        } else if (hasVertexCoverage) {
+            SkASSERT(fInCoverage);
+            local->fInputCoverageType = kAttribute_GrGPInput;
+        } else {
+            local->fInputCoverageType = kIgnored_GrGPInput;
+        }
+    }
+
+    bool onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const SK_OVERRIDE {
+        const BatchTracker& mine = m.cast<BatchTracker>();
+        const BatchTracker& theirs = t.cast<BatchTracker>();
+        return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                                theirs.fInputColorType, theirs.fColor) &&
+               CanCombineOutput(mine.fInputCoverageType, mine.fCoverage,
+                                theirs.fInputCoverageType, theirs.fCoverage);
+    }
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrGeometryProcessor&,
-                    const GrBatchTracker&) {}
+        GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
+            : fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
-            GrGLVertexBuilder* vs = args.fPB->getVertexShaderBuilder();
+            GrGLGPBuilder* pb = args.fPB;
+            GrGLVertexBuilder* vs = pb->getVertexShaderBuilder();
+            GrGLGPFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+            const BatchTracker& local = args.fBT.cast<BatchTracker>();
 
             vs->codeAppendf("%s = %s;", vs->positionCoords(), gp.inPosition()->fName);
 
             // Setup pass through color
-            if (gp.inColor()) {
-                args.fPB->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
-            }
+            this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, gp.inColor(),
+                                        &fColorUniform);
 
             // Setup local coords if needed
             if (gp.inLocalCoords()) {
@@ -61,27 +93,57 @@ public:
                             gp.inPosition()->fName);
 
             // Setup coverage as pass through
-            GrGLGPFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
-            fs->codeAppendf("float alpha = 1.0;");
-            if (gp.inCoverage()) {
+            if (kUniform_GrGPInput == local.fInputCoverageType) {
+                const char* fragCoverage;
+                fCoverageUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                  kFloat_GrSLType,
+                                                  kDefault_GrSLPrecision,
+                                                  "Coverage",
+                                                  &fragCoverage);
+                fs->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
+            } else if (kAttribute_GrGPInput == local.fInputCoverageType) {
+                SkASSERT(gp.inCoverage());
+                fs->codeAppendf("float alpha = 1.0;");
                 args.fPB->addPassThroughAttribute(gp.inCoverage(), "alpha");
+                fs->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+            } else if (kAllOnes_GrGPInput == local.fInputCoverageType) {
+                fs->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
             }
-            fs->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrBatchTracker&,
+                                  const GrBatchTracker& bt,
                                   const GrGLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             b->add32(def.fFlags);
+
+            const BatchTracker& local = bt.cast<BatchTracker>();
+            b->add32(local.fInputColorType | local.fInputCoverageType << 16);
         }
 
-        virtual void setData(const GrGLProgramDataManager&,
-                             const GrGeometryProcessor&,
-                             const GrBatchTracker&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager& pdman,
+                             const GrPrimitiveProcessor& gp,
+                             const GrBatchTracker& bt) SK_OVERRIDE {
+            const BatchTracker& local = bt.cast<BatchTracker>();
+            if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+                GrGLfloat c[4];
+                GrColorToRGBAFloat(local.fColor, c);
+                pdman.set4fv(fColorUniform, 1, c);
+                fColor = local.fColor;
+            }
+            if (kUniform_GrGPInput == local.fInputCoverageType && local.fCoverage != fCoverage) {
+                pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(local.fCoverage));
+                fCoverage = local.fCoverage;
+            }
+        }
 
     private:
+        GrColor fColor;
+        uint8_t fCoverage;
+        UniformHandle fColorUniform;
+        UniformHandle fCoverageUniform;
+
         typedef GrGLGeometryProcessor INHERITED;
     };
 
@@ -97,11 +159,12 @@ public:
 
 private:
     DefaultGeoProc(GrColor color, uint8_t coverage, uint32_t gpTypeFlags, bool opaqueVertexColors)
-        : INHERITED(color, opaqueVertexColors, coverage)
+        : INHERITED(color, opaqueVertexColors)
         , fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
         , fInCoverage(NULL)
+        , fCoverage(coverage)
         , fFlags(gpTypeFlags) {
         this->initClassID<DefaultGeoProc>();
         bool hasColor = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kColor_GPType);
@@ -120,7 +183,6 @@ private:
         if (hasCoverage) {
             fInCoverage = &this->addVertexAttrib(GrAttribute("inCoverage",
                                                              kFloat_GrVertexAttribType));
-            this->setHasVertexCoverage();
         }
     }
 
@@ -138,10 +200,18 @@ private:
         }
     }
 
+    struct BatchTracker {
+        GrGPInput fInputColorType;
+        GrGPInput fInputCoverageType;
+        GrColor  fColor;
+        GrColor  fCoverage;
+    };
+
     const GrAttribute* fInPosition;
     const GrAttribute* fInColor;
     const GrAttribute* fInLocalCoords;
     const GrAttribute* fInCoverage;
+    uint8_t fCoverage;
     uint32_t fFlags;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;

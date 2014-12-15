@@ -37,24 +37,17 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, G
     const GrGLProgramDescBuilder::GLKeyHeader& header = GrGLProgramDescBuilder::GetHeader(pb->desc());
 
     // emit code to read the dst copy texture, if necessary
-    if (GrGLFragmentShaderBuilder::kNoDstRead_DstReadKey != header.fDstReadKey
-            && !gpu->glCaps().fbFetchSupport()) {
+    if (GrGLFragmentShaderBuilder::kNoDstRead_DstReadKey != header.fDstReadKey &&
+        !gpu->glCaps().fbFetchSupport()) {
         pb->fFS.emitCodeToReadDstTexture();
     }
 
-    // get the initial color and coverage to feed into the first effect in each effect chain
-    GrGLSLExpr4 inputColor;
-    GrGLSLExpr1 inputCoverage;
-    pb->setupUniformColorAndCoverageIfNeeded(&inputColor,  &inputCoverage);
-
     // TODO: Once all stages can handle taking a float or vec4 and correctly handling them we can
-    // remove this cast to a vec4.
-    GrGLSLExpr4 inputCoverageVec4;
-    if (inputCoverage.isValid()) {
-        inputCoverageVec4 = GrGLSLExpr4::VectorCast(inputCoverage);
-    }
+    // seed correctly here
+    GrGLSLExpr4 inputColor;
+    GrGLSLExpr4 inputCoverage;
 
-    pb->emitAndInstallProcs(&inputColor, &inputCoverageVec4);
+    pb->emitAndInstallProcs(&inputColor, &inputCoverage);
 
     return pb->finalize();
 }
@@ -65,8 +58,6 @@ GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawStat
     const GrProgramDesc& desc = optState.programDesc();
     if (GrGLProgramDescBuilder::GetHeader(desc).fUseNvpr) {
         SkASSERT(gpu->glCaps().pathRenderingSupport());
-        SkASSERT(GrProgramDesc::kAttribute_ColorInput != desc.header().fColorInput);
-        SkASSERT(GrProgramDesc::kAttribute_ColorInput != desc.header().fCoverageInput);
         SkASSERT(!hasGeometryProcessor);
         if (gpu->glPathRendering()->texturingMode() ==
             GrGLPathRendering::FixedFunction_TexturingMode) {
@@ -185,36 +176,10 @@ const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
     return fGpu->ctxInfo();
 }
 
-void GrGLProgramBuilder::setupUniformColorAndCoverageIfNeeded(GrGLSLExpr4* inputColor,
-                                                              GrGLSLExpr1* inputCoverage) {
-    const GrProgramDesc::KeyHeader& header = this->header();
-    if (GrProgramDesc::kUniform_ColorInput == header.fColorInput) {
-        const char* name;
-        fUniformHandles.fColorUni =
-            this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                             kVec4f_GrSLType, kDefault_GrSLPrecision,
-                             "Color", &name);
-        *inputColor = GrGLSLExpr4(name);
-    } else if (GrProgramDesc::kAllOnes_ColorInput == header.fColorInput) {
-        *inputColor = GrGLSLExpr4(1);
-    }
-    if (GrProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
-        const char* name;
-        fUniformHandles.fCoverageUni =
-            this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                             kFloat_GrSLType, kDefault_GrSLPrecision,
-                             "Coverage",&name);
-        *inputCoverage = GrGLSLExpr1(name);
-    } else if (GrProgramDesc::kAllOnes_ColorInput == header.fCoverageInput) {
-        *inputCoverage = GrGLSLExpr1(1);
-    }
-}
-
 void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
     if (fOptState.hasGeometryProcessor()) {
         fVS.setupUniformViewMatrix();
 
-        const GrProgramDesc::KeyHeader& header = this->header();
         fVS.codeAppend("gl_PointSize = 1.0;");
 
         // Setup position
@@ -227,24 +192,10 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
 
         const GrGeometryProcessor& gp = *fOptState.getGeometryProcessor();
         fVS.emitAttributes(gp);
-        GrGLSLExpr4 outputColor;
-        GrGLSLExpr4 outputCoverage;
-        this->emitAndInstallProc(gp, &outputColor, &outputCoverage);
-
-        // We may override color and coverage here if we have unform color or coverage.  This is
-        // obviously not ideal.
-        // TODO lets the GP itself do the override
-        if (GrProgramDesc::kAttribute_ColorInput == header.fColorInput) {
-            *inputColor = outputColor;
-        }
-
-        // We may have uniform coverage, if so we need to multiply the GPs output by the uniform
-        // coverage
-        if (GrProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
-            fFS.codeAppendf("%s *= %s;", outputCoverage.c_str(), inputCoverage->c_str());
-        }
-        *inputCoverage = outputCoverage;
     }
+
+    const GrPrimitiveProcessor& primProc = *fOptState.getPrimitiveProcessor();
+    this->emitAndInstallProc(primProc, inputColor, inputCoverage);
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
     int numProcs = fOptState.numFragmentStages();
@@ -303,7 +254,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& proc,
     fFS.codeAppend("}");
 }
 
-void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& proc,
+void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& proc,
                                             GrGLSLExpr4* outputColor,
                                             GrGLSLExpr4* outputCoverage) {
     // Program builders have a bit of state we need to clear with each effect
@@ -344,7 +295,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
     fFragmentProcessors->fProcs.push_back(ifp);
 }
 
-void GrGLProgramBuilder::emitAndInstallProc(const GrGeometryProcessor& gp,
+void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
                                             const char* outColor,
                                             const char* outCoverage) {
     SkASSERT(!fGeometryProcessor);
@@ -403,7 +354,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     fFS.codeAppend("}");
 }
 
-void GrGLProgramBuilder::verify(const GrGeometryProcessor& gp) {
+void GrGLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
     SkASSERT(fFS.hasReadFragmentPosition() == gp.willReadFragmentPosition());
 }
 
@@ -489,11 +440,6 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     // compile shaders and bind attributes / uniforms
     SkTDArray<GrGLuint> shadersToDelete;
-    if (!fFS.compileAndAttachShaders(programID, &shadersToDelete)) {
-        this->cleanupProgram(programID, shadersToDelete);
-        return NULL;
-    }
-
     if (!(GrGLProgramDescBuilder::GetHeader(fDesc).fUseNvpr &&
           fGpu->glPathRendering()->texturingMode() ==
           GrGLPathRendering::FixedFunction_TexturingMode)) {
@@ -507,6 +453,12 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             fVS.bindVertexAttributes(programID);
         }
     }
+
+    if (!fFS.compileAndAttachShaders(programID, &shadersToDelete)) {
+        this->cleanupProgram(programID, shadersToDelete);
+        return NULL;
+    }
+
     bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
     if (usingBindUniform) {
         this->bindUniformLocations(programID);

@@ -28,7 +28,6 @@ public:
         , fFirstEffectStageIndex(0)
         , fInputColorIsUsed(true)
         , fInputColor(0)
-        , fRemoveVertexAttrib(false)
         , fReadsDst(false)
         , fReadsFragPosition(false) {}
 
@@ -76,12 +75,6 @@ public:
     GrColor inputColorToEffectiveStage() const { return fInputColor; }
 
     /**
-     * Given the set of optimizations determined by GrProcOptInfo, should the caller remove the
-     * color/coverage vertex attribute that was input to the first stage.
-     */
-    bool removeVertexAttrib() const { return fRemoveVertexAttrib; }
-
-    /**
      * Returns true if any of the stages preserved by GrProcOptInfo read the dst color.
      */
     bool readsDst() const { return fReadsDst; }
@@ -98,7 +91,6 @@ private:
     int fFirstEffectStageIndex;
     bool fInputColorIsUsed;
     GrColor fInputColor;
-    bool fRemoveVertexAttrib;
     bool fReadsDst;
     bool fReadsFragPosition;
 };

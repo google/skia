@@ -54,16 +54,6 @@ public:
         return memcmp(a.asKey(), b.asKey(), a.keyLength() & ~0x3) < 0;
     }
 
-
-    // Specifies where the initial color comes from before the stages are applied.
-    enum ColorInput {
-        kAllOnes_ColorInput,
-        kAttribute_ColorInput,
-        kUniform_ColorInput,
-
-        kColorInputCnt
-    };
-
     struct KeyHeader {
         uint8_t                     fDstReadKey;   // set by GrGLShaderBuilder if there
                                                    // are effects that must read the dst.
@@ -72,18 +62,9 @@ public:
                                                    // effects that read the fragment position.
                                                    // Otherwise, 0.
 
-        ColorInput                  fColorInput : 8;
-        ColorInput                  fCoverageInput : 8;
-
-        SkBool8                     fHasGeometryProcessor;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
     };
-
-
-    bool hasGeometryProcessor() const {
-        return SkToBool(this->header().fHasGeometryProcessor);
-    }
 
     int numColorEffects() const {
         return this->header().fColorEffectCnt;
@@ -101,31 +82,17 @@ public:
     // A struct to communicate descriptor information to the program descriptor builder
     struct DescInfo {
         bool operator==(const DescInfo& that) const {
-            return fHasVertexColor == that.fHasVertexColor &&
-                   fHasVertexCoverage == that.fHasVertexCoverage &&
-                   fInputColorIsUsed == that.fInputColorIsUsed &&
-                   fInputCoverageIsUsed == that.fInputCoverageIsUsed &&
-                   fReadsDst == that.fReadsDst &&
+            return fReadsDst == that.fReadsDst &&
                    fReadsFragPosition == that.fReadsFragPosition &&
                    fRequiresLocalCoordAttrib == that.fRequiresLocalCoordAttrib;
         }
         bool operator!=(const DescInfo& that) const { return !(*this == that); };
-        // TODO when GPs control uniform / attribute handling of color / coverage, then we can
-        // clean this up
-        bool            fHasVertexColor;
-        bool            fHasVertexCoverage;
-
-        // These flags are needed to protect the code from creating an unused uniform color/coverage
-        // which will cause shader compiler errors.
-        bool            fInputColorIsUsed;
-        bool            fInputCoverageIsUsed;
 
         // These flags give aggregated info on the processor stages that are used when building
         // programs.
         bool            fReadsDst;
         bool            fReadsFragPosition;
         bool            fRequiresLocalCoordAttrib;
-
     };
 
 private:

@@ -519,15 +519,23 @@ public:
     class GLProcessor : public GrGLGeometryProcessor {
     public:
         GLProcessor(const GrGeometryProcessor&,
-                    const GrBatchTracker&) {}
+                    const GrBatchTracker&)
+            : fColor(GrColor_ILLEGAL) {}
 
         virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
-            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLGPBuilder* pb = args.fPB;
+            GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
             GrGLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("QuadEdge", &v);
             vsBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
+
+            const BatchTracker& local = args.fBT.cast<BatchTracker>();
+
+            // Setup pass through color
+            this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
+                                        &fColorUniform);
 
             // setup coord outputs
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), qe.inPosition()->fName);
@@ -562,16 +570,30 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static inline void GenKey(const GrGeometryProcessor&,
-                                  const GrBatchTracker&,
+        static inline void GenKey(const GrGeometryProcessor& gp,
+                                  const GrBatchTracker& bt,
                                   const GrGLCaps&,
-                                  GrProcessorKeyBuilder*) {}
+                                  GrProcessorKeyBuilder* b) {
+            const BatchTracker& local = bt.cast<BatchTracker>();
+            b->add32(local.fInputColorType);
+        }
 
-        virtual void setData(const GrGLProgramDataManager&,
-                             const GrGeometryProcessor&,
-                             const GrBatchTracker&) SK_OVERRIDE {}
+        virtual void setData(const GrGLProgramDataManager& pdman,
+                             const GrPrimitiveProcessor& gp,
+                             const GrBatchTracker& bt) SK_OVERRIDE {
+            const BatchTracker& local = bt.cast<BatchTracker>();
+            if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+                GrGLfloat c[4];
+                GrColorToRGBAFloat(local.fColor, c);
+                pdman.set4fv(fColorUniform, 1, c);
+                fColor = local.fColor;
+            }
+        }
 
     private:
+        GrColor fColor;
+        UniformHandle fColorUniform;
+
         typedef GrGLGeometryProcessor INHERITED;
     };
 
@@ -583,6 +605,18 @@ public:
 
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
+    }
+
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE {
+        BatchTracker* local = bt->cast<BatchTracker>();
+        local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+    }
+
+    bool onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const SK_OVERRIDE {
+        const BatchTracker& mine = m.cast<BatchTracker>();
+        const BatchTracker& theirs = t.cast<BatchTracker>();
+        return CanCombineOutput(mine.fInputColorType, mine.fColor,
+                                theirs.fInputColorType, theirs.fColor);
     }
 
 private:
@@ -599,6 +633,11 @@ private:
     virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
+
+    struct BatchTracker {
+        GrGPInput fInputColorType;
+        GrColor fColor;
+    };
 
     const GrAttribute* fInPosition;
     const GrAttribute* fInQuadEdge;
