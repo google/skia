@@ -357,11 +357,11 @@ struct SK_API SkPoint {
         accum *= fY;
 
         // accum is either NaN or it is finite (zero).
-        SkASSERT(0 == accum || !(accum == accum));
+        SkASSERT(0 == accum || SkScalarIsNaN(accum));
 
         // value==value will be true iff value is not NaN
         // TODO: is it faster to say !accum or accum==accum?
-        return accum == accum;
+        return !SkScalarIsNaN(accum);
     }
 
     /**
