@@ -167,6 +167,9 @@
         ],
       }],
       ['skia_os == "mac"', {
+        'xcode_settings': {
+            'WARNING_CFLAGS': [ '-w' ],
+        },
         'defines=': [             # equals sign throws away most Skia defines (just noise)
           'HAVE_ARPA_INET_H',
           'HAVE_DLFCN_H',
