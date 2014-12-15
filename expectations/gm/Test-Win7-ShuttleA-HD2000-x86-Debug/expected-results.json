@@ -3118,25 +3118,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3041043330243503378
+          13704846814439755592
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "circles_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9296850955490059248
+          604063245594620413
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "circles_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6229457548275204977
+          12071530734943276754
         ]
       ], 
       "ignore-failure": false, 

@@ -110,7 +110,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8468493776322173983
+          17449620971283104366
         ]
       ], 
       "ignore-failure": false, 
@@ -2986,25 +2986,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3041043330243503378
+          13704846814439755592
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "circles_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9296850955490059248
+          604063245594620413
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "circles_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17014584312233827477
+          12261983013963354472
         ]
       ], 
       "ignore-failure": false, 
@@ -3014,7 +3016,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15006037521288338420
+          15368948170383602743
         ]
       ], 
       "ignore-failure": false, 
@@ -9539,7 +9541,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4762772217717068743
+          2770240334779298309
         ]
       ], 
       "reviewed-by-human": true
@@ -11412,7 +11414,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12505620493043746479
+          15920682108512684497
         ]
       ], 
       "reviewed-by-human": true
@@ -11763,7 +11765,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5394531733172722753
+          11413503683611933418
         ]
       ], 
       "reviewed-by-human": true
@@ -11799,7 +11801,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17243212876196171417
+          17054873974744207470
         ]
       ], 
       "reviewed-by-human": true
@@ -11835,7 +11837,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5658828779265323977
+          11616404939611124565
         ]
       ], 
       "reviewed-by-human": true
@@ -11871,7 +11873,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14919387848725047009
+          7724584054002852732
         ]
       ], 
       "reviewed-by-human": true
@@ -13357,7 +13359,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16226603286091138884
+          8055481804157026472
         ]
       ], 
       "reviewed-by-human": true
@@ -13393,7 +13395,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2102847291135711729
+          954015323368167147
         ]
       ], 
       "reviewed-by-human": true

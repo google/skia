@@ -148,7 +148,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1084861357173659700
+          2276587902598112735
         ]
       ], 
       "reviewed-by-human": true
@@ -4759,31 +4759,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3041043330243503378
+          13704846814439755592
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9296850955490059248
+          604063245594620413
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13087200485223831696
+          10280747126029886845
         ]
       ], 
       "reviewed-by-human": true
@@ -4792,22 +4786,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15892033401105313243
+          5178953865930177233
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15978659878615225235
+          5233862651502520805
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_pdf-poppler.png": {
       "allowed-digests": [
@@ -12982,7 +12973,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18218703782572769691
+          5309611196909681654
         ]
       ], 
       "reviewed-by-human": true
@@ -14708,7 +14699,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6174158406384865480
+          13701778428591789641
         ]
       ], 
       "reviewed-by-human": true
@@ -17410,7 +17401,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16939033811588956813
+          17362147000047646706
         ]
       ], 
       "reviewed-by-human": true
