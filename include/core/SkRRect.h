@@ -292,13 +292,9 @@ public:
      */
     bool transform(const SkMatrix& matrix, SkRRect* dst) const;
 
-#ifdef SK_DEVELOPER
-    /**
-     * Prints the rrect using SkDebugf. This is intended for Skia development debugging. Don't
-     * rely on the existence of this function or the formatting of its output.
-     */
-    void dump() const;
-#endif
+    void dump(bool asHex) const;
+    void dump() const { this->dump(false); }
+    void dumpHex() const { this->dump(true); }
 
 private:
     SkRect fRect;

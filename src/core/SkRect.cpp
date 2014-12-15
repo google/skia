@@ -130,3 +130,35 @@ void SkRect::join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) 
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkString.h"
+#include "SkStringUtils.h"
+
+static const char* set_scalar(SkString* storage, SkScalar value, SkScalarAsStringType asType) {
+    storage->reset();
+    SkAppendScalar(storage, value, asType);
+    return storage->c_str();
+}
+
+void SkRect::dump(bool asHex) const {
+    SkScalarAsStringType asType = asHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
+
+    SkString line;
+    if (asHex) {
+        SkString tmp;
+        line.printf( "SkRect::MakeLTRB(%s, /* %f */\n", set_scalar(&tmp, fLeft, asType), fLeft);
+        line.appendf("                 %s, /* %f */\n", set_scalar(&tmp, fTop, asType), fTop);
+        line.appendf("                 %s, /* %f */\n", set_scalar(&tmp, fRight, asType), fRight);
+        line.appendf("                 %s  /* %f */);", set_scalar(&tmp, fBottom, asType), fBottom);
+    } else {
+        SkString strL, strT, strR, strB;
+        SkAppendScalarDec(&strL, fLeft);
+        SkAppendScalarDec(&strT, fTop);
+        SkAppendScalarDec(&strR, fRight);
+        SkAppendScalarDec(&strB, fBottom);
+        line.printf("SkRect::MakeLTRB(%s, %s, %s, %s);",
+                    strL.c_str(), strT.c_str(), strR.c_str(), strB.c_str());
+    }
+    SkDebugf("%s\n", line.c_str());
+}

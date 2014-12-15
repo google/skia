@@ -862,16 +862,9 @@ public:
      */
     const SkScalar* asScalars() const { return &fLeft; }
 
-#ifdef SK_DEVELOPER
-    /**
-     * Dumps the rect using SkDebugf. This is intended for Skia development debugging. Don't
-     * rely on the existence of this function or the formatting of its output.
-     */
-    void dump() const {
-        SkDebugf("{ l: %f, t: %f, r: %f, b: %f }", fLeft, fTop, fRight, fBottom);
-    }
-#endif
-
+    void dump(bool asHex) const;
+    void dump() const { this->dump(false); }
+    void dumpHex() const { this->dump(true); }
 };
 
 #endif

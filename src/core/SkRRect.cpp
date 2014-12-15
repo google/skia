@@ -445,17 +445,27 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     return kSizeInMemory;
 }
 
-#ifdef SK_DEVELOPER
-void SkRRect::dump() const {
-    SkDebugf("Rect: ");
-    fRect.dump();
-    SkDebugf(" Corners: { TL: (%f, %f), TR: (%f, %f), BR: (%f, %f), BL: (%f, %f) }",
-             fRadii[kUpperLeft_Corner].fX,  fRadii[kUpperLeft_Corner].fY,
-             fRadii[kUpperRight_Corner].fX, fRadii[kUpperRight_Corner].fY,
-             fRadii[kLowerRight_Corner].fX, fRadii[kLowerRight_Corner].fY,
-             fRadii[kLowerLeft_Corner].fX,  fRadii[kLowerLeft_Corner].fY);
+#include "SkString.h"
+#include "SkStringUtils.h"
+
+void SkRRect::dump(bool asHex) const {
+    SkScalarAsStringType asType = asHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
+
+    fRect.dump(asHex);
+    SkString line("const SkPoint corners[] = {\n");
+    for (int i = 0; i < 4; ++i) {
+        SkString strX, strY;
+        SkAppendScalar(&strX, fRadii[i].x(), asType);
+        SkAppendScalar(&strY, fRadii[i].y(), asType);
+        line.appendf("    { %s, %s },", strX.c_str(), strY.c_str());
+        if (asHex) {
+            line.appendf(" /* %f %f */", fRadii[i].x(), fRadii[i].y());
+        }
+        line.append("\n");
+    }
+    line.append("};");
+    SkDebugf("%s\n", line.c_str());
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

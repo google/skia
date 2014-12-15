@@ -20,4 +20,19 @@ void SkAddFlagToString(SkString* string, bool flag,
                        const char* flagStr, bool* needSeparator);
 
 
+enum SkScalarAsStringType {
+    kDec_SkScalarAsStringType,
+    kHex_SkScalarAsStringType,
+};
+
+void SkAppendScalar(SkString*, SkScalar, SkScalarAsStringType);
+
+static inline void SkAppendScalarDec(SkString* str, SkScalar value) {
+    SkAppendScalar(str, value, kDec_SkScalarAsStringType);
+}
+
+static inline void SkAppendScalarHex(SkString* str, SkScalar value) {
+    SkAppendScalar(str, value, kHex_SkScalarAsStringType);
+}
+
 #endif
