@@ -1237,6 +1237,21 @@ void SkPaint::getPosTextPath(const void* textData, size_t length,
     }
 }
 
+SkRect SkPaint::getFontBounds() const {
+    SkMatrix m;
+    m.setScale(fTextSize * fTextScaleX, fTextSize);
+    m.postSkew(fTextSkewX, 0);
+
+    SkTypeface* typeface = this->getTypeface();
+    if (NULL == typeface) {
+        typeface = SkTypeface::GetDefaultTypeface();
+    }
+
+    SkRect bounds;
+    m.mapRect(&bounds, typeface->getBounds());
+    return bounds;
+}
+
 static void add_flattenable(SkDescriptor* desc, uint32_t tag,
                             SkWriteBuffer* buffer) {
     buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), NULL));

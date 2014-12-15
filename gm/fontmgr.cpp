@@ -15,13 +15,6 @@
     #include "SkTypeface_win.h"
 #endif
 
-static void scale(SkRect* rect, SkScalar scale) {
-    rect->fLeft *= scale;
-    rect->fTop *= scale;
-    rect->fRight *= scale;
-    rect->fBottom *= scale;
-}
-
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30
 
@@ -233,8 +226,14 @@ private:
 
 class FontMgrBoundsGM : public skiagm::GM {
 public:
-    FontMgrBoundsGM() {
+    FontMgrBoundsGM(double scale, double skew)
+        : fScaleX(SkDoubleToScalar(scale))
+        , fSkewX(SkDoubleToScalar(skew))
+    {
         fName.set("fontmgr_bounds");
+        if (scale != 1 || skew != 0) {
+            fName.appendf("_%g_%g", scale, skew);
+        }
         fFM.reset(SkFontMgr::RefDefault());
     }
 
@@ -242,13 +241,11 @@ public:
                             SkColor boundsColor) {
         const char str[] = "jyHO[]{}@-_&%$";
 
-        const SkTypeface* tf = paint.getTypeface();
         for (int i = 0; str[i]; ++i) {
             canvas->drawText(&str[i], 1, x, y, paint);
         }
         
-        SkRect r = tf->getBounds();
-        scale(&r, paint.getTextSize());
+        SkRect r = paint.getFontBounds();
         r.offset(x, y);
         SkPaint p(paint);
         p.setColor(boundsColor);
@@ -270,6 +267,8 @@ protected:
         paint.setSubpixelText(true);
         paint.setTextSize(100);
         paint.setStyle(SkPaint::kStroke_Style);
+        paint.setTextScaleX(fScaleX);
+        paint.setTextSkewX(fSkewX);
 
         const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
         
@@ -314,14 +313,17 @@ protected:
 private:
     SkAutoTUnref<SkFontMgr> fFM;
     SkString fName;
+    SkScalar fScaleX, fSkewX;
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(FontMgrGM); )
-DEF_GM( return SkNEW(FontMgrBoundsGM); )
 DEF_GM( return SkNEW(FontMgrMatchGM); )
+DEF_GM( return SkNEW(FontMgrBoundsGM(1.0, 0)); )
+DEF_GM( return SkNEW(FontMgrBoundsGM(0.75, 0)); )
+DEF_GM( return SkNEW(FontMgrBoundsGM(1.0, -0.25)); )
 
 #ifdef SK_BUILD_FOR_WIN
     DEF_GM( return SkNEW_ARGS(FontMgrGM, (SkFontMgr_New_DirectWrite())); )

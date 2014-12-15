@@ -921,6 +921,14 @@ public:
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
 
+    /**
+     *  Return a rectangle that represents the union of the bounds of all
+     *  of the glyphs, but each one positioned at (0,0). This may be conservatively large, and
+     *  will not take into account any hinting, but will respect any text-scale-x or text-skew-x
+     *  on this paint.
+     */
+    SkRect getFontBounds() const;
+
     // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
     // mean that we need not draw at all (e.g. SrcOver + 0-alpha)
     bool nothingToDraw() const;
