@@ -157,6 +157,17 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkLCGRandom rand;
+        // Draw a giant AA circle as the background.
+        SkISize size = this->getISize();
+        SkScalar giantRadius = SkTMin(SkIntToScalar(size.fWidth),
+                                      SkIntToScalar(size.fHeight)) / 2.f;
+        SkPoint giantCenter = SkPoint::Make(SkIntToScalar(size.fWidth/2),
+                                            SkIntToScalar(size.fHeight/2));
+        SkPaint giantPaint;
+        giantPaint.setAntiAlias(true);
+        giantPaint.setColor(0x80808080);
+        canvas->drawCircle(giantCenter.fX, giantCenter.fY, giantRadius, giantPaint);
+        
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
         int i;
         for (i = 0; i < fPaints.count(); ++i) {

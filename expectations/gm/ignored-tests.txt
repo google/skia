@@ -59,3 +59,11 @@ drawbitmapmatrix
 
 #junov skbug.com/3176
 pictureimagefilter
+
+#bsalomon - circle normalization 12/11/2014
+aarectmodes
+hairmodes
+c_gms
+mixed_xfermodes
+circles
+roundrects

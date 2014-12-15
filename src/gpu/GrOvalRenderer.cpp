@@ -53,8 +53,14 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * The output of this effect is a modulation of the input color and coverage for a circle,
- * specified as offset_x, offset_y (both from center point), outer radius and inner radius.
+ * The output of this effect is a modulation of the input color and coverage for a circle. It
+ * operates in a space normalized by the circle radius (outer radius in the case of a stroke)
+ * with origin at the circle center. Two   vertex attributes are used:
+ *    vec2f : position in device space of the bounding geometry vertices
+ *    vec4f : (p.xy, outerRad, innerRad)
+ *             p is the position in the normalized space.
+ *             outerRad is the outerRadius in device space.
+ *             innerRad is the innerRadius in normalized space (ignored if not stroking).
  */
 
 class CircleEdgeEffect : public GrGeometryProcessor {
@@ -94,10 +100,10 @@ public:
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
-            fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z - d, 0.0, 1.0);", v.fsIn());
+            fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);", v.fsIn());
             if (ce.isStroked()) {
-                fsBuilder->codeAppendf("float innerAlpha = clamp(d - %s.w, 0.0, 1.0);",
-                                       v.fsIn());
+                fsBuilder->codeAppendf("float innerAlpha = clamp(%s.z * (d - %s.w), 0.0, 1.0);",
+                                       v.fsIn(), v.fsIn());
                 fsBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
@@ -574,10 +580,10 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
     CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
 
-    // The radii are outset for two reasons. First, it allows the shader to simply perform
-    // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
-    // verts of the bounding box that is rendered and the outset ensures the box will cover all
-    // pixels partially covered by the circle.
+    // The radii are outset for two reasons. First, it allows the shader to simply perform simpler
+    // computation because the computed alpha is zero, rather than 50%, at the radius.
+    // Second, the outer radius is used to compute the verts of the bounding box that is rendered
+    // and the outset ensures the box will cover all partially covered by the circle.
     outerRadius += SK_ScalarHalf;
     innerRadius -= SK_ScalarHalf;
 
@@ -588,23 +594,25 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         center.fY + outerRadius
     );
 
+    // The inner radius in the vertex data must be specified in normalized space.
+    innerRadius = innerRadius / outerRadius;
     verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
-    verts[0].fOffset = SkPoint::Make(-outerRadius, -outerRadius);
+    verts[0].fOffset = SkPoint::Make(-1, -1);
     verts[0].fOuterRadius = outerRadius;
     verts[0].fInnerRadius = innerRadius;
 
     verts[1].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
-    verts[1].fOffset = SkPoint::Make(-outerRadius, outerRadius);
+    verts[1].fOffset = SkPoint::Make(-1, 1);
     verts[1].fOuterRadius = outerRadius;
     verts[1].fInnerRadius = innerRadius;
 
     verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
-    verts[2].fOffset = SkPoint::Make(outerRadius, outerRadius);
+    verts[2].fOffset = SkPoint::Make(1, 1);
     verts[2].fOuterRadius = outerRadius;
     verts[2].fInnerRadius = innerRadius;
 
     verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
-    verts[3].fOffset = SkPoint::Make(outerRadius, -outerRadius);
+    verts[3].fOffset = SkPoint::Make(1, -1);
     verts[3].fOuterRadius = outerRadius;
     verts[3].fInnerRadius = innerRadius;
 
@@ -1083,9 +1091,10 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
-        // clamp(distance-to-center - radius, 0, 1). Second, the outer radius is used to compute the
-        // verts of the bounding box that is rendered and the outset ensures the box will cover all
-        // pixels partially covered by the circle.
+        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
+        // Second, the outer radius is used to compute the verts of the bounding box that is
+        // rendered and the outset ensures the box will cover all partially covered by the rrect
+        // corners.
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
 
@@ -1098,15 +1107,12 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
             bounds.fBottom - outerRadius,
             bounds.fBottom
         };
-        SkScalar yOuterRadii[4] = {
-            -outerRadius,
-            0,
-            0,
-            outerRadius
-        };
+        SkScalar yOuterRadii[4] = {-1, 0, 0, 1 };
+        // The inner radius in the vertex data must be specified in normalized space.
+        innerRadius = innerRadius / outerRadius;
         for (int i = 0; i < 4; ++i) {
             verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
-            verts->fOffset = SkPoint::Make(-outerRadius, yOuterRadii[i]);
+            verts->fOffset = SkPoint::Make(-1, yOuterRadii[i]);
             verts->fOuterRadius = outerRadius;
             verts->fInnerRadius = innerRadius;
             verts++;
@@ -1124,7 +1130,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
             verts++;
 
             verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
-            verts->fOffset = SkPoint::Make(outerRadius, yOuterRadii[i]);
+            verts->fOffset = SkPoint::Make(1, yOuterRadii[i]);
             verts->fOuterRadius = outerRadius;
             verts->fInnerRadius = innerRadius;
             verts++;
