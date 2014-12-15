@@ -1574,9 +1574,10 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     }
     target->copySurface(dst, src, srcRect, dstPoint);
 
-    if (kFlushWrites_PixelOp & pixelOpsFlags) {
-        this->flush();
-    }
+    // always flush, this is not the behavior of TOT Skia but some uses of GrContext copySurface
+    // in chrome rely on this behavior
+    // see crbug:440671
+    this->flush();
 }
 
 void GrContext::flushSurfaceWrites(GrSurface* surface) {
