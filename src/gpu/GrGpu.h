@@ -51,7 +51,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     GrGpu(GrContext* context);
-    virtual ~GrGpu();
+    ~GrGpu() SK_OVERRIDE;
 
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
@@ -357,21 +357,17 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
 
-    virtual void draw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&);
-    virtual void stencilPath(const GrOptDrawState&,
-                             const GrPath*,
-                             const GrStencilSettings&);
-    virtual void drawPath(const GrOptDrawState&,
-                          const GrPath*,
-                          const GrStencilSettings&);
-    virtual void drawPaths(const GrOptDrawState&,
-                           const GrPathRange*,
-                           const void* indices,
-                           GrDrawTarget::PathIndexType,
-                           const float transformValues[],
-                           GrDrawTarget::PathTransformType,
-                           int count,
-                           const GrStencilSettings&);
+    void draw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&);
+    void stencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&);
+    void drawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&);
+    void drawPaths(const GrOptDrawState&,
+                   const GrPathRange*,
+                   const void* indices,
+                   GrDrawTarget::PathIndexType,
+                   const float transformValues[],
+                   GrDrawTarget::PathTransformType,
+                   int count,
+                   const GrStencilSettings&);
 
     static DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
