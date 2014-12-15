@@ -3155,31 +3155,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12172421076130521234
+          6190256996082228208
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4393507105728647518
+          31213012513844570
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7050606813882678799
+          11341318943082103710
         ]
       ], 
       "reviewed-by-human": true
@@ -8354,7 +8348,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18062367760690003393
+          4486599978659897564
         ]
       ], 
       "reviewed-by-human": true
