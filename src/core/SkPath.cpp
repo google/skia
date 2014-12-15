@@ -1118,6 +1118,7 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         }
         this->close();
     }
+    SkDEBUGCODE(fPathRef->validate();)
 }
 
 bool SkPath::hasOnlyMoveTos() const {

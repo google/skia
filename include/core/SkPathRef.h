@@ -253,6 +253,8 @@ public:
      */
     uint32_t genID() const;
 
+    SkDEBUGCODE(void validate() const;)
+
 private:
     enum SerializationOffsets {
         kIsFinite_SerializationShift = 25,  // requires 1 bit
@@ -414,8 +416,6 @@ private:
     size_t currSize() const {
         return reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints);
     }
-
-    SkDEBUGCODE(void validate() const;)
 
     /**
      * Called the first time someone calls CreateEmpty to actually create the singleton.

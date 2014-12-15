@@ -21,6 +21,41 @@
 #include "SkWriter32.h"
 #include "Test.h"
 
+static void set_radii(SkVector radii[4], int index, float rad) {
+    sk_bzero(radii, sizeof(SkVector) * 4);
+    radii[index].set(rad, rad);
+}
+
+static void test_add_rrect(skiatest::Reporter* reporter, const SkRect& bounds,
+                           const SkVector radii[4]) {
+    SkRRect rrect;
+    rrect.setRectRadii(bounds, radii);
+    REPORTER_ASSERT(reporter, bounds == rrect.rect());
+
+    SkPath path;
+    // this line should not assert in the debug build (from validate)
+    path.addRRect(rrect);
+    REPORTER_ASSERT(reporter, bounds == path.getBounds());
+}
+
+static void test_skbug_3239(skiatest::Reporter* reporter) {
+    const float min = SkBits2Float(0xcb7f16c8); /* -16717512.000000 */
+    const float max = SkBits2Float(0x4b7f1c1d); /*  16718877.000000 */
+    const float big = SkBits2Float(0x4b7f1bd7); /*  16718807.000000 */
+
+    const float rad = 33436320;
+
+    const SkRect rectx = SkRect::MakeLTRB(min, min, max, big);
+    const SkRect recty = SkRect::MakeLTRB(min, min, big, max);
+
+    SkVector radii[4];
+    for (int i = 0; i < 4; ++i) {
+        set_radii(radii, i, rad);
+        test_add_rrect(reporter, rectx, radii);
+        test_add_rrect(reporter, recty, radii);
+    }
+}
+
 static void make_path_crbug364224(SkPath* path) {
     path->reset();
     path->moveTo(3.747501373f, 2.724499941f);
@@ -3729,4 +3764,5 @@ DEF_TEST(Paths, reporter) {
     PathRefTest_Private::TestPathRef(reporter);
     test_dump(reporter);
     test_path_crbugskia2820(reporter);
+    test_skbug_3239(reporter);
 }

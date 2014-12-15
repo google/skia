@@ -97,6 +97,32 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
     SkDEBUGCODE(this->validate();)
 }
 
+/*
+ *  TODO: clean this guy up and possibly add to SkScalar.h
+ */
+static inline SkScalar SkScalarDecULP(SkScalar value) {
+#if SK_SCALAR_IS_FLOAT
+        return SkBits2Float(SkFloat2Bits(value) - 1);
+#else
+    #error "need impl for doubles"
+#endif
+}
+
+static SkScalar clamp_radius_add(SkScalar rad, SkScalar min, SkScalar max) {
+    SkASSERT(rad <= max - min);
+    if (min + rad > max) {
+        rad = SkScalarDecULP(rad);
+    }
+    return rad;
+}
+
+static SkScalar clamp_radius_sub(SkScalar rad, SkScalar min, SkScalar max) {
+    SkASSERT(rad <= max - min);
+    if (max - rad < min) {
+        rad = SkScalarDecULP(rad);
+    }
+    return rad;
+}
 
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     if (rect.isEmpty()) {
@@ -159,10 +185,26 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
 
     if (scale < SK_Scalar1) {
         for (int i = 0; i < 4; ++i) {
-            fRadii[i].fX = SkScalarMul(fRadii[i].fX, scale);
-            fRadii[i].fY = SkScalarMul(fRadii[i].fY, scale);
+            fRadii[i].fX *= scale;
+            fRadii[i].fY *= scale;
         }
     }
+
+    // skbug.com/3239 -- its possible that we can hit the following inconsistency:
+    //     rad == bounds.bottom - bounds.top
+    //     bounds.bottom - radius < bounds.top
+    //     YIKES
+    // We need to detect and "fix" this now, otherwise we can have the following wackiness:
+    //     path.addRRect(rrect);
+    //     rrect.rect() != path.getBounds()
+    fRadii[0].fX = clamp_radius_add(fRadii[0].fX, rect.fLeft, rect.fRight);
+    fRadii[0].fY = clamp_radius_add(fRadii[0].fY, rect.fTop, rect.fBottom);
+    fRadii[1].fX = clamp_radius_sub(fRadii[1].fX, rect.fLeft, rect.fRight);
+    fRadii[1].fY = clamp_radius_add(fRadii[1].fY, rect.fTop, rect.fBottom);
+    fRadii[2].fX = clamp_radius_sub(fRadii[2].fX, rect.fLeft, rect.fRight);
+    fRadii[2].fY = clamp_radius_sub(fRadii[2].fY, rect.fTop, rect.fBottom);
+    fRadii[3].fX = clamp_radius_add(fRadii[3].fX, rect.fLeft, rect.fRight);
+    fRadii[3].fY = clamp_radius_sub(fRadii[3].fY, rect.fTop, rect.fBottom);
 
     // At this point we're either oval, simple, or complex (not empty or rect)
     // but we lazily resolve the type to avoid the work if the information
