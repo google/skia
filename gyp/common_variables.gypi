@@ -161,10 +161,12 @@
     },
 
     'conditions': [
-      [ 'skia_android_framework', {
-        'skia_warnings_as_errors%': 0,
-      }, {
+      [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android", "win"] '
+            'and skia_android_framework == 0 or '
+        'skia_os == "mac" and skia_arch_width == 32', {
         'skia_warnings_as_errors%': 1,
+      }, {
+        'skia_warnings_as_errors%': 0,
       }],
 
       # This variable allows the user to customize the optimization level used
