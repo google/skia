@@ -46,7 +46,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
-        SkLCGRandom rand;
+        SkRandom rand;
 
         int scale = 300;
         for (int i = 0; i < 4; ++i) {

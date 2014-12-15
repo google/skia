@@ -88,7 +88,7 @@ protected:
         canvas->translate(x, y);
     }
 
-    static void SetColorAndAlpha(SkPaint* paint, SkLCGRandom* rand) {
+    static void SetColorAndAlpha(SkPaint* paint, SkRandom* rand) {
         SkColor color = rand->nextU();
         color |= 0xff000000;
         paint->setColor(color);
@@ -113,7 +113,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        SkLCGRandom rand;
+        SkRandom rand;
         // For stroke style painter
         paint.setStyle(SkPaint::kStroke_Style);
         for (int join = 0; join < kNumJoins; ++join) {

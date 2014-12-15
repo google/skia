@@ -18,7 +18,7 @@
 static const SkScalar SW = SkIntToScalar(W);
 static const SkScalar SH = SkIntToScalar(H);
 
-static void rnd_rect(SkRect* r, SkPaint* paint, SkLCGRandom& rand) {
+static void rnd_rect(SkRect* r, SkPaint* paint, SkRandom& rand) {
     SkScalar x = rand.nextUScalar1() * W;
     SkScalar y = rand.nextUScalar1() * H;
     SkScalar w = rand.nextUScalar1() * (W >> 2);
@@ -65,7 +65,7 @@ protected:
                                               , SW - SkIntToScalar(2), SH - SkIntToScalar(2)
                                               ));
 
-            SkLCGRandom rand;
+            SkRandom rand;
             for (int i = 0; i < N; i++) {
                 SkRect r;
                 rnd_rect(&r, &paint, rand);
@@ -85,7 +85,7 @@ class Strokes2GM : public skiagm::GM {
     SkPath fPath;
 public:
     Strokes2GM() {
-        SkLCGRandom rand;
+        SkRandom rand;
         fPath.moveTo(0, 0);
         for (int i = 0; i < 13; i++) {
             SkScalar x = rand.nextUScalar1() * (W >> 1);
@@ -129,7 +129,7 @@ protected:
                                               SW - SkIntToScalar(2),
                                               SH - SkIntToScalar(2)));
 
-            SkLCGRandom rand;
+            SkRandom rand;
             for (int i = 0; i < N/2; i++) {
                 SkRect r;
                 rnd_rect(&r, &paint, rand);

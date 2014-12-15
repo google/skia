@@ -116,18 +116,18 @@ DEF_TEST(CubicStrokerSet, reporter) {
 	cubicPairSetTest(tests, tests_count);
 }
 
-static SkScalar unbounded(SkLCGRandom& r) {
+static SkScalar unbounded(SkRandom& r) {
     uint32_t val = r.nextU();
     return SkBits2Float(val);
 }
 
-static SkScalar unboundedPos(SkLCGRandom& r) {
+static SkScalar unboundedPos(SkRandom& r) {
     uint32_t val = r.nextU() & 0x7fffffff;
     return SkBits2Float(val);
 }
 
 DEF_TEST(QuadStrokerUnbounded, reporter) {
-    SkLCGRandom r;
+    SkRandom r;
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
@@ -165,7 +165,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
 }
 
 DEF_TEST(CubicStrokerUnbounded, reporter) {
-    SkLCGRandom r;
+    SkRandom r;
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
@@ -206,7 +206,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
 }
 
 DEF_TEST(QuadStrokerConstrained, reporter) {
-    SkLCGRandom r;
+    SkRandom r;
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
@@ -257,7 +257,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
 }
 
 DEF_TEST(CubicStrokerConstrained, reporter) {
-    SkLCGRandom r;
+    SkRandom r;
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
@@ -316,7 +316,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
 }
 
 DEF_TEST(QuadStrokerRange, reporter) {
-    SkLCGRandom r;
+    SkRandom r;
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
@@ -361,7 +361,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
 }
 
 DEF_TEST(CubicStrokerRange, reporter) {
-    SkLCGRandom r;
+    SkRandom r;
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROXIMATION
