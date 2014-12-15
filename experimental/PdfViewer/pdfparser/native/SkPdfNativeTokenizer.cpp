@@ -21,7 +21,7 @@
 // There could be 0s between start and end.
 // needle will not contain 0s.
 static char* strrstrk(char* hayStart, char* hayEnd, const char* needle) {
-    int needleLen = strlen(needle);
+    size_t needleLen = strlen(needle);
     if ((isPdfWhiteSpaceOrPdfDelimiter(*(hayStart+needleLen)) || (hayStart+needleLen == hayEnd)) &&
             strncmp(hayStart, needle, needleLen) == 0) {
         return hayStart;
@@ -105,8 +105,8 @@ static const unsigned char* readArray(const unsigned char* start, const unsigned
         // TODO(edisonn): perf/memory: put the variables on the stack, and flush them on the array
         // only when we are sure they are not references!
         if (newObj->isKeywordReference() && array->size() >= 2 &&
-                array->objAtAIndex(array->size() - 1)->isInteger() &&
-                array->objAtAIndex(array->size() - 2)->isInteger()) {
+                array->objAtAIndex(SkToInt(array->size() - 1))->isInteger() &&
+                array->objAtAIndex(SkToInt(array->size() - 2))->isInteger()) {
             SkPdfNativeObject* gen = array->removeLastInArray();
             SkPdfNativeObject* id = array->removeLastInArray();
 
@@ -241,7 +241,7 @@ static const unsigned char* readString(const unsigned char* start, const unsigne
     }
 }
 
-static int readStringLength(const unsigned char* start, const unsigned char* end) {
+static size_t readStringLength(const unsigned char* start, const unsigned char* end) {
     return readString(start, end, NULL) - start;
 }
 
@@ -252,7 +252,7 @@ static const unsigned char* readString(const unsigned char* start, const unsigne
         return end;
     }
 
-    int outLength = readStringLength(start, end);
+    size_t outLength = readStringLength(start, end);
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
     const unsigned char* now = readString(start, end, out);
     SkPdfNativeObject::makeString(out, out + outLength, str);
@@ -391,7 +391,7 @@ static const unsigned char* readHexString(const unsigned char* start, const unsi
     }
 }
 
-static int readHexStringLength(const unsigned char* start, const unsigned char* end) {
+static size_t readHexStringLength(const unsigned char* start, const unsigned char* end) {
     return readHexString(start, end, NULL) - start;
 }
 
@@ -400,7 +400,7 @@ static const unsigned char* readHexString(const unsigned char* start, const unsi
         // TODO(edisonn): report error/warn/assert
         return end;
     }
-    int outLength = readHexStringLength(start, end);
+    size_t outLength = readHexStringLength(start, end);
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
     const unsigned char* now = readHexString(start, end, out);
     SkPdfNativeObject::makeHexString(out, out + outLength, str);
@@ -518,7 +518,7 @@ static const unsigned char* readName(const unsigned char* start, const unsigned 
     }
 }
 
-static int readNameLength(const unsigned char* start, const unsigned char* end) {
+static size_t readNameLength(const unsigned char* start, const unsigned char* end) {
     return readName(start, end, NULL) - start;
 }
 
@@ -528,7 +528,7 @@ static const unsigned char* readName(const unsigned char* start, const unsigned 
         // TODO(edisonn): report error/warn/assert
         return end;
     }
-    int outLength = readNameLength(start, end);
+    size_t outLength = readNameLength(start, end);
     unsigned char* out = (unsigned char*)allocator->alloc(outLength);
     const unsigned char* now = readName(start, end, out);
     SkPdfNativeObject::makeName(out, out + outLength, name);
@@ -671,7 +671,7 @@ static const unsigned char* readInlineImageStream(const unsigned char* start,
     const unsigned char* endEI = endstream ? endstream + 2 : NULL;  // 2 == strlen("EI")
 
     if (endstream) {
-        int length = endstream - start;
+        size_t length = endstream - start;
         if (*(endstream-1) == kLF_PdfWhiteSpace) length--;
         if (*(endstream-2) == kCR_PdfWhiteSpace) length--;
         inlineImage->addStream(start, (size_t)length);
@@ -786,7 +786,7 @@ const unsigned char* nextObject(const unsigned char* start, const unsigned char*
         return end;
     }
 
-    int tokenLen = current - start;
+    size_t tokenLen = current - start;
 
     if (tokenLen == 1) {
         // start array
@@ -922,7 +922,7 @@ SkPdfNativeTokenizer::SkPdfNativeTokenizer(const unsigned char* buffer, int len,
     // but we need to remove this hack for pdfs in the wild
     char* endobj = strrstrk((char*)buffer, (char*)buffer + len, "endobj");
     if (endobj) {
-        len = endobj - (char*)buffer + strlen("endobj");
+        len = SkToInt(endobj - (char*)buffer + strlen("endobj"));
     }
     fUncompressedStreamStart = fUncompressedStream = buffer;
     fUncompressedStreamEnd = fUncompressedStream + len;

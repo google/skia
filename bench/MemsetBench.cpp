@@ -14,8 +14,8 @@ class MemsetBench : public Benchmark {
     SkString    fName;
 
 protected:
-    size_t      fMinSize;
-    size_t      fMaxSize;
+    int      fMinSize;
+    int      fMaxSize;
     enum {
         kBufferSize = 10000,
         VALUE32 = 0x12345678,
@@ -28,12 +28,11 @@ protected:
     };
 
 public:
-    MemsetBench(MemsetType type, size_t minSize, size_t maxSize)  {
+    MemsetBench(MemsetType type, int minSize, int maxSize)  {
         SkASSERT((minSize < maxSize) && (maxSize <= kBufferSize));
         fMinSize = minSize;
         fMaxSize = maxSize;
-        fName.printf("memset%d_" SK_SIZE_T_SPECIFIER "_" SK_SIZE_T_SPECIFIER,
-                     type, minSize, maxSize);
+        fName.printf("memset%d_%d_%d", type, minSize, maxSize);
     }
 
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
@@ -60,12 +59,12 @@ private:
 class Memset32Bench : public MemsetBench {
     uint32_t kBuffer[kBufferSize + 3];
 public:
-    Memset32Bench(size_t minSize, size_t maxSize)
+    Memset32Bench(int minSize, int maxSize)
         : INHERITED(MEMSET32, minSize, maxSize) {}
 
 protected:
     virtual void performTest() SK_OVERRIDE {
-        for(size_t j = fMinSize; j < fMaxSize; ++j){
+        for(int j = fMinSize; j < fMaxSize; ++j){
             sk_memset32(kBuffer, VALUE32, j);
             sk_memset32(kBuffer + 1, VALUE32, j);
             sk_memset32(kBuffer + 2, VALUE32, j);
@@ -79,12 +78,12 @@ private:
 class Memset16Bench : public MemsetBench {
     uint16_t kBuffer[kBufferSize + 7];
 public:
-    Memset16Bench(size_t minSize, size_t maxSize)
+    Memset16Bench(int minSize, int maxSize)
         : INHERITED(MEMSET16, minSize, maxSize) {}
 
 protected:
     virtual void performTest() SK_OVERRIDE {
-        for(size_t j = fMinSize; j < fMaxSize; ++j){
+        for(int j = fMinSize; j < fMaxSize; ++j){
             sk_memset16(kBuffer, VALUE16, j);
             sk_memset16(kBuffer + 1, VALUE16, j);
             sk_memset16(kBuffer + 2, VALUE16, j);

@@ -525,7 +525,7 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
-            fSKPBytes = SkPictureUtils::ApproximateBytesUsed(pic);
+            fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic));
             fSKPOps   = pic->approximateOpCount();
             return SkNEW_ARGS(RecordingBench, (name.c_str(), pic.get(), FLAGS_bbh));
         }

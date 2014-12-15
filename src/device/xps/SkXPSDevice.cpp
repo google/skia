@@ -385,7 +385,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         ttcfHeader->numOffsets = SkEndian_SwapBE32(ttcCount);
         SK_OT_ULONG* offsetPtr = SkTAfter<SK_OT_ULONG>(ttcfHeader);
         for (int i = 0; i < ttcCount; ++i, ++offsetPtr) {
-            *offsetPtr = SkEndian_SwapBE32(extra);
+            *offsetPtr = SkEndian_SwapBE32(SkToU32(extra));
         }
 
         // Fix up offsets in sfnt table entries.
@@ -395,7 +395,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
             SkTAfter<SkSFNTHeader::TableDirectoryEntry>(sfntHeader);
         for (int i = 0; i < numTables; ++i, ++tableDirectory) {
             tableDirectory->offset = SkEndian_SwapBE32(
-                SkEndian_SwapBE32(tableDirectory->offset) + extra);
+                SkToU32(SkEndian_SwapBE32(SkToU32(tableDirectory->offset)) + extra));
         }
     } else {
         extra = 0;
@@ -2074,7 +2074,7 @@ static void text_draw_init(const SkPaint& paint,
                            SkBitSet& glyphsUsed,
                            SkDraw& myDraw, SkXPSDrawProcs& procs) {
     procs.fD1GProc = xps_draw_1_glyph;
-    size_t numGlyphGuess;
+    int numGlyphGuess;
     switch (paint.getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding:
             numGlyphGuess = SkUTF8_CountUnichars(
@@ -2084,10 +2084,10 @@ static void text_draw_init(const SkPaint& paint,
         case SkPaint::kUTF16_TextEncoding:
             numGlyphGuess = SkUTF16_CountUnichars(
                 static_cast<const uint16_t *>(text),
-                byteLength);
+                SkToInt(byteLength));
             break;
         case SkPaint::kGlyphID_TextEncoding:
-            numGlyphGuess = byteLength / 2;
+            numGlyphGuess = SkToInt(byteLength / 2);
             break;
         default:
             SK_ALWAYSBREAK(true);

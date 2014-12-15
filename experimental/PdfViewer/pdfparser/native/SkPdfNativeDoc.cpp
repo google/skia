@@ -189,7 +189,7 @@ void SkPdfNativeDoc::loadWithoutXRef() {
                 reset(fObjects.append());
             }
 
-            fObjects[id].fOffset = current - fFileContent;
+            fObjects[id].fOffset = SkToInt(current - fFileContent);
 
             SkPdfNativeObject* obj = fAllocator->allocObject();
             current = nextObject(current, end, obj, fAllocator, this);
