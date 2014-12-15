@@ -275,6 +275,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
+DEF_GM( return new BitmapRectRounding; )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -298,4 +299,3 @@ static skiagm::GMRegistry reg3(MyFactory3);
 static skiagm::GMRegistry reg4(MyFactory4);
 #endif
 
-DEF_GM( return new BitmapRectRounding; )

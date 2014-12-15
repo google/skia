@@ -786,7 +786,8 @@ static SkPoint* rect_points(SkRect& r) {
     return SkTCast<SkPoint*>(&r);
 }
 
-void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
+void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
+                      const SkMatrix* paintMatrix, const SkRect* postPaintRect) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -794,22 +795,40 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
         return;
     }
 
+    const SkMatrix* matrix;
+    SkMatrix combinedMatrixStorage;
+    if (paintMatrix) {
+        SkASSERT(postPaintRect);
+        combinedMatrixStorage.setConcat(*fMatrix, *paintMatrix);
+        matrix = &combinedMatrixStorage;
+    } else {
+        SkASSERT(!postPaintRect);
+        matrix = fMatrix;
+    }
+
     SkPoint strokeSize;
     RectType rtype = ComputeRectType(paint, *fMatrix, &strokeSize);
 
     if (kPath_RectType == rtype) {
+        SkDraw draw(*this);
+        if (paintMatrix) {
+            draw.fMatrix = matrix;
+        }
         SkPath  tmp;
-        tmp.addRect(rect);
+        tmp.addRect(prePaintRect);
         tmp.setFillType(SkPath::kWinding_FillType);
-        this->drawPath(tmp, paint, NULL, true);
+        draw.drawPath(tmp, paint, NULL, true);
         return;
     }
 
-    const SkMatrix& matrix = *fMatrix;
-    SkRect          devRect;
-
+    SkRect devRect;
+    if (paintMatrix) {
+        // skip the paintMatrix when transforming the rect by the CTM
+        fMatrix->mapPoints(rect_points(devRect), rect_points(*postPaintRect), 2);
+    } else {
+        fMatrix->mapPoints(rect_points(devRect), rect_points(prePaintRect), 2);
+    }
     // transform rect into devRect
-    matrix.mapPoints(rect_points(devRect), rect_points(rect), 2);
     devRect.sort();
 
     // look for the quick exit, before we build a blitter
@@ -832,10 +851,9 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
         SkRect localDevRect;
         looper.mapRect(&localDevRect, devRect);
         SkMatrix localMatrix;
-        looper.mapMatrix(&localMatrix, matrix);
+        looper.mapMatrix(&localMatrix, *matrix);
 
-        SkAutoBlitterChoose blitterStorage(looper.getBitmap(), localMatrix,
-                                           paint);
+        SkAutoBlitterChoose blitterStorage(looper.getBitmap(), localMatrix, paint);
         const SkRasterClip& clip = looper.getRC();
         SkBlitter*          blitter = blitterStorage.get();
 
@@ -1227,7 +1245,7 @@ static bool clipHandlesSprite(const SkRasterClip& clip, int x, int y,
 }
 
 void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
-                        const SkPaint& origPaint) const {
+                        const SkRect* dstBounds, const SkPaint& origPaint) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1282,12 +1300,13 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         draw.drawBitmapAsMask(bitmap, paint);
     } else {
         SkAutoBitmapShaderInstall install(bitmap, paint);
-
-        SkRect  r;
-        r.set(0, 0, SkIntToScalar(bitmap.width()),
-              SkIntToScalar(bitmap.height()));
-        // is this ok if paint has a rasterizer?
-        draw.drawRect(r, install.paintWithShader());
+        const SkPaint& paintWithShader = install.paintWithShader();
+        const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
+        if (dstBounds) {
+            this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
+        } else {
+            draw.drawRect(srcBounds, paintWithShader);
+        }
     }
 }
 

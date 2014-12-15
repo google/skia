@@ -395,6 +395,12 @@ struct SK_API SkRect {
         return r;
     }
 
+    static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h) {
+        SkRect r;
+        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
+        return r;
+    }
+
     static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size) {
         SkRect r;
         r.set(0, 0, size.width(), size.height());
