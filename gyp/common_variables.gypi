@@ -161,9 +161,8 @@
     },
 
     'conditions': [
-      [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android", "win"] '
-            'and skia_android_framework == 0 or '
-        'skia_os == "mac" and skia_arch_width == 32', {
+      [ 'skia_os in ["mac", "linux", "freebsd", "openbsd", "solaris", "android", "win"] '
+            'and skia_android_framework == 0', {
         'skia_warnings_as_errors%': 1,
       }, {
         'skia_warnings_as_errors%': 0,
