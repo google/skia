@@ -44,6 +44,7 @@ void GrGLCaps::reset() {
     fTwoFormatLimit = false;
     fFragCoordsConventionSupport = false;
     fVertexArrayObjectSupport = false;
+    fES2CompatibilitySupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fFullClearIsFree = false;
@@ -86,6 +87,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fTwoFormatLimit = caps.fTwoFormatLimit;
     fFragCoordsConventionSupport = caps.fFragCoordsConventionSupport;
     fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
+    fES2CompatibilitySupport = caps.fES2CompatibilitySupport;
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
     fFullClearIsFree = caps.fFullClearIsFree;
@@ -237,6 +239,13 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     } else {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
                                     ctxInfo.hasExtension("GL_OES_vertex_array_object");
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        fES2CompatibilitySupport = ctxInfo.hasExtension("GL_ARB_ES2_compatibility");
+    }
+    else {
+        fES2CompatibilitySupport = true;
     }
 
     if (kGLES_GrGLStandard == standard) {

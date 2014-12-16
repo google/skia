@@ -245,6 +245,9 @@ public:
     /// Is there support for Vertex Array Objects?
     bool vertexArrayObjectSupport() const { return fVertexArrayObjectSupport; }
 
+    /// Is there support for ES2 compatability?
+    bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
+
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const {
         return fUseNonVBOVertexAndIndexDynamicData;
@@ -364,6 +367,7 @@ private:
     bool fTwoFormatLimit : 1;
     bool fFragCoordsConventionSupport : 1;
     bool fVertexArrayObjectSupport : 1;
+    bool fES2CompatibilitySupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;

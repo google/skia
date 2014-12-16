@@ -554,21 +554,14 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         useTexStorage = desc.fConfig != kRGB_565_GrPixelConfig;
     }
 
-    GrGLenum internalFormat;
-    GrGLenum externalFormat = 0x0; // suprress warning
-    GrGLenum externalType = 0x0;// suprress warning
+    GrGLenum internalFormat = 0x0; // suppress warning
+    GrGLenum externalFormat = 0x0; // suppress warning
+    GrGLenum externalType = 0x0;   // suppress warning
 
-    // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
-    // format for glTexImage, unlike ES3 and desktop. However, we allow the driver to decide the
-    // size of the internal format whenever possible and so only use a sized internal format when
-    // using texture storage.
-    bool useSizedFormat = useTexStorage;
-    // Many versions of the ES3 drivers on various platforms will not accept GL_RED in
-    // glTexImage2D for the internal format but will accept GL_R8.
-    if (kGLES_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(3, 0) &&
-        kAlpha_8_GrPixelConfig == dataConfig) {
-        useSizedFormat = true;
-    }
+    // glTexStorage requires sized internal formats on both desktop and ES.
+    // ES2 requires an unsized format for glTexImage. On ES3 and desktop we default to sized.
+    bool useSizedFormat = useTexStorage || kGL_GrGLStandard == this->glStandard() ||
+                          this->glVersion() >= GR_GL_VER(3, 0);
     if (!this->configToGLFormats(dataConfig, useSizedFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
         return false;
@@ -2276,8 +2269,8 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             *internalFormat = GR_GL_RGB;
             *externalFormat = GR_GL_RGB;
             if (getSizedInternalFormat) {
-                if (this->glStandard() == kGL_GrGLStandard) {
-                    return false;
+                if (!this->glCaps().ES2CompatibilitySupport()) {
+                    *internalFormat = GR_GL_RGB5;
                 } else {
                     *internalFormat = GR_GL_RGB565;
                 }

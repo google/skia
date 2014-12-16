@@ -736,6 +736,7 @@
 #define GR_GL_RGB565                         0x8D62
 #define GR_GL_RGBA8                          0x8058
 #define GR_GL_RGBA32F                        0x8814
+#define GR_GL_RGB5                           0x8050
 #define GR_GL_RGB8                           0x8051
 #define GR_GL_BGRA8                          0x93A1
 #define GR_GL_SRGB                           0x8C40
