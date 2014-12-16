@@ -233,8 +233,9 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
                                        const SkTDArray<GrHoistedLayer>& atlased) {
     if (atlased.count() > 0) {
         // All the atlased layers are rendered into the same GrTexture
+        SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                        atlased[0].fLayer->texture()->asRenderTarget(), NULL));
+                                        atlased[0].fLayer->texture()->asRenderTarget(), &props));
 
         SkCanvas* atlasCanvas = surface->getCanvas();
 
@@ -324,8 +325,9 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
         const SkIPoint offset = SkIPoint::Make(layer->srcIR().fLeft, layer->srcIR().fTop);
 
         // Each non-atlased layer has its own GrTexture
+        SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
-                                        layer->texture()->asRenderTarget(), NULL));
+                                        layer->texture()->asRenderTarget(), &props));
 
         SkCanvas* layerCanvas = surface->getCanvas();
 
