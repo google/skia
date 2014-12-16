@@ -939,7 +939,7 @@ static void initFromMatrix(SkMScalar dst[4][4], const SkMatrix& src) {
 }
 
 SkMatrix44::SkMatrix44(const SkMatrix& src) {
-    initFromMatrix(fMat, src);
+    this->operator=(src);
 }
 
 SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {

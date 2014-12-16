@@ -104,6 +104,14 @@ static void test_constructor(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, testMatrix == placeholderMatrix);
     REPORTER_ASSERT(reporter, testMatrix->isIdentity());
     REPORTER_ASSERT(reporter, *testMatrix == SkMatrix44::I());
+
+    // Verify that that constructing from an SkMatrix initializes everything.
+    SkMatrix44 scaleMatrix(SkMatrix44::kUninitialized_Constructor);
+    scaleMatrix.setScale(3, 4, 5);
+    REPORTER_ASSERT(reporter, scaleMatrix.isScale());
+    testMatrix = new(&scaleMatrix) SkMatrix44(SkMatrix::I());
+    REPORTER_ASSERT(reporter, testMatrix->isIdentity());
+    REPORTER_ASSERT(reporter, *testMatrix == SkMatrix44::I());
 }
 
 static void test_translate(skiatest::Reporter* reporter) {
