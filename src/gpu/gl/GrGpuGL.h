@@ -30,9 +30,9 @@
 class GrGLGpu : public GrGpu {
 public:
     GrGLGpu(const GrGLContext& ctx, GrContext* context);
-    virtual ~GrGLGpu();
+    ~GrGLGpu() SK_OVERRIDE;
 
-    virtual void contextAbandoned() SK_OVERRIDE;
+    void contextAbandoned() SK_OVERRIDE;
 
     const GrGLContext& glContext() const { return fGLContext; }
 
@@ -48,27 +48,26 @@ public:
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
 
-    virtual void discard(GrRenderTarget*) SK_OVERRIDE;
+    void discard(GrRenderTarget*) SK_OVERRIDE;
 
     // Used by GrGLProgram and GrGLPathTexGenProgramEffects to configure OpenGL
     // state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
 
     // GrGpu overrides
-    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig readConfig,
-                                                    GrPixelConfig surfaceConfig) const SK_OVERRIDE;
-    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig writeConfig,
-                                                     GrPixelConfig surfaceConfig) const SK_OVERRIDE;
-    virtual bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const SK_OVERRIDE;
-    virtual bool readPixelsWillPayForYFlip(
-                                    GrRenderTarget* renderTarget,
-                                    int left, int top,
-                                    int width, int height,
-                                    GrPixelConfig config,
-                                    size_t rowBytes) const SK_OVERRIDE;
-    virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
+    GrPixelConfig preferredReadPixelsConfig(GrPixelConfig readConfig,
+                                            GrPixelConfig surfaceConfig) const SK_OVERRIDE;
+    GrPixelConfig preferredWritePixelsConfig(GrPixelConfig writeConfig,
+                                             GrPixelConfig surfaceConfig) const SK_OVERRIDE;
+    bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const SK_OVERRIDE;
+    bool readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
+                                   int left, int top,
+                                   int width, int height,
+                                   GrPixelConfig config,
+                                   size_t rowBytes) const SK_OVERRIDE;
+    bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
-    virtual bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
+    bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) SK_OVERRIDE;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -105,64 +104,70 @@ public:
                         const SkIPoint& dstPoint) SK_OVERRIDE;
 
 protected:
-    virtual void buildProgramDesc(const GrOptDrawState&,
-                                  const GrProgramDesc::DescInfo&,
-                                  GrGpu::DrawType,
-                                  GrProgramDesc*) SK_OVERRIDE;
+    void buildProgramDesc(const GrOptDrawState&,
+                          const GrProgramDesc::DescInfo&,
+                          GrGpu::DrawType,
+                          GrProgramDesc*) SK_OVERRIDE;
 
 private:
     // GrGpu overrides
-    virtual void onResetContext(uint32_t resetBits) SK_OVERRIDE;
+    void onResetContext(uint32_t resetBits) SK_OVERRIDE;
 
-    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                                       const void* srcData,
-                                       size_t rowBytes) SK_OVERRIDE;
-    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                                 const void* srcData) SK_OVERRIDE;
-    virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
-    virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
-    virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) SK_OVERRIDE;
-    virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) SK_OVERRIDE;
-    virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                    int width,
-                                                    int height) SK_OVERRIDE;
-    virtual bool attachStencilBufferToRenderTarget(
-        GrStencilBuffer* sb,
-        GrRenderTarget* rt) SK_OVERRIDE;
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
+                               const void* srcData,
+                               size_t rowBytes) SK_OVERRIDE;
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+                                         const void* srcData) SK_OVERRIDE;
+    GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
+    GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
+    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) SK_OVERRIDE;
+    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) SK_OVERRIDE;
+    bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
+                                            int width, int height) SK_OVERRIDE;
+    bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTarget* rt) SK_OVERRIDE;
 
-    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
-                         bool canIgnoreRect) SK_OVERRIDE;
+    void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
+                 bool canIgnoreRect) SK_OVERRIDE;
 
-    virtual void onClearStencilClip(GrRenderTarget*,
-                                    const SkIRect& rect,
-                                    bool insideClip) SK_OVERRIDE;
+    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) SK_OVERRIDE;
 
-    virtual bool onReadPixels(GrRenderTarget* target,
-                              int left, int top,
-                              int width, int height,
-                              GrPixelConfig,
-                              void* buffer,
+    bool onReadPixels(GrRenderTarget* target,
+                      int left, int top,
+                      int width, int height,
+                      GrPixelConfig,
+                      void* buffer,
+                      size_t rowBytes) SK_OVERRIDE;
+
+    bool onWriteTexturePixels(GrTexture* texture,
+                              int left, int top, int width, int height,
+                              GrPixelConfig config, const void* buffer,
                               size_t rowBytes) SK_OVERRIDE;
 
-    virtual bool onWriteTexturePixels(GrTexture* texture,
-                                      int left, int top, int width, int height,
-                                      GrPixelConfig config, const void* buffer,
-                                      size_t rowBytes) SK_OVERRIDE;
+    void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
-    virtual void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
+    void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
+    void onStencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    void onDrawPaths(const GrOptDrawState&,
+                     const GrPathRange*,
+                     const void* indices,
+                     GrDrawTarget::PathIndexType,
+                     const float transformValues[],
+                     GrDrawTarget::PathTransformType,
+                     int count,
+                     const GrStencilSettings&) SK_OVERRIDE;
 
-    virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
-
-
-    virtual void clearStencil(GrRenderTarget*) SK_OVERRIDE;
-    virtual bool flushGraphicsState(const GrOptDrawState&) SK_OVERRIDE;
+    void clearStencil(GrRenderTarget*) SK_OVERRIDE;
 
     // GrDrawTarget overrides
-    virtual void didAddGpuTraceMarker() SK_OVERRIDE;
-    virtual void didRemoveGpuTraceMarker() SK_OVERRIDE;
+    void didAddGpuTraceMarker() SK_OVERRIDE;
+    void didRemoveGpuTraceMarker() SK_OVERRIDE;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
+
+    // Flushes state from GrOptDrawState to GL. Returns false if the state couldn't be set.
+    bool flushGLState(const GrOptDrawState&);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start

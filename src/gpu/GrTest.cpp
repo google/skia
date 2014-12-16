@@ -115,6 +115,20 @@ private:
 
     void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE {}
 
+    void onStencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE {
+    }
+
+    void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE {}
+
+    void onDrawPaths(const GrOptDrawState&,
+                     const GrPathRange*,
+                     const void* indices,
+                     GrDrawTarget::PathIndexType,
+                     const float transformValues[],
+                     GrDrawTarget::PathTransformType,
+                     int count,
+                     const GrStencilSettings&) SK_OVERRIDE {}
+
     bool onReadPixels(GrRenderTarget* target,
                       int left, int top, int width, int height,
                       GrPixelConfig,
@@ -140,13 +154,11 @@ private:
         return false;
     }
 
-    bool flushGraphicsState(const GrOptDrawState&) SK_OVERRIDE { return false; }
-
     void clearStencil(GrRenderTarget* target) SK_OVERRIDE  {}
 
-    void didAddGpuTraceMarker() SK_OVERRIDE { }
+    void didAddGpuTraceMarker() SK_OVERRIDE {}
 
-    void didRemoveGpuTraceMarker() SK_OVERRIDE { }
+    void didRemoveGpuTraceMarker() SK_OVERRIDE {}
 
     typedef GrGpu INHERITED;
 };

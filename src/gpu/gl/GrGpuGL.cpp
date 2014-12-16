@@ -1337,7 +1337,7 @@ void GrGLGpu::flushScissor(const GrClipMaskManager::ScissorState& scissorState,
     this->disableScissor();
 }
 
-bool GrGLGpu::flushGraphicsState(const GrOptDrawState& optState) {
+bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
     SkASSERT(optState.getRenderTarget());
 
@@ -1827,6 +1827,10 @@ GrGLenum gPrimitiveType2GLMode[] = {
 #endif
 
 void GrGLGpu::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
+    if (!this->flushGLState(ds)) {
+        return;
+    }
+
     size_t indexOffsetInBytes;
     this->setupGeometry(ds, info, &indexOffsetInBytes);
 
@@ -1858,6 +1862,38 @@ void GrGLGpu::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& inf
         SwapBuf();
     #endif
 #endif
+}
+
+void GrGLGpu::onStencilPath(const GrOptDrawState& ds,
+                            const GrPath* path,
+                            const GrStencilSettings& stencil) {
+    if (!this->flushGLState(ds)) {
+        return;
+    }
+    fPathRendering->stencilPath(path, stencil);
+}
+
+void GrGLGpu::onDrawPath(const GrOptDrawState& ds, const GrPath* path,
+                         const GrStencilSettings& stencil) {
+    if (!this->flushGLState(ds)) {
+        return;
+    }
+    fPathRendering->drawPath(path, stencil);
+}
+
+void GrGLGpu::onDrawPaths(const GrOptDrawState& ds,
+                          const GrPathRange* pathRange,
+                          const void* indices,
+                          GrDrawTarget::PathIndexType indexType,
+                          const float transformValues[],
+                          GrDrawTarget::PathTransformType transformType,
+                           int count,
+                           const GrStencilSettings& stencil) {
+    if (!this->flushGLState(ds)) {
+        return;
+    }
+    fPathRendering->drawPaths(pathRange, indices, indexType, transformValues,
+                              transformType, count, stencil);
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {

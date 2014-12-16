@@ -436,6 +436,16 @@ private:
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) = 0;
+    virtual void onStencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) = 0;
+    virtual void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) = 0;
+    virtual void onDrawPaths(const GrOptDrawState&,
+                             const GrPathRange*,
+                             const void* indices,
+                             GrDrawTarget::PathIndexType,
+                             const float transformValues[],
+                             GrDrawTarget::PathTransformType,
+                             int count,
+                             const GrStencilSettings&) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
@@ -460,12 +470,6 @@ private:
 
     // attaches an existing SB to an existing RT.
     virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer*, GrRenderTarget*) = 0;
-
-    // The GrGpu typically records the clients requested state and then flushes
-    // deltas from previous state at draw time. This function does the
-    // backend-specific flush of the state.
-    // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(const GrOptDrawState&) = 0;
 
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
