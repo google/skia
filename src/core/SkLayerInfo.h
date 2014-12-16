@@ -28,9 +28,6 @@ public:
         const SkPicture* fPicture;
         // The device space bounds of this layer.
         SkRect fBounds;
-        // If not-empty, the optional bounds parameter passed in to the saveLayer
-        // call.
-        SkRect fSrcBounds;
         // The pre-matrix begins as the identity and accumulates the transforms
         // of the containing SkPictures (if any). This matrix state has to be
         // part of the initial matrix during replay so that it will be 

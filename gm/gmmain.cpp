@@ -655,21 +655,18 @@ public:
         }
     }
 
-    static void generate_image_from_picture(GM* gm, const ConfigData& config,
-                                            GrSurface* gpuTarget,
+    static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
                                             SkPicture* pict, SkBitmap* bitmap,
                                             SkScalar scale = SK_Scalar1,
                                             bool tile = false) {
-        const SkISize size = gm->getISize();
+        SkISize size = gm->getISize();
+        setup_bitmap(gRec, size, bitmap);
 
-        SkAutoTUnref<SkSurface> surf(CreateSurface(config, size, gpuTarget));
+        SkAutoTUnref<SkSurface> surf(SkSurface::NewRasterDirect(bitmap->info(),
+                                                                bitmap->getPixels(),
+                                                                bitmap->rowBytes()));
 
         DrawPictureToSurface(surf, pict, scale, tile, false);
-
-        setup_bitmap(config, size, bitmap);
-
-        surf->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0);
-
         complete_bitmap(bitmap);
     }
 
@@ -1633,12 +1630,10 @@ template <typename T> void appendUnique(SkTDArray<T>* array, const T& value) {
  *
  * Returns all errors encountered while doing so.
  */
-ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
-                                    const ConfigData &compareConfig, GrSurface* gpuTarget,
+ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &compareConfig,
                                     const SkBitmap &comparisonBitmap,
                                     const SkTDArray<SkScalar> &tileGridReplayScales);
-ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
-                                    const ConfigData &compareConfig, GrSurface* gpuTarget,
+ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &compareConfig,
                                     const SkBitmap &comparisonBitmap,
                                     const SkTDArray<SkScalar> &tileGridReplayScales) {
     ErrorCombination errorsForAllModes;
@@ -1656,8 +1651,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
             errorsForAllModes.add(kIntentionallySkipped_ErrorType);
         } else {
             SkBitmap bitmap;
-            gmmain.generate_image_from_picture(gm, compareConfig, gpuTarget, pict, &bitmap);
-
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
                 gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
                 &comparisonBitmap));
@@ -1674,7 +1668,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
             SkPicture* repict = gmmain.stream_to_new_picture(*pict);
             SkAutoTUnref<SkPicture> aurr(repict);
             SkBitmap bitmap;
-            gmmain.generate_image_from_picture(gm, compareConfig, gpuTarget, repict, &bitmap);
+            gmmain.generate_image_from_picture(gm, compareConfig, repict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
                 gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
                 &comparisonBitmap));
@@ -1707,7 +1701,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
             SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType, 0);
             SkAutoTUnref<SkPicture> aur(pict);
             SkBitmap bitmap;
-            gmmain.generate_image_from_picture(gm, compareConfig, gpuTarget, pict, &bitmap);
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
                 gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
                 &comparisonBitmap));
@@ -1740,7 +1734,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
                 // We cannot yet pass 'true' to generate_image_from_picture to
                 // perform actual tiled rendering (see Issue 1198 -
                 // https://code.google.com/p/skia/issues/detail?id=1198)
-                gmmain.generate_image_from_picture(gm, compareConfig, gpuTarget, pict, &bitmap,
+                gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap,
                                                    replayScale /*, true */);
                 errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
                     gm->getName(), compareConfig.fName, renderModeDescriptor.c_str(), bitmap,
@@ -1881,7 +1875,7 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
 
         // TODO: run only if gmmain.test_drawing succeeded.
         if (kRaster_Backend == config.fBackend) {
-            run_multiple_modes(gmmain, gm, config, gpuTarget, comparisonBitmap, tileGridReplayScales);
+            run_multiple_modes(gmmain, gm, config, comparisonBitmap, tileGridReplayScales);
         }
 
         if (FLAGS_deferred && errorsForThisConfig.isEmpty() &&

@@ -123,16 +123,14 @@ void GrLayerCache::freeAll() {
 
 GrCachedLayer* GrLayerCache::createLayer(uint32_t pictureID,
                                          int start, int stop,
-                                         const SkIRect& srcIR,
-                                         const SkIRect& dstIR,
+                                         const SkIRect& bounds,
                                          const SkMatrix& initialMat,
                                          const unsigned* key,
                                          int keySize,
                                          const SkPaint* paint) {
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
 
-    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop,
-                                                      srcIR, dstIR, initialMat,
+    GrCachedLayer* layer = SkNEW_ARGS(GrCachedLayer, (pictureID, start, stop, bounds, initialMat,
                                                       key, keySize, paint));
     fLayerHash.add(layer);
     return layer;
@@ -146,8 +144,7 @@ GrCachedLayer* GrLayerCache::findLayer(uint32_t pictureID, const SkMatrix& initi
 
 GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
                                                int start, int stop,
-                                               const SkIRect& srcIR,
-                                               const SkIRect& dstIR,
+                                               const SkIRect& bounds,
                                                const SkMatrix& initialMat,
                                                const unsigned* key,
                                                int keySize,
@@ -155,9 +152,7 @@ GrCachedLayer* GrLayerCache::findLayerOrCreate(uint32_t pictureID,
     SkASSERT(pictureID != SK_InvalidGenID && start >= 0 && stop > 0);
     GrCachedLayer* layer = fLayerHash.find(GrCachedLayer::Key(pictureID, initialMat, key, keySize));
     if (NULL == layer) {
-        layer = this->createLayer(pictureID, start, stop,
-                                  srcIR, dstIR, initialMat,
-                                  key, keySize, paint);
+        layer = this->createLayer(pictureID, start, stop, bounds, initialMat, key, keySize, paint);
     }
 
     return layer;
@@ -247,14 +242,8 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* n
         return true;
     }
 
-    // TODO: make the test for exact match depend on the image filters themselves
-    GrContext::ScratchTexMatch usage = GrContext::kApprox_ScratchTexMatch;
-    if (layer->fFilter) {
-        usage = GrContext::kExact_ScratchTexMatch;
-    }
-
     SkAutoTUnref<GrTexture> tex(
-        fContext->refScratchTexture(desc, usage));
+        fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
 
     if (!tex) {
         return false;
