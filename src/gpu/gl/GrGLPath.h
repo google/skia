@@ -12,7 +12,7 @@
 #include "../GrPath.h"
 #include "gl/GrGLFunctions.h"
 
-class GrGpuGL;
+class GrGLGpu;
 
 /**
  * Currently this represents a path built using GL_NV_path_rendering. If we
@@ -22,12 +22,12 @@ class GrGpuGL;
 
 class GrGLPath : public GrPath {
 public:
-    static void InitPathObject(GrGpuGL*,
+    static void InitPathObject(GrGLGpu*,
                                GrGLuint pathID,
                                const SkPath&,
                                const SkStrokeRec&);
 
-    GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke);
+    GrGLPath(GrGLGpu* gpu, const SkPath& path, const SkStrokeRec& stroke);
     GrGLuint pathID() const { return fPathID; }
 
 protected:

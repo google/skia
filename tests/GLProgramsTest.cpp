@@ -139,7 +139,7 @@ static const GrGeometryProcessor* get_random_gp(GrContext* context,
                                                                     dummyTextures);
 }
 
-static void set_random_color_coverage_stages(GrGpuGL* gpu,
+static void set_random_color_coverage_stages(GrGLGpu* gpu,
                                              GrDrawState* ds,
                                              int maxStages,
                                              bool usePathRendering,
@@ -217,7 +217,7 @@ static void set_random_stencil(GrDrawState* ds, SkRandom* random) {
 }
 
 bool GrDrawTarget::programUnitTest(int maxStages) {
-    GrGpuGL* gpu = static_cast<GrGpuGL*>(fContext->getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(fContext->getGpu());
     // setup dummy textures
     GrSurfaceDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -339,7 +339,7 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
         if (context) {
-            GrGpuGL* gpu = static_cast<GrGpuGL*>(context->getGpu());
+            GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
 
             /*
              * For the time being, we only support the test with desktop GL or for android on

@@ -79,7 +79,7 @@ GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLProgramBuilder* program
 bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     switch (feature) {
         case kStandardDerivatives_GLSLFeature: {
-            GrGpuGL* gpu = fProgramBuilder->gpu();
+            GrGLGpu* gpu = fProgramBuilder->gpu();
             if (!gpu->glCaps().shaderDerivativeSupport()) {
                 return false;
             }
@@ -115,7 +115,7 @@ SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(
 const char* GrGLFragmentShaderBuilder::fragmentPosition() {
     fHasReadFragmentPosition = true;
 
-    GrGpuGL* gpu = fProgramBuilder->gpu();
+    GrGLGpu* gpu = fProgramBuilder->gpu();
     // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
     // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
     // declaration varies in earlier GLSL specs. So it is simpler to omit it.
@@ -166,7 +166,7 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
 const char* GrGLFragmentShaderBuilder::dstColor() {
     fHasReadDstColor = true;
 
-    GrGpuGL* gpu = fProgramBuilder->gpu();
+    GrGLGpu* gpu = fProgramBuilder->gpu();
     if (gpu->glCaps().fbFetchSupport()) {
         this->addFeature(1 << (GrGLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
                          gpu->glCaps().fbFetchExtensionString());
@@ -258,7 +258,7 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                                                         SkTDArray<GrGLuint>* shaderIds) const {
-    GrGpuGL* gpu = fProgramBuilder->gpu();
+    GrGLGpu* gpu = fProgramBuilder->gpu();
     SkString fragShaderSrc(GrGetGLSLVersionDecl(gpu->ctxInfo()));
     fragShaderSrc.append(fExtensions);
     append_default_precision_qualifier(kDefault_GrSLPrecision,

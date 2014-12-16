@@ -26,7 +26,7 @@
 
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, GrGpuGL* gpu) {
+GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, GrGLGpu* gpu) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(optState,
@@ -54,7 +54,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, G
 
 GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
                                                              bool hasGeometryProcessor,
-                                                             GrGpuGL* gpu) {
+                                                             GrGLGpu* gpu) {
     const GrProgramDesc& desc = optState.programDesc();
     if (GrGLProgramDescBuilder::GetHeader(desc).fUseNvpr) {
         SkASSERT(gpu->glCaps().pathRenderingSupport());
@@ -72,7 +72,7 @@ GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawStat
 
 /////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGpuGL* gpu, const GrOptDrawState& optState)
+GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const GrOptDrawState& optState)
     : fVS(this)
     , fGS(this)
     , fFS(this, optState.programDesc().header().fFragPosKey)

@@ -12,7 +12,7 @@
 
 class GrGLNvprProgramBuilder : public GrGLProgramBuilder {
 public:
-    GrGLNvprProgramBuilder(GrGpuGL*, const GrOptDrawState&);
+    GrGLNvprProgramBuilder(GrGLGpu*, const GrOptDrawState&);
 
     /*
      * The separable varying info must be passed to GrGLProgram so this must

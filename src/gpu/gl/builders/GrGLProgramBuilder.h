@@ -71,7 +71,7 @@ public:
 
     virtual const GrGLContextInfo& ctxInfo() const = 0;
 
-    virtual GrGpuGL* gpu() const = 0;
+    virtual GrGLGpu* gpu() const = 0;
 
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
@@ -205,7 +205,7 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGpuGL*);
+    static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGLGpu*);
 
     UniformHandle addUniformArray(uint32_t visibility,
                                   GrSLType type,
@@ -224,7 +224,7 @@ public:
 
     const GrGLContextInfo& ctxInfo() const SK_OVERRIDE;
 
-    GrGpuGL* gpu() const SK_OVERRIDE { return fGpu; }
+    GrGLGpu* gpu() const SK_OVERRIDE { return fGpu; }
 
     GrGLFPFragmentBuilder* getFragmentShaderBuilder() SK_OVERRIDE { return &fFS; }
     GrGLVertexBuilder* getVertexShaderBuilder() SK_OVERRIDE { return &fVS; }
@@ -259,9 +259,9 @@ protected:
 
     static GrGLProgramBuilder* CreateProgramBuilder(const GrOptDrawState&,
                                                     bool hasGeometryProcessor,
-                                                    GrGpuGL*);
+                                                    GrGLGpu*);
 
-    GrGLProgramBuilder(GrGpuGL*, const GrOptDrawState&);
+    GrGLProgramBuilder(GrGLGpu*, const GrOptDrawState&);
 
     const GrOptDrawState& optState() const { return fOptState; }
     const GrProgramDesc& desc() const { return fDesc; }
@@ -377,7 +377,7 @@ protected:
 
     const GrOptDrawState& fOptState;
     const GrProgramDesc& fDesc;
-    GrGpuGL* fGpu;
+    GrGLGpu* fGpu;
     UniformInfoArray fUniforms;
     SkSTArray<16, TransformVarying, true> fCoordVaryings;
 

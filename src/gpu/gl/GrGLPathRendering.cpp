@@ -59,7 +59,7 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
     }
 }
 
-GrGLPathRendering::GrGLPathRendering(GrGpuGL* gpu)
+GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
     : fGpu(gpu) {
     const GrGLInterface* glInterface = gpu->glInterface();
     fCaps.stencilThenCoverSupport =

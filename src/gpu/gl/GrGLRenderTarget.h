@@ -13,7 +13,7 @@
 #include "GrRenderTarget.h"
 #include "SkScalar.h"
 
-class GrGpuGL;
+class GrGLGpu;
 
 class GrGLRenderTarget : public GrRenderTarget {
 public:
@@ -28,7 +28,7 @@ public:
         bool             fIsWrapped;
     };
 
-    GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&);
+    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }
@@ -61,7 +61,7 @@ protected:
     // class should register with the cache. This constructor does not do the registration and
     // rather moves that burden onto the derived class.
     enum Derived { kDerived };
-    GrGLRenderTarget(GrGpuGL*, const GrSurfaceDesc&, const IDDesc&, Derived);
+    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, Derived);
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 

@@ -126,7 +126,7 @@ public:
     /**
      * This function uploads uniforms and calls each GrGLProcessor's setData. It is called before a
      * draw occurs using the program after the program has already been bound. It also uses the
-     * GrGpuGL object to bind the textures required by the GrGLProcessors. The color and coverage
+     * GrGLGpu object to bind the textures required by the GrGLProcessors. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
     void setData(const GrOptDrawState&);
@@ -135,7 +135,7 @@ protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    GrGLProgram(GrGpuGL*,
+    GrGLProgram(GrGLGpu*,
                 const GrProgramDesc&,
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
@@ -177,7 +177,7 @@ protected:
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
     GrProgramDesc fDesc;
-    GrGpuGL* fGpu;
+    GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
 
     friend class GrGLProgramBuilder;
@@ -194,7 +194,7 @@ protected:
  */
 class GrGLNvprProgramBase : public GrGLProgram {
 protected:
-    GrGLNvprProgramBase(GrGpuGL*,
+    GrGLNvprProgramBase(GrGLGpu*,
                         const GrProgramDesc&,
                         const BuiltinUniformHandles&,
                         GrGLuint programID,
@@ -214,7 +214,7 @@ public:
 private:
     typedef GrGLNvprProgramBuilder::SeparableVaryingInfo SeparableVaryingInfo;
     typedef GrGLNvprProgramBuilder::SeparableVaryingInfoArray SeparableVaryingInfoArray;
-    GrGLNvprProgram(GrGpuGL*,
+    GrGLNvprProgram(GrGLGpu*,
                     const GrProgramDesc&,
                     const BuiltinUniformHandles&,
                     GrGLuint programID,
@@ -245,7 +245,7 @@ public:
     virtual bool hasVertexShader() const SK_OVERRIDE { return false; }
 
 private:
-    GrGLLegacyNvprProgram(GrGpuGL* gpu,
+    GrGLLegacyNvprProgram(GrGLGpu* gpu,
                           const GrProgramDesc& desc,
                           const BuiltinUniformHandles&,
                           GrGLuint programID,

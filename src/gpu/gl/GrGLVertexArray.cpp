@@ -8,10 +8,10 @@
 #include "GrGLVertexArray.h"
 #include "GrGpuGL.h"
 
-#define GPUGL static_cast<GrGpuGL*>(this->getGpu())
+#define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X);
 
-void GrGLAttribArrayState::set(const GrGpuGL* gpu,
+void GrGLAttribArrayState::set(const GrGLGpu* gpu,
                                int index,
                                GrGLVertexBuffer* buffer,
                                GrGLint size,
@@ -49,7 +49,7 @@ void GrGLAttribArrayState::set(const GrGpuGL* gpu,
     }
 }
 
-void GrGLAttribArrayState::disableUnusedArrays(const GrGpuGL* gpu, uint64_t usedMask) {
+void GrGLAttribArrayState::disableUnusedArrays(const GrGLGpu* gpu, uint64_t usedMask) {
     int count = fAttribArrayStates.count();
     for (int i = 0; i < count; ++i) {
         if (!(usedMask & 0x1)) {
@@ -68,7 +68,7 @@ void GrGLAttribArrayState::disableUnusedArrays(const GrGpuGL* gpu, uint64_t used
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLVertexArray::GrGLVertexArray(GrGpuGL* gpu, GrGLint id, int attribCount)
+GrGLVertexArray::GrGLVertexArray(GrGLGpu* gpu, GrGLint id, int attribCount)
     : INHERITED(gpu, false)
     , fID(id)
     , fAttribArrays(attribCount)

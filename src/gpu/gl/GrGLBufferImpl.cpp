@@ -20,7 +20,7 @@
 // objects are implemented as client-side-arrays on tile-deferred architectures.
 #define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
 
-GrGLBufferImpl::GrGLBufferImpl(GrGpuGL* gpu, const Desc& desc, GrGLenum bufferType)
+GrGLBufferImpl::GrGLBufferImpl(GrGLGpu* gpu, const Desc& desc, GrGLenum bufferType)
     : fDesc(desc)
     , fBufferType(bufferType)
     , fMapPtr(NULL) {
@@ -35,7 +35,7 @@ GrGLBufferImpl::GrGLBufferImpl(GrGpuGL* gpu, const Desc& desc, GrGLenum bufferTy
     VALIDATE();
 }
 
-void GrGLBufferImpl::release(GrGpuGL* gpu) {
+void GrGLBufferImpl::release(GrGLGpu* gpu) {
     VALIDATE();
     // make sure we've not been abandoned or already released
     if (fCPUData) {
@@ -65,7 +65,7 @@ void GrGLBufferImpl::abandon() {
     VALIDATE();
 }
 
-void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
+void GrGLBufferImpl::bind(GrGLGpu* gpu) const {
     VALIDATE();
     if (GR_GL_ARRAY_BUFFER == fBufferType) {
         gpu->bindVertexBuffer(fDesc.fID);
@@ -76,7 +76,7 @@ void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
     VALIDATE();
 }
 
-void* GrGLBufferImpl::map(GrGpuGL* gpu) {
+void* GrGLBufferImpl::map(GrGLGpu* gpu) {
     VALIDATE();
     SkASSERT(!this->isMapped());
     if (0 == fDesc.fID) {
@@ -133,7 +133,7 @@ void* GrGLBufferImpl::map(GrGpuGL* gpu) {
     return fMapPtr;
 }
 
-void GrGLBufferImpl::unmap(GrGpuGL* gpu) {
+void GrGLBufferImpl::unmap(GrGLGpu* gpu) {
     VALIDATE();
     SkASSERT(this->isMapped());
     if (0 != fDesc.fID) {
@@ -160,7 +160,7 @@ bool GrGLBufferImpl::isMapped() const {
     return SkToBool(fMapPtr);
 }
 
-bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes) {
+bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInBytes) {
     SkASSERT(!this->isMapped());
     VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {

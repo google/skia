@@ -12,7 +12,7 @@
 #include "../GrPathRange.h"
 #include "gl/GrGLFunctions.h"
 
-class GrGpuGL;
+class GrGLGpu;
 
 /**
  * Currently this represents a range of GL_NV_path_rendering Path IDs. If we
@@ -26,14 +26,14 @@ public:
      * Initialize a GL path range from a PathGenerator. This class will allocate
      * the GPU path objects and initialize them lazily.
      */
-    GrGLPathRange(GrGpuGL*, PathGenerator*, const SkStrokeRec&);
+    GrGLPathRange(GrGLGpu*, PathGenerator*, const SkStrokeRec&);
 
     /**
      * Initialize a GL path range from an existing range of pre-initialized GPU
      * path objects. This class assumes ownership of the GPU path objects and
      * will delete them when done.
      */
-    GrGLPathRange(GrGpuGL*,
+    GrGLPathRange(GrGLGpu*,
                   GrGLuint basePathID,
                   int numPaths,
                   size_t gpuMemorySize,

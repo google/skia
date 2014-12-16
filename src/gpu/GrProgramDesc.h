@@ -12,7 +12,7 @@
 #include "GrTypesPriv.h"
 #include "SkChecksum.h"
 
-class GrGpuGL;
+class GrGLGpu;
 
 /** This class describes a program to generate. It also serves as a program cache key. Very little
     of this is GL-specific. The GL-specific parts could be factored out into a subclass. */

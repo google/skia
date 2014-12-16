@@ -21,7 +21,7 @@ inline const char* sample_function_name(GrSLType type, GrGLSLGeneration glslGen)
     }
 }
 void append_texture_lookup(SkString* out,
-                           GrGpuGL* gpu,
+                           GrGLGpu* gpu,
                            const char* samplerName,
                            const char* coordName,
                            uint32_t configComponentMask,

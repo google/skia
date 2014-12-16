@@ -15,11 +15,11 @@
 #include "gl/GrGLProgram.h"
 
 class GrGLNameAllocator;
-class GrGpuGL;
+class GrGLGpu;
 
 /**
  * This class wraps the NV_path_rendering extension and manages its various
- * API versions. If a method is not present in the GrGLInterface of the GrGpuGL
+ * API versions. If a method is not present in the GrGLInterface of the GrGLGpu
  * (because the driver version is old), it tries to provide a backup
  * implementation. But if a backup implementation is not practical, it marks the
  * method as not supported.
@@ -27,9 +27,9 @@ class GrGpuGL;
 class GrGLPathRendering : public GrPathRendering {
 public:
     /**
-     * Create a new GrGLPathRendering object from a given GrGpuGL.
+     * Create a new GrGLPathRendering object from a given GrGLGpu.
      */
-    GrGLPathRendering(GrGpuGL* gpu);
+    GrGLPathRendering(GrGLGpu* gpu);
     virtual ~GrGLPathRendering();
 
     // GrPathRendering implementations.
@@ -126,7 +126,7 @@ private:
                          GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode,
                          GrGLenum transformType, const GrGLfloat *transformValues);
 
-    GrGpuGL* fGpu;
+    GrGLGpu* fGpu;
     SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
     Caps fCaps;
     GrGLProgram::MatrixState fHWProjectionMatrixState;

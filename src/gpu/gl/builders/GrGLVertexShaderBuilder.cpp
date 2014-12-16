@@ -85,7 +85,7 @@ void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
 
 bool GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId,
         SkTDArray<GrGLuint>* shaderIds) const {
-    GrGpuGL* gpu = fProgramBuilder->gpu();
+    GrGLGpu* gpu = fProgramBuilder->gpu();
     const GrGLContext& glCtx = gpu->glContext();
     const GrGLContextInfo& ctxInfo = gpu->ctxInfo();
     SkString vertShaderSrc(GrGetGLSLVersionDecl(ctxInfo));

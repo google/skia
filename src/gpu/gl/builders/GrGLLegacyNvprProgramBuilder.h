@@ -12,7 +12,7 @@
 
 class GrGLLegacyNvprProgramBuilder : public GrGLProgramBuilder {
 public:
-    GrGLLegacyNvprProgramBuilder(GrGpuGL*, const GrOptDrawState&);
+    GrGLLegacyNvprProgramBuilder(GrGLGpu*, const GrOptDrawState&);
 
     virtual GrGLProgram* createProgram(GrGLuint programID) SK_OVERRIDE;
 

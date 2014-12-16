@@ -142,7 +142,7 @@ static bool get_meta_key(const GrProcessor& proc,
 bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
                                    const GrProgramDesc::DescInfo& descInfo,
                                    GrGpu::DrawType drawType,
-                                   GrGpuGL* gpu,
+                                   GrGLGpu* gpu,
                                    GrProgramDesc* desc) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute

@@ -27,10 +27,10 @@
 #define PROGRAM_CACHE_STATS
 #endif
 
-class GrGpuGL : public GrGpu {
+class GrGLGpu : public GrGpu {
 public:
-    GrGpuGL(const GrGLContext& ctx, GrContext* context);
-    virtual ~GrGpuGL();
+    GrGLGpu(const GrGLContext& ctx, GrContext* context);
+    virtual ~GrGLGpu();
 
     virtual void contextAbandoned() SK_OVERRIDE;
 
@@ -180,7 +180,7 @@ private:
 
     class ProgramCache : public ::SkNoncopyable {
     public:
-        ProgramCache(GrGpuGL* gpu);
+        ProgramCache(GrGLGpu* gpu);
         ~ProgramCache();
 
         void abandon();
@@ -210,7 +210,7 @@ private:
 
         int                         fCount;
         unsigned int                fCurrLRUStamp;
-        GrGpuGL*                    fGpu;
+        GrGLGpu*                    fGpu;
 #ifdef PROGRAM_CACHE_STATS
         int                         fTotalRequests;
         int                         fCacheMisses;
@@ -332,7 +332,7 @@ private:
             }
         }
 
-        void setVertexArrayID(GrGpuGL* gpu, GrGLuint arrayID) {
+        void setVertexArrayID(GrGLGpu* gpu, GrGLuint arrayID) {
             if (!gpu->glCaps().vertexArrayObjectSupport()) {
                 SkASSERT(0 == arrayID);
                 return;
@@ -364,7 +364,7 @@ private:
             }
         }
 
-        void setVertexBufferID(GrGpuGL* gpu, GrGLuint id) {
+        void setVertexBufferID(GrGLGpu* gpu, GrGLuint id) {
             if (!fBoundVertexBufferIDIsValid || id != fBoundVertexBufferID) {
                 GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ARRAY_BUFFER, id));
                 fBoundVertexBufferIDIsValid = true;
@@ -376,7 +376,7 @@ private:
          * Binds the default vertex array and binds the index buffer. This is used when binding
          * an index buffer in order to update it.
          */
-        void setIndexBufferIDOnDefaultVertexArray(GrGpuGL* gpu, GrGLuint id) {
+        void setIndexBufferIDOnDefaultVertexArray(GrGLGpu* gpu, GrGLuint id) {
             this->setVertexArrayID(gpu, 0);
             if (!fDefaultVertexArrayBoundIndexBufferIDIsValid ||
                 id != fDefaultVertexArrayBoundIndexBufferID) {
@@ -392,7 +392,7 @@ private:
          * buffer is bound. The index buffer (if non-NULL) is bound to the vertex array. The
          * returned GrGLAttribArrayState should be used to set vertex attribute arrays.
          */
-        GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGpuGL* gpu,
+        GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGLGpu* gpu,
                                                         const GrGLVertexBuffer* vbuffer,
                                                         const GrGLIndexBuffer* ibuffer);
 

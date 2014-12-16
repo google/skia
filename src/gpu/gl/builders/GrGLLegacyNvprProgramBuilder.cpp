@@ -8,7 +8,7 @@
 #include "GrGLLegacyNvprProgramBuilder.h"
 #include "../GrGpuGL.h"
 
-GrGLLegacyNvprProgramBuilder::GrGLLegacyNvprProgramBuilder(GrGpuGL* gpu,
+GrGLLegacyNvprProgramBuilder::GrGLLegacyNvprProgramBuilder(GrGLGpu* gpu,
                                                            const GrOptDrawState& optState)
     : INHERITED(gpu, optState)
     , fTexCoordSetCnt(0) {

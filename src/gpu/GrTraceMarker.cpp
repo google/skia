@@ -62,7 +62,7 @@ SkString GrTraceMarkerSet::toString() const {
     int counter = 0;
     const int numMarkers = this->fMarkerArray.count();
 
-    // check used for GrGpuGL device after we've already collapsed all markers
+    // check used for GrGLGpu device after we've already collapsed all markers
     if (1 == numMarkers && -1 == this->fMarkerArray[0].fID) {
         marker_string.append(this->fMarkerArray[0].fMarker);
         return marker_string;

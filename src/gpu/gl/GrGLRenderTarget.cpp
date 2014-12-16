@@ -9,18 +9,18 @@
 
 #include "GrGpuGL.h"
 
-#define GPUGL static_cast<GrGpuGL*>(this->getGpu())
+#define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
-GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, idDesc.fIsWrapped, desc)
     , INHERITED(gpu, idDesc.fIsWrapped, desc) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
 
-GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                                    Derived)
     : GrSurface(gpu, idDesc.fIsWrapped, desc)
     , INHERITED(gpu, idDesc.fIsWrapped, desc) {

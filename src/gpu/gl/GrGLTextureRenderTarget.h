@@ -12,7 +12,7 @@
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
 
-class GrGpuGL;
+class GrGLGpu;
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
@@ -24,7 +24,7 @@ class GrGLTextureRenderTarget : public GrGLTexture, public GrGLRenderTarget {
 public:
     // We're virtually derived from GrSurface (via both GrGLTexture and GrGLRenderTarget) so its
     // constructor must be explicitly called.
-    GrGLTextureRenderTarget(GrGpuGL* gpu,
+    GrGLTextureRenderTarget(GrGLGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc)

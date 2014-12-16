@@ -12,14 +12,14 @@
 #include "GrGLBufferImpl.h"
 #include "gl/GrGLInterface.h"
 
-class GrGpuGL;
+class GrGLGpu;
 
 class GrGLVertexBuffer : public GrVertexBuffer {
 
 public:
     typedef GrGLBufferImpl::Desc Desc;
 
-    GrGLVertexBuffer(GrGpuGL* gpu, const Desc& desc);
+    GrGLVertexBuffer(GrGLGpu* gpu, const Desc& desc);
 
     GrGLuint bufferID() const { return fImpl.bufferID(); }
     size_t baseOffset() const { return fImpl.baseOffset(); }
@@ -39,9 +39,9 @@ private:
     virtual void onUnmap() SK_OVERRIDE;
     virtual bool onUpdateData(const void* src, size_t srcSizeInBytes) SK_OVERRIDE;
 
-    GrGpuGL* getGpuGL() const {
+    GrGLGpu* getGpuGL() const {
         SkASSERT(!this->wasDestroyed());
-        return (GrGpuGL*)(this->getGpu());
+        return (GrGLGpu*)(this->getGpu());
     }
 
     GrGLBufferImpl fImpl;

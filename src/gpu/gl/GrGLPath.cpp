@@ -90,7 +90,7 @@ inline void points_to_coords(const SkPoint points[], size_t first_point, size_t 
 
 static const bool kIsWrapped = false; // The constructor creates the GL path object.
 
-void GrGLPath::InitPathObject(GrGpuGL* gpu,
+void GrGLPath::InitPathObject(GrGLGpu* gpu,
                               GrGLuint pathID,
                               const SkPath& skPath,
                               const SkStrokeRec& stroke) {
@@ -183,7 +183,7 @@ void GrGLPath::InitPathObject(GrGpuGL* gpu,
     }
 }
 
-GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
+GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& path, const SkStrokeRec& stroke)
     : INHERITED(gpu, kIsWrapped, path, stroke),
       fPathID(gpu->glPathRendering()->genPaths(1)) {
 
@@ -198,7 +198,7 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
 
 void GrGLPath::onRelease() {
     if (0 != fPathID && !this->isWrapped()) {
-        static_cast<GrGpuGL*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
+        static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
         fPathID = 0;
     }
 

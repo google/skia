@@ -53,7 +53,7 @@ static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage, int tr
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLProgram::GrGLProgram(GrGpuGL* gpu,
+GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const GrProgramDesc& desc,
                          const BuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
@@ -239,7 +239,7 @@ void GrGLProgram::onSetMatrixAndRenderTargetHeight(const GrOptDrawState& optStat
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLNvprProgramBase::GrGLNvprProgramBase(GrGpuGL* gpu,
+GrGLNvprProgramBase::GrGLNvprProgramBase(GrGLGpu* gpu,
                                          const GrProgramDesc& desc,
                                          const BuiltinUniformHandles& builtinUniforms,
                                          GrGLuint programID,
@@ -261,7 +261,7 @@ void GrGLNvprProgramBase::onSetMatrixAndRenderTargetHeight(const GrOptDrawState&
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLNvprProgram::GrGLNvprProgram(GrGpuGL* gpu,
+GrGLNvprProgram::GrGLNvprProgram(GrGLGpu* gpu,
                                  const GrProgramDesc& desc,
                                  const BuiltinUniformHandles& builtinUniforms,
                                  GrGLuint programID,
@@ -314,7 +314,7 @@ void GrGLNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-GrGLLegacyNvprProgram::GrGLLegacyNvprProgram(GrGpuGL* gpu,
+GrGLLegacyNvprProgram::GrGLLegacyNvprProgram(GrGLGpu* gpu,
                                              const GrProgramDesc& desc,
                                              const BuiltinUniformHandles& builtinUniforms,
                                              GrGLuint programID,

@@ -22,7 +22,7 @@ SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
 
 typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
-struct GrGpuGL::ProgramCache::Entry {
+struct GrGLGpu::ProgramCache::Entry {
     SK_DECLARE_INST_COUNT_ROOT(Entry);
     Entry() : fProgram(NULL), fLRUStamp(0) {}
 
@@ -30,7 +30,7 @@ struct GrGpuGL::ProgramCache::Entry {
     unsigned int                fLRUStamp;
 };
 
-struct GrGpuGL::ProgramCache::ProgDescLess {
+struct GrGLGpu::ProgramCache::ProgDescLess {
     bool operator() (const GrProgramDesc& desc, const Entry* entry) {
         SkASSERT(entry->fProgram.get());
         return GrProgramDesc::Less(desc, entry->fProgram->getDesc());
@@ -42,7 +42,7 @@ struct GrGpuGL::ProgramCache::ProgDescLess {
     }
 };
 
-GrGpuGL::ProgramCache::ProgramCache(GrGpuGL* gpu)
+GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
     : fCount(0)
     , fCurrLRUStamp(0)
     , fGpu(gpu)
@@ -57,7 +57,7 @@ GrGpuGL::ProgramCache::ProgramCache(GrGpuGL* gpu)
     }
 }
 
-GrGpuGL::ProgramCache::~ProgramCache() {
+GrGLGpu::ProgramCache::~ProgramCache() {
     for (int i = 0; i < fCount; ++i){
         SkDELETE(fEntries[i]);
     }
@@ -77,7 +77,7 @@ GrGpuGL::ProgramCache::~ProgramCache() {
 #endif
 }
 
-void GrGpuGL::ProgramCache::abandon() {
+void GrGLGpu::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
         SkASSERT(fEntries[i]->fProgram.get());
         fEntries[i]->fProgram->abandon();
@@ -86,12 +86,12 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-int GrGpuGL::ProgramCache::search(const GrProgramDesc& desc) const {
+int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {
     ProgDescLess less;
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrOptDrawState& optState) {
+GrGLProgram* GrGLGpu::ProgramCache::getProgram(const GrOptDrawState& optState) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif

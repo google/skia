@@ -17,7 +17,7 @@
 
 class GrGLVertexBuffer;
 class GrGLIndexBuffer;
-class GrGpuGL;
+class GrGLGpu;
 
 struct GrGLAttribLayout {
     GrGLint     fCount;
@@ -67,7 +67,7 @@ public:
      * assumed that the GrGLAttribArrayState is tracking the state of the currently bound vertex
      * array object.
      */
-    void set(const GrGpuGL*,
+    void set(const GrGLGpu*,
              int index,
              GrGLVertexBuffer*,
              GrGLint size,
@@ -80,7 +80,7 @@ public:
      * This function disables vertex attribs not present in the mask. It is assumed that the
      * GrGLAttribArrayState is tracking the state of the currently bound vertex array object.
      */
-    void disableUnusedArrays(const GrGpuGL*, uint64_t usedAttribArrayMask);
+    void disableUnusedArrays(const GrGLGpu*, uint64_t usedAttribArrayMask);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
@@ -134,7 +134,7 @@ private:
  */
 class GrGLVertexArray : public GrGpuResource {
 public:
-    GrGLVertexArray(GrGpuGL* gpu, GrGLint id, int attribCount);
+    GrGLVertexArray(GrGLGpu* gpu, GrGLint id, int attribCount);
 
     /**
      * Binds this vertex array. If the ID has been deleted or abandoned then NULL is returned.
