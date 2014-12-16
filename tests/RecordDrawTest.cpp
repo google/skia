@@ -191,11 +191,11 @@ DEF_TEST(RecordDraw_TextBounds, r) {
     SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, &bbh);
     REPORTER_ASSERT(r, bbh.fEntries.count() == 2);
 
-    // We can make these next assertions confidently because SkRecordFillBounds
-    // builds its bounds by overestimating font metrics in a platform-independent way.
-    // If that changes, these tests will need to be more flexible.
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(0,  0, 140, 60)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(0, 20, 180, 100)));
+    // Font metrics are somewhat platform dependent, so these assertions may need to be adjusted.
+    // But these particular numbers are left over from the days when we used to wildly overestimate
+    // font metrics, so these assertions should actually be pretty safe.
+    REPORTER_ASSERT(r, SkRect::MakeLTRB(0, 0,140, 60).contains(bbh.fEntries[0].bounds));
+    REPORTER_ASSERT(r, SkRect::MakeLTRB(0,20,180,100).contains(bbh.fEntries[1].bounds));
 }
 
 // Base test to ensure start/stop range is respected
