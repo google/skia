@@ -114,6 +114,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     GrLayerCache* layerCache = context->getLayerCache();
     GrCachedLayer* layer = layerCache->findLayerOrCreate(pic->uniqueID(), 0, 2,
                                                          SkIRect::MakeWH(kWidth, kHeight),
+                                                         SkIRect::MakeWH(kWidth, kHeight),
                                                          SkMatrix::I(), key, 1, &paint);
 
     GrSurfaceDesc desc;
@@ -133,20 +134,17 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     GrRecordReplaceDraw(pic, &canvas, layerCache, SkMatrix::I(), NULL/*callback*/);
 
     int recount = rerecord.count();
-    REPORTER_ASSERT(r, 5 == recount || 7 == recount);
+    REPORTER_ASSERT(r, 2 == recount || 4 == recount);
 
     int index = 0;
-    if (7 == recount) {
+    if (4 == recount) {
         assert_type<SkRecords::Save>(r, rerecord, 0);
         index += 1;
     }
-    assert_type<SkRecords::Save>(r, rerecord, index + 0);
-    assert_type<SkRecords::SetMatrix>(r, rerecord, index + 1);
-    assert_type<SkRecords::DrawBitmapRectToRect>(r, rerecord, index + 2);
-    assert_type<SkRecords::Restore>(r, rerecord, index + 3);
-    assert_type<SkRecords::DrawRect>(r, rerecord, index + 4);
-    if (7 == recount) {
-        assert_type<SkRecords::Restore>(r, rerecord, 6);
+    assert_type<SkRecords::DrawSprite>(r, rerecord, index + 0);
+    assert_type<SkRecords::DrawRect>(r, rerecord, index + 1);
+    if (4 == recount) {
+        assert_type<SkRecords::Restore>(r, rerecord, 3);
     }
 }
 

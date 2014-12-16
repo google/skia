@@ -144,13 +144,16 @@ public:
 
     // GrCachedLayer proper
     GrCachedLayer(uint32_t pictureID, unsigned start, unsigned stop,
-                  const SkIRect& bounds, const SkMatrix& ctm,
+                  const SkIRect& srcIR, const SkIRect& dstIR,
+                  const SkMatrix& ctm,
                   const unsigned* key, int keySize,
                   const SkPaint* paint)
         : fKey(pictureID, ctm, key, keySize, true)
         , fStart(start)
         , fStop(stop)
-        , fBounds(bounds)
+        , fSrcIR(srcIR)
+        , fDstIR(dstIR)
+        , fOffset(SkIPoint::Make(0, 0))
         , fPaint(paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL)
         , fFilter(NULL)
         , fTexture(NULL)
@@ -161,8 +164,10 @@ public:
         SkASSERT(SK_InvalidGenID != pictureID);
 
         if (fPaint) {
-            fFilter = SkSafeRef(fPaint->getImageFilter());
-            fPaint->setImageFilter(NULL);
+            if (fPaint->getImageFilter() && fPaint->getImageFilter()->canFilterImageGPU()) {
+                fFilter = SkSafeRef(fPaint->getImageFilter());
+                fPaint->setImageFilter(NULL);
+            }
         }
     }
 
@@ -179,7 +184,8 @@ public:
 
     unsigned start() const { return fStart; }
     // TODO: make bound debug only
-    const SkIRect& bound() const { return fBounds; }
+    const SkIRect& srcIR() const { return fSrcIR; }
+    const SkIRect& dstIR() const { return fDstIR; }
     unsigned stop() const { return fStop; }
     void setTexture(GrTexture* texture, const SkIRect& rect) {
         SkRefCnt_SafeAssign(fTexture, texture);
@@ -189,6 +195,9 @@ public:
     const SkPaint* paint() const { return fPaint; }
     const SkImageFilter* filter() const { return fFilter; }
     const SkIRect& rect() const { return fRect; }
+
+    void setOffset(const SkIPoint& offset) { fOffset = offset; }
+    const SkIPoint& offset() const { return fOffset; }
 
     void setPlot(GrPlot* plot) {
         SkASSERT(NULL == plot || NULL == fPlot);
@@ -212,7 +221,13 @@ private:
     // The final "restore" operation index of the cached layer
     const unsigned  fStop;
 
-    const SkIRect   fBounds;
+    // The layer's src rect (i.e., the portion of the source scene required
+    // for filtering).
+    const SkIRect   fSrcIR;
+    // The layer's dest rect (i.e., where it will land in device space)
+    const SkIRect   fDstIR;
+    // Offset sometimes required by image filters
+    SkIPoint        fOffset;
 
     // The paint used when dropping the layer down into the owning canvas.
     // Can be NULL. This class makes a copy for itself.
@@ -276,7 +291,8 @@ public:
                              const unsigned* key, int keySize);
     GrCachedLayer* findLayerOrCreate(uint32_t pictureID,
                                      int start, int stop, 
-                                     const SkIRect& bounds,
+                                     const SkIRect& srcIR,
+                                     const SkIRect& dstIR,
                                      const SkMatrix& initialMat,
                                      const unsigned* key, int keySize,
                                      const SkPaint* paint);
@@ -360,7 +376,8 @@ private:
 
     void initAtlas();
     GrCachedLayer* createLayer(uint32_t pictureID, int start, int stop,
-                               const SkIRect& bounds, const SkMatrix& initialMat,
+                               const SkIRect& srcIR, const SkIRect& dstIR,
+                               const SkMatrix& initialMat,
                                const unsigned* key, int keySize,
                                const SkPaint* paint);
 

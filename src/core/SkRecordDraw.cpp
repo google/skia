@@ -608,24 +608,26 @@ public:
 private:
     struct SaveLayerInfo {
         SaveLayerInfo() { }
-        SaveLayerInfo(int opIndex, bool isSaveLayer, const SkPaint* paint)
+        SaveLayerInfo(int opIndex, bool isSaveLayer, const SkRect* bounds, const SkPaint* paint)
             : fStartIndex(opIndex)
             , fIsSaveLayer(isSaveLayer)
             , fHasNestedSaveLayer(false)
+            , fBounds(bounds ? *bounds : SkRect::MakeEmpty())
             , fPaint(paint) {
         }
 
         int                fStartIndex;
         bool               fIsSaveLayer;
         bool               fHasNestedSaveLayer;
+        SkRect             fBounds;
         const SkPaint*     fPaint;
     };
 
     template <typename T> void trackSaveLayers(const T& op) {
         /* most ops aren't involved in saveLayers */
     }
-    void trackSaveLayers(const Save& s) { this->pushSaveLayerInfo(false, NULL); }
-    void trackSaveLayers(const SaveLayer& sl) { this->pushSaveLayerInfo(true, sl.paint); }
+    void trackSaveLayers(const Save& s) { this->pushSaveLayerInfo(false, NULL, NULL); }
+    void trackSaveLayers(const SaveLayer& sl) { this->pushSaveLayerInfo(true, sl.bounds, sl.paint); }
     void trackSaveLayers(const Restore& r) { this->popSaveLayerInfo(); }
 
     void trackSaveLayersForPicture(const SkPicture* picture, const SkPaint* paint) {
@@ -662,6 +664,7 @@ private:
             dst.fPicture = src.fPicture ? src.fPicture : picture;
             dst.fPicture->ref();
             dst.fBounds = newBound;
+            dst.fSrcBounds = src.fSrcBounds;
             dst.fLocalMat = src.fLocalMat;
             dst.fPreMat = src.fPreMat;
             dst.fPreMat.postConcat(fFillBounds.ctm());
@@ -707,14 +710,14 @@ private:
         }
     }
 
-    void pushSaveLayerInfo(bool isSaveLayer, const SkPaint* paint) {
+    void pushSaveLayerInfo(bool isSaveLayer, const SkRect* bounds, const SkPaint* paint) {
         if (isSaveLayer) {
             this->updateStackForSaveLayer();
             ++fSaveLayersInStack;
             fSaveLayerOpStack.push(fFillBounds.currentOp());
         }
 
-        fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, paint));
+        fSaveLayerStack.push(SaveLayerInfo(fFillBounds.currentOp(), isSaveLayer, bounds, paint));
     }
 
     void popSaveLayerInfo() {
@@ -744,6 +747,8 @@ private:
         if (sli.fPaint) {
             block.fPaint = SkNEW_ARGS(SkPaint, (*sli.fPaint));
         }
+
+        block.fSrcBounds = sli.fBounds;
         block.fSaveLayerOpID = sli.fStartIndex;
         block.fRestoreOpID = fFillBounds.currentOp();
         block.fHasNestedLayers = sli.fHasNestedSaveLayer;
