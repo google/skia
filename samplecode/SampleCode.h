@@ -17,6 +17,11 @@
 #include "SkOSMenu.h"
 class GrContext;
 
+#define DEF_SAMPLE(code) \
+    static SkView*          SK_MACRO_APPEND_LINE(F_)() { code } \
+    static SkViewRegister   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
+
+
 class SampleCode {
 public:
     static bool KeyQ(const SkEvent&, SkKey* outKey);

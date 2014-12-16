@@ -692,6 +692,11 @@ public:
         return Intersects(fLeft, fTop, fRight, fBottom, left, top, right, bottom);
     }
 
+    bool intersects(const SkRect& r) const {
+        return Intersects(fLeft, fTop, fRight, fBottom,
+                          r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+
     /**
      *  Return true if rectangles a and b are not empty and intersect.
      */

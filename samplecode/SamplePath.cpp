@@ -210,8 +210,107 @@ protected:
 private:
     typedef SampleView INHERITED;
 };
+DEF_SAMPLE( return new PathView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PathView; }
-static SkViewRegister reg(MyFactory);
+#include "SkCornerPathEffect.h"
+#include "SkRandom.h"
+
+class ArcToView : public SampleView {
+    SkPaint fPtsPaint, fArcPaint, fSkeletonPaint, fCornerPaint;
+public:
+    enum {
+        N = 4
+    };
+    SkPoint fPts[N];
+    SkScalar fRadius;
+
+    ArcToView() : fRadius(50) {
+        SkRandom rand;
+        for (int i = 0; i < N; ++i) {
+            fPts[i].fX = 20 + rand.nextUScalar1() * 640;
+            fPts[i].fY = 20 + rand.nextUScalar1() * 480;
+        }
+
+        fPtsPaint.setAntiAlias(true);
+        fPtsPaint.setStrokeWidth(15);
+        fPtsPaint.setStrokeCap(SkPaint::kRound_Cap);
+
+        fArcPaint.setAntiAlias(true);
+        fArcPaint.setStyle(SkPaint::kStroke_Style);
+        fArcPaint.setStrokeWidth(9);
+        fArcPaint.setColor(0x800000FF);
+
+        fCornerPaint.setAntiAlias(true);
+        fCornerPaint.setStyle(SkPaint::kStroke_Style);
+        fCornerPaint.setStrokeWidth(13);
+        fCornerPaint.setColor(SK_ColorGREEN);
+        fCornerPaint.setPathEffect(SkCornerPathEffect::Create(fRadius*2))->unref();
+
+        fSkeletonPaint.setAntiAlias(true);
+        fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
+        fSkeletonPaint.setColor(SK_ColorRED);
+    }
+
+protected:
+    // overrides from SkEventSink
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "ArcTo");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+
+        SkPath path;
+
+        path.moveTo(fPts[0]);
+        for (int i = 1; i < N; ++i) {
+            path.lineTo(fPts[i].fX, fPts[i].fY);
+        }
+        canvas->drawPath(path, fCornerPaint);
+
+        path.reset();
+        path.moveTo(fPts[0]);
+        for (int i = 1; i < N - 1; ++i) {
+            path.arcTo(fPts[i].fX, fPts[i].fY, fPts[i+1].fX, fPts[i+1].fY, fRadius);
+        }
+        path.lineTo(fPts[N - 1]);
+        canvas->drawPath(path, fArcPaint);
+
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N, fPts, fSkeletonPaint);
+    }
+
+    bool onClick(Click* click) SK_OVERRIDE {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < N);
+            fPts[index] = click->fCurr;
+            this->inval(NULL);
+            return true;
+        }
+        return false;
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+        const SkScalar tol = 4;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < N; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new ArcToView; )
+
