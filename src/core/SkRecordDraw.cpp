@@ -487,13 +487,16 @@ private:
     Bounds bounds(const DrawTextOnPath& op) const {
         SkRect dst = op.path.getBounds();
 
-        // We don't know how the text will curve around the path, so
-        // pad all sides by the maximum padding in any direction we'd normally apply.
+        // Pad all sides by the maximum padding in any direction we'd normally apply.
         SkRect pad = { 0, 0, 0, 0};
         AdjustTextForFontMetrics(&pad, op.paint);
-        SkScalar max = SkTMax(SkTMax(-pad.fLeft, pad.fRight),
-                              SkTMax(-pad.fTop, pad.fBottom));
-        dst.outset(max, max);
+
+        // That maximum padding happens to always be the right pad today.
+        SkASSERT(pad.fLeft == -pad.fRight);
+        SkASSERT(pad.fTop  == -pad.fBottom);
+        SkASSERT(pad.fRight > pad.fBottom);
+        dst.outset(pad.fRight, pad.fRight);
+
         return this->adjustAndMap(dst, &op.paint);
     }
 
@@ -508,21 +511,25 @@ private:
     }
 
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
-        // rect was built from only the text's origin points, so we need to
-        // outset it by the worst-case bounds of the font.
-        const SkRect bounds = paint.getFontBounds();
-        rect->fLeft   += bounds.fLeft;
-        rect->fRight  += bounds.fRight;
-        rect->fTop    += bounds.fTop;
-        rect->fBottom += bounds.fBottom;
+#ifdef SK_DEBUG
+        SkRect correct = *rect;
+#endif
+        // crbug.com/373785 ~~> xPad = 4x yPad
+        // crbug.com/424824 ~~> bump yPad from 2x text size to 2.5x
+        const SkScalar yPad = 2.5f * paint.getTextSize(),
+                       xPad = 4.0f * yPad;
+        rect->outset(xPad, yPad);
 #ifdef SK_DEBUG
         SkPaint::FontMetrics metrics;
         paint.getFontMetrics(&metrics);
-        const SkRect correct = { metrics.fXMin, metrics.fTop, metrics.fXMax, metrics.fBottom };
+        correct.fLeft   += metrics.fXMin;
+        correct.fTop    += metrics.fTop;
+        correct.fRight  += metrics.fXMax;
+        correct.fBottom += metrics.fBottom;
         // See skia:2862 for why we ignore small text sizes.
-        SkASSERTF(paint.getTextSize() < 0.001f || bounds.contains(correct),
+        SkASSERTF(paint.getTextSize() < 0.001f || rect->contains(correct),
                   "%f %f %f %f vs. %f %f %f %f\n",
-                   bounds.fLeft,  bounds.fTop, bounds.fRight,  bounds.fBottom,
+                  -xPad, -yPad, +xPad, +yPad,
                   metrics.fXMin, metrics.fTop, metrics.fXMax, metrics.fBottom);
 #endif
     }
