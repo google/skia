@@ -59,31 +59,3 @@ drawbitmapmatrix
 
 #junov skbug.com/3176
 pictureimagefilter
-
-#scroggo skbug.com/3241
-# replacing SkLCGRandom with SkRandom
-beziers
-circles
-convexpaths
-complexclip2
-complexclip2_rect_aa
-complexclip2_rect_bw
-complexclip2_path_aa
-complexclip2_path_bw
-complexclip2_rrect_aa
-complexclip2_rrect_bw
-cubicpath
-cubicclosepath
-degeneratesegments
-emptypath
-getpostextpath
-hittestpath
-linepath
-lineclosepath
-points
-polygons
-quadpath
-quadclosepath
-strokerects
-strokes_round
-strokes_poly
