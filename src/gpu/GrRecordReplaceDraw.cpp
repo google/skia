@@ -21,8 +21,6 @@ static inline void wrap_texture(GrTexture* texture, int width, int height, SkBit
 }
 
 static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canvas) {
-    const SkRect src = SkRect::Make(layer->rect());
-    const SkRect dst = SkRect::Make(layer->bound());
 
     SkBitmap bm;
     wrap_texture(layer->texture(),
@@ -30,10 +28,22 @@ static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canva
                  !layer->isAtlased() ? layer->rect().height() : layer->texture()->height(),
                  &bm);
 
-    canvas->save();
-    canvas->setMatrix(SkMatrix::I());
-    canvas->drawBitmapRectToRect(bm, &src, dst, layer->paint());
-    canvas->restore();
+    if (layer->isAtlased()) {
+        const SkRect src = SkRect::Make(layer->rect());
+        const SkRect dst = SkRect::Make(layer->srcIR());
+
+        SkASSERT(layer->offset().isZero());
+
+        canvas->save();
+        canvas->setMatrix(SkMatrix::I());
+        canvas->drawBitmapRectToRect(bm, &src, dst, layer->paint());
+        canvas->restore();
+    } else {
+        canvas->drawSprite(bm, 
+                           layer->srcIR().fLeft + layer->offset().fX,
+                           layer->srcIR().fTop + layer->offset().fY,
+                           layer->paint());
+    }
 }
 
 // Used by GrRecordReplaceDraw. It intercepts nested drawPicture calls and

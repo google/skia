@@ -43,6 +43,7 @@ static void create_layers(skiatest::Reporter* reporter,
         GrCachedLayer* layer = cache->findLayerOrCreate(picture.uniqueID(), 
                                                         idOffset+i+1, idOffset+i+2, 
                                                         SkIRect::MakeEmpty(),
+                                                        SkIRect::MakeEmpty(),
                                                         SkMatrix::I(),
                                                         indices, 1,
                                                         NULL);

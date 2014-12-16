@@ -114,6 +114,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     GrLayerCache* layerCache = context->getLayerCache();
     GrCachedLayer* layer = layerCache->findLayerOrCreate(pic->uniqueID(), 0, 2,
                                                          SkIRect::MakeWH(kWidth, kHeight),
+                                                         SkIRect::MakeWH(kWidth, kHeight),
                                                          SkMatrix::I(), key, 1, &paint);
 
     GrSurfaceDesc desc;
