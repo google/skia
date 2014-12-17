@@ -38,4 +38,4 @@ class SkiaTechmemeNexus10PageSet(page_set_module.PageSet):
     ]
 
     for url in urls_list:
-      self.AddPage(SkiaBuildbotDesktopPage(url, self))
+      self.AddUserStory(SkiaBuildbotDesktopPage(url, self))
