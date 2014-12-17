@@ -1345,35 +1345,26 @@ void GrGLGpu::flushScissor(const GrClipMaskManager::ScissorState& scissorState,
 }
 
 bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
-    // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
-    SkASSERT(optState.getRenderTarget());
+    SkASSERT(kStencilPath_DrawType != optState.drawType());
+    this->flushMiscFixedFunctionState(optState);
 
-    if (kStencilPath_DrawType == optState.drawType()) {
-        const GrRenderTarget* rt = optState.getRenderTarget();
-        SkISize size;
-        size.set(rt->width(), rt->height());
-        this->glPathRendering()->setProjectionMatrix(optState.getViewMatrix(), size, rt->origin());
-    } else {
-        this->flushMiscFixedFunctionState(optState);
-
-        fCurrentProgram.reset(fProgramCache->getProgram(optState));
-        if (NULL == fCurrentProgram.get()) {
-            SkDEBUGFAIL("Failed to create program!");
-            return false;
-        }
-
-        fCurrentProgram.get()->ref();
-
-        GrGLuint programID = fCurrentProgram->programID();
-        if (fHWProgramID != programID) {
-            GL_CALL(UseProgram(programID));
-            fHWProgramID = programID;
-        }
-
-        this->flushBlend(optState);
-
-        fCurrentProgram->setData(optState);
+    fCurrentProgram.reset(fProgramCache->getProgram(optState));
+    if (NULL == fCurrentProgram.get()) {
+        SkDEBUGFAIL("Failed to create program!");
+        return false;
     }
+
+    fCurrentProgram.get()->ref();
+
+    GrGLuint programID = fCurrentProgram->programID();
+    if (fHWProgramID != programID) {
+        GL_CALL(UseProgram(programID));
+        fHWProgramID = programID;
+    }
+
+    this->flushBlend(optState);
+
+    fCurrentProgram->setData(optState);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
     this->flushStencil(optState.getStencil(), optState.drawType());
@@ -1874,9 +1865,15 @@ void GrGLGpu::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& inf
 void GrGLGpu::onStencilPath(const GrOptDrawState& ds,
                             const GrPath* path,
                             const GrStencilSettings& stencil) {
-    if (!this->flushGLState(ds)) {
-        return;
-    }
+    this->flushMiscFixedFunctionState(ds);
+    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(ds.getRenderTarget());
+    SkISize size = SkISize::Make(rt->width(), rt->height());
+    this->glPathRendering()->setProjectionMatrix(ds.getViewMatrix(), size, rt->origin());
+    this->flushStencil(ds.getStencil(), ds.drawType());
+    this->flushScissor(ds.getScissorState(), rt->getViewport(), rt->origin());
+    this->flushAAState(ds);
+    this->flushRenderTarget(rt, NULL);
+
     fPathRendering->stencilPath(path, stencil);
 }
 
