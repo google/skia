@@ -20,6 +20,7 @@
         'gpuveto',
         'lua_app',
         'lua_pictures',
+        'imgconv',
         'pinspect',
         'render_pdfs',
         'render_pictures',
@@ -542,6 +543,17 @@
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_renderer',
+      ],
+    },
+    {
+      'target_name': 'imgconv',
+      'type': 'executable',
+      'sources': [
+        '../tools/imgconv.cpp',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {
