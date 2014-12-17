@@ -222,7 +222,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds, const DrawIn
 void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
                                  const GrGeometryProcessor* gp,
                                  const DrawInfo& info,
-                                 const ScissorState& scissorState,
+                                 const GrScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
@@ -250,22 +250,21 @@ void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
 void GrInOrderDrawBuffer::onStencilPath(const GrDrawState& ds,
                                         const GrPathProcessor* pathProc,
                                         const GrPath* path,
-                                        const GrClipMaskManager::ScissorState& scissorState,
+                                        const GrScissorState& scissorState,
                                         const GrStencilSettings& stencilSettings) {
-    // Only compare the subset of GrDrawState relevant to path stenciling?
-    if (!this->recordStateAndShouldDraw(ds, NULL, pathProc, GrGpu::kStencilPath_DrawType,
-                                        scissorState, NULL)) {
-        return;
-    }
-    StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath, (path));
-    sp->fStencilSettings = stencilSettings;
+    StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath,
+                                               (path, ds.getRenderTarget()));
+    sp->fScissor = scissorState;
+    sp->fUseHWAA = ds.isHWAntialias();
+    sp->fViewMatrix = ds.getViewMatrix();
+    sp->fStencil = stencilSettings;
     this->recordTraceMarkersIfNecessary();
 }
 
 void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
                                      const GrPathProcessor* pathProc,
                                      const GrPath* path,
-                                     const GrClipMaskManager::ScissorState& scissorState,
+                                     const GrScissorState& scissorState,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
@@ -286,7 +285,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
                                       const float transformValues[],
                                       PathTransformType transformType,
                                       int count,
-                                      const GrClipMaskManager::ScissorState& scissorState,
+                                      const GrScissorState& scissorState,
                                       const GrStencilSettings& stencilSettings,
                                       const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(pathRange);
@@ -435,10 +434,15 @@ void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const GrOptDra
     buf->getGpu()->draw(*optState, fInfo);
 }
 
-void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf,
-                                               const GrOptDrawState* optState) {
-    SkASSERT(optState);
-    buf->getGpu()->stencilPath(*optState, this->path(), fStencilSettings);
+void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
+    GrGpu::StencilPathState state;
+    state.fRenderTarget = fRenderTarget.get();
+    state.fScissor = &fScissor;
+    state.fStencil = &fStencil;
+    state.fUseHWAA = fUseHWAA;
+    state.fViewMatrix = &fViewMatrix;
+
+    buf->getGpu()->stencilPath(this->path(), state);
 }
 
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf,
@@ -493,7 +497,7 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                                    const GrGeometryProcessor* gp,
                                                    const GrPathProcessor* pathProc,
                                                    GrGpu::DrawType drawType,
-                                                   const GrClipMaskManager::ScissorState& scissor,
+                                                   const GrScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
     SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
                                             (ds, gp, pathProc, *this->getGpu()->caps(), scissor,

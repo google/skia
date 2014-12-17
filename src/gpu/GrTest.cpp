@@ -115,8 +115,7 @@ private:
 
     void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE {}
 
-    void onStencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE {
-    }
+    void onStencilPath(const GrPath* path, const StencilPathState& state) SK_OVERRIDE {}
 
     void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE {}
 

@@ -446,7 +446,7 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
         this->checkDraw(*ds, gp, type, startVertex, startIndex, vertexCount, indexCount)) {
 
         // Setup clip
-        GrClipMaskManager::ScissorState scissorState;
+        GrScissorState scissorState;
         GrDrawState::AutoRestoreEffects are;
         GrDrawState::AutoRestoreStencil ars;
         if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
@@ -489,7 +489,7 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
     if (vertexCount > 0 && this->checkDraw(*ds, gp, type, startVertex, -1, vertexCount, -1)) {
 
         // Setup clip
-        GrClipMaskManager::ScissorState scissorState;
+        GrScissorState scissorState;
         GrDrawState::AutoRestoreEffects are;
         GrDrawState::AutoRestoreStencil ars;
         if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
@@ -568,7 +568,7 @@ void GrDrawTarget::stencilPath(GrDrawState* ds,
     SkASSERT(ds);
 
     // Setup clip
-    GrClipMaskManager::ScissorState scissorState;
+    GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
     if (!this->setupClip(NULL, &are, &ars, ds, &scissorState)) {
@@ -598,7 +598,7 @@ void GrDrawTarget::drawPath(GrDrawState* ds,
     viewM.mapRect(&devBounds);
 
     // Setup clip
-    GrClipMaskManager::ScissorState scissorState;
+    GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
     if (!this->setupClip(&devBounds, &are, &ars, ds, &scissorState)) {
@@ -637,7 +637,7 @@ void GrDrawTarget::drawPaths(GrDrawState* ds,
     SkASSERT(ds);
 
     // Setup clip
-    GrClipMaskManager::ScissorState scissorState;
+    GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
 
@@ -748,7 +748,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
     }
 
     // Setup clip
-    GrClipMaskManager::ScissorState scissorState;
+    GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
     if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
@@ -1214,7 +1214,7 @@ bool GrClipTarget::setupClip(const SkRect* devBounds,
                              GrDrawState::AutoRestoreEffects* are,
                              GrDrawState::AutoRestoreStencil* ars,
                              GrDrawState* ds,
-                             GrClipMaskManager::ScissorState* scissorState) {
+                             GrScissorState* scissorState) {
     return fClipMaskManager.setupClipping(ds,
                                           are,
                                           ars,

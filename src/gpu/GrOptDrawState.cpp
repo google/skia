@@ -17,7 +17,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                const GrGeometryProcessor* gp,
                                const GrPathProcessor* pathProc,
                                const GrDrawTargetCaps& caps,
-                               const ScissorState& scissorState,
+                               const GrScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
                                GrGpu::DrawType drawType)
     : fFinalized(false) {
@@ -26,13 +26,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     // Copy GeometryProcesssor from DS or ODS
     if (gp) {
         SkASSERT(!pathProc);
-        SkASSERT(!(GrGpu::IsPathRenderingDrawType(drawType) ||
-                   GrGpu::kStencilPath_DrawType == drawType));
+        SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType));
         fGeometryProcessor.reset(gp);
         fPrimitiveProcessor.reset(gp);
     } else {
-        SkASSERT(!gp && pathProc && (GrGpu::IsPathRenderingDrawType(drawType) ||
-                 GrGpu::kStencilPath_DrawType == drawType));
+        SkASSERT(!gp && pathProc && GrGpu::IsPathRenderingDrawType(drawType));
         fPrimitiveProcessor.reset(pathProc);
     }
 
@@ -64,8 +62,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     // When path rendering the stencil settings are not always set on the draw state
     // so we must check the draw type. In cases where we will skip drawing we simply return a
     // null GrOptDrawState.
-    if (!xferProcessor || ((GrXferProcessor::kSkipDraw_OptFlag & optFlags) &&
-                           GrGpu::kStencilPath_DrawType != drawType)) {
+    if (!xferProcessor || (GrXferProcessor::kSkipDraw_OptFlag & optFlags)) {
         // Set the fields that don't default init and return. The lack of a render target will
         // indicate that this can be skipped.
         fFlags = 0;

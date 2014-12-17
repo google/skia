@@ -29,10 +29,8 @@ class GrOptDrawState {
 public:
     SK_DECLARE_INST_COUNT(GrOptDrawState)
 
-    typedef GrClipMaskManager::ScissorState ScissorState;
-
     GrOptDrawState(const GrDrawState& drawState, const GrGeometryProcessor*, const GrPathProcessor*,
-                   const GrDrawTargetCaps&, const ScissorState&,
+                   const GrDrawTargetCaps&, const GrScissorState&,
                    const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
     /*
@@ -123,7 +121,7 @@ public:
     /// @name ScissorState
     ////
 
-    const ScissorState& getScissorState() const { return fScissorState; }
+    const GrScissorState& getScissorState() const { return fScissorState; }
 
     /// @}
 
@@ -190,7 +188,7 @@ private:
     typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
-    ScissorState                        fScissorState;
+    GrScissorState                      fScissorState;
     SkMatrix                            fViewMatrix;
     GrStencilSettings                   fStencilSettings;
     GrDrawState::DrawFace               fDrawFace;

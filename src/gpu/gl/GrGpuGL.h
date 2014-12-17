@@ -146,7 +146,7 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
     void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
-    void onStencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    void onStencilPath(const GrPath*, const StencilPathState&) SK_OVERRIDE;
     void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
     void onDrawPaths(const GrOptDrawState&,
                      const GrPathRange*,
@@ -223,12 +223,13 @@ private:
 #endif
     };
 
-    // flushes dithering, color-mask, and face culling stat
-    void flushMiscFixedFunctionState(const GrOptDrawState&);
+    void flushDither(bool dither);
+    void flushColorWriteDisable(bool disableColorWrites);
+    void flushDrawFace(GrDrawState::DrawFace face);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor(const GrClipMaskManager::ScissorState&,
+    void flushScissor(const GrScissorState&,
                       const GrGLIRect& rtViewport,
                       GrSurfaceOrigin rtOrigin);
 
@@ -248,8 +249,8 @@ private:
     // NULL means whole target. Can be an empty rect.
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
-    void flushStencil(const GrStencilSettings&, DrawType);
-    void flushAAState(const GrOptDrawState&);
+    void flushStencil(const GrStencilSettings&);
+    void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool isLineDraw);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,

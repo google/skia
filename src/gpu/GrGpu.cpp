@@ -280,11 +280,9 @@ void GrGpu::draw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
     this->onDraw(ds, info);
 }
 
-void GrGpu::stencilPath(const GrOptDrawState& ds,
-                        const GrPath* path,
-                        const GrStencilSettings& stencilSettings) {
+void GrGpu::stencilPath(const GrPath* path, const StencilPathState& state) {
     this->handleDirtyContext();
-    this->onStencilPath(ds, path, stencilSettings);
+    this->onStencilPath(path, state);
 }
 
 void GrGpu::drawPath(const GrOptDrawState& ds,

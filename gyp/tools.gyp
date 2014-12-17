@@ -1,4 +1,4 @@
-# GYP file to build various tools.
+    # GYP file to build various tools.
 #
 # To build on Linux:
 #  ./gyp_skia tools.gyp && make tools

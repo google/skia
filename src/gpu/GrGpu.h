@@ -303,7 +303,6 @@ public:
         kDrawPoints_DrawType,
         kDrawLines_DrawType,
         kDrawTriangles_DrawType,
-        kStencilPath_DrawType,
         kDrawPath_DrawType,
         kDrawPaths_DrawType,
     };
@@ -358,7 +357,18 @@ public:
                              const SkIPoint& dstPoint) = 0;
 
     void draw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&);
-    void stencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&);
+
+    /** None of these params are optional, pointers used just to avoid making copies. */
+    struct StencilPathState {
+        bool fUseHWAA;
+        GrRenderTarget* fRenderTarget;
+        const SkMatrix* fViewMatrix;
+        const GrStencilSettings* fStencil;
+        const GrScissorState* fScissor;
+    };
+
+    void stencilPath(const GrPath*, const StencilPathState&);
+
     void drawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&);
     void drawPaths(const GrOptDrawState&,
                    const GrPathRange*,
@@ -436,7 +446,8 @@ private:
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) = 0;
-    virtual void onStencilPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) = 0;
+    virtual void onStencilPath(const GrPath*, const StencilPathState&) = 0;
+
     virtual void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) = 0;
     virtual void onDrawPaths(const GrOptDrawState&,
                              const GrPathRange*,

@@ -1313,7 +1313,7 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
     }
 }
 
-void GrGLGpu::flushScissor(const GrClipMaskManager::ScissorState& scissorState,
+void GrGLGpu::flushScissor(const GrScissorState& scissorState,
                            const GrGLIRect& rtViewport,
                            GrSurfaceOrigin rtOrigin) {
     if (scissorState.fEnabled) {
@@ -1344,8 +1344,9 @@ void GrGLGpu::flushScissor(const GrClipMaskManager::ScissorState& scissorState,
 }
 
 bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
-    SkASSERT(kStencilPath_DrawType != optState.drawType());
-    this->flushMiscFixedFunctionState(optState);
+    this->flushDither(optState.isDitherState());
+    this->flushColorWriteDisable(optState.isColorWriteDisabled());
+    this->flushDrawFace(optState.getDrawFace());
 
     fCurrentProgram.reset(fProgramCache->getProgram(optState));
     if (NULL == fCurrentProgram.get()) {
@@ -1366,9 +1367,10 @@ bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
     fCurrentProgram->setData(optState);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
-    this->flushStencil(optState.getStencil(), optState.drawType());
+    this->flushStencil(optState.getStencil());
     this->flushScissor(optState.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushAAState(optState);
+    this->flushHWAAState(glRT, optState.isHWAntialiasState(),
+                         kDrawLines_DrawType == optState.drawType());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -1471,7 +1473,7 @@ void GrGLGpu::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
     }
 
     this->flushRenderTarget(glRT, rect);
-    GrClipMaskManager::ScissorState scissorState;
+    GrScissorState scissorState;
     scissorState.fEnabled = SkToBool(rect);
     if (scissorState.fEnabled) {
         scissorState.fRect = *rect;
@@ -1584,7 +1586,7 @@ void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
-    GrClipMaskManager::ScissorState scissorState;
+    GrScissorState scissorState;
     scissorState.fEnabled = true;
     scissorState.fRect = rect;
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
@@ -1861,19 +1863,18 @@ void GrGLGpu::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& inf
 #endif
 }
 
-void GrGLGpu::onStencilPath(const GrOptDrawState& ds,
-                            const GrPath* path,
-                            const GrStencilSettings& stencil) {
-    this->flushMiscFixedFunctionState(ds);
-    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(ds.getRenderTarget());
+void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
+    this->flushColorWriteDisable(true);
+    this->flushDrawFace(GrDrawState::kBoth_DrawFace);
+
+    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(state.fRenderTarget);
     SkISize size = SkISize::Make(rt->width(), rt->height());
-    this->glPathRendering()->setProjectionMatrix(ds.getViewMatrix(), size, rt->origin());
-    this->flushStencil(ds.getStencil(), ds.drawType());
-    this->flushScissor(ds.getScissorState(), rt->getViewport(), rt->origin());
-    this->flushAAState(ds);
+    this->glPathRendering()->setProjectionMatrix(*state.fViewMatrix, size, rt->origin());
+    this->flushScissor(*state.fScissor, rt->getViewport(), rt->origin());
+    this->flushHWAAState(rt, state.fUseHWAA, false);
     this->flushRenderTarget(rt, NULL);
 
-    fPathRendering->stencilPath(path, stencil);
+    fPathRendering->stencilPath(path, *state.fStencil);
 }
 
 void GrGLGpu::onDrawPath(const GrOptDrawState& ds, const GrPath* path,
@@ -1920,7 +1921,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
 
             if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
-                GrClipMaskManager::ScissorState scissorState;
+                GrScissorState scissorState;
                 scissorState.fEnabled = true;
                 scissorState.fRect = dirtyRect;
                 this->flushScissor(scissorState, rt->getViewport(), rt->origin());
@@ -1993,9 +1994,8 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 }
 
-void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings, DrawType type) {
-    // TODO figure out why we need to flush stencil settings on path draws at all
-    if (kStencilPath_DrawType != type && fHWStencilSettings != stencilSettings) {
+void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
+    if (fHWStencilSettings != stencilSettings) {
         if (stencilSettings.isDisabled()) {
             if (kNo_TriState != fHWStencilTestEnabled) {
                 GL_CALL(Disable(GR_GL_STENCIL_TEST));
@@ -2028,21 +2028,19 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings, DrawType ty
     }
 }
 
-void GrGLGpu::flushAAState(const GrOptDrawState& optState) {
+void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool isLineDraw) {
 // At least some ATI linux drivers will render GL_LINES incorrectly when MSAA state is enabled but
 // the target is not multisampled. Single pixel wide lines are rendered thicker than 1 pixel wide.
 #if 0
     // Replace RT_HAS_MSAA with this definition once this driver bug is no longer a relevant concern
     #define RT_HAS_MSAA rt->isMultisampled()
 #else
-    #define RT_HAS_MSAA (rt->isMultisampled() || kDrawLines_DrawType == optState.drawType())
+    #define RT_HAS_MSAA (rt->isMultisampled() || isLineDraw)
 #endif
 
-    const GrRenderTarget* rt = optState.getRenderTarget();
     if (kGL_GrGLStandard == this->glStandard()) {
         if (RT_HAS_MSAA) {
-            bool enableMSAA = optState.isHWAntialiasState();
-            if (enableMSAA) {
+            if (useHWAA) {
                 if (kYes_TriState != fMSAAEnabled) {
                     GL_CALL(Enable(GR_GL_MULTISAMPLE));
                     fMSAAEnabled = kYes_TriState;
@@ -2210,8 +2208,8 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
 }
 
-void GrGLGpu::flushMiscFixedFunctionState(const GrOptDrawState& optState) {
-    if (optState.isDitherState()) {
+void GrGLGpu::flushDither(bool dither) {
+    if (dither) {
         if (kYes_TriState != fHWDitherEnabled) {
             GL_CALL(Enable(GR_GL_DITHER));
             fHWDitherEnabled = kYes_TriState;
@@ -2222,8 +2220,10 @@ void GrGLGpu::flushMiscFixedFunctionState(const GrOptDrawState& optState) {
             fHWDitherEnabled = kNo_TriState;
         }
     }
+}
 
-    if (optState.isColorWriteDisabled()) {
+void GrGLGpu::flushColorWriteDisable(bool disableColorWrites) {
+    if (disableColorWrites) {
         if (kNo_TriState != fHWWriteToColor) {
             GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
                               GR_GL_FALSE, GR_GL_FALSE));
@@ -2235,9 +2235,11 @@ void GrGLGpu::flushMiscFixedFunctionState(const GrOptDrawState& optState) {
             fHWWriteToColor = kYes_TriState;
         }
     }
+}
 
-    if (fHWDrawFace != optState.getDrawFace()) {
-        switch (optState.getDrawFace()) {
+void GrGLGpu::flushDrawFace(GrDrawState::DrawFace face) {
+    if (fHWDrawFace != face) {
+        switch (face) {
             case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
@@ -2252,7 +2254,7 @@ void GrGLGpu::flushMiscFixedFunctionState(const GrOptDrawState& optState) {
             default:
                 SkFAIL("Unknown draw face.");
         }
-        fHWDrawFace = optState.getDrawFace();
+        fHWDrawFace = face;
     }
 }
 

@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "SkTArray.h"
+#include "SkRect.h"
 
 /**
  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
@@ -238,6 +239,18 @@ enum GrIOType {
     kRead_GrIOType,
     kWrite_GrIOType,
     kRW_GrIOType
+};
+
+struct GrScissorState {
+    GrScissorState() : fEnabled(false) {}
+    void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
+    bool operator==(const GrScissorState& other) const {
+        return fEnabled == other.fEnabled &&
+                (false == fEnabled || fRect == other.fRect);
+    }
+    bool operator!=(const GrScissorState& other) const { return !(*this == other); }
+    bool    fEnabled;
+    SkIRect fRect;
 };
 
 #endif

@@ -239,7 +239,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
     // dummy scissor state
-    GrClipMaskManager::ScissorState scissor;
+    GrScissorState scissor;
 
     // Setup texture cache id key
     const GrCacheID::Domain glProgramsDomain = GrCacheID::GenerateDomain();

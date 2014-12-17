@@ -702,7 +702,7 @@ private:
     virtual void onDraw(const GrDrawState&,
                         const GrGeometryProcessor*,
                         const DrawInfo&,
-                        const GrClipMaskManager::ScissorState&,
+                        const GrScissorState&,
                         const GrDeviceCoordTexture* dstCopy) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrDrawState*,
@@ -714,12 +714,12 @@ private:
     virtual void onStencilPath(const GrDrawState&,
                                const GrPathProcessor*,
                                const GrPath*,
-                               const GrClipMaskManager::ScissorState&,
+                               const GrScissorState&,
                                const GrStencilSettings&) = 0;
     virtual void onDrawPath(const GrDrawState&,
                             const GrPathProcessor*,
                             const GrPath*,
-                            const GrClipMaskManager::ScissorState&,
+                            const GrScissorState&,
                             const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrDrawState&,
@@ -730,7 +730,7 @@ private:
                              const float transformValues[],
                              PathTransformType,
                              int count,
-                             const GrClipMaskManager::ScissorState&,
+                             const GrScissorState&,
                              const GrStencilSettings&,
                              const GrDeviceCoordTexture*) = 0;
 
@@ -790,7 +790,7 @@ private:
                            GrDrawState::AutoRestoreEffects* are,
                            GrDrawState::AutoRestoreStencil* ars,
                            GrDrawState*,
-                           GrClipMaskManager::ScissorState* scissorState) = 0;
+                           GrScissorState* scissorState) = 0;
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
@@ -850,7 +850,7 @@ private:
                            GrDrawState::AutoRestoreEffects* are,
                            GrDrawState::AutoRestoreStencil* ars,
                            GrDrawState*,
-                           GrClipMaskManager::ScissorState* scissorState) SK_OVERRIDE;
+                           GrScissorState* scissorState) SK_OVERRIDE;
 
     typedef GrDrawTarget INHERITED;
 };

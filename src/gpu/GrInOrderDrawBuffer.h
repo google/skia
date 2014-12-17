@@ -51,7 +51,6 @@ public:
     void discard(GrRenderTarget*) SK_OVERRIDE;
 
 private:
-    typedef GrClipMaskManager::ScissorState ScissorState;
     enum {
         kDraw_Cmd           = 1,
         kStencilPath_Cmd    = 2,
@@ -80,16 +79,22 @@ private:
     };
 
     struct StencilPath : public Cmd {
-        StencilPath(const GrPath* path) : Cmd(kStencilPath_Cmd), fPath(path) {}
+        StencilPath(const GrPath* path, GrRenderTarget* rt)
+            : Cmd(kStencilPath_Cmd)
+            , fRenderTarget(rt)
+            , fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
 
         void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
-        GrStencilSettings fStencilSettings;
-
+        SkMatrix                                                fViewMatrix;
+        bool                                                    fUseHWAA;
+        GrStencilSettings                                       fStencil;
+        GrScissorState                                          fScissor;
     private:
-        GrPendingIOResource<const GrPath, kRead_GrIOType>   fPath;
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+        GrPendingIOResource<const GrPath, kRead_GrIOType>       fPath;
     };
 
     struct DrawPath : public Cmd {
@@ -173,7 +178,7 @@ private:
     struct SetState : public Cmd {
         SetState(const GrDrawState& drawState, const GrGeometryProcessor* gp,
                  const GrPathProcessor* pp, const GrDrawTargetCaps& caps,
-                 const ScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
+                 const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
                  GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
         , fState(drawState, gp, pp, caps, scissor, dstCopy, drawType) {}
@@ -193,7 +198,7 @@ private:
     void onDraw(const GrDrawState&,
                 const GrGeometryProcessor*,
                 const DrawInfo&,
-                const ScissorState&,
+                const GrScissorState&,
                 const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawRect(GrDrawState*,
                     GrColor,
@@ -204,12 +209,12 @@ private:
     void onStencilPath(const GrDrawState&,
                        const GrPathProcessor*,
                        const GrPath*,
-                       const ScissorState&,
+                       const GrScissorState&,
                        const GrStencilSettings&) SK_OVERRIDE;
     void onDrawPath(const GrDrawState&,
                     const GrPathProcessor*,
                     const GrPath*,
-                    const ScissorState&,
+                    const GrScissorState&,
                     const GrStencilSettings&,
                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawPaths(const GrDrawState&,
@@ -220,7 +225,7 @@ private:
                      const float transformValues[],
                      PathTransformType,
                      int count,
-                     const ScissorState&,
+                     const GrScissorState&,
                      const GrStencilSettings&,
                      const GrDeviceCoordTexture*) SK_OVERRIDE;
     void onClear(const SkIRect* rect,
@@ -243,7 +248,7 @@ private:
                                                         const GrGeometryProcessor*,
                                                         const GrPathProcessor*,
                                                         GrGpu::DrawType,
-                                                        const GrClipMaskManager::ScissorState&,
+                                                        const GrScissorState&,
                                                         const GrDeviceCoordTexture*);
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();

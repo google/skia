@@ -202,7 +202,7 @@ bool GrClipMaskManager::installClipEffects(GrDrawState* drawState,
 bool GrClipMaskManager::setupClipping(GrDrawState* drawState,
                                       GrDrawState::AutoRestoreEffects* are,
                                       GrDrawState::AutoRestoreStencil* ars,
-                                      ScissorState* scissorState,
+                                      GrScissorState* scissorState,
                                       const GrClipData* clipDataIn,
                                       const SkRect* devBounds) {
     fCurrClipMaskType = kNone_ClipMaskType;
