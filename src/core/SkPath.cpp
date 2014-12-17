@@ -14,7 +14,10 @@
 #include "SkRRect.h"
 #include "SkThread.h"
 
+// These two should be removed once we fix any gpu bugs, and then
+// just move them into skia_for_chromium_defines.gypi
 #define SK_SUPPORT_LEGACY_ADDOVAL
+#define SK_SUPPORT_LEGACY_ADDRRECT
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -970,6 +973,7 @@ void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
     this->addRRect(rrect, dir);
 }
 
+#ifdef SK_SUPPORT_LEGACY_ADDRRECT
 /* The inline clockwise and counterclockwise round rect quad approximations
    make it easier to see the symmetry patterns used by add corner quads.
 Clockwise                                                     corner value
@@ -1096,6 +1100,7 @@ static void add_corner_quads(SkPath* path, const SkRRect& rrect,
         path->lineTo(xOff[4], yOff[4]);
     }
 }
+#endif
 
 void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
     assert_known_direction(dir);
@@ -1116,6 +1121,7 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         SkAutoPathBoundsUpdate apbu(this, bounds);
         SkAutoDisableDirectionCheck addc(this);
 
+#ifdef SK_SUPPORT_LEGACY_ADDRRECT
         this->incReserve(21);
         if (kCW_Direction == dir) {
             this->moveTo(bounds.fLeft,
@@ -1132,6 +1138,44 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
             add_corner_quads(this, rrect, SkRRect::kUpperRight_Corner, dir);
             add_corner_quads(this, rrect, SkRRect::kUpperLeft_Corner, dir);
         }
+#else
+        const SkScalar L = bounds.fLeft;
+        const SkScalar T = bounds.fTop;
+        const SkScalar R = bounds.fRight;
+        const SkScalar B = bounds.fBottom;
+        const SkScalar W = SK_ScalarRoot2Over2;
+
+        this->incReserve(13);
+        if (kCW_Direction == dir) {
+            this->moveTo(L, B - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY);
+
+            this->lineTo(L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY);
+            this->conicTo(L, T, L + rrect.fRadii[SkRRect::kUpperLeft_Corner].fX, T, W);
+
+            this->lineTo(R - rrect.fRadii[SkRRect::kUpperRight_Corner].fX, T);
+            this->conicTo(R, T, R, T + rrect.fRadii[SkRRect::kUpperRight_Corner].fY, W);
+
+            this->lineTo(R, B - rrect.fRadii[SkRRect::kLowerRight_Corner].fY);
+            this->conicTo(R, B, R - rrect.fRadii[SkRRect::kLowerRight_Corner].fX, B, W);
+
+            this->lineTo(L + rrect.fRadii[SkRRect::kLowerLeft_Corner].fX, B);
+            this->conicTo(L, B, L, B - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY, W);
+        } else {
+            this->moveTo(L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY);
+
+            this->lineTo(L, B - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY);
+            this->conicTo(L, B, L + rrect.fRadii[SkRRect::kLowerLeft_Corner].fX, B, W);
+
+            this->lineTo(R - rrect.fRadii[SkRRect::kLowerRight_Corner].fX, B);
+            this->conicTo(R, B, R, B - rrect.fRadii[SkRRect::kLowerRight_Corner].fY, W);
+
+            this->lineTo(R, T + rrect.fRadii[SkRRect::kUpperRight_Corner].fY);
+            this->conicTo(R, T, R - rrect.fRadii[SkRRect::kUpperRight_Corner].fX, T, W);
+
+            this->lineTo(L + rrect.fRadii[SkRRect::kUpperLeft_Corner].fX, T);
+            this->conicTo(L, T, L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY, W);
+        }
+#endif
         this->close();
     }
     SkDEBUGCODE(fPathRef->validate();)
