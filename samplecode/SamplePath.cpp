@@ -214,43 +214,54 @@ DEF_SAMPLE( return new PathView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include "SkArcToPathEffect.h"
 #include "SkCornerPathEffect.h"
 #include "SkRandom.h"
 
 class ArcToView : public SampleView {
-    SkPaint fPtsPaint, fArcPaint, fSkeletonPaint, fCornerPaint;
+    bool fDoFrame, fDoArcTo, fDoCorner, fDoConic;
+    SkPaint fPtsPaint, fArcToPaint, fSkeletonPaint, fCornerPaint;
 public:
     enum {
         N = 4
     };
     SkPoint fPts[N];
-    SkScalar fRadius;
 
-    ArcToView() : fRadius(50) {
+    ArcToView()
+        : fDoFrame(false), fDoArcTo(false), fDoCorner(false), fDoConic(false)
+    {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
             fPts[i].fY = 20 + rand.nextUScalar1() * 480;
         }
+        
+        const SkScalar rad = 50;
 
         fPtsPaint.setAntiAlias(true);
         fPtsPaint.setStrokeWidth(15);
         fPtsPaint.setStrokeCap(SkPaint::kRound_Cap);
 
-        fArcPaint.setAntiAlias(true);
-        fArcPaint.setStyle(SkPaint::kStroke_Style);
-        fArcPaint.setStrokeWidth(9);
-        fArcPaint.setColor(0x800000FF);
+        fArcToPaint.setAntiAlias(true);
+        fArcToPaint.setStyle(SkPaint::kStroke_Style);
+        fArcToPaint.setStrokeWidth(9);
+        fArcToPaint.setColor(0x800000FF);
+        fArcToPaint.setPathEffect(SkArcToPathEffect::Create(rad))->unref();
 
         fCornerPaint.setAntiAlias(true);
         fCornerPaint.setStyle(SkPaint::kStroke_Style);
         fCornerPaint.setStrokeWidth(13);
         fCornerPaint.setColor(SK_ColorGREEN);
-        fCornerPaint.setPathEffect(SkCornerPathEffect::Create(fRadius*2))->unref();
+        fCornerPaint.setPathEffect(SkCornerPathEffect::Create(rad*2))->unref();
 
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
+    }
+
+    void toggle(bool& value) {
+        value = !value;
+        this->inval(NULL);
     }
 
 protected:
@@ -260,29 +271,43 @@ protected:
             SampleCode::TitleR(evt, "ArcTo");
             return true;
         }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case '1': this->toggle(fDoFrame); return true;
+                case '2': this->toggle(fDoArcTo); return true;
+                case '3': this->toggle(fDoCorner); return true;
+                case '4': this->toggle(fDoConic); return true;
+                default: break;
+            }
+        }
         return this->INHERITED::onQuery(evt);
+    }
+    
+    void makePath(SkPath* path) {
+        path->moveTo(fPts[0]);
+        for (int i = 1; i < N; ++i) {
+            path->lineTo(fPts[i]);
+        }
+        if (!fDoFrame) {
+            path->close();
+        }
     }
 
     void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
 
         SkPath path;
+        this->makePath(&path);
 
-        path.moveTo(fPts[0]);
-        for (int i = 1; i < N; ++i) {
-            path.lineTo(fPts[i].fX, fPts[i].fY);
+        if (fDoCorner) {
+            canvas->drawPath(path, fCornerPaint);
         }
-        canvas->drawPath(path, fCornerPaint);
-
-        path.reset();
-        path.moveTo(fPts[0]);
-        for (int i = 1; i < N - 1; ++i) {
-            path.arcTo(fPts[i].fX, fPts[i].fY, fPts[i+1].fX, fPts[i+1].fY, fRadius);
+        if (fDoArcTo) {
+            canvas->drawPath(path, fArcToPaint);
         }
-        path.lineTo(fPts[N - 1]);
-        canvas->drawPath(path, fArcPaint);
 
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N, fPts, fSkeletonPaint);
+        canvas->drawPath(path, fSkeletonPaint);
     }
 
     bool onClick(Click* click) SK_OVERRIDE {
