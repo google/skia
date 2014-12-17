@@ -15518,6 +15518,7 @@
           14852444518787952875
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "simpleaaclip_path_pdf-mac.png": {
