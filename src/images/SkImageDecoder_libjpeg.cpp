@@ -724,7 +724,7 @@ SkImageDecoder::Result SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* 
             fill_below_level(y, bm);
             cinfo.output_scanline = cinfo.output_height;
             jpeg_finish_decompress(&cinfo);
-            return kSuccess;
+            return kPartialSuccess;
         }
         if (this->shouldCancelDecode()) {
             return return_failure(cinfo, *bm, "shouldCancelDecode");
