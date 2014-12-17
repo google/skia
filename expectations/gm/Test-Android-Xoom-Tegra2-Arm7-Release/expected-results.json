@@ -7842,28 +7842,31 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14182680775472184218
+          17997278686559565570
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "patheffect_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4547654274603880457
+          10598367237581465944
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "patheffect_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8018893696397219345
+          15075375927921651811
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "pathfill_565.png": {
       "allowed-digests": [

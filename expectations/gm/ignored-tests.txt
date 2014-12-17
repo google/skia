@@ -51,9 +51,6 @@ imagemagnifier
 #reed
 modecolorfilters
 
-#reed -- https://codereview.chromium.org/803213003/
-patheffect
-
 #humper skia:2049
 dashcubics
 

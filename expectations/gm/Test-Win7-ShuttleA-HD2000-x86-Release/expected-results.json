@@ -10277,31 +10277,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11583670197101695014
+          1632567329629047831
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "patheffect_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8541291463342302531
+          2464349560931653609
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "patheffect_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3282704488403617514
+          5155384057986195510
         ]
       ], 
       "reviewed-by-human": true

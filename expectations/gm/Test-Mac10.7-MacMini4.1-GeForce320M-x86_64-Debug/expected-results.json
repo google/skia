@@ -14304,25 +14304,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14182680775472184218
+          17997278686559565570
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "patheffect_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4547654274603880457
+          10598367237581465944
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "patheffect_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13565594966710138750
+          15332969005690898665
         ]
       ], 
       "reviewed-by-human": true
@@ -14349,10 +14351,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7655578690531817181
+          11929930424487951284
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "patheffect_pdf-poppler.png": {
       "allowed-digests": [
