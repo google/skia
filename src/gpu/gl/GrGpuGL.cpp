@@ -559,16 +559,15 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     GrGLenum externalType = 0x0;   // suppress warning
 
     // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
-    // format for glTexImage, unlike ES3 and desktop. However, we allow the driver to decide the
-    // size of the internal format whenever possible and so only use a sized internal format when
-    // using texture storage.
+    // format for glTexImage, unlike ES3 and desktop.
     bool useSizedFormat = useTexStorage;
-    // Many versions of the ES3 drivers on various platforms will not accept GL_RED in
-    // glTexImage2D for the internal format but will accept GL_R8.
-    if (kGLES_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(3, 0) &&
-        kAlpha_8_GrPixelConfig == dataConfig) {
+    if (kGL_GrGLStandard == this->glStandard() ||
+        (this->glVersion() >= GR_GL_VER(3, 0) &&
+         // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
+         (kBGRA_8888_GrPixelConfig != dataConfig || !this->glCaps().bgraIsInternalFormat())))  {
         useSizedFormat = true;
     }
+
     if (!this->configToGLFormats(dataConfig, useSizedFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
         return false;
