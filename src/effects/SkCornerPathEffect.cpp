@@ -94,6 +94,16 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src,
                 lastCorner = pts[2];
                 firstStep.set(0, 0);
                 break;
+            case SkPath::kConic_Verb:
+                // TBD - just replicate the curve for now
+                if (!prevIsValid) {
+                    dst->moveTo(pts[0]);
+                    prevIsValid = true;
+                }
+                dst->conicTo(pts[1], pts[2], iter.conicWeight());
+                lastCorner = pts[2];
+                firstStep.set(0, 0);
+                break;
             case SkPath::kCubic_Verb:
                 if (!prevIsValid) {
                     dst->moveTo(pts[0]);
@@ -111,11 +121,12 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src,
                                 lastCorner.fY + firstStep.fY);
                     }
                 dst->close();
-                break;
-            case SkPath::kConic_Verb:
-                SkASSERT(0);
+                prevIsValid = false;
                 break;
             case SkPath::kDone_Verb:
+                if (prevIsValid) {
+                    dst->lineTo(lastCorner);
+                }
                 goto DONE;
         }
 
