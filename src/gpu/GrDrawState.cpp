@@ -185,21 +185,7 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
     // so we don't have to pass in a seemingly known coverage
     this->calcCoverageInvariantOutput(GrColor_WHITE);
     return fXPFactory->canApplyCoverage(fColorProcInfo, fCoverageProcInfo,
-                                        this->isCoverageDrawing(), this->isColorWriteDisabled());
-}
-
-bool GrDrawState::hasSolidCoverage(const GrPrimitiveProcessor* pp) const {
-    // If we're drawing coverage directly then coverage is effectively treated as color.
-    if (this->isCoverageDrawing()) {
-        return true;
-    }
-
-    if (this->numCoverageStages() > 0) {
-        return false;
-    }
-
-    this->calcCoverageInvariantOutput(pp);
-    return fCoverageProcInfo.isSolidWhite();
+                                        this->isColorWriteDisabled());
 }
 
 //////////////////////////////////////////////////////////////////////////////s
@@ -252,7 +238,7 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
 // Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
 // others will blend incorrectly.
 bool GrDrawState::canTweakAlphaForCoverage() const {
-    return fXPFactory->canTweakAlphaForCoverage(this->isCoverageDrawing());
+    return fXPFactory->canTweakAlphaForCoverage();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +340,7 @@ bool GrDrawState::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
     this->calcColorInvariantOutput(pp);
     this->calcCoverageInvariantOutput(pp);
     return fXPFactory->willBlendWithDst(fColorProcInfo, fCoverageProcInfo,
-                                        this->isCoverageDrawing(), this->isColorWriteDisabled());
+                                        this->isColorWriteDisabled());
 }
 
 void GrDrawState::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {

@@ -55,7 +55,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
         optFlags = xferProcessor->getOptimizations(colorPOI,
                                                    coveragePOI,
-                                                   drawState.isCoverageDrawing(),
                                                    drawState.isColorWriteDisabled(),
                                                    drawState.getStencil().doesWrite(),
                                                    &overrideColor,

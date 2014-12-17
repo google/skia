@@ -19,6 +19,7 @@
 #include "GrStencil.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
+#include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -83,11 +84,6 @@ public:
     bool canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCaps& caps) const;
 
     /**
-     * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
-     */
-    bool hasSolidCoverage(const GrPrimitiveProcessor*) const;
-
-    /**
      * This function returns true if the render target destination pixel values will be read for
      * blending during draw.
      */
@@ -142,6 +138,10 @@ public:
 
     void setPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst) {
         fXPFactory.reset(GrPorterDuffXPFactory::Create(src, dst));
+    }
+
+    void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false) {
+        fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
     }
 
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
@@ -416,21 +416,11 @@ public:
          */
         kNoColorWrites_StateBit = 0x08,
 
-        /**
-         * Usually coverage is applied after color blending. The color is blended using the coeffs
-         * specified by setBlendFunc(). The blended color is then combined with dst using coeffs
-         * of src_coverage, 1-src_coverage. Sometimes we are explicitly drawing a coverage mask. In
-         * this case there is no distinction between coverage and color and the caller needs direct
-         * control over the blend coeffs. When set, there will be a single blend step controlled by
-         * setBlendFunc() which will use coverage*color as the src color.
-         */
-         kCoverageDrawing_StateBit = 0x10,
-         kLast_StateBit = kCoverageDrawing_StateBit,
+        kLast_StateBit = kNoColorWrites_StateBit,
     };
 
     bool isClipState() const { return 0 != (fFlagBits & kClip_StateBit); }
     bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
-    bool isCoverageDrawing() const { return 0 != (fFlagBits & kCoverageDrawing_StateBit); }
     bool isDither() const { return 0 != (fFlagBits & kDither_StateBit); }
     bool isHWAntialias() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
 

@@ -330,45 +330,25 @@ bool GrClipMaskManager::setupClipping(GrDrawState* drawState,
 
 namespace {
 ////////////////////////////////////////////////////////////////////////////////
-// set up the OpenGL blend function to perform the specified
-// boolean operation for alpha clip mask creation
-void setup_boolean_blendcoeffs(SkRegion::Op op, GrDrawState* drawState) {
-    // TODO: once we have a coverageDrawing XP this will all use that instead of PD
-    switch (op) {
-        case SkRegion::kReplace_Op:
-            drawState->setPorterDuffXPFactory(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
-            break;
-        case SkRegion::kIntersect_Op:
-            drawState->setPorterDuffXPFactory(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
-            break;
-        case SkRegion::kUnion_Op:
-            drawState->setPorterDuffXPFactory(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
-            break;
-        case SkRegion::kXOR_Op:
-            drawState->setPorterDuffXPFactory(kIDC_GrBlendCoeff, kISC_GrBlendCoeff);
-            break;
-        case SkRegion::kDifference_Op:
-            drawState->setPorterDuffXPFactory(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
-            break;
-        case SkRegion::kReverseDifference_Op:
-            drawState->setPorterDuffXPFactory(kIDC_GrBlendCoeff, kZero_GrBlendCoeff);
-            break;
-        default:
-            SkASSERT(false);
-            break;
-    }
+// Set a coverage drawing XPF on the drawState for the given op and invertCoverage mode
+void set_coverage_drawing_xpf(SkRegion::Op op, bool invertCoverage, GrDrawState* drawState) {
+    SkASSERT(op <= SkRegion::kLastOp);
+    drawState->setCoverageSetOpXPFactory(op, invertCoverage);
 }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawElement(GrDrawState* drawState,
-                                    GrColor color,
                                     GrTexture* target,
                                     const SkClipStack::Element* element,
                                     GrPathRenderer* pr) {
     GrDrawTarget::AutoGeometryPush agp(fClipTarget);
 
     drawState->setRenderTarget(target->asRenderTarget());
+
+    // The color we use to draw does not matter since we will always be using a GrCoverageSetOpXP
+    // which ignores color.
+    GrColor color = GrColor_WHITE;
 
     // TODO: Draw rrects directly here.
     switch (element->getType()) {
@@ -451,17 +431,19 @@ void GrClipMaskManager::mergeMask(GrDrawState* drawState,
 
     drawState->setRenderTarget(dstMask->asRenderTarget());
 
-    setup_boolean_blendcoeffs(op, drawState);
+    // We want to invert the coverage here
+    set_coverage_drawing_xpf(op, false, drawState);
 
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
 
-    drawState->addColorProcessor(
+    drawState->addCoverageProcessor(
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,
                                       GrTextureDomain::MakeTexelDomain(srcMask, srcBound),
                                       GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode))->unref();
+    // The color passed in here does not matter since the coverageSetOpXP won't read it.
     fClipTarget->drawSimpleRect(drawState, GrColor_WHITE, SkRect::Make(dstBound));
 }
 
@@ -567,9 +549,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             GrDrawState drawState(translate);
-            // We're drawing a coverage mask and want coverage to be run through the blend function.
-            drawState.enableState(GrDrawState::kCoverageDrawing_StateBit |
-                                  GrDrawState::kClip_StateBit);
+            drawState.enableState(GrDrawState::kClip_StateBit);
 
             GrPathRenderer* pr = NULL;
             bool useTemp = !this->canStencilAndDrawElement(&drawState, result, &pr, element);
@@ -603,7 +583,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                    invert ? 0xffffffff : 0x00000000,
                                    true,
                                    dst->asRenderTarget());
-                setup_boolean_blendcoeffs(SkRegion::kReplace_Op, &drawState);
+                set_coverage_drawing_xpf(SkRegion::kReplace_Op, invert, &drawState);
             } else {
                 // draw directly into the result with the stencil set to make the pixels affected
                 // by the clip shape be non-zero.
@@ -616,29 +596,29 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                              0xffff,
                                              0xffff);
                 drawState.setStencil(kStencilInElement);
-                setup_boolean_blendcoeffs(op, &drawState);
+                set_coverage_drawing_xpf(op, invert, &drawState);
             }
 
-            // We have to backup the drawstate because the drawElement call may call into
-            // renderers which consume it.
-            GrDrawState backupDrawState(drawState);
-
-            if (!this->drawElement(&drawState, invert ? GrColor_TRANS_BLACK :
-                                                        GrColor_WHITE, dst, element, pr)) {
+            if (!this->drawElement(&drawState, dst, element, pr)) {
                 fAACache.reset();
                 return NULL;
             }
 
+            GrDrawState backgroundDrawState(translate);
+            backgroundDrawState.enableState(GrDrawState::kClip_StateBit);
+            backgroundDrawState.setRenderTarget(result->asRenderTarget());
+
             if (useTemp) {
                 // Now draw into the accumulator using the real operation and the temp buffer as a
                 // texture
-                this->mergeMask(&backupDrawState,
+                this->mergeMask(&backgroundDrawState,
                                 result,
                                 temp,
                                 op,
                                 maskSpaceIBounds,
                                 maskSpaceElementIBounds);
             } else {
+                set_coverage_drawing_xpf(op, !invert, &backgroundDrawState);
                 // Draw to the exterior pixels (those with a zero stencil value).
                 GR_STATIC_CONST_SAME_STENCIL(kDrawOutsideElement,
                                              kZero_StencilOp,
@@ -647,19 +627,18 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                              0xffff,
                                              0x0000,
                                              0xffff);
-                backupDrawState.setStencil(kDrawOutsideElement);
-                fClipTarget->drawSimpleRect(&backupDrawState,
-                                            invert ? GrColor_WHITE : GrColor_TRANS_BLACK,
-                                            clipSpaceIBounds);
+                backgroundDrawState.setStencil(kDrawOutsideElement);
+                // The color passed in here does not matter since the coverageSetOpXP won't read it.
+                fClipTarget->drawSimpleRect(&backgroundDrawState, GrColor_WHITE, clipSpaceIBounds);
             }
         } else {
             GrDrawState drawState(translate);
-            drawState.enableState(GrDrawState::kCoverageDrawing_StateBit |
-                                  GrDrawState::kClip_StateBit);
+            drawState.enableState(GrDrawState::kClip_StateBit);
 
             // all the remaining ops can just be directly draw into the accumulation buffer
-            setup_boolean_blendcoeffs(op, &drawState);
-            this->drawElement(&drawState, GrColor_WHITE, result, element);
+            set_coverage_drawing_xpf(op, false, &drawState);
+            // The color passed in here does not matter since the coverageSetOpXP won't read it.
+            this->drawElement(&drawState, result, element);
         }
     }
 

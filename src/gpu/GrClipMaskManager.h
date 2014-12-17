@@ -152,7 +152,6 @@ private:
     // desired blend operation. Optionally if the caller already selected a path renderer it can
     // be passed. Otherwise the function will select one if the element is a path.
     bool drawElement(GrDrawState*,
-                     GrColor,
                      GrTexture* target,
                      const SkClipStack::Element*,
                      GrPathRenderer* pr = NULL);

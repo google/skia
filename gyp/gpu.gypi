@@ -177,6 +177,8 @@
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.h',
+      '<(skia_src_path)/gpu/effects/GrCoverageSetOpXP.cpp',
+      '<(skia_src_path)/gpu/effects/GrCoverageSetOpXP.h',
       '<(skia_src_path)/gpu/effects/GrBezierEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrBezierEffect.h',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.cpp',

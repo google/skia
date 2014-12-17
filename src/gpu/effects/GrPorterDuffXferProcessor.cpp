@@ -8,17 +8,17 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 #include "GrBlend.h"
-#include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
+#include "GrProcOptInfo.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-static bool can_tweak_alpha_for_coverage(GrBlendCoeff dstCoeff, bool isCoverageDrawing) {
+static bool can_tweak_alpha_for_coverage(GrBlendCoeff dstCoeff) {
     /*
      The fractional coverage is f.
      The src and dst coeffs are Cs and Cd.
@@ -27,14 +27,10 @@ static bool can_tweak_alpha_for_coverage(GrBlendCoeff dstCoeff, bool isCoverageD
      we're replacing S with S'=fS. It's obvious that that first term will always be ok. The second
      term can be rearranged as [1-(1-Cd)f]D. By substituting in the various possibilities for Cd we
      find that only 1, ISA, and ISC produce the correct destination when applied to S' and D.
-     Also, if we're directly rendering coverage (isCoverageDrawing) then coverage is treated as
-     color by definition.
      */
-    // TODO: Once we have a CoverageDrawing XP, we don't need to check is CoverageDrawing here
     return kOne_GrBlendCoeff == dstCoeff ||
            kISA_GrBlendCoeff == dstCoeff ||
-           kISC_GrBlendCoeff == dstCoeff ||
-           isCoverageDrawing;
+           kISC_GrBlendCoeff == dstCoeff;
 }
 
 class GrGLPorterDuffXferProcessor : public GrGLXferProcessor {
@@ -128,14 +124,9 @@ GrGLXferProcessor* GrPorterDuffXferProcessor::createGLInstance() const {
     return SkNEW_ARGS(GrGLPorterDuffXferProcessor, (*this));
 }
 
-void GrPorterDuffXferProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
-}
-
 GrXferProcessor::OptFlags
 GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
                                             const GrProcOptInfo& coveragePOI,
-                                            bool isCoverageDrawing,
                                             bool colorWriteDisabled,
                                             bool doesStencilWrite,
                                             GrColor* overrideColor,
@@ -153,11 +144,10 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
     } else {
         optFlags = this->internalGetOptimizations(colorPOI,
                                                   coveragePOI,
-                                                  isCoverageDrawing,
                                                   colorWriteDisabled,
                                                   doesStencilWrite);
     }
-    this->calcOutputTypes(optFlags, caps, isCoverageDrawing || coveragePOI.isSolidWhite(),
+    this->calcOutputTypes(optFlags, caps, coveragePOI.isSolidWhite(),
                           colorPOI.readsDst() || coveragePOI.readsDst());
     return optFlags;
 }
@@ -208,7 +198,6 @@ void GrPorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFla
 GrXferProcessor::OptFlags
 GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPOI,
                                                     const GrProcOptInfo& coveragePOI,
-                                                    bool isCoverageDrawing,
                                                     bool colorWriteDisabled,
                                                     bool doesStencilWrite) {
     if (colorWriteDisabled) {
@@ -218,13 +207,9 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
 
     bool srcAIsOne;
     bool hasCoverage;
-    if (isCoverageDrawing) {
-        srcAIsOne = colorPOI.isOpaque() && coveragePOI.isOpaque();
-        hasCoverage = false;
-    } else {
-        srcAIsOne = colorPOI.isOpaque();
-        hasCoverage = !coveragePOI.isSolidWhite();
-    }
+
+    srcAIsOne = colorPOI.isOpaque();
+    hasCoverage = !coveragePOI.isSolidWhite();
 
     bool dstCoeffIsOne = kOne_GrBlendCoeff == fDstBlend ||
                          (kSA_GrBlendCoeff == fDstBlend && srcAIsOne);
@@ -262,13 +247,10 @@ GrPorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPO
                        GrXferProcessor::kIgnoreCoverage_OptFlag;
             }
         }
-    } else if (isCoverageDrawing) {
-        // we have coverage but we aren't distinguishing it from alpha by request.
-        return GrXferProcessor::kSetCoverageDrawing_OptFlag;
-    } else {
+    }  else {
         // check whether coverage can be safely rolled into alpha
         // of if we can skip color computation and just emit coverage
-        if (can_tweak_alpha_for_coverage(fDstBlend, isCoverageDrawing)) {
+        if (can_tweak_alpha_for_coverage(fDstBlend)) {
             return GrXferProcessor::kSetCoverageDrawing_OptFlag;
         }
         if (dstCoeffIsZero) {
@@ -418,9 +400,8 @@ bool GrPorterDuffXPFactory::supportsRGBCoverage(GrColor /*knownColor*/,
 
 bool GrPorterDuffXPFactory::canApplyCoverage(const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI,
-                                             bool isCoverageDrawing,
                                              bool colorWriteDisabled) const {
-    bool srcAIsOne = colorPOI.isOpaque() && (!isCoverageDrawing || coveragePOI.isOpaque());
+    bool srcAIsOne = colorPOI.isOpaque();
 
     if (colorWriteDisabled) {
         return true;
@@ -437,24 +418,19 @@ bool GrPorterDuffXPFactory::canApplyCoverage(const GrProcOptInfo& colorPOI,
 
     // if we don't have coverage we can check whether the dst
     // has to read at all.
-    if (isCoverageDrawing) {
-        // we have coverage but we aren't distinguishing it from alpha by request.
+    // check whether coverage can be safely rolled into alpha
+    // of if we can skip color computation and just emit coverage
+    if (this->canTweakAlphaForCoverage()) {
         return true;
-    } else {
-        // check whether coverage can be safely rolled into alpha
-        // of if we can skip color computation and just emit coverage
-        if (this->canTweakAlphaForCoverage(isCoverageDrawing)) {
+    }
+    if (dstCoeffIsZero) {
+        if (kZero_GrBlendCoeff == fSrcCoeff) {
             return true;
+        } else if (srcAIsOne) {
+            return  true;
         }
-        if (dstCoeffIsZero) {
-            if (kZero_GrBlendCoeff == fSrcCoeff) {
-                return true;
-            } else if (srcAIsOne) {
-                return  true;
-            }
-        } else if (dstCoeffIsOne) {
-            return true;
-        }
+    } else if (dstCoeffIsOne) {
+        return true;
     }
 
     // TODO: once all SkXferEffects are XP's then we will never reads dst here since only XP's
@@ -469,9 +445,8 @@ bool GrPorterDuffXPFactory::canApplyCoverage(const GrProcOptInfo& colorPOI,
 
 bool GrPorterDuffXPFactory::willBlendWithDst(const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI,
-                                             bool isCoverageDrawing,
                                              bool colorWriteDisabled) const {
-    if (!(isCoverageDrawing || coveragePOI.isSolidWhite())) {
+    if (!coveragePOI.isSolidWhite()) {
         return true;
     }
 
@@ -485,7 +460,7 @@ bool GrPorterDuffXPFactory::willBlendWithDst(const GrProcOptInfo& colorPOI,
         return true;
     }
 
-    bool srcAIsOne = colorPOI.isOpaque() && (!isCoverageDrawing || coveragePOI.isOpaque());
+    bool srcAIsOne = colorPOI.isOpaque();
 
     if (!(kZero_GrBlendCoeff == fDstCoeff ||
           (kISA_GrBlendCoeff == fDstCoeff && srcAIsOne))) {
@@ -495,8 +470,8 @@ bool GrPorterDuffXPFactory::willBlendWithDst(const GrProcOptInfo& colorPOI,
     return false;
 }
 
-bool GrPorterDuffXPFactory::canTweakAlphaForCoverage(bool isCoverageDrawing) const {
-    return can_tweak_alpha_for_coverage(fDstCoeff, isCoverageDrawing);
+bool GrPorterDuffXPFactory::canTweakAlphaForCoverage() const {
+    return can_tweak_alpha_for_coverage(fDstCoeff);
 }
 
 bool GrPorterDuffXPFactory::getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,

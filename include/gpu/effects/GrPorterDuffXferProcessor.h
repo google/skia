@@ -12,8 +12,8 @@
 #include "GrXferProcessor.h"
 #include "SkXfermode.h"
 
-class GrDrawState;
 class GrInvariantOutput;
+class GrProcOptInfo;
 
 class GrPorterDuffXferProcessor : public GrXferProcessor {
 public:
@@ -68,7 +68,6 @@ public:
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
-                                               bool isCoverageDrawing,
                                                bool colorWriteDisabled,
                                                bool doesStencilWrite,
                                                GrColor* overrideColor,
@@ -95,11 +94,8 @@ private:
         return true;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
-
     GrXferProcessor::OptFlags internalGetOptimizations(const GrProcOptInfo& colorPOI,
                                                        const GrProcOptInfo& coveragePOI,
-                                                       bool isCoverageDrawing,
                                                        bool colorWriteDisabled,
                                                        bool doesStencilWrite);
 
@@ -135,12 +131,12 @@ public:
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
     bool canApplyCoverage(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                          bool isCoverageDrawing, bool colorWriteDisabled) const SK_OVERRIDE;
+                          bool colorWriteDisabled) const SK_OVERRIDE;
 
     bool willBlendWithDst(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                          bool isCoverageDrawing, bool colorWriteDisabled) const SK_OVERRIDE;
+                          bool colorWriteDisabled) const SK_OVERRIDE;
 
-    bool canTweakAlphaForCoverage(bool isCoverageDrawing) const SK_OVERRIDE;
+    bool canTweakAlphaForCoverage() const SK_OVERRIDE;
 
     bool getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,
                                 const GrProcOptInfo& coveragePOI,
