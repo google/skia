@@ -96,7 +96,8 @@ public:
         typedef SkShader::Context INHERITED;
     };
 
-    virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
+    virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix& viewM,
+                                     const SkMatrix*, GrColor*,
                                      GrFragmentProcessor**) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()

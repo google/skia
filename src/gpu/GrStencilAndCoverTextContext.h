@@ -63,22 +63,24 @@ private:
     int                             fQueuedGlyphCount;
     int                             fFallbackGlyphsIdx;
     SkMatrix                        fContextInitialMatrix;
+    SkMatrix                        fViewMatrix;
     bool                            fUsingDeviceSpaceGlyphs;
 
     GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
 
-    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
+    virtual bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) SK_OVERRIDE;
 
-    virtual void onDrawText(const GrPaint&, const SkPaint&, const char text[],
-                            size_t byteLength,
+    virtual void onDrawText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
+                            const char text[], size_t byteLength,
                             SkScalar x, SkScalar y) SK_OVERRIDE;
-    virtual void onDrawPosText(const GrPaint&, const SkPaint&,
+    virtual void onDrawPosText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset) SK_OVERRIDE;
 
-    void init(const GrPaint&, const SkPaint&, size_t textByteLength, RenderMode);
-    bool mapToFallbackContext(GrContext::AutoMatrix&, SkMatrix* inverse);
+    void init(const GrPaint&, const SkPaint&, size_t textByteLength, RenderMode,
+              const SkMatrix& viewMatrix);
+    bool mapToFallbackContext(SkMatrix* inverse);
     void appendGlyph(const SkGlyph&, const SkPoint&);
     void flush();
     void finish();

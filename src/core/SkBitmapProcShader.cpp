@@ -367,6 +367,7 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "SkGr.h"
 
 bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
+                                             const SkMatrix& viewM,
                                              const SkMatrix* localMatrix, GrColor* paintColor,
                                              GrFragmentProcessor** fp) const {
     SkMatrix matrix;
@@ -405,7 +406,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
             break;
         case SkPaint::kMedium_FilterLevel: {
             SkMatrix matrix;
-            matrix.setConcat(context->getMatrix(), this->getLocalMatrix());
+            matrix.setConcat(viewM, this->getLocalMatrix());
             if (matrix.getMinScale() < SK_Scalar1) {
                 textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             } else {
@@ -416,7 +417,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
         }
         case SkPaint::kHigh_FilterLevel: {
             SkMatrix matrix;
-            matrix.setConcat(context->getMatrix(), this->getLocalMatrix());
+            matrix.setConcat(viewM, this->getLocalMatrix());
             useBicubic = GrBicubicEffect::ShouldUseBicubic(matrix, &textureFilterMode);
             break;
         }
@@ -453,7 +454,8 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
 
 #else
 
-bool SkBitmapProcShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+bool SkBitmapProcShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
+                                             const SkMatrix*, GrColor*,
                                              GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

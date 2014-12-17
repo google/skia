@@ -156,13 +156,6 @@ public:
      */
     bool isOpaqueAndConstantColor(GrColor* constantColor) const;
 
-private:
-
-    /**
-     * Helper for isOpaque and isOpaqueAndConstantColor.
-     */
-    bool getOpaqueAndKnownColor(GrColor* solidColor, uint32_t* solidColorKnownComponents) const;
-
     /**
      * Called when the source coord system from which geometry is rendered changes. It ensures that
      * the local coordinates seen by effects remains unchanged. oldToNew gives the transformation
@@ -198,6 +191,12 @@ private:
         }
         return true;
     }
+
+private:
+    /**
+     * Helper for isOpaque and isOpaqueAndConstantColor.
+     */
+    bool getOpaqueAndKnownColor(GrColor* solidColor, uint32_t* solidColorKnownComponents) const;
 
     friend class GrContext; // To access above two functions
     friend class GrStencilAndCoverTextContext;  // To access above two functions

@@ -482,7 +482,8 @@ void apply_morphology_pass(GrContext* context,
                                                        direction,
                                                        radius,
                                                        morphType))->unref();
-    context->drawRectToRect(paint, SkRect::Make(dstRect), SkRect::Make(srcRect));
+    context->drawRectToRect(paint, SkMatrix::I(), SkRect::Make(dstRect),
+                            SkRect::Make(srcRect));
 }
 
 bool apply_morphology(const SkBitmap& input,
@@ -493,9 +494,6 @@ bool apply_morphology(const SkBitmap& input,
     SkAutoTUnref<GrTexture> srcTexture(SkRef(input.getTexture()));
     SkASSERT(srcTexture);
     GrContext* context = srcTexture->getContext();
-
-    GrContext::AutoMatrix am;
-    am.setIdentity(context);
 
     GrContext::AutoClip acs(context, SkRect::MakeWH(SkIntToScalar(srcTexture->width()),
                                                     SkIntToScalar(srcTexture->height())));

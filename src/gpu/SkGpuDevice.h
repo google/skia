@@ -163,9 +163,8 @@ private:
 
     virtual bool forceConservativeRasterClip() const SK_OVERRIDE { return true; }
 
-    // sets the render target, clip, and matrix on GrContext. Use forceIdenity to override
-    // SkDraw's matrix and draw in device coords.
-    void prepareDraw(const SkDraw&, bool forceIdentity);
+    // sets the render target and clip on context
+    void prepareDraw(const SkDraw&);
 
     /**
      * Implementation for both drawBitmap and drawBitmapRect.
@@ -184,12 +183,14 @@ private:
 
     // The tileSize and clippedSrcRect will be valid only if true is returned.
     bool shouldTileBitmap(const SkBitmap& bitmap,
+                          const SkMatrix& viewMatrix,
                           const GrTextureParams& sampler,
                           const SkRect* srcRectPtr,
                           int maxTileSize,
                           int* tileSize,
                           SkIRect* clippedSrcRect) const;
     void internalDrawBitmap(const SkBitmap&,
+                            const SkMatrix& viewMatrix,
                             const SkRect&,
                             const GrTextureParams& params,
                             const SkPaint& paint,
@@ -197,6 +198,7 @@ private:
                             bool bicubic,
                             bool needsTextureDomain);
     void drawTiledBitmap(const SkBitmap& bitmap,
+                         const SkMatrix& viewMatrix,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,
                          const GrTextureParams& params,

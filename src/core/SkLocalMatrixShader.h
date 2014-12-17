@@ -35,18 +35,19 @@ public:
 #if SK_SUPPORT_GPU
 
     virtual bool asFragmentProcessor(GrContext* context, const SkPaint& paint,
-                                     const SkMatrix* localMatrix, GrColor* grColor,
-                                     GrFragmentProcessor** fp) const SK_OVERRIDE {
+                                     const SkMatrix& viewM, const SkMatrix* localMatrix,
+                                     GrColor* grColor, GrFragmentProcessor** fp) const SK_OVERRIDE {
         SkMatrix tmp = this->getLocalMatrix();
         if (localMatrix) {
             tmp.preConcat(*localMatrix);
         }
-        return fProxyShader->asFragmentProcessor(context, paint, &tmp, grColor, fp);
+        return fProxyShader->asFragmentProcessor(context, paint, viewM, &tmp, grColor, fp);
     }
 
 #else
 
-    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
+                                     const SkMatrix*, GrColor*,
                                      GrFragmentProcessor**) const SK_OVERRIDE {
         SkDEBUGFAIL("Should not call in GPU-less build");
         return false;

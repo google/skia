@@ -50,10 +50,12 @@ public:
                                   SkRect* maskRect) const SK_OVERRIDE;
     virtual bool directFilterMaskGPU(GrContext* context,
                                      GrPaint* grp,
+                                     const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
                                      const SkPath& path) const SK_OVERRIDE;
     virtual bool directFilterRRectMaskGPU(GrContext* context,
                                           GrPaint* grp,
+                                          const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
                                           const SkRRect& rrect) const SK_OVERRIDE;
 
@@ -835,6 +837,7 @@ GrFragmentProcessor* GrRectBlurEffect::TestCreate(SkRandom* random,
 
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
                                                GrPaint* grp,
+                                               const SkMatrix& viewMatrix,
                                                const SkStrokeRec& strokeRec,
                                                const SkPath& path) const {
     if (fBlurStyle != kNormal_SkBlurStyle) {
@@ -850,7 +853,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return false;
     }
 
-    SkMatrix ctm = context->getMatrix();
+    SkMatrix ctm = viewMatrix;
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
 
     int pad=SkScalarCeilToInt(6*xformedSigma)/2;
@@ -861,14 +864,13 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return false;
     }
 
-    GrContext::AutoMatrix am;
-    if (!am.setIdentity(context, grp)) {
-       return false;
+    if (!grp->localCoordChangeInverse(viewMatrix)) {
+        return false;
     }
 
     grp->addCoverageProcessor(fp);
 
-    context->drawRect(*grp, rect);
+    context->drawRect(*grp, SkMatrix::I(), rect);
     return true;
 }
 
@@ -1122,6 +1124,7 @@ GrGLFragmentProcessor* GrRRectBlurEffect::createGLInstance() const {
 
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
                                                     GrPaint* grp,
+                                                    const SkMatrix& viewMatrix,
                                                     const SkStrokeRec& strokeRec,
                                                     const SkRRect& rrect) const {
     if (fBlurStyle != kNormal_SkBlurStyle) {
@@ -1133,7 +1136,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     }
 
     SkRect proxy_rect = rrect.rect();
-    SkMatrix ctm = context->getMatrix();
+    SkMatrix ctm = viewMatrix;
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
     float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
     proxy_rect.outset(extra, extra);
@@ -1143,14 +1146,13 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return false;
     }
 
-    GrContext::AutoMatrix am;
-    if (!am.setIdentity(context, grp)) {
-       return false;
+    if (!grp->localCoordChangeInverse(viewMatrix)) {
+        return false;
     }
 
     grp->addCoverageProcessor(fp);
 
-    context->drawRect(*grp, proxy_rect);
+    context->drawRect(*grp, SkMatrix::I(), proxy_rect);
     return true;
 }
 
@@ -1215,7 +1217,6 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
     }
 
     if (!isNormalBlur) {
-        context->setIdentityMatrix();
         GrPaint paint;
         SkMatrix matrix;
         matrix.setIDiv(src->width(), src->height());
@@ -1234,7 +1235,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             //             = 0 * src + (1 - src) * dst
             paint.setPorterDuffXPFactory(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
         }
-        context->drawRect(paint, clipRect);
+        context->drawRect(paint, SkMatrix::I(), clipRect);
     }
 
     return true;

@@ -66,8 +66,8 @@ GrBitmapTextContext* GrBitmapTextContext::Create(GrContext* context,
     return SkNEW_ARGS(GrBitmapTextContext, (context, props));
 }
 
-bool GrBitmapTextContext::canDraw(const SkPaint& paint) {
-    return !SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix());
+bool GrBitmapTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) {
+    return !SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix);
 }
 
 inline void GrBitmapTextContext::init(const GrPaint& paint, const SkPaint& skPaint) {
@@ -84,6 +84,7 @@ inline void GrBitmapTextContext::init(const GrPaint& paint, const SkPaint& skPai
 }
 
 void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPaint,
+                                     const SkMatrix& viewMatrix,
                                      const char text[], size_t byteLength,
                                      SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
@@ -97,14 +98,14 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
-    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, &fContext->getMatrix());
+    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, &viewMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
     GrFontScaler*       fontScaler = GetGrFontScaler(cache);
 
     // transform our starting point
     {
         SkPoint loc;
-        fContext->getMatrix().mapXY(x, y, &loc);
+        viewMatrix.mapXY(x, y, &loc);
         x = loc.fX;
         y = loc.fY;
     }
@@ -138,7 +139,7 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
     SkFixed halfSampleX, halfSampleY;
     if (cache->isSubpixel()) {
         halfSampleX = halfSampleY = (SK_FixedHalf >> SkGlyph::kSubBits);
-        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(fContext->getMatrix());
+        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(viewMatrix);
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
             halfSampleY = SK_FixedHalf;
@@ -153,8 +154,9 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
     SkFixed fx = SkScalarToFixed(x) + halfSampleX;
     SkFixed fy = SkScalarToFixed(y) + halfSampleY;
 
-    GrContext::AutoMatrix  autoMatrix;
-    autoMatrix.setIdentity(fContext, &fPaint);
+    if (!fPaint.localCoordChangeInverse(viewMatrix)) {
+        SkDebugf("Cannot invert viewmatrix\n");
+    }
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
@@ -178,6 +180,7 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
 }
 
 void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skPaint,
+                                        const SkMatrix& viewMatrix,
                                         const char text[], size_t byteLength,
                                         const SkScalar pos[], int scalarsPerPosition,
                                         const SkPoint& offset) {
@@ -193,14 +196,15 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
-    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, &fContext->getMatrix());
+    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, &viewMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
     GrFontScaler*       fontScaler = GetGrFontScaler(cache);
 
     // store original matrix before we reset, so we can use it to transform positions
-    SkMatrix ctm = fContext->getMatrix();
-    GrContext::AutoMatrix  autoMatrix;
-    autoMatrix.setIdentity(fContext, &fPaint);
+    SkMatrix ctm = viewMatrix;
+    if (!fPaint.localCoordChangeInverse(viewMatrix)) {
+            SkDebugf("Cannot invert viewmatrix\n");
+    }
 
     int numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
     fTotalVertexCount = kVerticesPerGlyph*numGlyphs;
@@ -440,14 +444,13 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         // flush any accumulated draws before drawing this glyph as a path.
         this->flush();
 
-        GrContext::AutoMatrix am;
         SkMatrix translate;
         translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),
                                SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
         GrPaint tmpPaint(fPaint);
-        am.setPreConcat(fContext, translate, &tmpPaint);
+        tmpPaint.localCoordChange(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(tmpPaint, *glyph->fPath, strokeInfo);
+        fContext->drawPath(tmpPaint, translate, *glyph->fPath, strokeInfo);
 
         // remove this glyph from the vertices we need to allocate
         fTotalVertexCount -= kVerticesPerGlyph;

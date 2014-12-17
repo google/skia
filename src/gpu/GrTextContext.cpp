@@ -41,13 +41,14 @@ void GrTextContext::init(const GrPaint& grPaint, const SkPaint& skPaint) {
 }
 
 bool GrTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
+                             const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y) {
 
     GrTextContext* textContext = this;
     do {
-        if (textContext->canDraw(skPaint)) {
-            textContext->onDrawText(paint, skPaint, text, byteLength, x, y);
+        if (textContext->canDraw(skPaint, viewMatrix)) {
+            textContext->onDrawText(paint, skPaint, viewMatrix, text, byteLength, x, y);
             return true;
         }
         textContext = textContext->fFallbackTextContext;
@@ -57,15 +58,16 @@ bool GrTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
 }
 
 bool GrTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
+                                const SkMatrix& viewMatrix,
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset) {
 
     GrTextContext* textContext = this;
     do {
-        if (textContext->canDraw(skPaint)) {
-            textContext->onDrawPosText(paint, skPaint, text, byteLength, pos, scalarsPerPosition,
-                                     offset);
+        if (textContext->canDraw(skPaint, viewMatrix)) {
+            textContext->onDrawPosText(paint, skPaint, viewMatrix, text, byteLength, pos,
+                                       scalarsPerPosition, offset);
             return true;
         }
         textContext = textContext->fFallbackTextContext;

@@ -97,6 +97,7 @@ public:
      */
     virtual bool directFilterMaskGPU(GrContext* context,
                                      GrPaint* grp,
+                                     const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
                                      const SkPath& path) const;
     /**
@@ -105,6 +106,7 @@ public:
      */
     virtual bool directFilterRRectMaskGPU(GrContext* context,
                                           GrPaint* grp,
+                                          const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
                                           const SkRRect& rrect) const;
 

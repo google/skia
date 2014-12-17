@@ -58,7 +58,7 @@ static void convolve_gaussian_1d(GrContext* context,
         texture, direction, radius, sigma, useBounds, bounds));
     paint.reset();
     paint.addColorProcessor(conv);
-    context->drawRectToRect(paint, dstRect, srcRect);
+    context->drawRectToRect(paint, SkMatrix::I(), dstRect, srcRect);
 }
 
 static void convolve_gaussian_2d(GrContext* context,
@@ -81,7 +81,7 @@ static void convolve_gaussian_2d(GrContext* context,
             true, sigmaX, sigmaY));
     paint.reset();
     paint.addColorProcessor(conv);
-    context->drawRectToRect(paint, dstRect, srcRect);
+    context->drawRectToRect(paint, SkMatrix::I(), dstRect, srcRect);
 }
 
 static void convolve_gaussian(GrContext* context,
@@ -150,9 +150,6 @@ GrTexture* GaussianBlur(GrContext* context,
 
     GrContext::AutoRenderTarget art(context);
 
-    GrContext::AutoMatrix am;
-    am.setIdentity(context);
-
     SkIRect clearRect;
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;
@@ -220,7 +217,7 @@ GrTexture* GaussianBlur(GrContext* context,
         }
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
-        context->drawRectToRect(paint, dstRect, srcRect);
+        context->drawRectToRect(paint, SkMatrix::I(), dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
@@ -299,7 +296,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
-        context->drawRectToRect(paint, dstRect, srcRect);
+        context->drawRectToRect(paint, SkMatrix::I(), dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);

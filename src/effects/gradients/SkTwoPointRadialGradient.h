@@ -21,7 +21,8 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
-    virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix*, GrColor*,
+    virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix& viewM,
+                                     const SkMatrix*, GrColor*,
                                      GrFragmentProcessor**)  const SK_OVERRIDE;
 
     virtual size_t contextSize() const SK_OVERRIDE;

@@ -391,6 +391,7 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 
 bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
                                                     const SkPaint& paint,
+                                                    const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
                                                     GrColor* paintColor,
                                                     GrFragmentProcessor** fp)  const {
@@ -404,7 +405,8 @@ bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
 
 #else
 
-bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*,
+bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext*, const SkPaint&,
+                                                    const SkMatrix&, const SkMatrix*,
                                                     GrColor*, GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

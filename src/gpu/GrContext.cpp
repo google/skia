@@ -103,7 +103,6 @@ GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fFlushToReduceCacheSize = false;
     fAARectRenderer = NULL;
     fOvalRenderer = NULL;
-    fViewMatrix.reset();
     fMaxTextureSizeOverride = 1 << 20;
 }
 
@@ -127,7 +126,7 @@ void GrContext::initCommon() {
     fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (this)));
 
     fAARectRenderer = SkNEW_ARGS(GrAARectRenderer, (fGpu));
-    fOvalRenderer = SkNEW(GrOvalRenderer);
+    fOvalRenderer = SkNEW_ARGS(GrOvalRenderer, (fGpu));
 
     fDidTestPMConversions = false;
 
@@ -541,36 +540,35 @@ void GrContext::clear(const SkIRect* rect,
 
     AutoCheckFlush acf(this);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::clear", this);
-    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, &acf);
+    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL, &acf);
     if (NULL == target) {
         return;
     }
     target->clear(rect, color, canIgnoreRect, renderTarget);
 }
 
-void GrContext::drawPaint(const GrPaint& origPaint) {
+void GrContext::drawPaint(const GrPaint& origPaint, const SkMatrix& viewMatrix) {
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
     SkRect r;
     r.setLTRB(0, 0,
               SkIntToScalar(getRenderTarget()->width()),
               SkIntToScalar(getRenderTarget()->height()));
-    SkMatrix inverse;
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
-    AutoMatrix am;
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::drawPaint", this);
 
     // We attempt to map r by the inverse matrix and draw that. mapRect will
     // map the four corners and bound them with a new rect. This will not
     // produce a correct result for some perspective matrices.
-    if (!this->getMatrix().hasPerspective()) {
-        if (!fViewMatrix.invert(&inverse)) {
+    if (!viewMatrix.hasPerspective()) {
+        SkMatrix inverse;
+        if (!viewMatrix.invert(&inverse)) {
             SkDebugf("Could not invert matrix\n");
             return;
         }
         inverse.mapRect(&r);
     } else {
-        if (!am.setIdentity(this, paint.writable())) {
+        if (!paint.writable()->localCoordChangeInverse(viewMatrix)) {
             SkDebugf("Could not invert matrix\n");
             return;
         }
@@ -579,7 +577,7 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
     if (paint->isAntiAlias()) {
         paint.writable()->setAntiAlias(false);
     }
-    this->drawRect(*paint, r);
+    this->drawRect(*paint, viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix, r);
 }
 
 #ifdef SK_DEVELOPER
@@ -669,18 +667,19 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
 }
 
 void GrContext::drawRect(const GrPaint& paint,
+                         const SkMatrix& viewMatrix,
                          const SkRect& rect,
                          const GrStrokeInfo* strokeInfo) {
     if (strokeInfo && strokeInfo->isDashed()) {
         SkPath path;
         path.addRect(rect);
-        this->drawPath(paint, path, *strokeInfo);
+        this->drawPath(paint, viewMatrix, path, *strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(this);
     GrDrawState drawState;
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
     if (NULL == target) {
         return;
     }
@@ -797,19 +796,19 @@ void GrContext::drawRect(const GrPaint& paint,
 }
 
 void GrContext::drawRectToRect(const GrPaint& paint,
+                               const SkMatrix& viewMatrix,
                                const SkRect& dstRect,
-                               const SkRect& localRect,
-                               const SkMatrix* localMatrix) {
+                               const SkRect& localRect) {
     AutoCheckFlush acf(this);
     GrDrawState drawState;
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
     if (NULL == target) {
         return;
     }
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
 
-    target->drawRect(&drawState, paint.getColor(), dstRect, &localRect, localMatrix);
+    target->drawRect(&drawState, paint.getColor(), dstRect, &localRect, NULL);
 }
 
 static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords,
@@ -836,6 +835,7 @@ static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords
 }
 
 void GrContext::drawVertices(const GrPaint& paint,
+                             const SkMatrix& viewMatrix,
                              GrPrimitiveType primitiveType,
                              int vertexCount,
                              const SkPoint positions[],
@@ -847,7 +847,7 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrDrawState drawState;
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
 
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
     if (NULL == target) {
         return;
     }
@@ -895,6 +895,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::drawRRect(const GrPaint& paint,
+                          const SkMatrix& viewMatrix,
                           const SkRRect& rrect,
                           const GrStrokeInfo& strokeInfo) {
     if (rrect.isEmpty()) {
@@ -904,13 +905,13 @@ void GrContext::drawRRect(const GrPaint& paint,
     if (strokeInfo.isDashed()) {
         SkPath path;
         path.addRRect(rrect);
-        this->drawPath(paint, path, strokeInfo);
+        this->drawPath(paint, viewMatrix, path, strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(this);
     GrDrawState drawState;
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
     if (NULL == target) {
         return;
     }
@@ -920,17 +921,19 @@ void GrContext::drawRRect(const GrPaint& paint,
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
     GrColor color = paint.getColor();
-    if (!fOvalRenderer->drawRRect(target, &drawState, color, this, paint.isAntiAlias(), rrect,
+    if (!fOvalRenderer->drawRRect(target, &drawState, color, paint.isAntiAlias(), rrect,
                                   strokeRec)) {
         SkPath path;
         path.addRRect(rrect);
-        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, strokeInfo);
+        this->internalDrawPath(target, &drawState, viewMatrix, color, paint.isAntiAlias(), path,
+                               strokeInfo);
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::drawDRRect(const GrPaint& paint,
+                           const SkMatrix& viewMatrix,
                            const SkRRect& outer,
                            const SkRRect& inner) {
     if (outer.isEmpty()) {
@@ -939,26 +942,27 @@ void GrContext::drawDRRect(const GrPaint& paint,
 
     AutoCheckFlush acf(this);
     GrDrawState drawState;
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
 
     GR_CREATE_TRACE_MARKER("GrContext::drawDRRect", target);
 
     GrColor color = paint.getColor();
-    if (!fOvalRenderer->drawDRRect(target, &drawState, color, this, paint.isAntiAlias(), outer,
-                                   inner)) {
+    if (!fOvalRenderer->drawDRRect(target, &drawState, color, paint.isAntiAlias(), outer, inner)) {
         SkPath path;
         path.addRRect(inner);
         path.addRRect(outer);
         path.setFillType(SkPath::kEvenOdd_FillType);
 
         GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
-        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, fillRec);
+        this->internalDrawPath(target, &drawState, viewMatrix, color, paint.isAntiAlias(), path,
+                               fillRec);
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::drawOval(const GrPaint& paint,
+                         const SkMatrix& viewMatrix,
                          const SkRect& oval,
                          const GrStrokeInfo& strokeInfo) {
     if (oval.isEmpty()) {
@@ -968,13 +972,13 @@ void GrContext::drawOval(const GrPaint& paint,
     if (strokeInfo.isDashed()) {
         SkPath path;
         path.addOval(oval);
-        this->drawPath(paint, path, strokeInfo);
+        this->drawPath(paint, viewMatrix, path, strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(this);
     GrDrawState drawState;
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
     if (NULL == target) {
         return;
     }
@@ -984,11 +988,11 @@ void GrContext::drawOval(const GrPaint& paint,
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
     GrColor color = paint.getColor();
-    if (!fOvalRenderer->drawOval(target, &drawState, color, this, paint.isAntiAlias(), oval,
-                                 strokeRec)) {
+    if (!fOvalRenderer->drawOval(target, &drawState, color, paint.isAntiAlias(), oval, strokeRec)) {
         SkPath path;
         path.addOval(oval);
-        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, strokeInfo);
+        this->internalDrawPath(target, &drawState, viewMatrix, color, paint.isAntiAlias(), path,
+                               strokeInfo);
     }
 }
 
@@ -1049,11 +1053,14 @@ static bool is_nested_rects(GrDrawTarget* target,
     return allEq || allGoE1;
 }
 
-void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrokeInfo& strokeInfo) {
+void GrContext::drawPath(const GrPaint& paint,
+                         const SkMatrix& viewMatrix,
+                         const SkPath& path,
+                         const GrStrokeInfo& strokeInfo) {
 
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
-           this->drawPaint(paint);
+           this->drawPaint(paint, viewMatrix);
        }
        return;
     }
@@ -1064,7 +1071,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
         if (path.isLine(pts)) {
             AutoCheckFlush acf(this);
             GrDrawState drawState;
-            GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+            GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
             if (NULL == target) {
                 return;
             };
@@ -1085,11 +1092,11 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
         GrStrokeInfo newStrokeInfo(strokeInfo, false);
         SkStrokeRec* stroke = newStrokeInfo.getStrokeRecPtr();
         if (SkDashPath::FilterDashPath(effectPath.init(), path, stroke, NULL, info)) {
-            this->drawPath(paint, *effectPath.get(), newStrokeInfo);
+            this->drawPath(paint, viewMatrix, *effectPath.get(), newStrokeInfo);
             return;
         }
 
-        this->drawPath(paint, path, newStrokeInfo);
+        this->drawPath(paint, viewMatrix, path, newStrokeInfo);
         return;
     }
 
@@ -1100,7 +1107,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     // OK.
     AutoCheckFlush acf(this);
     GrDrawState drawState;
-    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
     if (NULL == target) {
         return;
     }
@@ -1131,14 +1138,16 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const GrStrok
     bool isOval = path.isOval(&ovalRect);
 
     if (!isOval || path.isInverseFillType()
-        || !fOvalRenderer->drawOval(target, &drawState, color, this, paint.isAntiAlias(), ovalRect,
+        || !fOvalRenderer->drawOval(target, &drawState, color, paint.isAntiAlias(), ovalRect,
                                     strokeRec)) {
-        this->internalDrawPath(target, &drawState, color, paint.isAntiAlias(), path, strokeInfo);
+        this->internalDrawPath(target, &drawState, viewMatrix, color, paint.isAntiAlias(), path,
+                               strokeInfo);
     }
 }
 
 void GrContext::internalDrawPath(GrDrawTarget* target,
                                  GrDrawState* drawState,
+                                 const SkMatrix& viewMatrix,
                                  GrColor color,
                                  bool useAA,
                                  const SkPath& path,
@@ -1169,7 +1178,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
     GrPathRenderer* pr = this->getPathRenderer(target, drawState, *pathPtr, *stroke, false, type);
 
     if (NULL == pr) {
-        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*stroke, this->getMatrix(), NULL)) {
+        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, NULL)) {
             // It didn't work the 1st time, so try again with the stroked path
             if (stroke->applyToPath(tmpPath.init(), *pathPtr)) {
                 pathPtr = tmpPath.get();
@@ -1326,7 +1335,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     // drawing a rect to the render target.
     // The bracket ensures we pop the stack if we wind up flushing below.
     {
-        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, NULL, NULL);
+        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, NULL, NULL, NULL);
         GrDrawTarget::AutoGeometryPush agp(drawTarget);
 
         GrDrawState drawState(matrix);
@@ -1507,7 +1516,7 @@ void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
     ASSERT_OWNED_RESOURCE(renderTarget);
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, &acf);
+    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL, &acf);
     if (NULL == target) {
         return;
     }
@@ -1525,7 +1534,7 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     // Since we're going to the draw target and not GPU, no need to check kNoFlush
     // here.
 
-    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL);
+    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL, NULL);
     if (NULL == target) {
         return;
     }
@@ -1544,6 +1553,7 @@ void GrContext::flushSurfaceWrites(GrSurface* surface) {
 
 GrDrawTarget* GrContext::prepareToDraw(GrDrawState* ds,
                                        const GrPaint* paint,
+                                       const SkMatrix* viewMatrix,
                                        const AutoCheckFlush* acf) {
     if (NULL == fGpu) {
         return NULL;
@@ -1551,9 +1561,10 @@ GrDrawTarget* GrContext::prepareToDraw(GrDrawState* ds,
 
     ASSERT_OWNED_RESOURCE(fRenderTarget.get());
     if (ds) {
+        SkASSERT(viewMatrix);
         if (paint) {
             SkASSERT(acf);
-            ds->setFromPaint(*paint, fViewMatrix, fRenderTarget.get());
+            ds->setFromPaint(*paint, *viewMatrix, fRenderTarget.get());
 #if GR_DEBUG_PARTIAL_COVERAGE_CHECK
             if ((paint->hasMask()) &&
                 !fDrawState->canUseFracCoveragePrimProc(paint.getColor(), fGpu->caps())) {
@@ -1561,7 +1572,7 @@ GrDrawTarget* GrContext::prepareToDraw(GrDrawState* ds,
             }
 #endif
         } else {
-            ds->reset(fViewMatrix);
+            ds->reset(*viewMatrix);
             ds->setRenderTarget(fRenderTarget.get());
         }
         ds->setState(GrDrawState::kClip_StateBit, fClip && !fClip->fClipStack->isWideOpen());
@@ -1647,7 +1658,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget() {
-    return this->prepareToDraw(NULL, NULL, NULL);
+    return this->prepareToDraw(NULL, NULL, NULL, NULL);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {

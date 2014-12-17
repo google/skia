@@ -290,15 +290,11 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             SkRegion::Iterator iter(fRegion);
             context->clear(NULL, 0x0, true, maskTexture->asRenderTarget());
 
-            SkMatrix old_matrix = context->getMatrix();
-            context->setMatrix(in_matrix);
-
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());
-                context->drawRect(grPaint, rect);
+                context->drawRect(grPaint, in_matrix, rect);
                 iter.next();
             }
-            context->setMatrix(old_matrix);
         }
 
         *fp = AlphaThresholdEffect::Create(texture,

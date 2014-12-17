@@ -46,14 +46,16 @@ private:
     int                                fTotalVertexCount;
     GrTexture*                         fCurrTexture;
     SkRect                             fVertexBounds;
+    SkMatrix                           fViewMatrix;
 
     GrDistanceFieldTextContext(GrContext*, const SkDeviceProperties&, bool enable);
 
-    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
+    virtual bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) SK_OVERRIDE;
 
-    virtual void onDrawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
+    virtual void onDrawText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
+                            const char text[], size_t byteLength,
                             SkScalar x, SkScalar y) SK_OVERRIDE;
-    virtual void onDrawPosText(const GrPaint&, const SkPaint&,
+    virtual void onDrawPosText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset) SK_OVERRIDE;

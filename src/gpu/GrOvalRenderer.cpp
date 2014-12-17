@@ -597,7 +597,6 @@ void GrOvalRenderer::reset() {
 bool GrOvalRenderer::drawOval(GrDrawTarget* target,
                               GrDrawState* drawState,
                               GrColor color,
-                              const GrContext* context,
                               bool useAA,
                               const SkRect& oval,
                               const SkStrokeRec& stroke)
@@ -610,18 +609,18 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
         return false;
     }
 
-    const SkMatrix& vm = context->getMatrix();
+    const SkMatrix& vm = drawState->getViewMatrix();
 
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
-        this->drawCircle(target, drawState, color, context, useCoverageAA, oval, stroke);
+        this->drawCircle(target, drawState, color, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, drawState, color, context, useCoverageAA, oval, stroke);
+        return this->drawDIEllipse(target, drawState, color, useCoverageAA, oval, stroke);
     // otherwise axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        return this->drawEllipse(target, drawState, color, context, useCoverageAA, oval, stroke);
+        return this->drawEllipse(target, drawState, color, useCoverageAA, oval, stroke);
     } else {
         return false;
     }
@@ -634,7 +633,6 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 GrDrawState* drawState,
                                 GrColor color,
-                                const GrContext* context,
                                 bool useCoverageAA,
                                 const SkRect& circle,
                                 const SkStrokeRec& stroke)
@@ -719,7 +717,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     verts[3].fOuterRadius = outerRadius;
     verts[3].fInnerRadius = innerRadius;
 
-    target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
+    target->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
     target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 }
@@ -729,7 +727,6 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  GrDrawState* drawState,
                                  GrColor color,
-                                 const GrContext* context,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
                                  const SkStrokeRec& stroke)
@@ -851,7 +848,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
     verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-    target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
+    target->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
     target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
@@ -861,7 +858,6 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
                                    GrDrawState* drawState,
                                    GrColor color,
-                                   const GrContext* context,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
                                    const SkStrokeRec& stroke)
@@ -962,7 +958,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
     verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
-    target->setIndexSourceToBuffer(context->getGpu()->getQuadIndexBuffer());
+    target->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
     target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
@@ -994,21 +990,21 @@ static const int kIndicesPerRRect = SK_ARRAY_COUNT(gRRectIndices);
 static const int kVertsPerRRect = 16;
 static const int kNumRRectsInIndexBuffer = 256;
 
-GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu) {
+GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly) {
     if (isStrokeOnly) {
         if (NULL == fStrokeRRectIndexBuffer) {
-            fStrokeRRectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
-                                                                      kIndicesPerStrokeRRect,
-                                                                      kNumRRectsInIndexBuffer,
-                                                                      kVertsPerRRect);
+            fStrokeRRectIndexBuffer = fGpu->createInstancedIndexBuffer(gRRectIndices,
+                                                                       kIndicesPerStrokeRRect,
+                                                                       kNumRRectsInIndexBuffer,
+                                                                       kVertsPerRRect);
         }
         return fStrokeRRectIndexBuffer;
     } else {
         if (NULL == fRRectIndexBuffer) {
-            fRRectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
-                                                                kIndicesPerRRect,
-                                                                kNumRRectsInIndexBuffer,
-                                                                kVertsPerRRect);
+            fRRectIndexBuffer = fGpu->createInstancedIndexBuffer(gRRectIndices,
+                                                                 kIndicesPerRRect,
+                                                                 kNumRRectsInIndexBuffer,
+                                                                 kVertsPerRRect);
         }
         return fRRectIndexBuffer;
     }
@@ -1017,7 +1013,6 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu) {
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
                                 GrDrawState* drawState,
                                 GrColor color,
-                                GrContext* context,
                                 bool useAA,
                                 const SkRRect& origOuter,
                                 const SkRRect& origInner) {
@@ -1027,8 +1022,8 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     GrDrawState::AutoRestoreEffects are;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
-        if (!context->getMatrix().isIdentity()) {
-            if (!origInner.transform(context->getMatrix(), inner.writable())) {
+        if (!drawState->getViewMatrix().isIdentity()) {
+            if (!origInner.transform(drawState->getViewMatrix(), inner.writable())) {
                 return false;
             }
         }
@@ -1045,14 +1040,14 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (this->drawRRect(target, drawState, color, context, useAA, origOuter, fillRec)) {
+    if (this->drawRRect(target, drawState, color, useAA, origOuter, fillRec)) {
         return true;
     }
 
     SkASSERT(!origOuter.isEmpty());
     SkTCopyOnFirstWrite<SkRRect> outer(origOuter);
-    if (!context->getMatrix().isIdentity()) {
-        if (!origOuter.transform(context->getMatrix(), outer.writable())) {
+    if (!drawState->getViewMatrix().isIdentity()) {
+        if (!origOuter.transform(drawState->getViewMatrix(), outer.writable())) {
             return false;
         }
     }
@@ -1081,12 +1076,11 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
 bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
                                GrDrawState* drawState,
                                GrColor color,
-                               GrContext* context,
                                bool useAA,
                                const SkRRect& rrect,
                                const SkStrokeRec& stroke) {
     if (rrect.isOval()) {
-        return this->drawOval(target, drawState, color, context, useAA, rrect.getBounds(), stroke);
+        return this->drawOval(target, drawState, color, useAA, rrect.getBounds(), stroke);
     }
 
     bool useCoverageAA = useAA &&
@@ -1098,7 +1092,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         return false;
     }
 
-    const SkMatrix& vm = context->getMatrix();
+    const SkMatrix& vm = drawState->getViewMatrix();
 
     if (!vm.rectStaysRect() || !rrect.isSimple()) {
         return false;
@@ -1156,7 +1150,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         return false;
     }
 
-    GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly, context->getGpu());
+    GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly);
     if (NULL == indexBuffer) {
         SkDebugf("Failed to create index buffer!\n");
         return false;

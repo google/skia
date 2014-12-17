@@ -92,7 +92,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
 // skPaint's shader to a GrFragmentProcessor if possible.
 // constantColor has the same meaning as in skPaint2GrPaintNoShader.
 void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
-                           bool constantColor, GrPaint* grPaint);
+                           const SkMatrix& viewM, bool constantColor, GrPaint* grPaint);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Classes

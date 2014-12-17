@@ -290,16 +290,18 @@ void SkPictureShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 bool SkPictureShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
-                                          const SkMatrix* localMatrix, GrColor* paintColor,
+                                          const SkMatrix& viewM, const SkMatrix* localMatrix,
+                                          GrColor* paintColor,
                                           GrFragmentProcessor** fp) const {
-    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(context->getMatrix(), localMatrix));
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(viewM, localMatrix));
     if (!bitmapShader) {
         return false;
     }
-    return bitmapShader->asFragmentProcessor(context, paint, NULL, paintColor, fp);
+    return bitmapShader->asFragmentProcessor(context, paint, viewM, NULL, paintColor, fp);
 }
 #else
-bool SkPictureShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+bool SkPictureShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
+                                          const SkMatrix*, GrColor*,
                                           GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

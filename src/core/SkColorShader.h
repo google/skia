@@ -54,7 +54,8 @@ public:
 
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
-    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
+                                     const SkMatrix*, GrColor*,
                                      GrFragmentProcessor**) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()

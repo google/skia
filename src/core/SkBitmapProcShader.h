@@ -31,9 +31,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
 
-    bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
-                             GrFragmentProcessor**)
-            const SK_OVERRIDE;
+    bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM, const SkMatrix*,
+                             GrColor*, GrFragmentProcessor**) const SK_OVERRIDE;
 
     class BitmapProcShaderContext : public SkShader::Context {
     public:

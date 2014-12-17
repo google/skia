@@ -24,7 +24,10 @@ class GrOvalRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrOvalRenderer)
 
-    GrOvalRenderer() : fRRectIndexBuffer(NULL), fStrokeRRectIndexBuffer(NULL) {}
+    GrOvalRenderer(GrGpu* gpu)
+        : fGpu(gpu)
+        , fRRectIndexBuffer(NULL)
+        , fStrokeRRectIndexBuffer(NULL) {}
     ~GrOvalRenderer() {
         this->reset();
     }
@@ -34,21 +37,18 @@ public:
     bool drawOval(GrDrawTarget*,
                   GrDrawState*,
                   GrColor,
-                  const GrContext*,
                   bool useAA,
                   const SkRect& oval,
                   const SkStrokeRec& stroke);
     bool drawRRect(GrDrawTarget*,
                    GrDrawState*,
                    GrColor,
-                   GrContext*,
                    bool useAA,
                    const SkRRect& rrect,
                    const SkStrokeRec& stroke);
     bool drawDRRect(GrDrawTarget* target,
                     GrDrawState*,
                     GrColor,
-                    GrContext* context,
                     bool useAA,
                     const SkRRect& outer,
                     const SkRRect& inner);
@@ -57,27 +57,25 @@ private:
     bool drawEllipse(GrDrawTarget* target,
                      GrDrawState*,
                      GrColor,
-                     const GrContext* context,
                      bool useCoverageAA,
                      const SkRect& ellipse,
                      const SkStrokeRec& stroke);
     bool drawDIEllipse(GrDrawTarget* target,
                        GrDrawState*,
                        GrColor,
-                       const GrContext* context,
                        bool useCoverageAA,
                        const SkRect& ellipse,
                        const SkStrokeRec& stroke);
     void drawCircle(GrDrawTarget* target,
                     GrDrawState*,
                     GrColor,
-                    const GrContext* context,
                     bool useCoverageAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
 
-    GrIndexBuffer* rRectIndexBuffer(bool isStrokeOnly, GrGpu* gpu);
+    GrIndexBuffer* rRectIndexBuffer(bool isStrokeOnly);
 
+    GrGpu*         fGpu;
     GrIndexBuffer* fRRectIndexBuffer;
     GrIndexBuffer* fStrokeRRectIndexBuffer;
 

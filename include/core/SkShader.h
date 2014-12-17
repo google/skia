@@ -384,8 +384,12 @@ public:
      *
      *  The GrContext may be used by the effect to create textures. The GPU device does not
      *  call createContext. Instead we pass the SkPaint here in case the shader needs paint info.
+     *
+     *  A view matrix is always required to create the correct GrFragmentProcessor.  Some shaders
+     *  may also use the optional localMatrix to define a matrix relevant only for sampling.
      */
-    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
+                                     const SkMatrix* localMatrix, GrColor*,
                                      GrFragmentProcessor**) const;
 
     /**

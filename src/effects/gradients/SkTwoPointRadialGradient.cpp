@@ -541,7 +541,9 @@ GrFragmentProcessor* GrRadial2Gradient::TestCreate(SkRandom* random,
     SkPaint paint;
     GrFragmentProcessor* fp;
     GrColor paintColor;
-    SkAssertResult(shader->asFragmentProcessor(context, paint, NULL, &paintColor, &fp));
+    SkAssertResult(shader->asFragmentProcessor(context, paint,
+                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               &paintColor, &fp));
     return fp;
 }
 
@@ -676,6 +678,7 @@ void GrGLRadial2Gradient::GenKey(const GrProcessor& processor,
 /////////////////////////////////////////////////////////////////////
 
 bool SkTwoPointRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
+                                                   const SkMatrix&,
                                                    const SkMatrix* localMatrix, GrColor* paintColor,
                                                    GrFragmentProcessor** fp)  const {
     SkASSERT(context);
@@ -711,7 +714,8 @@ bool SkTwoPointRadialGradient::asFragmentProcessor(GrContext* context, const SkP
 
 #else
 
-bool SkTwoPointRadialGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*,
+bool SkTwoPointRadialGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
+                                                   const SkMatrix*,
                                                    GrColor*, GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

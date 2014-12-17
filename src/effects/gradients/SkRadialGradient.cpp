@@ -545,7 +545,9 @@ GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
     SkPaint paint;
     GrColor paintColor;
     GrFragmentProcessor* fp;
-    SkAssertResult(shader->asFragmentProcessor(context, paint, NULL, &paintColor, &fp));
+    SkAssertResult(shader->asFragmentProcessor(context, paint,
+                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               &paintColor, &fp));
     return fp;
 }
 
@@ -568,6 +570,7 @@ void GrGLRadialGradient::emitCode(GrGLFPBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
+                                           const SkMatrix& viewM,
                                            const SkMatrix* localMatrix, GrColor* paintColor,
                                            GrFragmentProcessor** fp) const {
     SkASSERT(context);
@@ -593,7 +596,8 @@ bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
 
 #else
 
-bool SkRadialGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix*, GrColor*,
+bool SkRadialGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
+                                           const SkMatrix*, GrColor*,
                                            GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

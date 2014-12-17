@@ -283,10 +283,8 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
         SkRect r = SkRect::MakeWH(SkIntToScalar(yuvSizes[0].fWidth),
                                   SkIntToScalar(yuvSizes[0].fHeight));
         GrContext::AutoRenderTarget autoRT(ctx, renderTarget);
-        GrContext::AutoMatrix am;
-        am.setIdentity(ctx);
         GrContext::AutoClip ac(ctx, GrContext::AutoClip::kWideOpen_InitialClip);
-        ctx->drawRect(paint, r);
+        ctx->drawRect(paint, SkMatrix::I(), r);
     } else {
         SkSafeSetNull(result);
     }
@@ -522,27 +520,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
 #endif
 }
 
-/**
- * Unlike GrContext::AutoMatrix, this doesn't require setting a new matrix. GrContext::AutoMatrix
- * likes to set the new matrix in its constructor because it is usually necessary to simulataneously
- * update a GrPaint. This AutoMatrix is used while initially setting up GrPaint, however.
- */
-class AutoMatrix {
-public:
-    AutoMatrix(GrContext* context) {
-        fMatrix = context->getMatrix();
-        fContext = context;
-    }
-    ~AutoMatrix() {
-        SkASSERT(fContext);
-        fContext->setMatrix(fMatrix);
-    }
-private:
-    GrContext* fContext;
-    SkMatrix fMatrix;
-};
-
-void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
+void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
                            bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
@@ -558,17 +536,14 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
     // want them messing around with the context.
     {
         // SkShader::asFragmentProcessor() may do offscreen rendering. Save off the current RT,
-        // clip, and matrix. We don't reset the matrix on the context because
-        // SkShader::asFragmentProcessor may use GrContext::getMatrix() to know the transformation
-        // from local coords to device space.
+        // and clip
         GrContext::AutoRenderTarget art(context, NULL);
         GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
-        AutoMatrix am(context);
 
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
         GrFragmentProcessor* fp = NULL;
-        if (shader->asFragmentProcessor(context, skPaint, NULL, &paintColor, &fp) && fp) {
+        if (shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor, &fp) && fp) {
             grPaint->addColorProcessor(fp)->unref();
             constantColor = false;
         }

@@ -432,13 +432,10 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                         color))->unref();
     SkIRect colorBounds = bounds;
     colorBounds.offset(-colorOffset);
-    GrContext::AutoMatrix am;
-    am.setIdentity(context);
     SkMatrix matrix;
     matrix.setTranslate(-SkIntToScalar(colorBounds.x()),
                         -SkIntToScalar(colorBounds.y()));
-    context->concatMatrix(matrix);
-    context->drawRect(paint, SkRect::Make(colorBounds));
+    context->drawRect(paint, matrix, SkRect::Make(colorBounds));
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     WrapTexture(dst, bounds.width(), bounds.height(), result);
