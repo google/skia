@@ -11,6 +11,8 @@
 #include "SkPath.h"
 #include "SkTDArray.h"
 
+struct SkConic;
+
 class SK_API SkPathMeasure : SkNoncopyable {
 public:
     SkPathMeasure();
@@ -101,6 +103,7 @@ private:
     void     buildSegments();
     SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
+    SkScalar compute_conic_segs(const SkConic&, SkScalar distance, int mint, int maxt, int ptIndex);
     SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
     const Segment* distanceToSegment(SkScalar distance, SkScalar* t);

@@ -3657,7 +3657,8 @@ DEF_TEST(Paths, reporter) {
     p.addRoundRect(bounds, SK_Scalar1, SK_Scalar1);
     check_convex_bounds(reporter, p, bounds);
     // we have quads or cubics
-    REPORTER_ASSERT(reporter, p.getSegmentMasks() & kCurveSegmentMask);
+    REPORTER_ASSERT(reporter,
+                    p.getSegmentMasks() & (kCurveSegmentMask | SkPath::kConic_SegmentMask));
     REPORTER_ASSERT(reporter, !p.isEmpty());
 
     p.reset();

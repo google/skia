@@ -1535,3 +1535,23 @@ bool SkConic::findMaxCurvature(SkScalar* t) const {
     // TODO: Implement me
     return false;
 }
+
+SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
+                             const SkMatrix& matrix) {
+    if (!matrix.hasPerspective()) {
+        return w;
+    }
+
+    SkP3D src[3], dst[3];
+    
+    ratquad_mapTo3D(pts, w, src);
+
+    matrix.mapHomogeneousPoints(&dst[0].fX, &src[0].fX, 3);
+
+    // w' = sqrt(w1*w1/w0*w2)
+    SkScalar w0 = dst[0].fZ;
+    SkScalar w1 = dst[1].fZ;
+    SkScalar w2 = dst[2].fZ;
+    w = SkScalarSqrt((w1 * w1) / (w0 * w2));
+    return w;
+}

@@ -167,11 +167,12 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
     fList.reset();
     fShiftUp = shiftUp;
 
-    SkScalar conicTol = SK_ScalarHalf * (1 << shiftUp);
-
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
         return this->buildPoly(path, iclip, shiftUp);
     }
+
+    SkAutoConicToQuads quadder;
+    const SkScalar conicTol = (SK_Scalar1 / 4) * (1 << shiftUp);
 
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
@@ -203,21 +204,13 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                     }
                     break;
                 case SkPath::kConic_Verb: {
-                    const int MAX_POW2 = 4;
-                    const int MAX_QUADS = 1 << MAX_POW2;
-                    const int MAX_QUAD_PTS = 1 + 2 * MAX_QUADS;
-                    SkPoint storage[MAX_QUAD_PTS];
-
-                    SkConic conic;
-                    conic.set(pts, iter.conicWeight());
-                    int pow2 = conic.computeQuadPOW2(conicTol);
-                    pow2 = SkMin32(pow2, MAX_POW2);
-                    int quadCount = conic.chopIntoQuadsPOW2(storage, pow2);
-                    SkASSERT(quadCount <= MAX_QUADS);
-                    for (int i = 0; i < quadCount; ++i) {
-                        if (clipper.clipQuad(&storage[i * 2], clip)) {
+                    const SkPoint* quadPts = quadder.computeQuads(
+                                          pts, iter.conicWeight(), conicTol);
+                    for (int i = 0; i < quadder.countQuads(); ++i) {
+                        if (clipper.clipQuad(quadPts, clip)) {
                             this->addClipper(&clipper);
                         }
+                        quadPts += 2;
                     }
                 } break;
                 case SkPath::kCubic_Verb:
@@ -246,19 +239,11 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                     break;
                 }
                 case SkPath::kConic_Verb: {
-                    const int MAX_POW2 = 4;
-                    const int MAX_QUADS = 1 << MAX_POW2;
-                    const int MAX_QUAD_PTS = 1 + 2 * MAX_QUADS;
-                    SkPoint storage[MAX_QUAD_PTS];
-
-                    SkConic conic;
-                    conic.set(pts, iter.conicWeight());
-                    int pow2 = conic.computeQuadPOW2(conicTol);
-                    pow2 = SkMin32(pow2, MAX_POW2);
-                    int quadCount = conic.chopIntoQuadsPOW2(storage, pow2);
-                    SkASSERT(quadCount <= MAX_QUADS);
-                    for (int i = 0; i < quadCount; ++i) {
-                        handle_quad(this, &storage[i * 2]);
+                    const SkPoint* quadPts = quadder.computeQuads(
+                                          pts, iter.conicWeight(), conicTol);
+                    for (int i = 0; i < quadder.countQuads(); ++i) {
+                        handle_quad(this, quadPts);
+                        quadPts += 2;
                     }
                 } break;
                 case SkPath::kCubic_Verb: {

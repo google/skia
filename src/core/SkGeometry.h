@@ -228,6 +228,18 @@ int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
 
 // experimental
 struct SkConic {
+    SkConic() {}
+    SkConic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
+        fPts[0] = p0;
+        fPts[1] = p1;
+        fPts[2] = p2;
+        fW = w;
+    }
+    SkConic(const SkPoint pts[3], SkScalar w) {
+        memcpy(fPts, pts, sizeof(fPts));
+        fW = w;
+    }
+
     SkPoint  fPts[3];
     SkScalar fW;
 
@@ -278,6 +290,8 @@ struct SkConic {
      *  @return  true if max curvature found inside 0..1 range, false otherwise
      */
     bool findMaxCurvature(SkScalar* t) const;
+
+    static SkScalar TransformW(const SkPoint[3], SkScalar w, const SkMatrix&);
 };
 
 #include "SkTemplates.h"

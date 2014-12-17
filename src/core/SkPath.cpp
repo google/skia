@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,14 +5,16 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBuffer.h"
 #include "SkErrorInternals.h"
+#include "SkGeometry.h"
 #include "SkMath.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
 #include "SkRRect.h"
 #include "SkThread.h"
+
+#define SK_SUPPORT_LEGACY_ADDOVAL
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -282,8 +283,23 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
                 SkDEBUGFAIL("unknown verb");
         }
         if (-1 != nextPt) {
-            if (!check_edge_against_rect(prevPt, pts[nextPt], rect, direction)) {
-                return false;
+            if (SkPath::kConic_Verb == verb) {
+                SkConic orig;
+                orig.set(pts, iter.conicWeight());
+                SkPoint quadPts[5];
+                int count = orig.chopIntoQuadsPOW2(quadPts, 1);
+                SK_ALWAYSBREAK(2 == count);
+
+                if (!check_edge_against_rect(quadPts[0], quadPts[2], rect, direction)) {
+                    return false;
+                }
+                if (!check_edge_against_rect(quadPts[2], quadPts[4], rect, direction)) {
+                    return false;
+                }
+            } else {
+                if (!check_edge_against_rect(prevPt, pts[nextPt], rect, direction)) {
+                    return false;
+                }
             }
             prevPt = pts[nextPt];
         }
@@ -1173,6 +1189,7 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
 
     SkAutoPathBoundsUpdate apbu(this, oval);
 
+#ifdef SK_SUPPORT_LEGACY_ADDOVAL
     SkScalar    cx = oval.centerX();
     SkScalar    cy = oval.centerY();
     SkScalar    rx = SkScalarHalf(oval.width());
@@ -1184,11 +1201,11 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
     SkScalar    my = SkScalarMul(ry, SK_ScalarRoot2Over2);
 
     /*
-        To handle imprecision in computing the center and radii, we revert to
-        the provided bounds when we can (i.e. use oval.fLeft instead of cx-rx)
-        to ensure that we don't exceed the oval's bounds *ever*, since we want
-        to use oval for our fast-bounds, rather than have to recompute it.
-    */
+     To handle imprecision in computing the center and radii, we revert to
+     the provided bounds when we can (i.e. use oval.fLeft instead of cx-rx)
+     to ensure that we don't exceed the oval's bounds *ever*, since we want
+     to use oval for our fast-bounds, rather than have to recompute it.
+     */
     const SkScalar L = oval.fLeft;      // cx - rx
     const SkScalar T = oval.fTop;       // cy - ry
     const SkScalar R = oval.fRight;     // cx + rx
@@ -1215,6 +1232,29 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
         this->quadTo(cx + sx,       T, cx + mx, cy - my);
         this->quadTo(      R, cy - sy,       R, cy     );
     }
+#else
+    const SkScalar L = oval.fLeft;
+    const SkScalar T = oval.fTop;
+    const SkScalar R = oval.fRight;
+    const SkScalar B = oval.fBottom;
+    const SkScalar cx = oval.centerX();
+    const SkScalar cy = oval.centerY();
+    const SkScalar weight = SK_ScalarRoot2Over2;
+
+    this->incReserve(9);   // move + 4 conics
+    this->moveTo(R, cy);
+    if (dir == kCCW_Direction) {
+        this->conicTo(R, T, cx, T, weight);
+        this->conicTo(L, T, L, cy, weight);
+        this->conicTo(L, B, cx, B, weight);
+        this->conicTo(R, B, R, cy, weight);
+    } else {
+        this->conicTo(R, B, cx, B, weight);
+        this->conicTo(L, B, L, cy, weight);
+        this->conicTo(L, T, cx, T, weight);
+        this->conicTo(R, T, R, cy, weight);
+    }
+#endif
     this->close();
 
     SkPathRef::Editor ed(&fPathRef);
@@ -1530,21 +1570,6 @@ void SkPath::offset(SkScalar dx, SkScalar dy, SkPath* dst) const {
     this->transform(matrix, dst);
 }
 
-#include "SkGeometry.h"
-
-static void subdivide_quad_to(SkPath* path, const SkPoint pts[3],
-                              int level = 2) {
-    if (--level >= 0) {
-        SkPoint tmp[5];
-
-        SkChopQuadAtHalf(pts, tmp);
-        subdivide_quad_to(path, &tmp[0], level);
-        subdivide_quad_to(path, &tmp[2], level);
-    } else {
-        path->quadTo(pts[1], pts[2]);
-    }
-}
-
 static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
                                int level = 2) {
     if (--level >= 0) {
@@ -1581,11 +1606,13 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
                     tmp.lineTo(pts[1]);
                     break;
                 case kQuad_Verb:
-                    subdivide_quad_to(&tmp, pts);
+                    // promote the quad to a conic
+                    tmp.conicTo(pts[1], pts[2],
+                                SkConic::TransformW(pts, SK_Scalar1, matrix));
                     break;
                 case kConic_Verb:
-                    SkDEBUGFAIL("TODO: compute new weight");
-                    tmp.conicTo(pts[1], pts[2], iter.conicWeight());
+                    tmp.conicTo(pts[1], pts[2],
+                                SkConic::TransformW(pts, iter.conicWeight(), matrix));
                     break;
                 case kCubic_Verb:
                     subdivide_cubic_to(&tmp, pts);

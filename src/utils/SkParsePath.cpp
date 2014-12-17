@@ -184,6 +184,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStream.h"
 
@@ -216,9 +217,14 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
 
     for (;;) {
         switch (iter.next(pts, false)) {
-             case SkPath::kConic_Verb:
-                SkASSERT(0);
-                break;
+            case SkPath::kConic_Verb: {
+                const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
+                SkAutoConicToQuads quadder;
+                const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(), tol);
+                for (int i = 0; i < quadder.countQuads(); ++i) {
+                    append_scalars(&stream, 'Q', &quadPts[i*2 + 1].fX, 4);
+                }
+            } break;
            case SkPath::kMove_Verb:
                 append_scalars(&stream, 'M', &pts[0].fX, 2);
                 break;

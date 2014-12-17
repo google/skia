@@ -12,11 +12,12 @@
 #include "SkPath.h"
 #include "SkTSearch.h"
 
-// these must be 0,1,2 since they are in our 2-bit field
+// these must be 0,1,2,3 since they are in our 2-bit field
 enum {
     kLine_SegType,
     kQuad_SegType,
-    kCubic_SegType
+    kCubic_SegType,
+    kConic_SegType,
 };
 
 #define kMaxTValue  32767
@@ -104,6 +105,30 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
     return distance;
 }
 
+SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic,
+                                           SkScalar distance, int mint, int maxt, int ptIndex) {
+    if (tspan_big_enough(maxt - mint) && quad_too_curvy(conic.fPts)) {
+        SkConic tmp[2];
+        conic.chop(tmp);
+
+        int halft = (mint + maxt) >> 1;
+        distance = this->compute_conic_segs(tmp[0], distance, mint, halft, ptIndex);
+        distance = this->compute_conic_segs(tmp[1], distance, halft, maxt, ptIndex);
+    } else {
+        SkScalar d = SkPoint::Distance(conic.fPts[0], conic.fPts[2]);
+        SkScalar prevD = distance;
+        distance += d;
+        if (distance > prevD) {
+            Segment* seg = fSegments.append();
+            seg->fDistance = distance;
+            seg->fPtIndex = ptIndex;
+            seg->fType = kConic_SegType;
+            seg->fTValue = maxt;
+        }
+    }
+    return distance;
+}
+
 SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
                            SkScalar distance, int mint, int maxt, int ptIndex) {
     if (tspan_big_enough(maxt - mint) && cubic_too_curvy(pts)) {
@@ -147,9 +172,6 @@ void SkPathMeasure::buildSegments() {
     bool done = false;
     do {
         switch (fIter.next(pts)) {
-            case SkPath::kConic_Verb:
-                SkASSERT(0);
-                break;
             case SkPath::kMove_Verb:
                 ptIndex += 1;
                 fPts.append(1, pts);
@@ -178,18 +200,30 @@ void SkPathMeasure::buildSegments() {
 
             case SkPath::kQuad_Verb: {
                 SkScalar prevD = distance;
-                distance = this->compute_quad_segs(pts, distance, 0,
-                                                   kMaxTValue, ptIndex);
+                distance = this->compute_quad_segs(pts, distance, 0, kMaxTValue, ptIndex);
                 if (distance > prevD) {
                     fPts.append(2, pts + 1);
                     ptIndex += 2;
                 }
             } break;
 
+            case SkPath::kConic_Verb: {
+                const SkConic conic(pts, fIter.conicWeight());
+                SkScalar prevD = distance;
+                distance = this->compute_conic_segs(conic, distance, 0, kMaxTValue, ptIndex);
+                if (distance > prevD) {
+                    // we store the conic weight in our next point, followed by the last 2 pts
+                    // thus to reconstitue a conic, you'd need to say
+                    // SkConic(pts[0], pts[2], pts[3], weight = pts[1].fX)
+                    fPts.append()->set(conic.fW, 0);
+                    fPts.append(2, pts + 1);
+                    ptIndex += 3;
+                }
+            } break;
+
             case SkPath::kCubic_Verb: {
                 SkScalar prevD = distance;
-                distance = this->compute_cubic_segs(pts, distance, 0,
-                                                    kMaxTValue, ptIndex);
+                distance = this->compute_cubic_segs(pts, distance, 0, kMaxTValue, ptIndex);
                 if (distance > prevD) {
                     fPts.append(3, pts + 1);
                     ptIndex += 3;
@@ -256,6 +290,12 @@ static void compute_pos_tan(const SkPoint pts[], int segType,
                 tangent->normalize();
             }
             break;
+        case kConic_SegType: {
+            SkConic(pts[0], pts[2], pts[3], pts[1].fX).evalAt(t, pos, tangent);
+            if (tangent) {
+                tangent->normalize();
+            }
+        } break;
         case kCubic_SegType:
             SkEvalCubicAt(pts, t, pos, tangent, NULL);
             if (tangent) {
@@ -277,7 +317,7 @@ static void seg_to(const SkPoint pts[], int segType,
         return; // should we report this, to undo a moveTo?
     }
 
-    SkPoint         tmp0[7], tmp1[7];
+    SkPoint tmp0[7], tmp1[7];
 
     switch (segType) {
         case kLine_SegType:
@@ -307,6 +347,29 @@ static void seg_to(const SkPoint pts[], int segType,
                 }
             }
             break;
+        case kConic_SegType: {
+            SkConic conic(pts[0], pts[2], pts[3], pts[1].fX);
+
+            if (0 == startT) {
+                if (SK_Scalar1 == stopT) {
+                    dst->conicTo(conic.fPts[1], conic.fPts[2], conic.fW);
+                } else {
+                    SkConic tmp[2];
+                    conic.chopAt(stopT, tmp);
+                    dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
+                }
+            } else {
+                SkConic tmp1[2];
+                conic.chopAt(startT, tmp1);
+                if (SK_Scalar1 == stopT) {
+                    dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                } else {
+                    SkConic tmp2[2];
+                    tmp1[1].chopAt((stopT - startT) / (SK_Scalar1 - startT), tmp2);
+                    dst->conicTo(tmp2[0].fPts[1], tmp2[0].fPts[2], tmp2[0].fW);
+                }
+            }
+        } break;
         case kCubic_SegType:
             if (0 == startT) {
                 if (SK_Scalar1 == stopT) {
