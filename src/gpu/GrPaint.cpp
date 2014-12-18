@@ -32,18 +32,21 @@ void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
     this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 
-bool GrPaint::isOpaque() const {
-    return this->getOpaqueAndKnownColor(NULL, NULL);
-}
-
 bool GrPaint::isOpaqueAndConstantColor(GrColor* color) const {
-    GrColor tempColor = 0;
-    uint32_t colorComps = 0;
-    if (this->getOpaqueAndKnownColor(&tempColor, &colorComps)) {
-        if (kRGBA_GrColorComponentFlags == colorComps) {
-            *color = tempColor;
-            return true;
-        }
+    GrProcOptInfo coverageProcInfo;
+    coverageProcInfo.calcWithInitialValues(fCoverageStages.begin(), this->numCoverageStages(),
+                                           0xFFFFFFFF, kRGBA_GrColorComponentFlags, true);
+    GrProcOptInfo colorProcInfo;
+    colorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), fColor,
+                                        kRGBA_GrColorComponentFlags, false);
+
+    GrXPFactory::InvariantOutput output;
+    fXPFactory->getInvariantOutput(colorProcInfo, coverageProcInfo, true, &output);
+
+    if (kRGBA_GrColorComponentFlags == output.fBlendedColorFlags &&
+        0xFF == GrColorUnpackA(output.fBlendedColor)) {
+        *color = output.fBlendedColor;
+        return true;
     }
     return false;
 }
@@ -52,19 +55,5 @@ void GrPaint::resetStages() {
     fColorStages.reset();
     fCoverageStages.reset();
     fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
-}
-
-bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
-                                     uint32_t* solidColorKnownComponents) const {
-
-    GrProcOptInfo coverageProcInfo;
-    coverageProcInfo.calcWithInitialValues(fCoverageStages.begin(), this->numCoverageStages(),
-                                           0xFFFFFFFF, kRGBA_GrColorComponentFlags, true);
-    GrProcOptInfo colorProcInfo;
-    colorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), fColor,
-                                        kRGBA_GrColorComponentFlags, false);
-
-    return fXPFactory->getOpaqueAndKnownColor(colorProcInfo, coverageProcInfo, solidColor,
-                                              solidColorKnownComponents);
 }
 

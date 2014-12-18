@@ -443,46 +443,19 @@ bool GrPorterDuffXPFactory::canApplyCoverage(const GrProcOptInfo& colorPOI,
     return false;
 }
 
-bool GrPorterDuffXPFactory::willBlendWithDst(const GrProcOptInfo& colorPOI,
-                                             const GrProcOptInfo& coveragePOI,
-                                             bool colorWriteDisabled) const {
-    if (!coveragePOI.isSolidWhite()) {
-        return true;
-    }
-
-    // TODO: once all SkXferEffects are XP's then we will never reads dst here since only XP's
-    // will readDst and PD XP's don't read dst.
-    if ((!colorWriteDisabled && colorPOI.readsDst()) || coveragePOI.readsDst()) {
-        return true;
-    }
-
-    if (GrBlendCoeffRefsDst(fSrcCoeff)) {
-        return true;
-    }
-
-    bool srcAIsOne = colorPOI.isOpaque();
-
-    if (!(kZero_GrBlendCoeff == fDstCoeff ||
-          (kISA_GrBlendCoeff == fDstCoeff && srcAIsOne))) {
-        return true;
-    }
-
-    return false;
-}
-
 bool GrPorterDuffXPFactory::canTweakAlphaForCoverage() const {
     return can_tweak_alpha_for_coverage(fDstCoeff);
 }
 
-bool GrPorterDuffXPFactory::getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,
-                                                   const GrProcOptInfo& coveragePOI,
-                                                   GrColor* solidColor,
-                                                   uint32_t* solidColorKnownComponents) const {
+void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
+                                               const GrProcOptInfo& coveragePOI,
+                                               bool colorWriteDisabled,
+                                               GrXPFactory::InvariantOutput* output) const {
     if (!coveragePOI.isSolidWhite()) {
-        return false;
+        output->fWillBlendWithDst = true;
+        output->fBlendedColorFlags = 0;
+        return;
     }
-
-    SkASSERT((NULL == solidColor) == (NULL == solidColorKnownComponents));
 
     GrBlendCoeff srcCoeff = fSrcCoeff;
     GrBlendCoeff dstCoeff = fDstCoeff;
@@ -492,47 +465,62 @@ bool GrPorterDuffXPFactory::getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI
     GrSimplifyBlend(&srcCoeff, &dstCoeff, colorPOI.color(), colorPOI.validFlags(),
                     0, 0, 0);
 
-    bool opaque = kZero_GrBlendCoeff == dstCoeff && !GrBlendCoeffRefsDst(srcCoeff);
-    if (solidColor) {
-        if (opaque) {
-            switch (srcCoeff) {
-                case kZero_GrBlendCoeff:
-                    *solidColor = 0;
-                    *solidColorKnownComponents = kRGBA_GrColorComponentFlags;
-                    break;
-
-                case kOne_GrBlendCoeff:
-                    *solidColor = colorPOI.color();
-                    *solidColorKnownComponents = colorPOI.validFlags();
-                    break;
-
-                // The src coeff should never refer to the src and if it refers to dst then opaque
-                // should have been false.
-                case kSC_GrBlendCoeff:
-                case kISC_GrBlendCoeff:
-                case kDC_GrBlendCoeff:
-                case kIDC_GrBlendCoeff:
-                case kSA_GrBlendCoeff:
-                case kISA_GrBlendCoeff:
-                case kDA_GrBlendCoeff:
-                case kIDA_GrBlendCoeff:
-                default:
-                    SkFAIL("srcCoeff should not refer to src or dst.");
-                    break;
-
-                // TODO: update this once GrPaint actually has a const color.
-                case kConstC_GrBlendCoeff:
-                case kIConstC_GrBlendCoeff:
-                case kConstA_GrBlendCoeff:
-                case kIConstA_GrBlendCoeff:
-                    *solidColorKnownComponents = 0;
-                    break;
-            }
-        } else {
-            solidColorKnownComponents = 0;
-        }
+    if (GrBlendCoeffRefsDst(srcCoeff)) {
+        output->fWillBlendWithDst = true;
+        output->fBlendedColorFlags = 0;
+        return;
     }
-    return opaque;
+
+    if (kZero_GrBlendCoeff != dstCoeff) {
+        bool srcAIsOne = colorPOI.isOpaque();
+        if (kISA_GrBlendCoeff != dstCoeff || !srcAIsOne) {
+            output->fWillBlendWithDst = true;
+        }
+        output->fBlendedColorFlags = 0;
+        return;
+    }
+
+    switch (srcCoeff) {
+        case kZero_GrBlendCoeff:
+            output->fBlendedColor = 0;
+            output->fBlendedColorFlags = kRGBA_GrColorComponentFlags;
+            break;
+
+        case kOne_GrBlendCoeff:
+            output->fBlendedColor = colorPOI.color();
+            output->fBlendedColorFlags = colorPOI.validFlags();
+            break;
+
+            // The src coeff should never refer to the src and if it refers to dst then opaque
+            // should have been false.
+        case kSC_GrBlendCoeff:
+        case kISC_GrBlendCoeff:
+        case kDC_GrBlendCoeff:
+        case kIDC_GrBlendCoeff:
+        case kSA_GrBlendCoeff:
+        case kISA_GrBlendCoeff:
+        case kDA_GrBlendCoeff:
+        case kIDA_GrBlendCoeff:
+        default:
+            SkFAIL("srcCoeff should not refer to src or dst.");
+            break;
+
+            // TODO: update this once GrPaint actually has a const color.
+        case kConstC_GrBlendCoeff:
+        case kIConstC_GrBlendCoeff:
+        case kConstA_GrBlendCoeff:
+        case kIConstA_GrBlendCoeff:
+            output->fBlendedColorFlags = 0;
+            break;
+    }
+
+    // TODO: once all SkXferEffects are XP's then we will never reads dst here since only XP's
+    // will readDst and PD XP's don't read dst.
+    if ((!colorWriteDisabled && colorPOI.readsDst()) || coveragePOI.readsDst()) {
+        output->fWillBlendWithDst = true;
+        return;
+    }
+    output->fWillBlendWithDst = false;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);

@@ -186,40 +186,27 @@ GrXferProcessor* GrCoverageSetOpXPFactory::createXferProcessor(const GrProcOptIn
     return GrCoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
 }
 
-bool GrCoverageSetOpXPFactory::willBlendWithDst(const GrProcOptInfo& colorPOI,
-                                                const GrProcOptInfo& coveragePOI,
-                                                bool colorWriteDisabled) const {
-    // TODO: once all SkXferEffects are XP's then we will never reads dst here since only XP's
-    // will readDst and this XP doesn't read dst.
-    if (coveragePOI.readsDst()) {
-        return true;
-    }
-
-    // Besides Replace all other SkRegion ops will either have a src coeff that references dst or a
-    // non zero dst coeff
-    return SkRegion::kReplace_Op != fRegionOp;
-}
-
-bool GrCoverageSetOpXPFactory::getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,
-                                                      const GrProcOptInfo& coveragePOI,
-                                                      GrColor* solidColor,
-                                                      uint32_t* solidColorKnownComponents) const {
-    if (!coveragePOI.isSolidWhite()) {
-        return false;
-    }
-
-    SkASSERT((NULL == solidColor) == (NULL == solidColorKnownComponents));
-
-    bool opaque = SkRegion::kReplace_Op == fRegionOp;
-    if (solidColor) {
-        if (opaque) {
-            *solidColor = GrColor_WHITE;
-            *solidColorKnownComponents = kRGBA_GrColorComponentFlags;
+void GrCoverageSetOpXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
+                                                  const GrProcOptInfo& coveragePOI,
+                                                  bool colorWriteDisabled,
+                                                  GrXPFactory::InvariantOutput* output) const {
+    if (SkRegion::kReplace_Op == fRegionOp) {
+        if (coveragePOI.isSolidWhite()) {
+            output->fBlendedColor = GrColor_WHITE;
+            output->fBlendedColorFlags = kRGBA_GrColorComponentFlags;
         } else {
-            solidColorKnownComponents = 0;
+            output->fBlendedColorFlags = 0;
         }
+
+        if (coveragePOI.readsDst()) {
+            output->fWillBlendWithDst = true;
+        } else {
+            output->fWillBlendWithDst = false;
+        }
+    } else {
+        output->fBlendedColorFlags = 0;
+        output->fWillBlendWithDst = true;
     }
-    return opaque;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);

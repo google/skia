@@ -180,13 +180,21 @@ public:
     virtual bool canApplyCoverage(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                                   bool colorWriteDisabled) const = 0;
 
-    /**
-     * This function returns true if the destination pixel values will be read for blending during
-     * draw.
+
+    struct InvariantOutput {
+        bool        fWillBlendWithDst;
+        GrColor     fBlendedColor;
+        uint32_t    fBlendedColorFlags;
+    };
+
+    /** 
+     * This function returns known information about the output of the xfer processor produced by
+     * this xp factory. The invariant color information returned by this function refers to the
+     * final color produced after all blending.
      */
     // TODO: remove need for colorWriteDisabled once only XP can read dst.
-    virtual bool willBlendWithDst(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                                  bool colorWriteDisabled) const = 0;
+    virtual void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
+                                    bool colorWriteDisabled, InvariantOutput*) const = 0;
 
     /**
      * Determines whether multiplying the computed per-pixel color by the pixel's fractional
@@ -194,10 +202,6 @@ public:
      * will not as coverage is applied after blending.
      */
     virtual bool canTweakAlphaForCoverage() const = 0;
-
-    virtual bool getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,
-                                        const GrProcOptInfo& coveragePOI, GrColor* solidColor,
-                                        uint32_t* solidColorKnownComponents) const = 0;
 
     bool isEqual(const GrXPFactory& that) const {
         if (this->classID() != that.classID()) {

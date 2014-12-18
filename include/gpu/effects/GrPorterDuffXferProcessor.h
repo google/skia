@@ -133,15 +133,11 @@ public:
     bool canApplyCoverage(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                           bool colorWriteDisabled) const SK_OVERRIDE;
 
-    bool willBlendWithDst(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                          bool colorWriteDisabled) const SK_OVERRIDE;
-
     bool canTweakAlphaForCoverage() const SK_OVERRIDE;
 
-    bool getOpaqueAndKnownColor(const GrProcOptInfo& colorPOI,
-                                const GrProcOptInfo& coveragePOI,
-                                GrColor* solidColor,
-                                uint32_t* solidColorKnownComponents) const SK_OVERRIDE;
+    void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
+                            bool colorWriteDisabled,
+                            GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 

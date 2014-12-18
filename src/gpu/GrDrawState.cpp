@@ -339,8 +339,11 @@ GrDrawState::~GrDrawState() {
 bool GrDrawState::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
     this->calcColorInvariantOutput(pp);
     this->calcCoverageInvariantOutput(pp);
-    return fXPFactory->willBlendWithDst(fColorProcInfo, fCoverageProcInfo,
-                                        this->isColorWriteDisabled());
+    
+    GrXPFactory::InvariantOutput output;
+    fXPFactory->getInvariantOutput(fColorProcInfo, fCoverageProcInfo, this->isColorWriteDisabled(),
+                                   &output);
+    return output.fWillBlendWithDst;
 }
 
 void GrDrawState::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
