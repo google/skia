@@ -13,6 +13,7 @@
     # If these become 'permanent', they should be moved into skia_common.gypi
     #
     'skia_for_chromium_defines': [
+      'SK_SUPPORT_LEGACY_GRADIENT_PRECISION',
     ],
   },
 }
