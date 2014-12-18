@@ -11,7 +11,6 @@
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
-#include "SkFontHost.h"
 #include "SkGlyph.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
@@ -850,8 +849,6 @@ SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "SkFontHost.h"
 
 class SkScalerContext_Empty : public SkScalerContext {
 public:

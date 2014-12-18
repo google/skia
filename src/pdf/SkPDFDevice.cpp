@@ -13,7 +13,6 @@
 #include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDraw.h"
-#include "SkFontHost.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"

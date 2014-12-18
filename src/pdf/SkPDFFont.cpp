@@ -8,7 +8,6 @@
 #include <ctype.h>
 
 #include "SkData.h"
-#include "SkFontHost.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPDFCatalog.h"

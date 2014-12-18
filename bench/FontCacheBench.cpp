@@ -8,7 +8,6 @@
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkChecksum.h"
-#include "SkFontHost.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkTemplates.h"

@@ -7,7 +7,6 @@
  */
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkFontHost.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"

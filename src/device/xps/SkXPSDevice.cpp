@@ -23,7 +23,6 @@
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkEndian.h"
-#include "SkFontHost.h"
 #include "SkGlyphCache.h"
 #include "SkHRESULT.h"
 #include "SkImageEncoder.h"

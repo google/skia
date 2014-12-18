@@ -14,7 +14,6 @@
 #include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
-#include "SkFontHost.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -1257,7 +1256,6 @@ static void add_flattenable(SkDescriptor* desc, uint32_t tag,
     buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), NULL));
 }
 
-// SkFontHost can override this choice in FilterRec()
 static SkMask::Format computeMaskFormat(const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 

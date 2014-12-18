@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkFontDescriptor.h"
-#include "SkFontHost.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
