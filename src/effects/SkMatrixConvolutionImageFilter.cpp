@@ -67,6 +67,10 @@ SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
     if (!kernel) {
         return NULL;
     }
+    if ((kernelOffset.fX < 0) || (kernelOffset.fX >= kernelSize.fWidth) ||
+        (kernelOffset.fY < 0) || (kernelOffset.fY >= kernelSize.fHeight)) {
+        return NULL;
+    }
     return SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias,
                                                        kernelOffset, tileMode, convolveAlpha,
                                                        input, cropRect, uniqueID));
