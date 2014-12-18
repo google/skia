@@ -667,13 +667,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5114692605203855359
+          7306126378906245197
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blur2rects_565.png": {
       "allowed-digests": [

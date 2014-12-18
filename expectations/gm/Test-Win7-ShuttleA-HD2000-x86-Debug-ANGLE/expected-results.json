@@ -1187,13 +1187,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5564289181496146035
+          7595902078530268040
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_gpu.png": {
       "allowed-digests": [
