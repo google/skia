@@ -977,13 +977,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12195310936180436782
+          7116235367842840302
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_pdf-poppler.png": {
       "allowed-digests": [
@@ -2848,7 +2845,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7048546964514197209
+          6125999814927110010
         ]
       ], 
       "reviewed-by-human": true
@@ -12524,7 +12521,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7528118218484535186
+          16247834823762474386
         ]
       ], 
       "reviewed-by-human": true

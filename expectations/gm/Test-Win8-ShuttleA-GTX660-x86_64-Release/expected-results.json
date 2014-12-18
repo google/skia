@@ -1480,19 +1480,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17870693939301194374
+          8139094894363515070
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13014075482864288220
+          8030168239881559492
         ]
       ], 
       "reviewed-by-human": true
@@ -1501,13 +1498,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17870693939301194374
+          8139094894363515070
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_pdf-poppler.png": {
       "allowed-digests": [
@@ -4342,7 +4336,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12624863915440686736
+          9983105971613979552
         ]
       ], 
       "reviewed-by-human": true
@@ -4351,7 +4345,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3305918433026350742
+          17270370206570728368
         ]
       ], 
       "reviewed-by-human": true
@@ -4360,7 +4354,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12624863915440686736
+          9983105971613979552
         ]
       ], 
       "reviewed-by-human": true
@@ -18949,7 +18943,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11427030262920236288
+          17763788251281759441
         ]
       ], 
       "reviewed-by-human": true
@@ -18958,7 +18952,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          262766361653694190
+          1661193991757691933
         ]
       ], 
       "reviewed-by-human": true
@@ -18967,7 +18961,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15915353739207416482
+          17763788251281759441
         ]
       ], 
       "reviewed-by-human": true

@@ -946,7 +946,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18100642558132966921
+          5237815601387355017
         ]
       ], 
       "reviewed-by-human": true
@@ -2857,13 +2857,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7136178481173034802
+          1110154143053014766
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurrects_pdf-poppler.png": {
       "allowed-digests": [
@@ -12095,7 +12092,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3430943938532712806
+          2147637739356279616
         ]
       ], 
       "reviewed-by-human": true
