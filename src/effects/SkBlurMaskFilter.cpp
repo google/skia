@@ -324,10 +324,6 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
                                         NinePatch* patch) const {
     SkASSERT(patch != NULL);
     switch (rrect.getType()) {
-        case SkRRect::kUnknown_Type:
-            // Unknown should never be returned.
-            SkASSERT(false);
-            // Fall through.
         case SkRRect::kEmpty_Type:
             // Nothing to draw.
             return kFalse_FilterReturn;

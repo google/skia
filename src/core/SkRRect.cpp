@@ -206,10 +206,8 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     fRadii[3].fX = clamp_radius_add(fRadii[3].fX, rect.fLeft, rect.fRight);
     fRadii[3].fY = clamp_radius_sub(fRadii[3].fY, rect.fTop, rect.fBottom);
 
-    // At this point we're either oval, simple, or complex (not empty or rect)
-    // but we lazily resolve the type to avoid the work if the information
-    // isn't required.
-    fType = (SkRRect::Type) kUnknown_Type;
+    // At this point we're either oval, simple, or complex (not empty or rect).
+    this->computeType();
 
     SkDEBUGCODE(this->validate();)
 }
@@ -305,8 +303,12 @@ static bool radii_are_nine_patch(const SkVector radii[4]) {
 }
 
 // There is a simplified version of this method in setRectXY
-void SkRRect::computeType() const {
-    SkDEBUGCODE(this->validate();)
+void SkRRect::computeType() {
+    struct Validator {
+        Validator(const SkRRect* r) : fR(r) {}
+        ~Validator() { SkDEBUGCODE(fR->validate();) }
+        const SkRRect* fR;
+    } autoValidate(this);
 
     if (fRect.isEmpty()) {
         fType = kEmpty_Type;
@@ -563,9 +565,6 @@ void SkRRect::validate() const {
             SkASSERT(!fRect.isEmpty());
             SkASSERT(!allRadiiZero && !allRadiiSame && !allCornersSquare);
             SkASSERT(!patchesOfNine);
-            break;
-        case kUnknown_Type:
-            // no limits on this
             break;
     }
 }

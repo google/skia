@@ -187,7 +187,7 @@ static SkScalar lua2scalar_def(lua_State* L, int index, SkScalar defaultValue) {
 static SkScalar getarray_scalar(lua_State* L, int stackIndex, int arrayIndex) {
     SkASSERT(lua_istable(L, stackIndex));
     lua_rawgeti(L, stackIndex, arrayIndex);
-    
+
     SkScalar value = lua2scalar(L, -1);
     lua_pop(L, 1);
     return value;
@@ -404,7 +404,7 @@ static SkScalar getfield_scalar(lua_State* L, int index, const char key[]) {
     SkASSERT(lua_istable(L, index));
     lua_pushstring(L, key);
     lua_gettable(L, index);
-    
+
     SkScalar value = lua2scalar(L, -1);
     lua_pop(L, 1);
     return value;
@@ -533,7 +533,7 @@ static int lcanvas_drawImageRect(lua_State* L) {
         srcRPtr = lua2rect(L, 3, &srcR);
     }
     lua2rect(L, 4, &dstR);
-    
+
     SkPaint paint;
     canvas->drawImageRect(image, srcRPtr, dstR, lua2OptionalPaint(L, 5, &paint));
     return 0;
@@ -1579,7 +1579,6 @@ static const struct luaL_Reg gSkPath_Methods[] = {
 
 static const char* rrect_type(const SkRRect& rr) {
     switch (rr.getType()) {
-        case SkRRect::kUnknown_Type: return "unknown";
         case SkRRect::kEmpty_Type: return "empty";
         case SkRRect::kRect_Type: return "rect";
         case SkRRect::kOval_Type: return "oval";
