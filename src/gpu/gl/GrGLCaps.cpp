@@ -497,10 +497,17 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         if (kGL_GrGLStandard == standard) {
             fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = true;
             fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = true;
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = true;
+            // for now we don't support floating point MSAA on ES
+            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = false;
         } else {
-            // in theory, check for "GL_EXT_color_buffer_half_float" 
-            // for now we don't support half float alpha render target on ES
-            fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = false;
+            if (ctxInfo.hasExtension("GL_EXT_color_buffer_half_float") && fTextureRedSupport) {
+                fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = true;
+            } else {
+                fConfigRenderSupport[kAlpha_half_GrPixelConfig][kNo_MSAA] = false;
+            }
+            // for now we don't support floating point MSAA on ES
             fConfigRenderSupport[kAlpha_half_GrPixelConfig][kYes_MSAA] = false;
         }
     }
@@ -649,10 +656,10 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     bool hasHalfFPTextures = version >= GR_GL_VER(3, 1);
     if (!hasHalfFPTextures) {
         hasHalfFPTextures = ctxInfo.hasExtension("GL_ARB_texture_float") ||
-        (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
-         ctxInfo.hasExtension("GL_OES_texture_half_float"));
+                            (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
+                             ctxInfo.hasExtension("GL_OES_texture_half_float"));
     }
-    fConfigTextureSupport[kAlpha_half_GrPixelConfig] = hasHalfFPTextures && fTextureRedSupport;
+    fConfigTextureSupport[kAlpha_half_GrPixelConfig] = hasHalfFPTextures;
 }
 
 bool GrGLCaps::doReadPixelsSupported(const GrGLInterface* intf,

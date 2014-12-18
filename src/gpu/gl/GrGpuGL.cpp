@@ -2386,18 +2386,25 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             break;
 
         case kAlpha_half_GrPixelConfig:
-            if (kGLES_GrGLStandard == this->glStandard() && this->glVersion() < GR_GL_VER(3, 1)) {
-                *internalFormat = GR_GL_ALPHA;
-                *externalFormat = GR_GL_ALPHA;
-                *externalType = GR_GL_HALF_FLOAT_OES;
-            } else if (this->glCaps().textureRedSupport()) {
-                *internalFormat = GR_GL_R16F;
+            if (this->glCaps().textureRedSupport()) {
+                if (getSizedInternalFormat) {
+                    *internalFormat = GR_GL_R16F;
+                } else {
+                    *internalFormat = GR_GL_RED;
+                }
                 *externalFormat = GR_GL_RED;
+            } else {
+                if (getSizedInternalFormat) {
+                    *internalFormat = GR_GL_ALPHA16F;
+                } else {
+                    *internalFormat = GR_GL_ALPHA;
+                }
+                *externalFormat = GR_GL_ALPHA;
+            }
+            if (kGL_GrGLStandard == this->glStandard() || this->glVersion() >= GR_GL_VER(3, 0)) {
                 *externalType = GR_GL_HALF_FLOAT;
             } else {
-                *internalFormat = GR_GL_ALPHA16F;
-                *externalFormat = GR_GL_ALPHA;
-                *externalType = GR_GL_HALF_FLOAT;
+                *externalType = GR_GL_HALF_FLOAT_OES;
             }
             break;
             

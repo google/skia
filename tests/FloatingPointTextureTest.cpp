@@ -90,7 +90,7 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
         controlPixelData[i + 2] = SK_HalfEpsilon;
         controlPixelData[i + 3] = 0x6800;   // 2^11
     }
-    
+
     for (int origin = 0; origin < 2; ++origin) {
         int glCtxTypeCnt = 1;
         glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
@@ -102,7 +102,7 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
             desc.fConfig = kAlpha_half_GrPixelConfig;
             desc.fOrigin = 0 == origin ?
             kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-            
+
             GrContext* context = NULL;
             GrContextFactory::GLContextType type =
             static_cast<GrContextFactory::GLContextType>(glCtxType);
@@ -113,16 +113,16 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
             if (NULL == context){
                 continue;
             }
-            
+
             SkAutoTUnref<GrTexture> fpTexture(context->createUncachedTexture(desc,
                                                                              NULL,
                                                                              0));
-            
+
             // 16-bit floating point textures are NOT supported everywhere
             if (NULL == fpTexture) {
                 continue;
             }
-            
+
             // write square
             fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData, 0);
             fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer, 0);
