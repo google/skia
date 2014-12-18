@@ -109,27 +109,6 @@ public:
         return NewScratchRenderTarget(gr, info, 0, NULL);
     }
 
-#ifdef SK_SUPPORT_LEGACY_TEXTRENDERMODE
-    /**
-     *  Text rendering modes that can be passed to NewRenderTarget*
-     */
-    enum TextRenderMode {
-        /**
-         *  This will use the standard text rendering method
-         */
-        kStandard_TextRenderMode,
-        /**
-         *  This will use signed distance fields for text rendering when possible
-         */
-        kDistanceField_TextRenderMode,
-    };
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget*, TextRenderMode);
-    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                      TextRenderMode);
-    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                             TextRenderMode);
-#endif
-
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 

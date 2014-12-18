@@ -176,34 +176,6 @@ bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t d
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-#ifdef SK_SUPPORT_LEGACY_TEXTRENDERMODE
-
-static SkSurfaceProps make_props(SkSurface::TextRenderMode trm) {
-    uint32_t propsFlags = 0;
-    if (SkSurface::kDistanceField_TextRenderMode == trm) {
-        propsFlags |= SkSurfaceProps::kUseDistanceFieldFonts_Flag;
-    }
-    return SkSurfaceProps(propsFlags, SkSurfaceProps::kLegacyFontHost_InitType);
-}
-
-SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, TextRenderMode trm) {
-    SkSurfaceProps props = make_props(trm);
-    return NewRenderTargetDirect(target, &props);
-}
-
-SkSurface* SkSurface::NewRenderTarget(GrContext* gr, const SkImageInfo& info, int sampleCount,
-                                      TextRenderMode trm) {
-    SkSurfaceProps props = make_props(trm);
-    return NewRenderTarget(gr, info, sampleCount, &props);
-}
-
-SkSurface* SkSurface::NewScratchRenderTarget(GrContext* gr, const SkImageInfo& info, int sampleCount,
-                                             TextRenderMode trm) {
-    SkSurfaceProps props = make_props(trm);
-    return NewScratchRenderTarget(gr, info, sampleCount, &props);
-}
-
-#endif
 
 #if !SK_SUPPORT_GPU
 
