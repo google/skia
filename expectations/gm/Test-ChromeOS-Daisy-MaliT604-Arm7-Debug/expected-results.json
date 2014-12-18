@@ -3231,25 +3231,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14894017545918091807
+          1681793359301655602
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filltypespersp_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7410424049029296878
+          15582050601814514181
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_checkerboard_192_192_565.png": {
       "allowed-digests": [
