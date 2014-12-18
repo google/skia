@@ -22,22 +22,15 @@
  */
 enum GrCoordSet {
     /**
-     * The user-space coordinates that map to the fragment being rendered. These coords account for
-     * any change of coordinate system done on the CPU by GrContext before rendering, and also are
-     * correct for draws that take explicit local coords rather than inferring them from the
-     * primitive's positions (e.g. drawVertices). These are usually the coords a GrProcessor wants.
+     * The user-space coordinates that map to the fragment being rendered. This is the space in
+     * which SkShader operates. It is usually the space in which geometry passed to SkCanvas is
+     * specified (before the view matrix is applied). However, some draw calls take explicit local
+     * coords that map onto the geometry (e.g. drawVertices, drawBitmapRectToRect).
      */
     kLocal_GrCoordSet,
 
     /**
-     * The actual vertex position. Note that GrContext may not draw using the original view matrix
-     * specified by the caller, as it may have transformed vertices into another space. These are
-     * usually not the coordinates a GrProcessor wants.
-     */
-    kPosition_GrCoordSet,
-
-    /**
-     * The position after it has been transformed by the view matrix.
+     * The device space position of the fragment being shaded.
      */
     kDevice_GrCoordSet,
 };

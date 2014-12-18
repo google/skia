@@ -54,13 +54,8 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace() {
     int transformCount = transVs.count();
     for (int i = 0; i < transformCount; i++) {
         GrCoordSet coordSet = transVs[i].fCoordSet;
-        const char* coords;
+        const char* coords = NULL;
         switch (coordSet) {
-            default:
-                SkFAIL("Case missing");
-            case kPosition_GrCoordSet:
-                coords = this->positionCoords();
-                break;
             case kLocal_GrCoordSet:
                 coords = this->localCoords();
                 break;

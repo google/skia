@@ -36,13 +36,11 @@ void setup_drawstate_aaclip(const SkIRect &devBound,
     SkASSERT(drawState);
 
     SkMatrix mat;
-    // We want to use device coords to compute the texture coordinates. We set our matrix to be
-    // equal to the view matrix followed by an offset to the devBound, and then a scaling matrix to
-    // normalized coords. We apply this matrix to the vertex positions rather than local coords.
+    // We use device coords to compute the texture coordinates. We set our matrix to be a
+    // translation to the devBound, and then a scaling matrix to normalized coords.
     mat.setIDiv(result->width(), result->height());
     mat.preTranslate(SkIntToScalar(-devBound.fLeft),
                      SkIntToScalar(-devBound.fTop));
-    mat.preConcat(drawState->getViewMatrix());
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     // This could be a long-lived effect that is cached with the alpha-mask.
@@ -52,7 +50,7 @@ void setup_drawstate_aaclip(const SkIRect &devBound,
                                       GrTextureDomain::MakeTexelDomain(result, domainTexels),
                                       GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode,
-                                      kPosition_GrCoordSet))->unref();
+                                      kDevice_GrCoordSet))->unref();
 }
 
 bool path_needs_SW_renderer(GrContext* context,

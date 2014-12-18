@@ -76,7 +76,7 @@ GrFragmentProcessor* GrSimpleTextureEffect::TestCreate(SkRandom* random,
 
     static const GrCoordSet kCoordSets[] = {
         kLocal_GrCoordSet,
-        kPosition_GrCoordSet
+        kDevice_GrCoordSet
     };
     GrCoordSet coordSet = kCoordSets[random->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
 
