@@ -55,6 +55,31 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
 
 #include "SkGradientShader.h"
 
+/*
+ * Spits out a dummy gradient to test blur with shader on paint
+ */
+static SkShader* MakeRadial() {
+    SkPoint pts[2] = {
+        { 0, 0 },
+        { SkIntToScalar(100), SkIntToScalar(100) }
+    };
+    SkShader::TileMode tm = SkShader::kClamp_TileMode;
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, };
+    const SkScalar pos[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
+    SkMatrix scale;
+    scale.setScale(0.5f, 0.5f);
+    scale.postTranslate(25.f, 25.f);
+    SkPoint center0, center1;
+    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
+                SkScalarAve(pts[0].fY, pts[1].fY));
+    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
+                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
+    return SkGradientShader::CreateTwoPointRadial(center1, (pts[1].fX - pts[0].fX) / 7,
+                                                  center0, (pts[1].fX - pts[0].fX) / 2,
+                                                  colors, pos, SK_ARRAY_COUNT(colors), tm,
+                                                  0, &scale);
+}
+
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
 
 class BlurRectGM : public skiagm::GM {
@@ -81,7 +106,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(440, 820);
+        return SkISize::Make(860, 820);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -97,6 +122,9 @@ protected:
                 paint.setMaskFilter(fMaskFilters[f]);
                 paint.setAlpha(fAlpha);
 
+                SkPaint paintWithRadial = paint;
+                paintWithRadial.setShader(MakeRadial())->unref();
+
                 static const Proc procs[] = {
                     fill_rect, draw_donut, draw_donut_skewed
                 };
@@ -105,17 +133,21 @@ protected:
                 canvas->scale(scales[s], scales[s]);
                 this->drawProcs(canvas, r, paint, false, procs, SK_ARRAY_COUNT(procs));
                 canvas->translate(r.width() * 4/3, 0);
+                this->drawProcs(canvas, r, paintWithRadial, false, procs, SK_ARRAY_COUNT(procs));
+                canvas->translate(r.width() * 4/3, 0);
                 this->drawProcs(canvas, r, paint, true, procs, SK_ARRAY_COUNT(procs));
+                canvas->translate(r.width() * 4/3, 0);
+                this->drawProcs(canvas, r, paintWithRadial, true, procs, SK_ARRAY_COUNT(procs));
                 canvas->restore();
 
                 canvas->translate(0, SK_ARRAY_COUNT(procs) * r.height() * 4/3 * scales[s]);
             }
             canvas->restore();
-            canvas->translate(2 * r.width() * 4/3 * scales[s], 0);
+            canvas->translate(4 * r.width() * 4/3 * scales[s], 0);
         }
     }
 
-    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
+    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag | kSkipTiled_Flag; }
 
 private:
     void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,

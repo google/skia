@@ -53,6 +53,8 @@ modecolorfilters
 
 #joshualitt
 bleed
+blurrects
+simpleblurroundrect
 
 #humper skia:2049
 dashcubics
