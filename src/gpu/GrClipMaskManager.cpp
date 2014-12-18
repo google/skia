@@ -449,7 +449,7 @@ void GrClipMaskManager::mergeMask(GrDrawState* drawState,
 
 GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag|kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kAlpha_8_GrPixelConfig;
