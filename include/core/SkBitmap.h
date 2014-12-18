@@ -14,16 +14,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-#ifdef SK_SUPPORT_LEGACY_ALLOCPIXELS_BOOL
-    #define SK_ALLOCPIXELS_RETURN_TYPE  bool
-    #define SK_ALLOCPIXELS_RETURN_TRUE  return true
-    #define SK_ALLOCPIXELS_RETURN_FAIL  return false
-#else
-    #define SK_ALLOCPIXELS_RETURN_TYPE  void
-    #define SK_ALLOCPIXELS_RETURN_TRUE  return
-    #define SK_ALLOCPIXELS_RETURN_FAIL  sk_throw()
-#endif
-
 struct SkMask;
 struct SkIRect;
 struct SkRect;
@@ -233,12 +223,10 @@ public:
      */
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo&, SkPixelRefFactory*, SkColorTable*);
 
-    SK_ALLOCPIXELS_RETURN_TYPE allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
-                                           SkColorTable* ctable) {
+    void allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory, SkColorTable* ctable) {
         if (!this->tryAllocPixels(info, factory, ctable)) {
-            SK_ALLOCPIXELS_RETURN_FAIL;
+            sk_throw();
         }
-        SK_ALLOCPIXELS_RETURN_TRUE;
     }
 
     /**
@@ -251,19 +239,18 @@ public:
      */
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, size_t rowBytes);
 
-    SK_ALLOCPIXELS_RETURN_TYPE allocPixels(const SkImageInfo& info, size_t rowBytes) {
+    void allocPixels(const SkImageInfo& info, size_t rowBytes) {
         if (!this->tryAllocPixels(info, rowBytes)) {
-            SK_ALLOCPIXELS_RETURN_FAIL;
+            sk_throw();
         }
-        SK_ALLOCPIXELS_RETURN_TRUE;
     }
 
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info) {
         return this->tryAllocPixels(info, info.minRowBytes());
     }
 
-    SK_ALLOCPIXELS_RETURN_TYPE allocPixels(const SkImageInfo& info) {
-        return this->allocPixels(info, info.minRowBytes());
+    void allocPixels(const SkImageInfo& info) {
+        this->allocPixels(info, info.minRowBytes());
     }
 
     bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false) {
@@ -272,10 +259,10 @@ public:
         return this->tryAllocPixels(info);
     }
 
-    SK_ALLOCPIXELS_RETURN_TYPE allocN32Pixels(int width, int height, bool isOpaque = false) {
+    void allocN32Pixels(int width, int height, bool isOpaque = false) {
         SkImageInfo info = SkImageInfo::MakeN32(width, height,
                                             isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-        return this->allocPixels(info);
+        this->allocPixels(info);
     }
 
     /**
@@ -354,8 +341,8 @@ public:
         return this->tryAllocPixels(NULL, ctable);
     }
 
-    SK_ALLOCPIXELS_RETURN_TYPE allocPixels(SkColorTable* ctable = NULL) {
-        return this->allocPixels(NULL, ctable);
+    void allocPixels(SkColorTable* ctable = NULL) {
+        this->allocPixels(NULL, ctable);
     }
 
     /** Use the specified Allocator to create the pixelref that manages the
@@ -378,11 +365,10 @@ public:
     */
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator, SkColorTable* ctable);
 
-    SK_ALLOCPIXELS_RETURN_TYPE allocPixels(Allocator* allocator, SkColorTable* ctable) {
+    void allocPixels(Allocator* allocator, SkColorTable* ctable) {
         if (!this->tryAllocPixels(allocator, ctable)) {
-            SK_ALLOCPIXELS_RETURN_FAIL;
+            sk_throw();
         }
-        SK_ALLOCPIXELS_RETURN_TRUE;
     }
 
     /**

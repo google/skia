@@ -14,7 +14,6 @@
     #
     'skia_for_android_framework_defines': [
       'SK_SUPPORT_LEGACY_PUBLIC_IMAGEINFO_FIELDS',
-      'SK_SUPPORT_LEGACY_ALLOCPIXELS_BOOL',
       'SK_SUPPORT_LEGACY_GETDEVICE',
       # Needed until we fix skbug.com/2440.
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
