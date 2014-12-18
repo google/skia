@@ -169,8 +169,6 @@ public:
         , fHasVertexColor(false)
         , fHasLocalCoords(false) {}
 
-    virtual const char* name() const = 0;
-
     /*
      * This is a safeguard to prevent GPs from going beyond platform specific attribute limits.
      * This number can almost certainly be raised if required.

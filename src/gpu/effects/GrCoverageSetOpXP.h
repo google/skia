@@ -28,7 +28,7 @@ public:
 
     ~GrCoverageSetOpXP() SK_OVERRIDE;
 
-    virtual const char* name() const { return "Coverage Set Op"; }
+    virtual const char* name() const SK_OVERRIDE { return "Coverage Set Op"; }
 
     void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
