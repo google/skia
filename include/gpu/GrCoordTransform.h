@@ -34,7 +34,12 @@ enum GrCoordSet {
      * specified by the caller, as it may have transformed vertices into another space. These are
      * usually not the coordinates a GrProcessor wants.
      */
-    kPosition_GrCoordSet
+    kPosition_GrCoordSet,
+
+    /**
+     * The position after it has been transformed by the view matrix.
+     */
+    kDevice_GrCoordSet,
 };
 
 /**

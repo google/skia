@@ -352,11 +352,11 @@ protected:
     int stageIndex() const { return fStageIndex; }
 
     struct TransformVarying {
-        TransformVarying(const GrGLVarying& v, const char* uniName, const char* sourceCoords)
-            : fV(v), fUniName(uniName), fSourceCoords(sourceCoords) {}
+        TransformVarying(const GrGLVarying& v, const char* uniName, GrCoordSet coordSet)
+            : fV(v), fUniName(uniName), fCoordSet(coordSet) {}
         GrGLVarying fV;
         SkString fUniName;
-        SkString fSourceCoords;
+        GrCoordSet fCoordSet;
     };
 
     const char* rtAdjustment() const { return "rtAdjustment"; }

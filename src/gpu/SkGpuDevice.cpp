@@ -574,16 +574,18 @@ namespace {
 // Return true if the mask was successfully drawn.
 bool draw_mask(GrContext* context, const SkMatrix& viewMatrix, const SkRect& maskRect,
                GrPaint* grp, GrTexture* mask) {
-    if (!grp->localCoordChangeInverse(viewMatrix)) {
-        return false;
-    }
-
     SkMatrix matrix;
     matrix.setTranslate(-maskRect.fLeft, -maskRect.fTop);
     matrix.postIDiv(mask->width(), mask->height());
 
-    grp->addCoverageProcessor(GrSimpleTextureEffect::Create(mask, matrix))->unref();
-    context->drawRect(*grp, SkMatrix::I(), maskRect);
+    grp->addCoverageProcessor(GrSimpleTextureEffect::Create(mask, matrix,
+                                                            kDevice_GrCoordSet))->unref();
+
+    SkMatrix inverse;
+    if (!viewMatrix.invert(&inverse)) {
+        return false;
+    }
+    context->drawNonAARectWithLocalMatrix(*grp, SkMatrix::I(), maskRect, inverse);
     return true;
 }
 
@@ -1381,7 +1383,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                        SkColor2GrColor(paint.getColor());
     SkPaint2GrPaintNoShader(this->context(), paint, paintColor, false, &grPaint);
 
-    fContext->drawRectToRect(grPaint, viewMatrix, dstRect, paintRect);
+    fContext->drawNonAARectToRect(grPaint, viewMatrix, dstRect, paintRect);
 }
 
 bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
@@ -1452,16 +1454,16 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkPaint2GrPaintNoShader(this->context(), paint, SkColor2GrColorJustAlpha(paint.getColor()),
                             false, &grPaint);
 
-    fContext->drawRectToRect(grPaint,
-                             SkMatrix::I(),
-                             SkRect::MakeXYWH(SkIntToScalar(left),
-                                              SkIntToScalar(top),
-                                              SkIntToScalar(w),
-                                              SkIntToScalar(h)),
-                             SkRect::MakeXYWH(0,
-                                              0,
-                                              SK_Scalar1 * w / texture->width(),
-                                              SK_Scalar1 * h / texture->height()));
+    fContext->drawNonAARectToRect(grPaint,
+                                  SkMatrix::I(),
+                                  SkRect::MakeXYWH(SkIntToScalar(left),
+                                                   SkIntToScalar(top),
+                                                   SkIntToScalar(w),
+                                                   SkIntToScalar(h)),
+                                  SkRect::MakeXYWH(0,
+                                                   0,
+                                                   SK_Scalar1 * w / texture->width(),
+                                                   SK_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
@@ -1574,7 +1576,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     SkRect srcRect = SkRect::MakeWH(SK_Scalar1 * w / devTex->width(),
                                     SK_Scalar1 * h / devTex->height());
 
-    fContext->drawRectToRect(grPaint, SkMatrix::I(), dstRect, srcRect);
+    fContext->drawNonAARectToRect(grPaint, SkMatrix::I(), dstRect, srcRect);
 }
 
 bool SkGpuDevice::canHandleImageFilter(const SkImageFilter* filter) {

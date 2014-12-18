@@ -482,7 +482,7 @@ void apply_morphology_pass(GrContext* context,
                                                        direction,
                                                        radius,
                                                        morphType))->unref();
-    context->drawRectToRect(paint, SkMatrix::I(), SkRect::Make(dstRect),
+    context->drawNonAARectToRect(paint, SkMatrix::I(), SkRect::Make(dstRect),
                             SkRect::Make(srcRect));
 }
 

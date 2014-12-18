@@ -53,16 +53,39 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace() {
     SkTArray<GrGLProgramBuilder::TransformVarying, true>& transVs = fProgramBuilder->fCoordVaryings;
     int transformCount = transVs.count();
     for (int i = 0; i < transformCount; i++) {
-        const char* coords = transVs[i].fSourceCoords.c_str();
+        GrCoordSet coordSet = transVs[i].fCoordSet;
+        const char* coords;
+        switch (coordSet) {
+            default:
+                SkFAIL("Case missing");
+            case kPosition_GrCoordSet:
+                coords = this->positionCoords();
+                break;
+            case kLocal_GrCoordSet:
+                coords = this->localCoords();
+                break;
+            case kDevice_GrCoordSet:
+                coords = this->glPosition();
+                break;
+        }
 
         // varying = matrix * coords (logically)
         const GrGLVarying& v = transVs[i].fV;
-        if (kVec2f_GrSLType == v.fType) {
-            this->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.fVsOut, transVs[i].fUniName.c_str(),
-                              coords);
+        if (kDevice_GrCoordSet == coordSet) {
+            if (kVec2f_GrSLType == v.fType) {
+                this->codeAppendf("%s = (%s * %s).xy;", v.fVsOut, transVs[i].fUniName.c_str(),
+                                  coords);
+            } else {
+                this->codeAppendf("%s = %s * %s;", v.fVsOut, transVs[i].fUniName.c_str(), coords);
+            }
         } else {
-            this->codeAppendf("%s = %s * vec3(%s, 1);", v.fVsOut, transVs[i].fUniName.c_str(),
-                              coords);
+            if (kVec2f_GrSLType == v.fType) {
+                this->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.fVsOut, transVs[i].fUniName.c_str(),
+                                  coords);
+            } else {
+                this->codeAppendf("%s = %s * vec3(%s, 1);", v.fVsOut, transVs[i].fUniName.c_str(),
+                                  coords);
+            }
         }
     }
 

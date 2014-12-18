@@ -650,7 +650,7 @@ private:
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     static bool CreateBlurProfileTexture(GrContext *context, float sigma,
-                                       GrTexture **blurProfileTexture);
+                                         GrTexture **blurProfileTexture);
 
     SkRect          fRect;
     float           fSigma;
@@ -753,7 +753,7 @@ void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
-                                              GrTexture **blurProfileTexture) {
+                                                GrTexture **blurProfileTexture) {
     GrTextureParams params;
     GrSurfaceDesc texDesc;
 

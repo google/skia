@@ -401,12 +401,10 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
             varyingName = suffixedVaryingName.c_str();
         }
 
-        bool useLocalCoords = kLocal_GrCoordSet == processor->coordTransform(t).sourceCoords();
-        const char* coords = useLocalCoords ? fVS.localCoords() : fVS.positionCoords();
-
+        GrCoordSet coordType = processor->coordTransform(t).sourceCoords();
         GrGLVertToFrag v(varyingType);
         this->addVarying(varyingName, &v, precision);
-        fCoordVaryings.push_back(TransformVarying(v, uniName, coords));
+        fCoordVaryings.push_back(TransformVarying(v, uniName, coordType));
 
         SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
         SkNEW_APPEND_TO_TARRAY(outCoords, GrGLProcessor::TransformedCoords,

@@ -52,8 +52,9 @@ enum {
     kPrecisionShift      = kMatrixTypeKeyBits,
 
     kPositionCoords_Flag = (1 << (kPrecisionShift + kPrecisionBits)),
+    kDeviceCoords_Flag   = kPositionCoords_Flag + kPositionCoords_Flag,
 
-    kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 1,
+    kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 2,
 };
 
 GR_STATIC_ASSERT(kHigh_GrSLPrecision < (1 << kPrecisionBits));
@@ -78,8 +79,10 @@ static uint32_t gen_transform_key(const GrPendingFragmentStage& stage, bool useE
         }
 
         const GrCoordTransform& coordTransform = stage.getProcessor()->coordTransform(t);
-        if (kLocal_GrCoordSet != coordTransform.sourceCoords() && useExplicitLocalCoords) {
+        if (kLocal_GrCoordSet == coordTransform.sourceCoords() && !useExplicitLocalCoords) {
             key |= kPositionCoords_Flag;
+        } else if (kDevice_GrCoordSet == coordTransform.sourceCoords()) {
+            key |= kDeviceCoords_Flag;
         }
 
         GR_STATIC_ASSERT(kGrSLPrecisionCount <= (1 << kPrecisionBits));

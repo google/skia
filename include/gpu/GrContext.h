@@ -436,20 +436,30 @@ public:
                   const GrStrokeInfo* strokeInfo = NULL);
 
     /**
-     * Maps a rect of local coordinates onto the a rect of destination
-     * coordinates. The localRect is stretched over the dstRect. The dstRect is
-     * transformed by the context's matrix. An additional optional matrix can be
-     *  provided to transform the local rect.
+     * Maps a rectangle of shader coordinates to a rectangle and draws that rectangle
      *
      * @param paint         describes how to color pixels.
-     * @param viewMatrix    transformation matrix
-     * @param dstRect       the destination rect to draw.
-     * @param localRect     rect of local coordinates to be mapped onto dstRect
+     * @param viewMatrix    transformation matrix which applies to rectToDraw
+     * @param rectToDraw    the rectangle to draw
+     * @param localRect     the rectangle of shader coordinates applied to rectToDraw
+     * @param localMatrix   an optional matrix to transform the shader coordinates before applying
+     *                      to rectToDraw
      */
-    void drawRectToRect(const GrPaint& paint,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& dstRect,
-                        const SkRect& localRect);
+    void drawNonAARectToRect(const GrPaint& paint,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rectToDraw,
+                             const SkRect& localRect,
+                             const SkMatrix* localMatrix = NULL);
+
+    /**
+     * Draws a non-AA rect with paint and a localMatrix
+     */
+    void drawNonAARectWithLocalMatrix(const GrPaint& paint,
+                                      const SkMatrix& viewMatrix,
+                                      const SkRect& rect,
+                                      const SkMatrix& localMatrix) {
+        this->drawNonAARectToRect(paint, viewMatrix, rect, rect, &localMatrix);
+    }
 
     /**
      *  Draw a roundrect using a paint.

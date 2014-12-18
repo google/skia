@@ -32,7 +32,8 @@ static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage, int tr
     SkMatrix combined;
 
     if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
-        // If we have explicit local coords then we shouldn't need a coord change.
+        // If we have explicit local coords or are in device coords then we shouldn't need a coord
+        // change.
         const SkMatrix& ccm = stage.getCoordChangeMatrix();
         combined.setConcat(coordTransform.getMatrix(), ccm);
     } else {

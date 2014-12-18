@@ -268,7 +268,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         SkASSERT(fp);
         GrPaint paint;
         paint.addColorProcessor(fp)->unref();
-        context->drawRectToRect(paint, SkMatrix::I(), dstRect, srcRect);
+        context->drawNonAARectToRect(paint, SkMatrix::I(), dstRect, srcRect);
 
         WrapTexture(dst, bounds.width(), bounds.height(), result);
         return true;

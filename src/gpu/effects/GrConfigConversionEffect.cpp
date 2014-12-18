@@ -231,19 +231,19 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         context->setRenderTarget(readTex->asRenderTarget());
         GrPaint paint1;
         paint1.addColorProcessor(pmToUPM1);
-        context->drawRectToRect(paint1, SkMatrix::I(), kDstRect, kSrcRect);
+        context->drawNonAARectToRect(paint1, SkMatrix::I(), kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
         GrPaint paint2;
         paint2.addColorProcessor(upmToPM);
-        context->drawRectToRect(paint2, SkMatrix::I(), kDstRect, kSrcRect);
+        context->drawNonAARectToRect(paint2, SkMatrix::I(), kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
 
         GrPaint paint3;
         paint3.addColorProcessor(pmToUPM2);
-        context->drawRectToRect(paint3, SkMatrix::I(), kDstRect, kSrcRect);
+        context->drawNonAARectToRect(paint3, SkMatrix::I(), kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
 

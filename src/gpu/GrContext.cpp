@@ -795,10 +795,11 @@ void GrContext::drawRect(const GrPaint& paint,
     }
 }
 
-void GrContext::drawRectToRect(const GrPaint& paint,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& dstRect,
-                               const SkRect& localRect) {
+void GrContext::drawNonAARectToRect(const GrPaint& paint,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rectToDraw,
+                                    const SkRect& localRect,
+                                    const SkMatrix* localMatrix) {
     AutoCheckFlush acf(this);
     GrDrawState drawState;
     GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
@@ -808,7 +809,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
 
-    target->drawRect(&drawState, paint.getColor(), dstRect, &localRect, NULL);
+    target->drawRect(&drawState, paint.getColor(), rectToDraw, &localRect, localMatrix);
 }
 
 static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords,
