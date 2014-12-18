@@ -3310,19 +3310,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3696341484825569467
+          17729103222581323974
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurrects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11980986810369723513
+          11616183154064151591
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurrects_gpu.png": {
       "allowed-digests": [
@@ -3337,10 +3337,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11542698472288191403
+          7978427661242955127
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurroundrect-WH-100x100-unevenCorners_565.png": {
       "allowed-digests": [
@@ -14998,7 +14998,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16249993606621732315
+          12085932714164238841
         ]
       ], 
       "reviewed-by-human": true
@@ -15007,7 +15007,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7482672038493178391
+          18269538430226862273
         ]
       ], 
       "reviewed-by-human": true
@@ -15025,10 +15025,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10481083401593594391
+          1453512573618208090
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "skbug1719_565.png": {
       "allowed-digests": [
