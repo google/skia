@@ -51,6 +51,17 @@ imagemagnifier
 #reed
 modecolorfilters
 
+#reed
+gammagradienttext
+composeshader_alpha
+composeshader
+c_gms
+alphagradients
+arithmode
+colorcube
+lightingcolorfilter
+
+
 #joshualitt
 bleed
 blurrects
