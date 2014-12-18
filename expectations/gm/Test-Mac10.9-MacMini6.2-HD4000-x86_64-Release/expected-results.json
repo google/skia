@@ -5263,9 +5263,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13742256918609331532
+          6219063277394539939
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_pdf-mac.png": {
@@ -5539,9 +5540,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8019470646677154193
+          15922084234916869542
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip_aa_layer_pdf-mac.png": {
