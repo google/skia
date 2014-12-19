@@ -3972,6 +3972,7 @@
           2828959506249066798
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_pdf-poppler.png": {
@@ -4106,6 +4107,7 @@
           16528727324311848794
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip2_rrect_aa_pdf-poppler.png": {
