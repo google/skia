@@ -20,6 +20,7 @@ public:
                                             uint32_t uniqueID = 0);
     virtual ~SkColorFilterImageFilter();
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorFilterImageFilter)
 
 protected:

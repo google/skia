@@ -282,6 +282,7 @@ public:
     static SkImageFilter* Create(SkLight* light, SkScalar surfaceScale, SkScalar kd, SkImageFilter*,
                                  const CropRect*, uint32_t uniqueID = 0);
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
     SkScalar kd() const { return fKD; }
 
@@ -309,6 +310,7 @@ public:
                                  SkScalar ks, SkScalar shininess, SkImageFilter*, const CropRect*,
                                  uint32_t uniqueID = 0);
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
     SkScalar ks() const { return fKS; }
@@ -1035,6 +1037,14 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
+#ifndef SK_IGNORE_TO_STRING
+void SkDiffuseLightingImageFilter::toString(SkString* str) const {
+    str->appendf("SkDiffuseLightingImageFilter: (");
+    str->appendf("kD: %f\n", fKD);
+    str->append(")");
+}
+#endif
+
 #if SK_SUPPORT_GPU
 bool SkDiffuseLightingImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
                                                        GrTexture* texture,
@@ -1141,6 +1151,14 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
     }
     return true;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkSpecularLightingImageFilter::toString(SkString* str) const {
+    str->appendf("SkSpecularLightingImageFilter: (");
+    str->appendf("kS: %f shininess: %f", fKS, fShininess);
+    str->append(")");
+}
+#endif
 
 #if SK_SUPPORT_GPU
 bool SkSpecularLightingImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,

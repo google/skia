@@ -25,6 +25,7 @@ public:
         return SkNEW_ARGS(SkComposeImageFilter, (inputs));
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
 
 protected:

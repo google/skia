@@ -31,6 +31,7 @@ public:
         return SkNEW_ARGS(SkMergeImageFilter, (filters, count, modes, cropRect, uniqueID));
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
 
 protected:

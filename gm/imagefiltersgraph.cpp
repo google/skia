@@ -62,6 +62,7 @@ public:
         return true;
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
 
 protected:
@@ -88,6 +89,13 @@ SkFlattenable* SimpleOffsetFilter::CreateProc(SkReadBuffer& buffer) {
     SkScalar dy = buffer.readScalar();
     return Create(dx, dy, common.getInput(0));
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SimpleOffsetFilter::toString(SkString* str) const {
+    str->appendf("SimpleOffsetFilter: (");
+    str->append(")");
+}
+#endif
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:

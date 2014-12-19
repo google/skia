@@ -704,7 +704,7 @@ void SkGradientShaderBase::toString(SkString* str) const {
     str->appendf("%d colors: ", fColorCount);
 
     for (int i = 0; i < fColorCount; ++i) {
-        str->appendHex(fOrigColors[i]);
+        str->appendHex(fOrigColors[i], 8);
         if (i < fColorCount-1) {
             str->append(", ");
         }

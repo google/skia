@@ -46,6 +46,7 @@ public:
                                                  kLocalSpace_PictureResolution, filterLevel));
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)
 
 protected:

@@ -357,3 +357,13 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
     }
     return true;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkMagnifierImageFilter::toString(SkString* str) const {
+    str->appendf("SkMagnifierImageFilter: (");
+    str->appendf("src: (%f,%f,%f,%f) ",
+                 fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom);
+    str->appendf("inset: %f", fInset);
+    str->append(")");
+}
+#endif

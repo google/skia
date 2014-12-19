@@ -443,6 +443,7 @@ public:
         *result = src;
         return true;
     }
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyImageFilter)
     bool visited() const { return fVisited; }
 
@@ -455,6 +456,13 @@ SkFlattenable* DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
     bool visited = buffer.readBool();
     return SkNEW_ARGS(DummyImageFilter, (visited));
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void DummyImageFilter::toString(SkString* str) const {
+    str->appendf("DummyImageFilter: (");
+    str->append(")");
+}
+#endif
 
 };
 

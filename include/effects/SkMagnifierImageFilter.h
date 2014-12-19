@@ -16,6 +16,7 @@ class SK_API SkMagnifierImageFilter : public SkImageFilter {
 public:
     static SkImageFilter* Create(const SkRect& src, SkScalar inset, SkImageFilter* input = NULL);
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMagnifierImageFilter)
 
 protected:

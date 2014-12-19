@@ -55,6 +55,7 @@ public:
         return true;
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
@@ -80,6 +81,13 @@ SkFlattenable* MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&matrix);
     return SkNEW_ARGS(MatrixTestImageFilter, (reporter, matrix));
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void MatrixTestImageFilter::toString(SkString* str) const {
+    str->appendf("MatrixTestImageFilter: (");
+    str->append(")");
+}
+#endif
 
 static void make_small_bitmap(SkBitmap& bitmap) {
     bitmap.allocN32Pixels(kBitmapSize, kBitmapSize);

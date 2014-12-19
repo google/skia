@@ -48,6 +48,8 @@ public:
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 
+    SK_TO_STRING_OVERRIDE()
+
 protected:
     SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                             ChannelSelectorType yChannelSelector,

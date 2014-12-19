@@ -124,3 +124,27 @@ bool SkMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm
     *dst = bounds;
     return true;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkMatrixImageFilter::toString(SkString* str) const {
+    str->appendf("SkMatrixImageFilter: (");
+
+    str->appendf("transform: (%f %f %f %f %f %f %f %f %f)",
+                 fTransform[SkMatrix::kMScaleX],
+                 fTransform[SkMatrix::kMSkewX],
+                 fTransform[SkMatrix::kMTransX],
+                 fTransform[SkMatrix::kMSkewY],
+                 fTransform[SkMatrix::kMScaleY],
+                 fTransform[SkMatrix::kMTransY],
+                 fTransform[SkMatrix::kMPersp0],
+                 fTransform[SkMatrix::kMPersp1],
+                 fTransform[SkMatrix::kMPersp2]);
+
+    str->append("<dt>FilterLevel:</dt><dd>");
+    static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
+    str->append(gFilterLevelStrings[fFilterLevel]);    
+    str->append("</dd>");
+
+    str->appendf(")");
+}
+#endif

@@ -40,3 +40,20 @@ SkFlattenable* SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     return SkComposeImageFilter::Create(common.getInput(0), common.getInput(1));
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkComposeImageFilter::toString(SkString* str) const {
+    SkImageFilter* outer = getInput(0);
+    SkImageFilter* inner = getInput(1);
+
+    str->appendf("SkComposeImageFilter: (");
+
+    str->appendf("outer: ");
+    outer->toString(str);
+
+    str->appendf("inner: ");
+    inner->toString(str);
+
+    str->appendf(")");
+}
+#endif

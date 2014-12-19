@@ -24,6 +24,7 @@ public:
         return SkNEW_ARGS(SkOffsetImageFilter, (dx, dy, input, cropRect, uniqueID));
     }
     virtual void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
 
 protected:

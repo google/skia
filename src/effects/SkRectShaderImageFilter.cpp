@@ -79,3 +79,10 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
     offset->fY = bounds.fTop;
     return true;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkRectShaderImageFilter::toString(SkString* str) const {
+    str->appendf("SkRectShaderImageFilter: (");
+    str->append(")");
+}
+#endif

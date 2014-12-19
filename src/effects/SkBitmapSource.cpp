@@ -83,3 +83,15 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
 void SkBitmapSource::computeFastBounds(const SkRect&, SkRect* dst) const {
     *dst = fDstRect;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkBitmapSource::toString(SkString* str) const {
+    str->appendf("SkBitmapSource: (");
+    str->appendf("src: (%f,%f,%f,%f) dst: (%f,%f,%f,%f) ",
+                 fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom,
+                 fDstRect.fLeft, fDstRect.fTop, fDstRect.fRight, fDstRect.fBottom);
+    str->appendf("bitmap: (%d,%d)",
+                 fBitmap.width(), fBitmap.height());
+    str->append(")");
+}
+#endif

@@ -63,6 +63,7 @@ public:
                                                   const CropRect* cropRect = NULL,
                                                   uint32_t uniqueID = 0);
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
 
 protected:

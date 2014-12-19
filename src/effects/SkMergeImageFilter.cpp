@@ -140,3 +140,18 @@ void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
         buffer.writeByteArray(fModes, countInputs() * sizeof(fModes[0]));
     }
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkMergeImageFilter::toString(SkString* str) const {
+    str->appendf("SkMergeImageFilter: (");
+    
+    for (int i = 0; i < this->countInputs(); ++i) {
+        SkImageFilter* filter = this->getInput(i);
+        str->appendf("%d: (", i);
+        filter->toString(str);
+        str->appendf(")");
+    }
+
+    str->append(")");
+}
+#endif

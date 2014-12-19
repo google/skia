@@ -167,3 +167,17 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(Proxy* proxy, SkBaseDevi
                       SkIntToScalar(localIBounds.fTop), &paint);
     //canvas.drawPicture(fPicture);
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkPictureImageFilter::toString(SkString* str) const {
+    str->appendf("SkPictureImageFilter: (");
+    str->appendf("crop: (%f,%f,%f,%f) ", 
+                 fCropRect.fLeft, fCropRect.fTop, fCropRect.fRight, fCropRect.fBottom);
+    if (fPicture) {
+        str->appendf("picture: (%f,%f,%f,%f)",
+                     fPicture->cullRect().fLeft, fPicture->cullRect().fTop,
+                     fPicture->cullRect().fRight, fPicture->cullRect().fBottom);
+    }
+    str->append(")");
+}
+#endif

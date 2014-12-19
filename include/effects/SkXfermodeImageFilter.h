@@ -31,6 +31,7 @@ public:
         return SkNEW_ARGS(SkXfermodeImageFilter, (mode, inputs, cropRect, uniqueID));
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter)
 
     virtual bool onFilterImage(Proxy* proxy,

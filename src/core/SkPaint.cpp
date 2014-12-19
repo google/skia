@@ -2160,6 +2160,7 @@ void SkPaint::toString(SkString* str) const {
     SkImageFilter* imageFilter = this->getImageFilter();
     if (imageFilter) {
         str->append("<dt>ImageFilter:</dt><dd>");
+        imageFilter->toString(str);
         str->append("</dd>");
     }
 

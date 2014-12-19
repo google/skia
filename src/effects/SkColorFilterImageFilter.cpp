@@ -141,3 +141,14 @@ bool SkColorFilterImageFilter::asColorFilter(SkColorFilter** filter) const {
     }
     return false;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkColorFilterImageFilter::toString(SkString* str) const {
+    str->appendf("SkColorFilterImageFilter: (");
+
+    str->appendf("color filter: ");
+    fColorFilter->toString(str);
+
+    str->append(")");
+}
+#endif

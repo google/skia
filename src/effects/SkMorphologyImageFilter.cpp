@@ -264,6 +264,22 @@ SkFlattenable* SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
     return Create(width, height, common.getInput(0), &common.cropRect(), common.uniqueID());
 }
 
+#ifndef SK_IGNORE_TO_STRING
+void SkErodeImageFilter::toString(SkString* str) const {
+    str->appendf("SkErodeImageFilter: (");
+    str->appendf("radius: (%d,%d)", this->radius().fWidth, this->radius().fHeight);
+    str->append(")");
+}
+#endif
+
+#ifndef SK_IGNORE_TO_STRING
+void SkDilateImageFilter::toString(SkString* str) const {
+    str->appendf("SkDilateImageFilter: (");
+    str->appendf("radius: (%d,%d)", this->radius().fWidth, this->radius().fHeight);
+    str->append(")");
+}
+#endif
+
 #if SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////

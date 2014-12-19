@@ -30,6 +30,7 @@ public:
         return SkNEW(FailImageFilter);
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 
 protected:
@@ -51,6 +52,13 @@ SkFlattenable* FailImageFilter::CreateProc(SkReadBuffer& buffer) {
     return FailImageFilter::Create();
 }
 
+#ifndef SK_IGNORE_TO_STRING
+void FailImageFilter::toString(SkString* str) const {
+    str->appendf("FailImageFilter: (");
+    str->append(")");
+}
+#endif
+
 class IdentityImageFilter : public SkImageFilter {
 public:
     class Registrar {
@@ -65,6 +73,7 @@ public:
         return SkNEW_ARGS(IdentityImageFilter, (input));
     }
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 protected:
     IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
@@ -86,6 +95,13 @@ SkFlattenable* IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     return IdentityImageFilter::Create(common.getInput(0));
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void IdentityImageFilter::toString(SkString* str) const {
+    str->appendf("IdentityImageFilter: (");
+    str->append(")");
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -136,3 +136,27 @@ bool SkDropShadowImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     *dst = bounds;
     return true;
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkDropShadowImageFilter::toString(SkString* str) const {
+    str->appendf("SkDropShadowImageFilter: (");
+
+    str->appendf("dX: %f ", fDx);
+    str->appendf("dY: %f ", fDy);
+    str->appendf("sigmaX: %f ", fSigmaX);
+    str->appendf("sigmaY: %f ", fSigmaY);
+
+    str->append("Color: ");
+    str->appendHex(fColor);
+
+    static const char* gModeStrings[] = {
+        "kDrawShadowAndForeground", "kDrawShadowOnly"
+    };
+
+    SK_COMPILE_ASSERT(kShadowModeCount == SK_ARRAY_COUNT(gModeStrings), enum_mismatch);
+
+    str->appendf(" mode: %s", gModeStrings[fShadowMode]);
+
+    str->append(")");
+}
+#endif

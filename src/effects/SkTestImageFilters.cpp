@@ -80,3 +80,10 @@ void SkDownSampleImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fScale);
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkDownSampleImageFilter::toString(SkString* str) const {
+    str->appendf("SkDownSampleImageFilter: (");
+    str->append(")");
+}
+#endif

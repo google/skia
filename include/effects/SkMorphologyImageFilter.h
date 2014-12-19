@@ -68,6 +68,7 @@ public:
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
 
 protected:
@@ -96,6 +97,7 @@ public:
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
 
 protected:
