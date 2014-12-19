@@ -29,15 +29,6 @@ public:
     SkPictureRecorder();
     ~SkPictureRecorder();
 
-#ifdef SK_LEGACY_PICTURE_SIZE_API
-    SkCanvas* beginRecording(int width, int height,
-                             SkBBHFactory* bbhFactory = NULL,
-                             uint32_t recordFlags = 0) {
-        return this->beginRecording(SkIntToScalar(width), SkIntToScalar(height),
-                                    bbhFactory, recordFlags);
-    }
-#endif
-
     enum RecordFlags {
         // This flag indicates that, if some BHH is being computed, saveLayer
         // information should also be extracted at the same time.

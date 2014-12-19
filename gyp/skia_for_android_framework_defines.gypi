@@ -17,8 +17,6 @@
       'SK_SUPPORT_LEGACY_GETDEVICE',
       # Needed until we fix skbug.com/2440.
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
-      'SK_LEGACY_PICTURE_SIZE_API',
-      'SK_LEGACY_PICTURE_DRAW_API',
       # TODO(tfarina): Remove this when Android is fixed. skbug.com/3178
       'SK_SUPPORT_LEGACY_PORTER_DUFF',
     ],

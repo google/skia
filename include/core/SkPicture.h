@@ -114,17 +114,6 @@ public:
     */
     void playback(SkCanvas* canvas, SkDrawPictureCallback* = NULL) const;
 
-#ifdef SK_LEGACY_PICTURE_DRAW_API
-    void draw(SkCanvas* canvas, SkDrawPictureCallback* callback = NULL) const {
-        this->playback(canvas, callback);
-    }
-#endif
-
-#ifdef SK_LEGACY_PICTURE_SIZE_API
-    int width() const  { return fCullRect.roundOut().width(); }
-    int height() const { return fCullRect.roundOut().height(); }
-#endif
-
     /** Return the cull rect used when creating this picture: { 0, 0, cullWidth, cullHeight }.
         It does not necessarily reflect the bounds of what has been recorded into the picture.
         @return the cull rect used to create this picture
