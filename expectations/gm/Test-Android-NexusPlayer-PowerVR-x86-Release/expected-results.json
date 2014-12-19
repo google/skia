@@ -8944,9 +8944,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2659756475701934786
+          5406588354101378006
         ]
       ], 
+      "bugs": [
+        3267
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "multipicturedraw_biglayer_tiled_565.png": {
