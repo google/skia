@@ -100,7 +100,7 @@ protected:
                     SkPaint shaderPaint;
                     shaderPaint.setTypeface(fTypeface);
                     if (SkToBool(i)) {
-                        shaderPaint.setShader(MakeLinear());
+                        shaderPaint.setShader(MakeLinear())->unref();
                     }
 
                     if (SkToBool(j) && SkToBool(k)) {
