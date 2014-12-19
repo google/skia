@@ -2801,6 +2801,24 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip3_complex_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7410217792286323238
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15995785946334055610
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
         [

@@ -3084,6 +3084,60 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip3_complex_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          186648471157511132
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11287276735682374310
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15567923745194230464
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3690700472168743234
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16117656566335323134
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10336277721169719256
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
         [

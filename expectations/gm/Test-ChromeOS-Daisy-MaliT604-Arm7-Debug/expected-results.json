@@ -2197,6 +2197,42 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip3_complex_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2057593394570790877
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8891032602874873890
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          346326172296951868
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5565296309258696912
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
         [

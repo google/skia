@@ -2556,6 +2556,96 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip3_complex_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7460520537095208796
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7291660642367442338
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5425839111661000388
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6567490534933586853
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_complex_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2476683591443888711
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17041863101976913760
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5585387428193910993
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          600546617215273168
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14387472185481197960
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12017996734769242584
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
         [

@@ -5016,6 +5016,24 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip3_complex_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13020581289954300811
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip3_simple_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13813998980987863055
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
         [
