@@ -21,9 +21,9 @@ static const int kV0 = -42, kV1 = -53, kRamp = -64;
 static void check_value(int64_t bigfx, int expected) {
     if (bigfx < 0) {
         R_ASSERT(expected == kV0);
-    } else if (bigfx > 0xFFFF) {
+    } else if (bigfx > kFracMax_SkGradFixed) {
         R_ASSERT(expected == kV1);
-    } else if (bigfx == 0xFFFF) {
+    } else if (bigfx == kFracMax_SkGradFixed) {
         // Either one is fine (and we do see both).
         R_ASSERT(expected == kV1 || expected == kRamp);
     } else {
@@ -32,7 +32,7 @@ static void check_value(int64_t bigfx, int expected) {
 }
 
 static void slow_check(const SkClampRange& range,
-                       const SkFixed fx, SkFixed dx, int count) {
+                       const SkGradFixed fx, SkGradFixed dx, int count) {
     SkASSERT(range.fCount0 + range.fCount1 + range.fCount2 == count);
 
     // If dx is large, fx will overflow if updated naively.  So we use more bits.
@@ -56,9 +56,12 @@ static void slow_check(const SkClampRange& range,
 
 
 static void test_range(SkFixed fx, SkFixed dx, int count) {
+    const SkGradFixed gfx = SkFixedToGradFixed(fx);
+    const SkGradFixed gdx = SkFixedToGradFixed(dx);
+
     SkClampRange range;
-    range.init(fx, dx, count, kV0, kV1);
-    slow_check(range, fx, dx, count);
+    range.init(gfx, gdx, count, kV0, kV1);
+    slow_check(range, gfx, gdx, count);
 }
 
 #define ff(x)   SkIntToFixed(x)

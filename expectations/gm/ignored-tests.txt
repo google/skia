@@ -51,6 +51,37 @@ imagemagnifier
 #reed
 modecolorfilters
 
+#reed
+alphagradients
+arithmode
+c_gms
+colorcube
+composeshader_alpha
+composeshader
+patch_primitive
+gammagradienttext
+glyph_pos_align
+gradient_dirty_laundry
+gradients_many
+gradient_matrix
+gradients_no_texture
+gradtext
+lightingcolorfilter
+lumafilter
+shaderbounds_linear
+shallow_gradient_linear
+scaled_tilemodes_npot
+scaled_tilemode_gradient
+shadertext2
+shadertext3
+srcmode
+surfaceprops
+tablecolorfilter
+tilemode_gradient
+tilemodes_npot
+vertices
+vertices_80
+
 #humper skia:2049
 dashcubics
 

@@ -163,7 +163,7 @@ void SkClampRange::init(SkGradFixed fx0, SkGradFixed dx0, int count, int v0, int
     }
 
     if (fCount1 > 0) {
-        fFx1 = fx0 + fCount0 * (int)dx;
+        fFx1 = fx0 + fCount0 * dx;
     }
 
     if (dx > 0) {

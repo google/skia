@@ -11,8 +11,6 @@
 #include "SkFixed.h"
 #include "SkScalar.h"
 
-#define SK_SUPPORT_LEGACY_GRADIENT_PRECISION
-
 #ifdef SK_SUPPORT_LEGACY_GRADIENT_PRECISION
     #define SkGradFixed             SkFixed
     #define SkScalarToGradFixed     SkScalarToFixed
