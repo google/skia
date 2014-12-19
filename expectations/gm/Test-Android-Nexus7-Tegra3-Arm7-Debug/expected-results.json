@@ -332,7 +332,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11976769394076607440
+          4250069321180031584
         ]
       ], 
       "reviewed-by-human": true
@@ -661,13 +661,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5114692605203855359
+          7306126378906245197
         ]
       ], 
-      "bugs": [
-        2762
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blur2rects_565.png": {
       "allowed-digests": [
@@ -9121,7 +9118,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13988021646843375450
+          10641971147188426662
         ]
       ], 
       "reviewed-by-human": true
@@ -9130,7 +9127,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7482672038493178391
+          18269538430226862273
         ]
       ], 
       "reviewed-by-human": true
@@ -9139,7 +9136,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10069358283928401947
+          4847078710324696151
         ]
       ], 
       "reviewed-by-human": true
