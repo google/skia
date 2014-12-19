@@ -22,7 +22,7 @@ public:
 
 protected:
     uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
+        return kSkipTiled_Flag | kSkipGPU_Flag;
     }
 
     SkString onShortName() {
