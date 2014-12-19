@@ -360,9 +360,29 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                                   bitmap->getPixels(), bitmap->rowBytes());
 }
 
+static GrTexture* get_texture_backing_bmp(const SkBitmap& bitmap, const GrContext* context,
+                                          const GrTextureParams* params) {
+    if (GrTexture* texture = bitmap.getTexture()) {
+        // Our texture-resizing-for-tiling used to upscale NPOT textures for tiling only works with
+        // content-key cached resources. Rather than invest in that legacy code path, we'll just
+        // take the horribly slow route of causing a cache miss which will cause the pixels to be
+        // read and reuploaded to a texture with a content key.
+        if (params && !context->getGpu()->caps()->npotTextureTileSupport() &&
+            (params->isTiled() || GrTextureParams::kMipMap_FilterMode == params->filterMode())) {
+            return NULL;
+        }
+        return texture;
+    }
+    return NULL;
+}
+
 bool GrIsBitmapInCache(const GrContext* ctx,
                        const SkBitmap& bitmap,
                        const GrTextureParams* params) {
+    if (get_texture_backing_bmp(bitmap, ctx, params)) {
+        return true;
+    }
+
     GrCacheID cacheID;
     generate_bitmap_cache_id(bitmap, &cacheID);
 
@@ -374,7 +394,10 @@ bool GrIsBitmapInCache(const GrContext* ctx,
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
                                     const SkBitmap& bitmap,
                                     const GrTextureParams* params) {
-    GrTexture* result = NULL;
+    GrTexture* result = get_texture_backing_bmp(bitmap, ctx, params);
+    if (result) {
+        return SkRef(result);
+    }
 
     bool cache = !bitmap.isVolatile();
 
