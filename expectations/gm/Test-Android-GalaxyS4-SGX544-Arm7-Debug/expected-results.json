@@ -211,11 +211,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2209365284358649379
+          15550462382873315569
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "arithmode_msaa4.png": {
       "allowed-digests": [
@@ -2506,7 +2506,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12622312579339135051
+          9219932047575894872
         ]
       ], 
       "reviewed-by-human": true
@@ -8430,7 +8430,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3209345689906000993
+          291438924312996687
         ]
       ], 
       "reviewed-by-human": true
@@ -9193,7 +9193,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10591769218006925054
+          11979629880787196409
         ]
       ], 
       "ignore-failure": false, 
@@ -9567,7 +9567,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12030141172108998252
+          11076004749079970474
         ]
       ], 
       "reviewed-by-human": true
