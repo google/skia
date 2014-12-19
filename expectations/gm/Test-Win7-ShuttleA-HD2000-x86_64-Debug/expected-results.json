@@ -2839,7 +2839,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6125999814927110010
+          14424644291353165923
         ]
       ], 
       "reviewed-by-human": true
@@ -4819,11 +4819,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4199059907564224666
+          16110752962234114375
         ]
-      ], 
-      "bugs": [
-        2667
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
@@ -5816,7 +5813,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2878413088829673422
+          15598741237221192539
         ]
       ], 
       "reviewed-by-human": true
@@ -5825,7 +5822,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4660236967370621790
+          8453717270421240013
         ]
       ], 
       "reviewed-by-human": true
@@ -5834,7 +5831,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14938094761111292388
+          466177841085736882
         ]
       ], 
       "reviewed-by-human": true
@@ -6986,7 +6983,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6940737243764937510
+          7775298570096891696
         ]
       ], 
       "ignore-failure": true, 
@@ -8364,7 +8361,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5358977218148623651
+          16398434037624325497
         ]
       ], 
       "ignore-failure": false, 
@@ -8374,7 +8371,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1883617362438967528
+          327982660877064365
         ]
       ], 
       "ignore-failure": false, 
@@ -8451,7 +8448,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3685552483059847395
+          13176082327995749679
         ]
       ], 
       "ignore-failure": true, 
@@ -8980,7 +8977,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3118751021842548389
+          18111969866340614531
         ]
       ], 
       "reviewed-by-human": true
@@ -8989,7 +8986,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16134641349444195314
+          12471047414859370196
         ]
       ], 
       "reviewed-by-human": true
@@ -8998,7 +8995,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10548005182299770458
+          5135773134197521338
         ]
       ], 
       "reviewed-by-human": true
@@ -9711,7 +9708,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6489129061840693694
+          7221526503067974995
         ]
       ], 
       "reviewed-by-human": true
@@ -9720,19 +9717,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5532792141023246970
+          11898610728338517339
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "modecolorfilters_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11302360056092717723
+          9053345726202761461
         ]
       ], 
       "reviewed-by-human": true
@@ -10936,7 +10930,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5210379642109091609
+          10823142877858463636
         ]
       ], 
       "reviewed-by-human": true
@@ -10945,7 +10939,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1579775443659434177
+          8990573283779543717
         ]
       ], 
       "reviewed-by-human": true
@@ -10954,7 +10948,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1579775443659434177
+          12835540580459797983
         ]
       ], 
       "reviewed-by-human": true
@@ -14090,7 +14084,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18290759104797452817
+          1551174895956573184
         ]
       ], 
       "ignore-failure": true, 
