@@ -62,6 +62,7 @@ patch_primitive
 gammagradienttext
 glyph_pos_align
 gradient_dirty_laundry
+gradients
 gradients_many
 gradient_matrix
 gradients_no_texture
@@ -72,6 +73,7 @@ shaderbounds_linear
 shallow_gradient_linear
 scaled_tilemodes_npot
 scaled_tilemode_gradient
+shadertext
 shadertext2
 shadertext3
 srcmode
