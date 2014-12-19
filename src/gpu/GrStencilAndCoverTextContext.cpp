@@ -234,6 +234,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
 
     fContextInitialMatrix = viewMatrix;
     fViewMatrix = viewMatrix;
+    fLocalMatrix = SkMatrix::I();
 
     const bool otherBackendsWillDrawAsPaths =
         SkDraw::ShouldDrawTextAsPaths(skPaint, fContextInitialMatrix);
@@ -262,7 +263,10 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
         // the paint preConcats the inverse.
         m = fContextInitialMatrix;
         m.postScale(1, -1);
-        fPaint.localCoordChangeInverse(m);
+        if (!m.invert(&fLocalMatrix)) {
+            SkDebugf("Not invertible!\n");
+            return;
+        }
 
         fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, &fContextInitialMatrix,
                                            true /*ignoreGamma*/);
@@ -331,8 +335,8 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
         SkMatrix textMatrix;
         // Glyphs loaded by GPU path rendering have an inverted y-direction.
         textMatrix.setScale(fTextRatio, -fTextRatio);
-        fPaint.localCoordChange(textMatrix);
         fViewMatrix.preConcat(textMatrix);
+        fLocalMatrix = textMatrix;
 
         fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, NULL, true /*ignoreGamma*/);
         fGlyphs = canUseRawPaths ?
@@ -402,7 +406,7 @@ static const SkScalar* get_xy_scalar_array(const SkPoint* pointArray) {
 
 void GrStencilAndCoverTextContext::flush() {
     if (fQueuedGlyphCount > 0) {
-        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor()));
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor(), fLocalMatrix));
         fDrawTarget->drawPaths(&fDrawState, pp, fGlyphs,
                                fGlyphIndices, GrPathRange::kU16_PathIndexType,
                                get_xy_scalar_array(fGlyphPositions),
@@ -426,7 +430,6 @@ void GrStencilAndCoverTextContext::flush() {
 
         SkMatrix inverse;
         if (this->mapToFallbackContext(&inverse)) {
-            paintFallback.localCoordChangeInverse(inverse);
             inverse.mapPoints(&fGlyphPositions[fFallbackGlyphsIdx], fallbackGlyphCount);
         }
 

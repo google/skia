@@ -151,15 +151,6 @@ public:
      * DO NOT USE THESE
      * TODO Remove remaining use cases and delete these
      */
-    void localCoordChange(const SkMatrix& oldToNew) {
-        for (int i = 0; i < fColorStages.count(); ++i) {
-            fColorStages[i].localCoordChange(oldToNew);
-        }
-        for (int i = 0; i < fCoverageStages.count(); ++i) {
-            fCoverageStages[i].localCoordChange(oldToNew);
-        }
-    }
-
     bool localCoordChangeInverse(const SkMatrix& newToOld) {
         SkMatrix oldToNew;
         bool computed = false;

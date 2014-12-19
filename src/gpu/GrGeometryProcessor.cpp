@@ -62,6 +62,7 @@ struct PathBatchTracker {
     GrGPInput fInputColorType;
     GrGPInput fInputCoverageType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 class GrGLPathProcessor : public GrGLGeometryProcessor {
@@ -118,7 +119,9 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GrPathProcessor::GrPathProcessor(GrColor color) : fColor(color) {
+GrPathProcessor::GrPathProcessor(GrColor color, const SkMatrix& localMatrix)
+    : INHERITED(localMatrix)
+    , fColor(color) {
     this->initClassID<GrPathProcessor>();
 }
 
@@ -142,6 +145,7 @@ void GrPathProcessor::initBatchTracker(GrBatchTracker* bt, const InitBT& init) c
     }
 
     local->fInputCoverageType = init.fCoverageIgnored ? kIgnored_GrGPInput : kAllOnes_GrGPInput;
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
@@ -153,7 +157,9 @@ bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
 
     const PathBatchTracker& mine = m.cast<PathBatchTracker>();
     const PathBatchTracker& theirs = t.cast<PathBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor) &&
            CanCombineOutput(mine.fInputCoverageType, 0xff,
                             theirs.fInputCoverageType, 0xff);

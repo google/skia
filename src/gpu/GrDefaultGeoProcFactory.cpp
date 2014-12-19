@@ -52,12 +52,18 @@ public:
         } else {
             local->fInputCoverageType = kIgnored_GrGPInput;
         }
+
+        local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
-    bool onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const SK_OVERRIDE {
+    bool onCanMakeEqual(const GrBatchTracker& m,
+                        const GrGeometryProcessor& that,
+                        const GrBatchTracker& t) const SK_OVERRIDE {
         const BatchTracker& mine = m.cast<BatchTracker>();
         const BatchTracker& theirs = t.cast<BatchTracker>();
-        return CanCombineOutput(mine.fInputColorType, mine.fColor,
+        return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                       that, theirs.fUsesLocalCoords) &&
+               CanCombineOutput(mine.fInputColorType, mine.fColor,
                                 theirs.fInputColorType, theirs.fColor) &&
                CanCombineOutput(mine.fInputCoverageType, mine.fCoverage,
                                 theirs.fInputCoverageType, theirs.fCoverage);
@@ -205,6 +211,7 @@ private:
         GrGPInput fInputCoverageType;
         GrColor  fColor;
         GrColor  fCoverage;
+        bool fUsesLocalCoords;
     };
 
     const GrAttribute* fInPosition;

@@ -64,6 +64,7 @@ private:
     int                             fFallbackGlyphsIdx;
     SkMatrix                        fContextInitialMatrix;
     SkMatrix                        fViewMatrix;
+    SkMatrix                        fLocalMatrix;
     bool                            fUsingDeviceSpaceGlyphs;
 
     GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);

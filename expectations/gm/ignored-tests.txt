@@ -48,6 +48,10 @@ dropshadowimagefilter
 # quality improvements to imagemagnifier GM
 imagemagnifier
 
+#joshualitt
+textblobshader
+coloremoji
+
 #reed
 modecolorfilters
 

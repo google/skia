@@ -110,11 +110,15 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
     fDescInfo.fRequiresLocalCoordAttrib = hasLocalCoords;
 
+    bool usesLocalCoords = false;
+
     // Copy Stages from DS to ODS
     for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
                                (drawState.fColorStages[i], hasLocalCoords));
+        usesLocalCoords = usesLocalCoords ||
+                          drawState.fColorStages[i].getProcessor()->usesLocalCoords();
     }
 
     fNumColorStages = fFragmentStages.count();
@@ -122,6 +126,8 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
                                (drawState.fCoverageStages[i], hasLocalCoords));
+        usesLocalCoords = usesLocalCoords ||
+                          drawState.fCoverageStages[i].getProcessor()->usesLocalCoords();
     }
 
     // let the GP init the batch tracker
@@ -129,6 +135,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     init.fColorIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag);
     init.fOverrideColor = init.fColorIgnored ? GrColor_ILLEGAL : overrideColor;
     init.fCoverageIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag);
+    init.fUsesLocalCoords = usesLocalCoords;
     fPrimitiveProcessor->initBatchTracker(&fBatchTracker, init);
 }
 

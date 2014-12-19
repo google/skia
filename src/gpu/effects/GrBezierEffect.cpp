@@ -16,6 +16,7 @@ struct ConicBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
     uint8_t fCoverageScale;
+    bool fUsesLocalCoords;
 };
 
 class GrGLConicEffect : public GrGLGeometryProcessor {
@@ -198,12 +199,17 @@ void GrConicEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) con
     ConicBatchTracker* local = bt->cast<ConicBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fCoverageScale = fCoverageScale;
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrConicEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+bool GrConicEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                   const GrGeometryProcessor& that,
+                                   const GrBatchTracker& t) const {
     const ConicBatchTracker& mine = m.cast<ConicBatchTracker>();
     const ConicBatchTracker& theirs = t.cast<ConicBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor) &&
            mine.fCoverageScale == theirs.fCoverageScale;
 }
@@ -233,6 +239,7 @@ struct QuadBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
     uint8_t fCoverageScale;
+    bool fUsesLocalCoords;
 };
 
 class GrGLQuadEffect : public GrGLGeometryProcessor {
@@ -401,12 +408,17 @@ void GrQuadEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) cons
     QuadBatchTracker* local = bt->cast<QuadBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fCoverageScale = fCoverageScale;
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrQuadEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+bool GrQuadEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                  const GrGeometryProcessor& that,
+                                  const GrBatchTracker& t) const {
     const QuadBatchTracker& mine = m.cast<QuadBatchTracker>();
     const QuadBatchTracker& theirs = t.cast<QuadBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor) &&
            mine.fCoverageScale == theirs.fCoverageScale;
 }
@@ -435,6 +447,7 @@ GrGeometryProcessor* GrQuadEffect::TestCreate(SkRandom* random,
 struct CubicBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 class GrGLCubicEffect : public GrGLGeometryProcessor {
@@ -625,12 +638,17 @@ bool GrCubicEffect::onIsEqual(const GrGeometryProcessor& other) const {
 void GrCubicEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     CubicBatchTracker* local = bt->cast<CubicBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrCubicEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+bool GrCubicEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                   const GrGeometryProcessor& that,
+                                   const GrBatchTracker& t) const {
     const CubicBatchTracker& mine = m.cast<CubicBatchTracker>();
     const CubicBatchTracker& theirs = t.cast<CubicBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 

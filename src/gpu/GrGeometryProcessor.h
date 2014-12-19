@@ -90,6 +90,10 @@ enum GrGPInput {
  */
 class GrPrimitiveProcessor : public GrProcessor {
 public:
+    // TODO let the PrimProc itself set this in its setData call, this should really live on the
+    // bundle of primitive data
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
+
     /*
      * This struct allows the optstate to communicate requirements to the GrPrimitiveProcessor.
      */
@@ -97,6 +101,7 @@ public:
         bool fColorIgnored;
         bool fCoverageIgnored;
         GrColor fOverrideColor;
+        bool fUsesLocalCoords;
     };
 
     virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const = 0;
@@ -130,6 +135,8 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const = 0;
 
 protected:
+    GrPrimitiveProcessor(const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {}
+
     /*
      * CanCombineOutput will return true if two draws are 'batchable' from a color perspective.
      * TODO remove this when GPs can upgrade to attribute color
@@ -146,7 +153,23 @@ protected:
         return true;
     }
 
+    static bool CanCombineLocalMatrices(const GrPrimitiveProcessor& left,
+                                        bool leftUsesLocalCoords,
+                                        const GrPrimitiveProcessor& right,
+                                        bool rightUsesLocalCoords) {
+        if (leftUsesLocalCoords != rightUsesLocalCoords) {
+            return false;
+        }
+
+        if (leftUsesLocalCoords && !left.localMatrix().cheapEqualTo(right.localMatrix())) {
+            return false;
+        }
+        return true;
+    }
+
 private:
+    SkMatrix fLocalMatrix;
+
     typedef GrProcessor INHERITED;
 };
 
@@ -161,8 +184,11 @@ class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
     // TODO the Hint can be handled in a much more clean way when we have deferred geometry or
     // atleast bundles
-    GrGeometryProcessor(GrColor color, bool opaqueVertexColors = false)
-        : fVertexStride(0)
+    GrGeometryProcessor(GrColor color,
+                        bool opaqueVertexColors = false,
+                        const SkMatrix& localMatrix = SkMatrix::I())
+        : INHERITED(localMatrix)
+        , fVertexStride(0)
         , fColor(color)
         , fOpaqueVertexColors(opaqueVertexColors)
         , fWillUseGeoShader(false)
@@ -223,7 +249,7 @@ public:
             return false;
         }
 
-        return this->onCanMakeEqual(mine, theirs);
+        return this->onCanMakeEqual(mine, other, theirs);
     }
 
     
@@ -293,7 +319,9 @@ protected:
     virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const = 0;
 
 private:
-    virtual bool onCanMakeEqual(const GrBatchTracker& mine, const GrBatchTracker& theirs) const = 0;
+    virtual bool onCanMakeEqual(const GrBatchTracker& mine,
+                                const GrGeometryProcessor& that,
+                                const GrBatchTracker& theirs) const = 0;
     // TODO delete this when we have more advanced equality testing via bundles and the BT
     virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
 
@@ -305,7 +333,7 @@ private:
     bool fHasVertexColor;
     bool fHasLocalCoords;
 
-    typedef GrProcessor INHERITED;
+    typedef GrPrimitiveProcessor INHERITED;
 };
 
 /*
@@ -314,8 +342,8 @@ private:
  */
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
-    static GrPathProcessor* Create(GrColor color) {
-        return SkNEW_ARGS(GrPathProcessor, (color));
+    static GrPathProcessor* Create(GrColor color, const SkMatrix& localMatrix = SkMatrix::I()) {
+        return SkNEW_ARGS(GrPathProcessor, (color, localMatrix));
     }
     
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
@@ -338,9 +366,9 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrPathProcessor(GrColor color);
+    GrPathProcessor(GrColor color, const SkMatrix& localMatrix);
     GrColor fColor;
 
-    typedef GrProcessor INHERITED;
+    typedef GrPrimitiveProcessor INHERITED;
 };
 #endif

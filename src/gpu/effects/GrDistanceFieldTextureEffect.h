@@ -81,7 +81,9 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
-    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
@@ -141,7 +143,9 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
-    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldNoGammaTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,
@@ -194,7 +198,9 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
-    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     GrDistanceFieldLCDTextureEffect(GrColor, GrTexture* texture, const GrTextureParams& params,

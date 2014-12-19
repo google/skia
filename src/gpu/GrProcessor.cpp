@@ -149,6 +149,7 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
+    fUsesLocalCoords = fUsesLocalCoords || transform->sourceCoords() == kLocal_GrCoordSet;
     SkDEBUGCODE(transform->setInProcessor();)
 }
 

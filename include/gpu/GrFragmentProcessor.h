@@ -25,7 +25,8 @@ public:
     GrFragmentProcessor()
         : INHERITED()
         , fWillReadDstColor(false)
-        , fWillUseInputColor(true) {}
+        , fWillUseInputColor(true)
+        , fUsesLocalCoords(false) {}
 
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
     virtual void getGLProcessorKey(const GrGLCaps& caps,
@@ -51,6 +52,9 @@ public:
 
     /** Will this prceossor read the source color value? */
     bool willUseInputColor() const { return fWillUseInputColor; }
+
+    /** Do any of the coordtransforms for this processor require local coords? */
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two processor are of the same subclass (i.e. they return the same object from
@@ -130,6 +134,7 @@ private:
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     bool                                         fWillReadDstColor;
     bool                                         fWillUseInputColor;
+    bool                                         fUsesLocalCoords;
 
     typedef GrProcessor INHERITED;
 };

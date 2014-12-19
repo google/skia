@@ -610,12 +610,17 @@ public:
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE {
         BatchTracker* local = bt->cast<BatchTracker>();
         local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+        local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
-    bool onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const SK_OVERRIDE {
+    bool onCanMakeEqual(const GrBatchTracker& m,
+                        const GrGeometryProcessor& that,
+                        const GrBatchTracker& t) const SK_OVERRIDE {
         const BatchTracker& mine = m.cast<BatchTracker>();
         const BatchTracker& theirs = t.cast<BatchTracker>();
-        return CanCombineOutput(mine.fInputColorType, mine.fColor,
+        return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                       that, theirs.fUsesLocalCoords) &&
+               CanCombineOutput(mine.fInputColorType, mine.fColor,
                                 theirs.fInputColorType, theirs.fColor);
     }
 
@@ -637,6 +642,7 @@ private:
     struct BatchTracker {
         GrGPInput fInputColorType;
         GrColor fColor;
+        bool fUsesLocalCoords;
     };
 
     const GrAttribute* fInPosition;

@@ -21,6 +21,7 @@
 struct DistanceFieldBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 class GrGLDistanceFieldTextureEffect : public GrGLGeometryProcessor {
@@ -242,13 +243,17 @@ void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt, const In
     DistanceFieldBatchTracker* local = bt->cast<DistanceFieldBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 bool GrDistanceFieldTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                                  const GrGeometryProcessor& that,
                                                   const GrBatchTracker& t) const {
     const DistanceFieldBatchTracker& mine = m.cast<DistanceFieldBatchTracker>();
     const DistanceFieldBatchTracker& theirs = t.cast<DistanceFieldBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 
@@ -297,6 +302,7 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
 struct DistanceFieldNoGammaBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 class GrGLDistanceFieldNoGammaTextureEffect : public GrGLGeometryProcessor {
@@ -479,13 +485,17 @@ void GrDistanceFieldNoGammaTextureEffect::initBatchTracker(GrBatchTracker* bt,
     DistanceFieldNoGammaBatchTracker* local = bt->cast<DistanceFieldNoGammaBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 bool GrDistanceFieldNoGammaTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                                         const GrGeometryProcessor& that,
                                                          const GrBatchTracker& t) const {
     const DistanceFieldNoGammaBatchTracker& mine = m.cast<DistanceFieldNoGammaBatchTracker>();
     const DistanceFieldNoGammaBatchTracker& theirs = t.cast<DistanceFieldNoGammaBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 
@@ -521,6 +531,7 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
 struct DistanceFieldLCDBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 class GrGLDistanceFieldLCDTextureEffect : public GrGLGeometryProcessor {
@@ -776,13 +787,17 @@ void GrDistanceFieldLCDTextureEffect::initBatchTracker(GrBatchTracker* bt,
                                                        const InitBT& init) const {
     DistanceFieldLCDBatchTracker* local = bt->cast<DistanceFieldLCDBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 bool GrDistanceFieldLCDTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                                     const GrGeometryProcessor& that,
                                                      const GrBatchTracker& t) const {
     const DistanceFieldLCDBatchTracker& mine = m.cast<DistanceFieldLCDBatchTracker>();
     const DistanceFieldLCDBatchTracker& theirs = t.cast<DistanceFieldLCDBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 

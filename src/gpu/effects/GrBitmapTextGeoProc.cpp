@@ -17,6 +17,7 @@
 struct BitmapTextBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
@@ -134,12 +135,17 @@ void GrBitmapTextGeoProc::initBatchTracker(GrBatchTracker* bt, const InitBT& ini
     BitmapTextBatchTracker* local = bt->cast<BitmapTextBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrBitmapTextGeoProc::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+bool GrBitmapTextGeoProc::onCanMakeEqual(const GrBatchTracker& m,
+                                         const GrGeometryProcessor& that,
+                                         const GrBatchTracker& t) const {
     const BitmapTextBatchTracker& mine = m.cast<BitmapTextBatchTracker>();
     const BitmapTextBatchTracker& theirs = t.cast<BitmapTextBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 

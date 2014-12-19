@@ -150,7 +150,9 @@ protected:
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrOptDrawState&);
-    virtual void setTransformData(const GrPendingFragmentStage&, GrGLInstalledFragProc*);
+    virtual void setTransformData(const GrPendingFragmentStage&,
+                                  const SkMatrix& localMatrix,
+                                  GrGLInstalledFragProc*);
     void bindTextures(const GrGLInstalledProc*, const GrProcessor&);
 
     /*
@@ -225,6 +227,7 @@ private:
                     const SeparableVaryingInfoArray& separableVaryings);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
     virtual void setTransformData(const GrPendingFragmentStage&,
+                                  const SkMatrix& localMatrix,
                                   GrGLInstalledFragProc*) SK_OVERRIDE;
 
     struct Varying {
@@ -256,6 +259,7 @@ private:
                           int texCoordSetCnt);
     virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
     virtual void setTransformData(const GrPendingFragmentStage&,
+                                  const SkMatrix& localMatrix,
                                   GrGLInstalledFragProc*) SK_OVERRIDE;
 
     int fTexCoordSetCnt;

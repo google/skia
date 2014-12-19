@@ -27,15 +27,27 @@
 /**
  * Retrieves the final matrix that a transform needs to apply to its source coords.
  */
-static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage, int transformIdx) {
+static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage,
+                                     int transformIdx,
+                                     const SkMatrix& localMatrix) {
     const GrCoordTransform& coordTransform = stage.getProcessor()->coordTransform(transformIdx);
     SkMatrix combined;
 
     if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
         // If we have explicit local coords or are in device coords then we shouldn't need a coord
         // change.
-        const SkMatrix& ccm = stage.getCoordChangeMatrix();
-        combined.setConcat(coordTransform.getMatrix(), ccm);
+        // TODO shortly we will get rid of coord change matrices entirely, and the PrimProc will
+        // always have a local matrix, often Identity, which can be used to transform coord
+        // transforms.  Until we actually do this, we need some way for a PrimProc to say 'use my
+        // matrix' instead of the coord change mechanism.  Temporarily, we have overloaded
+        // The identity matrix to be this value, ie if a primproc has an identity matrix for a
+        // local matrix then use the coord change matrix, otherwise use the matrix on the primproc
+        if (localMatrix.isIdentity()) {
+            const SkMatrix& ccm = stage.getCoordChangeMatrix();
+            combined.setConcat(coordTransform.getMatrix(), ccm);
+        } else {
+            combined.setConcat(coordTransform.getMatrix(), localMatrix);
+        }
     } else {
         combined = coordTransform.getMatrix();
     }
@@ -180,18 +192,20 @@ void GrGLProgram::setFragmentData(const GrOptDrawState& optState) {
         const GrPendingFragmentStage& stage = optState.getFragmentStage(e);
         const GrProcessor& processor = *stage.getProcessor();
         fFragmentProcessors->fProcs[e]->fGLProc->setData(fProgramDataManager, processor);
-        this->setTransformData(stage, fFragmentProcessors->fProcs[e]);
+        const SkMatrix& localMatrix = optState.getPrimitiveProcessor()->localMatrix();
+        this->setTransformData(stage, localMatrix, fFragmentProcessors->fProcs[e]);
         this->bindTextures(fFragmentProcessors->fProcs[e], processor);
     }
 }
 void GrGLProgram::setTransformData(const GrPendingFragmentStage& processor,
+                                   const SkMatrix& localMatrix,
                                    GrGLInstalledFragProc* ip) {
     SkTArray<GrGLInstalledFragProc::Transform, true>& transforms = ip->fTransforms;
     int numTransforms = transforms.count();
     SkASSERT(numTransforms == processor.getProcessor()->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& matrix = get_transform_matrix(processor, t);
+        const SkMatrix& matrix = get_transform_matrix(processor, t, localMatrix);
         if (!transforms[t].fCurrentValue.cheapEqualTo(matrix)) {
             fProgramDataManager.setSkMatrix(transforms[t].fHandle.convertToUniformHandle(), matrix);
             transforms[t].fCurrentValue = matrix;
@@ -291,13 +305,14 @@ void GrGLNvprProgram::didSetData(GrGpu::DrawType drawType) {
 }
 
 void GrGLNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
+                                       const SkMatrix& localMatrix,
                                        GrGLInstalledFragProc* ip) {
     SkTArray<GrGLInstalledFragProc::Transform, true>& transforms = ip->fTransforms;
     int numTransforms = transforms.count();
     SkASSERT(numTransforms == proc.getProcessor()->numTransforms());
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& transform = get_transform_matrix(proc, t);
+        const SkMatrix& transform = get_transform_matrix(proc, t, localMatrix);
         if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
             continue;
         }
@@ -335,12 +350,13 @@ void GrGLLegacyNvprProgram::didSetData(GrGpu::DrawType drawType) {
 
 void
 GrGLLegacyNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
+                                        const SkMatrix& localMatrix,
                                         GrGLInstalledFragProc* ip) {
     // We've hidden the texcoord index in the first entry of the transforms array for each effect
     int texCoordIndex = ip->fTransforms[0].fHandle.handle();
     int numTransforms = proc.getProcessor()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
-        const SkMatrix& transform = get_transform_matrix(proc, t);
+        const SkMatrix& transform = get_transform_matrix(proc, t, localMatrix);
         GrGLPathRendering::PathTexGenComponents components =
                 GrGLPathRendering::kST_PathTexGenComponents;
         if (proc.isPerspectiveCoordTransform(t)) {

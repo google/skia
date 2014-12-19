@@ -445,6 +445,7 @@ class GLDashingCircleEffect;
 struct DashingCircleBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
+    bool fUsesLocalCoords;
 };
 
 /*
@@ -489,7 +490,9 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
-    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     DashingCircleEffect(GrColor, GrPrimitiveEdgeType edgeType, const DashInfo& info,
@@ -679,12 +682,17 @@ bool DashingCircleEffect::onIsEqual(const GrGeometryProcessor& other) const {
 void DashingCircleEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     DashingCircleBatchTracker* local = bt->cast<DashingCircleBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool DashingCircleEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+bool DashingCircleEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                         const GrGeometryProcessor& that,
+                                         const GrBatchTracker& t) const {
     const DashingCircleBatchTracker& mine = m.cast<DashingCircleBatchTracker>();
     const DashingCircleBatchTracker& theirs = t.cast<DashingCircleBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 
@@ -715,6 +723,7 @@ class GLDashingLineEffect;
 struct DashingLineBatchTracker {
     GrGPInput fInputColorType;
     GrColor  fColor;
+    bool fUsesLocalCoords;
 };
 
 /*
@@ -757,7 +766,9 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
-    bool onCanMakeEqual(const GrBatchTracker&, const GrBatchTracker&) const SK_OVERRIDE;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     DashingLineEffect(GrColor, GrPrimitiveEdgeType edgeType, const DashInfo& info,
@@ -960,12 +971,17 @@ bool DashingLineEffect::onIsEqual(const GrGeometryProcessor& other) const {
 void DashingLineEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     DashingLineBatchTracker* local = bt->cast<DashingLineBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool DashingLineEffect::onCanMakeEqual(const GrBatchTracker& m, const GrBatchTracker& t) const {
+bool DashingLineEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                       const GrGeometryProcessor& that,
+                                       const GrBatchTracker& t) const {
     const DashingLineBatchTracker& mine = m.cast<DashingLineBatchTracker>();
     const DashingLineBatchTracker& theirs = t.cast<DashingLineBatchTracker>();
-    return CanCombineOutput(mine.fInputColorType, mine.fColor,
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                  that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
                             theirs.fInputColorType, theirs.fColor);
 }
 
