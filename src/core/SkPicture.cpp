@@ -472,7 +472,7 @@ public:
         // Required by signature of EncodeBitmap.
         size_t unused;
         SkBitmap bm;
-        bm.installPixels(info, pixels, rowBytes);
+        bm.installPixels(info, const_cast<void*>(pixels), rowBytes);
         return fEncoder(&unused, bm);
     }
 
