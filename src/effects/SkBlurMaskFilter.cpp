@@ -860,13 +860,13 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return false;
     }
 
-    if (!grp->localCoordChangeInverse(viewMatrix)) {
-        return false;
-    }
-
     grp->addCoverageProcessor(fp);
 
-    context->drawRect(*grp, SkMatrix::I(), rect);
+    SkMatrix inverse;
+    if (!viewMatrix.invert(&inverse)) {
+        return false;
+    }
+    context->drawNonAARectWithLocalMatrix(*grp, SkMatrix::I(), rect, inverse);
     return true;
 }
 
@@ -1142,13 +1142,13 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return false;
     }
 
-    if (!grp->localCoordChangeInverse(viewMatrix)) {
-        return false;
-    }
-
     grp->addCoverageProcessor(fp);
 
-    context->drawRect(*grp, SkMatrix::I(), proxy_rect);
+    SkMatrix inverse;
+    if (!viewMatrix.invert(&inverse)) {
+        return false;
+    }
+    context->drawNonAARectWithLocalMatrix(*grp, SkMatrix::I(), proxy_rect, inverse);
     return true;
 }
 

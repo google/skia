@@ -148,9 +148,8 @@ public:
     bool isOpaqueAndConstantColor(GrColor* constantColor) const;
 
     /**
-     * Called when the source coord system from which geometry is rendered changes. It ensures that
-     * the local coordinates seen by effects remains unchanged. oldToNew gives the transformation
-     * from the previous coord system to the new coord system.
+     * DO NOT USE THESE
+     * TODO Remove remaining use cases and delete these
      */
     void localCoordChange(const SkMatrix& oldToNew) {
         for (int i = 0; i < fColorStages.count(); ++i) {

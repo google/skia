@@ -430,6 +430,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         }
     }
 
+    // If the glyph is too large we fall back to paths
     if (NULL == glyph->fPlot && !uploadGlyph(glyph, scaler)) {
         if (NULL == glyph->fPath) {
             SkPath* path = SkNEW(SkPath);
@@ -447,10 +448,10 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         SkMatrix translate;
         translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),
                                SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
-        GrPaint tmpPaint(fPaint);
-        tmpPaint.localCoordChange(translate);
+        SkPath tmpPath(*glyph->fPath);
+        tmpPath.transform(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(tmpPaint, translate, *glyph->fPath, strokeInfo);
+        fContext->drawPath(fPaint, SkMatrix::I(), tmpPath, strokeInfo);
 
         // remove this glyph from the vertices we need to allocate
         fTotalVertexCount -= kVerticesPerGlyph;

@@ -535,6 +535,8 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
     if (NULL == glyph->fPlot) {
         // needs to be a separate conditional to avoid over-optimization
         // on Nexus 7 and Nexus 10
+
+        // If the glyph is too large we fall back to paths
         if (!uploadGlyph(glyph, scaler)) {
             if (NULL == glyph->fPath) {
                 SkPath* path = SkNEW(SkPath);
@@ -552,13 +554,12 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             SkMatrix ctm;
             ctm.setScale(fTextRatio, fTextRatio);
             ctm.postTranslate(sx - dx, sy - dy);
-            GrPaint tmpPaint(fPaint);
-            tmpPaint.localCoordChange(ctm);
 
-            SkMatrix viewM = fViewMatrix;
-            viewM.preConcat(ctm);
+            SkPath tmpPath(*glyph->fPath);
+            tmpPath.transform(ctm);
+
             GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-            fContext->drawPath(tmpPaint, viewM, *glyph->fPath, strokeInfo);
+            fContext->drawPath(fPaint, fViewMatrix, tmpPath, strokeInfo);
 
             // remove this glyph from the vertices we need to allocate
             fTotalVertexCount -= kVerticesPerGlyph;
