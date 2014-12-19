@@ -59,7 +59,3 @@ drawbitmapmatrix
 
 #junov skbug.com/3176
 pictureimagefilter
-
-#joshualitt
-bleed
-bigblurs
