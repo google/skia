@@ -465,9 +465,9 @@ public:
         SkASSERT(fEncoder);
     }
 
-    virtual bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
+    bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
 
-    virtual SkData* onEncodePixels(const SkImageInfo& info, void* pixels,
+    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
                                    size_t rowBytes) SK_OVERRIDE {
         // Required by signature of EncodeBitmap.
         size_t unused;

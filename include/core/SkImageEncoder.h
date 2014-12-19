@@ -1,14 +1,14 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkImageEncoder_DEFINED
 #define SkImageEncoder_DEFINED
 
-#include "SkTypes.h"
+#include "SkImageInfo.h"
 #include "SkTRegistry.h"
 
 class SkBitmap;
@@ -59,7 +59,10 @@ public:
      */
     bool encodeStream(SkWStream* stream, const SkBitmap& bm, int quality);
 
+    static SkData* EncodeData(const SkImageInfo&, const void* pixels, size_t rowBytes,
+                              Type, int quality);
     static SkData* EncodeData(const SkBitmap&, Type, int quality);
+
     static bool EncodeFile(const char file[], const SkBitmap&, Type,
                            int quality);
     static bool EncodeStream(SkWStream*, const SkBitmap&, Type,

@@ -32,7 +32,7 @@ public:
      *  Call to get the client's version of encoding these pixels. If it
      *  returns NULL, serialize the raw pixels.
      */
-    SkData* encodePixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+    SkData* encodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
         return this->onEncodePixels(info, pixels, rowBytes);
     }
 
@@ -47,6 +47,6 @@ protected:
      *  If you want to encode these pixels, return the encoded data as an SkData
      *  Return null if you want to serialize the raw pixels.
      */
-    virtual SkData* onEncodePixels(const SkImageInfo&, void* pixels, size_t rowBytes) = 0;
+    virtual SkData* onEncodePixels(const SkImageInfo&, const void* pixels, size_t rowBytes) = 0;
 };
 #endif // SkPixelSerializer_DEFINED

@@ -366,14 +366,10 @@ SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
 
 class PngPixelSerializer : public SkPixelSerializer {
 public:
-    virtual bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
-    virtual SkData* onEncodePixels(const SkImageInfo& info, void* pixels,
-                                   size_t rowBytes) SK_OVERRIDE {
-        SkBitmap bm;
-        if (!bm.installPixels(info, pixels, rowBytes)) {
-            return NULL;
-        }
-        return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
+    bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
+    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
+                           size_t rowBytes) SK_OVERRIDE {
+        return SkImageEncoder::EncodeData(info, pixels, rowBytes, SkImageEncoder::kPNG_Type, 100);
     }
 };
 

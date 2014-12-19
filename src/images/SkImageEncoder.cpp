@@ -50,3 +50,13 @@ SkData* SkImageEncoder::EncodeData(const SkBitmap& bm, Type t, int quality) {
     SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() ? enc.get()->encodeData(bm, quality) : NULL;
 }
+
+SkData* SkImageEncoder::EncodeData(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                   Type t, int quality) {
+    SkBitmap bm;
+    if (!bm.installPixels(info, const_cast<void*>(pixels), rowBytes)) {
+        return NULL;
+    }
+    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
+    return enc.get() ? enc.get()->encodeData(bm, quality) : NULL;
+}
