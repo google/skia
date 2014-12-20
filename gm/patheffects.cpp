@@ -111,13 +111,13 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("patheffect");
     }
 
-    SkISize onISize() { return SkISize::Make(800, 600); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(800, 600); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

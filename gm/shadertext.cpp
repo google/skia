@@ -95,13 +95,13 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("shadertext");
     }
 
-    SkISize onISize() { return SkISize::Make(1450, 500); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1450, 500); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const char text[] = "Shaded Text";
         const int textLen = SK_ARRAY_COUNT(text) - 1;
         const int pointSize = 36;

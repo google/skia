@@ -64,7 +64,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const {
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
         // we explicitly test peekPixels and readPixels, neither of which
         // return something for a picture-backed canvas, so we skip that test.
         return kSkipPicture_Flag;

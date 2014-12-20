@@ -48,13 +48,13 @@ public:
 
 protected:
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("shadertext2");
     }
 
-    SkISize onISize() { return SkISize::Make(1800, 900); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1800, 900); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         static const char kText[] = "SKIA";
         static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
         static const int kPointSize = 55;

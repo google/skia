@@ -20,11 +20,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("quadpath");
     }
 
-    SkISize onISize() { return SkISize::Make(1240, 390); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -43,7 +43,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -168,11 +168,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("quadclosepath");
     }
 
-    SkISize onISize() { return SkISize::Make(1240, 390); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -191,7 +191,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;

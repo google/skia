@@ -30,7 +30,7 @@ public:
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
                             size_t count, const SkPoint[],
                             const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint);
+    virtual void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPath(const SkDraw&, const SkPath& origpath,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) SK_OVERRIDE;

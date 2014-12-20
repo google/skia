@@ -25,7 +25,7 @@ public:
     }
 
 protected:
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(770, 770);
     }
 

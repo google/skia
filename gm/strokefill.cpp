@@ -23,11 +23,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("stroke-fill");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
 
@@ -39,7 +39,7 @@ protected:
         canvas->drawText(text, len, x, y + SkIntToScalar(120), p);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(88);
 

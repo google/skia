@@ -24,7 +24,7 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("lighting");
     }
 
@@ -41,7 +41,7 @@ protected:
         canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
@@ -54,7 +54,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         if (!fInitialized) {
             make_bitmap();
             fInitialized = true;

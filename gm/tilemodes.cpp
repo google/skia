@@ -61,7 +61,7 @@ protected:
         kNPOTSize = 21,
     };
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         SkString name("tilemodes");
         if (!fPowerOfTwoSize) {
             name.append("_npot");
@@ -69,7 +69,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() { return SkISize::Make(880, 560); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(880, 560); }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
@@ -198,13 +198,13 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    SkISize onISize() { return SkISize::Make(880, 560); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(880, 560); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
 
         const SkScalar w = SkIntToScalar(gWidth);

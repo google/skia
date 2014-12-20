@@ -35,16 +35,16 @@ class SkDisplayEvent : public SkDisplayable {
     SkDisplayEvent();
     virtual ~SkDisplayEvent();
     virtual bool addChild(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
-    virtual bool contains(SkDisplayable*);
-    virtual SkDisplayable* contains(const SkString& );
+    virtual bool contains(SkDisplayable*) SK_OVERRIDE;
+    virtual SkDisplayable* contains(const SkString& ) SK_OVERRIDE;
 #ifdef SK_DEBUG
     void dumpEvent(SkAnimateMaker* );
 #endif
     bool enableEvent(SkAnimateMaker& );
-    virtual bool getProperty(int index, SkScriptValue* ) const;
-    virtual void onEndElement(SkAnimateMaker& maker);
+    virtual bool getProperty(int index, SkScriptValue* ) const SK_OVERRIDE;
+    virtual void onEndElement(SkAnimateMaker& maker) SK_OVERRIDE;
     void populateInput(SkAnimateMaker& , const SkEvent& fEvent);
-    virtual bool setProperty(int index, SkScriptValue& );
+    virtual bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
 protected:
     SkKey code;
     SkBool disable;

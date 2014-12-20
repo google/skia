@@ -150,35 +150,35 @@ struct SkMemberInfo {
 public: \
     static const SkMemberInfo fInfo[]; \
     static const int fInfoCount; \
-    virtual const SkMemberInfo* getMember(int index); \
-    virtual const SkMemberInfo* getMember(const char name[]); \
+    virtual const SkMemberInfo* getMember(int index) SK_OVERRIDE; \
+    virtual const SkMemberInfo* getMember(const char name[]) SK_OVERRIDE; \
     typedef Sk##_type BASE_CLASS
 
 #define DECLARE_MEMBER_INFO(_type) \
 public: \
     static const SkMemberInfo fInfo[]; \
     static const int fInfoCount; \
-    virtual const SkMemberInfo* getMember(int index); \
-    virtual const SkMemberInfo* getMember(const char name[]); \
-    virtual SkDisplayTypes getType() const { return SkType_##_type; } \
+    virtual const SkMemberInfo* getMember(int index) SK_OVERRIDE; \
+    virtual const SkMemberInfo* getMember(const char name[]) SK_OVERRIDE; \
+    virtual SkDisplayTypes getType() const SK_OVERRIDE { return SkType_##_type; } \
     typedef Sk##_type BASE_CLASS
 
 #define DECLARE_DRAW_MEMBER_INFO(_type) \
 public: \
     static const SkMemberInfo fInfo[]; \
     static const int fInfoCount; \
-    virtual const SkMemberInfo* getMember(int index); \
-    virtual const SkMemberInfo* getMember(const char name[]); \
-    virtual SkDisplayTypes getType() const { return SkType_##_type; } \
+    virtual const SkMemberInfo* getMember(int index) SK_OVERRIDE; \
+    virtual const SkMemberInfo* getMember(const char name[]) SK_OVERRIDE; \
+    virtual SkDisplayTypes getType() const SK_OVERRIDE { return SkType_##_type; } \
     typedef SkDraw##_type BASE_CLASS
 
 #define DECLARE_DISPLAY_MEMBER_INFO(_type) \
 public: \
     static const SkMemberInfo fInfo[]; \
     static const int fInfoCount; \
-    virtual const SkMemberInfo* getMember(int index); \
-    virtual const SkMemberInfo* getMember(const char name[]); \
-    virtual SkDisplayTypes getType() const { return SkType_##_type; } \
+    virtual const SkMemberInfo* getMember(int index) SK_OVERRIDE; \
+    virtual const SkMemberInfo* getMember(const char name[]) SK_OVERRIDE; \
+    virtual SkDisplayTypes getType() const SK_OVERRIDE { return SkType_##_type; } \
     typedef SkDisplay##_type BASE_CLASS
 
 #define DECLARE_EMPTY_MEMBER_INFO(_type) \

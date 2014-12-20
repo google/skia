@@ -53,11 +53,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("verttext");
     }
 
-    SkISize onISize() { return SkISize::Make(640, 480); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
 
     static void drawBaseline(SkCanvas* canvas, const SkPaint& paint,
                              SkScalar x, SkScalar y) {
@@ -85,7 +85,7 @@ protected:
         canvas->drawCircle(x, y, SK_Scalar1 * 3 / 2, p);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(50);
 

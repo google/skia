@@ -32,11 +32,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("gpusamplerstress");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
 
@@ -91,8 +91,7 @@ protected:
         fMaskFilter.reset(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, sigma));
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         createShader();
         createMaskFilter();
 

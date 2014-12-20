@@ -22,24 +22,24 @@ class SkDrawMatrix : public SkADrawable {
     SkDrawMatrix();
     virtual ~SkDrawMatrix();
     virtual bool addChild(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
-    virtual bool childrenNeedDisposing() const;
-    virtual void dirty();
-    virtual bool draw(SkAnimateMaker& );
+    virtual bool childrenNeedDisposing() const SK_OVERRIDE;
+    virtual void dirty() SK_OVERRIDE;
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* );
+    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
     SkMatrix& getMatrix();
-    virtual bool getProperty(int index, SkScriptValue* value) const;
-    virtual void initialize();
-    virtual void onEndElement(SkAnimateMaker& );
-    virtual void setChildHasID();
-    virtual bool setProperty(int index, SkScriptValue& );
+    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    virtual void initialize() SK_OVERRIDE;
+    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    virtual void setChildHasID() SK_OVERRIDE;
+    virtual bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
 
     void concat(SkMatrix& inMatrix) {
         fConcat.preConcat(inMatrix);
     }
 
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* );
+    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
 
 
     void rotate(SkScalar degrees, SkPoint& center) {

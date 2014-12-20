@@ -19,15 +19,15 @@ class SkRectToRect;
 class SkDrawRect : public SkBoundable {
     DECLARE_DRAW_MEMBER_INFO(Rect);
     SkDrawRect();
-    virtual void dirty();
-    virtual bool draw(SkAnimateMaker& );
+    virtual void dirty() SK_OVERRIDE;
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* );
+    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
-    virtual SkDisplayable* getParent() const;
-    virtual bool getProperty(int index, SkScriptValue* value) const;
-    virtual bool setParent(SkDisplayable* parent);
-    virtual bool setProperty(int index, SkScriptValue& );
+    virtual SkDisplayable* getParent() const SK_OVERRIDE;
+    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    virtual bool setParent(SkDisplayable* parent) SK_OVERRIDE;
+    virtual bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
 protected:
     SkRect fRect;
     SkDisplayable* fParent;
@@ -41,9 +41,9 @@ private:
 class SkRoundRect : public SkDrawRect {
     DECLARE_MEMBER_INFO(RoundRect);
     SkRoundRect();
-    virtual bool draw(SkAnimateMaker& );
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* );
+    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
 protected:
     SkScalar rx;
