@@ -36,8 +36,6 @@ namespace SkRecords {
     class CollectLayers;
 };
 
-//#define SK_LEGACY_ENCODE_BITMAP
-
 /** \class SkPicture
 
     The SkPicture class records the drawing commands made to a canvas, to
@@ -138,17 +136,6 @@ public:
      *  is defined. Still used by PDF though. Move into PDF.
      */
     typedef SkData* (*EncodeBitmap)(size_t* pixelRefOffset, const SkBitmap& bm);
-
-#ifdef SK_LEGACY_ENCODE_BITMAP
-    /**
-     *  Serialize to a stream. If non NULL, encoder will be used to encode
-     *  any bitmaps in the picture.
-     *  encoder will never be called with a NULL pixelRefOffset.
-     *  DEPRECATED - use serialize(SkWStream*, SkPixelSerializer* serializer)
-     *  instead.
-     */
-    void serialize(SkWStream* wStream, EncodeBitmap encoder) const;
-#endif
 
     /**
      *  Serialize to a stream. If non NULL, serializer will be used to serialize

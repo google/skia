@@ -453,40 +453,6 @@ SkPictureData* SkPicture::Backport(const SkRecord& src, const SkPictInfo& info,
     return SkNEW_ARGS(SkPictureData, (rec, info, false/*deep copy ops?*/));
 }
 
-#ifdef SK_LEGACY_ENCODE_BITMAP
-// Helper to support the EncodeBitmap version of serialize.
-// Mimics the old behavior of always accepting the encoded data, and encoding
-// using EncodeBitmap if there was no encoded data.
-class EncodeBitmapSerializer : public SkPixelSerializer {
-public:
-    explicit EncodeBitmapSerializer(SkPicture::EncodeBitmap encoder)
-    : fEncoder(encoder)
-    {
-        SkASSERT(fEncoder);
-    }
-
-    bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
-
-    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
-                                   size_t rowBytes) SK_OVERRIDE {
-        // Required by signature of EncodeBitmap.
-        size_t unused;
-        SkBitmap bm;
-        bm.installPixels(info, const_cast<void*>(pixels), rowBytes);
-        return fEncoder(&unused, bm);
-    }
-
-private:
-    SkPicture::EncodeBitmap fEncoder;
-};
-
-void SkPicture::serialize(SkWStream* wStream, SkPicture::EncodeBitmap encoder) const {
-    EncodeBitmapSerializer serializer(encoder);
-    this->serialize(wStream, &serializer);
-}
-
-#endif
-
 void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer) const {
     SkPictInfo info;
     this->createHeader(&info);
