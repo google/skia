@@ -1912,25 +1912,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7772106159961896153
+          4223779306346292151
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "coloremoji_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2310271431801111256
+          180501590280841074
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "colorfilterimagefilter_565.png": {
       "allowed-digests": [

@@ -4793,49 +4793,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12336663235721990331
+          16848425094269049503
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "coloremoji_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10244704737514428453
+          2299432538724129567
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "coloremoji_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6358646939691365095
+          4932606226125065369
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "coloremoji_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3148587377505614659
+          6992550031640670523
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "coloremoji_pdf-poppler.png": {
       "allowed-digests": [
