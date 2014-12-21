@@ -161,16 +161,6 @@ protected:
      virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
                                 const SkClipStack&) {};
 
-#ifdef SK_SUPPORT_LEGACY_DEVICE_CLEAR
-private:
-    /** Clears the entire device to the specified color (including alpha).
-     *  Ignores the clip.
-     *  DEPRECATED : will go away when chrome subclasses have been updated
-     */
-    virtual void clear(SkColor color);
-public:
-#endif
-
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
