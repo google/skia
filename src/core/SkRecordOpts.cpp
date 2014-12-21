@@ -112,7 +112,7 @@ struct SaveLayerDrawRestoreNooper {
         const uint32_t layerColor = layerPaint->getColor();
         const uint32_t  drawColor =  drawPaint->getColor();
         if (!IsOnlyAlpha(layerColor)  || !IsOpaque(drawColor) ||
-            HasAnyEffect(*layerPaint) || HasAnyEffect(*drawPaint)) {
+            HasAnyEffect(*layerPaint) || CantFoldAlpha(*drawPaint)) {
             // Too fancy for us.  Actually, as long as layerColor is just an alpha
             // we can blend it into drawColor's alpha; drawColor doesn't strictly have to be opaque.
             return false;
@@ -135,6 +135,17 @@ struct SaveLayerDrawRestoreNooper {
                paint.getMaskFilter()  ||
                paint.getColorFilter() ||
                paint.getRasterizer()  ||
+               paint.getLooper()      ||
+               paint.getImageFilter();
+    }
+
+    // The alpha folding can proceed if the single draw's paint has a shader,
+    // path effect, mask filter and/or rasterizer.
+    // TODO: most likely the looper and only some xfer modes are the hard
+    // constraints
+    static bool CantFoldAlpha(const SkPaint& paint) {
+        return paint.getXfermode()    ||
+               paint.getColorFilter() ||
                paint.getLooper()      ||
                paint.getImageFilter();
     }
