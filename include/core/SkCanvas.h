@@ -19,12 +19,6 @@
 #include "SkSurfaceProps.h"
 #include "SkXfermode.h"
 
-#ifdef SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
-    #define SK_LEGACY_DRAWTEXT_VIRTUAL  virtual
-#else
-    #define SK_LEGACY_DRAWTEXT_VIRTUAL
-#endif
-
 class SkBaseDevice;
 class SkCanvasClipVisitor;
 class SkCanvasDrawable;
@@ -887,8 +881,8 @@ public:
         @param y        The y-coordinate of the origin of the text being drawn
         @param paint    The paint used for the text (e.g. color, size, style)
     */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawText(const void* text, size_t byteLength, SkScalar x,
-                          SkScalar y, const SkPaint& paint);
+    void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                  const SkPaint& paint);
 
     /** Draw the text, with each character/glyph origin specified by the pos[]
         array. The origin is interpreted by the Align setting in the paint.
@@ -897,8 +891,8 @@ public:
         @param pos      Array of positions, used to position each character
         @param paint    The paint used for the text (e.g. color, size, style)
         */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawPosText(const void* text, size_t byteLength,
-                             const SkPoint pos[], const SkPaint& paint);
+    void drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
+                     const SkPaint& paint);
 
     /** Draw the text, with each character/glyph origin specified by the x
         coordinate taken from the xpos[] array, and the y from the constY param.
@@ -909,9 +903,8 @@ public:
         @param constY   The shared Y coordinate for all of the positions
         @param paint    The paint used for the text (e.g. color, size, style)
         */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawPosTextH(const void* text, size_t byteLength,
-                              const SkScalar xpos[], SkScalar constY,
-                              const SkPaint& paint);
+    void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY,
+                      const SkPaint& paint);
 
     /** Draw the text, with origin at (x,y), using the specified paint, along
         the specified path. The paint's Align setting determins where along the
@@ -925,8 +918,7 @@ public:
                             position the text
         @param paint        The paint used for the text
     */
-    void drawTextOnPathHV(const void* text, size_t byteLength,
-                          const SkPath& path, SkScalar hOffset,
+    void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
                           SkScalar vOffset, const SkPaint& paint);
 
     /** Draw the text, with origin at (x,y), using the specified paint, along
@@ -939,9 +931,8 @@ public:
                             mapped onto the path
         @param paint        The paint used for the text
         */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawTextOnPath(const void* text, size_t byteLength,
-                                const SkPath& path, const SkMatrix* matrix,
-                                const SkPaint& paint);
+    void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+                        const SkMatrix* matrix, const SkPaint& paint);
 
     /** Draw the text blob, offset by (x,y), using the specified paint.
         @param blob     The text blob to be drawn
