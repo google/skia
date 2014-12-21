@@ -13,8 +13,6 @@
 #include "GrConfig.h"
 #include "SkMath.h"
 
-//#define SK_SUPPORT_LEGACY_GRTYPES
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -49,43 +47,6 @@
     template <typename T> \
     friend X operator & (X a, T b); \
 ////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_GRTYPES
-
-/**
- *  Macro to round n up to the next multiple of 4, or return it unchanged if
- *  n is already a multiple of 4
- */
-#define GrALIGN4(n)     SkAlign4(n)
-#define GrIsALIGN4(n)   SkIsAlign4(n)
-
-template <typename T> const T& GrMin(const T& a, const T& b) {
-    return (a < b) ? a : b;
-}
-
-template <typename T> const T& GrMax(const T& a, const T& b) {
-    return (b < a) ? a : b;
-}
-
-/**
- *  16.16 fixed point type
- */
-typedef int32_t GrFixed;
-
-#ifdef SK_DEBUG
-
-static inline int16_t GrToS16(intptr_t x) {
-    SkASSERT((int16_t)x == x);
-    return (int16_t)x;
-}
-
-#else
-
-#define GrToS16(x)  x
-
-#endif
-
-#endif
 
 // compile time versions of min/max
 #define GR_CT_MAX(a, b) (((b) < (a)) ? (a) : (b))
