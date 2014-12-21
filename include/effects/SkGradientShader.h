@@ -10,8 +10,6 @@
 
 #include "SkShader.h"
 
-#define SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
-
 /** \class SkGradientShader
 
     SkGradientShader hosts factories for creating subclasses of SkShader that

@@ -14,6 +14,7 @@
     #
     'skia_for_chromium_defines': [
       'SK_SUPPORT_LEGACY_GRADIENT_PRECISION',
+      'SK_SUPPORT_LEGACY_GRADIENT_FACTORIES',
     ],
   },
 }
