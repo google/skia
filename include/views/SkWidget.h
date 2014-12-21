@@ -101,10 +101,10 @@ public:
     SkPushButtonWidget(uint32_t flags = 0) : SkButtonWidget(flags) {}
 
 protected:
-    virtual bool onEvent(const SkEvent&);
-    virtual void onDraw(SkCanvas*);
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE;
-    virtual bool onClick(Click* click);
+    bool onEvent(const SkEvent&) SK_OVERRIDE;
+    void onDraw(SkCanvas*) SK_OVERRIDE;
+    Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE;
+    bool onClick(Click* click) SK_OVERRIDE;
 
 private:
     typedef SkButtonWidget INHERITED;
