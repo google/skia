@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2007 The Android Open Source Project
  *
@@ -132,8 +131,7 @@ public:
      *  @return SkData If non-NULL, holds encoded data representing the passed
      *      in bitmap. The caller is responsible for calling unref().
      *
-     *  TODO: No longer used by SkPicture (except when SK_LEGACY_ENCODE_BITMAP
-     *  is defined. Still used by PDF though. Move into PDF.
+     *  TODO: No longer used by SkPicture. Still used by PDF though. Move into PDF.
      */
     typedef SkData* (*EncodeBitmap)(size_t* pixelRefOffset, const SkBitmap& bm);
 
