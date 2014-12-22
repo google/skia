@@ -16472,9 +16472,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2652400571087153193
+          4320767515520342586
         ]
       ], 
+      "bugs": [
+        3269
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "testimagefilters_pdf-mac.png": {
