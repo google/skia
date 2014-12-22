@@ -13,21 +13,12 @@
 
 SkGLWidget::SkGLWidget(SkDebugger* debugger) : QGLWidget() {
     fDebugger = debugger;
-    fCurIntf = NULL;
-    fCurContext = NULL;
-    fGpuDevice = NULL;
-    fCanvas = NULL;
 }
 
 SkGLWidget::~SkGLWidget() {
-    SkSafeUnref(fCurIntf);
-    SkSafeUnref(fCurContext);
-    SkSafeUnref(fGpuDevice);
-    SkSafeUnref(fCanvas);
 }
 
-void SkGLWidget::setSampleCount(int sampleCount)
-{
+void SkGLWidget::setSampleCount(int sampleCount) {
     QGLFormat currentFormat = format();
     currentFormat.setSampleBuffers(sampleCount > 0);
     currentFormat.setSamples(sampleCount);
@@ -35,48 +26,59 @@ void SkGLWidget::setSampleCount(int sampleCount)
 }
 
 void SkGLWidget::initializeGL() {
-    fCurIntf = GrGLCreateNativeInterface();
+    if (!fCurIntf) {
+        fCurIntf.reset(GrGLCreateNativeInterface());
+    }
     if (!fCurIntf) {
         return;
     }
+    if (!fCurContext) {
+        fCurContext.reset(GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf.get()));
+    }
+    if (!fCurContext) {
+        return;
+    }
+
+    // The call may come multiple times, for example after setSampleCount().  The QGLContext will be
+    // different, but we do not have a mechanism to catch the destroying of QGLContext, so that
+    // proper resource cleanup could be made. Instead, we assume that the underlying GL context
+    // never actually changes. If it would, we could not destroy the resources.
+    fGpuDevice.reset(NULL);
+    fCanvas.reset(NULL);
+}
+
+void SkGLWidget::createRenderTarget() {
+    if (!fCurContext) {
+        return;
+    }
+
+    glDisable(GL_SCISSOR_TEST);
     glStencilMask(0xffffffff);
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);
+    fCurContext->resetContext();
 
-    fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
+    fGpuDevice.reset(NULL);
+    fCanvas.reset(NULL);
+
     GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
-    fGpuDevice = SkGpuDevice::Create(curRenderTarget,
-                                     SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
-    fCanvas = new SkCanvas(fGpuDevice);
-    curRenderTarget->unref();
+    SkAutoTUnref<GrRenderTarget> curRenderTarget(fCurContext->wrapBackendRenderTarget(desc));
+    fGpuDevice.reset(SkGpuDevice::Create(curRenderTarget.get(),
+                                         SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));
+    fCanvas.reset(new SkCanvas(fGpuDevice));
 }
 
 void SkGLWidget::resizeGL(int w, int h) {
-    if (fCurContext) {
-        glDisable(GL_SCISSOR_TEST);
-        glStencilMask(0xffffffff);
-        glClearStencil(0);
-        glClear(GL_STENCIL_BUFFER_BIT);
-        fCurContext->resetContext();
-
-        GrBackendRenderTargetDesc desc = this->getDesc(w, h);
-        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-        GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
-        SkSafeUnref(fGpuDevice);
-        SkSafeUnref(fCanvas);
-        fGpuDevice = SkGpuDevice::Create(curRenderTarget,
-                                         SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
-        fCanvas = new SkCanvas(fGpuDevice);
-    }
+    SkASSERT(w == this->width() && h == this->height());
+    this->createRenderTarget();
     fDebugger->setWindowSize(w, h);
     draw();
 }
 
 void SkGLWidget::paintGL() {
     if (!this->isHidden() && fCanvas) {
-        fDebugger->draw(fCanvas);
+        fDebugger->draw(fCanvas.get());
         // TODO(chudy): Implement an optional flush button in Gui.
         fCanvas->flush();
         emit drawComplete();
