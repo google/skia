@@ -36,20 +36,9 @@
 # robertphillips - skia:2995
 blurrects
 
-# senorblanco https://codereview.chromium.org/681643003/
-# minor pixel diffs from bounds change
-testimagefilters
-
 # sugoi https://codereview.chromium.org/646213004/
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
-
-# senorblanco https://codereview.chromium.org/637283009/
-# quality improvements to imagemagnifier GM
-imagemagnifier
-
-#reed
-modecolorfilters
 
 #humper skia:2049
 dashcubics
@@ -57,5 +46,3 @@ dashcubics
 #derekf
 drawbitmapmatrix
 
-#junov skbug.com/3176
-pictureimagefilter
