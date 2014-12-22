@@ -166,6 +166,7 @@ static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
         kRGBA_GrColorComponentFlags,    // kRGBA_4444_GrPixelConfig
         kRGBA_GrColorComponentFlags,    // kRGBA_8888_GrPixelConfig
         kRGBA_GrColorComponentFlags,    // kBGRA_8888_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kSRGBA_8888_GrPixelConfig
         kRGB_GrColorComponentFlags,     // kETC1_GrPixelConfig
         kA_GrColorComponentFlag,        // kLATC_GrPixelConfig
         kA_GrColorComponentFlag,        // kR11_EAC_GrPixelConfig
@@ -182,12 +183,13 @@ static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
     GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
     GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(11 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kAlpha_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFlags) == kGrPixelConfigCnt);
 }
 

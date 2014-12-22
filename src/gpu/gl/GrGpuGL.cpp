@@ -2310,6 +2310,16 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             *externalFormat = GR_GL_BGRA;
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
+        case kSRGBA_8888_GrPixelConfig:
+            *internalFormat = GR_GL_SRGB_ALPHA;
+            *externalFormat = GR_GL_SRGB_ALPHA;
+            if (getSizedInternalFormat) {
+                *internalFormat = GR_GL_SRGB8_ALPHA8;
+            } else {
+                *internalFormat = GR_GL_SRGB_ALPHA;
+            }
+            *externalType = GR_GL_UNSIGNED_BYTE;
+            break;
         case kRGB_565_GrPixelConfig:
             *internalFormat = GR_GL_RGB;
             *externalFormat = GR_GL_RGB;

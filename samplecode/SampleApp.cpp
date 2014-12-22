@@ -301,7 +301,8 @@ public:
                 const SkBitmap& bm = win->getBitmap();
                 fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
                                              SkImageInfo2GrPixelConfig(bm.colorType(),
-                                                                       bm.alphaType()),
+                                                                       bm.alphaType(),
+                                                                       bm.profileType()),
                                              bm.getPixels(),
                                              bm.rowBytes(),
                                              GrContext::kFlushWrites_PixelOp);

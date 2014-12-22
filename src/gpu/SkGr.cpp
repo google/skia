@@ -426,7 +426,7 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType) {
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProfileType pt) {
     switch (ct) {
         case kUnknown_SkColorType:
             return kUnknown_GrPixelConfig;
@@ -437,6 +437,9 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType) {
         case kARGB_4444_SkColorType:
             return kRGBA_4444_GrPixelConfig;
         case kRGBA_8888_SkColorType:
+            if (kSRGB_SkColorProfileType == pt) {
+                return kSRGBA_8888_GrPixelConfig;
+            }
             return kRGBA_8888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
             return kBGRA_8888_GrPixelConfig;
@@ -447,8 +450,10 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType) {
     return kUnknown_GrPixelConfig;
 }
 
-bool GrPixelConfig2ColorType(GrPixelConfig config, SkColorType* ctOut) {
+bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
+                                       SkColorProfileType* ptOut) {
     SkColorType ct;
+    SkColorProfileType pt = kLinear_SkColorProfileType;
     switch (config) {
         case kAlpha_8_GrPixelConfig:
             ct = kAlpha_8_SkColorType;
@@ -468,11 +473,18 @@ bool GrPixelConfig2ColorType(GrPixelConfig config, SkColorType* ctOut) {
         case kBGRA_8888_GrPixelConfig:
             ct = kBGRA_8888_SkColorType;
             break;
+        case kSRGBA_8888_GrPixelConfig:
+            ct = kRGBA_8888_SkColorType;
+            pt = kSRGB_SkColorProfileType;
+            break;
         default:
             return false;
     }
     if (ctOut) {
         *ctOut = ct;
+    }
+    if (ptOut) {
+        *ptOut = pt;
     }
     return true;
 }

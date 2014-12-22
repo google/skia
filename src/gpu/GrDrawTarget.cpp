@@ -1139,6 +1139,7 @@ SkString GrDrawTargetCaps::dump() const {
         "RGBA444",  // kRGBA_4444_GrPixelConfig,
         "RGBA8888", // kRGBA_8888_GrPixelConfig,
         "BGRA8888", // kBGRA_8888_GrPixelConfig,
+        "SRGBA8888",// kSRGBA_8888_GrPixelConfig,
         "ETC1",     // kETC1_GrPixelConfig,
         "LATC",     // kLATC_GrPixelConfig,
         "R11EAC",   // kR11_EAC_GrPixelConfig,
@@ -1153,12 +1154,13 @@ SkString GrDrawTargetCaps::dump() const {
     GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
     GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(11 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kAlpha_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
     SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig][0]);

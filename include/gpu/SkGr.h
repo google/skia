@@ -44,13 +44,13 @@ GR_STATIC_ASSERT((int)kIDA_GrBlendCoeff  == (int)SkXfermode::kIDA_Coeff);
 
 #include "SkColorPriv.h"
 
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType);
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, SkColorProfileType);
 
 static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
-    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType());
+    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.profileType());
 }
 
-bool GrPixelConfig2ColorType(GrPixelConfig, SkColorType*);
+bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
 
 static inline GrColor SkColor2GrColor(SkColor c) {
     SkPMColor pm = SkPreMultiplyColor(c);

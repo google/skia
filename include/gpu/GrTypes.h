@@ -232,6 +232,10 @@ enum GrPixelConfig {
      */
     kBGRA_8888_GrPixelConfig,
     /**
+     * Premultiplied and sRGB. Byte order is r,g,b,a.
+     */
+    kSRGBA_8888_GrPixelConfig,
+    /**
      * ETC1 Compressed Data
      */
     kETC1_GrPixelConfig,
@@ -303,6 +307,7 @@ static inline bool GrPixelConfigIs8888(GrPixelConfig config) {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
             return true;
         default:
             return false;
@@ -333,6 +338,7 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
             return 4;
         case kRGBA_float_GrPixelConfig:
             return 16;
@@ -352,6 +358,7 @@ static inline size_t GrUnpackAlignment(GrPixelConfig config) {
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
             return 4;
         default:

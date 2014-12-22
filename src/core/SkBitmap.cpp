@@ -765,7 +765,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
     if (fPixelRef->getTexture() != NULL) {
         // Do a deep copy
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), &subset);
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->colorType(), this->profileType(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
             dst.setInfo(SkImageInfo::Make(subset.width(), subset.height(),
@@ -976,6 +976,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
 
 bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     const SkColorType dstCT = this->colorType();
+    const SkColorProfileType dstPT = this->profileType();
 
     if (!this->canCopyTo(dstCT)) {
         return false;
@@ -984,10 +985,10 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     // If we have a PixelRef, and it supports deep copy, use it.
     // Currently supported only by texture-backed bitmaps.
     if (fPixelRef) {
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstCT, NULL);
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstCT, dstPT, NULL);
         if (pixelRef) {
             uint32_t rowBytes;
-            if (this->colorType() == dstCT) {
+            if (this->colorType() == dstCT && this->profileType() == dstPT) {
                 // Since there is no subset to pass to deepCopy, and deepCopy
                 // succeeded, the new pixel ref must be identical.
                 SkASSERT(fPixelRef->info() == pixelRef->info());

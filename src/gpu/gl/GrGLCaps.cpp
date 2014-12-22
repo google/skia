@@ -478,6 +478,23 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         }
     }
 
+    if (this->fRGBA8RenderbufferSupport && this->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+        if (kGL_GrGLStandard == standard) {
+            if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+                ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
+                ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
+                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kNo_MSAA] = true;
+                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kYes_MSAA] = true;
+            }
+        } else {
+            if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+                ctxInfo.hasExtension("GL_EXT_sRGB")) {
+                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kNo_MSAA] = true;
+                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kYes_MSAA] = true;
+            }
+        }
+    }
+    
     if (this->isConfigTexturable(kRGBA_float_GrPixelConfig)) {
         if (kGL_GrGLStandard == standard) {
             fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
@@ -560,6 +577,15 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
                  kSkia8888_GrPixelConfig != kBGRA_8888_GrPixelConfig);
     }
 
+    // Check for sRGBA
+    if (kGL_GrGLStandard == standard) {
+        fConfigTextureSupport[kSRGBA_8888_GrPixelConfig] =
+            (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_texture_sRGB"));
+    } else {
+        fConfigTextureSupport[kSRGBA_8888_GrPixelConfig] =
+            (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
+    }
+    
     // Compressed texture support
 
     // glCompressedTexImage2D is available on all OpenGL ES devices...

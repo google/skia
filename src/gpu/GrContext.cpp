@@ -1222,7 +1222,7 @@ void GrContext::flush(int flagsBitfield) {
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
     SkSrcPixelInfo srcPI;
-    if (!GrPixelConfig2ColorType(srcConfig, &srcPI.fColorType)) {
+    if (!GrPixelConfig2ColorAndProfileType(srcConfig, &srcPI.fColorType, NULL)) {
         return false;
     }
     srcPI.fAlphaType = kUnpremul_SkAlphaType;
@@ -1483,7 +1483,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     // Perform any conversions we weren't able to perform using a scratch texture.
     if (unpremul || swapRAndB) {
         SkDstPixelInfo dstPI;
-        if (!GrPixelConfig2ColorType(dstConfig, &dstPI.fColorType)) {
+        if (!GrPixelConfig2ColorAndProfileType(dstConfig, &dstPI.fColorType, NULL)) {
             return false;
         }
         dstPI.fAlphaType = kUnpremul_SkAlphaType;
