@@ -145,30 +145,6 @@ public:
     Peeker* getPeeker() const { return fPeeker; }
     Peeker* setPeeker(Peeker*);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    /** \class Chooser
-
-        Base class for optional callbacks to choose an image from a format that
-        contains multiple images.
-    */
-    class Chooser : public SkRefCnt {
-    public:
-        SK_DECLARE_INST_COUNT(Chooser)
-
-        virtual void begin(int count) {}
-        virtual void inspect(int index, SkBitmap::Config config, int width, int height) {}
-        /** Return the index of the subimage you want, or -1 to choose none of them.
-        */
-        virtual int choose() = 0;
-
-    private:
-        typedef SkRefCnt INHERITED;
-    };
-
-    Chooser* getChooser() const { return fChooser; }
-    Chooser* setChooser(Chooser*);
-#endif
-
     /**
      *  By default, the codec will try to comply with the "pref" colortype
      *  that is passed to decode() or decodeSubset(). However, this can be called
@@ -400,12 +376,6 @@ protected:
      */
     SkColorType getDefaultPref() { return fDefaultPref; }
     
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    // helper function for decoders to handle the (common) case where there is only
-    // once choice available in the image file.
-    bool chooseFromOneChoice(SkColorType, int width, int height) const;
-#endif
-
     /*  Helper for subclasses. Call this to allocate the pixel memory given the bitmap's info.
         Returns true on success. This method handles checking for an optional Allocator.
     */
@@ -431,9 +401,6 @@ protected:
 
 private:
     Peeker*                 fPeeker;
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    Chooser*                fChooser;
-#endif
     SkBitmap::Allocator*    fAllocator;
     int                     fSampleSize;
     SkColorType             fDefaultPref;   // use if fUsePrefTable is false

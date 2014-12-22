@@ -62,13 +62,6 @@ SkImageDecoder::Result SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     const unsigned short width = ktxFile.width();
     const unsigned short height = ktxFile.height();
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    // should we allow the Chooser (if present) to pick a config for us???
-    if (!this->chooseFromOneChoice(kN32_SkColorType, width, height)) {
-        return kFailure;
-    }
-#endif
-
     // Set a flag if our source is premultiplied alpha
     const SkString premulKey("KTXPremultipliedAlpha");
     const bool bSrcIsPremul = ktxFile.getValueForKey(premulKey) == SkString("True");

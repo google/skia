@@ -97,67 +97,17 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
         return kFailure;
     }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    int choice;
-    Chooser* chooser = this->getChooser();
-    //FIXME:if no chooser, consider providing the largest color image
-    //what are the odds that the largest image would be monochrome?
-    if (NULL == chooser) {
-        choice = 0;
-    } else {
-        chooser->begin(count);
-        for (int i = 0; i < count; i++)
-        {
-            //need to find out the config, width, and height from the stream
-            int width = readByte(buf, 6 + i*16);
-            int height = readByte(buf, 7 + i*16);
-            int offset = read4Bytes(buf, 18 + i*16);
-            int bitCount = read2Bytes(buf, offset+14);
-            SkBitmap::Config c;
-            //currently only provide ARGB_8888_, but maybe we want kIndex8_Config for 1 and 4, and possibly 8?
-            //or maybe we'll determine this based on the provided config
-            switch (bitCount)
-            {
-                case 1:
-                case 4:
-                    // In reality, at least for the moment, these will be decoded into kARGB_8888 bitmaps.
-                    // However, this will be used to distinguish between the lower quality 1bpp and 4 bpp
-                    // images and the higher quality images.
-                    c = SkBitmap::kIndex8_Config;
-                    break;
-                case 8:
-                case 24:
-                case 32:
-                    c = SkBitmap::kARGB_8888_Config;
-                    break;
-                default:
-                    SkDEBUGF(("Image with %ibpp not supported\n", bitCount));
-                    continue;
-            }
-            chooser->inspect(i, c, width, height);
-        }
-        choice = chooser->choose();
-    }
-
-    //you never know what the chooser is going to supply
-    if (choice >= count || choice < 0) {
-        return kFailure;
-    }
-#else
-    const int choice = 0;   // TODO: fold this value into the expressions below
-#endif
-
     //skip ahead to the correct header
     //commented out lines are not used, but if i switch to other read method, need to know how many to skip
     //otherwise, they could be used for error checking
-    int w = readByte(buf, 6 + choice*16);
-    int h = readByte(buf, 7 + choice*16);
-    int colorCount = readByte(buf, 8 + choice*16);
+    int w = readByte(buf, 6);
+    int h = readByte(buf, 7);
+    int colorCount = readByte(buf, 8);
     //int reservedToo = readByte(buf, 9 + choice*16);   //0
     //int planes = read2Bytes(buf, 10 + choice*16);       //1 - but often 0
     //int fakeBitCount = read2Bytes(buf, 12 + choice*16); //should be real - usually 0
-    const size_t size = read4Bytes(buf, 14 + choice*16);           //matters?
-    const size_t offset = read4Bytes(buf, 18 + choice*16);
+    const size_t size = read4Bytes(buf, 14);           //matters?
+    const size_t offset = read4Bytes(buf, 18);
     // promote the sum to 64-bits to avoid overflow
     if (offset > length || size > length || ((uint64_t)offset + size) > length) {
         return kFailure;

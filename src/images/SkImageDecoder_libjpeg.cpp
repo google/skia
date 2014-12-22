@@ -640,13 +640,6 @@ SkImageDecoder::Result SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* 
     }
     sampleSize = recompute_sampleSize(sampleSize, cinfo);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    // should we allow the Chooser (if present) to pick a colortype for us???
-    if (!this->chooseFromOneChoice(colorType, cinfo.output_width, cinfo.output_height)) {
-        return return_failure(cinfo, *bm, "chooseFromOneChoice");
-    }
-#endif
-
     SkScaledBitmapSampler sampler(cinfo.output_width, cinfo.output_height, sampleSize);
     // Assume an A8 bitmap is not opaque to avoid the check of each
     // individual pixel. It is very unlikely to be opaque, since

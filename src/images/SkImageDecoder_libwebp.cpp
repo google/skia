@@ -303,12 +303,6 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap, int width, int
         }
     }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    if (!this->chooseFromOneChoice(colorType, width, height)) {
-        return false;
-    }
-#endif
-
     SkAlphaType alphaType = kOpaque_SkAlphaType;
     if (SkToBool(fHasAlpha)) {
         if (this->getRequireUnpremultipliedColors()) {
@@ -390,14 +384,6 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
         if (!allocResult) {
             return return_false(*decodedBitmap, "allocPixelRef");
         }
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    } else {
-        // This is also called in setDecodeConfig in above block.
-        // i.e., when bitmap->isNull() is true.
-        if (!chooseFromOneChoice(bitmap->colorType(), width, height)) {
-            return false;
-        }
-#endif
     }
 
     SkAutoLockPixels alp(*bitmap);

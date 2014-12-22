@@ -47,13 +47,6 @@ SkImageDecoder::Result SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     const unsigned short width = etc1_pkm_get_width(buf);
     const unsigned short height = etc1_pkm_get_height(buf);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDECODER_CHOOSER
-    // should we allow the Chooser (if present) to pick a config for us???
-    if (!this->chooseFromOneChoice(kN32_SkColorType, width, height)) {
-        return kFailure;
-    }
-#endif
-
     // Setup the sampler...
     SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
 
