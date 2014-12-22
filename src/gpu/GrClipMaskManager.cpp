@@ -450,7 +450,11 @@ GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fConfig = kAlpha_8_GrPixelConfig;
+    if (this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+    } else {
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+    }
 
     return this->getContext()->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
 }
