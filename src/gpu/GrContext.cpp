@@ -555,29 +555,42 @@ void GrContext::drawPaint(const GrPaint& origPaint, const SkMatrix& viewMatrix) 
               SkIntToScalar(getRenderTarget()->width()),
               SkIntToScalar(getRenderTarget()->height()));
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::drawPaint", this);
+
+    // by definition this fills the entire clip, no need for AA
+    if (paint->isAntiAlias()) {
+        paint.writable()->setAntiAlias(false);
+    }
+
+    bool isPerspective = viewMatrix.hasPerspective();
 
     // We attempt to map r by the inverse matrix and draw that. mapRect will
     // map the four corners and bound them with a new rect. This will not
     // produce a correct result for some perspective matrices.
-    if (!viewMatrix.hasPerspective()) {
+    if (!isPerspective) {
         SkMatrix inverse;
         if (!viewMatrix.invert(&inverse)) {
             SkDebugf("Could not invert matrix\n");
             return;
         }
         inverse.mapRect(&r);
+        this->drawRect(*paint, viewMatrix, r);
     } else {
-        if (!paint.writable()->localCoordChangeInverse(viewMatrix)) {
+        SkMatrix localMatrix;
+        if (!viewMatrix.invert(&localMatrix)) {
             SkDebugf("Could not invert matrix\n");
             return;
         }
+
+        AutoCheckFlush acf(this);
+        GrDrawState drawState;
+        GrDrawTarget* target = this->prepareToDraw(&drawState, paint, &SkMatrix::I(), &acf);
+        if (NULL == target) {
+            return;
+        }
+
+        GR_CREATE_TRACE_MARKER("GrContext::drawPaintWithPerspective", target);
+        target->drawRect(&drawState, paint->getColor(), r, NULL, &localMatrix);
     }
-    // by definition this fills the entire clip, no need for AA
-    if (paint->isAntiAlias()) {
-        paint.writable()->setAntiAlias(false);
-    }
-    this->drawRect(*paint, viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix, r);
 }
 
 #ifdef SK_DEVELOPER

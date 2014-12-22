@@ -564,9 +564,9 @@ void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
     // Unpremultiply the displacement
     fsBuilder->codeAppendf("\t\t%s.rgb = (%s.a < %s) ? vec3(0.0) : clamp(%s.rgb / %s.a, 0.0, 1.0);",
                            dColor, dColor, nearZero, dColor, dColor);
-
+    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 1);
     fsBuilder->codeAppendf("\t\tvec2 %s = %s + %s*(%s.",
-                           cCoords, coords[1].c_str(), scaleUni, dColor);
+                           cCoords, coords2D.c_str(), scaleUni, dColor);
 
     switch (fXChannelSelector) {
       case SkDisplacementMapEffect::kR_ChannelSelectorType:
@@ -611,7 +611,9 @@ void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
         "bool %s = (%s.x < 0.0) || (%s.y < 0.0) || (%s.x > 1.0) || (%s.y > 1.0);\t\t",
         outOfBounds, cCoords, cCoords, cCoords, cCoords);
     fsBuilder->codeAppendf("%s = %s ? vec4(0.0) : ", outputColor, outOfBounds);
-    fsBuilder->appendTextureLookup(samplers[1], cCoords, coords[1].getType());
+
+    // cCoords is always a vec2f
+    fsBuilder->appendTextureLookup(samplers[1], cCoords, kVec2f_GrSLType);
     fsBuilder->codeAppend(";\n");
 }
 

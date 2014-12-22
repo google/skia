@@ -35,6 +35,7 @@ private:
     SkAutoTUnref<const GrFragmentProcessor> fCachedTextureProcessor;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                          fEffectTextureUniqueID;
+    SkMatrix                          fLocalMatrix;
 
     GrBitmapTextContext(GrContext*, const SkDeviceProperties&);
 

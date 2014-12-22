@@ -425,8 +425,6 @@ void GrClipMaskManager::mergeMask(GrDrawState* drawState,
                                   SkRegion::Op op,
                                   const SkIRect& dstBound,
                                   const SkIRect& srcBound) {
-    SkAssertResult(drawState->setIdentityViewMatrix());
-
     drawState->setRenderTarget(dstMask->asRenderTarget());
 
     // We want to invert the coverage here
@@ -606,11 +604,11 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 return NULL;
             }
 
-            GrDrawState backgroundDrawState(translate);
-            backgroundDrawState.enableState(GrDrawState::kClip_StateBit);
-            backgroundDrawState.setRenderTarget(result->asRenderTarget());
-
             if (useTemp) {
+                GrDrawState backgroundDrawState;
+                backgroundDrawState.enableState(GrDrawState::kClip_StateBit);
+                backgroundDrawState.setRenderTarget(result->asRenderTarget());
+
                 // Now draw into the accumulator using the real operation and the temp buffer as a
                 // texture
                 this->mergeMask(&backgroundDrawState,
@@ -620,6 +618,10 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                 maskSpaceIBounds,
                                 maskSpaceElementIBounds);
             } else {
+                GrDrawState backgroundDrawState(translate);
+                backgroundDrawState.enableState(GrDrawState::kClip_StateBit);
+                backgroundDrawState.setRenderTarget(result->asRenderTarget());
+
                 set_coverage_drawing_xpf(op, !invert, &backgroundDrawState);
                 // Draw to the exterior pixels (those with a zero stencil value).
                 GR_STATIC_CONST_SAME_STENCIL(kDrawOutsideElement,

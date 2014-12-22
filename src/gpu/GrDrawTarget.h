@@ -303,10 +303,10 @@ public:
      * @param rect        the rect to draw
      * @param localRect   optional rect that specifies local coords to map onto
      *                    rect. If NULL then rect serves as the local coords.
-     * @param localMatrix optional matrix applied to localRect. If
-     *                    srcRect is non-NULL and srcMatrix is non-NULL
-     *                    then srcRect will be transformed by srcMatrix.
-     *                    srcMatrix can be NULL when no srcMatrix is desired.
+     * @param localMatrix Optional local matrix. The local coordinates are specified by localRect,
+     *                    or if it is NULL by rect. This matrix applies to the coordinate implied by
+     *                    that rectangle before it is input to GrCoordTransforms that read local
+     *                    coordinates
      */
     void drawRect(GrDrawState* ds,
                   GrColor color,

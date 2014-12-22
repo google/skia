@@ -165,6 +165,7 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& processor,
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x0;
     key |= 0xff != local.fCoverageScale ? 0x8 : 0x0;
+    key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x10 : 0x0;
     b->add32(key);
 }
 
@@ -374,6 +375,7 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& processor,
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x0;
     key |= 0xff != local.fCoverageScale ? 0x8 : 0x0;
+    key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x10 : 0x0;
     b->add32(key);
 }
 
@@ -605,6 +607,7 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& processor,
     const CubicBatchTracker& local = bt.cast<CubicBatchTracker>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x8;
+    key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x10 : 0x0;
     b->add32(key);
 }
 

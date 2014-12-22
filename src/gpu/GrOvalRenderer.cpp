@@ -123,7 +123,9 @@ public:
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
             const CircleEdgeEffect& circleEffect = processor.cast<CircleEdgeEffect>();
-            b->add32(circleEffect.isStroked() << 16 | local.fInputColorType);
+            uint16_t key = circleEffect.isStroked() ? 0x1 : 0x0;
+            key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            b->add32(key << 16 | local.fInputColorType);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
@@ -306,7 +308,9 @@ public:
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
             const EllipseEdgeEffect& ellipseEffect = processor.cast<EllipseEdgeEffect>();
-            b->add32(ellipseEffect.isStroked() << 16 | local.fInputColorType);
+            uint16_t key = ellipseEffect.isStroked() ? 0x1 : 0x0;
+            key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            b->add32(key << 16 | local.fInputColorType);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
@@ -510,7 +514,10 @@ public:
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
             const DIEllipseEdgeEffect& ellipseEffect = processor.cast<DIEllipseEdgeEffect>();
-            b->add32(ellipseEffect.getMode() << 16 | local.fInputColorType);
+            uint16_t key = ellipseEffect.getMode();
+            key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x1 << 8 :
+                                                                                        0x0;
+            b->add32(key << 16 | local.fInputColorType);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
@@ -1086,7 +1093,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(drawState, color, bounds, NULL, NULL);
+    target->drawSimpleRect(drawState, color, bounds);
     return true;
 }
 

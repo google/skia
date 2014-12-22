@@ -62,13 +62,18 @@ void get_vertex_bounds(const void* vertices,
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static const GrGeometryProcessor* create_rect_gp(GrDrawState* drawState,
-                                                 bool hasLocalCoords,
-                                                 GrColor color) {
+static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
+                                                 GrColor color,
+                                                 const SkMatrix* localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
                      GrDefaultGeoProcFactory::kColor_GPType;
-    flags |= hasLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
-    return GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color));
+    flags |= hasExplicitLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
+    if (localMatrix) {
+        return GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color), 0xff,
+                                               *localMatrix);
+    } else {
+        return GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color));
+    }
 }
 
 static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettings) {
@@ -115,7 +120,11 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
                                      const SkMatrix* localMatrix) {
     GrDrawState::AutoRestoreEffects are(ds);
 
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(ds, SkToBool(localRect), color));
+    bool hasExplicitLocalCoords = SkToBool(localRect);
+    SkAutoTUnref<const GrGeometryProcessor> gp(
+            create_rect_gp(hasExplicitLocalCoords,
+                           color,
+                           hasExplicitLocalCoords ? NULL : localMatrix));
 
     size_t vstride = gp->getVertexStride();
     SkASSERT(vstride == sizeof(SkPoint) + sizeof(GrColor) + (SkToBool(localRect) ? sizeof(SkPoint) :

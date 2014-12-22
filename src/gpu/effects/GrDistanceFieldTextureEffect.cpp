@@ -166,8 +166,10 @@ public:
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldTextureEffect>();
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
-        b->add32(dfTexEffect.getFlags());
-        b->add32(local.fInputColorType);
+        uint32_t key = dfTexEffect.getFlags();
+        key |= local.fInputColorType << 16;
+        key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        b->add32(key);
     }
 
 private:
@@ -422,8 +424,10 @@ public:
             proc.cast<GrDistanceFieldNoGammaTextureEffect>();
 
         const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
-        b->add32(dfTexEffect.getFlags());
-        b->add32(local.fInputColorType);
+        uint32_t key = dfTexEffect.getFlags();
+        key |= local.fInputColorType << 16;
+        key |= local.fUsesLocalCoords && proc.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        b->add32(key);
     }
 
 private:
@@ -724,8 +728,10 @@ public:
                 processor.cast<GrDistanceFieldLCDTextureEffect>();
 
         const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
-        b->add32(dfTexEffect.getFlags());
-        b->add32(local.fInputColorType);
+        uint32_t key = dfTexEffect.getFlags();
+        key |= local.fInputColorType << 16;
+        key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        b->add32(key);
     }
 
 private:

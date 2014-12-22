@@ -121,7 +121,6 @@ protected:
                                                                                    rrect));
                         if (fp) {
                             drawState.addCoverageProcessor(fp);
-                            drawState.setIdentityViewMatrix();
                             drawState.setRenderTarget(rt);
 
                             SkRect bounds = rrect.getBounds();

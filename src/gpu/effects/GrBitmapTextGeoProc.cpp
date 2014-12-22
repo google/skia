@@ -75,8 +75,10 @@ public:
         // on addVertexAttrib.
         // TODO When we have deferred geometry we can fix this
         const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
-        b->add32(SkToBool(gp.inColor()));
-        b->add32(local.fInputColorType);
+        uint32_t key = 0;
+        key |= SkToBool(gp.inColor()) ? 0x1 : 0x0;
+        key |= local.fUsesLocalCoords && proc.localMatrix().hasPerspective() ? 0x2 : 0x0;
+        b->add32(local.fInputColorType << 16 | key);
     }
 
 private:
@@ -90,8 +92,10 @@ private:
 
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
                                          const GrTextureParams& params, bool useColorAttrib,
-                                         bool opaqueVertexColors)
-    : INHERITED(color, opaqueVertexColors), fTextureAccess(texture, params), fInColor(NULL) {
+                                         bool opaqueVertexColors, const SkMatrix& localMatrix)
+    : INHERITED(color, opaqueVertexColors, localMatrix)
+    , fTextureAccess(texture, params)
+    , fInColor(NULL) {
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     if (useColorAttrib) {
@@ -172,5 +176,6 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
                                                            GrTextureParams::kNone_FilterMode);
 
     return GrBitmapTextGeoProc::Create(GrRandomColor(random), textures[texIdx], params,
-                                       random->nextBool(), random->nextBool());
+                                       random->nextBool(), random->nextBool(),
+                                       GrProcessorUnitTest::TestMatrix(random));
 }

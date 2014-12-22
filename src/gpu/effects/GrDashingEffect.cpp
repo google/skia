@@ -624,6 +624,7 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& processor,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
+    b->add32(local.fUsesLocalCoords && processor.localMatrix().hasPerspective());
     b->add32(dce.getEdgeType() << 16 | local.fInputColorType);
 }
 
@@ -913,6 +914,7 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& processor,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
+    b->add32(local.fUsesLocalCoords && processor.localMatrix().hasPerspective());
     b->add32(de.getEdgeType() << 16 | local.fInputColorType);
 }
 

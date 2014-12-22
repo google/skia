@@ -378,8 +378,22 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
 
     for (int t = 0; t < numTransforms; t++) {
         const char* uniName = "StageMatrix";
-        GrSLType varyingType = stage.isPerspectiveCoordTransform(t) ? kVec3f_GrSLType :
-                                                                      kVec2f_GrSLType;
+        GrSLType varyingType;
+
+        // TODO when we have deleted the coord change matrices we can get rid of the below check
+        GrCoordSet coordType = processor->coordTransform(t).sourceCoords();
+        const SkMatrix& localMatrix = fOptState.getPrimitiveProcessor()->localMatrix();
+        if (localMatrix.isIdentity()) {
+            varyingType = stage.isPerspectiveCoordTransform(t) ? kVec3f_GrSLType :
+                                                                 kVec2f_GrSLType;
+        } else {
+            uint32_t type = processor->coordTransform(t).getMatrix().getType();
+            if (kLocal_GrCoordSet == coordType) {
+                type |= localMatrix.getType();
+            }
+            varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
+                                                                         kVec2f_GrSLType;
+        }
         GrSLPrecision precision = processor->coordTransform(t).precision();
 
         SkString suffixedUniName;
@@ -401,7 +415,6 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
             varyingName = suffixedVaryingName.c_str();
         }
 
-        GrCoordSet coordType = processor->coordTransform(t).sourceCoords();
         GrGLVertToFrag v(varyingType);
         this->addVarying(varyingName, &v, precision);
         fCoordVaryings.push_back(TransformVarying(v, uniName, coordType));

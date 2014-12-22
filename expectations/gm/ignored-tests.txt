@@ -33,6 +33,9 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
+#joshualitt
+gpusamplerstress
+
 # robertphillips - skia:2995
 blurrects
 

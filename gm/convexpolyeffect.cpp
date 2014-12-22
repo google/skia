@@ -136,7 +136,6 @@ protected:
                 SkAutoTUnref<const GrGeometryProcessor> gp(
                         GrDefaultGeoProcFactory::Create(0xff000000));
                 ds.addCoverageProcessor(fp);
-                ds.setIdentityViewMatrix();
                 ds.setRenderTarget(rt);
 
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
@@ -193,7 +192,6 @@ protected:
                 SkAutoTUnref<const GrGeometryProcessor> gp(
                         GrDefaultGeoProcFactory::Create(0xff000000));
                 ds.addCoverageProcessor(fp);
-                ds.setIdentityViewMatrix();
                 ds.setRenderTarget(rt);
 
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);

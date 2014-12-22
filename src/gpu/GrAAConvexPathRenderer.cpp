@@ -575,7 +575,8 @@ public:
                                   const GrGLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
-            b->add32(local.fInputColorType);
+            b->add32((local.fInputColorType << 16) |
+                     (local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0));
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,

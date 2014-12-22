@@ -83,7 +83,15 @@ public:
     static const GrGeometryProcessor* Create(GrColor,
                                              uint32_t gpTypeFlags = 0,
                                              bool opaqueVertexColors = false,
-                                             uint8_t coverage = 0xff);
+                                             uint8_t coverage = 0xff,
+                                             const SkMatrix& localMatrix = SkMatrix::I());
+
+    static const GrGeometryProcessor* Create(GrColor color,
+                                             uint32_t gpTypeFlags,
+                                             const SkMatrix& localMatrix) {
+        return Create(color, gpTypeFlags, false, 0xff, localMatrix);
+    }
+
     static size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };
 

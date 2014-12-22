@@ -154,7 +154,8 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
     SkFixed fx = SkScalarToFixed(x) + halfSampleX;
     SkFixed fy = SkScalarToFixed(y) + halfSampleY;
 
-    if (!fPaint.localCoordChangeInverse(viewMatrix)) {
+    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix
+    if (kARGB_GrMaskFormat != fCurrMaskFormat && !viewMatrix.invert(&fLocalMatrix)) {
         SkDebugf("Cannot invert viewmatrix\n");
     }
 
@@ -202,7 +203,9 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
 
     // store original matrix before we reset, so we can use it to transform positions
     SkMatrix ctm = viewMatrix;
-    if (!fPaint.localCoordChangeInverse(viewMatrix)) {
+
+    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix
+    if (kARGB_GrMaskFormat != fCurrMaskFormat && !viewMatrix.invert(&fLocalMatrix)) {
             SkDebugf("Cannot invert viewmatrix\n");
     }
 
@@ -559,7 +562,6 @@ void GrBitmapTextContext::flush() {
         }
 
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
-        // TODO cache these GPs
         if (kARGB_GrMaskFormat == fCurrMaskFormat) {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID ||
@@ -569,19 +571,22 @@ void GrBitmapTextContext::flush() {
                 fCachedTextureProcessor.reset(GrSimpleTextureEffect::Create(fCurrTexture,
                                                                             SkMatrix::I(),
                                                                             params));
+                fEffectTextureUniqueID = textureUniqueID;
             }
             drawState.addColorProcessor(fCachedTextureProcessor.get());
         } else {
             uint32_t textureUniqueID = fCurrTexture->getUniqueID();
             if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->color() != color) {
+                fCachedGeometryProcessor->color() != color ||
+                !fCachedGeometryProcessor->localMatrix().cheapEqualTo(fLocalMatrix)) {
                 bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
                 bool opaqueVertexColors = GrColorIsOpaque(fPaint.getColor());
                 fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(color,
                                                                            fCurrTexture,
                                                                            params,
                                                                            hasColor,
-                                                                           opaqueVertexColors));
+                                                                           opaqueVertexColors,
+                                                                           fLocalMatrix));
                 fEffectTextureUniqueID = textureUniqueID;
             }
         }

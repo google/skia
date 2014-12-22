@@ -147,32 +147,6 @@ public:
      */
     bool isOpaqueAndConstantColor(GrColor* constantColor) const;
 
-    /**
-     * DO NOT USE THESE
-     * TODO Remove remaining use cases and delete these
-     */
-    bool localCoordChangeInverse(const SkMatrix& newToOld) {
-        SkMatrix oldToNew;
-        bool computed = false;
-        for (int i = 0; i < fColorStages.count(); ++i) {
-            if (!computed && !newToOld.invert(&oldToNew)) {
-                return false;
-            } else {
-                computed = true;
-            }
-            fColorStages[i].localCoordChange(oldToNew);
-        }
-        for (int i = 0; i < fCoverageStages.count(); ++i) {
-            if (!computed && !newToOld.invert(&oldToNew)) {
-                return false;
-            } else {
-                computed = true;
-            }
-            fCoverageStages[i].localCoordChange(oldToNew);
-        }
-        return true;
-    }
-
 private:
     friend class GrContext; // To access above two functions
     friend class GrStencilAndCoverTextContext;  // To access above two functions

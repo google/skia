@@ -303,12 +303,6 @@ public:
         return false;
     }
 
-    /**
-     * Sets the view matrix to identity and updates any installed effects to compensate for the
-     * coord system change.
-     */
-    bool setIdentityViewMatrix();
-
     ////////////////////////////////////////////////////////////////////////////
 
     /**

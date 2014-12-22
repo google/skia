@@ -112,24 +112,6 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fCoveragePrimProc = NULL;
 }
 
-bool GrDrawState::setIdentityViewMatrix()  {
-    if (this->numFragmentStages()) {
-        SkMatrix invVM;
-        if (!fViewMatrix.invert(&invVM)) {
-            // sad trombone sound
-            return false;
-        }
-        for (int s = 0; s < this->numColorStages(); ++s) {
-            fColorStages[s].localCoordChange(invVM);
-        }
-        for (int s = 0; s < this->numCoverageStages(); ++s) {
-            fCoverageStages[s].localCoordChange(invVM);
-        }
-    }
-    fViewMatrix.reset();
-    return true;
-}
-
 void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRenderTarget* rt) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
 
