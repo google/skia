@@ -1142,6 +1142,10 @@ public:
     // don't call
     GrRenderTarget* internal_private_accessTopLayerRenderTarget();
 
+    // don't call
+    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
+    static bool Internal_Private_GetIgnoreSaveLayerBounds();
+
 protected:
     // default impl defers to getDevice()->newSurface(info)
     virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&);

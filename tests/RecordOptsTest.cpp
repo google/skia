@@ -131,7 +131,9 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     recorder.saveLayer(&bounds, NULL);
         recorder.drawRect(draw, goodDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 0, false);
+    if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
+        assert_savelayer_restore(r, &record, 0, false);
+    }
 
     // SaveLayer/Restore removed: no bounds + no paint = no point.
     recorder.saveLayer(NULL, NULL);

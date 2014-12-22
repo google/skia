@@ -275,9 +275,11 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
     TestBBH bbh;
     SkRecordFillBounds(SkRect::MakeWH(50, 50), record, &bbh);
     REPORTER_ASSERT(r, bbh.fEntries.count() == 3);
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(10, 10, 40, 40)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(20, 20, 30, 30)));
-    REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[2].bounds, SkRect::MakeLTRB(10, 10, 40, 40)));
+    if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
+        REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[0].bounds, SkRect::MakeLTRB(10, 10, 40, 40)));
+        REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[1].bounds, SkRect::MakeLTRB(20, 20, 30, 30)));
+        REPORTER_ASSERT(r, sloppy_rect_eq(bbh.fEntries[2].bounds, SkRect::MakeLTRB(10, 10, 40, 40)));
+    }
 }
 
 DEF_TEST(RecordDraw_drawImage, r){

@@ -974,7 +974,7 @@ static void test_savelayer_extraction(skiatest::Reporter* reporter) {
     }
 
     // Now test out the SaveLayer extraction
-    {
+    if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
         SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
         const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);

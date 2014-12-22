@@ -34,6 +34,14 @@
 #include "GrRenderTarget.h"
 #endif
 
+static bool gIgnoreSaveLayerBounds;
+void SkCanvas::Internal_Private_SetIgnoreSaveLayerBounds(bool ignore) {
+    gIgnoreSaveLayerBounds = ignore;
+}
+bool SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds() {
+    return gIgnoreSaveLayerBounds;
+}
+
 // experimental for faster tiled drawing...
 //#define SK_ENABLE_CLIP_QUICKREJECT
 
@@ -909,6 +917,9 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
 }
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
+    if (gIgnoreSaveLayerBounds) {
+        bounds = NULL;
+    }
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag);
     fSaveCount += 1;
     this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, false, strategy);
@@ -916,6 +927,9 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
 }
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags) {
+    if (gIgnoreSaveLayerBounds) {
+        bounds = NULL;
+    }
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
     fSaveCount += 1;
     this->internalSaveLayer(bounds, paint, flags, false, strategy);
