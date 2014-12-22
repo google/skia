@@ -42,7 +42,3 @@ dropshadowimagefilter
 
 #humper skia:2049
 dashcubics
-
-#derekf
-drawbitmapmatrix
-
