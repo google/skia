@@ -7,7 +7,7 @@
 
 #include "GrGLRenderTarget.h"
 
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)

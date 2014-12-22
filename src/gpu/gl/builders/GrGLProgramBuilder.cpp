@@ -10,7 +10,7 @@
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLUniformHandle.h"
 #include "../GrGLXferProcessor.h"
-#include "../GrGpuGL.h"
+#include "../GrGLGpu.h"
 #include "GrCoordTransform.h"
 #include "GrGLLegacyNvprProgramBuilder.h"
 #include "GrGLNvprProgramBuilder.h"

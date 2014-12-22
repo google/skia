@@ -6,7 +6,7 @@
  */
 
 #include "GrGLIndexBuffer.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 GrGLIndexBuffer::GrGLIndexBuffer(GrGLGpu* gpu, const Desc& desc)
     : INHERITED(gpu, desc.fIsWrapped, desc.fSizeInBytes, desc.fDynamic, 0 == desc.fID)

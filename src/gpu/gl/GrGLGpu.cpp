@@ -6,7 +6,7 @@
  */
 
 
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourceCacheAccess.h"

@@ -6,7 +6,7 @@
  */
 
 #include "GrGLVertexBuffer.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 GrGLVertexBuffer::GrGLVertexBuffer(GrGLGpu* gpu, const Desc& desc)
     : INHERITED(gpu, desc.fIsWrapped, desc.fSizeInBytes, desc.fDynamic, 0 == desc.fID)

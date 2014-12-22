@@ -22,8 +22,8 @@
 #include "Test.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
+#include "gl/GrGLGpu.h"
 #include "gl/GrGLPathRendering.h"
-#include "gl/GrGpuGL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 /*

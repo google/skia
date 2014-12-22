@@ -7,7 +7,7 @@
 
 #include "gl/GrGLPathRendering.h"
 #include "gl/GrGLUniformHandle.h"
-#include "gl/GrGpuGL.h"
+#include "gl/GrGLGpu.h"
 #include "SkMatrix.h"
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, COUNT) \

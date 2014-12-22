@@ -8,7 +8,7 @@
 #include "GrGLShaderBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "GrGLProgramBuilder.h"
-#include "../GrGpuGL.h"
+#include "../GrGLGpu.h"
 #include "../GrGLShaderVar.h"
 
 namespace {

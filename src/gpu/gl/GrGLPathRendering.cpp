@@ -8,7 +8,7 @@
 #include "gl/GrGLPathRendering.h"
 #include "gl/GrGLNameAllocator.h"
 #include "gl/GrGLUtil.h"
-#include "gl/GrGpuGL.h"
+#include "gl/GrGLGpu.h"
 
 #include "GrGLPath.h"
 #include "GrGLPathRange.h"

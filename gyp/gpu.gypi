@@ -227,6 +227,8 @@
       '<(skia_src_path)/gpu/gl/GrGLDefaultInterface_none.cpp',
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
       '<(skia_src_path)/gpu/gl/GrGLGeometryProcessor.h',
+      '<(skia_src_path)/gpu/gl/GrGLGpu.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLGpu.h',
       '<(skia_src_path)/gpu/gl/GrGLGpuProgramCache.cpp',
       '<(skia_src_path)/gpu/gl/GrGLExtensions.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.cpp',
@@ -268,8 +270,6 @@
       '<(skia_src_path)/gpu/gl/GrGLVertexArray.h',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.h',
-      '<(skia_src_path)/gpu/gl/GrGpuGL.cpp',
-      '<(skia_src_path)/gpu/gl/GrGpuGL.h',
 
       # Files for building GLSL shaders
       '<(skia_src_path)/gpu/gl/builders/GrGLLegacyNvprProgramBuilder.cpp',

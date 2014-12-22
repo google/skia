@@ -102,7 +102,7 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
     return flags;
 }
 
-// FIXME:  This should be refactored with the code in gl/GrGpuGL.cpp.
+// FIXME:  This should be refactored with the code in gl/GrGLGpu.cpp.
 GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
     // By default, GrRenderTargets are GL's normal orientation so that they
     // can be drawn to by the outside world without the client having

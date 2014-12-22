@@ -7,7 +7,7 @@
 
 
 #include "GrGLStencilBuffer.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 size_t GrGLStencilBuffer::onGpuMemorySize() const {
     uint64_t size = this->width();

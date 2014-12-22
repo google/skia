@@ -6,7 +6,7 @@
  */
 
 #include "GrGLNvprProgramBuilder.h"
-#include "../GrGpuGL.h"
+#include "../GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)

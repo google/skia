@@ -6,7 +6,7 @@
  */
 
 #include "GrGLLegacyNvprProgramBuilder.h"
-#include "../GrGpuGL.h"
+#include "../GrGLGpu.h"
 
 GrGLLegacyNvprProgramBuilder::GrGLLegacyNvprProgramBuilder(GrGLGpu* gpu,
                                                            const GrOptDrawState& optState)

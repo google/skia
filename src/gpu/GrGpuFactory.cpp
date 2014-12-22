@@ -12,7 +12,7 @@
 #include "gl/GrGLConfig.h"
 
 #include "GrGpu.h"
-#include "gl/GrGpuGL.h"
+#include "gl/GrGLGpu.h"
 
 GrGpu* GrGpu::Create(GrBackend backend, GrBackendContext backendContext, GrContext* context) {
 

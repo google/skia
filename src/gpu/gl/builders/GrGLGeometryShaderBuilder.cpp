@@ -8,7 +8,7 @@
 #include "GrGLGeometryShaderBuilder.h"
 #include "GrGLShaderStringBuilder.h"
 #include "GrGLProgramBuilder.h"
-#include "../GrGpuGL.h"
+#include "../GrGLGpu.h"
 
 GrGLGeometryBuilder::GrGLGeometryBuilder(GrGLProgramBuilder* program)
     : INHERITED(program) {

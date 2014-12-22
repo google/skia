@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 #include "builders/GrGLProgramBuilder.h"
 #include "GrProcessor.h"

@@ -8,7 +8,7 @@
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLShaderStringBuilder.h"
 #include "GrGLProgramBuilder.h"
-#include "../GrGpuGL.h"
+#include "../GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fProgramBuilder->gpu()->glInterface(), R, X)

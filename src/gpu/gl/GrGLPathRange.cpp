@@ -9,7 +9,7 @@
 #include "GrGLPathRange.h"
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 GrGLPathRange::GrGLPathRange(GrGLGpu* gpu, PathGenerator* pathGenerator, const SkStrokeRec& stroke)
     : INHERITED(gpu, pathGenerator, stroke),

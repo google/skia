@@ -8,7 +8,7 @@
 
 #include "GrGLProcessor.h"
 #include "GrProcessor.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 #include "GrOptDrawState.h"
 #include "SkChecksum.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"

@@ -8,7 +8,7 @@
 
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 namespace {
 inline GrGLubyte verb_to_gl_path_cmd(SkPath::Verb verb) {

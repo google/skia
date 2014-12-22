@@ -6,7 +6,7 @@
  */
 
 #include "GrGLBufferImpl.h"
-#include "GrGpuGL.h"
+#include "GrGLGpu.h"
 
 #define GL_CALL(GPU, X) GR_GL_CALL(GPU->glInterface(), X)
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGpuGL_DEFINED
-#define GrGpuGL_DEFINED
+#ifndef GrGLGpu_DEFINED
+#define GrGLGpu_DEFINED
 
 #include "GrDrawState.h"
 #include "GrGLContext.h"
@@ -412,8 +412,8 @@ private:
         GrGLuint                fDefaultVertexArrayBoundIndexBufferID;
         bool                    fDefaultVertexArrayBoundIndexBufferIDIsValid;
         // We return a non-const pointer to this from bindArrayAndBuffersToDraw when vertex array 0
-        // is bound. However, this class is internal to GrGpuGL and this object never leaks out of
-        // GrGpuGL.
+        // is bound. However, this class is internal to GrGLGpu and this object never leaks out of
+        // GrGLGpu.
         GrGLAttribArrayState    fDefaultVertexArrayAttribState;
 
         // This is used when we're using a core profile and the vertices are in a VBO.
