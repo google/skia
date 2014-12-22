@@ -14720,7 +14720,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6489129061840693694
+          7221526503067974995
         ]
       ], 
       "reviewed-by-human": true
@@ -14729,19 +14729,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5532792141023246970
+          11898610728338517339
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "modecolorfilters_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8415259505554733417
+          10824459501590173533
         ]
       ], 
       "reviewed-by-human": true
@@ -14750,7 +14747,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8415259505554733417
+          10824459501590173533
         ]
       ], 
       "reviewed-by-human": true
@@ -14759,7 +14756,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8415259505554733417
+          10824459501590173533
         ]
       ], 
       "reviewed-by-human": true
@@ -16619,7 +16616,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5210379642109091609
+          10823142877858463636
         ]
       ], 
       "reviewed-by-human": true
@@ -16628,7 +16625,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1579775443659434177
+          8990573283779543717
         ]
       ], 
       "reviewed-by-human": true
@@ -16637,7 +16634,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1579775443659434177
+          7498069557204670682
         ]
       ], 
       "reviewed-by-human": true
@@ -16646,7 +16643,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1579775443659434177
+          11252989534458900706
         ]
       ], 
       "reviewed-by-human": true
@@ -16655,7 +16652,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17506817297106108685
+          1377417051655291705
         ]
       ], 
       "reviewed-by-human": true
