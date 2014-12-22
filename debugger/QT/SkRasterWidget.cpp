@@ -14,7 +14,7 @@ SkRasterWidget::SkRasterWidget(SkDebugger *debugger) : QWidget() {
     fDevice = new SkBitmapDevice(fBitmap);
     fDebugger = debugger;
     fCanvas = new SkCanvas(fDevice);
-    this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
+    this->setStyleSheet("QWidget {background-color: black; border: 1px solid #cccccc;}");
 }
 
 SkRasterWidget::~SkRasterWidget() {
