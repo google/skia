@@ -924,6 +924,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "bitmaprect_rounding_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2130411518019874022
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "bitmaprect_s_565.png": {
       "allowed-digests": [
         [
@@ -1226,6 +1235,15 @@
         [
           "bitmap-64bitMD5", 
           11856641444220064075
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "blur2rectsnonninepatch_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          713446000624911196
         ]
       ], 
       "reviewed-by-human": true
@@ -3609,6 +3627,15 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "c_gms_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10085017308376153487
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "canvas-layer-state_565.png": {
       "allowed-digests": [
@@ -8069,6 +8096,24 @@
         1759
       ], 
       "reviewed-by-human": false
+    }, 
+    "fontmgr_bounds_0.75_0_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10025157616935687955
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "fontmgr_bounds_1_-0.25_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9338382705326876056
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "fontmgr_bounds_angle.png": {
       "allowed-digests": [
@@ -14632,6 +14677,15 @@
         [
           "bitmap-64bitMD5", 
           7861383235576349971
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "surfacenew_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2850499747570385973
         ]
       ], 
       "reviewed-by-human": true
