@@ -45,7 +45,8 @@
 //     a0              c0
 //      a            c
 //       a1       c1
-// Each is drawn as three triangles specified by these 9 indices:
+// Each is drawn as three triangles ((a0,a1,b0), (b0,c1,c0), (a1,c1,b0))
+// specified by these 9 indices:
 static const uint16_t kQuadIdxBufPattern[] = {
     0, 1, 2,
     2, 4, 3,
@@ -943,11 +944,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         }
 
         if (conicCnt > 0) {
-            GrDrawState::AutoRestoreEffects are(drawState);
             SkAutoTUnref<GrGeometryProcessor> hairConicProcessor(
                     GrConicEffect::Create(color, kHairlineAA_GrProcessorEdgeType, *target->caps(),
                                           newCoverage));
             SkASSERT(hairConicProcessor);
+            GrDrawState::AutoRestoreEffects are(drawState);
+            target->setIndexSourceToBuffer(fQuadsIndexBuffer);
 
             int conics = 0;
             while (conics < conicCnt) {
