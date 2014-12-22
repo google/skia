@@ -191,6 +191,8 @@
       '<(skia_src_path)/gpu/effects/GrBitmapTextGeoProc.h',
       '<(skia_src_path)/gpu/effects/GrDashingEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrDashingEffect.h',
+      '<(skia_src_path)/gpu/effects/GrDisableColorXP.cpp',
+      '<(skia_src_path)/gpu/effects/GrDisableColorXP.cpp',
       '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.h',
       '<(skia_src_path)/gpu/effects/GrDitherEffect.cpp',

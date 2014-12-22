@@ -364,8 +364,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                           tol)) {
         return false;
     }
-
-    bool colorWritesWereDisabled = drawState->isColorWriteDisabled();
+    // Save the current xp on the draw state so we can reset it if needed
+    SkAutoTUnref<const GrXPFactory> backupXPFactory(SkRef(drawState->getXPFactory()));
     // face culling doesn't make sense here
     SkASSERT(GrDrawState::kBoth_DrawFace == drawState->getDrawFace());
 
@@ -471,9 +471,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         }
 
         if (lastPassIsBounds && (p == passCount-1)) {
-            if (!colorWritesWereDisabled) {
-                drawState->disableState(GrDrawState::kNoColorWrites_StateBit);
-            }
+            // Reset the XP Factory on drawState
+            drawState->setXPFactory(backupXPFactory);
             SkRect bounds;
             GrDrawState::AutoViewMatrixRestore avmr;
             if (reverse) {
@@ -495,7 +494,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             target->drawSimpleRect(drawState, color, bounds);
         } else {
             if (passCount > 1) {
-                drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
+                drawState->setDisableColorXPFactory();
             }
             GrDrawState::AutoRestoreEffects are(drawState);
             SkAutoTUnref<const GrGeometryProcessor> gp(

@@ -184,8 +184,7 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
     // TODO we want to cache the result of this call, but we can probably clean up the interface
     // so we don't have to pass in a seemingly known coverage
     this->calcCoverageInvariantOutput(GrColor_WHITE);
-    return fXPFactory->canApplyCoverage(fColorProcInfo, fCoverageProcInfo,
-                                        this->isColorWriteDisabled());
+    return fXPFactory->canApplyCoverage(fColorProcInfo, fCoverageProcInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////s
@@ -193,21 +192,8 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
 bool GrDrawState::willEffectReadDstColor(const GrPrimitiveProcessor* pp) const {
     this->calcColorInvariantOutput(pp);
     this->calcCoverageInvariantOutput(pp);
-    // TODO: Remove need to create the XP here.
-    //       Also once all custom blends are turned into XPs we can remove the need
-    //       to check other stages since only xp's will be able to read dst
-    SkAutoTUnref<GrXferProcessor> xferProcessor(fXPFactory->createXferProcessor(fColorProcInfo,
-                                                                                fCoverageProcInfo));
-    if (xferProcessor && xferProcessor->willReadDstColor()) {
-        return true;
-    }
 
-    if (!this->isColorWriteDisabled()) {
-        if (fColorProcInfo.readsDst()) {
-            return true;
-        }
-    }
-    return fCoverageProcInfo.readsDst();
+    return fXPFactory->willReadDst(fColorProcInfo, fCoverageProcInfo);
 }
 
 void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
@@ -341,8 +327,7 @@ bool GrDrawState::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
     this->calcCoverageInvariantOutput(pp);
     
     GrXPFactory::InvariantOutput output;
-    fXPFactory->getInvariantOutput(fColorProcInfo, fCoverageProcInfo, this->isColorWriteDisabled(),
-                                   &output);
+    fXPFactory->getInvariantOutput(fColorProcInfo, fCoverageProcInfo, &output);
     return output.fWillBlendWithDst;
 }
 

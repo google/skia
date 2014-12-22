@@ -41,7 +41,7 @@ bool GrPaint::isOpaqueAndConstantColor(GrColor* color) const {
                                         kRGBA_GrColorComponentFlags, false);
 
     GrXPFactory::InvariantOutput output;
-    fXPFactory->getInvariantOutput(colorProcInfo, coverageProcInfo, true, &output);
+    fXPFactory->getInvariantOutput(colorProcInfo, coverageProcInfo, &output);
 
     if (kRGBA_GrColorComponentFlags == output.fBlendedColorFlags &&
         0xFF == GrColorUnpackA(output.fBlendedColor)) {

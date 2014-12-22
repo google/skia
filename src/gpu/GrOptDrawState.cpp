@@ -53,7 +53,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
         optFlags = xferProcessor->getOptimizations(colorPOI,
                                                    coveragePOI,
-                                                   drawState.isColorWriteDisabled(),
                                                    drawState.getStencil().doesWrite(),
                                                    &overrideColor,
                                                    caps);
@@ -85,9 +84,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fFlags = 0;
     if (drawState.isHWAntialias()) {
         fFlags |= kHWAA_Flag;
-    }
-    if (drawState.isColorWriteDisabled()) {
-        fFlags |= kDisableColorWrite_Flag;
     }
     if (drawState.isDither()) {
         fFlags |= kDither_Flag;

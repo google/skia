@@ -9,7 +9,6 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "GrColor.h"
 #include "GrDrawTargetCaps.h"
-#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
 #include "gl/GrGLXferProcessor.h"
@@ -68,7 +67,6 @@ GrGLXferProcessor* GrCoverageSetOpXP::createGLInstance() const {
 GrXferProcessor::OptFlags
 GrCoverageSetOpXP::getOptimizations(const GrProcOptInfo& colorPOI,
                                     const GrProcOptInfo& coveragePOI,
-                                    bool colorWriteDisabled,
                                     bool doesStencilWrite,
                                     GrColor* color,
                                     const GrDrawTargetCaps& caps) {
@@ -188,7 +186,6 @@ GrXferProcessor* GrCoverageSetOpXPFactory::createXferProcessor(const GrProcOptIn
 
 void GrCoverageSetOpXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
                                                   const GrProcOptInfo& coveragePOI,
-                                                  bool colorWriteDisabled,
                                                   GrXPFactory::InvariantOutput* output) const {
     if (SkRegion::kReplace_Op == fRegionOp) {
         if (coveragePOI.isSolidWhite()) {
@@ -207,6 +204,11 @@ void GrCoverageSetOpXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
         output->fBlendedColorFlags = 0;
         output->fWillBlendWithDst = true;
     }
+}
+
+bool GrCoverageSetOpXPFactory::willReadDst(const GrProcOptInfo& colorPOI,
+                                           const GrProcOptInfo& coveragePOI) const {
+    return coveragePOI.readsDst();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);

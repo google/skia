@@ -21,6 +21,7 @@
 #include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
 #include "GrOptDrawState.h"
+#include "GrXferProcessor.h"
 #include "SkTypes.h"
 
 #ifdef SK_DEVELOPER
@@ -177,7 +178,7 @@ private:
                        size_t* indexOffsetInBytes);
 
     // Subclasses should call this to flush the blend state.
-    void flushBlend(const GrOptDrawState& optState);
+    void flushBlend(const GrXferProcessor::BlendInfo& blendInfo);
 
     bool hasExtension(const char* ext) const { return fGLContext.hasExtension(ext); }
 
@@ -224,7 +225,7 @@ private:
     };
 
     void flushDither(bool dither);
-    void flushColorWriteDisable(bool disableColorWrites);
+    void flushColorWrite(bool writeColor);
     void flushDrawFace(GrDrawState::DrawFace face);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about

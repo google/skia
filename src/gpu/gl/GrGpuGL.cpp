@@ -1345,8 +1345,11 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
 }
 
 bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
+    GrXferProcessor::BlendInfo blendInfo;
+    optState.getXferProcessor()->getBlendInfo(&blendInfo);
+
     this->flushDither(optState.isDitherState());
-    this->flushColorWriteDisable(optState.isColorWriteDisabled());
+    this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(optState.getDrawFace());
 
     fCurrentProgram.reset(fProgramCache->getProgram(optState));
@@ -1363,7 +1366,9 @@ bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
         fHWProgramID = programID;
     }
 
-    this->flushBlend(optState);
+    if (blendInfo.fWriteColor) {
+        this->flushBlend(blendInfo);
+    }
 
     fCurrentProgram->setData(optState);
 
@@ -1865,7 +1870,7 @@ void GrGLGpu::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& inf
 }
 
 void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
-    this->flushColorWriteDisable(true);
+    this->flushColorWrite(false);
     this->flushDrawFace(GrDrawState::kBoth_DrawFace);
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(state.fRenderTarget);
@@ -2056,12 +2061,10 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool isLineDraw) 
     }
 }
 
-void GrGLGpu::flushBlend(const GrOptDrawState& optState) {
+void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
     // Any optimization to disable blending should have already been applied and
     // tweaked the coeffs to (1, 0).
     
-    GrXferProcessor::BlendInfo blendInfo;
-    optState.getXferProcessor()->getBlendInfo(&blendInfo);
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     bool blendOff = kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
@@ -2223,8 +2226,8 @@ void GrGLGpu::flushDither(bool dither) {
     }
 }
 
-void GrGLGpu::flushColorWriteDisable(bool disableColorWrites) {
-    if (disableColorWrites) {
+void GrGLGpu::flushColorWrite(bool writeColor) {
+    if (!writeColor) {
         if (kNo_TriState != fHWWriteToColor) {
             GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
                               GR_GL_FALSE, GR_GL_FALSE));

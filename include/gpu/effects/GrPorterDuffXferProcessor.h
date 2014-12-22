@@ -12,7 +12,6 @@
 #include "GrXferProcessor.h"
 #include "SkXfermode.h"
 
-class GrInvariantOutput;
 class GrProcOptInfo;
 
 class GrPorterDuffXferProcessor : public GrXferProcessor {
@@ -22,15 +21,15 @@ public:
         return SkNEW_ARGS(GrPorterDuffXferProcessor, (srcBlend, dstBlend, constant));
     }
 
-    virtual ~GrPorterDuffXferProcessor();
+    ~GrPorterDuffXferProcessor() SK_OVERRIDE;
 
-    virtual const char* name() const SK_OVERRIDE { return "Porter Duff"; }
+    const char* name() const SK_OVERRIDE { return "Porter Duff"; }
 
     void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
 
-    virtual bool hasSecondaryOutput() const SK_OVERRIDE;
+    bool hasSecondaryOutput() const SK_OVERRIDE;
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Stage Output Types
@@ -68,7 +67,6 @@ public:
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
-                                               bool colorWriteDisabled,
                                                bool doesStencilWrite,
                                                GrColor* overrideColor,
                                                const GrDrawTargetCaps& caps) SK_OVERRIDE;
@@ -96,7 +94,6 @@ private:
 
     GrXferProcessor::OptFlags internalGetOptimizations(const GrProcOptInfo& colorPOI,
                                                        const GrProcOptInfo& coveragePOI,
-                                                       bool colorWriteDisabled,
                                                        bool doesStencilWrite);
 
     void calcOutputTypes(GrXferProcessor::OptFlags blendOpts, const GrDrawTargetCaps& caps,
@@ -130,14 +127,16 @@ public:
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
-    bool canApplyCoverage(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                          bool colorWriteDisabled) const SK_OVERRIDE;
+    bool canApplyCoverage(const GrProcOptInfo& colorPOI,
+                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
     bool canTweakAlphaForCoverage() const SK_OVERRIDE;
 
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                            bool colorWriteDisabled,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
+
+    bool willReadDst(const GrProcOptInfo& colorPOI,
+                     const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 

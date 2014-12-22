@@ -125,14 +125,12 @@ public:
 
     /// @}
 
-
     ///////////////////////////////////////////////////////////////////////////
     /// @name Boolean Queries
     ////
 
     bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
-    bool isColorWriteDisabled() const { return SkToBool(fFlags & kDisableColorWrite_Flag); }
     bool mustSkip() const { return NULL == this->getRenderTarget(); }
 
     /// @}
@@ -179,7 +177,6 @@ private:
     enum Flags {
         kDither_Flag            = 0x1,
         kHWAA_Flag              = 0x2,
-        kDisableColorWrite_Flag = 0x4,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

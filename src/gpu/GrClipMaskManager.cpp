@@ -693,7 +693,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             GrDrawState drawState(matrix);
             drawState.setRenderTarget(rt);
             drawState.enableState(GrDrawState::kClip_StateBit);
-            drawState.enableState(GrDrawState::kNoColorWrites_StateBit);
+
+            drawState.setDisableColorXPFactory();
 
             // if the target is MSAA then we want MSAA enabled when the clip is soft
             if (rt->isMultisampled()) {

@@ -20,6 +20,7 @@
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "effects/GrCoverageSetOpXP.h"
+#include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -142,6 +143,10 @@ public:
 
     void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false) {
         fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
+    }
+
+    void setDisableColorXPFactory() {
+        fXPFactory.reset(GrDisableColorXPFactory::Create());
     }
 
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
@@ -410,17 +415,11 @@ public:
          * Draws will respect the clip, otherwise the clip is ignored.
          */
         kClip_StateBit          = 0x04,
-        /**
-         * Disables writing to the color buffer. Useful when performing stencil
-         * operations.
-         */
-        kNoColorWrites_StateBit = 0x08,
 
-        kLast_StateBit = kNoColorWrites_StateBit,
+        kLast_StateBit = kClip_StateBit,
     };
 
     bool isClipState() const { return 0 != (fFlagBits & kClip_StateBit); }
-    bool isColorWriteDisabled() const { return 0 != (fFlagBits & kNoColorWrites_StateBit); }
     bool isDither() const { return 0 != (fFlagBits & kDither_StateBit); }
     bool isHWAntialias() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
 

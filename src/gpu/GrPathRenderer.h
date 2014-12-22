@@ -197,7 +197,7 @@ protected:
                                      0xffff,
                                      0xffff);
         drawState->setStencil(kIncrementStencil);
-        drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
+        drawState->setDisableColorXPFactory();
         this->drawPath(target, drawState, GrColor_WHITE,  path, stroke, false);
     }
 
