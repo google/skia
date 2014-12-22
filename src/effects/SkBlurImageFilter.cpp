@@ -291,7 +291,12 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
 #ifndef SK_IGNORE_TO_STRING
 void SkBlurImageFilter::toString(SkString* str) const {
     str->appendf("SkBlurImageFilter: (");
-    str->appendf("sigma: (%f, %f)", fSigma.fWidth, fSigma.fHeight);
-    str->append(")");
+    str->appendf("sigma: (%f, %f) input (", fSigma.fWidth, fSigma.fHeight);
+
+    if (this->getInput(0)) {
+        this->getInput(0)->toString(str);
+    }
+
+    str->append("))");
 }
 #endif

@@ -146,7 +146,13 @@ bool SkColorFilterImageFilter::asColorFilter(SkColorFilter** filter) const {
 void SkColorFilterImageFilter::toString(SkString* str) const {
     str->appendf("SkColorFilterImageFilter: (");
 
-    str->appendf("color filter: ");
+    str->appendf("input: (");
+
+    if (this->getInput(0)) {
+        this->getInput(0)->toString(str);
+    }
+
+    str->appendf(") color filter: ");
     fColorFilter->toString(str);
 
     str->append(")");
