@@ -5103,6 +5103,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip_aa_invert_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4917525725688894333
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_layer_565.png": {
       "allowed-digests": [
         [
@@ -5141,6 +5150,15 @@
         [
           "bitmap-64bitMD5", 
           10491142388747933175
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip_aa_layer_invert_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16604676683797586481
         ]
       ], 
       "reviewed-by-human": true
@@ -5211,6 +5229,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip_bw_invert_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8164108752521525300
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_bw_layer_565.png": {
       "allowed-digests": [
         [
@@ -5249,6 +5276,15 @@
         [
           "bitmap-64bitMD5", 
           5875661717638381417
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "complexclip_bw_layer_invert_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5216942118798036452
         ]
       ], 
       "reviewed-by-human": true

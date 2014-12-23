@@ -2874,6 +2874,15 @@
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
+    "complexclip_aa_invert_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14156846850814207925
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_aa_layer_565.png": {
       "allowed-digests": [
         [
@@ -2900,6 +2909,15 @@
         ]
       ], 
       "ignore-failure": false, 
+      "reviewed-by-human": true
+    }, 
+    "complexclip_aa_layer_invert_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5175554528634829076
+        ]
+      ], 
       "reviewed-by-human": true
     }, 
     "complexclip_bw_565.png": {
@@ -2930,6 +2948,15 @@
       "ignore-failure": false, 
       "reviewed-by-human": true
     }, 
+    "complexclip_bw_invert_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6882987562946184887
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "complexclip_bw_layer_565.png": {
       "allowed-digests": [
         [
@@ -2956,6 +2983,15 @@
         ]
       ], 
       "ignore-failure": false, 
+      "reviewed-by-human": true
+    }, 
+    "complexclip_bw_layer_invert_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5297113132076559861
+        ]
+      ], 
       "reviewed-by-human": true
     }, 
     "composeshader_565.png": {
