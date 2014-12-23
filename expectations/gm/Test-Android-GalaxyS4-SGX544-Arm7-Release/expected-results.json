@@ -5942,6 +5942,7 @@
           5503805132653538178
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "imageblur_565.png": {
