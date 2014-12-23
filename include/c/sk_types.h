@@ -48,6 +48,11 @@ typedef enum {
     UNPREMUL_SK_ALPHATYPE,
 } sk_alphatype_t;
 
+typedef enum {
+    INTERSECT_SK_CLIPTYPE,
+    DIFFERENCE_SK_CLIPTYPE,
+} sk_cliptype_t;
+
 sk_colortype_t sk_colortype_get_default_8888();
 
 typedef struct {
@@ -76,6 +81,8 @@ typedef struct {
 typedef struct sk_canvas_t sk_canvas_t;
 typedef struct sk_image_t sk_image_t;
 typedef struct sk_paint_t sk_paint_t;
+typedef struct sk_picture_t sk_picture_t;
+typedef struct sk_picture_recorder_t sk_picture_recorder_t;
 typedef struct sk_path_t sk_path_t;
 typedef struct sk_shader_t sk_shader_t;
 typedef struct sk_surface_t sk_surface_t;

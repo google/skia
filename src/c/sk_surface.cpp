@@ -16,6 +16,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPictureRecorder.h"
 #include "SkSurface.h"
 
 const struct {
@@ -117,12 +118,16 @@ static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* d
     return false;
 }
 
+static sk_rect_t ToRect(const SkRect& rect) {
+    return reinterpret_cast<const sk_rect_t&>(rect);
+}
+
 static const SkRect& AsRect(const sk_rect_t& crect) {
     return reinterpret_cast<const SkRect&>(crect);
 }
 
-static SkRect* as_rect(sk_rect_t* crect) {
-    return reinterpret_cast<SkRect*>(crect);
+static const SkRect* AsRect(const sk_rect_t* crect) {
+    return reinterpret_cast<const SkRect*>(crect);
 }
 
 static const SkPath& AsPath(const sk_path_t& cpath) {
@@ -149,12 +154,36 @@ static SkPaint* AsPaint(sk_paint_t* cpaint) {
     return reinterpret_cast<SkPaint*>(cpaint);
 }
 
+static sk_canvas_t* ToCanvas(SkCanvas* canvas) {
+    return reinterpret_cast<sk_canvas_t*>(canvas);
+}
+
 static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
     return reinterpret_cast<SkCanvas*>(ccanvas);
 }
 
 static SkShader* AsShader(sk_shader_t* cshader) {
     return reinterpret_cast<SkShader*>(cshader);
+}
+
+static SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
+    return reinterpret_cast<SkPictureRecorder*>(crec);
+}
+
+static sk_picture_recorder_t* ToPictureRecorder(SkPictureRecorder* rec) {
+    return reinterpret_cast<sk_picture_recorder_t*>(rec);
+}
+
+static const SkPicture* AsPicture(const sk_picture_t* cpic) {
+    return reinterpret_cast<const SkPicture*>(cpic);
+}
+
+static SkPicture* AsPicture(sk_picture_t* cpic) {
+    return reinterpret_cast<SkPicture*>(cpic);
+}
+
+static sk_picture_t* ToPicture(SkPicture* pic) {
+    return reinterpret_cast<sk_picture_t*>(pic);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -280,15 +309,17 @@ void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
 
 bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
     const SkPath& path = AsPath(*cpath);
-    SkRect* rect = as_rect(crect);
 
     if (path.isEmpty()) {
-        if (rect) {
-            rect->setEmpty();
+        if (crect) {
+            *crect = ToRect(SkRect::MakeEmpty());
         }
         return false;
     }
-    *rect = path.getBounds();
+
+    if (crect) {
+        *crect = ToRect(path.getBounds());
+    }
     return true;
 }
 
@@ -326,11 +357,19 @@ void sk_canvas_skew(sk_canvas_t* ccanvas, float sx, float sy) {
     AsCanvas(ccanvas)->skew(sx, sy);
 }
 
-void sk_canvas_concat_matrix(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
+void sk_canvas_concat(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
     SkASSERT(cmatrix);
     SkMatrix matrix;
     from_c_matrix(cmatrix, &matrix);
     AsCanvas(ccanvas)->concat(matrix);
+}
+
+void sk_canvas_clip_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
+    AsCanvas(ccanvas)->clipRect(AsRect(*crect));
+}
+
+void sk_canvas_clip_path(sk_canvas_t* ccanvas, const sk_path_t* cpath) {
+    AsCanvas(ccanvas)->clipPath(AsPath(*cpath));
 }
 
 void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
@@ -352,6 +391,23 @@ void sk_canvas_draw_path(sk_canvas_t* ccanvas, const sk_path_t* cpath, const sk_
 void sk_canvas_draw_image(sk_canvas_t* ccanvas, const sk_image_t* cimage, float x, float y,
                           const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawImage(AsImage(cimage), x, y, AsPaint(cpaint));
+}
+
+void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
+                               const sk_rect_t* csrcR, const sk_rect_t* cdstR,
+                               const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawImageRect(AsImage(cimage), AsRect(csrcR), AsRect(*cdstR), AsPaint(cpaint));
+}
+
+void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
+                            const sk_matrix_t* cmatrix, const sk_paint_t* cpaint) {
+    const SkMatrix* matrixPtr = NULL;
+    SkMatrix matrix;
+    if (cmatrix) {
+        from_c_matrix(cmatrix, &matrix);
+        matrixPtr = &matrix;
+    }
+    AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), matrixPtr, AsPaint(cpaint));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -385,6 +441,41 @@ sk_canvas_t* sk_surface_get_canvas(sk_surface_t* csurf) {
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     SkSurface* surf = (SkSurface*)csurf;
     return (sk_image_t*)surf->newImageSnapshot();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+sk_picture_recorder_t* sk_picture_recorder_new() {
+    return ToPictureRecorder(new SkPictureRecorder);
+}
+
+void sk_picture_recorder_delete(sk_picture_recorder_t* crec) {
+    delete AsPictureRecorder(crec);
+}
+
+sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec,
+                                                 const sk_rect_t* cbounds) {
+    return ToCanvas(AsPictureRecorder(crec)->beginRecording(AsRect(*cbounds)));
+}
+
+sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
+    return ToPicture(AsPictureRecorder(crec)->endRecording());
+}
+
+void sk_picture_ref(sk_picture_t* cpic) {
+    SkSafeRef(AsPicture(cpic));
+}
+
+void sk_picture_unref(sk_picture_t* cpic) {
+    SkSafeUnref(AsPicture(cpic));
+}
+
+uint32_t sk_picture_get_unique_id(sk_picture_t* cpic) {
+    return AsPicture(cpic)->uniqueID();
+}
+
+sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
+    return ToRect(AsPicture(cpic)->cullRect());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
