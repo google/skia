@@ -30,6 +30,12 @@ void sk_paint_set_color(sk_paint_t*, sk_color_t);
  */
 void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
 
+/**
+ *  Set the paint's maskfilter to the specified parameter. This will automatically call unref() on
+ *  any previous value, and call ref() on the new value.
+ */
+void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

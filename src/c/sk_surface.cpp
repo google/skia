@@ -13,6 +13,7 @@
 
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkMaskFilter.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -162,6 +163,14 @@ static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
     return reinterpret_cast<SkCanvas*>(ccanvas);
 }
 
+static SkMaskFilter* AsMaskFilter(sk_maskfilter_t* cfilter) {
+    return reinterpret_cast<SkMaskFilter*>(cfilter);
+}
+
+static sk_maskfilter_t* ToMaskFilter(SkMaskFilter* filter) {
+    return reinterpret_cast<sk_maskfilter_t*>(filter);
+}
+
 static SkShader* AsShader(sk_shader_t* cshader) {
     return reinterpret_cast<SkShader*>(cshader);
 }
@@ -255,6 +264,10 @@ void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
 
 void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
     AsPaint(cpaint)->setShader(AsShader(cshader));
+}
+
+void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
+    AsPaint(cpaint)->setMaskFilter(AsMaskFilter(cfilter));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -532,6 +545,49 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
                                                  reinterpret_cast<const SkColor*>(colors),
                                                  colorPos, colorCount, mode, 0, &matrix);
     return (sk_shader_t*)s;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+#include "../../include/effects/SkBlurMaskFilter.h"
+#include "sk_maskfilter.h"
+
+const struct {
+    sk_blurstyle_t  fC;
+    SkBlurStyle     fSk;
+} gBlurStylePairs[] = {
+    { NORMAL_SK_BLUR_STYLE, kNormal_SkBlurStyle },
+    { SOLID_SK_BLUR_STYLE,  kSolid_SkBlurStyle },
+    { OUTER_SK_BLUR_STYLE,  kOuter_SkBlurStyle },
+    { INNER_SK_BLUR_STYLE,  kInner_SkBlurStyle },
+};
+
+static bool find_blurstyle(sk_blurstyle_t csrc, SkBlurStyle* dst) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gBlurStylePairs); ++i) {
+        if (gBlurStylePairs[i].fC == csrc) {
+            if (dst) {
+                *dst = gBlurStylePairs[i].fSk;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void sk_maskfilter_ref(sk_maskfilter_t* cfilter) {
+    SkSafeRef(AsMaskFilter(cfilter));
+}
+
+void sk_maskfilter_unref(sk_maskfilter_t* cfilter) {
+    SkSafeUnref(AsMaskFilter(cfilter));
+}
+
+sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
+    SkBlurStyle style;
+    if (!find_blurstyle(cstyle, &style)) {
+        return NULL;
+    }
+    return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

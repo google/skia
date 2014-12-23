@@ -80,6 +80,7 @@ typedef struct {
 
 typedef struct sk_canvas_t sk_canvas_t;
 typedef struct sk_image_t sk_image_t;
+typedef struct sk_maskfilter_t sk_maskfilter_t;
 typedef struct sk_paint_t sk_paint_t;
 typedef struct sk_picture_t sk_picture_t;
 typedef struct sk_picture_recorder_t sk_picture_recorder_t;
