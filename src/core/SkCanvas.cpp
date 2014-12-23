@@ -42,6 +42,14 @@ bool SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds() {
     return gIgnoreSaveLayerBounds;
 }
 
+static bool gTreatSpriteAsBitmap;
+void SkCanvas::Internal_Private_SetTreatSpriteAsBitmap(bool spriteAsBitmap) {
+    gTreatSpriteAsBitmap = spriteAsBitmap;
+}
+bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
+    return gTreatSpriteAsBitmap;
+}
+
 // experimental for faster tiled drawing...
 //#define SK_ENABLE_CLIP_QUICKREJECT
 
@@ -1190,6 +1198,14 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                           const SkPaint* paint) {
+    if (gTreatSpriteAsBitmap) {
+        this->save();
+        this->resetMatrix();
+        this->drawBitmap(bitmap, SkIntToScalar(x), SkIntToScalar(y), paint);
+        this->restore();
+        return;
+    }
+
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawSprite()");
     if (bitmap.drawsNothing()) {
         return;

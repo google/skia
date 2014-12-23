@@ -1145,6 +1145,8 @@ public:
     // don't call
     static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
     static bool Internal_Private_GetIgnoreSaveLayerBounds();
+    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
+    static bool Internal_Private_GetTreatSpriteAsBitmap();
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
