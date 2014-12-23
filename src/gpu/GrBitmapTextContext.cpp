@@ -154,9 +154,10 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
     SkFixed fx = SkScalarToFixed(x) + halfSampleX;
     SkFixed fy = SkScalarToFixed(y) + halfSampleY;
 
-    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix
-    if (kARGB_GrMaskFormat != fCurrMaskFormat && !viewMatrix.invert(&fLocalMatrix)) {
-        SkDebugf("Cannot invert viewmatrix\n");
+    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix, but for
+    // performance reasons we just invert here instead
+    if (!viewMatrix.invert(&fLocalMatrix)) {
+            SkDebugf("Cannot invert viewmatrix\n");
     }
 
     while (text < stop) {
@@ -201,11 +202,9 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
     SkGlyphCache*       cache = autoCache.getCache();
     GrFontScaler*       fontScaler = GetGrFontScaler(cache);
 
-    // store original matrix before we reset, so we can use it to transform positions
-    SkMatrix ctm = viewMatrix;
-
-    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix
-    if (kARGB_GrMaskFormat != fCurrMaskFormat && !viewMatrix.invert(&fLocalMatrix)) {
+    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix, but for
+    // performance reasons we just invert here instead
+    if (!viewMatrix.invert(&fLocalMatrix)) {
             SkDebugf("Cannot invert viewmatrix\n");
     }
 
@@ -214,12 +213,12 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
 
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(fSkPaint.getTextAlign());
-    SkTextMapStateProc tmsProc(ctm, offset, scalarsPerPosition);
+    SkTextMapStateProc tmsProc(viewMatrix, offset, scalarsPerPosition);
     SkFixed halfSampleX = 0, halfSampleY = 0;
 
     if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set
-        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(ctm);
+        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(viewMatrix);
 
         SkFixed fxMask = ~0;
         SkFixed fyMask = ~0;
