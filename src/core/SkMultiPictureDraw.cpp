@@ -84,13 +84,22 @@ public:
     ~AutoMPDReset() { fMPD->reset(); }
 };
 
+//#define FORCE_SINGLE_THREAD_DRAWING_FOR_TESTING
+
 void SkMultiPictureDraw::draw() {
     AutoMPDReset mpdreset(this);
+
+#ifdef FORCE_SINGLE_THREAD_DRAWING_FOR_TESTING
+    for (int i = 0; i < fThreadSafeDrawData.count(); ++i) {
+        DrawData* dd = &fThreadSafeDrawData.begin()[i];
+        dd->fCanvas->drawPicture(dd->fPicture, &dd->fMatrix, dd->fPaint);
+    }
+#else
     // we place the taskgroup after the MPDReset, to ensure that we don't delete the DrawData
     // objects until after we're finished the tasks (which have pointers to the data).
-
     SkTaskGroup group;
     group.batch(DrawData::Draw, fThreadSafeDrawData.begin(), fThreadSafeDrawData.count());
+#endif
     // we deliberately don't call wait() here, since the destructor will do that, this allows us
     // to continue processing gpu-data without having to wait on the cpu tasks.
 

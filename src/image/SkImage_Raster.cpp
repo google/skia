@@ -131,12 +131,14 @@ SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX, SkShader::TileMo
 }
 
 void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
-    canvas->drawBitmap(fBitmap, x, y, paint);
+    SkBitmap shallowCopy(fBitmap);
+    canvas->drawBitmap(shallowCopy, x, y, paint);
 }
 
 void SkImage_Raster::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint) const {
-    canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
+    SkBitmap shallowCopy(fBitmap);
+    canvas->drawBitmapRectToRect(shallowCopy, src, dst, paint);
 }
 
 SkSurface* SkImage_Raster::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
@@ -145,7 +147,8 @@ SkSurface* SkImage_Raster::onNewSurface(const SkImageInfo& info, const SkSurface
 
 bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int srcX, int srcY) const {
-    return fBitmap.readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    SkBitmap shallowCopy(fBitmap);
+    return shallowCopy.readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
 
 const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesPtr) const {
