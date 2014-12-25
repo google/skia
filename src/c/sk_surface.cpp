@@ -6,12 +6,14 @@
  */
 
 #include "sk_canvas.h"
+#include "sk_data.h"
 #include "sk_image.h"
 #include "sk_paint.h"
 #include "sk_path.h"
 #include "sk_surface.h"
 
 #include "SkCanvas.h"
+#include "SkData.h"
 #include "SkImage.h"
 #include "SkMaskFilter.h"
 #include "SkMatrix.h"
@@ -119,6 +121,14 @@ static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* d
     return false;
 }
 
+static SkData* AsData(const sk_data_t* cdata) {
+    return reinterpret_cast<SkData*>(const_cast<sk_data_t*>(cdata));
+}
+
+static sk_data_t* ToData(SkData* data) {
+    return reinterpret_cast<sk_data_t*>(data);
+}
+
 static sk_rect_t ToRect(const SkRect& rect) {
     return reinterpret_cast<const sk_rect_t&>(rect);
 }
@@ -141,6 +151,10 @@ static SkPath* as_path(sk_path_t* cpath) {
 
 static const SkImage* AsImage(const sk_image_t* cimage) {
     return reinterpret_cast<const SkImage*>(cimage);
+}
+
+static sk_image_t* ToImage(SkImage* cimage) {
+    return reinterpret_cast<sk_image_t*>(cimage);
 }
 
 static const SkPaint& AsPaint(const sk_paint_t& cpaint) {
@@ -214,6 +228,21 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
         return NULL;
     }
     return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
+}
+
+#include "SkDecodingImageGenerator.h"
+
+sk_image_t* sk_image_new_from_data(const sk_data_t* cdata) {
+    SkImageGenerator* gen = SkDecodingImageGenerator::Create(AsData(cdata),
+                                                             SkDecodingImageGenerator::Options());
+    if (NULL == gen) {
+        return NULL;
+    }
+    return ToImage(SkImage::NewFromGenerator(gen));
+}
+
+sk_data_t* sk_image_encode(const sk_image_t* cimage) {
+    return ToData(AsImage(cimage)->encode());
 }
 
 void sk_image_ref(const sk_image_t* cimage) {
@@ -588,6 +617,36 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
         return NULL;
     }
     return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
+    return ToData(SkData::NewWithCopy(src, length));
+}
+
+sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length) {
+    return ToData(SkData::NewFromMalloc(memory, length));
+}
+
+sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t length) {
+    return ToData(SkData::NewSubset(AsData(csrc), offset, length));
+}
+
+void sk_data_ref(const sk_data_t* cdata) {
+    SkSafeRef(AsData(cdata));
+}
+
+void sk_data_unref(const sk_data_t* cdata) {
+    SkSafeUnref(AsData(cdata));
+}
+
+size_t sk_data_get_size(const sk_data_t* cdata) {
+    return AsData(cdata)->size();
+}
+
+const void* sk_data_get_data(const sk_data_t* cdata) {
+    return AsData(cdata)->data();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
