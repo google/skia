@@ -67,8 +67,10 @@ void sk_test_c_api(sk_canvas_t* canvas) {
     sk_image_t* img1 = sk_image_new_from_data(data);
     sk_data_unref(data);
 
-    sk_canvas_draw_image(canvas, img1, W/2, H/2, NULL);
-    sk_image_unref(img1);
+    if (img1) {
+        sk_canvas_draw_image(canvas, img1, W/2, H/2, NULL);
+        sk_image_unref(img1);
+    }
 }
 
 
