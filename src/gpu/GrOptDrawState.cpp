@@ -112,18 +112,18 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
-                               (drawState.fColorStages[i], hasLocalCoords));
+                               (drawState.fColorStages[i]));
         usesLocalCoords = usesLocalCoords ||
-                          drawState.fColorStages[i].getProcessor()->usesLocalCoords();
+                          drawState.fColorStages[i].processor()->usesLocalCoords();
     }
 
     fNumColorStages = fFragmentStages.count();
     for (int i = firstCoverageStageIdx; i < drawState.numCoverageStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
-                               (drawState.fCoverageStages[i], hasLocalCoords));
+                               (drawState.fCoverageStages[i]));
         usesLocalCoords = usesLocalCoords ||
-                          drawState.fCoverageStages[i].getProcessor()->usesLocalCoords();
+                          drawState.fCoverageStages[i].processor()->usesLocalCoords();
     }
 
     // let the GP init the batch tracker

@@ -20,7 +20,7 @@ GrGLNvprProgramBuilder::GrGLNvprProgramBuilder(GrGLGpu* gpu,
 void GrGLNvprProgramBuilder::emitTransforms(const GrPendingFragmentStage& processorStage,
                                             GrGLProcessor::TransformedCoordsArray* outCoords,
                                             GrGLInstalledFragProc* ifp) {
-    const GrFragmentProcessor* effect = processorStage.getProcessor();
+    const GrFragmentProcessor* effect = processorStage.processor();
     int numTransforms = effect->numTransforms();
 
     ifp->fTransforms.push_back_n(numTransforms);

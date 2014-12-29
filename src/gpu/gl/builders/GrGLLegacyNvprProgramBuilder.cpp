@@ -24,7 +24,7 @@ int GrGLLegacyNvprProgramBuilder::addTexCoordSets(int count) {
 void GrGLLegacyNvprProgramBuilder::emitTransforms(const GrPendingFragmentStage& processorStage,
                                             GrGLProcessor::TransformedCoordsArray* outCoords,
                                             GrGLInstalledFragProc* ifp) {
-    int numTransforms = processorStage.getProcessor()->numTransforms();
+    int numTransforms = processorStage.processor()->numTransforms();
     int texCoordIndex = this->addTexCoordSets(numTransforms);
 
     // Use the first uniform location as the texcoord index.  This may seem a bit hacky but it

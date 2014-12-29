@@ -69,7 +69,7 @@ enum MatrixType {
 
 static uint32_t gen_transform_key(const GrPendingFragmentStage& stage, bool useExplicitLocalCoords) {
     uint32_t totalKey = 0;
-    int numTransforms = stage.getProcessor()->numTransforms();
+    int numTransforms = stage.processor()->numTransforms();
     for (int t = 0; t < numTransforms; ++t) {
         uint32_t key = 0;
         if (stage.isPerspectiveCoordTransform(t)) {
@@ -78,7 +78,7 @@ static uint32_t gen_transform_key(const GrPendingFragmentStage& stage, bool useE
             key |= kNoPersp_MatrixType;
         }
 
-        const GrCoordTransform& coordTransform = stage.getProcessor()->coordTransform(t);
+        const GrCoordTransform& coordTransform = stage.processor()->coordTransform(t);
         if (kLocal_GrCoordSet == coordTransform.sourceCoords() && !useExplicitLocalCoords) {
             key |= kPositionCoords_Flag;
         } else if (kDevice_GrCoordSet == coordTransform.sourceCoords()) {
@@ -170,7 +170,7 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
 
     for (int s = 0; s < optState.numFragmentStages(); ++s) {
         const GrPendingFragmentStage& fps = optState.getFragmentStage(s);
-        const GrFragmentProcessor& fp = *fps.getProcessor();
+        const GrFragmentProcessor& fp = *fps.processor();
         fp.getGLProcessorKey(gpu->glCaps(), &b);
         if (!get_meta_key(fp, gpu->glCaps(),
                           gen_transform_key(fps, requiresLocalCoordAttrib), &b)) {

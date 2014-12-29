@@ -48,11 +48,6 @@ public:
         *this = state;
     }
 
-    /**
-     * Copies another draw state with a preconcat to the view matrix.
-     **/
-    GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix);
-
     virtual ~GrDrawState();
 
     /**

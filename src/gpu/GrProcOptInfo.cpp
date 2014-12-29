@@ -52,7 +52,7 @@ void GrProcOptInfo::internalCalc(const GrFragmentStage* stages,
     fReadsFragPosition = initWillReadFragmentPosition;
 
     for (int i = 0; i < stageCount; ++i) {
-        const GrFragmentProcessor* processor = stages[i].getProcessor();
+        const GrFragmentProcessor* processor = stages[i].processor();
         fInOut.resetWillUseInputColor();
         processor->computeInvariantOutput(&fInOut);
         SkDEBUGCODE(fInOut.validate());

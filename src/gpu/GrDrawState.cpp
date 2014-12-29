@@ -30,14 +30,12 @@ bool GrDrawState::isEqual(const GrDrawState& that, bool explicitLocalCoords) con
     }
 
     for (int i = 0; i < this->numColorStages(); i++) {
-        if (!GrFragmentStage::AreCompatible(this->getColorStage(i), that.getColorStage(i),
-                                             explicitLocalCoords)) {
+        if (this->getColorStage(i) != that.getColorStage(i)) {
             return false;
         }
     }
     for (int i = 0; i < this->numCoverageStages(); i++) {
-        if (!GrFragmentStage::AreCompatible(this->getCoverageStage(i), that.getCoverageStage(i),
-                                             explicitLocalCoords)) {
+        if (this->getCoverageStage(i) != that.getCoverageStage(i)) {
             return false;
         }
     }
@@ -45,20 +43,7 @@ bool GrDrawState::isEqual(const GrDrawState& that, bool explicitLocalCoords) con
     return true;
 }
 
-//////////////////////////////////////////////////////////////////////////////s
-
-GrDrawState::GrDrawState(const GrDrawState& state, const SkMatrix& preConcatMatrix) {
-    SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-    *this = state;
-    if (!preConcatMatrix.isIdentity()) {
-        for (int i = 0; i < this->numColorStages(); ++i) {
-            fColorStages[i].localCoordChange(preConcatMatrix);
-        }
-        for (int i = 0; i < this->numCoverageStages(); ++i) {
-            fCoverageStages[i].localCoordChange(preConcatMatrix);
-        }
-    }
-}
+//////////////////////////////////////////////////////////////////////////////
 
 GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));

@@ -277,7 +277,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
                                             const char* inColor) {
     GrGLInstalledFragProc* ifp = SkNEW(GrGLInstalledFragProc);
 
-    const GrFragmentProcessor& fp = *fs.getProcessor();
+    const GrFragmentProcessor& fp = *fs.processor();
     ifp->fGLProc.reset(fp.createGLInstance());
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
@@ -372,7 +372,7 @@ void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
 void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
                                         GrGLProcessor::TransformedCoordsArray* outCoords,
                                         GrGLInstalledFragProc* ifp) {
-    const GrFragmentProcessor* processor = stage.getProcessor();
+    const GrFragmentProcessor* processor = stage.processor();
     int numTransforms = processor->numTransforms();
     ifp->fTransforms.push_back_n(numTransforms);
 
@@ -380,20 +380,14 @@ void GrGLProgramBuilder::emitTransforms(const GrPendingFragmentStage& stage,
         const char* uniName = "StageMatrix";
         GrSLType varyingType;
 
-        // TODO when we have deleted the coord change matrices we can get rid of the below check
         GrCoordSet coordType = processor->coordTransform(t).sourceCoords();
         const SkMatrix& localMatrix = fOptState.getPrimitiveProcessor()->localMatrix();
-        if (localMatrix.isIdentity()) {
-            varyingType = stage.isPerspectiveCoordTransform(t) ? kVec3f_GrSLType :
-                                                                 kVec2f_GrSLType;
-        } else {
-            uint32_t type = processor->coordTransform(t).getMatrix().getType();
-            if (kLocal_GrCoordSet == coordType) {
-                type |= localMatrix.getType();
-            }
-            varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
-                                                                         kVec2f_GrSLType;
+        uint32_t type = processor->coordTransform(t).getMatrix().getType();
+        if (kLocal_GrCoordSet == coordType) {
+            type |= localMatrix.getType();
         }
+        varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
+                                                                     kVec2f_GrSLType;
         GrSLPrecision precision = processor->coordTransform(t).precision();
 
         SkString suffixedUniName;

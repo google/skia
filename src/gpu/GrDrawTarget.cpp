@@ -359,7 +359,7 @@ bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
     }
 
     for (int s = 0; s < drawState.numColorStages(); ++s) {
-        const GrProcessor* effect = drawState.getColorStage(s).getProcessor();
+        const GrProcessor* effect = drawState.getColorStage(s).processor();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);
@@ -367,7 +367,7 @@ bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
         }
     }
     for (int s = 0; s < drawState.numCoverageStages(); ++s) {
-        const GrProcessor* effect = drawState.getCoverageStage(s).getProcessor();
+        const GrProcessor* effect = drawState.getCoverageStage(s).processor();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);

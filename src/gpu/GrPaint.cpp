@@ -21,14 +21,14 @@ void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& ma
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
-                                    const SkMatrix& matrix,
-                                    const GrTextureParams& params) {
+                                       const SkMatrix& matrix,
+                                       const GrTextureParams& params) {
     this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
-                                       const SkMatrix& matrix,
-                                       const GrTextureParams& params) {
+                                          const SkMatrix& matrix,
+                                          const GrTextureParams& params) {
     this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
 }
 

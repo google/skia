@@ -148,9 +148,6 @@ public:
     bool isOpaqueAndConstantColor(GrColor* constantColor) const;
 
 private:
-    friend class GrContext; // To access above two functions
-    friend class GrStencilAndCoverTextContext;  // To access above two functions
-
     SkAutoTUnref<const GrXPFactory> fXPFactory;
     SkSTArray<4, GrFragmentStage>   fColorStages;
     SkSTArray<2, GrFragmentStage>   fCoverageStages;
