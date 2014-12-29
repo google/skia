@@ -64,9 +64,9 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
     const GrColor gr_c1 = SkColor2GrColor(c1);
     const GrColor gr_c2 = SkColor2GrColor(c2);
 
-    const GrColor gr_black = GrColorPackRGBA(0, 0, 0, 0);
-    const GrColor gr_white = GrColorPackRGBA(255, 255, 255, 255);
-    const GrColor gr_whiteTrans = GrColorPackRGBA(128, 128, 128, 128);
+    const GrColor gr_black = GrColorPackA4(0);
+    const GrColor gr_white = GrColorPackA4(255);
+    const GrColor gr_whiteTrans = GrColorPackA4(128);
 
     GetConstantComponentTestCase filterTests[] = {
         // A color filtered with Clear produces black.

@@ -64,6 +64,7 @@
         '../gm/cubicpaths.cpp',
         '../gm/cmykjpeg.cpp',
         '../gm/degeneratesegments.cpp',
+        '../gm/dcshader.cpp',
         '../gm/discard.cpp',
         '../gm/dashcubics.cpp',
         '../gm/dashing.cpp',
