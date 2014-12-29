@@ -3712,6 +3712,20 @@ DEF_TEST(Paths, reporter) {
     p.addRect(bounds);
     REPORTER_ASSERT(reporter, !p.isRect(NULL));
 
+    // Test an edge case w.r.t. the bound returned by isRect (i.e., the
+    // path has a trailing moveTo. Please see crbug.com\445368)
+    {
+        SkRect r;
+        p.reset();
+        p.addRect(bounds);
+        REPORTER_ASSERT(reporter, p.isRect(&r));
+        REPORTER_ASSERT(reporter, r == bounds);
+        // add a moveTo outside of our bounds
+        p.moveTo(bounds.fLeft + 10, bounds.fBottom + 10);
+        REPORTER_ASSERT(reporter, p.isRect(&r));
+        REPORTER_ASSERT(reporter, r == bounds);
+    }
+
     test_operatorEqual(reporter);
     test_isLine(reporter);
     test_isRect(reporter);

@@ -538,11 +538,20 @@ bool SkPath::isRect(SkRect* rect) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
-    bool result = isRectContour(false, &currVerb, &pts, NULL, NULL);
-    if (result && rect) {
-        *rect = getBounds();
+    const SkPoint* first = pts;
+    bool isClosed;
+    if (!this->isRectContour(false, &currVerb, &pts, &isClosed, NULL)) {
+        return false;
     }
-    return result;
+    if (rect) {
+        if (isClosed) {
+            rect->set(first, SkToS32(pts - first));
+        } else {
+            // 'pts' isn't updated for open rects
+            *rect = this->getBounds();
+        }
+    }
+    return true;
 }
 
 bool SkPath::isRect(bool* isClosed, Direction* direction) const {
