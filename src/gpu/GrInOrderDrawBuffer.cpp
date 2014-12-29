@@ -120,11 +120,27 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
                                      const SkMatrix* localMatrix) {
     GrDrawState::AutoRestoreEffects are(ds);
 
+    // Go to device coords to allow batching across matrix changes
+    SkMatrix matrix = ds->getViewMatrix();
+    SkMatrix invert = SkMatrix::I();
+
+    // if we have a local rect, then we apply the localMatrix directly to the localRect to generate
+    // vertex local coords
     bool hasExplicitLocalCoords = SkToBool(localRect);
-    SkAutoTUnref<const GrGeometryProcessor> gp(
-            create_rect_gp(hasExplicitLocalCoords,
-                           color,
-                           hasExplicitLocalCoords ? NULL : localMatrix));
+    if (!hasExplicitLocalCoords) {
+        if (!matrix.isIdentity() && !matrix.invert(&invert)) {
+            SkDebugf("Could not invert\n");
+            return;
+        }
+
+        if (localMatrix) {
+            invert.preConcat(*localMatrix);
+        }
+    }
+
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(hasExplicitLocalCoords,
+                                                              color,
+                                                              &invert));
 
     size_t vstride = gp->getVertexStride();
     SkASSERT(vstride == sizeof(SkPoint) + sizeof(GrColor) + (SkToBool(localRect) ? sizeof(SkPoint) :
@@ -135,16 +151,10 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
         return;
     }
 
-    // Go to device coords to allow batching across matrix changes
-    SkMatrix matrix = ds->getViewMatrix();
-
     // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
     // the vertex positions then we have to account for the view matrix change.
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(ds)) {
-        return;
-    }
+    GrDrawState::AutoViewMatrixRestore avmr(ds);
 
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
     matrix.mapPointsWithStride(geo.positions(), vstride, 4);

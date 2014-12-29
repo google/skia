@@ -65,8 +65,8 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 
 class CircleEdgeEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, bool stroke) {
-        return SkNEW_ARGS(CircleEdgeEffect, (color, stroke));
+    static GrGeometryProcessor* Create(GrColor color, bool stroke, const SkMatrix& localMatrix) {
+        return SkNEW_ARGS(CircleEdgeEffect, (color, stroke, localMatrix));
     }
 
     const GrAttribute* inPosition() const { return fInPosition; }
@@ -174,7 +174,8 @@ public:
     }
 
 private:
-    CircleEdgeEffect(GrColor color, bool stroke) : INHERITED(color) {
+    CircleEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
+        : INHERITED(color, false, localMatrix) {
         this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInCircleEdge = &this->addVertexAttrib(GrAttribute("inCircleEdge",
@@ -212,7 +213,8 @@ GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
                                                   const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {
-    return CircleEdgeEffect::Create(GrRandomColor(random), random->nextBool());
+    return CircleEdgeEffect::Create(GrRandomColor(random), random->nextBool(),
+                                    GrProcessorUnitTest::TestMatrix(random));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,8 +229,8 @@ GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
 
 class EllipseEdgeEffect : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, bool stroke) {
-        return SkNEW_ARGS(EllipseEdgeEffect, (color, stroke));
+    static GrGeometryProcessor* Create(GrColor color, bool stroke, const SkMatrix& localMatrix) {
+        return SkNEW_ARGS(EllipseEdgeEffect, (color, stroke, localMatrix));
     }
 
     virtual ~EllipseEdgeEffect() {}
@@ -360,7 +362,8 @@ public:
     }
 
 private:
-    EllipseEdgeEffect(GrColor color, bool stroke) : INHERITED(color) {
+    EllipseEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
+        : INHERITED(color, false, localMatrix) {
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(GrAttribute("inEllipseOffset",
@@ -401,7 +404,8 @@ GrGeometryProcessor* EllipseEdgeEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
                                                    const GrDrawTargetCaps&,
                                                    GrTexture* textures[]) {
-    return EllipseEdgeEffect::Create(GrRandomColor(random), random->nextBool());
+    return EllipseEdgeEffect::Create(GrRandomColor(random), random->nextBool(),
+                                     GrProcessorUnitTest::TestMatrix(random));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -667,10 +671,12 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     SkScalar radius = vm.mapRadius(SkScalarHalf(circle.width()));
     SkScalar strokeWidth = vm.mapRadius(stroke.getWidth());
 
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+    SkMatrix invert;
+    if (!vm.invert(&invert)) {
         return;
     }
+
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
@@ -694,7 +700,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     }
 
     SkAutoTUnref<GrGeometryProcessor> gp(
-            CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0));
+            CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0, invert));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(CircleVertex));
@@ -816,13 +822,16 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         yRadius += scaledStroke.fY;
     }
 
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+    SkMatrix invert;
+    if (!vm.invert(&invert)) {
         return false;
     }
 
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
+
     SkAutoTUnref<GrGeometryProcessor> gp(
-            EllipseEdgeEffect::Create(color, isStrokeOnly && innerXRadius > 0 && innerYRadius > 0));
+            EllipseEdgeEffect::Create(color, isStrokeOnly && innerXRadius > 0 && innerYRadius > 0,
+                                      invert));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(EllipseVertex));
@@ -1084,16 +1093,19 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     if (!are.isSet()) {
         are.set(drawState);
     }
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+
+    SkMatrix invert;
+    if (!drawState->getViewMatrix().invert(&invert)) {
         return false;
     }
+
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
     drawState->addCoverageProcessor(effect)->unref();
     SkRect bounds = outer->getBounds();
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawSimpleRect(drawState, color, bounds);
+    target->drawRect(drawState, color, bounds, NULL, &invert);
     return true;
 }
 
@@ -1169,10 +1181,13 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
     }
 
     // reset to device coordinates
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+    SkMatrix invert;
+    if (!vm.invert(&invert)) {
+        SkDebugf("Failed to invert\n");
         return false;
     }
+
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly);
     if (NULL == indexBuffer) {
@@ -1201,7 +1216,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
 
-        SkAutoTUnref<GrGeometryProcessor> effect(CircleEdgeEffect::Create(color, isStrokeOnly));
+        SkAutoTUnref<GrGeometryProcessor> effect(CircleEdgeEffect::Create(color, isStrokeOnly,
+                                                                          invert));
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);
         SkASSERT(effect->getVertexStride() == sizeof(CircleVertex));
@@ -1300,7 +1316,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
-        SkAutoTUnref<GrGeometryProcessor> effect(EllipseEdgeEffect::Create(color, isStrokeOnly));
+        SkAutoTUnref<GrGeometryProcessor> effect(EllipseEdgeEffect::Create(color, isStrokeOnly,
+                                                                           invert));
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);
         SkASSERT(effect->getVertexStride() == sizeof(EllipseVertex));

@@ -832,18 +832,30 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
     lineCnt = lines.count() / 2;
     conicCnt = conics.count() / 3;
 
+    // createGeom transforms the geometry to device space when the matrix does not have
+    // perspective.
+    GrDrawState::AutoViewMatrixRestore avmr;
+    SkMatrix invert = SkMatrix::I();
+    if (!drawState->getViewMatrix().hasPerspective()) {
+        avmr.setIdentity(drawState);
+        if (!drawState->getViewMatrix().invert(&invert)) {
+            return false;
+        }
+    }
+
     // do lines first
     if (lineCnt) {
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 
+        GrDrawState::AutoRestoreEffects are(drawState);
         uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
                            GrDefaultGeoProcFactory::kCoverage_GPType;
-        GrDrawState::AutoRestoreEffects are(drawState);
         SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create(color,
                                                                                    gpFlags,
                                                                                    false,
-                                                                                   newCoverage));
+                                                                                   newCoverage,
+                                                                                   invert));
 
         if (!this->createLineGeom(target,
                                   drawState,
@@ -854,13 +866,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                   path,
                                   lines,
                                   lineCnt)) {
-            return false;
-        }
-
-        // createLineGeom transforms the geometry to device space when the matrix does not have
-        // perspective.
-        GrDrawState::AutoViewMatrixRestore avmr;
-        if (!drawState->getViewMatrix().hasPerspective() && !avmr.setIdentity(drawState)) {
             return false;
         }
 
@@ -906,14 +911,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
             return false;
         }
 
-        // createGeom transforms the geometry to device space when the matrix does not have
-        // perspective.
-        GrDrawState::AutoViewMatrixRestore avmr;
-        if (!drawState->getViewMatrix().hasPerspective() && !avmr.setIdentity(drawState)) {
-            return false;
-        }
-
-
         // Check devBounds
         SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
                                             kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt));
@@ -923,6 +920,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                     GrQuadEffect::Create(color,
                                          kHairlineAA_GrProcessorEdgeType,
                                          *target->caps(),
+                                         invert,
                                          newCoverage));
             SkASSERT(hairQuadProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
@@ -946,7 +944,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         if (conicCnt > 0) {
             SkAutoTUnref<GrGeometryProcessor> hairConicProcessor(
                     GrConicEffect::Create(color, kHairlineAA_GrProcessorEdgeType, *target->caps(),
-                                          newCoverage));
+                                          invert, newCoverage));
             SkASSERT(hairConicProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);

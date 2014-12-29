@@ -183,8 +183,9 @@ GrGLGeometryProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt)
     return SkNEW_ARGS(GrGLConicEffect, (*this, bt));
 }
 
-GrConicEffect::GrConicEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType)
-    : INHERITED(color, false), fCoverageScale(coverage), fEdgeType(edgeType) {
+GrConicEffect::GrConicEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType,
+                             const SkMatrix& localMatrix)
+    : INHERITED(color, false, localMatrix), fCoverageScale(coverage), fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInConicCoeffs = &this->addVertexAttrib(GrAttribute("inConicCoeffs",
@@ -227,7 +228,8 @@ GrGeometryProcessor* GrConicEffect::TestCreate(SkRandom* random,
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                                                     random->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrConicEffect::Create(GrRandomColor(random), edgeType, caps);
+        gp = GrConicEffect::Create(GrRandomColor(random), edgeType, caps,
+                                   GrProcessorUnitTest::TestMatrix(random));
     } while (NULL == gp);
     return gp;
 }
@@ -393,8 +395,9 @@ GrGLGeometryProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt) 
     return SkNEW_ARGS(GrGLQuadEffect, (*this, bt));
 }
 
-GrQuadEffect::GrQuadEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType)
-    : INHERITED(color, false), fCoverageScale(coverage), fEdgeType(edgeType) {
+GrQuadEffect::GrQuadEffect(GrColor color, uint8_t coverage, GrPrimitiveEdgeType edgeType,
+                           const SkMatrix& localMatrix)
+    : INHERITED(color, false, localMatrix), fCoverageScale(coverage), fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInHairQuadEdge = &this->addVertexAttrib(GrAttribute("inHairQuadEdge",
@@ -437,7 +440,8 @@ GrGeometryProcessor* GrQuadEffect::TestCreate(SkRandom* random,
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 random->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrQuadEffect::Create(GrRandomColor(random), edgeType, caps);
+        gp = GrQuadEffect::Create(GrRandomColor(random), edgeType, caps,
+                                  GrProcessorUnitTest::TestMatrix(random));
     } while (NULL == gp);
     return gp;
 }

@@ -743,23 +743,26 @@ void GrContext::drawRect(const GrPaint& paint,
                                            color);
 
     if (doAA) {
-        GrDrawState::AutoViewMatrixRestore avmr;
-        if (!avmr.setIdentity(&drawState)) {
+        SkMatrix invert;
+        if (!drawState.getViewMatrix().invert(&invert)) {
             return;
         }
+        GrDrawState::AutoViewMatrixRestore avmr(&drawState);
 
         if (width >= 0) {
             const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
             fAARectRenderer->strokeAARect(target,
                                           &drawState,
                                           color,
+                                          invert,
                                           rect,
                                           matrix,
                                           devBoundRect,
                                           strokeRec);
         } else {
             // filled AA rect
-            fAARectRenderer->fillAARect(target, &drawState, color, rect, matrix, devBoundRect);
+            fAARectRenderer->fillAARect(target, &drawState, color, invert, rect, matrix,
+                                        devBoundRect);
         }
         return;
     }
@@ -1088,15 +1091,11 @@ void GrContext::drawPath(const GrPaint& paint,
             GrDrawTarget* target = this->prepareToDraw(&drawState, &paint, &viewMatrix, &acf);
             if (NULL == target) {
                 return;
-            };
+            }
 
-            SkMatrix origViewMatrix = drawState.getViewMatrix();
-            GrDrawState::AutoViewMatrixRestore avmr;
-            if (avmr.setIdentity(&drawState)) {
-                if (GrDashingEffect::DrawDashLine(fGpu, target, &drawState, color, pts, paint,
-                                                  strokeInfo, origViewMatrix)) {
-                    return;
-                }
+            if (GrDashingEffect::DrawDashLine(fGpu, target, &drawState, color, pts, paint,
+                                              strokeInfo)) {
+                return;
             }
         }
 
@@ -1138,12 +1137,15 @@ void GrContext::drawPath(const GrPaint& paint,
 
         if (is_nested_rects(target, &drawState, color, path, strokeRec, rects)) {
             SkMatrix origViewMatrix = drawState.getViewMatrix();
-            GrDrawState::AutoViewMatrixRestore avmr;
-            if (!avmr.setIdentity(&drawState)) {
+
+            SkMatrix invert;
+            if (!drawState.getViewMatrix().invert(&invert)) {
                 return;
             }
+            GrDrawState::AutoViewMatrixRestore avmr(&drawState);
 
-            fAARectRenderer->fillAANestedRects(target, &drawState, color, rects, origViewMatrix);
+            fAARectRenderer->fillAANestedRects(target, &drawState, color, invert, rects,
+                                               origViewMatrix);
             return;
         }
     }

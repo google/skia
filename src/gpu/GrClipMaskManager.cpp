@@ -360,6 +360,7 @@ bool GrClipMaskManager::drawElement(GrDrawState* drawState,
                 this->getContext()->getAARectRenderer()->fillAARect(fClipTarget,
                                                                     drawState,
                                                                     color,
+                                                                    SkMatrix::I(),
                                                                     element->getRect(),
                                                                     SkMatrix::I(),
                                                                     element->getRect());

@@ -81,30 +81,34 @@ void draw_around_inv_path(GrDrawTarget* target,
                           GrColor color,
                           const SkIRect& devClipBounds,
                           const SkIRect& devPathBounds) {
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+    const SkMatrix& matrix = drawState->getViewMatrix();
+    SkMatrix invert;
+    if (!matrix.invert(&invert)) {
         return;
     }
+
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
+
     SkRect rect;
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
-        target->drawSimpleRect(drawState, color, rect);
+        target->drawRect(drawState, color, rect, NULL, &invert);
     }
     if (devClipBounds.fLeft < devPathBounds.fLeft) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fTop,
                   devPathBounds.fLeft, devPathBounds.fBottom);
-        target->drawSimpleRect(drawState, color, rect);
+        target->drawRect(drawState, color, rect, NULL, &invert);
     }
     if (devClipBounds.fRight > devPathBounds.fRight) {
         rect.iset(devPathBounds.fRight, devPathBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fBottom);
-        target->drawSimpleRect(drawState, color, rect);
+        target->drawRect(drawState, color, rect, NULL, &invert);
     }
     if (devClipBounds.fBottom > devPathBounds.fBottom) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fBottom,
                   devClipBounds.fRight, devClipBounds.fBottom);
-        target->drawSimpleRect(drawState, color, rect);
+        target->drawRect(drawState, color, rect, NULL, &invert);
     }
 }
 

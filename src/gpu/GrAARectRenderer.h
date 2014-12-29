@@ -45,15 +45,17 @@ public:
     void fillAARect(GrDrawTarget* target,
                     GrDrawState* ds,
                     GrColor color,
+                    const SkMatrix& localMatrix,
                     const SkRect& rect,
                     const SkMatrix& combinedMatrix,
                     const SkRect& devRect) {
-        this->geometryFillAARect(target, ds, color, rect, combinedMatrix, devRect);
+        this->geometryFillAARect(target, ds, color, localMatrix, rect, combinedMatrix, devRect);
     }
 
     void strokeAARect(GrDrawTarget*,
                       GrDrawState*,
                       GrColor,
+                      const SkMatrix& localMatrix,
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
@@ -63,6 +65,7 @@ public:
     void fillAANestedRects(GrDrawTarget*,
                            GrDrawState*,
                            GrColor,
+                           const SkMatrix& localMatrix,
                            const SkRect rects[2],
                            const SkMatrix& combinedMatrix);
 
@@ -72,6 +75,7 @@ private:
     void geometryFillAARect(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
+                            const SkMatrix& localMatrix,
                             const SkRect& rect,
                             const SkMatrix& combinedMatrix,
                             const SkRect& devRect);
@@ -79,6 +83,7 @@ private:
     void geometryStrokeAARect(GrDrawTarget*,
                               GrDrawState*,
                               GrColor,
+                              const SkMatrix& localMatrix,
                               const SkRect& devOutside,
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,

@@ -306,39 +306,40 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Preconcats the current view matrix and restores the previous view matrix in the destructor.
-     * Effect matrices are automatically adjusted to compensate and adjusted back in the destructor.
+     * Sets the viewmatrix to identity and restores it in the destructor.
+     * TODO remove vm off of drawstate
      */
     class AutoViewMatrixRestore : public ::SkNoncopyable {
     public:
-        AutoViewMatrixRestore() : fDrawState(NULL) {}
-
-        AutoViewMatrixRestore(GrDrawState* ds, const SkMatrix& preconcatMatrix) {
+        AutoViewMatrixRestore() {
             fDrawState = NULL;
-            this->set(ds, preconcatMatrix);
         }
 
-        ~AutoViewMatrixRestore() { this->restore(); }
+        AutoViewMatrixRestore(GrDrawState* ds) {
+            SkASSERT(ds);
+            fDrawState = ds;
+            fViewMatrix = fDrawState->fViewMatrix;
+            fDrawState->fViewMatrix = SkMatrix::I();
+        }
 
-        /**
-         * Can be called prior to destructor to restore the original matrix.
-         */
-        void restore();
+        void setIdentity(GrDrawState* ds) {
+            SkASSERT(ds);
+            fDrawState = ds;
+            fViewMatrix = fDrawState->fViewMatrix;
+            fDrawState->fViewMatrix = SkMatrix::I();
+        }
 
-        void set(GrDrawState* drawState, const SkMatrix& preconcatMatrix);
-
-        /** Sets the draw state's matrix to identity. This can fail because the current view matrix
-            is not invertible. */
-        bool setIdentity(GrDrawState* drawState);
+        ~AutoViewMatrixRestore() {
+            if (fDrawState) {
+                fDrawState->fViewMatrix = fViewMatrix;
+            }
+        }
 
     private:
-        void doEffectCoordChanges(const SkMatrix& coordChangeMatrix);
-
         GrDrawState*                                           fDrawState;
         SkMatrix                                               fViewMatrix;
-        int                                                    fNumColorStages;
-        SkAutoSTArray<8, GrFragmentStage::SavedCoordChange>    fSavedCoordChanges;
     };
+
 
     /// @}
 

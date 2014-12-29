@@ -166,7 +166,8 @@ static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& m
 
 bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState* drawState,
                                    GrColor color, const SkPoint pts[2], const GrPaint& paint,
-                                   const GrStrokeInfo& strokeInfo, const SkMatrix& vm) {
+                                   const GrStrokeInfo& strokeInfo) {
+    const SkMatrix& vm = drawState->getViewMatrix();
 
     if (!can_fast_path_dash(pts, strokeInfo, *target, *drawState, vm)) {
         return false;
@@ -335,6 +336,15 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
         devIntervals[0] = lineLength;
     }
 
+    // reset to device coordinates
+    SkMatrix invert;
+    if (!vm.invert(&invert)) {
+        SkDebugf("Failed to invert\n");
+        return false;
+    }
+
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
+
     SkAutoTUnref<const GrGeometryProcessor> gp;
     bool fullDash = devIntervals[1] > 0.f || useAA;
     if (fullDash) {
@@ -347,10 +357,11 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
         bool isRoundCap = SkPaint::kRound_Cap == cap;
         GrDashingEffect::DashCap capType = isRoundCap ? GrDashingEffect::kRound_DashCap :
                                                         GrDashingEffect::kNonRound_DashCap;
-        gp.reset(GrDashingEffect::Create(color, edgeType, devInfo, strokeWidth, capType));
+        gp.reset(GrDashingEffect::Create(color, edgeType, devInfo, strokeWidth, capType, invert));
     } else {
         // Set up the vertex data for the line and start/end dashes
-        gp.reset(GrDefaultGeoProcFactory::Create(color, GrDefaultGeoProcFactory::kPosition_GPType));
+        gp.reset(GrDefaultGeoProcFactory::Create(color, GrDefaultGeoProcFactory::kPosition_GPType,
+                                                 invert));
     }
 
     int totalRectCnt = 0;
@@ -464,7 +475,8 @@ public:
     static GrGeometryProcessor* Create(GrColor,
                                        GrPrimitiveEdgeType edgeType,
                                        const DashInfo& info,
-                                       SkScalar radius);
+                                       SkScalar radius,
+                                       const SkMatrix& localMatrix);
 
     virtual ~DashingCircleEffect();
 
@@ -496,7 +508,7 @@ public:
 
 private:
     DashingCircleEffect(GrColor, GrPrimitiveEdgeType edgeType, const DashInfo& info,
-                        SkScalar radius);
+                        SkScalar radius, const SkMatrix& localMatrix);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
@@ -633,12 +645,13 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& processor,
 GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
                                                  GrPrimitiveEdgeType edgeType,
                                                  const DashInfo& info,
-                                                 SkScalar radius) {
+                                                 SkScalar radius,
+                                                 const SkMatrix& localMatrix) {
     if (info.fCount != 2 || info.fIntervals[0] != 0) {
         return NULL;
     }
 
-    return SkNEW_ARGS(DashingCircleEffect, (color, edgeType, info, radius));
+    return SkNEW_ARGS(DashingCircleEffect, (color, edgeType, info, radius, localMatrix));
 }
 
 DashingCircleEffect::~DashingCircleEffect() {}
@@ -660,8 +673,9 @@ GrGLGeometryProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracke
 DashingCircleEffect::DashingCircleEffect(GrColor color,
                                          GrPrimitiveEdgeType edgeType,
                                          const DashInfo& info,
-                                         SkScalar radius)
-    : INHERITED(color), fEdgeType(edgeType) {
+                                         SkScalar radius,
+                                         const SkMatrix& localMatrix)
+    : INHERITED(color, false, localMatrix), fEdgeType(edgeType) {
     this->initClassID<DashingCircleEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInCoord = &this->addVertexAttrib(GrAttribute("inCoord", kVec2f_GrVertexAttribType));
@@ -714,7 +728,8 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
     info.fIntervals[1] = random->nextRangeScalar(0, 10.f);
     info.fPhase = random->nextRangeScalar(0, info.fIntervals[1]);
 
-    return DashingCircleEffect::Create(GrRandomColor(random), edgeType, info, strokeWidth);
+    return DashingCircleEffect::Create(GrRandomColor(random), edgeType, info, strokeWidth,
+                                       GrProcessorUnitTest::TestMatrix(random));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -743,7 +758,8 @@ public:
     static GrGeometryProcessor* Create(GrColor,
                                        GrPrimitiveEdgeType edgeType,
                                        const DashInfo& info,
-                                       SkScalar strokeWidth);
+                                       SkScalar strokeWidth,
+                                       const SkMatrix& localMatrix);
 
     virtual ~DashingLineEffect();
 
@@ -773,7 +789,7 @@ public:
 
 private:
     DashingLineEffect(GrColor, GrPrimitiveEdgeType edgeType, const DashInfo& info,
-                      SkScalar strokeWidth);
+                      SkScalar strokeWidth, const SkMatrix& localMatrix);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
@@ -923,12 +939,13 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& processor,
 GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
                                                GrPrimitiveEdgeType edgeType,
                                                const DashInfo& info,
-                                               SkScalar strokeWidth) {
+                                               SkScalar strokeWidth,
+                                               const SkMatrix& localMatrix) {
     if (info.fCount != 2) {
         return NULL;
     }
 
-    return SkNEW_ARGS(DashingLineEffect, (color, edgeType, info, strokeWidth));
+    return SkNEW_ARGS(DashingLineEffect, (color, edgeType, info, strokeWidth, localMatrix));
 }
 
 DashingLineEffect::~DashingLineEffect() {}
@@ -950,8 +967,9 @@ GrGLGeometryProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker&
 DashingLineEffect::DashingLineEffect(GrColor color,
                                      GrPrimitiveEdgeType edgeType,
                                      const DashInfo& info,
-                                     SkScalar strokeWidth)
-    : INHERITED(color), fEdgeType(edgeType) {
+                                     SkScalar strokeWidth,
+                                     const SkMatrix& localMatrix)
+    : INHERITED(color, false, localMatrix), fEdgeType(edgeType) {
     this->initClassID<DashingLineEffect>();
     fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
     fInCoord = &this->addVertexAttrib(GrAttribute("inCoord", kVec2f_GrVertexAttribType));
@@ -1004,7 +1022,8 @@ GrGeometryProcessor* DashingLineEffect::TestCreate(SkRandom* random,
     info.fIntervals[1] = random->nextRangeScalar(0, 10.f);
     info.fPhase = random->nextRangeScalar(0, info.fIntervals[0] + info.fIntervals[1]);
 
-    return DashingLineEffect::Create(GrRandomColor(random), edgeType, info, strokeWidth);
+    return DashingLineEffect::Create(GrRandomColor(random), edgeType, info, strokeWidth,
+                                     GrProcessorUnitTest::TestMatrix(random));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1013,12 +1032,14 @@ GrGeometryProcessor* GrDashingEffect::Create(GrColor color,
                                              GrPrimitiveEdgeType edgeType,
                                              const SkPathEffect::DashInfo& info,
                                              SkScalar strokeWidth,
-                                             GrDashingEffect::DashCap cap) {
+                                             GrDashingEffect::DashCap cap,
+                                             const SkMatrix& localMatrix) {
     switch (cap) {
         case GrDashingEffect::kRound_DashCap:
-            return DashingCircleEffect::Create(color, edgeType, info, SkScalarHalf(strokeWidth));
+            return DashingCircleEffect::Create(color, edgeType, info, SkScalarHalf(strokeWidth),
+                                               localMatrix);
         case GrDashingEffect::kNonRound_DashCap:
-            return DashingLineEffect::Create(color, edgeType, info, strokeWidth);
+            return DashingLineEffect::Create(color, edgeType, info, strokeWidth, localMatrix);
         default:
             SkFAIL("Unexpected dashed cap.");
     }

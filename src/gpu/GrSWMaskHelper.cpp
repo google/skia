@@ -350,10 +350,11 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               GrDrawState* drawState,
                                               GrColor color,
                                               const SkIRect& rect) {
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+    SkMatrix invert;
+    if (!drawState->getViewMatrix().invert(&invert)) {
         return;
     }
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
     GrDrawState::AutoRestoreEffects are(drawState);
 
     SkRect dstRect = SkRect::MakeLTRB(SK_Scalar1 * rect.fLeft,
@@ -374,5 +375,5 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                                        GrTextureParams::kNone_FilterMode,
                                                        kDevice_GrCoordSet))->unref();
 
-    target->drawSimpleRect(drawState, color, dstRect);
+    target->drawRect(drawState, color, dstRect, NULL, &invert);
 }

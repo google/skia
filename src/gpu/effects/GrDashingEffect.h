@@ -25,8 +25,7 @@ class SkPath;
 
 namespace GrDashingEffect {
     bool DrawDashLine(GrGpu*, GrDrawTarget*, GrDrawState*, GrColor, const SkPoint pts[2],
-                      const GrPaint& paint, const GrStrokeInfo& strokeInfo,
-                      const SkMatrix& vm);
+                      const GrPaint& paint, const GrStrokeInfo& strokeInfo);
 
     enum DashCap {
         kRound_DashCap,
@@ -43,7 +42,8 @@ namespace GrDashingEffect {
                                 GrPrimitiveEdgeType edgeType,
                                 const SkPathEffect::DashInfo& info,
                                 SkScalar strokeWidth,
-                                DashCap cap);
+                                DashCap cap,
+                                const SkMatrix& localMatrix);
 }
 
 #endif

@@ -475,6 +475,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             drawState->setXPFactory(backupXPFactory);
             SkRect bounds;
             GrDrawState::AutoViewMatrixRestore avmr;
+            const SkMatrix& viewMatrix = drawState->getViewMatrix();
+            SkMatrix localMatrix = SkMatrix::I();
             if (reverse) {
                 SkASSERT(drawState->getRenderTarget());
                 // draw over the dev bounds (which will be the whole dst surface for inv fill).
@@ -485,13 +487,16 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                     drawState->getViewInverse(&vmi)) {
                     vmi.mapRect(&bounds);
                 } else {
+                    if (!viewMatrix.invert(&localMatrix)) {
+                        return false;
+                    }
                     avmr.setIdentity(drawState);
                 }
             } else {
                 bounds = path.getBounds();
             }
             GrDrawTarget::AutoGeometryPush agp(target);
-            target->drawSimpleRect(drawState, color, bounds);
+            target->drawRect(drawState, color, bounds, NULL, &localMatrix);
         } else {
             if (passCount > 1) {
                 drawState->setDisableColorXPFactory();

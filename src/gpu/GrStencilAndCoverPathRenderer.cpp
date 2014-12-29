@@ -121,6 +121,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
         SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE));
         target->stencilPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
 
+        SkMatrix invert = SkMatrix::I();
         GrDrawState::AutoViewMatrixRestore avmr;
         SkRect bounds = SkRect::MakeLTRB(0, 0,
                                          SkIntToScalar(drawState->getRenderTarget()->width()),
@@ -134,9 +135,12 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
             SkScalar bloat = drawState->getViewMatrix().getMaxScale() * SK_ScalarHalf;
             bounds.outset(bloat, bloat);
         } else {
+            if (!drawState->getViewMatrix().invert(&invert)) {
+                return false;
+            }
             avmr.setIdentity(drawState);
         }
-        target->drawSimpleRect(drawState, color, bounds);
+        target->drawRect(drawState, color, bounds, NULL, &invert);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,

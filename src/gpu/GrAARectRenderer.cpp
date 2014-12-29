@@ -26,16 +26,18 @@ enum CoverageAttribType {
 }
 
 static const GrGeometryProcessor* create_rect_gp(const GrDrawState& drawState, GrColor color,
-                                                 CoverageAttribType* type) {
+                                                 CoverageAttribType* type,
+                                                 const SkMatrix& localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     const GrGeometryProcessor* gp;
     if (drawState.canTweakAlphaForCoverage()) {
-        gp = GrDefaultGeoProcFactory::Create(color, flags);
+        gp = GrDefaultGeoProcFactory::Create(color, flags, localMatrix);
         SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         *type = kUseColor_CoverageAttribType;
     } else {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-        gp = GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color));
+        gp = GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color), 0xff,
+                                             localMatrix);
         SkASSERT(gp->getVertexStride()==sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
         *type = kUseCoverage_CoverageAttribType;
     }
@@ -178,13 +180,15 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
 void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           GrDrawState* drawState,
                                           GrColor color,
+                                          const SkMatrix& localMatrix,
                                           const SkRect& rect,
                                           const SkMatrix& combinedMatrix,
                                           const SkRect& devRect) {
     GrDrawState::AutoRestoreEffects are(drawState);
 
     CoverageAttribType type;
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type));
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type,
+                                                              localMatrix));
 
     size_t vertexStride = gp->getVertexStride();
     GrDrawTarget::AutoReleaseGeometry geo(target, 8, vertexStride, 0);
@@ -308,6 +312,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
 void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
                                     GrDrawState* drawState,
                                     GrColor color,
+                                    const SkMatrix& localMatrix,
                                     const SkRect& rect,
                                     const SkMatrix& combinedMatrix,
                                     const SkRect& devRect,
@@ -354,7 +359,8 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, drawState, color, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, drawState, color, localMatrix, devOutside, SkMatrix::I(),
+                         devOutside);
         return;
     }
 
@@ -371,13 +377,14 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(target, drawState, color, devOutside, devOutsideAssist, devInside,
-                               miterStroke);
+    this->geometryStrokeAARect(target, drawState, color, localMatrix, devOutside, devOutsideAssist,
+                               devInside, miterStroke);
 }
 
 void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             GrDrawState* drawState,
                                             GrColor color,
+                                            const SkMatrix& localMatrix,
                                             const SkRect& devOutside,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
@@ -385,7 +392,8 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     GrDrawState::AutoRestoreEffects are(drawState);
 
     CoverageAttribType type;
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type));
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type,
+                                                              localMatrix));
 
     int innerVertexNum = 4;
     int outerVertexNum = miterStroke ? 4 : 8;
@@ -510,6 +518,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
                                          GrDrawState* drawState,
                                          GrColor color,
+                                         const SkMatrix& localMatrix,
                                          const SkRect rects[2],
                                          const SkMatrix& combinedMatrix) {
     SkASSERT(combinedMatrix.rectStaysRect());
@@ -521,10 +530,11 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     combinedMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, drawState, color, devOutside, SkMatrix::I(), devOutside);
+        this->fillAARect(target, drawState, color, localMatrix, devOutside, SkMatrix::I(),
+                         devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(target, drawState, color, devOutside, devOutsideAssist, devInside,
-                               true);
+    this->geometryStrokeAARect(target, drawState, color, localMatrix, devOutside, devOutsideAssist,
+                               devInside, true);
 }

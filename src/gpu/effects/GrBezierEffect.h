@@ -61,21 +61,25 @@ public:
     static GrGeometryProcessor* Create(GrColor color,
                                        const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps,
+                                       const SkMatrix& localMatrix,
                                        uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrConicEffect, (color, coverage, kFillAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrConicEffect, (color, coverage, kFillAA_GrProcessorEdgeType,
+                                                  localMatrix));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrConicEffect, (color, coverage,
-                                                  kHairlineAA_GrProcessorEdgeType));
+                                                  kHairlineAA_GrProcessorEdgeType,
+                                                  localMatrix));
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrConicEffect, (color, coverage, kFillBW_GrProcessorEdgeType));;
+                return SkNEW_ARGS(GrConicEffect, (color, coverage, kFillBW_GrProcessorEdgeType,
+                                                  localMatrix));
             default:
                 return NULL;
         }
@@ -103,7 +107,7 @@ public:
                         const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
-    GrConicEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType);
+    GrConicEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType, const SkMatrix& localMatrix);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
@@ -137,20 +141,24 @@ public:
     static GrGeometryProcessor* Create(GrColor color,
                                        const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps,
+                                       const SkMatrix& localMatrix,
                                        uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kFillAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kFillAA_GrProcessorEdgeType,
+                                                 localMatrix));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kHairlineAA_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kHairlineAA_GrProcessorEdgeType,
+                                                 localMatrix));
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kFillBW_GrProcessorEdgeType));
+                return SkNEW_ARGS(GrQuadEffect, (color, coverage, kFillBW_GrProcessorEdgeType,
+                                                 localMatrix));
             default:
                 return NULL;
         }
@@ -178,7 +186,7 @@ public:
                         const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
-    GrQuadEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType);
+    GrQuadEffect(GrColor, uint8_t coverage, GrPrimitiveEdgeType, const SkMatrix& localMatrix);
 
     virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 

@@ -505,8 +505,8 @@ static void create_vertices(const SegmentArray&  segments,
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
 
-    static GrGeometryProcessor* Create(GrColor color) {
-        return SkNEW_ARGS(QuadEdgeEffect, (color));
+    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& localMatrix) {
+        return SkNEW_ARGS(QuadEdgeEffect, (color, localMatrix));
     }
 
     virtual ~QuadEdgeEffect() {}
@@ -626,7 +626,8 @@ public:
     }
 
 private:
-    QuadEdgeEffect(GrColor color) : INHERITED(color) {
+    QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
+        : INHERITED(color, false, localMatrix) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
@@ -661,7 +662,9 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
                                                 const GrDrawTargetCaps& caps,
                                                 GrTexture*[]) {
     // Doesn't work without derivative instructions.
-    return caps.shaderDerivativeSupport() ? QuadEdgeEffect::Create(GrRandomColor(random)) : NULL;
+    return caps.shaderDerivativeSupport() ?
+           QuadEdgeEffect::Create(GrRandomColor(random),
+                                  GrProcessorUnitTest::TestMatrix(random)) : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -688,10 +691,12 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     SkMatrix viewMatrix = drawState->getViewMatrix();
-    GrDrawState::AutoViewMatrixRestore avmr;
-    if (!avmr.setIdentity(drawState)) {
+    SkMatrix invert;
+    if (!viewMatrix.invert(&invert)) {
         return false;
     }
+
+    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     // We use the fact that SkPath::transform path does subdivision based on
     // perspective. Otherwise, we apply the view matrix when copying to the
@@ -725,7 +730,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     // Our computed verts should all be within one pixel of the segment control points.
     devBounds.outset(SK_Scalar1, SK_Scalar1);
 
-    SkAutoTUnref<GrGeometryProcessor> quadProcessor(QuadEdgeEffect::Create(color));
+    SkAutoTUnref<GrGeometryProcessor> quadProcessor(QuadEdgeEffect::Create(color, invert));
 
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, quadProcessor->getVertexStride(), iCount);
     SkASSERT(quadProcessor->getVertexStride() == sizeof(QuadVertex));
