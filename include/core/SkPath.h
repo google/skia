@@ -247,7 +247,7 @@ public:
                     a rectangle
         @return true if the path specifies a rectangle
     */
-    bool isRect(SkRect* rect) const;
+    bool isRect(SkRect* rect) const { return this->isRect(rect, NULL, NULL); }
 
     /** Return the number of points in the path
      */
@@ -601,7 +601,23 @@ public:
         @param direction If not null, set to the rectangle's direction
         @return true if the path specifies a rectangle
     */
-    bool isRect(bool* isClosed, Direction* direction) const;
+    bool isRect(bool* isClosed, Direction* direction) const {
+        return this->isRect(NULL, isClosed, direction);
+    }
+
+    /**
+     *  Returns true if the path specifies a rectangle.
+     *
+     *  If this returns false, then all output parameters are ignored, and left
+     *  unchanged. If this returns true, then each of the output parameters
+     *  are checked for NULL. If they are not, they return their value.
+     *
+     *  @param rect If not null, set to the bounds of the rectangle
+     *  @param isClosed If not null, set to true if the path is closed
+     *  @param direction If not null, set to the rectangle's direction
+     *  @return true if the path specifies a rectangle
+     */
+    bool isRect(SkRect* rect, bool* isClosed, Direction* direction) const;
 
     /** Returns true if the path specifies a pair of nested rectangles. If so, and if
         rect is not null, set rect[0] to the outer rectangle and rect[1] to the inner

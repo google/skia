@@ -1414,10 +1414,11 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 
     // If src is really a rect, call our specialty strokeRect() method
     {
+        SkRect rect;
         bool isClosed;
         SkPath::Direction dir;
-        if (src.isRect(&isClosed, &dir) && isClosed) {
-            this->strokeRect(src.getBounds(), dst, dir);
+        if (src.isRect(&rect, &isClosed, &dir) && isClosed) {
+            this->strokeRect(rect, dst, dir);
             // our answer should preserve the inverseness of the src
             if (src.isInverseFillType()) {
                 SkASSERT(!dst->isInverseFillType());
