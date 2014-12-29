@@ -113,12 +113,14 @@ private:
     GrTexture* createAlphaClipMask(int32_t elementsGenID,
                                    GrReducedClip::InitialState initialState,
                                    const GrReducedClip::ElementList& elements,
+                                   const SkVector& clipToMaskOffset,
                                    const SkIRect& clipSpaceIBounds);
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     GrTexture* createSoftwareClipMask(int32_t elementsGenID,
                                       GrReducedClip::InitialState initialState,
                                       const GrReducedClip::ElementList& elements,
+                                      const SkVector& clipToMaskOffset,
                                       const SkIRect& clipSpaceIBounds);
 
     // Returns the cached mask texture if it matches the elementsGenID and the clipSpaceIBounds.
@@ -131,12 +133,15 @@ private:
                                 const SkIRect& clipSpaceIBounds,
                                 bool willUpload);
 
-    bool useSWOnlyPath(const GrDrawState*, const GrReducedClip::ElementList& elements);
+    bool useSWOnlyPath(const GrDrawState*,
+                       const SkVector& clipToMaskOffset,
+                       const GrReducedClip::ElementList& elements);
 
     // Draws a clip element into the target alpha mask. The caller should have already setup the
     // desired blend operation. Optionally if the caller already selected a path renderer it can
     // be passed. Otherwise the function will select one if the element is a path.
     bool drawElement(GrDrawState*,
+                     const SkMatrix& viewMatrix,
                      GrTexture* target,
                      const SkClipStack::Element*,
                      GrPathRenderer* pr = NULL);

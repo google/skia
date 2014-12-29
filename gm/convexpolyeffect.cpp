@@ -134,7 +134,8 @@ protected:
 
                 GrDrawState ds;
                 SkAutoTUnref<const GrGeometryProcessor> gp(
-                        GrDefaultGeoProcFactory::Create(0xff000000));
+                        GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
+                                                        0xff000000));
                 ds.addCoverageProcessor(fp);
                 ds.setRenderTarget(rt);
 
@@ -190,7 +191,8 @@ protected:
 
                 GrDrawState ds;
                 SkAutoTUnref<const GrGeometryProcessor> gp(
-                        GrDefaultGeoProcFactory::Create(0xff000000));
+                        GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
+                                                        0xff000000));
                 ds.addCoverageProcessor(fp);
                 ds.setRenderTarget(rt);
 

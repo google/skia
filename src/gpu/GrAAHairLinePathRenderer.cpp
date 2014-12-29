@@ -644,6 +644,7 @@ void add_line(const SkPoint p[2],
 
 bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
                                               GrDrawState* drawState,
+                                              const SkMatrix& viewMatrix,
                                               uint8_t coverage,
                                               size_t vertexStride,
                                               GrDrawTarget::AutoReleaseGeometry* arg,
@@ -651,8 +652,6 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
                                               const SkPath& path,
                                               const PtArray& lines,
                                               int lineCnt) {
-    const SkMatrix& viewM = drawState->getViewMatrix();
-
     int vertCnt = kLineSegNumVertices * lineCnt;
 
     SkASSERT(vertexStride == sizeof(LineVertex));
@@ -665,8 +664,8 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
     const SkMatrix* toSrc = NULL;
     SkMatrix ivm;
 
-    if (viewM.hasPerspective()) {
-        if (viewM.invert(&ivm)) {
+    if (viewMatrix.hasPerspective()) {
+        if (viewMatrix.invert(&ivm)) {
             toSrc = &ivm;
         }
     }
@@ -685,6 +684,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
 
 bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
                                                 GrDrawState* drawState,
+                                                const SkMatrix& viewMatrix,
                                                 GrDrawTarget::AutoReleaseGeometry* arg,
                                                 SkRect* devBounds,
                                                 const SkPath& path,
@@ -695,8 +695,6 @@ bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
                                                 const IntArray& qSubdivs,
                                                 const FloatArray& cWeights,
                                                 size_t vertexStride) {
-    const SkMatrix& viewM = drawState->getViewMatrix();
-
     int vertCnt = kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt;
 
     if (!arg->set(target, vertCnt, vertexStride, 0)) {
@@ -709,9 +707,9 @@ bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
     const SkMatrix* toSrc = NULL;
     SkMatrix ivm;
 
-    if (viewM.hasPerspective()) {
-        if (viewM.invert(&ivm)) {
-            toDevice = &viewM;
+    if (viewMatrix.hasPerspective()) {
+        if (viewMatrix.invert(&ivm)) {
+            toDevice = &viewMatrix;
             toSrc = &ivm;
         }
     }
@@ -746,6 +744,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
 
 bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
                                            const GrDrawState* drawState,
+                                           const SkMatrix& viewMatrix,
                                            const SkPath& path,
                                            const SkStrokeRec& stroke,
                                            bool antiAlias) const {
@@ -753,9 +752,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
         return false;
     }
 
-    if (!IsStrokeHairlineOrEquivalent(stroke,
-                                      drawState->getViewMatrix(),
-                                      NULL)) {
+    if (!IsStrokeHairlineOrEquivalent(stroke, viewMatrix, NULL)) {
         return false;
     }
 
@@ -767,16 +764,16 @@ bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
 }
 
 template <class VertexType>
-bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertices, int vCount)
+bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* vertices, int vCount)
 {
     SkRect tolDevBounds = devBounds;
     // The bounds ought to be tight, but in perspective the below code runs the verts
     // through the view matrix to get back to dev coords, which can introduce imprecision.
-    if (drawState->getViewMatrix().hasPerspective()) {
+    if (viewMatrix.hasPerspective()) {
         tolDevBounds.outset(SK_Scalar1 / 1000, SK_Scalar1 / 1000);
     } else {
         // Non-persp matrices cause this path renderer to draw in device space.
-        SkASSERT(drawState->getViewMatrix().isIdentity());
+        SkASSERT(viewMatrix.isIdentity());
     }
     SkRect actualBounds;
 
@@ -788,7 +785,7 @@ bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertice
         if (SK_ScalarMax == pos.fX) {
             continue;
         }
-        drawState->getViewMatrix().mapPoints(&pos, 1);
+        viewMatrix.mapPoints(&pos, 1);
         if (first) {
             actualBounds.set(pos.fX, pos.fY, pos.fX, pos.fY);
             first = false;
@@ -806,13 +803,13 @@ bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertice
 bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                           GrDrawState* drawState,
                                           GrColor color,
+                                          const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           const SkStrokeRec& stroke,
                                           bool antiAlias) {
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
-    if (IsStrokeHairlineOrEquivalent(stroke, drawState->getViewMatrix(),
-                                     &hairlineCoverage)) {
+    if (IsStrokeHairlineOrEquivalent(stroke, viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
     }
 
@@ -827,18 +824,18 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
     PREALLOC_PTARRAY(128) conics;
     IntArray qSubdivs;
     FloatArray cWeights;
-    quadCnt = generate_lines_and_quads(path, drawState->getViewMatrix(), devClipBounds,
+    quadCnt = generate_lines_and_quads(path, viewMatrix, devClipBounds,
                                        &lines, &quads, &conics, &qSubdivs, &cWeights);
     lineCnt = lines.count() / 2;
     conicCnt = conics.count() / 3;
 
     // createGeom transforms the geometry to device space when the matrix does not have
     // perspective.
-    GrDrawState::AutoViewMatrixRestore avmr;
+    SkMatrix vm = viewMatrix;
     SkMatrix invert = SkMatrix::I();
-    if (!drawState->getViewMatrix().hasPerspective()) {
-        avmr.setIdentity(drawState);
-        if (!drawState->getViewMatrix().invert(&invert)) {
+    if (!viewMatrix.hasPerspective()) {
+        vm = SkMatrix::I();
+        if (!viewMatrix.invert(&invert)) {
             return false;
         }
     }
@@ -851,14 +848,16 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         GrDrawState::AutoRestoreEffects are(drawState);
         uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
                            GrDefaultGeoProcFactory::kCoverage_GPType;
-        SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create(color,
-                                                                                   gpFlags,
+        SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create(gpFlags,
+                                                                                   color,
+                                                                                   vm,
+                                                                                   invert,
                                                                                    false,
-                                                                                   newCoverage,
-                                                                                   invert));
+                                                                                   newCoverage));
 
         if (!this->createLineGeom(target,
                                   drawState,
+                                  viewMatrix,
                                   newCoverage,
                                   gp->getVertexStride(),
                                   &arg,
@@ -870,7 +869,9 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         }
 
         // Check devBounds
-        SkASSERT(check_bounds<LineVertex>(drawState, devBounds, arg.vertices(),
+        SkASSERT(check_bounds<LineVertex>(viewMatrix.hasPerspective() ? viewMatrix : SkMatrix::I(),
+                                          devBounds,
+                                          arg.vertices(),
                                           kLineSegNumVertices * lineCnt));
 
         {
@@ -898,6 +899,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
 
         if (!this->createBezierGeom(target,
                                     drawState,
+                                    viewMatrix,
                                     &arg,
                                     &devBounds,
                                     path,
@@ -912,12 +914,17 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         }
 
         // Check devBounds
-        SkASSERT(check_bounds<BezierVertex>(drawState, devBounds, arg.vertices(),
-                                            kQuadNumVertices * quadCnt + kQuadNumVertices * conicCnt));
+        SkASSERT(check_bounds<BezierVertex>(viewMatrix.hasPerspective() ? viewMatrix :
+                                                                          SkMatrix::I(),
+                                            devBounds,
+                                            arg.vertices(),
+                                            kQuadNumVertices * quadCnt +
+                                            kQuadNumVertices * conicCnt));
 
         if (quadCnt > 0) {
             SkAutoTUnref<GrGeometryProcessor> hairQuadProcessor(
                     GrQuadEffect::Create(color,
+                                         vm,
                                          kHairlineAA_GrProcessorEdgeType,
                                          *target->caps(),
                                          invert,
@@ -943,8 +950,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
 
         if (conicCnt > 0) {
             SkAutoTUnref<GrGeometryProcessor> hairConicProcessor(
-                    GrConicEffect::Create(color, kHairlineAA_GrProcessorEdgeType, *target->caps(),
-                                          invert, newCoverage));
+                    GrConicEffect::Create(color, vm, kHairlineAA_GrProcessorEdgeType,
+                                          *target->caps(), invert, newCoverage));
             SkASSERT(hairConicProcessor);
             GrDrawState::AutoRestoreEffects are(drawState);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);

@@ -24,8 +24,8 @@ class GrGLDashingEffect;
 class SkPath;
 
 namespace GrDashingEffect {
-    bool DrawDashLine(GrGpu*, GrDrawTarget*, GrDrawState*, GrColor, const SkPoint pts[2],
-                      const GrPaint& paint, const GrStrokeInfo& strokeInfo);
+    bool DrawDashLine(GrGpu*, GrDrawTarget*, GrDrawState*, GrColor, const SkMatrix& viewMatrix,
+                      const SkPoint pts[2], const GrPaint& paint, const GrStrokeInfo& strokeInfo);
 
     enum DashCap {
         kRound_DashCap,

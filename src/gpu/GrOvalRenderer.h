@@ -37,18 +37,21 @@ public:
     bool drawOval(GrDrawTarget*,
                   GrDrawState*,
                   GrColor,
+                  const SkMatrix& viewMatrix,
                   bool useAA,
                   const SkRect& oval,
                   const SkStrokeRec& stroke);
     bool drawRRect(GrDrawTarget*,
                    GrDrawState*,
                    GrColor,
+                   const SkMatrix& viewMatrix,
                    bool useAA,
                    const SkRRect& rrect,
                    const SkStrokeRec& stroke);
     bool drawDRRect(GrDrawTarget* target,
                     GrDrawState*,
                     GrColor,
+                    const SkMatrix& viewMatrix,
                     bool useAA,
                     const SkRRect& outer,
                     const SkRRect& inner);
@@ -57,18 +60,21 @@ private:
     bool drawEllipse(GrDrawTarget* target,
                      GrDrawState*,
                      GrColor,
+                     const SkMatrix& viewMatrix,
                      bool useCoverageAA,
                      const SkRect& ellipse,
                      const SkStrokeRec& stroke);
     bool drawDIEllipse(GrDrawTarget* target,
                        GrDrawState*,
                        GrColor,
+                       const SkMatrix& viewMatrix,
                        bool useCoverageAA,
                        const SkRect& ellipse,
                        const SkStrokeRec& stroke);
     void drawCircle(GrDrawTarget* target,
                     GrDrawState*,
                     GrColor,
+                    const SkMatrix& viewMatrix,
                     bool useCoverageAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);

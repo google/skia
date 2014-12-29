@@ -186,6 +186,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
+                                                           const SkMatrix& viewMatrix,
                                                            GrTexture* texture,
                                                            const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -194,7 +195,7 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
                                                            float luminance,
 #endif
                                                            uint32_t flags, bool opaqueVertexColors)
-    : INHERITED(color, opaqueVertexColors)
+    : INHERITED(color, viewMatrix, SkMatrix::I(), opaqueVertexColors)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fGammaTextureAccess(gamma, gammaParams)
@@ -289,7 +290,9 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
                                                             GrTextureParams::kNone_FilterMode);
 #endif
 
-    return GrDistanceFieldTextureEffect::Create(GrRandomColor(random), textures[texIdx], params,
+    return GrDistanceFieldTextureEffect::Create(GrRandomColor(random),
+                                                GrProcessorUnitTest::TestMatrix(random),
+                                                textures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                 textures[texIdx2], params2,
                                                 random->nextF(),
@@ -443,11 +446,12 @@ private:
 
 GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
         GrColor color,
+        const SkMatrix& viewMatrix,
         GrTexture* texture,
         const GrTextureParams& params,
         uint32_t flags,
         bool opaqueVertexColors)
-    : INHERITED(color, opaqueVertexColors)
+    : INHERITED(color, viewMatrix, SkMatrix::I(), opaqueVertexColors)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
@@ -525,7 +529,9 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode 
                                                          : GrTextureParams::kNone_FilterMode);
 
-    return GrDistanceFieldNoGammaTextureEffect::Create(GrRandomColor(random), textures[texIdx],
+    return GrDistanceFieldNoGammaTextureEffect::Create(GrRandomColor(random),
+                                                       GrProcessorUnitTest::TestMatrix(random),
+                                                       textures[texIdx],
                                                        params,
         random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0, random->nextBool());
 }
@@ -748,12 +754,12 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
-                                                  GrColor color,
+                                                  GrColor color, const SkMatrix& viewMatrix,
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   GrTexture* gamma, const GrTextureParams& gParams,
                                                   SkColor textColor,
                                                   uint32_t flags)
-    : INHERITED(color)
+    : INHERITED(color, viewMatrix, SkMatrix::I())
     , fTextureAccess(texture, params)
     , fGammaTextureAccess(gamma, gParams)
     , fTextColor(textColor)
@@ -839,7 +845,9 @@ GrGeometryProcessor* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* rando
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
     flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    return GrDistanceFieldLCDTextureEffect::Create(GrRandomColor(random), textures[texIdx], params,
+    return GrDistanceFieldLCDTextureEffect::Create(GrRandomColor(random),
+                                                   GrProcessorUnitTest::TestMatrix(random),
+                                                   textures[texIdx], params,
                                                    textures[texIdx2], params2,
                                                    textColor,
                                                    flags);

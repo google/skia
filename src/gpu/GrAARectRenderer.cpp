@@ -25,19 +25,20 @@ enum CoverageAttribType {
 };
 }
 
-static const GrGeometryProcessor* create_rect_gp(const GrDrawState& drawState, GrColor color,
+static const GrGeometryProcessor* create_rect_gp(const GrDrawState& drawState,
+                                                 GrColor color,
                                                  CoverageAttribType* type,
                                                  const SkMatrix& localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     const GrGeometryProcessor* gp;
     if (drawState.canTweakAlphaForCoverage()) {
-        gp = GrDefaultGeoProcFactory::Create(color, flags, localMatrix);
+        gp = GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), localMatrix);
         SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         *type = kUseColor_CoverageAttribType;
     } else {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-        gp = GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color), 0xff,
-                                             localMatrix);
+        gp = GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), localMatrix,
+                                             GrColorIsOpaque(color));
         SkASSERT(gp->getVertexStride()==sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
         *type = kUseCoverage_CoverageAttribType;
     }
@@ -180,11 +181,16 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
 void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           GrDrawState* drawState,
                                           GrColor color,
-                                          const SkMatrix& localMatrix,
+                                          const SkMatrix& viewMatrix,
                                           const SkRect& rect,
-                                          const SkMatrix& combinedMatrix,
                                           const SkRect& devRect) {
     GrDrawState::AutoRestoreEffects are(drawState);
+
+    SkMatrix localMatrix;
+    if (!viewMatrix.invert(&localMatrix)) {
+        SkDebugf("Cannot invert\n");
+        return;
+    }
 
     CoverageAttribType type;
     SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type,
@@ -217,7 +223,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
     inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
 
-    if (combinedMatrix.rectStaysRect()) {
+    if (viewMatrix.rectStaysRect()) {
         // Temporarily #if'ed out. We don't want to pass in the devRect but
         // right now it is computed in GrContext::apply_aa_to_rect and we don't
         // want to throw away the work
@@ -231,8 +237,8 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     } else {
         // compute transformed (1, 0) and (0, 1) vectors
         SkVector vec[2] = {
-          { combinedMatrix[SkMatrix::kMScaleX], combinedMatrix[SkMatrix::kMSkewY] },
-          { combinedMatrix[SkMatrix::kMSkewX],  combinedMatrix[SkMatrix::kMScaleY] }
+          { viewMatrix[SkMatrix::kMScaleX], viewMatrix[SkMatrix::kMSkewY] },
+          { viewMatrix[SkMatrix::kMSkewX],  viewMatrix[SkMatrix::kMScaleY] }
         };
 
         vec[0].normalize();
@@ -243,7 +249,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
         // create the rotated rect
         fan0Pos->setRectFan(rect.fLeft, rect.fTop,
                             rect.fRight, rect.fBottom, vertexStride);
-        combinedMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
+        viewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
 
         // Now create the inset points and then outset the original
         // rotated points
@@ -312,16 +318,15 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
 void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
                                     GrDrawState* drawState,
                                     GrColor color,
-                                    const SkMatrix& localMatrix,
+                                    const SkMatrix& viewMatrix,
                                     const SkRect& rect,
-                                    const SkMatrix& combinedMatrix,
                                     const SkRect& devRect,
                                     const SkStrokeRec& stroke) {
     SkVector devStrokeSize;
     SkScalar width = stroke.getWidth();
     if (width > 0) {
         devStrokeSize.set(width, width);
-        combinedMatrix.mapVectors(&devStrokeSize, 1);
+        viewMatrix.mapVectors(&devStrokeSize, 1);
         devStrokeSize.setAbs(devStrokeSize);
     } else {
         devStrokeSize.set(SK_Scalar1, SK_Scalar1);
@@ -359,7 +364,7 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, drawState, color, localMatrix, devOutside, SkMatrix::I(),
+        this->fillAARect(target, drawState, color, viewMatrix, devOutside,
                          devOutside);
         return;
     }
@@ -377,19 +382,25 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(target, drawState, color, localMatrix, devOutside, devOutsideAssist,
+    this->geometryStrokeAARect(target, drawState, color, viewMatrix, devOutside, devOutsideAssist,
                                devInside, miterStroke);
 }
 
 void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             GrDrawState* drawState,
                                             GrColor color,
-                                            const SkMatrix& localMatrix,
+                                            const SkMatrix& viewMatrix,
                                             const SkRect& devOutside,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
                                             bool miterStroke) {
     GrDrawState::AutoRestoreEffects are(drawState);
+
+    SkMatrix localMatrix;
+    if (!viewMatrix.invert(&localMatrix)) {
+        SkDebugf("Cannot invert\n");
+        return;
+    }
 
     CoverageAttribType type;
     SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type,
@@ -518,23 +529,22 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
                                          GrDrawState* drawState,
                                          GrColor color,
-                                         const SkMatrix& localMatrix,
-                                         const SkRect rects[2],
-                                         const SkMatrix& combinedMatrix) {
-    SkASSERT(combinedMatrix.rectStaysRect());
+                                         const SkMatrix& viewMatrix,
+                                         const SkRect rects[2]) {
+    SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[1].isEmpty());
 
     SkRect devOutside, devOutsideAssist, devInside;
-    combinedMatrix.mapRect(&devOutside, rects[0]);
+    viewMatrix.mapRect(&devOutside, rects[0]);
     // can't call mapRect for devInside since it calls sort
-    combinedMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
+    viewMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, drawState, color, localMatrix, devOutside, SkMatrix::I(),
+        this->fillAARect(target, drawState, color, viewMatrix, devOutside,
                          devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(target, drawState, color, localMatrix, devOutside, devOutsideAssist,
+    this->geometryStrokeAARect(target, drawState, color, viewMatrix, devOutside, devOutsideAssist,
                                devInside, true);
 }

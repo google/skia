@@ -407,11 +407,13 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     // see if we need to create a new effect
     if (textureUniqueID != fEffectTextureUniqueID ||
         filteredColor != fEffectColor ||
-        flags != fEffectFlags) {
+        flags != fEffectFlags ||
+        !fCachedGeometryProcessor->viewMatrix().cheapEqualTo(fViewMatrix)) {
         GrColor color = fPaint.getColor();
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
             fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextureEffect::Create(color,
+                                                                                   fViewMatrix,
                                                                                    fCurrTexture,
                                                                                    params,
                                                                                    fGammaTexture,
@@ -425,6 +427,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.gamma(),
                                                                 filteredColor);
             fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
+                                                                                fViewMatrix,
                                                                                 fCurrTexture,
                                                                                 params,
                                                                                 fGammaTexture,
@@ -434,6 +437,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                                 opaque));
 #else
             fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(color,
+                                                                                       fViewMatrix,
                                                                                        fCurrTexture,
                                                                                        params,
                                                                                        flags,
@@ -633,7 +637,7 @@ void GrDistanceFieldTextContext::flush() {
 
     if (fCurrVertex > 0) {
         GrDrawState drawState;
-        drawState.setFromPaint(fPaint, fViewMatrix, fContext->getRenderTarget());
+        drawState.setFromPaint(fPaint, fContext->getRenderTarget());
 
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));

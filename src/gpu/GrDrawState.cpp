@@ -18,7 +18,6 @@ bool GrDrawState::isEqual(const GrDrawState& that, bool explicitLocalCoords) con
     if (this->getRenderTarget() != that.getRenderTarget() ||
         this->fColorStages.count() != that.fColorStages.count() ||
         this->fCoverageStages.count() != that.fCoverageStages.count() ||
-        !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
         this->fFlagBits != that.fFlagBits ||
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace) {
@@ -47,7 +46,6 @@ bool GrDrawState::isEqual(const GrDrawState& that, bool explicitLocalCoords) con
 
 GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
-    fViewMatrix = that.fViewMatrix;
     fFlagBits = that.fFlagBits;
     fStencilSettings = that.fStencilSettings;
     fDrawFace = that.fDrawFace;
@@ -70,7 +68,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     return *this;
 }
 
-void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
+void GrDrawState::onReset() {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
     fRenderTarget.reset(NULL);
 
@@ -78,11 +76,6 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fColorStages.reset();
     fCoverageStages.reset();
 
-    if (NULL == initialViewMatrix) {
-        fViewMatrix.reset();
-    } else {
-        fViewMatrix = *initialViewMatrix;
-    }
     fFlagBits = 0x0;
     fStencilSettings.setDisabled();
     fDrawFace = kBoth_DrawFace;
@@ -97,7 +90,7 @@ void GrDrawState::onReset(const SkMatrix* initialViewMatrix) {
     fCoveragePrimProc = NULL;
 }
 
-void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRenderTarget* rt) {
+void GrDrawState::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
 
     fColorStages.reset();
@@ -114,8 +107,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     fXPFactory.reset(SkRef(paint.getXPFactory()));
 
     this->setRenderTarget(rt);
-
-    fViewMatrix = vm;
 
     // These have no equivalent in GrPaint, set them to defaults
     fDrawFace = kBoth_DrawFace;

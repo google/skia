@@ -35,11 +35,6 @@ public:
         this->reset();
     }
 
-    GrDrawState(const SkMatrix& initialViewMatrix) {
-        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-        this->reset(initialViewMatrix);
-    }
-
     /**
      * Copies another draw state.
      **/
@@ -53,9 +48,7 @@ public:
     /**
      * Resets to the default state. GrProcessors will be removed from all stages.
      */
-    void reset() { this->onReset(NULL); }
-
-    void reset(const SkMatrix& initialViewMatrix) { this->onReset(&initialViewMatrix); }
+    void reset() { this->onReset(); }
 
     /**
      * Initializes the GrDrawState based on a GrPaint, view matrix and render target. Note that
@@ -63,7 +56,7 @@ public:
      * equivalents are set to default values with the exception of vertex attribute state which
      * is unmodified by this function and clipping which will be enabled.
      */
-    void setFromPaint(const GrPaint& , const SkMatrix& viewMatrix, GrRenderTarget*);
+    void setFromPaint(const GrPaint&, GrRenderTarget*);
 
     /// @}
 
@@ -268,73 +261,6 @@ public:
 
     /// @}
 
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name View Matrix
-    ////
-
-    /**
-     * Retrieves the current view matrix
-     * @return the current view matrix.
-     */
-    const SkMatrix& getViewMatrix() const { return fViewMatrix; }
-
-    /**
-     *  Retrieves the inverse of the current view matrix.
-     *
-     *  If the current view matrix is invertible, return true, and if matrix
-     *  is non-null, copy the inverse into it. If the current view matrix is
-     *  non-invertible, return false and ignore the matrix parameter.
-     *
-     * @param matrix if not null, will receive a copy of the current inverse.
-     */
-    bool getViewInverse(SkMatrix* matrix) const {
-        SkMatrix inverse;
-        if (fViewMatrix.invert(&inverse)) {
-            if (matrix) {
-                *matrix = inverse;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Sets the viewmatrix to identity and restores it in the destructor.
-     * TODO remove vm off of drawstate
-     */
-    class AutoViewMatrixRestore : public ::SkNoncopyable {
-    public:
-        AutoViewMatrixRestore() {
-            fDrawState = NULL;
-        }
-
-        AutoViewMatrixRestore(GrDrawState* ds) {
-            SkASSERT(ds);
-            fDrawState = ds;
-            fViewMatrix = fDrawState->fViewMatrix;
-            fDrawState->fViewMatrix = SkMatrix::I();
-        }
-
-        void setIdentity(GrDrawState* ds) {
-            SkASSERT(ds);
-            fDrawState = ds;
-            fViewMatrix = fDrawState->fViewMatrix;
-            fDrawState->fViewMatrix = SkMatrix::I();
-        }
-
-        ~AutoViewMatrixRestore() {
-            if (fDrawState) {
-                fDrawState->fViewMatrix = fViewMatrix;
-            }
-        }
-
-    private:
-        GrDrawState*                                           fDrawState;
-        SkMatrix                                               fViewMatrix;
-    };
-
 
     /// @}
 
@@ -514,7 +440,7 @@ private:
      */
     void calcCoverageInvariantOutput(GrColor) const;
 
-    void onReset(const SkMatrix* initialViewMatrix);
+    void onReset();
 
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
@@ -523,7 +449,6 @@ private:
     typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
 
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
-    SkMatrix                                fViewMatrix;
     uint32_t                                fFlagBits;
     GrStencilSettings                       fStencilSettings;
     DrawFace                                fDrawFace;

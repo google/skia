@@ -33,6 +33,7 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
                                                      const GrDrawState* drawState,
+                                                     const SkMatrix& viewMatrix,
                                                      const SkPath& path,
                                                      const SkStrokeRec& stroke,
                                                      DrawType drawType,
@@ -59,7 +60,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
 
 
     for (int i = 0; i < fChain.count(); ++i) {
-        if (fChain[i]->canDrawPath(target, drawState, path, stroke, antiAlias)) {
+        if (fChain[i]->canDrawPath(target, drawState, viewMatrix, path, stroke, antiAlias)) {
             if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
                 GrPathRenderer::StencilSupport support = fChain[i]->getStencilSupport(target,
                                                                                       drawState,

@@ -56,6 +56,7 @@ void setup_drawstate_aaclip(const SkIRect &devBound,
 bool path_needs_SW_renderer(GrContext* context,
                             const GrDrawTarget* gpu,
                             const GrDrawState* drawState,
+                            const SkMatrix& viewMatrix,
                             const SkPath& origPath,
                             const SkStrokeRec& stroke,
                             bool doAA) {
@@ -69,7 +70,7 @@ bool path_needs_SW_renderer(GrContext* context,
                                          GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
 
-    return NULL == context->getPathRenderer(gpu, drawState, *path, stroke, false, type);
+    return NULL == context->getPathRenderer(gpu, drawState, viewMatrix, *path, stroke, false, type);
 }
 }
 
@@ -79,11 +80,17 @@ bool path_needs_SW_renderer(GrContext* context,
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
 bool GrClipMaskManager::useSWOnlyPath(const GrDrawState* drawState,
+                                      const SkVector& clipToMaskOffset,
                                       const GrReducedClip::ElementList& elements) {
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+
+    // Set the matrix so that rendered clip elements are transformed to mask space from clip
+    // space.
+    SkMatrix translate;
+    translate.setTranslate(clipToMaskOffset);
 
     for (GrReducedClip::ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
         const Element* element = iter.get();
@@ -92,8 +99,8 @@ bool GrClipMaskManager::useSWOnlyPath(const GrDrawState* drawState,
         if (Element::kRect_Type != element->getType()) {
             SkPath path;
             element->asPath(&path);
-            if (path_needs_SW_renderer(this->getContext(), fClipTarget, drawState, path, stroke,
-                                       element->isAA())) {
+            if (path_needs_SW_renderer(this->getContext(), fClipTarget, drawState, translate,
+                                       path, stroke, element->isAA())) {
                 return true;
             }
         }
@@ -273,17 +280,25 @@ bool GrClipMaskManager::setupClipping(GrDrawState* drawState,
     if (0 == rt->numSamples() && requiresAA) {
         GrTexture* result = NULL;
 
-        if (this->useSWOnlyPath(drawState, elements)) {
+        // The top-left of the mask corresponds to the top-left corner of the bounds.
+        SkVector clipToMaskOffset = {
+            SkIntToScalar(-clipSpaceIBounds.fLeft),
+            SkIntToScalar(-clipSpaceIBounds.fTop)
+        };
+
+        if (this->useSWOnlyPath(drawState, clipToMaskOffset, elements)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
             result = this->createSoftwareClipMask(genID,
                                                   initialState,
                                                   elements,
+                                                  clipToMaskOffset,
                                                   clipSpaceIBounds);
         } else {
             result = this->createAlphaClipMask(genID,
                                                initialState,
                                                elements,
+                                               clipToMaskOffset,
                                                clipSpaceIBounds);
         }
 
@@ -337,6 +352,7 @@ void set_coverage_drawing_xpf(SkRegion::Op op, bool invertCoverage, GrDrawState*
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawElement(GrDrawState* drawState,
+                                    const SkMatrix& viewMatrix,
                                     GrTexture* target,
                                     const SkClipStack::Element* element,
                                     GrPathRenderer* pr) {
@@ -357,15 +373,16 @@ bool GrClipMaskManager::drawElement(GrDrawState* drawState,
             // TODO: Do rects directly to the accumulator using a aa-rect GrProcessor that covers
             // the entire mask bounds and writes 0 outside the rect.
             if (element->isAA()) {
+                SkRect devRect = element->getRect();
+                viewMatrix.mapRect(&devRect);
                 this->getContext()->getAARectRenderer()->fillAARect(fClipTarget,
                                                                     drawState,
                                                                     color,
-                                                                    SkMatrix::I(),
+                                                                    viewMatrix,
                                                                     element->getRect(),
-                                                                    SkMatrix::I(),
-                                                                    element->getRect());
+                                                                    devRect);
             } else {
-                fClipTarget->drawSimpleRect(drawState, color, element->getRect());
+                fClipTarget->drawSimpleRect(drawState, color, viewMatrix, element->getRect());
             }
             return true;
         default: {
@@ -380,14 +397,14 @@ bool GrClipMaskManager::drawElement(GrDrawState* drawState,
                 GrPathRendererChain::DrawType type;
                 type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
-                pr = this->getContext()->getPathRenderer(fClipTarget, drawState, path, stroke,
-                                                         false, type);
+                pr = this->getContext()->getPathRenderer(fClipTarget, drawState, viewMatrix, path,
+                                                         stroke, false, type);
             }
             if (NULL == pr) {
                 return false;
             }
 
-            pr->drawPath(fClipTarget, drawState, color, path, stroke, element->isAA());
+            pr->drawPath(fClipTarget, drawState, color, viewMatrix, path, stroke, element->isAA());
             break;
         }
     }
@@ -414,8 +431,8 @@ bool GrClipMaskManager::canStencilAndDrawElement(GrDrawState* drawState,
         GrPathRendererChain::DrawType type = element->isAA() ?
             GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
             GrPathRendererChain::kStencilAndColor_DrawType;
-        *pr = this->getContext()->getPathRenderer(fClipTarget, drawState, path, stroke, false,
-                                                  type);
+        *pr = this->getContext()->getPathRenderer(fClipTarget, drawState, SkMatrix::I(), path,
+                                                  stroke, false, type);
         return SkToBool(*pr);
     }
 }
@@ -441,7 +458,7 @@ void GrClipMaskManager::mergeMask(GrDrawState* drawState,
                                       GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode))->unref();
     // The color passed in here does not matter since the coverageSetOpXP won't read it.
-    fClipTarget->drawSimpleRect(drawState, GrColor_WHITE, SkRect::Make(dstBound));
+    fClipTarget->drawSimpleRect(drawState, GrColor_WHITE, SkMatrix::I(), SkRect::Make(dstBound));
 }
 
 GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
@@ -499,6 +516,7 @@ GrTexture* GrClipMaskManager::allocMaskTexture(int32_t elementsGenID,
 GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                                   GrReducedClip::InitialState initialState,
                                                   const GrReducedClip::ElementList& elements,
+                                                  const SkVector& clipToMaskOffset,
                                                   const SkIRect& clipSpaceIBounds) {
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
@@ -516,18 +534,14 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         return NULL;
     }
 
-    // The top-left of the mask corresponds to the top-left corner of the bounds.
-    SkVector clipToMaskOffset = {
-        SkIntToScalar(-clipSpaceIBounds.fLeft),
-        SkIntToScalar(-clipSpaceIBounds.fTop)
-    };
+    // Set the matrix so that rendered clip elements are transformed to mask space from clip
+    // space.
+    SkMatrix translate;
+    translate.setTranslate(clipToMaskOffset);
+
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(clipSpaceIBounds.width(), clipSpaceIBounds.height());
-
-    // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
-    SkMatrix translate;
-    translate.setTranslate(clipToMaskOffset);
 
     // The scratch texture that we are drawing into can be substantially larger than the mask. Only
     // clear the part that we care about.
@@ -549,7 +563,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         SkRegion::Op op = element->getOp();
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
-            GrDrawState drawState(translate);
+            GrDrawState drawState;
             drawState.enableState(GrDrawState::kClip_StateBit);
 
             GrPathRenderer* pr = NULL;
@@ -600,7 +614,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 set_coverage_drawing_xpf(op, invert, &drawState);
             }
 
-            if (!this->drawElement(&drawState, dst, element, pr)) {
+            if (!this->drawElement(&drawState, translate, dst, element, pr)) {
                 fAACache.reset();
                 return NULL;
             }
@@ -619,7 +633,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                 maskSpaceIBounds,
                                 maskSpaceElementIBounds);
             } else {
-                GrDrawState backgroundDrawState(translate);
+                GrDrawState backgroundDrawState;
                 backgroundDrawState.enableState(GrDrawState::kClip_StateBit);
                 backgroundDrawState.setRenderTarget(result->asRenderTarget());
 
@@ -634,16 +648,17 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                              0xffff);
                 backgroundDrawState.setStencil(kDrawOutsideElement);
                 // The color passed in here does not matter since the coverageSetOpXP won't read it.
-                fClipTarget->drawSimpleRect(&backgroundDrawState, GrColor_WHITE, clipSpaceIBounds);
+                fClipTarget->drawSimpleRect(&backgroundDrawState, GrColor_WHITE, translate,
+                                            clipSpaceIBounds);
             }
         } else {
-            GrDrawState drawState(translate);
+            GrDrawState drawState;
             drawState.enableState(GrDrawState::kClip_StateBit);
 
             // all the remaining ops can just be directly draw into the accumulation buffer
             set_coverage_drawing_xpf(op, false, &drawState);
             // The color passed in here does not matter since the coverageSetOpXP won't read it.
-            this->drawElement(&drawState, result, element);
+            this->drawElement(&drawState, translate, result, element);
         }
     }
 
@@ -676,8 +691,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             SkIntToScalar(clipSpaceToStencilOffset.fX),
             SkIntToScalar(clipSpaceToStencilOffset.fY)
         };
-        SkMatrix matrix;
-        matrix.setTranslate(translate);
+        SkMatrix viewMatrix;
+        viewMatrix.setTranslate(translate);
 
         // We set the current clip to the bounds so that our recursive draws are scissored to them.
         SkIRect stencilSpaceIBounds(clipSpaceIBounds);
@@ -697,7 +712,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
         for (GrReducedClip::ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
             const Element* element = iter.get();
 
-            GrDrawState drawState(matrix);
+            GrDrawState drawState;
             drawState.setRenderTarget(rt);
             drawState.enableState(GrDrawState::kClip_StateBit);
 
@@ -732,6 +747,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 }
                 pr = this->getContext()->getPathRenderer(fClipTarget,
                                                          &drawState,
+                                                         viewMatrix,
                                                          clipPath,
                                                          stroke,
                                                          false,
@@ -769,16 +785,17 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                              0xffff);
                 if (Element::kRect_Type == element->getType()) {
                     *drawState.stencil() = gDrawToStencil;
-                    fClipTarget->drawSimpleRect(&drawState, GrColor_WHITE, element->getRect());
+                    fClipTarget->drawSimpleRect(&drawState, GrColor_WHITE, viewMatrix,
+                                                element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         GrDrawTarget::AutoGeometryPush agp(fClipTarget);
                         if (canRenderDirectToStencil) {
                             *drawState.stencil() = gDrawToStencil;
-                            pr->drawPath(fClipTarget, &drawState, GrColor_WHITE, clipPath, stroke,
-                                         false);
+                            pr->drawPath(fClipTarget, &drawState, GrColor_WHITE, viewMatrix,
+                                         clipPath, stroke, false);
                         } else {
-                            pr->stencilPath(fClipTarget, &drawState, clipPath, stroke);
+                            pr->stencilPath(fClipTarget, &drawState, viewMatrix, clipPath, stroke);
                         }
                     }
                 }
@@ -793,16 +810,17 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
                 if (canDrawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
-                        fClipTarget->drawSimpleRect(&drawStateCopy, GrColor_WHITE,
+                        fClipTarget->drawSimpleRect(&drawStateCopy, GrColor_WHITE, viewMatrix,
                                                     element->getRect());
                     } else {
                         GrDrawTarget::AutoGeometryPush agp(fClipTarget);
-                        pr->drawPath(fClipTarget, &drawStateCopy, GrColor_WHITE, clipPath, stroke, false);
+                        pr->drawPath(fClipTarget, &drawStateCopy, GrColor_WHITE, viewMatrix,
+                                     clipPath, stroke, false);
                     }
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    fClipTarget->drawSimpleRect(&drawStateCopy, GrColor_WHITE,
+                    fClipTarget->drawSimpleRect(&drawStateCopy, GrColor_WHITE, viewMatrix,
                                                 SkRect::Make(clipSpaceIBounds));
                 }
             }
@@ -989,6 +1007,7 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
 GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
                                                      GrReducedClip::InitialState initialState,
                                                      const GrReducedClip::ElementList& elements,
+                                                     const SkVector& clipToMaskOffset,
                                                      const SkIRect& clipSpaceIBounds) {
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
@@ -1003,11 +1022,12 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
 
     GrSWMaskHelper helper(this->getContext());
 
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(-clipSpaceIBounds.fLeft),
-                        SkIntToScalar(-clipSpaceIBounds.fTop));
+    // Set the matrix so that rendered clip elements are transformed to mask space from clip
+    // space.
+    SkMatrix translate;
+    translate.setTranslate(clipToMaskOffset);
 
-    helper.init(maskSpaceIBounds, &matrix, false);
+    helper.init(maskSpaceIBounds, &translate, false);
     helper.clear(GrReducedClip::kAllIn_InitialState == initialState ? 0xFF : 0x00);
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
 

@@ -115,10 +115,10 @@ protected:
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    GrDrawState drawState(viewMatrix);
+                    GrDrawState drawState;
                     drawState.setRenderTarget(rt);
                     drawState.addColorProcessor(fp);
-                    tt.target()->drawSimpleRect(&drawState, GrColor_WHITE, renderRect);
+                    tt.target()->drawSimpleRect(&drawState, GrColor_WHITE, viewMatrix, renderRect);
                 }
                 x += renderRect.width() + kTestPad;
             }

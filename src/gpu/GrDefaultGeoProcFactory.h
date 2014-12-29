@@ -80,17 +80,13 @@ public:
      *
      * You must unref the return from Create.
      */
-    static const GrGeometryProcessor* Create(GrColor,
-                                             uint32_t gpTypeFlags = 0,
+    // TODO clean this up
+    static const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
+                                             GrColor,
+                                             const SkMatrix& viewMatrix = SkMatrix::I(),
+                                             const SkMatrix& localMatrix = SkMatrix::I(),
                                              bool opaqueVertexColors = false,
-                                             uint8_t coverage = 0xff,
-                                             const SkMatrix& localMatrix = SkMatrix::I());
-
-    static const GrGeometryProcessor* Create(GrColor color,
-                                             uint32_t gpTypeFlags,
-                                             const SkMatrix& localMatrix) {
-        return Create(color, gpTypeFlags, false, 0xff, localMatrix);
-    }
+                                             uint8_t coverage = 0xff);
 
     static size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };

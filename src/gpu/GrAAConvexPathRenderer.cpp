@@ -627,7 +627,7 @@ public:
 
 private:
     QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
-        : INHERITED(color, false, localMatrix) {
+        : INHERITED(color, SkMatrix::I(), localMatrix) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
@@ -671,6 +671,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
 
 bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
                                          const GrDrawState*,
+                                         const SkMatrix& viewMatrix,
                                          const SkPath& path,
                                          const SkStrokeRec& stroke,
                                          bool antiAlias) const {
@@ -681,6 +682,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
 bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrDrawState* drawState,
                                         GrColor color,
+                                        const SkMatrix& vm,
                                         const SkPath& origPath,
                                         const SkStrokeRec&,
                                         bool antiAlias) {
@@ -690,13 +692,11 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
         return true;
     }
 
-    SkMatrix viewMatrix = drawState->getViewMatrix();
+    SkMatrix viewMatrix = vm;
     SkMatrix invert;
     if (!viewMatrix.invert(&invert)) {
         return false;
     }
-
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     // We use the fact that SkPath::transform path does subdivision based on
     // perspective. Otherwise, we apply the view matrix when copying to the

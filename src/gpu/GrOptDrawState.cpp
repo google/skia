@@ -73,7 +73,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fRenderTarget.reset(drawState.fRenderTarget.get());
     SkASSERT(fRenderTarget);
     fScissorState = scissorState;
-    fViewMatrix = drawState.getViewMatrix();
+    fViewMatrix = fPrimitiveProcessor->viewMatrix();
     fStencilSettings = drawState.getStencil();
     fDrawFace = drawState.getDrawFace();
     // TODO move this out of optDrawState

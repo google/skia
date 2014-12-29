@@ -92,6 +92,7 @@ class GrPrimitiveProcessor : public GrProcessor {
 public:
     // TODO let the PrimProc itself set this in its setData call, this should really live on the
     // bundle of primitive data
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     /*
@@ -135,7 +136,9 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const = 0;
 
 protected:
-    GrPrimitiveProcessor(const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {}
+    GrPrimitiveProcessor(const SkMatrix& viewMatrix, const SkMatrix& localMatrix)
+        : fViewMatrix(viewMatrix)
+        , fLocalMatrix(localMatrix) {}
 
     /*
      * CanCombineOutput will return true if two draws are 'batchable' from a color perspective.
@@ -168,6 +171,7 @@ protected:
     }
 
 private:
+    SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
 
     typedef GrProcessor INHERITED;
@@ -185,9 +189,10 @@ public:
     // TODO the Hint can be handled in a much more clean way when we have deferred geometry or
     // atleast bundles
     GrGeometryProcessor(GrColor color,
-                        bool opaqueVertexColors = false,
-                        const SkMatrix& localMatrix = SkMatrix::I())
-        : INHERITED(localMatrix)
+                        const SkMatrix& viewMatrix = SkMatrix::I(),
+                        const SkMatrix& localMatrix = SkMatrix::I(),
+                        bool opaqueVertexColors = false)
+        : INHERITED(viewMatrix, localMatrix)
         , fVertexStride(0)
         , fColor(color)
         , fOpaqueVertexColors(opaqueVertexColors)
@@ -234,6 +239,11 @@ public:
                       const GrPrimitiveProcessor& that,
                       const GrBatchTracker& theirs) const SK_OVERRIDE {
         if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
+            return false;
+        }
+
+        // TODO let the GPs decide this
+        if (!this->viewMatrix().cheapEqualTo(that.viewMatrix())) {
             return false;
         }
 
@@ -342,8 +352,10 @@ private:
  */
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
-    static GrPathProcessor* Create(GrColor color, const SkMatrix& localMatrix = SkMatrix::I()) {
-        return SkNEW_ARGS(GrPathProcessor, (color, localMatrix));
+    static GrPathProcessor* Create(GrColor color,
+                                   const SkMatrix& viewMatrix = SkMatrix::I(),
+                                   const SkMatrix& localMatrix = SkMatrix::I()) {
+        return SkNEW_ARGS(GrPathProcessor, (color, viewMatrix, localMatrix));
     }
     
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
@@ -366,7 +378,7 @@ public:
     virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
 private:
-    GrPathProcessor(GrColor color, const SkMatrix& localMatrix);
+    GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
     GrColor fColor;
 
     typedef GrPrimitiveProcessor INHERITED;

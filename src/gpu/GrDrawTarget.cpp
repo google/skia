@@ -449,7 +449,7 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
         GrScissorState scissorState;
         GrDrawState::AutoRestoreEffects are;
         GrDrawState::AutoRestoreStencil ars;
-        if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
+        if (!this->setupClip(ds, &are, &ars, &scissorState, devBounds)) {
             return;
         }
 
@@ -492,7 +492,7 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
         GrScissorState scissorState;
         GrDrawState::AutoRestoreEffects are;
         GrDrawState::AutoRestoreStencil ars;
-        if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
+        if (!this->setupClip(ds, &are, &ars, &scissorState, devBounds)) {
             return;
         }
 
@@ -571,7 +571,7 @@ void GrDrawTarget::stencilPath(GrDrawState* ds,
     GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClip(NULL, &are, &ars, ds, &scissorState)) {
+    if (!this->setupClip(ds, &are, &ars, &scissorState, NULL)) {
         return;
     }
 
@@ -594,14 +594,13 @@ void GrDrawTarget::drawPath(GrDrawState* ds,
     SkASSERT(ds);
 
     SkRect devBounds = path->getBounds();
-    SkMatrix viewM = ds->getViewMatrix();
-    viewM.mapRect(&devBounds);
+    pathProc->viewMatrix().mapRect(&devBounds);
 
     // Setup clip
     GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClip(&devBounds, &are, &ars, ds, &scissorState)) {
+    if (!this->setupClip(ds, &are, &ars, &scissorState, &devBounds)) {
        return;
     }
 
@@ -641,7 +640,7 @@ void GrDrawTarget::drawPaths(GrDrawState* ds,
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
 
-    if (!this->setupClip(NULL, &are, &ars, ds, &scissorState)) {
+    if (!this->setupClip(ds, &are, &ars, &scissorState, NULL)) {
         return;
     }
 
@@ -682,7 +681,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
         GrDrawState drawState;
         drawState.setRenderTarget(renderTarget);
 
-        this->drawSimpleRect(&drawState, color, *rect);
+        this->drawSimpleRect(&drawState, color, SkMatrix::I(), *rect);
     } else {       
         this->onClear(rect, color, canIgnoreRect, renderTarget);
     }
@@ -751,7 +750,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
     GrScissorState scissorState;
     GrDrawState::AutoRestoreEffects are;
     GrDrawState::AutoRestoreStencil ars;
-    if (!this->setupClip(devBounds, &are, &ars, ds, &scissorState)) {
+    if (!this->setupClip(ds, &are, &ars, &scissorState, devBounds)) {
         return;
     }
 
@@ -769,7 +768,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
 
     // TODO: We should continue with incorrect blending.
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy,devBounds)) {
+    if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy, devBounds)) {
         return;
     }
 
@@ -951,7 +950,7 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
                                         clippedDstPoint.fY,
                                         clippedSrcRect.width(),
                                         clippedSrcRect.height());
-    this->drawSimpleRect(&drawState, GrColor_WHITE, dstRect);
+    this->drawSimpleRect(&drawState, GrColor_WHITE, SkMatrix::I(), dstRect);
     return true;
 }
 
@@ -1212,11 +1211,11 @@ uint32_t GrDrawTargetCaps::CreateUniqueID() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GrClipTarget::setupClip(const SkRect* devBounds,
+bool GrClipTarget::setupClip(GrDrawState* ds,
                              GrDrawState::AutoRestoreEffects* are,
                              GrDrawState::AutoRestoreStencil* ars,
-                             GrDrawState* ds,
-                             GrScissorState* scissorState) {
+                             GrScissorState* scissorState,
+                             const SkRect* devBounds) {
     return fClipMaskManager.setupClipping(ds,
                                           are,
                                           ars,

@@ -67,6 +67,7 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 ////////////////////////////////////////////////////////////////////////////////
 bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const GrDrawState* drawState,
+                                                const SkMatrix& viewMatrix,
                                                 const SkPath& path,
                                                 const SkStrokeRec& stroke,
                                                 bool antiAlias) const {
@@ -79,14 +80,13 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
     }
 
     // currently don't support perspective
-    const SkMatrix& vm = drawState->getViewMatrix();
-    if (vm.hasPerspective()) {
+    if (viewMatrix.hasPerspective()) {
         return false;
     }
     
     // only support paths smaller than 64x64, scaled to less than 256x256
     // the goal is to accelerate rendering of lots of small paths that may be scaling
-    SkScalar maxScale = vm.getMaxScale();
+    SkScalar maxScale = viewMatrix.getMaxScale();
     const SkRect& bounds = path.getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
     return maxDim < 64.f && maxDim*maxScale < 256.f;
@@ -106,6 +106,7 @@ GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
 bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrDrawState* drawState,
                                                GrColor color,
+                                               const SkMatrix& viewMatrix,
                                                const SkPath& path,
                                                const SkStrokeRec& stroke,
                                                bool antiAlias) {
@@ -117,8 +118,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
     SkASSERT(fContext);
 
     // get mip level
-    const SkMatrix& vm = drawState->getViewMatrix();
-    SkScalar maxScale = vm.getMaxScale();
+    SkScalar maxScale = viewMatrix.getMaxScale();
     const SkRect& bounds = path.getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
     SkScalar size = maxScale*maxDim;
@@ -144,7 +144,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     // use signed distance field to render
-    return this->internalDrawPath(target, drawState, color, path, pathData);
+    return this->internalDrawPath(target, drawState, color, viewMatrix, path, pathData);
 }
 
 // padding around path bounds to allow for antialiased pixels
@@ -308,6 +308,7 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
 bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
                                                      GrDrawState* drawState,
                                                      GrColor color,
+                                                     const SkMatrix& viewMatrix,
                                                      const SkPath& path,
                                                      const PathData* pathData) {
     GrTexture* texture = fAtlas->getTexture();
@@ -319,12 +320,13 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     
     // set up any flags
     uint32_t flags = 0;
-    const SkMatrix& vm = drawState->getViewMatrix();
-    flags |= vm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    flags |= viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
 
     GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
-    if (flags != fEffectFlags || fCachedGeometryProcessor->color() != color) {
+    if (flags != fEffectFlags || fCachedGeometryProcessor->color() != color ||
+        !fCachedGeometryProcessor->viewMatrix().cheapEqualTo(viewMatrix)) {
         fCachedGeometryProcessor.reset(GrDistanceFieldNoGammaTextureEffect::Create(color,
+                                                                                   viewMatrix,
                                                                                    texture,
                                                                                    params,
                                                                                    flags,
@@ -370,7 +372,7 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
                               SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
                               vertSize);
     
-    vm.mapRect(&r);
+    viewMatrix.mapRect(&r);
     target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
     target->drawIndexedInstances(drawState, fCachedGeometryProcessor.get(),
                                  kTriangles_GrPrimitiveType, 1, 4, 6, &r);

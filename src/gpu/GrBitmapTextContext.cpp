@@ -528,7 +528,7 @@ void GrBitmapTextContext::flush() {
 
     if (fCurrVertex > 0) {
         GrDrawState drawState;
-        drawState.setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
+        drawState.setFromPaint(fPaint, fContext->getRenderTarget());
 
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
@@ -566,7 +566,7 @@ void GrBitmapTextContext::flush() {
             if (textureUniqueID != fEffectTextureUniqueID ||
                 fCachedGeometryProcessor->color() != color) {
                 uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
-                fCachedGeometryProcessor.reset(GrDefaultGeoProcFactory::Create(color, flags));
+                fCachedGeometryProcessor.reset(GrDefaultGeoProcFactory::Create(flags, color));
                 fCachedTextureProcessor.reset(GrSimpleTextureEffect::Create(fCurrTexture,
                                                                             SkMatrix::I(),
                                                                             params));

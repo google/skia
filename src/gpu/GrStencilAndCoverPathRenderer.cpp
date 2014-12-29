@@ -52,6 +52,7 @@ GrStencilAndCoverPathRenderer::~GrStencilAndCoverPathRenderer() {
 
 bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const GrDrawState* drawState,
+                                                const SkMatrix& viewMatrix,
                                                 const SkPath& path,
                                                 const SkStrokeRec& stroke,
                                                 bool antiAlias) const {
@@ -82,10 +83,11 @@ static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const SkStrokeRec& 
 
 void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
                                                   GrDrawState* drawState,
+                                                  const SkMatrix& viewMatrix,
                                                   const SkPath& path,
                                                   const SkStrokeRec& stroke) {
     SkASSERT(!path.isInverseFillType());
-    SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE));
+    SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
     SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
     target->stencilPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
 }
@@ -93,6 +95,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
 bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrDrawState* drawState,
                                                GrColor color,
+                                               const SkMatrix& viewMatrix,
                                                const SkPath& path,
                                                const SkStrokeRec& stroke,
                                                bool antiAlias) {
@@ -118,29 +121,28 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
         drawState->setStencil(kInvertedStencilPass);
 
         // fake inverse with a stencil and cover
-        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE));
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
         target->stencilPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
 
         SkMatrix invert = SkMatrix::I();
-        GrDrawState::AutoViewMatrixRestore avmr;
         SkRect bounds = SkRect::MakeLTRB(0, 0,
                                          SkIntToScalar(drawState->getRenderTarget()->width()),
                                          SkIntToScalar(drawState->getRenderTarget()->height()));
         SkMatrix vmi;
         // mapRect through persp matrix may not be correct
-        if (!drawState->getViewMatrix().hasPerspective() && drawState->getViewInverse(&vmi)) {
+        if (!viewMatrix.hasPerspective() && viewMatrix.invert(&vmi)) {
             vmi.mapRect(&bounds);
             // theoretically could set bloat = 0, instead leave it because of matrix inversion
             // precision.
-            SkScalar bloat = drawState->getViewMatrix().getMaxScale() * SK_ScalarHalf;
+            SkScalar bloat = viewMatrix.getMaxScale() * SK_ScalarHalf;
             bounds.outset(bloat, bloat);
         } else {
-            if (!drawState->getViewMatrix().invert(&invert)) {
+            if (!viewMatrix.invert(&invert)) {
                 return false;
             }
-            avmr.setIdentity(drawState);
         }
-        target->drawRect(drawState, color, bounds, NULL, &invert);
+        const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
+        target->drawRect(drawState, color, viewM, bounds, NULL, &invert);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,
@@ -151,7 +153,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
             0xffff);
 
         drawState->setStencil(kStencilPass);
-        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(color));
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(color, viewMatrix));
         target->drawPath(drawState, pp, p, convert_skpath_filltype(path.getFillType()));
     }
 

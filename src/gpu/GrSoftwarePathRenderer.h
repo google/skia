@@ -25,6 +25,7 @@ public:
 
     virtual bool canDrawPath(const GrDrawTarget*,
                              const GrDrawState*,
+                             const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
                              bool antiAlias) const SK_OVERRIDE;
@@ -37,6 +38,7 @@ protected:
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
+                            const SkMatrix& viewMatrix,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;

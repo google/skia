@@ -202,6 +202,7 @@ private:
                 const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawRect(GrDrawState*,
                     GrColor,
+                    const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix) SK_OVERRIDE;

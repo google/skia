@@ -94,15 +94,18 @@ public:
      * caller to fallback to another path renderer This function is called when searching for a path
      * renderer capable of rendering a path.
      *
+     * @param target     The target that the path will be rendered to
+     * @param drawState  The drawState
+     * @param viewMatrix The viewMatrix
      * @param path       The path to draw
      * @param stroke     The stroke information (width, join, cap)
-     * @param target     The target that the path will be rendered to
      * @param antiAlias  True if anti-aliasing is required.
      *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
     virtual bool canDrawPath(const GrDrawTarget* target,
                              const GrDrawState* drawState,
+                             const SkMatrix& viewMatrix,
                              const SkPath& path,
                              const SkStrokeRec& rec,
                              bool antiAlias) const = 0;
@@ -110,23 +113,26 @@ public:
      * Draws the path into the draw target. If getStencilSupport() would return kNoRestriction then
      * the subclass must respect the stencil settings of the target's draw state.
      *
+     * @param target                The target that the path will be rendered to
+     * @param drawState             The drawState
+     * @param viewMatrix            The viewMatrix
      * @param path                  the path to draw.
      * @param stroke                the stroke information (width, join, cap)
-     * @param target                target that the path will be rendered to
      * @param antiAlias             true if anti-aliasing is required.
      */
     bool drawPath(GrDrawTarget* target,
                   GrDrawState* ds,
                   GrColor color,
+                  const SkMatrix& viewMatrix,
                   const SkPath& path,
                   const SkStrokeRec& stroke,
                   bool antiAlias) {
         SkASSERT(!path.isEmpty());
-        SkASSERT(this->canDrawPath(target, ds, path, stroke, antiAlias));
+        SkASSERT(this->canDrawPath(target, ds, viewMatrix, path, stroke, antiAlias));
         SkASSERT(ds->getStencil().isDisabled() ||
                  kNoRestriction_StencilSupport == this->getStencilSupport(target, ds, path,
                                                                           stroke));
-        return this->onDrawPath(target, ds, color, path, stroke, antiAlias);
+        return this->onDrawPath(target, ds, color, viewMatrix, path, stroke, antiAlias);
     }
 
     /**
@@ -139,11 +145,12 @@ public:
      */
     void stencilPath(GrDrawTarget* target,
                      GrDrawState* ds,
+                     const SkMatrix& viewMatrix,
                      const SkPath& path,
                      const SkStrokeRec& stroke) {
         SkASSERT(!path.isEmpty());
         SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(target, ds, path, stroke));
-        this->onStencilPath(target, ds, path, stroke);
+        this->onStencilPath(target, ds, viewMatrix, path, stroke);
     }
 
     // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
@@ -177,6 +184,7 @@ protected:
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
+                            const SkMatrix& viewMatrix,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) = 0;
@@ -187,6 +195,7 @@ protected:
      */
     virtual void onStencilPath(GrDrawTarget* target,
                                GrDrawState* drawState,
+                               const SkMatrix& viewMatrix,
                                const SkPath& path,
                                const SkStrokeRec& stroke) {
         GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
@@ -198,7 +207,7 @@ protected:
                                      0xffff);
         drawState->setStencil(kIncrementStencil);
         drawState->setDisableColorXPFactory();
-        this->drawPath(target, drawState, GrColor_WHITE,  path, stroke, false);
+        this->drawPath(target, drawState, GrColor_WHITE, viewMatrix, path, stroke, false);
     }
 
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set

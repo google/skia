@@ -126,7 +126,8 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            tt.target()->drawSimpleRect(&drawState, 0xff000000, bounds);
+                            tt.target()->drawSimpleRect(&drawState, 0xff000000, SkMatrix::I(),
+                                                        bounds);
                         } else {
                             drew = false;
                         }

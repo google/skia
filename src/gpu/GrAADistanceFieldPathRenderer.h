@@ -26,6 +26,7 @@ public:
     
     virtual bool canDrawPath(const GrDrawTarget*,
                              const GrDrawState*,
+                             const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
                              bool antiAlias) const SK_OVERRIDE;
@@ -39,6 +40,7 @@ protected:
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
+                            const SkMatrix& viewMatrix,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;
@@ -79,8 +81,8 @@ private:
     SkTDynamicHash<PathData, PathData::Key> fPathCache;
     PathDataList                       fPathList;
     
-    bool internalDrawPath(GrDrawTarget*, GrDrawState*, GrColor, const SkPath& path,
-                          const PathData* pathData);
+    bool internalDrawPath(GrDrawTarget*, GrDrawState*, GrColor, const SkMatrix& viewMatrix,
+                          const SkPath& path, const PathData* pathData);
     PathData* addPathToAtlas(const SkPath& path, const SkStrokeRec& stroke, bool antiAlias,
                              uint32_t dimension, SkScalar scale);
     bool freeUnusedPlot();

@@ -93,7 +93,7 @@ private:
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
                                          const GrTextureParams& params, bool useColorAttrib,
                                          bool opaqueVertexColors, const SkMatrix& localMatrix)
-    : INHERITED(color, opaqueVertexColors, localMatrix)
+    : INHERITED(color, SkMatrix::I(), localMatrix, opaqueVertexColors)
     , fTextureAccess(texture, params)
     , fInColor(NULL) {
     this->initClassID<GrBitmapTextGeoProc>();

@@ -78,7 +78,7 @@ public:
                                             const SkStrokeRec& stroke,
                                             const SkIRect& resultBounds,
                                             bool antiAlias,
-                                            SkMatrix* matrix);
+                                            const SkMatrix* matrix);
 
     // This utility routine is used to add a path's mask to some other draw.
     // The ClipMaskManager uses it to accumulate clip masks while the
@@ -94,6 +94,7 @@ public:
                                          GrDrawTarget* target,
                                          GrDrawState* drawState,
                                          GrColor,
+                                         const SkMatrix& viewMatrix,
                                          const SkIRect& rect);
 
 private:

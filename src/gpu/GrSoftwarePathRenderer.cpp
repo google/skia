@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::canDrawPath(const GrDrawTarget*,
                                          const GrDrawState*,
+                                         const SkMatrix& viewMatrix,
                                          const SkPath&,
                                          const SkStrokeRec&,
                                          bool antiAlias) const {
@@ -79,36 +80,34 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 void draw_around_inv_path(GrDrawTarget* target,
                           GrDrawState* drawState,
                           GrColor color,
+                          const SkMatrix& viewMatrix,
                           const SkIRect& devClipBounds,
                           const SkIRect& devPathBounds) {
-    const SkMatrix& matrix = drawState->getViewMatrix();
     SkMatrix invert;
-    if (!matrix.invert(&invert)) {
+    if (!viewMatrix.invert(&invert)) {
         return;
     }
-
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     SkRect rect;
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
-        target->drawRect(drawState, color, rect, NULL, &invert);
+        target->drawRect(drawState, color, SkMatrix::I(), rect, NULL, &invert);
     }
     if (devClipBounds.fLeft < devPathBounds.fLeft) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fTop,
                   devPathBounds.fLeft, devPathBounds.fBottom);
-        target->drawRect(drawState, color, rect, NULL, &invert);
+        target->drawRect(drawState, color, SkMatrix::I(), rect, NULL, &invert);
     }
     if (devClipBounds.fRight > devPathBounds.fRight) {
         rect.iset(devPathBounds.fRight, devPathBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fBottom);
-        target->drawRect(drawState, color, rect, NULL, &invert);
+        target->drawRect(drawState, color, SkMatrix::I(), rect, NULL, &invert);
     }
     if (devClipBounds.fBottom > devPathBounds.fBottom) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fBottom,
                   devClipBounds.fRight, devClipBounds.fBottom);
-        target->drawRect(drawState, color, rect, NULL, &invert);
+        target->drawRect(drawState, color, SkMatrix::I(), rect, NULL, &invert);
     }
 }
 
@@ -119,6 +118,7 @@ void draw_around_inv_path(GrDrawTarget* target,
 bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrDrawState* drawState,
                                         GrColor color,
+                                        const SkMatrix& viewMatrix,
                                         const SkPath& path,
                                         const SkStrokeRec& stroke,
                                         bool antiAlias) {
@@ -127,13 +127,11 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
         return false;
     }
 
-    SkMatrix vm = drawState->getViewMatrix();
-
     SkIRect devPathBounds, devClipBounds;
-    if (!get_path_and_clip_bounds(target, drawState, path, vm,
+    if (!get_path_and_clip_bounds(target, drawState, path, viewMatrix,
                                   &devPathBounds, &devClipBounds)) {
         if (path.isInverseFillType()) {
-            draw_around_inv_path(target, drawState, color, devClipBounds, devPathBounds);
+            draw_around_inv_path(target, drawState, color, viewMatrix, devClipBounds,devPathBounds);
         }
         return true;
     }
@@ -141,16 +139,17 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
     SkAutoTUnref<GrTexture> texture(
             GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, stroke,
                                                   devPathBounds,
-                                                  antiAlias, &vm));
+                                                  antiAlias, &viewMatrix));
     if (NULL == texture) {
         return false;
     }
 
     GrDrawState copy = *drawState;
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, &copy, color, devPathBounds);
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, &copy, color, viewMatrix,
+                                             devPathBounds);
 
     if (path.isInverseFillType()) {
-        draw_around_inv_path(target, drawState, color, devClipBounds, devPathBounds);
+        draw_around_inv_path(target, drawState, color, viewMatrix, devClipBounds, devPathBounds);
     }
 
     return true;

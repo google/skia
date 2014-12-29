@@ -19,6 +19,7 @@ public:
 
     virtual bool canDrawPath(const GrDrawTarget*,
                              const GrDrawState*,
+                             const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
                              bool antiAlias) const SK_OVERRIDE;
@@ -31,6 +32,7 @@ protected:
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
+                            const SkMatrix& viewMatrix,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;
@@ -42,6 +44,7 @@ private:
 
     bool createLineGeom(GrDrawTarget* target,
                         GrDrawState*,
+                        const SkMatrix& viewMatrix,
                         uint8_t coverage,
                         size_t vertexStride,
                         GrDrawTarget::AutoReleaseGeometry* arg,
@@ -52,6 +55,7 @@ private:
 
     bool createBezierGeom(GrDrawTarget* target,
                           GrDrawState*,
+                          const SkMatrix& viewMatrix,
                           GrDrawTarget::AutoReleaseGeometry* arg,
                           SkRect* devBounds,
                           const SkPath& path,

@@ -774,6 +774,7 @@ public:
     GrPathRenderer* getPathRenderer(
                     const GrDrawTarget* target,
                     const GrDrawState*,
+                    const SkMatrix& viewMatrix,
                     const SkPath& path,
                     const SkStrokeRec& stroke,
                     bool allowSW,
@@ -860,10 +861,7 @@ private:
     class AutoCheckFlush;
     /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
     /// draw state is left unmodified.
-    GrDrawTarget* prepareToDraw(GrDrawState* ds,
-                                const GrPaint* paint,
-                                const SkMatrix* viewMatrix,
-                                const AutoCheckFlush*);
+    GrDrawTarget* prepareToDraw(GrDrawState* ds, const GrPaint* paint, const AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget*,
                           GrDrawState*,

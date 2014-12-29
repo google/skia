@@ -69,10 +69,11 @@ static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
                      GrDefaultGeoProcFactory::kColor_GPType;
     flags |= hasExplicitLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
     if (localMatrix) {
-        return GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color), 0xff,
-                                               *localMatrix);
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), *localMatrix,
+                                               GrColorIsOpaque(color));
     } else {
-        return GrDefaultGeoProcFactory::Create(color, flags, GrColorIsOpaque(color));
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), SkMatrix::I(),
+                                               GrColorIsOpaque(color));
     }
 }
 
@@ -115,20 +116,20 @@ static inline bool cmd_has_trace_marker(uint8_t cmd) { return SkToBool(cmd & kTr
 
 void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
                                      GrColor color,
+                                     const SkMatrix& viewMatrix,
                                      const SkRect& rect,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
     GrDrawState::AutoRestoreEffects are(ds);
 
     // Go to device coords to allow batching across matrix changes
-    SkMatrix matrix = ds->getViewMatrix();
     SkMatrix invert = SkMatrix::I();
 
     // if we have a local rect, then we apply the localMatrix directly to the localRect to generate
     // vertex local coords
     bool hasExplicitLocalCoords = SkToBool(localRect);
     if (!hasExplicitLocalCoords) {
-        if (!matrix.isIdentity() && !matrix.invert(&invert)) {
+        if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
             SkDebugf("Could not invert\n");
             return;
         }
@@ -151,15 +152,14 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
         return;
     }
 
+    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
+    viewMatrix.mapPointsWithStride(geo.positions(), vstride, 4);
+
     // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
-    // the vertex positions then we have to account for the view matrix change.
-    GrDrawState::AutoViewMatrixRestore avmr(ds);
-
-    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
-    matrix.mapPointsWithStride(geo.positions(), vstride, 4);
-
+    // the vertex positions then we have to account for the view matrix
     SkRect devBounds;
+
     // since we already computed the dev verts, set the bounds hint. This will help us avoid
     // unnecessary clipping in our onDraw().
     get_vertex_bounds(geo.vertices(), vstride, 4, &devBounds);
@@ -275,7 +275,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrDrawState& ds,
                                                (path, ds.getRenderTarget()));
     sp->fScissor = scissorState;
     sp->fUseHWAA = ds.isHWAntialias();
-    sp->fViewMatrix = ds.getViewMatrix();
+    sp->fViewMatrix = pathProc->viewMatrix();
     sp->fStencil = stencilSettings;
     this->recordTraceMarkersIfNecessary();
 }

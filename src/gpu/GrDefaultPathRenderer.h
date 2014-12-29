@@ -21,6 +21,7 @@ public:
 
     virtual bool canDrawPath(const GrDrawTarget*,
                              const GrDrawState*,
+                             const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
                              bool antiAlias) const SK_OVERRIDE;
@@ -35,18 +36,21 @@ private:
     virtual bool onDrawPath(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
+                            const SkMatrix& viewMatrix,
                             const SkPath&,
                             const SkStrokeRec&,
                             bool antiAlias) SK_OVERRIDE;
 
     virtual void onStencilPath(GrDrawTarget*,
                                GrDrawState*,
+                               const SkMatrix& viewMatrix,
                                const SkPath&,
                                const SkStrokeRec&) SK_OVERRIDE;
 
     bool internalDrawPath(GrDrawTarget*,
                           GrDrawState*,
                           GrColor,
+                          const SkMatrix& viewMatrix,
                           const SkPath&,
                           const SkStrokeRec&,
                           bool stencilOnly);

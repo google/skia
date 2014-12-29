@@ -310,22 +310,24 @@ public:
      */
     void drawRect(GrDrawState* ds,
                   GrColor color,
+                  const SkMatrix& viewMatrix,
                   const SkRect& rect,
                   const SkRect* localRect,
                   const SkMatrix* localMatrix) {
         AutoGeometryPush agp(this);
-        this->onDrawRect(ds, color, rect, localRect, localMatrix);
+        this->onDrawRect(ds, color, viewMatrix, rect, localRect, localMatrix);
     }
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkRect& rect) {
-        this->drawRect(ds, color, rect, NULL, NULL);
+    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkMatrix& viewM, const SkRect& rect) {
+        this->drawRect(ds, color, viewM, rect, NULL, NULL);
     }
-    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkIRect& irect) {
+    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkMatrix& viewM,
+                        const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawRect(ds, color, rect, NULL, NULL);
+        this->drawRect(ds, color, viewM, rect, NULL, NULL);
     }
 
     /**
@@ -707,6 +709,7 @@ private:
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrDrawState*,
                             GrColor color,
+                            const SkMatrix& viewMatrix,
                             const SkRect& rect,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) = 0;
@@ -786,11 +789,11 @@ private:
                                            const GrStencilBuffer*,
                                            GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
-    virtual bool setupClip(const SkRect* devBounds,
+    virtual bool setupClip(GrDrawState*,
                            GrDrawState::AutoRestoreEffects* are,
                            GrDrawState::AutoRestoreStencil* ars,
-                           GrDrawState*,
-                           GrScissorState* scissorState) = 0;
+                           GrScissorState* scissorState,
+                           const SkRect* devBounds) = 0;
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
@@ -846,11 +849,11 @@ protected:
 private:
     GrClipMaskManager* clipMaskManager() SK_OVERRIDE { return &fClipMaskManager; }
 
-    virtual bool setupClip(const SkRect* devBounds,
+    virtual bool setupClip(GrDrawState*,
                            GrDrawState::AutoRestoreEffects* are,
                            GrDrawState::AutoRestoreStencil* ars,
-                           GrDrawState*,
-                           GrScissorState* scissorState) SK_OVERRIDE;
+                           GrScissorState* scissorState,
+                           const SkRect* devBounds) SK_OVERRIDE;
 
     typedef GrDrawTarget INHERITED;
 };

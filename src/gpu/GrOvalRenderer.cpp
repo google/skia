@@ -175,7 +175,7 @@ public:
 
 private:
     CircleEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
-        : INHERITED(color, false, localMatrix) {
+        : INHERITED(color, SkMatrix::I(), localMatrix) {
         this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInCircleEdge = &this->addVertexAttrib(GrAttribute("inCircleEdge",
@@ -213,7 +213,8 @@ GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
                                                   const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {
-    return CircleEdgeEffect::Create(GrRandomColor(random), random->nextBool(),
+    return CircleEdgeEffect::Create(GrRandomColor(random),
+                                    random->nextBool(),
                                     GrProcessorUnitTest::TestMatrix(random));
 }
 
@@ -363,7 +364,7 @@ public:
 
 private:
     EllipseEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
-        : INHERITED(color, false, localMatrix) {
+        : INHERITED(color, SkMatrix::I(), localMatrix) {
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(GrAttribute("inEllipseOffset",
@@ -404,7 +405,8 @@ GrGeometryProcessor* EllipseEdgeEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
                                                    const GrDrawTargetCaps&,
                                                    GrTexture* textures[]) {
-    return EllipseEdgeEffect::Create(GrRandomColor(random), random->nextBool(),
+    return EllipseEdgeEffect::Create(GrRandomColor(random),
+                                     random->nextBool(),
                                      GrProcessorUnitTest::TestMatrix(random));
 }
 
@@ -423,8 +425,8 @@ class DIEllipseEdgeEffect : public GrGeometryProcessor {
 public:
     enum Mode { kStroke = 0, kHairline, kFill };
 
-    static GrGeometryProcessor* Create(GrColor color, Mode mode) {
-        return SkNEW_ARGS(DIEllipseEdgeEffect, (color, mode));
+    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, Mode mode) {
+        return SkNEW_ARGS(DIEllipseEdgeEffect, (color, viewMatrix, mode));
     }
 
     virtual ~DIEllipseEdgeEffect() {}
@@ -571,7 +573,8 @@ public:
     }
 
 private:
-    DIEllipseEdgeEffect(GrColor color, Mode mode) : INHERITED(color) {
+    DIEllipseEdgeEffect(GrColor color, const SkMatrix& viewMatrix, Mode mode)
+        : INHERITED(color, viewMatrix) {
         this->initClassID<DIEllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffsets0 = &this->addVertexAttrib(GrAttribute("inEllipseOffsets0",
@@ -612,7 +615,9 @@ GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
                                                      GrContext* context,
                                                      const GrDrawTargetCaps&,
                                                      GrTexture* textures[]) {
-    return DIEllipseEdgeEffect::Create(GrRandomColor(random), (Mode)(random->nextRangeU(0,2)));
+    return DIEllipseEdgeEffect::Create(GrRandomColor(random),
+                                       GrProcessorUnitTest::TestMatrix(random),
+                                       (Mode)(random->nextRangeU(0,2)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -625,6 +630,7 @@ void GrOvalRenderer::reset() {
 bool GrOvalRenderer::drawOval(GrDrawTarget* target,
                               GrDrawState* drawState,
                               GrColor color,
+                              const SkMatrix& viewMatrix,
                               bool useAA,
                               const SkRect& oval,
                               const SkStrokeRec& stroke)
@@ -637,18 +643,16 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
         return false;
     }
 
-    const SkMatrix& vm = drawState->getViewMatrix();
-
     // we can draw circles
-    if (SkScalarNearlyEqual(oval.width(), oval.height())
-        && circle_stays_circle(vm)) {
-        this->drawCircle(target, drawState, color, useCoverageAA, oval, stroke);
+    if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
+        this->drawCircle(target, drawState, color, viewMatrix, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, drawState, color, useCoverageAA, oval, stroke);
+        return this->drawDIEllipse(target, drawState, color, viewMatrix, useCoverageAA, oval,
+                                   stroke);
     // otherwise axis-aligned ellipses only
-    } else if (vm.rectStaysRect()) {
-        return this->drawEllipse(target, drawState, color, useCoverageAA, oval, stroke);
+    } else if (viewMatrix.rectStaysRect()) {
+        return this->drawEllipse(target, drawState, color, viewMatrix, useCoverageAA, oval, stroke);
     } else {
         return false;
     }
@@ -661,22 +665,19 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 GrDrawState* drawState,
                                 GrColor color,
+                                const SkMatrix& viewMatrix,
                                 bool useCoverageAA,
                                 const SkRect& circle,
-                                const SkStrokeRec& stroke)
-{
-    const SkMatrix& vm = drawState->getViewMatrix();
+                                const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
-    vm.mapPoints(&center, 1);
-    SkScalar radius = vm.mapRadius(SkScalarHalf(circle.width()));
-    SkScalar strokeWidth = vm.mapRadius(stroke.getWidth());
+    viewMatrix.mapPoints(&center, 1);
+    SkScalar radius = viewMatrix.mapRadius(SkScalarHalf(circle.width()));
+    SkScalar strokeWidth = viewMatrix.mapRadius(stroke.getWidth());
 
     SkMatrix invert;
-    if (!vm.invert(&invert)) {
+    if (!viewMatrix.invert(&invert)) {
         return;
     }
-
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
@@ -700,7 +701,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     }
 
     SkAutoTUnref<GrGeometryProcessor> gp(
-            CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0, invert));
+            CircleEdgeEffect::Create(color, isStrokeOnly && innerRadius > 0,invert));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(CircleVertex));
@@ -757,34 +758,35 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  GrDrawState* drawState,
                                  GrColor color,
+                                 const SkMatrix& viewMatrix,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
-                                 const SkStrokeRec& stroke)
-{
+                                 const SkStrokeRec& stroke) {
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
-        bool isAxisAlignedEllipse = drawState->getViewMatrix().rectStaysRect();
+        bool isAxisAlignedEllipse = viewMatrix.rectStaysRect();
         SkASSERT(useCoverageAA && isAxisAlignedEllipse);
     }
 #endif
 
     // do any matrix crunching before we reset the draw state for device coords
-    const SkMatrix& vm = drawState->getViewMatrix();
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
-    vm.mapPoints(&center, 1);
+    viewMatrix.mapPoints(&center, 1);
     SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
     SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
-    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*ellipseXRadius +
-                                   vm[SkMatrix::kMSkewY]*ellipseYRadius);
-    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*ellipseXRadius +
-                                   vm[SkMatrix::kMScaleY]*ellipseYRadius);
+    SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]*ellipseXRadius +
+                                   viewMatrix[SkMatrix::kMSkewY]*ellipseYRadius);
+    SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX]*ellipseXRadius +
+                                   viewMatrix[SkMatrix::kMScaleY]*ellipseYRadius);
 
     // do (potentially) anisotropic mapping of stroke
     SkVector scaledStroke;
     SkScalar strokeWidth = stroke.getWidth();
-    scaledStroke.fX = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMScaleX] + vm[SkMatrix::kMSkewY]));
-    scaledStroke.fY = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMSkewX] + vm[SkMatrix::kMScaleY]));
+    scaledStroke.fX = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMScaleX] +
+                                               viewMatrix[SkMatrix::kMSkewY]));
+    scaledStroke.fY = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMSkewX] +
+                                               viewMatrix[SkMatrix::kMScaleY]));
 
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
@@ -823,14 +825,13 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     }
 
     SkMatrix invert;
-    if (!vm.invert(&invert)) {
+    if (!viewMatrix.invert(&invert)) {
         return false;
     }
 
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
-
     SkAutoTUnref<GrGeometryProcessor> gp(
-            EllipseEdgeEffect::Create(color, isStrokeOnly && innerXRadius > 0 && innerYRadius > 0,
+            EllipseEdgeEffect::Create(color,
+                                      isStrokeOnly && innerXRadius > 0 && innerYRadius > 0,
                                       invert));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
@@ -891,12 +892,10 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
                                    GrDrawState* drawState,
                                    GrColor color,
+                                   const SkMatrix& viewMatrix,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
-                                   const SkStrokeRec& stroke)
-{
-    const SkMatrix& vm = drawState->getViewMatrix();
-
+                                   const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
     SkScalar xRadius = SkScalarHalf(ellipse.width());
     SkScalar yRadius = SkScalarHalf(ellipse.height());
@@ -946,7 +945,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     SkScalar innerRatioX = SkScalarDiv(xRadius, innerXRadius);
     SkScalar innerRatioY = SkScalarDiv(yRadius, innerYRadius);
 
-    SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(color, mode));
+    SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(color, viewMatrix, mode));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, gp->getVertexStride(),  0);
     SkASSERT(gp->getVertexStride() == sizeof(DIEllipseVertex));
@@ -958,10 +957,10 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(geo.vertices());
 
     // This expands the outer rect so that after CTM we end up with a half-pixel border
-    SkScalar a = vm[SkMatrix::kMScaleX];
-    SkScalar b = vm[SkMatrix::kMSkewX];
-    SkScalar c = vm[SkMatrix::kMSkewY];
-    SkScalar d = vm[SkMatrix::kMScaleY];
+    SkScalar a = viewMatrix[SkMatrix::kMScaleX];
+    SkScalar b = viewMatrix[SkMatrix::kMSkewX];
+    SkScalar c = viewMatrix[SkMatrix::kMSkewY];
+    SkScalar d = viewMatrix[SkMatrix::kMScaleY];
     SkScalar geoDx = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(a*a + c*c));
     SkScalar geoDy = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(b*b + d*d));
     // This adjusts the "radius" to include the half-pixel border
@@ -1046,6 +1045,7 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly) {
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
                                 GrDrawState* drawState,
                                 GrColor color,
+                                const SkMatrix& viewMatrix,
                                 bool useAA,
                                 const SkRRect& origOuter,
                                 const SkRRect& origInner) {
@@ -1055,8 +1055,8 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     GrDrawState::AutoRestoreEffects are;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
-        if (!drawState->getViewMatrix().isIdentity()) {
-            if (!origInner.transform(drawState->getViewMatrix(), inner.writable())) {
+        if (!viewMatrix.isIdentity()) {
+            if (!origInner.transform(viewMatrix, inner.writable())) {
                 return false;
             }
         }
@@ -1073,14 +1073,14 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (this->drawRRect(target, drawState, color, useAA, origOuter, fillRec)) {
+    if (this->drawRRect(target, drawState, color, viewMatrix, useAA, origOuter, fillRec)) {
         return true;
     }
 
     SkASSERT(!origOuter.isEmpty());
     SkTCopyOnFirstWrite<SkRRect> outer(origOuter);
-    if (!drawState->getViewMatrix().isIdentity()) {
-        if (!origOuter.transform(drawState->getViewMatrix(), outer.writable())) {
+    if (!viewMatrix.isIdentity()) {
+        if (!origOuter.transform(viewMatrix, outer.writable())) {
             return false;
         }
     }
@@ -1095,28 +1095,29 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     }
 
     SkMatrix invert;
-    if (!drawState->getViewMatrix().invert(&invert)) {
+    if (!viewMatrix.invert(&invert)) {
         return false;
     }
 
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
     drawState->addCoverageProcessor(effect)->unref();
     SkRect bounds = outer->getBounds();
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(drawState, color, bounds, NULL, &invert);
+    target->drawRect(drawState, color, SkMatrix::I(), bounds, NULL, &invert);
     return true;
 }
 
 bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
                                GrDrawState* drawState,
                                GrColor color,
+                               const SkMatrix& viewMatrix,
                                bool useAA,
                                const SkRRect& rrect,
                                const SkStrokeRec& stroke) {
     if (rrect.isOval()) {
-        return this->drawOval(target, drawState, color, useAA, rrect.getBounds(), stroke);
+        return this->drawOval(target, drawState, color, viewMatrix, useAA, rrect.getBounds(),
+                              stroke);
     }
 
     bool useCoverageAA = useAA &&
@@ -1128,22 +1129,20 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         return false;
     }
 
-    const SkMatrix& vm = drawState->getViewMatrix();
-
-    if (!vm.rectStaysRect() || !rrect.isSimple()) {
+    if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {
         return false;
     }
 
     // do any matrix crunching before we reset the draw state for device coords
     const SkRect& rrectBounds = rrect.getBounds();
     SkRect bounds;
-    vm.mapRect(&bounds, rrectBounds);
+    viewMatrix.mapRect(&bounds, rrectBounds);
 
     SkVector radii = rrect.getSimpleRadii();
-    SkScalar xRadius = SkScalarAbs(vm[SkMatrix::kMScaleX]*radii.fX +
-                                   vm[SkMatrix::kMSkewY]*radii.fY);
-    SkScalar yRadius = SkScalarAbs(vm[SkMatrix::kMSkewX]*radii.fX +
-                                   vm[SkMatrix::kMScaleY]*radii.fY);
+    SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]*radii.fX +
+                                   viewMatrix[SkMatrix::kMSkewY]*radii.fY);
+    SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX]*radii.fX +
+                                   viewMatrix[SkMatrix::kMScaleY]*radii.fY);
 
     SkStrokeRec::Style style = stroke.getStyle();
 
@@ -1159,10 +1158,10 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         if (SkStrokeRec::kHairline_Style == style) {
             scaledStroke.set(1, 1);
         } else {
-            scaledStroke.fX = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMScaleX] +
-                                                       vm[SkMatrix::kMSkewY]));
-            scaledStroke.fY = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMSkewX] +
-                                                       vm[SkMatrix::kMScaleY]));
+            scaledStroke.fX = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMScaleX] +
+                                                       viewMatrix[SkMatrix::kMSkewY]));
+            scaledStroke.fY = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMSkewX] +
+                                                       viewMatrix[SkMatrix::kMScaleY]));
         }
 
         // if half of strokewidth is greater than radius, we don't handle that right now
@@ -1182,12 +1181,10 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
     // reset to device coordinates
     SkMatrix invert;
-    if (!vm.invert(&invert)) {
+    if (!viewMatrix.invert(&invert)) {
         SkDebugf("Failed to invert\n");
         return false;
     }
-
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly);
     if (NULL == indexBuffer) {
@@ -1216,7 +1213,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
 
-        SkAutoTUnref<GrGeometryProcessor> effect(CircleEdgeEffect::Create(color, isStrokeOnly,
+        SkAutoTUnref<GrGeometryProcessor> effect(CircleEdgeEffect::Create(color,
+                                                                          isStrokeOnly,
                                                                           invert));
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);
@@ -1316,7 +1314,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
-        SkAutoTUnref<GrGeometryProcessor> effect(EllipseEdgeEffect::Create(color, isStrokeOnly,
+        SkAutoTUnref<GrGeometryProcessor> effect(EllipseEdgeEffect::Create(color,
+                                                                           isStrokeOnly,
                                                                            invert));
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, effect->getVertexStride(),  0);

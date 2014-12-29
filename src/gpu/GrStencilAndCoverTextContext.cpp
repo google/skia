@@ -347,7 +347,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
 
     fStateRestore.set(&fDrawState);
 
-    fDrawState.setFromPaint(fPaint, fViewMatrix, fContext->getRenderTarget());
+    fDrawState.setFromPaint(fPaint, fContext->getRenderTarget());
 
     GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
                                  kZero_StencilOp,
@@ -406,7 +406,9 @@ static const SkScalar* get_xy_scalar_array(const SkPoint* pointArray) {
 
 void GrStencilAndCoverTextContext::flush() {
     if (fQueuedGlyphCount > 0) {
-        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor(), fLocalMatrix));
+        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor(),
+                                                                 fViewMatrix,
+                                                                 fLocalMatrix));
         fDrawTarget->drawPaths(&fDrawState, pp, fGlyphs,
                                fGlyphIndices, GrPathRange::kU16_PathIndexType,
                                get_xy_scalar_array(fGlyphPositions),

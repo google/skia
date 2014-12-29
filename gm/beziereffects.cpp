@@ -92,7 +92,8 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrCubicEffect::Create(0xff000000, et, *tt.target()->caps()));
+                    gp.reset(GrCubicEffect::Create(0xff000000, SkMatrix::I(), et,
+                                                   *tt.target()->caps()));
                     if (!gp) {
                         continue;
                     }
@@ -250,8 +251,8 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrConicEffect::Create(0xff000000, et, *tt.target()->caps(),
-                                                   SkMatrix::I()));
+                    gp.reset(GrConicEffect::Create(0xff000000, SkMatrix::I(), et,
+                                                   *tt.target()->caps(), SkMatrix::I()));
                     if (!gp) {
                         continue;
                     }
@@ -440,8 +441,8 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrQuadEffect::Create(0xff000000, et, *tt.target()->caps(),
-                                                  SkMatrix::I()));
+                    gp.reset(GrQuadEffect::Create(0xff000000, SkMatrix::I(), et,
+                                                  *tt.target()->caps(), SkMatrix::I()));
                     if (!gp) {
                         continue;
                     }

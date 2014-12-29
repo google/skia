@@ -119,8 +119,10 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GrPathProcessor::GrPathProcessor(GrColor color, const SkMatrix& localMatrix)
-    : INHERITED(localMatrix)
+GrPathProcessor::GrPathProcessor(GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 const SkMatrix& localMatrix)
+    : INHERITED(viewMatrix, localMatrix)
     , fColor(color) {
     this->initClassID<GrPathProcessor>();
 }
@@ -152,6 +154,10 @@ bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
                                    const GrPrimitiveProcessor& that,
                                    const GrBatchTracker& t) const {
     if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
+        return false;
+    }
+
+    if (!this->viewMatrix().cheapEqualTo(that.viewMatrix())) {
         return false;
     }
 

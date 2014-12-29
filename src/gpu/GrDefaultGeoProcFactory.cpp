@@ -21,10 +21,18 @@ typedef GrDefaultGeoProcFactory Flag;
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Create(GrColor color, uint8_t coverage, uint32_t gpTypeFlags,
-                                       bool opaqueVertexColors, const SkMatrix& localMatrix) {
-        return SkNEW_ARGS(DefaultGeoProc, (color, coverage, gpTypeFlags, opaqueVertexColors,
-                                           localMatrix));
+    static GrGeometryProcessor* Create(uint32_t gpTypeFlags,
+                                       GrColor color,
+                                       const SkMatrix& viewMatrix,
+                                       const SkMatrix& localMatrix,
+                                       bool opaqueVertexColors,
+                                       uint8_t coverage) {
+        return SkNEW_ARGS(DefaultGeoProc, (gpTypeFlags,
+                                           color,
+                                           viewMatrix,
+                                           localMatrix,
+                                           opaqueVertexColors,
+                                           coverage));
     }
 
     virtual const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
@@ -166,9 +174,13 @@ public:
     }
 
 private:
-    DefaultGeoProc(GrColor color, uint8_t coverage, uint32_t gpTypeFlags, bool opaqueVertexColors,
-                   const SkMatrix& localMatrix)
-        : INHERITED(color, opaqueVertexColors, localMatrix)
+    DefaultGeoProc(uint32_t gpTypeFlags,
+                   GrColor color,
+                   const SkMatrix& viewMatrix,
+                   const SkMatrix& localMatrix,
+                   bool opaqueVertexColors,
+                   uint8_t coverage)
+        : INHERITED(color, viewMatrix, localMatrix, opaqueVertexColors)
         , fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
@@ -246,15 +258,24 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
         flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
     }
 
-    return DefaultGeoProc::Create(GrRandomColor(random), GrRandomCoverage(random),
-                                  flags, random->nextBool(),
-                                  GrProcessorUnitTest::TestMatrix(random));
+    return DefaultGeoProc::Create(flags,
+                                  GrRandomColor(random),
+                                  GrProcessorUnitTest::TestMatrix(random),
+                                  GrProcessorUnitTest::TestMatrix(random),
+                                  random->nextBool(),
+                                  GrRandomCoverage(random));
 }
 
-const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(GrColor color,
-                                                           uint32_t gpTypeFlags,
+const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,
+                                                           GrColor color,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkMatrix& localMatrix,
                                                            bool opaqueVertexColors,
-                                                           uint8_t coverage,
-                                                           const SkMatrix& localMatrix) {
-    return DefaultGeoProc::Create(color, coverage, gpTypeFlags, opaqueVertexColors, localMatrix);
+                                                           uint8_t coverage) {
+    return DefaultGeoProc::Create(gpTypeFlags,
+                                  color,
+                                  viewMatrix,
+                                  localMatrix,
+                                  opaqueVertexColors,
+                                  coverage);
 }

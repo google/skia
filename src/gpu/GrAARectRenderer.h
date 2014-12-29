@@ -45,19 +45,17 @@ public:
     void fillAARect(GrDrawTarget* target,
                     GrDrawState* ds,
                     GrColor color,
-                    const SkMatrix& localMatrix,
+                    const SkMatrix& viewMatrix,
                     const SkRect& rect,
-                    const SkMatrix& combinedMatrix,
                     const SkRect& devRect) {
-        this->geometryFillAARect(target, ds, color, localMatrix, rect, combinedMatrix, devRect);
+        this->geometryFillAARect(target, ds, color, viewMatrix, rect, devRect);
     }
 
     void strokeAARect(GrDrawTarget*,
                       GrDrawState*,
                       GrColor,
-                      const SkMatrix& localMatrix,
+                      const SkMatrix& viewMatrix,
                       const SkRect& rect,
-                      const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
                       const SkStrokeRec& stroke);
 
@@ -65,9 +63,8 @@ public:
     void fillAANestedRects(GrDrawTarget*,
                            GrDrawState*,
                            GrColor,
-                           const SkMatrix& localMatrix,
-                           const SkRect rects[2],
-                           const SkMatrix& combinedMatrix);
+                           const SkMatrix& viewMatrix,
+                           const SkRect rects[2]);
 
 private:
     GrIndexBuffer* aaStrokeRectIndexBuffer(bool miterStroke);
@@ -75,15 +72,14 @@ private:
     void geometryFillAARect(GrDrawTarget*,
                             GrDrawState*,
                             GrColor,
-                            const SkMatrix& localMatrix,
+                            const SkMatrix& viewMatrix,
                             const SkRect& rect,
-                            const SkMatrix& combinedMatrix,
                             const SkRect& devRect);
 
     void geometryStrokeAARect(GrDrawTarget*,
                               GrDrawState*,
                               GrColor,
-                              const SkMatrix& localMatrix,
+                              const SkMatrix& viewMatrix,
                               const SkRect& devOutside,
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,

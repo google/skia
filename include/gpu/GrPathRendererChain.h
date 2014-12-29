@@ -15,6 +15,7 @@ class GrContext;
 class GrDrawState;
 class GrDrawTarget;
 class GrPathRenderer;
+class SkMatrix;
 class SkPath;
 class SkStrokeRec;
 
@@ -58,6 +59,7 @@ public:
         StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
                                     const GrDrawState*,
+                                    const SkMatrix& viewMatrix,
                                     const SkPath& path,
                                     const SkStrokeRec& rec,
                                     DrawType drawType,
