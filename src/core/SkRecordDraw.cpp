@@ -220,7 +220,10 @@ public:
 
         // Nothing can draw outside the current clip.
         // (Only bounded ops call into this method, so oddballs like Clear don't matter here.)
-        rect.intersect(fCurrentClipBounds);
+        if (!rect.intersect(fCurrentClipBounds)) {
+            return Bounds::MakeEmpty();
+        }
+
         return rect;
     }
 
