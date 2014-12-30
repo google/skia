@@ -123,16 +123,6 @@ public:
     SkTDArray<SkDrawCommand*>& getDrawCommands();
 
     /**
-     * Returns the string vector of draw commands
-     */
-    SkTArray<SkString>* getDrawCommandsAsStrings() const;
-
-    /**
-     * Returns an array containing an offset (in the SkPicture) for each command
-     */
-    SkTDArray<size_t>* getDrawCommandOffsets() const;
-
-    /**
         Returns length of draw command vector.
      */
     int getSize() const {

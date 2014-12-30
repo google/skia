@@ -76,11 +76,10 @@ public:
                 picture->unref();
 
                 // Set up the command list.
-                SkTArray<SkString>* commands = fDebugger.getDrawCommandsAsStrings();
                 PostMessage("ClearCommands");
-                for (int i = 0; i < commands->count(); ++i) {
+                for (int i = 0; i < fDebugger.getSize(); ++i) {
                     SkString addCommand("AddCommand:");
-                    addCommand.append((*commands)[i]);
+                    addCommand.append(fDebugger.getDrawCommandAt(i)->toString());
                     PostMessage(addCommand.c_str());
                 }
                 PostMessage("UpdateCommands");

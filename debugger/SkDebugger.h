@@ -44,12 +44,8 @@ public:
         fDebugCanvas->toggleCommand(index, isVisible);
     }
 
-    SkTArray<SkString>* getDrawCommandsAsStrings() {
-        return fDebugCanvas->getDrawCommandsAsStrings();
-    }
-
-    SkTDArray<size_t>* getDrawCommandOffsets() {
-        return fDebugCanvas->getDrawCommandOffsets();
+    SkDrawCommand* getDrawCommandAt(int index) {
+        return fDebugCanvas->getDrawCommandAt(index);
     }
 
     const SkTDArray<SkDrawCommand*>& getDrawCommands() const {
@@ -66,7 +62,7 @@ public:
 
     SkPicture* copyPicture();
 
-    int getSize() {
+    int getSize() const {
         return fDebugCanvas->getSize();
     }
 

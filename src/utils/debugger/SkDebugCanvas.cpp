@@ -388,27 +388,6 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
     return fCommandVector;
 }
 
-// TODO(chudy): Free command string memory.
-SkTArray<SkString>* SkDebugCanvas::getDrawCommandsAsStrings() const {
-    SkTArray<SkString>* commandString = new SkTArray<SkString>(fCommandVector.count());
-    if (!fCommandVector.isEmpty()) {
-        for (int i = 0; i < fCommandVector.count(); i ++) {
-            commandString->push_back() = fCommandVector[i]->toString();
-        }
-    }
-    return commandString;
-}
-
-SkTDArray<size_t>* SkDebugCanvas::getDrawCommandOffsets() const {
-    SkTDArray<size_t>* commandOffsets = new SkTDArray<size_t>;
-    if (!fCommandVector.isEmpty()) {
-        for (int i = 0; i < fCommandVector.count(); i ++) {
-            *commandOffsets->push() = fCommandVector[i]->offset();
-        }
-    }
-    return commandOffsets;
-}
-
 void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level) {
     if (NULL == fTexOverrideFilter) {
         fTexOverrideFilter = new SkTexOverrideFilter;

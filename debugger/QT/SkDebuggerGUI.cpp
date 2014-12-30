@@ -773,11 +773,6 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     SkSafeUnref(stream);
     SkSafeUnref(picture);
 
-    // Will this automatically clear out due to nature of refcnt?
-    SkTArray<SkString>* commands = fDebugger.getDrawCommandsAsStrings();
-    SkTDArray<size_t>* offsets = fDebugger.getDrawCommandOffsets();
-    SkASSERT(commands->count() == offsets->count());
-
     fActionProfile.setDisabled(false);
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
@@ -787,8 +782,8 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
      * */
     fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityFilter());
 
-    this->setupListWidget(commands, offsets);
-    this->setupComboBox(commands);
+    this->setupListWidget();
+    this->setupComboBox();
     this->setupOverviewText(NULL, 0.0, 1);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
@@ -801,31 +796,32 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     actionPlay();
 }
 
-void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* commands, SkTDArray<size_t>* offsets) {
-    SkASSERT(commands->count() == offsets->count());
+void SkDebuggerGUI::setupListWidget() {
     fListWidget.clear();
     int counter = 0;
     int indent = 0;
-    for (int i = 0; i < commands->count(); i++) {
+    for (int i = 0; i < fDebugger.getSize(); i++) {
         QListWidgetItem *item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, (*commands)[i].c_str());
+        SkDrawCommand* command = fDebugger.getDrawCommandAt(i);
+        SkString commandString = command->toString();
+        item->setData(Qt::DisplayRole, commandString.c_str());
         item->setData(Qt::UserRole + 1, counter++);
 
-        if (0 == strcmp("Restore", (*commands)[i].c_str()) ||
-            0 == strcmp("EndCommentGroup", (*commands)[i].c_str())) {
+        if (0 == strcmp("Restore", commandString.c_str()) ||
+            0 == strcmp("EndCommentGroup", commandString.c_str())) {
             indent -= 10;
         }
 
         item->setData(Qt::UserRole + 3, indent);
 
-        if (0 == strcmp("Save", (*commands)[i].c_str()) ||
-            0 == strcmp("Save Layer", (*commands)[i].c_str()) ||
-            0 == strcmp("BeginCommentGroup", (*commands)[i].c_str())) {
+        if (0 == strcmp("Save", commandString.c_str()) ||
+            0 == strcmp("Save Layer", commandString.c_str()) ||
+            0 == strcmp("BeginCommentGroup", commandString.c_str())) {
             indent += 10;
         }
 
         item->setData(Qt::UserRole + 4, -1);
-        item->setData(Qt::UserRole + 5, (int)(*offsets)[i]);
+        item->setData(Qt::UserRole + 5, (int) command->offset());
 
         fListWidget.addItem(item);
     }
@@ -845,13 +841,13 @@ void SkDebuggerGUI::setupClipStackText() {
     fInspectorWidget.setText(clipStack.c_str(), SkInspectorWidget::kClipStack_TabType);
 }
 
-void SkDebuggerGUI::setupComboBox(SkTArray<SkString>* command) {
+void SkDebuggerGUI::setupComboBox() {
     fFilter.clear();
     fFilter.addItem("--Filter By Available Commands--");
 
     std::map<std::string, int> map;
-    for (int i = 0; i < command->count(); i++) {
-        map[(*command)[i].c_str()]++;
+    for (int i = 0; i < fDebugger.getSize(); i++) {
+        map[fDebugger.getDrawCommandAt(i)->toString().c_str()]++;
     }
 
     for (std::map<std::string, int>::iterator it = map.begin(); it != map.end();

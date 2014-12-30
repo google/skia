@@ -334,14 +334,14 @@ private:
     void saveToFile(const SkString& filename);
 
     /**
-        Populates the list widget with the vector of strings passed in.
+        Populates the list widget with the debugger draw command info.
      */
-    void setupListWidget(SkTArray<SkString>* commands, SkTDArray<size_t>* offsets);
+    void setupListWidget();
 
     /**
-        Populates the combo box widget with the vector of strings passed in.
+        Populates the combo box widget with with the debugger draw command info.
      */
-    void setupComboBox(SkTArray<SkString>* command);
+    void setupComboBox();
 
     /**
         Fills in the overview pane with text
