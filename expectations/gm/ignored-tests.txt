@@ -48,6 +48,3 @@ dashcubics
 
 #reed - gm updated, so just need to rebaseline
 c_gms
-
-#robertphillips - updated GM
-stroke-fill

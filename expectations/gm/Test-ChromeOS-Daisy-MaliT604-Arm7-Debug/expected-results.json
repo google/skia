@@ -6837,25 +6837,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3918136278897053209
+          10703144724156409900
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroke-fill_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13206897947906905843
+          6460742060516182381
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "strokerect_565.png": {
       "allowed-digests": [
