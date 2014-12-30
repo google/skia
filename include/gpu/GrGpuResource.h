@@ -228,7 +228,7 @@ protected:
      * Optionally called by the GrGpuResource subclass if the resource can be used as scratch.
      * By default resources are not usable as scratch. This should only be called once.
      **/
-    void setScratchKey(const GrResourceKey& scratchKey);
+    void setScratchKey(const GrScratchKey& scratchKey);
 
 private:
     /**
@@ -274,9 +274,8 @@ private:
         kContentKeySet_Flag = 0x4,
     };
 
-    // TODO(bsalomon): Remove GrResourceKey and use different simpler types for content and scratch
-    // keys.
-    GrResourceKey           fScratchKey;
+    GrScratchKey            fScratchKey;
+    // TODO(bsalomon): Remove GrResourceKey and use different simpler type for content keys.
     GrResourceKey           fContentKey;
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object

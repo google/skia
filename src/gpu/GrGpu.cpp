@@ -76,7 +76,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc,
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     SkASSERT(NULL == rt->getStencilBuffer());
-    GrResourceKey sbKey = GrStencilBuffer::ComputeKey(rt->width(), rt->height(), rt->numSamples());
+    GrScratchKey sbKey;
+    GrStencilBuffer::ComputeKey(rt->width(), rt->height(), rt->numSamples(), &sbKey);
     SkAutoTUnref<GrStencilBuffer> sb(static_cast<GrStencilBuffer*>(
         this->getContext()->getResourceCache2()->findAndRefScratchResource(sbKey)));
     if (sb) {

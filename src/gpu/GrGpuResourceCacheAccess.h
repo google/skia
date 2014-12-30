@@ -38,16 +38,15 @@ public:
      * not have a content key.
      */
     bool isScratch() const {
-        SkASSERT(fResource->fScratchKey.isScratch());
-        return NULL == this->getContentKey() && !fResource->fScratchKey.isNullScratch();
+        return NULL == this->getContentKey() && fResource->fScratchKey.isValid();
     }
 
     /** 
      * If this resource can be used as a scratch resource this returns a valid scratch key.
      * Otherwise it returns a key for which isNullScratch is true. The resource may currently be
-     * used as content resource rather than scratch. Check isScratch().
+     * used as a content resource rather than scratch. Check isScratch().
      */
-    const GrResourceKey& getScratchKey() const { return fResource->fScratchKey; }
+    const GrScratchKey& getScratchKey() const { return fResource->fScratchKey; }
 
     /**
      * If the resource has a scratch key, the key will be removed. Since scratch keys are installed

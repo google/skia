@@ -47,7 +47,7 @@ public:
                !fLastClipStackRect.contains(clipSpaceRect);
     }
 
-    static GrResourceKey ComputeKey(int width, int height, int sampleCnt);
+    static void ComputeKey(int width, int height, int sampleCnt, GrScratchKey* key);
 
 protected:
     GrStencilBuffer(GrGpu* gpu, bool isWrapped, int width, int height, int bits, int sampleCnt)
@@ -57,7 +57,9 @@ protected:
         , fBits(bits)
         , fSampleCnt(sampleCnt)
         , fLastClipStackGenID(SkClipStack::kInvalidGenID) {
-        this->setScratchKey(ComputeKey(width, height, sampleCnt));
+        GrScratchKey key;
+        ComputeKey(width, height, sampleCnt, &key);
+        this->setScratchKey(key);
         fLastClipStackRect.setEmpty();
     }
 

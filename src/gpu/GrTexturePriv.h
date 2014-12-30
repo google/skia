@@ -39,16 +39,11 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
-    static GrResourceKey::ResourceType ResourceType() {
-        static const GrResourceKey::ResourceType gType = GrResourceKey::GenerateResourceType();
-        return gType;
-    }
-
     static GrResourceKey ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrSurfaceDesc& desc,
                                     const GrCacheID& cacheID);
-    static GrResourceKey ComputeScratchKey(const GrSurfaceDesc& desc);
+    static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
     static bool NeedsResizing(const GrResourceKey& key);
     static bool NeedsBilerp(const GrResourceKey& key);
 

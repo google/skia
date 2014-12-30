@@ -10,6 +10,7 @@
 #include "GrResourceCache2.h"
 #include "GrGpuResource.h"  
 
+#include "SkChecksum.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
 
@@ -17,32 +18,26 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrResourceKey& GrResourceKey::NullScratchKey() {
-    static const GrCacheID::Key kBogusKey = { { {0} } };
-    static GrCacheID kBogusID(ScratchDomain(), kBogusKey);
-    static GrResourceKey kNullScratchKey(kBogusID, NoneResourceType(), 0);
-    return kNullScratchKey;
-}
+GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
+    static int32_t gType = kInvalidResourceType + 1;
 
-GrResourceKey::ResourceType GrResourceKey::NoneResourceType() {
-    static const ResourceType gNoneResourceType = GenerateResourceType();
-    return gNoneResourceType;
-}
-
-GrCacheID::Domain GrResourceKey::ScratchDomain() {
-    static const GrCacheID::Domain gDomain = GrCacheID::GenerateDomain();
-    return gDomain;
-}
-
-GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
-    static int32_t gNextType = 0;
-
-    int32_t type = sk_atomic_inc(&gNextType);
-    if (type >= (1 << 8 * sizeof(ResourceType))) {
+    int32_t type = sk_atomic_inc(&gType);
+    if (kInvalidResourceType == type) {
         SkFAIL("Too many Resource Types");
     }
 
     return static_cast<ResourceType>(type);
+}
+
+
+void GrScratchKey::Builder::finish() {
+    if (NULL == fKey) {
+        return;
+    }
+    GR_STATIC_ASSERT(0 == kHash_MetaDataIdx);
+    fKey->fKey[kHash_MetaDataIdx] = 
+        SkChecksum::Compute(&fKey->fKey[kHash_MetaDataIdx + 1], fKey->size() - sizeof(uint32_t));
+    fKey = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -111,7 +106,7 @@ void GrResourceCache2::insertResource(GrGpuResource* resource) {
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
 #endif
     }
-    if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
+    if (resource->cacheAccess().getScratchKey().isValid()) {
         SkASSERT(!resource->cacheAccess().isWrapped());
         fScratchMap.insert(resource->cacheAccess().getScratchKey(), resource);
     }
@@ -131,7 +126,7 @@ void GrResourceCache2::removeResource(GrGpuResource* resource) {
     }
 
     fResources.remove(resource);
-    if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
+    if (resource->cacheAccess().getScratchKey().isValid()) {
         fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
     }
     if (const GrResourceKey* contentKey = resource->cacheAccess().getContentKey()) {
@@ -190,10 +185,10 @@ private:
     bool fRejectPendingIO;
 };
 
-GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrResourceKey& scratchKey,
+GrGpuResource* GrResourceCache2::findAndRefScratchResource(const GrScratchKey& scratchKey,
                                                            uint32_t flags) {
     SkASSERT(!fPurging);
-    SkASSERT(scratchKey.isScratch());
+    SkASSERT(scratchKey.isValid());
 
     GrGpuResource* resource;
     if (flags & (kPreferNoPendingIO_ScratchFlag | kRequireNoPendingIO_ScratchFlag)) {
@@ -228,7 +223,6 @@ bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
     SkASSERT(resource->cacheAccess().getContentKey());
-    SkASSERT(!resource->cacheAccess().getContentKey()->isScratch());
 
     GrGpuResource* res = fContentHash.find(*resource->cacheAccess().getContentKey());
     if (NULL != res) {
@@ -414,7 +408,7 @@ void GrResourceCache2::validate() const {
             ++scratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
-        } else if (!resource->cacheAccess().getScratchKey().isNullScratch()) {
+        } else if (resource->cacheAccess().getScratchKey().isValid()) {
             SkASSERT(NULL != resource->cacheAccess().getContentKey());
             ++couldBeScratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));

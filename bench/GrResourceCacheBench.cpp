@@ -32,9 +32,8 @@ public:
         GrCacheID::Key key;
         memset(&key, 0, sizeof(key));
         key.fData32[0] = i;
-        static int gType = GrResourceKey::GenerateResourceType();
         static int gDomain = GrCacheID::GenerateDomain();
-        return GrResourceKey(GrCacheID(gDomain, key), gType, 0);
+        return GrResourceKey(GrCacheID(gDomain, key), 0);
     }
 
 

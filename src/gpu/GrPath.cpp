@@ -14,7 +14,6 @@ template<int NumBits> static uint64_t get_top_n_float_bits(float f) {
 }
 
 GrResourceKey GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke) {
-    static const GrResourceKey::ResourceType gPathResourceType = GrResourceKey::GenerateResourceType();
     static const GrCacheID::Domain gPathDomain = GrCacheID::GenerateDomain();
 
     GrCacheID::Key key;
@@ -22,7 +21,7 @@ GrResourceKey GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke) 
     keyData[0] = path.getGenerationID();
     keyData[1] = ComputeStrokeKey(stroke);
 
-    return GrResourceKey(GrCacheID(gPathDomain, key), gPathResourceType, 0);
+    return GrResourceKey(GrCacheID(gPathDomain, key), 0);
 }
 
 uint64_t GrPath::ComputeStrokeKey(const SkStrokeRec& stroke) {

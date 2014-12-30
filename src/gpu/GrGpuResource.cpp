@@ -19,8 +19,7 @@ static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
-    : fScratchKey(GrResourceKey::NullScratchKey())
-    , fGpu(gpu)
+    : fGpu(gpu)
     , fGpuMemorySize(kInvalidGpuMemorySize)
     , fUniqueID(CreateUniqueID()) {
     if (isWrapped) {
@@ -91,7 +90,6 @@ void GrGpuResource::didChangeGpuMemorySize() const {
 
 bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
     // Currently this can only be called once and can't be called when the resource is scratch.
-    SkASSERT(!contentKey.isScratch());
     SkASSERT(this->internalHasRef());
 
     // Wrapped resources can never have a key.
@@ -123,11 +121,10 @@ void GrGpuResource::notifyIsPurgable() const {
     }
 }
 
-void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
-    SkASSERT(fScratchKey.isNullScratch());
-    SkASSERT(scratchKey.isScratch());
-    SkASSERT(!scratchKey.isNullScratch());
-    // Wrapped resources can never have a key.
+void GrGpuResource::setScratchKey(const GrScratchKey& scratchKey) {
+    SkASSERT(!fScratchKey.isValid());
+    SkASSERT(scratchKey.isValid());
+    // Wrapped resources can never have a scratch key.
     if (this->isWrapped()) {
         return;
     }
@@ -135,9 +132,9 @@ void GrGpuResource::setScratchKey(const GrResourceKey& scratchKey) {
 }
 
 void GrGpuResource::removeScratchKey() {
-    if (!this->wasDestroyed() && !fScratchKey.isNullScratch()) {
+    if (!this->wasDestroyed() && fScratchKey.isValid()) {
         get_resource_cache2(fGpu)->resourceAccess().willRemoveScratchKey(this);
-        fScratchKey = GrResourceKey::NullScratchKey();
+        fScratchKey.reset();
     }
 }
 

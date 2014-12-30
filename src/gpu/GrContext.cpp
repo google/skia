@@ -411,7 +411,8 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
         }
 
         do {
-            GrResourceKey key = GrTexturePriv::ComputeScratchKey(*desc);
+            GrScratchKey key;
+            GrTexturePriv::ComputeScratchKey(*desc, &key);
             uint32_t scratchFlags = 0;
             if (calledDuringFlush) {
                 scratchFlags = GrResourceCache2::kRequireNoPendingIO_ScratchFlag;
@@ -445,8 +446,11 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
     }
 
     GrTexture* texture = fGpu->createTexture(*desc, NULL, 0);
-    SkASSERT(NULL == texture || 
-             texture->cacheAccess().getScratchKey() == GrTexturePriv::ComputeScratchKey(*desc));
+#ifdef SK_DEBUG
+    GrScratchKey key;
+    GrTexturePriv::ComputeScratchKey(*desc, &key);
+    SkASSERT(NULL == texture || texture->cacheAccess().getScratchKey() == key);
+#endif
     return texture;
 }
 

@@ -98,12 +98,11 @@ public:
     /**
      * Find a resource that matches a scratch key.
      */
-    GrGpuResource* findAndRefScratchResource(const GrResourceKey& scratchKey, uint32_t flags = 0);
+    GrGpuResource* findAndRefScratchResource(const GrScratchKey& scratchKey, uint32_t flags = 0);
     
 #ifdef SK_DEBUG
     // This is not particularly fast and only used for validation, so debug only.
-    int countScratchEntriesForKey(const GrResourceKey& scratchKey) const {
-        SkASSERT(scratchKey.isScratch());
+    int countScratchEntriesForKey(const GrScratchKey& scratchKey) const {
         return fScratchMap.countForKey(scratchKey);
     }
 #endif
@@ -112,7 +111,6 @@ public:
      * Find a resource that matches a content key.
      */
     GrGpuResource* findAndRefContentResource(const GrResourceKey& contentKey) {
-        SkASSERT(!contentKey.isScratch());
         GrGpuResource* resource = fContentHash.find(contentKey);
         if (resource) {
             resource->ref();
@@ -125,7 +123,6 @@ public:
      * Query whether a content key exists in the cache.
      */
     bool hasContentKey(const GrResourceKey& contentKey) const {
-        SkASSERT(!contentKey.isScratch());
         return SkToBool(fContentHash.find(contentKey));
     }
 
@@ -187,13 +184,13 @@ private:
     class AvailableForScratchUse;
 
     struct ScratchMapTraits {
-        static const GrResourceKey& GetKey(const GrGpuResource& r) {
+        static const GrScratchKey& GetKey(const GrGpuResource& r) {
             return r.cacheAccess().getScratchKey();
         }
 
-        static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }
+        static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
     };
-    typedef SkTMultiMap<GrGpuResource, GrResourceKey, ScratchMapTraits> ScratchMap;
+    typedef SkTMultiMap<GrGpuResource, GrScratchKey, ScratchMapTraits> ScratchMap;
 
     struct ContentHashTraits {
         static const GrResourceKey& GetKey(const GrGpuResource& r) {

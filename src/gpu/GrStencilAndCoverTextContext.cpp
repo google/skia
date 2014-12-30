@@ -212,8 +212,7 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
     keyData[0] = desc ? desc->getChecksum() : 0;
     keyData[0] = (keyData[0] << 32) | (typeface ? typeface->uniqueID() : 0);
     keyData[1] = GrPath::ComputeStrokeKey(stroke);
-    GrResourceKey resourceKey = GrResourceKey(GrCacheID(gGlyphsDomain, key),
-                                              GrPathRange::resourceType(), 0);
+    GrResourceKey resourceKey = GrResourceKey(GrCacheID(gGlyphsDomain, key), 0);
 
     SkAutoTUnref<GrPathRange> glyphs(
         static_cast<GrPathRange*>(ctx->findAndRefCachedResource(resourceKey)));

@@ -28,14 +28,6 @@ public:
 
     static const bool kIsWrapped = false;
 
-    /**
-     * Return the resourceType intended for cache lookups involving GrPathRange.
-     */
-    static GrResourceKey::ResourceType resourceType() {
-        static const GrResourceKey::ResourceType type = GrResourceKey::GenerateResourceType();
-        return type;
-    }
-
     enum PathIndexType {
         kU8_PathIndexType,   //!< uint8_t
         kU16_PathIndexType,  //!< uint16_t
