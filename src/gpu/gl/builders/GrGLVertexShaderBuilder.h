@@ -21,10 +21,6 @@ public:
     const char* positionCoords() const { return "position"; }
     const char* localCoords() const { return "localCoords"; }
 
-    /** returns the expected uviewM matrix */
-    // TODO all of this fixed function stuff can live on the GP/PP
-    const char* uViewM() const { return "uViewM"; }
-
     void addAttribute(const GrGeometryProcessor::GrAttribute* attr) {
         this->addAttribute(GrShaderVar(attr->fName,
                                        GrVertexAttribTypeToSLType(attr->fType),
@@ -41,8 +37,6 @@ private:
      * private helpers for compilation by GrGLProgramBuilder
      */
     void transformToNormalizedDeviceSpace();
-    //TODO GP itself should setup the uniform view matrix
-    void setupUniformViewMatrix();
     void emitAttributes(const GrGeometryProcessor& gp);
     void bindVertexAttributes(GrGLuint programID);
     bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;

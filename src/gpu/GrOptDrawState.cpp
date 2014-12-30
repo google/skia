@@ -66,14 +66,12 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         // indicate that this can be skipped.
         fFlags = 0;
         fDrawFace = GrDrawState::kInvalid_DrawFace;
-        fViewMatrix.reset();
         return;
     }
 
     fRenderTarget.reset(drawState.fRenderTarget.get());
     SkASSERT(fRenderTarget);
     fScissorState = scissorState;
-    fViewMatrix = fPrimitiveProcessor->viewMatrix();
     fStencilSettings = drawState.getStencil();
     fDrawFace = drawState.getDrawFace();
     // TODO move this out of optDrawState
@@ -180,7 +178,6 @@ bool GrOptDrawState::combineIfPossible(const GrOptDrawState& that) {
         this->fFragmentStages.count() != that.fFragmentStages.count() ||
         this->fNumColorStages != that.fNumColorStages ||
         this->fScissorState != that.fScissorState ||
-        !this->fViewMatrix.cheapEqualTo(that.fViewMatrix) ||
         this->fDrawType != that.fDrawType ||
         this->fFlags != that.fFlags ||
         this->fStencilSettings != that.fStencilSettings ||

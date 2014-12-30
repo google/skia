@@ -32,8 +32,10 @@ public:
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor&,
+                         const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) SK_OVERRIDE {
+        this->setUniformViewMatrix(pdman, primProc.viewMatrix());
+
         const ConicBatchTracker& local = bt.cast<ConicBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
@@ -82,8 +84,11 @@ void GrGLConicEffect::emitCode(const EmitArgs& args) {
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), gp.inPosition()->fName);
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), gp.inPosition()->fName);
 
+    // setup uniform viewMatrix
+    this->addUniformViewMatrix(pb);
+
     // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
                            gp.inPosition()->fName);
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -261,8 +266,10 @@ public:
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor&,
+                         const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) SK_OVERRIDE {
+        this->setUniformViewMatrix(pdman, primProc.viewMatrix());
+
         const QuadBatchTracker& local = bt.cast<QuadBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
@@ -311,8 +318,11 @@ void GrGLQuadEffect::emitCode(const EmitArgs& args) {
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), gp.inPosition()->fName);
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), gp.inPosition()->fName);
 
+    // setup uniform viewMatrix
+    this->addUniformViewMatrix(pb);
+
     // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
                            gp.inPosition()->fName);
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -476,8 +486,10 @@ public:
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor&,
+                         const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) SK_OVERRIDE {
+        this->setUniformViewMatrix(pdman, primProc.viewMatrix());
+
         const CubicBatchTracker& local = bt.cast<CubicBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
@@ -519,8 +531,11 @@ void GrGLCubicEffect::emitCode(const EmitArgs& args) {
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), gp.inPosition()->fName);
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), gp.inPosition()->fName);
 
+    // setup uniform viewMatrix
+    this->addUniformViewMatrix(args.fPB);
+
     // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
                            gp.inPosition()->fName);
 
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();

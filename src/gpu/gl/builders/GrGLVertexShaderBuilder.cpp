@@ -26,13 +26,6 @@ void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {
     v->fVsOut = fOutputs.back().getName().c_str();
 }
 
-void GrGLVertexBuilder::setupUniformViewMatrix() {
-    fProgramBuilder->fUniformHandles.fViewMatrixUni =
-            fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                        kMat33f_GrSLType, kDefault_GrSLPrecision,
-                                        this->uViewM());
-}
-
 void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
     const GrGeometryProcessor::VertexAttribArray& v = gp.getAttribs();
     int vaCount = v.count();

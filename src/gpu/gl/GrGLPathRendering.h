@@ -126,10 +126,42 @@ private:
                          GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode,
                          GrGLenum transformType, const GrGLfloat *transformValues);
 
+    struct MatrixState {
+        SkMatrix        fViewMatrix;
+        SkISize         fRenderTargetSize;
+        GrSurfaceOrigin fRenderTargetOrigin;
+
+        MatrixState() { this->invalidate(); }
+        void invalidate() {
+            fViewMatrix = SkMatrix::InvalidMatrix();
+            fRenderTargetSize.fWidth = -1;
+            fRenderTargetSize.fHeight = -1;
+            fRenderTargetOrigin = (GrSurfaceOrigin) -1;
+        }
+
+        /**
+         * Gets a matrix that goes from local coordinates to GL normalized device coords.
+         */
+        template<int Size> void getRTAdjustedGLMatrix(GrGLfloat* destMatrix) {
+            SkMatrix combined;
+            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+                combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
+                                0, -SkIntToScalar(2) / fRenderTargetSize.fHeight, SK_Scalar1,
+                                0, 0, 1);
+            } else {
+                combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
+                                0, SkIntToScalar(2) / fRenderTargetSize.fHeight, -SK_Scalar1,
+                                0, 0, 1);
+            }
+            combined.preConcat(fViewMatrix);
+            GrGLGetMatrix<Size>(destMatrix, combined);
+        }
+    };
+
     GrGLGpu* fGpu;
     SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
     Caps fCaps;
-    GrGLProgram::MatrixState fHWProjectionMatrixState;
+    MatrixState fHWProjectionMatrixState;
     GrStencilSettings fHWPathStencilSettings;
     struct PathTexGenData {
         GrGLenum  fMode;

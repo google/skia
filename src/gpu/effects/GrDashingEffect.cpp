@@ -583,8 +583,11 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), dce.inPosition()->fName);
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), dce.inPosition()->fName);
 
+    // setup uniform viewMatrix
+    this->addUniformViewMatrix(pb);
+
     // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
                            dce.inPosition()->fName);
 
     // transforms all points so that we can compare them to our test circle
@@ -608,6 +611,8 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
 void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
                                     const GrPrimitiveProcessor& processor,
                                     const GrBatchTracker& bt) {
+    this->setUniformViewMatrix(pdman, processor.viewMatrix());
+
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     SkScalar radius = dce.getRadius();
     SkScalar centerX = dce.getCenterX();
@@ -871,8 +876,11 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), de.inPosition()->fName);
     vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), de.inPosition()->fName);
 
+    // setup uniform viewMatrix
+    this->addUniformViewMatrix(pb);
+
     // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), vsBuilder->uViewM(),
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
                            de.inPosition()->fName);
 
     // transforms all points so that we can compare them to our test rect
@@ -903,6 +911,8 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
 void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
                                   const GrPrimitiveProcessor& processor,
                                   const GrBatchTracker& bt) {
+    this->setUniformViewMatrix(pdman, processor.viewMatrix());
+
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     const SkRect& rect = de.getRect();
     SkScalar intervalLength = de.getIntervalLength();

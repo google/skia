@@ -56,6 +56,25 @@ void GrGLGeometryProcessor::setupColorPassThrough(GrGLGPBuilder* pb,
     }
 }
 
+void GrGLGeometryProcessor::addUniformViewMatrix(GrGLGPBuilder* pb) {
+    fViewMatrixUniform = pb->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+                                        kMat33f_GrSLType, kDefault_GrSLPrecision,
+                                        "uViewM",
+                                        &fViewMatrixName);
+}
+
+void GrGLGeometryProcessor::setUniformViewMatrix(const GrGLProgramDataManager& pdman,
+                                                 const SkMatrix& viewMatrix) {
+    if (!fViewMatrix.cheapEqualTo(viewMatrix)) {
+        SkASSERT(fViewMatrixUniform.isValid());
+        fViewMatrix = viewMatrix;
+
+        GrGLfloat viewMatrix[3 * 3];
+        GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+        pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct PathBatchTracker {

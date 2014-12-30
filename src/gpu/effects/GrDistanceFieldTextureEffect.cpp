@@ -53,9 +53,12 @@ public:
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
                                     dfTexEffect.inColor(), &fColorUniform);
 
+        // setup uniform viewMatrix
+        this->addUniformViewMatrix(pb);
+
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), dfTexEffect.inPosition()->fName);
+                               this->uViewM(), dfTexEffect.inPosition()->fName);
 
         // setup output coords
         vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
@@ -149,6 +152,8 @@ public:
             fLuminance = luminance;
         }
 #endif
+
+        this->setUniformViewMatrix(pdman, proc.viewMatrix());
 
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -343,9 +348,12 @@ public:
         vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
                                dfTexEffect.inPosition()->fName);
 
+        // setup uniform viewMatrix
+        this->addUniformViewMatrix(pb);
+
         // setup position varying
         vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), dfTexEffect.inPosition()->fName);
+                               this->uViewM(), dfTexEffect.inPosition()->fName);
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -409,6 +417,8 @@ public:
                         SkIntToScalar(fTextureSize.width()),
                         SkIntToScalar(fTextureSize.height()));
         }
+
+        this->setUniformViewMatrix(pdman, proc.viewMatrix());
 
         const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -573,9 +583,12 @@ public:
         vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
                                dfTexEffect.inPosition()->fName);
 
+        // setup uniform viewMatrix
+        this->addUniformViewMatrix(pb);
+
         // setup position varying
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               vsBuilder->uViewM(), dfTexEffect.inPosition()->fName);
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
+                               dfTexEffect.inPosition()->fName);
 
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)
@@ -716,6 +729,8 @@ public:
                         GrColorUnpackB(textColor) * ONE_OVER_255);
             fTextColor = textColor;
         }
+
+        this->setUniformViewMatrix(pdman, processor.viewMatrix());
 
         const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {

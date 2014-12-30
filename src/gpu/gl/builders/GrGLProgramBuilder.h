@@ -240,7 +240,6 @@ public:
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {
-        UniformHandle       fViewMatrixUni;
         UniformHandle       fRTAdjustmentUni;
 
         // We use the render target height to provide a y-down frag coord when specifying

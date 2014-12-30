@@ -339,8 +339,8 @@ void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, G
 }
 
 void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
-                                  const SkISize& renderTargetSize,
-                                  GrSurfaceOrigin renderTargetOrigin) {
+                                            const SkISize& renderTargetSize,
+                                            GrSurfaceOrigin renderTargetOrigin) {
 
     SkASSERT(fGpu->glCaps().pathRenderingSupport());
 

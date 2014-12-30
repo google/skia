@@ -178,8 +178,6 @@ const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
 
 void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
     if (fOptState.hasGeometryProcessor()) {
-        fVS.setupUniformViewMatrix();
-
         fVS.codeAppend("gl_PointSize = 1.0;");
 
         // Setup position

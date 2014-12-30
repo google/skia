@@ -103,8 +103,11 @@ public:
                 vs->codeAppendf("%s = %s;", vs->localCoords(), gp.inPosition()->fName);
             }
 
+            // setup uniform viewMatrix
+            this->addUniformViewMatrix(pb);
+
             // setup position varying
-            vs->codeAppendf("%s = %s * vec3(%s, 1);", vs->glPosition(), vs->uViewM(),
+            vs->codeAppendf("%s = %s * vec3(%s, 1);", vs->glPosition(), this->uViewM(),
                             gp.inPosition()->fName);
 
             // Setup coverage as pass through
@@ -141,6 +144,8 @@ public:
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) SK_OVERRIDE {
+            this->setUniformViewMatrix(pdman, gp.viewMatrix());
+
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];

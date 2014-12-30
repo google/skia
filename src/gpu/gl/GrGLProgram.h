@@ -60,47 +60,19 @@ public:
     virtual bool hasVertexShader() const { return true; }
 
     /**
-     * The GrDrawState's view matrix along with the aspects of the render target determine the
-     * matrix sent to GL. The size of the render target affects the GL matrix because we must
-     * convert from Skia device coords to GL's normalized coords. Also the origin of the render
-     * target may require us to perform a mirror-flip.
+     * We use the RT's size and origin to adjust from Skia device space to OpenGL normalized device
+     * space and to make device space positions have the correct origin for processors that require
+     * them.
      */
-    struct MatrixState {
-        SkMatrix        fViewMatrix;
+    struct RenderTargetState {
         SkISize         fRenderTargetSize;
         GrSurfaceOrigin fRenderTargetOrigin;
 
-        MatrixState() { this->invalidate(); }
+        RenderTargetState() { this->invalidate(); }
         void invalidate() {
-            fViewMatrix = SkMatrix::InvalidMatrix();
             fRenderTargetSize.fWidth = -1;
             fRenderTargetSize.fHeight = -1;
             fRenderTargetOrigin = (GrSurfaceOrigin) -1;
-        }
-
-        /**
-         * Gets a matrix that goes from local coords to Skia's device coordinates.
-         */
-        template<int Size> void getGLMatrix(GrGLfloat* destMatrix) {
-            GrGLGetMatrix<Size>(destMatrix, fViewMatrix);
-        }
-
-        /**
-         * Gets a matrix that goes from local coordinates to GL normalized device coords.
-         */
-        template<int Size> void getRTAdjustedGLMatrix(GrGLfloat* destMatrix) {
-            SkMatrix combined;
-            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
-                combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
-                                0, -SkIntToScalar(2) / fRenderTargetSize.fHeight, SK_Scalar1,
-                                0, 0, 1);
-            } else {
-                combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
-                                0, SkIntToScalar(2) / fRenderTargetSize.fHeight, -SK_Scalar1,
-                                0, 0, 1);
-            }
-            combined.preConcat(fViewMatrix);
-            GrGLGetMatrix<Size>(destMatrix, combined);
         }
 
         /**
@@ -162,11 +134,11 @@ protected:
     virtual void didSetData(GrGpu::DrawType);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setMatrixAndRenderTargetHeight(const GrOptDrawState&);
-    virtual void onSetMatrixAndRenderTargetHeight(const GrOptDrawState&);
+    void setRenderTargetState(const GrOptDrawState&);
+    virtual void onSetRenderTargetState(const GrOptDrawState&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
-    MatrixState fMatrixState;
+    RenderTargetState fRenderTargetState;
     GrColor fColor;
     uint8_t fCoverage;
     int fDstCopyTexUnit;
@@ -204,7 +176,7 @@ protected:
                         GrGLInstalledGeoProc*,
                         GrGLInstalledXferProc* xferProcessor,
                         GrGLInstalledFragProcs* fragmentProcessors);
-    virtual void onSetMatrixAndRenderTargetHeight(const GrOptDrawState&);
+    virtual void onSetRenderTargetState(const GrOptDrawState&);
 
     typedef GrGLProgram INHERITED;
 };

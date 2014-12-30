@@ -20,7 +20,7 @@ class GrGLGPBuilder;
  */
 class GrGLGeometryProcessor {
 public:
-    GrGLGeometryProcessor() {}
+    GrGLGeometryProcessor() : fViewMatrixName(NULL) { fViewMatrix = SkMatrix::InvalidMatrix(); }
     virtual ~GrGLGeometryProcessor() {}
 
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -74,7 +74,23 @@ protected:
                                const GrGeometryProcessor::GrAttribute* colorAttr,
                                UniformHandle* colorUniform);
 
+    const char* uViewM() const { return fViewMatrixName; }
+
+    /** a helper function to setup the uniform handle for the uniform view matrix */
+    void addUniformViewMatrix(GrGLGPBuilder*);
+
+
+    /** a helper function to upload a uniform viewmatrix.
+     * TODO we can remove this function when we have deferred geometry in place
+     */
+    void setUniformViewMatrix(const GrGLProgramDataManager&,
+                              const SkMatrix& viewMatrix);
+
 private:
+    UniformHandle fViewMatrixUniform;
+    SkMatrix fViewMatrix;
+    const char* fViewMatrixName;
+
     typedef GrGLProcessor INHERITED;
 };
 

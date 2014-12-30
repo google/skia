@@ -85,18 +85,6 @@ public:
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name View Matrix
-    ////
-
-    /**
-     * Retrieves the current view matrix
-     * @return the current view matrix.
-     */
-    const SkMatrix& getViewMatrix() const { return fViewMatrix; }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
     /// @name Render Target
     ////
 
@@ -186,7 +174,6 @@ private:
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
-    SkMatrix                            fViewMatrix;
     GrStencilSettings                   fStencilSettings;
     GrDrawState::DrawFace               fDrawFace;
     GrDeviceCoordTexture                fDstCopy;

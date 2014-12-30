@@ -132,7 +132,7 @@ void GrGLProgram::bindTextures(const GrGLInstalledProc* ip, const GrProcessor& p
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLProgram::setData(const GrOptDrawState& optState) {
-    this->setMatrixAndRenderTargetHeight(optState);
+    this->setRenderTargetState(optState);
 
     const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
     if (dstCopy) {
@@ -205,37 +205,29 @@ void GrGLProgram::didSetData(GrGpu::DrawType drawType) {
     SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType));
 }
 
-void GrGLProgram::setMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
+void GrGLProgram::setRenderTargetState(const GrOptDrawState& optState) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fMatrixState.fRenderTargetSize.fHeight != optState.getRenderTarget()->height()) {
+        fRenderTargetState.fRenderTargetSize.fHeight != optState.getRenderTarget()->height()) {
         fProgramDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
                                    SkIntToScalar(optState.getRenderTarget()->height()));
     }
 
     // call subclasses to set the actual view matrix
-    this->onSetMatrixAndRenderTargetHeight(optState);
+    this->onSetRenderTargetState(optState);
 }
 
-void GrGLProgram::onSetMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
+void GrGLProgram::onSetRenderTargetState(const GrOptDrawState& optState) {
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
-    if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
-        fMatrixState.fRenderTargetSize != size ||
-        !fMatrixState.fViewMatrix.cheapEqualTo(optState.getViewMatrix())) {
-        SkASSERT(fBuiltinUniformHandles.fViewMatrixUni.isValid());
-
-        fMatrixState.fViewMatrix = optState.getViewMatrix();
-        fMatrixState.fRenderTargetSize = size;
-        fMatrixState.fRenderTargetOrigin = rt->origin();
-
-        GrGLfloat viewMatrix[3 * 3];
-        fMatrixState.getGLMatrix<3>(viewMatrix);
-        fProgramDataManager.setMatrix3f(fBuiltinUniformHandles.fViewMatrixUni, viewMatrix);
+    if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
+        fRenderTargetState.fRenderTargetSize != size) {
+        fRenderTargetState.fRenderTargetSize = size;
+        fRenderTargetState.fRenderTargetOrigin = rt->origin();
 
         GrGLfloat rtAdjustmentVec[4];
-        fMatrixState.getRTAdjustmentVec(rtAdjustmentVec);
+        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
         fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
     }
 }
@@ -254,12 +246,13 @@ GrGLNvprProgramBase::GrGLNvprProgramBase(GrGLGpu* gpu,
                 xferProcessor, fragmentProcessors) {
 }
 
-void GrGLNvprProgramBase::onSetMatrixAndRenderTargetHeight(const GrOptDrawState& optState) {
+void GrGLNvprProgramBase::onSetRenderTargetState(const GrOptDrawState& optState) {
     SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()));
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
-    fGpu->glPathRendering()->setProjectionMatrix(optState.getViewMatrix(), size, rt->origin());
+    fGpu->glPathRendering()->setProjectionMatrix(optState.getPrimitiveProcessor()->viewMatrix(),
+                                                 size, rt->origin());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

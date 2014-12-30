@@ -101,9 +101,12 @@ public:
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), ce.inPosition()->fName);
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), ce.inPosition()->fName);
 
+            // setup uniform viewMatrix
+            this->addUniformViewMatrix(pb);
+
             // setup position varying
             vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), ce.inPosition()->fName);
+                                   this->uViewM(), ce.inPosition()->fName);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
@@ -131,6 +134,8 @@ public:
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) SK_OVERRIDE {
+            this->setUniformViewMatrix(pdman, gp.viewMatrix());
+
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];
@@ -274,9 +279,12 @@ public:
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), ee.inPosition()->fName);
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), ee.inPosition()->fName);
 
+            // setup uniform viewMatrix
+            this->addUniformViewMatrix(pb);
+
             // setup position varying
             vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), ee.inPosition()->fName);
+                                   this->uViewM(), ee.inPosition()->fName);
 
             // for outer curve
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -319,6 +327,8 @@ public:
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) SK_OVERRIDE {
+            this->setUniformViewMatrix(pdman, gp.viewMatrix());
+
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];
@@ -469,9 +479,12 @@ public:
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), ee.inPosition()->fName);
             vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), ee.inPosition()->fName);
 
+            // setup uniform viewMatrix
+            this->addUniformViewMatrix(pb);
+
             // setup position varying
             vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   vsBuilder->uViewM(), ee.inPosition()->fName);
+                                   this->uViewM(), ee.inPosition()->fName);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
@@ -529,6 +542,8 @@ public:
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) SK_OVERRIDE {
+            this->setUniformViewMatrix(pdman, gp.viewMatrix());
+
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];
