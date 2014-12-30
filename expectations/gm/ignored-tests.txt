@@ -33,9 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# joshualitt
-dashing3
-
 # robertphillips - skia:2995
 blurrects
 
