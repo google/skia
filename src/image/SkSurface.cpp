@@ -123,16 +123,16 @@ static SkSurface_Base* asSB(SkSurface* surface) {
 SkSurface::SkSurface(int width, int height, const SkSurfaceProps* props)
     : fProps(SkSurfacePropsCopyOrDefault(props)), fWidth(width), fHeight(height)
 {
-    SkASSERT(fWidth >= 0);
-    SkASSERT(fHeight >= 0);
+    SkASSERT(fWidth > 0);
+    SkASSERT(fHeight > 0);
     fGenerationID = 0;
 }
 
 SkSurface::SkSurface(const SkImageInfo& info, const SkSurfaceProps* props)
     : fProps(SkSurfacePropsCopyOrDefault(props)), fWidth(info.width()), fHeight(info.height())
 {
-    SkASSERT(fWidth >= 0);
-    SkASSERT(fHeight >= 0);
+    SkASSERT(fWidth > 0);
+    SkASSERT(fHeight > 0);
     fGenerationID = 0;
 }
 

@@ -71,6 +71,35 @@ enum ImageType {
     kCodec_ImageType,
 };
 
+#include "SkImageGenerator.h"
+
+class EmptyGenerator : public SkImageGenerator {
+protected:
+    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+        *info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
+        return true;
+    }
+};
+
+static void test_empty_image(skiatest::Reporter* reporter) {
+    const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
+    
+    REPORTER_ASSERT(reporter, NULL == SkImage::NewRasterCopy(info, NULL, 0));
+    REPORTER_ASSERT(reporter, NULL == SkImage::NewRasterData(info, NULL, 0));
+    REPORTER_ASSERT(reporter, NULL == SkImage::NewFromGenerator(SkNEW(EmptyGenerator)));
+}
+
+static void test_empty_surface(skiatest::Reporter* reporter, GrContext* ctx) {
+    const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
+    
+    REPORTER_ASSERT(reporter, NULL == SkSurface::NewRaster(info));
+    REPORTER_ASSERT(reporter, NULL == SkSurface::NewRasterDirect(info, NULL, 0));
+    if (ctx) {
+        REPORTER_ASSERT(reporter, NULL == SkSurface::NewRenderTarget(ctx, info, 0, NULL));
+        REPORTER_ASSERT(reporter, NULL == SkSurface::NewScratchRenderTarget(ctx, info, 0, NULL));
+    }
+}
+
 static void test_image(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     size_t rowBytes = info.minRowBytes();
@@ -475,6 +504,9 @@ DEF_GPUTEST(Surface, reporter, factory) {
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kDiscard_ContentChangeMode);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kRetain_ContentChangeMode);
 
+    test_empty_image(reporter);
+    test_empty_surface(reporter, NULL);
+
     test_imagepeek(reporter, factory);
     test_canvaspeek(reporter, factory);
 
@@ -500,6 +532,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
                 TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
                 TestGetTexture(reporter, kGpu_SurfaceType, context);
                 TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
+                test_empty_surface(reporter, context);
             }
         }
     }

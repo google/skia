@@ -32,6 +32,10 @@ class GrTexture;
  *  The content of SkImage is always immutable, though the actual storage may
  *  change, if for example that image can be re-created via encoded data or
  *  other means.
+ *
+ *  SkImage always has a non-zero dimensions. If there is a request to create a new image, either
+ *  directly or via SkSurface, and either of the requested dimensions are zero, then NULL will be
+ *  returned.
  */
 class SK_API SkImage : public SkRefCnt {
 public:
@@ -130,8 +134,8 @@ protected:
         fHeight(height),
         fUniqueID(NextUniqueID()) {
 
-        SkASSERT(width >= 0);
-        SkASSERT(height >= 0);
+        SkASSERT(width > 0);
+        SkASSERT(height > 0);
     }
 
 private:

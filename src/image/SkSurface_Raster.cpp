@@ -39,6 +39,10 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
+    if (info.isEmpty()) {
+        return false;
+    }
+
     static const size_t kMaxTotalSize = SK_MaxS32;
 
     int shift = 0;

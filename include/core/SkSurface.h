@@ -24,6 +24,9 @@ class GrRenderTarget;
  *
  *  To draw into a canvas, first create the appropriate type of Surface, and
  *  then request the canvas from the surface.
+ *
+ *  SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
+ *  of the requested dimensions are zero, then NULL will be returned.
  */
 class SK_API SkSurface : public SkRefCnt {
 public:

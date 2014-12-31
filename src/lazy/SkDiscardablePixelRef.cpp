@@ -98,6 +98,7 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
     SkAutoTDelete<SkImageGenerator> autoGenerator(generator);
     if ((NULL == autoGenerator.get())
         || (!autoGenerator->getInfo(&info))
+        || info.isEmpty()
         || (!dst->setInfo(info))) {
         return false;
     }

@@ -19,7 +19,7 @@ public:
         const int maxDimension = SK_MaxS32 >> 2;
         const size_t kMaxPixelByteSize = SK_MaxS32;
 
-        if (info.width() < 0 || info.height() < 0) {
+        if (info.width() <= 0 || info.height() <= 0) {
             return false;
         }
         if (info.width() > maxDimension || info.height() > maxDimension) {
@@ -48,8 +48,6 @@ public:
         }
         return true;
     }
-
-    static SkImage* NewEmpty();
 
     SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, const SkSurfaceProps*);
     virtual ~SkImage_Raster();
@@ -85,16 +83,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SkImage* SkImage_Raster::NewEmpty() {
-    // Returns lazily created singleton
-    static SkImage* gEmpty;
-    if (NULL == gEmpty) {
-        gEmpty = SkNEW(SkImage_Raster);
-    }
-    gEmpty->ref();
-    return gEmpty;
-}
 
 static void release_data(void* addr, void* context) {
     SkData* data = static_cast<SkData*>(context);
@@ -169,14 +157,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
-    if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
-        return NULL;
-    }
-    if (0 == info.width() && 0 == info.height()) {
-        return SkImage_Raster::NewEmpty();
-    }
-    // check this after empty-check
-    if (NULL == pixels) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes) || !pixels) {
         return NULL;
     }
 
@@ -187,14 +168,7 @@ SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, siz
 
 
 SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t rowBytes) {
-    if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
-        return NULL;
-    }
-    if (0 == info.width() && 0 == info.height()) {
-        return SkImage_Raster::NewEmpty();
-    }
-    // check this after empty-check
-    if (NULL == data) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes) || !data) {
         return NULL;
     }
 
