@@ -94,22 +94,19 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionClearBreakpoints, SIGNAL(triggered()), this, SLOT(actionClearBreakpoints()));
     connect(&fActionClearDeletes, SIGNAL(triggered()), this, SLOT(actionClearDeletes()));
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
-    connect(&fSettingsWidget, SIGNAL(visibilityFilterChanged()), this, SLOT(actionCommandFilter()));
 #if SK_SUPPORT_GPU
-    connect(&fSettingsWidget, SIGNAL(glSettingsChanged()), this, SLOT(actionGLWidget()));
+    connect(&fSettingsWidget, SIGNAL(glSettingsChanged()), this, SLOT(actionGLSettingsChanged()));
 #endif
+    connect(&fSettingsWidget, SIGNAL(rasterSettingsChanged()), this, SLOT(actionRasterSettingsChanged()));
+    connect(&fSettingsWidget, SIGNAL(visualizationsChanged()), this, SLOT(actionVisualizationsChanged()));
     connect(&fSettingsWidget, SIGNAL(texFilterSettingsChanged()), this, SLOT(actionTextureFilter()));
-    connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
-    connect(fSettingsWidget.getOverdrawVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionOverdrawVizWidget(bool)));
-    connect(fSettingsWidget.getMegaVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionMegaVizWidget(bool)));
-    connect(fSettingsWidget.getPathOpsCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionPathOpsWidget(bool)));
     connect(&fActionPause, SIGNAL(toggled(bool)), this, SLOT(pauseDrawing(bool)));
     connect(&fActionCreateBreakpoint, SIGNAL(activated()), this, SLOT(toggleBreakpoint()));
     connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(selectCommand(int)));
-    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), &fSettingsWidget, SLOT(updateHit(int)));
+    connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(updateHit(int)));
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this, SLOT(actionScale(float)));
-    connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fSettingsWidget, SLOT(updateCommand(int)));
+    connect(&fCanvasWidget, SIGNAL(commandChanged(int)), this, SLOT(updateCommand(int)));
     connect(&fActionSaveAs, SIGNAL(triggered()), this, SLOT(actionSaveAs()));
     connect(&fActionSave, SIGNAL(triggered()), this, SLOT(actionSave()));
 
@@ -120,6 +117,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionZoomOut, SIGNAL(triggered()), &fMapper, SLOT(map()));
     connect(&fMapper, SIGNAL(mapped(int)), &fCanvasWidget, SLOT(zoom(int)));
 
+    fViewStateFrame.setDisabled(true);
     fInspectorWidget.setDisabled(true);
     fMenuEdit.setDisabled(true);
     fMenuNavigate.setDisabled(true);
@@ -241,12 +239,6 @@ void SkDebuggerGUI::actionClearDeletes() {
     }
 }
 
-void SkDebuggerGUI::actionCommandFilter() {
-    fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityFilter());
-    fCanvasWidget.drawTo(fListWidget.currentRow());
-    fImageWidget.draw();
-}
-
 void SkDebuggerGUI::actionClose() {
     this->close();
 }
@@ -283,7 +275,7 @@ void SkDebuggerGUI::actionDelete() {
 }
 
 #if SK_SUPPORT_GPU
-void SkDebuggerGUI::actionGLWidget() {
+void SkDebuggerGUI::actionGLSettingsChanged() {
     bool isToggled = fSettingsWidget.isGLActive();
     if (isToggled) {
         fCanvasWidget.setGLSampleCount(fSettingsWidget.getGLSampleCount());
@@ -293,13 +285,11 @@ void SkDebuggerGUI::actionGLWidget() {
 #endif
 
 void SkDebuggerGUI::actionInspector() {
-    if (fInspectorWidget.isHidden()) {
-        fInspectorWidget.setHidden(false);
-        fImageWidget.setHidden(false);
-    } else {
-        fInspectorWidget.setHidden(true);
-        fImageWidget.setHidden(true);
-    }
+    bool newState = !fInspectorWidget.isHidden();
+
+    fInspectorWidget.setHidden(newState);
+    fViewStateFrame.setHidden(newState);
+    fImageWidget.setHidden(newState);
 }
 
 void SkDebuggerGUI::actionPlay() {
@@ -314,23 +304,19 @@ void SkDebuggerGUI::actionPlay() {
     fListWidget.setCurrentRow(fListWidget.count() - 1);
 }
 
-void SkDebuggerGUI::actionRasterWidget(bool isToggled) {
-    fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kRaster_8888_WidgetType, !isToggled);
-}
-
-void SkDebuggerGUI::actionOverdrawVizWidget(bool isToggled) {
-    fDebugger.setOverdrawViz(isToggled);
+void SkDebuggerGUI::actionRasterSettingsChanged() {
+    fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kRaster_8888_WidgetType,
+                                      !fSettingsWidget.isRasterEnabled());
+    fDebugger.setOverdrawViz(fSettingsWidget.isOverdrawVizEnabled());
     fCanvasWidget.update();
 }
 
-void SkDebuggerGUI::actionMegaVizWidget(bool isToggled) {
-    fDebugger.setMegaViz(isToggled);
-    fCanvasWidget.update();
-}
-
-void SkDebuggerGUI::actionPathOpsWidget(bool isToggled) {
-    fDebugger.setPathOps(isToggled);
-    fCanvasWidget.update();
+void SkDebuggerGUI::actionVisualizationsChanged() {
+    fDebugger.setMegaViz(fSettingsWidget.isMegaVizEnabled());
+    fDebugger.setPathOps(fSettingsWidget.isPathOpsEnabled());
+    fDebugger.highlightCurrentCommand(fSettingsWidget.isVisibilityFilterEnabled());
+    fCanvasWidget.drawTo(fListWidget.currentRow());
+    fImageWidget.draw();
 }
 
 void SkDebuggerGUI::actionTextureFilter() {
@@ -361,7 +347,7 @@ void SkDebuggerGUI::actionSaveAs() {
 }
 
 void SkDebuggerGUI::actionScale(float scaleFactor) {
-    fSettingsWidget.setZoomText(scaleFactor);
+    fZoomBox.setText(QString::number(scaleFactor * 100, 'f', 0).append("%"));
 }
 
 void SkDebuggerGUI::actionSettings() {
@@ -458,6 +444,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
                 }
                 fInspectorWidget.setText(info, SkInspectorWidget::kDetail_TabType);
                 fInspectorWidget.setDisabled(false);
+                fViewStateFrame.setDisabled(false);
             }
             setupClipStackText();
         }
@@ -632,21 +619,43 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
             QSizePolicy::Expanding);
     fInspectorWidget.setMaximumHeight(300);
 
-    fSettingsAndImageLayout.setSpacing(6);
     fSettingsAndImageLayout.addWidget(&fSettingsWidget);
-    fSettingsAndImageLayout.addWidget(&fImageWidget);
 
-    fSettingsWidget.setSizePolicy(QSizePolicy::Expanding,
-            QSizePolicy::Expanding);
-    fSettingsWidget.setMaximumWidth(250);
+    // View state group, part of inspector.
+    fViewStateFrame.setFrameStyle(QFrame::Panel);
+    fViewStateFrame.setLayout(&fViewStateFrameLayout);
+    fViewStateFrameLayout.addWidget(&fViewStateGroup);
+    fViewStateGroup.setTitle("View");
+    fViewStateLayout.addRow("Zoom Level", &fZoomBox);
+    fZoomBox.setText("100%");
+    fZoomBox.setMinimumSize(QSize(50,25));
+    fZoomBox.setMaximumSize(QSize(50,25));
+    fZoomBox.setAlignment(Qt::AlignRight);
+    fZoomBox.setReadOnly(true);
+    fViewStateLayout.addRow("Command HitBox", &fCommandHitBox);
+    fCommandHitBox.setText("0");
+    fCommandHitBox.setMinimumSize(QSize(50,25));
+    fCommandHitBox.setMaximumSize(QSize(50,25));
+    fCommandHitBox.setAlignment(Qt::AlignRight);
+    fCommandHitBox.setReadOnly(true);
+    fViewStateLayout.addRow("Current Command", &fCurrentCommandBox);
+    fCurrentCommandBox.setText("0");
+    fCurrentCommandBox.setMinimumSize(QSize(50,25));
+    fCurrentCommandBox.setMaximumSize(QSize(50,25));
+    fCurrentCommandBox.setAlignment(Qt::AlignRight);
+    fCurrentCommandBox.setReadOnly(true);
+    fViewStateGroup.setLayout(&fViewStateLayout);
+    fSettingsAndImageLayout.addWidget(&fViewStateFrame);
+
+    fSettingsAndImageLayout.addWidget(&fImageWidget);
 
     fLeftColumnSplitter.addWidget(&fListWidget);
     fLeftColumnSplitter.addWidget(&fDirectoryWidget);
     fLeftColumnSplitter.setOrientation(Qt::Vertical);
 
     fCanvasSettingsAndImageLayout.setSpacing(6);
-    fCanvasSettingsAndImageLayout.addWidget(&fCanvasWidget);
-    fCanvasSettingsAndImageLayout.addLayout(&fSettingsAndImageLayout);
+    fCanvasSettingsAndImageLayout.addWidget(&fCanvasWidget, 1);
+    fCanvasSettingsAndImageLayout.addLayout(&fSettingsAndImageLayout, 0);
 
     fMainAndRightColumnLayout.setSpacing(6);
     fMainAndRightColumnLayout.addLayout(&fCanvasSettingsAndImageLayout);
@@ -780,12 +789,13 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
      * TODO(chudy): This should be deprecated since fDebugger is not
      * recreated.
      * */
-    fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityFilter());
+    fDebugger.highlightCurrentCommand(fSettingsWidget.isVisibilityFilterEnabled());
 
     this->setupListWidget();
     this->setupComboBox();
     this->setupOverviewText(NULL, 0.0, 1);
     fInspectorWidget.setDisabled(false);
+    fViewStateFrame.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
     fMenuNavigate.setDisabled(false);
@@ -863,3 +873,12 @@ void SkDebuggerGUI::setupComboBox() {
     QStandardItem* firstItem = model->itemFromIndex(firstIndex);
     firstItem->setSelectable(false);
 }
+
+void SkDebuggerGUI::updateCommand(int newCommand) {
+    fCurrentCommandBox.setText(QString::number(newCommand));
+}
+
+void SkDebuggerGUI::updateHit(int newHit) {
+    fCommandHitBox.setText(QString::number(newHit));
+}
+

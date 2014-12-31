@@ -104,11 +104,6 @@ private slots:
     void actionClearDeletes();
 
     /**
-        Applies a visible filter to all drawing commands other than the previous.
-     */
-    void actionCommandFilter();
-
-    /**
         Closes the application.
      */
     void actionClose();
@@ -122,7 +117,7 @@ private slots:
     /**
         Updates the visibility of the GL canvas widget and sample count of the GL surface.
      */
-    void actionGLWidget();
+    void actionGLSettingsChanged();
 #endif
 
     /**
@@ -137,24 +132,14 @@ private slots:
     void actionPlay();
 
     /**
-        Toggles the visibility of the raster canvas widget.
+        Sets the visibility of the raster canvas widget according to the settings widget.
      */
-    void actionRasterWidget(bool isToggled);
+    void actionRasterSettingsChanged();
 
     /**
-        Toggles the the overdraw visualization on and off
+        Sets the visualization settings according to the settings widget.
      */
-    void actionOverdrawVizWidget(bool isToggled);
-
-    /**
-        Toggles the the mega visualization on and off
-     */
-    void actionMegaVizWidget(bool isToggled);
-
-    /**
-        Toggles using path ops to simplify the clip stack
-     */
-    void actionPathOpsWidget(bool );
+    void actionVisualizationsChanged();
 
     /**
         Applies the new texture filter override
@@ -249,6 +234,8 @@ private slots:
      */
     void toggleFilter(QString string);
 
+    void updateCommand(int newCommand);
+    void updateHit(int newHit);
 private:
     QSplitter fCentralSplitter;
     QStatusBar fStatusBar;
@@ -297,6 +284,14 @@ private:
     SkImageWidget fImageWidget;
     SkInspectorWidget fInspectorWidget;
     SkSettingsWidget fSettingsWidget;
+
+    QFrame fViewStateFrame;
+    QVBoxLayout fViewStateFrameLayout;
+    QGroupBox fViewStateGroup;
+    QFormLayout fViewStateLayout;
+    QLineEdit fCurrentCommandBox;
+    QLineEdit fCommandHitBox;
+    QLineEdit fZoomBox;
 
     QString fPath;
     SkString fFileName;
