@@ -61,7 +61,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fListWidget(&fCentralSplitter)
     , fDirectoryWidget(&fCentralSplitter)
     , fCanvasWidget(this, &fDebugger)
-    , fImageWidget(&fDebugger)
+    , fDrawCommandGeometryWidget(&fDebugger)
     , fMenuBar(this)
     , fMenuFile(this)
     , fMenuNavigate(this)
@@ -107,6 +107,8 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fCanvasWidget, SIGNAL(hitChanged(int)), this, SLOT(updateHit(int)));
     connect(&fCanvasWidget, SIGNAL(scaleFactorChanged(float)), this, SLOT(actionScale(float)));
     connect(&fCanvasWidget, SIGNAL(commandChanged(int)), this, SLOT(updateCommand(int)));
+    connect(&fCanvasWidget, SIGNAL(commandChanged(int)), &fDrawCommandGeometryWidget, SLOT(updateImage()));
+
     connect(&fActionSaveAs, SIGNAL(triggered()), this, SLOT(actionSaveAs()));
     connect(&fActionSave, SIGNAL(triggered()), this, SLOT(actionSave()));
 
@@ -232,10 +234,8 @@ void SkDebuggerGUI::actionClearDeletes() {
     }
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
-        fImageWidget.draw();
     } else {
         fCanvasWidget.drawTo(fListWidget.currentRow());
-        fImageWidget.draw();
     }
 }
 
@@ -267,10 +267,8 @@ void SkDebuggerGUI::actionDelete() {
 
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
-        fImageWidget.draw();
     } else {
         fCanvasWidget.drawTo(currentRow);
-        fImageWidget.draw();
     }
 }
 
@@ -289,7 +287,7 @@ void SkDebuggerGUI::actionInspector() {
 
     fInspectorWidget.setHidden(newState);
     fViewStateFrame.setHidden(newState);
-    fImageWidget.setHidden(newState);
+    fDrawCommandGeometryWidget.setHidden(newState);
 }
 
 void SkDebuggerGUI::actionPlay() {
@@ -316,7 +314,6 @@ void SkDebuggerGUI::actionVisualizationsChanged() {
     fDebugger.setPathOps(fSettingsWidget.isPathOpsEnabled());
     fDebugger.highlightCurrentCommand(fSettingsWidget.isVisibilityFilterEnabled());
     fCanvasWidget.drawTo(fListWidget.currentRow());
-    fImageWidget.draw();
 }
 
 void SkDebuggerGUI::actionTextureFilter() {
@@ -418,7 +415,6 @@ void SkDebuggerGUI::pauseDrawing(bool isPaused) {
     fPause = isPaused;
     fPausedRow = fListWidget.currentRow();
     fCanvasWidget.drawTo(fPausedRow);
-    fImageWidget.draw();
 }
 
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
@@ -428,7 +424,6 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
         if (currentRow != -1) {
             if (!fPause) {
                 fCanvasWidget.drawTo(currentRow);
-                fImageWidget.draw();
             }
             const SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(currentRow);
 
@@ -612,8 +607,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fCanvasWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
 
-    fImageWidget.setFixedSize(SkImageWidget::kImageWidgetWidth,
-                              SkImageWidget::kImageWidgetHeight);
+    fDrawCommandGeometryWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     fInspectorWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
@@ -625,6 +619,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fViewStateFrame.setFrameStyle(QFrame::Panel);
     fViewStateFrame.setLayout(&fViewStateFrameLayout);
     fViewStateFrameLayout.addWidget(&fViewStateGroup);
+    fViewStateGroup.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     fViewStateGroup.setTitle("View");
     fViewStateLayout.addRow("Zoom Level", &fZoomBox);
     fZoomBox.setText("100%");
@@ -647,7 +642,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fViewStateGroup.setLayout(&fViewStateLayout);
     fSettingsAndImageLayout.addWidget(&fViewStateFrame);
 
-    fSettingsAndImageLayout.addWidget(&fImageWidget);
+    fDrawCommandGeometryWidget.setToolTip("Current Command Geometry");
+    fSettingsAndImageLayout.addWidget(&fDrawCommandGeometryWidget);
 
     fLeftColumnSplitter.addWidget(&fListWidget);
     fLeftColumnSplitter.addWidget(&fDirectoryWidget);

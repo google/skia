@@ -17,7 +17,7 @@
 #include "SkListWidget.h"
 #include "SkInspectorWidget.h"
 #include "SkRasterWidget.h"
-#include "SkImageWidget.h"
+#include "SkDrawCommandGeometryWidget.h"
 #include "SkSettingsWidget.h"
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -281,7 +281,7 @@ private:
 
     SkDebugger fDebugger;
     SkCanvasWidget fCanvasWidget;
-    SkImageWidget fImageWidget;
+
     SkInspectorWidget fInspectorWidget;
     SkSettingsWidget fSettingsWidget;
 
@@ -292,6 +292,7 @@ private:
     QLineEdit fCurrentCommandBox;
     QLineEdit fCommandHitBox;
     QLineEdit fZoomBox;
+    SkDrawCommandGeometryWidget fDrawCommandGeometryWidget;
 
     QString fPath;
     SkString fFileName;
