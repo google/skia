@@ -43,5 +43,3 @@ dropshadowimagefilter
 #humper skia:2049
 dashcubics
 
-#reed - gm updated, so just need to rebaseline
-c_gms
