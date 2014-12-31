@@ -3990,9 +3990,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5474649563443617731
+          1769720779591099491
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "canvas-layer-state_565.png": {
