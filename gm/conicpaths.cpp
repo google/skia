@@ -9,123 +9,87 @@
 #include "SkCanvas.h"
 #include "SkTArray.h"
 
-namespace skiagm {
-
-class ConicPathsGM : public GM {
+class ConicPathsGM : public skiagm::GM {
 protected:
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("conicpaths");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(1000, 1000);
+    SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(950, 1000);
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         {
+            const SkScalar w = SkScalarSqrt(2)/2;
             SkPath* conicCirlce = &fPaths.push_back();
             conicCirlce->moveTo(0, -0);
-            conicCirlce->conicTo(SkIntToScalar(0), SkIntToScalar(50),
-                                        SkIntToScalar(50), SkIntToScalar(50),
-                                        SkScalarHalf(SkScalarSqrt(2)));
-            conicCirlce->rConicTo(SkIntToScalar(50), SkIntToScalar(0),
-                                         SkIntToScalar(50), SkIntToScalar(-50),
-                                         SkScalarHalf(SkScalarSqrt(2)));
-            conicCirlce->rConicTo(SkIntToScalar(0), SkIntToScalar(-50),
-                                         SkIntToScalar(-50), SkIntToScalar(-50),
-                                         SkScalarHalf(SkScalarSqrt(2)));
-            conicCirlce->rConicTo(SkIntToScalar(-50), SkIntToScalar(0),
-                                         SkIntToScalar(-50), SkIntToScalar(50),
-                                         SkScalarHalf(SkScalarSqrt(2)));
+            conicCirlce->conicTo(0, 50, 50, 50, w);
+            conicCirlce->rConicTo(50, 0, 50, -50, w);
+            conicCirlce->rConicTo(0, -50, -50, -50, w);
+            conicCirlce->rConicTo(-50, 0, -50, 50, w);
 
         }
         {
             SkPath* hyperbola = &fPaths.push_back();
             hyperbola->moveTo(0, -0);
-            hyperbola->conicTo(SkIntToScalar(0), SkIntToScalar(100),
-                                        SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(2));
+            hyperbola->conicTo(0, 100, 100, 100, 2);
         }
         {
             SkPath* thinHyperbola = &fPaths.push_back();
             thinHyperbola->moveTo(0, -0);
-            thinHyperbola->conicTo(SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(5), SkIntToScalar(0),
-                                        SkIntToScalar(2));
+            thinHyperbola->conicTo(100, 100, 5, 0, 2);
         }
         {
             SkPath* veryThinHyperbola = &fPaths.push_back();
             veryThinHyperbola->moveTo(0, -0);
-            veryThinHyperbola->conicTo(SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(1), SkIntToScalar(0),
-                                        SkIntToScalar(2));
+            veryThinHyperbola->conicTo(100, 100, 1, 0, 2);
         }
         {
             SkPath* closedHyperbola = &fPaths.push_back();
             closedHyperbola->moveTo(0, -0);
-            closedHyperbola->conicTo(SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(0), SkIntToScalar(0),
-                                        SkIntToScalar(2));
+            closedHyperbola->conicTo(100, 100, 0, 0, 2);
         }
         {
             // using 1 as weight defaults to using quadTo
             SkPath* nearParabola = &fPaths.push_back();
             nearParabola->moveTo(0, -0);
-            nearParabola->conicTo(SkIntToScalar(0), SkIntToScalar(100),
-                                        SkIntToScalar(100), SkIntToScalar(100),
-                                        0.999f);
+            nearParabola->conicTo(0, 100, 100, 100, 0.999f);
         }
         {
             SkPath* thinEllipse = &fPaths.push_back();
             thinEllipse->moveTo(0, -0);
-            thinEllipse->conicTo(SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(5), SkIntToScalar(0),
-                                        SK_ScalarHalf);
+            thinEllipse->conicTo(100, 100, 5, 0, SK_ScalarHalf);
         }
         {
             SkPath* veryThinEllipse = &fPaths.push_back();
             veryThinEllipse->moveTo(0, -0);
-            veryThinEllipse->conicTo(SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(1), SkIntToScalar(0),
-                                        SK_ScalarHalf);
+            veryThinEllipse->conicTo(100, 100, 1, 0, SK_ScalarHalf);
         }
         {
             SkPath* closedEllipse = &fPaths.push_back();
             closedEllipse->moveTo(0, -0);
-            closedEllipse->conicTo(SkIntToScalar(100), SkIntToScalar(100),
-                                        SkIntToScalar(0), SkIntToScalar(0),
-                                        SK_ScalarHalf);
+            closedEllipse->conicTo(100, 100, 0, 0, SK_ScalarHalf);
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        static const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
-
-        enum {
-            kMargin = 15,
-        };
-        int wrapX = canvas->getDeviceSize().fWidth - kMargin;
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
 
         SkScalar maxH = 0;
-        canvas->translate(SkIntToScalar(kMargin), SkIntToScalar(kMargin));
+        const SkScalar margin = 15;
+        canvas->translate(margin, margin);
         canvas->save();
 
-        SkScalar x = SkIntToScalar(kMargin);
+        SkScalar x = margin;
+        int counter = 0;
         for (int p = 0; p < fPaths.count(); ++p) {
             for (size_t a = 0; a < SK_ARRAY_COUNT(kAlphaValue); ++a) {
                 for (int aa = 0; aa < 2; ++aa) {
                     for (int fh = 0; fh < 2; ++fh) {
 
                         const SkRect& bounds = fPaths[p].getBounds();
-
-                        if (x + bounds.width() > wrapX) {
-                            canvas->restore();
-                            canvas->translate(0, maxH + SkIntToScalar(kMargin));
-                            canvas->save();
-                            maxH = 0;
-                            x = SkIntToScalar(kMargin);
-                        }
 
                         SkPaint paint;
                         paint.setARGB(kAlphaValue[a], 0, 0, 0);
@@ -143,9 +107,19 @@ protected:
 
                         maxH = SkMaxScalar(maxH, bounds.height());
 
-                        SkScalar dx = bounds.width() + SkIntToScalar(kMargin);
+                        SkScalar dx = bounds.width() + margin;
                         x += dx;
                         canvas->translate(dx, 0);
+
+                        if (++counter == 8) {
+                            counter = 0;
+                            
+                            canvas->restore();
+                            canvas->translate(0, maxH + margin);
+                            canvas->save();
+                            maxH = 0;
+                            x = margin;
+                        }
                     }
                 }
             }
@@ -153,16 +127,15 @@ protected:
         canvas->restore();
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return  kSkipPDF_Flag;
+    uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipPDF_Flag;
     }
 
 private:
     SkTArray<SkPath> fPaths;
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
+DEF_GM( return SkNEW(ConicPathsGM); )
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(ConicPathsGM); )
-}
