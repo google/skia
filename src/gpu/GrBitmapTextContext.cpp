@@ -157,7 +157,8 @@ void GrBitmapTextContext::onDrawText(const GrPaint& paint, const SkPaint& skPain
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix, but for
     // performance reasons we just invert here instead
     if (!viewMatrix.invert(&fLocalMatrix)) {
-            SkDebugf("Cannot invert viewmatrix\n");
+        SkDebugf("Cannot invert viewmatrix\n");
+        return;
     }
 
     while (text < stop) {
@@ -205,7 +206,8 @@ void GrBitmapTextContext::onDrawPosText(const GrPaint& paint, const SkPaint& skP
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix, but for
     // performance reasons we just invert here instead
     if (!viewMatrix.invert(&fLocalMatrix)) {
-            SkDebugf("Cannot invert viewmatrix\n");
+        SkDebugf("Cannot invert viewmatrix\n");
+        return;
     }
 
     int numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
