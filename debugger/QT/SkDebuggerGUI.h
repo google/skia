@@ -56,8 +56,6 @@ public:
      */
     SkDebuggerGUI(QWidget *parent = 0);
 
-    ~SkDebuggerGUI();
-
     /**
         Updates the directory widget with the latest directory path stored in
         the global class variable fPath.

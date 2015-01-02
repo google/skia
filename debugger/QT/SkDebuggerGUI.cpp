@@ -7,15 +7,11 @@
 
 #include "SkDebuggerGUI.h"
 #include "SkForceLinking.h"
-#include "SkGraphics.h"
-#include "SkImageDecoder.h"
 #include <QListWidgetItem>
 #include "PictureRenderer.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureData.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include "SysTimer_windows.h"
@@ -124,12 +120,6 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     fMenuEdit.setDisabled(true);
     fMenuNavigate.setDisabled(true);
     fMenuView.setDisabled(true);
-
-    SkGraphics::Init();
-}
-
-SkDebuggerGUI::~SkDebuggerGUI() {
-    SkGraphics::Term();
 }
 
 void SkDebuggerGUI::actionBreakpoints() {

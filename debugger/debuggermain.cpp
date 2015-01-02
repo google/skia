@@ -7,7 +7,12 @@
  */
 
 #include "SkDebuggerGUI.h"
+#include "SkForceLinking.h"
+#include "SkGraphics.h"
 #include <QApplication>
+
+__SK_FORCE_IMAGE_DECODER_LINKING;
+
 
 static void usage(const char * argv0) {
     SkDebugf("%s <input> \n", argv0);
@@ -23,6 +28,7 @@ int main(int argc, char *argv[]) {
     // constuction.  However, the components Qt calls (X11 libs, ..) will override that.
     setenv("LC_NUMERIC", "C", 1);
 #endif
+    SkGraphics::Init();
     QApplication a(argc, argv);
     QStringList argList = a.arguments();
 
@@ -60,5 +66,7 @@ int main(int argc, char *argv[]) {
     }
 
     w.show();
-    return a.exec();
+    int result = a.exec();
+    SkGraphics::Term();
+    return result;
 }
