@@ -192,8 +192,9 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->clear(reader->readInt());
             break;
         case DRAW_DATA: {
+            // This opcode is now dead, just need to skip it for backwards compatibility
             size_t length = reader->readInt();
-            canvas->drawData(reader->skip(length), length);
+            (void)reader->skip(length);
             // skip handles padding the read out to a multiple of 4
         } break;
         case DRAW_DRRECT: {

@@ -158,8 +158,6 @@ public:
     virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint*) SK_OVERRIDE;
 
-    virtual void drawData(const void*, size_t) SK_OVERRIDE;
-
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
 
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;

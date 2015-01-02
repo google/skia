@@ -799,15 +799,6 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawData(const void* data, size_t length) {
-    // op + length + 'length' worth of data
-    size_t size = 2 * kUInt32Size + SkAlign4(length);
-    size_t initialOffset = this->addDraw(DRAW_DATA, &size);
-    this->addInt(SkToInt(length));
-    fWriter.writePad(data, length);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::beginCommentGroup(const char* description) {
     // op/size + length of string + \0 terminated chars
     size_t length = strlen(description);

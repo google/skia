@@ -133,7 +133,6 @@ public:
     void beginCommentGroup(const char*) SK_OVERRIDE;
     void addComment(const char*, const char*) SK_OVERRIDE;
     void endCommentGroup() SK_OVERRIDE;
-    void drawData(const void*, size_t) SK_OVERRIDE;
 
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE { return NULL; }
 

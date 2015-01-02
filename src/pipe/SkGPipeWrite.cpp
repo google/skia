@@ -253,7 +253,6 @@ public:
                           const SkColor colors[], SkXfermode*,
                           const uint16_t indices[], int indexCount,
                               const SkPaint&) SK_OVERRIDE;
-    virtual void drawData(const void*, size_t) SK_OVERRIDE;
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
     virtual void endCommentGroup() SK_OVERRIDE;
@@ -1082,23 +1081,6 @@ void SkGPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
             SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
             SkAssertResult(xmode->asMode(&mode));
             fWriter.write32(mode);
-        }
-    }
-}
-
-void SkGPipeCanvas::drawData(const void* ptr, size_t size) {
-    if (size && ptr) {
-        NOTIFY_SETUP(this);
-        unsigned data = 0;
-        if (size < (1 << DRAWOPS_DATA_BITS)) {
-            data = (unsigned)size;
-        }
-        if (this->needOpBytes(4 + SkAlign4(size))) {
-            this->writeOp(kDrawData_DrawOp, 0, data);
-            if (0 == data) {
-                fWriter.write32(SkToU32(size));
-            }
-            fWriter.writePad(ptr, size);
         }
     }
 }

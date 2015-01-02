@@ -120,7 +120,6 @@ DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
-DRAW(DrawData, drawData(r.data, r.length));
 #undef DRAW
 
 template <> void Draw::draw(const DrawDrawable& r) {
@@ -290,7 +289,6 @@ private:
     void trackBounds(const BeginCommentGroup&) { this->pushControl(); }
     void trackBounds(const AddComment&)        { this->pushControl(); }
     void trackBounds(const EndCommentGroup&)   { this->pushControl(); }
-    void trackBounds(const DrawData&)          { this->pushControl(); }
 
     // For all other ops, we can calculate and store the bounds directly now.
     template <typename T> void trackBounds(const T& op) {

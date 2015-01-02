@@ -284,7 +284,3 @@ void SkLuaCanvas::drawVertices(VertexMode vmode, int vertexCount,
     AUTO_LUA("drawVertices");
     lua.pushPaint(paint, "paint");
 }
-
-void SkLuaCanvas::drawData(const void* data, size_t length) {
-    AUTO_LUA("drawData");
-}

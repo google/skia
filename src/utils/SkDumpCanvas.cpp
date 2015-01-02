@@ -457,12 +457,6 @@ void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
               texCoords[2].x(), texCoords[2].y(), texCoords[3].x(), texCoords[3].y());
 }
 
-void SkDumpCanvas::drawData(const void* data, size_t length) {
-//    this->dump(kDrawData_Verb, NULL, "drawData(%d)", length);
-    this->dump(kDrawData_Verb, NULL, "drawData(%d) %.*s", length,
-               SkTMin<size_t>(length, 64), data);
-}
-
 void SkDumpCanvas::beginCommentGroup(const char* description) {
     this->dump(kBeginCommentGroup_Verb, NULL, "beginCommentGroup(%s)", description);
 }

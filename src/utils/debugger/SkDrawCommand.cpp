@@ -368,22 +368,6 @@ bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawDataCommand::SkDrawDataCommand(const void* data, size_t length)
-    : INHERITED(DRAW_DATA) {
-    fData = new char[length];
-    memcpy(fData, data, length);
-    fLength = length;
-
-    // TODO: add display of actual data?
-    SkString* str = new SkString;
-    str->appendf("length: %d", (int) length);
-    fInfo.push(str);
-}
-
-void SkDrawDataCommand::execute(SkCanvas* canvas) const {
-    canvas->drawData(fData, fLength);
-}
-
 SkBeginCommentGroupCommand::SkBeginCommentGroupCommand(const char* description)
     : INHERITED(BEGIN_COMMENT_GROUP)
     , fDescription(description) {

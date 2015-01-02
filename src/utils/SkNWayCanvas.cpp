@@ -304,13 +304,6 @@ void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     }
 }
 
-void SkNWayCanvas::drawData(const void* data, size_t length) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawData(data, length);
-    }
-}
-
 SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     Iter iter(fList);
     while (iter.next()) {

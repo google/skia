@@ -69,20 +69,6 @@ DEF_TEST(Recorder_CommentGroups, r) {
     REPORTER_ASSERT(r, 1 == tally.count<SkRecords::EndCommentGroup>());
 }
 
-// DrawData is similar to comment groups.  It doesn't affect drawing, but
-// it's a pass-through we provide to the client.  Again, a simple reg. test.
-DEF_TEST(Recorder_DrawData, r) {
-    SkRecord record;
-    SkRecorder recorder(&record, 100, 100);
-
-    const char* data = "This sure is some data, eh?";
-    recorder.drawData(data, strlen(data));
-
-    Tally tally;
-    tally.apply(record);
-    REPORTER_ASSERT(r, 1 == tally.count<SkRecords::DrawData>());
-}
-
 // Regression test for leaking refs held by optional arguments.
 DEF_TEST(Recorder_RefLeaking, r) {
     // We use SaveLayer to test:

@@ -167,10 +167,6 @@ void SkProxyCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
     fProxy->drawPatch(cubics, colors, texCoords, xmode, paint);
 }
 
-void SkProxyCanvas::drawData(const void* data, size_t length) {
-    fProxy->drawData(data, length);
-}
-
 void SkProxyCanvas::beginCommentGroup(const char* description) {
     fProxy->beginCommentGroup(description);
 }

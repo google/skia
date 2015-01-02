@@ -39,7 +39,6 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawData(const void* data, size_t length) SK_OVERRIDE;
 
 protected:
     virtual void willSave() SK_OVERRIDE;

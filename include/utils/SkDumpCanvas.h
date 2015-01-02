@@ -47,7 +47,7 @@ public:
         kDrawPicture_Verb,
         kDrawVertices_Verb,
         kDrawPatch_Verb,
-        kDrawData_Verb,
+        kDrawData_Verb, // obsolete
 
         kBeginCommentGroup_Verb,
         kAddComment_Verb,
@@ -94,7 +94,6 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawData(const void*, size_t) SK_OVERRIDE;
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
     virtual void endCommentGroup() SK_OVERRIDE;

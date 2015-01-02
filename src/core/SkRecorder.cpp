@@ -333,6 +333,3 @@ void SkRecorder::endCommentGroup() {
     APPEND(EndCommentGroup);
 }
 
-void SkRecorder::drawData(const void* data, size_t length) {
-    APPEND(DrawData, copy((const char*)data), length);
-}

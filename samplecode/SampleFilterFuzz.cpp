@@ -248,15 +248,10 @@ static void drawSomething(SkCanvas* canvas) {
     canvas->drawBitmap(make_bitmap(), 0, 0, NULL);
     canvas->restore();
 
-    const char beforeStr[] = "before circle";
-    const char afterStr[] = "after circle";
-
     paint.setAntiAlias(true);
 
     paint.setColor(SK_ColorRED);
-    canvas->drawData(beforeStr, sizeof(beforeStr));
     canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
-    canvas->drawData(afterStr, sizeof(afterStr));
     paint.setColor(SK_ColorBLACK);
     paint.setTextSize(SkIntToScalar(kBitmapSize/3));
     canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);

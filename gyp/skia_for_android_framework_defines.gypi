@@ -20,6 +20,7 @@
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
       # TODO(tfarina): Remove this when Android is fixed. skbug.com/3178
       'SK_SUPPORT_LEGACY_PORTER_DUFF',
+      'SK_SUPPORT_LEGACY_DRAWDATA',
     ],
   },
 }

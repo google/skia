@@ -237,18 +237,6 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkDrawDataCommand : public SkDrawCommand {
-public:
-    SkDrawDataCommand(const void* data, size_t length);
-    virtual ~SkDrawDataCommand() { delete [] fData; }
-    virtual void execute(SkCanvas* canvas) const SK_OVERRIDE;
-private:
-    char*  fData;
-    size_t fLength;
-
-    typedef SkDrawCommand INHERITED;
-};
-
 class SkBeginCommentGroupCommand : public SkDrawCommand {
 public:
     SkBeginCommentGroupCommand(const char* description);

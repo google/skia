@@ -112,16 +112,11 @@ protected:
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
         canvas->restore();
 
-        const char beforeStr[] = "before circle";
-        const char afterStr[] = "after circle";
-
         paint.setAntiAlias(true);
 
         paint.setColor(SK_ColorRED);
-        canvas->drawData(beforeStr, sizeof(beforeStr));
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
                            SkIntToScalar(40), paint);
-        canvas->drawData(afterStr, sizeof(afterStr));
         paint.setColor(SK_ColorBLACK);
         paint.setTextSize(SkIntToScalar(40));
         canvas->drawText("Picture", 7, SkIntToScalar(50), SkIntToScalar(62),

@@ -448,10 +448,6 @@ void SkDebugCanvas::drawBitmapNine(const SkBitmap& bitmap,
     this->addDrawCommand(new SkDrawBitmapNineCommand(bitmap, center, dst, paint));
 }
 
-void SkDebugCanvas::drawData(const void* data, size_t length) {
-    this->addDrawCommand(new SkDrawDataCommand(data, length));
-}
-
 void SkDebugCanvas::beginCommentGroup(const char* description) {
     this->addDrawCommand(new SkBeginCommentGroupCommand(description));
 }

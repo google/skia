@@ -1017,15 +1017,15 @@ public:
 
     void EXPERIMENTAL_drawDrawable(SkCanvasDrawable*);
 
+#ifdef SK_SUPPORT_LEGACY_DRAWDATA
     /** Send a blob of data to the canvas.
         For canvases that draw, this call is effectively a no-op, as the data
         is not parsed, but just ignored. However, this call exists for
         subclasses like SkPicture's recording canvas, that can store the data
         and then play it back later (via another call to drawData).
      */
-    virtual void drawData(const void* /*data*/, size_t /*length*/) {
-        // do nothing. Subclasses may do something with the data
-    }
+    virtual void drawData(const void* /*data*/, size_t /*length*/) {}
+#endif
 
     /** Add comments. beginCommentGroup/endCommentGroup open/close a new group.
         Each comment added via addComment is notionally attached to its
