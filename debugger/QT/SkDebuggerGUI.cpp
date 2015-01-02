@@ -609,10 +609,6 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fDrawCommandGeometryWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    fInspectorWidget.setSizePolicy(QSizePolicy::Expanding,
-            QSizePolicy::Expanding);
-    fInspectorWidget.setMaximumHeight(300);
-
     fSettingsAndImageLayout.addWidget(&fSettingsWidget);
 
     // View state group, part of inspector.
@@ -654,8 +650,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fCanvasSettingsAndImageLayout.addLayout(&fSettingsAndImageLayout, 0);
 
     fMainAndRightColumnLayout.setSpacing(6);
-    fMainAndRightColumnLayout.addLayout(&fCanvasSettingsAndImageLayout);
-    fMainAndRightColumnLayout.addWidget(&fInspectorWidget);
+    fMainAndRightColumnLayout.addLayout(&fCanvasSettingsAndImageLayout, 1);
+    fMainAndRightColumnLayout.addWidget(&fInspectorWidget, 0);
     fMainAndRightColumnWidget.setLayout(&fMainAndRightColumnLayout);
 
     fCentralSplitter.addWidget(&fLeftColumnSplitter);

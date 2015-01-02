@@ -18,6 +18,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QGroupBox>
+#include <QGridLayout>
 
 /** \class SkInspectorWidget
 
@@ -71,8 +73,6 @@ public:
 
         Tab(const char* name) {
             fTabText.setReadOnly(true);
-            fTabLayout.setSpacing(6);
-            fTabLayout.setContentsMargins(11, 11, 11, 11);
             fTabLayout.addWidget(&fTabText);
             fTab.setLayout(&fTabLayout);
             fName = QString(name);
@@ -87,21 +87,19 @@ private:
     QHBoxLayout fTabLayouts[kTotalTabCount];
     QTextEdit fTabTexts[kTotalTabCount];
 
-    QWidget fMatrixAndClipWidget;
+    QFrame fMatrixAndClipWidget;
     QVBoxLayout fVerticalLayout;
 
-    QLabel fMatrixLabel;
-    QVBoxLayout fMatrixLayout;
-    QHBoxLayout fMatrixRow[3];
+    QGroupBox fMatrixGroup;
+    QGridLayout fMatrixLayout;
     QLineEdit fMatrixEntry[9];
 
-    QLabel fClipLabel;
-    QVBoxLayout fClipLayout;
-    QHBoxLayout fClipRow[2];
+    QGroupBox fClipGroup;
+    QGridLayout fClipLayout;
     QLineEdit fClipEntry[4];
 
-    QVBoxLayout* setupMatrix();
-    QVBoxLayout* setupClip();
+    void setupMatrix();
+    void setupClip();
 };
 
 #endif
