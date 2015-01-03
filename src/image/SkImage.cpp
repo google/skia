@@ -10,6 +10,7 @@
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkReadPixelsRec.h"
+#include "SkString.h"
 #include "SkSurface.h"
 
 uint32_t SkImage::NextUniqueID() {
@@ -76,6 +77,12 @@ SkSurface* SkImage::newSurface(const SkImageInfo& info, const SkSurfaceProps* pr
         props = &as_IB(this)->props();
     }
     return as_IB(this)->onNewSurface(info, *props);
+}
+
+const char* SkImage::toString(SkString* str) const {
+    str->appendf("image: (id:%d (%d, %d) %s)", this->uniqueID(), this->width(), this->height(),
+                 this->isOpaque() ? "opaque" : "");
+    return str->c_str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

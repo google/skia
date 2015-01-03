@@ -128,6 +128,8 @@ public:
      */
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL) const;
 
+    const char* toString(SkString*) const;
+
 protected:
     SkImage(int width, int height) :
         fWidth(width),
