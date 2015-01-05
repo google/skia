@@ -35,7 +35,6 @@ namespace SkRecords {
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
     M(ClipRegion)                                                   \
-    M(Clear)                                                        \
     M(BeginCommentGroup)                                            \
     M(AddComment)                                                   \
     M(EndCommentGroup)                                              \
@@ -235,9 +234,6 @@ RECORD3(ClipPath,   SkIRect, devBounds, BoundedPath, path, RegionOpAndAA, opAA);
 RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,    rrect, RegionOpAndAA, opAA);
 RECORD3(ClipRect,   SkIRect, devBounds, SkRect,      rect, RegionOpAndAA, opAA);
 RECORD3(ClipRegion, SkIRect, devBounds, SkRegion,  region, SkRegion::Op,    op);
-
-// Picture version 37 was last to record this op-code; clear is now non-virtual
-RECORD1(Clear, SkColor, color);
 
 RECORD1(BeginCommentGroup, PODArray<char>, description);
 RECORD2(AddComment, PODArray<char>, key, PODArray<char>, value);

@@ -26,9 +26,7 @@ void SkRecordDraw(const SkRecord& record,
         // lets us query the BBH.
         SkRect query;
         if (!canvas->getClipBounds(&query)) {
-            // We want to make sure our query rectangle is never totally empty.
-            // Clear ignores the clip, so it must draw even if the clip is logically empty.
-            query = SkRect::MakeWH(SK_ScalarNearlyZero, SK_ScalarNearlyZero);
+            query.setEmpty();
         }
 
         SkTDArray<unsigned> ops;
@@ -81,7 +79,6 @@ template <> void Draw::draw(const NoOp&) {}
 DRAW(Restore, restore());
 DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
-DRAW(Clear, clear(r.color));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 
 DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
@@ -218,7 +215,6 @@ public:
         fCTM->mapRect(&rect);
 
         // Nothing can draw outside the current clip.
-        // (Only bounded ops call into this method, so oddballs like Clear don't matter here.)
         if (!rect.intersect(fCurrentClipBounds)) {
             return Bounds::MakeEmpty();
         }
@@ -388,7 +384,6 @@ private:
     // FIXME: this method could use better bounds
     Bounds bounds(const DrawText&) const { return fCurrentClipBounds; }
 
-    Bounds bounds(const Clear&) const { return fCullRect; }             // Ignores the clip.
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
