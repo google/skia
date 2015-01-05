@@ -231,6 +231,28 @@ public:
         return (NULL == fBitmapHeap) ? 0 : fBitmapHeap->bytesAllocated();
     }
 
+    // overrides from SkCanvas
+    virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
+                            const SkPaint&) SK_OVERRIDE;
+    virtual void drawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
+    virtual void drawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
+    virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
+                            const SkPaint*) SK_OVERRIDE;
+    virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
+                                      const SkRect& dst, const SkPaint* paint,
+                                      DrawBitmapRectFlags flags) SK_OVERRIDE;
+    virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE;
+    virtual void drawSprite(const SkBitmap&, int left, int top,
+                            const SkPaint*) SK_OVERRIDE;
+    virtual void drawVertices(VertexMode, int vertexCount,
+                          const SkPoint vertices[], const SkPoint texs[],
+                          const SkColor colors[], SkXfermode*,
+                          const uint16_t indices[], int indexCount,
+                              const SkPaint&) SK_OVERRIDE;
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
     virtual void endCommentGroup() SK_OVERRIDE;
@@ -263,29 +285,6 @@ protected:
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkXfermode* xmode,
                              const SkPaint& paint) SK_OVERRIDE;
-    void onDrawPaint(const SkPaint&) SK_OVERRIDE;
-    void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) SK_OVERRIDE;
-    void onDrawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawPath(const SkPath&, const SkPaint&) SK_OVERRIDE;
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) SK_OVERRIDE;
-    void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          DrawBitmapRectFlags flags) SK_OVERRIDE;
-#if 0
-    // rely on decomposition into bitmap (for now)
-    void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) SK_OVERRIDE;
-    void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
-                         const SkPaint*) SK_OVERRIDE;
-#endif
-    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) SK_OVERRIDE;
-    void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) SK_OVERRIDE;
-    void onDrawVertices(VertexMode vmode, int vertexCount,
-                        const SkPoint vertices[], const SkPoint texs[],
-                        const SkColor colors[], SkXfermode* xmode,
-                        const uint16_t indices[], int indexCount,
-                        const SkPaint&) SK_OVERRIDE;
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
@@ -669,7 +668,7 @@ void SkGPipeCanvas::onClipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGPipeCanvas::onDrawPaint(const SkPaint& paint) {
+void SkGPipeCanvas::drawPaint(const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
     if (this->needOpBytes()) {
@@ -677,8 +676,8 @@ void SkGPipeCanvas::onDrawPaint(const SkPaint& paint) {
     }
 }
 
-void SkGPipeCanvas::onDrawPoints(PointMode mode, size_t count,
-                                 const SkPoint pts[], const SkPaint& paint) {
+void SkGPipeCanvas::drawPoints(PointMode mode, size_t count,
+                               const SkPoint pts[], const SkPaint& paint) {
     if (count) {
         NOTIFY_SETUP(this);
         this->writePaint(paint);
@@ -690,7 +689,7 @@ void SkGPipeCanvas::onDrawPoints(PointMode mode, size_t count,
     }
 }
 
-void SkGPipeCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
+void SkGPipeCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
     if (this->needOpBytes(sizeof(SkRect))) {
@@ -699,7 +698,7 @@ void SkGPipeCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
-void SkGPipeCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
+void SkGPipeCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
     if (this->needOpBytes(sizeof(SkRect))) {
@@ -708,7 +707,7 @@ void SkGPipeCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
-void SkGPipeCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkGPipeCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
     if (this->needOpBytes(kSizeOfFlatRRect)) {
@@ -728,7 +727,7 @@ void SkGPipeCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     }
 }
 
-void SkGPipeCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkGPipeCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
     if (this->needOpBytes(path.writeToMemory(NULL))) {
@@ -764,8 +763,8 @@ bool SkGPipeCanvas::commonDrawBitmap(const SkBitmap& bm, DrawOps op,
     return false;
 }
 
-void SkGPipeCanvas::onDrawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
-                                 const SkPaint* paint) {
+void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
+                               const SkPaint* paint) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(SkScalar) * 2;
 
@@ -775,8 +774,9 @@ void SkGPipeCanvas::onDrawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top
     }
 }
 
-void SkGPipeCanvas::onDrawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                                     const SkPaint* paint, DrawBitmapRectFlags dbmrFlags) {
+void SkGPipeCanvas::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src,
+                                         const SkRect& dst, const SkPaint* paint,
+                                         DrawBitmapRectFlags dbmrFlags) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(SkRect);
     bool hasSrc = src != NULL;
@@ -799,8 +799,8 @@ void SkGPipeCanvas::onDrawBitmapRect(const SkBitmap& bm, const SkRect* src, cons
     }
 }
 
-void SkGPipeCanvas::onDrawBitmapNine(const SkBitmap& bm, const SkIRect& center,
-                                     const SkRect& dst, const SkPaint* paint) {
+void SkGPipeCanvas::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
+                                   const SkRect& dst, const SkPaint* paint) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(int32_t) * 4 + sizeof(SkRect);
 
@@ -813,7 +813,8 @@ void SkGPipeCanvas::onDrawBitmapNine(const SkBitmap& bm, const SkIRect& center,
     }
 }
 
-void SkGPipeCanvas::onDrawSprite(const SkBitmap& bm, int left, int top, const SkPaint* paint) {
+void SkGPipeCanvas::drawSprite(const SkBitmap& bm, int left, int top,
+                                   const SkPaint* paint) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(int32_t) * 2;
 
@@ -979,11 +980,11 @@ void SkGPipeCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matr
     this->INHERITED::onDrawPicture(picture, matrix, paint);
 }
 
-void SkGPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                   const SkPoint vertices[], const SkPoint texs[],
-                                   const SkColor colors[], SkXfermode* xfer,
-                                   const uint16_t indices[], int indexCount,
-                                   const SkPaint& paint) {
+void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,
+                                 const SkPoint vertices[], const SkPoint texs[],
+                                 const SkColor colors[], SkXfermode* xfer,
+                                 const uint16_t indices[], int indexCount,
+                                 const SkPaint& paint) {
     if (0 == vertexCount) {
         return;
     }

@@ -754,7 +754,7 @@ void SkDeferredCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) 
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawPaint(const SkPaint& paint) {
+void SkDeferredCanvas::drawPaint(const SkPaint& paint) {
     if (fDeferredDrawing && this->isFullFrame(NULL, &paint) &&
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->skipPendingCommands();
@@ -764,20 +764,20 @@ void SkDeferredCanvas::onDrawPaint(const SkPaint& paint) {
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawPoints(PointMode mode, size_t count,
-                                    const SkPoint pts[], const SkPaint& paint) {
+void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
+                                  const SkPoint pts[], const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPoints(mode, count, pts, paint);
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
+void SkDeferredCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawOval(rect, paint);
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
+void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (fDeferredDrawing && this->isFullFrame(&rect, &paint) &&
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->skipPendingCommands();
@@ -788,7 +788,7 @@ void SkDeferredCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkDeferredCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     if (rrect.isRect()) {
         this->SkDeferredCanvas::drawRect(rrect.getBounds(), paint);
     } else if (rrect.isOval()) {
@@ -807,14 +807,14 @@ void SkDeferredCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPath(path, paint);
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
-                                    SkScalar top, const SkPaint* paint) {
+void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
+                                  SkScalar top, const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(left, top,
         SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing &&
@@ -828,9 +828,11 @@ void SkDeferredCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                        const SkRect& dst,
-                                        const SkPaint* paint, DrawBitmapRectFlags flags) {
+void SkDeferredCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
+                                            const SkRect* src,
+                                            const SkRect& dst,
+                                            const SkPaint* paint,
+                                            DrawBitmapRectFlags flags) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, &bitmap)) {
@@ -842,9 +844,9 @@ void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* sr
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
-                                        const SkIRect& center, const SkRect& dst,
-                                        const SkPaint* paint) {
+void SkDeferredCanvas::drawBitmapNine(const SkBitmap& bitmap,
+                                      const SkIRect& center, const SkRect& dst,
+                                      const SkPaint* paint) {
     // TODO: reset recording canvas if paint+bitmap is opaque and clip rect
     // covers canvas entirely and dst covers canvas entirely
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
@@ -852,8 +854,8 @@ void SkDeferredCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawSprite(const SkBitmap& bitmap, int left, int top,
-                                    const SkPaint* paint) {
+void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
+                                  const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(
         SkIntToScalar(left),
         SkIntToScalar(top),
@@ -911,12 +913,12 @@ void SkDeferredCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* m
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                      const SkPoint vertices[],
-                                      const SkPoint texs[],
-                                      const SkColor colors[], SkXfermode* xmode,
-                                      const uint16_t indices[], int indexCount,
-                                      const SkPaint& paint) {
+void SkDeferredCanvas::drawVertices(VertexMode vmode, int vertexCount,
+                                    const SkPoint vertices[],
+                                    const SkPoint texs[],
+                                    const SkColor colors[], SkXfermode* xmode,
+                                    const uint16_t indices[], int indexCount,
+                                    const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode,
                                         indices, indexCount, paint);

@@ -1196,7 +1196,8 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
     LOOPER_END
 }
 
-void SkCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
+void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
+                          const SkPaint* paint) {
     if (gTreatSpriteAsBitmap) {
         this->save();
         this->resetMatrix();
@@ -1670,66 +1671,6 @@ void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
     this->onDrawDRRect(outer, inner, paint);
 }
 
-// These need to stop being virtual -- clients need to override the onDraw... versions
-
-void SkCanvas::drawPaint(const SkPaint& paint) {
-    this->onDrawPaint(paint);
-}
-
-void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
-    this->onDrawRect(r, paint);
-}
-
-void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
-    this->onDrawOval(r, paint);
-}
-
-void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    this->onDrawRRect(rrect, paint);
-}
-
-void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint) {
-    this->onDrawPoints(mode, count, pts, paint);
-}
-
-void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
-                            const SkPoint texs[], const SkColor colors[], SkXfermode* xmode,
-                            const uint16_t indices[], int indexCount, const SkPaint& paint) {
-    this->onDrawVertices(vmode, vertexCount, vertices, texs, colors, xmode,
-                         indices, indexCount, paint);
-}
-
-void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
-    this->onDrawPath(path, paint);
-}
-
-void SkCanvas::drawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    this->onDrawImage(image, dx, dy, paint);
-}
-
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                             const SkPaint* paint) {
-    this->onDrawImageRect(image, src, dst, paint);
-}
-
-void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    this->onDrawBitmap(bitmap, dx, dy, paint);
-}
-
-void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, DrawBitmapRectFlags flags) {
-    this->onDrawBitmapRect(bitmap, src, dst, paint, flags);
-}
-
-void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                              const SkPaint* paint) {
-    this->onDrawBitmapNine(bitmap, center, dst, paint);
-}
-
-void SkCanvas::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
-    this->onDrawSprite(bitmap, left, top, paint);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
@@ -1740,7 +1681,7 @@ void SkCanvas::onDiscard() {
     }
 }
 
-void SkCanvas::onDrawPaint(const SkPaint& paint) {
+void SkCanvas::drawPaint(const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPaint()");
     this->internalDrawPaint(paint);
 }
@@ -1755,8 +1696,8 @@ void SkCanvas::internalDrawPaint(const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
-                            const SkPaint& paint) {
+void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
+                          const SkPaint& paint) {
     TRACE_EVENT1("disabled-by-default-skia", "SkCanvas::drawPoints()", "count", static_cast<uint64_t>(count));
     if ((long)count <= 0) {
         return;
@@ -1788,7 +1729,7 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
     LOOPER_END
 }
 
-void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
+void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
     SkRect storage;
     const SkRect* bounds = NULL;
@@ -1808,7 +1749,7 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
+void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawOval()");
     SkRect storage;
     const SkRect* bounds = NULL;
@@ -1828,7 +1769,7 @@ void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRRect()");
     SkRect storage;
     const SkRect* bounds = NULL;
@@ -1878,7 +1819,7 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     LOOPER_END
 }
 
-void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPath()");
     if (!path.isFinite()) {
         return;
@@ -1911,18 +1852,21 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+void SkCanvas::drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                       const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImage()");
-    image->draw(this, dx, dy, paint);
+    image->draw(this, left, top, paint);
 }
 
-void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                               const SkPaint* paint) {
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src,
+                           const SkRect& dst,
+                           const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
     image->drawRect(this, src, dst, paint);
 }
 
-void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint* paint) {
+void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
+                          const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmap()");
     SkDEBUGCODE(bitmap.validate();)
 
@@ -1978,8 +1922,9 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     LOOPER_END
 }
 
-void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                const SkPaint* paint, DrawBitmapRectFlags flags) {
+void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+                                    const SkRect& dst, const SkPaint* paint,
+                                    DrawBitmapRectFlags flags) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapRectToRect()");
     SkDEBUGCODE(bitmap.validate();)
     this->internalDrawBitmapRect(bitmap, src, dst, paint, flags);
@@ -2055,8 +2000,8 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
     }
 }
 
-void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                const SkPaint* paint) {
+void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                              const SkRect& dst, const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapNine()");
     SkDEBUGCODE(bitmap.validate();)
 
@@ -2263,11 +2208,11 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     }
 }
 
-void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                              const SkPoint verts[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
-                              const uint16_t indices[], int indexCount,
-                              const SkPaint& paint) {
+void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
+                            const SkPoint verts[], const SkPoint texs[],
+                            const SkColor colors[], SkXfermode* xmode,
+                            const uint16_t indices[], int indexCount,
+                            const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawVertices()");
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, NULL)
 
