@@ -26,28 +26,6 @@ public:
     explicit SkNulCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap) {}
     virtual ~SkNulCanvas() {}
 
-    virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE {}
-    virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
-                            const SkPaint& paint) SK_OVERRIDE {}
-    virtual void drawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE {}
-    virtual void drawOval(const SkRect& oval, const SkPaint&) SK_OVERRIDE {}
-    virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint) SK_OVERRIDE {}
-    virtual void drawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE {}
-    virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                            const SkPaint* paint = NULL) SK_OVERRIDE {}
-    virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                                      const SkRect& dst,
-                                      const SkPaint* paint,
-                                      DrawBitmapRectFlags flags) SK_OVERRIDE {}
-    virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE {}
-    virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
-                            const SkPaint* paint = NULL) SK_OVERRIDE {}
-    virtual void drawVertices(VertexMode vmode, int vertexCount,
-                              const SkPoint vertices[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
-                              const uint16_t indices[], int indexCount,
-                              const SkPaint& paint) SK_OVERRIDE {}
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE {}
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE {}
     virtual void endCommentGroup() SK_OVERRIDE {}
@@ -96,6 +74,33 @@ protected:
     virtual void onClipRegion(const SkRegion&, SkRegion::Op)  SK_OVERRIDE {}
 
     virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE {}
+
+    void onDrawPaint(const SkPaint& paint) SK_OVERRIDE {}
+    void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
+                      const SkPaint& paint) SK_OVERRIDE {}
+    void onDrawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE {}
+    void onDrawOval(const SkRect& oval, const SkPaint&) SK_OVERRIDE {}
+    void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) SK_OVERRIDE {}
+    void onDrawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE {}
+    void onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
+                      const SkPaint* paint = NULL) SK_OVERRIDE {}
+    void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
+                          const SkRect& dst,
+                          const SkPaint* paint,
+                          DrawBitmapRectFlags flags) SK_OVERRIDE {}
+    void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) SK_OVERRIDE {}
+    void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
+                         const SkPaint*) SK_OVERRIDE{}
+    void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                          const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE {}
+    void onDrawSprite(const SkBitmap& bitmap, int left, int top,
+                      const SkPaint* paint = NULL) SK_OVERRIDE {}
+    void onDrawVertices(VertexMode vmode, int vertexCount,
+                        const SkPoint vertices[], const SkPoint texs[],
+                        const SkColor colors[], SkXfermode* xmode,
+                        const uint16_t indices[], int indexCount,
+                        const SkPaint& paint) SK_OVERRIDE {}
+
     
 private:
     typedef SkCanvas INHERITED;
