@@ -25,7 +25,10 @@ class DCShader : public SkShader {
 public:
     DCShader(const SkMatrix& matrix) : fDeviceMatrix(matrix) {}
 
-    Factory getFactory() const SK_OVERRIDE { return NULL; }
+    // This is a custom shader, so we don't need to make it
+    // flattenable.  Since this class is not part of the skia library,
+    // it wouldn't deserialize without linking this library anyway.
+    SK_DECLARE_NOT_FLATTENABLE_PROCS(DCShader)
 
     bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
                              const SkMatrix* localMatrix, GrColor* color,
