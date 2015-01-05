@@ -135,8 +135,6 @@ public:
      */
     void toggleCommand(int index, bool toggle);
 
-    void setWindowSize(int width, int height) { fWindowSize.set(width, height); }
-
     void setUserMatrix(SkMatrix matrix) {
         fUserMatrix = matrix;
         fDrawNeedsReset = true;
@@ -225,7 +223,6 @@ protected:
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;
     SkPicture* fPicture;
-    SkISize fWindowSize;
     bool fFilter;
     bool fMegaVizMode;
     int fIndex;

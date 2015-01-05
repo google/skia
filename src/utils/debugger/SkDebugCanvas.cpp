@@ -14,10 +14,9 @@
 #include "SkDevice.h"
 #include "SkXfermode.h"
 
-SkDebugCanvas::SkDebugCanvas(int windowWidth, int windowHeight)
-        : INHERITED(windowWidth, windowHeight)
+SkDebugCanvas::SkDebugCanvas(int width, int height)
+        : INHERITED(width, height)
         , fPicture(NULL)
-        , fWindowSize(SkISize::Make(windowWidth, windowHeight))
         , fFilter(false)
         , fMegaVizMode(false)
         , fIndex(0)
@@ -233,6 +232,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
     int i = 0;
+    SkRect windowRect = SkRect::MakeWH(SkIntToScalar(canvas->getBaseLayerSize().width()),
+                                       SkIntToScalar(canvas->getBaseLayerSize().height()));
 
     bool pathOpsMode = getAllowSimplifyClip();
     canvas->setAllowSimplifyClip(pathOpsMode);
@@ -249,9 +250,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         }
         canvas->clear(SK_ColorTRANSPARENT);
         canvas->resetMatrix();
-        SkRect rect = SkRect::MakeWH(SkIntToScalar(fWindowSize.fWidth),
-                                     SkIntToScalar(fWindowSize.fHeight));
-        canvas->clipRect(rect, SkRegion::kReplace_Op);
+        if (!windowRect.isEmpty()) {
+            canvas->clipRect(windowRect, SkRegion::kReplace_Op);
+        }
         this->applyUserTransform(canvas);
         fDrawNeedsReset = false;
         fOutstandingSaveCount = 0;
@@ -307,16 +308,15 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     }
 
     if (fMegaVizMode) {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(fWindowSize.fWidth),
-                                  SkIntToScalar(fWindowSize.fHeight));
-        r.outset(SK_Scalar1, SK_Scalar1);
-
         canvas->save();
         // nuke the CTM
         canvas->resetMatrix();
         // turn off clipping
-        canvas->clipRect(r, SkRegion::kReplace_Op);
-
+        if (!windowRect.isEmpty()) {
+            SkRect r = windowRect;
+            r.outset(SK_Scalar1, SK_Scalar1);
+            canvas->clipRect(r, SkRegion::kReplace_Op);
+        }
         // visualize existing clips
         SkDebugClipVisitor visitor(canvas);
 

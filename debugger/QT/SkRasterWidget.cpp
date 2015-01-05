@@ -29,7 +29,6 @@ void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     SkSafeUnref(fDevice);
     fDevice = new SkBitmapDevice(fBitmap);
     fCanvas = new SkCanvas(fDevice);
-    fDebugger->setWindowSize(event->size().width(), event->size().height());
     this->update();
 }
 

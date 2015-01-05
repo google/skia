@@ -56,8 +56,6 @@ public:
         fDebugCanvas->toggleFilter(on);
     }
 
-    void setWindowSize(int width, int height) { fDebugCanvas->setWindowSize(width, height); }
-
     void loadPicture(SkPicture* picture);
 
     SkPicture* copyPicture();
