@@ -50,11 +50,11 @@ void JsonWriter::DumpJson() {
         SkAutoMutexAcquire lock(&gBitmapResultLock);
         for (int i = 0; i < gBitmapResults.count(); i++) {
             Json::Value result;
-            result["key"]["name"]            = gBitmapResults[i].name.c_str();
-            result["key"]["config"]          = gBitmapResults[i].config.c_str();
-            result["key"]["mode"]            = gBitmapResults[i].mode.c_str();
-            result["options"]["source_type"] = gBitmapResults[i].sourceType.c_str();
-            result["md5"]                    = gBitmapResults[i].md5.c_str();
+            result["key"]["name"]        = gBitmapResults[i].name.c_str();
+            result["key"]["config"]      = gBitmapResults[i].config.c_str();
+            result["key"]["mode"]        = gBitmapResults[i].mode.c_str();
+            result["key"]["source_type"] = gBitmapResults[i].sourceType.c_str();
+            result["md5"]                = gBitmapResults[i].md5.c_str();
 
             root["results"].append(result);
         }
