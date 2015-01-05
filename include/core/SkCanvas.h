@@ -36,6 +36,12 @@ class GrRenderTarget;
 
 class SkCanvasState;
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_VIRTUAL
+    #define SK_LEGACY_CANVAS_VIRTUAL    virtual
+#else
+    #define SK_LEGACY_CANVAS_VIRTUAL
+#endif
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -608,7 +614,7 @@ public:
      *  specified paint.
      *  @param paint    The paint used to fill the canvas
      */
-    virtual void drawPaint(const SkPaint& paint);
+    SK_LEGACY_CANVAS_VIRTUAL void drawPaint(const SkPaint& paint);
 
     enum PointMode {
         /** drawPoints draws each point separately */
@@ -640,8 +646,8 @@ public:
         @param pts      Array of points to draw
         @param paint    The paint used to draw the points
     */
-    virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
-                            const SkPaint& paint);
+    SK_LEGACY_CANVAS_VIRTUAL void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
+                                             const SkPaint& paint);
 
     /** Helper method for drawing a single point. See drawPoints() for a more
         details.
@@ -672,7 +678,7 @@ public:
         @param rect     The rect to be drawn
         @param paint    The paint used to draw the rect
     */
-    virtual void drawRect(const SkRect& rect, const SkPaint& paint);
+    SK_LEGACY_CANVAS_VIRTUAL void drawRect(const SkRect& rect, const SkPaint& paint);
 
     /** Draw the specified rectangle using the specified paint. The rectangle
         will be filled or framed based on the Style in the paint.
@@ -701,7 +707,7 @@ public:
         @param oval     The rectangle bounds of the oval to be drawn
         @param paint    The paint used to draw the oval
     */
-    virtual void drawOval(const SkRect& oval, const SkPaint&);
+    SK_LEGACY_CANVAS_VIRTUAL void drawOval(const SkRect& oval, const SkPaint&);
 
     /**
      *  Draw the specified RRect using the specified paint The rrect will be filled or stroked
@@ -710,7 +716,7 @@ public:
      *  @param rrect    The round-rect to draw
      *  @param paint    The paint used to draw the round-rect
      */
-    virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint);
+    SK_LEGACY_CANVAS_VIRTUAL void drawRRect(const SkRRect& rrect, const SkPaint& paint);
 
     /**
      *  Draw the annulus formed by the outer and inner rrects. The results
@@ -758,7 +764,7 @@ public:
         @param path     The path to be drawn
         @param paint    The paint used to draw the path
     */
-    virtual void drawPath(const SkPath& path, const SkPaint& paint);
+    SK_LEGACY_CANVAS_VIRTUAL void drawPath(const SkPath& path, const SkPaint& paint);
 
     /** Draw the specified image, with its top/left corner at (x,y), using the
         specified paint, transformed by the current matrix.
@@ -768,7 +774,7 @@ public:
         @param top      The position of the top side of the image being drawn
         @param paint    The paint used to draw the image, or NULL
      */
-    virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
+    SK_LEGACY_CANVAS_VIRTUAL void drawImage(const SkImage* image, SkScalar left, SkScalar top,
                            const SkPaint* paint = NULL);
     /** Draw the specified image, with the specified matrix applied (before the
         canvas' matrix is applied).
@@ -779,7 +785,7 @@ public:
                         image will be drawn
         @param paint    The paint used to draw the image, or NULL
     */
-    virtual void drawImageRect(const SkImage* image, const SkRect* src,
+    SK_LEGACY_CANVAS_VIRTUAL void drawImageRect(const SkImage* image, const SkRect* src,
                                const SkRect& dst,
                                const SkPaint* paint = NULL);
 
@@ -799,7 +805,7 @@ public:
         @param top      The position of the top side of the bitmap being drawn
         @param paint    The paint used to draw the bitmap, or NULL
     */
-    virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
+    SK_LEGACY_CANVAS_VIRTUAL void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                             const SkPaint* paint = NULL);
 
     enum DrawBitmapRectFlags {
@@ -820,7 +826,7 @@ public:
                         image will be drawn
         @param paint    The paint used to draw the bitmap, or NULL
     */
-    virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+    SK_LEGACY_CANVAS_VIRTUAL void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst,
                                       const SkPaint* paint = NULL,
                                       DrawBitmapRectFlags flags = kNone_DrawBitmapRectFlag);
@@ -856,7 +862,7 @@ public:
      *  - The corners shrink proportionally
      *  - The sides (along the shrink axis) and center are not drawn
      */
-    virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+    SK_LEGACY_CANVAS_VIRTUAL void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint* paint = NULL);
 
     /** Draw the specified bitmap, with its top/left corner at (x,y),
@@ -870,7 +876,7 @@ public:
         @param top      The position of the top side of the bitmap being drawn
         @param paint    The paint used to draw the bitmap, or NULL
     */
-    virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
+    SK_LEGACY_CANVAS_VIRTUAL void drawSprite(const SkBitmap& bitmap, int left, int top,
                             const SkPaint* paint = NULL);
 
     /** Draw the text, with origin at (x,y), using the specified paint.
@@ -993,7 +999,7 @@ public:
         @param indexCount number of entries in the indices array (if not null)
         @param paint Specifies the shader/texture if present.
     */
-    virtual void drawVertices(VertexMode vmode, int vertexCount,
+    SK_LEGACY_CANVAS_VIRTUAL void drawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
@@ -1196,6 +1202,24 @@ protected:
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
     virtual void onDrawDrawable(SkCanvasDrawable*);
+
+    virtual void onDrawPaint(const SkPaint&);
+    virtual void onDrawRect(const SkRect&, const SkPaint&);
+    virtual void onDrawOval(const SkRect&, const SkPaint&);
+    virtual void onDrawRRect(const SkRRect&, const SkPaint&);
+    virtual void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&);
+    virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
+                                const SkPoint texs[], const SkColor colors[], SkXfermode*,
+                                const uint16_t indices[], int indexCount, const SkPaint&);
+    virtual void onDrawPath(const SkPath&, const SkPaint&);
+    virtual void onDrawImage(const SkImage*, SkScalar dx, SkScalar dy, const SkPaint*);
+    virtual void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*);
+    virtual void onDrawBitmap(const SkBitmap&, SkScalar dx, SkScalar dy, const SkPaint*);
+    virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
+                                  DrawBitmapRectFlags);
+    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
+                                  const SkPaint*);
+    virtual void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,

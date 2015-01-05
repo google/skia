@@ -23,7 +23,7 @@ class MockCanvas : public SkCanvas {
 public:
     MockCanvas(const SkBitmap& bm) : SkCanvas(bm) {}
 
-    virtual void drawRect(const SkRect& rect, const SkPaint&) {
+    void onDrawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE {
         // This capture occurs before quick reject.
         fRects.push(rect);
     }

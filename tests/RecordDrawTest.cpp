@@ -288,16 +288,14 @@ DEF_TEST(RecordDraw_drawImage, r){
         SkCanvasMock(int width, int height) : SkCanvas(width, height) {
             this->resetTestValues();
         }
-        virtual ~SkCanvasMock() {}
-        virtual void drawImage(const SkImage* image, SkScalar left, SkScalar top,
-                               const SkPaint* paint = NULL) SK_OVERRIDE {
 
+        void onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
+                         const SkPaint* paint) SK_OVERRIDE {
             fDrawImageCalled = true;
         }
 
-        virtual void drawImageRect(const SkImage* image, const SkRect* src,
-                                   const SkRect& dst,
-                                   const SkPaint* paint = NULL) SK_OVERRIDE {
+        void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                             const SkPaint* paint) SK_OVERRIDE {
             fDrawImageRectCalled = true;
         }
 
