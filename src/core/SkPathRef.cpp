@@ -452,6 +452,21 @@ void SkPathRef::validate() const {
     if (!fBoundsIsDirty && !fBounds.isEmpty()) {
         bool isFinite = true;
         for (int i = 0; i < fPointCnt; ++i) {
+#ifdef SK_DEBUG
+            if (fPoints[i].isFinite() &&
+                (fPoints[i].fX < fBounds.fLeft || fPoints[i].fX > fBounds.fRight ||
+                 fPoints[i].fY < fBounds.fTop || fPoints[i].fY > fBounds.fBottom)) {
+                SkDebugf("bounds: %f %f %f %f\n",
+                         fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
+                for (int j = 0; j < fPointCnt; ++j) {
+                    if (i == j) {
+                        SkDebugf("*");
+                    }
+                    SkDebugf("%f %f\n", fPoints[j].fX, fPoints[j].fY);
+                }
+            }
+#endif
+
             SkASSERT(!fPoints[i].isFinite() ||
 		     (fPoints[i].fX >= fBounds.fLeft && fPoints[i].fX <= fBounds.fRight &&
 		      fPoints[i].fY >= fBounds.fTop && fPoints[i].fY <= fBounds.fBottom));
