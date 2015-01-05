@@ -98,6 +98,7 @@
         '<(skia_src_path)/core/SkFontStream.cpp',
         '<(skia_src_path)/core/SkFontStream.h',
         '<(skia_src_path)/core/SkGeometry.cpp',
+        '<(skia_src_path)/core/SkGeometry.h',
         '<(skia_src_path)/core/SkGlyphCache.cpp',
         '<(skia_src_path)/core/SkGlyphCache.h',
         '<(skia_src_path)/core/SkGlyphCache_Globals.h',
