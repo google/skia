@@ -89,6 +89,22 @@
       ],
     },
     {
+      'target_name': 'skp_to_pdf_md5',
+      'type': 'executable',
+      'sources': [
+        '../experimental/tools/skp_to_pdf_md5.cpp',
+      ],
+      'include_dirs': [
+        '../src/core',
+        '../tools/flags',
+      ],
+      'dependencies': [
+        'pdf.gyp:pdf',
+        'skia_lib.gyp:skia_lib',
+        'tools.gyp:sk_tool_utils',
+      ],
+    },
+    {
       'target_name': 'gmtoskp',
       'type': 'executable',
       'sources': [
