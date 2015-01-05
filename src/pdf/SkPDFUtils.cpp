@@ -95,6 +95,13 @@ void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
     content->writeText(cmd.c_str());
 }
 
+static void append_quad(const SkPoint quad[], SkWStream* content) {
+    SkPoint cubic[4];
+    SkConvertQuadToCubic(quad, cubic);
+    SkPDFUtils::AppendCubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
+                            cubic[3].fX, cubic[3].fY, content);
+}
+
 // static
 void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
@@ -130,9 +137,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     SkDynamicMemoryWStream currentSegment;
     SkPoint args[4];
     SkPath::Iter iter(path, false);
-    for (SkPath::Verb verb = iter.next(args);
-         verb != SkPath::kDone_Verb;
-         verb = iter.next(args)) {
+    for (SkPath::Verb verb = iter.next(args); verb != SkPath::kDone_Verb; verb = iter.next(args)) {
         // args gets all the points, even the implicit first point.
         switch (verb) {
             case SkPath::kMove_Verb:
@@ -150,14 +155,18 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                     fillState = kNonSingleLine_SkipFillState;
                 }
                 break;
-            case SkPath::kQuad_Verb: {
-                SkPoint cubic[4];
-                SkConvertQuadToCubic(args, cubic);
-                AppendCubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
-                            cubic[3].fX, cubic[3].fY, &currentSegment);
+            case SkPath::kQuad_Verb:
+                append_quad(args, &currentSegment);
                 fillState = kNonSingleLine_SkipFillState;
                 break;
-            }
+            case SkPath::kConic_Verb: {
+                const SkScalar tol = SK_Scalar1 / 4;
+                SkAutoConicToQuads converter;
+                const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tol);
+                for (int i = 0; i < converter.countQuads(); ++i) {
+                    append_quad(&quads[i * 2], &currentSegment);
+                }
+            } break;
             case SkPath::kCubic_Verb:
                 AppendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
                             args[3].fX, args[3].fY, &currentSegment);
