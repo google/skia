@@ -11,11 +11,11 @@
 #include "SkString.h"
 
 
-SkDebugger::SkDebugger() {
+SkDebugger::SkDebugger()
+    : fPicture(NULL)
+    , fIndex(-1) {
     // Create this some other dynamic way?
     fDebugCanvas = new SkDebugCanvas(0, 0);
-    fPicture = NULL;
-    fIndex = 0;
 }
 
 SkDebugger::~SkDebugger() {

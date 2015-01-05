@@ -26,7 +26,7 @@ public:
         fIndex = index;
     }
     void draw(SkCanvas* canvas) {
-        if (fIndex > 0) {
+        if (fIndex >= 0) {
             fDebugCanvas->drawTo(canvas, fIndex);
         }
     }
