@@ -451,7 +451,7 @@ size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkRegion::Op op
     return offset;
 }
 
-void SkPictureRecord::drawPaint(const SkPaint& paint) {
+void SkPictureRecord::onDrawPaint(const SkPaint& paint) {
     // op + paint index
     size_t size = 2 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_PAINT, &size);
@@ -460,8 +460,8 @@ void SkPictureRecord::drawPaint(const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
-                                 const SkPaint& paint) {
+void SkPictureRecord::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
+                                   const SkPaint& paint) {
     fContentInfo.onDrawPoints(count, paint);
 
     // op + paint index + mode + count + point data
@@ -476,7 +476,7 @@ void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawOval(const SkRect& oval, const SkPaint& paint) {
+void SkPictureRecord::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     // op + paint index + rect
     size_t size = 2 * kUInt32Size + sizeof(oval);
     size_t initialOffset = this->addDraw(DRAW_OVAL, &size);
@@ -486,7 +486,7 @@ void SkPictureRecord::drawOval(const SkRect& oval, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // op + paint index + rect
     size_t size = 2 * kUInt32Size + sizeof(rect);
     size_t initialOffset = this->addDraw(DRAW_RECT, &size);
@@ -496,7 +496,7 @@ void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkPictureRecord::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     // op + paint index + rrect
     size_t size = 2 * kUInt32Size + SkRRect::kSizeInMemory;
     size_t initialOffset = this->addDraw(DRAW_RRECT, &size);
@@ -518,7 +518,7 @@ void SkPictureRecord::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
+void SkPictureRecord::onDrawPath(const SkPath& path, const SkPaint& paint) {
     fContentInfo.onDrawPath(path, paint);
 
     // op + paint index + path index
@@ -530,8 +530,8 @@ void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                                 const SkPaint* paint = NULL) {
+void SkPictureRecord::onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
+                                   const SkPaint* paint) {
     // op + paint index + bitmap index + left + top
     size_t size = 3 * kUInt32Size + 2 * sizeof(SkScalar);
     size_t initialOffset = this->addDraw(DRAW_BITMAP, &size);
@@ -543,9 +543,8 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                                           const SkRect& dst, const SkPaint* paint,
-                                           DrawBitmapRectFlags flags) {
+void SkPictureRecord::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                                       const SkPaint* paint, DrawBitmapRectFlags flags) {
     // id + paint index + bitmap index + bool for 'src' + flags
     size_t size = 5 * kUInt32Size;
     if (src) {
@@ -564,8 +563,8 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                     const SkRect& dst, const SkPaint* paint) {
+void SkPictureRecord::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                       const SkRect& dst, const SkPaint* paint) {
     // op + paint index + bitmap id + center + dst rect
     size_t size = 3 * kUInt32Size + sizeof(center) + sizeof(dst);
     size_t initialOffset = this->addDraw(DRAW_BITMAP_NINE, &size);
@@ -577,8 +576,8 @@ void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& cent
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
-                                 const SkPaint* paint = NULL) {
+void SkPictureRecord::onDrawSprite(const SkBitmap& bitmap, int left, int top,
+                                   const SkPaint* paint) {
     // op + paint index + bitmap index + left + top
     size_t size = 5 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_SPRITE, &size);
@@ -693,11 +692,11 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
-                          const SkPoint vertices[], const SkPoint texs[],
-                          const SkColor colors[], SkXfermode* xfer,
-                          const uint16_t indices[], int indexCount,
-                          const SkPaint& paint) {
+void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
+                                     const SkPoint vertices[], const SkPoint texs[],
+                                     const SkColor colors[], SkXfermode* xfer,
+                                     const uint16_t indices[], int indexCount,
+                                     const SkPaint& paint) {
     uint32_t flags = 0;
     if (texs) {
         flags |= DRAW_VERTICES_HAS_TEXS;

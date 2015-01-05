@@ -18,6 +18,7 @@ class SkData;
 class SkCanvas;
 class SkImageGenerator;
 class SkPaint;
+class SkString;
 class SkSurface;
 class SkSurfaceProps;
 class GrContext;

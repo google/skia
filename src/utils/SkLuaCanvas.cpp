@@ -162,31 +162,31 @@ void SkLuaCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     this->INHERITED::onClipRegion(deviceRgn, op);
 }
 
-void SkLuaCanvas::drawPaint(const SkPaint& paint) {
+void SkLuaCanvas::onDrawPaint(const SkPaint& paint) {
     AUTO_LUA("drawPaint");
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawPoints(PointMode mode, size_t count,
+void SkLuaCanvas::onDrawPoints(PointMode mode, size_t count,
                                const SkPoint pts[], const SkPaint& paint) {
     AUTO_LUA("drawPoints");
     lua.pushArrayPoint(pts, SkToInt(count), "points");
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
+void SkLuaCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     AUTO_LUA("drawOval");
     lua.pushRect(rect, "rect");
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkLuaCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     AUTO_LUA("drawRect");
     lua.pushRect(rect, "rect");
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkLuaCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     AUTO_LUA("drawRRect");
     lua.pushRRect(rrect, "rrect");
     lua.pushPaint(paint, "paint");
@@ -200,31 +200,52 @@ void SkLuaCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+void SkLuaCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     AUTO_LUA("drawPath");
     lua.pushPath(path, "path");
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-                             const SkPaint* paint) {
+void SkLuaCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
+                               const SkPaint* paint) {
     AUTO_LUA("drawBitmap");
     if (paint) {
         lua.pushPaint(*paint, "paint");
     }
 }
 
-void SkLuaCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
-                                       const SkRect& dst, const SkPaint* paint,
-                                       DrawBitmapRectFlags flags) {
-    AUTO_LUA("drawBitmapRectToRect");
+void SkLuaCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                                   const SkPaint* paint, DrawBitmapRectFlags flags) {
+    AUTO_LUA("drawBitmapRect");
     if (paint) {
         lua.pushPaint(*paint, "paint");
     }
 }
 
-void SkLuaCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
-                               const SkPaint* paint) {
+void SkLuaCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
+                                   const SkPaint* paint) {
+    AUTO_LUA("drawBitmapNine");
+    if (paint) {
+        lua.pushPaint(*paint, "paint");
+    }
+}
+
+void SkLuaCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    AUTO_LUA("drawImage");
+    if (paint) {
+        lua.pushPaint(*paint, "paint");
+    }
+}
+
+void SkLuaCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                                  const SkPaint* paint) {
+    AUTO_LUA("drawImageRect");
+    if (paint) {
+        lua.pushPaint(*paint, "paint");
+    }
+}
+
+void SkLuaCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
     AUTO_LUA("drawSprite");
     if (paint) {
         lua.pushPaint(*paint, "paint");
@@ -276,7 +297,7 @@ void SkLuaCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix
     this->INHERITED::onDrawPicture(picture, matrix, paint);
 }
 
-void SkLuaCanvas::drawVertices(VertexMode vmode, int vertexCount,
+void SkLuaCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                  const SkPoint vertices[], const SkPoint texs[],
                                  const SkColor colors[], SkXfermode* xmode,
                                  const uint16_t indices[], int indexCount,
