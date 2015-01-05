@@ -40,6 +40,3 @@ blurrects
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
-#humper skia:2049
-dashcubics
-
