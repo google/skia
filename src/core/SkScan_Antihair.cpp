@@ -974,6 +974,15 @@ static void innerstrokedot8(FDot8 L, FDot8 T, FDot8 R, FDot8 B,
     }
 }
 
+static inline void align_thin_stroke(FDot8& edge1, FDot8& edge2) {
+    SkASSERT(edge1 <= edge2);
+
+    if (FDot8Floor(edge1) == FDot8Floor(edge2)) {
+        edge2 -= (edge1 & 0xFF);
+        edge1 &= ~0xFF;
+    }
+}
+
 void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
                            const SkRegion* clip, SkBlitter* blitter) {
     SkASSERT(strokeSize.fX >= 0 && strokeSize.fY >= 0);
@@ -982,14 +991,14 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
     SkScalar ry = SkScalarHalf(strokeSize.fY);
 
     // outset by the radius
-    FDot8 L = SkScalarToFDot8(r.fLeft - rx);
-    FDot8 T = SkScalarToFDot8(r.fTop - ry);
-    FDot8 R = SkScalarToFDot8(r.fRight + rx);
-    FDot8 B = SkScalarToFDot8(r.fBottom + ry);
+    FDot8 outerL = SkScalarToFDot8(r.fLeft - rx);
+    FDot8 outerT = SkScalarToFDot8(r.fTop - ry);
+    FDot8 outerR = SkScalarToFDot8(r.fRight + rx);
+    FDot8 outerB = SkScalarToFDot8(r.fBottom + ry);
 
     SkIRect outer;
     // set outer to the outer rect of the outer section
-    outer.set(FDot8Floor(L), FDot8Floor(T), FDot8Ceil(R), FDot8Ceil(B));
+    outer.set(FDot8Floor(outerL), FDot8Floor(outerT), FDot8Ceil(outerR), FDot8Ceil(outerB));
 
     SkBlitterClipper clipper;
     if (clip) {
@@ -1002,28 +1011,40 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
         // now we can ignore clip for the rest of the function
     }
 
-    // stroke the outer hull
-    antifilldot8(L, T, R, B, blitter, false);
-
-    // set outer to the outer rect of the middle section
-    outer.set(FDot8Ceil(L), FDot8Ceil(T), FDot8Floor(R), FDot8Floor(B));
-
     // in case we lost a bit with diameter/2
     rx = strokeSize.fX - rx;
     ry = strokeSize.fY - ry;
-    // inset by the radius
-    L = SkScalarToFDot8(r.fLeft + rx);
-    T = SkScalarToFDot8(r.fTop + ry);
-    R = SkScalarToFDot8(r.fRight - rx);
-    B = SkScalarToFDot8(r.fBottom - ry);
 
-    if (L >= R || T >= B) {
+    // inset by the radius
+    FDot8 innerL = SkScalarToFDot8(r.fLeft + rx);
+    FDot8 innerT = SkScalarToFDot8(r.fTop + ry);
+    FDot8 innerR = SkScalarToFDot8(r.fRight - rx);
+    FDot8 innerB = SkScalarToFDot8(r.fBottom - ry);
+
+    // For sub-unit strokes, tweak the hulls such that one of the edges coincides with the pixel
+    // edge. This ensures that the general rect stroking logic below
+    //   a) doesn't blit the same scanline twice
+    //   b) computes the correct coverage when both edges fall within the same pixel
+    if (strokeSize.fX < 1 || strokeSize.fY < 1) {
+        align_thin_stroke(outerL, innerL);
+        align_thin_stroke(outerT, innerT);
+        align_thin_stroke(innerR, outerR);
+        align_thin_stroke(innerB, outerB);
+    }
+
+    // stroke the outer hull
+    antifilldot8(outerL, outerT, outerR, outerB, blitter, false);
+
+    // set outer to the outer rect of the middle section
+    outer.set(FDot8Ceil(outerL), FDot8Ceil(outerT), FDot8Floor(outerR), FDot8Floor(outerB));
+
+    if (innerL >= innerR || innerT >= innerB) {
         fillcheckrect(outer.fLeft, outer.fTop, outer.fRight, outer.fBottom,
                       blitter);
     } else {
         SkIRect inner;
         // set inner to the inner rect of the middle section
-        inner.set(FDot8Floor(L), FDot8Floor(T), FDot8Ceil(R), FDot8Ceil(B));
+        inner.set(FDot8Floor(innerL), FDot8Floor(innerT), FDot8Ceil(innerR), FDot8Ceil(innerB));
 
         // draw the frame in 4 pieces
         fillcheckrect(outer.fLeft, outer.fTop, outer.fRight, inner.fTop,
@@ -1038,7 +1059,7 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
         // now stroke the inner rect, which is similar to antifilldot8() except that
         // it treats the fractional coordinates with the inverse bias (since its
         // inner).
-        innerstrokedot8(L, T, R, B, blitter);
+        innerstrokedot8(innerL, innerT, innerR, innerB, blitter);
     }
 }
 
