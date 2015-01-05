@@ -1687,8 +1687,7 @@ static void test_isRect_open_close(skiatest::Reporter* reporter) {
     path.moveTo(0, 0); path.lineTo(1, 0); path.lineTo(1, 1); path.lineTo(0, 1);
     path.close();
 
-    REPORTER_ASSERT(reporter, path.isRect(NULL, NULL));
-    REPORTER_ASSERT(reporter, path.isRect(&isClosed, NULL));
+    REPORTER_ASSERT(reporter, path.isRect(NULL, &isClosed, NULL));
     REPORTER_ASSERT(reporter, isClosed);
     REPORTER_ASSERT(reporter, SkPath::kStroke_PathAsRect == path.asRect(NULL));
 }
@@ -1794,18 +1793,15 @@ static void test_isRect(skiatest::Reporter* reporter) {
             path.close();
         }
         REPORTER_ASSERT(reporter, tests[testIndex].fIsRect == path.isRect(NULL));
-        REPORTER_ASSERT(reporter, tests[testIndex].fIsRect == path.isRect(NULL, NULL));
 
         if (tests[testIndex].fIsRect) {
             SkRect computed, expected;
-            expected.set(tests[testIndex].fPoints, tests[testIndex].fPointCount);
-            REPORTER_ASSERT(reporter, path.isRect(&computed));
-            REPORTER_ASSERT(reporter, expected == computed);
-
             bool isClosed;
             SkPath::Direction direction, cheapDirection;
+            expected.set(tests[testIndex].fPoints, tests[testIndex].fPointCount);
             REPORTER_ASSERT(reporter, path.cheapComputeDirection(&cheapDirection));
-            REPORTER_ASSERT(reporter, path.isRect(&isClosed, &direction));
+            REPORTER_ASSERT(reporter, path.isRect(&computed, &isClosed, &direction));
+            REPORTER_ASSERT(reporter, expected == computed);
             REPORTER_ASSERT(reporter, isClosed == tests[testIndex].fClose);
             REPORTER_ASSERT(reporter, direction == cheapDirection);
             direction = (SkPath::Direction) -1;
@@ -1820,13 +1816,11 @@ static void test_isRect(skiatest::Reporter* reporter) {
         } else {
             SkRect computed;
             computed.set(123, 456, 789, 1011);
-            REPORTER_ASSERT(reporter, !path.isRect(&computed));
+            bool isClosed = (bool)-1;
+            SkPath::Direction direction = (SkPath::Direction) - 1;
+            REPORTER_ASSERT(reporter, !path.isRect(&computed, &isClosed, &direction));
             REPORTER_ASSERT(reporter, computed.fLeft == 123 && computed.fTop == 456);
             REPORTER_ASSERT(reporter, computed.fRight == 789 && computed.fBottom == 1011);
-
-            bool isClosed = (bool) -1;
-            SkPath::Direction direction = (SkPath::Direction) -1;
-            REPORTER_ASSERT(reporter, !path.isRect(&isClosed, &direction));
             REPORTER_ASSERT(reporter, isClosed == (bool) -1);
             REPORTER_ASSERT(reporter, direction == (SkPath::Direction) -1);
             REPORTER_ASSERT(reporter, SkPath::kNone_PathAsRect == path.asRect());
@@ -3112,7 +3106,7 @@ static void test_rrect(skiatest::Reporter* reporter) {
     p.addRRect(rr);
     bool closed;
     SkPath::Direction dir;
-    REPORTER_ASSERT(reporter, p.isRect(&closed, &dir));
+    REPORTER_ASSERT(reporter, p.isRect(NULL, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
     test_rrect_is_convex(reporter, &p, SkPath::kCW_Direction);

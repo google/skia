@@ -531,7 +531,7 @@ SkPath::PathAsRect SkPath::asRect(Direction* direction) const {
     SK_COMPILE_ASSERT(1 == kFill_PathAsRect, path_as_rect_mismatch);
     SK_COMPILE_ASSERT(2 == kStroke_PathAsRect, path_as_rect_mismatch);
     bool isClosed = false;
-    return (PathAsRect) (isRect(&isClosed, direction) + isClosed);
+    return (PathAsRect) (this->isRect(NULL, &isClosed, direction) + isClosed);
 }
 
 bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
