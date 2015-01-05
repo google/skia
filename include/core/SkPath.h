@@ -564,25 +564,6 @@ public:
         return computedDir == dir;
     }
 
-    enum PathAsRect {
-        /** The path can not draw the same as its bounds. */
-        kNone_PathAsRect,
-        /** The path draws the same as its bounds when filled. */
-        kFill_PathAsRect,
-        /** The path draws the same as its bounds when stroked or filled. */
-        kStroke_PathAsRect,
-    };
-
-    /** Returns kFill_PathAsRect or kStroke_PathAsRect if drawing the path (either filled or
-        stroked) will be equivalent to filling/stroking the path's bounding rect. If
-        either is true, and direction is not null, sets the direction of the contour. If the
-        path is not drawn equivalent to a rect, returns kNone_PathAsRect and ignores direction.
-
-        @param direction If not null, set to the contour's direction when it is drawn as a rect
-        @return the path's PathAsRect type
-     */
-    PathAsRect asRect(Direction* direction = NULL) const;
-
     /**
      *  Returns true if the path specifies a rectangle.
      *

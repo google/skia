@@ -1689,7 +1689,6 @@ static void test_isRect_open_close(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, path.isRect(NULL, &isClosed, NULL));
     REPORTER_ASSERT(reporter, isClosed);
-    REPORTER_ASSERT(reporter, SkPath::kStroke_PathAsRect == path.asRect(NULL));
 }
 
 // Simple isRect test is inline TestPath, below.
@@ -1804,15 +1803,6 @@ static void test_isRect(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, expected == computed);
             REPORTER_ASSERT(reporter, isClosed == tests[testIndex].fClose);
             REPORTER_ASSERT(reporter, direction == cheapDirection);
-            direction = (SkPath::Direction) -1;
-            if (!tests[testIndex].fClose) {
-                REPORTER_ASSERT(reporter, SkPath::kFill_PathAsRect == path.asRect());
-                REPORTER_ASSERT(reporter, SkPath::kFill_PathAsRect == path.asRect(&direction));
-            } else {
-                REPORTER_ASSERT(reporter, SkPath::kStroke_PathAsRect == path.asRect());
-                REPORTER_ASSERT(reporter, SkPath::kStroke_PathAsRect == path.asRect(&direction));
-            }
-            REPORTER_ASSERT(reporter, direction == cheapDirection);
         } else {
             SkRect computed;
             computed.set(123, 456, 789, 1011);
@@ -1822,9 +1812,6 @@ static void test_isRect(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, computed.fLeft == 123 && computed.fTop == 456);
             REPORTER_ASSERT(reporter, computed.fRight == 789 && computed.fBottom == 1011);
             REPORTER_ASSERT(reporter, isClosed == (bool) -1);
-            REPORTER_ASSERT(reporter, direction == (SkPath::Direction) -1);
-            REPORTER_ASSERT(reporter, SkPath::kNone_PathAsRect == path.asRect());
-            REPORTER_ASSERT(reporter, SkPath::kNone_PathAsRect == path.asRect(&direction));
             REPORTER_ASSERT(reporter, direction == (SkPath::Direction) -1);
         }
     }

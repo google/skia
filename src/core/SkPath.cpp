@@ -526,14 +526,6 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     return result;
 }
 
-SkPath::PathAsRect SkPath::asRect(Direction* direction) const {
-    SK_COMPILE_ASSERT(0 == kNone_PathAsRect, path_as_rect_mismatch);
-    SK_COMPILE_ASSERT(1 == kFill_PathAsRect, path_as_rect_mismatch);
-    SK_COMPILE_ASSERT(2 == kStroke_PathAsRect, path_as_rect_mismatch);
-    bool isClosed = false;
-    return (PathAsRect) (this->isRect(NULL, &isClosed, direction) + isClosed);
-}
-
 bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
