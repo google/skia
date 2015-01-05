@@ -304,10 +304,6 @@ private:
     QMenu fMenuView;
     QMenu fMenuWindows;
 
-    bool fBreakpointsActivated;
-    bool fIndexStyleToggle;
-    bool fDeletesActivated;
-    bool fPause;
     bool fLoading;
     int fPausedRow;
 
@@ -354,6 +350,10 @@ private:
     void run(const SkPicture* pict,
              sk_tools::PictureRenderer* renderer,
              int repeats);
+
+    bool isPaused() const {
+        return fActionPause.isChecked();
+    }
 };
 
 #endif // SKDEBUGGERUI_H

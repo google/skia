@@ -62,10 +62,6 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fMenuFile(this)
     , fMenuNavigate(this)
     , fMenuView(this)
-    , fBreakpointsActivated(false)
-    , fIndexStyleToggle(false)
-    , fDeletesActivated(false)
-    , fPause(false)
     , fLoading(false)
 {
     setupUi(this);
@@ -123,26 +119,26 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
 }
 
 void SkDebuggerGUI::actionBreakpoints() {
-    fBreakpointsActivated = !fBreakpointsActivated;
+    bool breakpointsActivated = fActionBreakpoint.isChecked();
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem *item = fListWidget.item(row);
-        item->setHidden(item->checkState() == Qt::Unchecked && fBreakpointsActivated);
+        item->setHidden(item->checkState() == Qt::Unchecked && breakpointsActivated);
     }
 }
 
 void SkDebuggerGUI::actionToggleIndexStyle() {
-    fIndexStyleToggle = !fIndexStyleToggle;
+    bool indexStyleToggle = fActionToggleIndexStyle.isChecked();
     SkListWidget* list = (SkListWidget*) fListWidget.itemDelegate();
-    list->setIndexStyle(fIndexStyleToggle ? SkListWidget::kIndex_IndexStyle :
-                                            SkListWidget::kOffset_IndexStyle);
+    list->setIndexStyle(indexStyleToggle ? SkListWidget::kOffset_IndexStyle
+                                         : SkListWidget::kIndex_IndexStyle);
     fListWidget.update();
 }
 
 void SkDebuggerGUI::showDeletes() {
-    fDeletesActivated = !fDeletesActivated;
+    bool deletesActivated = fActionShowDeletes.isChecked();
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem *item = fListWidget.item(row);
-        item->setHidden(fDebugger.isCommandVisible(row) && fDeletesActivated);
+        item->setHidden(fDebugger.isCommandVisible(row) && deletesActivated);
     }
 }
 // This is a simplification of PictureBenchmark's run with the addition of
@@ -222,7 +218,7 @@ void SkDebuggerGUI::actionClearDeletes() {
         fDebugger.setCommandVisible(row, true);
         fSkipCommands[row] = false;
     }
-    if (fPause) {
+    if (this->isPaused()) {
         fCanvasWidget.drawTo(fPausedRow);
     } else {
         fCanvasWidget.drawTo(fListWidget.currentRow());
@@ -255,7 +251,7 @@ void SkDebuggerGUI::actionDelete() {
 
     int currentRow = fListWidget.currentRow();
 
-    if (fPause) {
+    if (this->isPaused()) {
         fCanvasWidget.drawTo(fPausedRow);
     } else {
         fCanvasWidget.drawTo(currentRow);
@@ -402,9 +398,10 @@ void SkDebuggerGUI::openFile(const QString &filename) {
 }
 
 void SkDebuggerGUI::pauseDrawing(bool isPaused) {
-    fPause = isPaused;
     fPausedRow = fListWidget.currentRow();
-    fCanvasWidget.drawTo(fPausedRow);
+    if (!fLoading) {
+        fCanvasWidget.drawTo(fPausedRow);
+    }
 }
 
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
@@ -412,7 +409,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
         int currentRow = fListWidget.currentRow();
 
         if (currentRow != -1) {
-            if (!fPause) {
+            if (!this->isPaused()) {
                 fCanvasWidget.drawTo(currentRow);
             }
             const SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(currentRow);
@@ -438,7 +435,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
 }
 
 void SkDebuggerGUI::selectCommand(int command) {
-    if (fPause) {
+    if (this->isPaused()) {
         fListWidget.setCurrentRow(command);
     }
 }
@@ -485,9 +482,11 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionBreakpoint.setShortcut(QKeySequence(tr("Ctrl+B")));
     fActionBreakpoint.setIcon(breakpoint);
     fActionBreakpoint.setText("Breakpoints");
+    fActionBreakpoint.setCheckable(true);
 
     fActionToggleIndexStyle.setShortcut(QKeySequence(tr("Ctrl+T")));
     fActionToggleIndexStyle.setText("Toggle Index Style");
+    fActionToggleIndexStyle.setCheckable(true);
 
     QIcon cancel;
     cancel.addFile(QString::fromUtf8(":/reload.png"), QSize(),
@@ -565,6 +564,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fActionShowDeletes.setShortcut(QKeySequence(tr("Ctrl+X")));
     fActionShowDeletes.setText("Deleted Commands");
+    fActionShowDeletes.setCheckable(true);
 
     QIcon stepBack;
     stepBack.addFile(QString::fromUtf8(":/previous.png"), QSize(),
@@ -722,8 +722,6 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMenuBar.addAction(fMenuNavigate.menuAction());
     fMenuBar.addAction(fMenuWindows.menuAction());
 
-    fPause = false;
-
     SkDebuggerGUI->setMenuBar(&fMenuBar);
     QMetaObject::connectSlotsByName(SkDebuggerGUI);
 }
@@ -784,6 +782,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fMenuView.setDisabled(false);
     fActionSave.setDisabled(false);
     fActionSaveAs.setDisabled(false);
+    fActionPause.setChecked(false);
     fLoading = false;
     actionPlay();
 }
