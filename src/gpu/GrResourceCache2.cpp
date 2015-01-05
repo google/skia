@@ -22,7 +22,7 @@ GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
     static int32_t gType = kInvalidResourceType + 1;
 
     int32_t type = sk_atomic_inc(&gType);
-    if (kInvalidResourceType == type) {
+    if (type > SK_MaxU16) {
         SkFAIL("Too many Resource Types");
     }
 
