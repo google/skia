@@ -11,11 +11,11 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawState.h"
 #include "GrPathUtils.h"
+#include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
-
 
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)
@@ -189,6 +189,24 @@ static inline void append_countour_edge_indices(bool hairLine,
     *((*indices)++) = edgeV0Idx + 1;
 }
 
+static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint pts[],
+                            SkScalar srcSpaceTolSqd, SkScalar srcSpaceTol, bool indexed,
+                            bool isHairline, uint16_t subpathIdxStart, uint16_t** idx) {
+    // first pt of quad is the pt we ended on in previous step
+    uint16_t firstQPtIdx = (uint16_t)(*vert - base) - 1;
+    uint16_t numPts =  (uint16_t)
+        GrPathUtils::generateQuadraticPoints(
+            pts[0], pts[1], pts[2],
+            srcSpaceTolSqd, vert,
+            GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
+    if (indexed) {
+        for (uint16_t i = 0; i < numPts; ++i) {
+            append_countour_edge_indices(isHairline, subpathIdxStart,
+                                         firstQPtIdx + i, idx);
+        }
+    }
+}
+
 bool GrDefaultPathRenderer::createGeom(GrDrawTarget* target,
                                        GrDrawState* drawState,
                                        GrPrimitiveType* primType,
@@ -256,9 +274,6 @@ bool GrDefaultPathRenderer::createGeom(GrDrawTarget* target,
     for (;;) {
         SkPath::Verb verb = iter.next(pts);
         switch (verb) {
-            case SkPath::kConic_Verb:
-                SkASSERT(0);
-                break;
             case SkPath::kMove_Verb:
                 if (!first) {
                     uint16_t currIdx = (uint16_t) (vert - base);
@@ -276,22 +291,22 @@ bool GrDefaultPathRenderer::createGeom(GrDrawTarget* target,
                 }
                 *(vert++) = pts[1];
                 break;
-            case SkPath::kQuad_Verb: {
-                // first pt of quad is the pt we ended on in previous step
-                uint16_t firstQPtIdx = (uint16_t)(vert - base) - 1;
-                uint16_t numPts =  (uint16_t)
-                    GrPathUtils::generateQuadraticPoints(
-                            pts[0], pts[1], pts[2],
-                            srcSpaceTolSqd, &vert,
-                            GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
-                if (indexed) {
-                    for (uint16_t i = 0; i < numPts; ++i) {
-                        append_countour_edge_indices(isHairline, subpathIdxStart,
-                                                     firstQPtIdx + i, &idx);
-                    }
+            case SkPath::kConic_Verb: {
+                SkScalar weight = iter.conicWeight();
+                SkAutoConicToQuads converter;
+                // Converting in src-space, hance the finer tolerance (0.25)
+                // TODO: find a way to do this in dev-space so the tolerance means something
+                const SkPoint* quadPts = converter.computeQuads(pts, weight, 0.25f);
+                for (int i = 0; i < converter.countQuads(); ++i) {
+                    add_quad(&vert, base, quadPts + i*2, srcSpaceTolSqd, srcSpaceTol, indexed,
+                             isHairline, subpathIdxStart, &idx);
                 }
                 break;
             }
+            case SkPath::kQuad_Verb:
+                add_quad(&vert, base, pts, srcSpaceTolSqd, srcSpaceTol, indexed,
+                         isHairline, subpathIdxStart, &idx);
+                break;
             case SkPath::kCubic_Verb: {
                 // first pt of cubic is the pt we ended on in previous step
                 uint16_t firstCPtIdx = (uint16_t)(vert - base) - 1;
@@ -530,9 +545,9 @@ bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget* target,
                                         const SkStrokeRec& stroke,
                                         bool antiAlias) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
-
-    return !antiAlias && !(SkPath::kConic_SegmentMask & path.getSegmentMasks()) &&
-        (stroke.isFillStyle() || IsStrokeHairlineOrEquivalent(stroke, viewMatrix, NULL));
+    return !antiAlias && (stroke.isFillStyle() || IsStrokeHairlineOrEquivalent(stroke,
+                                                                               viewMatrix,
+                                                                               NULL));
 }
 
 bool GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,

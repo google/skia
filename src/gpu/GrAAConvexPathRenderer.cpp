@@ -15,6 +15,7 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrPathUtils.h"
+#include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
 #include "SkTraceEvent.h"
@@ -307,6 +308,18 @@ static bool get_segments(const SkPath& path,
                 update_degenerate_test(&degenerateData, pts[2]);
                 add_quad_segment(pts, segments, devBounds);
                 break;
+            case SkPath::kConic_Verb: {
+                m.mapPoints(pts, 3);
+                SkScalar weight = iter.conicWeight();
+                SkAutoConicToQuads converter;
+                const SkPoint* quadPts = converter.computeQuads(pts, weight, 0.5f);
+                for (int i = 0; i < converter.countQuads(); ++i) {
+                    update_degenerate_test(&degenerateData, quadPts[2*i + 1]);
+                    update_degenerate_test(&degenerateData, quadPts[2*i + 2]);
+                    add_quad_segment(quadPts + 2*i, segments, devBounds);
+                }
+                break;
+            }
             case SkPath::kCubic_Verb: {
                 m.mapPoints(pts, 4);
                 update_degenerate_test(&degenerateData, pts[1]);
