@@ -172,7 +172,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
     }
 
     SkAutoConicToQuads quadder;
-    const SkScalar conicTol = (SK_Scalar1 / 4) * (1 << shiftUp);
+    const SkScalar conicTol = SK_Scalar1 / 4;
 
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
