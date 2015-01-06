@@ -39,6 +39,3 @@ blurrects
 # sugoi https://codereview.chromium.org/646213004/
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
-
-# fmalita skia:3278
-thinstrokedrects
