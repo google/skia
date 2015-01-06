@@ -123,3 +123,6 @@ hairmodes
 imagefilterscropped
 multipicturedraw_rrectclip_simple
 aarectmodes
+complexclip2_path_bw
+resizeimagefilter
+shadows
