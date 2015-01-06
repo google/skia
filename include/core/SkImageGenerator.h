@@ -116,6 +116,13 @@ public:
     bool getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                        SkYUVColorSpace* colorSpace);
 
+    /**
+     *  If the default image decoder system can interpret the specified (encoded) data, then
+     *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
+     *  the caller is still responsible for managing their ownership of the data.
+     */
+    static SkImageGenerator* NewFromData(SkData*);
+
 protected:
     virtual SkData* onRefEncodedData();
     virtual bool onGetInfo(SkImageInfo* info);
