@@ -248,9 +248,9 @@ protected:
     SkAutoGlyphCacheBase(SkTypeface* typeface, const SkDescriptor* desc) {
         fCache = SkGlyphCache::DetachCache(typeface, desc);
     }
-    SkAutoGlyphCacheBase(const SkPaint& paint,
-                         const SkDeviceProperties* deviceProperties,
-                         const SkMatrix* matrix) {
+    SkAutoGlyphCacheBase(const SkPaint& /*paint*/,
+                         const SkDeviceProperties* /*deviceProperties*/,
+                         const SkMatrix* /*matrix*/) {
         fCache = NULL;
     }
     SkAutoGlyphCacheBase() {
