@@ -14,6 +14,11 @@
 #include "SkRRect.h"
 #include "SkThread.h"
 
+// These two should be removed once we fix any gpu bugs, and then
+// just move them into skia_for_chromium_defines.gypi
+#define SK_SUPPORT_LEGACY_ADDOVAL
+#define SK_SUPPORT_LEGACY_ADDRRECT
+
 ////////////////////////////////////////////////////////////////////////////
 
 /**
