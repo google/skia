@@ -68,11 +68,11 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1536, 768);
     }
 
@@ -140,11 +140,11 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("fontmgr_match");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 1024);
     }
 
@@ -244,7 +244,7 @@ public:
         for (int i = 0; str[i]; ++i) {
             canvas->drawText(&str[i], 1, x, y, paint);
         }
-        
+
         SkRect r = paint.getFontBounds();
         r.offset(x, y);
         SkPaint p(paint);
@@ -253,14 +253,14 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return fName;
     }
-    
-    virtual SkISize onISize() {
+
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1024, 850);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);

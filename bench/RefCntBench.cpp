@@ -191,11 +191,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return "ref_cnt_heap_weak";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         char memory[sizeof(PlacedWeakRefCnt)];
         for (int i = 0; i < loops; ++i) {
             PlacedWeakRefCnt* ref = new (memory) PlacedWeakRefCnt();
@@ -218,11 +218,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return "ref_cnt_new_weak";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         for (int i = 0; i < loops; ++i) {
             SkWeakRefCnt* ref = new SkWeakRefCnt();
             for (int j = 0; j < M; ++j) {

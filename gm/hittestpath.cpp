@@ -38,13 +38,13 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("hittestpath");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(700, 460); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 460); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPath path;
         SkRandom rand;
 

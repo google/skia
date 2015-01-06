@@ -19,7 +19,7 @@ class SkText;
 class SkTextOnPath : public SkBoundable {
     DECLARE_MEMBER_INFO(TextOnPath);
     SkTextOnPath();
-    virtual bool draw(SkAnimateMaker& );
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 private:
     SkScalar offset;
     SkDrawPath* path;

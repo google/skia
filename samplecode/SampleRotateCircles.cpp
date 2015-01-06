@@ -128,7 +128,7 @@ protected:
         canvas->drawBitmap(bm, 0, 0, NULL);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar radius = 256;
         canvas->translate(10, 10);
 
@@ -244,7 +244,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onSizeChange() {
+    virtual void onSizeChange() SK_OVERRIDE {
         fErrorControl.setXYWH(this->width() - 100, 30, 30, 400);
         fWidthControl.setXYWH(this->width() -  50, 30, 30, 400);
         fCubicButton.fBounds.setXYWH(this->width() - 50, 450, 30, 30);
@@ -350,7 +350,7 @@ protected:
         canvas->drawText(name, strlen(name), bounds.fLeft, bounds.bottom() + 11, paint);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkPath path;
         SkScalar width = fWidth;
 
@@ -450,7 +450,7 @@ protected:
         return (SkIntToScalar(y) - control.fTop) / control.height() * (max - min) + min;
     }
 
-    virtual bool onClick(Click* click) {
+    virtual bool onClick(Click* click) SK_OVERRIDE {
         int index = ((MyClick*)click)->fIndex;
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),

@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    virtual const char* onGetName() {
+    virtual const char* onGetName() SK_OVERRIDE {
         return "rectori";
     }
 

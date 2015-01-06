@@ -697,7 +697,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Slides");
             return true;
@@ -705,7 +705,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         this->init();
         gProc[fIndex](canvas);
     }

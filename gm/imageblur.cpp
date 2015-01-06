@@ -27,15 +27,15 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
         canvas->saveLayer(NULL, &paint);

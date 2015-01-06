@@ -23,11 +23,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("fontscaler");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1450, 750);
     }
 
@@ -39,7 +39,7 @@ protected:
         canvas->translate(-px, -py);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
 
         paint.setAntiAlias(true);

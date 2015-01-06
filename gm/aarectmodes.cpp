@@ -137,13 +137,13 @@ namespace skiagm {
             return kSkipTiled_Flag;
         }
 
-        virtual SkString onShortName() {
+        virtual SkString onShortName() SK_OVERRIDE {
             return SkString("aarectmodes");
         }
 
-        virtual SkISize onISize() { return SkISize::Make(640, 480); }
+        virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
 
-        virtual void onDraw(SkCanvas* canvas) {
+        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
             if (false) { // avoid bit rot, suppress warning
                 test4(canvas);
             }

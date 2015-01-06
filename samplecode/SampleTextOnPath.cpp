@@ -105,7 +105,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Text On Path");
             return true;
@@ -113,7 +113,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(48));
@@ -157,7 +157,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    virtual bool onClick(Click* click) {
+    virtual bool onClick(Click* click) SK_OVERRIDE {
         return this->INHERITED::onClick(click);
     }
 

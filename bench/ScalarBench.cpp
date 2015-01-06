@@ -31,7 +31,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int i = 0; i < loops; i++) {
             this->performTest();
         }
@@ -101,7 +101,7 @@ public:
         }
     }
 protected:
-    virtual int mulLoopCount() const { return 1; }
+    virtual int mulLoopCount() const SK_OVERRIDE { return 1; }
     virtual void performTest() SK_OVERRIDE {
         int sum = 0;
         for (size_t i = 0; i < ARRAY_N; ++i) {

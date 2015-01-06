@@ -27,7 +27,7 @@ class Sk3D_Camera : public SkADrawable {
     DECLARE_MEMBER_INFO(3D_Camera);
     Sk3D_Camera();
     virtual ~Sk3D_Camera();
-    virtual bool draw(SkAnimateMaker& );
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 private:
     SkScalar hackWidth;
     SkScalar hackHeight;
@@ -40,8 +40,8 @@ class Sk3D_Patch : public SkDisplayable {
 private:
     virtual void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
-        SkScriptValue* );
-    virtual const SkFunctionParamType* getFunctionsParameters();
+        SkScriptValue* ) SK_OVERRIDE;
+    virtual const SkFunctionParamType* getFunctionsParameters() SK_OVERRIDE;
     SkPatch3D  fPatch;
     static const SkFunctionParamType fFunctionParameters[];
     friend class Sk3D_Camera;

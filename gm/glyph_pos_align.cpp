@@ -29,7 +29,7 @@ protected:
         return SkString("glyph_pos_align");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(kWidth, kHeight); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kWidth, kHeight); }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(SK_ColorBLACK);

@@ -63,7 +63,7 @@ protected:
         canvas->drawRect(rect2, p);
     }
 
-    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag; }
 
 private:
     typedef skiagm::GM INHERITED;

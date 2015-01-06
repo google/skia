@@ -50,9 +50,9 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
+    virtual const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         Proc proc = fProc;
 
         for (int i = 0; i < loops; ++i) {

@@ -101,15 +101,15 @@ protected:
         }
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(860, 820);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkRect  r = { 0, 0, 100, 50 };
@@ -147,7 +147,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag | kSkipTiled_Flag; }
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag | kSkipTiled_Flag; }
 
 private:
     void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,

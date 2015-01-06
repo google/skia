@@ -16,10 +16,10 @@
 class SkHitTest : public SkADrawable {
     DECLARE_MEMBER_INFO(HitTest);
     SkHitTest();
-    virtual bool draw(SkAnimateMaker& );
-    virtual bool enable(SkAnimateMaker& );
-    virtual bool hasEnable() const;
-    virtual const SkMemberInfo* preferredChild(SkDisplayTypes type);
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    virtual bool enable(SkAnimateMaker& ) SK_OVERRIDE;
+    virtual bool hasEnable() const SK_OVERRIDE;
+    virtual const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
 private:
     SkTDDisplayableArray bullets;
     SkTDIntArray hits;

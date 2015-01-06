@@ -77,7 +77,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)  {
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Vertices");
             return true;
@@ -87,7 +87,7 @@ protected:
 
     SkScalar fScale;
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setDither(true);
         paint.setFilterLevel(SkPaint::kLow_FilterLevel);
@@ -123,7 +123,7 @@ protected:
         return new Click(this);
     }
 
-    virtual bool onClick(Click* click) {
+    virtual bool onClick(Click* click) SK_OVERRIDE {
     //    fCurrX = click->fICurr.fX;
     //    fCurrY = click->fICurr.fY;
         this->inval(NULL);

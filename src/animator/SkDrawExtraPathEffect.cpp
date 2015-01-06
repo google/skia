@@ -21,7 +21,7 @@ class SkDrawShapePathEffect : public SkDrawPathEffect {
     SkDrawShapePathEffect();
     virtual ~SkDrawShapePathEffect();
     virtual bool addChild(SkAnimateMaker& , SkDisplayable* ) SK_OVERRIDE;
-    virtual SkPathEffect* getPathEffect();
+    virtual SkPathEffect* getPathEffect() SK_OVERRIDE;
 protected:
     SkADrawable* addPath;
     SkADrawable* addMatrix;
@@ -35,7 +35,7 @@ class SkDrawShape1DPathEffect : public SkDrawShapePathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawShape1DPathEffect);
     SkDrawShape1DPathEffect(SkDisplayTypes );
     virtual ~SkDrawShape1DPathEffect();
-    virtual void onEndElement(SkAnimateMaker& );
+    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
 private:
     SkString phase;
     SkString spacing;
@@ -47,7 +47,7 @@ class SkDrawShape2DPathEffect : public SkDrawShapePathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawShape2DPathEffect);
     SkDrawShape2DPathEffect(SkDisplayTypes );
     virtual ~SkDrawShape2DPathEffect();
-    virtual void onEndElement(SkAnimateMaker& );
+    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
 private:
     SkDrawMatrix* matrix;
     friend class SkShape2DPathEffect;
@@ -59,8 +59,8 @@ class SkDrawComposePathEffect : public SkDrawPathEffect {
     SkDrawComposePathEffect(SkDisplayTypes );
     virtual ~SkDrawComposePathEffect();
     virtual bool addChild(SkAnimateMaker& , SkDisplayable* ) SK_OVERRIDE;
-    virtual SkPathEffect* getPathEffect();
-    virtual bool isPaint() const;
+    virtual SkPathEffect* getPathEffect() SK_OVERRIDE;
+    virtual bool isPaint() const SK_OVERRIDE;
 private:
     SkDrawPathEffect* effect1;
     SkDrawPathEffect* effect2;
@@ -70,7 +70,7 @@ class SkDrawCornerPathEffect : public SkDrawPathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawCornerPathEffect);
     SkDrawCornerPathEffect(SkDisplayTypes );
     virtual ~SkDrawCornerPathEffect();
-    virtual SkPathEffect* getPathEffect();
+    virtual SkPathEffect* getPathEffect() SK_OVERRIDE;
 private:
     SkScalar radius;
 };
@@ -92,7 +92,7 @@ public:
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 
 protected:
-    virtual SkScalar begin(SkScalar contourLength) const {
+    virtual SkScalar begin(SkScalar contourLength) const SK_OVERRIDE {
         SkScriptValue value;
         SkAnimatorScript engine(*fMaker, NULL, SkType_Float);
         engine.propertyCallBack(GetContourLength, &contourLength);
@@ -101,7 +101,7 @@ protected:
         return value.fOperand.fScalar;
     }
 
-    virtual SkScalar next(SkPath* dst, SkScalar distance, SkPathMeasure&) const {
+    virtual SkScalar next(SkPath* dst, SkScalar distance, SkPathMeasure&) const SK_OVERRIDE {
         fMaker->setExtraPropertyCallBack(fDraw->fType, GetDistance, &distance);
         SkDrawPath* drawPath = NULL;
         if (fDraw->addPath->isPath()) {

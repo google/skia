@@ -20,8 +20,8 @@ class SkText;
 class SkTextToPath : public SkADrawable {
     DECLARE_MEMBER_INFO(TextToPath);
     SkTextToPath();
-    virtual bool draw(SkAnimateMaker& );
-    virtual void onEndElement(SkAnimateMaker& );
+    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
 private:
     SkDrawPaint* paint;
     SkDrawPath* path;

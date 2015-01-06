@@ -72,7 +72,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag | kSkipTiled_Flag; }
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag | kSkipTiled_Flag; }
 
 private:
     typedef skiagm::GM INHERITED;

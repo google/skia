@@ -82,7 +82,7 @@ protected:
 #endif
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         SkString str("giantbitmap_");
         switch (fMode) {
             case SkShader::kClamp_TileMode:
@@ -102,9 +102,9 @@ protected:
         return str;
     }
 
-    virtual SkISize onISize() { return SkISize::Make(640, 480); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
 
         SkMatrix m;

@@ -65,15 +65,15 @@ protected:
         fTypeface = SkTypeface::CreateFromStream(stream);
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("coloremoji");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(650, 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         canvas->drawColor(SK_ColorGRAY);
 

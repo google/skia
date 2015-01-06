@@ -124,7 +124,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "StrokePath");
             return true;
@@ -146,7 +146,7 @@ protected:
         }
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         test_huge_stroke(canvas); return;
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 

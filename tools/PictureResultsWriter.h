@@ -138,7 +138,7 @@ public:
         results.append("\n");
         this->logProgress(results.c_str());
     }
-    virtual void end() {}
+    virtual void end() SK_OVERRIDE {}
 private:
     BenchLogger* fLogger;
     SkString fCurrentLine;

@@ -35,11 +35,11 @@ protected:
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("imagefiltersclipped");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(860, 500);
     }
 
@@ -83,7 +83,7 @@ protected:
         canvas.drawCircle(x, y, radius, paint);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         if (!fInitialized) {
             this->make_checkerboard();
             this->make_gradient_circle(64, 64);

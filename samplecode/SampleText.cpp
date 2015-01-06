@@ -115,7 +115,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Text");
             return true;
@@ -143,7 +143,7 @@ protected:
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkAutoCanvasRestore restore(canvas, false);
         {
             SkRect r;
@@ -192,7 +192,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    virtual bool onClick(Click* click) {
+    virtual bool onClick(Click* click) SK_OVERRIDE {
         return this->INHERITED::onClick(click);
     }
 

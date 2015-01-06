@@ -56,11 +56,11 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("bitmaprecttest");
     }
 
-    virtual SkISize onISize() {
+    virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(320, 240);
     }
 

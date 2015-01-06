@@ -29,7 +29,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onPreDraw() {
+    virtual void onPreDraw() SK_OVERRIDE {
         SkImageInfo info = SkImageInfo::Make(W, H, fColorType, kUnpremul_SkAlphaType);
         fBmp1.allocPixels(info);   // used in writePixels
 

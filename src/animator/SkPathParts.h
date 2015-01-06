@@ -34,7 +34,7 @@ protected:
 class SkMoveTo : public SkPathPart {
     DECLARE_MEMBER_INFO(MoveTo);
     SkMoveTo();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 protected:
     SkScalar x;
     SkScalar y;
@@ -42,7 +42,7 @@ protected:
 
 class SkRMoveTo : public SkMoveTo {
     DECLARE_MEMBER_INFO(RMoveTo);
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     typedef SkMoveTo INHERITED;
 };
@@ -50,7 +50,7 @@ private:
 class SkLineTo : public SkPathPart {
     DECLARE_MEMBER_INFO(LineTo);
     SkLineTo();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 protected:
     SkScalar x;
     SkScalar y;
@@ -58,7 +58,7 @@ protected:
 
 class SkRLineTo : public SkLineTo {
     DECLARE_MEMBER_INFO(RLineTo);
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     typedef SkLineTo INHERITED;
 };
@@ -66,7 +66,7 @@ private:
 class SkQuadTo : public SkPathPart {
     DECLARE_MEMBER_INFO(QuadTo);
     SkQuadTo();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 protected:
     SkScalar x1;
     SkScalar y1;
@@ -76,7 +76,7 @@ protected:
 
 class SkRQuadTo : public SkQuadTo {
     DECLARE_MEMBER_INFO(RQuadTo);
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     typedef SkQuadTo INHERITED;
 };
@@ -84,7 +84,7 @@ private:
 class SkCubicTo : public SkPathPart {
     DECLARE_MEMBER_INFO(CubicTo);
     SkCubicTo();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 protected:
     SkScalar x1;
     SkScalar y1;
@@ -96,14 +96,14 @@ protected:
 
 class SkRCubicTo : public SkCubicTo {
     DECLARE_MEMBER_INFO(RCubicTo);
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     typedef SkCubicTo INHERITED;
 };
 
 class SkClose : public SkPathPart {
     DECLARE_EMPTY_MEMBER_INFO(Close);
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 };
 
 class SkAddGeom : public SkPathPart {
@@ -116,7 +116,7 @@ protected:
 class SkAddRect : public SkAddGeom {
     DECLARE_MEMBER_INFO(AddRect);
     SkAddRect();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 protected:
     SkRect fRect;
 private:
@@ -125,7 +125,7 @@ private:
 
 class SkAddOval : public SkAddRect {
     DECLARE_MEMBER_INFO(AddOval);
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     typedef SkAddRect INHERITED;
 };
@@ -133,7 +133,7 @@ private:
 class SkAddCircle : public SkAddGeom {
     DECLARE_MEMBER_INFO(AddCircle);
     SkAddCircle();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     SkScalar radius;
     SkScalar x;
@@ -144,7 +144,7 @@ private:
 class SkAddRoundRect : public SkAddRect {
     DECLARE_MEMBER_INFO(AddRoundRect);
     SkAddRoundRect();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     SkScalar rx;
     SkScalar ry;
@@ -154,7 +154,7 @@ private:
 class SkAddPath : public SkPathPart {
     DECLARE_MEMBER_INFO(AddPath);
     SkAddPath();
-    virtual bool add();
+    virtual bool add() SK_OVERRIDE;
 private:
     typedef SkPathPart INHERITED;
     SkDrawMatrix* matrix;

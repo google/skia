@@ -183,16 +183,16 @@ public: \
 
 #define DECLARE_EMPTY_MEMBER_INFO(_type) \
 public: \
-    virtual SkDisplayTypes getType() const { return SkType_##_type; }
+    virtual SkDisplayTypes getType() const SK_OVERRIDE { return SkType_##_type; }
 
 #define DECLARE_EXTRAS_MEMBER_INFO(_type) \
 public: \
     static const SkMemberInfo fInfo[]; \
     static const int fInfoCount; \
-    virtual const SkMemberInfo* getMember(int index); \
-    virtual const SkMemberInfo* getMember(const char name[]); \
+    virtual const SkMemberInfo* getMember(int index) SK_OVERRIDE; \
+    virtual const SkMemberInfo* getMember(const char name[]) SK_OVERRIDE; \
     SkDisplayTypes fType; \
-    virtual SkDisplayTypes getType() const { return fType; } \
+    virtual SkDisplayTypes getType() const SK_OVERRIDE { return fType; } \
     typedef _type BASE_CLASS
 
 #define DECLARE_NO_VIRTUALS_MEMBER_INFO(_type) \
