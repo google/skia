@@ -17,7 +17,6 @@
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkTSearch.h"
-#include "SkTypes.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -37,6 +36,30 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 
 typedef SkTDArray<SkString*> StringArray;
 typedef StringArray FileArray;
+
+static void add_unique_basename(StringArray* array, const SkString& filename) {
+    // trim off dirs
+    const char* src = filename.c_str();
+    const char* trimmed = strrchr(src, SkPATH_SEPARATOR);
+    if (trimmed) {
+        trimmed += 1;   // skip the separator
+    } else {
+        trimmed = src;
+    }
+    const char* end = strrchr(trimmed, '.');
+    if (!end) {
+        end = trimmed + strlen(trimmed);
+    }
+    SkString result(trimmed, end - trimmed);
+
+    // only add unique entries
+    for (int i = 0; i < array->count(); ++i) {
+        if (*array->getAt(i) == result) {
+            return;
+        }
+    }
+    *array->append() = new SkString(result);
+}
 
 struct DiffSummary {
     DiffSummary ()
@@ -63,6 +86,8 @@ struct DiffSummary {
 
     FileArray fResultsOfType[DiffRecord::kResultCount];
     FileArray fStatusOfType[DiffResource::kStatusCount][DiffResource::kStatusCount];
+
+    StringArray fFailedBaseNames[DiffRecord::kResultCount];
 
     void printContents(const FileArray& fileArray,
                        const char* baseStatus, const char* comparisonStatus,
@@ -142,6 +167,19 @@ struct DiffSummary {
         }
     }
 
+    void printfFailingBaseNames(const char separator[]) {
+        for (int resultInt = 0; resultInt < DiffRecord::kResultCount; ++resultInt) {
+            const StringArray& array = fFailedBaseNames[resultInt];
+            if (array.count()) {
+                printf("%s [%d]%s", DiffRecord::ResultNames[resultInt], array.count(), separator);
+                for (int j = 0; j < array.count(); ++j) {
+                    printf("%s%s", array[j]->c_str(), separator);
+                }
+                printf("\n");
+            }
+        }
+    }
+
     void add (DiffRecord* drp) {
         uint32_t mismatchValue;
 
@@ -187,6 +225,15 @@ struct DiffSummary {
           default:
             SkDEBUGFAIL("adding DiffRecord with unhandled fResult value");
             break;
+        }
+
+        switch (drp->fResult) {
+            case DiffRecord::kEqualBits_Result:
+            case DiffRecord::kEqualPixels_Result:
+                break;
+            default:
+                add_unique_basename(&fFailedBaseNames[drp->fResult], drp->fBase.fFilename);
+                break;
         }
     }
 };
@@ -581,6 +628,7 @@ int tool_main(int argc, char** argv) {
     bool printDirNames = true;
     bool recurseIntoSubdirs = true;
     bool verbose = false;
+    bool listFailingBase = false;
 
     RecordArray differences;
     DiffSummary summary;
@@ -705,6 +753,10 @@ int tool_main(int argc, char** argv) {
                     return kGenericError;
             }
         }
+        if (!strcmp(argv[i], "--listFailingBase")) {
+            listFailingBase = true;
+            continue;
+        }
 
         SkDebugf("Unrecognized argument <%s>\n", argv[i]);
         usage(argv[0]);
@@ -757,6 +809,10 @@ int tool_main(int argc, char** argv) {
                        matchSubstrings, nomatchSubstrings, recurseIntoSubdirs, generateDiffs,
                        verbose, &summary);
     summary.print(listFilenames, failOnResultType, failOnStatusType);
+
+    if (listFailingBase) {
+        summary.printfFailingBaseNames("\n");
+    }
 
     if (differences.count()) {
         qsort(differences.begin(), differences.count(),
