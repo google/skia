@@ -111,8 +111,8 @@ int SkOpEdgeBuilder::preFetch() {
                     for (int i = 0; i < nQuads; ++i) {
                        fPathVerbs.push_back(SkPath::kQuad_Verb);
                     }
-                    fPathPts.push_back_n(nQuads * 2, quadPts);
-                    curve[0] = quadPts[nQuads * 2 - 1];
+                    fPathPts.push_back_n(nQuads * 2, &quadPts[1]);
+                    curve[0] = pts[2];
                     lastCurve = true;
                 }
                 continue;
