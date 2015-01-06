@@ -9,8 +9,6 @@
 #ifndef SkPicture_DEFINED
 #define SkPicture_DEFINED
 
-#include "SkBitmap.h"
-#include "SkDrawPictureCallback.h"
 #include "SkImageDecoder.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
@@ -19,6 +17,7 @@
 class GrContext;
 #endif
 
+class SkBitmap;
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkData;
@@ -102,6 +101,24 @@ public:
 
     ~SkPicture();
 
+    /**
+    *  Subclasses of this can be passed to playback(). During the playback
+    *  of the picture, this callback will periodically be invoked. If its
+    *  abort() returns true, then picture playback will be interrupted.
+    *
+    *  The resulting drawing is undefined, as there is no guarantee how often the
+    *  callback will be invoked. If the abort happens inside some level of nested
+    *  calls to save(), restore will automatically be called to return the state
+    *  to the same level it was before the playback call was made.
+    */
+    class AbortCallback {
+    public:
+        AbortCallback() {}
+        virtual ~AbortCallback() {}
+
+        virtual bool abort() = 0;
+    };
+
     /** Replays the drawing commands on the specified canvas. Note that
         this has the effect of unfurling this picture into the destination
         canvas. Using the SkCanvas::drawPicture entry point gives the destination
@@ -109,7 +126,7 @@ public:
         @param canvas the canvas receiving the drawing commands.
         @param callback a callback that allows interruption of playback
     */
-    void playback(SkCanvas* canvas, SkDrawPictureCallback* = NULL) const;
+    void playback(SkCanvas* canvas, AbortCallback* = NULL) const;
 
     /** Return the cull rect used when creating this picture: { 0, 0, cullWidth, cullHeight }.
         It does not necessarily reflect the bounds of what has been recorded into the picture.

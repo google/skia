@@ -15,7 +15,7 @@ void SkRecordDraw(const SkRecord& record,
                   SkCanvasDrawable* const drawables[],
                   int drawableCount,
                   const SkBBoxHierarchy* bbh,
-                  SkDrawPictureCallback* callback) {
+                  SkPicture::AbortCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     if (bbh) {
@@ -34,7 +34,7 @@ void SkRecordDraw(const SkRecord& record,
 
         SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
         for (int i = 0; i < ops.count(); i++) {
-            if (callback && callback->abortDrawing()) {
+            if (callback && callback->abort()) {
                 return;
             }
             // This visit call uses the SkRecords::Draw::operator() to call
@@ -46,7 +46,7 @@ void SkRecordDraw(const SkRecord& record,
         // Draw all ops.
         SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
         for (unsigned i = 0; i < record.count(); i++) {
-            if (callback && callback->abortDrawing()) {
+            if (callback && callback->abort()) {
                 return;
             }
             // This visit call uses the SkRecords::Draw::operator() to call

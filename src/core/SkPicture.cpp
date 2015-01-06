@@ -15,7 +15,6 @@
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
-#include "SkDrawPictureCallback.h"
 #include "SkMessageBus.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
@@ -310,7 +309,7 @@ SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPicture::playback(SkCanvas* canvas, SkDrawPictureCallback* callback) const {
+void SkPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
     SkASSERT(canvas);
 
     // If the query contains the whole picture, don't bother with the BBH.

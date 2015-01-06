@@ -12,7 +12,6 @@
 
 class SkBitmap;
 class SkCanvas;
-class SkDrawPictureCallback;
 class SkPaint;
 class SkPictureData;
 
@@ -25,7 +24,7 @@ public:
     }
     virtual ~SkPicturePlayback() { }
 
-    virtual void draw(SkCanvas* canvas, SkDrawPictureCallback*);
+    virtual void draw(SkCanvas* canvas, SkPicture::AbortCallback*);
 
     // TODO: remove the curOp calls after cleaning up GrGatherDevice
     // Return the ID of the operation currently being executed when playing
