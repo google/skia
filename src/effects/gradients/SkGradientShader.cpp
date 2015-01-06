@@ -735,6 +735,12 @@ void SkGradientShaderBase::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+// Return true if these parameters are valid/legal/safe to construct a gradient
+//
+static bool valid_grad(const SkColor colors[], const SkScalar pos[], int count, unsigned tileMode) {
+    return NULL != colors && count >= 1 && tileMode < (unsigned)SkShader::kTileModeCount;
+}
+
 // assumes colors is SkColor* and pos is SkScalar*
 #define EXPAND_1_COLOR(count)               \
     SkColor tmp[2];                         \
@@ -764,7 +770,10 @@ SkShader* SkGradientShader::CreateLinear(const SkPoint pts[2],
                                          SkShader::TileMode mode,
                                          uint32_t flags,
                                          const SkMatrix* localMatrix) {
-    if (NULL == pts || NULL == colors || colorCount < 1) {
+    if (!pts) {
+        return NULL;
+    }
+    if (!valid_grad(colors, pos, colorCount, mode)) {
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
@@ -780,7 +789,10 @@ SkShader* SkGradientShader::CreateRadial(const SkPoint& center, SkScalar radius,
                                          SkShader::TileMode mode,
                                          uint32_t flags,
                                          const SkMatrix* localMatrix) {
-    if (radius <= 0 || NULL == colors || colorCount < 1) {
+    if (radius <= 0) {
+        return NULL;
+    }
+    if (!valid_grad(colors, pos, colorCount, mode)) {
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
@@ -800,7 +812,10 @@ SkShader* SkGradientShader::CreateTwoPointRadial(const SkPoint& start,
                                                  SkShader::TileMode mode,
                                                  uint32_t flags,
                                                  const SkMatrix* localMatrix) {
-    if (startRadius < 0 || endRadius < 0 || NULL == colors || colorCount < 1) {
+    if (startRadius < 0 || endRadius < 0) {
+        return NULL;
+    }
+    if (!valid_grad(colors, pos, colorCount, mode)) {
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
@@ -821,7 +836,10 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
                                                   SkShader::TileMode mode,
                                                   uint32_t flags,
                                                   const SkMatrix* localMatrix) {
-    if (startRadius < 0 || endRadius < 0 || NULL == colors || colorCount < 1) {
+    if (startRadius < 0 || endRadius < 0) {
+        return NULL;
+    }
+    if (!valid_grad(colors, pos, colorCount, mode)) {
         return NULL;
     }
     if (start == end && startRadius == endRadius) {
@@ -865,7 +883,7 @@ SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
                                         int colorCount,
                                         uint32_t flags,
                                         const SkMatrix* localMatrix) {
-    if (NULL == colors || colorCount < 1) {
+    if (!valid_grad(colors, pos, colorCount, SkShader::kClamp_TileMode)) {
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
