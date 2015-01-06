@@ -39,12 +39,15 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkPicture> picture;
     SkRect cropRect;
 
-    if (!buffer.isCrossProcess()) {
+#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
+    if (buffer.isCrossProcess()) {
+        buffer.validate(!buffer.readBool());
+    } else 
+#endif
+    {
         if (buffer.readBool()) {
             picture.reset(SkPicture::CreateFromBuffer(buffer));
         }
-    } else {
-        buffer.validate(!buffer.readBool());
     }
     buffer.readRect(&cropRect);
     PictureResolution pictureResolution;
@@ -68,14 +71,17 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
-    if (!buffer.isCrossProcess()) {
+#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
+    if (buffer.isCrossProcess()) {
+        buffer.writeBool(false);
+    } else 
+#endif
+    {
         bool hasPicture = (fPicture != NULL);
         buffer.writeBool(hasPicture);
         if (hasPicture) {
             fPicture->flatten(buffer);
         }
-    } else {
-        buffer.writeBool(false);
     }
     buffer.writeRect(fCropRect);
     buffer.writeInt(fPictureResolution);
