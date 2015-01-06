@@ -74,13 +74,6 @@ typedef int GrGLStandard;
 
 #define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
 
-DECLARE_bool(useDocumentInsteadOfDevice);
-
-#ifdef SK_SUPPORT_PDF
-    #include "SkPDFDevice.h"
-    #include "SkPDFDocument.h"
-#endif
-
 // Until we resolve http://code.google.com/p/skia/issues/detail?id=455 ,
 // stop writing out XPS-format image baselines in gm.
 #undef SK_SUPPORT_XPS
@@ -675,53 +668,24 @@ public:
 
     static bool generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
 #ifdef SK_SUPPORT_PDF
-        SkMatrix initialTransform = gm->getInitialTransform();
-        if (FLAGS_useDocumentInsteadOfDevice) {
-            SkISize pageISize = gm->getISize();
-            SkAutoTUnref<SkDocument> pdfDoc(
-                    SkDocument::CreatePDF(&pdf, NULL,
-                                          encode_to_dct_data,
-                                          SkIntToScalar(FLAGS_pdfRasterDpi)));
-
-            if (!pdfDoc.get()) {
-                return false;
-            }
-
-            SkCanvas* canvas = NULL;
-            canvas = pdfDoc->beginPage(SkIntToScalar(pageISize.width()),
-                                       SkIntToScalar(pageISize.height()));
-            canvas->concat(initialTransform);
-
-            invokeGM(gm, canvas, true, false);
-
-            return pdfDoc->close();
-        } else {
-            SkISize pageSize = gm->getISize();
-            SkPDFDevice* dev = NULL;
-            if (initialTransform.isIdentity()) {
-                dev = new SkPDFDevice(pageSize, pageSize, initialTransform);
-            } else {
-                SkRect content = SkRect::MakeWH(SkIntToScalar(pageSize.width()),
-                                                SkIntToScalar(pageSize.height()));
-                initialTransform.mapRect(&content);
-                content.intersect(0, 0, SkIntToScalar(pageSize.width()),
-                                  SkIntToScalar(pageSize.height()));
-                SkISize contentSize =
-                    SkISize::Make(SkScalarRoundToInt(content.width()),
-                                  SkScalarRoundToInt(content.height()));
-                dev = new SkPDFDevice(pageSize, contentSize, initialTransform);
-            }
-            dev->setDCTEncoder(encode_to_dct_data);
-            dev->setRasterDpi(SkIntToScalar(FLAGS_pdfRasterDpi));
-            SkAutoUnref aur(dev);
-            SkCanvas c(dev);
-            invokeGM(gm, &c, true, false);
-            SkPDFDocument doc;
-            doc.appendPage(dev);
-            doc.emitPDF(&pdf);
+        SkAutoTUnref<SkDocument> pdfDoc(
+                SkDocument::CreatePDF(&pdf, NULL, encode_to_dct_data,
+                                      SkIntToScalar(FLAGS_pdfRasterDpi)));
+        if (!pdfDoc) {
+            return false;
         }
+
+        SkCanvas* canvas = NULL;
+        canvas = pdfDoc->beginPage(gm->width(), gm->height());
+        canvas->concat(gm->getInitialTransform());
+
+        invokeGM(gm, canvas, true, false);
+
+        return pdfDoc->close();
+
+#else   // SK_SUPPORT_PDF
+        return true;  // Do not report failure if pdf is not supported.
 #endif  // SK_SUPPORT_PDF
-        return true; // Do not report failure if pdf is not supported.
     }
 
     static void generate_xps(GM* gm, SkDynamicMemoryWStream& xps) {
@@ -1578,7 +1542,6 @@ DEFINE_int32(pdfJpegQuality, -1, "Encodes images in JPEG at quality level N, "
 // Probably define spacial names like centerx, centery, top, bottom, left, right
 // then we can write something reabable like --rotate centerx centery 90
 DEFINE_bool(forcePerspectiveMatrix, false, "Force a perspective matrix.");
-DEFINE_bool(useDocumentInsteadOfDevice, false, "Use SkDocument::CreateFoo instead of SkFooDevice.");
 DEFINE_int32(pdfRasterDpi, 72, "Scale at which at which the non suported "
              "features in PDF are rasterized. Must be be in range 0-10000. "
              "Default is 72. N = 0 will disable rasterizing features like "
