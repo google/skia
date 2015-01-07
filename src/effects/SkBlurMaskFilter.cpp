@@ -1184,9 +1184,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
     // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
     srcRect.outset(sigma3, sigma3);
     clipRect.outset(sigma3, sigma3);
-    if (!srcRect.intersect(clipRect)) {
-        srcRect.setEmpty();
-    }
+    srcRect.intersect(clipRect);
     *maskRect = srcRect;
     return true;
 }

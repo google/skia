@@ -79,9 +79,8 @@ protected:
             SkRect mappedRect;
             draw.fMatrix->mapRect(&mappedRect, rect);
             SkRect clipRect = SkRect::Make(draw.fRC->getBounds());
-            if (mappedRect.intersect(clipRect)) {
-                fPRCont->add(bm.pixelRef(), mappedRect);
-            }
+            mappedRect.intersect(clipRect);
+            fPRCont->add(bm.pixelRef(), mappedRect);
         }
     }
     virtual void drawOval(const SkDraw& draw, const SkRect& rect,

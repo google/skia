@@ -454,10 +454,7 @@ MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, co
     fMask.fFormat   = SkMask::kA8_Format;
 
     fClipRect = ir;
-    if (!fClipRect.intersect(clip.getBounds())) {
-        SkASSERT(0);
-        fClipRect.setEmpty();
-    }
+    fClipRect.intersect(clip.getBounds());
 
     // For valgrind, write 1 extra byte at the end so we don't read
     // uninitialized memory. See comment in add_aa_span and fStorage[].
