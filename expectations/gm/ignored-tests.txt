@@ -41,30 +41,6 @@ blurrects
 dropshadowimagefilter
 
 # reed/egdaniel -- new conic code
-bigmatrix
-bitmaprect_i
-bitmaprect_s
-bitmapshaders
-blurcircles
-blurroundrect-WH-100x100-unevenCorners
-blurs
-c_gms
-circles
-circular-clips
-complexclip2_path_aa
-complexclip2_rrect_aa
-complexclip3_complex
-complexclip3_simple
-convexpaths
-dashing2
-drrect
-emboss
-extractbitmap
-fatpathfill
-filltypes
-filltypespersp
-gpusamplerstress
-hairlines
 image-surface
 imagefiltersclipped
 imagefiltersscaled
