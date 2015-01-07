@@ -13,9 +13,11 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "Resources.h"
+#include "SkReadBuffer.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkWriteBuffer.h"
 
 namespace skiagm {
 
@@ -25,10 +27,11 @@ class DCShader : public SkShader {
 public:
     DCShader(const SkMatrix& matrix) : fDeviceMatrix(matrix) {}
 
-    // This is a custom shader, so we don't need to make it
-    // flattenable.  Since this class is not part of the skia library,
-    // it wouldn't deserialize without linking this library anyway.
-    SK_DECLARE_NOT_FLATTENABLE_PROCS(DCShader)
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DCShader);
+
+    void flatten(SkWriteBuffer& buf) const SK_OVERRIDE {
+        buf.writeMatrix(fDeviceMatrix);
+    }
 
     bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
                              const SkMatrix* localMatrix, GrColor* color,
@@ -36,6 +39,12 @@ public:
 private:
     const SkMatrix fDeviceMatrix;
 };
+
+SkFlattenable* DCShader::CreateProc(SkReadBuffer& buf) {
+    SkMatrix matrix;
+    buf.readMatrix(&matrix);
+    return SkNEW_ARGS(DCShader, (matrix));
+}
 
 class DCFP : public GrFragmentProcessor {
 public:
