@@ -5,11 +5,14 @@
  * found in the LICENSE file.
  */
 #include <new>
+#include "SkBBoxHierarchy.h"
+#include "SkDrawPictureCallback.h"
 #include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkReadBuffer.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
+#include "SkTSort.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU

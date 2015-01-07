@@ -10,6 +10,7 @@
 
 #include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
+#include "SkDrawPictureCallback.h"
 #include "SkMatrix.h"
 #include "SkRecord.h"
 
@@ -26,7 +27,7 @@ void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePicts[],
                   SkCanvasDrawable* const drawables[], int drawableCount,
-                  const SkBBoxHierarchy*, SkPicture::AbortCallback*);
+                  const SkBBoxHierarchy*, SkDrawPictureCallback*);
 
 // Draw a portion of an SkRecord into an SkCanvas.
 // When drawing a portion of an SkRecord the CTM on the passed in canvas must be

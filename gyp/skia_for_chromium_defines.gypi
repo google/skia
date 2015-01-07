@@ -15,7 +15,6 @@
     'skia_for_chromium_defines': [
       'SK_SUPPORT_LEGACY_DRAWDATA',
       'SK_SUPPORT_LEGACY_CANVAS_VIRTUAL',
-      'SK_LEGACY_DRAWPICTURECALLBACK',
     ],
   },
 }

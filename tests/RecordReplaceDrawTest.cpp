@@ -22,11 +22,11 @@
 static const int kWidth = 100;
 static const int kHeight = 100;
 
-class JustOneDraw : public SkPicture::AbortCallback {
+class JustOneDraw : public SkDrawPictureCallback {
 public:
     JustOneDraw() : fCalls(0) {}
 
-    virtual bool abort() SK_OVERRIDE { return fCalls++ > 0; }
+    virtual bool abortDrawing() SK_OVERRIDE { return fCalls++ > 0; }
 private:
     int fCalls;
 };

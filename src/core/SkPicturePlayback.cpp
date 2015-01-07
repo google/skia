@@ -65,7 +65,7 @@ static SkBitmap shallow_copy(const SkBitmap& bitmap) {
     return bitmap;
 }
 
-void SkPicturePlayback::draw(SkCanvas* canvas, SkPicture::AbortCallback* callback) {
+void SkPicturePlayback::draw(SkCanvas* canvas, SkDrawPictureCallback* callback) {
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
@@ -77,7 +77,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas, SkPicture::AbortCallback* callbac
     SkAutoCanvasRestore acr(canvas, false);
 
     while (!reader.eof()) {
-        if (callback && callback->abort()) {
+        if (callback && callback->abortDrawing()) {
             return;
         }
 

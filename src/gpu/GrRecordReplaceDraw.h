@@ -8,11 +8,12 @@
 #ifndef GrRecordReplaceDraw_DEFINED
 #define GrRecordReplaceDraw_DEFINED
 
-#include "SkPicture.h"
+#include "SkDrawPictureCallback.h"
 
 class GrLayerCache;
 class SkCanvas;
 class SkMatrix;
+class SkPicture;
 
 // Draw an SkPicture into an SkCanvas replacing saveLayer/restore blocks with
 // drawBitmap calls.  A convenience wrapper around SkRecords::Draw.
@@ -21,6 +22,6 @@ int GrRecordReplaceDraw(const SkPicture*,
                         SkCanvas*,
                         GrLayerCache* layerCache,
                         const SkMatrix& initialMatrix,
-                        SkPicture::AbortCallback*);
+                        SkDrawPictureCallback*);
 
 #endif // GrRecordReplaceDraw_DEFINED
