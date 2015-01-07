@@ -50,22 +50,4 @@ mixed_xfermodes
 nested_aa
 nested_bw
 ninepatch-stretch
-ovals
-patheffect
-pathfill
-pathinterior
-pathinvfill
-pathopsskpclip
-peekpixels
-pictureshader
-pictureshadertile
-points
-radial_gradient2
-rects
-roundrects
-rrect
-rrect_clip_aa
-rrect_clip_bw
-rrect_draw_aa
-rrect_draw_bw
 
