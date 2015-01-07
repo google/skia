@@ -13,7 +13,8 @@
 
 SkDrawCommandGeometryWidget::SkDrawCommandGeometryWidget(SkDebugger *debugger)
     : QFrame()
-    , fDebugger(debugger) {
+    , fDebugger(debugger)
+    , fCommandIndex(-1) {
     this->setStyleSheet("QFrame {background-color: black; border: 1px solid #cccccc;}");
 }
 
@@ -65,6 +66,11 @@ void SkDrawCommandGeometryWidget::paintEvent(QPaintEvent* event) {
     }
 }
 
+void SkDrawCommandGeometryWidget::setDrawCommandIndex(int commandIndex) {
+    fCommandIndex = commandIndex;
+    this->updateImage();
+}
+
 void SkDrawCommandGeometryWidget::updateImage() {
     if (!fSurface) {
         return;
@@ -72,8 +78,9 @@ void SkDrawCommandGeometryWidget::updateImage() {
 
     bool didRender = false;
     const SkTDArray<SkDrawCommand*>& commands = fDebugger->getDrawCommands();
-    if (0 != commands.count()) {
-        SkDrawCommand* command = commands[fDebugger->index()];
+    if (0 != commands.count() && fCommandIndex >= 0) {
+        SkASSERT(commands.count() > fCommandIndex);
+        SkDrawCommand* command = commands[fCommandIndex];
         didRender = command->render(fSurface->getCanvas());
     }
 
@@ -82,5 +89,5 @@ void SkDrawCommandGeometryWidget::updateImage() {
     }
 
     fSurface->getCanvas()->flush();
-    update();
+    this->update();
 }

@@ -19,17 +19,18 @@ class  SkDrawCommandGeometryWidget : public QFrame {
 
 public:
     SkDrawCommandGeometryWidget(SkDebugger* debugger);
-
-public slots:
-    void updateImage();
+    void setDrawCommandIndex(int index);
 
 protected:
     void paintEvent(QPaintEvent* event);
     void resizeEvent(QResizeEvent* event);
 
 private:
+    void updateImage();
+
     SkDebugger* fDebugger;
-    SkAutoTUnref<SkSurface>  fSurface;
+    SkAutoTUnref<SkSurface> fSurface;
+    int fCommandIndex;
 };
 
 #endif /* SKDRAWCOMMANDGEOMETRYWIDGET_H_ */

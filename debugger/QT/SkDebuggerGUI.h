@@ -202,9 +202,9 @@ private slots:
     void pauseDrawing(bool isPaused = true);
 
     /**
-        Executes draw commands up to the selected command
+        Updates the UI based on the selected command.
      */
-    void registerListClick(QListWidgetItem *item);
+    void updateDrawCommandInfo();
 
     /**
         Sets the command to active in the list widget.
@@ -232,7 +232,6 @@ private slots:
      */
     void toggleFilter(QString string);
 
-    void updateCommand(int newCommand);
     void updateHit(int newHit);
 private:
     QSplitter fCentralSplitter;
@@ -338,10 +337,6 @@ private:
      */
     void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime, int numRuns);
 
-    /**
-        Fills in the clip stack pane with text
-     */
-    void setupClipStackText();
 
     /**
         Render the supplied picture several times tracking the time consumed
