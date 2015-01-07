@@ -40,14 +40,3 @@ blurrects
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
-# reed/egdaniel -- new conic code
-image-surface
-imagefiltersclipped
-imagefiltersscaled
-lerpmode
-lumafilter
-mixed_xfermodes
-nested_aa
-nested_bw
-ninepatch-stretch
-
