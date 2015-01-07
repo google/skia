@@ -10,6 +10,9 @@
 
 #include "SkTypes.h"
 
+#ifdef SK_LEGACY_DRAWPICTURECALLBACK
+#include "SkPicture.h"
+
 /**
  *  Subclasses of this can be passed to canvas.drawPicture(). During the drawing
  *  of the picture, this callback will periodically be invoked. If its
@@ -20,12 +23,12 @@
  *  calls to save(), restore will automatically be called to return the state
  *  to the same level it was before the drawPicture call was made.
  */
-class SK_API SkDrawPictureCallback {
+class SK_API SkDrawPictureCallback : public SkPicture::AbortCallback {
 public:
-    SkDrawPictureCallback() {}
-    virtual ~SkDrawPictureCallback() {}
-
     virtual bool abortDrawing() = 0;
-};
 
-#endif//SkDrawPictureCallback_DEFINED
+    bool abort() SK_OVERRIDE { return this->abortDrawing(); }
+};
+#endif
+
+#endif // SkDrawPictureCallback_DEFINED

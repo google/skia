@@ -55,7 +55,7 @@ public:
                 const SkPicture* topLevelPicture,
                 const SkPicture* picture,
                 const SkMatrix& initialMatrix,
-                SkDrawPictureCallback* callback,
+                SkPicture::AbortCallback* callback,
                 const unsigned* opIndices, int numIndices)
         : INHERITED(canvas, drawablePicts, NULL, drawableCount)
         , fCanvas(canvas)
@@ -92,7 +92,7 @@ public:
             bbh->search(query, &fOps);
 
             for (fIndex = 0; fIndex < fOps.count(); ++fIndex) {
-                if (fCallback && fCallback->abortDrawing()) {
+                if (fCallback && fCallback->abort()) {
                     return fNumReplaced;
                 }
 
@@ -101,7 +101,7 @@ public:
 
         } else {
             for (fIndex = 0; fIndex < (int) record->count(); ++fIndex) {
-                if (fCallback && fCallback->abortDrawing()) {
+                if (fCallback && fCallback->abort()) {
                     return fNumReplaced;
                 }
 
@@ -181,19 +181,19 @@ public:
     }
 
 private:
-    SkCanvas*              fCanvas;
-    GrLayerCache*          fLayerCache;
-    const SkPicture*       fTopLevelPicture;
-    const SkPicture*       fPicture;
-    const SkMatrix         fInitialMatrix;
-    SkDrawPictureCallback* fCallback;
+    SkCanvas*                 fCanvas;
+    GrLayerCache*             fLayerCache;
+    const SkPicture*          fTopLevelPicture;
+    const SkPicture*          fPicture;
+    const SkMatrix            fInitialMatrix;
+    SkPicture::AbortCallback* fCallback;
 
-    SkTDArray<unsigned>    fOps;
-    int                    fIndex;
-    int                    fNumReplaced;
+    SkTDArray<unsigned>       fOps;
+    int                       fIndex;
+    int                       fNumReplaced;
 
     // The op code indices of all the enclosing drawPicture and saveLayer calls
-    SkTDArray<unsigned>    fOpIndexStack;
+    SkTDArray<unsigned>       fOpIndexStack;
 
     typedef Draw INHERITED;
 };
@@ -202,7 +202,7 @@ int GrRecordReplaceDraw(const SkPicture* picture,
                         SkCanvas* canvas,
                         GrLayerCache* layerCache,
                         const SkMatrix& initialMatrix,
-                        SkDrawPictureCallback* callback) {
+                        SkPicture::AbortCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     // TODO: drawablePicts?
