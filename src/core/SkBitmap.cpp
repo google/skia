@@ -1202,16 +1202,17 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     }
 
     const size_t ramRB = info.minRowBytes();
-    const int height = info.height();
-    const size_t snugSize = snugRB * height;
-    const size_t ramSize = ramRB * height;
-    if (!buffer->validate(snugSize <= ramSize)) {
+    const int height = SkMax32(info.height(), 0);
+    const uint64_t snugSize = sk_64_mul(snugRB, height);
+    const uint64_t ramSize = sk_64_mul(ramRB, height);
+    static const uint64_t max_size_t = (size_t)(-1);
+    if (!buffer->validate((snugSize <= ramSize) && (ramSize <= max_size_t))) {
         return false;
     }
 
-    SkAutoDataUnref data(SkData::NewUninitialized(ramSize));
+    SkAutoDataUnref data(SkData::NewUninitialized(SkToSizeT(ramSize)));
     char* dst = (char*)data->writable_data();
-    buffer->readByteArray(dst, snugSize);
+    buffer->readByteArray(dst, SkToSizeT(snugSize));
 
     if (snugSize != ramSize) {
         const char* srcRow = dst + snugRB * (height - 1);
