@@ -196,19 +196,35 @@ bool GrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
 }
 
 bool GrFontScaler::getPackedGlyphDFImage(GrGlyph::PackedID packed,
-                                           int width, int height,
-                                           void* dst) {
+                                         int width, int height,
+                                         void* dst) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
                                                       GrGlyph::UnpackFixedX(packed),
                                                       GrGlyph::UnpackFixedY(packed));
     SkASSERT(glyph.fWidth + 2*SK_DistanceFieldPad == width);
     SkASSERT(glyph.fHeight + 2*SK_DistanceFieldPad == height);
-    const void* src = fStrike->findDistanceField(glyph);
-    if (NULL == src) {
+    const void* image = fStrike->findImage(glyph);
+    if (NULL == image) {
         return false;
     }
-
-    memcpy(dst, src, width * height);
+    // now generate the distance field
+    SkASSERT(dst);
+    SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+    if (SkMask::kA8_Format == maskFormat) {
+        // make the distance field from the image
+        SkGenerateDistanceFieldFromA8Image((unsigned char*)dst,
+                                           (unsigned char*)image,
+                                           glyph.fWidth, glyph.fHeight,
+                                           glyph.rowBytes());
+    } else if (SkMask::kBW_Format == maskFormat) {
+        // make the distance field from the image
+        SkGenerateDistanceFieldFromBWImage((unsigned char*)dst,
+                                           (unsigned char*)image,
+                                           glyph.fWidth, glyph.fHeight,
+                                           glyph.rowBytes());
+    } else {
+        return false;
+    }
 
     return true;
 }

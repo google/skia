@@ -84,10 +84,6 @@ public:
         this will trigger that.
     */
     const SkPath* findPath(const SkGlyph&);
-    /** Return the distance field associated with the glyph. If it has not been generated
-     this will trigger that.
-     */
-    const void* findDistanceField(const SkGlyph&);
 
     /** Return the vertical metrics for this strike.
     */

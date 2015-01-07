@@ -9,7 +9,6 @@
 
 #include "SkGlyphCache.h"
 #include "SkGlyphCache_Globals.h"
-#include "SkDistanceFieldGen.h"
 #include "SkGraphics.h"
 #include "SkLazyPtr.h"
 #include "SkPaint.h"
@@ -363,45 +362,6 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
         }
     }
     return glyph.fPath;
-}
-
-const void* SkGlyphCache::findDistanceField(const SkGlyph& glyph) {
-    if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
-        if (NULL == glyph.fDistanceField) {
-            size_t  size = SkComputeDistanceFieldSize(glyph.fWidth, glyph.fHeight);
-            if (size == 0) {
-                return NULL;
-            }
-            const void* image = this->findImage(glyph);
-            // now generate the distance field
-            if (image) {
-                const_cast<SkGlyph&>(glyph).fDistanceField = fGlyphAlloc.alloc(size,
-                                            SkChunkAlloc::kReturnNil_AllocFailType);
-                if (glyph.fDistanceField) {
-                    SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
-                    if (SkMask::kA8_Format == maskFormat) {
-                        // make the distance field from the image
-                        SkGenerateDistanceFieldFromA8Image((unsigned char*)glyph.fDistanceField,
-                                                           (unsigned char*)glyph.fImage,
-                                                           glyph.fWidth, glyph.fHeight,
-                                                           glyph.rowBytes());
-                        fMemoryUsed += size;
-                    } else if (SkMask::kBW_Format == maskFormat) {
-                        // make the distance field from the image
-                        SkGenerateDistanceFieldFromBWImage((unsigned char*)glyph.fDistanceField,
-                                                           (unsigned char*)glyph.fImage,
-                                                           glyph.fWidth, glyph.fHeight,
-                                                           glyph.rowBytes());
-                        fMemoryUsed += size;
-                    } else {
-                        fGlyphAlloc.unalloc(glyph.fDistanceField);
-                        const_cast<SkGlyph&>(glyph).fDistanceField = NULL;
-                    }
-                }
-            }
-        }
-    }
-    return glyph.fDistanceField;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
