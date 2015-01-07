@@ -82,8 +82,9 @@ protected:
         scaleMatrix.setScale(scale, scale);
         SkRect cropRectFloat;
         scaleMatrix.mapRect(&cropRectFloat, SkRect::Make(cropRect));
-        clipRect.intersect(cropRectFloat);
-        canvas->drawRect(clipRect, strokePaint);
+        if (clipRect.intersect(cropRectFloat)) {
+            canvas->drawRect(clipRect, strokePaint);
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) {

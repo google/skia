@@ -267,7 +267,7 @@ struct SK_API SkIRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(const SkIRect& r) {
+    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& r) {
         SkASSERT(&r);
         return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
@@ -276,7 +276,7 @@ struct SK_API SkIRect {
         that intersection, otherwise return false and do not change this
         rectangle. If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(const SkIRect& a, const SkIRect& b) {
+    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b) {
 
         if (!a.isEmpty() && !b.isEmpty() &&
                 a.fLeft < b.fRight && b.fLeft < a.fRight &&
@@ -296,7 +296,7 @@ struct SK_API SkIRect {
         If either is, then the return result is undefined. In the debug build,
         we assert that both rectangles are non-empty.
     */
-    bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
+    bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
         SkASSERT(!a.isEmpty() && !b.isEmpty());
 
         if (a.fLeft < b.fRight && b.fLeft < a.fRight &&
@@ -315,7 +315,8 @@ struct SK_API SkIRect {
         otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
+    bool SK_WARN_UNUSED_RESULT intersect(int32_t left, int32_t top, 
+                                         int32_t right, int32_t bottom) {
         if (left < right && top < bottom && !this->isEmpty() &&
                 fLeft < right && left < fRight && fTop < bottom && top < fBottom) {
             if (fLeft < left) fLeft = left;
@@ -331,8 +332,8 @@ struct SK_API SkIRect {
      */
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
         return  !a.isEmpty() && !b.isEmpty() &&              // check for empties
-        a.fLeft < b.fRight && b.fLeft < a.fRight &&
-        a.fTop < b.fBottom && b.fTop < a.fBottom;
+                a.fLeft < b.fRight && b.fLeft < a.fRight &&
+                a.fTop < b.fBottom && b.fTop < a.fBottom;
     }
 
     /**
@@ -656,21 +657,22 @@ struct SK_API SkRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(const SkRect& r);
+    bool SK_WARN_UNUSED_RESULT intersect(const SkRect& r);
 
     /** If this rectangle intersects the rectangle specified by left, top, right, bottom,
         return true and set this rectangle to that intersection, otherwise return false
         and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+    bool SK_WARN_UNUSED_RESULT intersect(SkScalar left, SkScalar top, 
+                                         SkScalar right, SkScalar bottom);
 
     /**
      *  If rectangles a and b intersect, return true and set this rectangle to
      *  that intersection, otherwise return false and do not change this
      *  rectangle. If either rectangle is empty, do nothing and return false.
      */
-    bool intersect(const SkRect& a, const SkRect& b);
+    bool SK_WARN_UNUSED_RESULT intersect(const SkRect& a, const SkRect& b);
 
 
 private:

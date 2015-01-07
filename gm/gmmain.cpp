@@ -704,8 +704,10 @@ public:
                 SkRect content = SkRect::MakeWH(SkIntToScalar(pageSize.width()),
                                                 SkIntToScalar(pageSize.height()));
                 initialTransform.mapRect(&content);
-                content.intersect(0, 0, SkIntToScalar(pageSize.width()),
-                                  SkIntToScalar(pageSize.height()));
+                if (!content.intersect(0, 0, SkIntToScalar(pageSize.width()),
+                                       SkIntToScalar(pageSize.height()))) {
+                    content.setEmpty();
+                }
                 SkISize contentSize =
                     SkISize::Make(SkScalarRoundToInt(content.width()),
                                   SkScalarRoundToInt(content.height()));

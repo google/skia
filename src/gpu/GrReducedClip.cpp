@@ -409,7 +409,10 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
             if (tighterBounds) {
                 SkIRect stackIBounds;
                 stackBounds.roundOut(&stackIBounds);
-                tighterBounds->intersect(queryBounds, stackIBounds);
+                if (!tighterBounds->intersect(queryBounds, stackIBounds)) {
+                    SkASSERT(0);
+                    tighterBounds->setEmpty();
+                }
                 bounds = tighterBounds;
             }
         } else {
