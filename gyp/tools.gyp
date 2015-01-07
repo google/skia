@@ -634,6 +634,7 @@
           '<(skia_include_path)/gpu',
           '<(skia_include_path)/images',
           '<(skia_include_path)/pathops',
+          '<(skia_include_path)/pdf',
           '<(skia_include_path)/pipe',
           '<(skia_include_path)/ports',
           '<(skia_include_path)/svg',
