@@ -16,8 +16,6 @@ class SK_API Sk2DPathEffect : public SkPathEffect {
 public:
     virtual bool filterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
-    SK_DECLARE_UNFLATTENABLE_OBJECT()
-
 protected:
     /** New virtual, to be overridden by subclasses.
         This is called once from filterPath, and provides the

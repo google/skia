@@ -2035,7 +2035,9 @@ public:
     };
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_NOT_FLATTENABLE_PROCS(SkTriColorShader)
+
+    // For serialization.  This will never be called.
+    Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
 
 protected:
     virtual Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {

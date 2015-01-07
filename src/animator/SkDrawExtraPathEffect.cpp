@@ -89,7 +89,8 @@ public:
         fDraw(draw), fMaker(maker) {
     }
 
-    SK_DECLARE_UNFLATTENABLE_OBJECT()
+    // For serialization.  This will never be called.
+    Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
 
 protected:
     virtual SkScalar begin(SkScalar contourLength) const SK_OVERRIDE {
@@ -227,6 +228,9 @@ public:
     SkShape2DPathEffect(SkDrawShape2DPathEffect* draw, SkAnimateMaker* maker,
         const SkMatrix& matrix) : Sk2DPathEffect(matrix), fDraw(draw), fMaker(maker) {
     }
+
+    // For serialization.  This will never be called.
+    Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
 
 protected:
     virtual void begin(const SkIRect& uvBounds, SkPath*) const SK_OVERRIDE {

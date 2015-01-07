@@ -28,6 +28,8 @@ public:
     }
 #endif
 
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(TestLooper);
+
 private:
     class TestDrawLooperContext : public SkDrawLooper::Context {
     public:
@@ -45,9 +47,9 @@ private:
     private:
         bool fOnce;
     };
-
-    SK_DECLARE_UNFLATTENABLE_OBJECT()
 };
+
+SkFlattenable* TestLooper::CreateProc(SkReadBuffer&) { return SkNEW(TestLooper); }
 
 static void test_drawBitmap(skiatest::Reporter* reporter) {
     SkBitmap src;
