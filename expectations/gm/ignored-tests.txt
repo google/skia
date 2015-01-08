@@ -40,3 +40,5 @@ blurrects
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
+# reed -- changed gm, will rebase
+c_gms
