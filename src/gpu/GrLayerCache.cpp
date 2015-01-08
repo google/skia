@@ -253,9 +253,7 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* n
         usage = GrContext::kExact_ScratchTexMatch;
     }
 
-    SkAutoTUnref<GrTexture> tex(
-        fContext->refScratchTexture(desc, usage));
-
+    SkAutoTUnref<GrTexture> tex(fContext->refScratchTexture(desc, usage));
     if (!tex) {
         return false;
     }

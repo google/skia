@@ -82,8 +82,7 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     hl->fPreMat.preConcat(info.fPreMat);
 }
 
-// Compute the source rect if possible and return false if further processing 
-// on the layer should be abandoned based on its source rect.
+// Compute the source rect and return false if it is empty.
 static bool compute_source_rect(const SkLayerInfo::BlockInfo& info, const SkMatrix& initialMat,
                                 const SkIRect& dstIR, SkIRect* srcIR) {
     SkIRect clipBounds = dstIR;
@@ -107,10 +106,6 @@ static bool compute_source_rect(const SkLayerInfo::BlockInfo& info, const SkMatr
         }
     } else {
         *srcIR = clipBounds;
-    }
-
-    if (!GrLayerCache::PlausiblyAtlasable(srcIR->width(), srcIR->height())) {
-        return false;
     }
 
     return true;
@@ -170,7 +165,8 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
 
         SkIRect srcIR;
 
-        if (!compute_source_rect(info, initialMat, dstIR, &srcIR)) {
+        if (!compute_source_rect(info, initialMat, dstIR, &srcIR) ||
+            !GrLayerCache::PlausiblyAtlasable(srcIR.width(), srcIR.height())) {
             continue;
         }
 
