@@ -62,13 +62,13 @@ static void checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
  *  This GM verifies that a transparent bitmap drawn over a
  *  checkerboard pattern looks correct.
  */
-DEF_SIMPLE_GM(transparency_check, canvas, 1912, 1080) {
+DEF_SIMPLE_GM(transparency_check, canvas, 1792, 1080) {
     checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
     {
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(256, 9));
         make_transparency(surface->getCanvas(), 256.0f, 9.0f);
-        canvas->scale(7.5f, 120.0f);
+        canvas->scale(7.0f, 120.0f);
         surface->draw(canvas, 0, 0, NULL);
     }
 }
