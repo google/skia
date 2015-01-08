@@ -10,7 +10,6 @@
 #include "SkMaskFilter.h"
 #include "SkBlitter.h"
 #include "SkDraw.h"
-#include "SkMaskCache.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
 #include "SkTypes.h"
@@ -264,41 +263,9 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
 
-    BlurRec rec;
-    if (this->asABlur(&rec) && rectCount) {
-        SkScalar scaledSigma = matrix.mapRadius(rec.fSigma);
-        if (!SkMaskCache::FindAndCopy(scaledSigma, rec.fStyle, rec.fQuality,
-                                      rects, rectCount, &dstM)) {
-            if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
-                return false;
-            }
-            SkMaskCache::AddAndCopy(scaledSigma, rec.fStyle, rec.fQuality, rects, rectCount, dstM);
-        } else {
-            // Compute the correct bounds of dst mask if dst mask is got from cache.
-            SkMask tmpSrc, tmpDst;
-            tmpSrc = srcM;
-            tmpSrc.fImage = NULL;
-            if (!this->filterMask(&tmpDst, tmpSrc, matrix, NULL)) {
-                return false;
-            }
-
-            // Fallback to original calculation if size of bounds is different with
-            // size of the cached mask.
-            if (dstM.fBounds.width() != tmpDst.fBounds.width() ||
-                dstM.fBounds.height() != tmpDst.fBounds.height()) {
-                if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
-                    return false;
-                }
-            } else {
-                dstM.fBounds = tmpDst.fBounds;
-            }
-        }
-    } else {
-        if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
-            return false;
-        }
+    if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
+        return false;
     }
-
     SkAutoMaskFreeImage autoDst(dstM.fImage);
 
     // if we get here, we need to (possibly) resolve the clip and blitter

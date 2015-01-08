@@ -11,7 +11,6 @@
 #include "SkGpuBlurUtils.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkMaskCache.h"
 #include "SkMaskFilter.h"
 #include "SkRRect.h"
 #include "SkRTConf.h"
@@ -261,6 +260,58 @@ static bool rect_exceeds(const SkRect& r, SkScalar v) {
            r.width() > v || r.height() > v;
 }
 
+#include "SkMaskCache.h"
+
+static bool copy_cacheddata_to_mask(SkCachedData* data, SkMask* mask) {
+    const size_t size = data->size();
+    SkASSERT(mask->computeTotalImageSize() <= size);
+
+    mask->fImage = SkMask::AllocImage(size);
+    if (mask->fImage) {
+        memcpy(mask->fImage, data->data(), size);
+        return true;
+    }
+    return false;
+}
+
+static SkCachedData* copy_mask_to_cacheddata(const SkMask& mask) {
+    const size_t size = mask.computeTotalImageSize();
+    SkCachedData* data = SkResourceCache::NewCachedData(size);
+    if (data) {
+        memcpy(data->writable_data(), mask.fImage, size);
+        return data;
+    }
+    return NULL;
+}
+
+static bool find_cached_rrect(SkMask* mask, SkScalar sigma, SkBlurStyle style,
+                              SkBlurQuality quality, const SkRRect& rrect) {
+    SkAutoTUnref<SkCachedData> data(SkMaskCache::FindAndRef(sigma, style, quality, rrect, mask));
+    return data.get() && copy_cacheddata_to_mask(data, mask);
+}
+
+static void add_cached_rrect(const SkMask& mask, SkScalar sigma, SkBlurStyle style,
+                             SkBlurQuality quality, const SkRRect& rrect) {
+    SkAutoTUnref<SkCachedData> data(copy_mask_to_cacheddata(mask));
+    if (data.get()) {
+        SkMaskCache::Add(sigma, style, quality, rrect, mask, data);
+    }
+}
+
+static bool find_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle style,
+                              SkBlurQuality quality, const SkRect rects[], int count) {
+    SkAutoTUnref<SkCachedData> data(SkMaskCache::FindAndRef(sigma, style, quality, rects, count, mask));
+    return data.get() && copy_cacheddata_to_mask(data, mask);
+}
+
+static void add_cached_rects(const SkMask& mask, SkScalar sigma, SkBlurStyle style,
+                             SkBlurQuality quality, const SkRect rects[], int count) {
+    SkAutoTUnref<SkCachedData> data(copy_mask_to_cacheddata(mask));
+    if (data.get()) {
+        SkMaskCache::Add(sigma, style, quality, rects, count, mask, data);
+    }
+}
+
 #ifdef SK_IGNORE_FAST_RRECT_BLUR
 SK_CONF_DECLARE( bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", false, "Use the faster analytic blur approach for ninepatch rects" );
 #else
@@ -369,7 +420,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     smallRR.setRectRadii(smallR, radii);
 
     const SkScalar sigma = this->computeXformedSigma(matrix);
-    if (!SkMaskCache::FindAndCopy(sigma, fBlurStyle, this->getQuality(), smallRR, &patch->fMask)) {
+    if (!find_cached_rrect(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallRR)) {
         bool analyticBlurWorked = false;
         if (c_analyticBlurRRect) {
             analyticBlurWorked =
@@ -388,7 +439,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
                 return kFalse_FilterReturn;
             }
         }
-        SkMaskCache::AddAndCopy(sigma, fBlurStyle, this->getQuality(), smallRR, patch->fMask);
+        add_cached_rrect(patch->fMask, sigma, fBlurStyle, this->getQuality(), smallRR);
     }
 
     patch->fMask.fBounds.offsetTo(0, 0);
@@ -499,8 +550,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     }
 
     const SkScalar sigma = this->computeXformedSigma(matrix);
-    if (!SkMaskCache::FindAndCopy(sigma, fBlurStyle, this->getQuality(),
-                                  smallR, count, &patch->fMask)) {
+    if (!find_cached_rects(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count)) {
         if (count > 1 || !c_analyticBlurNinepatch) {
             if (!draw_rects_into_mask(smallR, count, &srcM)) {
                 return kFalse_FilterReturn;
@@ -517,7 +567,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
                 return kFalse_FilterReturn;
             }
         }
-        SkMaskCache::AddAndCopy(sigma, fBlurStyle, this->getQuality(), smallR, count, patch->fMask);
+        add_cached_rects(patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count);
     }
     patch->fMask.fBounds.offsetTo(0, 0);
     patch->fOuterRect = dstM.fBounds;

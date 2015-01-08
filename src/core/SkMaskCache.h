@@ -39,25 +39,6 @@ public:
     static void Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                     const SkRect rects[], int count, const SkMask& mask, SkCachedData* data,
                     SkResourceCache* localCache = NULL);
-
-    /**
-     * On success, set mask with cached value, allocate memory for mask->fImage,
-     * copy pixels from SkCachedData in the cache to mask->fImage, then return true.
-     *
-     * On failure, return false, no memory allocated for mask->fImage.
-     */
-    static bool FindAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                            const SkRRect& rrect, SkMask* mask);
-    static bool FindAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                            const SkRect rects[], int count, SkMask* mask);
-
-    /**
-     * Create a new SkCachedData, copy pixels from mask.fImage to it, then add it into cache.
-     */
-    static void AddAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                           const SkRRect& rrect, const SkMask& mask);
-    static void AddAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                           const SkRect rects[], int count, const SkMask& mask);
 };
 
 #endif

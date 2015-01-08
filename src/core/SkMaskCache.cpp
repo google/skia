@@ -18,28 +18,6 @@ struct MaskValue {
 namespace {
 static unsigned gRRectBlurKeyNamespaceLabel;
 
-static bool copy_cacheddata_to_mask(SkCachedData* data, SkMask* mask) {
-    const size_t size = data->size();
-    SkASSERT(mask->computeTotalImageSize() <= size);
-
-    mask->fImage = SkMask::AllocImage(size);
-    if (mask->fImage) {
-        memcpy(mask->fImage, data->data(), size);
-        return true;
-    }
-    return false;
-}
-
-static SkCachedData* copy_mask_to_cacheddata(const SkMask& mask) {
-    const size_t size = mask.computeTotalImageSize();
-    SkCachedData* data = SkResourceCache::NewCachedData(size);
-    if (data) {
-        memcpy(data->writable_data(), mask.fImage, size);
-        return data;
-    }
-    return NULL;
-}
-
 struct RRectBlurKey : public SkResourceCache::Key {
 public:
     RRectBlurKey(SkScalar sigma, const SkRRect& rrect, SkBlurStyle style, SkBlurQuality quality)
@@ -110,20 +88,6 @@ void SkMaskCache::Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                       SkResourceCache* localCache) {
     RRectBlurKey key(sigma, rrect, style, quality);
     return CHECK_LOCAL(localCache, add, Add, SkNEW_ARGS(RRectBlurRec, (key, mask, data)));
-}
-
-bool SkMaskCache::FindAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                              const SkRRect& rrect, SkMask* mask) {
-    SkAutoTUnref<SkCachedData> data(SkMaskCache::FindAndRef(sigma, style, quality, rrect, mask));
-    return data.get() && copy_cacheddata_to_mask(data, mask);
-}
-
-void SkMaskCache::AddAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                             const SkRRect& rrect, const SkMask& mask) {
-    SkAutoTUnref<SkCachedData> data(copy_mask_to_cacheddata(mask));
-    if (data.get()) {
-        SkMaskCache::Add(sigma, style, quality, rrect, mask, data);
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -216,18 +180,4 @@ void SkMaskCache::Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                       SkResourceCache* localCache) {
     RectsBlurKey key(sigma, style, quality, rects, count);
     return CHECK_LOCAL(localCache, add, Add, SkNEW_ARGS(RectsBlurRec, (key, mask, data)));
-}
-
-bool SkMaskCache::FindAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                              const SkRect rects[], int count, SkMask* mask) {
-    SkAutoTUnref<SkCachedData> data(SkMaskCache::FindAndRef(sigma, style, quality, rects, count, mask));
-    return data.get() && copy_cacheddata_to_mask(data, mask);
-}
-
-void SkMaskCache::AddAndCopy(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                             const SkRect rects[], int count, const SkMask& mask) {
-    SkAutoTUnref<SkCachedData> data(copy_mask_to_cacheddata(mask));
-    if (data.get()) {
-        SkMaskCache::Add(sigma, style, quality, rects, count, mask, data);
-    }
 }
