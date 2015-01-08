@@ -9,7 +9,7 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -193,10 +193,7 @@ protected:
                     encoded = fEncodedPNGs[i].get();
                 }
                 if (encoded) {
-                    if (!SkInstallDiscardablePixelRef(
-                            SkDecodingImageGenerator::Create(encoded,
-                                SkDecodingImageGenerator::Options()),
-                            &bm)) {
+                    if (!SkInstallDiscardablePixelRef(encoded, &bm)) {
                     SkDebugf("[%s:%d] failed to decode %s%s\n",
                              __FILE__, __LINE__,gConfigLabels[i], gExt[j]);
                     }

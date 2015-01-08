@@ -70,6 +70,8 @@
         '../src/images/SkScaledBitmapSampler.cpp',
         '../src/images/SkScaledBitmapSampler.h',
 
+        '../src/ports/SkImageGenerator_skia.cpp',
+
         '../src/ports/SkImageDecoder_CG.cpp',
         '../src/ports/SkImageDecoder_WIC.cpp',
       ],

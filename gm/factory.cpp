@@ -10,7 +10,6 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkDiscardablePixelRef.h"
 #include "SkImageDecoder.h"
@@ -37,10 +36,8 @@ protected:
             // bitmap is unlocked.
             SkAutoTUnref<SkDiscardableMemoryPool> pool(
                 SkDiscardableMemoryPool::Create(1));
-            SkAssertResult(SkInstallDiscardablePixelRef(
-                SkDecodingImageGenerator::Create(
-                    data, SkDecodingImageGenerator::Options()),
-                &fBitmap, pool));
+            SkAssertResult(SkInstallDiscardablePixelRef(SkImageGenerator::NewFromData(data),
+                                                        &fBitmap, pool));
         }
     }
 

@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
 #include "SkImageEncoder.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
@@ -139,8 +138,7 @@ static SkImage* createImage(ImageType imageType, GrContext* context, SkColor col
             bitmap.installPixels(info, addr, rowBytes);
             SkAutoTUnref<SkData> src(
                  SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type, 100));
-            return SkImage::NewFromGenerator(
-                SkDecodingImageGenerator::Create(src, SkDecodingImageGenerator::Options()));
+            return SkImage::NewFromData(src);
         }
     }
     SkASSERT(false);

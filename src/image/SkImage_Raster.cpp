@@ -10,7 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkSurface.h"
 
 class SkImage_Raster : public SkImage_Base {

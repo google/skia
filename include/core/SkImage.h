@@ -63,6 +63,15 @@ public:
      */
     static SkImage* NewFromGenerator(SkImageGenerator*);
 
+    /**
+     *  Construct a new SkImage based on the specified encoded data. Returns NULL on failure,
+     *  which can mean that the format of the encoded data was not recognized/supported.
+     *
+     *  Regardless of success or failure, the caller is responsible for managing their ownership
+     *  of the data.
+     */
+    static SkImage* NewFromData(SkData* data);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     uint32_t uniqueID() const { return fUniqueID; }

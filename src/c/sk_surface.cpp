@@ -230,18 +230,8 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
     return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
 }
 
-#include "SkDecodingImageGenerator.h"
-
 sk_image_t* sk_image_new_from_data(const sk_data_t* cdata) {
-    SkImageGenerator* gen = NULL;
-#if 0
-    // enable this when SkDecodingImageGenerator is available in chrome (decode codecs)
-    gen = SkDecodingImageGenerator::Create(AsData(cdata), SkDecodingImageGenerator::Options());
-#endif
-    if (NULL == gen) {
-        return NULL;
-    }
-    return ToImage(SkImage::NewFromGenerator(gen));
+    return ToImage(SkImage::NewFromData(AsData(cdata)));
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {

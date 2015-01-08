@@ -455,9 +455,7 @@ DEF_TEST(WebP, reporter) {
                                                 sizeof(encodedWebP)));
     SkBitmap bm;
 
-    bool success = SkInstallDiscardablePixelRef(
-        SkDecodingImageGenerator::Create(encoded,
-            SkDecodingImageGenerator::Options()), &bm);
+    bool success = SkInstallDiscardablePixelRef(encoded, &bm);
 
     REPORTER_ASSERT(reporter, success);
     if (!success) {

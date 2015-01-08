@@ -14,7 +14,6 @@
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
 #include "SkDocument.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
@@ -2008,9 +2007,7 @@ static int lsk_loadImage(lua_State* L) {
         const char* name = lua_tolstring(L, 1, NULL);
         SkAutoDataUnref data(SkData::NewFromFileName(name));
         if (data.get()) {
-            SkImage* image = SkImage::NewFromGenerator(
-                SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()));
-
+            SkImage* image = SkImage::NewFromData(data);
             if (image) {
                 push_ref(L, image)->unref();
                 return 1;

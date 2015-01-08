@@ -13,7 +13,7 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkDumpCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -40,8 +40,7 @@ static SkBitmap load_bitmap() {
     SkString pngFilename = GetResourcePath("mandrill_512.png");
     SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));
     if (data.get() != NULL) {
-        SkInstallDiscardablePixelRef(SkDecodingImageGenerator::Create(
-            data, SkDecodingImageGenerator::Options()), &bm);
+        SkInstallDiscardablePixelRef(data, &bm);
     }
     return bm;
 }

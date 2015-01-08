@@ -10,7 +10,7 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkTextureCompressor.h"
@@ -76,9 +76,7 @@ protected:
                 }
 
                 SkBitmap bm;
-                if (!SkInstallDiscardablePixelRef(
-                        SkDecodingImageGenerator::Create(
-                            fileData, SkDecodingImageGenerator::Options()), &bm)) {
+                if (!SkInstallDiscardablePixelRef(fileData, &bm)) {
                     SkDebugf("Could not install discardable pixel ref.\n");
                     return;
                 }

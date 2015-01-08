@@ -9,7 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkOSFile.h"
 
 DEFINE_string2(resourcePath, i, "resources", "Directory with test resources: images, fonts, etc.");
@@ -26,7 +26,5 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     SkAutoTUnref<SkData> resourceData(
             SkData::NewFromFileName(resourcePath.c_str()));
-    return resourceData && SkInstallDiscardablePixelRef(
-            SkDecodingImageGenerator::Create(
-                    resourceData, SkDecodingImageGenerator::Options()), dst);
+    return resourceData && SkInstallDiscardablePixelRef(resourceData, dst);
 }

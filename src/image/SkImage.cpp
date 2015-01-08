@@ -7,6 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkReadPixelsRec.h"
@@ -70,6 +71,14 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
         return SkImageEncoder::EncodeData(bm, type, quality);
     }
     return NULL;
+}
+
+SkImage* SkImage::NewFromData(SkData* data) {
+    if (NULL == data) {
+        return NULL;
+    }
+    SkImageGenerator* generator = SkImageGenerator::NewFromData(data);
+    return generator ? SkImage::NewFromGenerator(generator) : NULL;
 }
 
 SkSurface* SkImage::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) const {

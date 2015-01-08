@@ -8,7 +8,7 @@
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
@@ -151,9 +151,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     }
 
     bool installDiscardablePixelRefSuccess =
-        SkInstallDiscardablePixelRef(
-            SkDecodingImageGenerator::Create(
-                fileData, SkDecodingImageGenerator::Options()), &etcBitmap);
+        SkInstallDiscardablePixelRef(fileData, &etcBitmap);
     REPORTER_ASSERT(reporter, installDiscardablePixelRefSuccess);
 
     // Write the bitmap out to a KTX file.

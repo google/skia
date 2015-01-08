@@ -7,7 +7,6 @@
 
 #include "Resources.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
 

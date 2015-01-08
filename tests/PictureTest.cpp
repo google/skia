@@ -12,7 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkDashPathEffect.h"
 #include "SkData.h"
-#include "SkDecodingImageGenerator.h"
+#include "SkImageGenerator.h"
 #include "SkError.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
@@ -1495,8 +1495,7 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkAutoDataUnref data(wStream.copyToData());
 
     SkBitmap bm;
-    bool installSuccess = SkInstallDiscardablePixelRef(
-         SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()), &bm);
+    bool installSuccess = SkInstallDiscardablePixelRef(data, &bm);
     REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.

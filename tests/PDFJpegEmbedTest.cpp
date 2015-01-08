@@ -10,7 +10,6 @@
 #include "SkImageGenerator.h"
 #include "SkData.h"
 #include "SkStream.h"
-#include "SkDecodingImageGenerator.h"
 
 #include "Resources.h"
 #include "Test.h"
@@ -19,9 +18,7 @@
 static SkBitmap bitmap_from_data(SkData* data) {
     SkASSERT(data);
     SkBitmap bm;
-    SkInstallDiscardablePixelRef(
-            SkDecodingImageGenerator::Create(
-                    data, SkDecodingImageGenerator::Options()), &bm);
+    SkInstallDiscardablePixelRef(data, &bm);
     return bm;
 }
 
