@@ -22,17 +22,17 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kNoBBH_Flag; }
+    uint32_t onGetFlags() const SK_OVERRIDE { return kNoBBH_Flag; }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("imageresizetiled");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);

@@ -174,7 +174,7 @@ struct PDFRasterizerData {
 
 class BWTextDrawFilter : public SkDrawFilter {
 public:
-    virtual bool filter(SkPaint*, Type) SK_OVERRIDE;
+    bool filter(SkPaint*, Type) SK_OVERRIDE;
 };
 bool BWTextDrawFilter::filter(SkPaint* p, Type t) {
     if (kText_Type == t) {

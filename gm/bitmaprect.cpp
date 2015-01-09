@@ -35,24 +35,24 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         SkString str;
         str.printf("bitmaprect_%s", fUseIRect ? "i" : "s");
         return str;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
 
 #ifdef SK_CPU_ARM64
     // Skip tiled drawing on 64-bit ARM until https://skbug.com/2908 is fixed.
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 #endif
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->drawColor(0xFFCCCCCC);
 
         const SkIRect src[] = {
@@ -128,17 +128,17 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         SkString str;
         str.printf("3x3bitmaprect");
         return str;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkBitmap bitmap;
         make_3x3_bitmap(&bitmap);
@@ -187,21 +187,21 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         SkString str;
         str.printf("bigbitmaprect_%s", fUseIRect ? "i" : "s");
         return str;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         make_big_bitmap(&fBigBitmap);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kXor_Mode);
 

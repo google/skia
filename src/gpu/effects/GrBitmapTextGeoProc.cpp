@@ -25,7 +25,7 @@ public:
     GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL) {}
 
-    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
         const BitmapTextBatchTracker& local = args.fBT.cast<BitmapTextBatchTracker>();
 

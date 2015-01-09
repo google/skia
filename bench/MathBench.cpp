@@ -31,7 +31,7 @@ public:
         }
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -285,7 +285,7 @@ public:
         }
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -353,7 +353,7 @@ public:
         }
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -414,7 +414,7 @@ public:
         }
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -470,7 +470,7 @@ public:
         fName = "point_normalize";
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -517,7 +517,7 @@ public:
 
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -553,7 +553,7 @@ public:
         fName.printf("divmod_%s", name);
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 

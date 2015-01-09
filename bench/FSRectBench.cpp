@@ -20,9 +20,9 @@ public:
     FSRectBench() : fInit(false) { }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE { return "fullscreen_rects"; }
+    const char* onGetName() SK_OVERRIDE { return "fullscreen_rects"; }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         if (!fInit) {
             SkRandom rand;
             static const SkScalar kMinOffset = 0;
@@ -39,7 +39,7 @@ protected:
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         for (int i = 0; i < loops; ++i) {
             paint.setColor(fColors[i % N]);

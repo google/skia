@@ -178,7 +178,7 @@ public:
     virtual ~TestImageGenerator() { }
 
 protected:
-    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, info);
         if ((NULL == info) || (kFailGetInfo_TestType == fType)) {
             return false;

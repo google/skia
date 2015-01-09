@@ -49,7 +49,7 @@ class SkWriteBuffer;
     static SkFlattenable* CreateProc(SkReadBuffer&);                        \
     friend class SkPrivateEffectInitializer;                                \
     public:                                                                 \
-    virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; }
+    Factory getFactory() const SK_OVERRIDE { return CreateProc; }
 
 /** For SkFlattenable derived objects with a valid type
     This macro should only be used in base class objects in core

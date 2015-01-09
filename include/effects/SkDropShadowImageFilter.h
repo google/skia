@@ -48,7 +48,7 @@ public:
                                                     shadowMode, NULL, NULL, 0));
     }
 
-    virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
@@ -56,8 +56,8 @@ protected:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
                             ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect,
                             uint32_t uniqueID);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    virtual bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
                                 SkIRect* dst) const SK_OVERRIDE;
 

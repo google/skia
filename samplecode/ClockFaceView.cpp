@@ -75,7 +75,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
-    virtual void begin(const SkIRect& uvBounds, SkPath* dst) const SK_OVERRIDE {
+    void begin(const SkIRect& uvBounds, SkPath* dst) const SK_OVERRIDE {
         if (fPts) {
             fPts->reset();
         }
@@ -90,7 +90,7 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         buffer.writeMatrix(this->getMatrix());
         buffer.writeScalar(fRadius);
     }

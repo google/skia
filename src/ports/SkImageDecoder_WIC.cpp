@@ -67,7 +67,7 @@ public:
     bool decodeStream(SkStream* stream, SkBitmap* bm, WICModes wicMode, Format* format) const;
 
 protected:
-    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
 };
 
 struct FormatConversion {

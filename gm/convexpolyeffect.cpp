@@ -34,20 +34,20 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("convex_poly_effect");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(720, 800);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         // This is a GPU-specific GM.
         return kGPUOnly_Flag;
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkPath tri;
         tri.moveTo(5.f, 5.f);
         tri.lineTo(100.f, 20.f);
@@ -97,7 +97,7 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             return;

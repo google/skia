@@ -98,19 +98,19 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("lumafilter");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(600, 420);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkXfermode::Mode modes[] = { SkXfermode::kSrcOver_Mode,
                                      SkXfermode::kDstOver_Mode,
                                      SkXfermode::kSrcATop_Mode,

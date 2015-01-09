@@ -501,17 +501,17 @@ public:
     RecordPictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
+    bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
-    virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
+    SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
-    virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
+    SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
 
 protected:
-    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
+    SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
 
 private:
-    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+    SkString getConfigNameInternal() SK_OVERRIDE;
 
     typedef PictureRenderer INHERITED;
 };
@@ -522,10 +522,10 @@ public:
     PipePictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
+    bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
-    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+    SkString getConfigNameInternal() SK_OVERRIDE;
 
     typedef PictureRenderer INHERITED;
 };
@@ -543,10 +543,10 @@ public:
                       bool useChecksumBasedFilenames,
                       bool useMultiPictureDraw) SK_OVERRIDE;
 
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
+    bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
-    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+    SkString getConfigNameInternal() SK_OVERRIDE;
 
     typedef PictureRenderer INHERITED;
 };
@@ -571,9 +571,9 @@ public:
      * If fWritePath was provided, a separate file is
      * created for each tile, named "path0.png", "path1.png", etc.
      */
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
+    bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
-    virtual void end() SK_OVERRIDE;
+    void end() SK_OVERRIDE;
 
     void setTileWidth(int width) {
         fTileWidth = width;
@@ -620,7 +620,7 @@ public:
         return fTileMinPowerOf2Width;
     }
 
-    virtual TiledPictureRenderer* getTiledRenderer() SK_OVERRIDE { return this; }
+    TiledPictureRenderer* getTiledRenderer() SK_OVERRIDE { return this; }
 
     virtual bool supportsTimingIndividualTiles() { return true; }
 
@@ -655,8 +655,8 @@ public:
 protected:
     SkTDArray<SkIRect> fTileRects;
 
-    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
-    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+    SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
+    SkString getConfigNameInternal() SK_OVERRIDE;
 
 private:
     int    fTileWidth;
@@ -692,18 +692,18 @@ public:
     PlaybackCreationRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
-    virtual void setup() SK_OVERRIDE;
+    void setup() SK_OVERRIDE;
 
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
+    bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
-    virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
+    SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
-    virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
+    SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
 
 private:
     SkAutoTDelete<SkPictureRecorder> fRecorder;
 
-    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+    SkString getConfigNameInternal() SK_OVERRIDE;
 
     typedef PictureRenderer INHERITED;
 };

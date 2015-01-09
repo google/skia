@@ -65,8 +65,8 @@ public:
     DeferredPipeController();
     void setPlaybackCanvas(SkCanvas*);
     virtual ~DeferredPipeController();
-    virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
-    virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
+    void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
+    void notifyWritten(size_t bytes) SK_OVERRIDE;
     void playback(bool silent);
     bool hasPendingCommands() const { return fAllocator.blockCount() != 0; }
     size_t storageAllocatedForRecording() const { return fAllocator.totalCapacity(); }
@@ -158,22 +158,22 @@ public:
     void recordedDrawCommand();
     void setIsDrawingToLayer(bool value) {fIsDrawingToLayer = value;}
 
-    virtual SkImageInfo imageInfo() const SK_OVERRIDE;
+    SkImageInfo imageInfo() const SK_OVERRIDE;
 
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
+    GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 
 protected:
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
-    virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) SK_OVERRIDE;
-    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y) SK_OVERRIDE;
+    const SkBitmap& onAccessBitmap() SK_OVERRIDE;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) SK_OVERRIDE;
+    bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y) SK_OVERRIDE;
 
     // None of the following drawing methods should ever get called on the
     // deferred device
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE
+    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
                             size_t count, const SkPoint[],
@@ -182,7 +182,7 @@ protected:
     virtual void drawRect(const SkDraw&, const SkRect& r,
                             const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
-    virtual void drawOval(const SkDraw&, const SkRect&, const SkPaint&) SK_OVERRIDE
+    void drawOval(const SkDraw&, const SkRect&, const SkPaint&) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawRRect(const SkDraw&, const SkRRect& rr,
                            const SkPaint& paint) SK_OVERRIDE
@@ -228,13 +228,13 @@ protected:
                             const SkPaint&) SK_OVERRIDE
         {SkASSERT(0);}
 
-    virtual void lockPixels() SK_OVERRIDE {}
-    virtual void unlockPixels() SK_OVERRIDE {}
+    void lockPixels() SK_OVERRIDE {}
+    void unlockPixels() SK_OVERRIDE {}
 
-    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE {
+    bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE {
         return false;
     }
-    virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE {
+    bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE {
         return false;
     }
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
@@ -243,8 +243,8 @@ protected:
     }
 
 private:
-    virtual void flush() SK_OVERRIDE;
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {}
+    void flush() SK_OVERRIDE;
+    void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {}
 
     void beginRecording();
     void init();

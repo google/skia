@@ -47,7 +47,7 @@ public:
         }
     }
 
-    virtual void onTileSizeChanged(const SkSize &tileSize) SK_OVERRIDE {
+    void onTileSizeChanged(const SkSize &tileSize) SK_OVERRIDE {
         if (tileSize != fTileSize) {
             fTileSize = tileSize;
         }
@@ -55,7 +55,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SkString name("P:");
             const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
@@ -77,7 +77,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual bool onEvent(const SkEvent& evt) SK_OVERRIDE {
+    bool onEvent(const SkEvent& evt) SK_OVERRIDE {
         if (evt.isType("PictFileView::toggleBBox")) {
             fBBox = (BBoxType)((fBBox + 1) % kBBoxTypeCount);
             return true;
@@ -85,7 +85,7 @@ protected:
         return this->INHERITED::onEvent(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkASSERT(static_cast<int>(fBBox) < kBBoxTypeCount);
         SkPicture** picture = fPictures + fBBox;
 

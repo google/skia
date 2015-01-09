@@ -138,7 +138,7 @@ public:
         }
     }
 
-    virtual ~GammaShaderTextGM() SK_OVERRIDE {
+    ~GammaShaderTextGM() SK_OVERRIDE {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
             SkSafeUnref(fShaders[i]);
         }

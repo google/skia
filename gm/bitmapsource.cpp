@@ -17,7 +17,7 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("bitmapsource");
     }
 
@@ -34,9 +34,9 @@ protected:
         canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(500, 150); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(500, 150); }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         this->makeBitmap();
     }
 
@@ -49,7 +49,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(0x00000000);
         {
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);

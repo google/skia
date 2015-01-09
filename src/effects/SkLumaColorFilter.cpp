@@ -63,14 +63,14 @@ public:
         return SkRef(gLumaEffect);
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "Luminance-to-Alpha"; }
+    const char* name() const SK_OVERRIDE { return "Luminance-to-Alpha"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
@@ -110,9 +110,9 @@ private:
         this->initClassID<LumaColorFilterEffect>();
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // The output is always black. The alpha value for the color passed in is arbitrary.
         inout->setToOther(kRGB_GrColorComponentFlags, GrColorPackRGBA(0, 0, 0, 0),
                           GrInvariantOutput::kWill_ReadInput);

@@ -64,15 +64,15 @@ public:
     }
 
 protected:
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return kNonRendering_Backend == backend;
     }
 
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         SkASSERT(NULL == fRectanizer.get());
 
         if (kPow2_RectanizerType == fRectanizerType) {
@@ -83,7 +83,7 @@ protected:
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
         SkIPoint16 loc;
         SkISize size;

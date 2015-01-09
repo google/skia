@@ -34,17 +34,17 @@ public:
     HitTestPathGM () {}
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("hittestpath");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 460); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 460); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPath path;
         SkRandom rand;
 

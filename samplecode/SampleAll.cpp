@@ -168,11 +168,11 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
-    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) const SK_OVERRIDE {
+    void next(const SkPoint& loc, int u, int v, SkPath* dst) const SK_OVERRIDE {
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fRadius);
     }

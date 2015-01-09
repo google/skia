@@ -26,10 +26,10 @@ public:
 
 protected:
     explicit SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkXfermode
-    virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const SK_OVERRIDE;
+    SkPMColor xferColor(SkPMColor src, SkPMColor dst) const SK_OVERRIDE;
 
 private:
     SkColor fOpColor;

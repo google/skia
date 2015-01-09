@@ -90,7 +90,7 @@ public:
 
     virtual ~GrConicEffect();
 
-    virtual const char* name() const SK_OVERRIDE { return "Conic"; }
+    const char* name() const SK_OVERRIDE { return "Conic"; }
 
     inline const GrAttribute* inPosition() const { return fInPosition; }
     inline const GrAttribute* inConicCoeffs() const { return fInConicCoeffs; }
@@ -102,7 +102,7 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
@@ -113,9 +113,9 @@ private:
     GrConicEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
                   const SkMatrix& localMatrix);
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 
@@ -174,7 +174,7 @@ public:
 
     virtual ~GrQuadEffect();
 
-    virtual const char* name() const SK_OVERRIDE { return "Quad"; }
+    const char* name() const SK_OVERRIDE { return "Quad"; }
 
     inline const GrAttribute* inPosition() const { return fInPosition; }
     inline const GrAttribute* inHairQuadEdge() const { return fInHairQuadEdge; }
@@ -186,7 +186,7 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
@@ -197,9 +197,9 @@ private:
     GrQuadEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
                  const SkMatrix& localMatrix);
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 
@@ -254,7 +254,7 @@ public:
 
     virtual ~GrCubicEffect();
 
-    virtual const char* name() const SK_OVERRIDE { return "Cubic"; }
+    const char* name() const SK_OVERRIDE { return "Cubic"; }
 
     inline const GrAttribute* inPosition() const { return fInPosition; }
     inline const GrAttribute* inCubicCoeffs() const { return fInCubicCoeffs; }
@@ -266,7 +266,7 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
@@ -276,9 +276,9 @@ public:
 private:
     GrCubicEffect(GrColor, const SkMatrix& viewMatrix, GrPrimitiveEdgeType);
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 

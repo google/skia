@@ -191,7 +191,7 @@ protected:
 #endif
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return GM::kSkipPicture_Flag | GM::kSkipPipe_Flag;
     }
 

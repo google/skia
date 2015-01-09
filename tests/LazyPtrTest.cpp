@@ -49,7 +49,7 @@ namespace {
 struct Racer : public SkRunnable {
     Racer() : fLazy(NULL), fSeen(NULL) {}
 
-    virtual void run() SK_OVERRIDE { fSeen = fLazy->get(); }
+    void run() SK_OVERRIDE { fSeen = fLazy->get(); }
 
     SkLazyPtr<int>* fLazy;
     int* fSeen;

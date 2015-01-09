@@ -70,7 +70,7 @@ public:
     virtual bool endPortfolio();
 
 protected:
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
+    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
 
     virtual void drawPoints(
         const SkDraw&,
@@ -141,7 +141,7 @@ protected:
         int x, int y,
         const SkPaint& paint) SK_OVERRIDE;
 
-    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE;
+    bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE;
 
 private:
     class TypefaceUse : ::SkNoncopyable {
@@ -317,7 +317,7 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);

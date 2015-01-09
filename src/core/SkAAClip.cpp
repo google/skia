@@ -1273,13 +1273,13 @@ public:
        Instead we'll rely on the runtime asserts to guarantee Y monotonicity;
        any failure cases that misses may have minor artifacts.
     */
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         this->recordMinY(y);
         fBuilder->addColumn(x, y, alpha, height);
         fLastY = y + height - 1;
     }
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         this->recordMinY(y);
         this->checkForYGap(y);
         fBuilder->addRectRun(x, y, width, height);
@@ -1294,14 +1294,14 @@ public:
         fLastY = y + height - 1;
     }
 
-    virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE
+    void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE
         { unexpected(); }
 
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE {
+    const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE {
         return NULL;
     }
 
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE {
+    void blitH(int x, int y, int width) SK_OVERRIDE {
         this->recordMinY(y);
         this->checkForYGap(y);
         fBuilder->addRun(x, y, 0xFF, width);

@@ -22,7 +22,7 @@ public:
         return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, colorSpace));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "YUV to RGB"; }
+    const char* name() const SK_OVERRIDE { return "YUV to RGB"; }
 
     SkYUVColorSpace getColorSpace() const {
         return fColorSpace;
@@ -83,7 +83,7 @@ public:
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
@@ -104,12 +104,12 @@ private:
         this->addTextureAccess(&fVAccess);
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const YUVtoRGBEffect& s = sBase.cast<YUVtoRGBEffect>();
         return fColorSpace == s.getColorSpace();
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // YUV is opaque
         inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A,
                           GrInvariantOutput::kWillNot_ReadInput);

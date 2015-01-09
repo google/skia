@@ -50,7 +50,7 @@ public:
         , fFamilyName(familyName) { }
 
 protected:
-    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
         *familyName = fFamilyName;
     }
 
@@ -84,7 +84,7 @@ public:
         desc->setFontIndex(fIndex);
         *serialize = false;
     }
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = fIndex;
         return SkStream::NewFromFile(fPathName.c_str());
     }
@@ -115,7 +115,7 @@ public:
         *serialize = true;
     }
 
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = fIndex;
         return fStream->duplicate();
     }
@@ -191,10 +191,10 @@ public:
         }
     }
 
-    virtual int count() SK_OVERRIDE {
+    int count() SK_OVERRIDE {
         return fStyles.count();
     }
-    virtual void getStyle(int index, SkFontStyle* style, SkString* name) SK_OVERRIDE {
+    void getStyle(int index, SkFontStyle* style, SkString* name) SK_OVERRIDE {
         if (index < 0 || fStyles.count() <= index) {
             return;
         }
@@ -205,7 +205,7 @@ public:
             name->reset();
         }
     }
-    virtual SkTypeface_AndroidSystem* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface_AndroidSystem* createTypeface(int index) SK_OVERRIDE {
         if (index < 0 || fStyles.count() <= index) {
             return NULL;
         }
@@ -216,7 +216,7 @@ public:
      *  TODO: consider replacing with SkStyleSet_Indirect::matchStyle();
      *  this simpler version using match_score() passes all our tests.
      */
-    virtual SkTypeface_AndroidSystem* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
+    SkTypeface_AndroidSystem* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
         if (0 == fStyles.count()) {
             return NULL;
         }
@@ -284,11 +284,11 @@ protected:
     /** Returns not how many families we have, but how many unique names
      *  exist among the families.
      */
-    virtual int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const SK_OVERRIDE {
         return fNameToFamilyMap.count();
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         if (index < 0 || fNameToFamilyMap.count() <= index) {
             familyName->reset();
             return;
@@ -296,14 +296,14 @@ protected:
         familyName->set(fNameToFamilyMap[index].name);
     }
 
-    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         if (index < 0 || fNameToFamilyMap.count() <= index) {
             return NULL;
         }
         return SkRef(fNameToFamilyMap[index].styleSet);
     }
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         if (!familyName) {
             return NULL;
         }
@@ -408,17 +408,17 @@ protected:
         return NULL;
     }
 
-    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(new SkMemoryStream(data));
         return this->createFromStream(stream, ttcIndex);
     }
 
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;

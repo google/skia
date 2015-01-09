@@ -72,7 +72,7 @@ class HelloTutorial : public SkExample {
         }
 
     protected:
-        virtual void draw(SkCanvas* canvas) SK_OVERRIDE {
+        void draw(SkCanvas* canvas) SK_OVERRIDE {
             // Clear background
             canvas->drawColor(SK_ColorWHITE);
 

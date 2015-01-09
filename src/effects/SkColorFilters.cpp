@@ -28,7 +28,7 @@ public:
     SkXfermode::Mode getMode() const { return fMode; }
     SkPMColor getPMColor() const { return fPMColor; }
 
-    virtual bool asColorMode(SkColor* color, SkXfermode::Mode* mode) const SK_OVERRIDE {
+    bool asColorMode(SkColor* color, SkXfermode::Mode* mode) const SK_OVERRIDE {
         if (color) {
             *color = fColor;
         }
@@ -38,7 +38,7 @@ public:
         return true;
     }
 
-    virtual uint32_t getFlags() const SK_OVERRIDE {
+    uint32_t getFlags() const SK_OVERRIDE {
         return fProc16 ? (kAlphaUnchanged_Flag | kHasFilter16_Flag) : 0;
     }
 
@@ -65,7 +65,7 @@ public:
     }
 
 #ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const SK_OVERRIDE {
         str->append("SkModeColorFilter: color: 0x");
         str->appendHex(fColor);
         str->append(" mode: ");
@@ -74,12 +74,12 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    virtual GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
+    GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
 #endif
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
 protected:
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         buffer.writeColor(fColor);
         buffer.writeUInt(fMode);
     }
@@ -199,11 +199,11 @@ public:
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "ModeColorFilterEffect"; }
+    const char* name() const SK_OVERRIDE { return "ModeColorFilterEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     GrColor color() const { return fColor; }
@@ -271,12 +271,12 @@ private:
         this->initClassID<ModeColorFilterEffect>();
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const ModeColorFilterEffect& s = other.cast<ModeColorFilterEffect>();
         return fMode == s.fMode && fColor == s.fColor;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     SkXfermode::Mode fMode;
     GrColor fColor;
@@ -424,7 +424,7 @@ class Src_SkModeColorFilter : public SkModeColorFilter {
 public:
     Src_SkModeColorFilter(SkColor color) : INHERITED(color, SkXfermode::kSrc_Mode) {}
 
-    virtual uint32_t getFlags() const SK_OVERRIDE {
+    uint32_t getFlags() const SK_OVERRIDE {
         if (SkGetPackedA32(this->getPMColor()) == 0xFF) {
             return kAlphaUnchanged_Flag | kHasFilter16_Flag;
         } else {
@@ -454,7 +454,7 @@ public:
         fColor32Proc = SkBlitRow::ColorProcFactory();
     }
 
-    virtual uint32_t getFlags() const SK_OVERRIDE {
+    uint32_t getFlags() const SK_OVERRIDE {
         if (SkGetPackedA32(this->getPMColor()) == 0xFF) {
             return kAlphaUnchanged_Flag | kHasFilter16_Flag;
         } else {

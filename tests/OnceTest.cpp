@@ -39,7 +39,7 @@ public:
     SkOnceFlag* once;
     int* ptr;
 
-    virtual void run() SK_OVERRIDE {
+    void run() SK_OVERRIDE {
         SkOnce(once, add_six, ptr);
     }
 };

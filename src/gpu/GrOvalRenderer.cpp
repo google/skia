@@ -73,7 +73,7 @@ public:
     const GrAttribute* inCircleEdge() const { return fInCircleEdge; }
     virtual ~CircleEdgeEffect() {}
 
-    virtual const char* name() const SK_OVERRIDE { return "CircleEdge"; }
+    const char* name() const SK_OVERRIDE { return "CircleEdge"; }
 
     inline bool isStroked() const { return fStroke; }
 
@@ -83,7 +83,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -157,7 +157,7 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -188,12 +188,12 @@ private:
         fStroke = stroke;
     }
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const CircleEdgeEffect& cee = other.cast<CircleEdgeEffect>();
         return cee.fStroke == fStroke;
     }
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 
@@ -241,7 +241,7 @@ public:
 
     virtual ~EllipseEdgeEffect() {}
 
-    virtual const char* name() const SK_OVERRIDE { return "EllipseEdge"; }
+    const char* name() const SK_OVERRIDE { return "EllipseEdge"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inEllipseOffset() const { return fInEllipseOffset; }
@@ -255,7 +255,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -351,7 +351,7 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -384,12 +384,12 @@ private:
         fStroke = stroke;
     }
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const EllipseEdgeEffect& eee = other.cast<EllipseEdgeEffect>();
         return eee.fStroke == fStroke;
     }
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 
@@ -441,7 +441,7 @@ public:
 
     virtual ~DIEllipseEdgeEffect() {}
 
-    virtual const char* name() const SK_OVERRIDE { return "DIEllipseEdge"; }
+    const char* name() const SK_OVERRIDE { return "DIEllipseEdge"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
@@ -455,7 +455,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -566,7 +566,7 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -599,12 +599,12 @@ private:
         fMode = mode;
     }
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const DIEllipseEdgeEffect& eee = other.cast<DIEllipseEdgeEffect>();
         return eee.fMode == fMode;
     }
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 

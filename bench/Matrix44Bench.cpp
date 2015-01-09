@@ -17,7 +17,7 @@ public:
         fName.printf("matrix44_%s", name);
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 

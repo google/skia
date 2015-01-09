@@ -264,10 +264,10 @@ public:
     }
 
 protected:
-    virtual int onCountFamilies() const SK_OVERRIDE;
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
-    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE;
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
+    int onCountFamilies() const SK_OVERRIDE;
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
+    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE;
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontstyle) const SK_OVERRIDE;
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
@@ -275,9 +275,9 @@ protected:
                                                     SkUnichar character) const SK_OVERRIDE;
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontstyle) const SK_OVERRIDE;
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
-    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) const SK_OVERRIDE;
 
@@ -307,10 +307,10 @@ public:
         , fFontFamily(SkRefComPtr(fontFamily))
     { }
 
-    virtual int count() SK_OVERRIDE;
-    virtual void getStyle(int index, SkFontStyle* fs, SkString* styleName) SK_OVERRIDE;
-    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE;
-    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
+    int count() SK_OVERRIDE;
+    void getStyle(int index, SkFontStyle* fs, SkString* styleName) SK_OVERRIDE;
+    SkTypeface* createTypeface(int index) SK_OVERRIDE;
+    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
 
 private:
     SkAutoTUnref<const SkFontMgr_DirectWrite> fFontMgr;

@@ -73,9 +73,9 @@ public:
     ~SkOneShotDiscardablePixelRef();
 
 protected:
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    virtual void onUnlockPixels() SK_OVERRIDE;
-    virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
+    bool onNewLockPixels(LockRec*) SK_OVERRIDE;
+    void onUnlockPixels() SK_OVERRIDE;
+    size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
 
 private:
     SkDiscardableMemory* fDM;
@@ -143,7 +143,7 @@ public:
         fFactory = factory;
     }
 
-    virtual bool allocPixelRef(SkBitmap*, SkColorTable*) SK_OVERRIDE;
+    bool allocPixelRef(SkBitmap*, SkColorTable*) SK_OVERRIDE;
 
 private:
     SkResourceCache::DiscardableFactory fFactory;

@@ -16,10 +16,10 @@
 class SkInput : public SkDisplayable {
     DECLARE_MEMBER_INFO(Input);
     SkInput();
-    virtual SkDisplayable* contains(const SkString& ) SK_OVERRIDE;
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
-    virtual bool enable(SkAnimateMaker & ) SK_OVERRIDE;
-    virtual bool hasEnable() const SK_OVERRIDE;
+    SkDisplayable* contains(const SkString& ) SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    bool enable(SkAnimateMaker & ) SK_OVERRIDE;
+    bool hasEnable() const SK_OVERRIDE;
 protected:
     SkString name;
     int32_t  fInt;

@@ -21,12 +21,12 @@ public:
     }
 
     // overrides from SkColorFilter
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
-    virtual void filterSpan16(const uint16_t src[], int count, uint16_t[]) const SK_OVERRIDE;
-    virtual uint32_t getFlags() const SK_OVERRIDE;
-    virtual bool asColorMatrix(SkScalar matrix[20]) const SK_OVERRIDE;
+    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
+    void filterSpan16(const uint16_t src[], int count, uint16_t[]) const SK_OVERRIDE;
+    uint32_t getFlags() const SK_OVERRIDE;
+    bool asColorMatrix(SkScalar matrix[20]) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
+    GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
 #endif
 
     struct State {
@@ -41,7 +41,7 @@ public:
 protected:
     explicit SkColorMatrixFilter(const SkColorMatrix&);
     explicit SkColorMatrixFilter(const SkScalar array[20]);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkColorMatrix fMatrix;

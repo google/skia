@@ -50,7 +50,7 @@ class PictFileFactory : public SkViewFactory {
     SkString fFilename;
 public:
     PictFileFactory(const SkString& filename) : fFilename(filename) {}
-    virtual SkView* operator() () const SK_OVERRIDE {
+    SkView* operator() () const SK_OVERRIDE {
         return CreateSamplePictFileView(fFilename.c_str());
     }
 };
@@ -62,7 +62,7 @@ class PdfFileViewerFactory : public SkViewFactory {
     SkString fFilename;
 public:
     PdfFileViewerFactory(const SkString& filename) : fFilename(filename) {}
-    virtual SkView* operator() () const SK_OVERRIDE {
+    SkView* operator() () const SK_OVERRIDE {
         return CreateSamplePdfFileViewer(fFilename.c_str());
     }
 };
@@ -344,7 +344,7 @@ public:
 #endif
     }
 
-    virtual GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
+    GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         return fCurRenderTarget;
 #else

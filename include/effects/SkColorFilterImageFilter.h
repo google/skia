@@ -24,12 +24,12 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorFilterImageFilter)
 
 protected:
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
-    virtual bool asColorFilter(SkColorFilter**) const SK_OVERRIDE;
+    bool asColorFilter(SkColorFilter**) const SK_OVERRIDE;
 
 private:
     SkColorFilterImageFilter(SkColorFilter* cf,

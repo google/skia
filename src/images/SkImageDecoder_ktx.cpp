@@ -36,12 +36,12 @@ class SkKTXImageDecoder : public SkImageDecoder {
 public:
     SkKTXImageDecoder() { }
 
-    virtual Format getFormat() const SK_OVERRIDE {
+    Format getFormat() const SK_OVERRIDE {
         return kKTX_Format;
     }
 
 protected:
-    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
     typedef SkImageDecoder INHERITED;
@@ -251,7 +251,7 @@ SkImageDecoder::Result SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* b
 
 class SkKTXImageEncoder : public SkImageEncoder {
 protected:
-    virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) SK_OVERRIDE;
+    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) SK_OVERRIDE;
 
 private:
     virtual bool encodePKM(SkWStream* stream, const SkData *data);

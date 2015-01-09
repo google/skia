@@ -20,7 +20,7 @@ class SkBaseBitmap : public SkBoundable {
     DECLARE_MEMBER_INFO(BaseBitmap);
     SkBaseBitmap();
     virtual ~SkBaseBitmap();
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 protected:
     SkBitmap fBitmap;
     SkScalar x;
@@ -36,10 +36,10 @@ class SkDrawBitmap : public SkBaseBitmap {
     SkDrawBitmap();
     virtual ~SkDrawBitmap();
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
-    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
-    virtual bool setProperty(int index, SkScriptValue& value) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    bool setProperty(int index, SkScriptValue& value) SK_OVERRIDE;
 protected:
     int /*SkBitmap::Config*/ format;
     int32_t height;
@@ -54,11 +54,11 @@ class SkImageBaseBitmap : public SkBaseBitmap {
     DECLARE_MEMBER_INFO(ImageBaseBitmap);
     SkImageBaseBitmap();
     virtual ~SkImageBaseBitmap();
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    virtual void dirty() SK_OVERRIDE;
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
-    virtual void onEndElement(SkAnimateMaker& maker) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    void dirty() SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& maker) SK_OVERRIDE;
 private:
     void resolve() const { (const_cast<SkImageBaseBitmap*>(this))->resolve(); }
     void resolve();

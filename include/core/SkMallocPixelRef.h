@@ -88,9 +88,9 @@ protected:
                      bool ownPixels);
     virtual ~SkMallocPixelRef();
 
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    virtual void onUnlockPixels() SK_OVERRIDE;
-    virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
+    bool onNewLockPixels(LockRec*) SK_OVERRIDE;
+    void onUnlockPixels() SK_OVERRIDE;
+    size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
 
 private:
     void*           fStorage;

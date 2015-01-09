@@ -42,9 +42,9 @@ public:
 
     virtual ~SkBlurDrawLooper();
 
-    virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
+    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
 
-    virtual size_t contextSize() const SK_OVERRIDE { return sizeof(BlurDrawLooperContext); }
+    size_t contextSize() const SK_OVERRIDE { return sizeof(BlurDrawLooperContext); }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
@@ -53,9 +53,9 @@ protected:
     SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
                      uint32_t flags);
 
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
-    virtual bool asABlurShadow(BlurShadowRec*) const SK_OVERRIDE;
+    bool asABlurShadow(BlurShadowRec*) const SK_OVERRIDE;
 
 private:
     SkMaskFilter*   fBlur;
@@ -74,7 +74,7 @@ private:
     public:
         explicit BlurDrawLooperContext(const SkBlurDrawLooper* looper);
 
-        virtual bool next(SkCanvas* canvas, SkPaint* paint) SK_OVERRIDE;
+        bool next(SkCanvas* canvas, SkPaint* paint) SK_OVERRIDE;
 
     private:
         const SkBlurDrawLooper* fLooper;

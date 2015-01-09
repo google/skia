@@ -137,7 +137,7 @@ public:
         : fIndex(0), fStrings(strings)
     { }
 
-    virtual bool next(SkTypeface::LocalizedString* localizedString) SK_OVERRIDE {
+    bool next(SkTypeface::LocalizedString* localizedString) SK_OVERRIDE {
         if (fIndex >= fStrings->GetCount()) {
             return false;
         }

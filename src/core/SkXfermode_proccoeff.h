@@ -30,9 +30,9 @@ public:
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
 
-    virtual bool asMode(Mode* mode) const SK_OVERRIDE;
+    bool asMode(Mode* mode) const SK_OVERRIDE;
 
-    virtual bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE;
+    bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
     virtual bool asFragmentProcessor(GrFragmentProcessor**,
@@ -43,7 +43,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
     Mode getMode() const { return fMode; }
 

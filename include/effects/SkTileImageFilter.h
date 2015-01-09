@@ -34,7 +34,7 @@ protected:
     SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, SkImageFilter* input, uint32_t uniqueID)
         : INHERITED(1, &input, NULL, uniqueID), fSrcRect(srcRect), fDstRect(dstRect) {}
 
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
 private:
     SkRect fSrcRect;

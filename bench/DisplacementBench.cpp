@@ -22,7 +22,7 @@ public:
     }
 
 protected:
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         if (!fInitialized) {
             this->makeBitmap();
             this->makeCheckerboard();
@@ -91,11 +91,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return this->isSmall() ? "displacement_zero_small" : "displacement_zero_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
         // No displacement effect
@@ -118,11 +118,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "displacement_alpha_small" : "displacement_alpha_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
         // Displacement, with 1 alpha component (which isn't pre-multiplied)
@@ -144,11 +144,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "displacement_full_small" : "displacement_full_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
         // Displacement, with 2 non-alpha components

@@ -27,11 +27,11 @@
 // See colorwheel.cpp for example usage.
 #define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                     \
     class SK_MACRO_CONCAT(NAME, _GM) : public skiagm::GM {    \
-        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;    \
-        virtual SkISize onISize() SK_OVERRIDE {               \
+        void onDraw(SkCanvas* canvas) SK_OVERRIDE;    \
+        SkISize onISize() SK_OVERRIDE {               \
             return SkISize::Make((W), (H));                   \
         }                                                     \
-        virtual SkString onShortName() SK_OVERRIDE {          \
+        SkString onShortName() SK_OVERRIDE {          \
             return SkString(#NAME);                           \
         }                                                     \
     };                                                        \

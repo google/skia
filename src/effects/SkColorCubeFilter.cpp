@@ -192,16 +192,16 @@ public:
 
     virtual ~GrColorCubeEffect();
 
-    virtual const char* name() const SK_OVERRIDE { return "ColorCube"; }
+    const char* name() const SK_OVERRIDE { return "ColorCube"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
     int colorCubeSize() const { return fColorCubeAccess.getTexture()->width(); }
 
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput*) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput*) const SK_OVERRIDE;
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
@@ -217,7 +217,7 @@ public:
 
         static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-        virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+        void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
     private:
         GrGLProgramDataManager::UniformHandle fColorCubeSizeUni;
@@ -227,7 +227,7 @@ public:
     };
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
     GrColorCubeEffect(GrTexture* colorCube);
 

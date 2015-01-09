@@ -19,9 +19,9 @@ class SkDrawTo : public SkGroup {
     DECLARE_MEMBER_INFO(DrawTo);
     SkDrawTo();
 //  virtual ~SkDrawTo();
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
 protected:
     SkBool drawOnce;

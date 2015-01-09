@@ -25,11 +25,11 @@ public:
     }
 
 protected:
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(770, 770);
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("pathinterior");
     }
 
@@ -57,7 +57,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->translate(8.5f, 8.5f);
 
         const SkRect rect = { 0, 0, 80, 80 };

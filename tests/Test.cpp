@@ -66,20 +66,20 @@ public:
     const skiatest::Failure& failure(int i) const { return fFailures[i]; }
 
 protected:
-    virtual void onReportFailed(const Failure& failure) SK_OVERRIDE {
+    void onReportFailed(const Failure& failure) SK_OVERRIDE {
         fFailures.push_back(failure);
     }
 
     // Proxy down to fReporter.  We assume these calls are threadsafe.
-    virtual bool allowExtendedTest() const SK_OVERRIDE {
+    bool allowExtendedTest() const SK_OVERRIDE {
         return fReporter->allowExtendedTest();
     }
 
-    virtual void bumpTestCount() SK_OVERRIDE {
+    void bumpTestCount() SK_OVERRIDE {
         fReporter->bumpTestCount();
     }
 
-    virtual bool verbose() const SK_OVERRIDE {
+    bool verbose() const SK_OVERRIDE {
         return fReporter->verbose();
     }
 

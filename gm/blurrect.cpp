@@ -93,7 +93,7 @@ public:
     }
 
 protected:
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         for (int i = 0; i <= kLastEnum_SkBlurStyle; ++i) {
             fMaskFilters[i].reset(SkBlurMaskFilter::Create((SkBlurStyle)i,
                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(STROKE_WIDTH/2)),
@@ -101,15 +101,15 @@ protected:
         }
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(860, 820);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkRect  r = { 0, 0, 100, 50 };
@@ -147,7 +147,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag | kSkipTiled_Flag; }
+    uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag | kSkipTiled_Flag; }
 
 private:
     void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,
@@ -335,7 +335,7 @@ public:
         }
 
 protected:
-    virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
         return SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                     m, r, this->style());
     }
@@ -351,7 +351,7 @@ public:
         }
 
 protected:
-    virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
         SkMask src;
         r.roundOut(&src.fBounds);
         src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin
@@ -382,7 +382,7 @@ public:
         }
 
 protected:
-    virtual SkBlurQuality getQuality() SK_OVERRIDE {
+    SkBlurQuality getQuality() SK_OVERRIDE {
         return kLow_SkBlurQuality;
     }
 private:
@@ -397,7 +397,7 @@ public:
         }
 
 protected:
-    virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
         SkMask src;
         r.roundOut(&src.fBounds);
         src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin

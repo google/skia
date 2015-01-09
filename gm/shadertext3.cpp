@@ -52,21 +52,21 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("shadertext3");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE{ return SkISize::Make(800, 1000); }
+    SkISize onISize() SK_OVERRIDE{ return SkISize::Make(800, 1000); }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);

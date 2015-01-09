@@ -162,7 +162,7 @@ protected:
         return kSkip565_Flag;
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         fInfo = SkImageInfo::MakeN32Premul(100, 100);
         SkPictureRecorder recorder;
         DrawText(recorder.beginRecording(SkIntToScalar(fInfo.width()),
@@ -172,7 +172,7 @@ protected:
         fFilterPaint.setImageFilter(filter.get());
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const SkPixelGeometry geos[] = {
             kRGB_H_SkPixelGeometry,
             kUnknown_SkPixelGeometry,

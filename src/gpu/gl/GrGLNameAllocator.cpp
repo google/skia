@@ -133,7 +133,7 @@ public:
         this->updateStats();
     }
 
-    virtual SparseNameRange* SK_WARN_UNUSED_RESULT internalAllocate(GrGLuint* outName) SK_OVERRIDE {
+    SparseNameRange* SK_WARN_UNUSED_RESULT internalAllocate(GrGLuint* outName) SK_OVERRIDE {
         // Try allocating the range inside fLeft's internal gaps.
         fLeft.reset(fLeft->internalAllocate(outName));
         if (0 != *outName) {
@@ -160,7 +160,7 @@ public:
         return this->takeRef();
     }
 
-    virtual SparseNameRange* SK_WARN_UNUSED_RESULT removeLeftmostContiguousRange(GrGLuint* removedCount) SK_OVERRIDE {
+    SparseNameRange* SK_WARN_UNUSED_RESULT removeLeftmostContiguousRange(GrGLuint* removedCount) SK_OVERRIDE {
         fLeft.reset(fLeft->removeLeftmostContiguousRange(removedCount));
         if (NULL == fLeft) {
             return fRight.detach();
@@ -169,7 +169,7 @@ public:
         return this->rebalance();
     }
 
-    virtual GrGLuint appendNames(GrGLuint count) SK_OVERRIDE {
+    GrGLuint appendNames(GrGLuint count) SK_OVERRIDE {
         SkASSERT(fEnd + count > fEnd); // Check for integer wrap.
         GrGLuint name = fRight->appendNames(count);
         SkASSERT(fRight->end() == fEnd + count);
@@ -177,7 +177,7 @@ public:
         return name;
     }
 
-    virtual GrGLuint prependNames(GrGLuint count) SK_OVERRIDE {
+    GrGLuint prependNames(GrGLuint count) SK_OVERRIDE {
         SkASSERT(fFirst > count); // We can't allocate at or below 0.
         GrGLuint name = fLeft->prependNames(count);
         SkASSERT(fLeft->first() == fFirst - count);
@@ -185,7 +185,7 @@ public:
         return name;
     }
 
-    virtual SparseNameRange* SK_WARN_UNUSED_RESULT free(GrGLuint name) SK_OVERRIDE {
+    SparseNameRange* SK_WARN_UNUSED_RESULT free(GrGLuint name) SK_OVERRIDE {
         if (name < fLeft->end()) {
             fLeft.reset(fLeft->free(name));
             if (NULL == fLeft) {
@@ -280,30 +280,30 @@ public:
         fHeight = 0;
     }
 
-    virtual SparseNameRange* SK_WARN_UNUSED_RESULT internalAllocate(GrGLuint* outName) SK_OVERRIDE {
+    SparseNameRange* SK_WARN_UNUSED_RESULT internalAllocate(GrGLuint* outName) SK_OVERRIDE {
         *outName = 0; // No internal gaps, we are contiguous.
         return this->takeRef();
     }
 
-    virtual SparseNameRange* SK_WARN_UNUSED_RESULT removeLeftmostContiguousRange(GrGLuint* removedCount) SK_OVERRIDE {
+    SparseNameRange* SK_WARN_UNUSED_RESULT removeLeftmostContiguousRange(GrGLuint* removedCount) SK_OVERRIDE {
         *removedCount = fEnd - fFirst;
         return NULL;
     }
 
-    virtual GrGLuint appendNames(GrGLuint count) SK_OVERRIDE {
+    GrGLuint appendNames(GrGLuint count) SK_OVERRIDE {
         SkASSERT(fEnd + count > fEnd); // Check for integer wrap.
         GrGLuint name = fEnd;
         fEnd += count;
         return name;
     }
 
-    virtual GrGLuint prependNames(GrGLuint count) SK_OVERRIDE {
+    GrGLuint prependNames(GrGLuint count) SK_OVERRIDE {
         SkASSERT(fFirst > count); // We can't allocate at or below 0.
         fFirst -= count;
         return fFirst;
     }
 
-    virtual SparseNameRange* SK_WARN_UNUSED_RESULT free(GrGLuint name) SK_OVERRIDE {
+    SparseNameRange* SK_WARN_UNUSED_RESULT free(GrGLuint name) SK_OVERRIDE {
         if (name < fFirst || name >= fEnd) {
           // Not-allocated names are silently ignored.
           return this->takeRef();

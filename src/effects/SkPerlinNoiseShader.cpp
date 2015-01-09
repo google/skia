@@ -498,7 +498,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
 
@@ -532,14 +532,14 @@ public:
         SkDELETE(fPaintingData);
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "PerlinNoise"; }
+    const char* name() const SK_OVERRIDE { return "PerlinNoise"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GrGLPerlinNoise::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GrGLPerlinNoise, (*this));
     }
 
@@ -553,7 +553,7 @@ public:
     uint8_t alpha() const { return fAlpha; }
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
         const GrPerlinNoiseEffect& s = sBase.cast<GrPerlinNoiseEffect>();
         return fType == s.fType &&
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency &&

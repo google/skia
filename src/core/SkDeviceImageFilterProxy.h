@@ -22,13 +22,13 @@ public:
                                                           props.pixelGeometry()))
     {}
 
-    virtual SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
+    SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
         SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
                                        SkBaseDevice::kImageFilter_Usage,
                                        kUnknown_SkPixelGeometry);
         return fDevice->onCreateCompatibleDevice(cinfo);
     }
-    virtual bool canHandleImageFilter(const SkImageFilter* filter) SK_OVERRIDE {
+    bool canHandleImageFilter(const SkImageFilter* filter) SK_OVERRIDE {
         return fDevice->canHandleImageFilter(filter);
     }
     virtual bool filterImage(const SkImageFilter* filter, const SkBitmap& src,
@@ -37,7 +37,7 @@ public:
         return fDevice->filterImage(filter, src, ctx, result, offset);
     }
 
-    virtual const SkSurfaceProps* surfaceProps() const SK_OVERRIDE {
+    const SkSurfaceProps* surfaceProps() const SK_OVERRIDE {
         return &fProps;
     }
 

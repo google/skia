@@ -65,7 +65,7 @@ protected:
      *  SkReadBuffer::setBitmapDecoder() before calling this constructor.
      *  @param SkReadBuffer Serialized picture data.
      */
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 

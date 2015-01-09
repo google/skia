@@ -48,7 +48,7 @@ private:
         fEnforcePMColor = enforcePMColor;
     }
 
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         buffer.writeScalar(fK[0]);
         buffer.writeScalar(fK[1]);
         buffer.writeScalar(fK[2]);
@@ -250,7 +250,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
     static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
 
@@ -272,14 +272,14 @@ public:
 
     virtual ~GrArithmeticEffect();
 
-    virtual const char* name() const SK_OVERRIDE { return "Arithmetic"; }
+    const char* name() const SK_OVERRIDE { return "Arithmetic"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GrGLArithmeticEffect::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GrGLArithmeticEffect, (*this));
     }
 
@@ -292,9 +292,9 @@ public:
     bool enforcePMColor() const { return fEnforcePMColor; }
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrArithmeticEffect(float k1, float k2, float k3, float k4, bool enforcePMColor,
                        GrTexture* background);

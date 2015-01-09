@@ -498,14 +498,14 @@ public:
 
     virtual ~GrRadialGradient() { }
 
-    virtual const char* name() const SK_OVERRIDE { return "Radial Gradient"; }
+    const char* name() const SK_OVERRIDE { return "Radial Gradient"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GrGLRadialGradient::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GrGLRadialGradient, (*this));
     }
 

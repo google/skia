@@ -495,14 +495,14 @@ public:
 
     virtual ~GrLinearGradient() { }
 
-    virtual const char* name() const SK_OVERRIDE { return "Linear Gradient"; }
+    const char* name() const SK_OVERRIDE { return "Linear Gradient"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GrGLLinearGradient::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GrGLLinearGradient, (*this));
     }
 

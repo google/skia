@@ -23,8 +23,8 @@ class InvalidPixelRef : public SkPixelRef {
 public:
     InvalidPixelRef(const SkImageInfo& info) : SkPixelRef(info) {}
 private:
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE { return false; }
-    virtual void onUnlockPixels() SK_OVERRIDE {
+    bool onNewLockPixels(LockRec*) SK_OVERRIDE { return false; }
+    void onUnlockPixels() SK_OVERRIDE {
         SkDEBUGFAIL("InvalidPixelRef can't be locked");
     }
 };

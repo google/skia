@@ -19,10 +19,10 @@ public:
   const SkTArray<SkString>& failures() const { return fFailures; }
 
 private:
-  virtual bool allowExtendedTest() const SK_OVERRIDE;
-  virtual bool verbose()           const SK_OVERRIDE;
+  bool allowExtendedTest() const SK_OVERRIDE;
+  bool verbose()           const SK_OVERRIDE;
 
-  virtual void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
+  void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
       JsonWriter::AddTestFailure(failure);
 
       SkString newFailure;
@@ -37,9 +37,9 @@ class CpuTestTask : public CpuTask {
 public:
     CpuTestTask(Reporter*, TaskRunner*, skiatest::TestRegistry::Factory);
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE { return false; }
-    virtual SkString name() const SK_OVERRIDE { return fName; }
+    void draw() SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE { return false; }
+    SkString name() const SK_OVERRIDE { return fName; }
 
 private:
     TestReporter fTestReporter;
@@ -51,9 +51,9 @@ class GpuTestTask : public GpuTask {
 public:
     GpuTestTask(Reporter*, TaskRunner*, skiatest::TestRegistry::Factory);
 
-    virtual void draw(GrContextFactory*) SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE;
-    virtual SkString name() const SK_OVERRIDE { return fName; }
+    void draw(GrContextFactory*) SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE;
+    SkString name() const SK_OVERRIDE { return fName; }
 
 private:
     TestReporter fTestReporter;

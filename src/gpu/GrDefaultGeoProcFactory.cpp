@@ -35,7 +35,7 @@ public:
                                            coverage));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
+    const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inColor() const { return fInColor; }
@@ -83,7 +83,7 @@ public:
         GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
-        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vs = pb->getVertexShaderBuilder();
@@ -174,7 +174,7 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -212,12 +212,12 @@ private:
         }
     }
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         const DefaultGeoProc& gp = other.cast<DefaultGeoProc>();
         return gp.fFlags == this->fFlags;
     }
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         if (fInCoverage) {
             out->setUnknownSingleComponent();
         } else {

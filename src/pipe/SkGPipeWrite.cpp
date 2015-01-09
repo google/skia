@@ -86,9 +86,9 @@ public:
         fPointers.freeAll();
     }
 
-    virtual void* allocThrow(size_t bytes) SK_OVERRIDE;
+    void* allocThrow(size_t bytes) SK_OVERRIDE;
 
-    virtual void unalloc(void* ptr) SK_OVERRIDE;
+    void unalloc(void* ptr) SK_OVERRIDE;
 
     void setBitmapStorage(SkBitmapHeap* heap) {
         this->setBitmapHeap(heap);
@@ -175,7 +175,7 @@ public:
 
     ~BitmapShuttle();
 
-    virtual bool insert(const SkBitmap& bitmap, int32_t slot) SK_OVERRIDE;
+    bool insert(const SkBitmap& bitmap, int32_t slot) SK_OVERRIDE;
 
     /**
      *  Remove the SkGPipeCanvas used for insertion. After this, calls to
@@ -231,9 +231,9 @@ public:
         return (NULL == fBitmapHeap) ? 0 : fBitmapHeap->bytesAllocated();
     }
 
-    virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
-    virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
-    virtual void endCommentGroup() SK_OVERRIDE;
+    void beginCommentGroup(const char* description) SK_OVERRIDE;
+    void addComment(const char* kywd, const char* value) SK_OVERRIDE;
+    void endCommentGroup() SK_OVERRIDE;
 
     /**
      * Flatten an SkBitmap to send to the reader, where it will be referenced
@@ -242,14 +242,14 @@ public:
     bool shuttleBitmap(const SkBitmap&, int32_t slot);
 
 protected:
-    virtual void willSave() SK_OVERRIDE;
-    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
-    virtual void willRestore() SK_OVERRIDE;
+    void willSave() SK_OVERRIDE;
+    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
+    void willRestore() SK_OVERRIDE;
 
-    virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
-    virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
+    void didConcat(const SkMatrix&) SK_OVERRIDE;
+    void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
-    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                             const SkPaint&) SK_OVERRIDE;
     virtual void onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
@@ -286,12 +286,12 @@ protected:
                         const SkColor colors[], SkXfermode* xmode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) SK_OVERRIDE;
-    virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
+    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
-    virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
 
 private:
     void recordTranslate(const SkMatrix&);

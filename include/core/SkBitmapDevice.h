@@ -35,7 +35,7 @@ public:
         return Create(info, NULL);
     }
 
-    virtual SkImageInfo imageInfo() const SK_OVERRIDE;
+    SkImageInfo imageInfo() const SK_OVERRIDE;
 
 protected:
     bool onShouldDisableLCD(const SkPaint&) const SK_OVERRIDE;
@@ -45,7 +45,7 @@ protected:
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
+    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRect(const SkDraw&, const SkRect& r,
@@ -114,7 +114,7 @@ protected:
         altered. The config/width/height/rowbytes must remain unchanged.
         @return the device contents as a bitmap
     */
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
+    const SkBitmap& onAccessBitmap() SK_OVERRIDE;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref
@@ -123,15 +123,15 @@ protected:
         return pr;
     }
 
-    virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) SK_OVERRIDE;
-    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
-    virtual void* onAccessPixels(SkImageInfo* info, size_t* rowBytes) SK_OVERRIDE;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) SK_OVERRIDE;
+    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
+    void* onAccessPixels(SkImageInfo* info, size_t* rowBytes) SK_OVERRIDE;
 
     /** Called when this device is installed into a Canvas. Balanced by a call
         to unlockPixels() when the device is removed from a Canvas.
     */
-    virtual void lockPixels() SK_OVERRIDE;
-    virtual void unlockPixels() SK_OVERRIDE;
+    void lockPixels() SK_OVERRIDE;
+    void unlockPixels() SK_OVERRIDE;
 
 private:
     friend class SkCanvas;
@@ -146,14 +146,14 @@ private:
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE;
+    void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE;
 
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
-    virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;
 
-    virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
+    SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
 
     SkBitmap    fBitmap;
 

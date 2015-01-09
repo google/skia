@@ -2016,7 +2016,7 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    virtual size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const SK_OVERRIDE;
 
     class TriColorShaderContext : public SkShader::Context {
     public:
@@ -2025,7 +2025,7 @@ public:
 
         bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
 
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
 
     private:
         SkMatrix    fDstToUnit;
@@ -2040,7 +2040,7 @@ public:
     Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
 
 protected:
-    virtual Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
+    Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
         return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
     }
 

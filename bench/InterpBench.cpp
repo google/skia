@@ -22,7 +22,7 @@ public:
         fDx = 0.1257f;
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
@@ -51,7 +51,7 @@ public:
     Fixed16D16Interp() : INHERITED("16.16") {}
 
 protected:
-    virtual void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
+    void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
         SkFixed curr = SkFloatToFixed(fx);
         SkFixed step = SkFloatToFixed(dx);
         for (int i = 0; i < count; i += 4) {
@@ -70,7 +70,7 @@ public:
     Fixed32D32Interp() : INHERITED("32.32") {}
 
 protected:
-    virtual void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
+    void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
         int64_t curr = (int64_t)(fx * 65536 * 655536);
         int64_t step = (int64_t)(dx * 65536 * 655536);
         SkFixed tmp;
@@ -101,7 +101,7 @@ public:
     Fixed16D48Interp() : INHERITED("16.48") {}
 
 protected:
-    virtual void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
+    void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
         int64_t curr = (int64_t)(fx * 65536 * 655536 * 65536);
         int64_t step = (int64_t)(dx * 65536 * 655536 * 65536);
         SkFixed tmp;
@@ -121,7 +121,7 @@ public:
     FloatInterp() : INHERITED("float") {}
 
 protected:
-    virtual void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
+    void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
         SkFixed tmp;
         for (int i = 0; i < count; i += 4) {
             tmp = SkFloatToFixed(fx); dst[i + 0] = TILE(tmp, count); fx += dx;
@@ -139,7 +139,7 @@ public:
     DoubleInterp() : INHERITED("double") {}
 
 protected:
-    virtual void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
+    void performTest(int16_t dst[], float fx, float dx, int count) SK_OVERRIDE {
         double ffx = fx;
         double ddx = dx;
         SkFixed tmp;

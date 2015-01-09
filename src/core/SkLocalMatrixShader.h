@@ -19,7 +19,7 @@ public:
     , fProxyShader(SkRef(proxy))
     {}
 
-    virtual size_t contextSize() const SK_OVERRIDE {
+    size_t contextSize() const SK_OVERRIDE {
         return fProxyShader->contextSize();
     }
 
@@ -28,7 +28,7 @@ public:
         return fProxyShader->asABitmap(bitmap, matrix, mode);
     }
 
-    virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE {
+    GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE {
         return fProxyShader->asAGradient(info);
     }
 
@@ -55,7 +55,7 @@ public:
 
 #endif
 
-    virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {
+    SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {
         if (localMatrix) {
             *localMatrix = this->getLocalMatrix();
         }
@@ -66,8 +66,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixShader)
 
 protected:
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    virtual Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
 
 private:
     SkAutoTUnref<SkShader> fProxyShader;

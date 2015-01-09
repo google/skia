@@ -290,7 +290,7 @@ protected:
     SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale,
                                  SkScalar kd, SkImageFilter* input, const CropRect* cropRect,
                                  uint32_t uniqueID);
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
@@ -320,7 +320,7 @@ protected:
     SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks,
                                   SkScalar shininess, SkImageFilter* input, const CropRect*,
                                   uint32_t uniqueID);
-    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
@@ -347,9 +347,9 @@ public:
     const SkMatrix& filterMatrix() const { return fFilterMatrix; }
 
 protected:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // lighting shaders are complicated. We just throw up our hands.
         inout->mulByUnknownFourComponents();
     }
@@ -375,16 +375,16 @@ public:
                                                     kd));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "DiffuseLighting"; }
+    const char* name() const SK_OVERRIDE { return "DiffuseLighting"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     SkScalar kd() const { return fKD; }
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     GrDiffuseLightingEffect(GrTexture* texture,
                             const SkLight* light,
@@ -413,17 +413,17 @@ public:
                                                      shininess));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "SpecularLighting"; }
+    const char* name() const SK_OVERRIDE { return "SpecularLighting"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
 private:
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
     GrSpecularLightingEffect(GrTexture* texture,
                              const SkLight* light,
@@ -486,7 +486,7 @@ public:
     virtual ~GrGLDistantLight() {}
     virtual void setData(const GrGLProgramDataManager&,
                          const SkLight* light) const SK_OVERRIDE;
-    virtual void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
+    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
 
 private:
     typedef GrGLLight INHERITED;
@@ -500,7 +500,7 @@ public:
     virtual ~GrGLPointLight() {}
     virtual void setData(const GrGLProgramDataManager&,
                          const SkLight* light) const SK_OVERRIDE;
-    virtual void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
+    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
 
 private:
     typedef GrGLLight INHERITED;
@@ -514,8 +514,8 @@ public:
     virtual ~GrGLSpotLight() {}
     virtual void setData(const GrGLProgramDataManager&,
                          const SkLight* light) const SK_OVERRIDE;
-    virtual void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
-    virtual void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight) SK_OVERRIDE;
+    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
+    void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight) SK_OVERRIDE;
 
 private:
     typedef GrGLLight INHERITED;
@@ -592,9 +592,9 @@ public:
         return fDirection;
     };
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
-    virtual LightType type() const SK_OVERRIDE { return kDistant_LightType; }
+    LightType type() const SK_OVERRIDE { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
-    virtual GrGLLight* createGLLight() const SK_OVERRIDE {
+    GrGLLight* createGLLight() const SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         return SkNEW(GrGLDistantLight);
 #else
@@ -602,9 +602,9 @@ public:
         return NULL;
 #endif
     }
-    virtual bool requiresFragmentPosition() const SK_OVERRIDE { return false; }
+    bool requiresFragmentPosition() const SK_OVERRIDE { return false; }
 
-    virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kDistant_LightType) {
             return false;
         }
@@ -622,10 +622,10 @@ protected:
     SkDistantLight(const SkPoint3& direction, const SkPoint3& color)
       : INHERITED(color), fDirection(direction) {
     }
-    virtual SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
+    SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
         return new SkDistantLight(direction(), color());
     }
-    virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fDirection, buffer);
     }
 
@@ -649,9 +649,9 @@ public:
         return direction;
     };
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
-    virtual LightType type() const SK_OVERRIDE { return kPoint_LightType; }
+    LightType type() const SK_OVERRIDE { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
-    virtual GrGLLight* createGLLight() const SK_OVERRIDE {
+    GrGLLight* createGLLight() const SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         return SkNEW(GrGLPointLight);
 #else
@@ -659,8 +659,8 @@ public:
         return NULL;
 #endif
     }
-    virtual bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
-    virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
+    bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kPoint_LightType) {
             return false;
         }
@@ -668,7 +668,7 @@ public:
         return INHERITED::isEqual(other) &&
                fLocation == o.fLocation;
     }
-    virtual SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
+    SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
         // Use X scale and Y scale on Z and average the result
@@ -685,7 +685,7 @@ public:
 protected:
     SkPointLight(const SkPoint3& location, const SkPoint3& color)
      : INHERITED(color), fLocation(location) {}
-    virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fLocation, buffer);
     }
 
@@ -712,7 +712,7 @@ public:
        fConeScale = SkScalarInvert(antiAliasThreshold);
     }
 
-    virtual SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
+    SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
         // Use X scale and Y scale on Z and average the result
@@ -748,7 +748,7 @@ public:
         }
         return color() * scale;
     }
-    virtual GrGLLight* createGLLight() const SK_OVERRIDE {
+    GrGLLight* createGLLight() const SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         return SkNEW(GrGLSpotLight);
 #else
@@ -756,8 +756,8 @@ public:
         return NULL;
 #endif
     }
-    virtual bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
-    virtual LightType type() const SK_OVERRIDE { return kSpot_LightType; }
+    bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
+    LightType type() const SK_OVERRIDE { return kSpot_LightType; }
     const SkPoint3& location() const { return fLocation; }
     const SkPoint3& target() const { return fTarget; }
     SkScalar specularExponent() const { return fSpecularExponent; }
@@ -791,7 +791,7 @@ protected:
        fS(s)
     {
     }
-    virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fLocation, buffer);
         writePoint3(fTarget, buffer);
         buffer.writeScalar(fSpecularExponent);
@@ -801,7 +801,7 @@ protected:
         writePoint3(fS, buffer);
     }
 
-    virtual bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    bool isEqual(const SkLight& other) const SK_OVERRIDE {
         if (other.type() != kSpot_LightType) {
             return false;
         }
@@ -1225,7 +1225,7 @@ public:
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::setData();
      */
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
 protected:
     virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) = 0;
@@ -1243,8 +1243,8 @@ private:
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLDiffuseLightingEffect(const GrProcessor&);
-    virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1257,8 +1257,8 @@ private:
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLSpecularLightingEffect(const GrProcessor&);
-    virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;

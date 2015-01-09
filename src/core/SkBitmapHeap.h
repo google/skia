@@ -117,7 +117,7 @@ public:
      *
      * @return  The bitmap located at that slot or NULL if external storage is being used.
      */
-    virtual SkBitmap* getBitmap(int32_t slot) const SK_OVERRIDE {
+    SkBitmap* getBitmap(int32_t slot) const SK_OVERRIDE {
         SkASSERT(fExternalStorage == NULL);
         SkBitmapHeapEntry* entry = getEntry(slot);
         if (entry) {
@@ -131,7 +131,7 @@ public:
      *
      * @return  The bitmap located at that slot or NULL if external storage is being used.
      */
-    virtual void releaseRef(int32_t slot) SK_OVERRIDE {
+    void releaseRef(int32_t slot) SK_OVERRIDE {
         SkASSERT(fExternalStorage == NULL);
         if (fOwnerCount != IGNORE_OWNERS) {
             SkBitmapHeapEntry* entry = getEntry(slot);

@@ -20,10 +20,10 @@ public:
                        const SkMatrix* localMatrix = NULL);
 
     // overrides from SkShader
-    virtual bool isOpaque() const SK_OVERRIDE;
-    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
+    bool isOpaque() const SK_OVERRIDE;
+    BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
 
-    virtual size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const SK_OVERRIDE;
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);
 
@@ -41,11 +41,11 @@ public:
         BitmapProcShaderContext(const SkBitmapProcShader&, const ContextRec&, SkBitmapProcState*);
         virtual ~BitmapProcShaderContext();
 
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-        virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
-        virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
+        void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
 
-        virtual uint32_t getFlags() const SK_OVERRIDE { return fFlags; }
+        uint32_t getFlags() const SK_OVERRIDE { return fFlags; }
 
     private:
         SkBitmapProcState*  fState;
@@ -55,8 +55,8 @@ public:
     };
 
 protected:
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
     SkBitmap    fRawBitmap;   // experimental for RLE encoding
     uint8_t     fTileModeX, fTileModeY;

@@ -26,9 +26,9 @@ public:
                      SkStreamAsset* pdf,
                      RasterizePdfProc);
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE { return NULL == fRasterize; }
-    virtual SkString name()   const SK_OVERRIDE { return fName; }
+    void draw() SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE { return NULL == fRasterize; }
+    SkString name()   const SK_OVERRIDE { return fName; }
 
 private:
     const SkString fName;

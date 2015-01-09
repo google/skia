@@ -25,8 +25,8 @@ public:
     SK_DECLARE_INST_COUNT(GrRenderTarget)
 
     // GrSurface overrides
-    virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE { return this; }
-    virtual const GrRenderTarget* asRenderTarget() const  SK_OVERRIDE { return this; }
+    GrRenderTarget* asRenderTarget() SK_OVERRIDE { return this; }
+    const GrRenderTarget* asRenderTarget() const  SK_OVERRIDE { return this; }
 
     // GrRenderTarget
     /**
@@ -118,8 +118,8 @@ protected:
     }
 
     // override of GrResource
-    virtual void onAbandon() SK_OVERRIDE;
-    virtual void onRelease() SK_OVERRIDE;
+    void onAbandon() SK_OVERRIDE;
+    void onRelease() SK_OVERRIDE;
 
 private:
     GrStencilBuffer*  fStencilBuffer;

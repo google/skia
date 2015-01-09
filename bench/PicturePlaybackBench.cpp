@@ -72,7 +72,7 @@ class TextPlaybackBench : public PicturePlaybackBench {
 public:
     TextPlaybackBench() : INHERITED("drawText") { }
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) SK_OVERRIDE {
+    void recordCanvas(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setTextSize(fTextSize);
         paint.setColor(SK_ColorBLACK);
@@ -97,7 +97,7 @@ public:
         : INHERITED(drawPosH ? "drawPosTextH" : "drawPosText")
         , fDrawPosH(drawPosH) { }
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) SK_OVERRIDE {
+    void recordCanvas(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setTextSize(fTextSize);
         paint.setColor(SK_ColorBLACK);
@@ -159,10 +159,10 @@ public:
         }
     }
 
-    virtual const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
-    virtual SkIPoint onGetSize() SK_OVERRIDE { return SkIPoint::Make(1024,1024); }
+    const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
+    SkIPoint onGetSize() SK_OVERRIDE { return SkIPoint::Make(1024,1024); }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         SkAutoTDelete<SkBBHFactory> factory;
         switch (fBBH) {
             case kNone:                                                 break;
@@ -185,7 +185,7 @@ public:
         fPic.reset(recorder.endRecording());
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int i = 0; i < loops; i++) {
             // This inner loop guarantees we make the same choices for all bench variants.
             SkRandom rand;

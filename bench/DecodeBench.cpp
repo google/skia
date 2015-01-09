@@ -24,7 +24,7 @@ public:
         fName.printf("decode_%s_%s", sk_tool_utils::colortype_name(ct), fname.c_str());
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 

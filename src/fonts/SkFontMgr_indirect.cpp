@@ -25,9 +25,9 @@ public:
         : fOwner(SkRef(owner)), fFamilyIndex(familyIndex), fData(data)
     { }
 
-    virtual int count() SK_OVERRIDE { return fData->count(); }
+    int count() SK_OVERRIDE { return fData->count(); }
 
-    virtual void getStyle(int index, SkFontStyle* fs, SkString* style) SK_OVERRIDE {
+    void getStyle(int index, SkFontStyle* fs, SkString* style) SK_OVERRIDE {
         if (fs) {
             *fs = fData->at(index).fFontStyle;
         }
@@ -37,11 +37,11 @@ public:
         }
     }
 
-    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface* createTypeface(int index) SK_OVERRIDE {
         return fOwner->createTypefaceFromFontId(fData->at(index));
     }
 
-    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
+    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
         if (fFamilyIndex >= 0) {
             SkFontIdentity id = fOwner->fProxy->matchIndexStyle(fFamilyIndex, pattern);
             return fOwner->createTypefaceFromFontId(id);

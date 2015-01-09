@@ -47,15 +47,15 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("fontcache");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1280, 640);
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         int typefaceCount = 0;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gFamilyNames); ++i) {
             for (size_t j = 0; j < SK_ARRAY_COUNT(gStyles); ++j) {
@@ -65,7 +65,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar y = 32;
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -88,7 +88,7 @@ protected:
 
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         // this GM is meant only for the GPU
         return kGPUOnly_Flag;
     }

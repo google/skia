@@ -21,17 +21,17 @@ namespace skiagm {
 
 class GlyphPosAlignGM : public GM {
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("glyph_pos_align");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kWidth, kHeight); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(kWidth, kHeight); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(SK_ColorBLACK);
 
         SkPaint paint;

@@ -25,11 +25,11 @@ public:
 protected:
     ~SkDiscardablePixelRef();
 
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    virtual void onUnlockPixels() SK_OVERRIDE;
-    virtual bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
+    bool onNewLockPixels(LockRec*) SK_OVERRIDE;
+    void onUnlockPixels() SK_OVERRIDE;
+    bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
 
-    virtual SkData* onRefEncodedData() SK_OVERRIDE {
+    SkData* onRefEncodedData() SK_OVERRIDE {
         return fGenerator->refEncodedData();
     }
 

@@ -112,10 +112,10 @@ public:
                                  FontIdentity* outFontIdentifier,
                                  SkString* outFamilyName,
                                  SkTypeface::Style* outStyle) SK_OVERRIDE;
-    virtual SkStream* openStream(const FontIdentity&) SK_OVERRIDE;
+    SkStream* openStream(const FontIdentity&) SK_OVERRIDE;
 
     // new APIs
-    virtual SkDataTable* getFamilyNames() SK_OVERRIDE;
+    SkDataTable* getFamilyNames() SK_OVERRIDE;
     virtual bool matchFamilySet(const char inFamilyName[],
                                 SkString* outFamilyName,
                                 SkTArray<FontIdentity>*) SK_OVERRIDE;

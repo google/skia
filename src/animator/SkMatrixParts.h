@@ -39,7 +39,7 @@ class SkRotate : public SkMatrixPart {
     DECLARE_MEMBER_INFO(Rotate);
     SkRotate();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkScalar degrees;
     SkPoint center;
 };
@@ -48,7 +48,7 @@ class SkScale : public SkMatrixPart {
     DECLARE_MEMBER_INFO(Scale);
     SkScale();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkScalar x;
     SkScalar y;
     SkPoint center;
@@ -58,7 +58,7 @@ class SkSkew : public SkMatrixPart {
     DECLARE_MEMBER_INFO(Skew);
     SkSkew();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkScalar x;
     SkScalar y;
     SkPoint center;
@@ -68,7 +68,7 @@ class SkTranslate : public SkMatrixPart {
     DECLARE_MEMBER_INFO(Translate);
     SkTranslate();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkScalar x;
     SkScalar y;
 };
@@ -78,7 +78,7 @@ class SkFromPath : public SkMatrixPart {
     SkFromPath();
     virtual ~SkFromPath();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     int32_t mode;
     SkScalar offset;
     SkDrawPath* path;
@@ -90,11 +90,11 @@ class SkRectToRect : public SkMatrixPart {
     SkRectToRect();
     virtual ~SkRectToRect();
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
-    virtual const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
+    const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkDrawRect* source;
     SkDrawRect* destination;
 };
@@ -104,12 +104,12 @@ class SkPolyToPoly : public SkMatrixPart {
     SkPolyToPoly();
     virtual ~SkPolyToPoly();
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
-    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
-    virtual const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkPolygon* source;
     SkPolygon* destination;
 };

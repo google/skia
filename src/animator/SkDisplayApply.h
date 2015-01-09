@@ -38,41 +38,41 @@ public:
     void appendActive(SkActive* );
     void applyValues(int animatorIndex, SkOperand* values, int count,
         SkDisplayTypes , SkMSec time);
-    virtual bool contains(SkDisplayable*) SK_OVERRIDE;
+    bool contains(SkDisplayable*) SK_OVERRIDE;
 //  void createActive(SkAnimateMaker& );
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
     void disable();
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
-    virtual bool enable(SkAnimateMaker& ) SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
     void enableCreate(SkAnimateMaker& );
     void enableDynamic(SkAnimateMaker& );
     void endSave(int index);
     Mode getMode() { return mode; }
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
     SkADrawable* getScope() { return scope; }
     void getStep(SkScriptValue* );
     SkADrawable* getTarget(SkAnimateBase* );
     bool hasDelayedAnimator() const;
-    virtual bool hasEnable() const SK_OVERRIDE;
+    bool hasEnable() const SK_OVERRIDE;
     bool inactivate(SkAnimateMaker& maker);
-    virtual void initialize() SK_OVERRIDE;
+    void initialize() SK_OVERRIDE;
     bool interpolate(SkAnimateMaker& , SkMSec time);
-    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
-    virtual const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
     void refresh(SkAnimateMaker& );
     void reset();
-    virtual bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* ) SK_OVERRIDE;
+    bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* ) SK_OVERRIDE;
     bool resolveField(SkAnimateMaker& , SkDisplayable* parent, SkString* str);
     void save(int index);
     void setEmbedded() { fEmbedded = true; }
-    virtual bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
-    virtual void setSteps(int _steps) SK_OVERRIDE;
+    bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
+    void setSteps(int _steps) SK_OVERRIDE;
 //  virtual void setTime(SkMSec time);
 #ifdef SK_DEBUG
-    virtual void validate() SK_OVERRIDE;
+    void validate() SK_OVERRIDE;
 #endif
 private:
     SkMSec begin;

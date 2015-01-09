@@ -24,7 +24,7 @@ public:
 
 class SK_API SkRTreeFactory : public SkBBHFactory {
 public:
-    virtual SkBBoxHierarchy* operator()(const SkRect& bounds) const SK_OVERRIDE;
+    SkBBoxHierarchy* operator()(const SkRect& bounds) const SK_OVERRIDE;
 private:
     typedef SkBBHFactory INHERITED;
 };

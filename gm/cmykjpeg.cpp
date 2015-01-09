@@ -22,7 +22,7 @@ public:
     CMYKJpegGM() {}
 
 protected:
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         // parameters to the "decode" call
         bool dither = false;
 

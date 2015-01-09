@@ -49,7 +49,7 @@ protected:
         return fCanvas;
     }
 
-    virtual void onEndPage() SK_OVERRIDE {
+    void onEndPage() SK_OVERRIDE {
         SkASSERT(fCanvas);
         SkASSERT(fDevice);
 
@@ -63,7 +63,7 @@ protected:
         fDevice = NULL;
     }
 
-    virtual bool onClose(SkWStream* stream) SK_OVERRIDE {
+    bool onClose(SkWStream* stream) SK_OVERRIDE {
         SkASSERT(NULL == fCanvas);
         SkASSERT(NULL == fDevice);
 
@@ -73,7 +73,7 @@ protected:
         return success;
     }
 
-    virtual void onAbort() SK_OVERRIDE {
+    void onAbort() SK_OVERRIDE {
         SkDELETE(fDoc);
         fDoc = NULL;
     }

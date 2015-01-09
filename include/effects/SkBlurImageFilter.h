@@ -20,7 +20,7 @@ public:
         return SkNEW_ARGS(SkBlurImageFilter, (sigmaX, sigmaY, input, cropRect, uniqueID));
     }
 
-    virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
@@ -31,7 +31,7 @@ protected:
                       SkImageFilter* input,
                       const CropRect* cropRect,
                       uint32_t uniqueID);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;

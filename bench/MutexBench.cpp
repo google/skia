@@ -9,7 +9,7 @@
 
 class MutexBench : public Benchmark {
 public:
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 

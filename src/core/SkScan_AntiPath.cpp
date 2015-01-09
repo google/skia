@@ -53,7 +53,7 @@ public:
         SkDEBUGFAIL("How did I get here?");
     }
     /// May not be called on BaseSuperBlitter because it blits out of order.
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         SkDEBUGFAIL("How did I get here?");
     }
 
@@ -120,10 +120,10 @@ public:
 
     /// Blits a row of pixels, with location and width specified
     /// in supersampled coordinates.
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
     /// Blits a rectangle of pixels, with location and size specified
     /// in supersampled coordinates.
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
 
 private:
     // The next three variables are used to track a circular buffer that
@@ -408,7 +408,7 @@ public:
         fRealBlitter->blitMask(fMask, fClipRect);
     }
 
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
 
     static bool CanHandleRect(const SkIRect& bounds) {
 #ifdef FORCE_RLE

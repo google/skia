@@ -105,7 +105,7 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
@@ -162,7 +162,7 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
@@ -334,16 +334,16 @@ public:
     RadialGradientGM() {}
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
     SkString onShortName() SK_OVERRIDE { return SkString("radial_gradient"); }
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(1280, 1280); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1280, 1280); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const SkISize dim = this->getISize();
 
         this->drawBG(canvas);
@@ -377,18 +377,18 @@ public:
     RadialGradient2GM() {}
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
     SkString onShortName() SK_OVERRIDE { return SkString("radial_gradient2"); }
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(800, 400); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(800, 400); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
 
     // Reproduces the example given in bug 7671058.
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint1, paint2, paint3;
         paint1.setStyle(SkPaint::kFill_Style);
         paint2.setStyle(SkPaint::kFill_Style);

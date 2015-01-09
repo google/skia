@@ -75,7 +75,7 @@ public:
     }
 
 protected:
-    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Lua");
             return true;
@@ -101,7 +101,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         lua_State* L = this->ensureLua();
 
         lua_getglobal(L, gDrawName);
@@ -147,7 +147,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    virtual bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) SK_OVERRIDE {
         if (click->getType() != gLuaClickHandlerName) {
             return this->INHERITED::onClick(click);
         }

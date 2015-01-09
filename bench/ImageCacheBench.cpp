@@ -24,8 +24,8 @@ struct TestRec : public SkResourceCache::Rec {
 
     TestRec(const TestKey& key, intptr_t value) : fKey(key), fValue(value) {}
 
-    virtual const Key& getKey() const SK_OVERRIDE { return fKey; }
-    virtual size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + sizeof(fValue); }
+    const Key& getKey() const SK_OVERRIDE { return fKey; }
+    size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + sizeof(fValue); }
 
     static bool Visitor(const SkResourceCache::Rec&, void*) {
         return true;
@@ -49,11 +49,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return "imagecache";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         if (fCache.getTotalBytesUsed() == 0) {
             this->populateCache();
         }

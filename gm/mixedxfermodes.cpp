@@ -31,11 +31,11 @@ protected:
         kNumShapeTypes
     };
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("mixed_xfermodes");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(790, 640);
     }
 
@@ -87,7 +87,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         if (NULL == fBG.get()) {
             static uint32_t kCheckerPixelData[] = { 0xFFFFFFFF,
                                                     0xFFCCCCCC,

@@ -54,9 +54,9 @@ protected:
         return name;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kImageWidth, kImageHeight); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(kImageWidth, kImageHeight); }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         if (kEffect_Type == fType) {
             return kGPUOnly_Flag | kSkipTiled_Flag;
         } else {
@@ -64,7 +64,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* context = rt ? rt->getContext() : NULL;

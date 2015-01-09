@@ -66,9 +66,9 @@ protected:
         SkSafeRef(localStream);
     }
 
-    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
 
 private:
     typedef SkTypeface_FreeType INHERITED;

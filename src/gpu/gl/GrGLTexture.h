@@ -33,9 +33,9 @@ public:
 
     GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 
-    virtual GrBackendObject getTextureHandle() const SK_OVERRIDE;
+    GrBackendObject getTextureHandle() const SK_OVERRIDE;
 
-    virtual void textureParamsModified() SK_OVERRIDE { fTexParams.invalidate(); }
+    void textureParamsModified() SK_OVERRIDE { fTexParams.invalidate(); }
 
     // These functions are used to track the texture parameters associated with the texture.
     const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
@@ -60,8 +60,8 @@ protected:
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 
-    virtual void onAbandon() SK_OVERRIDE;
-    virtual void onRelease() SK_OVERRIDE;
+    void onAbandon() SK_OVERRIDE;
+    void onRelease() SK_OVERRIDE;
 
 private:
     TexParams                       fTexParams;

@@ -143,17 +143,17 @@ public:
      */
     void silentFlush();
 
-    virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
+    SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 
 protected:
-    virtual void willSave() SK_OVERRIDE;
-    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
-    virtual void willRestore() SK_OVERRIDE;
+    void willSave() SK_OVERRIDE;
+    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
+    void willRestore() SK_OVERRIDE;
 
-    virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
-    virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
+    void didConcat(const SkMatrix&) SK_OVERRIDE;
+    void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
-    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
     virtual void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                             const SkPaint&) SK_OVERRIDE;
     virtual void onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
@@ -192,12 +192,12 @@ protected:
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) SK_OVERRIDE;
 
-    virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
+    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
-    virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
 
 public:
     class NotificationClient {
@@ -232,7 +232,7 @@ public:
     };
 
 protected:
-    virtual SkCanvas* canvasForDrawIter() SK_OVERRIDE;
+    SkCanvas* canvasForDrawIter() SK_OVERRIDE;
     SkDeferredDevice* getDeferredDevice() const;
 
 private:

@@ -24,15 +24,15 @@ public:
     PeekPixelsGM() {}
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("peekpixels");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(360, 120);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
         SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
         if (surface.get()) {
@@ -64,7 +64,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         // we explicitly test peekPixels and readPixels, neither of which
         // return something for a picture-backed canvas, so we skip that test.
         return kSkipPicture_Flag;

@@ -42,11 +42,11 @@ public:
     virtual const char* getUniqueString() const = 0;
 
 protected:
-    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
         *familyName = fFamilyName;
     }
 
-    virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const SK_OVERRIDE {
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const SK_OVERRIDE {
         desc->setFamilyName(fFamilyName.c_str());
         desc->setFontFileName(this->getUniqueString());
         desc->setFontIndex(fIndex);
@@ -70,10 +70,10 @@ class SkTypeface_Empty : public SkTypeface_Custom {
 public:
     SkTypeface_Empty() : INHERITED(SkFontStyle(), false, true, SkString(), 0) {}
 
-    virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
+    const char* getUniqueString() const SK_OVERRIDE { return NULL; }
 
 protected:
-    virtual SkStream* onOpenStream(int*) const SK_OVERRIDE { return NULL; }
+    SkStream* onOpenStream(int*) const SK_OVERRIDE { return NULL; }
 
 private:
     typedef SkTypeface_Custom INHERITED;
@@ -88,10 +88,10 @@ public:
         , fStream(SkRef(stream))
     { }
 
-    virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
+    const char* getUniqueString() const SK_OVERRIDE { return NULL; }
 
 protected:
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = this->getIndex();
         return fStream->duplicate();
     }
@@ -119,7 +119,7 @@ public:
         , fStream(c_CustomTypefaceRetain ? SkStream::NewFromFile(fPath.c_str()) : NULL)
     { }
 
-    virtual const char* getUniqueString() const SK_OVERRIDE {
+    const char* getUniqueString() const SK_OVERRIDE {
         const char* str = strrchr(fPath.c_str(), '/');
         if (str) {
             str += 1;   // skip the '/'
@@ -128,7 +128,7 @@ public:
     }
 
 protected:
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = this->getIndex();
         if (fStream.get()) {
             return fStream->duplicate();
@@ -155,11 +155,11 @@ class SkFontStyleSet_Custom : public SkFontStyleSet {
 public:
     explicit SkFontStyleSet_Custom(const SkString familyName) : fFamilyName(familyName) { }
 
-    virtual int count() SK_OVERRIDE {
+    int count() SK_OVERRIDE {
         return fStyles.count();
     }
 
-    virtual void getStyle(int index, SkFontStyle* style, SkString* name) SK_OVERRIDE {
+    void getStyle(int index, SkFontStyle* style, SkString* name) SK_OVERRIDE {
         SkASSERT(index < fStyles.count());
         bool bold = fStyles[index]->isBold();
         bool italic = fStyles[index]->isItalic();
@@ -169,7 +169,7 @@ public:
         name->reset();
     }
 
-    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface* createTypeface(int index) SK_OVERRIDE {
         SkASSERT(index < fStyles.count());
         return SkRef(fStyles[index].get());
     }
@@ -182,7 +182,7 @@ public:
         return score;
     }
 
-    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
+    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
         if (0 == fStyles.count()) {
             return NULL;
         }
@@ -232,21 +232,21 @@ public:
     }
 
 protected:
-    virtual int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const SK_OVERRIDE {
         return fFamilies.count();
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         SkASSERT(index < fFamilies.count());
         familyName->set(fFamilies[index]->fFamilyName);
     }
 
-    virtual SkFontStyleSet_Custom* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet_Custom* onCreateStyleSet(int index) const SK_OVERRIDE {
         SkASSERT(index < fFamilies.count());
         return SkRef(fFamilies[index].get());
     }
 
-    virtual SkFontStyleSet_Custom* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet_Custom* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         for (int i = 0; i < fFamilies.count(); ++i) {
             if (fFamilies[i]->fFamilyName.equals(familyName)) {
                 return SkRef(fFamilies[i].get());
@@ -282,12 +282,12 @@ protected:
         return NULL;
     }
 
-    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(new SkMemoryStream(data));
         return this->createFromStream(stream, ttcIndex);
     }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         if (NULL == stream || stream->getLength() <= 0) {
             SkDELETE(stream);
             return NULL;
@@ -304,7 +304,7 @@ protected:
         }
     }
 
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }

@@ -255,20 +255,20 @@ public:
     }
 
 protected:
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
-    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
-    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
+    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
-    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const SK_OVERRIDE;
-    virtual int onCountGlyphs() const SK_OVERRIDE;
-    virtual int onGetUPEM() const SK_OVERRIDE;
-    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
-    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    int onCountGlyphs() const SK_OVERRIDE;
+    int onGetUPEM() const SK_OVERRIDE;
+    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
+    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
 };
@@ -283,7 +283,7 @@ public:
     }
 
 protected:
-    virtual void weak_dispose() const SK_OVERRIDE {
+    void weak_dispose() const SK_OVERRIDE {
         RemoveFontMemResourceEx(fFontMemResource);
         //SkTypefaceCache::Remove(this);
         INHERITED::weak_dispose();
@@ -541,13 +541,13 @@ public:
     bool isValid() const;
 
 protected:
-    virtual unsigned generateGlyphCount() SK_OVERRIDE;
-    virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
-    virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
-    virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
-    virtual void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
+    unsigned generateGlyphCount() SK_OVERRIDE;
+    uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
+    void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
+    void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
+    void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
+    void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
+    void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
 
 private:
     DWORD getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
@@ -2389,11 +2389,11 @@ public:
         ::DeleteDC(hdc);
     }
 
-    virtual int count() SK_OVERRIDE {
+    int count() SK_OVERRIDE {
         return fArray.count();
     }
 
-    virtual void getStyle(int index, SkFontStyle* fs, SkString* styleName) SK_OVERRIDE {
+    void getStyle(int index, SkFontStyle* fs, SkString* styleName) SK_OVERRIDE {
         if (fs) {
             *fs = get_style(fArray[index].elfLogFont);
         }
@@ -2410,11 +2410,11 @@ public:
         }
     }
 
-    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface* createTypeface(int index) SK_OVERRIDE {
         return SkCreateTypefaceFromLOGFONT(fArray[index].elfLogFont);
     }
 
-    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
+    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
         // todo:
         return SkCreateTypefaceFromLOGFONT(fArray[0].elfLogFont);
     }
@@ -2436,21 +2436,21 @@ public:
     }
 
 protected:
-    virtual int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const SK_OVERRIDE {
         return fLogFontArray.count();
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
-    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
         return SkNEW_ARGS(SkFontStyleSetGDI, (fLogFontArray[index].elfLogFont.lfFaceName));
     }
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         if (NULL == familyName) {
             familyName = "";    // do we need this check???
         }
@@ -2480,17 +2480,17 @@ protected:
         return this->matchFamilyStyle(familyName.c_str(), fontstyle);
     }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         return create_from_stream(stream);
     }
 
-    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
         // could be in base impl
         SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
         return this->createFromStream(stream);
     }
 
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         // could be in base impl
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return this->createFromStream(stream);

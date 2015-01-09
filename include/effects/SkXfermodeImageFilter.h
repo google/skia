@@ -40,7 +40,7 @@ public:
                                SkBitmap* dst,
                                SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool canFilterImageGPU() const SK_OVERRIDE;
+    bool canFilterImageGPU() const SK_OVERRIDE;
     virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
@@ -48,7 +48,7 @@ public:
 protected:
     SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* inputs[2],
                           const CropRect* cropRect, uint32_t uniqueID);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkXfermode* fMode;

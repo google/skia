@@ -112,7 +112,7 @@ public:
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
     }
 
-    virtual SkDataTable* getFamilyNames() const SK_OVERRIDE {
+    SkDataTable* getFamilyNames() const SK_OVERRIDE {
         int count = fFontCollection->GetFontFamilyCount();
 
         SkDataTableBuilder names(1024);
@@ -179,7 +179,7 @@ public:
         return S_OK;
     }
 
-    virtual SkRemotableFontIdentitySet* getIndex(int familyIndex) const SK_OVERRIDE {
+    SkRemotableFontIdentitySet* getIndex(int familyIndex) const SK_OVERRIDE {
         SkTScopedComPtr<IDWriteFontFamily> fontFamily;
         HRNM(fFontCollection->GetFontFamily(familyIndex, &fontFamily),
              "Could not get requested family.");
@@ -237,7 +237,7 @@ public:
         return S_OK;
     }
 
-    virtual SkRemotableFontIdentitySet* matchName(const char familyName[]) const SK_OVERRIDE {
+    SkRemotableFontIdentitySet* matchName(const char familyName[]) const SK_OVERRIDE {
         SkSMallocWCHAR dwFamilyName;
         if (NULL == familyName) {
             HR_GENERAL(getDefaultFontFamilyName(&dwFamilyName),
@@ -372,11 +372,11 @@ public:
         }
 
         // IUnknown methods
-        virtual ULONG STDMETHODCALLTYPE AddRef() SK_OVERRIDE {
+        ULONG STDMETHODCALLTYPE AddRef() SK_OVERRIDE {
             return InterlockedIncrement(&fRefCount);
         }
 
-        virtual ULONG STDMETHODCALLTYPE Release() SK_OVERRIDE {
+        ULONG STDMETHODCALLTYPE Release() SK_OVERRIDE {
             ULONG newCount = InterlockedDecrement(&fRefCount);
             if (0 == newCount) {
                 delete this;
@@ -473,7 +473,7 @@ public:
         return fontFallbackRenderer->FallbackIdentity();
     }
 
-    virtual SkStreamAsset* getData(int dataId) const SK_OVERRIDE {
+    SkStreamAsset* getData(int dataId) const SK_OVERRIDE {
         SkAutoMutexAcquire ama(fDataIdCacheMutex);
         if (dataId >= fDataIdCache.count()) {
             return NULL;

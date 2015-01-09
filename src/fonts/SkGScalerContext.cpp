@@ -16,13 +16,13 @@ public:
     virtual ~SkGScalerContext();
 
 protected:
-    virtual unsigned generateGlyphCount() SK_OVERRIDE;
-    virtual uint16_t generateCharToGlyph(SkUnichar) SK_OVERRIDE;
-    virtual void generateAdvance(SkGlyph*) SK_OVERRIDE;
-    virtual void generateMetrics(SkGlyph*) SK_OVERRIDE;
-    virtual void generateImage(const SkGlyph&) SK_OVERRIDE;
-    virtual void generatePath(const SkGlyph&, SkPath*) SK_OVERRIDE;
-    virtual void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
+    unsigned generateGlyphCount() SK_OVERRIDE;
+    uint16_t generateCharToGlyph(SkUnichar) SK_OVERRIDE;
+    void generateAdvance(SkGlyph*) SK_OVERRIDE;
+    void generateMetrics(SkGlyph*) SK_OVERRIDE;
+    void generateImage(const SkGlyph&) SK_OVERRIDE;
+    void generatePath(const SkGlyph&, SkPath*) SK_OVERRIDE;
+    void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
 
 private:
     SkGTypeface*     fFace;

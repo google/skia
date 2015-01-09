@@ -20,9 +20,9 @@ namespace {
 class WinGLContext : public SkGLContext {
 public:
     WinGLContext(GrGLStandard forcedGpuAPI);
-	virtual ~WinGLContext() SK_OVERRIDE;
-    virtual void makeCurrent() const SK_OVERRIDE;
-    virtual void swapBuffers() const SK_OVERRIDE;
+	~WinGLContext() SK_OVERRIDE;
+    void makeCurrent() const SK_OVERRIDE;
+    void swapBuffers() const SK_OVERRIDE;
 
 private:
     void destroyGLContext();

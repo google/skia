@@ -201,17 +201,17 @@ public:
     }
 
 protected:
-    virtual unsigned generateGlyphCount() SK_OVERRIDE {
+    unsigned generateGlyphCount() SK_OVERRIDE {
         return fFace->onCountGlyphs();
     }
 
-    virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE {
+    uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE {
         uint16_t glyph;
         (void) fFace->onCharsToGlyphs((const void *) &uni, SkTypeface::kUTF16_Encoding, &glyph, 1);
         return glyph;
     }
 
-    virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE {
+    void generateAdvance(SkGlyph* glyph) SK_OVERRIDE {
         fFace->getAdvance(glyph);
 
         SkVector advance;
@@ -221,7 +221,7 @@ protected:
         glyph->fAdvanceY = SkScalarToFixed(advance.fY);
     }
 
-    virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE {
+    void generateMetrics(SkGlyph* glyph) SK_OVERRIDE {
         fFace->getMetrics(glyph);
 
         SkVector advance;
@@ -248,7 +248,7 @@ protected:
         glyph->fMaskFormat = SkMask::kARGB32_Format;
     }
 
-    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE {
+    void generateImage(const SkGlyph& glyph) SK_OVERRIDE {
         SkPath path;
         fFace->getPath(glyph, &path);
 
@@ -266,12 +266,12 @@ protected:
         canvas.drawPath(path, paint);
     }
 
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE {
+    void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE {
         fFace->getPath(glyph, path);
         path->transform(fMatrix);
     }
 
-    virtual void generateFontMetrics(SkPaint::FontMetrics* metrics) SK_OVERRIDE {
+    void generateFontMetrics(SkPaint::FontMetrics* metrics) SK_OVERRIDE {
         fFace->getFontMetrics(metrics);
         if (metrics) {
             SkScalar scale = fMatrix.getScaleY();

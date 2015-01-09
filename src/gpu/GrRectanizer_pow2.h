@@ -24,15 +24,15 @@ public:
 
     virtual ~GrRectanizerPow2() { }
 
-    virtual void reset() SK_OVERRIDE {
+    void reset() SK_OVERRIDE {
         fNextStripY = 0;
         fAreaSoFar = 0;
         sk_bzero(fRows, sizeof(fRows));
     }
 
-    virtual bool addRect(int w, int h, SkIPoint16* loc) SK_OVERRIDE;
+    bool addRect(int w, int h, SkIPoint16* loc) SK_OVERRIDE;
 
-    virtual float percentFull() const SK_OVERRIDE {
+    float percentFull() const SK_OVERRIDE {
         return fAreaSoFar / ((float)this->width() * this->height());
     }
 

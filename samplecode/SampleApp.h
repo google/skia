@@ -101,7 +101,7 @@ public:
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
     virtual ~SampleWindow();
 
-    virtual SkSurface* createSurface() SK_OVERRIDE {
+    SkSurface* createSurface() SK_OVERRIDE {
         SkSurface* surface = NULL;
         if (fDevManager) {
             surface = fDevManager->createSurface(fDeviceType, this);
@@ -112,7 +112,7 @@ public:
         return surface;
     }
 
-    virtual void draw(SkCanvas*) SK_OVERRIDE;
+    void draw(SkCanvas*) SK_OVERRIDE;
 
     void setDeviceType(DeviceType type);
     void toggleRendering();
@@ -138,22 +138,22 @@ public:
     DeviceType getDeviceType() const { return fDeviceType; }
 
 protected:
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;
-    virtual bool onHandleKey(SkKey key) SK_OVERRIDE;
-    virtual bool onHandleChar(SkUnichar) SK_OVERRIDE;
-    virtual void onSizeChange() SK_OVERRIDE;
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE;
+    bool onHandleKey(SkKey key) SK_OVERRIDE;
+    bool onHandleChar(SkUnichar) SK_OVERRIDE;
+    void onSizeChange() SK_OVERRIDE;
 
-    virtual SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
-    virtual void afterChildren(SkCanvas*) SK_OVERRIDE;
-    virtual void beforeChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
-    virtual void afterChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
+    SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
+    void afterChildren(SkCanvas*) SK_OVERRIDE;
+    void beforeChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
+    void afterChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
 
-    virtual bool onEvent(const SkEvent& evt) SK_OVERRIDE;
-    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE;
+    bool onEvent(const SkEvent& evt) SK_OVERRIDE;
+    bool onQuery(SkEvent* evt) SK_OVERRIDE;
 
     virtual bool onDispatchClick(int x, int y, Click::State, void* owner,
                                  unsigned modi) SK_OVERRIDE;
-    virtual bool onClick(Click* click) SK_OVERRIDE;
+    bool onClick(Click* click) SK_OVERRIDE;
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y,
                                       unsigned modi) SK_OVERRIDE;
 

@@ -38,11 +38,11 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         const SkScalar X = 150;
         const SkScalar Y = 150;
 
@@ -65,7 +65,7 @@ protected:
         }
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         SkString name("vertices");
         if (0xFF != fAlpha) {
             name.appendf("_%02X", fAlpha);
@@ -73,11 +73,11 @@ protected:
         return name;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(600, 600);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         // start with the center of a 3x3 grid
         static const uint16_t fan[] = {
             4,

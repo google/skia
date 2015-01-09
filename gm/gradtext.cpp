@@ -102,7 +102,7 @@ public:
     GradTextGM () {}
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("gradtext");
     }
 

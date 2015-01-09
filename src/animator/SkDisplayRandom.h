@@ -26,10 +26,10 @@ class SkDisplayRandom : public SkDisplayable {
     DECLARE_DISPLAY_MEMBER_INFO(Random);
     SkDisplayRandom();
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
-    virtual bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
 private:
     SkScalar blend;
     SkScalar min;

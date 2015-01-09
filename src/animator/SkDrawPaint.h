@@ -27,17 +27,17 @@ class SkDrawPaint : public SkADrawable {
     SkDrawPaint();
     virtual ~SkDrawPaint();
     virtual bool add(SkAnimateMaker* , SkDisplayable* child);
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
     virtual void executeFunction(SkDisplayable* target, int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* ) SK_OVERRIDE;
-    virtual const SkFunctionParamType* getFunctionsParameters() SK_OVERRIDE;
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
-    virtual bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* apply) SK_OVERRIDE;
+    const SkFunctionParamType* getFunctionsParameters() SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* apply) SK_OVERRIDE;
 protected:
     static const SkFunctionParamType fFunctionParameters[];
     void setupPaint(SkPaint* paint) const;

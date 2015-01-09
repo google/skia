@@ -142,10 +142,10 @@ public:
     SkFontStyleSet_FC(FcPattern** matches, int count);
     virtual ~SkFontStyleSet_FC();
 
-    virtual int count() SK_OVERRIDE { return fRecCount; }
-    virtual void getStyle(int index, SkFontStyle*, SkString* style) SK_OVERRIDE;
-    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE;
-    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
+    int count() SK_OVERRIDE { return fRecCount; }
+    void getStyle(int index, SkFontStyle*, SkString* style) SK_OVERRIDE;
+    SkTypeface* createTypeface(int index) SK_OVERRIDE;
+    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
 
 private:
     struct Rec {
@@ -226,19 +226,19 @@ public:
     }
 
 protected:
-    virtual int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const SK_OVERRIDE {
         return fFamilyNames->count();
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         familyName->set(fFamilyNames->atStr(index));
     }
 
-    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         return this->onMatchFamily(fFamilyNames->atStr(index));
     }
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         FCLocker lock;
 
         FcPattern* pattern = FcPatternCreate();
@@ -293,9 +293,9 @@ protected:
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const SK_OVERRIDE { return NULL; }
 
-    virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) const SK_OVERRIDE { return NULL; }
+    SkTypeface* onCreateFromData(SkData*, int ttcIndex) const SK_OVERRIDE { return NULL; }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         const size_t length = stream->getLength();
         if (!length) {
             return NULL;
@@ -315,7 +315,7 @@ protected:
         return face;
     }
 
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }

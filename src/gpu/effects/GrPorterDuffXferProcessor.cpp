@@ -38,7 +38,7 @@ public:
 
     virtual ~GrGLPorterDuffXferProcessor() {}
 
-    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrPorterDuffXferProcessor& xp = args.fXP.cast<GrPorterDuffXferProcessor>();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         if (xp.hasSecondaryOutput()) {
@@ -86,7 +86,7 @@ public:
         }
     }
 
-    virtual void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
+    void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
 
     static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
                        GrProcessorKeyBuilder* b) {

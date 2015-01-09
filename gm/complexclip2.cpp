@@ -111,7 +111,7 @@ protected:
         return "";
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         if (kRect_Clip != fClip) {
             return kSkipTiled_Flag;
         }

@@ -69,7 +69,7 @@ public:
 protected:
     SkLayerRasterizer();
     SkLayerRasterizer(SkDeque* layers);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkRasterizer
     virtual bool onRasterize(const SkPath& path, const SkMatrix& matrix,

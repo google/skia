@@ -359,7 +359,7 @@ protected:
         fProc(canvas, fShowGL, fFlags);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return  kSkipPDF_Flag | kSkipPicture_Flag | kSkipPipe_Flag | kSkipTiled_Flag;
     }
 

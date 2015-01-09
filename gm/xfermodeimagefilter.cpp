@@ -24,7 +24,7 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("xfermodeimagefilter");
     }
 
@@ -62,7 +62,7 @@ protected:
         }
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
@@ -85,12 +85,12 @@ protected:
         canvas->restore();
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         make_bitmap();
         make_checkerboard();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(0x00000000);
         SkPaint paint;
 

@@ -54,17 +54,17 @@ class DebugfReporter : public Reporter {
 public:
     explicit DebugfReporter(int total) : fDone(0), fTotal(total) {}
 
-    virtual bool allowExtendedTest() const SK_OVERRIDE { return FLAGS_extendedTest; }
-    virtual bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
+    bool allowExtendedTest() const SK_OVERRIDE { return FLAGS_extendedTest; }
+    bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
 
 protected:
-    virtual void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
+    void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
         SkString desc;
         failure.getFailureString(&desc);
         SkDebugf("\nFAILED: %s", desc.c_str());
     }
 
-    virtual void onEnd(Test* test) SK_OVERRIDE {
+    void onEnd(Test* test) SK_OVERRIDE {
         const int done = 1 + sk_atomic_inc(&fDone);
 
         if (!test->passed()) {

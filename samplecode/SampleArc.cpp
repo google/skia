@@ -99,7 +99,7 @@ public:
         fRootDrawable = recorder.EXPERIMENTAL_endRecordingAsDrawable();
     }
 
-    virtual ~ArcsView() SK_OVERRIDE {
+    ~ArcsView() SK_OVERRIDE {
         fAnimatingDrawable->unref();
         fRootDrawable->unref();
     }

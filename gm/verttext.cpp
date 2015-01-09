@@ -49,7 +49,7 @@ public:
     //SkAutoTUnref<SkTypeface> fFace;
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
@@ -85,7 +85,7 @@ protected:
         canvas->drawCircle(x, y, SK_Scalar1 * 3 / 2, p);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(50);
 

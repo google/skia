@@ -30,7 +30,7 @@ public:
     bool extractLevel(SkScalar scale, Level*) const;
 
 protected:
-    virtual void onDataChange(void* oldData, void* newData) SK_OVERRIDE {
+    void onDataChange(void* oldData, void* newData) SK_OVERRIDE {
         fLevels = (Level*)newData; // could be NULL
     }
 

@@ -59,14 +59,14 @@ void sk_dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
 class SkRGB16_Blitter : public SkRasterBlitter {
 public:
     SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) SK_OVERRIDE;
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
     virtual void blitMask(const SkMask&,
                           const SkIRect&) SK_OVERRIDE;
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE;
+    const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE;
 
 protected:
     SkPMColor   fSrcColor32;
@@ -86,11 +86,11 @@ protected:
 class SkRGB16_Opaque_Blitter : public SkRGB16_Blitter {
 public:
     SkRGB16_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) SK_OVERRIDE;
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
     virtual void blitMask(const SkMask&,
                           const SkIRect&) SK_OVERRIDE;
 
@@ -102,7 +102,7 @@ private:
 class SkRGB16_Black_Blitter : public SkRGB16_Opaque_Blitter {
 public:
     SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
+    void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) SK_OVERRIDE;
 
@@ -116,10 +116,10 @@ public:
     SkRGB16_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
                            SkShader::Context* shaderContext);
     virtual ~SkRGB16_Shader_Blitter();
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
 
 protected:
     SkPMColor*      fBuffer;
@@ -138,10 +138,10 @@ class SkRGB16_Shader16_Blitter : public SkRGB16_Shader_Blitter {
 public:
     SkRGB16_Shader16_Blitter(const SkBitmap& device, const SkPaint& paint,
                              SkShader::Context* shaderContext);
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
 
 private:
     typedef SkRGB16_Shader_Blitter INHERITED;
@@ -152,7 +152,7 @@ public:
     SkRGB16_Shader_Xfermode_Blitter(const SkBitmap& device, const SkPaint& paint,
                                     SkShader::Context* shaderContext);
     virtual ~SkRGB16_Shader_Xfermode_Blitter();
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) SK_OVERRIDE;
 

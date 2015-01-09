@@ -79,11 +79,11 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("convex_poly_clip");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         // When benchmarking the saveLayer set of draws is skipped.
         int w = 435;
         if (kBench_Mode != this->getMode()) {
@@ -92,7 +92,7 @@ protected:
         return SkISize::Make(w, 540);
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkPath tri;
         tri.moveTo(5.f, 5.f);
         tri.lineTo(100.f, 20.f);
@@ -135,7 +135,7 @@ protected:
         fBmp = make_bmp(100, 100);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar y = 0;
         static const SkScalar kMargin = 10.f;
 

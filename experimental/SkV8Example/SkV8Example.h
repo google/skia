@@ -25,15 +25,15 @@ public:
     virtual ~SkV8ExampleWindow();
 
 protected:
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;
-    virtual void onSizeChange() SK_OVERRIDE;
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE;
+    void onSizeChange() SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual SkSurface* createSurface() SK_OVERRIDE;
+    SkSurface* createSurface() SK_OVERRIDE;
 #endif
 
 #ifdef SK_BUILD_FOR_WIN
-    virtual void onHandleInval(const SkIRect&) SK_OVERRIDE;
+    void onHandleInval(const SkIRect&) SK_OVERRIDE;
 #endif
 
     void windowSizeChanged();

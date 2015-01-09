@@ -25,7 +25,7 @@ public:
                                    const SkRect*);
     virtual ~SkPictureShader();
 
-    virtual size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureShader)
@@ -35,8 +35,8 @@ public:
 
 protected:
     SkPictureShader(SkReadBuffer&);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     SkPictureShader(const SkPicture*, TileMode, TileMode, const SkMatrix*, const SkRect*);
@@ -54,11 +54,11 @@ private:
 
         virtual ~PictureShaderContext();
 
-        virtual uint32_t getFlags() const SK_OVERRIDE;
+        uint32_t getFlags() const SK_OVERRIDE;
 
-        virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-        virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
+        ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
 
     private:
         PictureShaderContext(const SkPictureShader&, const ContextRec&, SkShader* bitmapShader);

@@ -31,11 +31,11 @@ protected:
         return SkISize::Make(520, 160);
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("drawlooper");
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         this->init();
 
         SkPaint  paint;

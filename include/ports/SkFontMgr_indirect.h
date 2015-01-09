@@ -30,11 +30,11 @@ public:
     { }
 
 protected:
-    virtual int onCountFamilies() const SK_OVERRIDE;
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
-    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE;
+    int onCountFamilies() const SK_OVERRIDE;
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
+    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE;
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontStyle) const SK_OVERRIDE;
@@ -48,9 +48,9 @@ protected:
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontStyle) const SK_OVERRIDE;
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
-    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) const SK_OVERRIDE;

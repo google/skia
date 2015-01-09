@@ -80,15 +80,15 @@ SkFontStyle::SkFontStyle(unsigned oldStyle) {
 
 class SkEmptyFontStyleSet : public SkFontStyleSet {
 public:
-    virtual int count() SK_OVERRIDE { return 0; }
-    virtual void getStyle(int, SkFontStyle*, SkString*) SK_OVERRIDE {
+    int count() SK_OVERRIDE { return 0; }
+    void getStyle(int, SkFontStyle*, SkString*) SK_OVERRIDE {
         SkDEBUGFAIL("SkFontStyleSet::getStyle called on empty set");
     }
-    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface* createTypeface(int index) SK_OVERRIDE {
         SkDEBUGFAIL("SkFontStyleSet::createTypeface called on empty set");
         return NULL;
     }
-    virtual SkTypeface* matchStyle(const SkFontStyle&) SK_OVERRIDE {
+    SkTypeface* matchStyle(const SkFontStyle&) SK_OVERRIDE {
         return NULL;
     }
 };
@@ -101,17 +101,17 @@ SkFontStyleSet* SkFontStyleSet::CreateEmpty() {
 
 class SkEmptyFontMgr : public SkFontMgr {
 protected:
-    virtual int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const SK_OVERRIDE {
         return 0;
     }
-    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         SkDEBUGFAIL("onGetFamilyName called with bad index");
     }
-    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         SkDEBUGFAIL("onCreateStyleSet called with bad index");
         return NULL;
     }
-    virtual SkFontStyleSet* onMatchFamily(const char[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char[]) const SK_OVERRIDE {
         return SkFontStyleSet::CreateEmpty();
     }
 
@@ -130,16 +130,16 @@ protected:
                                          const SkFontStyle&) const SK_OVERRIDE {
         return NULL;
     }
-    virtual SkTypeface* onCreateFromData(SkData*, int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData*, int) const SK_OVERRIDE {
         return NULL;
     }
-    virtual SkTypeface* onCreateFromStream(SkStream*, int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStream*, int) const SK_OVERRIDE {
         return NULL;
     }
-    virtual SkTypeface* onCreateFromFile(const char[], int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char[], int) const SK_OVERRIDE {
         return NULL;
     }
-    virtual SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const SK_OVERRIDE {
+    SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const SK_OVERRIDE {
         return NULL;
     }
 };

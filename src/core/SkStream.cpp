@@ -674,7 +674,7 @@ public:
         : fBlockMemory(SkRef(headRef)), fCurrent(fBlockMemory->fHead)
         , fSize(size) , fOffset(0), fCurrentOffset(0) { }
 
-    virtual size_t read(void* buffer, size_t rawCount) SK_OVERRIDE {
+    size_t read(void* buffer, size_t rawCount) SK_OVERRIDE {
         size_t count = rawCount;
         if (fOffset + count > fSize) {
             count = fSize - fOffset;
@@ -700,26 +700,26 @@ public:
         return 0;
     }
 
-    virtual bool isAtEnd() const SK_OVERRIDE {
+    bool isAtEnd() const SK_OVERRIDE {
         return fOffset == fSize;
     }
 
-    virtual bool rewind() SK_OVERRIDE {
+    bool rewind() SK_OVERRIDE {
         fCurrent = fBlockMemory->fHead;
         fOffset = 0;
         fCurrentOffset = 0;
         return true;
     }
 
-    virtual SkBlockMemoryStream* duplicate() const SK_OVERRIDE {
+    SkBlockMemoryStream* duplicate() const SK_OVERRIDE {
         return SkNEW_ARGS(SkBlockMemoryStream, (fBlockMemory.get(), fSize));
     }
 
-    virtual size_t getPosition() const SK_OVERRIDE {
+    size_t getPosition() const SK_OVERRIDE {
         return fOffset;
     }
 
-    virtual bool seek(size_t position) SK_OVERRIDE {
+    bool seek(size_t position) SK_OVERRIDE {
         // If possible, skip forward.
         if (position >= fOffset) {
             size_t skipAmount = position - fOffset;
@@ -736,11 +736,11 @@ public:
         return this->rewind() && this->skip(position) == position;
     }
 
-    virtual bool move(long offset) SK_OVERRIDE {
+    bool move(long offset) SK_OVERRIDE {
         return seek(fOffset + offset);
     }
 
-    virtual SkBlockMemoryStream* fork() const SK_OVERRIDE {
+    SkBlockMemoryStream* fork() const SK_OVERRIDE {
         SkAutoTUnref<SkBlockMemoryStream> that(this->duplicate());
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
@@ -748,11 +748,11 @@ public:
         return that.detach();
     }
 
-    virtual size_t getLength() const SK_OVERRIDE {
+    size_t getLength() const SK_OVERRIDE {
         return fSize;
     }
 
-    virtual const void* getMemoryBase() SK_OVERRIDE {
+    const void* getMemoryBase() SK_OVERRIDE {
         if (NULL == fBlockMemory->fHead->fNext) {
             return fBlockMemory->fHead->start();
         }

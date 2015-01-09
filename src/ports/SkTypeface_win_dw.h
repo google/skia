@@ -84,7 +84,7 @@ public:
     }
 
 protected:
-    virtual void weak_dispose() const SK_OVERRIDE {
+    void weak_dispose() const SK_OVERRIDE {
         if (fDWriteFontCollectionLoader.get()) {
             HRV(fFactory->UnregisterFontCollectionLoader(fDWriteFontCollectionLoader.get()));
         }
@@ -96,20 +96,20 @@ protected:
         INHERITED::weak_dispose();
     }
 
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
-    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
-    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
+    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
-    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const SK_OVERRIDE;
-    virtual int onCountGlyphs() const SK_OVERRIDE;
-    virtual int onGetUPEM() const SK_OVERRIDE;
-    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
-    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    int onCountGlyphs() const SK_OVERRIDE;
+    int onGetUPEM() const SK_OVERRIDE;
+    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
+    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
 

@@ -694,7 +694,7 @@ public:
     */
     class HeapAllocator : public Allocator {
     public:
-        virtual bool allocPixelRef(SkBitmap*, SkColorTable*) SK_OVERRIDE;
+        bool allocPixelRef(SkBitmap*, SkColorTable*) SK_OVERRIDE;
     };
 
     class RLEPixels {

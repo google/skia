@@ -34,7 +34,7 @@ public:
     SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
 
-    virtual size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const SK_OVERRIDE;
 
     class ComposeShaderContext : public SkShader::Context {
     public:
@@ -48,7 +48,7 @@ public:
 
         virtual ~ComposeShaderContext();
 
-        virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
 
     private:
         SkShader::Context* fShaderContextA;
@@ -62,15 +62,15 @@ public:
     SkShader* getShaderB() { return fShaderB; }
 #endif
 
-    virtual bool asACompose(ComposeRec* rec) const SK_OVERRIDE;
+    bool asACompose(ComposeRec* rec) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeShader)
 
 protected:
     SkComposeShader(SkReadBuffer& );
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    virtual Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
 
 private:
     SkShader*   fShaderA;

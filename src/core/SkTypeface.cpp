@@ -29,15 +29,15 @@ public:
 protected:
     SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
 
-    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE { return NULL; }
-    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE {
+    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE { return NULL; }
+    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE {
         return NULL;
     }
-    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE { }
+    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE { }
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE { return NULL; }
-    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE { }
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE { }
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const SK_OVERRIDE {
         if (glyphs && glyphCount > 0) {
@@ -45,20 +45,20 @@ protected:
         }
         return 0;
     }
-    virtual int onCountGlyphs() const SK_OVERRIDE { return 0; };
-    virtual int onGetUPEM() const SK_OVERRIDE { return 0; };
+    int onCountGlyphs() const SK_OVERRIDE { return 0; };
+    int onGetUPEM() const SK_OVERRIDE { return 0; };
     class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
     public:
-        virtual bool next(SkTypeface::LocalizedString*) SK_OVERRIDE { return false; }
+        bool next(SkTypeface::LocalizedString*) SK_OVERRIDE { return false; }
     };
-    virtual void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
         familyName->reset();
     }
-    virtual SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE {
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE {
         return SkNEW(EmptyLocalizedStrings);
     };
-    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE { return 0; }
-    virtual size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const SK_OVERRIDE {
+    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE { return 0; }
+    size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const SK_OVERRIDE {
         return 0;
     }
 };

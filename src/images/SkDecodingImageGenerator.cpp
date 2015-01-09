@@ -37,8 +37,8 @@ public:
                            bool ditherImage);
 
 protected:
-    virtual SkData* onRefEncodedData() SK_OVERRIDE;
-    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    SkData* onRefEncodedData() SK_OVERRIDE;
+    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = fInfo;
         return true;
     }

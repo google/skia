@@ -486,14 +486,14 @@ namespace skiagm {
         Layout           fLayout;
         const SkPicture* fPictures[kNumPictures];
 
-        virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        void onOnceBeforeDraw() SK_OVERRIDE {
             fPictures[0] = make_hex_plane_picture(SK_ColorWHITE);
             fPictures[1] = make_hex_plane_picture(SK_ColorGRAY);
             fPictures[2] = make_sierpinski_picture();
             fPictures[3] = make_single_layer_hex_plane_picture();
         }
 
-        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        void onDraw(SkCanvas* canvas) SK_OVERRIDE {
             SkMultiPictureDraw mpd;
             SkTArray<ComposeStep> composeSteps;
 
@@ -514,9 +514,9 @@ namespace skiagm {
             }
         }
 
-        virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(kPicWidth, kPicHeight); }
+        SkISize onISize() SK_OVERRIDE { return SkISize::Make(kPicWidth, kPicHeight); }
 
-        virtual SkString onShortName() SK_OVERRIDE {
+        SkString onShortName() SK_OVERRIDE {
             static const char* gContentNames[] = {
                 "noclip", "rectclip", "rrectclip", "pathclip", 
                 "invpathclip", "sierpinski", "biglayer"
@@ -534,7 +534,7 @@ namespace skiagm {
             return name;
         }
 
-        virtual uint32_t onGetFlags() const SK_OVERRIDE { return kAsBench_Flag | kSkipTiled_Flag; }
+        uint32_t onGetFlags() const SK_OVERRIDE { return kAsBench_Flag | kSkipTiled_Flag; }
 
     private:
         typedef GM INHERITED;

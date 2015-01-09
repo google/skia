@@ -19,8 +19,8 @@ class SkDisplayMath : public SkDisplayable {
     virtual void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* ) SK_OVERRIDE;
-    virtual const SkFunctionParamType* getFunctionsParameters() SK_OVERRIDE;
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    const SkFunctionParamType* getFunctionsParameters() SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
 private:
     mutable SkRandom fRandom;
     static const SkScalar gConstants[];

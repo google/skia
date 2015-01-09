@@ -68,7 +68,7 @@ public:
                                   SkShader::TileMode,
                                   const SkMatrix* localMatrix) const SK_OVERRIDE;
 
-    virtual bool isOpaque() const SK_OVERRIDE;
+    bool isOpaque() const SK_OVERRIDE;
 
     SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props)
         : INHERITED(bm.width(), bm.height(), props)

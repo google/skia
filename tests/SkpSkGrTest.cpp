@@ -146,7 +146,7 @@ public:
         fTestFun = testFun;
     }
 
-    virtual void run() SK_OVERRIDE {
+    void run() SK_OVERRIDE {
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }

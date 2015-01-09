@@ -43,7 +43,7 @@ public:
     void    copyToRect(SkIRect*) const;
     void    copyToRgn(SkRegion::RunType runs[]) const;
 
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
 
 #ifdef SK_DEBUG
     void dump() const {

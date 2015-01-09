@@ -14,21 +14,21 @@ public:
     // Called by Create.
     FrontBufferedStream(SkStream*, size_t bufferSize);
 
-    virtual size_t read(void* buffer, size_t size) SK_OVERRIDE;
+    size_t read(void* buffer, size_t size) SK_OVERRIDE;
 
-    virtual bool isAtEnd() const SK_OVERRIDE;
+    bool isAtEnd() const SK_OVERRIDE;
 
-    virtual bool rewind() SK_OVERRIDE;
+    bool rewind() SK_OVERRIDE;
 
-    virtual bool hasPosition() const SK_OVERRIDE { return true; }
+    bool hasPosition() const SK_OVERRIDE { return true; }
 
-    virtual size_t getPosition() const SK_OVERRIDE { return fOffset; }
+    size_t getPosition() const SK_OVERRIDE { return fOffset; }
 
-    virtual bool hasLength() const SK_OVERRIDE { return fHasLength; }
+    bool hasLength() const SK_OVERRIDE { return fHasLength; }
 
-    virtual size_t getLength() const SK_OVERRIDE { return fLength; }
+    size_t getLength() const SK_OVERRIDE { return fLength; }
 
-    virtual SkStreamRewindable* duplicate() const SK_OVERRIDE { return NULL; }
+    SkStreamRewindable* duplicate() const SK_OVERRIDE { return NULL; }
 
 private:
     SkAutoTUnref<SkStream>  fStream;

@@ -29,9 +29,9 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
+    const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkISize size = canvas->getDeviceSize();
         SkRandom random;
         for (int i = 0; i < loops; ++i) {
@@ -63,14 +63,14 @@ private:
 
 class XferCreateBench : public Benchmark {
 public:
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE { return "xfermode_create"; }
+    const char* onGetName() SK_OVERRIDE { return "xfermode_create"; }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int outer = 0; outer < loops * 10; ++outer) {
             for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
                 SkXfermode* xfer = SkXfermode::Create(SkXfermode::Mode(i));

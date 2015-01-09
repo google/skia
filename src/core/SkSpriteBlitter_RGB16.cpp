@@ -54,7 +54,7 @@ public:
         : SkSpriteBlitter(source) {}
 
     // overrides
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
         const uint16_t* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                              y - fTop);
@@ -281,7 +281,7 @@ public:
         fProc = SkBlitRow::Factory(flags, kRGB_565_SkColorType);
     }
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
         const SkPMColor* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                               y - fTop);

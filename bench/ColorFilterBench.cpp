@@ -68,11 +68,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_dim_bright_small" : "colorfilter_dim_bright_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -98,11 +98,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_bright_gray_small" : "colorfilter_bright_gray_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -125,11 +125,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_gray_bright_small" : "colorfilter_gray_bright_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -152,11 +152,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_blue_bright_small" : "colorfilter_blue_bright_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -179,11 +179,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_bright_blue_small" : "colorfilter_bright_blue_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -206,11 +206,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_bright_small" : "colorfilter_bright_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -232,11 +232,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_blue_small" : "colorfilter_blue_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -258,11 +258,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "colorfilter_gray_small" : "colorfilter_gray_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -284,11 +284,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "table_colorfilter_small" : "table_colorfilter_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -322,11 +322,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return isSmall() ? "luma_colorfilter_small" : "luma_colorfilter_large";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);

@@ -82,7 +82,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         SkString vertexMode;
         switch (fVertexMode) {
             case kNone_VertexMode:
@@ -107,7 +107,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         this->setCubics();
         this->setColors();
         this->setTexCoords();
@@ -123,7 +123,7 @@ protected:
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         canvas->scale(fScale.x(), fScale.y());
         for (int i = 0; i < loops; i++) {
             switch (fVertexMode) {
@@ -161,11 +161,11 @@ public:
     SquarePatchBench(SkPoint scale, VertexMode vertexMode)
     : INHERITED(scale, vertexMode) { }
 
-    virtual void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) SK_OVERRIDE {
         name->append("square");
     }
 
-    virtual void setCubics() SK_OVERRIDE {
+    void setCubics() SK_OVERRIDE {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
             {100,100},{150,100},{250,100}, {300,100},
@@ -187,11 +187,11 @@ public:
     LODDiffPatchBench(SkPoint scale, VertexMode vertexMode)
     : INHERITED(scale, vertexMode) { }
 
-    virtual void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) SK_OVERRIDE {
         name->append("LOD_Diff");
     }
 
-    virtual void setCubics() SK_OVERRIDE {
+    void setCubics() SK_OVERRIDE {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
             {100,175},{150,100},{250,100}, {300,0},
@@ -213,11 +213,11 @@ public:
     LoopPatchBench(SkPoint scale, VertexMode vertexMode)
     : INHERITED(scale, vertexMode) { }
 
-    virtual void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) SK_OVERRIDE {
         name->append("loop");
     }
 
-    virtual void setCubics() SK_OVERRIDE {
+    void setCubics() SK_OVERRIDE {
         const SkPoint points[SkPatchUtils::kNumCtrlPts] = {
             //top points
             {100,100},{300,200},{100,200}, {300,100},

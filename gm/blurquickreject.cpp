@@ -22,15 +22,15 @@ public:
     BlurQuickRejectGM() {}
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("blurquickreject");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(kWidth, kHeight);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         static const SkScalar kBlurRadius = SkIntToScalar(20);
         static const SkScalar kBoxSize = SkIntToScalar(100);
 

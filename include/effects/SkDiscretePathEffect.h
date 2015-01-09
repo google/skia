@@ -45,7 +45,7 @@ protected:
     SkDiscretePathEffect(SkScalar segLength,
                          SkScalar deviation,
                          uint32_t seedAssist);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar fSegLength, fPerterb;

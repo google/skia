@@ -20,7 +20,7 @@ public:
     virtual ~ShellWindow();
 
 protected:
-    virtual void onSizeChange() SK_OVERRIDE;
+    void onSizeChange() SK_OVERRIDE;
 
     virtual bool onDispatchClick(int x, int y, Click::State, void* owner,
                                  unsigned modi) SK_OVERRIDE;

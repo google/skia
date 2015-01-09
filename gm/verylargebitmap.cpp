@@ -59,15 +59,15 @@ public:
     VeryLargeBitmapGM() {}
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("verylargebitmap");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(500, 600);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         int veryBig = 65*1024; // 64K < size
         int big = 33*1024;     // 32K < size < 64K
         // smaller than many max texture sizes, but large enough to gpu-tile for memory reasons.

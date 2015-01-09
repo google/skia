@@ -15,7 +15,7 @@ class SkDash : public SkDrawPathEffect {
     DECLARE_MEMBER_INFO(Dash);
     SkDash();
     virtual ~SkDash();
-    virtual SkPathEffect* getPathEffect() SK_OVERRIDE;
+    SkPathEffect* getPathEffect() SK_OVERRIDE;
 private:
     SkTDScalarArray intervals;
     SkScalar phase;

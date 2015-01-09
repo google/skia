@@ -157,7 +157,7 @@ public:
 protected:
     SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1);
 
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;

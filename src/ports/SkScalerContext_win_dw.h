@@ -24,13 +24,13 @@ public:
     virtual ~SkScalerContext_DW();
 
 protected:
-    virtual unsigned generateGlyphCount() SK_OVERRIDE;
-    virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
-    virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
-    virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
-    virtual void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
+    unsigned generateGlyphCount() SK_OVERRIDE;
+    uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
+    void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
+    void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
+    void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
+    void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
+    void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
 
 private:
     const void* drawDWMask(const SkGlyph& glyph,

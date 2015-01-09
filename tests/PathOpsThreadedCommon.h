@@ -73,7 +73,7 @@ public:
         fTestFun = testFun;
     }
 
-    virtual void run() SK_OVERRIDE {
+    void run() SK_OVERRIDE {
         SkBitmap bitmap;
         fState.fBitmap = &bitmap;
         char pathStr[PATH_STR_SIZE];

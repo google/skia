@@ -54,7 +54,7 @@ public:
 
 protected:
     SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkColor     fOpColor;

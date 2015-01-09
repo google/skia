@@ -33,14 +33,14 @@ public:
     virtual ~GrGLPathRendering();
 
     // GrPathRendering implementations.
-    virtual GrPath* createPath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
+    GrPath* createPath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
     virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*,
                                          const SkStrokeRec&) SK_OVERRIDE;
     virtual GrPathRange* createGlyphs(const SkTypeface*,
                                       const SkDescriptor*,
                                       const SkStrokeRec&) SK_OVERRIDE;
-    virtual void stencilPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
-    virtual void drawPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    void stencilPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    void drawPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
     virtual void drawPaths(const GrPathRange*, const void* indices, PathIndexType,
                            const float transformValues[], PathTransformType, int count,
                            const GrStencilSettings&) SK_OVERRIDE;

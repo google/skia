@@ -515,7 +515,7 @@ public:
         fResources.unrefAll();
     }
 
-    virtual bool isValid() SK_OVERRIDE { return fResources.count() > 0; }
+    bool isValid() SK_OVERRIDE { return fResources.count() > 0; }
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
                       SkTSet<SkPDFObject*>* newResourceObjects) SK_OVERRIDE {
@@ -548,7 +548,7 @@ public:
         }
     }
 
-    virtual bool isValid() SK_OVERRIDE {
+    bool isValid() SK_OVERRIDE {
         return fColorShader.get() != NULL;
     }
 
@@ -578,7 +578,7 @@ public:
         fResources.unrefAll();
     }
 
-    virtual bool isValid() SK_OVERRIDE { return size() > 0; }
+    bool isValid() SK_OVERRIDE { return size() > 0; }
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
                       SkTSet<SkPDFObject*>* newResourceObjects) SK_OVERRIDE {

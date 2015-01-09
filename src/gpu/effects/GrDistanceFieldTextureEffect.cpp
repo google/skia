@@ -35,7 +35,7 @@ public:
 #endif
         {}
 
-    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldTextureEffect>();
         const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
@@ -321,7 +321,7 @@ public:
                                           const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
 
-    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
 
@@ -562,7 +562,7 @@ public:
     , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
-    virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
         const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();

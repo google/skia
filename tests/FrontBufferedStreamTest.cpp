@@ -172,19 +172,19 @@ public:
         , fHasPosition(hasPosition)
     {}
 
-    virtual bool hasLength() const SK_OVERRIDE {
+    bool hasLength() const SK_OVERRIDE {
         return fHasLength;
     }
 
-    virtual bool hasPosition() const SK_OVERRIDE {
+    bool hasPosition() const SK_OVERRIDE {
         return fHasPosition;
     }
 
-    virtual size_t read(void*, size_t) SK_OVERRIDE {
+    size_t read(void*, size_t) SK_OVERRIDE {
         return 0;
     }
 
-    virtual bool isAtEnd() const SK_OVERRIDE {
+    bool isAtEnd() const SK_OVERRIDE {
         return true;
     }
 
@@ -261,7 +261,7 @@ public:
     : fAtEnd(false)
     , fReadAfterEnd(false)
     {}
-    virtual size_t read(void* buffer, size_t size) SK_OVERRIDE {
+    size_t read(void* buffer, size_t size) SK_OVERRIDE {
         if (fAtEnd) {
             fReadAfterEnd = true;
         } else {
@@ -270,7 +270,7 @@ public:
         return 0;
     }
 
-    virtual bool isAtEnd() const SK_OVERRIDE {
+    bool isAtEnd() const SK_OVERRIDE {
         return fAtEnd;
     }
 

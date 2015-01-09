@@ -42,9 +42,9 @@ public:
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
     // override of GrRenderTarget
-    virtual GrBackendObject getRenderTargetHandle() const SK_OVERRIDE { return this->renderFBOID(); }
-    virtual GrBackendObject getRenderTargetResolvedHandle() const SK_OVERRIDE { return this->textureFBOID(); }
-    virtual ResolveType getResolveType() const SK_OVERRIDE {
+    GrBackendObject getRenderTargetHandle() const SK_OVERRIDE { return this->renderFBOID(); }
+    GrBackendObject getRenderTargetResolvedHandle() const SK_OVERRIDE { return this->textureFBOID(); }
+    ResolveType getResolveType() const SK_OVERRIDE {
         if (!this->isMultisampled() ||
             fRTFBOID == fTexFBOID) {
             // catches FBO 0 and non MSAA case
@@ -65,11 +65,11 @@ protected:
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 
-    virtual void onAbandon() SK_OVERRIDE;
-    virtual void onRelease() SK_OVERRIDE;
+    void onAbandon() SK_OVERRIDE;
+    void onRelease() SK_OVERRIDE;
 
     // In protected because subclass GrGLTextureRenderTarget calls this version.
-    virtual size_t onGpuMemorySize() const SK_OVERRIDE;
+    size_t onGpuMemorySize() const SK_OVERRIDE;
 
 private:
     GrGLuint      fRTFBOID;

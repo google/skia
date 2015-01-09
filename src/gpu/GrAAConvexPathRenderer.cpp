@@ -524,7 +524,7 @@ public:
 
     virtual ~QuadEdgeEffect() {}
 
-    virtual const char* name() const SK_OVERRIDE { return "QuadEdge"; }
+    const char* name() const SK_OVERRIDE { return "QuadEdge"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inQuadEdge() const { return fInQuadEdge; }
@@ -535,7 +535,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        virtual void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void emitCode(const EmitArgs& args) SK_OVERRIDE {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
@@ -622,7 +622,7 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -651,11 +651,11 @@ private:
         fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
     }
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
         return true;
     }
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
     }
 

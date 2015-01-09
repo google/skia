@@ -106,7 +106,7 @@ private:
 
 class HLine_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
-    virtual SkFixed drawCap(int x, SkFixed fy, SkFixed slope, int mod64) SK_OVERRIDE {
+    SkFixed drawCap(int x, SkFixed fy, SkFixed slope, int mod64) SK_OVERRIDE {
         fy += SK_Fixed1/2;
 
         int y = fy >> 16;
@@ -153,7 +153,7 @@ public:
 
 class Horish_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
-    virtual SkFixed drawCap(int x, SkFixed fy, SkFixed dy, int mod64) SK_OVERRIDE {
+    SkFixed drawCap(int x, SkFixed fy, SkFixed dy, int mod64) SK_OVERRIDE {
         int16_t runs[2];
         uint8_t  aa[1];
 
@@ -186,7 +186,7 @@ public:
         return fy - SK_Fixed1/2;
     }
 
-    virtual SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed dy) SK_OVERRIDE {
+    SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed dy) SK_OVERRIDE {
         SkASSERT(x < stopx);
 
         int16_t runs[2];
@@ -224,7 +224,7 @@ public:
 
 class VLine_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
-    virtual SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) SK_OVERRIDE {
+    SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) SK_OVERRIDE {
         SkASSERT(0 == dx);
         fx += SK_Fixed1/2;
 
@@ -243,7 +243,7 @@ public:
         return fx - SK_Fixed1/2;
     }
 
-    virtual SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) SK_OVERRIDE {
+    SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) SK_OVERRIDE {
         SkASSERT(y < stopy);
         SkASSERT(0 == dx);
         fx += SK_Fixed1/2;
@@ -265,7 +265,7 @@ public:
 
 class Vertish_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
-    virtual SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) SK_OVERRIDE {
+    SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) SK_OVERRIDE {
         int16_t runs[3];
         uint8_t  aa[2];
 
@@ -289,7 +289,7 @@ public:
         return fx - SK_Fixed1/2;
     }
 
-    virtual SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) SK_OVERRIDE {
+    SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) SK_OVERRIDE {
         SkASSERT(y < stopy);
         int16_t runs[3];
         uint8_t  aa[2];

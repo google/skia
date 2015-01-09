@@ -26,7 +26,7 @@ class SkCLImageDiffer : public SkImageDiffer {
 public:
     SkCLImageDiffer();
 
-    virtual bool requiresOpenCL() const SK_OVERRIDE { return true; }
+    bool requiresOpenCL() const SK_OVERRIDE { return true; }
 
     /**
      * Initializes the OpenCL resources this differ needs to work

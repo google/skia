@@ -31,7 +31,7 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         SkString name("varied_text");
         if (fEffectiveClip) {
             name.append("_clipped");
@@ -46,11 +46,11 @@ protected:
         return name;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         fPaint.setAntiAlias(true);
         fPaint.setLCDRenderText(fLCD);
 
@@ -111,7 +111,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         for (int i = 0; i < kCnt; ++i) {
             fPaint.setColor(fColors[i]);
             fPaint.setTextSize(fPtSizes[i]);
@@ -136,7 +136,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         // The aa hairline stroked rects used to visualize the clip draw slightly differently in
         // quilt mode in dm.
         return kAsBench_Flag | kSkipTiled_Flag;

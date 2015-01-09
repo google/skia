@@ -207,11 +207,11 @@ public:
     }
 
 protected:
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
+    const SkBitmap& onAccessBitmap() SK_OVERRIDE {
         return fLegacyBitmap;
     }
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
@@ -257,7 +257,7 @@ private:
                 const SkRegion& existingClipRegion);
 
     // override from SkBaseDevice
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     void init();
     void cleanUp(bool clearFontUsage);

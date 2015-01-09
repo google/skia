@@ -52,12 +52,12 @@ public:
     DeviceType getDeviceType() const { return fType; }
 
 protected:
-    virtual void draw(SkCanvas* canvas) SK_OVERRIDE;
+    void draw(SkCanvas* canvas) SK_OVERRIDE;
 
-    virtual void onSizeChange() SK_OVERRIDE;
+    void onSizeChange() SK_OVERRIDE;
 
 #ifdef SK_BUILD_FOR_WIN
-    virtual void onHandleInval(const SkIRect&) SK_OVERRIDE;
+    void onHandleInval(const SkIRect&) SK_OVERRIDE;
 #endif
 
     SkCanvas* createCanvas() SK_OVERRIDE;

@@ -12,13 +12,13 @@ public:
         fName.append(kScale ? "_255" : "_256");
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return backend == kNonRendering_Backend;
     }
 
-    virtual const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
+    const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         // A handful of random srcs and dsts.
         SkRandom rand;
         for (int i = 0; i < kInputs; i++) {
@@ -33,7 +33,7 @@ public:
         if (kScale) fScales[256] = 255;  // We'll just do 255 twice if we're limited to [0,255].
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         // We xor results of FourByteInterp into junk to make sure the function runs.
         volatile SkPMColor junk = 0;
 

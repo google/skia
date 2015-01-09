@@ -828,11 +828,11 @@ public:
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "XferEffect"; }
+    const char* name() const SK_OVERRIDE { return "XferEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     const GrTextureAccess&  backgroundAccess() const { return fBackgroundAccess; }
@@ -1235,12 +1235,12 @@ private:
             this->setWillReadDstColor();
         }
     }
-    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
         const XferEffect& s = other.cast<XferEffect>();
         return fMode == s.fMode;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
     }
 
@@ -1448,8 +1448,8 @@ public:
         return SkNEW_ARGS(SkClearXfermode, (rec));
     }
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
-    virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -1510,8 +1510,8 @@ public:
         return SkNEW_ARGS(SkSrcXfermode, (rec));
     }
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
-    virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -1576,7 +1576,7 @@ public:
         return SkNEW_ARGS(SkDstInXfermode, (rec));
     }
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -1620,7 +1620,7 @@ public:
         return SkNEW_ARGS(SkDstOutXfermode, (rec));
     }
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
 

@@ -39,7 +39,7 @@ protected:
                        const SkXfermode::Mode modes[],
                        const CropRect* cropRect,
                        uint32_t uniqueID);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;

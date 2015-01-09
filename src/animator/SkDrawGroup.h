@@ -19,25 +19,25 @@ public:
     DECLARE_MEMBER_INFO(Group);
     SkGroup();
     virtual ~SkGroup();
-    virtual bool addChild(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
-    virtual bool contains(SkDisplayable* ) SK_OVERRIDE;
+    bool addChild(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
+    bool contains(SkDisplayable* ) SK_OVERRIDE;
     SkGroup* copy();
     SkBool copySet(int index);
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    virtual bool doEvent(SkDisplayEvent::Kind , SkEventState* state ) SK_OVERRIDE;
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    bool doEvent(SkDisplayEvent::Kind , SkEventState* state ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
     virtual void dumpDrawables(SkAnimateMaker* );
-    virtual void dumpEvents() SK_OVERRIDE;
+    void dumpEvents() SK_OVERRIDE;
 #endif
     int findGroup(SkADrawable* drawable,  SkTDDrawableArray** list,
         SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList);
-    virtual bool enable(SkAnimateMaker& ) SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
     SkTDDrawableArray* getChildren() { return &fChildren; }
     SkGroup* getOriginal() { return fOriginal; }
-    virtual bool hasEnable() const SK_OVERRIDE;
-    virtual void initialize() SK_OVERRIDE;
+    bool hasEnable() const SK_OVERRIDE;
+    void initialize() SK_OVERRIDE;
     SkBool isACopy() { return fOriginal != NULL; }
     void markCopyClear(int index);
     void markCopySet(int index);
@@ -45,9 +45,9 @@ public:
     bool markedForDelete(int index) const { return (fCopies[index >> 5] & 1 << (index & 0x1f)) == 0; }
     void reset();
     bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* ) SK_OVERRIDE;
-    virtual void setSteps(int steps) SK_OVERRIDE;
+    void setSteps(int steps) SK_OVERRIDE;
 #ifdef SK_DEBUG
-    virtual void validate() SK_OVERRIDE;
+    void validate() SK_OVERRIDE;
 #endif
 protected:
     bool ifCondition(SkAnimateMaker& maker, SkADrawable* drawable,
@@ -64,7 +64,7 @@ private:
 
 class SkSave: public SkGroup {
     DECLARE_MEMBER_INFO(Save);
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 private:
     typedef SkGroup INHERITED;
 };

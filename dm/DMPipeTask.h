@@ -25,9 +25,9 @@ public:
              SkBitmap reference,        // Bitmap to compare pipe results to.
              Mode);
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE;
-    virtual SkString name() const SK_OVERRIDE { return fName; }
+    void draw() SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE;
+    SkString name() const SK_OVERRIDE { return fName; }
 
 private:
     const uint32_t fFlags;

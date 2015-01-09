@@ -23,7 +23,7 @@ public:
     }
 
 protected:
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkString filename = GetResourcePath("/Funkster.ttf");
         SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
         if (!stream->isValid()) {
@@ -34,15 +34,15 @@ protected:
         fTypeface = SkTypeface::CreateFromStream(stream);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kGPUOnly_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("dftext");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1024, 768);
     }
 

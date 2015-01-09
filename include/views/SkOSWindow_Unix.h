@@ -53,7 +53,7 @@ public:
 
 protected:
     // Overridden from from SkWindow:
-    virtual void onSetTitle(const char title[]) SK_OVERRIDE;
+    void onSetTitle(const char title[]) SK_OVERRIDE;
 
 private:
     enum NextXEventResult {

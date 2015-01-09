@@ -31,7 +31,7 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
@@ -42,7 +42,7 @@ protected:
 
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         for (int i = 0; i < 3; ++i) {
             SkPaint paint;
             paint.setColor(SK_ColorRED);

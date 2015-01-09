@@ -38,9 +38,9 @@ namespace sk_tools {
          *  Similar to TiledPictureRenderer, this will draw a PNG for each tile. However, the
          *  numbering (and actual tiles) will be different.
          */
-        virtual bool render(SkBitmap** out) SK_OVERRIDE;
+        bool render(SkBitmap** out) SK_OVERRIDE;
 
-        virtual bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
+        bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
 
     private:
         int fXTilesPerLargeTile;
@@ -49,7 +49,7 @@ namespace sk_tools {
         int fLargeTileWidth;
         int fLargeTileHeight;
 
-        virtual SkString getConfigNameInternal() SK_OVERRIDE;
+        SkString getConfigNameInternal() SK_OVERRIDE;
 
         typedef TiledPictureRenderer INHERITED;
     };

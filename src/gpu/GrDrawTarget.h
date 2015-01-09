@@ -837,7 +837,7 @@ public:
      * Release any resources that are cached but not currently in use. This
      * is intended to give an application some recourse when resources are low.
      */
-    virtual void purgeResources() SK_OVERRIDE {
+    void purgeResources() SK_OVERRIDE {
         // The clip mask manager can rebuild all its clip masks so just
         // get rid of them all.
         fClipMaskManager.purgeResources();

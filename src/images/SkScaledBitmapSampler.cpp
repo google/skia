@@ -834,7 +834,7 @@ class DummyDecoder : public SkImageDecoder {
 public:
     DummyDecoder() {}
 protected:
-    virtual Result onDecode(SkStream*, SkBitmap*, SkImageDecoder::Mode) SK_OVERRIDE {
+    Result onDecode(SkStream*, SkBitmap*, SkImageDecoder::Mode) SK_OVERRIDE {
         return kFailure;
     }
 };

@@ -71,9 +71,9 @@ public:
 
 protected:
     SkString onShortName() SK_OVERRIDE { return SkString("gradient_dirty_laundry"); }
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 615); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 615); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPoint pts[2] = { { 0, 0 },
                            { SkIntToScalar(100), SkIntToScalar(100) }
         };

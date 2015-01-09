@@ -54,7 +54,7 @@ public:
         SkSafeUnref(fTypeface);
     }
 protected:
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkString filename = GetResourcePath("/Funkster.ttf");
         SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
         if (!stream->isValid()) {
@@ -65,15 +65,15 @@ protected:
         fTypeface = SkTypeface::CreateFromStream(stream);
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("coloremoji");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(650, 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         canvas->drawColor(SK_ColorGRAY);
 

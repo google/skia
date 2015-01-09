@@ -49,13 +49,13 @@ public:
                           const SkStrokeRec&, const SkMatrix&,
                           const SkRect*) const SK_OVERRIDE;
 
-    virtual DashType asADash(DashInfo* info) const SK_OVERRIDE;
+    DashType asADash(DashInfo* info) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDashPathEffect)
 
 protected:
     SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar*   fIntervals;

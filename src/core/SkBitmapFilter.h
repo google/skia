@@ -79,7 +79,7 @@ class SkMitchellFilter: public SkBitmapFilter {
       : SkBitmapFilter(width), B(b), C(c) {
       }
 
-      virtual float evaluate(float x) const SK_OVERRIDE {
+      float evaluate(float x) const SK_OVERRIDE {
           x = fabsf(x);
           if (x > 2.f) {
               return 0;
@@ -102,7 +102,7 @@ class SkGaussianFilter: public SkBitmapFilter {
       : SkBitmapFilter(width), alpha(a), expWidth(expf(-alpha * width * width)) {
       }
 
-      virtual float evaluate(float x) const SK_OVERRIDE {
+      float evaluate(float x) const SK_OVERRIDE {
           return SkTMax(0.f, float(expf(-alpha*x*x) - expWidth));
       }
   protected:
@@ -115,7 +115,7 @@ class SkTriangleFilter: public SkBitmapFilter {
       : SkBitmapFilter(width) {
       }
 
-      virtual float evaluate(float x) const SK_OVERRIDE {
+      float evaluate(float x) const SK_OVERRIDE {
           return SkTMax(0.f, fWidth - fabsf(x));
       }
   protected:
@@ -127,7 +127,7 @@ class SkBoxFilter: public SkBitmapFilter {
       : SkBitmapFilter(width) {
       }
 
-      virtual float evaluate(float x) const SK_OVERRIDE {
+      float evaluate(float x) const SK_OVERRIDE {
           return (x >= -fWidth && x < fWidth) ? 1.0f : 0.0f;
       }
   protected:
@@ -138,7 +138,7 @@ public:
     SkHammingFilter(float width=1.f)
     : SkBitmapFilter(width) {
     }
-    virtual float evaluate(float x) const SK_OVERRIDE {
+    float evaluate(float x) const SK_OVERRIDE {
         if (x <= -fWidth || x >= fWidth) {
             return 0.0f;  // Outside of the window.
         }
@@ -158,7 +158,7 @@ class SkLanczosFilter: public SkBitmapFilter {
       : SkBitmapFilter(width) {
       }
 
-      virtual float evaluate(float x) const SK_OVERRIDE {
+      float evaluate(float x) const SK_OVERRIDE {
           if (x <= -fWidth || x >= fWidth) {
               return 0.0f;  // Outside of the window.
           }

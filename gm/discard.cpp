@@ -25,18 +25,18 @@ public:
     DiscardGM() {
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
+    uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("discard");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(100, 100);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrContext* context = canvas->getGrContext();
         if (NULL == context) {
             return;

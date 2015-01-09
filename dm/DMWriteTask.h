@@ -25,9 +25,9 @@ public:
               SkStreamAsset* data,     // Pre-encoded data to write to disk.
               const char* ext);        // File extension.
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE;
-    virtual SkString name() const SK_OVERRIDE;
+    void draw() SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE;
+    SkString name() const SK_OVERRIDE;
 
 private:
     SkTArray<SkString> fSuffixes;

@@ -68,13 +68,13 @@ public:
     // set all pixels to 0
     void clearAll();
 
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
+    GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
-    virtual SkImageInfo imageInfo() const SK_OVERRIDE {
+    SkImageInfo imageInfo() const SK_OVERRIDE {
         return fRenderTarget ? fRenderTarget->surfacePriv().info() : SkImageInfo::MakeUnknown();
     }
 
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
+    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRect(const SkDraw&, const SkRect& r,
@@ -112,14 +112,14 @@ public:
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
 
-    virtual void flush() SK_OVERRIDE;
+    void flush() SK_OVERRIDE;
 
-    virtual void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
-    virtual void onDetachFromCanvas() SK_OVERRIDE;
+    void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
+    void onDetachFromCanvas() SK_OVERRIDE;
 
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
+    const SkBitmap& onAccessBitmap() SK_OVERRIDE;
 
-    virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE;
+    bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE;
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
                              const SkImageFilter::Context&,
                              SkBitmap*, SkIPoint*) SK_OVERRIDE;
@@ -129,8 +129,8 @@ public:
                        SkBitmap* result, SkIPoint* offset);
 
 protected:
-    virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
-    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
+    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
     bool onShouldDisableLCD(const SkPaint&) const SK_OVERRIDE;
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
@@ -155,13 +155,13 @@ private:
 
     SkGpuDevice(GrSurface*, const SkSurfaceProps&, unsigned flags = 0);
 
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 
-    virtual SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
+    SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
 
-    virtual bool forceConservativeRasterClip() const SK_OVERRIDE { return true; }
+    bool forceConservativeRasterClip() const SK_OVERRIDE { return true; }
 
     // sets the render target and clip on context
     void prepareDraw(const SkDraw&);

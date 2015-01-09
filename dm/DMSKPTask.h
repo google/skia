@@ -16,9 +16,9 @@ class SKPTask : public CpuTask {
 public:
     SKPTask(Reporter*, TaskRunner*, const SkPicture*, SkString name);
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE { return false; }
-    virtual SkString name() const SK_OVERRIDE { return fName; }
+    void draw() SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE { return false; }
+    SkString name() const SK_OVERRIDE { return fName; }
 
 private:
     SkAutoTUnref<const SkPicture> fPicture;

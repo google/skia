@@ -60,11 +60,11 @@ public:
     bool convolveAlpha() const { return fConvolveAlpha; }
     const GrTextureDomain& domain() const { return fDomain; }
 
-    virtual const char* name() const SK_OVERRIDE { return "MatrixConvolution"; }
+    const char* name() const SK_OVERRIDE { return "MatrixConvolution"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrMatrixConvolutionEffect(GrTexture*,
@@ -77,9 +77,9 @@ private:
                               GrTextureDomain::Mode tileMode,
                               bool convolveAlpha);
 
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // TODO: Try to do better?
         inout->mulByUnknownFourComponents();
     }

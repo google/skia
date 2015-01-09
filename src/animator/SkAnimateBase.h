@@ -24,26 +24,26 @@ public:
     SkAnimateBase();
     virtual ~SkAnimateBase();
     virtual int components();
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    virtual void dirty() SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    void dirty() SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
 #endif
     int entries() { return fValues.count() / components(); }
     virtual bool hasExecute() const;
     bool isDynamic() const { return SkToBool(fDynamic); }
-    virtual SkDisplayable* getParent() const SK_OVERRIDE;
-    virtual bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    SkDisplayable* getParent() const SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
     SkMSec getStart() const { return fStart; }
     SkOperand* getValues() { return fValues.begin(); }
     SkDisplayTypes getValuesType() { return fValues.getType(); }
-    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
     void packARGB(SkScalar [], int count, SkTDOperandArray* );
     virtual void refresh(SkAnimateMaker& );
     void setChanged(bool changed) { fChanged = changed; }
     void setHasEndEvent() { fHasEndEvent = true; }
-    virtual bool setParent(SkDisplayable* ) SK_OVERRIDE;
-    virtual bool setProperty(int index, SkScriptValue& value) SK_OVERRIDE;
+    bool setParent(SkDisplayable* ) SK_OVERRIDE;
+    bool setProperty(int index, SkScriptValue& value) SK_OVERRIDE;
     void setTarget(SkAnimateMaker& );
     virtual bool targetNeedsInitialization() const;
 protected:

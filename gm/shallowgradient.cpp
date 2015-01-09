@@ -42,22 +42,22 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         if (fName.contains("linear") || fName.contains("radial")) {
             return kSkipTiled_Flag;
         }
         return 0;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(800, 800);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const SkColor colors[] = { 0xFF555555, 0xFF444444 };
         const int colorCount = SK_ARRAY_COUNT(colors);
 

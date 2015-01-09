@@ -122,7 +122,7 @@ public:
 private:
     GrResourceKey fKey;
 
-    virtual void onChange() SK_OVERRIDE {
+    void onChange() SK_OVERRIDE {
         const GrResourceInvalidatedMessage message = { fKey };
         SkMessageBus<GrResourceInvalidatedMessage>::Post(message);
     }

@@ -39,7 +39,7 @@ private:
 
     GrBitmapTextContext(GrContext*, const SkDeviceProperties&);
 
-    virtual bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) SK_OVERRIDE;
+    bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) SK_OVERRIDE;
 
     virtual void onDrawText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,

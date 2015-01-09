@@ -18,15 +18,15 @@ public:
     Xfermodes2GM() {}
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("xfermodes2");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(455, 475);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkScalar w = SkIntToScalar(kSize);
@@ -86,7 +86,7 @@ protected:
     }
 
 private:
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         static const uint32_t kCheckData[] = {
             SkPackARGB32(0xFF, 0x40, 0x40, 0x40),
             SkPackARGB32(0xFF, 0xD0, 0xD0, 0xD0),

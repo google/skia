@@ -27,17 +27,17 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("texdata");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(2*S, 2*S);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
+    uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
         if (ctx && target) {

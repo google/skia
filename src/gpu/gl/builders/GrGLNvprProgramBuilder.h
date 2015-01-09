@@ -25,7 +25,7 @@ public:
 
     typedef GrTAllocator<SeparableVaryingInfo> SeparableVaryingInfoArray;
 
-    virtual GrGLProgram* createProgram(GrGLuint programID) SK_OVERRIDE;
+    GrGLProgram* createProgram(GrGLuint programID) SK_OVERRIDE;
 
 private:
     virtual void emitTransforms(const GrPendingFragmentStage&,

@@ -217,14 +217,14 @@ public:
     }
     virtual ~GrSweepGradient() { }
 
-    virtual const char* name() const SK_OVERRIDE { return "Sweep Gradient"; }
+    const char* name() const SK_OVERRIDE { return "Sweep Gradient"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GrGLSweepGradient::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GrGLSweepGradient, (*this));
     }
 

@@ -51,7 +51,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "unpremul");
             return true;
@@ -77,14 +77,14 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkAutoTUnref<SkShader> shader(createChecker());
         paint.setShader(shader.get());
         canvas->drawPaint(paint);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(24));

@@ -26,9 +26,9 @@ public:
     virtual SkCanvas* onBeginPage(SkScalar width,
                                   SkScalar height,
                                   const SkRect& content) SK_OVERRIDE;
-    virtual void onEndPage() SK_OVERRIDE;
-    virtual bool onClose(SkWStream*) SK_OVERRIDE;
-    virtual void onAbort() SK_OVERRIDE;
+    void onEndPage() SK_OVERRIDE;
+    bool onClose(SkWStream*) SK_OVERRIDE;
+    void onAbort() SK_OVERRIDE;
 
 private:
     struct Page {

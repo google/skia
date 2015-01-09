@@ -27,22 +27,22 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return "colorcube";
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         if (!SkToBool(fCubeData)) {
             this->makeCubeData();
             this->make_bitmap();
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         this->test(loops, canvas);
     }
 
-    virtual SkIPoint onGetSize() SK_OVERRIDE {
+    SkIPoint onGetSize() SK_OVERRIDE {
         return SkIPoint::Make(fSize.width(), fSize.height());
     }
 

@@ -20,7 +20,7 @@ class SK_API SkEmptyShader : public SkShader {
 public:
     SkEmptyShader() {}
 
-    virtual size_t contextSize() const SK_OVERRIDE {
+    size_t contextSize() const SK_OVERRIDE {
         // Even though createContext returns NULL we have to return a value of at least
         // sizeof(SkShader::Context) to satisfy SkSmallAllocator.
         return sizeof(SkShader::Context);
@@ -30,7 +30,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
-    virtual SkShader::Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE {
+    SkShader::Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE {
         return NULL;
     }
 

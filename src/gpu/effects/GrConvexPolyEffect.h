@@ -61,7 +61,7 @@ public:
 
     virtual ~GrConvexPolyEffect();
 
-    virtual const char* name() const SK_OVERRIDE { return "ConvexPoly"; }
+    const char* name() const SK_OVERRIDE { return "ConvexPoly"; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
@@ -69,16 +69,16 @@ public:
 
     const SkScalar* getEdges() const { return fEdges; }
 
-    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[]);
 
-    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType    fEdgeType;
     int                    fEdgeCount;

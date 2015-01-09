@@ -35,14 +35,14 @@ class SkDrawMaskFilter : public SkPaintPart {
     DECLARE_EMPTY_MEMBER_INFO(MaskFilter);
     virtual SkMaskFilter* getMaskFilter();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
 };
 
 class SkDrawPathEffect : public SkPaintPart {
     DECLARE_EMPTY_MEMBER_INFO(PathEffect);
     virtual SkPathEffect* getPathEffect();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
 };
 
 class SkDrawShader : public SkPaintPart {
@@ -50,7 +50,7 @@ class SkDrawShader : public SkPaintPart {
     SkDrawShader();
     virtual SkShader* getShader();
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkMatrix* getMatrix(); // returns NULL if matrix is NULL
     SkDrawMatrix* matrix;
     int /*SkShader::TileMode*/ tileMode;
@@ -60,12 +60,12 @@ class SkDrawTypeface  : public SkPaintPart {
     DECLARE_DRAW_MEMBER_INFO(Typeface);
     SkDrawTypeface();
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker *) SK_OVERRIDE;
+    void dump(SkAnimateMaker *) SK_OVERRIDE;
 #endif
     SkTypeface* getTypeface() {
         return SkTypeface::CreateFromName(fontName.c_str(), style); }
 protected:
-    virtual bool add() SK_OVERRIDE;
+    bool add() SK_OVERRIDE;
     SkString fontName;
     SkTypeface::Style style;
 };

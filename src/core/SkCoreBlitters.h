@@ -41,9 +41,9 @@ public:
       *  Will create the context at the same location as the old one (this is safe
       *  because the shader itself is unchanged).
       */
-    virtual bool resetShaderContext(const SkShader::ContextRec&) SK_OVERRIDE;
+    bool resetShaderContext(const SkShader::ContextRec&) SK_OVERRIDE;
 
-    virtual SkShader::Context* getShaderContext() const SK_OVERRIDE { return fShaderContext; }
+    SkShader::Context* getShaderContext() const SK_OVERRIDE { return fShaderContext; }
 
 protected:
     uint32_t            fShaderFlags;
@@ -62,12 +62,12 @@ private:
 class SkA8_Coverage_Blitter : public SkRasterBlitter {
 public:
     SkA8_Coverage_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) SK_OVERRIDE;
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
-    virtual void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) SK_OVERRIDE;
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
+    const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE;
 };
 
 class SkA8_Blitter : public SkRasterBlitter {
@@ -161,11 +161,11 @@ public:
     SkARGB32_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
                             SkShader::Context* shaderContext);
     virtual ~SkARGB32_Shader_Blitter();
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
-    virtual void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) SK_OVERRIDE;
-    virtual void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
+    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) SK_OVERRIDE;
+    void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
 
 private:
     SkXfermode*         fXfermode;

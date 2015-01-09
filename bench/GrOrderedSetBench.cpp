@@ -21,25 +21,25 @@ public:
         fName.append("ordered_set_build");
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return kNonRendering_Backend == backend;
     }
 
     virtual ~GrOrderedSetBuildBench() {}
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         SkRandom rand;
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
             fData[j] = rand.nextU() % NUM_ELEMENTS;
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int i = 0; i < loops; ++i) {
             GrOrderedSet<int> set;
             for (int j = 0; j < NUM_ELEMENTS; ++j) {
@@ -62,18 +62,18 @@ public:
         fName.append("ordered_set_find");
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return kNonRendering_Backend == backend;
     }
 
     virtual ~GrOrderedSetFindBench() {}
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         SkRandom rand;
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
             fData[j] = rand.nextU() % 1500;
@@ -81,7 +81,7 @@ protected:
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < NUM_ELEMENTS; ++j) {
                 fSet.find(fData[j]);
@@ -103,25 +103,25 @@ public:
         fName.append("ordered_set_remove");
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return kNonRendering_Backend == backend;
     }
 
     virtual ~GrOrderedSetRemoveBench() {}
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         SkRandom rand;
         for (int j = 0; j < NUM_ELEMENTS; ++j) {
             fSet.insert(rand.nextU() % NUM_ELEMENTS);
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         typedef GrOrderedSet<int>::Iter SetIter;
         for (int i = 0; i < loops; ++i) {
             GrOrderedSet<int> testSet;

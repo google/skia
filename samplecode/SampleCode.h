@@ -60,7 +60,7 @@ typedef SkView* (*SkViewCreateFunc)();
 class SkFuncViewFactory : public SkViewFactory {
 public:
     SkFuncViewFactory(SkViewCreateFunc func);
-    virtual SkView* operator() () const SK_OVERRIDE;
+    SkView* operator() () const SK_OVERRIDE;
 
 private:
     SkViewCreateFunc fCreateFunc;
@@ -79,7 +79,7 @@ typedef skiagm::GM* (*GMFactoryFunc)(void*);
 class SkGMSampleViewFactory : public SkViewFactory {
 public:
     SkGMSampleViewFactory(GMFactoryFunc func);
-    virtual SkView* operator() () const SK_OVERRIDE;
+    SkView* operator() () const SK_OVERRIDE;
 private:
     GMFactoryFunc fFunc;
 };

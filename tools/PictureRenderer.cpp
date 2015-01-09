@@ -841,7 +841,7 @@ public:
     GatherRenderer(const GrContext::Options& opts) : INHERITED(opts) { }
 #endif
 
-    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE {
+    bool render(SkBitmap** out = NULL) SK_OVERRIDE {
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->cullRect().width()),
                                        SkIntToScalar(fPicture->cullRect().height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
@@ -851,7 +851,7 @@ public:
     }
 
 private:
-    virtual SkString getConfigNameInternal() SK_OVERRIDE {
+    SkString getConfigNameInternal() SK_OVERRIDE {
         return SkString("gather_pixelrefs");
     }
 

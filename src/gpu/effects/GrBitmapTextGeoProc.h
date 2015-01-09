@@ -30,7 +30,7 @@ public:
 
     virtual ~GrBitmapTextGeoProc() {}
 
-    virtual const char* name() const SK_OVERRIDE { return "Texture"; }
+    const char* name() const SK_OVERRIDE { return "Texture"; }
 
     const GrAttribute* inPosition() const { return fInPosition; }
     const GrAttribute* inColor() const { return fInColor; }
@@ -40,7 +40,7 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
@@ -51,9 +51,9 @@ private:
     GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params,
                         bool useColorAttrib, bool opaqueVertexColors, const SkMatrix& localMatrix);
 
-    virtual bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
 
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
     const GrAttribute* fInPosition;

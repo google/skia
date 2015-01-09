@@ -26,13 +26,13 @@ public:
     explicit SkNulCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap) {}
     virtual ~SkNulCanvas() {}
 
-    virtual void beginCommentGroup(const char* description) SK_OVERRIDE {}
-    virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE {}
-    virtual void endCommentGroup() SK_OVERRIDE {}
-    virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE {return NULL;}
+    void beginCommentGroup(const char* description) SK_OVERRIDE {}
+    void addComment(const char* kywd, const char* value) SK_OVERRIDE {}
+    void endCommentGroup() SK_OVERRIDE {}
+    SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE {return NULL;}
 
-    virtual bool isClipEmpty() const SK_OVERRIDE { return false; }
-    virtual bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
+    bool isClipEmpty() const SK_OVERRIDE { return false; }
+    bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
         if (NULL != bounds) {
             bounds->setXYWH(0, 0,
                             SkIntToScalar(this->imageInfo().width()),
@@ -40,7 +40,7 @@ public:
         }
         return true;
     }
-    virtual bool getClipDeviceBounds(SkIRect* bounds) const SK_OVERRIDE {
+    bool getClipDeviceBounds(SkIRect* bounds) const SK_OVERRIDE {
         if (NULL != bounds) {
             bounds->setLargest();
         }
@@ -68,12 +68,12 @@ protected:
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint) SK_OVERRIDE {}
 
-    virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
-    virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
-    virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
-    virtual void onClipRegion(const SkRegion&, SkRegion::Op)  SK_OVERRIDE {}
+    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
+    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
+    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
+    void onClipRegion(const SkRegion&, SkRegion::Op)  SK_OVERRIDE {}
 
-    virtual void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE {}
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE {}
 
     void onDrawPaint(const SkPaint& paint) SK_OVERRIDE {}
     void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],

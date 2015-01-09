@@ -15,8 +15,8 @@
 
 class SK_API SkMorphologyImageFilter : public SkImageFilter {
 public:
-    virtual void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
-    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
+    bool onFilterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst) const SK_OVERRIDE;
 
     /**
      * All morphology procs have the same signature: src is the source buffer, dst the
@@ -34,9 +34,9 @@ protected:
     bool filterImageGeneric(Proc procX, Proc procY,
                             Proxy*, const SkBitmap& src, const Context&,
                             SkBitmap* result, SkIPoint* offset) const;
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
+    bool canFilterImageGPU() const SK_OVERRIDE { return true; }
     bool filterImageGPUGeneric(bool dilate, Proxy* proxy, const SkBitmap& src,
                                const Context& ctm, SkBitmap* result,
                                SkIPoint* offset) const;

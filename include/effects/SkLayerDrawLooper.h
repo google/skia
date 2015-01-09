@@ -73,21 +73,21 @@ public:
         LayerInfo();
     };
 
-    virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
+    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
 
-    virtual size_t contextSize() const SK_OVERRIDE { return sizeof(LayerDrawLooperContext); }
+    size_t contextSize() const SK_OVERRIDE { return sizeof(LayerDrawLooperContext); }
 
-    virtual bool asABlurShadow(BlurShadowRec* rec) const SK_OVERRIDE;
+    bool asABlurShadow(BlurShadowRec* rec) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
 
-    virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; }
+    Factory getFactory() const SK_OVERRIDE { return CreateProc; }
     static SkFlattenable* CreateProc(SkReadBuffer& buffer);
 
 protected:
     SkLayerDrawLooper();
 
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     struct Rec {
@@ -105,7 +105,7 @@ private:
         explicit LayerDrawLooperContext(const SkLayerDrawLooper* looper);
 
     protected:
-        virtual bool next(SkCanvas*, SkPaint* paint) SK_OVERRIDE;
+        bool next(SkCanvas*, SkPaint* paint) SK_OVERRIDE;
 
     private:
         Rec* fCurrRec;

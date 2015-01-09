@@ -30,23 +30,23 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("texture_domain_effect");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         const SkScalar canvasWidth = kDrawPad +
                 (kTargetWidth + 2 * kDrawPad) * GrTextureDomain::kModeCount +
                 kTestPad * GrTextureDomain::kModeCount;
         return SkISize::Make(SkScalarCeilToInt(canvasWidth), 800);
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         // This is a GPU-specific GM.
         return kGPUOnly_Flag;
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         fBmp.allocN32Pixels(kTargetWidth, kTargetHeight);
         SkCanvas canvas(fBmp);
         canvas.clear(0x00000000);
@@ -73,7 +73,7 @@ protected:
                                          fBmp.width() + 10.f, fBmp.height() + 10.f), paint);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             return;

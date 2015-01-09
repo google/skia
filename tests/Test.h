@@ -178,10 +178,10 @@ namespace skiatest {
     public:                                                             \
         static Test* Factory(void*) { return SkNEW(name##Class); }      \
     protected:                                                          \
-        virtual void onGetName(SkString* name) SK_OVERRIDE {            \
+        void onGetName(SkString* name) SK_OVERRIDE {            \
             name->set(#name);                                           \
         }                                                               \
-        virtual void onRun(Reporter* r) SK_OVERRIDE { test_##name(r); } \
+        void onRun(Reporter* r) SK_OVERRIDE { test_##name(r); } \
     };                                                                  \
     static TestRegistry gReg_##name##Class(name##Class::Factory);       \
     }                                                                   \
@@ -194,10 +194,10 @@ namespace skiatest {
     public:                                                           \
         static Test* Factory(void*) { return SkNEW(name##Class); }    \
     protected:                                                        \
-        virtual void onGetName(SkString* name) SK_OVERRIDE {          \
+        void onGetName(SkString* name) SK_OVERRIDE {          \
             name->set(#name);                                         \
         }                                                             \
-        virtual void onRun(Reporter* r) SK_OVERRIDE {                 \
+        void onRun(Reporter* r) SK_OVERRIDE {                 \
             test_##name(r, fGrContextFactory);                        \
         }                                                             \
     };                                                                \

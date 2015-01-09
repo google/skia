@@ -27,7 +27,7 @@ protected:
 
 #ifdef SK_CPU_ARM64
     // Skip tiled drawing on 64-bit ARM until https://skbug.com/2908 is fixed.
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 #endif

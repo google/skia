@@ -24,7 +24,7 @@ public:
     GrGLConicEffect(const GrGeometryProcessor&,
                     const GrBatchTracker&);
 
-    virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
+    void emitCode(const EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -258,7 +258,7 @@ public:
     GrGLQuadEffect(const GrGeometryProcessor&,
                    const GrBatchTracker&);
 
-    virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
+    void emitCode(const EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -478,7 +478,7 @@ public:
     GrGLCubicEffect(const GrGeometryProcessor&,
                     const GrBatchTracker&);
 
-    virtual void emitCode(const EmitArgs&) SK_OVERRIDE;
+    void emitCode(const EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,

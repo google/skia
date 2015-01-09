@@ -24,11 +24,11 @@ public:
 
     virtual ~DitherEffect() {};
 
-    virtual const char* name() const SK_OVERRIDE { return "Dither"; }
+    const char* name() const SK_OVERRIDE { return "Dither"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     DitherEffect() {
@@ -37,9 +37,9 @@ private:
     }
 
     // All dither effects are equal
-    virtual bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
+    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

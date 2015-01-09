@@ -16,7 +16,7 @@ public:
     GetPosTextPathGM() {}
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
@@ -34,7 +34,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         // explicitly add spaces, to test a prev. bug
         const char* text = "Ham bur ge fons";
         int len = SkToInt(strlen(text));

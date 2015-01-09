@@ -104,14 +104,14 @@ public:
         SkSafeUnref(fInputStream);
     }
 
-    virtual Format getFormat() const SK_OVERRIDE {
+    Format getFormat() const SK_OVERRIDE {
         return kWEBP_Format;
     }
 
 protected:
-    virtual bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
-    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
-    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
+    bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
 
 private:
     /**
@@ -588,7 +588,7 @@ static int stream_writer(const uint8_t* data, size_t data_size,
 
 class SkWEBPImageEncoder : public SkImageEncoder {
 protected:
-    virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) SK_OVERRIDE;
+    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) SK_OVERRIDE;
 
 private:
     typedef SkImageEncoder INHERITED;

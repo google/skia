@@ -24,8 +24,8 @@ public:
 
 protected:
     // Overridden from SkEventSink:
-    virtual bool onEvent(const SkEvent&) SK_OVERRIDE;
-    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onEvent(const SkEvent&) SK_OVERRIDE;
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Overview");
             return true;
@@ -38,18 +38,18 @@ protected:
 
 
     // Overridden from SkView:
-    virtual void onSizeChange() SK_OVERRIDE;
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onSizeChange() SK_OVERRIDE;
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->drawColor(SK_ColorLTGRAY);
     }
 
-    virtual SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
+    SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
 
-    virtual bool onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    bool onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
         return false;
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
         int ix = (int)(SkScalarDiv(x * N, kWidth));
         int iy = (int)(SkScalarDiv(y * N, kHeight));
         if (ix >= 0 && iy >= 0) {

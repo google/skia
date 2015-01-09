@@ -70,7 +70,7 @@ protected:
         canvas->drawOval(oval, p);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) SK_OVERRIDE {
         return new Click(this);
     }
 

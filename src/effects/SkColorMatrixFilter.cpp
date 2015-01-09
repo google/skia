@@ -334,14 +334,14 @@ public:
         return SkNEW_ARGS(ColorMatrixEffect, (matrix));
     }
 
-    virtual const char* name() const SK_OVERRIDE { return "Color Matrix"; }
+    const char* name() const SK_OVERRIDE { return "Color Matrix"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
@@ -416,12 +416,12 @@ private:
         this->initClassID<ColorMatrixEffect>();
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor& s) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& s) const SK_OVERRIDE {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return cme.fMatrix == fMatrix;
     }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
         // We only bother to check whether the alpha channel will be constant. If SkColorMatrix had
         // type flags it might be worth checking the other components.
 

@@ -24,11 +24,11 @@ public:
         SkDescriptor::Free(fDesc);
     }
 
-    virtual int getNumPaths() SK_OVERRIDE {
+    int getNumPaths() SK_OVERRIDE {
         return fScalerContext->getGlyphCount();
     }
 
-    virtual void generatePath(int glyphID, SkPath* out) SK_OVERRIDE {
+    void generatePath(int glyphID, SkPath* out) SK_OVERRIDE {
         SkGlyph skGlyph;
         skGlyph.init(SkGlyph::MakeID(glyphID));
         fScalerContext->getMetrics(&skGlyph);
@@ -37,7 +37,7 @@ public:
         out->transform(fFlipMatrix); // Load glyphs with the inverted y-direction.
     }
 
-    virtual bool isEqualTo(const SkDescriptor& desc) const SK_OVERRIDE {
+    bool isEqualTo(const SkDescriptor& desc) const SK_OVERRIDE {
         return fDesc->equals(desc);
     }
 

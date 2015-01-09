@@ -85,7 +85,7 @@ public:
     virtual ~SkTCompressedAlphaBlitter() { this->flushRuns(); }
 
     // Blit a horizontal run of one or more pixels.
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE {
+    void blitH(int x, int y, int width) SK_OVERRIDE {
         // This function is intended to be called from any standard RGB
         // buffer, so we should never encounter it. However, if some code
         // path does end up here, then this needs to be investigated.
@@ -141,7 +141,7 @@ public:
     }
     
     // Blit a vertical run of pixels with a constant alpha value.
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
+    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         // This function is currently not implemented. It is not explicitly
         // required by the contract, but if at some time a code path runs into
         // this function (which is entirely possible), it needs to be implemented.
@@ -163,7 +163,7 @@ public:
 #ifdef SK_DEBUG
     bool fCalledOnceWithNonzeroY;
 #endif
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
 
         // Assumptions:
         SkASSERT(0 == x);
@@ -306,7 +306,7 @@ public:
 #ifdef SK_DEBUG
     bool fBlitMaskCalled;
 #endif
-    virtual void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
+    void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
 
         // Assumptions:
         SkASSERT(!fBlitMaskCalled);
@@ -368,7 +368,7 @@ public:
     // If the blitter just sets a single value for each pixel, return the
     // bitmap it draws into, and assign value. If not, return NULL and ignore
     // the value parameter.
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE {
+    const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE {
         return NULL;
     }
 
@@ -378,7 +378,7 @@ public:
      * to preserve semantics if blitAntiH doesn't get called in too many
      * weird ways...
      */
-    virtual int requestRowsPreserved() const SK_OVERRIDE { return BlockDim; }
+    int requestRowsPreserved() const SK_OVERRIDE { return BlockDim; }
 
 private:
     static const int kPixelsPerBlock = BlockDim * BlockDim;

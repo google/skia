@@ -138,7 +138,7 @@ inline void operator delete(void* p) {
     #define SK_TO_STRING_NONVIRT() void toString(SkString* str) const;
     #define SK_TO_STRING_VIRT() virtual void toString(SkString* str) const;
     #define SK_TO_STRING_PUREVIRT() virtual void toString(SkString* str) const = 0;
-    #define SK_TO_STRING_OVERRIDE() virtual void toString(SkString* str) const SK_OVERRIDE;
+    #define SK_TO_STRING_OVERRIDE() void toString(SkString* str) const SK_OVERRIDE;
 #endif
 
 template <bool>

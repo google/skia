@@ -32,19 +32,19 @@ public:
     DiscardableMemoryPool(size_t budget, SkBaseMutex* mutex = NULL);
     virtual ~DiscardableMemoryPool();
 
-    virtual SkDiscardableMemory* create(size_t bytes) SK_OVERRIDE;
+    SkDiscardableMemory* create(size_t bytes) SK_OVERRIDE;
 
-    virtual size_t getRAMUsed() SK_OVERRIDE;
-    virtual void setRAMBudget(size_t budget) SK_OVERRIDE;
-    virtual size_t getRAMBudget() SK_OVERRIDE { return fBudget; }
+    size_t getRAMUsed() SK_OVERRIDE;
+    void setRAMBudget(size_t budget) SK_OVERRIDE;
+    size_t getRAMBudget() SK_OVERRIDE { return fBudget; }
 
     /** purges all unlocked DMs */
-    virtual void dumpPool() SK_OVERRIDE;
+    void dumpPool() SK_OVERRIDE;
 
     #if SK_LAZY_CACHE_STATS  // Defined in SkDiscardableMemoryPool.h
-    virtual int getCacheHits() SK_OVERRIDE { return fCacheHits; }
-    virtual int getCacheMisses() SK_OVERRIDE { return fCacheMisses; }
-    virtual void resetCacheHitsAndMisses() SK_OVERRIDE {
+    int getCacheHits() SK_OVERRIDE { return fCacheHits; }
+    int getCacheMisses() SK_OVERRIDE { return fCacheMisses; }
+    void resetCacheHitsAndMisses() SK_OVERRIDE {
         fCacheHits = fCacheMisses = 0;
     }
     int          fCacheHits;
@@ -80,9 +80,9 @@ public:
     PoolDiscardableMemory(DiscardableMemoryPool* pool,
                             void* pointer, size_t bytes);
     virtual ~PoolDiscardableMemory();
-    virtual bool lock() SK_OVERRIDE;
-    virtual void* data() SK_OVERRIDE;
-    virtual void unlock() SK_OVERRIDE;
+    bool lock() SK_OVERRIDE;
+    void* data() SK_OVERRIDE;
+    void unlock() SK_OVERRIDE;
     friend class DiscardableMemoryPool;
 private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(PoolDiscardableMemory);

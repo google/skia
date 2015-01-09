@@ -88,7 +88,7 @@ class BitmapFilterScaleBench: public BitmapScaleBench {
         setName( "filter" );
     }
 protected:
-    virtual void doScaleImage() SK_OVERRIDE {
+    void doScaleImage() SK_OVERRIDE {
         SkCanvas canvas( fOutputBitmap );
         SkPaint paint;
 

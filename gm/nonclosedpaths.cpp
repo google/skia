@@ -32,16 +32,16 @@ public:
     };
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("nonclosedpaths");
     }
 
     // 12 * 18 + 3 cases, every case is 100 * 100 pixels.
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(1220, 1920);
     }
 
@@ -70,7 +70,7 @@ protected:
         canvas->translate(x, y);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40 and 50(>= geometry width/height, make the contour filled in fact)

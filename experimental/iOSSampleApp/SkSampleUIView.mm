@@ -40,7 +40,7 @@ public:
 #endif
     }
     
-    virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) SK_OVERRIDE {
+    void setUpBackend(SampleWindow* win, int msaaSampleCount) SK_OVERRIDE {
         SkASSERT(SkOSWindow::kNone_BackEndType == fBackend);
         
         fBackend = SkOSWindow::kNone_BackEndType;
@@ -105,7 +105,7 @@ public:
         this->windowSizeChanged(win);
     }
     
-    virtual void tearDownBackend(SampleWindow *win) SK_OVERRIDE {
+    void tearDownBackend(SampleWindow *win) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         fCurContext = NULL;
@@ -120,7 +120,7 @@ public:
         fBackend = SampleWindow::kNone_BackEndType;
     }
 
-    virtual SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) SK_OVERRIDE{
+    SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) SK_OVERRIDE{
 #if SK_SUPPORT_GPU
         if (SampleWindow::IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
@@ -141,7 +141,7 @@ public:
         win->present();
     }
     
-    virtual void windowSizeChanged(SampleWindow* win) SK_OVERRIDE {
+    void windowSizeChanged(SampleWindow* win) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         if (NULL != fCurContext) {
             SkOSWindow::AttachmentInfo info;
@@ -163,7 +163,7 @@ public:
 #endif
     }
     
-    virtual GrContext* getGrContext() SK_OVERRIDE {
+    GrContext* getGrContext() SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         return fCurContext;
 #else
@@ -171,7 +171,7 @@ public:
 #endif
     }
     
-    virtual GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
+    GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         return fCurRenderTarget;
 #else

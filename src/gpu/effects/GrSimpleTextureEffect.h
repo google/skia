@@ -47,11 +47,11 @@ public:
 
     virtual ~GrSimpleTextureEffect() {}
 
-    virtual const char* name() const SK_OVERRIDE { return "SimpleTexture"; }
+    const char* name() const SK_OVERRIDE { return "SimpleTexture"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
 
-    virtual GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
 
 private:
     GrSimpleTextureEffect(GrTexture* texture,
@@ -70,9 +70,9 @@ private:
         this->initClassID<GrSimpleTextureEffect>();
     }
 
-    virtual bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE { return true; }
+    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE { return true; }
 
-    virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

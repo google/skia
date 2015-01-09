@@ -47,14 +47,14 @@ public:
     // and rects.
     class SkPixelRefsAndRectsList : public SkPixelRefContainer {
     public:
-        virtual void add(SkPixelRef* pr, const SkRect& rect) SK_OVERRIDE {
+        void add(SkPixelRef* pr, const SkRect& rect) SK_OVERRIDE {
             PixelRefAndRect *dst = fArray.append();
 
             dst->fPixelRef = pr;
             dst->fRect = rect;
         }
 
-        virtual void query(const SkRect& queryRect, SkTDArray<SkPixelRef*> *result) SK_OVERRIDE {
+        void query(const SkRect& queryRect, SkTDArray<SkPixelRef*> *result) SK_OVERRIDE {
             for (int i = 0; i < fArray.count(); ++i) {
                 if (SkRect::Intersects(fArray[i].fRect, queryRect)) {
                     *result->append() = fArray[i].fPixelRef;

@@ -27,14 +27,14 @@ class SkDifferentPixelsMetric :
     public SkImageDiffer {
 #endif
 public:
-    virtual const char* getName() const SK_OVERRIDE;
+    const char* getName() const SK_OVERRIDE;
     virtual bool diff(SkBitmap* baseline, SkBitmap* test,
                       const BitmapsToCreate& bitmapsToCreate,
                       Result* result) const SK_OVERRIDE;
 
 protected:
 #if SK_SUPPORT_OPENCL
-    virtual bool onInit() SK_OVERRIDE;
+    bool onInit() SK_OVERRIDE;
 #endif
 
 private:

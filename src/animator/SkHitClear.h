@@ -16,8 +16,8 @@
 
 class SkHitClear : public SkDisplayable {
     DECLARE_MEMBER_INFO(HitClear);
-    virtual bool enable(SkAnimateMaker& ) SK_OVERRIDE;
-    virtual bool hasEnable() const SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
+    bool hasEnable() const SK_OVERRIDE;
 private:
     SkTDDisplayableArray targets;
 };

@@ -54,7 +54,7 @@ protected:
 
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(1800, 900); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         static const char kText[] = "SKIA";
         static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
         static const int kPointSize = 55;
@@ -199,7 +199,7 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         // disable 565 for now, til mike fixes the debug assert
         return kSkip565_Flag | kSkipTiled_Flag;
     }

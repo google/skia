@@ -27,21 +27,21 @@ public:
     Xfermodes3GM() {}
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("xfermodes3");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(630, 1215);
     }
 
-    virtual void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint bgPaint;
         bgPaint.setColor(0xFF70D0E0);
         canvas->drawPaint(bgPaint);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         SkPaint labelP;
@@ -184,7 +184,7 @@ private:
         canvas->restore();
     }
 
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         static const uint32_t kCheckData[] = {
             SkPackARGB32(0xFF, 0x40, 0x40, 0x40),
             SkPackARGB32(0xFF, 0xD0, 0xD0, 0xD0),

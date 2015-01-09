@@ -27,11 +27,11 @@ public:
             SkString name,
             RasterizePdfProc);
 
-    virtual void draw() SK_OVERRIDE;
+    void draw() SK_OVERRIDE;
 
-    virtual bool shouldSkip() const SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE;
 
-    virtual SkString name() const SK_OVERRIDE { return fName; }
+    SkString name() const SK_OVERRIDE { return fName; }
 
 private:
     // One of these two will be set.

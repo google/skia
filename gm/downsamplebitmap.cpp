@@ -40,15 +40,15 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
         return kSkipTiled_Flag;
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         return fName;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() SK_OVERRIDE {
         make_bitmap_wrapper();
         return SkISize::Make(fBM.width(), 4 * fBM.height());
     }
@@ -62,7 +62,7 @@ protected:
 
     virtual void make_bitmap() = 0;
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         make_bitmap_wrapper();
 
         int curY = 0;
@@ -103,7 +103,7 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
   protected:
       float fTextSize;
 
-      virtual void make_bitmap() SK_OVERRIDE {
+      void make_bitmap() SK_OVERRIDE {
           fBM.allocN32Pixels(int(fTextSize * 8), int(fTextSize * 6));
           SkCanvas canvas(fBM);
           canvas.drawColor(SK_ColorWHITE);
@@ -138,7 +138,7 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
       int fSize;
       int fNumChecks;
 
-      virtual void make_bitmap() SK_OVERRIDE {
+      void make_bitmap() SK_OVERRIDE {
           fBM.allocN32Pixels(fSize, fSize);
           for (int y = 0; y < fSize; ++y) {
               for (int x = 0; x < fSize; ++x) {
@@ -169,7 +169,7 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       SkString fFilename;
       int fSize;
 
-      virtual void make_bitmap() SK_OVERRIDE {
+      void make_bitmap() SK_OVERRIDE {
           SkImageDecoder* codec = NULL;
           SkString resourcePath = GetResourcePath(fFilename.c_str());
           SkFILEStream stream(resourcePath.c_str());

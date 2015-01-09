@@ -41,9 +41,9 @@ public:
     explicit SkRTree(SkScalar aspectRatio = 1);
     virtual ~SkRTree() {}
 
-    virtual void insert(SkAutoTMalloc<SkRect>* boundsArray, int N) SK_OVERRIDE;
-    virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
-    virtual size_t bytesUsed() const SK_OVERRIDE;
+    void insert(SkAutoTMalloc<SkRect>* boundsArray, int N) SK_OVERRIDE;
+    void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
+    size_t bytesUsed() const SK_OVERRIDE;
 
     // Methods and constants below here are only public for tests.
 

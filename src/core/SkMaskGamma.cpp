@@ -12,27 +12,27 @@
 #include "SkMaskGamma.h"
 
 class SkLinearColorSpaceLuminance : public SkColorSpaceLuminance {
-    virtual SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const SK_OVERRIDE {
+    SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const SK_OVERRIDE {
         SkASSERT(SK_Scalar1 == gamma);
         return luminance;
     }
-    virtual SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const SK_OVERRIDE {
+    SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const SK_OVERRIDE {
         SkASSERT(SK_Scalar1 == gamma);
         return luma;
     }
 };
 
 class SkGammaColorSpaceLuminance : public SkColorSpaceLuminance {
-    virtual SkScalar toLuma(SkScalar gamma, SkScalar luminance) const SK_OVERRIDE {
+    SkScalar toLuma(SkScalar gamma, SkScalar luminance) const SK_OVERRIDE {
         return SkScalarPow(luminance, gamma);
     }
-    virtual SkScalar fromLuma(SkScalar gamma, SkScalar luma) const SK_OVERRIDE {
+    SkScalar fromLuma(SkScalar gamma, SkScalar luma) const SK_OVERRIDE {
         return SkScalarPow(luma, SkScalarInvert(gamma));
     }
 };
 
 class SkSRGBColorSpaceLuminance : public SkColorSpaceLuminance {
-    virtual SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const SK_OVERRIDE {
+    SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const SK_OVERRIDE {
         SkASSERT(0 == gamma);
         //The magic numbers are derived from the sRGB specification.
         //See http://www.color.org/chardata/rgb/srgb.xalter .
@@ -42,7 +42,7 @@ class SkSRGBColorSpaceLuminance : public SkColorSpaceLuminance {
         return SkScalarPow((luminance + 0.055f) / 1.055f,
                         2.4f);
     }
-    virtual SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const SK_OVERRIDE {
+    SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const SK_OVERRIDE {
         SkASSERT(0 == gamma);
         //The magic numbers are derived from the sRGB specification.
         //See http://www.color.org/chardata/rgb/srgb.xalter .

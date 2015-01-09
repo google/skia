@@ -183,7 +183,7 @@ protected:
 
 class GrGLNvprProgram : public GrGLNvprProgramBase {
 public:
-    virtual bool hasVertexShader() const SK_OVERRIDE { return true; }
+    bool hasVertexShader() const SK_OVERRIDE { return true; }
 
 private:
     typedef GrGLNvprProgramBuilder::SeparableVaryingInfo SeparableVaryingInfo;
@@ -197,7 +197,7 @@ private:
                     GrGLInstalledXferProc* xferProcessor,
                     GrGLInstalledFragProcs* fragmentProcessors,
                     const SeparableVaryingInfoArray& separableVaryings);
-    virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
+    void didSetData(GrGpu::DrawType) SK_OVERRIDE;
     virtual void setTransformData(const GrPendingFragmentStage&,
                                   const SkMatrix& localMatrix,
                                   GrGLInstalledFragProc*) SK_OVERRIDE;
@@ -217,7 +217,7 @@ private:
 
 class GrGLLegacyNvprProgram : public GrGLNvprProgramBase {
 public:
-    virtual bool hasVertexShader() const SK_OVERRIDE { return false; }
+    bool hasVertexShader() const SK_OVERRIDE { return false; }
 
 private:
     GrGLLegacyNvprProgram(GrGLGpu* gpu,
@@ -229,7 +229,7 @@ private:
                           GrGLInstalledXferProc* xp,
                           GrGLInstalledFragProcs* fps,
                           int texCoordSetCnt);
-    virtual void didSetData(GrGpu::DrawType) SK_OVERRIDE;
+    void didSetData(GrGpu::DrawType) SK_OVERRIDE;
     virtual void setTransformData(const GrPendingFragmentStage&,
                                   const SkMatrix& localMatrix,
                                   GrGLInstalledFragProc*) SK_OVERRIDE;

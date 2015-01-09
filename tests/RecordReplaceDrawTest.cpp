@@ -26,7 +26,7 @@ class JustOneDraw : public SkPicture::AbortCallback {
 public:
     JustOneDraw() : fCalls(0) {}
 
-    virtual bool abort() SK_OVERRIDE { return fCalls++ > 0; }
+    bool abort() SK_OVERRIDE { return fCalls++ > 0; }
 private:
     int fCalls;
 };

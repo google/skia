@@ -27,7 +27,7 @@ public:
 
     // overrides from SkMaskFilter
     //  This method is not exported to java.
-    virtual SkMask::Format getFormat() const SK_OVERRIDE;
+    SkMask::Format getFormat() const SK_OVERRIDE;
     //  This method is not exported to java.
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const SK_OVERRIDE;
@@ -37,7 +37,7 @@ public:
 
 protected:
     SkEmbossMaskFilter(SkScalar blurSigma, const Light& light);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     Light       fLight;

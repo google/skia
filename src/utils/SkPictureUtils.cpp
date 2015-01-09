@@ -60,24 +60,24 @@ public:
         fPRSet = prset;
     }
 
-    virtual SkImageInfo imageInfo() const SK_OVERRIDE {
+    SkImageInfo imageInfo() const SK_OVERRIDE {
         return SkImageInfo::MakeUnknown(fSize.width(), fSize.height());
     }
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
+    GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
     // TODO: allow this call to return failure, or move to SkBitmapDevice only.
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
+    const SkBitmap& onAccessBitmap() SK_OVERRIDE {
         return fEmptyBitmap;
     }
-    virtual void lockPixels() SK_OVERRIDE { nothing_to_do(); }
-    virtual void unlockPixels() SK_OVERRIDE { nothing_to_do(); }
-    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
+    void lockPixels() SK_OVERRIDE { nothing_to_do(); }
+    void unlockPixels() SK_OVERRIDE { nothing_to_do(); }
+    bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
+    bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
         return false;
     }
 
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE {
+    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
@@ -149,15 +149,15 @@ public:
     }
 
 protected:
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {
+    void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {
         not_supported();
     }
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo& cinfo) SK_OVERRIDE {
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo& cinfo) SK_OVERRIDE {
         // we expect to only get called via savelayer, in which case it is fine.
         SkASSERT(kSaveLayer_Usage == cinfo.fUsage);
         return SkNEW_ARGS(GatherPixelRefDevice, (cinfo.fInfo.width(), cinfo.fInfo.height(), fPRSet));
     }
-    virtual void flush() SK_OVERRIDE {}
+    void flush() SK_OVERRIDE {}
 
 private:
     PixelRefSet*  fPRSet;

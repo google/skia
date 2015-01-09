@@ -34,7 +34,7 @@ public:
         fAlpha = alpha;
     }
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         SkASSERT(width > 0 && height > 0);
         uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const uint32_t* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
@@ -122,7 +122,7 @@ public:
     Sprite_D32_S32A_XferFilter(const SkBitmap& source, const SkPaint& paint)
         : Sprite_D32_XferFilter(source, paint) {}
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         SkASSERT(width > 0 && height > 0);
         uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const uint32_t* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
@@ -169,7 +169,7 @@ public:
     Sprite_D32_S4444_XferFilter(const SkBitmap& source, const SkPaint& paint)
         : Sprite_D32_XferFilter(source, paint) {}
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         SkASSERT(width > 0 && height > 0);
         SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
@@ -216,7 +216,7 @@ class Sprite_D32_S4444_Opaque : public SkSpriteBlitter {
 public:
     Sprite_D32_S4444_Opaque(const SkBitmap& source) : SkSpriteBlitter(source) {}
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         SkASSERT(width > 0 && height > 0);
         SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
@@ -245,7 +245,7 @@ class Sprite_D32_S4444 : public SkSpriteBlitter {
 public:
     Sprite_D32_S4444(const SkBitmap& source) : SkSpriteBlitter(source) {}
 
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
         SkASSERT(width > 0 && height > 0);
         SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,

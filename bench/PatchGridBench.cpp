@@ -163,7 +163,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         SkString vertexMode;
         switch (fVertexMode) {
             case kNone_VertexMode:
@@ -200,7 +200,7 @@ protected:
         return fName.c_str();
     }
     
-    virtual void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() SK_OVERRIDE {
         this->setGrid();
         switch (fVertexMode) {
             case kTexCoords_VertexMode:
@@ -214,7 +214,7 @@ protected:
         this->setupPaint(&fPaint);
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         this->setScale(canvas);
         for (int i = 0; i < loops; i++) {
             fGrid.draw(canvas, fPaint);

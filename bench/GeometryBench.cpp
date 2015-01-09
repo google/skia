@@ -16,11 +16,11 @@ public:
         fName.printf("geo_%s", suffix);
     }
 
-    virtual const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
 
-    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
         return kNonRendering_Backend == backend;
     }
 
@@ -65,7 +65,7 @@ public:
     GeoRectBench_intersect() : GeoRectBench("rect_intersect") {}
 
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int outer = 0; outer < loops; ++outer) {
             int count = 0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(fRects); ++i) {
@@ -82,7 +82,7 @@ public:
     GeoRectBench_intersect_rect() : GeoRectBench("rect_intersect_rect") {}
 
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int outer = 0; outer < loops; ++outer) {
             int count = 0;
             SkRect r;
@@ -99,7 +99,7 @@ public:
     GeoRectBench_Intersects() : GeoRectBench("rect_Intersects") {}
     
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int outer = 0; outer < loops; ++outer) {
             int count = 0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(fRects); ++i) {
@@ -115,7 +115,7 @@ public:
     GeoRectBench_sort() : GeoRectBench("rect_sort") {}
     
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         for (int outer = 0; outer < loops; ++outer) {
             for (size_t i = 0; i < SK_ARRAY_COUNT(fRects); ++i) {
                 fRects[i].sort();

@@ -229,16 +229,16 @@ public:
     }
 #endif
 
-    virtual Format getFormat() const SK_OVERRIDE {
+    Format getFormat() const SK_OVERRIDE {
         return kJPEG_Format;
     }
 
 protected:
 #ifdef SK_BUILD_FOR_ANDROID
-    virtual bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
-    virtual bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
+    bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
+    bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) SK_OVERRIDE;
 #endif
-    virtual Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
     virtual bool onDecodeYUV8Planes(SkStream* stream, SkISize componentSizes[3],
                                     void* planes[3], size_t rowBytes[3],
                                     SkYUVColorSpace* colorSpace) SK_OVERRIDE;

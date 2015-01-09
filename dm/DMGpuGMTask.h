@@ -25,9 +25,9 @@ public:
               int sampleCount,
               bool useDFText);
 
-    virtual void draw(GrContextFactory*) SK_OVERRIDE;
-    virtual bool shouldSkip() const SK_OVERRIDE;
-    virtual SkString name() const SK_OVERRIDE { return fName; }
+    void draw(GrContextFactory*) SK_OVERRIDE;
+    bool shouldSkip() const SK_OVERRIDE;
+    SkString name() const SK_OVERRIDE { return fName; }
 
 private:
     SkAutoTDelete<skiagm::GM> fGM;

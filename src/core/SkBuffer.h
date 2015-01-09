@@ -105,7 +105,7 @@ public:
         null and the number of bytes to read does not overflow this object's data,
         copy those bytes into buffer.
     */
-    virtual bool read(void* buffer, size_t size) SK_OVERRIDE;
+    bool read(void* buffer, size_t size) SK_OVERRIDE;
 
     /** Returns whether or not a read operation attempted to read past the end of the data.
     */

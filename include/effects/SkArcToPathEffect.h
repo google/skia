@@ -28,7 +28,7 @@ public:
 
 protected:
     explicit SkArcToPathEffect(SkScalar radius);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar fRadius;

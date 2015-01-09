@@ -60,20 +60,20 @@ protected:
 
     virtual SkScalerContext* onCreateScalerContext(
                                         const SkDescriptor*) const SK_OVERRIDE;
-    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
-    virtual int onGetUPEM() const SK_OVERRIDE;
+    int onGetUPEM() const SK_OVERRIDE;
     virtual bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                        int32_t adjustments[]) const SK_OVERRIDE;
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
                                 int glyphCount) const SK_OVERRIDE;
-    virtual int onCountGlyphs() const SK_OVERRIDE;
+    int onCountGlyphs() const SK_OVERRIDE;
 
-    virtual LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
+    LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
 
-    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
 

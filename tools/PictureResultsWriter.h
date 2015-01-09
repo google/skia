@@ -56,22 +56,22 @@ public:
         fWriters.push_back(newWriter);
     }
     virtual ~PictureResultsMultiWriter() {}
-    virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+    void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->bench(name, x, y);
         }
     }
-    virtual void logRenderer(sk_tools::PictureRenderer *pr) SK_OVERRIDE {
+    void logRenderer(sk_tools::PictureRenderer *pr) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->logRenderer(pr);
         }
     }
-    virtual void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
+    void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->tileMeta(x, y, tx, ty);
         }
     }
-    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
+    void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->addTileFlag(flag);
         }
@@ -87,7 +87,7 @@ public:
                                  numInnerLoops);
         }
     }
-   virtual void end() SK_OVERRIDE {
+   void end() SK_OVERRIDE {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->end();
         }
@@ -109,18 +109,18 @@ private:
 public:
     PictureResultsLoggerWriter(BenchLogger* log)
           : fLogger(log), fCurrentLine() {}
-    virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+    void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
         SkString result;
         result.printf("running bench [%i %i] %s ", x, y, name);
         this->logProgress(result.c_str());
     }
-    virtual void logRenderer(sk_tools::PictureRenderer* renderer) SK_OVERRIDE {
+    void logRenderer(sk_tools::PictureRenderer* renderer) SK_OVERRIDE {
         fCurrentLine = renderer->getConfigName();
     }
-    virtual void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
+    void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
         fCurrentLine.appendf(": tile [%i,%i] out of [%i,%i]", x, y, tx, ty);
     }
-    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
+    void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
         if(flag == PictureResultsWriter::kPurging) {
             fCurrentLine.append(" <withPurging>");
         } else if(flag == PictureResultsWriter::kAvg) {
@@ -138,7 +138,7 @@ public:
         results.append("\n");
         this->logProgress(results.c_str());
     }
-    virtual void end() SK_OVERRIDE {}
+    void end() SK_OVERRIDE {}
 private:
     BenchLogger* fLogger;
     SkString fCurrentLine;
@@ -189,17 +189,17 @@ public:
         fBuilderData = this->makeBuilderJson();
     }
 
-    virtual void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+    void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
         fBenchName = SkString(name);
     }
-    virtual void logRenderer(sk_tools::PictureRenderer* pr) SK_OVERRIDE {
+    void logRenderer(sk_tools::PictureRenderer* pr) SK_OVERRIDE {
         fParams = pr->getJSONConfig();
         fConfigString = pr->getConfigName();
     }
     // Apparently tiles aren't used, so tileMeta is empty
-    virtual void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {}
+    void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {}
     // Flags aren't used, so addTileFlag is empty
-    virtual void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {}
+    void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {}
     virtual void tileData(
             TimerData* data,
             const char format[],
@@ -241,7 +241,7 @@ public:
             fStream.writeText(Json::FastWriter().write(data).c_str());
         }
     }
-    virtual void end() SK_OVERRIDE {
+    void end() SK_OVERRIDE {
        fStream.flush();
     }
 private:

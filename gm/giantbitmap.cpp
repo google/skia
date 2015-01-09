@@ -71,7 +71,7 @@ public:
     }
 
 protected:
-    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+    uint32_t onGetFlags() const SK_OVERRIDE {
 #ifdef SK_BUILD_FOR_ANDROID
         return kSkipTiled_Flag;
 #else
@@ -82,7 +82,7 @@ protected:
 #endif
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() SK_OVERRIDE {
         SkString str("giantbitmap_");
         switch (fMode) {
             case SkShader::kClamp_TileMode:
@@ -102,9 +102,9 @@ protected:
         return str;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
 
         SkMatrix m;

@@ -254,7 +254,7 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
 
 class TestDrawFilter : public SkDrawFilter {
 public:
-    virtual bool filter(SkPaint*, Type) SK_OVERRIDE { return true; }
+    bool filter(SkPaint*, Type) SK_OVERRIDE { return true; }
 };
 
 DEF_TEST(CanvasState_test_draw_filters, reporter) {

@@ -27,7 +27,7 @@ public:
     FactoryGM() {}
 
 protected:
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() SK_OVERRIDE {
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
         SkString pngFilename = GetResourcePath("plane.png");
         SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));

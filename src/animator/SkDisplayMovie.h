@@ -21,21 +21,21 @@ class SkDisplayMovie : public SkADrawable {
     SkDisplayMovie();
     virtual ~SkDisplayMovie();
     void buildMovie();
-    virtual SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    virtual void dirty() SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    void dirty() SK_OVERRIDE;
     bool doEvent(const SkEvent& evt) {
         return fLoaded && fMovie.doEvent(evt);
     }
-    virtual bool doEvent(SkDisplayEvent::Kind , SkEventState* state ) SK_OVERRIDE;
-    virtual bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool doEvent(SkDisplayEvent::Kind , SkEventState* state ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
-    virtual void dump(SkAnimateMaker* ) SK_OVERRIDE;
-    virtual void dumpEvents() SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dumpEvents() SK_OVERRIDE;
 #endif
-    virtual bool enable(SkAnimateMaker& ) SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
     const SkAnimator* getAnimator() const { return &fMovie; }
-    virtual bool hasEnable() const SK_OVERRIDE;
-    virtual void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    bool hasEnable() const SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
 protected:
     SkString src;
     SkAnimator fMovie;

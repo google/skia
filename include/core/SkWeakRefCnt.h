@@ -147,7 +147,7 @@ private:
         on the object and releases the implicit weak reference held
         collectively by the strong references.
     */
-    virtual void internal_dispose() const SK_OVERRIDE {
+    void internal_dispose() const SK_OVERRIDE {
         weak_dispose();
         weak_unref();
     }

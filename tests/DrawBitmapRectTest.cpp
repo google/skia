@@ -24,7 +24,7 @@ public:
     virtual ~FailureImageGenerator() { }
 
 protected:
-    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = SkImageInfo::MakeN32Premul(100, 100);
         return true;
     }
