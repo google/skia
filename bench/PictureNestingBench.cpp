@@ -14,8 +14,6 @@
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 
-#include <math.h>
-
 class PictureNesting : public Benchmark {
 public:
     PictureNesting(const char* name, int maxLevel, int maxPictureLevel)
@@ -93,7 +91,13 @@ private:
         // f(0) = 0
         //   via "recursive function to closed form" tricks
         // f(m) = 1/2 (3^m - 1)
-        return static_cast<int>((pow(3.0, fMaxPictureLevel) - 1.0) / 2.0);
+        int pics = 1;
+        for (int i = 0; i < fMaxPictureLevel; i++) {
+            pics *= 3;
+        }
+        pics--;
+        pics /= 2;
+        return pics;
     }
 
     SkString fName;
