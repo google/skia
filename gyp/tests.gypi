@@ -207,7 +207,6 @@
     '../tests/TSetTest.cpp',
     '../tests/TextBlobTest.cpp',
     '../tests/TextureCompressionTest.cpp',
-    '../tests/TileGridTest.cpp',
     '../tests/ToUnicodeTest.cpp',
     '../tests/TracingTest.cpp',
     '../tests/TypefaceTest.cpp',

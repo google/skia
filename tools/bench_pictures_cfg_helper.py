@@ -105,8 +105,3 @@ def RecordGridConfig(tile_x, tile_y, **kwargs):
 
 def PlaybackCreationGridConfig(tile_x, tile_y, **kwargs):
   return GridConfig(tile_x, tile_y, mode='playbackCreation')
-
-
-def TileGridConfig(tile_x, tile_y, **kwargs):
-  return GridConfig(tile_x, tile_y,
-                    **dict(TileArgs(tile_x, tile_y).items() + kwargs.items()))

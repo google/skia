@@ -37,7 +37,6 @@ struct Measurement {
 const char* kBBoxHierarchyTypeNames[kBBoxTypeCount] = {
     "none", // kNone_BBoxHierarchyType
     "rtree", // kRTree_BBoxHierarchyType
-    "tilegrid", // kTileGrid_BBoxHierarchyType
 };
 
 static SkPicture* pic_from_path(const char path[]) {
@@ -65,7 +64,6 @@ static void do_benchmark_work(sk_tools::PictureRenderer* renderer,
                               const int numRepeats,
                               Timer* timer) {
     renderer->setBBoxHierarchyType(bBoxType);
-    renderer->setGridSize(FLAGS_tilesize, FLAGS_tilesize);
     renderer->init(pic, NULL, NULL, NULL, false, false);
 
     SkDebugf("%s %d times...\n", renderer->getConfigName().c_str(), numRepeats);

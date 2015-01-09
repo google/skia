@@ -57,9 +57,8 @@ public:
     enum BBoxHierarchyType {
         kNone_BBoxHierarchyType = 0,
         kRTree_BBoxHierarchyType,
-        kTileGrid_BBoxHierarchyType,
 
-        kLast_BBoxHierarchyType = kTileGrid_BBoxHierarchyType,
+        kLast_BBoxHierarchyType = kRTree_BBoxHierarchyType,
     };
 
     // this uses SkPaint::Flags as a base and adds additional flags
@@ -237,10 +236,6 @@ public:
 
     BBoxHierarchyType getBBoxHierarchyType() { return fBBoxHierarchyType; }
 
-    void setGridSize(int width, int height) {
-        fGridInfo.fTileInterval.set(width, height);
-    }
-
     void setJsonSummaryPtr(ImageResultsAndExpectations* jsonSummaryPtr) {
         fJsonSummaryPtr = jsonSummaryPtr;
     }
@@ -266,12 +261,6 @@ public:
         }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_rtree");
-        } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
-            config.append("_grid");
-            config.append("_");
-            config.appendS32(fGridInfo.fTileInterval.width());
-            config.append("x");
-            config.appendS32(fGridInfo.fTileInterval.height());
         }
 #if SK_SUPPORT_GPU
         switch (fDeviceType) {
@@ -316,12 +305,6 @@ public:
         }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             result["bbh"] = "rtree";
-        } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
-            SkString tmp("grid_");
-            tmp.appendS32(fGridInfo.fTileInterval.width());
-            tmp.append("x");
-            tmp.appendS32(fGridInfo.fTileInterval.height());
-            result["bbh"] = tmp.c_str();
         }
 #if SK_SUPPORT_GPU
         SkString tmp;
@@ -439,9 +422,6 @@ public:
         , fUseDFText(false)
 #endif
         {
-            fGridInfo.fMargin.setEmpty();
-            fGridInfo.fOffset.setZero();
-            fGridInfo.fTileInterval.set(1, 1);
             sk_bzero(fDrawFilters, sizeof(fDrawFilters));
             fViewport.set(0, 0);
         }
@@ -466,7 +446,6 @@ protected:
     SkString               fWritePath;
     SkString               fMismatchPath;
     SkString               fInputFilename;
-    SkTileGridFactory::TileGridInfo fGridInfo; // used when fBBoxHierarchyType is TileGrid
 
     void buildBBoxHierarchy();
 
@@ -696,7 +675,7 @@ private:
 
     void setupTiles();
     void setupPowerOf2Tiles();
-    bool postRender(SkCanvas*, const SkIRect& tileRect, 
+    bool postRender(SkCanvas*, const SkIRect& tileRect,
                     SkBitmap* tempBM, SkBitmap** out,
                     int tileNumber);
 

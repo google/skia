@@ -92,7 +92,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     bool isPowerOf2Mode = false;
     bool isCopyMode = false;
     const char* mode = NULL;
-    bool gridSupported = false;
 
 #if SK_SUPPORT_GPU
     GrContext::Options grContextOpts;
@@ -107,7 +106,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         mode = FLAGS_mode[0];
         if (0 == strcmp(mode, "record")) {
             renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
-            gridSupported = true;
         } else if (0 == strcmp(mode, "tile") || 0 == strcmp(mode, "pow2tile")
                    || 0 == strcmp(mode, "copyTile")) {
             useTiles = true;
@@ -116,8 +114,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
                 isPowerOf2Mode = true;
             } else if (0 == strcmp(mode, "copyTile")) {
                 isCopyMode = true;
-            } else {
-                gridSupported = true;
             }
 
             if (FLAGS_mode.count() < 2) {
@@ -134,7 +130,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
             heightString = FLAGS_mode[2];
         } else if (0 == strcmp(mode, "playbackCreation") && kBench_PictureTool == tool) {
             renderer.reset(SkNEW_ARGS(sk_tools::PlaybackCreationRenderer, RENDERER_ARGS));
-            gridSupported = true;
         // undocumented
         } else if (0 == strcmp(mode, "gatherPixelRefs") && kBench_PictureTool == tool) {
 #if SK_SUPPORT_GPU
@@ -147,8 +142,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         // Allow 'mode' to be set to 'simple', but do not create a renderer, so we can
         // ensure that pipe does not override a mode besides simple. The renderer will
         // be created below.
-        } else if (0 == strcmp(mode, "simple")) {
-            gridSupported = true;
         } else {
             error.printf("%s is not a valid mode for --mode\n", mode);
             return NULL;
@@ -354,20 +347,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
             bbhType = sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
         } else if (0 == strcmp(type, "rtree")) {
             bbhType = sk_tools::PictureRenderer::kRTree_BBoxHierarchyType;
-        } else if (0 == strcmp(type, "grid")) {
-            if (!gridSupported) {
-                error.printf("'--bbh grid' is not compatible with --mode=%s.\n", mode);
-                return NULL;
-            }
-            bbhType = sk_tools::PictureRenderer::kTileGrid_BBoxHierarchyType;
-            if (FLAGS_bbh.count() != 3) {
-                error.printf("--bbh grid requires a width and a height.\n");
-                return NULL;
-            }
-            int gridWidth = atoi(FLAGS_bbh[1]);
-            int gridHeight = atoi(FLAGS_bbh[2]);
-            renderer->setGridSize(gridWidth, gridHeight);
-
         } else {
             error.printf("%s is not a valid value for --bbhType\n", type);
             return NULL;

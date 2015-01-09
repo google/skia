@@ -228,7 +228,7 @@ void PictureRenderer::buildBBoxHierarchy() {
         if (fUseMultiPictureDraw) {
             flags |= SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag;
         }
-        SkCanvas* canvas = recorder.beginRecording(fPicture->cullRect().width(), 
+        SkCanvas* canvas = recorder.beginRecording(fPicture->cullRect().width(),
                                                    fPicture->cullRect().height(),
                                                    factory.get(),
                                                    flags);
@@ -376,7 +376,7 @@ public:
 bool RecordPictureRenderer::render(SkBitmap** out) {
     SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(this->getViewWidth()), 
+    SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(this->getViewWidth()),
                                                SkIntToScalar(this->getViewHeight()),
                                                factory.get(),
                                                this->recordFlags());
@@ -415,7 +415,7 @@ bool PipePictureRenderer::render(SkBitmap** out) {
     fCanvas->flush();
     if (out) {
         *out = SkNEW(SkBitmap);
-        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
+        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()),
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
     }
@@ -436,7 +436,7 @@ SkString PipePictureRenderer::getConfigNameInternal() {
 void SimplePictureRenderer::init(const SkPicture* picture, const SkString* writePath,
                                  const SkString* mismatchPath, const SkString* inputFilename,
                                  bool useChecksumBasedFilenames, bool useMultiPictureDraw) {
-    INHERITED::init(picture, writePath, mismatchPath, inputFilename, 
+    INHERITED::init(picture, writePath, mismatchPath, inputFilename,
                     useChecksumBasedFilenames, useMultiPictureDraw);
     this->buildBBoxHierarchy();
 }
@@ -460,7 +460,7 @@ bool SimplePictureRenderer::render(SkBitmap** out) {
     fCanvas->flush();
     if (out) {
         *out = SkNEW(SkBitmap);
-        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
+        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()),
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
     }
@@ -671,7 +671,7 @@ void TiledPictureRenderer::drawCurrentTile() {
     draw_tile_to_canvas(fCanvas, fTileRects[fCurrentTileOffset], fPicture);
 }
 
-bool TiledPictureRenderer::postRender(SkCanvas* canvas, const SkIRect& tileRect, 
+bool TiledPictureRenderer::postRender(SkCanvas* canvas, const SkIRect& tileRect,
                                       SkBitmap* tempBM, SkBitmap** out,
                                       int tileNumber) {
     bool success = true;
@@ -701,7 +701,7 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
     SkBitmap bitmap;
     if (out) {
         *out = SkNEW(SkBitmap);
-        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()), 
+        setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()),
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         setup_bitmap(&bitmap, fTileWidth, fTileHeight);
     }
@@ -801,7 +801,7 @@ SkString TiledPictureRenderer::getConfigNameInternal() {
 void PlaybackCreationRenderer::setup() {
     SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
     fRecorder.reset(SkNEW(SkPictureRecorder));
-    SkCanvas* canvas = fRecorder->beginRecording(SkIntToScalar(this->getViewWidth()), 
+    SkCanvas* canvas = fRecorder->beginRecording(SkIntToScalar(this->getViewWidth()),
                                                  SkIntToScalar(this->getViewHeight()),
                                                  factory.get(),
                                                  this->recordFlags());
@@ -828,8 +828,6 @@ SkBBHFactory* PictureRenderer::getFactory() {
             return NULL;
         case kRTree_BBoxHierarchyType:
             return SkNEW(SkRTreeFactory);
-        case kTileGrid_BBoxHierarchyType:
-            return SkNEW_ARGS(SkTileGridFactory, (fGridInfo));
     }
     SkASSERT(0); // invalid bbhType
     return NULL;

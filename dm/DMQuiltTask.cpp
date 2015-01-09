@@ -48,15 +48,6 @@ void QuiltTask::draw() {
         case kRTree_BBH:
             factory.reset(SkNEW(SkRTreeFactory));
             break;
-        case kTileGrid_BBH: {
-            const SkTileGridFactory::TileGridInfo tiles = {
-                { FLAGS_quiltTile, FLAGS_quiltTile },
-                /*overlap: */{0, 0},
-                /*offset:  */{0, 0},
-            };
-            factory.reset(SkNEW_ARGS(SkTileGridFactory, (tiles)));
-            break;
-        }
     }
 
     // A couple GMs draw wrong when using a bounding box hierarchy.

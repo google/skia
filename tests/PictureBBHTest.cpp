@@ -31,14 +31,6 @@ public:
         // No BBH
         this->run(NULL, reporter);
 
-        // With a Tile Grid
-        SkTileGridFactory::TileGridInfo gridInfo;
-        gridInfo.fMargin.setEmpty();
-        gridInfo.fOffset.setZero();
-        gridInfo.fTileInterval.set(1, 1);
-        SkTileGridFactory gridFactory(gridInfo);
-        this->run(&gridFactory, reporter);
-
         // With an R-Tree
         SkRTreeFactory RTreeFactory;
         this->run(&RTreeFactory, reporter);

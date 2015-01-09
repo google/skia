@@ -29,7 +29,8 @@ private:
     typedef SkBBHFactory INHERITED;
 };
 
-class SK_API SkTileGridFactory : public SkBBHFactory {
+// TODO(mtklein): delete entirely when Chromium's clean for TileGridInfo
+class SK_API SkTileGridFactory {
 public:
     struct TileGridInfo {
         /** Tile placement interval */
@@ -47,15 +48,6 @@ public:
           */
         SkIPoint fOffset;
     };
-
-    SkTileGridFactory(const TileGridInfo& info) : fInfo(info) { }
-
-    virtual SkBBoxHierarchy* operator()(const SkRect& bounds) const SK_OVERRIDE;
-
-private:
-    TileGridInfo fInfo;
-
-    typedef SkBBHFactory INHERITED;
 };
 
 #endif

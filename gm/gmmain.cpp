@@ -142,7 +142,6 @@ enum Backend {
 enum BbhType {
     kNone_BbhType,
     kRTree_BbhType,
-    kTileGrid_BbhType,
 };
 
 enum ConfigFlags {
@@ -1039,13 +1038,7 @@ public:
         SkScalar height = SkScalarMul(SkIntToScalar(gm->getISize().height()), scale);
 
         SkAutoTDelete<SkBBHFactory> factory;
-        if (kTileGrid_BbhType == bbhType) {
-            SkTileGridFactory::TileGridInfo info;
-            info.fMargin.setEmpty();
-            info.fOffset.setZero();
-            info.fTileInterval.set(16, 16);
-            factory.reset(SkNEW_ARGS(SkTileGridFactory, (info)));
-        } else if (kRTree_BbhType == bbhType) {
+        if (kRTree_BbhType == bbhType) {
             factory.reset(SkNEW(SkRTreeFactory));
         }
         SkPictureRecorder recorder;
@@ -1175,7 +1168,7 @@ public:
                                     const SkISize& size,
                                     GrSurface* gpuTarget) {
         if (config.fBackend == kRaster_Backend) {
-            SkImageInfo ii = SkImageInfo::Make(size.width(), size.height(), 
+            SkImageInfo ii = SkImageInfo::Make(size.width(), size.height(),
                                                config.fColorType, kPremul_SkAlphaType);
 
             return SkSurface::NewRaster(ii);
@@ -1725,41 +1718,6 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm,
         }
     }
 
-    if (FLAGS_tileGrid) {
-        for(int scaleIndex = 0; scaleIndex < tileGridReplayScales.count(); ++scaleIndex) {
-            SkScalar replayScale = tileGridReplayScales[scaleIndex];
-            SkString renderModeDescriptor("-tilegrid");
-            if (SK_Scalar1 != replayScale) {
-                renderModeDescriptor += "-scale-";
-                renderModeDescriptor.appendScalar(replayScale);
-            }
-
-            if ((gmFlags & GM::kSkipPicture_Flag) ||
-                (gmFlags & GM::kSkipTiled_Flag) ||
-                ((gmFlags & GM::kSkipScaledReplay_Flag) && replayScale != 1)) {
-                gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
-                                         renderModeDescriptor.c_str());
-                errorsForAllModes.add(kIntentionallySkipped_ErrorType);
-            } else {
-                // We record with the reciprocal scale to obtain a replay
-                // result that can be validated against comparisonBitmap.
-                SkScalar recordScale = SkScalarInvert(replayScale);
-                SkPicture* pict = gmmain.generate_new_picture(
-                    gm, kTileGrid_BbhType, 0, recordScale);
-                SkAutoTUnref<SkPicture> aur(pict);
-                SkBitmap bitmap;
-                // We cannot yet pass 'true' to generate_image_from_picture to
-                // perform actual tiled rendering (see Issue 1198 -
-                // https://code.google.com/p/skia/issues/detail?id=1198)
-                gmmain.generate_image_from_picture(gm, compareConfig, gpuTarget, pict, &bitmap,
-                                                   replayScale /*, true */);
-                errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
-                    gm->getName(), compareConfig.fName, renderModeDescriptor.c_str(), bitmap,
-                    &comparisonBitmap));
-            }
-        }
-    }
-
     // run the pipe centric GM steps
     if (FLAGS_pipe) {
         errorsForAllModes.add(gmmain.test_pipe_playback(gm, compareConfig, comparisonBitmap,
@@ -1909,7 +1867,7 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
                                          config.fBackend);
                 errorsForThisConfig.add(kIntentionallySkipped_ErrorType);
             } else if (!(gmFlags & GM::kGPUOnly_Flag)) {
-                errorsForThisConfig.add(gmmain.testMPDDrawing(gm, config, 
+                errorsForThisConfig.add(gmmain.testMPDDrawing(gm, config,
                                                               writePath, gpuTarget,
                                                               comparisonBitmap));
             }

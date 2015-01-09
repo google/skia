@@ -50,7 +50,6 @@ public:
     virtual void onTileSizeChanged(const SkSize &tileSize) SK_OVERRIDE {
         if (tileSize != fTileSize) {
             fTileSize = tileSize;
-            SkSafeSetNull(fPictures[kTileGrid_BBoxType]);
         }
     }
 
@@ -67,9 +66,6 @@ protected:
                 break;
             case kRTree_BBoxType:
                 name.append(" <bbox: R>");
-                break;
-            case kTileGrid_BBoxType:
-                name.append(" <bbox: T>");
                 break;
             default:
                 SkASSERT(false);
@@ -105,9 +101,8 @@ private:
     enum BBoxType {
         kNo_BBoxType,
         kRTree_BBoxType,
-        kTileGrid_BBoxType,
 
-        kLast_BBoxType = kTileGrid_BBoxType
+        kLast_BBoxType = kRTree_BBoxType,
     };
     static const int kBBoxTypeCount = kLast_BBoxType + 1;
 
@@ -123,8 +118,8 @@ private:
         if (SkImageDecoder::DecodeFile(path, &bm)) {
             bm.setImmutable();
             SkPictureRecorder recorder;
-            SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()), 
-                                                    SkIntToScalar(bm.height()), 
+            SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()),
+                                                    SkIntToScalar(bm.height()),
                                                     NULL, 0);
             can->drawBitmap(bm, 0, 0, NULL);
             pic.reset(recorder.endRecording());
@@ -139,7 +134,7 @@ private:
             if (false) { // re-record
                 SkPictureRecorder recorder;
                 pic->playback(recorder.beginRecording(pic->cullRect().width(),
-                                                      pic->cullRect().height(), 
+                                                      pic->cullRect().height(),
                                                       NULL, 0));
                 SkAutoTUnref<SkPicture> p2(recorder.endRecording());
 
@@ -162,22 +157,13 @@ private:
         case kRTree_BBoxType:
             factory.reset(SkNEW(SkRTreeFactory));
             break;
-        case kTileGrid_BBoxType: {
-            SkASSERT(!fTileSize.isEmpty());
-            SkTileGridFactory::TileGridInfo gridInfo;
-            gridInfo.fMargin = SkISize::Make(0, 0);
-            gridInfo.fOffset = SkIPoint::Make(0, 0);
-            gridInfo.fTileInterval = fTileSize.toRound();
-            factory.reset(SkNEW_ARGS(SkTileGridFactory, (gridInfo)));
-            break;
-        }
         default:
             SkASSERT(false);
         }
 
         SkPictureRecorder recorder;
         pic->playback(recorder.beginRecording(pic->cullRect().width(),
-                                              pic->cullRect().height(), 
+                                              pic->cullRect().height(),
                                               factory.get(), 0));
         return recorder.endRecording();
     }

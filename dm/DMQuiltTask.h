@@ -16,7 +16,6 @@ public:
     enum BBH {
         kNone_BBH,
         kRTree_BBH,
-        kTileGrid_BBH,
     };
 
     QuiltTask(const Task& parent,  // QuiltTask must be a child task.  Pass its parent here.

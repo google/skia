@@ -36,7 +36,6 @@ void CpuGMTask::draw() {
 
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kNone_BBH);
     SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kRTree_BBH);
-    SPAWN(QuiltTask, fGMFactory(NULL), bm, QuiltTask::kTileGrid_BBH);
 
     SPAWN(SerializeTask, fGMFactory(NULL), bm);
 
