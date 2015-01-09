@@ -10,7 +10,6 @@
 
 /** Posix pthread_mutex based mutex. */
 
-#include "SkTypes.h"
 #include <errno.h>
 #include <pthread.h>
 
