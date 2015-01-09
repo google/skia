@@ -10,83 +10,79 @@
 
 /** Posix pthread_mutex based mutex. */
 
+#include "SkTypes.h"
 #include <errno.h>
 #include <pthread.h>
+
+// We use error-checking mutexes in Debug builds or normal fast mutexes in Release builds.
+// Debug builds get these checks for free:
+//   - a double acquire() from the same thread fails immediately instead of deadlocking;
+//   - release() checks that the mutex is being unlocked by its owner thread.
+// I don't see a built-in way to implement assertHeld(), so we track that with an fOwner field.
 
 // This isn't technically portable, but on Linux and Android pthread_t is some sort of int, and
 // on Darwin it's a pointer.  So assuming pthread_self() never returns 0, it works as a sentinel.
 SkDEBUGCODE(static const pthread_t kNoOwner = 0;)
 
-// A SkBaseMutex is a POD structure that can be directly initialized
-// at declaration time with SK_DECLARE_STATIC/GLOBAL_MUTEX. This avoids the
-// generation of a static initializer in the final machine code (and
-// a corresponding static finalizer).
+// An SkBaseMutex is a POD structure that can be directly initialized at declaration time with
+// SK_DECLARE_STATIC_MUTEX. This avoids the generation of a static initializer in the final
+// machine code (and a corresponding static finalizer).
 struct SkBaseMutex {
     void acquire() {
-        SkASSERT(0 == pthread_equal(fOwner, pthread_self()));  // SkMutex is not re-entrant
-        pthread_mutex_lock(&fMutex);
+        SkDEBUGCODE(int rc = ) pthread_mutex_lock(&fMutex);
+        SkASSERT(0 == rc);
         SkDEBUGCODE(fOwner = pthread_self();)
     }
     void release() {
-        this->assertHeld();
+        this->assertHeld();  // Usually redundant, but not for static mutexes on Macs (see below).
         SkDEBUGCODE(fOwner = kNoOwner;)
-        pthread_mutex_unlock(&fMutex);
+        SkDEBUGCODE(int rc = ) pthread_mutex_unlock(&fMutex);
+        SkASSERT(0 == rc);
     }
     void assertHeld() {
         SkASSERT(0 != pthread_equal(fOwner, pthread_self()));
     }
 
     pthread_mutex_t fMutex;
-    SkDEBUGCODE(pthread_t fOwner;)
+    SkDEBUGCODE(pthread_t fOwner;)  // Read and write only when holding fMutex.
 };
 
-// A normal mutex that requires to be initialized through normal C++ construction,
+// A normal mutex that's required to be initialized through normal C++ construction,
 // i.e. when it's a member of another class, or allocated on the heap.
 class SkMutex : public SkBaseMutex {
 public:
     SkMutex() {
-        SkDEBUGCODE(int status = )pthread_mutex_init(&fMutex, NULL);
-        SkDEBUGCODE(
-            if (status != 0) {
-                print_pthread_error(status);
-                SkASSERT(0 == status);
-            }
-            fOwner = kNoOwner;
-        )
+#ifdef SK_DEBUG
+        pthread_mutexattr_t attr;
+        SkASSERT(0 == pthread_mutexattr_init(&attr));
+        SkASSERT(0 == pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK));
+        SkASSERT(0 == pthread_mutex_init(&fMutex, &attr));
+        SkASSERT(0 == pthread_mutexattr_destroy(&attr));
+        fOwner = kNoOwner;
+#else
+        (void)pthread_mutex_init(&fMutex, NULL);
+#endif
     }
 
     ~SkMutex() {
-        SkDEBUGCODE(int status = )pthread_mutex_destroy(&fMutex);
-        SkDEBUGCODE(
-            if (status != 0) {
-                print_pthread_error(status);
-                SkASSERT(0 == status);
-            }
-        )
+        SkDEBUGCODE(int rc = )pthread_mutex_destroy(&fMutex);
+        SkASSERT(0 == rc);
     }
 
 private:
     SkMutex(const SkMutex&);
     SkMutex& operator=(const SkMutex&);
-
-    static void print_pthread_error(int status) {
-        switch (status) {
-        case 0: // success
-            break;
-        case EINVAL:
-            SkDebugf("pthread error [%d] EINVAL\n", status);
-            break;
-        case EBUSY:
-            SkDebugf("pthread error [%d] EBUSY\n", status);
-            break;
-        default:
-            SkDebugf("pthread error [%d] unknown\n", status);
-            break;
-        }
-    }
 };
 
-#define SK_BASE_MUTEX_INIT { PTHREAD_MUTEX_INITIALIZER, SkDEBUGCODE(0) }
+#if defined(SK_DEBUG) && defined(PTHREAD_ERRORCHECK_MUTEX_INITIALIZER)
+    // When possible we want to use error-check mutexes in Debug builds.  See the note at the top.
+    #define SK_BASE_MUTEX_INIT { PTHREAD_ERRORCHECK_MUTEX_INITIALIZER, kNoOwner }
+#elif defined(SK_DEBUG)
+    // Macs don't support PTHREAD_ERRORCHECK_MUTEX_INITIALIZER when targeting <10.7. We target 10.6.
+    #define SK_BASE_MUTEX_INIT { PTHREAD_MUTEX_INITIALIZER, kNoOwner }
+#else
+    #define SK_BASE_MUTEX_INIT { PTHREAD_MUTEX_INITIALIZER }
+#endif
 
 // Using POD-style initialization prevents the generation of a static initializer.
 //
