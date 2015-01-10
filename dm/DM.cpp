@@ -21,6 +21,7 @@
 #include "DMImageTask.h"
 #include "DMJsonWriter.h"
 #include "DMPDFTask.h"
+#include "DMPDFRasterizeTask.h"
 #include "DMReporter.h"
 #include "DMSKPTask.h"
 #include "DMTask.h"
@@ -52,8 +53,14 @@ DEFINE_bool(tests, true, "Run tests?");
 DEFINE_bool(reportUsedChars, false, "Output test font construction data to be pasted into"
                                     " create_test_font.cpp.");
 DEFINE_string(images, "resources", "Path to directory containing images to decode.");
+DEFINE_bool(rasterPDF, true, "Rasterize PDFs?");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
+
+static DM::RasterizePdfProc get_pdf_rasterizer_proc() {
+    return reinterpret_cast<DM::RasterizePdfProc>(
+            FLAGS_rasterPDF ? RASTERIZE_PDF_PROC : NULL);
+}
 
 // "FooBar" -> "foobar".  Obviously, ASCII only.
 static SkString lowercase(SkString s) {
@@ -102,7 +109,7 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
 #if SK_MESA
             START("mesa",       GpuGMTask, mesa,   gpuAPI, 0,  false);
 #endif
-            START("pdf",        PDFTask,   RASTERIZE_PDF_PROC);
+            START("pdf",        PDFTask,   get_pdf_rasterizer_proc());
         }
     }
 #undef START
@@ -158,7 +165,8 @@ static void kick_off_skps(const SkTArray<SkString>& skps,
 
         SkString filename = SkOSPath::Basename(skps[i].c_str());
         tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic, filename)));
-        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename, RASTERIZE_PDF_PROC)));
+        tasks->add(SkNEW_ARGS(DM::PDFTask, (reporter, tasks, pic, filename,
+                                            get_pdf_rasterizer_proc())));
     }
 }
 
