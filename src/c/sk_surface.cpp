@@ -11,6 +11,7 @@
 #include "sk_paint.h"
 #include "sk_path.h"
 #include "sk_surface.h"
+#include "sk_types_priv.h"
 
 #include "SkCanvas.h"
 #include "SkData.h"
@@ -157,36 +158,12 @@ static sk_image_t* ToImage(SkImage* cimage) {
     return reinterpret_cast<sk_image_t*>(cimage);
 }
 
-static const SkPaint& AsPaint(const sk_paint_t& cpaint) {
-    return reinterpret_cast<const SkPaint&>(cpaint);
-}
-
-static const SkPaint* AsPaint(const sk_paint_t* cpaint) {
-    return reinterpret_cast<const SkPaint*>(cpaint);
-}
-
-static SkPaint* AsPaint(sk_paint_t* cpaint) {
-    return reinterpret_cast<SkPaint*>(cpaint);
-}
-
 static sk_canvas_t* ToCanvas(SkCanvas* canvas) {
     return reinterpret_cast<sk_canvas_t*>(canvas);
 }
 
 static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
     return reinterpret_cast<SkCanvas*>(ccanvas);
-}
-
-static SkMaskFilter* AsMaskFilter(sk_maskfilter_t* cfilter) {
-    return reinterpret_cast<SkMaskFilter*>(cfilter);
-}
-
-static sk_maskfilter_t* ToMaskFilter(SkMaskFilter* filter) {
-    return reinterpret_cast<sk_maskfilter_t*>(filter);
-}
-
-static SkShader* AsShader(sk_shader_t* cshader) {
-    return reinterpret_cast<SkShader*>(cshader);
 }
 
 static SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
@@ -256,40 +233,6 @@ int sk_image_get_height(const sk_image_t* cimage) {
 
 uint32_t sk_image_get_unique_id(const sk_image_t* cimage) {
     return AsImage(cimage)->uniqueID();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-sk_paint_t* sk_paint_new() {
-    return (sk_paint_t*)SkNEW(SkPaint);
-}
-
-void sk_paint_delete(sk_paint_t* cpaint) {
-    SkDELETE(AsPaint(cpaint));
-}
-
-bool sk_paint_is_antialias(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).isAntiAlias();
-}
-
-void sk_paint_set_antialias(sk_paint_t* cpaint, bool aa) {
-    AsPaint(cpaint)->setAntiAlias(aa);
-}
-
-sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).getColor();
-}
-
-void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
-    AsPaint(cpaint)->setColor(c);
-}
-
-void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
-    AsPaint(cpaint)->setShader(AsShader(cshader));
-}
-
-void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
-    AsPaint(cpaint)->setMaskFilter(AsMaskFilter(cfilter));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

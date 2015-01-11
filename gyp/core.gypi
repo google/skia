@@ -7,8 +7,9 @@
 #
 {
     'sources': [
+        '<(skia_src_path)/c/sk_paint.cpp',
         '<(skia_src_path)/c/sk_surface.cpp',
-        '<(skia_include_path)/c/sk_surface.h',
+        '<(skia_src_path)/c/sk_types_priv.h',
 
         '<(skia_src_path)/core/SkAAClip.cpp',
         '<(skia_src_path)/core/SkAnnotation.cpp',
