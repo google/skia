@@ -1025,7 +1025,7 @@ void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
 void SkMatrix::mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const {
     SkASSERT((dst && src && count > 0) || 0 == count);
     // no partial overlap
-    SkASSERT(src == dst || SkAbs32((int32_t)(src - dst)) >= 3*count);
+    SkASSERT(src == dst || &dst[3*count] <= &src[0] || &src[3*count] <= &dst[0]);
 
     if (count > 0) {
         if (this->isIdentity()) {
