@@ -93,13 +93,11 @@ protected:
     /** Subclasses must implement this method to print the object to the
      *  PDF file.
      *  @param catalog  The object catalog to use.
-     *  @param indirect If true, output an object identifier with the object.
      *  @param stream   The writable output stream to send the output to.
      */
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect) = 0;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) = 0;
 
-        typedef SkRefCnt INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 /** \class SkPDFObjRef
@@ -117,8 +115,7 @@ public:
     virtual ~SkPDFObjRef();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
@@ -142,8 +139,7 @@ public:
     virtual ~SkPDFInt();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
 
 private:
     int32_t fValue;
@@ -166,8 +162,7 @@ public:
     virtual ~SkPDFBool();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
@@ -193,8 +188,7 @@ public:
     static void Append(SkScalar value, SkWStream* stream);
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
 
 private:
     SkScalar fValue;
@@ -226,8 +220,7 @@ public:
     virtual ~SkPDFString();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     static SkString FormatString(const char* input, size_t len);
@@ -262,8 +255,7 @@ public:
     bool operator==(const SkPDFName& b) const;
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
@@ -290,8 +282,7 @@ public:
     virtual ~SkPDFArray();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** The size of the array.
@@ -363,8 +354,7 @@ public:
     virtual ~SkPDFDict();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** The size of the dictionary.

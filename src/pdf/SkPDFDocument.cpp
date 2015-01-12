@@ -191,8 +191,8 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     }
 
     emitHeader(stream);
-    fDocCatalog->emitObject(stream, fCatalog.get(), true);
-    fPages[0]->emitObject(stream, fCatalog.get(), true);
+    fDocCatalog->emitIndirectObject(stream, fCatalog.get());
+    fPages[0]->emitIndirectObject(stream, fCatalog.get());
     fPages[0]->emitPage(stream, fCatalog.get());
     for (int i = 0; i < fFirstPageResources->count(); i++) {
         (*fFirstPageResources)[i]->emit(stream, fCatalog.get(), true);
@@ -205,7 +205,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     // }
 
     for (int i = 0; i < fPageTree.count(); i++) {
-        fPageTree[i]->emitObject(stream, fCatalog.get(), true);
+        fPageTree[i]->emitIndirectObject(stream, fCatalog.get());
     }
 
     for (int i = 1; i < fPages.count(); i++) {
@@ -340,7 +340,7 @@ void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
     }
 
     stream->writeText("trailer\n");
-    fTrailerDict->emitObject(stream, fCatalog.get(), false);
+    fTrailerDict->emitObject(stream, fCatalog.get());
     stream->writeText("\nstartxref\n");
     stream->writeBigDecAsText(fXRefFileOffset);
     stream->writeText("\n%%EOF");

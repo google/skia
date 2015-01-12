@@ -54,7 +54,7 @@ off_t SkPDFPage::getPageSize(SkPDFCatalog* catalog, off_t fileOffset) {
 
 void SkPDFPage::emitPage(SkWStream* stream, SkPDFCatalog* catalog) {
     SkASSERT(fContentStream.get() != NULL);
-    fContentStream->emitObject(stream, catalog, true);
+    fContentStream->emitIndirectObject(stream, catalog);
 }
 
 // static

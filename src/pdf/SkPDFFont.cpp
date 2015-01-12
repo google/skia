@@ -1099,10 +1099,9 @@ SkPDFFont* SkPDFType0Font::getFontSubset(const SkPDFGlyphSet* subset) {
 }
 
 #ifdef SK_DEBUG
-void SkPDFType0Font::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                                bool indirect) {
+void SkPDFType0Font::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     SkASSERT(fPopulated);
-    return INHERITED::emitObject(stream, catalog, indirect);
+    return INHERITED::emitObject(stream, catalog);
 }
 #endif
 

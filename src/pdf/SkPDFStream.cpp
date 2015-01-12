@@ -45,17 +45,13 @@ SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
 
 SkPDFStream::~SkPDFStream() {}
 
-void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    if (indirect) {
-        return emitIndirectObject(stream, catalog);
-    }
+void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     SkAutoMutexAcquire lock(fMutex);  // multiple threads could be calling emit
     if (!this->populate(catalog)) {
-        return fSubstitute->emitObject(stream, catalog, indirect);
+        return fSubstitute->emitObject(stream, catalog);
     }
 
-    this->INHERITED::emitObject(stream, catalog, false);
+    this->INHERITED::emitObject(stream, catalog);
     stream->writeText(" stream\n");
     stream->writeStream(fDataStream.get(), fDataStream->getLength());
     SkAssertResult(fDataStream->rewind());

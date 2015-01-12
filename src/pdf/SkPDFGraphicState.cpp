@@ -69,10 +69,9 @@ void SkPDFGraphicState::getResources(
     GetResourcesHelper(&fResources, knownResourceObjects, newResourceObjects);
 }
 
-void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                                   bool indirect) {
+void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     populateDict();
-    SkPDFDict::emitObject(stream, catalog, indirect);
+    SkPDFDict::emitObject(stream, catalog);
 }
 
 // static

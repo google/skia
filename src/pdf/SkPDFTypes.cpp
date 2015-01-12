@@ -22,7 +22,11 @@
 void SkPDFObject::emit(SkWStream* stream, SkPDFCatalog* catalog,
                        bool indirect) {
     SkPDFObject* realObject = catalog->getSubstituteObject(this);
-    return realObject->emitObject(stream, catalog, indirect);
+    if (indirect) {
+        realObject->emitIndirectObject(stream, catalog);
+    } else {
+        realObject->emitObject(stream, catalog);
+    }
 }
 
 size_t SkPDFObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
@@ -77,9 +81,7 @@ SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {
 
 SkPDFObjRef::~SkPDFObjRef() {}
 
-void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    SkASSERT(!indirect);
+void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     catalog->emitObjectNumber(stream, fObj.get());
     stream->writeText(" R");
 }
@@ -92,20 +94,14 @@ size_t SkPDFObjRef::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 SkPDFInt::SkPDFInt(int32_t value) : fValue(value) {}
 SkPDFInt::~SkPDFInt() {}
 
-void SkPDFInt::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                          bool indirect) {
-    if (indirect) {
-        return emitIndirectObject(stream, catalog);
-    }
+void SkPDFInt::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeDecAsText(fValue);
 }
 
 SkPDFBool::SkPDFBool(bool value) : fValue(value) {}
 SkPDFBool::~SkPDFBool() {}
 
-void SkPDFBool::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                          bool indirect) {
-    SkASSERT(!indirect);
+void SkPDFBool::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     if (fValue) {
         stream->writeText("true");
     } else {
@@ -124,12 +120,7 @@ size_t SkPDFBool::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 SkPDFScalar::SkPDFScalar(SkScalar value) : fValue(value) {}
 SkPDFScalar::~SkPDFScalar() {}
 
-void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    if (indirect) {
-        return emitIndirectObject(stream, catalog);
-    }
-
+void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     Append(fValue, stream);
 }
 
@@ -196,10 +187,7 @@ SkPDFString::SkPDFString(const uint16_t* value, size_t len, bool wideChars)
 
 SkPDFString::~SkPDFString() {}
 
-void SkPDFString::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    if (indirect)
-        return emitIndirectObject(stream, catalog);
+void SkPDFString::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->write(fValue.c_str(), fValue.size());
 }
 
@@ -282,9 +270,7 @@ bool SkPDFName::operator==(const SkPDFName& b) const {
     return fValue == b.fValue;
 }
 
-void SkPDFName::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                           bool indirect) {
-    SkASSERT(!indirect);
+void SkPDFName::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->write(fValue.c_str(), fValue.size());
 }
 
@@ -318,12 +304,7 @@ SkPDFArray::~SkPDFArray() {
     fValue.unrefAll();
 }
 
-void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect) {
-    if (indirect) {
-        return emitIndirectObject(stream, catalog);
-    }
-
+void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText("[");
     for (int i = 0; i < fValue.count(); i++) {
         fValue[i]->emit(stream, catalog, false);
@@ -402,12 +383,7 @@ int SkPDFDict::size() const {
 }
 
 
-void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                           bool indirect) {
-    if (indirect) {
-        return emitIndirectObject(stream, catalog);
-    }
-
+void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     SkAutoMutexAcquire lock(fMutex); // If another thread triggers a
                                      // resize while this thread is in
                                      // the for-loop, we can be left
@@ -416,7 +392,7 @@ void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     for (int i = 0; i < fValue.count(); i++) {
         SkASSERT(fValue[i].key);
         SkASSERT(fValue[i].value);
-        fValue[i].key->emitObject(stream, catalog, false);
+        fValue[i].key->emitObject(stream, catalog);
         stream->writeText(" ");
         fValue[i].value->emit(stream, catalog, false);
         stream->writeText("\n");

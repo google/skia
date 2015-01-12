@@ -41,8 +41,7 @@ public:
 
     // Override emitObject and getOutputSize so that we can populate
     // the dictionary on demand.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog);
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** Get the graphic state for the passed SkPaint. The reference count of

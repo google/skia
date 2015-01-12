@@ -18,8 +18,7 @@ public:
     virtual bool multiByteGlyphs() const { return true; }
     SK_API virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
 #ifdef SK_DEBUG
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog);
 #endif
 
 private:
