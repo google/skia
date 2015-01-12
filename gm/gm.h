@@ -25,18 +25,13 @@
     static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
 // See colorwheel.cpp for example usage.
-#define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                     \
-    class SK_MACRO_CONCAT(NAME, _GM) : public skiagm::GM {    \
-        void onDraw(SkCanvas* canvas) SK_OVERRIDE;    \
-        SkISize onISize() SK_OVERRIDE {               \
-            return SkISize::Make((W), (H));                   \
-        }                                                     \
-        SkString onShortName() SK_OVERRIDE {          \
-            return SkString(#NAME);                           \
-        }                                                     \
-    };                                                        \
-    DEF_GM( return SkNEW(SK_MACRO_CONCAT(NAME, _GM)); )       \
-    void SK_MACRO_CONCAT(NAME, _GM)::onDraw(SkCanvas* CANVAS)
+#define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                               \
+    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas* CANVAS);           \
+    DEF_GM( return SkNEW_ARGS(skiagm::SimpleGM,                         \
+                              (SkString(#NAME),                         \
+                               SK_MACRO_CONCAT(NAME, _GM),              \
+                               SkISize::Make(W, H))); )                 \
+    void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas* CANVAS)
 
 namespace skiagm {
 
@@ -136,6 +131,22 @@ namespace skiagm {
     };
 
     typedef SkTRegistry<GM*(*)(void*)> GMRegistry;
+
+    class SimpleGM : public skiagm::GM {
+    public:
+        SimpleGM(const SkString& name,
+                 void (*drawProc)(SkCanvas*),
+                 const SkISize& size)
+            : fName(name), fDrawProc(drawProc), fSize(size) {}
+    protected:
+        void onDraw(SkCanvas* canvas) SK_OVERRIDE;
+        SkISize onISize() SK_OVERRIDE;
+        SkString onShortName() SK_OVERRIDE;
+    private:
+        SkString fName;
+        void (*fDrawProc)(SkCanvas*);
+        SkISize fSize;
+    };
 }
 
 #endif

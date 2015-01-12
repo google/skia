@@ -66,3 +66,15 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
+
+void skiagm::SimpleGM::onDraw(SkCanvas* canvas) {
+    fDrawProc(canvas);
+}
+
+SkISize skiagm::SimpleGM::onISize() {
+    return fSize;
+}
+
+SkString skiagm::SimpleGM::onShortName() {
+    return fName;
+}
