@@ -29,12 +29,6 @@ static int chop(int64_t x0, SkGradFixed edge, int64_t x1, int64_t dx, int count)
     return (int)n;
 }
 
-#ifdef SK_SUPPORT_LEGACY_GRADIENT_PRECISION
-static bool overflows_gradfixed(int64_t x) {
-    return x < -SK_FixedMax || x > SK_FixedMax;
-}
-#endif
-
 void SkClampRange::initFor1(SkGradFixed fx) {
     fCount0 = fCount1 = fCount2 = 0;
     if (fx <= 0) {
@@ -87,44 +81,6 @@ void SkClampRange::init(SkGradFixed fx0, SkGradFixed dx0, int count, int v0, int
 
     // now make ex be 1 past the last computed value
     ex += dx;
-
-#ifdef SK_SUPPORT_LEGACY_GRADIENT_PRECISION
-    // now check for over/under flow
-    if (overflows_gradfixed(ex)) {
-        int originalCount = count;
-        int64_t ccount;
-        bool swap = dx < 0;
-        if (swap) {
-            dx = -dx;
-            fx = -fx;
-        }
-
-        int shift = 0;
-        if (sizeof(SkGradFixed) == 8) {
-            shift = 16;
-        }
-
-        ccount = ((SK_FixedMax << shift) - fx + dx - 1) / dx;
-        if (swap) {
-            dx = -dx;
-            fx = -fx;
-        }
-        SkASSERT(ccount > 0 && ccount <= SK_FixedMax);
-
-        count = (int)ccount;
-        if (0 == count) {
-            this->initFor1(fx0);
-            if (dx > 0) {
-                fCount2 += originalCount - 1;
-            } else {
-                fCount0 += originalCount - 1;
-            }
-            return;
-        }
-        extraCount = originalCount - count;
-        ex = fx + dx * count;
-    }
-#endif
 
     bool doSwap = dx < 0;
 
