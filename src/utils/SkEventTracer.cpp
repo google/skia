@@ -51,8 +51,8 @@ static void intialize_default_tracer(SkEventTracer* current_instance) {
 }
 
 
+SK_DECLARE_STATIC_ONCE(once);
 SkEventTracer* SkEventTracer::GetInstance() {
-    SK_DECLARE_STATIC_ONCE(once);
     SkOnce(&once, intialize_default_tracer, SkEventTracer::gInstance);
     SkASSERT(SkEventTracer::gInstance);
     return SkEventTracer::gInstance;

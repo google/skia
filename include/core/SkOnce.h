@@ -31,8 +31,8 @@
 #include "SkThread.h"
 #include "SkTypes.h"
 
-// This must be used in a global or function scope, not as a class member.
-#define SK_DECLARE_STATIC_ONCE(name) static SkOnceFlag name
+// This must be used in a global scope, not in fuction scope or as a class member.
+#define SK_DECLARE_STATIC_ONCE(name) namespace {} static SkOnceFlag name
 
 class SkOnceFlag;
 

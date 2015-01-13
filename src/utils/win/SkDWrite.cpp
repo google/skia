@@ -41,10 +41,9 @@ static void create_dwrite_factory(IDWriteFactory** factory) {
 }
 
 
+SK_DECLARE_STATIC_ONCE(once);
 IDWriteFactory* sk_get_dwrite_factory() {
-    SK_DECLARE_STATIC_ONCE(once);
     SkOnce(&once, create_dwrite_factory, &gDWriteFactory);
-
     return gDWriteFactory;
 }
 

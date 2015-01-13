@@ -120,7 +120,7 @@ public:
     }
 };
 
+SK_DECLARE_STATIC_ONCE(once);
 void SkFlattenable::InitializeFlattenablesIfNeeded() {
-    SK_DECLARE_STATIC_ONCE(once);
     SkOnce(&once, SkPrivateEffectInitializer::Init);
 }
