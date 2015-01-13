@@ -9,7 +9,7 @@
 
 #include "SkBlitRow.h"
 
-extern const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[];
+extern const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm_neon[];
 extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[];
 
 extern void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,

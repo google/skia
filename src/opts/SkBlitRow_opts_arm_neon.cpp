@@ -1646,7 +1646,7 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
+const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm_neon[] = {
     // no dither
     S32_D565_Opaque_neon,
     S32_D565_Blend_neon,

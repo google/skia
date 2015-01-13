@@ -26,17 +26,26 @@ public:
         a corresponding scanline of 16bit colors (specific format based on the
         config passed to the Factory.
 
-        The x,y params are useful just for dithering
+        The x,y params provide the dithering phase for the start of the scanline
 
         @param alpha A global alpha to be applied to all of the src colors
         @param x The x coordinate of the beginning of the scanline
         @param y THe y coordinate of the scanline
      */
-    typedef void (*Proc)(uint16_t* dst,
-                         const SkPMColor* src,
-                         int count, U8CPU alpha, int x, int y);
+    typedef void (*Proc16)(uint16_t dst[], const SkPMColor src[], int count,
+                           U8CPU alpha, int x, int y);
 
-    static Proc Factory(unsigned flags, SkColorType);
+    static Proc16 Factory16(unsigned flags);
+
+    /** 
+     *  Function pointer that blends a single src color onto a scaline of dst colors.
+     *
+     *  The x,y params provide the dithering phase for the start of the scanline
+     */
+    typedef void (*ColorProc16)(uint16_t dst[], SkPMColor src, int count, int x, int y);
+
+    // Note : we ignore the kGlobalAlpha_Flag setting, but do respect kSrcPixelAlpha_Flag
+    static ColorProc16 ColorFactory16(unsigned flags);
 
     ///////////// D32 version
 
@@ -51,34 +60,30 @@ public:
         @param count number of colors to blend
         @param alpha global alpha to be applied to all src colors
      */
-    typedef void (*Proc32)(uint32_t* dst,
-                         const SkPMColor* src,
-                         int count, U8CPU alpha);
+    typedef void (*Proc32)(uint32_t dst[], const SkPMColor src[], int count, U8CPU alpha);
 
     static Proc32 Factory32(unsigned flags32);
 
    /** Function pointer that blends a single color with a row of 32-bit colors
        onto a 32-bit destination
    */
-   typedef void (*ColorProc)(SkPMColor* dst, const SkPMColor* src, int count,
-                             SkPMColor color);
+   typedef void (*ColorProc)(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color);
 
     /** Blend a single color onto a row of S32 pixels, writing the result
         into a row of D32 pixels. src and dst may be the same memory, but
         if they are not, they may not overlap.
      */
-    static void Color32(SkPMColor dst[], const SkPMColor src[],
-                        int count, SkPMColor color);
+    static void Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color);
 
     //! Public entry-point to return a blit function ptr
     static ColorProc ColorProcFactory();
 
     /** Function pointer that blends a single color onto a 32-bit rectangle.  */
-    typedef void (*ColorRectProc)(SkPMColor* dst, int width, int height,
+    typedef void (*ColorRectProc)(SkPMColor dst[], int width, int height,
                                   size_t rowBytes, SkPMColor color);
 
     /** Blend a single color into a rectangle of D32 pixels. */
-    static void ColorRect32(SkPMColor* dst, int width, int height,
+    static void ColorRect32(SkPMColor dst[], int width, int height,
                             size_t rowBytes, SkPMColor color);
 
     //! Public entry-point to return a blit function ptr
@@ -91,8 +96,10 @@ public:
      */
 
     static Proc32 PlatformProcs32(unsigned flags);
-    static Proc PlatformProcs565(unsigned flags);
     static ColorProc PlatformColorProc();
+
+    static Proc16 PlatformFactory565(unsigned flags);
+    static ColorProc16 PlatformColorFactory565(unsigned flags);
 
 private:
     enum {

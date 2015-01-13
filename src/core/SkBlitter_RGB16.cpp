@@ -122,9 +122,9 @@ public:
     void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
 
 protected:
-    SkPMColor*      fBuffer;
-    SkBlitRow::Proc fOpaqueProc;
-    SkBlitRow::Proc fAlphaProc;
+    SkPMColor*          fBuffer;
+    SkBlitRow::Proc16   fOpaqueProc;
+    SkBlitRow::Proc16   fAlphaProc;
 
 private:
     // illegal
@@ -836,10 +836,9 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkBitmap& device,
         flags |= SkBlitRow::kDither_Flag;
     }
     // used when we know our global alpha is 0xFF
-    fOpaqueProc = SkBlitRow::Factory(flags, kRGB_565_SkColorType);
+    fOpaqueProc = SkBlitRow::Factory16(flags);
     // used when we know our global alpha is < 0xFF
-    fAlphaProc  = SkBlitRow::Factory(flags | SkBlitRow::kGlobalAlpha_Flag,
-                                     kRGB_565_SkColorType);
+    fAlphaProc  = SkBlitRow::Factory16(flags | SkBlitRow::kGlobalAlpha_Flag);
 }
 
 SkRGB16_Shader_Blitter::~SkRGB16_Shader_Blitter() {
@@ -856,7 +855,7 @@ void SkRGB16_Shader_Blitter::blitH(int x, int y, int width) {
 
 void SkRGB16_Shader_Blitter::blitRect(int x, int y, int width, int height) {
     SkShader::Context* shaderContext = fShaderContext;
-    SkBlitRow::Proc    proc = fOpaqueProc;
+    SkBlitRow::Proc16  proc = fOpaqueProc;
     SkPMColor*         buffer = fBuffer;
     uint16_t*          dst = fDevice.getAddr16(x, y);
     size_t             dstRB = fDevice.rowBytes();
@@ -920,7 +919,7 @@ void SkRGB16_Shader_Blitter::blitAntiH(int x, int y,
 
         SkPMColor* localSpan = span;
         for (;;) {
-            SkBlitRow::Proc proc = (aa == 0xFF) ? fOpaqueProc : fAlphaProc;
+            SkBlitRow::Proc16 proc = (aa == 0xFF) ? fOpaqueProc : fAlphaProc;
             proc(device, localSpan, count, aa, x, y);
 
             x += count;

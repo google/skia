@@ -206,7 +206,7 @@ void SkBitmapProcState::platformProcs() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static SkBlitRow::Proc platform_16_procs[] = {
+static SkBlitRow::Proc16 platform_16_procs[] = {
     S32_D565_Opaque_SSE2,               // S32_D565_Opaque
     NULL,                               // S32_D565_Blend
     S32A_D565_Opaque_SSE2,              // S32A_D565_Opaque
@@ -217,12 +217,16 @@ static SkBlitRow::Proc platform_16_procs[] = {
     NULL,                               // S32A_D565_Blend_Dither
 };
 
-SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return platform_16_procs[flags];
     } else {
         return NULL;
     }
+}
+
+SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
+    return NULL;
 }
 
 static SkBlitRow::Proc32 platform_32_procs_SSE2[] = {

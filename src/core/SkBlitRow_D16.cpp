@@ -203,9 +203,29 @@ static void S32A_D565_Blend_Dither(uint16_t* SK_RESTRICT dst,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static uint32_t pmcolor_to_expand16(SkPMColor c) {
+    unsigned r = SkGetPackedR32(c);
+    unsigned g = SkGetPackedG32(c);
+    unsigned b = SkGetPackedB32(c);
+    return (g << 24) | (r << 13) | (b << 2);
+}
+
+static void Color32A_D565(uint16_t dst[], SkPMColor src, int count, int x, int y) {
+    SkASSERT(count > 0);
+    uint32_t src_expand = pmcolor_to_expand16(src);
+    unsigned scale = SkAlpha255To256(0xFF - SkGetPackedA32(src)) >> 3;
+    do {
+        uint32_t dst_expand = SkExpand_rgb_16(*dst) * scale;
+        *dst = SkCompact_rgb_16((src_expand + dst_expand) >> 5);
+        dst += 1;
+    } while (--count != 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static const SkBlitRow::Proc gDefault_565_Procs[] = {
+static const SkBlitRow::Proc16 gDefault_565_Procs[] = {
     // no dither
     S32_D565_Opaque,
     S32_D565_Blend,
@@ -221,22 +241,45 @@ static const SkBlitRow::Proc gDefault_565_Procs[] = {
     S32A_D565_Blend_Dither
 };
 
-SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkColorType ct) {
+SkBlitRow::Proc16 SkBlitRow::Factory16(unsigned flags) {
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_Procs));
     // just so we don't crash
     flags &= kFlags16_Mask;
 
-    SkBlitRow::Proc proc = NULL;
+    SkBlitRow::Proc16 proc = PlatformFactory565(flags);
+    if (NULL == proc) {
+        proc = gDefault_565_Procs[flags];
+    }
+    return proc;
+}
 
-    switch (ct) {
-        case kRGB_565_SkColorType:
-            proc = PlatformProcs565(flags);
-            if (NULL == proc) {
-                proc = gDefault_565_Procs[flags];
-            }
-            break;
-        default:
-            break;
+static const SkBlitRow::ColorProc16 gDefault_565_ColorProcs[] = {
+#if 0
+    Color32_D565,
+    Color32A_D565,
+    Color32_D565_Dither,
+    Color32A_D565_Dither
+#else
+    // TODO: stop cheating and fill in the above specializations!
+    Color32A_D565,
+    Color32A_D565,
+    Color32A_D565,
+    Color32A_D565,
+#endif
+};
+
+SkBlitRow::ColorProc16 SkBlitRow::ColorFactory16(unsigned flags) {
+    SkASSERT((flags & ~kFlags16_Mask) == 0);
+    // just so we don't crash
+    flags &= kFlags16_Mask;
+    // we ignore kGlobalAlpha_Flag, so shift down
+    flags >>= 1;
+
+    SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_ColorProcs));
+
+    SkBlitRow::ColorProc16 proc = PlatformColorFactory565(flags);
+    if (NULL == proc) {
+        proc = gDefault_565_ColorProcs[flags];
     }
     return proc;
 }

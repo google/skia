@@ -9,7 +9,11 @@
 
 // Platform impl of Platform_procs with no overrides
 
-SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
+    return NULL;
+}
+
+SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
     return NULL;
 }
 

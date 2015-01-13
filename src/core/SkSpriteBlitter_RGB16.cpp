@@ -278,7 +278,7 @@ public:
         if (paint.isDither()) {
             flags |= SkBlitRow::kDither_Flag;
         }
-        fProc = SkBlitRow::Factory(flags, kRGB_565_SkColorType);
+        fProc = SkBlitRow::Factory16(flags);
     }
 
     void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
@@ -287,7 +287,7 @@ public:
                                                               y - fTop);
         size_t dstRB = fDevice->rowBytes();
         size_t srcRB = fSource->rowBytes();
-        SkBlitRow::Proc proc = fProc;
+        SkBlitRow::Proc16 proc = fProc;
         U8CPU alpha = fPaint->getAlpha();
 
         while (--height >= 0) {
@@ -299,7 +299,7 @@ public:
     }
 
 private:
-    SkBlitRow::Proc fProc;
+    SkBlitRow::Proc16 fProc;
 
     typedef SkSpriteBlitter INHERITED;
 };
