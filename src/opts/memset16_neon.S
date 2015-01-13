@@ -21,6 +21,7 @@
         .fpu neon
         .align 4
         .globl memset16_neon
+        .hidden memset16_neon
 
 memset16_neon:
         cmp             r2, #0

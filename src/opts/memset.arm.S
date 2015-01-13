@@ -18,8 +18,10 @@
     .syntax unified
 
     .global arm_memset32
+    .hidden arm_memset32
     .type   arm_memset32, %function
     .global arm_memset16
+    .hidden arm_memset16
     .type   arm_memset16, %function
 
 /*
