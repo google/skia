@@ -50,6 +50,7 @@ void GrGLCaps::reset() {
     fFullClearIsFree = false;
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
+    fFBFetchNeedsCustomOutput = false;
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
 
@@ -93,6 +94,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fFullClearIsFree = caps.fFullClearIsFree;
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
     fFBFetchSupport = caps.fFBFetchSupport;
+    fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
     fFBFetchColorName = caps.fFBFetchColorName;
     fFBFetchExtensionString = caps.fFBFetchExtensionString;
 
@@ -250,16 +252,19 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     if (kGLES_GrGLStandard == standard) {
         if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
+            fFBFetchNeedsCustomOutput = (version >= GR_GL_VER(3, 0));
             fFBFetchSupport = true;
             fFBFetchColorName = "gl_LastFragData[0]";
             fFBFetchExtensionString = "GL_EXT_shader_framebuffer_fetch";
         } else if (ctxInfo.hasExtension("GL_NV_shader_framebuffer_fetch")) {
+            // Actually, we haven't seen an ES3.0 device with this extension yet, so we don't know
+            fFBFetchNeedsCustomOutput = false;
             fFBFetchSupport = true;
             fFBFetchColorName = "gl_LastFragData[0]";
             fFBFetchExtensionString = "GL_NV_shader_framebuffer_fetch";
         } else if (ctxInfo.hasExtension("GL_ARM_shader_framebuffer_fetch")) {
             // The arm extension also requires an additional flag which we will set onResetContext
-            // This is all temporary.
+            fFBFetchNeedsCustomOutput = false;
             fFBFetchSupport = true;
             fFBFetchColorName = "gl_LastFragColorARM";
             fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";

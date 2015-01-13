@@ -171,9 +171,9 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
         this->addFeature(1 << (GrGLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
                          gpu->glCaps().fbFetchExtensionString());
 
-        // On ES 3.0 we have to declare this, and use the custom color output name
+        // Some versions of this extension string require declaring custom color output on ES 3.0+
         const char* fbFetchColorName = gpu->glCaps().fbFetchColorName();
-        if (gpu->glslGeneration() >= k330_GrGLSLGeneration) {
+        if (gpu->glCaps().fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = declared_color_output_name();

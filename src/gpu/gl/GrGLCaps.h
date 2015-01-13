@@ -172,6 +172,8 @@ public:
      */
     bool fbFetchSupport() const { return fFBFetchSupport; }
 
+    bool fbFetchNeedsCustomOutput() const { return fFBFetchNeedsCustomOutput; }
+
     const char* fbFetchColorName() const { return fFBFetchColorName; }
 
     const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
@@ -372,8 +374,8 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
-    // TODO(joshualitt) encapsulate the FB Fetch logic in a feature object
     bool fFBFetchSupport : 1;
+    bool fFBFetchNeedsCustomOutput : 1;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
