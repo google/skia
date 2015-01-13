@@ -46,17 +46,6 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
                                          true);
 }
 
-off_t SkPDFPage::getPageSize(SkPDFCatalog* catalog, off_t fileOffset) {
-    SkASSERT(fContentStream.get() != NULL);
-    catalog->setFileOffset(fContentStream.get(), fileOffset);
-    return SkToOffT(fContentStream->getOutputSize(catalog, true));
-}
-
-void SkPDFPage::emitPage(SkWStream* stream, SkPDFCatalog* catalog) {
-    SkASSERT(fContentStream.get() != NULL);
-    fContentStream->emitIndirectObject(stream, catalog);
-}
-
 // static
 void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                                  SkPDFCatalog* catalog,
@@ -155,4 +144,8 @@ const SkPDFGlyphSetMap& SkPDFPage::getFontGlyphUsage() const {
 
 void SkPDFPage::appendDestinations(SkPDFDict* dict) {
     fDevice->appendDestinations(dict, this);
+}
+
+SkPDFObject* SkPDFPage::getContentStream() const {
+    return fContentStream.get();
 }

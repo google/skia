@@ -58,19 +58,6 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText("\nendstream");
 }
 
-size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect) {
-        return getIndirectOutputSize(catalog);
-    }
-    SkAutoMutexAcquire lock(fMutex);  // multiple threads could be calling emit
-    if (!this->populate(catalog)) {
-        return fSubstitute->getOutputSize(catalog, indirect);
-    }
-
-    return this->INHERITED::getOutputSize(catalog, false) +
-        strlen(" stream\n\nendstream") + this->dataSize();
-}
-
 SkPDFStream::SkPDFStream() : fState(kUnused_State) {}
 
 void SkPDFStream::setData(SkData* data) {

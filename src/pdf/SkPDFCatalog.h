@@ -37,12 +37,11 @@ public:
     SkPDFObject* addObject(SkPDFObject* obj, bool onFirstPage);
 
     /** Inform the catalog of the object's position in the final stream.
-     *  The object should already have been added to the catalog.  Returns
-     *  the object's size.
+     *  The object should already have been added to the catalog.
      *  @param obj         The object to add.
      *  @param offset      The byte offset in the output stream of this object.
      */
-    size_t setFileOffset(SkPDFObject* obj, off_t offset);
+    void setFileOffset(SkPDFObject* obj, off_t offset);
 
     /** Output the object number for the passed object.
      *  @param obj         The object of interest.
@@ -77,16 +76,9 @@ public:
      */
     SkPDFObject* getSubstituteObject(SkPDFObject* object);
 
-    /** Set file offsets for the resources of substitute objects.
-     *  @param fileOffset Accumulated offset of current document.
-     *  @param firstPage  Indicate whether this is for the first page only.
-     *  @return           Total size of resources of substitute objects.
+    /** get the resources of substitute objects.
      */
-    off_t setSubstituteResourcesOffsets(off_t fileOffset, bool firstPage);
-
-    /** Emit the resources of substitute objects.
-     */
-    void emitSubstituteResources(SkWStream* stream, bool firstPage);
+    SkTSet<SkPDFObject*>* getSubstituteList(bool firstPage);
 
 private:
     struct Rec {
@@ -130,8 +122,6 @@ private:
     int findObjectIndex(SkPDFObject* obj) const;
 
     int assignObjNum(SkPDFObject* obj);
-
-    SkTSet<SkPDFObject*>* getSubstituteList(bool firstPage);
 };
 
 #endif

@@ -39,10 +39,9 @@ public:
     virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
                               SkTSet<SkPDFObject*>* newResourceObjects);
 
-    // Override emitObject and getOutputSize so that we can populate
-    // the dictionary on demand.
+    // Override emitObject so that we can populate the dictionary on
+    // demand.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog);
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** Get the graphic state for the passed SkPaint. The reference count of
      *  the object is incremented and it is the caller's responsibility to

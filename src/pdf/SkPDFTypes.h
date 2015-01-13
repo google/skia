@@ -31,12 +31,11 @@ public:
     SK_DECLARE_INST_COUNT(SkPDFObject)
 
     /** Return the size (number of bytes) of this object in the final output
-     *  file. Compound objects or objects that are computationally intensive
-     *  to output should override this method.
+     *  file. Only used for testing.
      *  @param catalog  The object catalog to use.
      *  @param indirect If true, output an object identifier with the object.
      */
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
+    size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** For non-primitive objects (i.e. objects defined outside this file),
      *  this method will add to newResourceObjects any objects that this method
@@ -116,7 +115,6 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
     SkAutoTUnref<SkPDFObject> fObj;
@@ -163,7 +161,6 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
     bool fValue;
@@ -221,7 +218,6 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     static SkString FormatString(const char* input, size_t len);
     static SkString FormatString(const uint16_t* input, size_t len,
@@ -256,7 +252,6 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
     static const size_t kMaxLen = 127;
@@ -283,7 +278,6 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** The size of the array.
      */
@@ -355,7 +349,6 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** The size of the dictionary.
      */

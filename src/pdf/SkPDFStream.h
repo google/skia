@@ -39,10 +39,9 @@ public:
 
     virtual ~SkPDFStream();
 
-    // The SkPDFObject interface.  These two methods use a mutex to
+    // The SkPDFObject interface.  This two method uses a mutex to
     // allow multiple threads to call at the same time.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 protected:
     enum State {

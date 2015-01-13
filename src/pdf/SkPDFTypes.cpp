@@ -45,11 +45,6 @@ void SkPDFObject::emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText("\nendobj\n");
 }
 
-size_t SkPDFObject::getIndirectOutputSize(SkPDFCatalog* catalog) {
-    return catalog->getObjectNumberSize(this) + strlen(" obj\n") +
-        this->getOutputSize(catalog, false) + strlen("\nendobj\n");
-}
-
 void SkPDFObject::AddResourceHelper(SkPDFObject* resource,
                                     SkTDArray<SkPDFObject*>* list) {
     list->push(resource);
@@ -86,11 +81,6 @@ void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText(" R");
 }
 
-size_t SkPDFObjRef::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    SkASSERT(!indirect);
-    return catalog->getObjectNumberSize(fObj.get()) + strlen(" R");
-}
-
 SkPDFInt::SkPDFInt(int32_t value) : fValue(value) {}
 SkPDFInt::~SkPDFInt() {}
 
@@ -107,14 +97,6 @@ void SkPDFBool::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     } else {
         stream->writeText("false");
     }
-}
-
-size_t SkPDFBool::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    SkASSERT(!indirect);
-    if (fValue) {
-        return strlen("true");
-    }
-    return strlen("false");
 }
 
 SkPDFScalar::SkPDFScalar(SkScalar value) : fValue(value) {}
@@ -189,12 +171,6 @@ SkPDFString::~SkPDFString() {}
 
 void SkPDFString::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->write(fValue.c_str(), fValue.size());
-}
-
-size_t SkPDFString::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect)
-        return getIndirectOutputSize(catalog);
-    return fValue.size();
 }
 
 // static
@@ -274,11 +250,6 @@ void SkPDFName::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->write(fValue.c_str(), fValue.size());
 }
 
-size_t SkPDFName::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    SkASSERT(!indirect);
-    return fValue.size();
-}
-
 // static
 SkString SkPDFName::FormatName(const SkString& input) {
     SkASSERT(input.size() <= kMaxLen);
@@ -313,21 +284,6 @@ void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
         }
     }
     stream->writeText("]");
-}
-
-size_t SkPDFArray::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect) {
-        return getIndirectOutputSize(catalog);
-    }
-
-    size_t result = strlen("[]");
-    if (fValue.count()) {
-        result += fValue.count() - 1;
-    }
-    for (int i = 0; i < fValue.count(); i++) {
-        result += fValue[i]->getOutputSize(catalog, false);
-    }
-    return result;
 }
 
 void SkPDFArray::reserve(int length) {
@@ -398,25 +354,6 @@ void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
         stream->writeText("\n");
     }
     stream->writeText(">>");
-}
-
-size_t SkPDFDict::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect) {
-        return getIndirectOutputSize(catalog);
-    }
-
-    SkAutoMutexAcquire lock(fMutex); // If another thread triggers a
-                                     // resize while this thread is in
-                                     // the for-loop, we can be left
-                                     // with a bad fValue[i] reference.
-    size_t result = strlen("<<>>") + (fValue.count() * 2);
-    for (int i = 0; i < fValue.count(); i++) {
-        SkASSERT(fValue[i].key);
-        SkASSERT(fValue[i].value);
-        result += fValue[i].key->getOutputSize(catalog, false);
-        result += fValue[i].value->getOutputSize(catalog, false);
-    }
-    return result;
 }
 
 SkPDFObject*  SkPDFDict::append(SkPDFName* key, SkPDFObject* value) {

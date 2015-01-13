@@ -38,13 +38,11 @@ SkPDFObject* SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
     return obj;
 }
 
-size_t SkPDFCatalog::setFileOffset(SkPDFObject* obj, off_t offset) {
+void SkPDFCatalog::setFileOffset(SkPDFObject* obj, off_t offset) {
     int objIndex = assignObjNum(obj) - 1;
     SkASSERT(fCatalog[objIndex].fObjNumAssigned);
     SkASSERT(fCatalog[objIndex].fFileOffset == 0);
     fCatalog[objIndex].fFileOffset = offset;
-
-    return getSubstituteObject(obj)->getOutputSize(this, true);
 }
 
 void SkPDFCatalog::emitObjectNumber(SkWStream* stream, SkPDFObject* obj) {
@@ -190,23 +188,6 @@ SkPDFObject* SkPDFCatalog::getSubstituteObject(SkPDFObject* object) {
         }
     }
     return object;
-}
-
-off_t SkPDFCatalog::setSubstituteResourcesOffsets(off_t fileOffset,
-                                                  bool firstPage) {
-    SkTSet<SkPDFObject*>* targetSet = getSubstituteList(firstPage);
-    off_t offsetSum = fileOffset;
-    for (int i = 0; i < targetSet->count(); ++i) {
-        offsetSum += SkToOffT(setFileOffset((*targetSet)[i], offsetSum));
-    }
-    return offsetSum - fileOffset;
-}
-
-void SkPDFCatalog::emitSubstituteResources(SkWStream *stream, bool firstPage) {
-    SkTSet<SkPDFObject*>* targetSet = getSubstituteList(firstPage);
-    for (int i = 0; i < targetSet->count(); ++i) {
-        (*targetSet)[i]->emit(stream, this, true);
-    }
 }
 
 SkTSet<SkPDFObject*>* SkPDFCatalog::getSubstituteList(bool firstPage) {

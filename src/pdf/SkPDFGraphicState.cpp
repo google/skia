@@ -75,12 +75,6 @@ void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
 }
 
 // static
-size_t SkPDFGraphicState::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    populateDict();
-    return SkPDFDict::getOutputSize(catalog, indirect);
-}
-
-// static
 SkTDArray<SkPDFGraphicState::GSCanonicalEntry>& SkPDFGraphicState::CanonicalPaints() {
     CanonicalPaintsMutex().assertHeld();
     static SkTDArray<SkPDFGraphicState::GSCanonicalEntry> gCanonicalPaints;

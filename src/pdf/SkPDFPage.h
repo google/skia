@@ -56,21 +56,6 @@ public:
      */
     void appendDestinations(SkPDFDict* dict);
 
-    /** Determine the size of the page content and store to the catalog
-     *  the offsets of all nonresource-indirect objects that make up the page
-     *  content.  This must be called before emitPage(), but after finalizePage.
-     *  @param catalog    The catalog to add the object offsets to.
-     *  @param fileOffset The file offset where the page content will be
-     *                    emitted.
-     */
-    off_t getPageSize(SkPDFCatalog* catalog, off_t fileOffset);
-
-    /** Output the page content to the passed stream.
-     *  @param stream     The writable output stream to send the content to.
-     *  @param catalog    The active object catalog.
-     */
-    void emitPage(SkWStream* stream, SkPDFCatalog* catalog);
-
     /** Generate a page tree for the passed vector of pages.  New objects are
      *  added to the catalog.  The pageTree vector is populated with all of
      *  the 'Pages' dictionaries as well as the 'Page' objects.  Page trees
@@ -96,6 +81,8 @@ public:
      *  that shows on this page.
      */
     const SkPDFGlyphSetMap& getFontGlyphUsage() const;
+
+    SkPDFObject* getContentStream() const;
 
 private:
     // Multiple pages may reference the content.

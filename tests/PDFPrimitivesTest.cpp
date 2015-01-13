@@ -228,12 +228,18 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 
     SkDynamicMemoryWStream buffer;
     proxy->emit(&buffer, &catalog, false);
-    catalog.emitSubstituteResources(&buffer, false);
+    SkTSet<SkPDFObject*>* substituteResources =
+            catalog.getSubstituteList(false);
+    for (int i = 0; i < substituteResources->count(); ++i) {
+        (*substituteResources)[i]->emit(&buffer, &catalog, true);
+    }
 
     char objectResult[] = "2 0 obj\n<</Value 33\n>>\nendobj\n";
-    REPORTER_ASSERT(
-        reporter,
-        catalog.setFileOffset(proxy.get(), 0) == strlen(objectResult));
+    catalog.setFileOffset(proxy.get(), 0);
+
+    size_t outputSize = catalog.getSubstituteObject(proxy.get())
+                                ->getOutputSize(&catalog, true);
+    REPORTER_ASSERT(reporter, outputSize == strlen(objectResult));
 
     char expectedResult[] =
         "<</Value 33\n>>1 0 obj\n<</InnerValue 44\n>>\nendobj\n";
