@@ -33,15 +33,17 @@ public:
      *  unreference it when done.  This is needed to accommodate the weak
      *  reference pattern used when the returned object is new and has no
      *  other references.
-     *  @param shader     The SkShader to emulate.
-     *  @param matrix     The current transform. (PDF shaders are absolutely
-     *                    positioned, relative to where the page is drawn.)
-     *  @param surfceBBox The bounding box of the drawing surface (with matrix
-     *                    already applied).
+     *  @param shader      The SkShader to emulate.
+     *  @param matrix      The current transform. (PDF shaders are absolutely
+     *                     positioned, relative to where the page is drawn.)
+     *  @param surfceBBox  The bounding box of the drawing surface (with matrix
+     *                     already applied).
+     *  @param rasterScale Additional scale to be applied for early rasterization.
      */
     static SkPDFObject* GetPDFShader(const SkShader& shader,
                                      const SkMatrix& matrix,
-                                     const SkIRect& surfaceBBox);
+                                     const SkIRect& surfaceBBox,
+                                     SkScalar rasterScale);
 
 protected:
     class State;

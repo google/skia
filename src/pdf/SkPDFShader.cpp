@@ -489,7 +489,7 @@ public:
     SkShader::TileMode fImageTileModes[2];
 
     State(const SkShader& shader, const SkMatrix& canvasTransform,
-          const SkIRect& bbox);
+          const SkIRect& bbox, SkScalar rasterScale);
 
     bool operator==(const State& b) const;
 
@@ -657,10 +657,11 @@ void SkPDFShader::RemoveShader(SkPDFObject* shader) {
 // static
 SkPDFObject* SkPDFShader::GetPDFShader(const SkShader& shader,
                                        const SkMatrix& matrix,
-                                       const SkIRect& surfaceBBox) {
+                                       const SkIRect& surfaceBBox,
+                                       SkScalar rasterScale) {
     SkAutoMutexAcquire lock(CanonicalShadersMutex());
     return GetPDFShaderByState(
-            SkNEW_ARGS(State, (shader, matrix, surfaceBBox)));
+            SkNEW_ARGS(State, (shader, matrix, surfaceBBox, rasterScale)));
 }
 
 // static
@@ -1239,8 +1240,8 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
     return true;
 }
 
-SkPDFShader::State::State(const SkShader& shader,
-                          const SkMatrix& canvasTransform, const SkIRect& bbox)
+SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransform,
+                          const SkIRect& bbox, SkScalar rasterScale)
         : fCanvasTransform(canvasTransform),
           fBBox(bbox),
           fPixelGeneration(0) {
@@ -1257,10 +1258,39 @@ SkPDFShader::State::State(const SkShader& shader,
         SkMatrix matrix;
         bitmapType = shader.asABitmap(&fImage, &matrix, fImageTileModes);
         if (bitmapType != SkShader::kDefault_BitmapType) {
-            fImage.reset();
-            return;
+            // Generic fallback for unsupported shaders:
+            //  * allocate a bbox-sized bitmap
+            //  * shade the whole area
+            //  * use the result as a bitmap shader
+
+            // Clamp the bitmap size to about 1M pixels
+            static const SkScalar kMaxBitmapArea = 1024 * 1024;
+            SkScalar bitmapArea = rasterScale * bbox.width() * rasterScale * bbox.height();
+            if (bitmapArea > kMaxBitmapArea) {
+                rasterScale *= SkScalarSqrt(SkScalarDiv(kMaxBitmapArea, bitmapArea));
+            }
+
+            SkISize size = SkISize::Make(SkScalarRoundToInt(rasterScale * bbox.width()),
+                                         SkScalarRoundToInt(rasterScale * bbox.height()));
+            SkSize scale = SkSize::Make(SkIntToScalar(size.width()) / SkIntToScalar(bbox.width()),
+                                        SkIntToScalar(size.height()) / SkIntToScalar(bbox.height()));
+
+            fImage.allocN32Pixels(size.width(), size.height());
+            fImage.eraseColor(SK_ColorTRANSPARENT);
+
+            SkPaint p;
+            p.setShader(const_cast<SkShader*>(&shader));
+
+            SkCanvas canvas(fImage);
+            canvas.scale(scale.width(), scale.height());
+            canvas.translate(-SkIntToScalar(bbox.x()), -SkIntToScalar(bbox.y()));
+            canvas.drawPaint(p);
+
+            fShaderTransform.setTranslate(SkIntToScalar(bbox.x()), SkIntToScalar(bbox.y()));
+            fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
+        } else {
+            SkASSERT(matrix.isIdentity());
         }
-        SkASSERT(matrix.isIdentity());
         fPixelGeneration = fImage.getGenerationID();
     } else {
         AllocateGradientInfoStorage();

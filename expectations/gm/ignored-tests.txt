@@ -40,4 +40,10 @@ blurrects
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
-
+# fmalita http://crrev.com/841763005
+composeshader
+composeshader_alpha
+perlinnoise
+perlinnoise_localmatrix
+pictureshader
+pictureshadertile

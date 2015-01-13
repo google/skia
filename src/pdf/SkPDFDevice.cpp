@@ -1950,7 +1950,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         fInitialTransform.mapRect(&boundsTemp);
         boundsTemp.roundOut(&bounds);
 
-        pdfShader.reset(SkPDFShader::GetPDFShader(*shader, transform, bounds));
+        pdfShader.reset(SkPDFShader::GetPDFShader(*shader, transform, bounds,
+                        SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE));
 
         if (pdfShader.get()) {
             // pdfShader has been canonicalized so we can directly compare
