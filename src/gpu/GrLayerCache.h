@@ -164,7 +164,7 @@ public:
         SkASSERT(SK_InvalidGenID != pictureID);
 
         if (fPaint) {
-            if (fPaint->getImageFilter()) {
+            if (fPaint->getImageFilter() && fPaint->getImageFilter()->canFilterImageGPU()) {
                 fFilter = SkSafeRef(fPaint->getImageFilter());
                 fPaint->setImageFilter(NULL);
             }
