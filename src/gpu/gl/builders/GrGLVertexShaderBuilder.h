@@ -16,10 +16,8 @@ class GrGLVertexBuilder : public GrGLShaderBuilder {
 public:
     GrGLVertexBuilder(GrGLProgramBuilder* program);
 
-    /** returns the expected position output */
-    const char* glPosition() const { return "pos3"; }
-    const char* positionCoords() const { return "position"; }
-    const char* localCoords() const { return "localCoords"; }
+    void transformToNormalizedDeviceSpace(const char* pos3);
+    void emitAttributes(const GrGeometryProcessor& gp);
 
     void addAttribute(const GrGeometryProcessor::GrAttribute* attr) {
         this->addAttribute(GrShaderVar(attr->fName,
@@ -36,8 +34,6 @@ private:
     /*
      * private helpers for compilation by GrGLProgramBuilder
      */
-    void transformToNormalizedDeviceSpace();
-    void emitAttributes(const GrGeometryProcessor& gp);
     void bindVertexAttributes(GrGLuint programID);
     bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
 

@@ -10,7 +10,6 @@
 #define GrGLProgram_DEFINED
 
 #include "builders/GrGLProgramBuilder.h"
-#include "builders/GrGLNvprProgramBuilder.h"
 #include "GrDrawState.h"
 #include "GrGLContext.h"
 #include "GrGLProgramDesc.h"
@@ -118,14 +117,17 @@ protected:
 
     // Sets the texture units for samplers.
     void initSamplerUniforms();
-    void initSamplers(GrGLInstalledProc*, int* texUnitIdx);
+    template <class Proc>
+    void initSamplers(Proc*, int* texUnitIdx);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrOptDrawState&);
-    virtual void setTransformData(const GrPendingFragmentStage&,
-                                  const SkMatrix& localMatrix,
+    virtual void setTransformData(const GrPrimitiveProcessor*,
+                                  const GrPendingFragmentStage&,
+                                  int index,
                                   GrGLInstalledFragProc*);
-    void bindTextures(const GrGLInstalledProc*, const GrProcessor&);
+    template <class Proc>
+    void bindTextures(const Proc*, const GrProcessor&);
 
     /*
      * Legacy NVPR needs a hook here to flush path tex gen settings.
@@ -166,28 +168,8 @@ protected:
  * specialized methods for setting transform data. Both types of NVPR also require setting the
  * projection matrix through a special function call
  */
-class GrGLNvprProgramBase : public GrGLProgram {
+class GrGLNvprProgram : public GrGLProgram {
 protected:
-    GrGLNvprProgramBase(GrGLGpu*,
-                        const GrProgramDesc&,
-                        const BuiltinUniformHandles&,
-                        GrGLuint programID,
-                        const UniformInfoArray&,
-                        GrGLInstalledGeoProc*,
-                        GrGLInstalledXferProc* xferProcessor,
-                        GrGLInstalledFragProcs* fragmentProcessors);
-    virtual void onSetRenderTargetState(const GrOptDrawState&);
-
-    typedef GrGLProgram INHERITED;
-};
-
-class GrGLNvprProgram : public GrGLNvprProgramBase {
-public:
-    bool hasVertexShader() const SK_OVERRIDE { return true; }
-
-private:
-    typedef GrGLNvprProgramBuilder::SeparableVaryingInfo SeparableVaryingInfo;
-    typedef GrGLNvprProgramBuilder::SeparableVaryingInfoArray SeparableVaryingInfoArray;
     GrGLNvprProgram(GrGLGpu*,
                     const GrProgramDesc&,
                     const BuiltinUniformHandles&,
@@ -195,50 +177,19 @@ private:
                     const UniformInfoArray&,
                     GrGLInstalledGeoProc*,
                     GrGLInstalledXferProc* xferProcessor,
-                    GrGLInstalledFragProcs* fragmentProcessors,
-                    const SeparableVaryingInfoArray& separableVaryings);
-    void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrPendingFragmentStage&,
-                                  const SkMatrix& localMatrix,
-                                  GrGLInstalledFragProc*) SK_OVERRIDE;
+                    GrGLInstalledFragProcs* fragmentProcessors);
 
-    struct Varying {
-        GrGLint     fLocation;
-        SkDEBUGCODE(
-            GrSLType    fType;
-        );
-    };
-    SkTArray<Varying, true> fVaryings;
+private:
+    void didSetData(GrGpu::DrawType) SK_OVERRIDE;
+    virtual void setTransformData(const GrPrimitiveProcessor*,
+                                  const GrPendingFragmentStage&,
+                                  int index,
+                                  GrGLInstalledFragProc*) SK_OVERRIDE;
+    virtual void onSetRenderTargetState(const GrOptDrawState&);
 
     friend class GrGLNvprProgramBuilder;
 
-    typedef GrGLNvprProgramBase INHERITED;
-};
-
-class GrGLLegacyNvprProgram : public GrGLNvprProgramBase {
-public:
-    bool hasVertexShader() const SK_OVERRIDE { return false; }
-
-private:
-    GrGLLegacyNvprProgram(GrGLGpu* gpu,
-                          const GrProgramDesc& desc,
-                          const BuiltinUniformHandles&,
-                          GrGLuint programID,
-                          const UniformInfoArray&,
-                          GrGLInstalledGeoProc*,
-                          GrGLInstalledXferProc* xp,
-                          GrGLInstalledFragProcs* fps,
-                          int texCoordSetCnt);
-    void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrPendingFragmentStage&,
-                                  const SkMatrix& localMatrix,
-                                  GrGLInstalledFragProc*) SK_OVERRIDE;
-
-    int fTexCoordSetCnt;
-
-    friend class GrGLLegacyNvprProgramBuilder;
-
-    typedef GrGLNvprProgramBase INHERITED;
+    typedef GrGLProgram INHERITED;
 };
 
 #endif

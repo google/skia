@@ -35,52 +35,23 @@ void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
     return;
 }
 
-void GrGLVertexBuilder::transformToNormalizedDeviceSpace() {
+void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const char* pos3) {
+    SkASSERT(!fRtAdjustName);
+
     // setup RT Uniform
     fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
             fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                                         fProgramBuilder->rtAdjustment(),
                                         &fRtAdjustName);
-    // Wire transforms
-    SkTArray<GrGLProgramBuilder::TransformVarying, true>& transVs = fProgramBuilder->fCoordVaryings;
-    int transformCount = transVs.count();
-    for (int i = 0; i < transformCount; i++) {
-        GrCoordSet coordSet = transVs[i].fCoordSet;
-        const char* coords = NULL;
-        switch (coordSet) {
-            case kLocal_GrCoordSet:
-                coords = this->localCoords();
-                break;
-            case kDevice_GrCoordSet:
-                coords = this->glPosition();
-                break;
-        }
-
-        // varying = matrix * coords (logically)
-        const GrGLVarying& v = transVs[i].fV;
-        if (kDevice_GrCoordSet == coordSet) {
-            if (kVec2f_GrSLType == v.fType) {
-                this->codeAppendf("%s = (%s * %s).xy;", v.fVsOut, transVs[i].fUniName.c_str(),
-                                  coords);
-            } else {
-                this->codeAppendf("%s = %s * %s;", v.fVsOut, transVs[i].fUniName.c_str(), coords);
-            }
-        } else {
-            if (kVec2f_GrSLType == v.fType) {
-                this->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.fVsOut, transVs[i].fUniName.c_str(),
-                                  coords);
-            } else {
-                this->codeAppendf("%s = %s * vec3(%s, 1);", v.fVsOut, transVs[i].fUniName.c_str(),
-                                  coords);
-            }
-        }
-    }
 
     // Transform from Skia's device coords to GL's normalized device coords.
     this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
-                      this->glPosition(), fRtAdjustName, this->glPosition(), fRtAdjustName,
-                      this->glPosition());
+                      pos3, fRtAdjustName, pos3, fRtAdjustName, pos3);
+
+    // We could have the GrGeometryProcessor do this, but its just easier to have it performed here.
+    // If we ever need to set variable pointsize, then we can reinvestigate
+    this->codeAppend("gl_PointSize = 1.0;");
 }
 
 void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {

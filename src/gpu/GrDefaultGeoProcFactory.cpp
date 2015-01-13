@@ -83,32 +83,36 @@ public:
         GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
-        void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vs = pb->getVertexShaderBuilder();
             GrGLGPFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
 
-            vs->codeAppendf("%s = %s;", vs->positionCoords(), gp.inPosition()->fName);
+            // emit attributes
+            vs->emitAttributes(gp);
 
             // Setup pass through color
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, gp.inColor(),
                                         &fColorUniform);
 
-            // Setup local coords if needed
-            if (gp.inLocalCoords()) {
-                vs->codeAppendf("%s = %s;", vs->localCoords(), gp.inLocalCoords()->fName);
-            } else {
-                vs->codeAppendf("%s = %s;", vs->localCoords(), gp.inPosition()->fName);
-            }
-
             // setup uniform viewMatrix
             this->addUniformViewMatrix(pb);
 
-            // setup position varying
-            vs->codeAppendf("%s = %s * vec3(%s, 1);", vs->glPosition(), this->uViewM(),
+            // Setup position
+            vs->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
                             gp.inPosition()->fName);
+
+            if (gp.inLocalCoords()) {
+                // emit transforms with explicit local coords
+                this->emitTransforms(pb,  this->position(), gp.inLocalCoords()->fName,
+                                     gp.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+            } else {
+                // emit transforms with position
+                this->emitTransforms(pb,  this->position(), gp.inPosition()->fName,
+                                     gp.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+            }
 
             // Setup coverage as pass through
             if (kUniform_GrGPInput == local.fInputCoverageType) {
@@ -174,7 +178,8 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 

@@ -48,6 +48,8 @@ public:
     virtual const char* fragmentPosition() = 0;
 
 private:
+    friend class GrGLNormalPathProcessor;
+
     typedef GrGLShaderBuilder INHERITED;
 };
 
@@ -153,7 +155,6 @@ private:
     bool fHasReadDstColor;
     bool fHasReadFragmentPosition;
 
-    friend class GrGLNvprProgramBuilder;
     friend class GrGLProgramBuilder;
 
     typedef GrGLFPFragmentBuilder INHERITED;

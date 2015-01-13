@@ -35,7 +35,7 @@ public:
 #endif
         {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldTextureEffect>();
         const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
@@ -45,6 +45,10 @@ public:
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
+        // emit attributes
+        vsBuilder->emitAttributes(dfTexEffect);
+
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
@@ -56,15 +60,13 @@ public:
         // setup uniform viewMatrix
         this->addUniformViewMatrix(pb);
 
-        // setup position varying
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               this->uViewM(), dfTexEffect.inPosition()->fName);
+        // Setup position
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
+                               dfTexEffect.inPosition()->fName);
 
-        // setup output coords
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
-                               dfTexEffect.inPosition()->fName);
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
-                               dfTexEffect.inPosition()->fName);
+        // emit transforms
+        this->emitTransforms(args.fPB,  this->position(), dfTexEffect.inPosition()->fName,
+                             dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -242,8 +244,9 @@ void GrDistanceFieldTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
     GrGLDistanceFieldTextureEffect::GenKey(*this, bt, caps, b);
 }
 
-GrGLGeometryProcessor*
-GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+GrGLPrimitiveProcessor*
+GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt,
+                                               const GrGLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldTextureEffect, (*this, bt));
 }
 
@@ -321,7 +324,7 @@ public:
                                           const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
 
@@ -333,6 +336,10 @@ public:
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
+        // emit attributes
+        vsBuilder->emitAttributes(dfTexEffect);
+
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
 
@@ -342,18 +349,16 @@ public:
 
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
-        // setup coord outputs
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
-                               dfTexEffect.inPosition()->fName);
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
-                               dfTexEffect.inPosition()->fName);
-
         // setup uniform viewMatrix
         this->addUniformViewMatrix(pb);
 
-        // setup position varying
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                               this->uViewM(), dfTexEffect.inPosition()->fName);
+        // Setup position
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
+                               dfTexEffect.inPosition()->fName);
+
+        // emit transforms
+        this->emitTransforms(args.fPB,  this->position(), dfTexEffect.inPosition()->fName,
+                             dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -493,8 +498,9 @@ void GrDistanceFieldNoGammaTextureEffect::getGLProcessorKey(const GrBatchTracker
     GrGLDistanceFieldNoGammaTextureEffect::GenKey(*this, bt, caps, b);
 }
 
-GrGLGeometryProcessor*
-GrDistanceFieldNoGammaTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+GrGLPrimitiveProcessor*
+GrDistanceFieldNoGammaTextureEffect::createGLInstance(const GrBatchTracker& bt,
+                                                      const GrGLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldNoGammaTextureEffect, (*this, bt));
 }
 
@@ -562,13 +568,17 @@ public:
     , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
         const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
+        // emit attributes
+        vsBuilder->emitAttributes(dfTexEffect);
+
         GrGLVertToFrag v(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
@@ -577,18 +587,16 @@ public:
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                     &fColorUniform);
 
-        // setup coord outputs
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(),
-                               dfTexEffect.inPosition()->fName);
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(),
-                               dfTexEffect.inPosition()->fName);
-
         // setup uniform viewMatrix
         this->addUniformViewMatrix(pb);
 
-        // setup position varying
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
+        // Setup position
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
                                dfTexEffect.inPosition()->fName);
+
+        // emit transforms
+        this->emitTransforms(args.fPB,  this->position(), dfTexEffect.inPosition()->fName,
+                             dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
         // width, height, 1/(3*width)
@@ -805,8 +813,9 @@ void GrDistanceFieldLCDTextureEffect::getGLProcessorKey(const GrBatchTracker& bt
     GrGLDistanceFieldLCDTextureEffect::GenKey(*this, bt, caps, b);
 }
 
-GrGLGeometryProcessor*
-GrDistanceFieldLCDTextureEffect::createGLInstance(const GrBatchTracker& bt) const {
+GrGLPrimitiveProcessor*
+GrDistanceFieldLCDTextureEffect::createGLInstance(const GrBatchTracker& bt,
+                                                  const GrGLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldLCDTextureEffect, (*this, bt));
 }
 

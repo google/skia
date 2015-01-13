@@ -83,11 +83,14 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
+            // emit attributes
+            vsBuilder->emitAttributes(ce);
 
             GrGLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("CircleEdge", &v);
@@ -97,16 +100,16 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup coord outputs
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), ce.inPosition()->fName);
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), ce.inPosition()->fName);
-
             // setup uniform viewMatrix
             this->addUniformViewMatrix(pb);
 
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   this->uViewM(), ce.inPosition()->fName);
+            // Setup position
+            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
+                                   ce.inPosition()->fName);
+
+            // emit transforms
+            this->emitTransforms(args.fPB,  this->position(), ce.inPosition()->fName,
+                                 ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);;
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
@@ -157,7 +160,8 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -255,11 +259,14 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
+            // emit attributes
+            vsBuilder->emitAttributes(ee);
 
             GrGLVertToFrag ellipseOffsets(kVec2f_GrSLType);
             args.fPB->addVarying("EllipseOffsets", &ellipseOffsets);
@@ -275,16 +282,16 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup coord outputs
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), ee.inPosition()->fName);
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), ee.inPosition()->fName);
-
             // setup uniform viewMatrix
             this->addUniformViewMatrix(pb);
 
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   this->uViewM(), ee.inPosition()->fName);
+            // Setup position
+            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", this->position(), this->uViewM(),
+                                   ee.inPosition()->fName);
+
+            // emit transforms
+            this->emitTransforms(args.fPB, this->position(), ee.inPosition()->fName,
+                                 ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             // for outer curve
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -351,7 +358,8 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -455,11 +463,14 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+
+            // emit attributes
+            vsBuilder->emitAttributes(ee);
 
             GrGLVertToFrag offsets0(kVec2f_GrSLType);
             args.fPB->addVarying("EllipseOffsets0", &offsets0);
@@ -475,16 +486,16 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup coord outputs
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), ee.inPosition()->fName);
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), ee.inPosition()->fName);
-
             // setup uniform viewMatrix
             this->addUniformViewMatrix(pb);
 
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   this->uViewM(), ee.inPosition()->fName);
+            // Setup position
+            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", this->position(), this->uViewM(),
+                                   ee.inPosition()->fName);
+
+            // emit transforms
+            this->emitTransforms(args.fPB, this->position(), ee.inPosition()->fName,
+                                 ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
@@ -566,7 +577,8 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 

@@ -286,6 +286,18 @@ public:
 
     LATCAlias latcAlias() const { return fLATCAlias; }
 
+    /**
+     * Which type of path rendering is supported, if any
+     * TODO delete this when we only support normal non-legacy nvpr
+     */
+    enum NvprSupport {
+        kNone_NvprSupport,
+        kLegacy_NvprSupport,
+        kNormal_NvprSupport,
+    };
+
+    NvprSupport nvprSupport() const { return fNvprSupport; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -354,6 +366,7 @@ private:
     InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
     LATCAlias           fLATCAlias;
+    NvprSupport         fNvprSupport;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAIsInternalFormat : 1;

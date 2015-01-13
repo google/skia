@@ -83,8 +83,7 @@ public:
     struct DescInfo {
         bool operator==(const DescInfo& that) const {
             return fReadsDst == that.fReadsDst &&
-                   fReadsFragPosition == that.fReadsFragPosition &&
-                   fRequiresLocalCoordAttrib == that.fRequiresLocalCoordAttrib;
+                   fReadsFragPosition == that.fReadsFragPosition;
         }
         bool operator!=(const DescInfo& that) const { return !(*this == that); };
 
@@ -92,7 +91,6 @@ public:
         // programs.
         bool            fReadsDst;
         bool            fReadsFragPosition;
-        bool            fRequiresLocalCoordAttrib;
     };
 
 private:

@@ -47,6 +47,10 @@ public:
         numTransforms(). */
     const GrCoordTransform& coordTransform(int index) const { return *fCoordTransforms[index]; }
 
+    const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
+        return fCoordTransforms;
+    }
+
     /** Will this prceossor read the destination pixel value? */
     bool willReadDstColor() const { return fWillReadDstColor; }
 

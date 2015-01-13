@@ -54,6 +54,7 @@ public:
 
         friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
         friend class GrGLProgramBuilder; // For accessing toShaderBuilderIndex().
+        friend class GrGLGeometryProcessor;
     };
 
     struct UniformInfo {

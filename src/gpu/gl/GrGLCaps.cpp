@@ -25,6 +25,7 @@ void GrGLCaps::reset() {
     fMSFBOType = kNone_MSFBOType;
     fInvalidateFBType = kNone_InvalidateFBType;
     fLATCAlias = kLATC_LATCAlias;
+    fNvprSupport = kNone_NvprSupport;
     fMapBufferType = kNone_MapBufferType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
@@ -67,6 +68,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fStencilFormats = caps.fStencilFormats;
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
     fLATCAlias = caps.fLATCAlias;
+    fNvprSupport = caps.fNvprSupport;
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMaxVertexAttributes = caps.fMaxVertexAttributes;
     fMaxFragmentTextureUnits = caps.fMaxFragmentTextureUnits;
@@ -359,9 +361,16 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                  ((ctxInfo.version() >= GR_GL_VER(4,3) ||
                    ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
                   gli->fFunctions.fProgramPathFragmentInputGen));
+            if (fPathRenderingSupport) {
+                fNvprSupport = gli->fFunctions.fProgramPathFragmentInputGen ? kNormal_NvprSupport :
+                                                                              kLegacy_NvprSupport;
+            }
         } else {
             fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3,1);
+            fNvprSupport = fPathRenderingSupport ? kNormal_NvprSupport : kNone_NvprSupport;
         }
+    } else {
+        fNvprSupport = kNone_NvprSupport;
     }
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");

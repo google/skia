@@ -102,7 +102,8 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
@@ -186,7 +187,8 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
@@ -266,7 +268,8 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,

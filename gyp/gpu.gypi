@@ -272,10 +272,6 @@
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.h',
 
       # Files for building GLSL shaders
-      '<(skia_src_path)/gpu/gl/builders/GrGLLegacyNvprProgramBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLLegacyNvprProgramBuilder.h',
-      '<(skia_src_path)/gpu/gl/builders/GrGLNvprProgramBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLNvprProgramBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.cpp',
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLShaderBuilder.cpp',

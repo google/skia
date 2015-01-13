@@ -87,9 +87,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
         fFlags |= kDither_Flag;
     }
 
-    // TODO move local coords completely into GP
-    bool hasLocalCoords = gp && gp->hasLocalCoords();
-
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
 
     // TODO: Once we can handle single or four channel input into coverage stages then we can use
@@ -101,8 +98,6 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
     this->adjustProgramFromOptimizations(drawState, optFlags, colorPOI, coveragePOI,
                                          &firstColorStageIdx, &firstCoverageStageIdx);
-
-    fDescInfo.fRequiresLocalCoordAttrib = hasLocalCoords;
 
     bool usesLocalCoords = false;
 

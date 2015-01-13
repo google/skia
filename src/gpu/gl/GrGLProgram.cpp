@@ -24,34 +24,6 @@
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
 
-/**
- * Retrieves the final matrix that a transform needs to apply to its source coords.
- */
-static SkMatrix get_transform_matrix(const GrPendingFragmentStage& stage,
-                                     int transformIdx,
-                                     const SkMatrix& localMatrix) {
-    const GrCoordTransform& coordTransform = stage.processor()->coordTransform(transformIdx);
-    SkMatrix combined;
-
-    // We only apply the localmatrix to localcoords
-    if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
-        combined.setConcat(coordTransform.getMatrix(), localMatrix);
-    } else {
-        combined = coordTransform.getMatrix();
-    }
-    if (coordTransform.reverseY()) {
-        // combined.postScale(1,-1);
-        // combined.postTranslate(0,1);
-        combined.set(SkMatrix::kMSkewY,
-            combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
-        combined.set(SkMatrix::kMScaleY,
-            combined[SkMatrix::kMPersp1] - combined[SkMatrix::kMScaleY]);
-        combined.set(SkMatrix::kMTransY,
-            combined[SkMatrix::kMPersp2] - combined[SkMatrix::kMTransY]);
-    }
-    return combined;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLProgram::GrGLProgram(GrGLGpu* gpu,
@@ -93,9 +65,7 @@ void GrGLProgram::initSamplerUniforms() {
         fProgramDataManager.setSampler(fBuiltinUniformHandles.fDstCopySamplerUni, texUnitIdx);
         fDstCopyTexUnit = texUnitIdx++;
     }
-    if (fGeometryProcessor.get()) {
-        this->initSamplers(fGeometryProcessor.get(), &texUnitIdx);
-    }
+    this->initSamplers(fGeometryProcessor.get(), &texUnitIdx);
     if (fXferProcessor.get()) {
         this->initSamplers(fXferProcessor.get(), &texUnitIdx);
     }
@@ -105,8 +75,9 @@ void GrGLProgram::initSamplerUniforms() {
     }
 }
 
-void GrGLProgram::initSamplers(GrGLInstalledProc* ip, int* texUnitIdx) {
-    SkTArray<GrGLInstalledProc::Sampler, true>& samplers = ip->fSamplers;
+template <class Proc>
+void GrGLProgram::initSamplers(Proc* ip, int* texUnitIdx) {
+    SkTArray<typename Proc::Sampler, true>& samplers = ip->fSamplers;
     int numSamplers = samplers.count();
     for (int s = 0; s < numSamplers; ++s) {
         SkASSERT(samplers[s].fUniform.isValid());
@@ -115,8 +86,9 @@ void GrGLProgram::initSamplers(GrGLInstalledProc* ip, int* texUnitIdx) {
     }
 }
 
-void GrGLProgram::bindTextures(const GrGLInstalledProc* ip, const GrProcessor& processor) {
-    const SkTArray<GrGLInstalledProc::Sampler, true>& samplers = ip->fSamplers;
+template <class Proc>
+void GrGLProgram::bindTextures(const Proc* ip, const GrProcessor& processor) {
+    const SkTArray<typename Proc::Sampler, true>& samplers = ip->fSamplers;
     int numSamplers = samplers.count();
     SkASSERT(numSamplers == processor.numTextures());
     for (int s = 0; s < numSamplers; ++s) {
@@ -161,12 +133,12 @@ void GrGLProgram::setData(const GrOptDrawState& optState) {
     const GrPrimitiveProcessor& primProc = *optState.getPrimitiveProcessor();
     const GrBatchTracker& bt = optState.getBatchTracker();
     fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc, bt);
-    this->bindTextures(fGeometryProcessor, primProc);
+    this->bindTextures(fGeometryProcessor.get(), primProc);
 
     if (fXferProcessor.get()) {
         const GrXferProcessor& xp = *optState.getXferProcessor();
         fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
-        this->bindTextures(fXferProcessor, xp);
+        this->bindTextures(fXferProcessor.get(), xp);
     }
     this->setFragmentData(optState);
 
@@ -180,25 +152,21 @@ void GrGLProgram::setFragmentData(const GrOptDrawState& optState) {
         const GrPendingFragmentStage& stage = optState.getFragmentStage(e);
         const GrProcessor& processor = *stage.processor();
         fFragmentProcessors->fProcs[e]->fGLProc->setData(fProgramDataManager, processor);
-        const SkMatrix& localMatrix = optState.getPrimitiveProcessor()->localMatrix();
-        this->setTransformData(stage, localMatrix, fFragmentProcessors->fProcs[e]);
+        this->setTransformData(optState.getPrimitiveProcessor(),
+                               stage,
+                               e,
+                               fFragmentProcessors->fProcs[e]);
         this->bindTextures(fFragmentProcessors->fProcs[e], processor);
     }
 }
-void GrGLProgram::setTransformData(const GrPendingFragmentStage& processor,
-                                   const SkMatrix& localMatrix,
+void GrGLProgram::setTransformData(const GrPrimitiveProcessor* primProc,
+                                   const GrPendingFragmentStage& processor,
+                                   int index,
                                    GrGLInstalledFragProc* ip) {
-    SkTArray<GrGLInstalledFragProc::Transform, true>& transforms = ip->fTransforms;
-    int numTransforms = transforms.count();
-    SkASSERT(numTransforms == processor.processor()->numTransforms());
-    for (int t = 0; t < numTransforms; ++t) {
-        SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& matrix = get_transform_matrix(processor, t, localMatrix);
-        if (!transforms[t].fCurrentValue.cheapEqualTo(matrix)) {
-            fProgramDataManager.setSkMatrix(transforms[t].fHandle.convertToUniformHandle(), matrix);
-            transforms[t].fCurrentValue = matrix;
-        }
-    }
+    GrGLGeometryProcessor* gp =
+            static_cast<GrGLGeometryProcessor*>(fGeometryProcessor.get()->fGLProc.get());
+    gp->setTransformData(primProc, fProgramDataManager, index,
+                         processor.processor()->coordTransforms());
 }
 
 void GrGLProgram::didSetData(GrGpu::DrawType drawType) {
@@ -234,29 +202,6 @@ void GrGLProgram::onSetRenderTargetState(const GrOptDrawState& optState) {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLNvprProgramBase::GrGLNvprProgramBase(GrGLGpu* gpu,
-                                         const GrProgramDesc& desc,
-                                         const BuiltinUniformHandles& builtinUniforms,
-                                         GrGLuint programID,
-                                         const UniformInfoArray& uniforms,
-                                         GrGLInstalledGeoProc* primProc,
-                                         GrGLInstalledXferProc* xferProcessor,
-                                         GrGLInstalledFragProcs* fragmentProcessors)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, primProc,
-                xferProcessor, fragmentProcessors) {
-}
-
-void GrGLNvprProgramBase::onSetRenderTargetState(const GrOptDrawState& optState) {
-    SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()));
-    const GrRenderTarget* rt = optState.getRenderTarget();
-    SkISize size;
-    size.set(rt->width(), rt->height());
-    fGpu->glPathRendering()->setProjectionMatrix(optState.getPrimitiveProcessor()->viewMatrix(),
-                                                 size, rt->origin());
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
 GrGLNvprProgram::GrGLNvprProgram(GrGLGpu* gpu,
                                  const GrProgramDesc& desc,
                                  const BuiltinUniformHandles& builtinUniforms,
@@ -264,85 +209,32 @@ GrGLNvprProgram::GrGLNvprProgram(GrGLGpu* gpu,
                                  const UniformInfoArray& uniforms,
                                  GrGLInstalledGeoProc* primProc,
                                  GrGLInstalledXferProc* xferProcessor,
-                                 GrGLInstalledFragProcs* fragmentProcessors,
-                                 const SeparableVaryingInfoArray& separableVaryings)
+                                 GrGLInstalledFragProcs* fragmentProcessors)
     : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, primProc,
                 xferProcessor, fragmentProcessors) {
-    int count = separableVaryings.count();
-    fVaryings.push_back_n(count);
-    for (int i = 0; i < count; i++) {
-        Varying& varying = fVaryings[i];
-        const SeparableVaryingInfo& builderVarying = separableVaryings[i];
-        SkASSERT(GrGLShaderVar::kNonArray == builderVarying.fVariable.getArrayCount());
-        SkDEBUGCODE(
-            varying.fType = builderVarying.fVariable.getType();
-        );
-        varying.fLocation = builderVarying.fLocation;
-    }
 }
-
 void GrGLNvprProgram::didSetData(GrGpu::DrawType drawType) {
     SkASSERT(GrGpu::IsPathRenderingDrawType(drawType));
+    GrGLPathProcessor* pathProc =
+            static_cast<GrGLPathProcessor*>(fGeometryProcessor.get()->fGLProc.get());
+    pathProc->didSetData(fGpu->glPathRendering());
 }
 
-void GrGLNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
-                                       const SkMatrix& localMatrix,
+void GrGLNvprProgram::setTransformData(const GrPrimitiveProcessor* primProc,
+                                       const GrPendingFragmentStage& proc,
+                                       int index,
                                        GrGLInstalledFragProc* ip) {
-    SkTArray<GrGLInstalledFragProc::Transform, true>& transforms = ip->fTransforms;
-    int numTransforms = transforms.count();
-    SkASSERT(numTransforms == proc.processor()->numTransforms());
-    for (int t = 0; t < numTransforms; ++t) {
-        SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& transform = get_transform_matrix(proc, t, localMatrix);
-        if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
-            continue;
-        }
-        transforms[t].fCurrentValue = transform;
-        const Varying& fragmentInput = fVaryings[transforms[t].fHandle.handle()];
-        SkASSERT(transforms[t].fType == kVec2f_GrSLType || transforms[t].fType == kVec3f_GrSLType);
-        unsigned components = transforms[t].fType == kVec2f_GrSLType ? 2 : 3;
-        fGpu->glPathRendering()->setProgramPathFragmentInputTransform(fProgramID,
-                                                                      fragmentInput.fLocation,
-                                                                      GR_GL_OBJECT_LINEAR,
-                                                                      components,
-                                                                      transform);
-    }
+    GrGLPathProcessor* pathProc =
+            static_cast<GrGLPathProcessor*>(fGeometryProcessor.get()->fGLProc.get());
+    pathProc->setTransformData(primProc, index, proc.processor()->coordTransforms(),
+                               fGpu->glPathRendering(), fProgramID);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
-
-GrGLLegacyNvprProgram::GrGLLegacyNvprProgram(GrGLGpu* gpu,
-                                             const GrProgramDesc& desc,
-                                             const BuiltinUniformHandles& builtinUniforms,
-                                             GrGLuint programID,
-                                             const UniformInfoArray& uniforms,
-                                             GrGLInstalledGeoProc* primProc,
-                                             GrGLInstalledXferProc* xp,
-                                             GrGLInstalledFragProcs* fps,
-                                             int texCoordSetCnt)
-    : INHERITED(gpu, desc, builtinUniforms, programID, uniforms, primProc, xp, fps)
-    , fTexCoordSetCnt(texCoordSetCnt) {
-}
-
-void GrGLLegacyNvprProgram::didSetData(GrGpu::DrawType drawType) {
-    SkASSERT(GrGpu::IsPathRenderingDrawType(drawType));
-    fGpu->glPathRendering()->flushPathTexGenSettings(fTexCoordSetCnt);
-}
-
-void
-GrGLLegacyNvprProgram::setTransformData(const GrPendingFragmentStage& proc,
-                                        const SkMatrix& localMatrix,
-                                        GrGLInstalledFragProc* ip) {
-    // We've hidden the texcoord index in the first entry of the transforms array for each effect
-    int texCoordIndex = ip->fTransforms[0].fHandle.handle();
-    int numTransforms = proc.processor()->numTransforms();
-    for (int t = 0; t < numTransforms; ++t) {
-        const SkMatrix& transform = get_transform_matrix(proc, t, localMatrix);
-        GrGLPathRendering::PathTexGenComponents components =
-                GrGLPathRendering::kST_PathTexGenComponents;
-        if (proc.isPerspectiveCoordTransform(t)) {
-            components = GrGLPathRendering::kSTR_PathTexGenComponents;
-        }
-        fGpu->glPathRendering()->enablePathTexGen(texCoordIndex++, components, transform);
-    }
+void GrGLNvprProgram::onSetRenderTargetState(const GrOptDrawState& optState) {
+    SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()));
+    const GrRenderTarget* rt = optState.getRenderTarget();
+    SkISize size;
+    size.set(rt->width(), rt->height());
+    fGpu->glPathRendering()->setProjectionMatrix(optState.getPrimitiveProcessor()->viewMatrix(),
+                                                 size, rt->origin());
 }

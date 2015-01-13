@@ -535,10 +535,13 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+
+            // emit attributes
+            vsBuilder->emitAttributes(qe);
 
             GrGLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("QuadEdge", &v);
@@ -550,16 +553,16 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup coord outputs
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), qe.inPosition()->fName);
-            vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), qe.inPosition()->fName);
-
             // setup uniform viewMatrix
             this->addUniformViewMatrix(pb);
 
-            // setup position varying
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(),
-                                   this->uViewM(), qe.inPosition()->fName);
+            // Setup position
+            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
+                                   qe.inPosition()->fName);
+
+            // emit transforms
+            this->emitTransforms(args.fPB,  this->position(), qe.inPosition()->fName,
+                                 qe.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -622,7 +625,8 @@ public:
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE {
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 

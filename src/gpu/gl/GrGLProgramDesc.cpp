@@ -40,62 +40,6 @@ static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
     return false;
 }
 
-/**
- * The key for an individual coord transform is made up of a matrix type, a precision, and a bit
- * that indicates the source of the input coords.
- */
-enum {
-    kMatrixTypeKeyBits   = 1,
-    kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
-    
-    kPrecisionBits       = 2,
-    kPrecisionShift      = kMatrixTypeKeyBits,
-
-    kPositionCoords_Flag = (1 << (kPrecisionShift + kPrecisionBits)),
-    kDeviceCoords_Flag   = kPositionCoords_Flag + kPositionCoords_Flag,
-
-    kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 2,
-};
-
-GR_STATIC_ASSERT(kHigh_GrSLPrecision < (1 << kPrecisionBits));
-
-/**
- * We specialize the vertex code for each of these matrix types.
- */
-enum MatrixType {
-    kNoPersp_MatrixType  = 0,
-    kGeneral_MatrixType  = 1,
-};
-
-static uint32_t gen_transform_key(const GrPendingFragmentStage& stage, bool useExplicitLocalCoords) {
-    uint32_t totalKey = 0;
-    int numTransforms = stage.processor()->numTransforms();
-    for (int t = 0; t < numTransforms; ++t) {
-        uint32_t key = 0;
-        if (stage.isPerspectiveCoordTransform(t)) {
-            key |= kGeneral_MatrixType;
-        } else {
-            key |= kNoPersp_MatrixType;
-        }
-
-        const GrCoordTransform& coordTransform = stage.processor()->coordTransform(t);
-        if (kLocal_GrCoordSet == coordTransform.sourceCoords() && !useExplicitLocalCoords) {
-            key |= kPositionCoords_Flag;
-        } else if (kDevice_GrCoordSet == coordTransform.sourceCoords()) {
-            key |= kDeviceCoords_Flag;
-        }
-
-        GR_STATIC_ASSERT(kGrSLPrecisionCount <= (1 << kPrecisionBits));
-        key |= (coordTransform.precision() << kPrecisionShift);
-
-        key <<= kTransformKeyBits * t;
-
-        SkASSERT(0 == (totalKey & key)); // keys for each transform ought not to overlap
-        totalKey |= key;
-    }
-    return totalKey;
-}
-
 static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
     uint32_t key = 0;
     int numTextures = proc.numTextures();
@@ -152,8 +96,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    bool requiresLocalCoordAttrib = descInfo.fRequiresLocalCoordAttrib;
-
     GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
     // Make room for everything up to the effect keys.
     desc->fKey.reset();
@@ -172,8 +114,7 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
         const GrPendingFragmentStage& fps = optState.getFragmentStage(s);
         const GrFragmentProcessor& fp = *fps.processor();
         fp.getGLProcessorKey(gpu->glCaps(), &b);
-        if (!get_meta_key(fp, gpu->glCaps(),
-                          gen_transform_key(fps, requiresLocalCoordAttrib), &b)) {
+        if (!get_meta_key(fp, gpu->glCaps(), primProc.getTransformKey(fp.coordTransforms()), &b)) {
             desc->fKey.reset();
             return false;
         }
@@ -197,7 +138,6 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
     if (gpu->caps()->pathRenderingSupport() && isPathRendering) {
         header->fUseNvpr = true;
-        SkASSERT(!optState.hasGeometryProcessor());
     } else {
         header->fUseNvpr = false;
     }

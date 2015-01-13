@@ -25,12 +25,15 @@ public:
     GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL) {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
         const BitmapTextBatchTracker& local = args.fBT.cast<BitmapTextBatchTracker>();
 
         GrGLGPBuilder* pb = args.fPB;
         GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+
+        // emit attributes
+        vsBuilder->emitAttributes(cte);
 
         GrGLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v);
@@ -40,16 +43,16 @@ public:
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, cte.inColor(),
                                     &fColorUniform);
 
-        // setup output coords
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), cte.inPosition()->fName);
-        vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), cte.inPosition()->fName);
-
         // setup uniform viewMatrix
         this->addUniformViewMatrix(pb);
 
-        // setup position varying
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
+        // Setup position
+        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
                                cte.inPosition()->fName);
+
+        // emit transforms
+        this->emitTransforms(args.fPB,  this->position(), cte.inPosition()->fName,
+                             cte.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         GrGLGPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("%s = ", args.fOutputCoverage);
@@ -135,8 +138,9 @@ void GrBitmapTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
     GrGLBitmapTextGeoProc::GenKey(*this, bt, caps, b);
 }
 
-GrGLGeometryProcessor*
-GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt) const {
+GrGLPrimitiveProcessor*
+GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
+                                      const GrGLCaps& caps) const {
     return SkNEW_ARGS(GrGLBitmapTextGeoProc, (*this, bt));
 }
 

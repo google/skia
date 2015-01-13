@@ -496,7 +496,8 @@ public:
                                    const GrGLCaps&,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker&) const SK_OVERRIDE;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker&,
+                                                     const GrGLCaps&) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
@@ -530,7 +531,7 @@ class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
     GLDashingCircleEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
-    void emitCode(const EmitArgs&) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -559,7 +560,7 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrGeometryProcessor&,
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
+void GLDashingCircleEffect::onEmitCode(EmitArgs& args) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
     const DashingCircleBatchTracker local = args.fBT.cast<DashingCircleBatchTracker>();
     GrGLGPBuilder* pb = args.fPB;
@@ -572,6 +573,9 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
 
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
+    // emit attributes
+    vsBuilder->emitAttributes(dce);
+
     GrGLVertToFrag v(kVec2f_GrSLType);
     args.fPB->addVarying("Coord", &v);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dce.inCoord()->fName);
@@ -579,16 +583,16 @@ void GLDashingCircleEffect::emitCode(const EmitArgs& args) {
     // Setup pass through color
     this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
-    // setup coord outputs
-    vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), dce.inPosition()->fName);
-    vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), dce.inPosition()->fName);
-
     // setup uniform viewMatrix
     this->addUniformViewMatrix(pb);
 
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
+    // Setup position
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
                            dce.inPosition()->fName);
+
+    // emit transforms
+    this->emitTransforms(args.fPB,  this->position(), dce.inPosition()->fName, dce.localMatrix(),
+                         args.fTransformsIn, args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test circle
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -669,7 +673,8 @@ void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
     GLDashingCircleEffect::GenKey(*this, bt, caps, b);
 }
 
-GrGLGeometryProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracker& bt) const {
+GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracker& bt,
+                                                              const GrGLCaps&) const {
     return SkNEW_ARGS(GLDashingCircleEffect, (*this, bt));
 }
 
@@ -783,7 +788,8 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps&) const SK_OVERRIDE;
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
@@ -816,7 +822,7 @@ class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
     GLDashingLineEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
-    void emitCode(const EmitArgs&) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -844,7 +850,7 @@ GLDashingLineEffect::GLDashingLineEffect(const GrGeometryProcessor&,
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingLineEffect::emitCode(const EmitArgs& args) {
+void GLDashingLineEffect::onEmitCode(EmitArgs& args) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
     const DashingLineBatchTracker& local = args.fBT.cast<DashingLineBatchTracker>();
     GrGLGPBuilder* pb = args.fPB;
@@ -865,6 +871,9 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
 
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
+    // emit attributes
+    vsBuilder->emitAttributes(de);
+
     GrGLVertToFrag v(kVec2f_GrSLType);
     args.fPB->addVarying("Coord", &v);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), de.inCoord()->fName);
@@ -872,16 +881,16 @@ void GLDashingLineEffect::emitCode(const EmitArgs& args) {
     // Setup pass through color
     this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
-    // setup coord outputs
-    vsBuilder->codeAppendf("%s = %s;", vsBuilder->positionCoords(), de.inPosition()->fName);
-    vsBuilder->codeAppendf("%s = %s;", vsBuilder->localCoords(), de.inPosition()->fName);
-
     // setup uniform viewMatrix
     this->addUniformViewMatrix(pb);
 
-    // setup position varying
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", vsBuilder->glPosition(), this->uViewM(),
+    // Setup position
+    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
                            de.inPosition()->fName);
+
+    // emit transforms
+    this->emitTransforms(args.fPB,  this->position(), de.inPosition()->fName, de.localMatrix(),
+                         args.fTransformsIn, args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test rect
     GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -969,7 +978,8 @@ void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
     GLDashingLineEffect::GenKey(*this, bt, caps, b);
 }
 
-GrGLGeometryProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker& bt) const {
+GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker& bt,
+                                                            const GrGLCaps&) const {
     return SkNEW_ARGS(GLDashingLineEffect, (*this, bt));
 }
 

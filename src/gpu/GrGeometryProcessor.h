@@ -66,7 +66,7 @@ private:
 };
 
 class GrGLCaps;
-class GrGLGeometryProcessor;
+class GrGLPrimitiveProcessor;
 class GrOptDrawState;
 
 struct GrInitInvariantOutput;
@@ -122,6 +122,11 @@ public:
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 
     /**
+     * Gets a transformKey from an array of coord transforms
+     */
+    uint32_t getTransformKey(const SkTArray<const GrCoordTransform*, true>&) const;
+
+    /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
      * processor's GL backend implementation.
      */
@@ -133,7 +138,8 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const = 0;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps& caps) const = 0;
 
 protected:
     GrPrimitiveProcessor(const SkMatrix& viewMatrix, const SkMatrix& localMatrix)
@@ -171,6 +177,8 @@ protected:
     }
 
 private:
+    virtual bool hasExplicitLocalCoords() const = 0;
+
     SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
 
@@ -261,7 +269,6 @@ public:
 
         return this->onCanMakeEqual(mine, other, theirs);
     }
-
     
     // TODO we can remove color from the GrGeometryProcessor base class once we have bundles of
     // primitive data
@@ -269,9 +276,6 @@ public:
 
     // TODO this is a total hack until the gp can do deferred geometry
     bool hasVertexColor() const { return fHasVertexColor; }
-
-    // TODO this is a total hack until gp can setup and manage local coords
-    bool hasLocalCoords() const { return fHasLocalCoords; }
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
@@ -332,8 +336,11 @@ private:
     virtual bool onCanMakeEqual(const GrBatchTracker& mine,
                                 const GrGeometryProcessor& that,
                                 const GrBatchTracker& theirs) const = 0;
+
     // TODO delete this when we have more advanced equality testing via bundles and the BT
     virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
+
+    bool hasExplicitLocalCoords() const SK_OVERRIDE { return fHasLocalCoords; }
 
     SkSTArray<kMaxVertexAttribs, GrAttribute, true> fAttribs;
     size_t fVertexStride;
@@ -375,12 +382,18 @@ public:
                                    const GrGLCaps& caps,
                                    GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
-    GrGLGeometryProcessor* createGLInstance(const GrBatchTracker& bt) const SK_OVERRIDE;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
+                                                     const GrGLCaps& caps) const SK_OVERRIDE;
+
+protected:
+    GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
 private:
-    GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
+    bool hasExplicitLocalCoords() const SK_OVERRIDE { return false; }
+
     GrColor fColor;
 
     typedef GrPrimitiveProcessor INHERITED;
 };
+
 #endif
