@@ -48,15 +48,6 @@ public:
     static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
 
     /**
-     * GrTexture is a more logical parameter for this factory, but its
-     * interactions with scratch cache still has issues, so for now we take
-     * SkBitmap instead. This will be changed in the future. skbug.com/1449
-     */
-    static SkImage* NewTexture(const SkBitmap&);
-
-    virtual bool isOpaque() const { return false; }
-
-    /**
      *  Construct a new SkImage based on the given ImageGenerator.
      *  This function will always take ownership of the passed
      *  ImageGenerator.  Returns NULL on error.
@@ -75,6 +66,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     uint32_t uniqueID() const { return fUniqueID; }
+    virtual bool isOpaque() const { return false; }
 
     /**
      * Return the GrTexture that stores the image pixels. Calling getTexture

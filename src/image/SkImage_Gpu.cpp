@@ -93,10 +93,6 @@ SkImage* SkNewImageFromBitmapTexture(const SkBitmap& bitmap, int sampleCountForN
     return SkNEW_ARGS(SkImage_Gpu, (bitmap, sampleCountForNewSurfaces));
 }
 
-SkImage* SkImage::NewTexture(const SkBitmap& bitmap) {
-    return SkNewImageFromBitmapTexture(bitmap, 0);
-}
-
 GrTexture* SkTextureImageGetTexture(SkImage* image) {
     return ((SkImage_Gpu*)image)->getTexture();
 }
