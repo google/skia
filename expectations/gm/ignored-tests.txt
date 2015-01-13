@@ -41,12 +41,3 @@ blurrects
 dropshadowimagefilter
 
 
-# robertphillips - https://codereview.chromium.org/839883003/
-complexclip_bw
-complexclip_bw_invert
-complexclip_bw_layer
-complexclip_bw_layer_invert
-complexclip3_complex
-complexclip3_simple
-convex_poly_clip
-dftext
