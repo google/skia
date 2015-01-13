@@ -22,7 +22,7 @@ class GrResourceCache2;
  * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base
  * class to isolate the ref-cnting behavior and provide friendship without exposing all of
  * GrGpuResource.
- * 
+ *
  * Gpu resources can have three types of refs:
  *   1) Normal ref (+ by ref(), - by unref()): These are used by code that is issuing draw calls
  *      that read and write the resource via GrDrawTarget and by any object that must own a
@@ -40,7 +40,7 @@ class GrResourceCache2;
  */
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(GrIORef)
+    SK_DECLARE_INST_COUNT(GrIORef)
 
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of

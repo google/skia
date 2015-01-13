@@ -5,143 +5,76 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkInstCnt_DEFINED
 #define SkInstCnt_DEFINED
 
-/*
- * The instance counting system consists of three macros that create the
- * instance counting machinery. A class is added to the system by adding:
- *   SK_DECLARE_INST_COUNT at the top of its declaration for derived classes
- *   SK_DECLARE_INST_COUNT_ROOT at the top of its declaration for a root class
- * At the end of an application a call to all the "root" objects'
- * CheckInstanceCount methods should be made
+/* To count all instances of T, including all subclasses of T,
+ * add SK_DECLARE_INST_COUNT(T) to T's class definition.
+ * If you want to print out counts of leaked instances, set gPrintInstCount to true in main().
+ *
+ * E.g.
+ *   struct Base { SK_DECLARE_INST_COUNT(Base) };
+ *   struct A : public Base {};
+ *   struct SubBase : public Base { SK_DECLARE_INST_COUNT(SubBase); }
+ *   struct B : public SubBase {};
+ *
+ * If gPrintInstCount is true, at the program exit you will see something like:
+ *   Base: <N> leaked instances
+ *   SubBase: <M> leaked instances
+ * where N >= M.  Leaked instances of A count against Base; leaked instances of B count against
+ * both SubBase and Base.
+ *
+ * If SK_ENABLE_INST_COUNT is not defined or defined to 0, or we're in a shared library build,
+ * this entire system is compiled away to a noop.
  */
+
 #include "SkTypes.h"
 
-#if SK_ENABLE_INST_COUNT
-// Static variables inside member functions below may be defined multiple times
-// if Skia is being used as a dynamic library. Instance counting should be on
-// only for static builds. See bug skia:2058.
-#if defined(SKIA_DLL)
-#error Instance counting works only when Skia is built as a static library.
-#endif
+#if SK_ENABLE_INST_COUNT && !defined(SKIA_DLL) // See skia:2058 for why we noop on shared builds.
+    #include "SkThread.h"
+    #include <stdlib.h>
 
-#include "SkOnce.h"
-#include "SkTArray.h"
-#include "SkThread.h"
-extern bool gPrintInstCount;
+    #define SK_DECLARE_INST_COUNT(T)                           \
+        static const char* InstCountClassName() { return #T; } \
+        SkInstCount<T, T::InstCountClassName> fInstCnt;        \
+        static int32_t GetInstanceCount() { return SkInstCount<T, InstCountClassName>::Count(); }
 
-// The non-root classes just register themselves with their parent
-#define SK_DECLARE_INST_COUNT(className)                                    \
-    SK_DECLARE_INST_COUNT_INTERNAL(className,                               \
-                                   INHERITED::AddInstChild(CheckInstanceCount);)
+    extern bool gPrintInstCount;
 
-// The root classes registers a function to print out the memory stats when
-// the app ends
-#define SK_DECLARE_INST_COUNT_ROOT(className)                               \
-    SK_DECLARE_INST_COUNT_INTERNAL(className, atexit(exitPrint);)
+    template <typename T, const char*(Name)()>
+    class SkInstCount {
+    public:
+        SkInstCount()                   { Inc(); }
+        SkInstCount(const SkInstCount&) { Inc(); }
+        ~SkInstCount()                  { sk_atomic_dec(&gCount); }
 
-#define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
-    class SkInstanceCountHelper {                                           \
-    public:                                                                 \
-        SkInstanceCountHelper() {                                           \
-            SK_DECLARE_STATIC_ONCE(once);                                   \
-            SkOnce(&once, init);                                            \
-            sk_atomic_inc(GetInstanceCountPtr());                           \
-        }                                                                   \
-                                                                            \
-        static void init() {                                                \
-            initStep                                                        \
-        }                                                                   \
-                                                                            \
-        SkInstanceCountHelper(const SkInstanceCountHelper&) {               \
-            sk_atomic_inc(GetInstanceCountPtr());                           \
-        }                                                                   \
-                                                                            \
-        ~SkInstanceCountHelper() {                                          \
-            sk_atomic_dec(GetInstanceCountPtr());                           \
-        }                                                                   \
-                                                                            \
-        static int32_t* GetInstanceCountPtr() {                             \
-            static int32_t gInstanceCount;                                  \
-            return &gInstanceCount;                                         \
-        }                                                                   \
-                                                                            \
-        static SkTArray<int (*)(int, bool)>*& GetChildren() {               \
-            static SkTArray<int (*)(int, bool)>* gChildren;                 \
-            return gChildren;                                               \
-        }                                                                   \
-                                                                            \
-        static void create_mutex(SkMutex** mutex) {                         \
-            *mutex = SkNEW(SkMutex);                                        \
-        }                                                                   \
-        static SkBaseMutex& GetChildrenMutex() {                            \
-            static SkMutex* childrenMutex;                                  \
-            SK_DECLARE_STATIC_ONCE(once);                                   \
-            SkOnce(&once, className::SkInstanceCountHelper::create_mutex, &childrenMutex);\
-            return *childrenMutex;                                          \
-        }                                                                   \
-                                                                            \
-    } fInstanceCountHelper;                                                 \
-                                                                            \
-    static int32_t GetInstanceCount() {                                     \
-        return *SkInstanceCountHelper::GetInstanceCountPtr();               \
-    }                                                                       \
-                                                                            \
-    static void exitPrint() {                                               \
-        CheckInstanceCount(0, true);                                        \
-    }                                                                       \
-                                                                            \
-    static int CheckInstanceCount(int level = 0, bool cleanUp = false) {    \
-        if (gPrintInstCount && 0 != GetInstanceCount()) {                   \
-            SkDebugf("%*c Leaked %s: %d\n",                                 \
-                     4*level, ' ', #className,                              \
-                     GetInstanceCount());                                   \
-        }                                                                   \
-        if (NULL == SkInstanceCountHelper::GetChildren()) {                 \
-            return GetInstanceCount();                                      \
-        }                                                                   \
-        SkTArray<int (*)(int, bool)>* children = \
-            SkInstanceCountHelper::GetChildren();                           \
-        int childCount = children->count();                                 \
-        int count = GetInstanceCount();                                     \
-        for (int i = 0; i < childCount; ++i) {                              \
-            count -= (*(*children)[i])(level+1, cleanUp);                   \
-        }                                                                   \
-        SkASSERT(count >= 0);                                               \
-        if (gPrintInstCount && childCount > 0 && count > 0) {               \
-            SkDebugf("%*c Leaked ???: %d\n", 4*(level + 1), ' ', count);    \
-        }                                                                   \
-        if (cleanUp) {                                                      \
-            delete children;                                                \
-            SkInstanceCountHelper::GetChildren() = NULL;                    \
-        }                                                                   \
-        return GetInstanceCount();                                          \
-    }                                                                       \
-                                                                            \
-    static void AddInstChild(int (*childCheckInstCnt)(int, bool)) {         \
-        if (CheckInstanceCount != childCheckInstCnt) {                      \
-            SkAutoMutexAcquire ama(SkInstanceCountHelper::GetChildrenMutex()); \
-            if (NULL == SkInstanceCountHelper::GetChildren()) {             \
-                SkInstanceCountHelper::GetChildren() =                      \
-                    new SkTArray<int (*)(int, bool)>;                       \
-            }                                                               \
-            SkInstanceCountHelper::GetChildren()->push_back(childCheckInstCnt); \
-        }                                                                   \
-    }
+        SkInstCount& operator==(const SkInstCount&) { return *this; } // == can't change the count.
 
+        static void Inc() {
+            // If it's the first time we go from 0 to 1, register to print leaks at process exit.
+            if (0 == sk_atomic_inc(&gCount) && sk_atomic_cas(&gRegistered, 0, 1)) {
+                atexit(PrintAtExit);
+            }
+        }
+
+        static void PrintAtExit() {
+            int32_t leaks = Count();
+            if (gPrintInstCount && leaks > 0) {
+                SkDebugf("Leaked %s: %d\n", Name(), leaks);
+            }
+        }
+
+        // FIXME: Used publicly by unit tests.  Seems like a bad idea in a DM world.
+        static int32_t Count() { return sk_acquire_load(&gCount); }
+
+    private:
+        static int32_t gCount, gRegistered;
+    };
+    // As template values, these will be deduplicated.  (No one-definition rule problems.)
+    template <typename T, const char*(Name)()> int32_t SkInstCount<T, Name>::gCount      = 0;
+    template <typename T, const char*(Name)()> int32_t SkInstCount<T, Name>::gRegistered = 0;
 #else
-// Typically SK_ENABLE_INST_COUNT=0. Make sure the class declares public typedef INHERITED by
-// causing a compile-time error if the typedef is missing. This way SK_ENABLE_INST_COUNT=1 stays
-// compiling.
-#define SK_DECLARE_INST_COUNT(className) static void AddInstChild() { INHERITED::AddInstChild(); }
-#define SK_DECLARE_INST_COUNT_ROOT(className) static void AddInstChild() { }
+    #define SK_DECLARE_INST_COUNT(T)
 #endif
-
-// Following are deprecated. They are defined only for backwards API compatibility.
-#define SK_DECLARE_INST_COUNT_TEMPLATE(className) SK_DECLARE_INST_COUNT(className)
-#define SK_DEFINE_INST_COUNT(className)
-#define SK_DEFINE_INST_COUNT_TEMPLATE(templateInfo, className)
 
 #endif // SkInstCnt_DEFINED

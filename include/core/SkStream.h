@@ -170,7 +170,7 @@ public:
 
 class SK_API SkWStream : SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(SkWStream)
+    SK_DECLARE_INST_COUNT(SkWStream)
 
     virtual ~SkWStream();
 

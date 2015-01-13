@@ -44,7 +44,7 @@ public:
         }
     }
 
-    SK_DECLARE_INST_COUNT_ROOT(A);
+    SK_DECLARE_INST_COUNT(A);
 
     static A* Create(SkRandom* r);
 

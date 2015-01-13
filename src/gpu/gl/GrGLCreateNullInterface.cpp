@@ -14,7 +14,7 @@
 
 class BufferObj {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(BufferObj);
+    SK_DECLARE_INST_COUNT(BufferObj);
 
     BufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {
     }
@@ -47,7 +47,7 @@ private:
 // This class maintains a sparsely populated array of buffer pointers.
 class BufferManager {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(BufferManager);
+    SK_DECLARE_INST_COUNT(BufferManager);
 
     BufferManager() : fFreeListHead(kFreeListEnd) {}
 
@@ -116,7 +116,7 @@ private:
  */
 struct ThreadContext {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(ThreadContext);
+    SK_DECLARE_INST_COUNT(ThreadContext);
 
     BufferManager   fBufferManager;
     GrGLuint        fCurrArrayBuffer;

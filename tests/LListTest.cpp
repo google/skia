@@ -24,7 +24,7 @@ public:
     int fID;
 
 private:
-    SK_DECLARE_INST_COUNT_ROOT(ListElement);
+    SK_DECLARE_INST_COUNT(ListElement);
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(ListElement);
 };
 

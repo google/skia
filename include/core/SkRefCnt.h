@@ -27,7 +27,7 @@
 */
 class SK_API SkRefCntBase : SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(SkRefCntBase)
+    SK_DECLARE_INST_COUNT(SkRefCntBase)
 
     /** Default construct, initializing the reference count to 1.
     */

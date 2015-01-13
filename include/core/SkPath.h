@@ -30,7 +30,7 @@ class SkWStream;
 */
 class SK_API SkPath {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(SkPath);
+    SK_DECLARE_INST_COUNT(SkPath);
 
     SkPath();
     SkPath(const SkPath&);

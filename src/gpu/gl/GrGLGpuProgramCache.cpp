@@ -23,7 +23,7 @@ SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
 typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
-    SK_DECLARE_INST_COUNT_ROOT(Entry);
+    SK_DECLARE_INST_COUNT(Entry);
     Entry() : fProgram(NULL), fLRUStamp(0) {}
 
     SkAutoTUnref<GrGLProgram>   fProgram;

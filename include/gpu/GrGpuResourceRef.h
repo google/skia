@@ -36,7 +36,7 @@
  */
 class GrGpuResourceRef : SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(GrGpuResourceRef);
+    SK_DECLARE_INST_COUNT(GrGpuResourceRef);
 
     ~GrGpuResourceRef();
 
@@ -87,7 +87,7 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-/** 
+/**
  * Templated version of GrGpuResourceRef to enforce type safety.
  */
 template <typename T> class GrTGpuResourceRef : public GrGpuResourceRef {
