@@ -18,6 +18,10 @@
  */
 static void* sk_atomic_cas(void** addr, void* before, void* after);
 
-#include SK_ATOMICS_PLATFORM_H
+#ifdef GOOGLE3
+    #include "SkAtomics_sync.h"
+#else
+    #include SK_ATOMICS_PLATFORM_H
+#endif
 
 #endif//SkThreadPriv_DEFINED
