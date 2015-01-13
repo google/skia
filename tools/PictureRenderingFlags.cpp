@@ -139,9 +139,10 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 #endif
         } else if (0 == strcmp(mode, "rerecord") && kRender_PictureTool == tool) {
             renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
-        // Allow 'mode' to be set to 'simple', but do not create a renderer, so we can
-        // ensure that pipe does not override a mode besides simple. The renderer will
-        // be created below.
+        } else if (0 == strcmp(mode, "simple")) {
+            // Allow 'mode' to be set to 'simple', but do not create a renderer, so we can
+            // ensure that pipe does not override a mode besides simple. The renderer will
+            // be created below.
         } else {
             error.printf("%s is not a valid mode for --mode\n", mode);
             return NULL;
