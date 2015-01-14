@@ -22,6 +22,12 @@ static inline void wrap_texture(GrTexture* texture, int width, int height, SkBit
 
 static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canvas) {
 
+    // Some image filter can totally filter away a layer (e.g., SkPictureImageFilter's with
+    // no picture).
+    if (!layer->texture()) {
+        return;
+    }
+
     SkBitmap bm;
     wrap_texture(layer->texture(),
                  !layer->isAtlased() ? layer->rect().width()  : layer->texture()->width(),

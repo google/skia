@@ -164,7 +164,7 @@ public:
         SkASSERT(SK_InvalidGenID != pictureID);
 
         if (fPaint) {
-            if (fPaint->getImageFilter() && fPaint->getImageFilter()->canFilterImageGPU()) {
+            if (fPaint->getImageFilter()) {
                 fFilter = SkSafeRef(fPaint->getImageFilter());
                 fPaint->setImageFilter(NULL);
             }
@@ -190,6 +190,9 @@ public:
     void setTexture(GrTexture* texture, const SkIRect& rect) {
         SkRefCnt_SafeAssign(fTexture, texture);
         fRect = rect;
+        if (!fTexture) {
+            fLocked = false;
+        }
     }
     GrTexture* texture() { return fTexture; }
     const SkPaint* paint() const { return fPaint; }
