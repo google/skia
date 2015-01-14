@@ -2,7 +2,7 @@ Markdown
 ========
 
 This site can handle normal MarkDown and many common extensions. To learn
-how the following is done please see the [source for this page](./docserver.md).
+how the following is done please see the [source for this page](./markdown.md).
 Any file you put under `/site/` that has the extension `.md` will be processed
 as MarkDown. All other files will be served directly. For example, images
 can be added and they will be served correctly and referenced from within MarkDown files.
