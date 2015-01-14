@@ -312,8 +312,9 @@ public:
     GrGLLegacyPathProcessor(const GrPathProcessor& pathProc, const GrBatchTracker& bt,
                             int maxTexCoords)
         : INHERITED(pathProc, bt)
-        , fMaxTexCoords(maxTexCoords)
-        , fTexCoordSetCnt(0) {}
+        , fTexCoordSetCnt(0) {
+            SkDEBUGCODE(fMaxTexCoords = maxTexCoords;)
+    }
 
     int addTexCoordSets(int count) {
         int firstFreeCoordSet = fTexCoordSetCnt;
@@ -368,7 +369,7 @@ public:
     }
 
 private:
-    int fMaxTexCoords;
+    SkDEBUGCODE(int fMaxTexCoords;)
     int fTexCoordSetCnt;
 
     typedef GrGLPathProcessor INHERITED;
