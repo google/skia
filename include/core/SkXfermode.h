@@ -190,26 +190,20 @@ public:
         return AsMode(xfer, mode);
     }
 
-    /** A subclass may implement this factory function to work with the GPU backend. It is legal
-        to call this with all params NULL to simply test the return value. If effect is non-NULL
-        then the xfermode may optionally allocate an effect to return and the caller as *effect.
-        The caller will install it and own a ref to it. Since the xfermode may or may not assign
-        *effect, the caller should set *effect to NULL beforehand. background specifies the
-        texture to use as the background for compositing, and should be accessed in the effect's
-        fragment shader. If NULL, the effect should request access to destination color
-        (setWillReadDstColor()), and use that in the fragment shader (builder->dstColor()).
+    /** Implemented by a subclass to support use as an image filter in the GPU backend. When used as
+        an image filter the xfer mode blends the source color against a background texture rather
+        than the destination. It is implemented as a fragment processor. This can be called with
+        both params set to NULL to query whether it would succeed. Otherwise, both params are
+        required. Upon success the function returns true and the caller owns a ref to the fragment
+        parameter. Upon failure false is returned and the processor param is not written to.
      */
-    // TODO: Once all custom xp's have been created the background parameter will be required here.
-    //       We will always use the XPFactory if there is no background texture and the fragment if
-    //       there is one.
-    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background = NULL) const;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background) const;
 
     /** A subclass may implement this factory function to work with the GPU backend. It is legal
         to call this with xpf NULL to simply test the return value. If xpf is non-NULL then the
         xfermode may optionally allocate a factory to return to the caller as *xpf. The caller
         will install it and own a ref to it. Since the xfermode may or may not assign *xpf, the
-        caller should set *xpf to NULL beforehand. XP's cannot use a background texture since they
-        have no coord transforms.
+        caller should set *xpf to NULL beforehand. XferProcessors cannot use a background texture.
      */
     virtual bool asXPFactory(GrXPFactory** xpf) const;
 

@@ -127,6 +127,12 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
         return onFilterImage(proxy, src, ctx, result, offset);
     }
     GrTexture* backgroundTex = background.getTexture();
+
+    if (NULL == backgroundTex) {
+        SkASSERT(false);
+        return false;
+    }
+
     SkBitmap foreground = src;
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
     if (getInput(1) && !getInput(1)->getInputResultGPU(proxy, src, ctx, &foreground,

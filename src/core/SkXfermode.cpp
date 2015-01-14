@@ -704,7 +704,7 @@ bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
     } else if (xfermode->asXPFactory(xpf)) {
         return true;
     } else {
-        return xfermode->asFragmentProcessor(fp);
+        return xfermode->asFragmentProcessor(fp, NULL);
     }
 }
 #else
