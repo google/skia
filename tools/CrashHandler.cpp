@@ -8,6 +8,10 @@
 #ifndef SK_CRASH_HANDLER
     void SetupCrashHandler() { }
 
+#elif defined(GOOGLE3)
+    #include "base/process_state.h"
+    void SetupCrashHandler() { InstallSignalHandlers(); }
+
 #else
 
     #if defined(SK_BUILD_FOR_MAC)
