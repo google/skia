@@ -145,6 +145,10 @@ void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
             fDescInfo.fReadsFragPosition = true;
         }
     }
+
+    if (fXferProcessor->willReadDstColor()) {
+        fDescInfo.fReadsDst = true;
+    }
 }
 
 void GrOptDrawState::finalize(GrGpu* gpu) {

@@ -31,8 +31,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
 #if SK_SUPPORT_GPU
-    virtual bool asFragmentProcessor(GrFragmentProcessor**,
-                                     GrTexture* background) const SK_OVERRIDE;
+    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background) const SK_OVERRIDE;
+
+    bool asXPFactory(GrXPFactory**) const SK_OVERRIDE;
 #endif
 
 private:
@@ -242,6 +243,17 @@ bool SkArithmeticMode_scalar::asFragmentProcessor(GrFragmentProcessor** fp,
                                      SkScalarToFloat(fK[3]),
                                      fEnforcePMColor,
                                      background);
+    }
+    return true;
+}
+
+bool SkArithmeticMode_scalar::asXPFactory(GrXPFactory** xpf) const {
+    if (xpf) {
+        *xpf = GrArithmeticXPFactory::Create(SkScalarToFloat(fK[0]),
+                                             SkScalarToFloat(fK[1]),
+                                             SkScalarToFloat(fK[2]),
+                                             SkScalarToFloat(fK[3]),
+                                             fEnforcePMColor);
     }
     return true;
 }
