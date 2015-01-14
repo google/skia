@@ -42,10 +42,6 @@ public:
 
     virtual void setUserMatrix(const SkMatrix&) {}
 
-    /** Does nothing by default, but used by save() and restore()-type
-        subclasses to track unresolved save() calls. */
-    virtual void trackSaveState(int* state) {}
-
     // The next "active" system is only used by save, saveLayer, and restore.
     // It is used to determine which saveLayers are currently active (at a
     // given point in the rendering).
@@ -80,7 +76,6 @@ class SkRestoreCommand : public SkDrawCommand {
 public:
     SkRestoreCommand();
     void execute(SkCanvas* canvas) const SK_OVERRIDE;
-    void trackSaveState(int* state) SK_OVERRIDE;
     Action action() const SK_OVERRIDE { return kPopLayer_Action; }
 
 private:
@@ -511,7 +506,6 @@ class SkSaveCommand : public SkDrawCommand {
 public:
     SkSaveCommand();
     void execute(SkCanvas* canvas) const SK_OVERRIDE;
-    void trackSaveState(int* state) SK_OVERRIDE;
     Action action() const SK_OVERRIDE { return kPushLayer_Action; }
 private:
     typedef SkDrawCommand INHERITED;
@@ -523,7 +517,6 @@ public:
                        SkCanvas::SaveFlags flags);
     void execute(SkCanvas* canvas) const SK_OVERRIDE;
     void vizExecute(SkCanvas* canvas) const SK_OVERRIDE;
-    void trackSaveState(int* state) SK_OVERRIDE;
     Action action() const SK_OVERRIDE{ return kPushLayer_Action; }
     void setActive(bool active) SK_OVERRIDE { fActive = active; }
     bool active() const SK_OVERRIDE { return fActive; }

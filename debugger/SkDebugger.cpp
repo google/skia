@@ -49,19 +49,11 @@ SkPicture* SkDebugger::copyPicture() {
     fDebugCanvas->setOverdrawViz(false);
     bool pathOps = fDebugCanvas->getAllowSimplifyClip();
     fDebugCanvas->setAllowSimplifyClip(false);
-    int saveCount = fDebugCanvas->getOutstandingSaveCount();
-    fDebugCanvas->setOutstandingSaveCount(0);
 
     fDebugCanvas->draw(canvas);
 
-    int temp = fDebugCanvas->getOutstandingSaveCount();
-    for (int i = 0; i < temp; ++i) {
-        canvas->restore();
-    }
-
     fDebugCanvas->setMegaVizMode(vizMode);
     fDebugCanvas->setOverdrawViz(overDraw);
-    fDebugCanvas->setOutstandingSaveCount(saveCount);
     fDebugCanvas->setAllowSimplifyClip(pathOps);
 
     return recorder.endRecording();

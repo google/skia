@@ -831,10 +831,6 @@ void SkRestoreCommand::execute(SkCanvas* canvas) const {
     canvas->restore();
 }
 
-void SkRestoreCommand::trackSaveState(int* state) {
-    (*state)--;
-}
-
 SkRotateCommand::SkRotateCommand(SkScalar degrees)
     : INHERITED(ROTATE) {
     fDegrees = degrees;
@@ -852,10 +848,6 @@ SkSaveCommand::SkSaveCommand()
 
 void SkSaveCommand::execute(SkCanvas* canvas) const {
     canvas->save();
-}
-
-void SkSaveCommand::trackSaveState(int* state) {
-    (*state)++;
 }
 
 SkSaveLayerCommand::SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
@@ -892,10 +884,6 @@ void SkSaveLayerCommand::execute(SkCanvas* canvas) const {
 
 void SkSaveLayerCommand::vizExecute(SkCanvas* canvas) const {
     canvas->save();
-}
-
-void SkSaveLayerCommand::trackSaveState(int* state) {
-    (*state)++;
 }
 
 SkScaleCommand::SkScaleCommand(SkScalar sx, SkScalar sy)

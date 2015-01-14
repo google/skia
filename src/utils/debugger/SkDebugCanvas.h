@@ -35,9 +35,6 @@ public:
     void setOverdrawViz(bool overdrawViz) { fOverdrawViz = overdrawViz; }
     bool getOverdrawViz() const { return fOverdrawViz; }
 
-    void setOutstandingSaveCount(int saveCount) { fOutstandingSaveCount = saveCount; }
-    int getOutstandingSaveCount() const { return fOutstandingSaveCount; }
-
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
     void setPicture(SkPicture* picture) { fPicture = picture; }
@@ -137,7 +134,6 @@ public:
 
     void setUserMatrix(SkMatrix matrix) {
         fUserMatrix = matrix;
-        fDrawNeedsReset = true;
     }
 
     SkString clipStackData() const { return fClipStackData; }
@@ -225,9 +221,7 @@ private:
     SkPicture* fPicture;
     bool fFilter;
     bool fMegaVizMode;
-    int fIndex;
     SkMatrix fUserMatrix;
-    bool     fDrawNeedsReset; // fUserMatrix has changed so the incremental draw won't work
     SkMatrix fMatrix;
     SkIRect fClip;
 
@@ -240,14 +234,6 @@ private:
 
     bool fOverrideTexFiltering;
     SkTexOverrideFilter* fTexOverrideFilter;
-
-    /**
-        Number of unmatched save() calls at any point during a draw.
-        If there are any saveLayer() calls outstanding, we need to resolve
-        all of them, which in practice means resolving all save() calls,
-        to avoid corruption of our canvas.
-    */
-    int fOutstandingSaveCount;
 
     /**
         The active saveLayer commands at a given point in the renderering.

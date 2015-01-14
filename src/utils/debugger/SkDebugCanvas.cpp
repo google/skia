@@ -19,14 +19,11 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
         , fPicture(NULL)
         , fFilter(false)
         , fMegaVizMode(false)
-        , fIndex(0)
         , fOverdrawViz(false)
         , fOverdrawFilter(NULL)
         , fOverrideTexFiltering(false)
-        , fTexOverrideFilter(NULL)
-        , fOutstandingSaveCount(0) {
+        , fTexOverrideFilter(NULL) {
     fUserMatrix.reset();
-    fDrawNeedsReset = false;
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
     // operations. This can lead to problems in the debugger which expects all
@@ -59,8 +56,6 @@ void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
 }
 
 void SkDebugCanvas::draw(SkCanvas* canvas) {
-    fDrawNeedsReset = true;
-
     if (!fCommandVector.isEmpty()) {
         this->drawTo(canvas, fCommandVector.count() - 1);
     }
@@ -231,32 +226,20 @@ void SkDebugCanvas::markActiveCommands(int index) {
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
-    int i = 0;
+
+    int saveCount = canvas->save();
+
     SkRect windowRect = SkRect::MakeWH(SkIntToScalar(canvas->getBaseLayerSize().width()),
                                        SkIntToScalar(canvas->getBaseLayerSize().height()));
 
     bool pathOpsMode = getAllowSimplifyClip();
     canvas->setAllowSimplifyClip(pathOpsMode);
-    // This only works assuming the canvas and device are the same ones that
-    // were previously drawn into because they need to preserve all saves
-    // and restores.
-    // The visibility filter also requires a full re-draw - otherwise we can
-    // end up drawing the filter repeatedly.
-    if (fIndex < index && !fFilter && !fMegaVizMode && !pathOpsMode && !fDrawNeedsReset) {
-        i = fIndex + 1;
-    } else {
-        for (int j = 0; j < fOutstandingSaveCount; j++) {
-            canvas->restore();
-        }
-        canvas->clear(SK_ColorTRANSPARENT);
-        canvas->resetMatrix();
-        if (!windowRect.isEmpty()) {
-            canvas->clipRect(windowRect, SkRegion::kReplace_Op);
-        }
-        this->applyUserTransform(canvas);
-        fDrawNeedsReset = false;
-        fOutstandingSaveCount = 0;
+    canvas->clear(SK_ColorTRANSPARENT);
+    canvas->resetMatrix();
+    if (!windowRect.isEmpty()) {
+        canvas->clipRect(windowRect, SkRegion::kReplace_Op);
     }
+    this->applyUserTransform(canvas);
 
     // The setting of the draw filter has to go here (rather than in
     // SkRasterWidget) due to the canvas restores this class performs.
@@ -286,7 +269,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         this->markActiveCommands(index);
     }
 
-    for (; i <= index; i++) {
+    for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
             canvas->clear(0xAAFFFFFF);
         }
@@ -302,8 +285,6 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                 fCommandVector[i]->setUserMatrix(fUserMatrix);
                 fCommandVector[i]->execute(canvas);
             }
-
-            fCommandVector[i]->trackSaveState(&fOutstandingSaveCount);
         }
     }
 
@@ -350,7 +331,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     if (!canvas->getClipDeviceBounds(&fClip)) {
         fClip.setEmpty();
     }
-    fIndex = index;
+
+    canvas->restoreToCount(saveCount);
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {
