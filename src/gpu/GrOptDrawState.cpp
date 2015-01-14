@@ -14,8 +14,7 @@
 #include "GrXferProcessor.h"
 
 GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
-                               const GrGeometryProcessor* gp,
-                               const GrPathProcessor* pathProc,
+                               const GrPrimitiveProcessor* primProc,
                                const GrDrawTargetCaps& caps,
                                const GrScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
@@ -23,16 +22,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     : fFinalized(false) {
     fDrawType = drawType;
 
-    // Copy GeometryProcesssor from DS or ODS
-    if (gp) {
-        SkASSERT(!pathProc);
-        SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType));
-        fGeometryProcessor.reset(gp);
-        fPrimitiveProcessor.reset(gp);
-    } else {
-        SkASSERT(!gp && pathProc && GrGpu::IsPathRenderingDrawType(drawType));
-        fPrimitiveProcessor.reset(pathProc);
-    }
+    fPrimitiveProcessor.reset(primProc);
 
 
     const GrProcOptInfo& colorPOI = drawState.colorProcInfo(fPrimitiveProcessor);

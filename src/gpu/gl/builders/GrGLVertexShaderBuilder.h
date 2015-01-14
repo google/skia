@@ -19,7 +19,7 @@ public:
     void transformToNormalizedDeviceSpace(const char* pos3);
     void emitAttributes(const GrGeometryProcessor& gp);
 
-    void addAttribute(const GrGeometryProcessor::GrAttribute* attr) {
+    void addAttribute(const GrGeometryProcessor::Attribute* attr) {
         this->addAttribute(GrShaderVar(attr->fName,
                                        GrVertexAttribTypeToSLType(attr->fType),
                                        GrShaderVar::kAttribute_TypeModifier));

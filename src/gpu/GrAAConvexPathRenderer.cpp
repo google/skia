@@ -526,8 +526,8 @@ public:
 
     const char* name() const SK_OVERRIDE { return "QuadEdge"; }
 
-    const GrAttribute* inPosition() const { return fInPosition; }
-    const GrAttribute* inQuadEdge() const { return fInQuadEdge; }
+    const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inQuadEdge() const { return fInQuadEdge; }
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
@@ -651,8 +651,8 @@ private:
     QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
         : INHERITED(color, SkMatrix::I(), localMatrix) {
         this->initClassID<QuadEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
-        fInQuadEdge = &this->addVertexAttrib(GrAttribute("inQuadEdge", kVec4f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+        fInQuadEdge = &this->addVertexAttrib(Attribute("inQuadEdge", kVec4f_GrVertexAttribType));
     }
 
     bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
@@ -669,8 +669,8 @@ private:
         bool fUsesLocalCoords;
     };
 
-    const GrAttribute* fInPosition;
-    const GrAttribute* fInQuadEdge;
+    const Attribute* fInPosition;
+    const Attribute* fInQuadEdge;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

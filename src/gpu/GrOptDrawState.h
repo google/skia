@@ -29,7 +29,7 @@ class GrOptDrawState {
 public:
     SK_DECLARE_INST_COUNT(GrOptDrawState)
 
-    GrOptDrawState(const GrDrawState& drawState, const GrGeometryProcessor*, const GrPathProcessor*,
+    GrOptDrawState(const GrDrawState& drawState, const GrPrimitiveProcessor*,
                    const GrDrawTargetCaps&, const GrScissorState&,
                    const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
 
@@ -62,9 +62,6 @@ public:
     int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
     int numFragmentStages() const { return fFragmentStages.count(); }
 
-    // TODO remove the GP specific calls when the PathProc can provide the same interface
-    bool hasGeometryProcessor() const { return SkToBool(fGeometryProcessor.get()); }
-    const GrGeometryProcessor* getGeometryProcessor() const { return fGeometryProcessor.get(); }
     const GrPrimitiveProcessor* getPrimitiveProcessor() const { return fPrimitiveProcessor.get(); }
     const GrBatchTracker& getBatchTracker() const { return fBatchTracker; }
 
@@ -178,7 +175,6 @@ private:
     GrDrawState::DrawFace               fDrawFace;
     GrDeviceCoordTexture                fDstCopy;
     uint32_t                            fFlags;
-    ProgramGeometryProcessor            fGeometryProcessor;
     ProgramPrimitiveProcessor           fPrimitiveProcessor;
     GrBatchTracker                      fBatchTracker;
     ProgramXferProcessor                fXferProcessor;

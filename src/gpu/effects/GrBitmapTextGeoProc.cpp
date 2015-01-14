@@ -105,12 +105,12 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     , fTextureAccess(texture, params)
     , fInColor(NULL) {
     this->initClassID<GrBitmapTextGeoProc>();
-    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     if (useColorAttrib) {
-        fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
         this->setHasVertexColor();
     }
-    fInTextureCoords = &this->addVertexAttrib(GrAttribute("inTextureCoords",
+    fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                           kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }

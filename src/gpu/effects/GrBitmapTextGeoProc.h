@@ -32,9 +32,9 @@ public:
 
     const char* name() const SK_OVERRIDE { return "Texture"; }
 
-    const GrAttribute* inPosition() const { return fInPosition; }
-    const GrAttribute* inColor() const { return fInColor; }
-    const GrAttribute* inTextureCoords() const { return fInTextureCoords; }
+    const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
+    const Attribute* inTextureCoords() const { return fInTextureCoords; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
@@ -57,9 +57,9 @@ private:
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrTextureAccess    fTextureAccess;
-    const GrAttribute* fInPosition;
-    const GrAttribute* fInColor;
-    const GrAttribute* fInTextureCoords;
+    const Attribute* fInPosition;
+    const Attribute* fInColor;
+    const Attribute* fInTextureCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

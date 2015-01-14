@@ -176,12 +176,12 @@ private:
     };
 
     struct SetState : public Cmd {
-        SetState(const GrDrawState& drawState, const GrGeometryProcessor* gp,
-                 const GrPathProcessor* pp, const GrDrawTargetCaps& caps,
+        SetState(const GrDrawState& drawState, const GrPrimitiveProcessor* primProc,
+                 const GrDrawTargetCaps& caps,
                  const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
                  GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
-        , fState(drawState, gp, pp, caps, scissor, dstCopy, drawType) {}
+        , fState(drawState, primProc, caps, scissor, dstCopy, drawType) {}
 
         void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
 
@@ -246,8 +246,7 @@ private:
     // records it. If the draw can be skipped false is returned and no new GrOptDrawState is
     // recorded.
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrDrawState&,
-                                                        const GrGeometryProcessor*,
-                                                        const GrPathProcessor*,
+                                                        const GrPrimitiveProcessor*,
                                                         GrGpu::DrawType,
                                                         const GrScissorState&,
                                                         const GrDeviceCoordTexture*);

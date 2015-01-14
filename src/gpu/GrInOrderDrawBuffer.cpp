@@ -245,7 +245,7 @@ void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
-    if (!this->recordStateAndShouldDraw(ds, gp, NULL,
+    if (!this->recordStateAndShouldDraw(ds, gp,
                                         GrGpu::PrimTypeToDrawType(info.primitiveType()),
                                         scissorState, dstCopy)) {
         return;
@@ -287,7 +287,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
-    if (!this->recordStateAndShouldDraw(ds, NULL, pathProc, GrGpu::kDrawPath_DrawType,
+    if (!this->recordStateAndShouldDraw(ds, pathProc, GrGpu::kDrawPath_DrawType,
                                         scissorState, dstCopy)) {
         return;
     }
@@ -311,7 +311,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     SkASSERT(indices);
     SkASSERT(transformValues);
 
-    if (!this->recordStateAndShouldDraw(ds, NULL, pathProc, GrGpu::kDrawPath_DrawType, scissorState,
+    if (!this->recordStateAndShouldDraw(ds, pathProc, GrGpu::kDrawPath_DrawType, scissorState,
                                         dstCopy)) {
         return;
     }
@@ -513,13 +513,12 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
 }
 
 bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
-                                                   const GrGeometryProcessor* gp,
-                                                   const GrPathProcessor* pathProc,
+                                                   const GrPrimitiveProcessor* primProc,
                                                    GrGpu::DrawType drawType,
                                                    const GrScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
     SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
-                                            (ds, gp, pathProc, *this->getGpu()->caps(), scissor,
+                                            (ds, primProc, *this->getGpu()->caps(), scissor,
                                              dstCopy, drawType));
     if (ss->fState.mustSkip()) {
         fCmdBuffer.pop_back();

@@ -37,10 +37,10 @@ public:
 
     const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
 
-    const GrAttribute* inPosition() const { return fInPosition; }
-    const GrAttribute* inColor() const { return fInColor; }
-    const GrAttribute* inLocalCoords() const { return fInLocalCoords; }
-    const GrAttribute* inCoverage() const { return fInCoverage; }
+    const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
+    const Attribute* inLocalCoords() const { return fInLocalCoords; }
+    const Attribute* inCoverage() const { return fInCoverage; }
     uint8_t coverage() const { return fCoverage; }
 
     void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE {
@@ -201,18 +201,18 @@ private:
         bool hasColor = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kColor_GPType);
         bool hasLocalCoord = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kLocalCoord_GPType);
         bool hasCoverage = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kCoverage_GPType);
-        fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         if (hasColor) {
-            fInColor = &this->addVertexAttrib(GrAttribute("inColor", kVec4ub_GrVertexAttribType));
+            fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
             this->setHasVertexColor();
         }
         if (hasLocalCoord) {
-            fInLocalCoords = &this->addVertexAttrib(GrAttribute("inLocalCoord",
+            fInLocalCoords = &this->addVertexAttrib(Attribute("inLocalCoord",
                                                                 kVec2f_GrVertexAttribType));
             this->setHasLocalCoords();
         }
         if (hasCoverage) {
-            fInCoverage = &this->addVertexAttrib(GrAttribute("inCoverage",
+            fInCoverage = &this->addVertexAttrib(Attribute("inCoverage",
                                                              kFloat_GrVertexAttribType));
         }
     }
@@ -239,10 +239,10 @@ private:
         bool fUsesLocalCoords;
     };
 
-    const GrAttribute* fInPosition;
-    const GrAttribute* fInColor;
-    const GrAttribute* fInLocalCoords;
-    const GrAttribute* fInCoverage;
+    const Attribute* fInPosition;
+    const Attribute* fInColor;
+    const Attribute* fInLocalCoords;
+    const Attribute* fInCoverage;
     uint8_t fCoverage;
     uint32_t fFlags;
 

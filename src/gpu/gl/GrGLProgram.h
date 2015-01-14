@@ -53,11 +53,6 @@ public:
      */
     GrGLuint programID() const { return fProgramID; }
 
-    /*
-     * The base class always has a vertex shader, only the NVPR variants may omit a vertex shader
-     */
-    virtual bool hasVertexShader() const { return true; }
-
     /**
      * We use the RT's size and origin to adjust from Skia device space to OpenGL normalized device
      * space and to make device space positions have the correct origin for processors that require

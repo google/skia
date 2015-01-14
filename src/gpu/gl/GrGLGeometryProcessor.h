@@ -81,7 +81,7 @@ protected:
     void setupColorPassThrough(GrGLGPBuilder* pb,
                                GrGPInput inputType,
                                const char* inputName,
-                               const GrGeometryProcessor::GrAttribute* colorAttr,
+                               const GrGeometryProcessor::Attribute* colorAttr,
                                UniformHandle* colorUniform);
 
     const char* uViewM() const { return fViewMatrixName; }

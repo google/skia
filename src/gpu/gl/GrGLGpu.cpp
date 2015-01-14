@@ -1408,23 +1408,23 @@ void GrGLGpu::setupGeometry(const GrOptDrawState& optState,
     GrGLAttribArrayState* attribState =
         fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
-    if (fCurrentProgram->hasVertexShader()) {
-        const GrGeometryProcessor* gp = optState.getGeometryProcessor();
+    const GrPrimitiveProcessor* primProc = optState.getPrimitiveProcessor();
+    int vaCount = primProc->numAttribs();
+    if (vaCount > 0) {
 
-        GrGLsizei stride = static_cast<GrGLsizei>(gp->getVertexStride());
+        GrGLsizei stride = static_cast<GrGLsizei>(primProc->getVertexStride());
 
         size_t vertexOffsetInBytes = stride * info.startVertex();
 
         vertexOffsetInBytes += vbuf->baseOffset();
 
-        const SkTArray<GrGeometryProcessor::GrAttribute, true>& attribs = gp->getAttribs();
-        int vaCount = attribs.count();
         uint32_t usedAttribArraysMask = 0;
         size_t offset = 0;
 
         for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
+            const GrGeometryProcessor::Attribute& attrib = primProc->getAttrib(attribIndex);
             usedAttribArraysMask |= (1 << attribIndex);
-            GrVertexAttribType attribType = attribs[attribIndex].fType;
+            GrVertexAttribType attribType = attrib.fType;
             attribState->set(this,
                              attribIndex,
                              vbuf,
@@ -1433,7 +1433,7 @@ void GrGLGpu::setupGeometry(const GrOptDrawState& optState,
                              GrGLAttribTypeToLayout(attribType).fNormalized,
                              stride,
                              reinterpret_cast<GrGLvoid*>(vertexOffsetInBytes + offset));
-            offset += attribs[attribIndex].fOffset;
+            offset += attrib.fOffset;
         }
         attribState->disableUnusedArrays(this, usedAttribArraysMask);
     }

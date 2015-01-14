@@ -317,7 +317,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        GrOptDrawState ods(ds, gp, pathProc, *gpu->caps(), scissor, &dstCopy, drawType);
+        GrOptDrawState ods(ds, primProc, *gpu->caps(), scissor, &dstCopy, drawType);
         if (ods.mustSkip()) {
             continue;
         }

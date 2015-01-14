@@ -480,9 +480,9 @@ public:
 
     const char* name() const SK_OVERRIDE { return "DashingCircleEffect"; }
 
-    const GrAttribute* inPosition() const { return fInPosition; }
+    const Attribute* inPosition() const { return fInPosition; }
 
-    const GrAttribute* inCoord() const { return fInCoord; }
+    const Attribute* inCoord() const { return fInCoord; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
@@ -514,8 +514,8 @@ private:
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType fEdgeType;
-    const GrAttribute*  fInPosition;
-    const GrAttribute*  fInCoord;
+    const Attribute*  fInPosition;
+    const Attribute*  fInCoord;
     SkScalar            fIntervalLength;
     SkScalar            fRadius;
     SkScalar            fCenterX;
@@ -685,8 +685,8 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
                                          const SkMatrix& localMatrix)
     : INHERITED(color, SkMatrix::I(), localMatrix), fEdgeType(edgeType) {
     this->initClassID<DashingCircleEffect>();
-    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
-    fInCoord = &this->addVertexAttrib(GrAttribute("inCoord", kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+    fInCoord = &this->addVertexAttrib(Attribute("inCoord", kVec2f_GrVertexAttribType));
     SkScalar onLen = info.fIntervals[0];
     SkScalar offLen = info.fIntervals[1];
     fIntervalLength = onLen + offLen;
@@ -774,9 +774,9 @@ public:
 
     const char* name() const SK_OVERRIDE { return "DashingEffect"; }
 
-    const GrAttribute* inPosition() const { return fInPosition; }
+    const Attribute* inPosition() const { return fInPosition; }
 
-    const GrAttribute* inCoord() const { return fInCoord; }
+    const Attribute* inCoord() const { return fInCoord; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
@@ -806,8 +806,8 @@ private:
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
 
     GrPrimitiveEdgeType fEdgeType;
-    const GrAttribute*  fInPosition;
-    const GrAttribute*  fInCoord;
+    const Attribute*  fInPosition;
+    const Attribute*  fInCoord;
     SkRect              fRect;
     SkScalar            fIntervalLength;
 
@@ -990,8 +990,8 @@ DashingLineEffect::DashingLineEffect(GrColor color,
                                      const SkMatrix& localMatrix)
     : INHERITED(color, SkMatrix::I(), localMatrix), fEdgeType(edgeType) {
     this->initClassID<DashingLineEffect>();
-    fInPosition = &this->addVertexAttrib(GrAttribute("inPosition", kVec2f_GrVertexAttribType));
-    fInCoord = &this->addVertexAttrib(GrAttribute("inCoord", kVec2f_GrVertexAttribType));
+    fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+    fInCoord = &this->addVertexAttrib(Attribute("inCoord", kVec2f_GrVertexAttribType));
     SkScalar onLen = info.fIntervals[0];
     SkScalar offLen = info.fIntervals[1];
     SkScalar halfOffLen = SkScalarHalf(offLen);

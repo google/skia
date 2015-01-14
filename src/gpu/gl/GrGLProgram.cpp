@@ -231,7 +231,9 @@ void GrGLNvprProgram::setTransformData(const GrPrimitiveProcessor* primProc,
 }
 
 void GrGLNvprProgram::onSetRenderTargetState(const GrOptDrawState& optState) {
-    SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()));
+    SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()) &&
+             !optState.getPrimitiveProcessor()->willUseGeoShader() &&
+             optState.getPrimitiveProcessor()->numAttribs() == 0);
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());

@@ -21,10 +21,7 @@ class GrGLGpu;
  */
 class GrGLProgramDescBuilder {
 public:
-    struct GLKeyHeader : public GrProgramDesc::KeyHeader {
-        SkBool8 fUseNvpr;
-    };
-
+    typedef GrProgramDesc::KeyHeader KeyHeader;
     // The key, stored in fKey, is composed of five parts(first 2 are defined in the key itself):
     // 1. uint32_t for total key length.
     // 2. uint32_t for a checksum.
@@ -34,7 +31,7 @@ public:
     enum {
         // Part 3.
         kHeaderOffset = GrProgramDesc::kHeaderOffset,
-        kHeaderSize = SkAlign4(sizeof(GLKeyHeader)),
+        kHeaderSize = SkAlign4(sizeof(KeyHeader)),
         // Part 4.
         // This is the offset into the backenend specific part of the key, which includes
         // per-processor keys.
@@ -63,10 +60,6 @@ public:
                       GrGpu::DrawType,
                       GrGLGpu*,
                       GrProgramDesc*);
-
-    static const GLKeyHeader& GetHeader(const GrProgramDesc& desc) {
-        return *desc.atOffset<GLKeyHeader, kHeaderOffset>();
-    }
 };
 
 #endif

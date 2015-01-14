@@ -54,11 +54,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, G
     SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(optState, gpu));
 
     GrGLProgramBuilder* pb = builder.get();
-    const GrGLProgramDescBuilder::GLKeyHeader& header =
-            GrGLProgramDescBuilder::GetHeader(pb->desc());
 
     // emit code to read the dst copy texture, if necessary
-    if (GrGLFragmentShaderBuilder::kNoDstRead_DstReadKey != header.fDstReadKey &&
+    if (GrGLFragmentShaderBuilder::kNoDstRead_DstReadKey != pb->header().fDstReadKey &&
         !gpu->glCaps().fbFetchSupport()) {
         pb->fFS.emitCodeToReadDstTexture();
     }
@@ -75,10 +73,10 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, G
 
 GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
                                                              GrGLGpu* gpu) {
-    const GrProgramDesc& desc = optState.programDesc();
-    if (GrGLProgramDescBuilder::GetHeader(desc).fUseNvpr) {
-        SkASSERT(gpu->glCaps().pathRenderingSupport());
-        SkASSERT(!optState.hasGeometryProcessor());
+    if (GrGpu::IsPathRenderingDrawType(optState.drawType())) {
+        SkASSERT(gpu->glCaps().pathRenderingSupport() &&
+                 !optState.getPrimitiveProcessor()->willUseGeoShader() &&
+                 optState.getPrimitiveProcessor()->numAttribs() == 0);
         return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, optState));
     } else {
         return SkNEW_ARGS(GrGLProgramBuilder, (gpu, optState));
@@ -108,7 +106,7 @@ void GrGLProgramBuilder::addVarying(const char* name,
     if (varying->vsVarying()) {
         fVS.addVarying(name, varying);
     }
-    if (fOptState.hasGeometryProcessor() && fOptState.getGeometryProcessor()->willUseGeoShader()) {
+    if (fOptState.getPrimitiveProcessor()->willUseGeoShader()) {
         fGS.addVarying(name, varying);
     }
     if (varying->fsVarying()) {
@@ -116,7 +114,7 @@ void GrGLProgramBuilder::addVarying(const char* name,
     }
 }
 
-void GrGLProgramBuilder::addPassThroughAttribute(const GrGeometryProcessor::GrAttribute* input,
+void GrGLProgramBuilder::addPassThroughAttribute(const GrPrimitiveProcessor::Attribute* input,
                                                  const char* output) {
     GrSLType type = GrVertexAttribTypeToSLType(input->fType);
     GrGLVertToFrag v(type);
@@ -398,16 +396,18 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     // compile shaders and bind attributes / uniforms
     SkTDArray<GrGLuint> shadersToDelete;
-    if (!(GrGLProgramDescBuilder::GetHeader(fDesc).fUseNvpr &&
-          fGpu->glPathRendering()->texturingMode() ==
-          GrGLPathRendering::FixedFunction_TexturingMode)) {
+
+    // Legacy nvpr will not compile with a vertex shader, but newer nvpr requires a dummy vertex
+    // shader
+    bool useNvpr = GrGpu::IsPathRenderingDrawType(fOptState.drawType());
+    if (!(useNvpr && fGpu->glCaps().nvprSupport() == GrGLCaps::kLegacy_NvprSupport)) {
         if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
             this->cleanupProgram(programID, shadersToDelete);
             return NULL;
         }
 
         // Non fixed function NVPR actually requires a vertex shader to compile
-        if (fOptState.hasGeometryProcessor()) {
+        if (!useNvpr) {
             fVS.bindVertexAttributes(programID);
         }
     }

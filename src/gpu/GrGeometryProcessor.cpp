@@ -119,7 +119,7 @@ void
 GrGLPrimitiveProcessor::setupColorPassThrough(GrGLGPBuilder* pb,
                                               GrGPInput inputType,
                                               const char* outputName,
-                                              const GrGeometryProcessor::GrAttribute* colorAttr,
+                                              const GrGeometryProcessor::Attribute* colorAttr,
                                               UniformHandle* colorUniform) {
     GrGLGPFragmentBuilder* fs = pb->getFragmentShaderBuilder();
     if (kUniform_GrGPInput == inputType) {

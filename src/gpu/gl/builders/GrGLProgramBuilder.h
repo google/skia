@@ -151,7 +151,7 @@ public:
      * it expects 'output' to be defined in the fragment shader before this call is made.
      * TODO it might be nicer behavior to have a flag to declare output inside this call
      */
-    virtual void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
+    virtual void addPassThroughAttribute(const GrGeometryProcessor::Attribute*,
                                          const char* output) = 0;
 
     // TODO rename getFragmentBuilder
@@ -255,8 +255,8 @@ public:
             GrGLVarying*,
             GrSLPrecision fsPrecision = kDefault_GrSLPrecision) SK_OVERRIDE;
 
-    void addPassThroughAttribute(const GrGeometryProcessor::GrAttribute*,
-                                         const char* output) SK_OVERRIDE;
+    void addPassThroughAttribute(const GrPrimitiveProcessor::Attribute*,
+                                 const char* output) SK_OVERRIDE;
 
 
     // Handles for program uniforms (other than per-effect uniforms)

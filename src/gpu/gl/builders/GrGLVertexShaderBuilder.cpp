@@ -27,10 +27,9 @@ void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {
 }
 
 void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
-    const GrGeometryProcessor::VertexAttribArray& v = gp.getAttribs();
-    int vaCount = v.count();
+    int vaCount = gp.numAttribs();
     for (int i = 0; i < vaCount; i++) {
-        this->addAttribute(&v[i]);
+        this->addAttribute(&gp.getAttrib(i));
     }
     return;
 }
@@ -55,12 +54,11 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const char* pos3) {
 }
 
 void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
-    const GrGeometryProcessor* gp = fProgramBuilder->fOptState.getGeometryProcessor();
+    const GrPrimitiveProcessor* primProc = fProgramBuilder->fOptState.getPrimitiveProcessor();
 
-    const GrGeometryProcessor::VertexAttribArray& v = gp->getAttribs();
-    int vaCount = v.count();
+    int vaCount = primProc->numAttribs();
     for (int i = 0; i < vaCount; i++) {
-        GL_CALL(BindAttribLocation(programID, i, v[i].fName));
+        GL_CALL(BindAttribLocation(programID, i, primProc->getAttrib(i).fName));
     }
     return;
 }

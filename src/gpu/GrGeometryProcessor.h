@@ -121,6 +121,41 @@ public:
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 
+    // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
+    // we put these calls on the base class to prevent having to cast
+    virtual bool willUseGeoShader() const = 0;
+
+    /*
+     * This is a safeguard to prevent GrPrimitiveProcessor's from going beyond platform specific
+     * attribute limits. This number can almost certainly be raised if required.
+     */
+    static const int kMaxVertexAttribs = 6;
+
+    struct Attribute {
+        Attribute()
+            : fName(NULL)
+            , fType(kFloat_GrVertexAttribType)
+            , fOffset(0) {}
+        Attribute(const char* name, GrVertexAttribType type)
+            : fName(name)
+            , fType(type)
+            , fOffset(SkAlign4(GrVertexAttribTypeSize(type))) {}
+        const char* fName;
+        GrVertexAttribType fType;
+        size_t fOffset;
+    };
+
+    int numAttribs() const { return fNumAttribs; }
+    const Attribute& getAttrib(int index) const {
+        SkASSERT(index < fNumAttribs);
+        return fAttribs[index];
+    }
+
+    // Returns the vertex stride of the GP.  A common use case is to request geometry from a
+    // drawtarget based off of the stride, and to populate this memory using an implicit array of
+    // structs.  In this case, it is best to assert the vertexstride == sizeof(VertexStruct).
+    size_t getVertexStride() const { return fVertexStride; }
+
     /**
      * Gets a transformKey from an array of coord transforms
      */
@@ -143,7 +178,9 @@ public:
 
 protected:
     GrPrimitiveProcessor(const SkMatrix& viewMatrix, const SkMatrix& localMatrix)
-        : fViewMatrix(viewMatrix)
+        : fNumAttribs(0)
+        , fVertexStride(0)
+        , fViewMatrix(viewMatrix)
         , fLocalMatrix(localMatrix) {}
 
     /*
@@ -176,6 +213,10 @@ protected:
         return true;
     }
 
+    Attribute fAttribs[kMaxVertexAttribs];
+    int fNumAttribs;
+    size_t fVertexStride;
+
 private:
     virtual bool hasExplicitLocalCoords() const = 0;
 
@@ -201,37 +242,11 @@ public:
                         const SkMatrix& localMatrix = SkMatrix::I(),
                         bool opaqueVertexColors = false)
         : INHERITED(viewMatrix, localMatrix)
-        , fVertexStride(0)
         , fColor(color)
         , fOpaqueVertexColors(opaqueVertexColors)
         , fWillUseGeoShader(false)
         , fHasVertexColor(false)
         , fHasLocalCoords(false) {}
-
-    /*
-     * This is a safeguard to prevent GPs from going beyond platform specific attribute limits.
-     * This number can almost certainly be raised if required.
-     */
-    static const int kMaxVertexAttribs = 6;
-
-    struct GrAttribute {
-        GrAttribute(const char* name, GrVertexAttribType type)
-            : fName(name)
-            , fType(type)
-            , fOffset(SkAlign4(GrVertexAttribTypeSize(type))) {}
-        const char* fName;
-        GrVertexAttribType fType;
-        size_t fOffset;
-    };
-
-    typedef SkTArray<GrAttribute, true> VertexAttribArray;
-
-    const VertexAttribArray& getAttribs() const { return fAttribs; }
-
-    // Returns the vertex stride of the GP.  A common use case is to request geometry from a
-    // drawtarget based off of the stride, and to populate this memory using an implicit array of
-    // structs.  In this case, it is best to assert the vertexstride == sizeof(VertexStruct).
-    size_t getVertexStride() const { return fVertexStride; }
 
     bool willUseGeoShader() const { return fWillUseGeoShader; }
 
@@ -318,9 +333,11 @@ protected:
      * The processor key should reflect the vertex attributes, or there lack thereof in the
      * GrGeometryProcessor.
      */
-    const GrAttribute& addVertexAttrib(const GrAttribute& attribute) {
+    const Attribute& addVertexAttrib(const Attribute& attribute) {
+        SkASSERT(fNumAttribs < kMaxVertexAttribs);
         fVertexStride += attribute.fOffset;
-        return fAttribs.push_back(attribute);
+        fAttribs[fNumAttribs] = attribute;
+        return fAttribs[fNumAttribs++];
     }
 
     void setWillUseGeoShader() { fWillUseGeoShader = true; }
@@ -342,8 +359,6 @@ private:
 
     bool hasExplicitLocalCoords() const SK_OVERRIDE { return fHasLocalCoords; }
 
-    SkSTArray<kMaxVertexAttribs, GrAttribute, true> fAttribs;
-    size_t fVertexStride;
     GrColor fColor;
     bool fOpaqueVertexColors;
     bool fWillUseGeoShader;
@@ -377,6 +392,8 @@ public:
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
+
+    bool willUseGeoShader() const SK_OVERRIDE { return false; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,

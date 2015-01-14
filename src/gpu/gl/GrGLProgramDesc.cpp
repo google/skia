@@ -130,17 +130,10 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
-    GLKeyHeader* header = desc->atOffset<GLKeyHeader, kHeaderOffset>();
+    KeyHeader* header = desc->atOffset<KeyHeader, kHeaderOffset>();
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-
-    bool isPathRendering = GrGpu::IsPathRenderingDrawType(drawType);
-    if (gpu->caps()->pathRenderingSupport() && isPathRendering) {
-        header->fUseNvpr = true;
-    } else {
-        header->fUseNvpr = false;
-    }
 
     if (descInfo.fReadsDst) {
         const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
