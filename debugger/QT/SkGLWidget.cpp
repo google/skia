@@ -72,7 +72,6 @@ void SkGLWidget::createRenderTarget() {
 void SkGLWidget::resizeGL(int w, int h) {
     SkASSERT(w == this->width() && h == this->height());
     this->createRenderTarget();
-    draw();
 }
 
 void SkGLWidget::paintGL() {

@@ -6,12 +6,12 @@
  */
 
 #include "SkDebuggerGUI.h"
-#include "SkForceLinking.h"
-#include <QListWidgetItem>
 #include "PictureRenderer.h"
+#include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
-#include "SkPictureData.h"
+#include <QListWidgetItem>
+#include <QtGui>
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include "SysTimer_windows.h"
@@ -217,11 +217,7 @@ void SkDebuggerGUI::actionClearDeletes() {
         fDebugger.setCommandVisible(row, true);
         fSkipCommands[row] = false;
     }
-    if (this->isPaused()) {
-        fCanvasWidget.drawTo(fPausedRow);
-    } else {
-        fCanvasWidget.drawTo(fListWidget.currentRow());
-    }
+    this->updateImage();
 }
 
 void SkDebuggerGUI::actionClose() {
@@ -248,13 +244,7 @@ void SkDebuggerGUI::actionDelete() {
         }
     }
 
-    int currentRow = fListWidget.currentRow();
-
-    if (this->isPaused()) {
-        fCanvasWidget.drawTo(fPausedRow);
-    } else {
-        fCanvasWidget.drawTo(currentRow);
-    }
+    this->updateImage();
 }
 
 #if SK_SUPPORT_GPU
@@ -291,14 +281,14 @@ void SkDebuggerGUI::actionRasterSettingsChanged() {
     fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kRaster_8888_WidgetType,
                                       !fSettingsWidget.isRasterEnabled());
     fDebugger.setOverdrawViz(fSettingsWidget.isOverdrawVizEnabled());
-    fCanvasWidget.update();
+    this->updateImage();
 }
 
 void SkDebuggerGUI::actionVisualizationsChanged() {
     fDebugger.setMegaViz(fSettingsWidget.isMegaVizEnabled());
     fDebugger.setPathOps(fSettingsWidget.isPathOpsEnabled());
     fDebugger.highlightCurrentCommand(fSettingsWidget.isVisibilityFilterEnabled());
-    fCanvasWidget.drawTo(fListWidget.currentRow());
+    this->updateImage();
 }
 
 void SkDebuggerGUI::actionTextureFilter() {
@@ -357,6 +347,10 @@ void SkDebuggerGUI::actionStepForward() {
 }
 
 void SkDebuggerGUI::drawComplete() {
+    SkString clipStack;
+    fDebugger.getClipStackText(&clipStack);
+    fInspectorWidget.setText(clipStack.c_str(), SkInspectorWidget::kClipStack_TabType);
+
     fInspectorWidget.setMatrix(fDebugger.getCurrentMatrix());
     fInspectorWidget.setClip(fDebugger.getCurrentClip());
 }
@@ -398,9 +392,7 @@ void SkDebuggerGUI::openFile(const QString &filename) {
 
 void SkDebuggerGUI::pauseDrawing(bool isPaused) {
     fPausedRow = fListWidget.currentRow();
-    if (!fLoading) {
-        fCanvasWidget.drawTo(fPausedRow);
-    }
+    this->updateDrawCommandInfo();
 }
 
 void SkDebuggerGUI::updateDrawCommandInfo() {
@@ -414,9 +406,8 @@ void SkDebuggerGUI::updateDrawCommandInfo() {
         fCurrentCommandBox.setText("");
         fDrawCommandGeometryWidget.setDrawCommandIndex(-1);
     } else {
-        if (!this->isPaused()) {
-            fCanvasWidget.drawTo(currentRow);
-        }
+        this->updateImage();
+
         const SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(currentRow);
 
         /* TODO(chudy): Add command type before parameters. Rename v
@@ -430,10 +421,6 @@ void SkDebuggerGUI::updateDrawCommandInfo() {
             }
             fInspectorWidget.setText(info, SkInspectorWidget::kDetail_TabType);
         }
-
-        SkString clipStack;
-        fDebugger.getClipStackText(&clipStack);
-        fInspectorWidget.setText(clipStack.c_str(), SkInspectorWidget::kClipStack_TabType);
 
         fCurrentCommandBox.setText(QString::number(currentRow));
 
@@ -860,6 +847,14 @@ void SkDebuggerGUI::setupComboBox() {
             fFilter.rootModelIndex());
     QStandardItem* firstItem = model->itemFromIndex(firstIndex);
     firstItem->setSelectable(false);
+}
+
+void SkDebuggerGUI::updateImage() {
+    if (this->isPaused()) {
+        fCanvasWidget.drawTo(fPausedRow);
+    } else {
+        fCanvasWidget.drawTo(fListWidget.currentRow());
+    }
 }
 
 void SkDebuggerGUI::updateHit(int newHit) {

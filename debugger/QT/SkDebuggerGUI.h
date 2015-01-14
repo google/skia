@@ -19,6 +19,7 @@
 #include "SkRasterWidget.h"
 #include "SkDrawCommandGeometryWidget.h"
 #include "SkSettingsWidget.h"
+#include <QtCore/QSignalMapper>
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -233,6 +234,8 @@ private slots:
     void toggleFilter(QString string);
 
     void updateHit(int newHit);
+
+    void updateImage();
 private:
     QSplitter fCentralSplitter;
     QStatusBar fStatusBar;

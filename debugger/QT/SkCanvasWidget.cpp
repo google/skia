@@ -8,6 +8,7 @@
 
 
 #include "SkCanvasWidget.h"
+#include <QtGui>
 
 SkCanvasWidget::SkCanvasWidget(QWidget* parent,
         SkDebugger* debugger) : QWidget(parent)
@@ -40,17 +41,17 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent,
 #if SK_SUPPORT_GPU
     setWidgetVisibility(kGPU_WidgetType, true);
 #endif
-    connect(&fRasterWidget, SIGNAL(drawComplete()),
-            this->parentWidget(), SLOT(drawComplete()));
+    connect(&fRasterWidget, SIGNAL(drawComplete()), this->parentWidget(), SLOT(drawComplete()));
+    connect(&fGLWidget, SIGNAL(drawComplete()), this->parentWidget(), SLOT(drawComplete()));
 }
 
 SkCanvasWidget::~SkCanvasWidget() {}
 
 void SkCanvasWidget::drawTo(int index) {
     fDebugger->setIndex(index);
-    fRasterWidget.draw();
+    fRasterWidget.updateImage();
 #if SK_SUPPORT_GPU
-    fGLWidget.draw();
+    fGLWidget.updateImage();
 #endif
     emit commandChanged(fDebugger->index());
 }

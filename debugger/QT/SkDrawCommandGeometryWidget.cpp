@@ -42,8 +42,8 @@ void SkDrawCommandGeometryWidget::paintEvent(QPaintEvent* event) {
     painter.setRenderHint(QPainter::Antialiasing);
 
     SkImageInfo info;
-    size_t rowPixels;
-    if (const void* pixels = fSurface->peekPixels(&info, &rowPixels)) {
+    size_t rowBytes;
+    if (const void* pixels = fSurface->peekPixels(&info, &rowBytes)) {
         SkASSERT(info.width() > 0);
         SkASSERT(info.height() > 0);
 
@@ -61,6 +61,7 @@ void SkDrawCommandGeometryWidget::paintEvent(QPaintEvent* event) {
         QImage image(reinterpret_cast<const uchar*>(pixels),
                      info.width(),
                      info.height(),
+                     rowBytes,
                      QImage::Format_ARGB32_Premultiplied);
         painter.drawImage(resultRect, image);
     }

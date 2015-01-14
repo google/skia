@@ -30,7 +30,7 @@ public:
 
     ~SkGLWidget();
 
-    void draw() {
+    void updateImage() {
         this->updateGL();
     }
     void setSampleCount(int sampleCount);
