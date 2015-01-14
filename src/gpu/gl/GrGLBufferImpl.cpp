@@ -41,7 +41,7 @@ void GrGLBufferImpl::release(GrGLGpu* gpu) {
     if (fCPUData) {
         sk_free(fCPUData);
         fCPUData = NULL;
-    } else if (fDesc.fID && !fDesc.fIsWrapped) {
+    } else if (fDesc.fID) {
         GL_CALL(gpu, DeleteBuffers(1, &fDesc.fID));
         if (GR_GL_ARRAY_BUFFER == fBufferType) {
             gpu->notifyVertexBufferDelete(fDesc.fID);
@@ -219,7 +219,6 @@ void GrGLBufferImpl::validate() const {
     SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
     // The following assert isn't valid when the buffer has been abandoned:
     // SkASSERT((0 == fDesc.fID) == (fCPUData));
-    SkASSERT(0 != fDesc.fID || !fDesc.fIsWrapped);
     SkASSERT(NULL == fCPUData || 0 == fGLSizeInBytes);
     SkASSERT(NULL == fMapPtr || fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
     SkASSERT(NULL == fCPUData || NULL == fMapPtr || fCPUData == fMapPtr);

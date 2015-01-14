@@ -125,6 +125,26 @@ class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
     SK_DECLARE_INST_COUNT(GrGpuResource)
 
+    enum LifeCycle {
+        /**
+         * The resource is cached and owned by Skia. Resources with this status may be kept alive
+         * by the cache as either scratch or content resources even when there are no refs to them.
+         * The cache may release them whenever there are no refs.
+         */
+        kCached_LifeCycle,
+        /**
+         * The resource is uncached. As soon as there are no more refs to it, it is released. Under
+         * the hood the cache may opaquely recycle it as a cached resource.
+         */
+        kUncached_LifeCycle,
+        /**
+         * Similar to uncached, but Skia does not manage the lifetime of the underlying backend
+         * 3D API object(s). The client is responsible for freeing those. Used to inject client-
+         * created GPU resources into Skia (e.g. to render to a client-created texture).
+         */
+        kWrapped_LifeCycle,
+    };
+
     /**
      * Tests whether a object has been abandoned or released. All objects will
      * be in this state after their creating GrContext is destroyed or has
@@ -204,7 +224,7 @@ protected:
     // initialized (i.e. not in a base class constructor).
     void registerWithCache();
 
-    GrGpuResource(GrGpu*, bool isWrapped);
+    GrGpuResource(GrGpu*, LifeCycle);
     virtual ~GrGpuResource();
 
     GrGpu* getGpu() const { return fGpu; }
@@ -216,7 +236,7 @@ protected:
         backend API calls should be made. */
     virtual void onAbandon() { }
 
-    bool isWrapped() const { return SkToBool(kWrapped_Flag & fFlags); }
+    bool isWrapped() const { return kWrapped_LifeCycle == fLifeCycle; }
 
     /**
      * This entry point should be called whenever gpuMemorySize() should report a different size.
@@ -240,7 +260,6 @@ private:
 
     // See comments in CacheAccess.
     bool setContentKey(const GrResourceKey& contentKey);
-    void setBudgeted(bool countsAgainstBudget);
     void notifyIsPurgable() const;
     void removeScratchKey();
 
@@ -257,21 +276,9 @@ private:
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     enum Flags {
         /**
-         * The resource counts against the resource cache's budget.
-         */
-        kBudgeted_Flag      = 0x1,
-
-        /**
-         * This object wraps a GPU object given to us by Skia's client. Skia will not free the
-         * underlying backend API GPU resources when the GrGpuResource is destroyed. This also
-         * implies that kBudgeted_Flag is not set.
-         */
-        kWrapped_Flag       = 0x2,
-
-        /**
          * If set then fContentKey is valid and the resource is cached based on its content.
          */
-        kContentKeySet_Flag = 0x4,
+        kContentKeySet_Flag = 0x1,
     };
 
     GrScratchKey            fScratchKey;
@@ -284,6 +291,7 @@ private:
     mutable size_t          fGpuMemorySize;
 
     uint32_t                fFlags;
+    LifeCycle               fLifeCycle;
     const uint32_t          fUniqueID;
 
     SkAutoTUnref<const SkData> fData;

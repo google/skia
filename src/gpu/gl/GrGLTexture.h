@@ -27,8 +27,8 @@ public:
     };
 
     struct IDDesc {
-        GrGLuint        fTextureID;
-        bool            fIsWrapped;
+        GrGLuint                    fTextureID;
+        GrGpuResource::LifeCycle    fLifeCycle;
     };
 
     GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);

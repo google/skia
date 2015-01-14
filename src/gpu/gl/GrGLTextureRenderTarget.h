@@ -28,7 +28,7 @@ public:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc)
-        : GrSurface(gpu, texIDDesc.fIsWrapped, desc)
+        : GrSurface(gpu, texIDDesc.fLifeCycle, desc)
         , GrGLTexture(gpu, desc, texIDDesc, GrGLTexture::kDerived)
         , GrGLRenderTarget(gpu, desc, rtIDDesc, GrGLRenderTarget::kDerived) {
         this->registerWithCache();

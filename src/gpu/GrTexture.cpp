@@ -118,11 +118,11 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-GrTexture::GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc)
-    : INHERITED(gpu, isWrapped, desc)
+GrTexture::GrTexture(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
+    : INHERITED(gpu, lifeCycle, desc)
     , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
 
-    if (!isWrapped) {
+    if (kCached_LifeCycle == lifeCycle) {
         GrScratchKey key;
         GrTexturePriv::ComputeScratchKey(desc, &key);
         this->setScratchKey(key);

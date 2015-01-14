@@ -377,7 +377,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     GrSurfaceDesc surfDesc;
 
     idDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
-    idDesc.fIsWrapped = true;
+    idDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
 
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
@@ -399,7 +399,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     GrGLTexture* texture = NULL;
     if (renderTarget) {
         GrGLRenderTarget::IDDesc rtIDDesc;
-        if (!this->createRenderTargetObjects(surfDesc, idDesc.fTextureID, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(surfDesc, false, idDesc.fTextureID, &rtIDDesc)) {
             return NULL;
         }
         texture = SkNEW_ARGS(GrGLTextureRenderTarget, (this, surfDesc, idDesc, rtIDDesc));
@@ -418,7 +418,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     idDesc.fRTFBOID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
-    idDesc.fIsWrapped = true;
+    idDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
 
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;
@@ -435,10 +435,8 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         format.fPacked = false;
         format.fStencilBits = wrapDesc.fStencilBits;
         format.fTotalBits = wrapDesc.fStencilBits;
-        static const bool kIsSBWrapped = false;
         GrGLStencilBuffer* sb = SkNEW_ARGS(GrGLStencilBuffer,
                                            (this,
-                                            kIsSBWrapped,
                                             0,
                                             desc.fWidth,
                                             desc.fHeight,
@@ -795,12 +793,13 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
     return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));;
 }
 
-bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, GrGLuint texID,
+bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted, GrGLuint texID,
                                         GrGLRenderTarget::IDDesc* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
     idDesc->fRTFBOID = 0;
     idDesc->fTexFBOID = 0;
-    idDesc->fIsWrapped = false;
+    idDesc->fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
+                                    GrGpuResource::kUncached_LifeCycle;
 
     GrGLenum status;
 
@@ -913,12 +912,10 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc,
-                                    const void* srcData,
-                                    size_t rowBytes) {
+GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc, bool budgeted,
+                                    const void* srcData, size_t rowBytes) {
 
     GrSurfaceDesc desc = origDesc;
-    GrGLRenderTarget::IDDesc rtIDDesc;
 
     // Attempt to catch un- or wrongly initialized sample counts;
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
@@ -933,11 +930,6 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc,
     // If the sample count exceeds the max then we clamp it.
     desc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
     desc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
-
-    rtIDDesc.fMSColorRenderbufferID = 0;
-    rtIDDesc.fRTFBOID = 0;
-    rtIDDesc.fTexFBOID = 0;
-    rtIDDesc.fIsWrapped = false;
 
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
         //SkDebugf("MSAA RT requested but not supported on this platform.");
@@ -958,7 +950,8 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc,
 
     GrGLTexture::IDDesc idDesc;
     GL_CALL(GenTextures(1, &idDesc.fTextureID));
-    idDesc.fIsWrapped = false;
+    idDesc.fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
+                                   GrGpuResource::kUncached_LifeCycle;
 
     if (!idDesc.fTextureID) {
         return return_null_texture();
@@ -1007,8 +1000,9 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc,
     if (renderTarget) {
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, 0));
+        GrGLRenderTarget::IDDesc rtIDDesc;
 
-        if (!this->createRenderTargetObjects(desc,  idDesc.fTextureID, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(desc, budgeted, idDesc.fTextureID, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
             return return_null_texture();
         }
@@ -1024,7 +1018,8 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc,
     return tex;
 }
 
-GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& origDesc, const void* srcData) {
+GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& origDesc, bool budgeted,
+                                              const void* srcData) {
 
     if(SkToBool(origDesc.fFlags & kRenderTarget_GrSurfaceFlag) || origDesc.fSampleCnt > 0) {
         return return_null_texture();
@@ -1045,7 +1040,8 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& origDesc, con
 
     GrGLTexture::IDDesc idDesc;
     GL_CALL(GenTextures(1, &idDesc.fTextureID));
-    idDesc.fIsWrapped = false;
+    idDesc.fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
+                                   GrGpuResource::kUncached_LifeCycle;
 
     if (!idDesc.fTextureID) {
         return return_null_texture();
@@ -1163,10 +1159,8 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
             // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), &format);
-            static const bool kIsWrapped = false;
             SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
-                                                  (this, kIsWrapped, sbID, width, height,
-                                                  samples, format)));
+                                                  (this, sbID, width, height, samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 rt->setStencilBuffer(sb);
@@ -1252,7 +1246,6 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
     GrGLVertexBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fSizeInBytes = size;
-    desc.fIsWrapped = false;
 
     if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
         desc.fID = 0;
@@ -1285,7 +1278,6 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
     GrGLIndexBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fSizeInBytes = size;
-    desc.fIsWrapped = false;
 
     if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
         desc.fID = 0;

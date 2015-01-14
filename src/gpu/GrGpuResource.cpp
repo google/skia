@@ -18,16 +18,12 @@ static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
     return gpu->getContext()->getResourceCache2();
 }
 
-GrGpuResource::GrGpuResource(GrGpu* gpu, bool isWrapped)
+GrGpuResource::GrGpuResource(GrGpu* gpu, LifeCycle lifeCycle)
     : fGpu(gpu)
     , fGpuMemorySize(kInvalidGpuMemorySize)
+    , fFlags(0)
+    , fLifeCycle(lifeCycle)
     , fUniqueID(CreateUniqueID()) {
-    if (isWrapped) {
-        fFlags = kWrapped_Flag;
-    } else {
-        // By default all non-wrapped resources are budgeted.
-        fFlags = kBudgeted_Flag;
-    }
 }
 
 void GrGpuResource::registerWithCache() {
@@ -145,22 +141,4 @@ uint32_t GrGpuResource::CreateUniqueID() {
         id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
     } while (id == SK_InvalidUniqueID);
     return id;
-}
-
-void GrGpuResource::setBudgeted(bool countsAgainstBudget) {
-    // Wrapped resources never count against the budget, nothing to do. No point in changing the
-    // budgeting of destroyed resources.
-    if (this->isWrapped() || this->wasDestroyed()) {
-        return;
-    }
-
-    uint32_t oldFlags = fFlags;
-    if (countsAgainstBudget) {
-        fFlags |= kBudgeted_Flag;
-    } else {
-        fFlags &= ~kBudgeted_Flag;
-    }
-    if (fFlags != oldFlags) {
-        get_resource_cache2(fGpu)->resourceAccess().didChangeBudgetStatus(this);
-    }
 }

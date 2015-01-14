@@ -99,8 +99,8 @@ public:
     }
 
 protected:
-    GrGeometryBuffer(GrGpu* gpu, bool isWrapped, size_t gpuMemorySize, bool dynamic, bool cpuBacked)
-        : INHERITED(gpu, isWrapped)
+    GrGeometryBuffer(GrGpu* gpu, size_t gpuMemorySize, bool dynamic, bool cpuBacked)
+        : INHERITED(gpu, kCached_LifeCycle)
         , fMapPtr(NULL)
         , fGpuMemorySize(gpuMemorySize)
         , fDynamic(dynamic)

@@ -114,10 +114,9 @@ private:
     // GrGpu overrides
     void onResetContext(uint32_t resetBits) SK_OVERRIDE;
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                               const void* srcData,
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
                                size_t rowBytes) SK_OVERRIDE;
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, bool budgeted,
                                          const void* srcData) SK_OVERRIDE;
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
@@ -278,7 +277,8 @@ private:
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);
 
-    bool createRenderTargetObjects(const GrSurfaceDesc&, GrGLuint texID, GrGLRenderTarget::IDDesc*);
+    bool createRenderTargetObjects(const GrSurfaceDesc&, bool budgeted, GrGLuint texID, 
+                                   GrGLRenderTarget::IDDesc*);
 
     GrGLuint bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport);
 

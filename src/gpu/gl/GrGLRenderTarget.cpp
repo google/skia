@@ -14,16 +14,16 @@
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
-    : GrSurface(gpu, idDesc.fIsWrapped, desc)
-    , INHERITED(gpu, idDesc.fIsWrapped, desc) {
+    : GrSurface(gpu, idDesc.fLifeCycle, desc)
+    , INHERITED(gpu, idDesc.fLifeCycle, desc) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
 
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                                    Derived)
-    : GrSurface(gpu, idDesc.fIsWrapped, desc)
-    , INHERITED(gpu, idDesc.fIsWrapped, desc) {
+    : GrSurface(gpu, idDesc.fLifeCycle, desc)
+    , INHERITED(gpu, idDesc.fLifeCycle, desc) {
     this->init(desc, idDesc);
 }
 
@@ -31,7 +31,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fRTFBOID                = idDesc.fRTFBOID;
     fTexFBOID               = idDesc.fTexFBOID;
     fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
-    fIsWrapped              = idDesc.fIsWrapped;
+    fIsWrapped              = kWrapped_LifeCycle == idDesc.fLifeCycle;
 
     fViewport.fLeft   = 0;
     fViewport.fBottom = 0;

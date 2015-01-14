@@ -20,7 +20,6 @@ class GrGLGpu;
 class GrGLBufferImpl : SkNoncopyable {
 public:
     struct Desc {
-        bool        fIsWrapped;
         GrGLuint    fID;            // set to 0 to indicate buffer is CPU-backed and not a VBO.
         size_t      fSizeInBytes;
         bool        fDynamic;

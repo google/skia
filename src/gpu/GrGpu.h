@@ -90,6 +90,7 @@ public:
      * or render targets can be checked using GrDrawTargetCaps.
      *
      * @param desc        describes the texture to be created.
+     * @param budgeted    does this texture count against the resource cache budget?
      * @param srcData     texel data to load texture. Begins with full-size
      *                    palette data for paletted textures. For compressed
      *                    formats it contains the compressed pixel data. Otherwise,
@@ -101,7 +102,8 @@ public:
      *
      * @return    The texture object if successful, otherwise NULL.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, const void* srcData, size_t rowBytes);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted,
+                             const void* srcData, size_t rowBytes);
 
     /**
      * Implements GrContext::wrapBackendTexture
@@ -423,10 +425,9 @@ private:
     virtual void onResetContext(uint32_t resetBits) = 0;
 
     // overridden by backend-specific derived class to create objects.
-    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                                       const void* srcData,
-                                       size_t rowBytes) = 0;
-    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc, bool budgeted,
+                                       const void* srcData, size_t rowBytes) = 0;
+    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, bool budgeted,
                                                  const void* srcData) = 0;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;

@@ -22,10 +22,10 @@ public:
     enum { kUnresolvableFBOID = 0 };
 
     struct IDDesc {
-        GrGLuint         fRTFBOID;
-        GrGLuint         fTexFBOID;
-        GrGLuint         fMSColorRenderbufferID;
-        bool             fIsWrapped;
+        GrGLuint                    fRTFBOID;
+        GrGLuint                    fTexFBOID;
+        GrGLuint                    fMSColorRenderbufferID;
+        GrGpuResource::LifeCycle    fLifeCycle;
     };
 
     GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
