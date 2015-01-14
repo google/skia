@@ -391,15 +391,11 @@ public:
                         coordTransforms[t]->getMatrix().hasPerspective() ? kVec3f_GrSLType :
                                                                            kVec2f_GrSLType;
 
-                const char* varyingName = "MatrixCoord";
-                SkString suffixedVaryingName;
-                if (0 != t) {
-                    suffixedVaryingName.append(varyingName);
-                    suffixedVaryingName.appendf("_%i", t);
-                    varyingName = suffixedVaryingName.c_str();
-                }
+
+                SkString strVaryingName("MatrixCoord");
+                strVaryingName.appendf("_%i_%i", i, t);
                 GrGLVertToFrag v(varyingType);
-                pb->addVarying(varyingName, &v);
+                pb->addVarying(strVaryingName.c_str(), &v);
                 SeparableVaryingInfo& varyingInfo = fSeparableVaryingInfos.push_back();
                 varyingInfo.fVariable = pb->getFragmentShaderBuilder()->fInputs.back();
                 varyingInfo.fLocation = fSeparableVaryingInfos.count() - 1;

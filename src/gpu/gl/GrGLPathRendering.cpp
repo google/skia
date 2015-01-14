@@ -68,7 +68,6 @@ GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
         NULL != glInterface->fFunctions.fStencilThenCoverFillPathInstanced &&
         NULL != glInterface->fFunctions.fStencilThenCoverStrokePathInstanced;
     fCaps.fragmentInputGenSupport =
-        kGLES_GrGLStandard == glInterface->fStandard &&
         NULL != glInterface->fFunctions.fProgramPathFragmentInputGen;
     fCaps.glyphLoadingSupport =
         NULL != glInterface->fFunctions.fPathMemoryGlyphIndexArray;
