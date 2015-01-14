@@ -114,8 +114,6 @@
         '../samplecode/SampleUnpremul.cpp',
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
-        '../samplecode/TransitionView.cpp',
-        '../samplecode/TransitionView.h',
 
         # DrawingBoard
         #'../experimental/DrawingBoard/SkColorPalette.h',

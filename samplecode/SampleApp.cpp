@@ -20,8 +20,6 @@
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
-//#include "SkPDFDevice.h"
-//#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -31,7 +29,6 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 #include "SkWindow.h"
-#include "TransitionView.h"
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
@@ -1515,21 +1512,19 @@ void SampleWindow::updateMatrix(){
 }
 bool SampleWindow::previousSample() {
     fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
-    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(),
-                                     fTransitionPrev));
+    this->loadView((*fSamples[fCurrIndex])());
     return true;
 }
 
 bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
-    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(),
-                                     fTransitionNext));
+    this->loadView((*fSamples[fCurrIndex])());
     return true;
 }
 
 bool SampleWindow::goToSample(int i) {
     fCurrIndex = (i) % fSamples.count();
-    this->loadView(create_transition(curr_view(this),(*fSamples[fCurrIndex])(), 6));
+    this->loadView((*fSamples[fCurrIndex])());
     return true;
 }
 
@@ -1542,9 +1537,7 @@ int SampleWindow::sampleCount() {
 }
 
 void SampleWindow::showOverview() {
-    this->loadView(create_transition(curr_view(this),
-                                     create_overview(fSamples.count(), fSamples.begin()),
-                                     4));
+    this->loadView(create_overview(fSamples.count(), fSamples.begin()));
 }
 
 void SampleWindow::installDrawFilter(SkCanvas* canvas) {
