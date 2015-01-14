@@ -135,6 +135,7 @@ private:
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
+    bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp, const SkPaint& paint);
     ShaderProc32 chooseShaderProc32();
 
     // returns false if we did not try to scale the image. In that case, we

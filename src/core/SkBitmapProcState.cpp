@@ -457,9 +457,11 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         }
     }
 
-    // At this point, we know exactly what kind of sampling the per-scanline
-    // shader will perform.
+    return this->chooseScanlineProcs(trivialMatrix, clampClamp, paint);
+}
 
+bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp,
+                                            const SkPaint& paint) {
     fMatrixProc = this->chooseMatrixProc(trivialMatrix);
     // TODO(dominikg): SkASSERT(fMatrixProc) instead? chooseMatrixProc never returns NULL.
     if (NULL == fMatrixProc) {
@@ -518,7 +520,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                 return false;
         }
 
-    #if !SK_ARM_NEON_IS_ALWAYS
+#if !SK_ARM_NEON_IS_ALWAYS
         static const SampleProc32 gSkBitmapProcStateSample32[] = {
             S32_opaque_D32_nofilter_DXDY,
             S32_alpha_D32_nofilter_DXDY,
@@ -588,7 +590,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             // Don't support A8 -> 565
             NULL, NULL, NULL, NULL
         };
-    #endif
+#endif
 
         fSampleProc32 = SK_ARM_NEON_WRAP(gSkBitmapProcStateSample32)[index];
         index >>= 1;    // shift away any opaque/alpha distinction
@@ -612,10 +614,10 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             fShaderProc32 = this->chooseShaderProc32();
         }
     }
-
+    
     // see if our platform has any accelerated overrides
     this->platformProcs();
-
+    
     return true;
 }
 
