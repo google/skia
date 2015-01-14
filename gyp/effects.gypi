@@ -12,6 +12,8 @@
     '<(skia_src_path)/effects/SkAlphaThresholdFilter.cpp',
     '<(skia_src_path)/effects/SkArcToPathEffect.cpp',
     '<(skia_src_path)/effects/SkArithmeticMode.cpp',
+    '<(skia_src_path)/effects/SkArithmeticMode_gpu.cpp',
+    '<(skia_src_path)/effects/SkArithmeticMode_gpu.h',
     '<(skia_src_path)/effects/SkAvoidXfermode.cpp',
     '<(skia_src_path)/effects/SkBitmapSource.cpp',
     '<(skia_src_path)/effects/SkBlurDrawLooper.cpp',

@@ -12,11 +12,7 @@
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
-#include "gl/GrGLProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "SkArithmeticMode_gpu.h"
 #endif
 
 static const bool gUseUnpremul = false;
@@ -237,210 +233,15 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
 //////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-
-class GrGLArithmeticEffect : public GrGLFragmentProcessor {
-public:
-    GrGLArithmeticEffect(const GrProcessor&);
-    virtual ~GrGLArithmeticEffect();
-
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
-
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
-
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
-
-private:
-    GrGLProgramDataManager::UniformHandle fKUni;
-    bool fEnforcePMColor;
-
-    typedef GrGLFragmentProcessor INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GrArithmeticEffect : public GrFragmentProcessor {
-public:
-    static GrFragmentProcessor* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                               GrTexture* background) {
-        return SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, enforcePMColor, background));
-    }
-
-    virtual ~GrArithmeticEffect();
-
-    const char* name() const SK_OVERRIDE { return "Arithmetic"; }
-
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
-        GrGLArithmeticEffect::GenKey(*this, caps, b);
-    }
-
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
-        return SkNEW_ARGS(GrGLArithmeticEffect, (*this));
-    }
-
-    GrTexture* backgroundTexture() const { return fBackgroundAccess.getTexture(); }
-
-    float k1() const { return fK1; }
-    float k2() const { return fK2; }
-    float k3() const { return fK3; }
-    float k4() const { return fK4; }
-    bool enforcePMColor() const { return fEnforcePMColor; }
-
-private:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
-
-    GrArithmeticEffect(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                       GrTexture* background);
-    float                       fK1, fK2, fK3, fK4;
-    bool                        fEnforcePMColor;
-    GrCoordTransform            fBackgroundTransform;
-    GrTextureAccess             fBackgroundAccess;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
-    typedef GrFragmentProcessor INHERITED;
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-GrArithmeticEffect::GrArithmeticEffect(float k1, float k2, float k3, float k4,
-                                       bool enforcePMColor, GrTexture* background)
-  : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
-    this->initClassID<GrArithmeticEffect>();
-    if (background) {
-        fBackgroundTransform.reset(kLocal_GrCoordSet, background,
-                                   GrTextureParams::kNone_FilterMode);
-        this->addCoordTransform(&fBackgroundTransform);
-        fBackgroundAccess.reset(background);
-        this->addTextureAccess(&fBackgroundAccess);
-    } else {
-        this->setWillReadDstColor();
-    }
-}
-
-GrArithmeticEffect::~GrArithmeticEffect() {
-}
-
-bool GrArithmeticEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
-    const GrArithmeticEffect& s = sBase.cast<GrArithmeticEffect>();
-    return fK1 == s.fK1 &&
-           fK2 == s.fK2 &&
-           fK3 == s.fK3 &&
-           fK4 == s.fK4 &&
-           fEnforcePMColor == s.fEnforcePMColor;
-}
-
-void GrArithmeticEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    // TODO: optimize this
-    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-GrGLArithmeticEffect::GrGLArithmeticEffect(const GrProcessor&)
-   : fEnforcePMColor(true) {
-}
-
-GrGLArithmeticEffect::~GrGLArithmeticEffect() {
-}
-
-void GrGLArithmeticEffect::emitCode(GrGLFPBuilder* builder,
-                                    const GrFragmentProcessor& fp,
-                                    const char* outputColor,
-                                    const char* inputColor,
-                                    const TransformedCoordsArray& coords,
-                                    const TextureSamplerArray& samplers) {
-
-    GrTexture* backgroundTex = fp.cast<GrArithmeticEffect>().backgroundTexture();
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    const char* dstColor;
-    if (backgroundTex) {
-        fsBuilder->codeAppend("\t\tvec4 bgColor = ");
-        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
-        fsBuilder->codeAppendf(";\n");
-        dstColor = "bgColor";
-    } else {
-        dstColor = fsBuilder->dstColor();
-    }
-
-    SkASSERT(dstColor);
-    fKUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                "k");
-    const char* kUni = builder->getUniformCStr(fKUni);
-
-    // We don't try to optimize for this case at all
-    if (NULL == inputColor) {
-        fsBuilder->codeAppendf("\t\tconst vec4 src = vec4(1);\n");
-    } else {
-        fsBuilder->codeAppendf("\t\tvec4 src = %s;\n", inputColor);
-        if (gUseUnpremul) {
-            fsBuilder->codeAppendf("\t\tsrc.rgb = clamp(src.rgb / src.a, 0.0, 1.0);\n");
-        }
-    }
-
-    fsBuilder->codeAppendf("\t\tvec4 dst = %s;\n", dstColor);
-    if (gUseUnpremul) {
-        fsBuilder->codeAppendf("\t\tdst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);\n");
-    }
-
-    fsBuilder->codeAppendf("\t\t%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;\n", outputColor, kUni, kUni, kUni, kUni);
-    fsBuilder->codeAppendf("\t\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
-    if (gUseUnpremul) {
-        fsBuilder->codeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
-    } else if (fEnforcePMColor) {
-        fsBuilder->codeAppendf("\t\t%s.rgb = min(%s.rgb, %s.a);\n", outputColor, outputColor, outputColor);
-    }
-}
-
-void GrGLArithmeticEffect::setData(const GrGLProgramDataManager& pdman,
-                                   const GrProcessor& processor) {
-    const GrArithmeticEffect& arith = processor.cast<GrArithmeticEffect>();
-    pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
-    fEnforcePMColor = arith.enforcePMColor();
-}
-
-void GrGLArithmeticEffect::GenKey(const GrProcessor& processor,
-                                  const GrGLCaps&, GrProcessorKeyBuilder* b) {
-    const GrArithmeticEffect& arith = processor.cast<GrArithmeticEffect>();
-    uint32_t key = arith.enforcePMColor() ? 1 : 0;
-    if (arith.backgroundTexture()) {
-        key |= 2;
-    }
-    b->add32(key);
-}
-
-GrFragmentProcessor* GrArithmeticEffect::TestCreate(SkRandom* rand,
-                                                    GrContext*,
-                                                    const GrDrawTargetCaps&,
-                                                    GrTexture*[]) {
-    float k1 = rand->nextF();
-    float k2 = rand->nextF();
-    float k3 = rand->nextF();
-    float k4 = rand->nextF();
-    bool enforcePMColor = rand->nextBool();
-
-    return SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, enforcePMColor, NULL));
-}
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticEffect);
-
 bool SkArithmeticMode_scalar::asFragmentProcessor(GrFragmentProcessor** fp,
                                                   GrTexture* background) const {
     if (fp) {
-        *fp = GrArithmeticEffect::Create(SkScalarToFloat(fK[0]),
-                                         SkScalarToFloat(fK[1]),
-                                         SkScalarToFloat(fK[2]),
-                                         SkScalarToFloat(fK[3]),
-                                         fEnforcePMColor,
-                                         background);
+        *fp = GrArithmeticFP::Create(SkScalarToFloat(fK[0]),
+                                     SkScalarToFloat(fK[1]),
+                                     SkScalarToFloat(fK[2]),
+                                     SkScalarToFloat(fK[3]),
+                                     fEnforcePMColor,
+                                     background);
     }
     return true;
 }
