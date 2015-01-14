@@ -47,7 +47,6 @@ DEF_TEST(THashCache, reporter) {
     Tint k11 = {11};
     Element e11(k11, 22);
 
-    e11.value = e11.value;
     Element e11Collision(k11, 0);
     //    Element e42(4, 2);
 
@@ -62,7 +61,6 @@ DEF_TEST(THashCache, reporter) {
     REPORTER_ASSERT(reporter, NULL == cache.find(k11));
 
     Element& e11_c = cache.add(e11);
-    e11_c.value = e11_c.value;
 
     // Tests for simple insertion, verifying that the returned element
     // has the same values as the original one
