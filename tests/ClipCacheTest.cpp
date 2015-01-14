@@ -8,7 +8,7 @@
 #include "Test.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
-#include "../../src/gpu/GrClipMaskManager.h"
+#include "GrClipMaskManager.h"
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
 
