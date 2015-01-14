@@ -18683,6 +18683,7 @@
           16258109186950173986
         ]
       ], 
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "shadertext_pdf-poppler.png": {
