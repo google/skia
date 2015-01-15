@@ -15,8 +15,7 @@
 
 DEFINE_bool(tests, true, "Run tests?");
 DEFINE_string(images, "resources", "Images to decode.");
-//DEFINE_string(src, "gm skp image subset", "Source types to test.");
-DEFINE_string(src, "gm skp", "Source types to test.  TEMPORARILY DISABLED");
+DEFINE_string(src, "gm skp image subset", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
