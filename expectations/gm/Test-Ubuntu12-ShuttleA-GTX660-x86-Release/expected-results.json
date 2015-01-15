@@ -6992,7 +6992,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7184155913134797738
+          626369516188339241
         ]
       ], 
       "reviewed-by-human": true
@@ -7028,7 +7028,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5326538105734651480
+          4250920314176115471
         ]
       ], 
       "reviewed-by-human": true
@@ -17471,10 +17471,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7769408336713819900
+          1784720912003573947
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "perlinnoise_msaa16.png": {
       "allowed-digests": [
@@ -17498,7 +17498,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8937529519831824191
+          341789680815947222
         ]
       ], 
       "reviewed-by-human": true
@@ -17660,7 +17660,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11025200251217190919
+          2724395556766072278
         ]
       ], 
       "reviewed-by-human": true
@@ -17714,10 +17714,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11685055315519282691
+          14175926004029954966
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "points_565.png": {
       "allowed-digests": [
