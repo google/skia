@@ -51,3 +51,6 @@ filterindiabox
 # possibly also reed?
 coloremoji
 fontmgr_iter
+
+# fmalita - rebaseline for http://crbug.com/447707
+pictureshader

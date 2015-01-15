@@ -51,7 +51,7 @@ protected:
     }
 
     SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(1400, 1250);
+        return SkISize::Make(1400, 1450);
     }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -61,6 +61,28 @@ protected:
         this->drawSceneColumn(canvas, SkPoint::Make(fSceneSize * 2.4f, fSceneSize * 6.4f), 1, 1, 2);
         this->drawSceneColumn(canvas, SkPoint::Make(fSceneSize * 4.8f, 0), 2, 1, 0);
         this->drawSceneColumn(canvas, SkPoint::Make(fSceneSize * 9.6f, 0), 2, 2, 0);
+
+        // One last custom row to exercise negative scaling
+        SkMatrix ctm, localMatrix;
+        ctm.setTranslate(fSceneSize * 2.1f, fSceneSize * 13.8f);
+        ctm.preScale(-1, -1);
+        localMatrix.setScale(2, 2);
+        this->drawScene(canvas, ctm, localMatrix, 0);
+
+        ctm.setTranslate(fSceneSize * 2.4f, fSceneSize * 12.8f);
+        localMatrix.setScale(-1, -1);
+        this->drawScene(canvas, ctm, localMatrix, 0);
+
+        ctm.setTranslate(fSceneSize * 4.8f, fSceneSize * 12.3f);
+        ctm.preScale(2, 2);
+        this->drawScene(canvas, ctm, localMatrix, 0);
+
+        ctm.setTranslate(fSceneSize * 13.8f, fSceneSize * 14.3f);
+        ctm.preScale(-2, -2);
+        localMatrix.setTranslate(fTileSize / 4, fTileSize / 4);
+        localMatrix.preRotate(45);
+        localMatrix.preScale(-2, -2);
+        this->drawScene(canvas, ctm, localMatrix, 0);
     }
 
 private:
