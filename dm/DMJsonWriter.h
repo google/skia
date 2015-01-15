@@ -23,11 +23,11 @@ public:
      *  Info describing a single run.
      */
     struct BitmapResult {
-        SkString name;            // E.g. "ninepatch-stretch", "desk_gws.skp"
-        SkString config;          //      "gpu", "8888", "serialize", "pipe"
-        SkString sourceType;      //      "gm", "skp", "image"
+        SkString name;            // E.g. "ninepatch-stretch", "desk-gws_skp"
+        SkString config;          //      "gpu", "8888"
+        SkString mode;            //      "direct", "default-tilegrid", "pipe"
+        SkString sourceType;      //      "GM", "SKP"
         SkString md5;             // In ASCII, so 32 bytes long.
-        SkString ext;             // Extension of file we wrote: "png", "pdf", ...
     };
 
     /**

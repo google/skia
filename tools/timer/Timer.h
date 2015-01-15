@@ -8,7 +8,6 @@
 #define Timer_DEFINED
 
 #include "SkTypes.h"
-#include "SkString.h"
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include "SysTimer_windows.h"
@@ -70,7 +69,5 @@ public:
 private:
     SysTimer fSysTimer;
 };
-
-SkString HumanizeMs(double);
 
 #endif

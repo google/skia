@@ -77,7 +77,14 @@ DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));
-    return HumanizeMs(ms);
+    if (ms > 1e+3)     return SkStringPrintf("%.3gs",  ms/1e3);
+    if (ms < 1e-3)     return SkStringPrintf("%.3gns", ms*1e6);
+#ifdef SK_BUILD_FOR_WIN
+    if (ms < 1)        return SkStringPrintf("%.3gus", ms*1e3);
+#else
+    if (ms < 1)        return SkStringPrintf("%.3gµs", ms*1e3);
+#endif
+    return SkStringPrintf("%.3gms", ms);
 }
 #define HUMANIZE(ms) humanize(ms).c_str()
 
@@ -541,7 +548,7 @@ public:
                         static const int kFlags = SkPictureRecorder::kComputeSaveLayerInfo_RecordFlag;
                         pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                               pic->cullRect().height(),
-                                                              &factory,
+                                                              &factory, 
                                                               fUseMPDs[fCurrentUseMPD] ? kFlags : 0));
                         pic.reset(recorder.endRecording());
                     }
