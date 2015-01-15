@@ -8,6 +8,8 @@
 #ifndef SkArithmeticMode_gpu_DEFINED
 #define SkArithmeticMode_gpu_DEFINED
 
+#include "SkTypes.h"
+
 #if SK_SUPPORT_GPU
 
 #include "GrCoordTransform.h"
