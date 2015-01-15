@@ -467,7 +467,7 @@ int dm_main() {
     if (gFailures.count() > 0) {
         SkDebugf("Failures:\n");
         for (int i = 0; i < gFailures.count(); i++) {
-            SkDebugf("\t%s", gFailures[i].c_str());
+            SkDebugf("\t%s\n", gFailures[i].c_str());
         }
         SkDebugf("%d failures\n", gFailures.count());
         return 1;
