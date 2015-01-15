@@ -25,6 +25,12 @@ DEFINE_string(matrix, "1 0 0 0 1 0 0 0 1",
               "Matrix to apply when using 'matrix' in config.");
 DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
+DEFINE_string(blacklist, "",
+        "Space-separated config/src/name triples to blacklist.  '_' matches anything.  E.g. \n"
+        "'--blacklist gpu skp _' will blacklist all SKPs drawn into the gpu config.\n"
+        "'--blacklist gpu skp _ 8888 gm aarects' will also blacklist the aarects GM on 8888.");
+
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
 
@@ -215,6 +221,22 @@ static void gather_sinks() {
     }
 }
 
+static bool match(const char* needle, const char* haystack) {
+    return 0 == strcmp("_", needle) || NULL != strstr(haystack, needle);
+}
+
+static ImplicitString is_blacklisted(const char* sink, const char* src, const char* name) {
+    for (int i = 0; i < FLAGS_blacklist.count() - 2; i += 3) {
+        if (match(FLAGS_blacklist[i+0], sink) &&
+            match(FLAGS_blacklist[i+1],  src) &&
+            match(FLAGS_blacklist[i+2], name)) {
+            return SkStringPrintf("%s %s %s",
+                                  FLAGS_blacklist[i+0], FLAGS_blacklist[i+1], FLAGS_blacklist[i+2]);
+        }
+    }
+    return "";
+}
+
 // The finest-grained unit of work we can run: draw a single Src into a single Sink,
 // report any errors, and perhaps write out the output: a .png of the bitmap, or a raw stream.
 struct Task {
@@ -223,9 +245,11 @@ struct Task {
     const Tagged<Sink>& sink;
 
     static void Run(Task* task) {
+        SkString name = task->src->name();
+        SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag, name.c_str());
         WallTimer timer;
         timer.start();
-        if (!FLAGS_dryRun) {
+        if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
             Error err = task->sink->draw(*task->src, &bitmap, &stream);
@@ -233,7 +257,7 @@ struct Task {
                 fail(SkStringPrintf("%s %s %s: %s",
                                     task->sink.tag,
                                     task->src.tag,
-                                    task->src->name().c_str(),
+                                    name.c_str(),
                                     err.c_str()));
             }
             if (!FLAGS_writePath.isEmpty()) {
@@ -248,7 +272,10 @@ struct Task {
             }
         }
         timer.end();
-        done(timer.fWall, task->sink.tag, task->src.tag, task->src->name());
+        if (!whyBlacklisted.isEmpty()) {
+            name.appendf(" (--blacklist, %s)", whyBlacklisted.c_str());
+        }
+        done(timer.fWall, task->sink.tag, task->src.tag, name);
     }
 
     static void WriteToDisk(const Task& task,
@@ -425,10 +452,7 @@ int dm_main() {
     tg.wait();
 
     // At this point we're back in single-threaded land.
-
-    if (!FLAGS_verbose) {
-        SkDebugf("\n");
-    }
+    SkDebugf("\n");
 
     JsonWriter::DumpJson();
 
