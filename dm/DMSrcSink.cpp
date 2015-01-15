@@ -6,7 +6,6 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
-#include "SkTLS.h"
 
 namespace DM {
 
@@ -153,30 +152,23 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DEFINE_string(gpu_threading, "none",
-        "none:  single thread,\n"
-        "tls:   any thread, GrContextFactory in TLS   (crashy),\n"
-        "stack: any thread, GrContextFactory on stack (less crashy, differently so)");
-
-GPUSink::GPUSink(GrContextFactory::GLContextType ct, GrGLStandard api, int samples, bool dfText)
+GPUSink::GPUSink(GrContextFactory::GLContextType ct,
+                 GrGLStandard api,
+                 int samples,
+                 bool dfText,
+                 bool threaded)
     : fContextType(ct)
     , fGpuAPI(api)
     , fSampleCount(samples)
-    , fUseDFText(dfText) {}
+    , fUseDFText(dfText)
+    , fThreaded(threaded) {}
 
 int GPUSink::enclave() const {
-    return FLAGS_gpu_threading.contains("none") ? kGPUSink_Enclave : kAnyThread_Enclave;
+    return fThreaded ? kAnyThread_Enclave : kGPUSink_Enclave;
 }
 
-static void* CreateGrFactory()        { return new GrContextFactory; }
-static void  DeleteGrFactory(void* p) { delete (GrContextFactory*)p; }
-
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
-    GrContextFactory local, *factory = &local;
-    if (!FLAGS_gpu_threading.contains("stack")) {
-        factory = (GrContextFactory*)SkTLS::Get(CreateGrFactory, DeleteGrFactory);
-    }
-    // Does abandoning / resetting contexts make any sense if we have stack-scoped factories?
+    GrContextFactory* factory = GetThreadLocalGrContextFactory();
     if (FLAGS_abandonGpuContext) {
         factory->abandonContexts();
     }

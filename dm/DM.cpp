@@ -23,6 +23,7 @@ DEFINE_bool(nameByHash, false,
 DEFINE_bool2(pathOpsExtended, x, false, "Run extended pathOps tests.");
 DEFINE_string(matrix, "1 0 0 0 1 0 0 0 1",
               "Matrix to apply when using 'matrix' in config.");
+DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
@@ -138,20 +139,21 @@ static bool gpu_supported() {
 static Sink* create_sink(const char* tag) {
 #define SINK(t, sink, ...) if (0 == strcmp(t, tag)) { return new sink(__VA_ARGS__); }
     if (gpu_supported()) {
+        typedef GrContextFactory Gr;
         const GrGLStandard api = get_gpu_api();
-        SINK("gpunull",    GPUSink, GrContextFactory::kNull_GLContextType,   api,  0, false);
-        SINK("gpudebug",   GPUSink, GrContextFactory::kDebug_GLContextType,  api,  0, false);
-        SINK("gpu",        GPUSink, GrContextFactory::kNative_GLContextType, api,  0, false);
-        SINK("gpudft",     GPUSink, GrContextFactory::kNative_GLContextType, api,  0,  true);
-        SINK("msaa4",      GPUSink, GrContextFactory::kNative_GLContextType, api,  4, false);
-        SINK("msaa16",     GPUSink, GrContextFactory::kNative_GLContextType, api, 16, false);
-        SINK("nvprmsaa4",  GPUSink, GrContextFactory::kNVPR_GLContextType,   api,  4, false);
-        SINK("nvprmsaa16", GPUSink, GrContextFactory::kNVPR_GLContextType,   api, 16, false);
+        SINK("gpunull",    GPUSink, Gr::kNull_GLContextType,   api,  0, false, FLAGS_gpu_threading);
+        SINK("gpudebug",   GPUSink, Gr::kDebug_GLContextType,  api,  0, false, FLAGS_gpu_threading);
+        SINK("gpu",        GPUSink, Gr::kNative_GLContextType, api,  0, false, FLAGS_gpu_threading);
+        SINK("gpudft",     GPUSink, Gr::kNative_GLContextType, api,  0,  true, FLAGS_gpu_threading);
+        SINK("msaa4",      GPUSink, Gr::kNative_GLContextType, api,  4, false, FLAGS_gpu_threading);
+        SINK("msaa16",     GPUSink, Gr::kNative_GLContextType, api, 16, false, FLAGS_gpu_threading);
+        SINK("nvprmsaa4",  GPUSink, Gr::kNVPR_GLContextType,   api,  4, false, FLAGS_gpu_threading);
+        SINK("nvprmsaa16", GPUSink, Gr::kNVPR_GLContextType,   api, 16, false, FLAGS_gpu_threading);
     #if SK_ANGLE
-        SINK("angle",      GPUSink, GrContextFactory::kANGLE_GLContextType,  api,  0, false);
+        SINK("angle",      GPUSink, Gr::kANGLE_GLContextType,  api,  0, false, FLAGS_gpu_threading);
     #endif
     #if SK_MESA
-        SINK("mesa",       GPUSink, GrContextFactory::kMESA_GLContextType,   api,  0, false);
+        SINK("mesa",       GPUSink, Gr::kMESA_GLContextType,   api,  0, false, FLAGS_gpu_threading);
     #endif
     }
 
@@ -345,7 +347,7 @@ static struct : public skiatest::Reporter {
     bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
 } gTestReporter;
 
-static SkTArray<SkAutoTDelete<skiatest::Test>, kMemcpyOK> gTests;
+static SkTArray<SkAutoTDelete<skiatest::Test>, kMemcpyOK> gCPUTests, gGPUTests;
 
 static void gather_tests() {
     if (!FLAGS_tests) {
@@ -356,14 +358,13 @@ static void gather_tests() {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
             continue;
         }
-        if (test->isGPUTest() /*&& !gpu_supported()*/) {  // TEMPORARILY DISABLED
-            continue;
-        }
-        if (!test->isGPUTest() && !FLAGS_cpu) {
-            continue;
-        }
+
         test->setReporter(&gTestReporter);
-        gTests.push_back().reset(test.detach());
+        if (test->isGPUTest() && gpu_supported()) {
+            gGPUTests.push_back().reset(test.detach());
+        } else if (!test->isGPUTest() && FLAGS_cpu) {
+            gCPUTests.push_back().reset(test.detach());
+        }
     }
 }
 
@@ -372,8 +373,7 @@ static void run_test(SkAutoTDelete<skiatest::Test>* t) {
     timer.start();
     skiatest::Test* test = t->get();
     if (!FLAGS_dryRun) {
-        GrContextFactory grFactory;
-        test->setGrContextFactory(&grFactory);
+        test->setGrContextFactory(GetThreadLocalGrContextFactory());
         test->run();
         if (!test->passed()) {
             fail(SkStringPrintf("test %s failed", test->getName()));
@@ -395,13 +395,13 @@ int dm_main() {
     gather_sinks();
     gather_tests();
 
-    gPending = gSrcs.count() * gSinks.count() + gTests.count();
+    gPending = gSrcs.count() * gSinks.count() + gCPUTests.count() + gGPUTests.count();
     SkDebugf("%d srcs * %d sinks + %d tests == %d tasks\n",
-             gSrcs.count(), gSinks.count(), gTests.count(), gPending);
+             gSrcs.count(), gSinks.count(), gCPUTests.count() + gGPUTests.count(), gPending);
 
     // We try to exploit as much parallelism as is safe.  Most Src/Sink pairs run on any thread,
     // but Sinks that identify as part of a particular enclave run serially on a single thread.
-    // Tests run on any thread, with a separate GrContextFactory for each GPU test.
+    // CPU tests run on any thread.  GPU tests depend on --gpu_threading.
     SkTArray<Task> enclaves[kNumEnclaves];
     for (int j = 0; j < gSinks.count(); j++) {
         SkTArray<Task>& tasks = enclaves[gSinks[j]->enclave()];
@@ -414,7 +414,14 @@ int dm_main() {
     SkTaskGroup tg;
         tg.batch(  Task::Run, enclaves[0].begin(), enclaves[0].count());
         tg.batch(run_enclave,          enclaves+1,      kNumEnclaves-1);
-        tg.batch(   run_test,      gTests.begin(),      gTests.count());
+        tg.batch(   run_test,   gCPUTests.begin(),   gCPUTests.count());
+        if (FLAGS_gpu_threading) {
+            tg.batch(run_test,  gGPUTests.begin(),   gGPUTests.count());
+        } else {
+            for (int i = 0; i < gGPUTests.count(); i++) {
+                run_test(&gGPUTests[i]);
+            }
+        }
     tg.wait();
 
     // At this point we're back in single-threaded land.

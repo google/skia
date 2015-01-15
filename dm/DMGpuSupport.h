@@ -74,4 +74,6 @@ static inline SkSurface* NewGpuSurface(GrContextFactory*,
 
 #endif//SK_SUPPORT_GPU
 
+GrContextFactory* GetThreadLocalGrContextFactory();
+
 #endif//DMGpuSupport_DEFINED

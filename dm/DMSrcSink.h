@@ -90,7 +90,7 @@ private:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples, bool dfText);
+    GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples, bool dfText, bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE;
@@ -100,6 +100,7 @@ private:
     GrGLStandard                    fGpuAPI;
     int                             fSampleCount;
     bool                            fUseDFText;
+    bool                            fThreaded;
 };
 
 class PDFSink : public Sink {

@@ -30,6 +30,7 @@
   ],
   'sources': [
     '../dm/DM.cpp',
+    '../dm/DMGpuSupport.cpp',
     '../dm/DMSrcSink.cpp',
     '../dm/DMJsonWriter.cpp',
     '../gm/gm.cpp',
