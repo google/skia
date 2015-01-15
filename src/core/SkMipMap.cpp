@@ -251,7 +251,7 @@ bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
         return false;
     }
 
-    int level = compute_level(scale) >> 16;
+    int level = SkFixedRoundToInt(compute_level(scale));
     SkASSERT(level >= 0);
     if (level <= 0) {
         return false;
