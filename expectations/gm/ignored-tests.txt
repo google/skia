@@ -40,17 +40,5 @@ blurrects
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
-# reed - rebase after mipmap level improvement
-downsamplebitmap_image_medium_mandrill_512
-downsamplebitmap_image_medium_mandrill_132x132_12x12
-downsamplebitmap_image_medium_mandrill_512.png
-downsamplebitmap_image_medium_mandrill_132x132_12x12.astc
-downsamplebitmap_checkerboard_medium_512_256
-downsamplebitmap_text_medium_72.00pt
-filterindiabox
-# possibly also reed?
-coloremoji
-fontmgr_iter
-
 # fmalita - rebaseline for http://crbug.com/447707
 pictureshader
