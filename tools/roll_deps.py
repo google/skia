@@ -52,7 +52,6 @@ DEFAULT_BOTS_LIST = [
   'linux_layout_rel',
   'mac',
   'mac_asan',
-  'mac_gpu',
   'mac_layout',
   'mac_layout_rel',
   'win',
