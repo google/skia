@@ -735,6 +735,16 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
     }
 }
 
+static inline SkPoint compute_stroke_size(const SkPaint& paint, const SkMatrix& matrix) {
+    SkASSERT(matrix.rectStaysRect());
+    SkASSERT(SkPaint::kFill_Style != paint.getStyle());
+
+    SkVector size;
+    SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
+    matrix.mapVectors(&size, &pt, 1);
+    return SkPoint::Make(SkScalarAbs(size.fX), SkScalarAbs(size.fY));
+}
+
 static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
                            SkPoint* strokeSize) {
     if (SkPaint::kMiter_Join != paint.getStrokeJoin() ||
@@ -742,11 +752,7 @@ static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
         return false;
     }
 
-    SkASSERT(matrix.rectStaysRect());
-    SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
-    matrix.mapVectors(strokeSize, &pt, 1);
-    strokeSize->fX = SkScalarAbs(strokeSize->fX);
-    strokeSize->fY = SkScalarAbs(strokeSize->fY);
+    *strokeSize = compute_stroke_size(paint, matrix);
     return true;
 }
 
@@ -822,26 +828,27 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
     }
 
     SkRect devRect;
-    if (paintMatrix) {
-        // skip the paintMatrix when transforming the rect by the CTM
-        fMatrix->mapPoints(rect_points(devRect), rect_points(*postPaintRect), 2);
-    } else {
-        fMatrix->mapPoints(rect_points(devRect), rect_points(prePaintRect), 2);
-    }
-    // transform rect into devRect
+    const SkRect& paintRect = paintMatrix ? *postPaintRect : prePaintRect;
+    // skip the paintMatrix when transforming the rect by the CTM
+    fMatrix->mapPoints(rect_points(devRect), rect_points(paintRect), 2);
     devRect.sort();
 
     // look for the quick exit, before we build a blitter
-    SkIRect ir = devRect.roundOut();
+    SkRect bbox = devRect;
     if (paint.getStyle() != SkPaint::kFill_Style) {
         // extra space for hairlines
         if (paint.getStrokeWidth() == 0) {
-            ir.outset(1, 1);
+            bbox.outset(1, 1);
         } else {
-            SkScalar radius = SkScalarHalf(paint.getStrokeWidth());
-            ir.outset(radius, radius);
+            // For kStroke_RectType, strokeSize is already computed.
+            const SkPoint& ssize = (kStroke_RectType == rtype)
+                ? strokeSize
+                : compute_stroke_size(paint, *fMatrix);
+            bbox.outset(SkScalarHalf(ssize.x()), SkScalarHalf(ssize.y()));
         }
     }
+
+    SkIRect ir = bbox.roundOut();
     if (fRC->quickReject(ir)) {
         return;
     }
