@@ -127,16 +127,14 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     goodDrawPaint.setColor(0xFF020202);  // Opaque.
     badDrawPaint.setColor( 0x0F020202);  // Not opaque.
 
-    // No change: optimization can't handle bounds.
-    recorder.saveLayer(&bounds, NULL);
+    // SaveLayer/Restore removed: No paint = no point.
+    recorder.saveLayer(NULL, NULL);
         recorder.drawRect(draw, goodDrawPaint);
     recorder.restore();
-    if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
-        assert_savelayer_restore(r, &record, 0, false);
-    }
+    assert_savelayer_restore(r, &record, 0, true);
 
-    // SaveLayer/Restore removed: no bounds + no paint = no point.
-    recorder.saveLayer(NULL, NULL);
+    // Bounds don't matter.
+    recorder.saveLayer(&bounds, NULL);
         recorder.drawRect(draw, goodDrawPaint);
     recorder.restore();
     assert_savelayer_restore(r, &record, 3, true);

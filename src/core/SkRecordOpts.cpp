@@ -90,13 +90,8 @@ struct SaveLayerDrawRestoreNooper {
     typedef Pattern3<Is<SaveLayer>, IsDraw, Is<Restore> > Pattern;
 
     bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
-        SaveLayer* saveLayer = pattern->first<SaveLayer>();
-        if (saveLayer->bounds != NULL) {
-            // SaveLayer with bounds is too tricky for us.
-            return false;
-        }
-
-        SkPaint* layerPaint = saveLayer->paint;
+        // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
+        SkPaint* layerPaint = pattern->first<SaveLayer>()->paint;
         if (NULL == layerPaint) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
