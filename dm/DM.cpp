@@ -443,16 +443,25 @@ int dm_main() {
         tg.batch(   run_test,   gCPUTests.begin(),   gCPUTests.count());
         if (FLAGS_gpu_threading) {
             tg.batch(run_test,  gGPUTests.begin(),   gGPUTests.count());
+        #if !defined(SK_BUILD_FOR_WIN32)
         } else {
             for (int i = 0; i < gGPUTests.count(); i++) {
                 run_test(&gGPUTests[i]);
             }
+        #endif
         }
     tg.wait();
-
     // At this point we're back in single-threaded land.
-    SkDebugf("\n");
 
+    // This is not ideal for parallelism, but Windows seems crash-prone if we run
+    // these GPU tests in parallel with any GPU Src/Sink work.  Everyone else seems fine.
+#if defined(SK_BUILD_FOR_WIN32)
+    for (int i = 0; i < gGPUTests.count(); i++) {
+        run_test(&gGPUTests[i]);
+    }
+#endif
+
+    SkDebugf("\n");
     JsonWriter::DumpJson();
 
     if (gFailures.count() > 0) {
