@@ -33,6 +33,9 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
+# egdaniel
+colortype_xfermodes
+
 # robertphillips - skia:2995
 blurrects
 

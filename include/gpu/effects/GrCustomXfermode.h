@@ -23,6 +23,8 @@ namespace GrCustomXfermode {
     bool IsSupportedMode(SkXfermode::Mode mode); 
 
     GrFragmentProcessor* CreateFP(SkXfermode::Mode mode, GrTexture* background);
+
+    GrXPFactory* CreateXPFactory(SkXfermode::Mode mode);
 };
 
 #endif

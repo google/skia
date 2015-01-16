@@ -416,19 +416,11 @@ public:
                   const TransformedCoordsArray& coords,
                   const TextureSamplerArray& samplers) SK_OVERRIDE {
         SkXfermode::Mode mode = fp.cast<GrCustomXferFP>().mode();
-        const GrTexture* backgroundTex =
-            fp.cast<GrCustomXferFP>().backgroundAccess().getTexture();
         GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-        const char* dstColor;
-        if (backgroundTex) {
-            dstColor = "bgColor";
-            fsBuilder->codeAppendf("vec4 %s = ", dstColor);
-            fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
-            fsBuilder->codeAppendf(";");
-        } else {
-            dstColor = fsBuilder->dstColor();
-        }
-        SkASSERT(dstColor);
+        const char* dstColor = "bgColor";
+        fsBuilder->codeAppendf("vec4 %s = ", dstColor);
+        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
+        fsBuilder->codeAppendf(";");
 
         emit_custom_xfermode_code(mode, fsBuilder, outputColor, inputColor, dstColor); 
     }
@@ -452,15 +444,13 @@ private:
 GrCustomXferFP::GrCustomXferFP(SkXfermode::Mode mode, GrTexture* background)
     : fMode(mode) {
     this->initClassID<GrCustomXferFP>();
-    if (background) {
-        fBackgroundTransform.reset(kLocal_GrCoordSet, background, 
-                                   GrTextureParams::kNone_FilterMode);
-        this->addCoordTransform(&fBackgroundTransform);
-        fBackgroundAccess.reset(background);
-        this->addTextureAccess(&fBackgroundAccess);
-    } else {
-        this->setWillReadDstColor();
-    }
+
+    SkASSERT(background);
+    fBackgroundTransform.reset(kLocal_GrCoordSet, background, 
+                               GrTextureParams::kNone_FilterMode);
+    this->addCoordTransform(&fBackgroundTransform);
+    fBackgroundAccess.reset(background);
+    this->addTextureAccess(&fBackgroundAccess);
 }
 
 void GrCustomXferFP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
@@ -484,9 +474,106 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCustomXferFP);
 GrFragmentProcessor* GrCustomXferFP::TestCreate(SkRandom* rand,
                                                 GrContext*,
                                                 const GrDrawTargetCaps&,
-                                                GrTexture*[]) {
+                                                GrTexture* textures[]) {
     int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
-    return SkNEW_ARGS(GrCustomXferFP, (static_cast<SkXfermode::Mode>(mode), NULL));
+    return SkNEW_ARGS(GrCustomXferFP, (static_cast<SkXfermode::Mode>(mode), textures[0]));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Xfer Processor
+///////////////////////////////////////////////////////////////////////////////
+
+GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
+    if (!GrCustomXfermode::IsSupportedMode(mode)) {
+        return NULL;
+    } else {
+        return SkNEW_ARGS(GrCustomXPFactory, (mode));
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GLCustomXP : public GrGLXferProcessor {
+public:
+    GLCustomXP(const GrXferProcessor&) {}
+    ~GLCustomXP() SK_OVERRIDE {}
+
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+        SkXfermode::Mode mode = args.fXP.cast<GrCustomXP>().mode();
+        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        const char* dstColor = fsBuilder->dstColor();
+
+        emit_custom_xfermode_code(mode, fsBuilder, args.fOutputPrimary, args.fInputColor, dstColor);
+
+        fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
+                               args.fOutputPrimary, args.fOutputPrimary, args.fInputCoverage,
+                               args.fInputCoverage, dstColor);
+    }
+
+    void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
+
+    static void GenKey(const GrXferProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+        uint32_t key = proc.numTextures();
+        SkASSERT(key <= 1);
+        key |= proc.cast<GrCustomXP>().mode() << 1;
+        b->add32(key);
+    }
+
+private:
+    typedef GrGLFragmentProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrCustomXP::GrCustomXP(SkXfermode::Mode mode)
+    : fMode(mode) {
+    this->initClassID<GrCustomXP>();
+    this->setWillReadDstColor();
+}
+
+void GrCustomXP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GLCustomXP::GenKey(*this, caps, b);
+}
+
+GrGLXferProcessor* GrCustomXP::createGLInstance() const {
+    return SkNEW_ARGS(GLCustomXP, (*this));
+}
+
+bool GrCustomXP::onIsEqual(const GrXferProcessor& other) const {
+    const GrCustomXP& s = other.cast<GrCustomXP>();
+    return fMode == s.fMode;
+}
+
+GrXferProcessor::OptFlags GrCustomXP::getOptimizations(const GrProcOptInfo& colorPOI,
+                                                       const GrProcOptInfo& coveragePOI,
+                                                       bool doesStencilWrite,
+                                                       GrColor* overrideColor,
+                                                       const GrDrawTargetCaps& caps) {
+   return GrXferProcessor::kNone_Opt;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrCustomXPFactory::GrCustomXPFactory(SkXfermode::Mode mode)
+    : fMode(mode) {
+    this->initClassID<GrCustomXPFactory>();
+}
+
+void GrCustomXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
+                                               const GrProcOptInfo& coveragePOI,
+                                               GrXPFactory::InvariantOutput* output) const {
+    output->fWillBlendWithDst = true;
+    output->fBlendedColorFlags = 0;
+}
+
+GR_DEFINE_XP_FACTORY_TEST(GrCustomXPFactory);
+GrXPFactory* GrCustomXPFactory::TestCreate(SkRandom* rand,
+                                           GrContext*,
+                                           const GrDrawTargetCaps&,
+                                           GrTexture*[]) {
+    int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
+
+    return SkNEW_ARGS(GrCustomXPFactory, (static_cast<SkXfermode::Mode>(mode)));
 }
 

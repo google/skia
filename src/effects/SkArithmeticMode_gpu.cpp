@@ -238,7 +238,7 @@ GrXferProcessor::OptFlags GrArithmeticXP::getOptimizations(const GrProcOptInfo& 
 GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float k4,
                                              bool enforcePMColor) 
     : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
-        this->initClassID<GrArithmeticXPFactory>();
+    this->initClassID<GrArithmeticXPFactory>();
 }
 
 void GrArithmeticXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,

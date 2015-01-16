@@ -932,6 +932,17 @@ bool SkProcCoeffXfermode::asFragmentProcessor(GrFragmentProcessor** fp,
     }
     return false;
 }
+
+bool SkProcCoeffXfermode::asXPFactory(GrXPFactory** xp) const {
+    if (GrCustomXfermode::IsSupportedMode(fMode)) {
+        if (xp) {
+            *xp = GrCustomXfermode::CreateXPFactory(fMode);
+            SkASSERT(*xp);
+        }
+        return true;
+    }
+    return false;
+}
 #endif
 
 const char* SkXfermode::ModeName(Mode mode) {

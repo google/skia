@@ -37,6 +37,8 @@ public:
 #if SK_SUPPORT_GPU
     virtual bool asFragmentProcessor(GrFragmentProcessor**,
                                      GrTexture* background) const SK_OVERRIDE;
+
+    virtual bool asXPFactory(GrXPFactory**) const SK_OVERRIDE;
 #endif
 
     SK_TO_STRING_OVERRIDE()
