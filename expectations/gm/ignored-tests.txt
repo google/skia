@@ -76,9 +76,6 @@ bleed
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
 
-# fmalita - rebaseline for http://crbug.com/447707
-pictureshader
-
 # bsalomon slight change to image-surface GM on gpu
 image-surface
 
