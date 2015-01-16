@@ -133,6 +133,9 @@ private:
     SkAutoTUnref<const SkMipMap> fCurrMip;
     bool                fAdjustedMatrix;    // set by possiblyScaleImage
 
+    void processHQRequest();
+    void processMediumRequest();
+
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp, const SkPaint& paint);

@@ -278,6 +278,125 @@ bool SkBitmapProcState::possiblyScaleImage() {
     return false;
 }
 
+/*
+ *  Extract the "best" scale factors from a matrix.
+ */
+static bool extract_scale(const SkMatrix& matrix, SkVector* scale) {
+    SkASSERT(!matrix.hasPerspective());
+    SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
+    SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
+    if (!SkScalarIsFinite(sx) || !SkScalarIsFinite(sy) ||
+        SkScalarNearlyZero(sx) || SkScalarNearlyZero(sy))
+    {
+        return false;
+    }
+    scale->set(sx, sy);
+    return true;
+}
+
+/*
+ *  High quality is implemented by performing up-right scale-only filtering and then
+ *  using bilerp for any remaining transformations.
+ */
+void SkBitmapProcState::processHQRequest() {
+    SkASSERT(SkPaint::kHigh_FilterLevel == fFilterLevel);
+
+    // Our default return state is to downgrade the request to Medium, w/ or w/o setting fBitmap
+    // to a valid bitmap. If we succeed, we will set this to Low instead.
+    fFilterLevel = SkPaint::kMedium_FilterLevel;
+
+    if (kN32_SkColorType != fOrigBitmap.colorType() || !cache_size_okay(fOrigBitmap, fInvMatrix) ||
+        fInvMatrix.hasPerspective())
+    {
+        return; // can't handle the reqeust
+    }
+
+    SkScalar invScaleX = fInvMatrix.getScaleX();
+    SkScalar invScaleY = fInvMatrix.getScaleY();
+    if (fInvMatrix.getType() & SkMatrix::kAffine_Mask) {
+        SkVector scale;
+        if (!extract_scale(fInvMatrix, &scale)) {
+            return; // can't find suitable scale factors
+        }
+        invScaleX = scale.x();
+        invScaleY = scale.y();
+    }
+    if (SkScalarNearlyEqual(invScaleX, 1) && SkScalarNearlyEqual(invScaleY, 1)) {
+        return; // no need for HQ
+    }
+
+    SkScalar trueDestWidth  = fOrigBitmap.width() / invScaleX;
+    SkScalar trueDestHeight = fOrigBitmap.height() / invScaleY;
+    SkScalar roundedDestWidth = SkScalarRoundToScalar(trueDestWidth);
+    SkScalar roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
+
+    if (!SkBitmapCache::Find(fOrigBitmap, roundedDestWidth, roundedDestHeight, &fScaledBitmap)) {
+        if (!SkBitmapScaler::Resize(&fScaledBitmap,
+                                    fOrigBitmap,
+                                    SkBitmapScaler::RESIZE_BEST,
+                                    roundedDestWidth,
+                                    roundedDestHeight,
+                                    SkResourceCache::GetAllocator())) {
+            return; // we failed to create fScaledBitmap
+        }
+
+        SkASSERT(fScaledBitmap.getPixels());
+        fScaledBitmap.setImmutable();
+        SkBitmapCache::Add(fOrigBitmap, roundedDestWidth, roundedDestHeight, fScaledBitmap);
+    }
+
+    SkASSERT(fScaledBitmap.getPixels());
+    fBitmap = &fScaledBitmap;
+
+    fInvMatrix.postScale(roundedDestWidth / fOrigBitmap.width(),
+                         roundedDestHeight / fOrigBitmap.height());
+    fFilterLevel = SkPaint::kLow_FilterLevel;
+}
+
+/*
+ *  Modulo internal errors, this should always succeed *if* the matrix is downscaling
+ *  (in this case, we have the inverse, so it succeeds if fInvMatrix is upscaling)
+ */
+void SkBitmapProcState::processMediumRequest() {
+    SkASSERT(SkPaint::kMedium_FilterLevel == fFilterLevel);
+
+    // Our default return state is to downgrade the request to Low, w/ or w/o setting fBitmap
+    // to a valid bitmap.
+    fFilterLevel = SkPaint::kLow_FilterLevel;
+
+    SkScalar invScaleSqd = effective_matrix_scale_sqrd(fInvMatrix);
+
+    if (invScaleSqd > SK_Scalar1) {
+        fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
+        if (NULL == fCurrMip.get()) {
+            fCurrMip.reset(SkMipMapCache::AddAndRef(fOrigBitmap));
+            if (NULL == fCurrMip.get()) {
+                return;
+            }
+        }
+        // diagnostic for a crasher...
+        if (NULL == fCurrMip->data()) {
+            sk_throw();
+        }
+
+        SkScalar levelScale = SkScalarInvert(SkScalarSqrt(invScaleSqd));
+        SkMipMap::Level level;
+        if (fCurrMip->extractLevel(levelScale, &level)) {
+            SkScalar invScaleFixup = level.fScale;
+            fInvMatrix.postScale(invScaleFixup, invScaleFixup);
+
+            const SkImageInfo info = fOrigBitmap.info().makeWH(level.fWidth, level.fHeight);
+            // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
+            //       that here, and not need to explicitly track it ourselves.
+            fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);
+            fBitmap = &fScaledBitmap;
+        } else {
+            // failed to extract, so release the mipmap
+            fCurrMip.reset(NULL);
+        }
+    }
+}
+
 static bool get_locked_pixels(const SkBitmap& src, int pow2, SkBitmap* dst) {
     SkPixelRef* pr = src.pixelRef();
     if (pr && pr->decodeInto(pow2, dst)) {
@@ -344,6 +463,16 @@ static bool valid_for_drawing(const SkBitmap& bm) {
     return true;
 }
 
+/*
+ *  Analyze filter-quality and matrix, and decide how to implement that.
+ *
+ *  In general, we cascade down the request level [ High ... None ]
+ *  - for a given level, if we can fulfill it, fine, else
+ *    - else we downgrade to the next lower level and try again.
+ *  We can always fulfill requests for Low and None
+ *  - sometimes we will "ignore" Low and give None, but this is likely a legacy perf hack
+ *    and may be removed.
+ */
 bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     if (!valid_for_drawing(fOrigBitmap)) {
         return false;
@@ -353,6 +482,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fFilterLevel = paint.getFilterLevel();
 
+#ifdef SK_SUPPORT_LEGACY_HQ_SCALING
     // possiblyScaleImage will look to see if it can rescale the image as a
     // preprocess; either by scaling up to the target size, or by selecting
     // a nearby mipmap level.  If it does, it will adjust the working
@@ -375,6 +505,24 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     if (SkPaint::kMedium_FilterLevel == fFilterLevel) {
         fFilterLevel = SkPaint::kLow_FilterLevel;
     }
+#else
+    if (SkPaint::kHigh_FilterLevel == fFilterLevel) {
+        this->processHQRequest();
+    }
+    SkASSERT(fFilterLevel < SkPaint::kHigh_FilterLevel);
+
+    if (SkPaint::kMedium_FilterLevel == fFilterLevel) {
+        this->processMediumRequest();
+    }
+    SkASSERT(fFilterLevel < SkPaint::kMedium_FilterLevel);
+
+    if (NULL == fBitmap) {
+        if (!this->lockBaseBitmap()) {
+            return false;
+        }
+    }
+    SkASSERT(fBitmap);
+#endif
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
@@ -403,7 +551,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         SkMatrix forward;
         if (fInvMatrix.invert(&forward)) {
             if (clampClamp ? just_trans_clamp(forward, *fBitmap)
-                            : just_trans_general(forward)) {
+                           : just_trans_general(forward)) {
                 SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
                 SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
                 fInvMatrix.setTranslate(tx, ty);
@@ -424,7 +572,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fShaderProc16 = NULL;
     fSampleProc32 = NULL;
     fSampleProc16 = NULL;
-
+    
     // recompute the triviality of the matrix here because we may have
     // changed it!
 
@@ -452,7 +600,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         // the image has a suitable size.
 
         if (fInvType <= SkMatrix::kTranslate_Mask ||
-                !valid_for_filtering(fBitmap->width() | fBitmap->height())) {
+            !valid_for_filtering(fBitmap->width() | fBitmap->height()))
+        {
             fFilterLevel = SkPaint::kNone_FilterLevel;
         }
     }

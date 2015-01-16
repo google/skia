@@ -69,6 +69,9 @@ downsamplebitmap_text_high_72.00pt_8888.png
 # robertphillips - skia:2995
 blurrects
 
+# reed - rebase after HQ filter change
+bleed
+
 # sugoi https://codereview.chromium.org/646213004/
 # New shadow only option in SkDropShadowImageFilter
 dropshadowimagefilter
