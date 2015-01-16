@@ -44,7 +44,6 @@ VALID_TARGETS := \
                  debugger \
                  dm \
                  everything \
-                 gm \
                  most \
                  pathops_unittest \
                  pdfviewer \

@@ -1,1 +1,0 @@
-Created additional file to make sure directory isn't empty, because self-test cannot handle empty directories.
