@@ -120,17 +120,16 @@ public:
         sk_free(fBuffer);
     }
 
-
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("image-surface");
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(960, 1200);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         drawJpeg(canvas, this->getISize());
 
         canvas->scale(2, 2);
@@ -145,8 +144,7 @@ protected:
 
         static const char* kLabel8 = "Pre-Alloc Img";
         static const char* kLabel9 = "New Alloc Img";
-        static const char* kLabel10 = "Null Paint";
-        static const char* kLabel11 = "GPU";
+        static const char* kLabel10 = "GPU";
 
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
@@ -163,8 +161,7 @@ protected:
 
         canvas->drawText(kLabel8, strlen(kLabel8),  80, 10, textPaint);
         canvas->drawText(kLabel9, strlen(kLabel9), 160, 10, textPaint);
-        canvas->drawText(kLabel10, strlen(kLabel10), 250, 10, textPaint);
-        canvas->drawText(kLabel11, strlen(kLabel11), 320, 10, textPaint);
+        canvas->drawText(kLabel10, strlen(kLabel10), 265, 10, textPaint);
 
         canvas->translate(80, 20);
 
@@ -174,22 +171,20 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
         SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, fBuffer, RB));
         SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info));
-#if SK_SUPPORT_GPU
-        GrContext* ctx = canvas->getGrContext();
+        SkAutoTUnref<SkSurface> surf2;  // gpu
 
-        SkAutoTUnref<SkSurface> surf4(SkSurface::NewRenderTarget(
-            ctx, SkSurface::kNo_Budgeted, info));
+#if SK_SUPPORT_GPU
+        surf2.reset(SkSurface::NewRenderTarget(canvas->getGrContext(),
+                                               SkSurface::kNo_Budgeted, info));
 #endif
 
         test_surface(canvas, surf0, true);
         canvas->translate(80, 0);
         test_surface(canvas, surf1, true);
-#if SK_SUPPORT_GPU
-        if (ctx) {
+        if (surf2) {
             canvas->translate(80, 0);
-            test_surface(canvas, surf4, true);
+            test_surface(canvas, surf2, true);
         }
-#endif
     }
 
     uint32_t onGetFlags() const SK_OVERRIDE {
@@ -199,8 +194,5 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
+DEF_GM( return new ImageGM; )
 
-//////////////////////////////////////////////////////////////////////////////
-
-static skiagm::GM* MyFactory(void*) { return new ImageGM; }
-static skiagm::GMRegistry reg(MyFactory);
