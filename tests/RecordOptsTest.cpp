@@ -118,50 +118,50 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkRect bounds = SkRect::MakeWH(100, 200);
     SkRect   draw = SkRect::MakeWH(50, 60);
 
-    SkPaint goodLayerPaint, badLayerPaint, worseLayerPaint;
-    goodLayerPaint.setColor(0x03000000);  // Only alpha.
-    badLayerPaint.setColor( 0x03040506);  // Not only alpha.
-    worseLayerPaint.setXfermodeMode(SkXfermode::kDstIn_Mode);  // Any effect will do.
+    SkPaint alphaOnlyLayerPaint, translucentLayerPaint, xfermodeLayerPaint;
+    alphaOnlyLayerPaint.setColor(0x03000000);  // Only alpha.
+    translucentLayerPaint.setColor(0x03040506);  // Not only alpha.
+    xfermodeLayerPaint.setXfermodeMode(SkXfermode::kDstIn_Mode);  // Any effect will do.
 
-    SkPaint goodDrawPaint, badDrawPaint;
-    goodDrawPaint.setColor(0xFF020202);  // Opaque.
-    badDrawPaint.setColor( 0x0F020202);  // Not opaque.
+    SkPaint opaqueDrawPaint, translucentDrawPaint;
+    opaqueDrawPaint.setColor(0xFF020202);  // Opaque.
+    translucentDrawPaint.setColor(0x0F020202);  // Not opaque.
 
     // SaveLayer/Restore removed: No paint = no point.
     recorder.saveLayer(NULL, NULL);
-        recorder.drawRect(draw, goodDrawPaint);
+        recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_restore(r, &record, 0, true);
 
     // Bounds don't matter.
     recorder.saveLayer(&bounds, NULL);
-        recorder.drawRect(draw, goodDrawPaint);
+        recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_restore(r, &record, 3, true);
 
     // TODO(mtklein): test case with null draw paint
 
     // No change: layer paint isn't alpha-only.
-    recorder.saveLayer(NULL, &badLayerPaint);
-        recorder.drawRect(draw, goodDrawPaint);
+    recorder.saveLayer(NULL, &translucentLayerPaint);
+        recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_restore(r, &record, 6, false);
 
     // No change: layer paint has an effect.
-    recorder.saveLayer(NULL, &worseLayerPaint);
-        recorder.drawRect(draw, goodDrawPaint);
+    recorder.saveLayer(NULL, &xfermodeLayerPaint);
+        recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_restore(r, &record, 9, false);
 
-    // No change: draw paint isn't opaque.
-    recorder.saveLayer(NULL, &goodLayerPaint);
-        recorder.drawRect(draw, badDrawPaint);
+    // SaveLayer/Restore removed: we can fold in the alpha!
+    recorder.saveLayer(NULL, &alphaOnlyLayerPaint);
+        recorder.drawRect(draw, translucentDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 12, false);
+    assert_savelayer_restore(r, &record, 12, true);
 
     // SaveLayer/Restore removed: we can fold in the alpha!
-    recorder.saveLayer(NULL, &goodLayerPaint);
-        recorder.drawRect(draw, goodDrawPaint);
+    recorder.saveLayer(NULL, &alphaOnlyLayerPaint);
+        recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_restore(r, &record, 15, true);
 

@@ -106,14 +106,12 @@ struct SaveLayerDrawRestoreNooper {
 
         const uint32_t layerColor = layerPaint->getColor();
         const uint32_t  drawColor =  drawPaint->getColor();
-        if (!IsOnlyAlpha(layerColor)  || !IsOpaque(drawColor) ||
-            HasAnyEffect(*layerPaint) || CantFoldAlpha(*drawPaint)) {
-            // Too fancy for us.  Actually, as long as layerColor is just an alpha
-            // we can blend it into drawColor's alpha; drawColor doesn't strictly have to be opaque.
+        if (!IsOnlyAlpha(layerColor) || HasAnyEffect(*layerPaint) || CantFoldAlpha(*drawPaint)) {
+            // Too fancy for us.
             return false;
         }
 
-        drawPaint->setColor(SkColorSetA(drawColor, SkColorGetA(layerColor)));
+        drawPaint->setAlpha(SkMulDiv255Round(SkColorGetA(drawColor), SkColorGetA(layerColor)));
         return KillSaveLayerAndRestore(record, begin);
     }
 
@@ -145,9 +143,6 @@ struct SaveLayerDrawRestoreNooper {
                paint.getImageFilter();
     }
 
-    static bool IsOpaque(SkColor color) {
-        return SkColorGetA(color) == SK_AlphaOPAQUE;
-    }
     static bool IsOnlyAlpha(SkColor color) {
         return SK_ColorTRANSPARENT == SkColorSetA(color, SK_AlphaTRANSPARENT);
     }
