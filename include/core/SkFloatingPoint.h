@@ -91,16 +91,6 @@ static inline float sk_float_copysign(float x, float y) {
     #define sk_float_log(x)         logf(x)
 #endif
 
-// can't find log2f on android, but maybe that just a tool bug?
-#ifdef SK_BUILD_FOR_ANDROID
-    static inline float sk_float_log2(float x) {
-        const double inv_ln_2 = 1.44269504088896;
-        return (float)(log(x) * inv_ln_2);
-    }
-#else
-    #define sk_float_log2(x)        log2f(x)
-#endif
-
 #ifdef SK_BUILD_FOR_WIN
     #define sk_float_isfinite(x)    _finite(x)
     #define sk_float_isnan(x)       _isnan(x)

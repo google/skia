@@ -225,7 +225,8 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_MIPLEVELCHOICE
+//static int gCounter;
+
 static SkFixed compute_level(SkScalar scale) {
     SkScalar inv = SkScalarAbs(SkScalarInvert(scale));
     if (inv > 32767) {  // Watch out for SkFixed overflow.
@@ -240,29 +241,17 @@ static SkFixed compute_level(SkScalar scale) {
     SkASSERT(clz >= 1 && clz <= 15);
     return SkIntToFixed(15 - clz) + ((unsigned)(s << (clz + 1)) >> 16);
 }
-#endif
 
 bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
     if (NULL == fLevels) {
         return false;
     }
 
-    if (scale >= SK_Scalar1 || scale <= 0 || !SkScalarIsFinite(scale)) {
+    if (scale >= SK_Scalar1) {
         return false;
     }
 
-#ifdef SK_SUPPORT_LEGACY_MIPLEVELCHOICE
     int level = compute_level(scale) >> 16;
-#else
-    SkScalar L = -SkScalarLog2(scale);
-    if (!SkScalarIsFinite(L)) {
-        return false;
-    }
-    SkASSERT(L >= 0);
-    int level = SkScalarRoundToInt(L);
-//    SkDebugf("mipmap scale=%g L=%g level=%d\n", scale, L, level);
-#endif
-
     SkASSERT(level >= 0);
     if (level <= 0) {
         return false;
