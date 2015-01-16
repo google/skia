@@ -14,22 +14,6 @@
 #include "SkStream.h"
 #include "SkPaint.h"
 
-static void make_checker(SkBitmap* bm, int size, int numChecks) {
-    bm->allocN32Pixels(size, size);
-    for (int y = 0; y < size; ++y) {
-        for (int x = 0; x < size; ++x) {
-            SkPMColor* s = bm->getAddr32(x, y);
-            int cx = (x * numChecks) / size;
-            int cy = (y * numChecks) / size;
-            if ((cx+cy)%2) {
-                *s = 0xFFFFFFFF;
-            } else {
-                *s = 0xFF000000;
-            }
-        }
-    }
-}
-
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
     sk_tool_utils::set_portable_typeface(paint, name, style);
 }
@@ -155,7 +139,19 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
       int fNumChecks;
 
       void make_bitmap() SK_OVERRIDE {
-          make_checker(&fBM, fSize, fNumChecks);
+          fBM.allocN32Pixels(fSize, fSize);
+          for (int y = 0; y < fSize; ++y) {
+              for (int x = 0; x < fSize; ++x) {
+                  SkPMColor* s = fBM.getAddr32(x, y);
+                  int cx = (x * fNumChecks) / fSize;
+                  int cy = (y * fNumChecks) / fSize;
+                  if ((cx+cy)%2) {
+                      *s = 0xFFFFFFFF;
+                  } else {
+                      *s = 0xFF000000;
+                  }
+              }
+          }
       }
   private:
       typedef DownsampleBitmapGM INHERITED;
@@ -194,59 +190,6 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       typedef DownsampleBitmapGM INHERITED;
 };
 
-#include "SkMipMap.h"
-class ShowMipLevels : public skiagm::GM {
-public:
-    SkBitmap    fBM;
-
-    ShowMipLevels() {
-        this->setBGColor(0xFFDDDDDD);
-        make_checker(&fBM, 512, 256);
-    }
-
-protected:
-#if 0
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-#endif
-
-    SkString onShortName() SK_OVERRIDE {
-        return SkString("showmiplevels");
-    }
-
-    SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(fBM.width() + 4, 4 * fBM.height());
-    }
-
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkScalar x = 4;
-        SkScalar y = 4;
-        canvas->drawBitmap(fBM, x, y, NULL);
-        y += fBM.height() + 4;
-
-        SkMipMap* mm = SkMipMap::Build(fBM, NULL);
-
-        SkMipMap::Level level;
-        SkScalar scale = 0.5f;
-        while (mm->extractLevel(scale, &level)) {
-            SkImageInfo info = SkImageInfo::MakeN32Premul(level.fWidth, level.fHeight);
-            SkBitmap bm;
-            bm.installPixels(info, level.fPixels, level.fRowBytes);
-            canvas->drawBitmap(bm, x, y, NULL);
-            y += bm.height() + 4;
-            scale /= 2;
-            if (info.width() == 1 || info.height() == 1) {
-                break;
-            }
-        }
-    }
-    
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kHigh_FilterLevel); )
@@ -272,5 +215,3 @@ DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kNone_Filter
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kNone_FilterLevel); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
                                            SkPaint::kNone_FilterLevel); )
-
-DEF_GM( return new ShowMipLevels; )
