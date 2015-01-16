@@ -417,6 +417,11 @@ int dm_main() {
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
+    SkDebugf("Blacklist debugging. %d total\n", FLAGS_blacklist.count());
+    for (int i = 0; i < FLAGS_blacklist.count(); i++) {
+        SkDebugf("%d: '%s'\n", i, FLAGS_blacklist[i]);
+    }
+
     gather_srcs();
     gather_sinks();
     gather_tests();
