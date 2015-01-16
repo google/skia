@@ -37,6 +37,32 @@
 colortype_xfermodes
 mixed_xfermodes
 
+# reed - rebase after mipmap level improvement
+coloremoji
+downsamplebitmap_image_medium_mandrill_512
+downsamplebitmap_image_medium_mandrill_132x132_12x12
+downsamplebitmap_image_medium_mandrill_512.png
+downsamplebitmap_image_medium_mandrill_132x132_12x12.astc
+downsamplebitmap_checkerboard_medium_512_256
+downsamplebitmap_text_medium_72.00pt
+filterbitmap_checkerboard_4_4
+filterbitmap_checkerboard_32_2
+filterbitmap_checkerboard_32_8
+filterbitmap_checkerboard_32_32
+filterbitmap_checkerboard_192_192
+filterbitmap_image_color_wheel.png
+filterbitmap_image_mandrill_16.png
+filterbitmap_image_mandrill_32.png
+filterbitmap_image_mandrill_64.png
+filterbitmap_image_mandrill_128.png
+filterbitmap_image_mandrill_256.png
+filterbitmap_image_mandrill_512.png
+filterbitmap_text_3.00pt
+filterbitmap_text_7.00pt
+filterbitmap_text_10.00pt
+filterindiabox
+fontmgr_iter
+
 # robertphillips - skia:2995
 blurrects
 
@@ -49,3 +75,6 @@ pictureshader
 
 # bsalomon slight change to image-surface GM on gpu
 image-surface
+
+
+
