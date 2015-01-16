@@ -1,0 +1,12 @@
+Baseline images originally generated on a Mac Mini
+
+  Model Name:    Mac mini
+  Model Identifier:	Macmini4,1
+  Processor Name:	Intel Core 2 Duo
+
+  Chipset Model:	NVIDIA GeForce 320M
+
+Ran these commands to generate:
+GYP_DEFINES="skia_scalar=float" make gm
+out/Debug/gm -w gm/base-macmini
+

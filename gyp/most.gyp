@@ -16,6 +16,7 @@
         'skia_lib.gyp:skia_lib',
 
         'bench.gyp:*',
+        'gm.gyp:gm',
         'SampleApp.gyp:SampleApp',
         'tools.gyp:tools',
         'pathops_unittest.gyp:*',

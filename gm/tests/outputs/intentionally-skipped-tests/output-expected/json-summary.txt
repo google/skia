@@ -1,0 +1,14 @@
+{
+   "actual-results" : {
+      "failed" : null,
+      "failure-ignored" : null,
+      "no-comparison" : {
+         "565/selftest1.png" : [ "bitmap-64bitMD5", 12927999507540085554 ],
+         "565/selftest2.png" : [ "bitmap-64bitMD5", 8863920166200910451 ],
+         "8888/selftest1.png" : [ "bitmap-64bitMD5", 1209453360120438698 ],
+         "8888/selftest2.png" : [ "bitmap-64bitMD5", 13451349865803053525 ]
+      },
+      "succeeded" : null
+   },
+   "expected-results" : null
+}
