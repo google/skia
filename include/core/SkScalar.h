@@ -58,6 +58,7 @@ typedef float SkScalar;
 #define SkScalarATan2(y, x)         (float)sk_float_atan2(y,x)
 #define SkScalarExp(x)              (float)sk_float_exp(x)
 #define SkScalarLog(x)              (float)sk_float_log(x)
+#define SkScalarLog2(x)             (float)sk_float_log2(x)
 
 #else   // SK_SCALAR_IS_DOUBLE
 
@@ -100,6 +101,7 @@ typedef double SkScalar;
 #define SkScalarATan2(y, x)         atan2(y,x)
 #define SkScalarExp(x)              exp(x)
 #define SkScalarLog(x)              log(x)
+#define SkScalarLog2(x)             log2(x)
 
 #endif
 
