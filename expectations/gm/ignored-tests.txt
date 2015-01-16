@@ -35,6 +35,7 @@
 
 # egdaniel
 colortype_xfermodes
+mixed_xfermodes
 
 # robertphillips - skia:2995
 blurrects
