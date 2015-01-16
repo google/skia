@@ -33,7 +33,7 @@ static SkSurface* make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelG
 
     SkSurfaceProps props(flags, geo);
     if (ctx) {
-        return SkSurface::NewRenderTarget(ctx, info, 0, &props);
+        return SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0, &props);
     } else {
         return SkSurface::NewRaster(info, &props);
     }

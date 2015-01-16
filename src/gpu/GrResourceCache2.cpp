@@ -306,6 +306,10 @@ void GrResourceCache2::didChangeBudgetStatus(GrGpuResource* resource) {
     if (resource->cacheAccess().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
+#if GR_CACHE_STATS
+        fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
+        fBudgetedHighWaterCount = SkTMax(fBudgetedCount, fBudgetedHighWaterCount);
+#endif
         this->purgeAsNeeded();
     } else {
         --fBudgetedCount;

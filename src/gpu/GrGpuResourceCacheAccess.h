@@ -70,6 +70,12 @@ public:
     bool isBudgeted() const { return GrGpuResource::kCached_LifeCycle == fResource->fLifeCycle; }
 
     /**
+     * If the resource is uncached make it cached. Has no effect on resources that are wrapped or
+     * already cached.
+     */
+    void makeBudgeted() { fResource->makeBudgeted(); }
+
+    /**
      * Called by the cache to delete the resource under normal circumstances.
      */
     void release() {

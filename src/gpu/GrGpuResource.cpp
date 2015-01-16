@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGpuResource.h"
 #include "GrResourceCache2.h"
 #include "GrGpu.h"
@@ -131,6 +130,13 @@ void GrGpuResource::removeScratchKey() {
     if (!this->wasDestroyed() && fScratchKey.isValid()) {
         get_resource_cache2(fGpu)->resourceAccess().willRemoveScratchKey(this);
         fScratchKey.reset();
+    }
+}
+
+void GrGpuResource::makeBudgeted() {
+    if (GrGpuResource::kUncached_LifeCycle == fLifeCycle) {
+        fLifeCycle = kCached_LifeCycle;
+        get_resource_cache2(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }
 

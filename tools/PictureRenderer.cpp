@@ -157,16 +157,14 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 desc.fSampleCnt = fSampleCount;
                 target.reset(fGrContext->createUncachedTexture(desc, NULL, 0));
             }
-            if (NULL == target.get()) {
-                SkASSERT(0);
+
+            uint32_t flags = fUseDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
+            SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target->asRenderTarget(), &props));
+            if (!device) {
                 return NULL;
             }
-
-            uint32_t flags = fUseDFText ? SkGpuDevice::kDFText_Flag : 0;
-            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target,
-                                         SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
-                                         flags));
-            canvas = SkNEW_ARGS(SkCanvas, (device.get()));
+            canvas = SkNEW_ARGS(SkCanvas, (device));
             break;
         }
 #endif

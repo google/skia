@@ -262,6 +262,7 @@ private:
     bool setContentKey(const GrResourceKey& contentKey);
     void notifyIsPurgable() const;
     void removeScratchKey();
+    void makeBudgeted();
 
 #ifdef SK_DEBUG
     friend class GrGpu; // for assert in GrGpu to access getGpu

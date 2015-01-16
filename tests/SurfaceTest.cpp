@@ -50,15 +50,9 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
                                                          release_storage, storage);
         }
         case kGpu_SurfaceType:
-#if SK_SUPPORT_GPU
-            return context ? SkSurface::NewRenderTarget(context, info, 0, NULL) : NULL;
-#endif
-            break;
+            return SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0, NULL);
         case kGpuScratch_SurfaceType:
-#if SK_SUPPORT_GPU
-            return context ? SkSurface::NewScratchRenderTarget(context, info) : NULL;
-#endif
-            break;
+            return SkSurface::NewRenderTarget(context, SkSurface::kYes_Budgeted, info, 0, NULL);
     }
     return NULL;
 }
@@ -94,8 +88,8 @@ static void test_empty_surface(skiatest::Reporter* reporter, GrContext* ctx) {
     REPORTER_ASSERT(reporter, NULL == SkSurface::NewRaster(info));
     REPORTER_ASSERT(reporter, NULL == SkSurface::NewRasterDirect(info, NULL, 0));
     if (ctx) {
-        REPORTER_ASSERT(reporter, NULL == SkSurface::NewRenderTarget(ctx, info, 0, NULL));
-        REPORTER_ASSERT(reporter, NULL == SkSurface::NewScratchRenderTarget(ctx, info, 0, NULL));
+        REPORTER_ASSERT(reporter, NULL ==
+                        SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0, NULL));
     }
 }
 
@@ -129,7 +123,8 @@ static SkImage* createImage(ImageType imageType, GrContext* context, SkColor col
         case kRasterData_ImageType:
             return SkImage::NewRasterData(info, data, rowBytes);
         case kGpu_ImageType: {
-            SkAutoTUnref<SkSurface> surf(SkSurface::NewRenderTarget(context, info, 0));
+            SkAutoTUnref<SkSurface> surf(
+                SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
             surf->getCanvas()->clear(color);
             return surf->newImageSnapshot();
         }

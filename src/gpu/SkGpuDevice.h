@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
@@ -16,6 +14,7 @@
 #include "SkDevice.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
+#include "SkSurface.h"
 #include "GrContext.h"
 #include "GrSurfacePriv.h"
 
@@ -34,25 +33,20 @@ class SK_API SkGpuDevice : public SkBaseDevice {
 public:
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
-        kDFText_Flag   = 1 << 1,  //!< Surface should render text using signed distance fields
     };
 
     /**
-     * Creates an SkGpuDevice from a GrSurface. This will fail if the surface is not a render
-     * target. The caller owns a ref on the returned device. If the surface is cached,
-     * the kCached_Flag should be specified to make the device responsible for unlocking
-     * the surface when it is released.
+     * Creates an SkGpuDevice from a GrRenderTarget.
      */
-    static SkGpuDevice* Create(GrSurface* surface, const SkSurfaceProps&, unsigned flags = 0);
+    static SkGpuDevice* Create(GrRenderTarget* target, const SkSurfaceProps*, unsigned flags = 0);
 
     /**
-     *  New device that will create an offscreen renderTarget based on the
-     *  ImageInfo and sampleCount. The device's storage will not
-     *  count against the GrContext's texture cache budget. The device's pixels
-     *  will be uninitialized. On failure, returns NULL.
+     * New device that will create an offscreen renderTarget based on the ImageInfo and
+     * sampleCount. The Budgeted param controls whether the device's backing store counts against
+     * the resource cache budget. On failure, returns NULL.
      */
-    static SkGpuDevice* Create(GrContext*, const SkImageInfo&, const SkSurfaceProps&,
-                               int sampleCount);
+    static SkGpuDevice* Create(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
+                               int sampleCount, const SkSurfaceProps*, unsigned flags = 0);
 
     virtual ~SkGpuDevice();
 
@@ -63,7 +57,7 @@ public:
         return static_cast<SkGpuDevice*>(dev);
     }
 
-    GrContext* context() const { return fContext; }
+    GrContext* context() const { return fRenderTarget->getContext(); }
 
     // set all pixels to 0
     void clearAll();
@@ -73,6 +67,8 @@ public:
     SkImageInfo imageInfo() const SK_OVERRIDE {
         return fRenderTarget ? fRenderTarget->surfacePriv().info() : SkImageInfo::MakeUnknown();
     }
+
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
     void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
@@ -139,21 +135,16 @@ protected:
 
 private:
     GrContext*      fContext;
-
     GrSkDrawProcs*  fDrawProcs;
-
     GrClipData      fClipData;
-
     GrTextContext*  fTextContext;
-
-    // state for our render-target
+    SkSurfaceProps  fSurfaceProps;
     GrRenderTarget* fRenderTarget;
-    uint32_t        fFlags;
-
     // remove when our clients don't rely on accessBitmap()
-    SkBitmap fLegacyBitmap;
+    SkBitmap        fLegacyBitmap;
+    bool            fNeedClear;
 
-    SkGpuDevice(GrSurface*, const SkSurfaceProps&, unsigned flags = 0);
+    SkGpuDevice(GrRenderTarget*, const SkSurfaceProps*, unsigned flags);
 
     SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 

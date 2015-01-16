@@ -125,18 +125,13 @@ private:
         SkCanvas* tempCanvas = NULL;
 #if SK_SUPPORT_GPU
         GrContext* context = baseCanvas->getGrContext();
-        if (context) {
-            GrSurfaceDesc desc;
-            desc.fWidth = w;
-            desc.fHeight = h;
-            desc.fConfig = SkImageInfo2GrPixelConfig(baseCanvas->imageInfo());
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            SkAutoTUnref<GrSurface> surface(context->createUncachedTexture(desc, NULL, 0));
-            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(surface.get(),
-                                          SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));
-            if (device.get()) {
-                tempCanvas = SkNEW_ARGS(SkCanvas, (device.get()));
-            }
+        SkImageInfo baseInfo = baseCanvas->imageInfo();
+        SkImageInfo info = SkImageInfo::Make(w, h, baseInfo.colorType(), baseInfo.alphaType(),
+                                             baseInfo.profileType());
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted,
+                                        info, 0, NULL));
+        if (surface) {
+            tempCanvas = SkRef(surface->getCanvas());
         }
 #endif
         return tempCanvas;

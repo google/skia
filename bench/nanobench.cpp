@@ -388,7 +388,8 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     else if (Benchmark::kGPU_Backend == config.backend) {
         uint32_t flags = config.useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-        target->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(config.ctxType), info,
+        target->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(config.ctxType),
+                                                         SkSurface::kNo_Budgeted, info,
                                                          config.samples, &props));
         target->gl = gGrFactory->getGLContext(config.ctxType);
     }

@@ -183,13 +183,10 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProp
     return NULL;
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext*, const SkImageInfo&, int, const SkSurfaceProps*) {
+SkSurface* SkSurface::NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int,
+                                      const SkSurfaceProps*) {
     return NULL;
 }
 
-SkSurface* SkSurface::NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                             const SkSurfaceProps*) {
-    return NULL;
-}
 
 #endif
