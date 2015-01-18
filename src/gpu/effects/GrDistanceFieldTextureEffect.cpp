@@ -35,7 +35,7 @@ public:
 #endif
         {}
 
-    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldTextureEffect>();
         const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
@@ -61,11 +61,11 @@ public:
         this->addUniformViewMatrix(pb);
 
         // Setup position
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                               dfTexEffect.inPosition()->fName);
+        SetupPosition(vsBuilder, gpArgs, dfTexEffect.inPosition()->fName,
+                      dfTexEffect.viewMatrix(), this->uViewM());
 
         // emit transforms
-        this->emitTransforms(args.fPB,  this->position(), dfTexEffect.inPosition()->fName,
+        this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
@@ -166,16 +166,16 @@ public:
         }
     }
 
-    static inline void GenKey(const GrGeometryProcessor& processor,
+    static inline void GenKey(const GrGeometryProcessor& gp,
                               const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
-        const GrDistanceFieldTextureEffect& dfTexEffect =
-                processor.cast<GrDistanceFieldTextureEffect>();
+        const GrDistanceFieldTextureEffect& dfTexEffect = gp.cast<GrDistanceFieldTextureEffect>();
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
-        key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        key |= ComputePosKey(gp.viewMatrix()) << 25;
         b->add32(key);
     }
 
@@ -324,7 +324,7 @@ public:
                                           const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
 
-    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
 
@@ -353,11 +353,11 @@ public:
         this->addUniformViewMatrix(pb);
 
         // Setup position
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                               dfTexEffect.inPosition()->fName);
+        SetupPosition(vsBuilder, gpArgs, dfTexEffect.inPosition()->fName,
+                      dfTexEffect.viewMatrix(), this->uViewM());
 
         // emit transforms
-        this->emitTransforms(args.fPB,  this->position(), dfTexEffect.inPosition()->fName,
+        this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
@@ -434,17 +434,18 @@ public:
         }
     }
 
-    static inline void GenKey(const GrGeometryProcessor& proc,
+    static inline void GenKey(const GrGeometryProcessor& gp,
                               const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
-            proc.cast<GrDistanceFieldNoGammaTextureEffect>();
+            gp.cast<GrDistanceFieldNoGammaTextureEffect>();
 
         const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
-        key |= local.fUsesLocalCoords && proc.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        key |= ComputePosKey(gp.viewMatrix()) << 25;
         b->add32(key);
     }
 
@@ -568,7 +569,7 @@ public:
     , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
-    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
         const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();
@@ -591,11 +592,11 @@ public:
         this->addUniformViewMatrix(pb);
 
         // Setup position
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                               dfTexEffect.inPosition()->fName);
+        SetupPosition(vsBuilder, gpArgs, dfTexEffect.inPosition()->fName,
+                      dfTexEffect.viewMatrix(), this->uViewM());
 
         // emit transforms
-        this->emitTransforms(args.fPB,  this->position(), dfTexEffect.inPosition()->fName,
+        this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
@@ -749,17 +750,18 @@ public:
         }
     }
 
-    static inline void GenKey(const GrGeometryProcessor& processor,
+    static inline void GenKey(const GrGeometryProcessor& gp,
                               const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
-                processor.cast<GrDistanceFieldLCDTextureEffect>();
+                gp.cast<GrDistanceFieldLCDTextureEffect>();
 
         const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
-        key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
+        key |= ComputePosKey(gp.viewMatrix()) << 25;
         b->add32(key);
     }
 

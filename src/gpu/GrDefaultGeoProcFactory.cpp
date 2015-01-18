@@ -83,15 +83,15 @@ public:
         GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
-        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLGPBuilder* pb = args.fPB;
-            GrGLVertexBuilder* vs = pb->getVertexShaderBuilder();
+            GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
             GrGLGPFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
 
             // emit attributes
-            vs->emitAttributes(gp);
+            vsBuilder->emitAttributes(gp);
 
             // Setup pass through color
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, gp.inColor(),
@@ -101,16 +101,16 @@ public:
             this->addUniformViewMatrix(pb);
 
             // Setup position
-            vs->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                            gp.inPosition()->fName);
+            SetupPosition(vsBuilder, gpArgs, gp.inPosition()->fName,
+                          gp.viewMatrix(), this->uViewM());
 
             if (gp.inLocalCoords()) {
                 // emit transforms with explicit local coords
-                this->emitTransforms(pb,  this->position(), gp.inLocalCoords()->fName,
+                this->emitTransforms(pb, gpArgs->fPositionVar, gp.inLocalCoords()->fName,
                                      gp.localMatrix(), args.fTransformsIn, args.fTransformsOut);
             } else {
                 // emit transforms with position
-                this->emitTransforms(pb,  this->position(), gp.inPosition()->fName,
+                this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName,
                                      gp.localMatrix(), args.fTransformsIn, args.fTransformsOut);
             }
 
@@ -142,6 +142,7 @@ public:
             uint32_t key = def.fFlags;
             key |= local.fInputColorType << 8 | local.fInputCoverageType << 16;
             key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24 : 0x0;
+            key |= ComputePosKey(gp.viewMatrix()) << 25;
             b->add32(key);
         }
 

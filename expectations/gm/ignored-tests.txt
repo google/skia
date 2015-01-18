@@ -79,5 +79,33 @@ dropshadowimagefilter
 # bsalomon slight change to image-surface GM on gpu
 image-surface
 
-
-
+# robertphillips - https://codereview.chromium.org/854013002/
+# gpu-only and only a few low intensity pixel diffs
+conicpaths
+convexpaths
+dashcubics
+dcshader
+dftext
+fontmgr_bounds
+fontmgr_bounds_1_-0.25
+fontmgr_bounds_0.75_0
+getpostextpath
+glyph_pos_h_s
+gradients_view_perspective
+hairlines
+mixed_xfermodes
+patch_grid
+patch_primitive
+pathinterior
+path-reverse
+points
+poly2poly
+polygons
+roundrects
+rrect
+shadertext2
+shadertext3
+stringart
+strokerects
+strokes3
+stroketext

@@ -83,7 +83,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -104,11 +104,11 @@ public:
             this->addUniformViewMatrix(pb);
 
             // Setup position
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                                   ce.inPosition()->fName);
+            SetupPosition(vsBuilder, gpArgs, ce.inPosition()->fName,
+                          ce.viewMatrix(), this->uViewM());
 
             // emit transforms
-            this->emitTransforms(args.fPB,  this->position(), ce.inPosition()->fName,
+            this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
                                  ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);;
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -123,14 +123,15 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& processor,
+        static void GenKey(const GrGeometryProcessor& gp,
                            const GrBatchTracker& bt,
                            const GrGLCaps&,
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
-            const CircleEdgeEffect& circleEffect = processor.cast<CircleEdgeEffect>();
+            const CircleEdgeEffect& circleEffect = gp.cast<CircleEdgeEffect>();
             uint16_t key = circleEffect.isStroked() ? 0x1 : 0x0;
-            key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            key |= ComputePosKey(gp.viewMatrix()) << 2;
             b->add32(key << 16 | local.fInputColorType);
         }
 
@@ -259,7 +260,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -286,11 +287,11 @@ public:
             this->addUniformViewMatrix(pb);
 
             // Setup position
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", this->position(), this->uViewM(),
-                                   ee.inPosition()->fName);
+            SetupPosition(vsBuilder, gpArgs, ee.inPosition()->fName,
+                          ee.viewMatrix(), this->uViewM());
 
             // emit transforms
-            this->emitTransforms(args.fPB, this->position(), ee.inPosition()->fName,
+            this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
                                  ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             // for outer curve
@@ -320,14 +321,15 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& processor,
+        static void GenKey(const GrGeometryProcessor& gp,
                            const GrBatchTracker& bt,
                            const GrGLCaps&,
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
-            const EllipseEdgeEffect& ellipseEffect = processor.cast<EllipseEdgeEffect>();
+            const EllipseEdgeEffect& ellipseEffect = gp.cast<EllipseEdgeEffect>();
             uint16_t key = ellipseEffect.isStroked() ? 0x1 : 0x0;
-            key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x2 : 0x0;
+            key |= ComputePosKey(gp.viewMatrix()) << 2;
             b->add32(key << 16 | local.fInputColorType);
         }
 
@@ -463,7 +465,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -490,11 +492,11 @@ public:
             this->addUniformViewMatrix(pb);
 
             // Setup position
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);", this->position(), this->uViewM(),
-                                   ee.inPosition()->fName);
+            SetupPosition(vsBuilder, gpArgs, ee.inPosition()->fName,
+                          ee.viewMatrix(), this->uViewM());
 
             // emit transforms
-            this->emitTransforms(args.fPB, this->position(), ee.inPosition()->fName,
+            this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
                                  ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -538,15 +540,15 @@ public:
             fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& processor,
+        static void GenKey(const GrGeometryProcessor& gp,
                            const GrBatchTracker& bt,
                            const GrGLCaps&,
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
-            const DIEllipseEdgeEffect& ellipseEffect = processor.cast<DIEllipseEdgeEffect>();
+            const DIEllipseEdgeEffect& ellipseEffect = gp.cast<DIEllipseEdgeEffect>();
             uint16_t key = ellipseEffect.getMode();
-            key |= local.fUsesLocalCoords && processor.localMatrix().hasPerspective() ? 0x1 << 8 :
-                                                                                        0x0;
+            key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 8 : 0x0;
+            key |= ComputePosKey(gp.viewMatrix()) << 9;
             b->add32(key << 16 | local.fInputColorType);
         }
 

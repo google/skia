@@ -535,7 +535,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
@@ -557,11 +557,11 @@ public:
             this->addUniformViewMatrix(pb);
 
             // Setup position
-            vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                                   qe.inPosition()->fName);
+            SetupPosition(vsBuilder, gpArgs, qe.inPosition()->fName,
+                          qe.viewMatrix(), this->uViewM());
 
             // emit transforms
-            this->emitTransforms(args.fPB,  this->position(), qe.inPosition()->fName,
+            this->emitTransforms(args.fPB, gpArgs->fPositionVar, qe.inPosition()->fName,
                                  qe.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -594,8 +594,10 @@ public:
                                   const GrGLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
-            b->add32((local.fInputColorType << 16) |
-                     (local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0));
+            uint32_t key = local.fInputColorType << 16;
+            key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
+            key |= ComputePosKey(gp.viewMatrix()) << 1;
+            b->add32(key);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,

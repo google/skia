@@ -88,7 +88,7 @@ public:
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
-        INHERITED::set(type, typeModifier, name, precision);
+        INHERITED::set(type, name, typeModifier, precision);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
@@ -104,7 +104,7 @@ public:
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
-        INHERITED::set(type, typeModifier, name, precision);
+        INHERITED::set(type, name, typeModifier, precision);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
@@ -121,7 +121,7 @@ public:
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
-        INHERITED::set(type, typeModifier, name, count, precision);
+        INHERITED::set(type, name, typeModifier, precision, count);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
@@ -138,7 +138,7 @@ public:
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
-        INHERITED::set(type, typeModifier, name, count, precision);
+        INHERITED::set(type, name, typeModifier, precision, count);
         fOrigin = origin;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }

@@ -34,7 +34,7 @@ void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
     return;
 }
 
-void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const char* pos3) {
+void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
     SkASSERT(!fRtAdjustName);
 
     // setup RT Uniform
@@ -44,9 +44,19 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const char* pos3) {
                                         fProgramBuilder->rtAdjustment(),
                                         &fRtAdjustName);
 
-    // Transform from Skia's device coords to GL's normalized device coords.
-    this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
-                      pos3, fRtAdjustName, pos3, fRtAdjustName, pos3);
+    // Transform from Skia's device coords to GL's normalized device coords. Note that
+    // because we want to "nudge" the device space positions we are converting to 
+    // non-homogeneous NDC.
+    if (kVec3f_GrSLType == posVar.getType()) {
+        this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy)/%s.z, dot(%s.yz, %s.zw)/%s.z, 0, 1);",
+                          posVar.c_str(), fRtAdjustName, posVar.c_str(),
+                          posVar.c_str(), fRtAdjustName, posVar.c_str());
+    } else {
+        SkASSERT(kVec2f_GrSLType == posVar.getType());
+        this->codeAppendf("gl_Position = vec4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
+                          posVar.c_str(), fRtAdjustName, fRtAdjustName,
+                          posVar.c_str(), fRtAdjustName, fRtAdjustName);
+    }
 
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed here.
     // If we ever need to set variable pointsize, then we can reinvestigate

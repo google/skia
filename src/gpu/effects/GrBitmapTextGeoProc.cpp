@@ -25,7 +25,7 @@ public:
     GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL) {}
 
-    void onEmitCode(EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
         const BitmapTextBatchTracker& local = args.fBT.cast<BitmapTextBatchTracker>();
 
@@ -47,11 +47,11 @@ public:
         this->addUniformViewMatrix(pb);
 
         // Setup position
-        vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                               cte.inPosition()->fName);
+        SetupPosition(vsBuilder, gpArgs, cte.inPosition()->fName,
+                      cte.viewMatrix(), this->uViewM());
 
         // emit transforms
-        this->emitTransforms(args.fPB,  this->position(), cte.inPosition()->fName,
+        this->emitTransforms(args.fPB, gpArgs->fPositionVar, cte.inPosition()->fName,
                              cte.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
         GrGLGPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
@@ -86,6 +86,7 @@ public:
         uint32_t key = 0;
         key |= SkToBool(gp.inColor()) ? 0x1 : 0x0;
         key |= local.fUsesLocalCoords && proc.localMatrix().hasPerspective() ? 0x2 : 0x0;
+        key |= ComputePosKey(gp.viewMatrix()) << 2;
         b->add32(local.fInputColorType << 16 | key);
     }
 

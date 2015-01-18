@@ -220,7 +220,7 @@ protected:
 private:
     virtual bool hasExplicitLocalCoords() const = 0;
 
-    SkMatrix fViewMatrix;
+    const SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
 
     typedef GrProcessor INHERITED;

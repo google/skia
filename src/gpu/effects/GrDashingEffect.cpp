@@ -531,7 +531,7 @@ class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
     GLDashingCircleEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -560,7 +560,7 @@ GLDashingCircleEffect::GLDashingCircleEffect(const GrGeometryProcessor&,
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingCircleEffect::onEmitCode(EmitArgs& args) {
+void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
     const DashingCircleBatchTracker local = args.fBT.cast<DashingCircleBatchTracker>();
     GrGLGPBuilder* pb = args.fPB;
@@ -587,11 +587,10 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args) {
     this->addUniformViewMatrix(pb);
 
     // Setup position
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                           dce.inPosition()->fName);
+    SetupPosition(vsBuilder, gpArgs, dce.inPosition()->fName, dce.viewMatrix(), this->uViewM());
 
     // emit transforms
-    this->emitTransforms(args.fPB,  this->position(), dce.inPosition()->fName, dce.localMatrix(),
+    this->emitTransforms(args.fPB, gpArgs->fPositionVar, dce.inPosition()->fName, dce.localMatrix(),
                          args.fTransformsIn, args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test circle
@@ -637,14 +636,17 @@ void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
     }
 }
 
-void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& processor,
+void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
                                    const GrBatchTracker& bt,
                                    const GrGLCaps&,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
-    const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
-    b->add32(local.fUsesLocalCoords && processor.localMatrix().hasPerspective());
-    b->add32(dce.getEdgeType() << 16 | local.fInputColorType);
+    const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
+    uint32_t key = 0;
+    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
+    key |= ComputePosKey(gp.viewMatrix()) << 1;
+    key |= dce.getEdgeType() << 8;
+    b->add32(key << 16 | local.fInputColorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -822,7 +824,7 @@ class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
     GLDashingLineEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -850,7 +852,7 @@ GLDashingLineEffect::GLDashingLineEffect(const GrGeometryProcessor&,
     fPrevIntervalLength = SK_ScalarMax;
 }
 
-void GLDashingLineEffect::onEmitCode(EmitArgs& args) {
+void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
     const DashingLineBatchTracker& local = args.fBT.cast<DashingLineBatchTracker>();
     GrGLGPBuilder* pb = args.fPB;
@@ -885,11 +887,10 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args) {
     this->addUniformViewMatrix(pb);
 
     // Setup position
-    vsBuilder->codeAppendf("%s = %s * vec3(%s, 1);",  this->position(), this->uViewM(),
-                           de.inPosition()->fName);
+    SetupPosition(vsBuilder, gpArgs, de.inPosition()->fName, de.viewMatrix(), this->uViewM());
 
     // emit transforms
-    this->emitTransforms(args.fPB,  this->position(), de.inPosition()->fName, de.localMatrix(),
+    this->emitTransforms(args.fPB, gpArgs->fPositionVar, de.inPosition()->fName, de.localMatrix(),
                          args.fTransformsIn, args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test rect
@@ -942,14 +943,17 @@ void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
     }
 }
 
-void GLDashingLineEffect::GenKey(const GrGeometryProcessor& processor,
+void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
                                  const GrBatchTracker& bt,
                                  const GrGLCaps&,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
-    const DashingLineEffect& de = processor.cast<DashingLineEffect>();
-    b->add32(local.fUsesLocalCoords && processor.localMatrix().hasPerspective());
-    b->add32(de.getEdgeType() << 16 | local.fInputColorType);
+    const DashingLineEffect& de = gp.cast<DashingLineEffect>();
+    uint32_t key = 0;
+    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
+    key |= ComputePosKey(gp.viewMatrix()) << 1;
+    key |= de.getEdgeType() << 8;
+    b->add32(key << 16 | local.fInputColorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

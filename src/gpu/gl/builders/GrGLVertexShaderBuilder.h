@@ -16,7 +16,7 @@ class GrGLVertexBuilder : public GrGLShaderBuilder {
 public:
     GrGLVertexBuilder(GrGLProgramBuilder* program);
 
-    void transformToNormalizedDeviceSpace(const char* pos3);
+    void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
     void emitAttributes(const GrGeometryProcessor& gp);
 
     void addAttribute(const GrGeometryProcessor::Attribute* attr) {

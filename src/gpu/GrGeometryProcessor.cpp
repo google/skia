@@ -163,13 +163,13 @@ void GrGLPrimitiveProcessor::setUniformViewMatrix(const GrGLProgramDataManager& 
 
 void GrGLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
-    vsBuilder->codeAppendf("vec3 %s;", this->position());
-    this->onEmitCode(args);
-    vsBuilder->transformToNormalizedDeviceSpace(this->position());
+    GrGPArgs gpArgs;
+    this->onEmitCode(args, &gpArgs);
+    vsBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
 }
 
 void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
-                                           const char* position,
+                                           const GrShaderVar& posVar,
                                            const char* localCoords,
                                            const SkMatrix& localMatrix,
                                            const TransformsIn& tin,
@@ -214,9 +214,19 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
             // varying = matrix * coords (logically)
             if (kDevice_GrCoordSet == coordType) {
                 if (kVec2f_GrSLType == varyingType) {
-                    vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, position);
+                    if (kVec2f_GrSLType == posVar.getType()) {
+                        vb->codeAppendf("%s = (%s * vec3(%s, 1)).xy;",
+                                        v.vsOut(), uniName, posVar.c_str());
+                    } else {
+                        vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, posVar.c_str());
+                    }
                 } else {
-                    vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, position);
+                    if (kVec2f_GrSLType == posVar.getType()) {
+                        vb->codeAppendf("%s = %s * vec3(%s, 1);",
+                                        v.vsOut(), uniName, posVar.c_str());
+                    } else {
+                        vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, posVar.c_str());
+                    }
                 }
             } else {
                 if (kVec2f_GrSLType == varyingType) {
@@ -244,6 +254,28 @@ GrGLGeometryProcessor::setTransformData(const GrPrimitiveProcessor* primProc,
             pdman.setSkMatrix(procTransforms[t].fHandle.convertToUniformHandle(), transform);
             procTransforms[t].fCurrentValue = transform;
         }
+    }
+}
+
+void GrGLGeometryProcessor::SetupPosition(GrGLVertexBuilder* vsBuilder,
+                                          GrGPArgs* gpArgs,
+                                          const char* posName,
+                                          const SkMatrix& mat,
+                                          const char* matName) {
+    if (mat.isIdentity()) {
+        gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
+
+        vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+    } else if (!mat.hasPerspective()) {
+        gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
+
+        vsBuilder->codeAppendf("vec2 %s = vec2(%s * vec3(%s, 1));",
+                               gpArgs->fPositionVar.c_str(), matName, posName);
+    } else {
+        gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");
+
+        vsBuilder->codeAppendf("vec3 %s = %s * vec3(%s, 1);",
+                               gpArgs->fPositionVar.c_str(), matName, posName);
     }
 }
 
