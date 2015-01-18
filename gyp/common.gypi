@@ -50,17 +50,6 @@
       'common_conditions.gypi',
     ],
     'conditions': [
-      [ 'skia_scalar == "float"',
-        {
-          'defines': [
-            'SK_SCALAR_IS_FLOAT',
-          ],
-        }, { # else, skia_scalar != "float"
-          'defines': [
-            'SK_SCALAR_IS_FIXED',
-          ],
-        }
-      ],
       [ 'skia_mesa', {
         'defines': [
           'SK_MESA',
