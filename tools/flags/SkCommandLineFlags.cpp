@@ -7,6 +7,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkTDArray.h"
+#include "SkTSort.h"
 
 DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
 
@@ -191,6 +192,14 @@ static void print_help_for_flag(const SkFlagInfo* flag) {
     SkDebugf("\n");
 }
 
+namespace {
+struct CompareFlagsByName {
+    bool operator()(SkFlagInfo* a, SkFlagInfo* b) const {
+        return strcmp(a->name().c_str(), b->name().c_str()) < 0;
+    }
+};
+}  // namespace
+
 void SkCommandLineFlags::Parse(int argc, char** argv) {
     // Only allow calling this function once.
     static bool gOnce;
@@ -218,24 +227,31 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                 SkDebugf("%s\n%s\n", argv[0], gUsage.c_str());
             }
             SkDebugf("Flags:\n");
-            SkFlagInfo* flag = SkCommandLineFlags::gHead;
-            while (flag != NULL) {
+
+            if (0 == helpFlags.count()) {
                 // If no flags followed --help, print them all
-                bool printFlag = 0 == helpFlags.count();
-                if (!printFlag) {
+                SkTDArray<SkFlagInfo*> allFlags;
+                for (SkFlagInfo* flag = SkCommandLineFlags::gHead; flag;
+                     flag = flag->next()) {
+                    allFlags.push(flag);
+                }
+                SkTQSort(&allFlags[0], &allFlags[allFlags.count() - 1],
+                         CompareFlagsByName());
+                for (int i = 0; i < allFlags.count(); ++i) {
+                    print_help_for_flag(allFlags[i]);
+                }
+            } else {
+                for (SkFlagInfo* flag = SkCommandLineFlags::gHead; flag;
+                     flag = flag->next()) {
                     for (int k = 0; k < helpFlags.count(); k++) {
                         if (flag->name().equals(helpFlags[k]) ||
                             flag->shortName().equals(helpFlags[k])) {
-                            printFlag = true;
+                            print_help_for_flag(flag);
                             helpFlags.remove(k);
                             break;
                         }
                     }
                 }
-                if (printFlag) {
-                    print_help_for_flag(flag);
-                }
-                flag = flag->next();
             }
             if (helpFlags.count() > 0) {
                 SkDebugf("Requested help for unrecognized flags:\n");
