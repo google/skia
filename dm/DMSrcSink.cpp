@@ -9,11 +9,6 @@
 
 namespace DM {
 
-void SafeUnref(SkPicture* p) { SkSafeUnref(p); }
-void SafeUnref(SkData*    d) { SkSafeUnref(d); }
-
-// FIXME: the GM objects themselves are not threadsafe, so we create and destroy them as needed.
-
 GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
@@ -35,18 +30,10 @@ Name GMSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// The first call to draw() or size() will mmap the file to an SkData.  ~ImageSrc unrefs it.
-struct LazyLoadImage {
-    LazyLoadImage(const char* path) : path(path) {}
-    const char* path;
-
-    SkData* operator()() const { return SkData::NewFromFileName(path); }
-};
-
 ImageSrc::ImageSrc(SkString path, int subsets) : fPath(path), fSubsets(subsets) {}
 
 Error ImageSrc::draw(SkCanvas* canvas) const {
-    const SkData* encoded = fEncoded.get(LazyLoadImage(fPath.c_str()));
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
@@ -56,6 +43,7 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
         if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap)) {
             return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
         }
+        encoded.reset((SkData*)NULL);  // Might as well drop this when we're done with it.
         canvas->drawBitmap(bitmap, 0,0);
         return "";
     }
@@ -89,7 +77,7 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize ImageSrc::size() const {
-    const SkData* encoded = fEncoded.get(LazyLoadImage(fPath.c_str()));
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     SkBitmap bitmap;
     if (!encoded || !SkImageDecoder::DecodeMemory(encoded->data(),
                                                   encoded->size(),
@@ -107,45 +95,26 @@ Name ImageSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 static const SkRect kSKPViewport = {0,0, 1000,1000};
 
-// The first call to draw() or size() will read the file into an SkPicture.  ~SKPSrc unrefs it.
-struct LazyLoadPicture {
-    LazyLoadPicture(const char* path) : path(path) {}
-    const char* path;
-
-    SkPicture* operator()() const {
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-        if (!stream) {
-            return NULL;
-        }
-        return SkPicture::CreateFromStream(stream);
-    }
-};
-
 SKPSrc::SKPSrc(SkString path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
-    const SkPicture* pic = fPic.get(LazyLoadPicture(fPath.c_str()));
-    if (!pic) {
+    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
+    if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
+    SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream));
+    if (!pic) {
+        return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
+    }
+    stream.reset((SkStream*)NULL);  // Might as well drop this when we're done with it.
     canvas->clipRect(kSKPViewport);
     canvas->drawPicture(pic);
     return "";
 }
 
 SkISize SKPSrc::size() const {
-    const SkPicture* pic = fPic.get(LazyLoadPicture(fPath.c_str()));
-    if (!pic) {
-        return SkISize::Make(0,0);
-    }
-    SkRect cull = pic->cullRect();
-    if (!cull.intersect(kSKPViewport)) {
-        sk_throw();
-    }
-    SkIRect bounds;
-    cull.roundOut(&bounds);
-    SkISize size = { bounds.width(), bounds.height() };
-    return size;
+    // This may be unnecessarily large.
+    return kSKPViewport.roundOut().size();
 }
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }

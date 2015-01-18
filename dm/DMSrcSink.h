@@ -47,9 +47,6 @@ static const int kNumEnclaves = kPDFSink_Enclave + 1;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-void SafeUnref(SkPicture*);  // These need external linkage (and specific types).
-void SafeUnref(SkData*);
-
 class GMSrc : public Src {
 public:
     explicit GMSrc(skiagm::GMRegistry::Factory);
@@ -71,7 +68,6 @@ public:
 private:
     SkString                     fPath;
     int                          fSubsets;
-    SkLazyPtr<SkData, SafeUnref> fEncoded;
 };
 
 class SKPSrc : public Src {
@@ -83,7 +79,6 @@ public:
     Name name() const SK_OVERRIDE;
 private:
     SkString                        fPath;
-    SkLazyPtr<SkPicture, SafeUnref> fPic;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
