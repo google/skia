@@ -218,6 +218,7 @@
     '../tests/WritePixelsTest.cpp',
     '../tests/Writer32Test.cpp',
     '../tests/XfermodeTest.cpp',
+    '../tests/YUVCacheTest.cpp',
 
     '../tests/MatrixClipCollapseTest.cpp',
     '../src/utils/debugger/SkDrawCommand.h',

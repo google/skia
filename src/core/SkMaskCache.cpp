@@ -147,7 +147,7 @@ struct RectsBlurRec : public SkResourceCache::Rec {
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextData) {
         const RectsBlurRec& rec = static_cast<const RectsBlurRec&>(baseRec);
-        MaskValue* result = (MaskValue*)contextData;
+        MaskValue* result = static_cast<MaskValue*>(contextData);
 
         SkCachedData* tmpData = rec.fValue.fData;
         tmpData->ref();

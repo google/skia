@@ -15,7 +15,9 @@
 #include "SkData.h"
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
+#include "SkResourceCache.h"
 #include "SkTextureCompressor.h"
+#include "SkYUVPlanesCache.h"
 #include "effects/GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrYUVtoRGBEffect.h"
@@ -221,48 +223,62 @@ static GrTexture *load_etc1_texture(GrContext* ctx, bool cache,
 static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTextureParams* params,
                                    const SkBitmap& bm, const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
-    if ((bm.pixelRef()->info().width()  != bm.info().width()) ||
-        (bm.pixelRef()->info().height() != bm.info().height())) {
-        return NULL;
-    }
-
     SkPixelRef* pixelRef = bm.pixelRef();
-    SkISize yuvSizes[3];
-    if ((NULL == pixelRef) || !pixelRef->getYUV8Planes(yuvSizes, NULL, NULL, NULL)) {
+    if ((NULL == pixelRef) || 
+        (pixelRef->info().width()  != bm.info().width()) ||
+        (pixelRef->info().height() != bm.info().height())) {
         return NULL;
     }
 
-    // Allocate the memory for YUV
-    size_t totalSize(0);
-    size_t sizes[3], rowBytes[3];
-    for (int i = 0; i < 3; ++i) {
-        rowBytes[i] = yuvSizes[i].fWidth;
-        totalSize  += sizes[i] = rowBytes[i] * yuvSizes[i].fHeight;
-    }
-    SkAutoMalloc storage(totalSize);
+    SkYUVPlanesCache::Info yuvInfo;
+    SkAutoTUnref<SkCachedData> cachedData(
+        SkYUVPlanesCache::FindAndRef(pixelRef->getGenerationID(), &yuvInfo));
+
     void* planes[3];
-    planes[0] = storage.get();
-    planes[1] = (uint8_t*)planes[0] + sizes[0];
-    planes[2] = (uint8_t*)planes[1] + sizes[1];
+    if (cachedData->data()) {
+        planes[0] = (void*)cachedData->data();
+        planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
+        planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
+    } else {
+        // Fetch yuv plane sizes for memory allocation. Here, width and height can be
+        // rounded up to JPEG block size and be larger than the image's width and height.
+        if (!pixelRef->getYUV8Planes(yuvInfo.fSize, NULL, NULL, NULL)) {
+            return NULL;
+        }
 
-    SkYUVColorSpace colorSpace;
+        // Allocate the memory for YUV
+        size_t totalSize(0);
+        for (int i = 0; i < 3; ++i) {
+            yuvInfo.fRowBytes[i] = yuvInfo.fSize[i].fWidth;
+            yuvInfo.fSizeInMemory[i] = yuvInfo.fRowBytes[i] * yuvInfo.fSize[i].fHeight;
+            totalSize += yuvInfo.fSizeInMemory[i];
+        }
+        cachedData.reset(SkResourceCache::NewCachedData(totalSize));
+        planes[0] = cachedData->writable_data();
+        planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
+        planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
 
-    // Get the YUV planes
-    if (!pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes, &colorSpace)) {
-        return NULL;
+        // Get the YUV planes and update plane sizes to actual image size
+        if (!pixelRef->getYUV8Planes(yuvInfo.fSize, planes, yuvInfo.fRowBytes,
+                                     &yuvInfo.fColorSpace)) {
+            return NULL;
+        }
+
+        // Decoding is done, cache the resulting YUV planes
+        SkYUVPlanesCache::Add(pixelRef->getGenerationID(), cachedData, &yuvInfo);
     }
 
     GrSurfaceDesc yuvDesc;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
     SkAutoTUnref<GrTexture> yuvTextures[3];
     for (int i = 0; i < 3; ++i) {
-        yuvDesc.fWidth  = yuvSizes[i].fWidth;
-        yuvDesc.fHeight = yuvSizes[i].fHeight;
+        yuvDesc.fWidth  = yuvInfo.fSize[i].fWidth;
+        yuvDesc.fHeight = yuvInfo.fSize[i].fHeight;
         yuvTextures[i].reset(
             ctx->refScratchTexture(yuvDesc, GrContext::kApprox_ScratchTexMatch));
         if (!yuvTextures[i] ||
             !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
-                                         yuvDesc.fConfig, planes[i], rowBytes[i])) {
+                                         yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {
             return NULL;
         }
     }
@@ -276,12 +292,12 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
 
     GrRenderTarget* renderTarget = result ? result->asRenderTarget() : NULL;
     if (renderTarget) {
-        SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(
-            GrYUVtoRGBEffect::Create(yuvTextures[0], yuvTextures[1], yuvTextures[2], colorSpace));
+        SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(GrYUVtoRGBEffect::Create(
+                yuvTextures[0], yuvTextures[1], yuvTextures[2], yuvInfo.fColorSpace));
         GrPaint paint;
         paint.addColorProcessor(yuvToRgbProcessor);
-        SkRect r = SkRect::MakeWH(SkIntToScalar(yuvSizes[0].fWidth),
-                                  SkIntToScalar(yuvSizes[0].fHeight));
+        SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
+                                  SkIntToScalar(yuvInfo.fSize[0].fHeight));
         GrContext::AutoRenderTarget autoRT(ctx, renderTarget);
         GrContext::AutoClip ac(ctx, GrContext::AutoClip::kWideOpen_InitialClip);
         ctx->drawRect(paint, SkMatrix::I(), r);
