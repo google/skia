@@ -235,7 +235,7 @@ static GrTexture *load_yuv_texture(GrContext* ctx, bool cache, const GrTexturePa
         SkYUVPlanesCache::FindAndRef(pixelRef->getGenerationID(), &yuvInfo));
 
     void* planes[3];
-    if (cachedData->data()) {
+    if (cachedData && cachedData->data()) {
         planes[0] = (void*)cachedData->data();
         planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
         planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
