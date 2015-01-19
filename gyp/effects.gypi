@@ -86,7 +86,6 @@
     '<(skia_include_path)/effects/SkXfermodeImageFilter.h',
     '<(skia_include_path)/effects/SkAlphaThresholdFilter.h',
     '<(skia_include_path)/effects/SkArithmeticMode.h',
-    '<(skia_include_path)/effects/SkAvoidXfermode.h',
     '<(skia_include_path)/effects/SkBitmapSource.h',
     '<(skia_include_path)/effects/SkBlurDrawLooper.h',
     '<(skia_include_path)/effects/SkBlurImageFilter.h',
