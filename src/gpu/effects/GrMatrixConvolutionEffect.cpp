@@ -29,7 +29,6 @@ private:
     SkISize                     fKernelSize;
     bool                        fConvolveAlpha;
 
-    UniformHandle               fBoundsUni;
     UniformHandle               fKernelUni;
     UniformHandle               fImageIncrementUni;
     UniformHandle               fKernelOffsetUni;
@@ -53,9 +52,6 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                            const TransformedCoordsArray& coords,
                                            const TextureSamplerArray& samplers) {
     const GrTextureDomain& domain = fp.cast<GrMatrixConvolutionEffect>().domain();
-
-    fBoundsUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec4f_GrSLType, kDefault_GrSLPrecision, "Bounds");
     fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
                                              "ImageIncrement");
