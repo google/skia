@@ -11,7 +11,6 @@
 #include "SkView.h"
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
-#include "SkAvoidXfermode.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
@@ -573,18 +572,6 @@ protected:
         }
 
         canvas->restore();
-
-        if (1) {
-            SkAutoTUnref<SkAvoidXfermode> mode(SkAvoidXfermode::Create(SK_ColorWHITE, 0xFF,
-                                   SkAvoidXfermode::kTargetColor_Mode));
-            SkPaint paint;
-            x += SkIntToScalar(20);
-            SkRect  r = { x, 0, x + SkIntToScalar(360), SkIntToScalar(700) };
-            paint.setXfermode(mode);
-            paint.setColor(SK_ColorGREEN);
-            paint.setAntiAlias(true);
-            canvas->drawOval(r, paint);
-        }
     }
 
 private:
