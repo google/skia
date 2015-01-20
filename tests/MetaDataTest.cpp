@@ -7,6 +7,7 @@
 
 #include "SkMetaData.h"
 #include "Test.h"
+#include "SkRefCnt.h"
 
 static void test_ptrs(skiatest::Reporter* reporter) {
     SkRefCnt ref;

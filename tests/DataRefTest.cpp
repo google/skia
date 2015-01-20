@@ -174,7 +174,7 @@ static void test_cstring(skiatest::Reporter* reporter) {
 }
 
 static void test_files(skiatest::Reporter* reporter) {
-    SkString tmpDir = skiatest::Test::GetTmpDir();
+    SkString tmpDir = skiatest::GetTmpDir();
     if (tmpDir.isEmpty()) {
         return;
     }

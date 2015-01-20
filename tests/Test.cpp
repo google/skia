@@ -10,109 +10,29 @@
 #include "SkCommandLineFlags.h"
 #include "SkError.h"
 #include "SkString.h"
-#include "SkTArray.h"
 #include "SkTime.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "gl/SkGLContext.h"
-#else
-class GrContext;
-#endif
+DEFINE_string2(tmpDir, t, NULL, "Temp directory to use.");
 
-DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
+void skiatest::Reporter::bumpTestCount() {}
 
-using namespace skiatest;
+bool skiatest::Reporter::allowExtendedTest() const { return false; }
 
-Reporter::Reporter() : fTestCount(0) {
-}
+bool skiatest::Reporter::verbose() const { return false; }
 
-void Reporter::startTest(Test* test) {
-    this->onStart(test);
-}
-
-void Reporter::reportFailed(const skiatest::Failure& failure) {
-    this->onReportFailed(failure);
-}
-
-void Reporter::endTest(Test* test) {
-    this->onEnd(test);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Test::Test() : fReporter(NULL), fPassed(true) {}
-
-Test::~Test() {
-    SkSafeUnref(fReporter);
-}
-
-void Test::setReporter(Reporter* r) {
-    SkRefCnt_SafeAssign(fReporter, r);
-}
-
-const char* Test::getName() {
-    if (fName.size() == 0) {
-        this->onGetName(&fName);
+SkString skiatest::Failure::toString() const {
+    SkString result = SkStringPrintf("%s:%d\t", this->fileName, this->lineNo);
+    if (!this->message.isEmpty()) {
+        result.append(this->message);
+        if (strlen(this->condition) > 0) {
+            result.append(": ");
+        }
     }
-    return fName.c_str();
+    result.append(this->condition);
+    return result;
 }
 
-class LocalReporter : public Reporter {
-public:
-    explicit LocalReporter(Reporter* reporterToMimic) : fReporter(reporterToMimic) {}
-
-    int numFailures() const { return fFailures.count(); }
-    const skiatest::Failure& failure(int i) const { return fFailures[i]; }
-
-protected:
-    void onReportFailed(const Failure& failure) SK_OVERRIDE {
-        fFailures.push_back(failure);
-    }
-
-    // Proxy down to fReporter.  We assume these calls are threadsafe.
-    bool allowExtendedTest() const SK_OVERRIDE {
-        return fReporter->allowExtendedTest();
-    }
-
-    void bumpTestCount() SK_OVERRIDE {
-        fReporter->bumpTestCount();
-    }
-
-    bool verbose() const SK_OVERRIDE {
-        return fReporter->verbose();
-    }
-
-private:
-    Reporter* fReporter;  // Unowned.
-    SkTArray<skiatest::Failure> fFailures;
-};
-
-void Test::run() {
-    // Clear the Skia error callback before running any test, to ensure that tests
-    // don't have unintended side effects when running more than one.
-    SkSetErrorCallback( NULL, NULL );
-
-    // Tell (likely shared) fReporter that this test has started.
-    fReporter->startTest(this);
-
-    const SkMSec start = SkTime::GetMSecs();
-    // Run the test into a LocalReporter so we know if it's passed or failed without interference
-    // from other tests that might share fReporter.
-    LocalReporter local(fReporter);
-    this->onRun(&local);
-    fPassed = local.numFailures() == 0;
-    fElapsed = SkTime::GetMSecs() - start;
-
-    // Now tell fReporter about any failures and wrap up.
-    for (int i = 0; i < local.numFailures(); i++) {
-      fReporter->reportFailed(local.failure(i));
-    }
-    fReporter->endTest(this);
-
-}
-
-SkString Test::GetTmpDir() {
+SkString skiatest::GetTmpDir() {
     const char* tmpDir = FLAGS_tmpDir.isEmpty() ? NULL : FLAGS_tmpDir[0];
     return SkString(tmpDir);
 }

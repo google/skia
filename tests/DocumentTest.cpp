@@ -29,7 +29,7 @@ static void test_abort(skiatest::Reporter* reporter) {
 }
 
 static void test_abortWithFile(skiatest::Reporter* reporter) {
-    SkString tmpDir = skiatest::Test::GetTmpDir();
+    SkString tmpDir = skiatest::GetTmpDir();
 
     if (tmpDir.isEmpty()) {
         return;  // TODO(edisonn): unfortunatelly this pattern is used in other
@@ -58,7 +58,7 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
 }
 
 static void test_file(skiatest::Reporter* reporter) {
-    SkString tmpDir = skiatest::Test::GetTmpDir();
+    SkString tmpDir = skiatest::GetTmpDir();
     if (tmpDir.isEmpty()) {
         return;  // TODO(edisonn): unfortunatelly this pattern is used in other
                  // tests, but if GetTmpDir() starts returning and empty dir

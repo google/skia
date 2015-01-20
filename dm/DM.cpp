@@ -29,7 +29,6 @@ DEFINE_string(blacklist, "",
         "'--blacklist gpu skp _' will blacklist all SKPs drawn into the gpu config.\n"
         "'--blacklist gpu skp _ 8888 gm aarects' will also blacklist the aarects GM on 8888.");
 
-
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
 
@@ -362,51 +361,46 @@ static void run_enclave(SkTArray<Task>* tasks) {
 
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
-static struct : public skiatest::Reporter {
-    void onReportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
-        SkString s;
-        failure.getFailureString(&s);
-        fail(s);
-        JsonWriter::AddTestFailure(failure);
-    }
-    bool allowExtendedTest() const SK_OVERRIDE { return FLAGS_pathOpsExtended; }
-    bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
-} gTestReporter;
-
-static SkTArray<SkAutoTDelete<skiatest::Test>, kMemcpyOK> gCPUTests, gGPUTests;
+static SkTDArray<skiatest::Test> gCPUTests, gGPUTests;
 
 static void gather_tests() {
     if (!FLAGS_tests) {
         return;
     }
-    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
-        SkAutoTDelete<skiatest::Test> test(r->factory()(NULL));
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
+    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r;
+         r = r->next()) {
+        // Despite its name, factory() is returning a reference to
+        // link-time static const POD data.
+        const skiatest::Test& test = r->factory();
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
-
-        test->setReporter(&gTestReporter);
-        if (test->isGPUTest() && gpu_supported()) {
-            gGPUTests.push_back().reset(test.detach());
-        } else if (!test->isGPUTest() && FLAGS_cpu) {
-            gCPUTests.push_back().reset(test.detach());
+        if (test.needsGpu && gpu_supported()) {
+            gGPUTests.push(test);
+        } else if (!test.needsGpu && FLAGS_cpu) {
+            gCPUTests.push(test);
         }
     }
 }
 
-static void run_test(SkAutoTDelete<skiatest::Test>* t) {
+static void run_test(skiatest::Test* test) {
+    struct : public skiatest::Reporter {
+        void reportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
+            fail(failure.toString());
+            JsonWriter::AddTestFailure(failure);
+        }
+        bool allowExtendedTest() const SK_OVERRIDE {
+            return FLAGS_pathOpsExtended;
+        }
+        bool verbose() const SK_OVERRIDE { return FLAGS_veryVerbose; }
+    } reporter;
     WallTimer timer;
     timer.start();
-    skiatest::Test* test = t->get();
     if (!FLAGS_dryRun) {
-        test->setGrContextFactory(GetThreadLocalGrContextFactory());
-        test->run();
-        if (!test->passed()) {
-            fail(SkStringPrintf("test %s failed", test->getName()));
-        }
+        test->proc(&reporter, GetThreadLocalGrContextFactory());
     }
     timer.end();
-    done(timer.fWall, "unit", "test", test->getName());
+    done(timer.fWall, "unit", "test", test->name);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

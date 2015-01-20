@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkInstCnt.h"
 #include "SkRandom.h"
 #include "SkTInternalLList.h"
 #include "SkTLList.h"

@@ -130,7 +130,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
     delete[] dst;
 
-    SkString tmpDir = skiatest::Test::GetTmpDir();
+    SkString tmpDir = skiatest::GetTmpDir();
     if (!tmpDir.isEmpty()) {
         test_filestreams(reporter, tmpDir.c_str());
     }
