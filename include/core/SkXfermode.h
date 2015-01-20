@@ -207,14 +207,11 @@ public:
      */
     virtual bool asXPFactory(GrXPFactory** xpf) const;
 
-    /** Returns true if the xfermode can be expressed as an xfer processor factory (xpFactory),
-        or a fragment processor. This helper calls the asCoeff(), asXPFactory(),
-        and asFragmentProcessor() virtuals. If the xfermode is NULL, it is treated as kSrcOver_Mode.
-        It is legal to call this with all params NULL to simply test the return value.
-        fp and xpf must both be NULL or all non-NULL.
+    /** Returns true if the xfermode can be expressed as an xfer processor factory (xpFactory).
+        This helper calls the asXPFactory() virtual. If the xfermode is NULL, it is treated as
+        kSrcOver_Mode. It is legal to call this with xpf param NULL to simply test the return value.
      */
-    static bool AsFragmentProcessorOrXPFactory(SkXfermode*, GrFragmentProcessor**,
-                                               GrXPFactory**);
+    static bool AsXPFactory(SkXfermode*, GrXPFactory**);
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

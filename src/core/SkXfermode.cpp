@@ -687,30 +687,18 @@ bool SkXfermode::asXPFactory(GrXPFactory**) const {
 #if SK_SUPPORT_GPU
 #include "effects/GrPorterDuffXferProcessor.h"
 
-bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
-                                                GrFragmentProcessor** fp,
-                                                GrXPFactory** xpf) {
-    Coeff src, dst;
-    Mode mode;
+bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
     if (NULL == xfermode) {
-        *xpf = GrPorterDuffXPFactory::Create(kSrcOver_Mode);
-        return true;
-    } else if (xfermode->asMode(&mode) && mode <= kLastCoeffMode) {
-        *xpf = GrPorterDuffXPFactory::Create(mode);
-        return true;
-    } else if (xfermode->asCoeff(&src, &dst)) {
-        *xpf = GrPorterDuffXPFactory::Create(src, dst);
-        return true;
-    } else if (xfermode->asXPFactory(xpf)) {
+        if (xpf) {
+            *xpf = GrPorterDuffXPFactory::Create(kSrcOver_Mode);
+        }
         return true;
     } else {
-        return xfermode->asFragmentProcessor(fp, NULL);
+        return xfermode->asXPFactory(xpf);
     }
 }
 #else
-bool SkXfermode::AsFragmentProcessorOrXPFactory(SkXfermode* xfermode,
-                                                GrFragmentProcessor** fp,
-                                                GrXPFactory** xpf) {
+bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
     return false;
 }
 #endif
@@ -934,6 +922,14 @@ bool SkProcCoeffXfermode::asFragmentProcessor(GrFragmentProcessor** fp,
 }
 
 bool SkProcCoeffXfermode::asXPFactory(GrXPFactory** xp) const {
+    if (CANNOT_USE_COEFF != fSrcCoeff) {
+        if (xp) {
+            *xp = GrPorterDuffXPFactory::Create(fMode);
+            SkASSERT(*xp);
+        }
+        return true;
+    }
+
     if (GrCustomXfermode::IsSupportedMode(fMode)) {
         if (xp) {
             *xp = GrCustomXfermode::CreateXPFactory(fMode);

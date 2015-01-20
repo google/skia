@@ -514,15 +514,8 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     grPaint->setAntiAlias(skPaint.isAntiAlias());
 
     SkXfermode* mode = skPaint.getXfermode();
-    GrFragmentProcessor* fragmentProcessor = NULL;
     GrXPFactory* xpFactory = NULL;
-    if (SkXfermode::AsFragmentProcessorOrXPFactory(mode, &fragmentProcessor, &xpFactory)) {
-        if (fragmentProcessor) {
-            SkASSERT(NULL == xpFactory);
-            grPaint->addColorProcessor(fragmentProcessor)->unref();
-            xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode);
-        }
-    } else {
+    if (!SkXfermode::AsXPFactory(mode, &xpFactory)) {
         // Fall back to src-over
         xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode);
     }
