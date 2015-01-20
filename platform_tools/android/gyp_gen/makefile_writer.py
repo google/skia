@@ -119,9 +119,6 @@ SKIA_TOOLS = (
 # benchmark (timings)
 include $(BASE_PATH)/bench/Android.mk
 
-# golden-master (fidelity / regression test)
-include $(BASE_PATH)/gm/Android.mk
-
 # diamond-master (one test to rule them all)
 include $(BASE_PATH)/dm/Android.mk
 """

@@ -149,16 +149,6 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
                                        gyp_source_dir=gyp_source_dir)
 
     tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
-                                       target_file='gm.gyp',
-                                       skia_trunk=target_dir,
-                                       dest_dir='gm',
-                                       skia_lib_var_dict=common,
-                                       local_module_name='skia_gm',
-                                       local_module_tags=['tests'],
-                                       desired_targets=['gm'],
-                                       gyp_source_dir=gyp_source_dir)
-
-    tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
                                        target_file='dm.gyp',
                                        skia_trunk=target_dir,
                                        dest_dir='dm',
