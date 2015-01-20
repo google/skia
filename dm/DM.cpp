@@ -13,9 +13,8 @@
 #include "Test.h"
 #include "Timer.h"
 
-DEFINE_bool(tests, true, "Run tests?");
 DEFINE_string(images, "resources", "Images to decode.");
-DEFINE_string(src, "gm skp image", "Source types to test.");
+DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
@@ -363,7 +362,7 @@ static void run_enclave(SkTArray<Task>* tasks) {
 static SkTDArray<skiatest::Test> gCPUTests, gGPUTests;
 
 static void gather_tests() {
-    if (!FLAGS_tests) {
+    if (!FLAGS_src.contains("tests")) {
         return;
     }
     for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r;
