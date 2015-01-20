@@ -200,10 +200,13 @@ private:
 };
 
 // SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
-// Recording is a convenient time to do this, but we could delay it to between record and playback.
-struct BoundedPath : public SkPath {
-    explicit BoundedPath(const SkPath& path) : SkPath(path) {
+// SkPath::cheapComputeDirection() is similar.
+// Recording is a convenient time to cache these, or we can delay it to between record and playback.
+struct PreCachedPath : public SkPath {
+    explicit PreCachedPath(const SkPath& path) : SkPath(path) {
         this->updateBoundsCache();
+        SkPath::Direction junk;
+        (void)this->cheapComputeDirection(&junk);
     }
 };
 
@@ -230,10 +233,10 @@ struct RegionOpAndAA {
 };
 SK_COMPILE_ASSERT(sizeof(RegionOpAndAA) == 4, RegionOpAndAASize);
 
-RECORD3(ClipPath,   SkIRect, devBounds, BoundedPath, path, RegionOpAndAA, opAA);
-RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,    rrect, RegionOpAndAA, opAA);
-RECORD3(ClipRect,   SkIRect, devBounds, SkRect,      rect, RegionOpAndAA, opAA);
-RECORD3(ClipRegion, SkIRect, devBounds, SkRegion,  region, SkRegion::Op,    op);
+RECORD3(ClipPath,   SkIRect, devBounds, PreCachedPath,  path, RegionOpAndAA, opAA);
+RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,       rrect, RegionOpAndAA, opAA);
+RECORD3(ClipRect,   SkIRect, devBounds, SkRect,         rect, RegionOpAndAA, opAA);
+RECORD3(ClipRegion, SkIRect, devBounds, SkRegion,     region, SkRegion::Op,    op);
 
 RECORD1(BeginCommentGroup, PODArray<char>, description);
 RECORD2(AddComment, PODArray<char>, key, PODArray<char>, value);
@@ -268,7 +271,7 @@ RECORD4(DrawImageRect, Optional<SkPaint>, paint,
                        SkRect, dst);
 RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
-RECORD2(DrawPath, SkPaint, paint, BoundedPath, path);
+RECORD2(DrawPath, SkPaint, paint, PreCachedPath, path);
 RECORD3(DrawPicture, Optional<SkPaint>, paint,
                      RefBox<const SkPicture>, picture,
                      TypedMatrix, matrix);
@@ -297,7 +300,7 @@ RECORD4(DrawTextBlob, SkPaint, paint,
 RECORD5(DrawTextOnPath, SkPaint, paint,
                         PODArray<char>, text,
                         size_t, byteLength,
-                        BoundedPath, path,
+                        PreCachedPath, path,
                         TypedMatrix, matrix);
 
 RECORD5(DrawPatch, SkPaint, paint,
