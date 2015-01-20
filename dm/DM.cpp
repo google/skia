@@ -164,8 +164,7 @@ static Sink* create_sink(const char* tag) {
     if (FLAGS_cpu) {
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
-        // TODO(mtklein): reenable once skiagold can handle .pdf uploads.
-        //SINK("pdf",  PDFSink);
+        SINK("pdf",  PDFSink);
     }
 #undef SINK
     return NULL;
