@@ -15,7 +15,7 @@
 
 DEFINE_bool(tests, true, "Run tests?");
 DEFINE_string(images, "resources", "Images to decode.");
-DEFINE_string(src, "gm skp image subset", "Source types to test.");
+DEFINE_string(src, "gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
@@ -94,8 +94,8 @@ static void gather_srcs() {
             SkOSFile::Iter it(FLAGS_images[0], exts[i]);
             for (SkString file; it.next(&file); ) {
                 SkString path = SkOSPath::Join(FLAGS_images[0], file.c_str());
-                push_src("image",  new ImageSrc(path));     // Decode entire image.
-                push_src("subset", new ImageSrc(path, 5));  // Decode 5 random subsets.
+                push_src("image", new ImageSrc(path));     // Decode entire image.
+                push_src("image", new ImageSrc(path, 5));  // Decode 5 random subsets.
             }
         }
     }

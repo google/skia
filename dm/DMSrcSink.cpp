@@ -89,7 +89,13 @@ SkISize ImageSrc::size() const {
     return bitmap.dimensions();
 }
 
-Name ImageSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
+Name ImageSrc::name() const {
+    Name name = SkOSPath::Basename(fPath.c_str());
+    if (fSubsets > 0) {
+        name.appendf("-%d-subsets", fSubsets);
+    }
+    return name;
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
