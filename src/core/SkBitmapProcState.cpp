@@ -482,30 +482,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fFilterLevel = paint.getFilterLevel();
 
-#ifdef SK_SUPPORT_LEGACY_HQ_SCALING
-    // possiblyScaleImage will look to see if it can rescale the image as a
-    // preprocess; either by scaling up to the target size, or by selecting
-    // a nearby mipmap level.  If it does, it will adjust the working
-    // matrix as well as the working bitmap.  It may also adjust the filter
-    // quality to avoid re-filtering an already perfectly scaled image.
-    if (!this->possiblyScaleImage()) {
-        if (!this->lockBaseBitmap()) {
-            return false;
-        }
-    }
-    // The above logic should have always assigned fBitmap, but in case it
-    // didn't, we check for that now...
-    // TODO(dominikg): Ask humper@ if we can just use an SkASSERT(fBitmap)?
-    if (NULL == fBitmap) {
-        return false;
-    }
-
-    // If we are "still" kMedium_FilterLevel, then the request was not fulfilled by possiblyScale,
-    // so we downgrade to kLow (so the rest of the sniffing code can assume that)
-    if (SkPaint::kMedium_FilterLevel == fFilterLevel) {
-        fFilterLevel = SkPaint::kLow_FilterLevel;
-    }
-#else
     if (SkPaint::kHigh_FilterLevel == fFilterLevel) {
         this->processHQRequest();
     }
@@ -522,7 +498,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         }
     }
     SkASSERT(fBitmap);
-#endif
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
