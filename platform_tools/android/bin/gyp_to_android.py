@@ -10,6 +10,7 @@ Script for generating the Android framework's version of Skia from gyp
 files.
 """
 
+import argparse
 import os
 import shutil
 import sys
@@ -197,4 +198,9 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
     shutil.rmtree(tmp_folder)
 
 if __name__ == '__main__':
-  main()
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--gyp_source_dir', help='Source of gyp program. '
+                      'e.g. <path_to_skia>/third_party/externals/gyp')
+  args = parser.parse_args()
+
+  main(gyp_source_dir=args.gyp_source_dir)
