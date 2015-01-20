@@ -218,7 +218,9 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
                         vb->codeAppendf("%s = (%s * vec3(%s, 1)).xy;",
                                         v.vsOut(), uniName, posVar.c_str());
                     } else {
-                        vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, posVar.c_str());
+                        // The brackets here are just to scope the temp variable
+                        vb->codeAppendf("{ vec3 temp = %s * %s;", uniName, posVar.c_str());
+                        vb->codeAppendf("%s = vec2(temp.x/temp.z, temp.y/temp.z); }", v.vsOut());
                     }
                 } else {
                     if (kVec2f_GrSLType == posVar.getType()) {
