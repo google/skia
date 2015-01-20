@@ -38,6 +38,7 @@
         '../samplecode/SampleAnimBlur.cpp',
         '../samplecode/SampleApp.cpp',
         '../samplecode/SampleArc.cpp',
+        '../samplecode/SampleAvoid.cpp',
         '../samplecode/SampleBigBlur.cpp',
         '../samplecode/SampleBigGradient.cpp',
         '../samplecode/SampleBitmapRect.cpp',
