@@ -229,6 +229,15 @@ static void sanitize_indexed_bitmap(SkBitmap* bm) {
     }
 }
 
+int close_gif(GifFileType*);  // This function is a template argument, so can't be static.
+int close_gif(GifFileType* gif) {
+#if GIFLIB_MAJOR < 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR == 0)
+    return DGifCloseFile(gif);
+#else
+    return DGifCloseFile(gif, NULL);
+#endif
+}
+
 SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
 #if GIFLIB_MAJOR < 5
     GifFileType* gif = DGifOpen(sk_stream, DecodeCallBackProc);
@@ -239,7 +248,7 @@ SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
         return error_return(*bm, "DGifOpen");
     }
 
-    SkAutoTCallIProc<GifFileType, DGifCloseFile> acp(gif);
+    SkAutoTCallIProc<GifFileType, close_gif> acp(gif);
 
     SavedImage temp_save;
     temp_save.ExtensionBlocks=NULL;
