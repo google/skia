@@ -195,20 +195,11 @@ void GrCoverageSetOpXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
             output->fBlendedColorFlags = 0;
         }
 
-        if (coveragePOI.readsDst()) {
-            output->fWillBlendWithDst = true;
-        } else {
-            output->fWillBlendWithDst = false;
-        }
+        output->fWillBlendWithDst = false;
     } else {
         output->fBlendedColorFlags = 0;
         output->fWillBlendWithDst = true;
     }
-}
-
-bool GrCoverageSetOpXPFactory::willReadDst(const GrProcOptInfo& colorPOI,
-                                           const GrProcOptInfo& coveragePOI) const {
-    return coveragePOI.readsDst();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);

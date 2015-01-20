@@ -89,6 +89,8 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     this->adjustProgramFromOptimizations(drawState, optFlags, colorPOI, coveragePOI,
                                          &firstColorStageIdx, &firstCoverageStageIdx);
 
+    fDescInfo.fReadsDst = fXferProcessor->willReadDstColor();
+
     bool usesLocalCoords = false;
 
     // Copy Stages from DS to ODS
@@ -124,30 +126,21 @@ void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
                                                     const GrProcOptInfo& coveragePOI,
                                                     int* firstColorStageIdx,
                                                     int* firstCoverageStageIdx) {
-    fDescInfo.fReadsDst = false;
     fDescInfo.fReadsFragPosition = false;
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorStageIdx = ds.numColorStages();
     } else {
-        fDescInfo.fReadsDst = colorPOI.readsDst();
         fDescInfo.fReadsFragPosition = colorPOI.readsFragPosition();
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
         *firstCoverageStageIdx = ds.numCoverageStages();
     } else {
-        if (coveragePOI.readsDst()) {
-            fDescInfo.fReadsDst = true;
-        }
         if (coveragePOI.readsFragPosition()) {
             fDescInfo.fReadsFragPosition = true;
         }
-    }
-
-    if (fXferProcessor->willReadDstColor()) {
-        fDescInfo.fReadsDst = true;
     }
 }
 

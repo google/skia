@@ -661,7 +661,6 @@ protected:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(GrDrawState*,
-                                 const GrPrimitiveProcessor*,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
 

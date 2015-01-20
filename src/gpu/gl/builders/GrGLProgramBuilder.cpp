@@ -359,14 +359,11 @@ void GrGLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
 }
 
 void GrGLProgramBuilder::verify(const GrXferProcessor& xp) {
-    // TODO: Once will readDst is only xp enable this assert and remove it from the
-    // FragmentProcessor verify()
-    //SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
+    SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
 }
 
 void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
     SkASSERT(fFS.hasReadFragmentPosition() == fp.willReadFragmentPosition());
-    SkASSERT(fFS.hasReadDstColor() == fp.willReadDstColor());
 }
 
 template <class Proc>

@@ -383,10 +383,9 @@ bool GrDrawTarget::checkDraw(const GrDrawState& drawState,
 }
 
 bool GrDrawTarget::setupDstReadIfNecessary(GrDrawState* ds,
-                                           const GrPrimitiveProcessor* primProc,
                                            GrDeviceCoordTexture* dstCopy,
                                            const SkRect* drawBounds) {
-    if (this->caps()->dstReadInShaderSupport() || !ds->willEffectReadDstColor(primProc)) {
+    if (this->caps()->dstReadInShaderSupport() || !ds->willEffectReadDstColor()) {
         return true;
     }
     SkIRect copyRect;
@@ -470,7 +469,7 @@ void GrDrawTarget::drawIndexed(GrDrawState* ds,
 
         // TODO: We should continue with incorrect blending.
         GrDeviceCoordTexture dstCopy;
-        if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy, devBounds)) {
+        if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
             return;
         }
         this->setDrawBuffers(&info, gp->getVertexStride());
@@ -513,7 +512,7 @@ void GrDrawTarget::drawNonIndexed(GrDrawState* ds,
 
         // TODO: We should continue with incorrect blending.
         GrDeviceCoordTexture dstCopy;
-        if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy, devBounds)) {
+        if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
             return;
         }
 
@@ -611,7 +610,7 @@ void GrDrawTarget::drawPath(GrDrawState* ds,
                                             &stencilSettings);
 
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(ds, pathProc, &dstCopy, &devBounds)) {
+    if (!this->setupDstReadIfNecessary(ds, &dstCopy, &devBounds)) {
         return;
     }
 
@@ -655,7 +654,7 @@ void GrDrawTarget::drawPaths(GrDrawState* ds,
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(ds, pathProc, &dstCopy, NULL)) {
+    if (!this->setupDstReadIfNecessary(ds, &dstCopy, NULL)) {
         return;
     }
 
@@ -768,7 +767,7 @@ void GrDrawTarget::drawIndexedInstances(GrDrawState* ds,
 
     // TODO: We should continue with incorrect blending.
     GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(ds, gp, &dstCopy, devBounds)) {
+    if (!this->setupDstReadIfNecessary(ds, &dstCopy, devBounds)) {
         return;
     }
 

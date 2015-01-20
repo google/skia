@@ -72,14 +72,8 @@ public:
                 fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputCoverage);
                 break;
             case GrPorterDuffXferProcessor::kModulate_PrimaryOutputType:
-            case GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType:
                 fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
                                        args.fInputCoverage);
-                if (GrPorterDuffXferProcessor::kCombineWithDst_PrimaryOutputType ==
-                    xp.primaryOutputType()){
-                    fsBuilder->codeAppendf("%s += (vec4(1.0) - %s) * %s;", args.fOutputPrimary,
-                                           args.fInputCoverage, fsBuilder->dstColor());
-                }
                 break;
             default:
                 SkFAIL("Unexpected Primary Output");
@@ -144,14 +138,13 @@ GrPorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
                                                   coveragePOI,
                                                   doesStencilWrite);
     }
-    this->calcOutputTypes(optFlags, caps, coveragePOI.isSolidWhite(),
-                          colorPOI.readsDst() || coveragePOI.readsDst());
+    this->calcOutputTypes(optFlags, caps, coveragePOI.isSolidWhite());
     return optFlags;
 }
 
 void GrPorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFlags,
                                                 const GrDrawTargetCaps& caps,
-                                                bool hasSolidCoverage, bool readsDst) {
+                                                bool hasSolidCoverage) {
     if (optFlags & kIgnoreColor_OptFlag) {
         if (optFlags & kIgnoreCoverage_OptFlag) {
             fPrimaryOutputType = kNone_PrimaryOutputType;
@@ -184,10 +177,6 @@ void GrPorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFla
                 fSecondaryOutputType = kCoverageISC_SecondaryOutputType;
                 fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
             }
-        } else if (readsDst &&
-                   kOne_GrBlendCoeff == fSrcBlend &&
-                   kZero_GrBlendCoeff == fDstBlend) {
-            fPrimaryOutputType = kCombineWithDst_PrimaryOutputType;
         }
     }
 }
@@ -419,13 +408,6 @@ bool GrPorterDuffXPFactory::canApplyCoverage(const GrProcOptInfo& colorPOI,
         return true;
     }
 
-    // TODO: once all SkXferEffects are XP's then we will never reads dst here since only XP's
-    // will readDst and PD XP's don't read dst.
-    if ((colorPOI.readsDst() || coveragePOI.readsDst()) &&
-        kOne_GrBlendCoeff == fSrcCoeff && kZero_GrBlendCoeff == fDstCoeff) {
-        return true;
-    }
-
     return false;
 }
 
@@ -499,18 +481,7 @@ void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
             break;
     }
 
-    // TODO: once all SkXferEffects are XP's then we will never reads dst here since only XP's
-    // will readDst and PD XP's don't read dst.
-    if (colorPOI.readsDst() || coveragePOI.readsDst()) {
-        output->fWillBlendWithDst = true;
-        return;
-    }
     output->fWillBlendWithDst = false;
-}
-
-bool GrPorterDuffXPFactory::willReadDst(const GrProcOptInfo& colorPOI,
-                                        const GrProcOptInfo& coveragePOI) const {
-    return colorPOI.readsDst() || coveragePOI.readsDst();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);

@@ -147,11 +147,8 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
 
 //////////////////////////////////////////////////////////////////////////////s
 
-bool GrDrawState::willEffectReadDstColor(const GrPrimitiveProcessor* pp) const {
-    this->calcColorInvariantOutput(pp);
-    this->calcCoverageInvariantOutput(pp);
-
-    return fXPFactory->willReadDst(fColorProcInfo, fCoverageProcInfo);
+bool GrDrawState::willEffectReadDstColor() const {
+    return fXPFactory->willReadDst();
 }
 
 void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {

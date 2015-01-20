@@ -126,10 +126,7 @@ public:
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
-    bool willReadDst(const GrProcOptInfo& colorPOI,
-                     const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
-        return true;
-    }
+    bool willReadDst() const SK_OVERRIDE { return true; }
 
 private:
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {

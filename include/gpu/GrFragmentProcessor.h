@@ -24,7 +24,6 @@ class GrFragmentProcessor : public GrProcessor {
 public:
     GrFragmentProcessor()
         : INHERITED()
-        , fWillReadDstColor(false)
         , fWillUseInputColor(true)
         , fUsesLocalCoords(false) {}
 
@@ -50,9 +49,6 @@ public:
     const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
         return fCoordTransforms;
     }
-
-    /** Will this prceossor read the destination pixel value? */
-    bool willReadDstColor() const { return fWillReadDstColor; }
 
     /** Will this prceossor read the source color value? */
     bool willUseInputColor() const { return fWillUseInputColor; }
@@ -106,13 +102,6 @@ protected:
     void addCoordTransform(const GrCoordTransform*);
 
     /**
-     * If the prceossor subclass will read the destination pixel value then it must call this
-     * function from its constructor. Otherwise, when its generated backend-specific prceossor class
-     * attempts to generate code that reads the destination pixel it will fail.
-     */
-    void setWillReadDstColor() { fWillReadDstColor = true; }
-
-    /**
      * If the prceossor will generate a result that does not depend on the input color value then it
      * must call this function from its constructor. Otherwise, when its generated backend-specific
      * code might fail during variable binding due to unused variables.
@@ -136,7 +125,6 @@ private:
     bool hasSameTransforms(const GrFragmentProcessor&) const;
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
-    bool                                         fWillReadDstColor;
     bool                                         fWillUseInputColor;
     bool                                         fUsesLocalCoords;
 

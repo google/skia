@@ -41,9 +41,6 @@ public:
         kCoverage_PrimaryOutputType,
         // Modulate color and coverage, write result as the color output.
         kModulate_PrimaryOutputType,
-        // Combines the coverage, dst, and color as coverage * color + (1 - coverage) * dst. This
-        // can only be set if fDstReadKey is non-zero.
-        kCombineWithDst_PrimaryOutputType,
     };
 
     enum SecondaryOutputType {
@@ -97,7 +94,7 @@ private:
                                                        bool doesStencilWrite);
 
     void calcOutputTypes(GrXferProcessor::OptFlags blendOpts, const GrDrawTargetCaps& caps,
-                         bool hasSolidCoverage, bool readDst);
+                         bool hasSolidCoverage);
 
     GrBlendCoeff fSrcBlend;
     GrBlendCoeff fDstBlend;
@@ -135,8 +132,7 @@ public:
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
-    bool willReadDst(const GrProcOptInfo& colorPOI,
-                     const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
+    bool willReadDst() const SK_OVERRIDE { return false; }
 
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 

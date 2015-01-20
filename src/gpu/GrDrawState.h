@@ -108,10 +108,10 @@ public:
     const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
 
     /**
-     * Checks whether any of the effects will read the dst pixel color.
-     * TODO remove when we have an XP
+     * Checks whether the xp will read the dst pixel color.
+     * TODO: remove when we have dstCpy contained inside of GrXP
      */
-    bool willEffectReadDstColor(const GrPrimitiveProcessor*) const;
+    bool willEffectReadDstColor() const;
 
     /**
      * The xfer processor factory.

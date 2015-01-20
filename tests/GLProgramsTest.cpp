@@ -157,11 +157,6 @@ static void set_random_color_coverage_stages(GrGLGpu* gpu,
                                                                          dummyTextures));
         SkASSERT(fp);
 
-        // don't add dst color reads to coverage stage
-        if (s >= numColorProcs && fp->willReadDstColor()) {
-            continue;
-        }
-
         // If adding this effect would exceed the max texture coord set count then generate a
         // new random effect.
         if (usePathRendering && gpu->glPathRendering()->texturingMode() ==
@@ -310,7 +305,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         } else {
             primProc = pathProc.get();
         }
-        if (!this->setupDstReadIfNecessary(&ds, primProc, &dstCopy, NULL)) {
+        if (!this->setupDstReadIfNecessary(&ds, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }

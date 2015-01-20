@@ -28,7 +28,6 @@ public:
         , fFirstEffectStageIndex(0)
         , fInputColorIsUsed(true)
         , fInputColor(0)
-        , fReadsDst(false)
         , fReadsFragPosition(false) {}
 
     void calcWithInitialValues(const GrFragmentStage*, int stageCount, GrColor startColor,
@@ -75,11 +74,6 @@ public:
     GrColor inputColorToEffectiveStage() const { return fInputColor; }
 
     /**
-     * Returns true if any of the stages preserved by GrProcOptInfo read the dst color.
-     */
-    bool readsDst() const { return fReadsDst; }
-
-    /**
      * Returns true if any of the stages preserved by GrProcOptInfo read the frag position.
      */
     bool readsFragPosition() const { return fReadsFragPosition; }
@@ -91,7 +85,6 @@ private:
     int fFirstEffectStageIndex;
     bool fInputColorIsUsed;
     GrColor fInputColor;
-    bool fReadsDst;
     bool fReadsFragPosition;
 };
 

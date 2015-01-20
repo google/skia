@@ -83,8 +83,7 @@ public:
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
-    bool willReadDst(const GrProcOptInfo& colorPOI,
-                     const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
+    bool willReadDst() const SK_OVERRIDE { return false; }
 
 private:
     GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);

@@ -81,10 +81,7 @@ public:
         output->fWillBlendWithDst = 0;
     }
 
-    bool willReadDst(const GrProcOptInfo& colorPOI,
-                     const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
-        return false;
-    }
+    bool willReadDst() const SK_OVERRIDE { return false; }
 
 private:
     GrDisableColorXPFactory();
