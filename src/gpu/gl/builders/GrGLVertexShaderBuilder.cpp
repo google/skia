@@ -64,11 +64,11 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
 }
 
 void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
-    const GrPrimitiveProcessor* primProc = fProgramBuilder->fOptState.getPrimitiveProcessor();
+    const GrPrimitiveProcessor& primProc = fProgramBuilder->primitiveProcessor();
 
-    int vaCount = primProc->numAttribs();
+    int vaCount = primProc.numAttribs();
     for (int i = 0; i < vaCount; i++) {
-        GL_CALL(BindAttribLocation(programID, i, primProc->getAttrib(i).fName));
+        GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
     }
     return;
 }

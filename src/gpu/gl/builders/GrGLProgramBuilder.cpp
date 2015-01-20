@@ -24,8 +24,8 @@
 
 class GrGLNvprProgramBuilder : public GrGLProgramBuilder {
 public:
-    GrGLNvprProgramBuilder(GrGLGpu* gpu, const GrOptDrawState& optState)
-        : INHERITED(gpu, optState) {}
+    GrGLNvprProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
+        : INHERITED(gpu, args) {}
 
     GrGLProgram* createProgram(GrGLuint programID) SK_OVERRIDE {
         // this is just for nvpr es, which has separable varyings that are plugged in after
@@ -33,7 +33,8 @@ public:
         GrGLPathProcessor* pathProc =
                 static_cast<GrGLPathProcessor*>(fGeometryProcessor->fGLProc.get());
         pathProc->resolveSeparableVaryings(fGpu, programID);
-        return SkNEW_ARGS(GrGLNvprProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
+        return SkNEW_ARGS(GrGLNvprProgram, (fGpu, this->desc(), fUniformHandles, programID,
+                                            fUniforms,
                                             fGeometryProcessor,
                                             fXferProcessor, fFragmentProcessors.get()));
     }
@@ -48,10 +49,10 @@ private:
 
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, GrGLGpu* gpu) {
+GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gpu) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(optState, gpu));
+    SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(args, gpu));
 
     GrGLProgramBuilder* pb = builder.get();
 
@@ -71,30 +72,29 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrOptDrawState& optState, G
     return pb->finalize();
 }
 
-GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const GrOptDrawState& optState,
+GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const DrawArgs& args,
                                                              GrGLGpu* gpu) {
-    if (GrGpu::IsPathRenderingDrawType(optState.drawType())) {
+    if (GrGpu::IsPathRenderingDrawType(args.fOptState->drawType())) {
         SkASSERT(gpu->glCaps().pathRenderingSupport() &&
-                 !optState.getPrimitiveProcessor()->willUseGeoShader() &&
-                 optState.getPrimitiveProcessor()->numAttribs() == 0);
-        return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, optState));
+                 !args.fPrimitiveProcessor->willUseGeoShader() &&
+                 args.fPrimitiveProcessor->numAttribs() == 0);
+        return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, args));
     } else {
-        return SkNEW_ARGS(GrGLProgramBuilder, (gpu, optState));
+        return SkNEW_ARGS(GrGLProgramBuilder, (gpu, args));
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const GrOptDrawState& optState)
+GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
     : fVS(this)
     , fGS(this)
-    , fFS(this, optState.programDesc().header().fFragPosKey)
+    , fFS(this, args.fDesc->header().fFragPosKey)
     , fOutOfStage(true)
     , fStageIndex(-1)
     , fGeometryProcessor(NULL)
     , fXferProcessor(NULL)
-    , fOptState(optState)
-    , fDesc(optState.programDesc())
+    , fArgs(args)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock) {
 }
@@ -106,7 +106,7 @@ void GrGLProgramBuilder::addVarying(const char* name,
     if (varying->vsVarying()) {
         fVS.addVarying(name, varying);
     }
-    if (fOptState.getPrimitiveProcessor()->willUseGeoShader()) {
+    if (this->primitiveProcessor().willUseGeoShader()) {
         fGS.addVarying(name, varying);
     }
     if (varying->fsVarying()) {
@@ -193,22 +193,22 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     // First we loop over all of the installed processors and collect coord transforms.  These will
     // be sent to the GrGLPrimitiveProcessor in its emitCode function
     SkSTArray<8, GrGLProcessor::TransformedCoordsArray> outCoords;
-    for (int i = 0; i < fOptState.numFragmentStages(); i++) {
-        const GrFragmentProcessor* processor = fOptState.getFragmentStage(i).processor();
+    for (int i = 0; i < this->optState().numFragmentStages(); i++) {
+        const GrFragmentProcessor* processor = this->optState().getFragmentStage(i).processor();
         SkSTArray<2, const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
         for (int t = 0; t < processor->numTransforms(); t++) {
             procCoords.push_back(&processor->coordTransform(t));
         }
     }
 
-    const GrPrimitiveProcessor& primProc = *fOptState.getPrimitiveProcessor();
+    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     this->emitAndInstallProc(primProc, inputColor, inputCoverage);
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
-    int numProcs = fOptState.numFragmentStages();
-    this->emitAndInstallFragProcs(0, fOptState.numColorStages(), inputColor);
-    this->emitAndInstallFragProcs(fOptState.numColorStages(), numProcs,  inputCoverage);
-    this->emitAndInstallXferProc(*fOptState.getXferProcessor(), *inputColor, *inputCoverage);
+    int numProcs = this->optState().numFragmentStages();
+    this->emitAndInstallFragProcs(0, this->optState().numColorStages(), inputColor);
+    this->emitAndInstallFragProcs(this->optState().numColorStages(), numProcs,  inputCoverage);
+    this->emitAndInstallXferProc(*this->optState().getXferProcessor(), *inputColor, *inputCoverage);
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
@@ -216,7 +216,7 @@ void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
                                                  GrGLSLExpr4* inOut) {
     for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
-        const GrPendingFragmentStage& stage = fOptState.getFragmentStage(e);
+        const GrPendingFragmentStage& stage = this->optState().getFragmentStage(e);
         this->emitAndInstallProc(stage, e, *inOut, &output);
         *inOut = output;
     }
@@ -300,7 +300,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
 
-    const GrBatchTracker& bt = fOptState.getBatchTracker();
+    const GrBatchTracker& bt = this->batchTracker();
     fGeometryProcessor->fGLProc.reset(gp.createGLInstance(bt, fGpu->glCaps()));
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
@@ -396,7 +396,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     // Legacy nvpr will not compile with a vertex shader, but newer nvpr requires a dummy vertex
     // shader
-    bool useNvpr = GrGpu::IsPathRenderingDrawType(fOptState.drawType());
+    bool useNvpr = GrGpu::IsPathRenderingDrawType(this->optState().drawType());
     if (!(useNvpr && fGpu->glCaps().nvprSupport() == GrGLCaps::kLegacy_NvprSupport)) {
         if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
             this->cleanupProgram(programID, shadersToDelete);
@@ -490,7 +490,7 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 }
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return SkNEW_ARGS(GrGLProgram, (fGpu, fDesc, fUniformHandles, programID, fUniforms,
+    return SkNEW_ARGS(GrGLProgram, (fGpu, this->desc(), fUniformHandles, programID, fUniforms,
                                     fGeometryProcessor, fXferProcessor, fFragmentProcessors.get()));
 }
 

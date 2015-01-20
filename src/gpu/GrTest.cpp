@@ -63,10 +63,11 @@ public:
                                    int width, int height,
                                    GrPixelConfig config,
                                    size_t rowBytes) const SK_OVERRIDE { return false; }
-    void buildProgramDesc(const GrOptDrawState&,
+    void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
+                          const GrOptDrawState&,
                           const GrProgramDesc::DescInfo&,
                           GrGpu::DrawType,
-                          GrProgramDesc* desc) SK_OVERRIDE {}
+                          const GrBatchTracker&) const SK_OVERRIDE {}
 
     void discard(GrRenderTarget*) SK_OVERRIDE {}
 
@@ -112,13 +113,13 @@ private:
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) SK_OVERRIDE {}
 
-    void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE {}
+    void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE {}
 
     void onStencilPath(const GrPath* path, const StencilPathState& state) SK_OVERRIDE {}
 
-    void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE {}
+    void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE {}
 
-    void onDrawPaths(const GrOptDrawState&,
+    void onDrawPaths(const DrawArgs&,
                      const GrPathRange*,
                      const void* indices,
                      GrDrawTarget::PathIndexType,

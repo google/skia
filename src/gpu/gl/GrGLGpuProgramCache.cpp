@@ -91,28 +91,28 @@ int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGLGpu::ProgramCache::getProgram(const GrOptDrawState& optState) {
+GrGLProgram* GrGLGpu::ProgramCache::getProgram(const DrawArgs& args) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
 
     Entry* entry = NULL;
 
-    uint32_t hashIdx = optState.programDesc().getChecksum();
+    uint32_t hashIdx = args.fDesc->getChecksum();
     hashIdx ^= hashIdx >> 16;
     if (kHashBits <= 8) {
         hashIdx ^= hashIdx >> 8;
     }
     hashIdx &=((1 << kHashBits) - 1);
     Entry* hashedEntry = fHashTable[hashIdx];
-    if (hashedEntry && hashedEntry->fProgram->getDesc() == optState.programDesc()) {
+    if (hashedEntry && hashedEntry->fProgram->getDesc() == *args.fDesc) {
         SkASSERT(hashedEntry->fProgram);
         entry = hashedEntry;
     }
 
     int entryIdx;
     if (NULL == entry) {
-        entryIdx = this->search(optState.programDesc());
+        entryIdx = this->search(*args.fDesc);
         if (entryIdx >= 0) {
             entry = fEntries[entryIdx];
 #ifdef PROGRAM_CACHE_STATS
@@ -126,7 +126,7 @@ GrGLProgram* GrGLGpu::ProgramCache::getProgram(const GrOptDrawState& optState) {
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(optState, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(args, fGpu);
         if (NULL == program) {
             return NULL;
         }

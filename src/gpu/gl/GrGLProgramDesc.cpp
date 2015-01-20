@@ -86,11 +86,13 @@ static bool get_meta_key(const GrProcessor& proc,
     return true;
 }
 
-bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
+bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
+                                   const GrPrimitiveProcessor& primProc,
+                                   const GrOptDrawState& optState,
                                    const GrProgramDesc::DescInfo& descInfo,
                                    GrGpu::DrawType drawType,
-                                   GrGLGpu* gpu,
-                                   GrProgramDesc* desc) {
+                                   const GrGLGpu* gpu,
+                                   const GrBatchTracker& batchTracker) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
@@ -103,8 +105,7 @@ bool GrGLProgramDescBuilder::Build(const GrOptDrawState& optState,
 
     GrProcessorKeyBuilder b(&desc->fKey);
 
-    const GrPrimitiveProcessor& primProc = *optState.getPrimitiveProcessor();
-    primProc.getGLProcessorKey(optState.getBatchTracker(), gpu->glCaps(), &b);
+    primProc.getGLProcessorKey(batchTracker, gpu->glCaps(), &b);
     if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
         desc->fKey.reset();
         return false;

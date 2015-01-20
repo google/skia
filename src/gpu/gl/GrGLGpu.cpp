@@ -1336,15 +1336,16 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
     this->disableScissor();
 }
 
-bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
+bool GrGLGpu::flushGLState(const DrawArgs& args) {
     GrXferProcessor::BlendInfo blendInfo;
-    optState.getXferProcessor()->getBlendInfo(&blendInfo);
+    const GrOptDrawState& optState = *args.fOptState;
+    args.fOptState->getXferProcessor()->getBlendInfo(&blendInfo);
 
     this->flushDither(optState.isDitherState());
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(optState.getDrawFace());
 
-    fCurrentProgram.reset(fProgramCache->getProgram(optState));
+    fCurrentProgram.reset(fProgramCache->getProgram(args));
     if (NULL == fCurrentProgram.get()) {
         SkDEBUGFAIL("Failed to create program!");
         return false;
@@ -1362,7 +1363,7 @@ bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
         this->flushBlend(blendInfo);
     }
 
-    fCurrentProgram->setData(optState);
+    fCurrentProgram->setData(*args.fPrimitiveProcessor, optState, *args.fBatchTracker);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
     this->flushStencil(optState.getStencil());
@@ -1377,7 +1378,7 @@ bool GrGLGpu::flushGLState(const GrOptDrawState& optState) {
     return true;
 }
 
-void GrGLGpu::setupGeometry(const GrOptDrawState& optState,
+void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
                             const GrDrawTarget::DrawInfo& info,
                             size_t* indexOffsetInBytes) {
     GrGLVertexBuffer* vbuf;
@@ -1400,11 +1401,10 @@ void GrGLGpu::setupGeometry(const GrOptDrawState& optState,
     GrGLAttribArrayState* attribState =
         fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
-    const GrPrimitiveProcessor* primProc = optState.getPrimitiveProcessor();
-    int vaCount = primProc->numAttribs();
+    int vaCount = primProc.numAttribs();
     if (vaCount > 0) {
 
-        GrGLsizei stride = static_cast<GrGLsizei>(primProc->getVertexStride());
+        GrGLsizei stride = static_cast<GrGLsizei>(primProc.getVertexStride());
 
         size_t vertexOffsetInBytes = stride * info.startVertex();
 
@@ -1414,7 +1414,7 @@ void GrGLGpu::setupGeometry(const GrOptDrawState& optState,
         size_t offset = 0;
 
         for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
-            const GrGeometryProcessor::Attribute& attrib = primProc->getAttrib(attribIndex);
+            const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
             usedAttribArraysMask |= (1 << attribIndex);
             GrVertexAttribType attribType = attrib.fType;
             attribState->set(this,
@@ -1431,11 +1431,14 @@ void GrGLGpu::setupGeometry(const GrOptDrawState& optState,
     }
 }
 
-void GrGLGpu::buildProgramDesc(const GrOptDrawState& optState,
+void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
+                               const GrPrimitiveProcessor& primProc,
+                               const GrOptDrawState& optState,
                                const GrProgramDesc::DescInfo& descInfo,
                                GrGpu::DrawType drawType,
-                               GrProgramDesc* desc) {
-    if (!GrGLProgramDescBuilder::Build(optState, descInfo, drawType, this, desc)) {
+                               const GrBatchTracker& batchTracker) const {
+    if (!GrGLProgramDescBuilder::Build(desc, primProc, optState, descInfo, drawType, this,
+                                       batchTracker)) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }
@@ -1823,13 +1826,13 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGLGpu::onDraw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
-    if (!this->flushGLState(ds)) {
+void GrGLGpu::onDraw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
+    if (!this->flushGLState(args)) {
         return;
     }
 
-    size_t indexOffsetInBytes;
-    this->setupGeometry(ds, info, &indexOffsetInBytes);
+    size_t indexOffsetInBytes = 0;
+    this->setupGeometry(*args.fPrimitiveProcessor, info, &indexOffsetInBytes);
 
     SkASSERT((size_t)info.primitiveType() < SK_ARRAY_COUNT(gPrimitiveType2GLMode));
 
@@ -1875,15 +1878,15 @@ void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
     fPathRendering->stencilPath(path, *state.fStencil);
 }
 
-void GrGLGpu::onDrawPath(const GrOptDrawState& ds, const GrPath* path,
+void GrGLGpu::onDrawPath(const DrawArgs& args, const GrPath* path,
                          const GrStencilSettings& stencil) {
-    if (!this->flushGLState(ds)) {
+    if (!this->flushGLState(args)) {
         return;
     }
     fPathRendering->drawPath(path, stencil);
 }
 
-void GrGLGpu::onDrawPaths(const GrOptDrawState& ds,
+void GrGLGpu::onDrawPaths(const DrawArgs& args,
                           const GrPathRange* pathRange,
                           const void* indices,
                           GrDrawTarget::PathIndexType indexType,
@@ -1891,7 +1894,7 @@ void GrGLGpu::onDrawPaths(const GrOptDrawState& ds,
                           GrDrawTarget::PathTransformType transformType,
                            int count,
                            const GrStencilSettings& stencil) {
-    if (!this->flushGLState(ds)) {
+    if (!this->flushGLState(args)) {
         return;
     }
     fPathRendering->drawPaths(pathRange, indices, indexType, transformValues,

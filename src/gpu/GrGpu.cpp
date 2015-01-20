@@ -276,9 +276,9 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::draw(const GrOptDrawState& ds, const GrDrawTarget::DrawInfo& info) {
+void GrGpu::draw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
     this->handleDirtyContext();
-    this->onDraw(ds, info);
+    this->onDraw(args, info);
 }
 
 void GrGpu::stencilPath(const GrPath* path, const StencilPathState& state) {
@@ -286,14 +286,14 @@ void GrGpu::stencilPath(const GrPath* path, const StencilPathState& state) {
     this->onStencilPath(path, state);
 }
 
-void GrGpu::drawPath(const GrOptDrawState& ds,
+void GrGpu::drawPath(const DrawArgs& args,
                      const GrPath* path,
                      const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
-    this->onDrawPath(ds, path, stencilSettings);
+    this->onDrawPath(args, path, stencilSettings);
 }
 
-void GrGpu::drawPaths(const GrOptDrawState& ds,
+void GrGpu::drawPaths(const DrawArgs& args,
                       const GrPathRange* pathRange,
                       const void* indices,
                       GrDrawTarget::PathIndexType indexType,
@@ -303,6 +303,6 @@ void GrGpu::drawPaths(const GrOptDrawState& ds,
                       const GrStencilSettings& stencilSettings) {
     this->handleDirtyContext();
     pathRange->willDrawPaths(indices, indexType, count);
-    this->onDrawPaths(ds, pathRange, indices, indexType, transformValues,
+    this->onDrawPaths(args, pathRange, indices, indexType, transformValues,
                       transformType, count, stencilSettings);
 }

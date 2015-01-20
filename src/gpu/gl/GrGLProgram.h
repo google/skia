@@ -95,7 +95,7 @@ public:
      * GrGLGpu object to bind the textures required by the GrGLProcessors. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
-    void setData(const GrOptDrawState&);
+    void setData(const GrPrimitiveProcessor&, const GrOptDrawState&, const GrBatchTracker&);
 
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -116,8 +116,8 @@ protected:
     void initSamplers(Proc*, int* texUnitIdx);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
-    void setFragmentData(const GrOptDrawState&);
-    virtual void setTransformData(const GrPrimitiveProcessor*,
+    void setFragmentData(const GrPrimitiveProcessor&, const GrOptDrawState&);
+    virtual void setTransformData(const GrPrimitiveProcessor&,
                                   const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*);
@@ -131,8 +131,8 @@ protected:
     virtual void didSetData(GrGpu::DrawType);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrOptDrawState&);
-    virtual void onSetRenderTargetState(const GrOptDrawState&);
+    void setRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
+    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;
@@ -176,11 +176,11 @@ protected:
 
 private:
     void didSetData(GrGpu::DrawType) SK_OVERRIDE;
-    virtual void setTransformData(const GrPrimitiveProcessor*,
+    virtual void setTransformData(const GrPrimitiveProcessor&,
                                   const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*) SK_OVERRIDE;
-    virtual void onSetRenderTargetState(const GrOptDrawState&);
+    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
 
     friend class GrGLNvprProgramBuilder;
 

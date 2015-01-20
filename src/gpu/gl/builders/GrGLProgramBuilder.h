@@ -219,6 +219,7 @@ class GrGLProgramBuilder : public GrGLGPBuilder,
                            public GrGLFPBuilder,
                            public GrGLXPBuilder {
 public:
+    typedef GrGpu::DrawArgs DrawArgs;
     /** Generates a shader program.
      *
      * The program implements what is specified in the stages given as input.
@@ -226,7 +227,7 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrOptDrawState&, GrGLGpu*);
+    static GrGLProgram* CreateProgram(const DrawArgs&, GrGLGpu*);
 
     UniformHandle addUniformArray(uint32_t visibility,
                                   GrSLType type,
@@ -277,13 +278,15 @@ protected:
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    static GrGLProgramBuilder* CreateProgramBuilder(const GrOptDrawState&, GrGLGpu*);
+    static GrGLProgramBuilder* CreateProgramBuilder(const DrawArgs&, GrGLGpu*);
 
-    GrGLProgramBuilder(GrGLGpu*, const GrOptDrawState&);
+    GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
 
-    const GrOptDrawState& optState() const { return fOptState; }
-    const GrProgramDesc& desc() const { return fDesc; }
-    const GrProgramDesc::KeyHeader& header() const { return fDesc.header(); }
+    const GrPrimitiveProcessor& primitiveProcessor() const { return *fArgs.fPrimitiveProcessor; }
+    const GrOptDrawState& optState() const { return *fArgs.fOptState; }
+    const GrProgramDesc& desc() const { return *fArgs.fDesc; }
+    const GrBatchTracker& batchTracker() const { return *fArgs.fBatchTracker; }
+    const GrProgramDesc::KeyHeader& header() const { return fArgs.fDesc->header(); }
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
@@ -383,8 +386,7 @@ protected:
     GrGLInstalledXferProc* fXferProcessor;
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
-    const GrOptDrawState& fOptState;
-    const GrProgramDesc& fDesc;
+    const DrawArgs& fArgs;
     GrGLGpu* fGpu;
     UniformInfoArray fUniforms;
     GrGLPrimitiveProcessor::TransformsIn fCoordTransforms;

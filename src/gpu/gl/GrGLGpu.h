@@ -104,11 +104,12 @@ public:
                         const SkIRect& srcRect,
                         const SkIPoint& dstPoint) SK_OVERRIDE;
 
-protected:
-    void buildProgramDesc(const GrOptDrawState&,
+    void buildProgramDesc(GrProgramDesc*,
+                          const GrPrimitiveProcessor&,
+                          const GrOptDrawState&,
                           const GrProgramDesc::DescInfo&,
                           GrGpu::DrawType,
-                          GrProgramDesc*) SK_OVERRIDE;
+                          const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
     // GrGpu overrides
@@ -145,10 +146,10 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
-    void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
+    void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) SK_OVERRIDE;
     void onStencilPath(const GrPath*, const StencilPathState&) SK_OVERRIDE;
-    void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
-    void onDrawPaths(const GrOptDrawState&,
+    void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+    void onDrawPaths(const DrawArgs&,
                      const GrPathRange*,
                      const void* indices,
                      GrDrawTarget::PathIndexType,
@@ -167,12 +168,12 @@ private:
     void setTextureUnit(int unitIdx);
 
     // Flushes state from GrOptDrawState to GL. Returns false if the state couldn't be set.
-    bool flushGLState(const GrOptDrawState&);
+    bool flushGLState(const DrawArgs&);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start
     // index is relative to the returned offset.
-    void setupGeometry(const GrOptDrawState&,
+    void setupGeometry(const GrPrimitiveProcessor&,
                        const GrDrawTarget::DrawInfo& info,
                        size_t* indexOffsetInBytes);
 
@@ -189,7 +190,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const GrOptDrawState&);
+        GrGLProgram* getProgram(const DrawArgs&);
 
     private:
         enum {

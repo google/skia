@@ -37,7 +37,7 @@ public:
      * Returns true if it is possible to combine the two GrOptDrawStates and it will update 'this'
      * to subsume 'that''s draw.
      */
-    bool combineIfPossible(const GrOptDrawState& that);
+    bool isEqual(const GrOptDrawState& that) const;
 
     /// @}
 
@@ -61,9 +61,6 @@ public:
     int numColorStages() const { return fNumColorStages; }
     int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
     int numFragmentStages() const { return fFragmentStages.count(); }
-
-    const GrPrimitiveProcessor* getPrimitiveProcessor() const { return fPrimitiveProcessor.get(); }
-    const GrBatchTracker& getBatchTracker() const { return fBatchTracker; }
 
     const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
 
@@ -135,10 +132,9 @@ public:
 
     const GrDeviceCoordTexture* getDstCopy() const { return fDstCopy.texture() ? &fDstCopy : NULL; }
 
-    // Finalize *MUST* be called before programDesc()
-    void finalize(GrGpu*);
+    const GrProgramDesc::DescInfo& descInfo() const { return fDescInfo; }
 
-    const GrProgramDesc& programDesc() const { SkASSERT(fFinalized); return fDesc; }
+    const GrGeometryProcessor::InitBT& getInitBatchTracker() const { return fInitBT; }
 
 private:
     /**
@@ -166,8 +162,6 @@ private:
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
     typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
-    typedef GrPendingProgramElement<const GrGeometryProcessor> ProgramGeometryProcessor;
-    typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
@@ -175,13 +169,11 @@ private:
     GrDrawState::DrawFace               fDrawFace;
     GrDeviceCoordTexture                fDstCopy;
     uint32_t                            fFlags;
-    ProgramPrimitiveProcessor           fPrimitiveProcessor;
-    GrBatchTracker                      fBatchTracker;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
     GrGpu::DrawType                     fDrawType;
     GrProgramDesc::DescInfo             fDescInfo;
-    bool                                fFinalized;
+    GrGeometryProcessor::InitBT         fInitBT;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;

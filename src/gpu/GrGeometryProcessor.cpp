@@ -241,7 +241,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
 
 
 void
-GrGLGeometryProcessor::setTransformData(const GrPrimitiveProcessor* primProc,
+GrGLGeometryProcessor::setTransformData(const GrPrimitiveProcessor& primProc,
                                         const GrGLProgramDataManager& pdman,
                                         int index,
                                         const SkTArray<const GrCoordTransform*, true>& transforms) {
@@ -249,7 +249,7 @@ GrGLGeometryProcessor::setTransformData(const GrPrimitiveProcessor* primProc,
     int numTransforms = transforms.count();
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(procTransforms[t].fHandle.isValid());
-        const SkMatrix& transform = GetTransformMatrix(primProc->localMatrix(), *transforms[t]);
+        const SkMatrix& transform = GetTransformMatrix(primProc.localMatrix(), *transforms[t]);
         if (!procTransforms[t].fCurrentValue.cheapEqualTo(transform)) {
             pdman.setSkMatrix(procTransforms[t].fHandle.convertToUniformHandle(), transform);
             procTransforms[t].fCurrentValue = transform;
@@ -377,7 +377,7 @@ public:
         }
     }
 
-    void setTransformData(const GrPrimitiveProcessor* primProc,
+    void setTransformData(const GrPrimitiveProcessor& primProc,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms,
                           GrGLPathRendering* glpr,
@@ -386,7 +386,7 @@ public:
         // effect
         int texCoordIndex = fInstalledTransforms[index][0].fHandle.handle();
         for (int t = 0; t < transforms.count(); ++t) {
-            const SkMatrix& transform = GetTransformMatrix(primProc->localMatrix(), *transforms[t]);
+            const SkMatrix& transform = GetTransformMatrix(primProc.localMatrix(), *transforms[t]);
             GrGLPathRendering::PathTexGenComponents components =
                     GrGLPathRendering::kST_PathTexGenComponents;
             if (transform.hasPerspective()) {
@@ -455,7 +455,7 @@ public:
         }
     }
 
-    void setTransformData(const GrPrimitiveProcessor* primProc,
+    void setTransformData(const GrPrimitiveProcessor& primProc,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& coordTransforms,
                           GrGLPathRendering* glpr,
@@ -464,7 +464,7 @@ public:
         int numTransforms = transforms.count();
         for (int t = 0; t < numTransforms; ++t) {
             SkASSERT(transforms[t].fHandle.isValid());
-            const SkMatrix& transform = GetTransformMatrix(primProc->localMatrix(),
+            const SkMatrix& transform = GetTransformMatrix(primProc.localMatrix(),
                                                            *coordTransforms[t]);
             if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
                 continue;

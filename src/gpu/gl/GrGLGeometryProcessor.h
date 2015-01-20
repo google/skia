@@ -138,7 +138,7 @@ public:
     /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
     void emitCode(EmitArgs&) SK_OVERRIDE;
 
-    void setTransformData(const GrPrimitiveProcessor*,
+    void setTransformData(const GrPrimitiveProcessor&,
                           const GrGLProgramDataManager&,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms);
@@ -210,7 +210,7 @@ public:
                  const GrPrimitiveProcessor&,
                  const GrBatchTracker&) SK_OVERRIDE;
 
-    virtual void setTransformData(const GrPrimitiveProcessor*,
+    virtual void setTransformData(const GrPrimitiveProcessor&,
                                   int index,
                                   const SkTArray<const GrCoordTransform*, true>& transforms,
                                   GrGLPathRendering*,

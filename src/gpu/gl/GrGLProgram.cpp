@@ -103,8 +103,9 @@ void GrGLProgram::bindTextures(const Proc* ip, const GrProcessor& processor) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(const GrOptDrawState& optState) {
-    this->setRenderTargetState(optState);
+void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrOptDrawState& optState,
+                          const GrBatchTracker& batchTracker) {
+    this->setRenderTargetState(primProc, optState);
 
     const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
     if (dstCopy) {
@@ -130,9 +131,7 @@ void GrGLProgram::setData(const GrOptDrawState& optState) {
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
-    const GrPrimitiveProcessor& primProc = *optState.getPrimitiveProcessor();
-    const GrBatchTracker& bt = optState.getBatchTracker();
-    fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc, bt);
+    fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc, batchTracker);
     this->bindTextures(fGeometryProcessor.get(), primProc);
 
     if (fXferProcessor.get()) {
@@ -140,26 +139,27 @@ void GrGLProgram::setData(const GrOptDrawState& optState) {
         fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
         this->bindTextures(fXferProcessor.get(), xp);
     }
-    this->setFragmentData(optState);
+    this->setFragmentData(primProc, optState);
 
     // Some of GrGLProgram subclasses need to update state here
     this->didSetData(optState.drawType());
 }
 
-void GrGLProgram::setFragmentData(const GrOptDrawState& optState) {
+void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
+                                  const GrOptDrawState& optState) {
     int numProcessors = fFragmentProcessors->fProcs.count();
     for (int e = 0; e < numProcessors; ++e) {
         const GrPendingFragmentStage& stage = optState.getFragmentStage(e);
         const GrProcessor& processor = *stage.processor();
         fFragmentProcessors->fProcs[e]->fGLProc->setData(fProgramDataManager, processor);
-        this->setTransformData(optState.getPrimitiveProcessor(),
+        this->setTransformData(primProc,
                                stage,
                                e,
                                fFragmentProcessors->fProcs[e]);
         this->bindTextures(fFragmentProcessors->fProcs[e], processor);
     }
 }
-void GrGLProgram::setTransformData(const GrPrimitiveProcessor* primProc,
+void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
                                    const GrPendingFragmentStage& processor,
                                    int index,
                                    GrGLInstalledFragProc* ip) {
@@ -173,7 +173,8 @@ void GrGLProgram::didSetData(GrGpu::DrawType drawType) {
     SkASSERT(!GrGpu::IsPathRenderingDrawType(drawType));
 }
 
-void GrGLProgram::setRenderTargetState(const GrOptDrawState& optState) {
+void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
+                                       const GrOptDrawState& optState) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fHeight != optState.getRenderTarget()->height()) {
@@ -182,10 +183,11 @@ void GrGLProgram::setRenderTargetState(const GrOptDrawState& optState) {
     }
 
     // call subclasses to set the actual view matrix
-    this->onSetRenderTargetState(optState);
+    this->onSetRenderTargetState(primProc, optState);
 }
 
-void GrGLProgram::onSetRenderTargetState(const GrOptDrawState& optState) {
+void GrGLProgram::onSetRenderTargetState(const GrPrimitiveProcessor&,
+                                         const GrOptDrawState& optState) {
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
@@ -220,7 +222,7 @@ void GrGLNvprProgram::didSetData(GrGpu::DrawType drawType) {
     pathProc->didSetData(fGpu->glPathRendering());
 }
 
-void GrGLNvprProgram::setTransformData(const GrPrimitiveProcessor* primProc,
+void GrGLNvprProgram::setTransformData(const GrPrimitiveProcessor& primProc,
                                        const GrPendingFragmentStage& proc,
                                        int index,
                                        GrGLInstalledFragProc* ip) {
@@ -230,13 +232,13 @@ void GrGLNvprProgram::setTransformData(const GrPrimitiveProcessor* primProc,
                                fGpu->glPathRendering(), fProgramID);
 }
 
-void GrGLNvprProgram::onSetRenderTargetState(const GrOptDrawState& optState) {
+void GrGLNvprProgram::onSetRenderTargetState(const GrPrimitiveProcessor& primProc,
+                                             const GrOptDrawState& optState) {
     SkASSERT(GrGpu::IsPathRenderingDrawType(optState.drawType()) &&
-             !optState.getPrimitiveProcessor()->willUseGeoShader() &&
-             optState.getPrimitiveProcessor()->numAttribs() == 0);
+             !primProc.willUseGeoShader() && primProc.numAttribs() == 0);
     const GrRenderTarget* rt = optState.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
-    fGpu->glPathRendering()->setProjectionMatrix(optState.getPrimitiveProcessor()->viewMatrix(),
+    fGpu->glPathRendering()->setProjectionMatrix(primProc.viewMatrix(),
                                                  size, rt->origin());
 }

@@ -18,15 +18,11 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                const GrDrawTargetCaps& caps,
                                const GrScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy,
-                               GrGpu::DrawType drawType)
-    : fFinalized(false) {
+                               GrGpu::DrawType drawType) {
     fDrawType = drawType;
 
-    fPrimitiveProcessor.reset(primProc);
-
-
-    const GrProcOptInfo& colorPOI = drawState.colorProcInfo(fPrimitiveProcessor);
-    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(fPrimitiveProcessor);
+    const GrProcOptInfo& colorPOI = drawState.colorProcInfo(primProc);
+    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(primProc);
 
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
@@ -112,12 +108,10 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     }
 
     // let the GP init the batch tracker
-    GrGeometryProcessor::InitBT init;
-    init.fColorIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag);
-    init.fOverrideColor = init.fColorIgnored ? GrColor_ILLEGAL : overrideColor;
-    init.fCoverageIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag);
-    init.fUsesLocalCoords = usesLocalCoords;
-    fPrimitiveProcessor->initBatchTracker(&fBatchTracker, init);
+    fInitBT.fColorIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag);
+    fInitBT.fOverrideColor = fInitBT.fColorIgnored ? GrColor_ILLEGAL : overrideColor;
+    fInitBT.fCoverageIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag);
+    fInitBT.fUsesLocalCoords = usesLocalCoords;
 }
 
 void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
@@ -144,18 +138,9 @@ void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
     }
 }
 
-void GrOptDrawState::finalize(GrGpu* gpu) {
-    gpu->buildProgramDesc(*this, fDescInfo, fDrawType, &fDesc);
-    fFinalized = true;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrOptDrawState::combineIfPossible(const GrOptDrawState& that) {
-    if (fDescInfo != that.fDescInfo) {
-        return false;
-    }
-
+bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
     if (this->getRenderTarget() != that.getRenderTarget() ||
         this->fFragmentStages.count() != that.fFragmentStages.count() ||
         this->fNumColorStages != that.fNumColorStages ||
@@ -165,12 +150,6 @@ bool GrOptDrawState::combineIfPossible(const GrOptDrawState& that) {
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace ||
         this->fDstCopy.texture() != that.fDstCopy.texture()) {
-        return false;
-    }
-
-    if (!this->getPrimitiveProcessor()->canMakeEqual(fBatchTracker,
-                                                     *that.getPrimitiveProcessor(),
-                                                     that.getBatchTracker())) {
         return false;
     }
 
@@ -186,9 +165,6 @@ bool GrOptDrawState::combineIfPossible(const GrOptDrawState& that) {
             return false;
         }
     }
-
-    // Now update the GrPrimitiveProcessor's batch tracker
-    fPrimitiveProcessor->makeEqual(&fBatchTracker, that.getBatchTracker());
     return true;
 }
 

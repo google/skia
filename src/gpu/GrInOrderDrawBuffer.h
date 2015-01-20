@@ -51,6 +51,7 @@ public:
     void discard(GrRenderTarget*) SK_OVERRIDE;
 
 private:
+    typedef GrGpu::DrawArgs DrawArgs;
     enum {
         kDraw_Cmd           = 1,
         kStencilPath_Cmd    = 2,
@@ -61,11 +62,13 @@ private:
         kDrawPaths_Cmd      = 7,
     };
 
+    struct SetState;
+
     struct Cmd : ::SkNoncopyable {
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) = 0;
+        virtual void execute(GrInOrderDrawBuffer*, const SetState*) = 0;
 
         uint8_t fType;
     };
@@ -73,7 +76,7 @@ private:
     struct Draw : public Cmd {
         Draw(const DrawInfo& info) : Cmd(kDraw_Cmd), fInfo(info) {}
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         DrawInfo     fInfo;
     };
@@ -86,7 +89,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         SkMatrix                                                fViewMatrix;
         bool                                                    fUseHWAA;
@@ -102,7 +105,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         GrStencilSettings       fStencilSettings;
 
@@ -115,7 +118,7 @@ private:
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         int                     fIndicesLocation;
         PathIndexType           fIndexType;
@@ -134,7 +137,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         SkIRect fRect;
         GrColor fColor;
@@ -150,7 +153,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -165,7 +168,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -181,11 +184,16 @@ private:
                  const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
                  GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
+        , fPrimitiveProcessor(primProc)
         , fState(drawState, primProc, caps, scissor, dstCopy, drawType) {}
 
-        void execute(GrInOrderDrawBuffer*, const GrOptDrawState*) SK_OVERRIDE;
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
-        GrOptDrawState          fState;
+        typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
+        ProgramPrimitiveProcessor   fPrimitiveProcessor;
+        const GrOptDrawState        fState;
+        GrProgramDesc               fDesc;
+        GrBatchTracker              fBatchTracker;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -265,7 +273,7 @@ private:
     };
 
     CmdBuffer                           fCmdBuffer;
-    GrOptDrawState*                     fPrevState;
+    SetState*                           fPrevState;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
     SkTDArray<char>                     fPathIndexBuffer;
     SkTDArray<float>                    fPathTransformBuffer;

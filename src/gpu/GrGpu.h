@@ -20,6 +20,7 @@ class GrPath;
 class GrPathRange;
 class GrPathRenderer;
 class GrPathRendererChain;
+class GrPrimitiveProcessor;
 class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
@@ -315,10 +316,12 @@ public:
 
     GrContext::GPUStats* gpuStats() { return &fGPUStats; }
 
-    virtual void buildProgramDesc(const GrOptDrawState&,
+    virtual void buildProgramDesc(GrProgramDesc*,
+                                  const GrPrimitiveProcessor&,
+                                  const GrOptDrawState&,
                                   const GrProgramDesc::DescInfo&,
                                   GrGpu::DrawType,
-                                  GrProgramDesc*) = 0;
+                                  const GrBatchTracker&) const = 0;
 
     /**
      * Called at start and end of gpu trace marking
@@ -358,7 +361,25 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
 
-    void draw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&);
+    struct DrawArgs {
+        typedef GrDrawTarget::DrawInfo DrawInfo;
+        DrawArgs(const GrPrimitiveProcessor* primProc,
+                 const GrOptDrawState* optState,
+                 const GrProgramDesc* desc,
+                 const GrBatchTracker* batchTracker)
+            : fPrimitiveProcessor(primProc)
+            , fOptState(optState)
+            , fDesc(desc)
+            , fBatchTracker(batchTracker) {
+            SkASSERT(primProc && optState && desc && batchTracker);
+        }
+        const GrPrimitiveProcessor* fPrimitiveProcessor;
+        const GrOptDrawState* fOptState;
+        const GrProgramDesc* fDesc;
+        const GrBatchTracker* fBatchTracker;
+    };
+
+    void draw(const DrawArgs&, const GrDrawTarget::DrawInfo&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathState {
@@ -371,8 +392,8 @@ public:
 
     void stencilPath(const GrPath*, const StencilPathState&);
 
-    void drawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&);
-    void drawPaths(const GrOptDrawState&,
+    void drawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&);
+    void drawPaths(const DrawArgs&,
                    const GrPathRange*,
                    const void* indices,
                    GrDrawTarget::PathIndexType,
@@ -446,11 +467,11 @@ private:
                                     bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrOptDrawState&, const GrDrawTarget::DrawInfo&) = 0;
+    virtual void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) = 0;
     virtual void onStencilPath(const GrPath*, const StencilPathState&) = 0;
 
-    virtual void onDrawPath(const GrOptDrawState&, const GrPath*, const GrStencilSettings&) = 0;
-    virtual void onDrawPaths(const GrOptDrawState&,
+    virtual void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) = 0;
+    virtual void onDrawPaths(const DrawArgs&,
                              const GrPathRange*,
                              const void* indices,
                              GrDrawTarget::PathIndexType,

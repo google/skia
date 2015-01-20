@@ -111,13 +111,6 @@ public:
                               const GrPrimitiveProcessor& that,
                               const GrBatchTracker& theirs) const = 0;
 
-    /*
-     * We always call canMakeEqual before makeEqual so there is no need to do any kind of equality
-     * testing here
-     * TODO make this pure virtual when primProcs can actually use it
-     */
-    virtual void makeEqual(GrBatchTracker*, const GrBatchTracker&) const {}
-
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 

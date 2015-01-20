@@ -419,7 +419,7 @@ void GrInOrderDrawBuffer::onFlush() {
 
     // Updated every time we find a set state cmd to reflect the current state in the playback
     // stream.
-    GrOptDrawState* currentOptState = NULL;
+    SetState* currentState = NULL;
 
     while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
@@ -433,10 +433,14 @@ void GrInOrderDrawBuffer::onFlush() {
 
         if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
-            currentOptState = &ss->fState;
-            currentOptState->finalize(this->getGpu());
+
+            this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fState,
+                                             ss->fState.descInfo(), ss->fState.drawType(),
+                                             ss->fBatchTracker);
+            currentState = ss;
+
         } else {
-            iter->execute(this, currentOptState);
+            iter->execute(this, currentState);
         }
 
         if (cmd_has_trace_marker(iter->fType)) {
@@ -448,12 +452,14 @@ void GrInOrderDrawBuffer::onFlush() {
     ++fDrawID;
 }
 
-void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState* optState) {
-    SkASSERT(optState);
-    buf->getGpu()->draw(*optState, fInfo);
+void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+    SkASSERT(state);
+    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
+                  &state->fBatchTracker);
+    buf->getGpu()->draw(args, fInfo);
 }
 
-void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
+void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const SetState*) {
     GrGpu::StencilPathState state;
     state.fRenderTarget = fRenderTarget.get();
     state.fScissor = &fScissor;
@@ -464,24 +470,26 @@ void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const G
     buf->getGpu()->stencilPath(this->path(), state);
 }
 
-void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf,
-                                            const GrOptDrawState* optState) {
-    SkASSERT(optState);
-    buf->getGpu()->drawPath(*optState, this->path(), fStencilSettings);
+void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+    SkASSERT(state);
+    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
+                  &state->fBatchTracker);
+    buf->getGpu()->drawPath(args, this->path(), fStencilSettings);
 }
 
-void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf,
-                                             const GrOptDrawState* optState) {
-    SkASSERT(optState);
-    buf->getGpu()->drawPaths(*optState, this->pathRange(),
+void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+    SkASSERT(state);
+    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
+                  &state->fBatchTracker);
+    buf->getGpu()->drawPaths(args, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
                             fCount, fStencilSettings);
 }
 
-void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const GrOptDrawState*) {}
+void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const SetState*) {}
 
-void GrInOrderDrawBuffer::Clear::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
+void GrInOrderDrawBuffer::Clear::execute(GrInOrderDrawBuffer* buf, const SetState*) {
     if (GrColor_ILLEGAL == fColor) {
         buf->getGpu()->discard(this->renderTarget());
     } else {
@@ -489,12 +497,11 @@ void GrInOrderDrawBuffer::Clear::execute(GrInOrderDrawBuffer* buf, const GrOptDr
     }
 }
 
-void GrInOrderDrawBuffer::ClearStencilClip::execute(GrInOrderDrawBuffer* buf,
-                                                    const GrOptDrawState*) {
+void GrInOrderDrawBuffer::ClearStencilClip::execute(GrInOrderDrawBuffer* buf, const SetState*) {
     buf->getGpu()->clearStencilClip(fRect, fInsideClip, this->renderTarget());
 }
 
-void GrInOrderDrawBuffer::CopySurface::execute(GrInOrderDrawBuffer* buf, const GrOptDrawState*) {
+void GrInOrderDrawBuffer::CopySurface::execute(GrInOrderDrawBuffer* buf, const SetState*) {
     buf->getGpu()->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
@@ -524,10 +531,18 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
         fCmdBuffer.pop_back();
         return false;
     }
-    if (fPrevState && fPrevState->combineIfPossible(ss->fState)) {
+
+    ss->fPrimitiveProcessor->initBatchTracker(&ss->fBatchTracker,
+                                              ss->fState.getInitBatchTracker());
+
+    if (fPrevState &&
+        fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
+                                                      *ss->fPrimitiveProcessor,
+                                                      ss->fBatchTracker) &&
+        fPrevState->fState.isEqual(ss->fState)) {
         fCmdBuffer.pop_back();
     } else {
-        fPrevState = &ss->fState;
+        fPrevState = ss;
         this->recordTraceMarkersIfNecessary();
     }
     return true;

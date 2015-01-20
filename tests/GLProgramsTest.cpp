@@ -316,8 +316,15 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         if (ods.mustSkip()) {
             continue;
         }
-        ods.finalize(gpu);
-        SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(ods, gpu));
+        GrBatchTracker bt;
+        primProc->initBatchTracker(&bt, ods.getInitBatchTracker());
+
+        GrProgramDesc desc;
+        gpu->buildProgramDesc(&desc, *primProc, ods, ods.descInfo(), ods.drawType(), bt);
+
+        GrGpu::DrawArgs args(primProc, &ods, &desc, &bt);
+        SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(args, gpu));
+
         if (NULL == program.get()) {
             SkDebugf("Failed to create program!");
             return false;
