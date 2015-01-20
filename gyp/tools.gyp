@@ -13,7 +13,6 @@
       'target_name': 'tools',
       'type': 'none',
       'dependencies': [
-        'bbh_shootout',
         'bench_pictures',
         'dump_record',
         'filter',
@@ -41,22 +40,6 @@
           },
         ],
       ],
-    },
-    {
-      'target_name': 'gm_expectations',
-      'type': 'static_library',
-      'include_dirs' : [ '../src/utils/' ],
-      'sources': [
-        '../gm/gm_expectations.cpp',
-      ],
-      'dependencies': [
-        'jsoncpp.gyp:jsoncpp',
-        'sk_tool_utils',
-        'skia_lib.gyp:skia_lib',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [ '../gm/' ],
-      },
     },
     {
       'target_name': 'crash_handler',
@@ -554,26 +537,6 @@
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      'target_name': 'bbh_shootout',
-      'type': 'executable',
-      'include_dirs': [
-        '../bench',
-        '../tools/'
-      ],
-      'sources': [
-        '../tools/bbh_shootout.cpp',
-
-        # Bench code:
-      ],
-      'dependencies': [
-        'timer',
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_renderer',
-        'tools.gyp:picture_utils',
       ],
     },
     {

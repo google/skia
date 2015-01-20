@@ -1,2 +1,0 @@
-# All self-test PNG files are fake (human-readable, diffable plaintext files).
-*.png    text diff -binary
