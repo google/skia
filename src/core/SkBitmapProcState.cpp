@@ -124,160 +124,6 @@ static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
         < (maximumAllocation * invMat.getScaleX() * invMat.getScaleY());
 }
 
-// TODO -- we may want to pass the clip into this function so we only scale
-// the portion of the image that we're going to need.  This will complicate
-// the interface to the cache, but might be well worth it.
-
-bool SkBitmapProcState::possiblyScaleImage() {
-    SkASSERT(NULL == fBitmap);
-
-    if (fFilterLevel <= SkPaint::kLow_FilterLevel) {
-        return false;
-    }
-    // Check to see if the transformation matrix is simple, and if we're
-    // doing high quality scaling.  If so, do the bitmap scale here and
-    // remove the (non-fractional) scaling component from the matrix.
-
-    SkScalar invScaleX = fInvMatrix.getScaleX();
-    SkScalar invScaleY = fInvMatrix.getScaleY();
-
-    float trueDestWidth  = fOrigBitmap.width() / invScaleX;
-    float trueDestHeight = fOrigBitmap.height() / invScaleY;
-
-    float roundedDestWidth = SkScalarRoundToScalar(trueDestWidth);
-    float roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
-
-    if (SkPaint::kHigh_FilterLevel == fFilterLevel &&
-        fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
-        kN32_SkColorType == fOrigBitmap.colorType() &&
-        cache_size_okay(fOrigBitmap, fInvMatrix)) {
-
-        if (SkScalarNearlyEqual(invScaleX,1.0f) &&
-            SkScalarNearlyEqual(invScaleY,1.0f)) {
-            // short-circuit identity scaling; the output is supposed to
-            // be the same as the input, so we might as well go fast.
-
-            // Note(humper): We could also probably do this if the scales
-            // are close to -1 as well, since the flip doesn't require
-            // any fancy re-sampling...
-
-            // Set our filter level to low -- the only post-filtering this
-            // image might require is some interpolation if the translation
-            // is fractional.
-            fFilterLevel = SkPaint::kLow_FilterLevel;
-            return false;
-        }
-
-        if (!SkBitmapCache::Find(fOrigBitmap, roundedDestWidth, roundedDestHeight, &fScaledBitmap)) {
-            // All the criteria are met; let's make a new bitmap.
-
-            if (!SkBitmapScaler::Resize(&fScaledBitmap,
-                                        fOrigBitmap,
-                                        SkBitmapScaler::RESIZE_BEST,
-                                        roundedDestWidth,
-                                        roundedDestHeight,
-                                        SkResourceCache::GetAllocator())) {
-                // we failed to create fScaledBitmap, so just return and let
-                // the scanline proc handle it.
-                return false;
-
-            }
-
-            SkASSERT(fScaledBitmap.getPixels());
-            fScaledBitmap.setImmutable();
-            SkBitmapCache::Add(fOrigBitmap, roundedDestWidth, roundedDestHeight, fScaledBitmap);
-        }
-
-        SkASSERT(fScaledBitmap.getPixels());
-        fBitmap = &fScaledBitmap;
-
-        // clean up the inverse matrix by incorporating the scale we just performed.
-
-        fInvMatrix.postScale(roundedDestWidth / fOrigBitmap.width(),
-                             roundedDestHeight / fOrigBitmap.height());
-
-        // Set our filter level to low -- the only post-filtering this
-        // image might require is some interpolation if the translation
-        // is fractional or if there's any remaining scaling to be done.
-        fFilterLevel = SkPaint::kLow_FilterLevel;
-        return true;
-    }
-
-    /*
-     *  If High, then our special-case for scale-only did not take, and so we
-     *  have to make a choice:
-     *      1. fall back on mipmaps + bilerp
-     *      2. fall back on scanline bicubic filter
-     *  For now, we compute the "scale" value from the matrix, and have a
-     *  threshold to decide when bicubic is better, and when mips are better.
-     *  No doubt a fancier decision tree could be used uere.
-     *
-     *  If Medium, then we just try to build a mipmap and select a level,
-     *  setting the filter-level to kLow to signal that we just need bilerp
-     *  to process the selected level.
-     */
-
-    SkScalar scaleSqd = effective_matrix_scale_sqrd(fInvMatrix);
-
-    if (SkPaint::kHigh_FilterLevel == fFilterLevel) {
-        // Set the limit at 0.25 for the CTM... if the CTM is scaling smaller
-        // than this, then the mipmaps quality may be greater (certainly faster)
-        // so we only keep High quality if the scale is greater than this.
-        //
-        // Since we're dealing with the inverse, we compare against its inverse.
-        const SkScalar bicubicLimit = 4.0f;
-        const SkScalar bicubicLimitSqd = bicubicLimit * bicubicLimit;
-        if (scaleSqd < bicubicLimitSqd) {  // use bicubic scanline
-            return false;
-        }
-
-        // else set the filter-level to Medium, since we're scaling down and
-        // want to reqeust mipmaps
-        fFilterLevel = SkPaint::kMedium_FilterLevel;
-    }
-
-    SkASSERT(SkPaint::kMedium_FilterLevel == fFilterLevel);
-
-    /**
-     *  Medium quality means use a mipmap for down-scaling, and just bilper
-     *  for upscaling. Since we're examining the inverse matrix, we look for
-     *  a scale > 1 to indicate down scaling by the CTM.
-     */
-    if (scaleSqd > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
-        if (NULL == fCurrMip.get()) {
-            fCurrMip.reset(SkMipMapCache::AddAndRef(fOrigBitmap));
-            if (NULL == fCurrMip.get()) {
-                return false;
-            }
-        }
-        // diagnostic for a crasher...
-        if (NULL == fCurrMip->data()) {
-            sk_throw();
-        }
-
-        SkScalar levelScale = SkScalarInvert(SkScalarSqrt(scaleSqd));
-        SkMipMap::Level level;
-        if (fCurrMip->extractLevel(levelScale, &level)) {
-            SkScalar invScaleFixup = level.fScale;
-            fInvMatrix.postScale(invScaleFixup, invScaleFixup);
-
-            const SkImageInfo info = fOrigBitmap.info().makeWH(level.fWidth, level.fHeight);
-            // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
-            //       that here, and not need to explicitly track it ourselves.
-            fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);
-            fBitmap = &fScaledBitmap;
-            fFilterLevel = SkPaint::kLow_FilterLevel;
-            return true;
-        } else {
-            // failed to extract, so release the mipmap
-            fCurrMip.reset(NULL);
-        }
-    }
-
-    return false;
-}
-
 /*
  *  Extract the "best" scale factors from a matrix.
  */
@@ -439,10 +285,6 @@ bool SkBitmapProcState::lockBaseBitmap() {
     return true;
 }
 
-SkBitmapProcState::~SkBitmapProcState() {
-    SkDELETE(fBitmapFilter);
-}
-
 static bool valid_for_drawing(const SkBitmap& bm) {
     if (0 == bm.width() || 0 == bm.height()) {
         return false;   // nothing to draw
@@ -552,23 +394,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     // changed it!
 
     trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
-
-    if (SkPaint::kHigh_FilterLevel == fFilterLevel) {
-        // If this is still set, that means we wanted HQ sampling
-        // but couldn't do it as a preprocess.  Let's try to install
-        // the scanline version of the HQ sampler.  If that process fails,
-        // downgrade to bilerp.
-
-        // NOTE: Might need to be careful here in the future when we want
-        // to have the platform proc have a shot at this; it's possible that
-        // the chooseBitmapFilterProc will fail to install a shader but a
-        // platform-specific one might succeed, so it might be premature here
-        // to fall back to bilerp.  This needs thought.
-
-        if (!this->setBitmapFilterProcs()) {
-            fFilterLevel = SkPaint::kLow_FilterLevel;
-        }
-    }
 
     if (SkPaint::kLow_FilterLevel == fFilterLevel) {
         // Only try bilerp if the matrix is "interesting" and

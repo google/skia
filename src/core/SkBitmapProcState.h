@@ -23,10 +23,6 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcState {
-
-    SkBitmapProcState() : fBitmapFilter(NULL) {}
-    ~SkBitmapProcState();
-
     typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
                                  SkPMColor[], int count);
 
@@ -107,8 +103,6 @@ struct SkBitmapProcState {
     ShaderProc32 getShaderProc32() const { return fShaderProc32; }
     ShaderProc16 getShaderProc16() const { return fShaderProc16; }
 
-    SkBitmapFilter* getBitmapFilter() const { return fBitmapFilter; }
-
 #ifdef SK_DEBUG
     MatrixProc getMatrixProc() const;
 #else
@@ -131,7 +125,6 @@ private:
     SkBitmap            fScaledBitmap;      // chooseProcs
 
     SkAutoTUnref<const SkMipMap> fCurrMip;
-    bool                fAdjustedMatrix;    // set by possiblyScaleImage
 
     void processHQRequest();
     void processMediumRequest();
@@ -141,19 +134,9 @@ private:
     bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp, const SkPaint& paint);
     ShaderProc32 chooseShaderProc32();
 
-    // returns false if we did not try to scale the image. In that case, we
-    // will need to "lock" its pixels some other way.
-    bool possiblyScaleImage();
-
     // returns false if we failed to "lock" the pixels at all. Typically this
     // means we have to abort the shader.
     bool lockBaseBitmap();
-
-    SkBitmapFilter* fBitmapFilter;
-
-    // If supported, sets fShaderProc32 and fShaderProc16 and returns true,
-    // otherwise returns false.
-    bool setBitmapFilterProcs();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
     bool setupForTranslate();
@@ -210,11 +193,5 @@ void S32_D16_filter_DX(const SkBitmapProcState& s,
                        const uint32_t* xy, int count, uint16_t* colors);
 void S32_D16_filter_DXDY(const SkBitmapProcState& s,
                          const uint32_t* xy, int count, uint16_t* colors);
-
-void highQualityFilter32(const SkBitmapProcState &s, int x, int y,
-                         SkPMColor *SK_RESTRICT colors, int count);
-void highQualityFilter16(const SkBitmapProcState &s, int x, int y,
-                         uint16_t *SK_RESTRICT colors, int count);
-
 
 #endif

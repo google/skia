@@ -130,8 +130,6 @@ static inline bool supports_simd(int minLevel) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", true, "Use SSE optimized version of high quality image filters");
-
 void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         procs->fExtraHorizontalReads = 3;
@@ -194,13 +192,6 @@ void SkBitmapProcState::platformProcs() {
         fMatrixProc = ClampX_ClampY_filter_affine_SSE2;
     } else if (fMatrixProc == ClampX_ClampY_nofilter_affine) {
         fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
-    }
-
-    /* Check fShaderProc32 */
-    if (c_hqfilter_sse) {
-        if (fShaderProc32 == highQualityFilter32) {
-            fShaderProc32 = highQualityFilter_SSE2;
-        }
     }
 }
 
