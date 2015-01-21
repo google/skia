@@ -42,8 +42,14 @@ Or go old school and use [ASCII art](http://asciiflow.com/):
 
 ~~~~
 
-Format code snippets or other preformatted text.
+Format code snippets or other preformatted text. Just surround the code
+with `~~~~`. You can also trigger syntax highlighting by putting in
+the following HTML comment before the code section:
 
+    <!--?prettify?-->
+
+
+<!--?prettify?-->
 ~~~~
 class SK_API SkPaint {
 public:
@@ -53,6 +59,7 @@ public:
 
     SkPaint& operator=(const SkPaint&);
 ~~~~
+
 
 Tables
 
