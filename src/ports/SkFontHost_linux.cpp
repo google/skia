@@ -85,7 +85,7 @@ public:
     SkTypeface_Stream(const SkFontStyle& style, bool isFixedPitch, bool sysFont,
                       const SkString familyName, SkStream* stream, int index)
         : INHERITED(style, isFixedPitch, sysFont, familyName, index)
-        , fStream(SkRef(stream))
+        , fStream(stream)
     { }
 
     const char* getUniqueString() const SK_OVERRIDE { return NULL; }
