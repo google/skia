@@ -693,7 +693,7 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
 void SkScalerContextRec::getMatrixFrom2x2(SkMatrix* dst) const {
     dst->setAll(fPost2x2[0][0], fPost2x2[0][1], 0,
                 fPost2x2[1][0], fPost2x2[1][1], 0,
-                0,              0,              SkScalarToPersp(SK_Scalar1));
+                0,              0,              1);
 }
 
 void SkScalerContextRec::getLocalMatrix(SkMatrix* m) const {

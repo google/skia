@@ -249,8 +249,8 @@ protected:
         devMats.push_back().reset();
         devMats.push_back().setRotate(45, 500, 500);
         devMats.push_back().setRotate(-30, 200, 200);
-        devMats.back().setPerspX(-SkScalarToPersp(SK_Scalar1 / 2000));
-        devMats.back().setPerspY(SkScalarToPersp(SK_Scalar1 / 1000));
+        devMats.back().setPerspX(-SK_Scalar1 / 2000);
+        devMats.back().setPerspY(SK_Scalar1 / 1000);
 
 
         SkTArray<SkMatrix> viewMats;

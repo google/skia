@@ -202,7 +202,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
 
     SkMatrix perspX;
     perspX.reset();
-    perspX.setPerspX(SkScalarToPersp(SK_Scalar1 / 1000));
+    perspX.setPerspX(SK_Scalar1 / 1000);
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
     // Verify that getMinMaxScales() doesn't update the scales array on failure.
@@ -213,7 +213,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
 
     SkMatrix perspY;
     perspY.reset();
-    perspY.setPerspY(SkScalarToPersp(-SK_Scalar1 / 500));
+    perspY.setPerspY(-SK_Scalar1 / 500);
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMinScale());
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMaxScale());
     scales[0] = -5;
@@ -358,13 +358,13 @@ static void test_matrix_preserve_shape(skiatest::Reporter* reporter) {
 
     // perspective x
     mat.reset();
-    mat.setPerspX(SkScalarToPersp(SK_Scalar1 / 2));
+    mat.setPerspX(SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
     // perspective y
     mat.reset();
-    mat.setPerspY(SkScalarToPersp(SK_Scalar1 / 2));
+    mat.setPerspY(SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
     REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
 
@@ -867,7 +867,7 @@ DEF_TEST(Matrix, reporter) {
     REPORTER_ASSERT(reporter, affineEqual(TransY));
     #undef affineEqual
 
-    mat.set(SkMatrix::kMPersp1, SkScalarToPersp(SK_Scalar1 / 2));
+    mat.set(SkMatrix::kMPersp1, SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, !mat.asAffine(affine));
 
     SkMatrix mat2;

@@ -119,10 +119,10 @@ void SkDrawMatrix::dump(SkAnimateMaker* maker) {
     result = fMatrix.getTranslateY();
     if (result)
         SkDebugf("ty=\"%g\" ", SkScalarToFloat(result));
-    result = SkPerspToScalar(fMatrix.getPerspX());
+    result = fMatrix.getPerspX();
     if (result)
         SkDebugf("perspect-x=\"%g\" ", SkScalarToFloat(result));
-    result = SkPerspToScalar(fMatrix.getPerspY());
+    result = fMatrix.getPerspY();
     if (result)
         SkDebugf("perspect-y=\"%g\" ", SkScalarToFloat(result));
     SkDebugf("/>\n");
@@ -190,9 +190,9 @@ void SkDrawMatrix::onEndElement(SkAnimateMaker& ) {
         fMatrix.setSkewY(vals[3]);
         fMatrix.setScaleY(vals[4]);
         fMatrix.setTranslateY(vals[5]);
-        fMatrix.setPerspX(SkScalarToPersp(vals[6]));
-        fMatrix.setPerspY(SkScalarToPersp(vals[7]));
-//      fMatrix.setPerspW(SkScalarToPersp(vals[8]));
+        fMatrix.setPerspX(vals[6]);
+        fMatrix.setPerspY(vals[7]);
+//      fMatrix.setPerspW(vals[8]);
         goto setConcat;
     }
     if (fChildHasID == false) {
@@ -224,10 +224,10 @@ bool SkDrawMatrix::setProperty(int index, SkScriptValue& scriptValue) {
             fMatrix.setTranslateY((*scriptValue.fOperand.fArray)[1].fScalar);
             return true;
         case SK_PROPERTY(perspectX):
-            fMatrix.setPerspX(SkScalarToPersp((number)));
+            fMatrix.setPerspX(number);
             break;
         case SK_PROPERTY(perspectY):
-            fMatrix.setPerspY(SkScalarToPersp((number)));
+            fMatrix.setPerspY(number);
             break;
         case SK_PROPERTY(rotate): {
             SkMatrix temp;

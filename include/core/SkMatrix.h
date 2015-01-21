@@ -14,11 +14,6 @@
 
 class SkString;
 
-// TODO: can we remove these 3 (need to check chrome/android)
-typedef SkScalar SkPersp;
-#define SkScalarToPersp(x) (x)
-#define SkPerspToScalar(x) (x)
-
 /** \class SkMatrix
 
     The SkMatrix class holds a 3x3 matrix for transforming coordinates.
@@ -135,8 +130,8 @@ public:
     SkScalar getSkewX() const { return fMat[kMSkewX]; }
     SkScalar getTranslateX() const { return fMat[kMTransX]; }
     SkScalar getTranslateY() const { return fMat[kMTransY]; }
-    SkPersp getPerspX() const { return fMat[kMPersp0]; }
-    SkPersp getPerspY() const { return fMat[kMPersp1]; }
+    SkScalar getPerspX() const { return fMat[kMPersp0]; }
+    SkScalar getPerspY() const { return fMat[kMPersp1]; }
 
     SkScalar& operator[](int index) {
         SkASSERT((unsigned)index < 9);
@@ -156,12 +151,12 @@ public:
     void setSkewX(SkScalar v) { this->set(kMSkewX, v); }
     void setTranslateX(SkScalar v) { this->set(kMTransX, v); }
     void setTranslateY(SkScalar v) { this->set(kMTransY, v); }
-    void setPerspX(SkPersp v) { this->set(kMPersp0, v); }
-    void setPerspY(SkPersp v) { this->set(kMPersp1, v); }
+    void setPerspX(SkScalar v) { this->set(kMPersp0, v); }
+    void setPerspY(SkScalar v) { this->set(kMPersp1, v); }
 
-    void setAll(SkScalar scaleX, SkScalar skewX, SkScalar transX,
-                SkScalar skewY, SkScalar scaleY, SkScalar transY,
-                SkPersp persp0, SkPersp persp1, SkPersp persp2) {
+    void setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                SkScalar persp0, SkScalar persp1, SkScalar persp2) {
         fMat[kMScaleX] = scaleX;
         fMat[kMSkewX]  = skewX;
         fMat[kMTransX] = transX;

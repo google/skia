@@ -433,11 +433,11 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     assert_transform_failure(reporter, orig, matrix);
 
     matrix.reset();
-    matrix.setPerspX(SkScalarToPersp(SkIntToScalar(4)));
+    matrix.setPerspX(4);
     assert_transform_failure(reporter, orig, matrix);
 
     matrix.reset();
-    matrix.setPerspY(SkScalarToPersp(SkIntToScalar(5)));
+    matrix.setPerspY(5);
     assert_transform_failure(reporter, orig, matrix);
 
     // Rotation fails.
@@ -492,7 +492,7 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     REPORTER_ASSERT(reporter, orig.rect().top() == dst.rect().top());
 
     // Keeping the scale, but adding a persp will make transform fail.
-    matrix.setPerspX(SkScalarToPersp(SkIntToScalar(7)));
+    matrix.setPerspX(7);
     assert_transform_failure(reporter, orig, matrix);
 
     // Scaling in -y will flip the round rect vertically.

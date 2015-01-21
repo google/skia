@@ -2207,7 +2207,7 @@ static void test_transform(skiatest::Reporter* reporter) {
     {
         SkMatrix matrix;
         matrix.reset();
-        matrix.setPerspX(SkScalarToPersp(4));
+        matrix.setPerspX(4);
 
         SkPath p1;
         p1.moveTo(SkPoint::Make(0, 0));

@@ -98,7 +98,7 @@ protected:
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
             SkMatrix mat;
             mat.reset();
-            mat.setPerspY(SkScalarToPersp(SK_Scalar1 / 1000));
+            mat.setPerspY(SK_Scalar1 / 1000);
             canvas->concat(mat);
             canvas->drawPaint(bkgnrd);
         canvas->restore();
@@ -106,8 +106,8 @@ protected:
         // draw the paths in perspective
         SkMatrix persp;
         persp.reset();
-        persp.setPerspX(SkScalarToPersp(-SK_Scalar1 / 1800));
-        persp.setPerspY(SkScalarToPersp(SK_Scalar1 / 500));
+        persp.setPerspX(-SK_Scalar1 / 1800);
+        persp.setPerspY(SK_Scalar1 / 500);
         canvas->concat(persp);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
