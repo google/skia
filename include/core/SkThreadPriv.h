@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-// SK_ATOMICS_PLATFORM_H must provide inline implementations for the following declarations.
+// SkAtomics.h must provide inline implementations for the following declarations.
 
 /** Atomic compare and set, for pointers.
  *  If *addr == before, set *addr to after.  Always returns previous value of *addr.
@@ -18,10 +18,6 @@
  */
 static void* sk_atomic_cas(void** addr, void* before, void* after);
 
-#ifdef GOOGLE3
-    #include "SkAtomics_sync.h"
-#else
-    #include SK_ATOMICS_PLATFORM_H
-#endif
+#include "SkAtomics.h"
 
 #endif//SkThreadPriv_DEFINED

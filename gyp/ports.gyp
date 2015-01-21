@@ -22,10 +22,6 @@
         '../src/utils',
       ],
       'sources': [
-        '../src/ports/SkAtomics_sync.h',
-        '../src/ports/SkAtomics_win.h',
-        '../src/ports/SkMutex_pthread.h',
-        '../src/ports/SkMutex_win.h',
         '../src/ports/SkDebug_nacl.cpp',
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
@@ -44,8 +40,6 @@
 
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkMemory_malloc.cpp',
-        '../src/ports/SkMutex_pthread.h',
-        '../src/ports/SkMutex_win.h',
         '../src/ports/SkOSFile_posix.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkOSFile_win.cpp',

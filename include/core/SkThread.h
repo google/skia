@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-// SK_ATOMICS_PLATFORM_H must provide inline implementations for the following declarations.
+// SkAtomics.h must provide inline implementations for the following declarations.
 
 /** Atomically adds one to the int referenced by addr and returns the previous value.
  *  No additional memory barrier is required; this must act as a compiler barrier.
@@ -44,11 +44,7 @@ static void sk_membar_acquire__after_atomic_dec();
  */
 static void sk_membar_acquire__after_atomic_conditional_inc();
 
-#ifdef GOOGLE3
-    #include "SkAtomics_sync.h"
-#else
-    #include SK_ATOMICS_PLATFORM_H
-#endif
+#include "SkAtomics.h"
 
 /** Atomically adds one to the int referenced by addr iff the referenced int was not 0
  *  and returns the previous value.
@@ -65,7 +61,7 @@ template<typename INT_TYPE> static inline INT_TYPE sk_atomic_conditional_inc(INT
     return prev;
 }
 
-// SK_BARRIERS_PLATFORM_H must provide implementations for the following declarations:
+// SkBarriers.h must provide implementations for the following declarations:
 
 /** Prevent the compiler from reordering across this barrier. */
 static void sk_compiler_barrier();
@@ -82,13 +78,9 @@ template <typename T> T sk_acquire_load(T*);
  */
 template <typename T> void sk_release_store(T*, T);
 
-#ifdef GOOGLE3
-    #include "SkBarriers_x86.h"
-#else
-    #include SK_BARRIERS_PLATFORM_H
-#endif
+#include "SkBarriers.h"
 
-/** SK_MUTEX_PLATFORM_H must provide the following (or equivalent) declarations.
+/** SkMutex.h must provide the following (or equivalent) declarations.
 
 class SkBaseMutex {
 public:
@@ -106,12 +98,7 @@ public:
 #define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name = ...
 */
 
-#ifdef GOOGLE3
-    #include "SkMutex_pthread.h"
-#else
-    #include SK_MUTEX_PLATFORM_H
-#endif
-
+#include "SkMutex.h"
 
 class SkAutoMutexAcquire : SkNoncopyable {
 public:
