@@ -97,7 +97,7 @@ protected:
     }
 
 private:
-    const SkAutoTUnref<const SkStream> fStream;
+    const SkAutoTDelete<const SkStream> fStream;
 
     typedef SkTypeface_Custom INHERITED;
 };
