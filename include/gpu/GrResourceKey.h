@@ -46,9 +46,9 @@ public:
     const uint32_t* data() const { return &fKey[kMetaDataCnt]; }
 
     GrScratchKey& operator=(const GrScratchKey& that) {
-        size_t size = that.size();
-        fKey.reset(SkToInt(size));
-        memcpy(fKey.get(), that.fKey.get(), size);
+        size_t bytes = that.size();
+        fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
+        memcpy(fKey.get(), that.fKey.get(), bytes);
         return *this;
     }
 
@@ -95,6 +95,8 @@ private:
     };
     static const uint32_t kInvalidResourceType = 0;
     static const uint32_t kMetaDataCnt = kLastMetaDataIdx + 1;
+
+    friend class TestResource; // For unit test to access kMetaDataCnt.
 
     // Stencil and textures each require 2 uint32_t values.
     SkAutoSTArray<kMetaDataCnt + 2, uint32_t> fKey;
