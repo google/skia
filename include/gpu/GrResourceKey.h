@@ -46,9 +46,9 @@ public:
     const uint32_t* data() const { return &fKey[kMetaDataCnt]; }
 
     GrScratchKey& operator=(const GrScratchKey& that) {
-        size_t size = that.size();
-        fKey.reset(SkToInt(size));
-        memcpy(fKey.get(), that.fKey.get(), size);
+        size_t bytes = that.size();
+        fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
+        memcpy(fKey.get(), that.fKey.get(), bytes);
         return *this;
     }
 
