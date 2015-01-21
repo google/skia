@@ -73,6 +73,9 @@ public:
 
     bool equals(const SkPaint&) const;
 
+    // Only public for SK_DECLARE_STATIC_LAZY_PTR
+    static SkPDFGraphicState* CreateNoSMaskGraphicState();
+
 private:
     const SkPaint fPaint;
     SkTDArray<SkPDFObject*> fResources;

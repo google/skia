@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkLazyPtr.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
@@ -144,30 +145,37 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
     return pdfGraphicState;
 }
 
+namespace {
+SkPDFObject* create_invert_function() {
+    // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
+    // a type 2 function, so we use a type 4 function.
+    SkAutoTUnref<SkPDFArray> domainAndRange(new SkPDFArray);
+    domainAndRange->reserve(2);
+    domainAndRange->appendInt(0);
+    domainAndRange->appendInt(1);
+
+    static const char psInvert[] = "{1 exch sub}";
+    // Do not copy the trailing '\0' into the SkData.
+    SkAutoTUnref<SkData> psInvertStream(
+            SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
+
+    SkPDFStream* invertFunction = SkNEW_ARGS(
+            SkPDFStream, (psInvertStream.get()));
+    invertFunction->insertInt("FunctionType", 4);
+    invertFunction->insert("Domain", domainAndRange.get());
+    invertFunction->insert("Range", domainAndRange.get());
+    return invertFunction;
+}
+
+template <typename T> void unref(T* ptr) { ptr->unref(); }
+}  // namespace
+
+SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject, invertFunction,
+                           create_invert_function, unref<SkPDFObject>);
+
 // static
 SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
-    // This assumes that canonicalPaintsMutex is held.
-    SkPDFCanon::GetPaintMutex().assertHeld();
-    static SkPDFStream* invertFunction = NULL;
-    if (!invertFunction) {
-        // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
-        // a type 2 function, so we use a type 4 function.
-        SkAutoTUnref<SkPDFArray> domainAndRange(new SkPDFArray);
-        domainAndRange->reserve(2);
-        domainAndRange->appendInt(0);
-        domainAndRange->appendInt(1);
-
-        static const char psInvert[] = "{1 exch sub}";
-        // Do not copy the trailing '\0' into the SkData.
-        SkAutoTUnref<SkData> psInvertStream(
-                SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
-
-        invertFunction = new SkPDFStream(psInvertStream.get());
-        invertFunction->insertInt("FunctionType", 4);
-        invertFunction->insert("Domain", domainAndRange.get());
-        invertFunction->insert("Range", domainAndRange.get());
-    }
-    return invertFunction;
+    return invertFunction.get();
 }
 
 // static
@@ -175,7 +183,6 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
         SkPDFFormXObject* sMask, bool invert, SkPDFSMaskMode sMaskMode) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
     SkAutoTUnref<SkPDFDict> sMaskDict(new SkPDFDict("Mask"));
     if (sMaskMode == kAlpha_SMaskMode) {
         sMaskDict->insertName("S", "Alpha");
@@ -202,19 +209,22 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
     return result;
 }
 
+SkPDFGraphicState* SkPDFGraphicState::CreateNoSMaskGraphicState() {
+    SkPDFGraphicState* noSMaskGS = SkNEW(SkPDFGraphicState);
+    noSMaskGS->fPopulated = true;
+    noSMaskGS->fSMask = true;
+    noSMaskGS->insertName("Type", "ExtGState");
+    noSMaskGS->insertName("SMask", "None");
+    return noSMaskGS;
+}
+
+SK_DECLARE_STATIC_LAZY_PTR(
+        SkPDFGraphicState, noSMaskGraphicState,
+        SkPDFGraphicState::CreateNoSMaskGraphicState, unref<SkPDFGraphicState>);
+
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
-    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
-    static SkPDFGraphicState* noSMaskGS = NULL;
-    if (!noSMaskGS) {
-        noSMaskGS = new SkPDFGraphicState;
-        noSMaskGS->fPopulated = true;
-        noSMaskGS->fSMask = true;
-        noSMaskGS->insertName("Type", "ExtGState");
-        noSMaskGS->insertName("SMask", "None");
-    }
-    noSMaskGS->ref();
-    return noSMaskGS;
+    return SkRef(noSMaskGraphicState.get());
 }
 
 SkPDFGraphicState::SkPDFGraphicState()
@@ -270,4 +280,3 @@ void SkPDFGraphicState::populateDict() {
         insertName("BM", as_blend_mode(xfermode));
     }
 }
-
