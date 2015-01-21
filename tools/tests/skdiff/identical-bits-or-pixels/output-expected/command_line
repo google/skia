@@ -1,1 +1,0 @@
-out/Debug/skdiff --nodiffs --match identical-bits --match identical-pixels tools/tests/skdiff/baseDir tools/tests/skdiff/comparisonDir tools/tests/skdiff/identical-bits-or-pixels/output-actual

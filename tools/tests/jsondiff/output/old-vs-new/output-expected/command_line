@@ -1,1 +1,0 @@
-python tools/jsondiff.py tools/tests/jsondiff/input/old.json tools/tests/jsondiff/input/new.json

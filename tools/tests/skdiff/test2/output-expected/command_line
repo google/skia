@@ -1,1 +1,0 @@
-out/Debug/skdiff --failonresult DifferentPixels --failonresult DifferentSizes --failonresult Unknown --failonstatus CouldNotDecode,CouldNotRead any --failonstatus any CouldNotDecode,CouldNotRead --listfilenames --nodiffs tools/tests/skdiff/baseDir tools/tests/skdiff/comparisonDir tools/tests/skdiff/test2/output-actual
