@@ -1369,7 +1369,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     this->flushStencil(optState.getStencil());
     this->flushScissor(optState.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushHWAAState(glRT, optState.isHWAntialiasState(),
-                         kDrawLines_DrawType == optState.drawType());
+                         kDrawLines_DrawType == args.fDrawType);
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).

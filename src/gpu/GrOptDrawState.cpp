@@ -17,10 +17,7 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
                                const GrPrimitiveProcessor* primProc,
                                const GrDrawTargetCaps& caps,
                                const GrScissorState& scissorState,
-                               const GrDeviceCoordTexture* dstCopy,
-                               GrGpu::DrawType drawType) {
-    fDrawType = drawType;
-
+                               const GrDeviceCoordTexture* dstCopy) {
     const GrProcOptInfo& colorPOI = drawState.colorProcInfo(primProc);
     const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(primProc);
 
@@ -145,7 +142,6 @@ bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
         this->fFragmentStages.count() != that.fFragmentStages.count() ||
         this->fNumColorStages != that.fNumColorStages ||
         this->fScissorState != that.fScissorState ||
-        this->fDrawType != that.fDrawType ||
         this->fFlags != that.fFlags ||
         this->fStencilSettings != that.fStencilSettings ||
         this->fDrawFace != that.fDrawFace ||

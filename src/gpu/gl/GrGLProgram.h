@@ -128,7 +128,7 @@ protected:
      * Legacy NVPR needs a hook here to flush path tex gen settings.
      * TODO when legacy nvpr is removed, remove this call.
      */
-    virtual void didSetData(GrGpu::DrawType);
+    virtual void didSetData() {}
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
@@ -175,7 +175,7 @@ protected:
                     GrGLInstalledFragProcs* fragmentProcessors);
 
 private:
-    void didSetData(GrGpu::DrawType) SK_OVERRIDE;
+    void didSetData() SK_OVERRIDE;
     virtual void setTransformData(const GrPrimitiveProcessor&,
                                   const GrPendingFragmentStage&,
                                   int index,

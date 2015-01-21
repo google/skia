@@ -287,6 +287,7 @@ protected:
     const GrProgramDesc& desc() const { return *fArgs.fDesc; }
     const GrBatchTracker& batchTracker() const { return *fArgs.fBatchTracker; }
     const GrProgramDesc::KeyHeader& header() const { return fArgs.fDesc->header(); }
+    GrGpu::DrawType drawType() const { return fArgs.fDrawType; }
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're

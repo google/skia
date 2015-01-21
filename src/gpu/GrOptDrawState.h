@@ -31,7 +31,7 @@ public:
 
     GrOptDrawState(const GrDrawState& drawState, const GrPrimitiveProcessor*,
                    const GrDrawTargetCaps&, const GrScissorState&,
-                   const GrDeviceCoordTexture* dstCopy, GrGpu::DrawType);
+                   const GrDeviceCoordTexture* dstCopy);
 
     /*
      * Returns true if it is possible to combine the two GrOptDrawStates and it will update 'this'
@@ -128,8 +128,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    GrGpu::DrawType drawType() const { return fDrawType; }
-
     const GrDeviceCoordTexture* getDstCopy() const { return fDstCopy.texture() ? &fDstCopy : NULL; }
 
     const GrProgramDesc::DescInfo& descInfo() const { return fDescInfo; }
@@ -171,7 +169,6 @@ private:
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
-    GrGpu::DrawType                     fDrawType;
     GrProgramDesc::DescInfo             fDescInfo;
     GrGeometryProcessor::InitBT         fInitBT;
 

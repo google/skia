@@ -366,17 +366,20 @@ public:
         DrawArgs(const GrPrimitiveProcessor* primProc,
                  const GrOptDrawState* optState,
                  const GrProgramDesc* desc,
-                 const GrBatchTracker* batchTracker)
+                 const GrBatchTracker* batchTracker,
+                 DrawType drawType)
             : fPrimitiveProcessor(primProc)
             , fOptState(optState)
             , fDesc(desc)
-            , fBatchTracker(batchTracker) {
+            , fBatchTracker(batchTracker)
+            , fDrawType(drawType) {
             SkASSERT(primProc && optState && desc && batchTracker);
         }
         const GrPrimitiveProcessor* fPrimitiveProcessor;
         const GrOptDrawState* fOptState;
         const GrProgramDesc* fDesc;
         const GrBatchTracker* fBatchTracker;
+        DrawType fDrawType;
     };
 
     void draw(const DrawArgs&, const GrDrawTarget::DrawInfo&);

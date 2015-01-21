@@ -435,7 +435,7 @@ void GrInOrderDrawBuffer::onFlush() {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
             this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fState,
-                                             ss->fState.descInfo(), ss->fState.drawType(),
+                                             ss->fState.descInfo(), ss->fDrawType,
                                              ss->fBatchTracker);
             currentState = ss;
 
@@ -455,7 +455,7 @@ void GrInOrderDrawBuffer::onFlush() {
 void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
-                  &state->fBatchTracker);
+                  &state->fBatchTracker, state->fDrawType);
     buf->getGpu()->draw(args, fInfo);
 }
 
@@ -473,14 +473,14 @@ void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const S
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
-                  &state->fBatchTracker);
+                  &state->fBatchTracker, state->fDrawType);
     buf->getGpu()->drawPath(args, this->path(), fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
-                  &state->fBatchTracker);
+                  &state->fBatchTracker, state->fDrawType);
     buf->getGpu()->drawPaths(args, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
@@ -536,6 +536,7 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                               ss->fState.getInitBatchTracker());
 
     if (fPrevState &&
+        fPrevState->fDrawType == ss->fDrawType &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *ss->fPrimitiveProcessor,
                                                       ss->fBatchTracker) &&

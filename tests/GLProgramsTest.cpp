@@ -312,7 +312,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        GrOptDrawState ods(ds, primProc, *gpu->caps(), scissor, &dstCopy, drawType);
+        GrOptDrawState ods(ds, primProc, *gpu->caps(), scissor, &dstCopy);
         if (ods.mustSkip()) {
             continue;
         }
@@ -320,9 +320,9 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         primProc->initBatchTracker(&bt, ods.getInitBatchTracker());
 
         GrProgramDesc desc;
-        gpu->buildProgramDesc(&desc, *primProc, ods, ods.descInfo(), ods.drawType(), bt);
+        gpu->buildProgramDesc(&desc, *primProc, ods, ods.descInfo(), drawType, bt);
 
-        GrGpu::DrawArgs args(primProc, &ods, &desc, &bt);
+        GrGpu::DrawArgs args(primProc, &ods, &desc, &bt, drawType);
         SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(args, gpu));
 
         if (NULL == program.get()) {

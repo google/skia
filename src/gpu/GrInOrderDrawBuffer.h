@@ -185,7 +185,8 @@ private:
                  GrGpu::DrawType drawType)
         : Cmd(kSetState_Cmd)
         , fPrimitiveProcessor(primProc)
-        , fState(drawState, primProc, caps, scissor, dstCopy, drawType) {}
+        , fState(drawState, primProc, caps, scissor, dstCopy)
+        , fDrawType(drawType) {}
 
         void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
@@ -194,6 +195,7 @@ private:
         const GrOptDrawState        fState;
         GrProgramDesc               fDesc;
         GrBatchTracker              fBatchTracker;
+        GrGpu::DrawType             fDrawType;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
