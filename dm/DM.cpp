@@ -171,16 +171,10 @@ static Sink* create_sink(const char* tag) {
 
 static Sink* create_via(const char* tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (0 == strcmp(t, tag)) { return new via(__VA_ARGS__); }
+    VIA("pipe",      ViaPipe,          wrapped);
     VIA("serialize", ViaSerialization, wrapped);
-
-    VIA("tiles",    ViaTiles, 256, 256,               NULL, wrapped);
-    VIA("tiles_rt", ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
-
-    const int xp = SkGPipeWriter::kCrossProcess_Flag,
-              sa = xp | SkGPipeWriter::kSharedAddressSpace_Flag;
-    VIA("pipe",    ViaPipe,  0, wrapped);
-    VIA("pipe_xp", ViaPipe, xp, wrapped);
-    VIA("pipe_sa", ViaPipe, sa, wrapped);
+    VIA("tiles",     ViaTiles, 256, 256,               NULL, wrapped);
+    VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 
     if (FLAGS_matrix.count() == 9) {
         SkMatrix m;

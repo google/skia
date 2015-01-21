@@ -133,13 +133,12 @@ private:
 
 class ViaPipe : public Sink {
 public:
-    ViaPipe(int flags, Sink*);
+    explicit ViaPipe(Sink*);
 
     Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return fSink->enclave(); }
     const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
 private:
-    SkGPipeWriter::Flags fFlags;
     SkAutoTDelete<Sink>  fSink;
 };
 

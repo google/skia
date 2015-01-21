@@ -230,25 +230,25 @@ Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ViaPipe::ViaPipe(int flags, Sink* sink) : fFlags((SkGPipeWriter::Flags)flags), fSink(sink) {}
+ViaPipe::ViaPipe(Sink* sink) : fSink(sink) {}
 
 Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
-    // We turn our arguments into a Src, then draw that Src into our Sink to fill bitmap or stream.
+    // We turn ourselves into another Src that draws our argument into bitmap/stream via pipe.
     struct ProxySrc : public Src {
         const Src& fSrc;
-        SkGPipeWriter::Flags fFlags;
-        ProxySrc(const Src& src, SkGPipeWriter::Flags flags) : fSrc(src), fFlags(flags) {}
+        ProxySrc(const Src& src) : fSrc(src) {}
 
         Error draw(SkCanvas* canvas) const SK_OVERRIDE {
             SkISize size = this->size();
             // TODO: is DecodeMemory really required? Might help RAM usage to be lazy if we can.
             PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
             SkGPipeWriter pipe;
-            return fSrc.draw(pipe.startRecording(&controller, fFlags, size.width(), size.height()));
+            const uint32_t kFlags = 0; // We mirror SkDeferredCanvas, which doesn't use any flags.
+            return fSrc.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
         }
         SkISize size() const SK_OVERRIDE { return fSrc.size(); }
         Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(src, fFlags);
+    } proxy(src);
     return fSink->draw(proxy, bitmap, stream);
 }
 
