@@ -940,8 +940,10 @@ bool SkJPEGImageDecoder::onDecodeYUV8Planes(SkStream* stream, SkISize componentS
 bool SkJPEGImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int *width, int *height) {
 
     SkAutoTDelete<SkJPEGImageIndex> imageIndex(SkNEW_ARGS(SkJPEGImageIndex, (stream, this)));
+    jpeg_decompress_struct* cinfo = imageIndex->cinfo();
 
     skjpeg_error_mgr sk_err;
+    set_error_mgr(cinfo, &sk_err);
 
     // All objects need to be instantiated before this setjmp call so that
     // they will be cleaned up properly if an error occurs.
@@ -965,9 +967,6 @@ bool SkJPEGImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int *width
     if (!imageIndex->initializeInfoAndReadHeader()) {
         return false;
     }
-
-    jpeg_decompress_struct* cinfo = imageIndex->cinfo();
-    set_error_mgr(cinfo, &sk_err);
 
     // FIXME: This sets cinfo->out_color_space, which we may change later
     // based on the config in onDecodeSubset. This should be fine, since
