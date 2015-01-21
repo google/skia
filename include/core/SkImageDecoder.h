@@ -243,6 +243,8 @@ public:
      * The built index will be saved in the decoder, and the image size will
      * be returned in width and height.
      *
+     * Takes ownership of the SkStreamRewindable, on success or failure.
+     *
      * Return true for success or false on failure.
      */
     bool buildTileIndex(SkStreamRewindable*, int *width, int *height);
@@ -307,11 +309,9 @@ protected:
     // must be overridden in subclasses. This guy is called by decode(...)
     virtual Result onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
 
-    // If the decoder wants to support tiled based decoding,
-    // this method must be overridden. This guy is called by buildTileIndex(...)
-    virtual bool onBuildTileIndex(SkStreamRewindable*, int* /*width*/, int* /*height*/) {
-        return false;
-    }
+    // If the decoder wants to support tiled based decoding, this method must be overridden.
+    // This is called by buildTileIndex(...)
+    virtual bool onBuildTileIndex(SkStreamRewindable*, int* /*width*/, int* /*height*/);
 
     // If the decoder wants to support tiled based decoding,
     // this method must be overridden. This guy is called by decodeRegion(...)

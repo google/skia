@@ -158,7 +158,7 @@ static SkData* handle_type1_stream(SkStream* srcStream, size_t* headerLen,
     // if the data was NUL terminated so that we can use strstr() to search it.
     // Make as few copies as possible given these constraints.
     SkDynamicMemoryWStream dynamicStream;
-    SkAutoTUnref<SkMemoryStream> staticStream;
+    SkAutoTDelete<SkMemoryStream> staticStream;
     SkData* data = NULL;
     const uint8_t* src;
     size_t srcLen;
@@ -586,7 +586,7 @@ static size_t get_subset_font_stream(const char* fontName,
                                      const SkTDArray<uint32_t>& subset,
                                      SkPDFStream** fontStream) {
     int ttcIndex;
-    SkAutoTUnref<SkStream> fontData(typeface->openStream(&ttcIndex));
+    SkAutoTDelete<SkStream> fontData(typeface->openStream(&ttcIndex));
     SkASSERT(fontData.get());
 
     size_t fontSize = fontData->getLength();
@@ -1091,7 +1091,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
                 fontStream.reset(rawStream);
             } else {
                 int ttcIndex;
-                SkAutoTUnref<SkStream> fontData(
+                SkAutoTDelete<SkStream> fontData(
                         typeface()->openStream(&ttcIndex));
                 fontStream.reset(new SkPDFStream(fontData.get()));
                 fontSize = fontData->getLength();
@@ -1108,7 +1108,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
         case SkAdvancedTypefaceMetrics::kCFF_Font:
         case SkAdvancedTypefaceMetrics::kType1CID_Font: {
             int ttcIndex;
-            SkAutoTUnref<SkStream> fontData(typeface()->openStream(&ttcIndex));
+            SkAutoTDelete<SkStream> fontData(typeface()->openStream(&ttcIndex));
             SkAutoTUnref<SkPDFStream> fontStream(
                 new SkPDFStream(fontData.get()));
             addResource(fontStream.get());
@@ -1238,7 +1238,7 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     size_t header SK_INIT_TO_AVOID_WARNING;
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
-    SkAutoTUnref<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
+    SkAutoTDelete<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
     SkAutoTUnref<SkData> fontData(handle_type1_stream(rawFontData.get(), &header,
                                                       &data, &trailer));
     if (fontData.get() == NULL) {
@@ -1405,7 +1405,7 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
             SkPDFUtils::PaintPath(paint.getStyle(), path->getFillType(),
                                   &content);
         }
-        SkAutoTUnref<SkMemoryStream> glyphStream(new SkMemoryStream());
+        SkAutoTDelete<SkMemoryStream> glyphStream(new SkMemoryStream());
         glyphStream->setData(content.copyToData())->unref();
 
         SkAutoTUnref<SkPDFStream> glyphDescription(

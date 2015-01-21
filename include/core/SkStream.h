@@ -36,16 +36,24 @@ class SkStreamMemory;
  *  no more data (at EOF or hit an error). The caller should *not* call again
  *  in hopes of fulfilling more of the request.
  */
-class SK_API SkStream : public SkRefCnt { //TODO: remove SkRefCnt
+class SK_API SkStream : public SkNoncopyable {
 public:
+    virtual ~SkStream() {}
+
+    /**
+     *  @deprecated
+     *  SkStream is no longer ref counted, but we leave this here for staging.
+     */
+    void unref() {
+        SkDebugf("SkStream is no longer ref counted!");
+    }
+
     /**
      *  Attempts to open the specified file, and return a stream to it (using
-     *  mmap if available). On success, the caller must call unref() on the
-     *  returned object. On failure, returns NULL.
+     *  mmap if available). On success, the caller is responsible for deleting.
+     *  On failure, returns NULL.
      */
     static SkStreamAsset* NewFromFile(const char path[]);
-
-    SK_DECLARE_INST_COUNT(SkStream)
 
     /** Reads or skips size number of bytes.
      *  If buffer == NULL, skip size bytes, return how many were skipped.
@@ -125,9 +133,6 @@ public:
     /** Returns the starting address for the data. If this cannot be done, returns NULL. */
     //TODO: replace with virtual const SkData* getData()
     virtual const void* getMemoryBase() { return NULL; }
-
-private:
-    typedef SkRefCnt INHERITED;
 };
 
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */

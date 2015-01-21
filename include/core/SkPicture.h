@@ -80,7 +80,7 @@ public:
 
     /**
      *  Recreate a picture that was serialized into a stream.
-     *  @param SkStream Serialized picture data.
+     *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
      *  @param proc Function pointer for installing pixelrefs on SkBitmaps representing the
      *              encoded bitmap data from the stream.
      *  @return A new SkPicture representing the serialized data, or NULL if the stream is

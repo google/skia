@@ -132,7 +132,7 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
         // should have been provided by CreateFromStream()
         *ttcIndex = 0;
 
-        SkAutoTUnref<SkStream> dupStream(stream->duplicate());
+        SkAutoTDelete<SkStream> dupStream(stream->duplicate());
         if (dupStream) {
             return dupStream.detach();
         }
@@ -148,13 +148,10 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
         SkAutoTMalloc<uint8_t> allocMemory(length);
         stream->rewind();
         if (length == stream->read(allocMemory.get(), length)) {
-            SkAutoTUnref<SkMemoryStream> copyStream(new SkMemoryStream());
+            SkAutoTDelete<SkMemoryStream> copyStream(new SkMemoryStream());
             copyStream->setMemoryOwned(allocMemory.detach(), length);
             return copyStream.detach();
         }
-
-        stream->rewind();
-        stream->ref();
     } else {
         SkAutoTUnref<SkFontConfigInterface> fci(RefFCI());
         if (NULL == fci.get()) {

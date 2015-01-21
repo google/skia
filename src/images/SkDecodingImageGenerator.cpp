@@ -24,11 +24,11 @@ class DecodingImageGenerator : public SkImageGenerator {
 public:
     virtual ~DecodingImageGenerator();
 
-    SkData*                fData;
-    SkStreamRewindable*    fStream;
-    const SkImageInfo      fInfo;
-    const int              fSampleSize;
-    const bool             fDitherImage;
+    SkData*                             fData;
+    SkAutoTDelete<SkStreamRewindable>   fStream;
+    const SkImageInfo                   fInfo;
+    const int                           fSampleSize;
+    const bool                          fDitherImage;
 
     DecodingImageGenerator(SkData* data,
                            SkStreamRewindable* stream,
@@ -128,7 +128,6 @@ DecodingImageGenerator::DecodingImageGenerator(
 
 DecodingImageGenerator::~DecodingImageGenerator() {
     SkSafeUnref(fData);
-    fStream->unref();
 }
 
 SkData* DecodingImageGenerator::onRefEncodedData() {
@@ -227,7 +226,7 @@ SkImageGenerator* CreateDecodingImageGenerator(
         SkStreamRewindable* stream,
         const SkDecodingImageGenerator::Options& opts) {
     SkASSERT(stream);
-    SkAutoTUnref<SkStreamRewindable> autoStream(stream);  // always unref this.
+    SkAutoTDelete<SkStreamRewindable> autoStream(stream);  // always delete this
     SkAssertResult(autoStream->rewind());
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(autoStream));
     if (NULL == decoder.get()) {
@@ -280,7 +279,6 @@ SkImageGenerator* SkDecodingImageGenerator::Create(
     }
     SkStreamRewindable* stream = SkNEW_ARGS(SkMemoryStream, (data));
     SkASSERT(stream != NULL);
-    SkASSERT(stream->unique());
     return CreateDecodingImageGenerator(data, stream, opts);
 }
 
@@ -288,9 +286,7 @@ SkImageGenerator* SkDecodingImageGenerator::Create(
         SkStreamRewindable* stream,
         const SkDecodingImageGenerator::Options& opts) {
     SkASSERT(stream != NULL);
-    SkASSERT(stream->unique());
-    if ((stream == NULL) || !stream->unique()) {
-        SkSafeUnref(stream);
+    if (stream == NULL) {
         return NULL;
     }
     return CreateDecodingImageGenerator(NULL, stream, opts);

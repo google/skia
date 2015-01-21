@@ -15,7 +15,7 @@ class SkFontDescriptor;
 class FontConfigTypeface : public SkTypeface_FreeType {
     SkFontConfigInterface::FontIdentity fIdentity;
     SkString fFamilyName;
-    SkStream* fLocalStream;
+    SkAutoTDelete<SkStream> fLocalStream;
 
 public:
     static FontConfigTypeface* Create(const SkFontStyle& style,
@@ -29,16 +29,12 @@ public:
         return SkNEW_ARGS(FontConfigTypeface, (style, fixedWidth, localStream));
     }
 
-    virtual ~FontConfigTypeface() {
-        SkSafeUnref(fLocalStream);
-    }
-
     const SkFontConfigInterface::FontIdentity& getIdentity() const {
         return fIdentity;
     }
 
     const char* getFamilyName() const { return fFamilyName.c_str(); }
-    SkStream*   getLocalStream() const { return fLocalStream; }
+    SkStream*   getLocalStream() const { return fLocalStream.get(); }
 
     bool isFamilyName(const char* name) const {
         return fFamilyName.equals(name);
@@ -60,10 +56,9 @@ protected:
             , fLocalStream(NULL) {}
 
     FontConfigTypeface(const SkFontStyle& style, bool fixedWidth, SkStream* localStream)
-            : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth) {
+            : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth)
+            , fLocalStream(localStream) {
         // we default to empty fFamilyName and fIdentity
-        fLocalStream = localStream;
-        SkSafeRef(localStream);
     }
 
     void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;

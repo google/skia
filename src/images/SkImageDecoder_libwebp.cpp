@@ -95,13 +95,9 @@ static bool webp_parse_header(SkStream* stream, int* width, int* height, int* al
 class SkWEBPImageDecoder: public SkImageDecoder {
 public:
     SkWEBPImageDecoder() {
-        fInputStream = NULL;
         fOrigWidth = 0;
         fOrigHeight = 0;
         fHasAlpha = 0;
-    }
-    virtual ~SkWEBPImageDecoder() {
-        SkSafeUnref(fInputStream);
     }
 
     Format getFormat() const SK_OVERRIDE {
@@ -125,7 +121,7 @@ private:
 
     bool setDecodeConfig(SkBitmap* decodedBitmap, int width, int height);
 
-    SkStream* fInputStream;
+    SkAutoTDelete<SkStream> fInputStream;
     int fOrigWidth;
     int fOrigHeight;
     int fHasAlpha;
@@ -316,6 +312,7 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap, int width, int
 
 bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
                                           int *width, int *height) {
+    SkAutoTDelete<SkStreamRewindable> streamDeleter(stream);
     int origWidth, origHeight, hasAlpha;
     if (!webp_parse_header(stream, &origWidth, &origHeight, &hasAlpha)) {
         return false;
@@ -329,7 +326,7 @@ bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
     *width = origWidth;
     *height = origHeight;
 
-    SkRefCnt_SafeAssign(this->fInputStream, stream);
+    this->fInputStream.reset(streamDeleter.detach());
     this->fOrigWidth = origWidth;
     this->fOrigHeight = origHeight;
     this->fHasAlpha = hasAlpha;

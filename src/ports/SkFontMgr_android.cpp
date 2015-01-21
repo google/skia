@@ -104,7 +104,7 @@ public:
                              bool isFixedPitch,
                              const SkString& familyName)
         : INHERITED(index, style, isFixedPitch, familyName)
-        , fStream(SkRef(stream)) { }
+        , fStream(stream) { }
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc,
                                      bool* serialize) const SK_OVERRIDE {
@@ -121,7 +121,7 @@ public:
     }
 
 private:
-    SkAutoTUnref<SkStream> fStream;
+    SkAutoTDelete<SkStream> fStream;
 
     typedef SkTypeface_Android INHERITED;
 };
@@ -152,7 +152,7 @@ public:
             SkString pathName;
             get_path_for_sys_fonts(basePath, fontFile.fFileName, &pathName);
 
-            SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(pathName.c_str()));
+            SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(pathName.c_str()));
             if (!stream.get()) {
                 DEBUG_FONT(("---- SystemFonts[%d] file=%s (NOT EXIST)", i, pathName.c_str()));
                 continue;
@@ -409,23 +409,23 @@ protected:
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTUnref<SkStream> stream(new SkMemoryStream(data));
-        return this->createFromStream(stream, ttcIndex);
+        return this->createFromStream(new SkMemoryStream(data), ttcIndex);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-        return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+        return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 
     SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStream> streamDeleter(stream);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
         if (!fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return NULL;
         }
-        return SkNEW_ARGS(SkTypeface_AndroidStream, (stream, ttcIndex,
+        return SkNEW_ARGS(SkTypeface_AndroidStream, (streamDeleter.detach(), ttcIndex,
                                                      style, isFixedPitch, name));
     }
 

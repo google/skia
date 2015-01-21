@@ -58,7 +58,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
-        SkAutoTUnref<SkStreamAsset> stream2(stream.duplicate());
+        SkAutoTDelete<SkStreamAsset> stream2(stream.duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
 
@@ -68,7 +68,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
-        SkAutoTUnref<SkStreamAsset> stream2(stream.duplicate());
+        SkAutoTDelete<SkStreamAsset> stream2(stream.duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
 }
@@ -91,15 +91,15 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
 
     {
-        SkAutoTUnref<SkStreamAsset> stream(ds.detachAsStream());
+        SkAutoTDelete<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, 100 * 26 == stream->getLength());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
-        SkAutoTUnref<SkStreamAsset> stream2(stream->duplicate());
+        SkAutoTDelete<SkStreamAsset> stream2(stream->duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
 
-        SkAutoTUnref<SkStreamAsset> stream3(stream->fork());
+        SkAutoTDelete<SkStreamAsset> stream3(stream->fork());
         REPORTER_ASSERT(reporter, stream3->isAtEnd());
         char tmp;
         size_t bytes = stream->read(&tmp, 1);
@@ -121,11 +121,11 @@ static void TestWStream(skiatest::Reporter* reporter) {
 
     {
         // Test that this works after a copyToData.
-        SkAutoTUnref<SkStreamAsset> stream(ds.detachAsStream());
+        SkAutoTDelete<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
-        SkAutoTUnref<SkStreamAsset> stream2(stream->duplicate());
+        SkAutoTDelete<SkStreamAsset> stream2(stream->duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
     delete[] dst;

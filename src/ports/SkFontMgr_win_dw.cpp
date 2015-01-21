@@ -34,6 +34,7 @@ public:
         UINT32 fontFileReferenceKeySize,
         IDWriteFontFileStream** fontFileStream);
 
+    // Takes ownership of stream.
     static HRESULT Create(SkStream* stream, StreamFontFileLoader** streamFontFileLoader) {
         *streamFontFileLoader = new StreamFontFileLoader(stream);
         if (NULL == streamFontFileLoader) {
@@ -42,10 +43,10 @@ public:
         return S_OK;
     }
 
-    SkAutoTUnref<SkStream> fStream;
+    SkAutoTDelete<SkStream> fStream;
 
 private:
-    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(SkRef(stream)) { }
+    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(stream) { }
     virtual ~StreamFontFileLoader() { }
 
     ULONG fRefCount;
@@ -80,7 +81,7 @@ HRESULT StreamFontFileLoader::CreateStreamFromKey(
     IDWriteFontFileStream** fontFileStream)
 {
     SkTScopedComPtr<SkDWriteFontFileStreamWrapper> stream;
-    HR(SkDWriteFontFileStreamWrapper::Create(fStream, &stream));
+    HR(SkDWriteFontFileStreamWrapper::Create(fStream->duplicate(), &stream));
     *fontFileStream = stream.release();
     return S_OK;
 }
@@ -535,6 +536,7 @@ private:
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromStream(SkStream* stream, int ttcIndex) const {
     SkTScopedComPtr<StreamFontFileLoader> fontFileLoader;
+    // This transfers ownership of stream to the new object.
     HRN(StreamFontFileLoader::Create(stream, &fontFileLoader));
     HRN(fFactory->RegisterFontFileLoader(fontFileLoader.get()));
     SkAutoIDWriteUnregister<StreamFontFileLoader> autoUnregisterFontFileLoader(
@@ -580,13 +582,11 @@ SkTypeface* SkFontMgr_DirectWrite::onCreateFromStream(SkStream* stream, int ttcI
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromData(SkData* data, int ttcIndex) const {
-    SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
-    return this->createFromStream(stream, ttcIndex);
+    return this->createFromStream(SkNEW_ARGS(SkMemoryStream, (data)), ttcIndex);
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromFile(const char path[], int ttcIndex) const {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-    return this->createFromStream(stream, ttcIndex);
+    return this->createFromStream(SkStream::NewFromFile(path), ttcIndex);
 }
 
 HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],

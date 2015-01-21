@@ -42,7 +42,7 @@ const char* get_skin_enum_path(SkinEnum se)
 void init_skin_anim(const char path[], SkAnimator* anim) {
     SkASSERT(path && anim);
 
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
     if (!stream.get()) {
         SkDEBUGF(("init_skin_anim: loading skin failed <%s>\n", path));
         sk_throw();

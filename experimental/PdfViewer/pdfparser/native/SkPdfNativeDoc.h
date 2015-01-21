@@ -69,6 +69,7 @@ public:
 
     // TODO(edisonn) should be deprecated
     // FIXME: Untested.
+    // Does not affect ownership of stream.
     SkPdfNativeDoc(SkStream* stream);
 
     ~SkPdfNativeDoc();

@@ -105,8 +105,10 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
 #ifdef SK_BUILD_FOR_ANDROID
 class SkJPEGImageIndex {
 public:
+    // Takes ownership of stream.
     SkJPEGImageIndex(SkStreamRewindable* stream, SkImageDecoder* decoder)
         : fSrcMgr(stream, decoder)
+        , fStream(stream)
         , fInfoInitialized(false)
         , fHuffmanCreated(false)
         , fDecompressStarted(false)
@@ -206,6 +208,7 @@ public:
 
 private:
     skjpeg_source_mgr  fSrcMgr;
+    SkAutoTDelete<SkStream> fStream;
     jpeg_decompress_struct fCInfo;
     huffman_index fHuffmanIndex;
     bool fInfoInitialized;

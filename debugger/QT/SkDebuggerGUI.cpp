@@ -738,13 +738,12 @@ void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
 void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
-    SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.c_str()));
+    SkAutoTDelete<SkStream> stream(SkNEW_ARGS(SkFILEStream, (fileName.c_str())));
 
     SkPicture* picture = SkPicture::CreateFromStream(stream);
 
     if (NULL == picture) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
-        SkSafeUnref(stream);
         return;
     }
 
@@ -756,7 +755,6 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
         fSkipCommands[i] = false;
     }
 
-    SkSafeUnref(stream);
     SkSafeUnref(picture);
 
     fActionProfile.setDisabled(false);

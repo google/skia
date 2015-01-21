@@ -33,6 +33,8 @@ struct SkOTUtils {
       *  UnicodeBMPUCS2, and English_UnitedStates settings.
       *
       *  fontName and fontNameLen must be specified in terms of ASCII chars.
+      *
+      *  Does not affect fontData's ownership.
       */
     static SkData* RenameFont(SkStream* fontData, const char* fontName, int fontNameLen);
 

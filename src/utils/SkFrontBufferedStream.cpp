@@ -31,7 +31,7 @@ public:
     SkStreamRewindable* duplicate() const SK_OVERRIDE { return NULL; }
 
 private:
-    SkAutoTUnref<SkStream>  fStream;
+    SkAutoTDelete<SkStream> fStream;
     const bool              fHasLength;
     const size_t            fLength;
     // Current offset into the stream. Always >= 0.
@@ -71,7 +71,7 @@ SkStreamRewindable* SkFrontBufferedStream::Create(SkStream* stream, size_t buffe
 }
 
 FrontBufferedStream::FrontBufferedStream(SkStream* stream, size_t bufferSize)
-    : fStream(SkRef(stream))
+    : fStream(stream)
     , fHasLength(stream->hasPosition() && stream->hasLength())
     , fLength(stream->getLength() - stream->getPosition())
     , fOffset(0)

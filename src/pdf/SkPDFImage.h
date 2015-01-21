@@ -82,6 +82,7 @@ private:
      *  @param stream     The image stream. May be NULL. Otherwise, this
      *                    (instead of the input bitmap) will be used as the
      *                    PDF's content stream, possibly with lossless encoding.
+     *                    Will be duplicated, and left in indeterminate state.
      *  @param bitmap     The image. If a stream is not given, its color data
      *                    will be used as the image. If a stream is given, this
      *                    is used for configuration only.

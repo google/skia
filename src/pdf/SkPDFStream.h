@@ -93,10 +93,7 @@ private:
     // Mutex guards fState, fDataStream, and fSubstitute in public interface.
     SkMutex fMutex;
 
-    SkMemoryStream fMemoryStream;  // Used by fDataStream when
-                                   // fDataStream needs to be backed
-                                   // by SkData.
-    SkAutoTUnref<SkStreamRewindable> fDataStream;
+    SkAutoTDelete<SkStreamRewindable> fDataStream;
     SkAutoTUnref<SkPDFStream> fSubstitute;
 
     typedef SkPDFDict INHERITED;

@@ -58,6 +58,7 @@ struct SkPictInfo {
 class SkPictureData {
 public:
     SkPictureData(const SkPictureRecord& record, const SkPictInfo&, bool deepCopyOps);
+    // Does not affect ownership of SkStream.
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
                                            SkPicture::InstallPixelRefProc);
@@ -79,6 +80,7 @@ public:
 protected:
     explicit SkPictureData(const SkPictInfo& info);
 
+    // Does not affect ownership of SkStream.
     bool parseStream(SkStream*, SkPicture::InstallPixelRefProc);
     bool parseBuffer(SkReadBuffer& buffer);
 
@@ -135,6 +137,7 @@ private:
     void init();
 
     // these help us with reading/writing
+    // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size, SkPicture::InstallPixelRefProc);
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;

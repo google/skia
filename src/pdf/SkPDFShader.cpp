@@ -737,7 +737,7 @@ SkPDFGraphicState* SkPDFAlphaFunctionShader::CreateSMaskGraphicState() {
     SkAutoTUnref<SkPDFObject> luminosityShader(SkPDFShader::GetPDFShaderByState(
             fShaderState->CreateAlphaToLuminosityState()));
 
-    SkAutoTUnref<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
+    SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
     SkAutoTUnref<SkPDFResourceDict>
         resources(get_gradient_resource_dict(luminosityShader, NULL));
@@ -764,7 +764,7 @@ SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFShader::State* state)
     fResourceDict.reset(
             get_gradient_resource_dict(fColorShader.get(), alphaGs.get()));
 
-    SkAutoTUnref<SkStream> colorStream(
+    SkAutoTDelete<SkStream> colorStream(
             create_pattern_fill_content(0, bbox));
     setData(colorStream.get());
 
@@ -1131,7 +1131,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
     }
 
     // Put the canvas into the pattern stream (fContent).
-    SkAutoTUnref<SkStream> content(pattern.content());
+    SkAutoTDelete<SkStream> content(pattern.content());
     setData(content.get());
     SkPDFResourceDict* resourceDict = pattern.getResourceDict();
     resourceDict->getReferencedResources(fResources, &fResources, false);

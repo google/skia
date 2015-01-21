@@ -26,10 +26,12 @@ public:
      *  @param stream SkStream to buffer. If stream is NULL, NULL is
      *      returned. When this call succeeds (i.e. returns non NULL),
      *      SkFrontBufferedStream is expected to be the only owner of
-     *      stream, so it should be unreffed and no longer used directly.
+     *      stream, so it should no be longer used directly.
+     *      SkFrontBufferedStream will delete stream upon deletion.
      *  @param minBufferSize Minimum size of buffer required.
      *  @return An SkStream that can buffer at least minBufferSize, or
-     *      NULL on failure.
+     *      NULL on failure. The caller is required to delete when finished with
+     *      this object.
      */
     static SkStreamRewindable* Create(SkStream* stream, size_t minBufferSize);
 };

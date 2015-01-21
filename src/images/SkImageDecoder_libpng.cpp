@@ -53,13 +53,13 @@ SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
 
 class SkPNGImageIndex {
 public:
+    // Takes ownership of stream.
     SkPNGImageIndex(SkStreamRewindable* stream, png_structp png_ptr, png_infop info_ptr)
         : fStream(stream)
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)
         , fColorType(kUnknown_SkColorType) {
         SkASSERT(stream != NULL);
-        stream->ref();
     }
     ~SkPNGImageIndex() {
         if (fPng_ptr) {
@@ -67,7 +67,7 @@ public:
         }
     }
 
-    SkAutoTUnref<SkStreamRewindable>    fStream;
+    SkAutoTDelete<SkStreamRewindable>   fStream;
     png_structp                         fPng_ptr;
     png_infop                           fInfo_ptr;
     SkColorType                         fColorType;
@@ -718,6 +718,7 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
 #ifdef SK_BUILD_FOR_ANDROID
 
 bool SkPNGImageDecoder::onBuildTileIndex(SkStreamRewindable* sk_stream, int *width, int *height) {
+    SkAutoTDelete<SkStreamRewindable> streamDeleter(sk_stream);
     png_structp png_ptr;
     png_infop   info_ptr;
 
@@ -743,7 +744,7 @@ bool SkPNGImageDecoder::onBuildTileIndex(SkStreamRewindable* sk_stream, int *wid
     if (fImageIndex) {
         SkDELETE(fImageIndex);
     }
-    fImageIndex = SkNEW_ARGS(SkPNGImageIndex, (sk_stream, png_ptr, info_ptr));
+    fImageIndex = SkNEW_ARGS(SkPNGImageIndex, (streamDeleter.detach(), png_ptr, info_ptr));
 
     return true;
 }

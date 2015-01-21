@@ -216,13 +216,13 @@ protected:
            void setFont(SkPaint* paint) SK_OVERRIDE {
                if (!fTypeface) {
                     SkString filename = GetResourcePath("/Funkster.ttf");
-                    SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
+                    SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
                     if (!stream->isValid()) {
                         SkDebugf("Could not find Funkster.ttf, please set --resourcePath "
                                  "correctly.\n");
                         return;
                     }
-                    fTypeface.reset(SkTypeface::CreateFromStream(stream));
+                    fTypeface.reset(SkTypeface::CreateFromStream(stream.detach()));
                }
                paint->setTypeface(fTypeface);
             }

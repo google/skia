@@ -2084,7 +2084,7 @@ void SkPaint::toString(SkString* str) const {
     if (typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
-        SkAutoTUnref<SkStreamAsset> istream(ostream.detachAsStream());
+        SkAutoTDelete<SkStreamAsset> istream(ostream.detachAsStream());
         SkFontDescriptor descriptor(istream);
 
         str->append("<dt>Font Family Name:</dt><dd>");

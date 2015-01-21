@@ -476,7 +476,7 @@ public:
             return false;
         }
 
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
         if (stream.get() == NULL) {
             SkDebugf("Could not read %s.\n", path);
             return false;

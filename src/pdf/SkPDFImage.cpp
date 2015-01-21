@@ -239,40 +239,41 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
         }
         return NULL;
     }
-    bool isOpaque = true;
-    bool transparent = extractAlpha;
-    SkStream* stream = NULL;
 
     SkAutoLockPixels lock(bitmap);
     if (NULL == bitmap.getPixels()) {
         return NULL;
     }
 
+    bool isOpaque = true;
+    bool transparent = extractAlpha;
+    SkAutoTDelete<SkStream> stream;
+
     switch (colorType) {
         case kIndex_8_SkColorType:
             if (!extractAlpha) {
-                stream = extract_index8_image(bitmap, srcRect);
+                stream.reset(extract_index8_image(bitmap, srcRect));
             }
             break;
         case kARGB_4444_SkColorType:
-            stream = extract_argb4444_data(bitmap, srcRect, extractAlpha,
-                                           &isOpaque, &transparent);
+            stream.reset(extract_argb4444_data(bitmap, srcRect, extractAlpha,
+                                               &isOpaque, &transparent));
             break;
         case kRGB_565_SkColorType:
             if (!extractAlpha) {
-                stream = extract_rgb565_image(bitmap, srcRect);
+                stream.reset(extract_rgb565_image(bitmap, srcRect));
             }
             break;
         case kN32_SkColorType:
-            stream = extract_argb8888_data(bitmap, srcRect, extractAlpha,
-                                           &isOpaque, &transparent);
+            stream.reset(extract_argb8888_data(bitmap, srcRect, extractAlpha,
+                                               &isOpaque, &transparent));
             break;
         case kAlpha_8_SkColorType:
             if (!extractAlpha) {
-                stream = create_black_image();
+                stream.reset(create_black_image());
             } else {
-                stream = extract_a8_alpha(bitmap, srcRect,
-                                          &isOpaque, &transparent);
+                stream.reset(extract_a8_alpha(bitmap, srcRect,
+                                              &isOpaque, &transparent));
             }
             break;
         default:
@@ -283,10 +284,9 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
         *isTransparent = transparent;
     }
     if (extractAlpha && (transparent || isOpaque)) {
-        SkSafeUnref(stream);
         return NULL;
     }
-    return stream;
+    return stream.detach();
 }
 
 static SkPDFArray* make_indexed_color_space(SkColorTable* table) {
@@ -468,7 +468,7 @@ SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
     }
 
     bool isTransparent = false;
-    SkAutoTUnref<SkStream> alphaData;
+    SkAutoTDelete<SkStream> alphaData;
     if (!bitmap.isOpaque()) {
         // Note that isOpaque is not guaranteed to return false for bitmaps
         // with alpha support but a completely opaque alpha channel,
@@ -639,7 +639,7 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
         }
         // Fallback method
         if (!fStreamValid) {
-            SkAutoTUnref<SkStream> stream(
+            SkAutoTDelete<SkStream> stream(
                     extract_image_data(fBitmap, fSrcRect, fIsAlpha, NULL));
             this->setData(stream);
             fStreamValid = true;

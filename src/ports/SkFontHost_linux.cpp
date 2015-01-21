@@ -139,7 +139,7 @@ protected:
 
 private:
     SkString fPath;
-    const SkAutoTUnref<SkStreamAsset> fStream;
+    const SkAutoTDelete<SkStreamAsset> fStream;
 
     typedef SkTypeface_Custom INHERITED;
 };
@@ -283,13 +283,12 @@ protected:
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTUnref<SkStream> stream(new SkMemoryStream(data));
-        return this->createFromStream(stream, ttcIndex);
+        return this->createFromStream(new SkMemoryStream(data), ttcIndex);
     }
 
     SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStream> streamDeleter(stream);
         if (NULL == stream || stream->getLength() <= 0) {
-            SkDELETE(stream);
             return NULL;
         }
 
@@ -298,15 +297,15 @@ protected:
         SkString name;
         if (fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
-                                                  stream, ttcIndex));
+                                                  streamDeleter.detach(), ttcIndex));
         } else {
             return NULL;
         }
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-        return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+        return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
@@ -341,7 +340,7 @@ private:
 
         while (iter.next(&name, false)) {
             SkString filename(SkOSPath::Join(directory.c_str(), name.c_str()));
-            SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(filename.c_str()));
+            SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(filename.c_str()));
             if (!stream.get()) {
                 SkDebugf("---- failed to open <%s>\n", filename.c_str());
                 continue;

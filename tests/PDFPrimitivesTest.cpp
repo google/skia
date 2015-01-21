@@ -119,7 +119,7 @@ static void SimpleCheckObjectOutput(skiatest::Reporter* reporter,
 
 static void TestPDFStream(skiatest::Reporter* reporter) {
     char streamBytes[] = "Test\nFoo\tBar";
-    SkAutoTUnref<SkMemoryStream> streamData(new SkMemoryStream(
+    SkAutoTDelete<SkMemoryStream> streamData(new SkMemoryStream(
         streamBytes, strlen(streamBytes), true));
     SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData.get()));
     SimpleCheckObjectOutput(

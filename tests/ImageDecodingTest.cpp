@@ -324,76 +324,13 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
 #endif // SK_BUILD_FOR_UNIX/ANDROID skbug.com/2388
 
 #ifdef SK_DEBUG
-// Create a stream containing a bitmap encoded to Type type.
-static SkMemoryStream* create_image_stream(SkImageEncoder::Type type) {
-    SkBitmap bm;
-    const int size = 50;
-    bm.allocN32Pixels(size, size);
-    SkCanvas canvas(bm);
-    SkPoint points[2] = {
-        { SkIntToScalar(0), SkIntToScalar(0) },
-        { SkIntToScalar(size), SkIntToScalar(size) }
-    };
-    SkColor colors[2] = { SK_ColorWHITE, SK_ColorBLUE };
-    SkShader* shader = SkGradientShader::CreateLinear(points, colors, NULL,
-                                                      SK_ARRAY_COUNT(colors),
-                                                      SkShader::kClamp_TileMode);
-    SkPaint paint;
-    paint.setShader(shader)->unref();
-    canvas.drawPaint(paint);
-    // Now encode it to a stream.
-    SkAutoTUnref<SkData> data(SkImageEncoder::EncodeData(bm, type, 100));
-    if (NULL == data.get()) {
-        return NULL;
-    }
-    return SkNEW_ARGS(SkMemoryStream, (data.get()));
-}
-
-// For every format that supports tile based decoding, ensure that
-// calling decodeSubset will not fail if the caller has unreffed the
-// stream provided in buildTileIndex.
-// Only runs in debug mode since we are testing for a crash.
-static void test_stream_life() {
-    const SkImageEncoder::Type gTypes[] = {
-#ifdef SK_BUILD_FOR_ANDROID
-        SkImageEncoder::kJPEG_Type,
-        SkImageEncoder::kPNG_Type,
-#endif
-        SkImageEncoder::kWEBP_Type,
-    };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTypes); ++i) {
-        // SkDebugf("encoding to %i\n", i);
-        SkAutoTUnref<SkMemoryStream> stream(create_image_stream(gTypes[i]));
-        if (NULL == stream.get()) {
-            SkDebugf("no stream\n");
-            continue;
-        }
-        SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
-        if (NULL == decoder.get()) {
-            SkDebugf("no decoder\n");
-            continue;
-        }
-        int width, height;
-        if (!decoder->buildTileIndex(stream.get(), &width, &height)) {
-            SkDebugf("could not build a tile index\n");
-            continue;
-        }
-        // Now unref the stream to make sure it survives
-        stream.reset(NULL);
-        SkBitmap bm;
-        decoder->decodeSubset(&bm, SkIRect::MakeWH(width, height), kN32_SkColorType);
-    }
-}
-
 // Test inside SkScaledBitmapSampler.cpp
 extern void test_row_proc_choice();
-
 #endif  // SK_DEBUG
 
 DEF_TEST(ImageDecoding, reporter) {
     test_unpremul(reporter);
 #ifdef SK_DEBUG
-    test_stream_life();
     test_row_proc_choice();
 #endif
 }
@@ -488,7 +425,6 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
     SkASSERT(bitmap != NULL);
     SkASSERT(stream != NULL);
     SkASSERT(stream->rewind());
-    SkASSERT(stream->unique());
     SkColorType colorType = bitmap->colorType();
     SkDecodingImageGenerator::Options opts(sampleSize, ditherImage, colorType);
     if (SkInstallDiscardablePixelRef(
@@ -503,7 +439,7 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
  */
 DEF_TEST(ImprovedBitmapFactory, reporter) {
     SkString pngFilename = GetResourcePath("randPixels.png");
-    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(pngFilename.c_str()));
+    SkAutoTDelete<SkStreamRewindable> stream(SkStream::NewFromFile(pngFilename.c_str()));
     if (sk_exists(pngFilename.c_str())) {
         SkBitmap bm;
         SkAssertResult(bm.setInfo(SkImageInfo::MakeN32Premul(1, 1)));
@@ -698,7 +634,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
 
         SkAutoDataUnref encodedData(SkData::NewFromFileName(path.c_str()));
         REPORTER_ASSERT(reporter, encodedData.get() != NULL);
-        SkAutoTUnref<SkStreamRewindable> encodedStream(
+        SkAutoTDelete<SkStreamRewindable> encodedStream(
             SkStream::NewFromFile(path.c_str()));
         REPORTER_ASSERT(reporter, encodedStream.get() != NULL);
 
@@ -782,7 +718,7 @@ private:
 DEF_TEST(ImageDecoding_JpegOverwrite, r) {
     SkString resourceDir = GetResourcePath();
     SkString path = SkOSPath::Join(resourceDir.c_str(), "randPixels.jpg");
-    SkAutoTUnref<SkStreamAsset> stream(
+    SkAutoTDelete<SkStreamAsset> stream(
             SkStream::NewFromFile(path.c_str()));
     if (!stream.get()) {
         SkDebugf("\nPath '%s' missing.\n", path.c_str());

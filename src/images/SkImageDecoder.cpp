@@ -158,6 +158,13 @@ bool SkImageDecoder::buildTileIndex(SkStreamRewindable* stream, int *width, int 
     return this->onBuildTileIndex(stream, width, height);
 }
 
+bool SkImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int* /*width*/,
+                                      int* /*height*/) {
+    SkDELETE(stream);
+    return false;
+}
+
+
 bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
                                 int dstX, int dstY, int width, int height,
                                 int srcX, int srcY) {
@@ -212,7 +219,7 @@ bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm, SkColorType pre
     SkASSERT(file);
     SkASSERT(bm);
 
-    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(file));
+    SkAutoTDelete<SkStreamRewindable> stream(SkStream::NewFromFile(file));
     if (stream.get()) {
         if (SkImageDecoder::DecodeStream(stream, bm, pref, mode, format)) {
             bm->pixelRef()->setURI(file);

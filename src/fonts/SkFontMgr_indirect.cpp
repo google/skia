@@ -213,19 +213,19 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
 
     // No exact match, but did find a data match.
     if (dataTypeface.get() != NULL) {
-        SkAutoTUnref<SkStream> stream(dataTypeface->openStream(NULL));
+        SkAutoTDelete<SkStream> stream(dataTypeface->openStream(NULL));
         if (stream.get() != NULL) {
-            return fImpl->createFromStream(stream.get(), dataTypefaceIndex);
+            return fImpl->createFromStream(stream.detach(), dataTypefaceIndex);
         }
     }
 
     // No data match, request data and add entry.
-    SkAutoTUnref<SkStreamAsset> stream(fProxy->getData(id.fDataId));
+    SkAutoTDelete<SkStreamAsset> stream(fProxy->getData(id.fDataId));
     if (stream.get() == NULL) {
         return NULL;
     }
 
-    SkAutoTUnref<SkTypeface> typeface(fImpl->createFromStream(stream, id.fTtcIndex));
+    SkAutoTUnref<SkTypeface> typeface(fImpl->createFromStream(stream.detach(), id.fTtcIndex));
     if (typeface.get() == NULL) {
         return NULL;
     }

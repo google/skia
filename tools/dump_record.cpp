@@ -46,7 +46,7 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(FLAGS_skps[i]));
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(FLAGS_skps[i]));
         if (!stream) {
             SkDebugf("Could not read %s.\n", FLAGS_skps[i]);
             exit(1);

@@ -85,20 +85,8 @@ namespace SkDecodingImageGenerator {
      *  The SkData version of this function is preferred.  If the stream
      *  has an underlying SkData (such as a SkMemoryStream) pass that in.
      *
-     *  This object will unref the stream when done or on failure.  Since
-     *  streams have internal state (position), the caller should not pass
-     *  a shared stream in.  Pass either a new duplicated stream in or
-     *  transfer ownership of the stream.  This factory asserts
-     *  stream->unique().
-     *
-     *  For example:
-     *    SkStreamRewindable* stream;
-     *    ...
-     *    SkImageGenerator* gen
-     *        = SkDecodingImageGenerator::Create(
-     *            stream->duplicate(), SkDecodingImageGenerator::Options());
-     *    ...
-     *    SkDELETE(gen);
+     *  This object, if non-NULL, takes ownership of stream and deletes stream
+     *  upon deletion. If NULL is returned, stream is deleted immediately.
      *
      *  @param Options (see above)
      *

@@ -156,7 +156,7 @@ void SkTypeface::serialize(SkWStream* wstream) const {
     this->onGetFontDescriptor(&desc, &isLocal);
 
     // Embed font data if it's a local font.
-    if (isLocal && NULL == desc.getFontData()) {
+    if (isLocal && !desc.hasFontData()) {
         int ttcIndex;
         desc.setFontData(this->onOpenStream(&ttcIndex));
         desc.setFontIndex(ttcIndex);
@@ -170,7 +170,7 @@ void SkTypeface::serializeForcingEmbedding(SkWStream* wstream) const {
     this->onGetFontDescriptor(&desc, &ignoredIsLocal);
 
     // Always embed font data.
-    if (NULL == desc.getFontData()) {
+    if (!desc.hasFontData()) {
         int ttcIndex;
         desc.setFontData(this->onOpenStream(&ttcIndex));
         desc.setFontIndex(ttcIndex);
@@ -180,7 +180,7 @@ void SkTypeface::serializeForcingEmbedding(SkWStream* wstream) const {
 
 SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     SkFontDescriptor desc(stream);
-    SkStream* data = desc.getFontData();
+    SkStream* data = desc.transferFontData();
     if (data) {
         SkTypeface* typeface = SkTypeface::CreateFromStream(data, desc.getFontIndex());
         if (typeface) {

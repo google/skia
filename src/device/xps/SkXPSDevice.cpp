@@ -401,7 +401,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         fontPackageBuffer.realloc(bytesWritten);
     }
 
-    SkAutoTUnref<SkMemoryStream> newStream(new SkMemoryStream());
+    SkAutoTDelete<SkMemoryStream> newStream(new SkMemoryStream());
     newStream->setMemoryOwned(fontPackageBuffer.detach(), bytesWritten + extra);
 
     SkTScopedComPtr<IStream> newIStream;

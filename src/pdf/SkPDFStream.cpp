@@ -61,25 +61,19 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
 SkPDFStream::SkPDFStream() : fState(kUnused_State) {}
 
 void SkPDFStream::setData(SkData* data) {
-    fMemoryStream.setData(data);
-    if (&fMemoryStream != fDataStream.get()) {
-        fDataStream.reset(SkRef(&fMemoryStream));
-    }
+    // FIXME: Don't swap if the data is the same.
+    fDataStream.reset(SkNEW_ARGS(SkMemoryStream, (data)));
 }
 
 void SkPDFStream::setData(SkStream* stream) {
     // Code assumes that the stream starts at the beginning and is rewindable.
-    if (&fMemoryStream == fDataStream.get()) {
-        SkASSERT(&fMemoryStream != stream);
-        fMemoryStream.setData(NULL);
-    }
-    SkASSERT(0 == fMemoryStream.getLength());
     if (stream) {
         // SkStreamRewindableFromSkStream will try stream->duplicate().
         fDataStream.reset(SkStreamRewindableFromSkStream(stream));
         SkASSERT(fDataStream.get());
     } else {
-        fDataStream.reset(SkRef(&fMemoryStream));
+        // Use an empty memory stream.
+        fDataStream.reset(SkNEW(SkMemoryStream));
     }
 }
 
@@ -97,7 +91,7 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
                     SkFlate::Deflate(fDataStream.get(), &compressedData));
             SkAssertResult(fDataStream->rewind());
             if (compressedData.getOffset() < this->dataSize()) {
-                SkAutoTUnref<SkStream> compressed(
+                SkAutoTDelete<SkStream> compressed(
                         compressedData.detachAsStream());
                 this->setData(compressed.get());
                 insertName("Filter", "FlateDecode");

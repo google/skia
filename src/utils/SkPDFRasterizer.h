@@ -11,10 +11,12 @@
 #include "SkStream.h"
 
 #ifdef SK_BUILD_POPPLER
+// Deletes pdf when finished.
 bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output);
 #endif  // SK_BUILD_POPPLER
 
 #ifdef SK_BUILD_NATIVE_PDF_RENDERER
+// Deletes pdf when finished.
 bool SkNativeRasterizePDF(SkStream* pdf, SkBitmap* output);
 #endif  // SK_BUILD_NATIVE_PDF_RENDERER
 

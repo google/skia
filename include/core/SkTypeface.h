@@ -145,6 +145,7 @@ public:
         to a typeface referring to the same font. If that font is not available,
         return null. If an instance is returned, the caller is responsible for
         calling unref() when they are done with it.
+        Does not affect ownership of SkStream.
      */
     static SkTypeface* Deserialize(SkStream*);
 
@@ -276,6 +277,7 @@ public:
      *  If ttcIndex is not null, it is set to the TrueTypeCollection index
      *  of this typeface within the stream, or 0 if the stream is not a
      *  collection.
+     *  The caller is responsible for deleting the stream.
      */
     SkStream* openStream(int* ttcIndex) const;
 

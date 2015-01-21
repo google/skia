@@ -9,7 +9,6 @@
 #include "SkData.h"
 #include "SkGPipe.h"
 #include "SkPicture.h"
-#include "SkStream.h"
 #include "gm.h"
 
 namespace DM {

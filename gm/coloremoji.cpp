@@ -56,13 +56,13 @@ public:
 protected:
     void onOnceBeforeDraw() SK_OVERRIDE {
         SkString filename = GetResourcePath("/Funkster.ttf");
-        SkAutoTUnref<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
+        SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
         if (!stream->isValid()) {
             SkDebugf("Could not find Funkster.ttf, please set --resourcePath correctly.\n");
             return;
         }
 
-        fTypeface = SkTypeface::CreateFromStream(stream);
+        fTypeface = SkTypeface::CreateFromStream(stream.detach());
     }
 
     SkString onShortName() SK_OVERRIDE {

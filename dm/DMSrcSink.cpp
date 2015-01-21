@@ -6,6 +6,7 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
+#include "SkStream.h"
 
 namespace DM {
 
@@ -48,13 +49,14 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
         return "";
     }
     // Decode random subsets.  This is a little involved.
-    SkMemoryStream stream(encoded->data(), encoded->size());
-    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
+    SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream.get()));
     if (!decoder) {
         return SkStringPrintf("Can't find a good decoder for %s.", fPath.c_str());
     }
+    stream->rewind();
     int w,h;
-    if (!decoder->buildTileIndex(&stream, &w, &h) || w*h == 1) {
+    if (!decoder->buildTileIndex(stream.detach(), &w, &h) || w*h == 1) {
         return "";  // Not an error.  Subset decoding is not always supported.
     }
     SkRandom rand;
@@ -104,7 +106,7 @@ static const SkRect kSKPViewport = {0,0, 1000,1000};
 SKPSrc::SKPSrc(SkString path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
@@ -268,7 +270,7 @@ Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream
     // Serialize it and then deserialize it.
     SkDynamicMemoryWStream wStream;
     pic->serialize(&wStream);
-    SkAutoTUnref<SkStream> rStream(wStream.detachAsStream());
+    SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
     SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream));
 
     // Turn that deserialized picture into a Src, draw it into our Sink to fill bitmap or stream.

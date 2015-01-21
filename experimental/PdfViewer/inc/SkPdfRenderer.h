@@ -35,6 +35,7 @@ public:
     // TODO(edisonn): replace it with a SkSmartStream which would know to to efficiently
     // deal with a HTTP stream.
     // FIXME: Untested.
+    // Does not affect ownership of SkStream.
     static SkPdfRenderer* CreateFromStream(SkStream*);
     // Create a new renderer from a file.
     static SkPdfRenderer* CreateFromFile(const char* filename);
@@ -64,6 +65,7 @@ private:
 void reportPdfRenderStats();
 
 // Renders a page of a pdf in a bitmap.
+// Does not affect ownership of stream.
 bool SkPDFNativeRenderToBitmap(SkStream* stream,
                                SkBitmap* output,
                                int page = 0,

@@ -350,7 +350,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
-    SkAutoTUnref<SkStream> inputStream(stream.detachAsStream());
+    SkAutoTDelete<SkStream> inputStream(stream.detachAsStream());
     SkAutoTUnref<SkPicture> loadedPicture(SkPicture::CreateFromStream(inputStream.get()));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.

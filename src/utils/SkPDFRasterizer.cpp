@@ -27,6 +27,7 @@
 
 #ifdef SK_BUILD_POPPLER
 bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
+  SkAutoTDelete<SkStream> streamDeleter(pdf);
   size_t size = pdf->getLength();
   SkAutoFree buffer(sk_malloc_throw(size));
   pdf->read(buffer.get(), size);
@@ -81,6 +82,7 @@ bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
 
 #ifdef SK_BUILD_NATIVE_PDF_RENDERER
 bool SkNativeRasterizePDF(SkStream* pdf, SkBitmap* output) {
+    SkAutoTDelete<SkStream> streamDeleter(pdf);
     return SkPDFNativeRenderToBitmap(pdf, output);
 }
 #endif  // SK_BUILD_NATIVE_PDF_RENDERER

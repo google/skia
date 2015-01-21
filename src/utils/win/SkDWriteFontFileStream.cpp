@@ -142,7 +142,7 @@ HRESULT SkDWriteFontFileStreamWrapper::Create(SkStream* stream, SkDWriteFontFile
 }
 
 SkDWriteFontFileStreamWrapper::SkDWriteFontFileStreamWrapper(SkStream* stream)
-    : fRefCount(1), fStream(SkRef(stream)) {
+    : fRefCount(1), fStream(stream) {
 }
 
 HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::QueryInterface(REFIID iid, void** ppvObject) {

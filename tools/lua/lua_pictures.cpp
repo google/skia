@@ -39,7 +39,7 @@ DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
 DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
 static SkPicture* load_picture(const char path[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
     SkPicture* pic = NULL;
     if (stream.get()) {
         pic = SkPicture::CreateFromStream(stream.get(), &sk_tools::LazyDecodeBitmap);

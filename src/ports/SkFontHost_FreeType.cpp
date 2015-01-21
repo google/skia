@@ -233,18 +233,15 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 struct SkFaceRec {
-    SkFaceRec*      fNext;
-    FT_Face         fFace;
-    FT_StreamRec    fFTStream;
-    SkStream*       fSkStream;
-    uint32_t        fRefCnt;
-    uint32_t        fFontID;
+    SkFaceRec*              fNext;
+    FT_Face                 fFace;
+    FT_StreamRec            fFTStream;
+    SkAutoTDelete<SkStream> fSkStream;
+    uint32_t                fRefCnt;
+    uint32_t                fFontID;
 
-    // assumes ownership of the stream, will call unref() when its done
+    // assumes ownership of the stream, will delete when its done
     SkFaceRec(SkStream* strm, uint32_t fontID);
-    ~SkFaceRec() {
-        fSkStream->unref();
-    }
 };
 
 extern "C" {

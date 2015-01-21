@@ -1924,6 +1924,7 @@ static HANDLE activate_font(SkData* fontData) {
     return fontHandle;
 }
 
+// Does not affect ownership of stream.
 static SkTypeface* create_from_stream(SkStream* stream) {
     // Create a unique and unpredictable font name.
     // Avoids collisions and access from CSS.
@@ -2481,19 +2482,18 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStream> streamDeleter(stream);
         return create_from_stream(stream);
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
         // could be in base impl
-        SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
-        return this->createFromStream(stream);
+        return this->createFromStream(SkNEW_ARGS(SkMemoryStream, (data)));
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         // could be in base impl
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-        return this->createFromStream(stream);
+        return this->createFromStream(SkStream::NewFromFile(path));
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],

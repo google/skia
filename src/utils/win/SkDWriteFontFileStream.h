@@ -71,7 +71,7 @@ private:
     virtual ~SkDWriteFontFileStreamWrapper() { }
 
     ULONG fRefCount;
-    SkAutoTUnref<SkStream> fStream;
+    SkAutoTDelete<SkStream> fStream;
     SkMutex fStreamMutex;
 };
 #endif

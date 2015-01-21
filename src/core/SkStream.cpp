@@ -239,7 +239,7 @@ SkStreamAsset* SkFILEStream::duplicate() const {
     }
 
     if (!fName.isEmpty()) {
-        SkAutoTUnref<SkFILEStream> that(new SkFILEStream(fName.c_str()));
+        SkAutoTDelete<SkFILEStream> that(new SkFILEStream(fName.c_str()));
         if (sk_fidentical(that->fFILE, this->fFILE)) {
             return that.detach();
         }
@@ -265,7 +265,7 @@ bool SkFILEStream::move(long offset) {
 }
 
 SkStreamAsset* SkFILEStream::fork() const {
-    SkAutoTUnref<SkStreamAsset> that(this->duplicate());
+    SkAutoTDelete<SkStreamAsset> that(this->duplicate());
     that->seek(this->getPosition());
     return that.detach();
 }
@@ -396,7 +396,7 @@ bool SkMemoryStream::move(long offset) {
 }
 
 SkMemoryStream* SkMemoryStream::fork() const {
-    SkAutoTUnref<SkMemoryStream> that(this->duplicate());
+    SkAutoTDelete<SkMemoryStream> that(this->duplicate());
     that->seek(fOffset);
     return that.detach();
 }
@@ -741,7 +741,7 @@ public:
     }
 
     SkBlockMemoryStream* fork() const SK_OVERRIDE {
-        SkAutoTUnref<SkBlockMemoryStream> that(this->duplicate());
+        SkAutoTDelete<SkBlockMemoryStream> that(this->duplicate());
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
         that->fCurrentOffset = this->fCurrentOffset;
@@ -827,7 +827,7 @@ SkStreamAsset* SkStream::NewFromFile(const char path[]) {
     // file access.
     SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
     if (!stream->isValid()) {
-        stream->unref();
+        SkDELETE(stream);
         stream = NULL;
     }
     return stream;
@@ -886,7 +886,7 @@ SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream) {
     if (!stream) {
         return NULL;
     }
-    SkAutoTUnref<SkStreamRewindable> dupStream(stream->duplicate());
+    SkAutoTDelete<SkStreamRewindable> dupStream(stream->duplicate());
     if (dupStream) {
         return dupStream.detach();
     }

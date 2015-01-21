@@ -96,7 +96,7 @@ static void sk_term_source(j_decompress_ptr /*cinfo*/) {}
 ///////////////////////////////////////////////////////////////////////////////
 
 skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder)
-    : fStream(SkRef(stream))
+    : fStream(stream)
     , fDecoder(decoder) {
 
     init_source = sk_init_source;
@@ -108,10 +108,6 @@ skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder)
     seek_input_data = sk_seek_input_data;
 #endif
 //    SkDebugf("**************** use memorybase %p %d\n", fMemoryBase, fMemoryBaseSize);
-}
-
-skjpeg_source_mgr::~skjpeg_source_mgr() {
-    SkSafeUnref(fStream);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -7,10 +7,10 @@
 
 #include "SkFontMgr.h"
 #include "SkLazyPtr.h"
+#include "SkStream.h"
 #include "SkTypes.h"
 
 class SkFontStyle;
-class SkStream;
 class SkTypeface;
 
 class SkEmptyFontStyleSet : public SkFontStyleSet {
@@ -68,7 +68,8 @@ protected:
     SkTypeface* onCreateFromData(SkData*, int) const SK_OVERRIDE {
         return NULL;
     }
-    SkTypeface* onCreateFromStream(SkStream*, int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStream* stream, int) const SK_OVERRIDE {
+        SkDELETE(stream);
         return NULL;
     }
     SkTypeface* onCreateFromFile(const char[], int) const SK_OVERRIDE {
