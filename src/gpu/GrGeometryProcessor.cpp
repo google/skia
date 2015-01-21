@@ -503,7 +503,7 @@ private:
 GrPathProcessor::GrPathProcessor(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-    : INHERITED(viewMatrix, localMatrix)
+    : INHERITED(viewMatrix, localMatrix, true)
     , fColor(color) {
     this->initClassID<GrPathProcessor>();
 }

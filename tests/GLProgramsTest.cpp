@@ -272,9 +272,6 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         // if path rendering we have to setup a couple of things like the draw type
         bool usePathRendering = gpu->glCaps().pathRenderingSupport() && random.nextBool();
 
-        GrGpu::DrawType drawType = usePathRendering ? GrGpu::kDrawPath_DrawType :
-                                                      GrGpu::kDrawPoints_DrawType;
-
         // twiddle drawstate knobs randomly
         bool hasGeometryProcessor = !usePathRendering;
         SkAutoTUnref<const GrGeometryProcessor> gp;
@@ -320,9 +317,9 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         primProc->initBatchTracker(&bt, ods.getInitBatchTracker());
 
         GrProgramDesc desc;
-        gpu->buildProgramDesc(&desc, *primProc, ods, ods.descInfo(), drawType, bt);
+        gpu->buildProgramDesc(&desc, *primProc, ods, ods.descInfo(), bt);
 
-        GrGpu::DrawArgs args(primProc, &ods, &desc, &bt, drawType);
+        GrGpu::DrawArgs args(primProc, &ods, &desc, &bt);
         SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(args, gpu));
 
         if (NULL == program.get()) {

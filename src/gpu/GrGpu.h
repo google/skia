@@ -302,25 +302,12 @@ public:
     // is dirty.
     ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
-    enum DrawType {
-        kDrawPoints_DrawType,
-        kDrawLines_DrawType,
-        kDrawTriangles_DrawType,
-        kDrawPath_DrawType,
-        kDrawPaths_DrawType,
-    };
-
-    static bool IsPathRenderingDrawType(DrawType type) {
-        return kDrawPath_DrawType == type || kDrawPaths_DrawType == type;
-    }
-
     GrContext::GPUStats* gpuStats() { return &fGPUStats; }
 
     virtual void buildProgramDesc(GrProgramDesc*,
                                   const GrPrimitiveProcessor&,
                                   const GrOptDrawState&,
                                   const GrProgramDesc::DescInfo&,
-                                  GrGpu::DrawType,
                                   const GrBatchTracker&) const = 0;
 
     /**
@@ -366,20 +353,17 @@ public:
         DrawArgs(const GrPrimitiveProcessor* primProc,
                  const GrOptDrawState* optState,
                  const GrProgramDesc* desc,
-                 const GrBatchTracker* batchTracker,
-                 DrawType drawType)
+                 const GrBatchTracker* batchTracker)
             : fPrimitiveProcessor(primProc)
             , fOptState(optState)
             , fDesc(desc)
-            , fBatchTracker(batchTracker)
-            , fDrawType(drawType) {
+            , fBatchTracker(batchTracker) {
             SkASSERT(primProc && optState && desc && batchTracker);
         }
         const GrPrimitiveProcessor* fPrimitiveProcessor;
         const GrOptDrawState* fOptState;
         const GrProgramDesc* fDesc;
         const GrBatchTracker* fBatchTracker;
-        DrawType fDrawType;
     };
 
     void draw(const DrawArgs&, const GrDrawTarget::DrawInfo&);
@@ -404,23 +388,6 @@ public:
                    GrDrawTarget::PathTransformType,
                    int count,
                    const GrStencilSettings&);
-
-    static DrawType PrimTypeToDrawType(GrPrimitiveType type) {
-        switch (type) {
-            case kTriangles_GrPrimitiveType:
-            case kTriangleStrip_GrPrimitiveType:
-            case kTriangleFan_GrPrimitiveType:
-                return kDrawTriangles_DrawType;
-            case kPoints_GrPrimitiveType:
-                return kDrawPoints_DrawType;
-            case kLines_GrPrimitiveType:
-            case kLineStrip_GrPrimitiveType:
-                return kDrawLines_DrawType;
-            default:
-                SkFAIL("Unexpected primitive type");
-                return kDrawTriangles_DrawType;
-        }
-    }
 
 protected:
     // Functions used to map clip-respecting stencil tests into normal

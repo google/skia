@@ -90,7 +90,6 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
                                    const GrPrimitiveProcessor& primProc,
                                    const GrOptDrawState& optState,
                                    const GrProgramDesc::DescInfo& descInfo,
-                                   GrGpu::DrawType drawType,
                                    const GrGLGpu* gpu,
                                    const GrBatchTracker& batchTracker) {
     // The descriptor is used as a cache key. Thus when a field of the

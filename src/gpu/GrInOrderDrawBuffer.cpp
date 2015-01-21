@@ -245,9 +245,7 @@ void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
-    if (!this->recordStateAndShouldDraw(ds, gp,
-                                        GrGpu::PrimTypeToDrawType(info.primitiveType()),
-                                        scissorState, dstCopy)) {
+    if (!this->recordStateAndShouldDraw(ds, gp, scissorState, dstCopy)) {
         return;
     }
 
@@ -287,8 +285,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
     // TODO: Only compare the subset of GrDrawState relevant to path covering?
-    if (!this->recordStateAndShouldDraw(ds, pathProc, GrGpu::kDrawPath_DrawType,
-                                        scissorState, dstCopy)) {
+    if (!this->recordStateAndShouldDraw(ds, pathProc, scissorState, dstCopy)) {
         return;
     }
     DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
@@ -311,8 +308,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     SkASSERT(indices);
     SkASSERT(transformValues);
 
-    if (!this->recordStateAndShouldDraw(ds, pathProc, GrGpu::kDrawPath_DrawType, scissorState,
-                                        dstCopy)) {
+    if (!this->recordStateAndShouldDraw(ds, pathProc, scissorState, dstCopy)) {
         return;
     }
 
@@ -435,8 +431,7 @@ void GrInOrderDrawBuffer::onFlush() {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
             this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fState,
-                                             ss->fState.descInfo(), ss->fDrawType,
-                                             ss->fBatchTracker);
+                                             ss->fState.descInfo(), ss->fBatchTracker);
             currentState = ss;
 
         } else {
@@ -455,7 +450,7 @@ void GrInOrderDrawBuffer::onFlush() {
 void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
-                  &state->fBatchTracker, state->fDrawType);
+                  &state->fBatchTracker);
     buf->getGpu()->draw(args, fInfo);
 }
 
@@ -473,14 +468,14 @@ void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const S
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
-                  &state->fBatchTracker, state->fDrawType);
+                  &state->fBatchTracker);
     buf->getGpu()->drawPath(args, this->path(), fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
-                  &state->fBatchTracker, state->fDrawType);
+                  &state->fBatchTracker);
     buf->getGpu()->drawPaths(args, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
@@ -521,12 +516,11 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
 
 bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                                    const GrPrimitiveProcessor* primProc,
-                                                   GrGpu::DrawType drawType,
                                                    const GrScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
     SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
                                             (ds, primProc, *this->getGpu()->caps(), scissor,
-                                             dstCopy, drawType));
+                                             dstCopy));
     if (ss->fState.mustSkip()) {
         fCmdBuffer.pop_back();
         return false;
@@ -536,7 +530,6 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
                                               ss->fState.getInitBatchTracker());
 
     if (fPrevState &&
-        fPrevState->fDrawType == ss->fDrawType &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *ss->fPrimitiveProcessor,
                                                       ss->fBatchTracker) &&

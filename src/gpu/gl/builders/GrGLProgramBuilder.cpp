@@ -74,7 +74,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
 
 GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const DrawArgs& args,
                                                              GrGLGpu* gpu) {
-    if (GrGpu::IsPathRenderingDrawType(args.fDrawType)) {
+    if (args.fPrimitiveProcessor->isPathRendering()) {
         SkASSERT(gpu->glCaps().pathRenderingSupport() &&
                  !args.fPrimitiveProcessor->willUseGeoShader() &&
                  args.fPrimitiveProcessor->numAttribs() == 0);
@@ -396,7 +396,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     // Legacy nvpr will not compile with a vertex shader, but newer nvpr requires a dummy vertex
     // shader
-    bool useNvpr = GrGpu::IsPathRenderingDrawType(this->drawType());
+    bool useNvpr = primitiveProcessor().isPathRendering();
     if (!(useNvpr && fGpu->glCaps().nvprSupport() == GrGLCaps::kLegacy_NvprSupport)) {
         if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
             this->cleanupProgram(programID, shadersToDelete);

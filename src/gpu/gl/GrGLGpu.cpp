@@ -1336,7 +1336,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
     this->disableScissor();
 }
 
-bool GrGLGpu::flushGLState(const DrawArgs& args) {
+bool GrGLGpu::flushGLState(const DrawArgs& args, bool isLineDraw) {
     GrXferProcessor::BlendInfo blendInfo;
     const GrOptDrawState& optState = *args.fOptState;
     args.fOptState->getXferProcessor()->getBlendInfo(&blendInfo);
@@ -1368,8 +1368,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
     this->flushStencil(optState.getStencil());
     this->flushScissor(optState.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushHWAAState(glRT, optState.isHWAntialiasState(),
-                         kDrawLines_DrawType == args.fDrawType);
+    this->flushHWAAState(glRT, optState.isHWAntialiasState(), isLineDraw);
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -1435,9 +1434,8 @@ void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
                                const GrPrimitiveProcessor& primProc,
                                const GrOptDrawState& optState,
                                const GrProgramDesc::DescInfo& descInfo,
-                               GrGpu::DrawType drawType,
                                const GrBatchTracker& batchTracker) const {
-    if (!GrGLProgramDescBuilder::Build(desc, primProc, optState, descInfo, drawType, this,
+    if (!GrGLProgramDescBuilder::Build(desc, primProc, optState, descInfo, this,
                                        batchTracker)) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
@@ -1827,7 +1825,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
 #endif
 
 void GrGLGpu::onDraw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
-    if (!this->flushGLState(args)) {
+    if (!this->flushGLState(args, GrIsPrimTypeLines(info.primitiveType()))) {
         return;
     }
 
@@ -1880,7 +1878,7 @@ void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
 
 void GrGLGpu::onDrawPath(const DrawArgs& args, const GrPath* path,
                          const GrStencilSettings& stencil) {
-    if (!this->flushGLState(args)) {
+    if (!this->flushGLState(args, false)) {
         return;
     }
     fPathRendering->drawPath(path, stencil);
@@ -1894,7 +1892,7 @@ void GrGLGpu::onDrawPaths(const DrawArgs& args,
                           GrDrawTarget::PathTransformType transformType,
                            int count,
                            const GrStencilSettings& stencil) {
-    if (!this->flushGLState(args)) {
+    if (!this->flushGLState(args, false)) {
         return;
     }
     fPathRendering->drawPaths(pathRange, indices, indexType, transformValues,

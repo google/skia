@@ -169,12 +169,16 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLCaps& caps) const = 0;
 
+    bool isPathRendering() const { return fIsPathRendering; }
+
 protected:
-    GrPrimitiveProcessor(const SkMatrix& viewMatrix, const SkMatrix& localMatrix)
+    GrPrimitiveProcessor(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                         bool isPathRendering)
         : fNumAttribs(0)
         , fVertexStride(0)
         , fViewMatrix(viewMatrix)
-        , fLocalMatrix(localMatrix) {}
+        , fLocalMatrix(localMatrix)
+        , fIsPathRendering(isPathRendering) {}
 
     /*
      * CanCombineOutput will return true if two draws are 'batchable' from a color perspective.
@@ -215,6 +219,7 @@ private:
 
     const SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
+    bool fIsPathRendering;
 
     typedef GrProcessor INHERITED;
 };
@@ -234,7 +239,7 @@ public:
                         const SkMatrix& viewMatrix = SkMatrix::I(),
                         const SkMatrix& localMatrix = SkMatrix::I(),
                         bool opaqueVertexColors = false)
-        : INHERITED(viewMatrix, localMatrix)
+        : INHERITED(viewMatrix, localMatrix, false)
         , fColor(color)
         , fOpaqueVertexColors(opaqueVertexColors)
         , fWillUseGeoShader(false)

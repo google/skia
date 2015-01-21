@@ -181,12 +181,10 @@ private:
     struct SetState : public Cmd {
         SetState(const GrDrawState& drawState, const GrPrimitiveProcessor* primProc,
                  const GrDrawTargetCaps& caps,
-                 const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy,
-                 GrGpu::DrawType drawType)
+                 const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy)
         : Cmd(kSetState_Cmd)
         , fPrimitiveProcessor(primProc)
-        , fState(drawState, primProc, caps, scissor, dstCopy)
-        , fDrawType(drawType) {}
+        , fState(drawState, primProc, caps, scissor, dstCopy) {}
 
         void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
@@ -195,7 +193,6 @@ private:
         const GrOptDrawState        fState;
         GrProgramDesc               fDesc;
         GrBatchTracker              fBatchTracker;
-        GrGpu::DrawType             fDrawType;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -257,7 +254,6 @@ private:
     // recorded.
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrDrawState&,
                                                         const GrPrimitiveProcessor*,
-                                                        GrGpu::DrawType,
                                                         const GrScissorState&,
                                                         const GrDeviceCoordTexture*);
     // We lazily record clip changes in order to skip clips that have no effect.

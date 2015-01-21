@@ -108,7 +108,6 @@ public:
                           const GrPrimitiveProcessor&,
                           const GrOptDrawState&,
                           const GrProgramDesc::DescInfo&,
-                          GrGpu::DrawType,
                           const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
@@ -168,7 +167,9 @@ private:
     void setTextureUnit(int unitIdx);
 
     // Flushes state from GrOptDrawState to GL. Returns false if the state couldn't be set.
-    bool flushGLState(const DrawArgs&);
+    // TODO we only have need to know if this is a line draw for flushing AA state on some buggy
+    // hardware.  Evaluate if this is really necessary anymore
+    bool flushGLState(const DrawArgs&, bool isLineDraw);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start

@@ -66,7 +66,6 @@ public:
     void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
                           const GrOptDrawState&,
                           const GrProgramDesc::DescInfo&,
-                          GrGpu::DrawType,
                           const GrBatchTracker&) const SK_OVERRIDE {}
 
     void discard(GrRenderTarget*) SK_OVERRIDE {}
