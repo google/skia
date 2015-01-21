@@ -45,31 +45,24 @@ public:
                                      const SkIRect& surfaceBBox,
                                      SkScalar rasterScale);
 
-protected:
     class State;
+    bool equals(const SkPDFShader::State&) const;
 
-    class ShaderCanonicalEntry {
-    public:
-        ShaderCanonicalEntry(SkPDFObject* pdfShader, const State* state);
-        bool operator==(const ShaderCanonicalEntry& b) const;
-
-        SkPDFObject* fPDFShader;
-        const State* fState;
-    };
-    // This should be made a hash table if performance is a problem.
-    static SkTDArray<ShaderCanonicalEntry>& CanonicalShaders();
-    static SkBaseMutex& CanonicalShadersMutex();
+protected:
+    SkAutoTDelete<const State> fShaderState;
 
     // This is an internal method.
     // CanonicalShadersMutex() should already be acquired.
     // This also takes ownership of shaderState.
     static SkPDFObject* GetPDFShaderByState(State* shaderState);
-    static void RemoveShader(SkPDFObject* shader);
+    static SkPDFObject* AddToCanonIfValid(SkPDFShader*);
+    static void RemoveFromCanonIfValid(SkPDFShader*);
 
-    SkPDFShader();
-    virtual ~SkPDFShader() {};
+    SkPDFShader(State*);
+    virtual ~SkPDFShader();
 
     virtual bool isValid() = 0;
+    virtual SkPDFObject* toPDFObject() = 0;
 };
 
 #endif

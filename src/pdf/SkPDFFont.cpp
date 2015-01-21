@@ -11,6 +11,7 @@
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPDFCatalog.h"
+#include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
 #include "SkPDFFontImpl.h"
@@ -741,22 +742,9 @@ SkPDFGlyphSet* SkPDFGlyphSetMap::getGlyphSetForFont(SkPDFFont* font) {
  */
 
 SkPDFFont::~SkPDFFont() {
-    SkAutoMutexAcquire lock(CanonicalFontsMutex());
-    int index = -1;
-    for (int i = 0 ; i < CanonicalFonts().count() ; i++) {
-        if (CanonicalFonts()[i].fFont == this) {
-            index = i;
-        }
-    }
-
-    SkDEBUGCODE(int indexFound;)
-    SkASSERT(index == -1 ||
-             (Find(fTypeface->uniqueID(),
-                   fFirstGlyphID,
-                   &indexFound) &&
-             index == indexFound));
-    if (index >= 0) {
-        CanonicalFonts().removeShuffle(index);
+    {
+        SkAutoMutexAcquire lock(SkPDFCanon::GetFontMutex());
+        SkPDFCanon::GetCanon().removeFont(this);
     }
     fResources.unrefAll();
 }
@@ -817,24 +805,22 @@ int SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs) {
 
 // static
 SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
-    SkAutoMutexAcquire lock(CanonicalFontsMutex());
-
     SkAutoResolveDefaultTypeface autoResolve(typeface);
     typeface = autoResolve.get();
-
     const uint32_t fontID = typeface->uniqueID();
-    int relatedFontIndex;
-    if (Find(fontID, glyphID, &relatedFontIndex)) {
-        CanonicalFonts()[relatedFontIndex].fFont->ref();
-        return CanonicalFonts()[relatedFontIndex].fFont;
+
+    SkAutoMutexAcquire lock(SkPDFCanon::GetFontMutex());
+    SkPDFFont* relatedFont;
+    SkPDFFont* pdfFont =
+            SkPDFCanon::GetCanon().findFont(fontID, glyphID, &relatedFont);
+    if (pdfFont) {
+        return SkRef(pdfFont);
     }
 
     SkAutoTUnref<const SkAdvancedTypefaceMetrics> fontMetrics;
     SkPDFDict* relatedFontDescriptor = NULL;
-    if (relatedFontIndex >= 0) {
-        SkPDFFont* relatedFont = CanonicalFonts()[relatedFontIndex].fFont;
-        fontMetrics.reset(relatedFont->fontInfo());
-        SkSafeRef(fontMetrics.get());
+    if (relatedFont) {
+        fontMetrics.reset(SkSafeRef(relatedFont->fontInfo()));
         relatedFontDescriptor = relatedFont->getFontDescriptor();
 
         // This only is to catch callers who pass invalid glyph ids.
@@ -846,8 +832,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
 
         if (fontType == SkAdvancedTypefaceMetrics::kType1CID_Font ||
             fontType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
-            CanonicalFonts()[relatedFontIndex].fFont->ref();
-            return CanonicalFonts()[relatedFontIndex].fFont;
+            return SkRef(relatedFont);
         }
     } else {
         SkAdvancedTypefaceMetrics::PerGlyphInfo info;
@@ -874,39 +859,12 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
 
     SkPDFFont* font = Create(fontMetrics.get(), typeface, glyphID,
                              relatedFontDescriptor);
-    FontRec newEntry(font, fontID, font->fFirstGlyphID);
-    CanonicalFonts().push(newEntry);
+    SkPDFCanon::GetCanon().addFont(font, fontID, font->fFirstGlyphID);
     return font;  // Return the reference new SkPDFFont() created.
 }
 
 SkPDFFont* SkPDFFont::getFontSubset(const SkPDFGlyphSet*) {
     return NULL;  // Default: no support.
-}
-
-// static
-SkTDArray<SkPDFFont::FontRec>& SkPDFFont::CanonicalFonts() {
-    SkPDFFont::CanonicalFontsMutex().assertHeld();
-    static SkTDArray<FontRec> gCanonicalFonts;
-    return gCanonicalFonts;
-}
-
-SK_DECLARE_STATIC_MUTEX(gCanonicalFontsMutex);
-// static
-SkBaseMutex& SkPDFFont::CanonicalFontsMutex() {
-    return gCanonicalFontsMutex;
-}
-
-// static
-bool SkPDFFont::Find(uint32_t fontID, uint16_t glyphID, int* index) {
-    // TODO(vandebo): Optimize this, do only one search?
-    FontRec search(NULL, fontID, glyphID);
-    *index = CanonicalFonts().find(search);
-    if (*index >= 0) {
-        return true;
-    }
-    search.fGlyphID = 0;
-    *index = CanonicalFonts().find(search);
-    return false;
 }
 
 SkPDFFont::SkPDFFont(const SkAdvancedTypefaceMetrics* info,
@@ -1032,34 +990,6 @@ void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(uint16_t glyphID) {
     if (fLastGlyphID > fFirstGlyphID + 255 - 1) {
         fLastGlyphID = fFirstGlyphID + 255 - 1;
     }
-}
-
-bool SkPDFFont::FontRec::operator==(const SkPDFFont::FontRec& b) const {
-    if (fFontID != b.fFontID) {
-        return false;
-    }
-    if (fFont != NULL && b.fFont != NULL) {
-        return fFont->fFirstGlyphID == b.fFont->fFirstGlyphID &&
-            fFont->fLastGlyphID == b.fFont->fLastGlyphID;
-    }
-    if (fGlyphID == 0 || b.fGlyphID == 0) {
-        return true;
-    }
-
-    if (fFont != NULL) {
-        return fFont->fFirstGlyphID <= b.fGlyphID &&
-            b.fGlyphID <= fFont->fLastGlyphID;
-    } else if (b.fFont != NULL) {
-        return b.fFont->fFirstGlyphID <= fGlyphID &&
-            fGlyphID <= b.fFont->fLastGlyphID;
-    }
-    return fGlyphID == b.fGlyphID;
-}
-
-SkPDFFont::FontRec::FontRec(SkPDFFont* font, uint32_t fontID, uint16_t glyphID)
-    : fFont(font),
-      fFontID(fontID),
-      fGlyphID(glyphID) {
 }
 
 void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
@@ -1493,4 +1423,25 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
 
     populateToUnicodeTable(NULL);
     return true;
+}
+
+SkPDFFont::Match SkPDFFont::IsMatch(SkPDFFont* existingFont,
+                                    uint32_t existingFontID,
+                                    uint16_t existingGlyphID,
+                                    uint32_t searchFontID,
+                                    uint16_t searchGlyphID) {
+    if (existingFontID != searchFontID) {
+        return SkPDFFont::kNot_Match;
+    }
+    if (existingGlyphID == 0 || searchGlyphID == 0) {
+        return SkPDFFont::kExact_Match;
+    }
+    if (existingFont != NULL) {
+        return (existingFont->fFirstGlyphID <= searchGlyphID &&
+                searchGlyphID <= existingFont->fLastGlyphID)
+                       ? SkPDFFont::kExact_Match
+                       : SkPDFFont::kRelated_Match;
+    }
+    return (existingGlyphID == searchGlyphID) ? SkPDFFont::kExact_Match
+                                              : SkPDFFont::kRelated_Match;
 }

@@ -6,29 +6,46 @@
  */
 
 #include "SkData.h"
+#include "SkPDFCanon.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFUtils.h"
 #include "SkTypes.h"
 
-static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
+static const char* as_blend_mode(SkXfermode::Mode mode) {
     switch (mode) {
-        case SkXfermode::kSrcOver_Mode:    return "Normal";
-        case SkXfermode::kMultiply_Mode:   return "Multiply";
-        case SkXfermode::kScreen_Mode:     return "Screen";
-        case SkXfermode::kOverlay_Mode:    return "Overlay";
-        case SkXfermode::kDarken_Mode:     return "Darken";
-        case SkXfermode::kLighten_Mode:    return "Lighten";
-        case SkXfermode::kColorDodge_Mode: return "ColorDodge";
-        case SkXfermode::kColorBurn_Mode:  return "ColorBurn";
-        case SkXfermode::kHardLight_Mode:  return "HardLight";
-        case SkXfermode::kSoftLight_Mode:  return "SoftLight";
-        case SkXfermode::kDifference_Mode: return "Difference";
-        case SkXfermode::kExclusion_Mode:  return "Exclusion";
-        case SkXfermode::kHue_Mode:        return "Hue";
-        case SkXfermode::kSaturation_Mode: return "Saturation";
-        case SkXfermode::kColor_Mode:      return "Color";
-        case SkXfermode::kLuminosity_Mode: return "Luminosity";
+        case SkXfermode::kSrcOver_Mode:
+            return "Normal";
+        case SkXfermode::kMultiply_Mode:
+            return "Multiply";
+        case SkXfermode::kScreen_Mode:
+            return "Screen";
+        case SkXfermode::kOverlay_Mode:
+            return "Overlay";
+        case SkXfermode::kDarken_Mode:
+            return "Darken";
+        case SkXfermode::kLighten_Mode:
+            return "Lighten";
+        case SkXfermode::kColorDodge_Mode:
+            return "ColorDodge";
+        case SkXfermode::kColorBurn_Mode:
+            return "ColorBurn";
+        case SkXfermode::kHardLight_Mode:
+            return "HardLight";
+        case SkXfermode::kSoftLight_Mode:
+            return "SoftLight";
+        case SkXfermode::kDifference_Mode:
+            return "Difference";
+        case SkXfermode::kExclusion_Mode:
+            return "Exclusion";
+        case SkXfermode::kHue_Mode:
+            return "Hue";
+        case SkXfermode::kSaturation_Mode:
+            return "Saturation";
+        case SkXfermode::kColor_Mode:
+            return "Color";
+        case SkXfermode::kLuminosity_Mode:
+            return "Luminosity";
 
         // These are handled in SkPDFDevice::setUpContentEntry.
         case SkXfermode::kClear_Mode:
@@ -52,13 +69,52 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
     return NULL;
 }
 
+static bool equivalent(const SkPaint& a, const SkPaint& b) {
+    // We're only interested in some fields of the SkPaint, so we have
+    // a custom equality function.
+    if (SkColorGetA(a.getColor()) != SkColorGetA(b.getColor()) ||
+        a.getStrokeCap() != b.getStrokeCap() ||
+        a.getStrokeJoin() != b.getStrokeJoin() ||
+        a.getStrokeWidth() != b.getStrokeWidth() ||
+        a.getStrokeMiter() != b.getStrokeMiter()) {
+        return false;
+    }
+
+    SkXfermode::Mode aXfermodeName = SkXfermode::kSrcOver_Mode;
+    SkXfermode* aXfermode = a.getXfermode();
+    if (aXfermode) {
+        aXfermode->asMode(&aXfermodeName);
+    }
+    if (aXfermodeName < 0 || aXfermodeName > SkXfermode::kLastMode ||
+        as_blend_mode(aXfermodeName) == NULL) {
+        aXfermodeName = SkXfermode::kSrcOver_Mode;
+    }
+    const char* aXfermodeString = as_blend_mode(aXfermodeName);
+    SkASSERT(aXfermodeString != NULL);
+
+    SkXfermode::Mode bXfermodeName = SkXfermode::kSrcOver_Mode;
+    SkXfermode* bXfermode = b.getXfermode();
+    if (bXfermode) {
+        bXfermode->asMode(&bXfermodeName);
+    }
+    if (bXfermodeName < 0 || bXfermodeName > SkXfermode::kLastMode ||
+        as_blend_mode(bXfermodeName) == NULL) {
+        bXfermodeName = SkXfermode::kSrcOver_Mode;
+    }
+    const char* bXfermodeString = as_blend_mode(bXfermodeName);
+    SkASSERT(bXfermodeString != NULL);
+
+    return strcmp(aXfermodeString, bXfermodeString) == 0;
+}
+
+bool SkPDFGraphicState::equals(const SkPaint& paint) const {
+    return equivalent(paint, fPaint);
+}
+
 SkPDFGraphicState::~SkPDFGraphicState() {
-    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
+    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
     if (!fSMask) {
-        int index = Find(fPaint);
-        SkASSERT(index >= 0);
-        SkASSERT(CanonicalPaints()[index].fGraphicState == this);
-        CanonicalPaints().removeShuffle(index);
+        SkPDFCanon::GetCanon().removeGraphicState(this);
     }
     fResources.unrefAll();
 }
@@ -75,35 +131,23 @@ void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
 }
 
 // static
-SkTDArray<SkPDFGraphicState::GSCanonicalEntry>& SkPDFGraphicState::CanonicalPaints() {
-    CanonicalPaintsMutex().assertHeld();
-    static SkTDArray<SkPDFGraphicState::GSCanonicalEntry> gCanonicalPaints;
-    return gCanonicalPaints;
-}
-
-SK_DECLARE_STATIC_MUTEX(gCanonicalPaintsMutex);
-// static
-SkBaseMutex& SkPDFGraphicState::CanonicalPaintsMutex() {
-    return gCanonicalPaintsMutex;
-}
-
-// static
-SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(const SkPaint& paint) {
-    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
-    int index = Find(paint);
-    if (index >= 0) {
-        CanonicalPaints()[index].fGraphicState->ref();
-        return CanonicalPaints()[index].fGraphicState;
+SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
+        const SkPaint& paint) {
+    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
+    SkPDFGraphicState* pdfGraphicState =
+            SkPDFCanon::GetCanon().findGraphicState(paint);
+    if (pdfGraphicState) {
+        return SkRef(pdfGraphicState);
     }
-    GSCanonicalEntry newEntry(new SkPDFGraphicState(paint));
-    CanonicalPaints().push(newEntry);
-    return newEntry.fGraphicState;
+    pdfGraphicState = new SkPDFGraphicState(paint);
+    SkPDFCanon::GetCanon().addGraphicState(pdfGraphicState);
+    return pdfGraphicState;
 }
 
 // static
 SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
     // This assumes that canonicalPaintsMutex is held.
-    CanonicalPaintsMutex().assertHeld();
+    SkPDFCanon::GetPaintMutex().assertHeld();
     static SkPDFStream* invertFunction = NULL;
     if (!invertFunction) {
         // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
@@ -131,8 +175,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
         SkPDFFormXObject* sMask, bool invert, SkPDFSMaskMode sMaskMode) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
-
+    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
     SkAutoTUnref<SkPDFDict> sMaskDict(new SkPDFDict("Mask"));
     if (sMaskMode == kAlpha_SMaskMode) {
         sMaskDict->insertName("S", "Alpha");
@@ -161,7 +204,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
 
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
-    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
+    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
     static SkPDFGraphicState* noSMaskGS = NULL;
     if (!noSMaskGS) {
         noSMaskGS = new SkPDFGraphicState;
@@ -172,13 +215,6 @@ SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
     }
     noSMaskGS->ref();
     return noSMaskGS;
-}
-
-// static
-int SkPDFGraphicState::Find(const SkPaint& paint) {
-    CanonicalPaintsMutex().assertHeld();
-    GSCanonicalEntry search(&paint);
-    return CanonicalPaints().find(search);
 }
 
 SkPDFGraphicState::SkPDFGraphicState()
@@ -227,54 +263,11 @@ void SkPDFGraphicState::populateDict() {
             fPaint.getXfermode()->asMode(&xfermode);
         // If we don't support the mode, just use kSrcOver_Mode.
         if (xfermode < 0 || xfermode > SkXfermode::kLastMode ||
-                blend_mode_from_xfermode(xfermode) == NULL) {
+            as_blend_mode(xfermode) == NULL) {
             xfermode = SkXfermode::kSrcOver_Mode;
             NOT_IMPLEMENTED("unsupported xfermode", false);
         }
-        insertName("BM", blend_mode_from_xfermode(xfermode));
+        insertName("BM", as_blend_mode(xfermode));
     }
 }
 
-// We're only interested in some fields of the SkPaint, so we have a custom
-// operator== function.
-bool SkPDFGraphicState::GSCanonicalEntry::operator==(
-        const SkPDFGraphicState::GSCanonicalEntry& gs) const {
-    const SkPaint* a = fPaint;
-    const SkPaint* b = gs.fPaint;
-    SkASSERT(a != NULL);
-    SkASSERT(b != NULL);
-
-    if (SkColorGetA(a->getColor()) != SkColorGetA(b->getColor()) ||
-           a->getStrokeCap() != b->getStrokeCap() ||
-           a->getStrokeJoin() != b->getStrokeJoin() ||
-           a->getStrokeWidth() != b->getStrokeWidth() ||
-           a->getStrokeMiter() != b->getStrokeMiter()) {
-        return false;
-    }
-
-    SkXfermode::Mode aXfermodeName = SkXfermode::kSrcOver_Mode;
-    SkXfermode* aXfermode = a->getXfermode();
-    if (aXfermode) {
-        aXfermode->asMode(&aXfermodeName);
-    }
-    if (aXfermodeName < 0 || aXfermodeName > SkXfermode::kLastMode ||
-            blend_mode_from_xfermode(aXfermodeName) == NULL) {
-        aXfermodeName = SkXfermode::kSrcOver_Mode;
-    }
-    const char* aXfermodeString = blend_mode_from_xfermode(aXfermodeName);
-    SkASSERT(aXfermodeString != NULL);
-
-    SkXfermode::Mode bXfermodeName = SkXfermode::kSrcOver_Mode;
-    SkXfermode* bXfermode = b->getXfermode();
-    if (bXfermode) {
-        bXfermode->asMode(&bXfermodeName);
-    }
-    if (bXfermodeName < 0 || bXfermodeName > SkXfermode::kLastMode ||
-            blend_mode_from_xfermode(bXfermodeName) == NULL) {
-        bXfermodeName = SkXfermode::kSrcOver_Mode;
-    }
-    const char* bXfermodeString = blend_mode_from_xfermode(bXfermodeName);
-    SkASSERT(bXfermodeString != NULL);
-
-    return strcmp(aXfermodeString, bXfermodeString) == 0;
-}

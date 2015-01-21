@@ -71,29 +71,13 @@ public:
      */
     static SkPDFGraphicState* GetNoSMaskGraphicState();
 
+    bool equals(const SkPaint&) const;
+
 private:
     const SkPaint fPaint;
     SkTDArray<SkPDFObject*> fResources;
     bool fPopulated;
     bool fSMask;
-
-    class GSCanonicalEntry {
-    public:
-        SkPDFGraphicState* fGraphicState;
-        const SkPaint* fPaint;
-
-        bool operator==(const GSCanonicalEntry& b) const;
-        explicit GSCanonicalEntry(SkPDFGraphicState* gs)
-            : fGraphicState(gs),
-              fPaint(&gs->fPaint) {}
-        explicit GSCanonicalEntry(const SkPaint* paint)
-            : fGraphicState(NULL),
-              fPaint(paint) {}
-    };
-
-    // This should be made a hash table if performance is a problem.
-    static SkTDArray<GSCanonicalEntry>& CanonicalPaints();
-    static SkBaseMutex& CanonicalPaintsMutex();
 
     SkPDFGraphicState();
     explicit SkPDFGraphicState(const SkPaint& paint);
@@ -102,7 +86,6 @@ private:
 
     static SkPDFObject* GetInvertFunction();
 
-    static int Find(const SkPaint& paint);
     typedef SkPDFDict INHERITED;
 };
 

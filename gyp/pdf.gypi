@@ -12,6 +12,8 @@
 
         '<(skia_src_path)/doc/SkDocument_PDF.cpp',
 
+        '<(skia_src_path)/pdf/SkPDFCanon.cpp',
+        '<(skia_src_path)/pdf/SkPDFCanon.h',
         '<(skia_src_path)/pdf/SkPDFCatalog.cpp',
         '<(skia_src_path)/pdf/SkPDFCatalog.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',

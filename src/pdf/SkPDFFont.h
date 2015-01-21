@@ -139,6 +139,17 @@ public:
      */
     virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
 
+    enum Match {
+        kExact_Match,
+        kRelated_Match,
+        kNot_Match,
+    };
+    static Match IsMatch(SkPDFFont* existingFont,
+                         uint32_t existingFontID,
+                         uint16_t existingGlyphID,
+                         uint32_t searchFontID,
+                         uint16_t searchGlyphID);
+
 protected:
     // Common constructor to handle common members.
     SkPDFFont(const SkAdvancedTypefaceMetrics* fontInfo, SkTypeface* typeface,
@@ -178,17 +189,6 @@ protected:
     static bool Find(uint32_t fontID, uint16_t glyphID, int* index);
 
 private:
-    class FontRec {
-    public:
-        SkPDFFont* fFont;
-        uint32_t fFontID;
-        uint16_t fGlyphID;
-
-        // A fGlyphID of 0 with no fFont always matches.
-        bool operator==(const FontRec& b) const;
-        FontRec(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID);
-    };
-
     SkAutoTUnref<SkTypeface> fTypeface;
 
     // The glyph IDs accessible with this font.  For Type1 (non CID) fonts,
@@ -201,9 +201,6 @@ private:
 
     SkAdvancedTypefaceMetrics::FontType fFontType;
 
-    // This should be made a hash table if performance is a problem.
-    static SkTDArray<FontRec>& CanonicalFonts();
-    static SkBaseMutex& CanonicalFontsMutex();
     typedef SkPDFDict INHERITED;
 };
 
