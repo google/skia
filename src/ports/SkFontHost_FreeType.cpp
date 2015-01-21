@@ -697,11 +697,11 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
         rec->fTextSize = SkIntToScalar(1 << 14);
     }
 
-    {
+    if (isLCD(*rec)) {
         // TODO: re-work so that FreeType is set-up and selected by the SkFontMgr.
         SkAutoMutexAcquire ama(gFTMutex);
         ref_ft_library();
-        if (!gFTLibrary->isLCDSupported() && isLCD(*rec)) {
+        if (!gFTLibrary->isLCDSupported()) {
             // If the runtime Freetype library doesn't support LCD, disable it here.
             rec->fMaskFormat = SkMask::kA8_Format;
         }
