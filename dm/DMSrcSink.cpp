@@ -240,7 +240,6 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
 
         Error draw(SkCanvas* canvas) const SK_OVERRIDE {
             SkISize size = this->size();
-            // TODO: is DecodeMemory really required? Might help RAM usage to be lazy if we can.
             PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
             SkGPipeWriter pipe;
             const uint32_t kFlags = 0; // We mirror SkDeferredCanvas, which doesn't use any flags.
