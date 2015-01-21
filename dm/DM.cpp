@@ -353,7 +353,7 @@ static void run_enclave(SkTArray<Task>* tasks) {
 
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
-static SkTDArray<skiatest::Test> gCPUTests, gGPUTests;
+static SkTDArray<skiatest::Test> gThreadedTests, gGPUTests;
 
 static void gather_tests() {
     if (!FLAGS_src.contains("tests")) {
@@ -368,9 +368,9 @@ static void gather_tests() {
             continue;
         }
         if (test.needsGpu && gpu_supported()) {
-            gGPUTests.push(test);
+            (FLAGS_gpu_threading ? gThreadedTests : gGPUTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
-            gCPUTests.push(test);
+            gThreadedTests.push(test);
         }
     }
 }
@@ -389,13 +389,22 @@ static void run_test(skiatest::Test* test) {
     WallTimer timer;
     timer.start();
     if (!FLAGS_dryRun) {
-        test->proc(&reporter, GetThreadLocalGrContextFactory());
+        GrContextFactory factory;
+        test->proc(&reporter, &factory);
     }
     timer.end();
     done(timer.fWall, "unit", "test", test->name);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+// If we're isolating all GPU-bound work to one thread (the default), this function runs all that.
+static void run_enclave_and_gpu_tests(SkTArray<Task>* tasks) {
+    run_enclave(tasks);
+    for (int i = 0; i < gGPUTests.count(); i++) {
+        run_test(&gGPUTests[i]);
+    }
+}
 
 int dm_main();
 int dm_main() {
@@ -407,9 +416,9 @@ int dm_main() {
     gather_sinks();
     gather_tests();
 
-    gPending = gSrcs.count() * gSinks.count() + gCPUTests.count() + gGPUTests.count();
+    gPending = gSrcs.count() * gSinks.count() + gThreadedTests.count() + gGPUTests.count();
     SkDebugf("%d srcs * %d sinks + %d tests == %d tasks\n",
-             gSrcs.count(), gSinks.count(), gCPUTests.count() + gGPUTests.count(), gPending);
+             gSrcs.count(), gSinks.count(), gThreadedTests.count() + gGPUTests.count(), gPending);
 
     // We try to exploit as much parallelism as is safe.  Most Src/Sink pairs run on any thread,
     // but Sinks that identify as part of a particular enclave run serially on a single thread.
@@ -422,30 +431,23 @@ int dm_main() {
         }
     }
 
-    SK_COMPILE_ASSERT(kAnyThread_Enclave == 0, AnyThreadZero);
     SkTaskGroup tg;
-        tg.batch(  Task::Run, enclaves[0].begin(), enclaves[0].count());
-        tg.batch(run_enclave,          enclaves+1,      kNumEnclaves-1);
-        tg.batch(   run_test,   gCPUTests.begin(),   gCPUTests.count());
-        if (FLAGS_gpu_threading) {
-            tg.batch(run_test,  gGPUTests.begin(),   gGPUTests.count());
-        #if !defined(SK_BUILD_FOR_WIN32)
-        } else {
-            for (int i = 0; i < gGPUTests.count(); i++) {
-                run_test(&gGPUTests[i]);
-            }
-        #endif
+    tg.batch(run_test, gThreadedTests.begin(), gThreadedTests.count());
+    for (int i = 0; i < kNumEnclaves; i++) {
+        switch(i) {
+            case kAnyThread_Enclave:
+                tg.batch(Task::Run, enclaves[i].begin(), enclaves[i].count());
+                break;
+            case kGPU_Enclave:
+                tg.add(run_enclave_and_gpu_tests, &enclaves[i]);
+                break;
+            default:
+                tg.add(run_enclave, &enclaves[i]);
+                break;
         }
+    }
     tg.wait();
     // At this point we're back in single-threaded land.
-
-    // This is not ideal for parallelism, but Windows seems crash-prone if we run
-    // these GPU tests in parallel with any GPU Src/Sink work.  Everyone else seems fine.
-#if defined(SK_BUILD_FOR_WIN32)
-    for (int i = 0; i < gGPUTests.count(); i++) {
-        run_test(&gGPUTests[i]);
-    }
-#endif
 
     SkDebugf("\n");
     JsonWriter::DumpJson();

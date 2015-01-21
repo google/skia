@@ -41,7 +41,7 @@ struct Sink {
     virtual const char* fileExtension() const  = 0;
 };
 
-enum { kAnyThread_Enclave, kGPUSink_Enclave, kPDFSink_Enclave };
+enum { kAnyThread_Enclave, kGPU_Enclave, kPDFSink_Enclave };
 static const int kNumEnclaves = kPDFSink_Enclave + 1;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

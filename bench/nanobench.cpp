@@ -74,6 +74,7 @@ DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
+DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));

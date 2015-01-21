@@ -37,9 +37,7 @@ DEFINE_string2(match, m, NULL,
 
 DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
 
-DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
-DEFINE_bool(abandonGpuContext, false, "Abandon the GrContext after running each test. "
-                                      "Implies --resetGpuContext.");
+DEFINE_bool(abandonGpuContext, false, "Abandon the GrContext after running each test.");
 
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 

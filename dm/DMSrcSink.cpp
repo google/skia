@@ -141,22 +141,16 @@ GPUSink::GPUSink(GrContextFactory::GLContextType ct,
     , fThreaded(threaded) {}
 
 int GPUSink::enclave() const {
-    return fThreaded ? kAnyThread_Enclave : kGPUSink_Enclave;
+    return fThreaded ? kAnyThread_Enclave : kGPU_Enclave;
 }
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
-    GrContextFactory* factory = GetThreadLocalGrContextFactory();
-    if (FLAGS_abandonGpuContext) {
-        factory->abandonContexts();
-    }
-    if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
-        factory->destroyContexts();
-    }
+    GrContextFactory factory;
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(
-            NewGpuSurface(factory, fContextType, fGpuAPI, info, fSampleCount, fUseDFText));
+            NewGpuSurface(&factory, fContextType, fGpuAPI, info, fSampleCount, fUseDFText));
     if (!surface) {
         return "Could not create a surface.";
     }
@@ -168,6 +162,9 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
     canvas->flush();
     dst->allocPixels(info);
     canvas->readPixels(dst, 0,0);
+    if (FLAGS_abandonGpuContext) {
+        factory.abandonContexts();
+    }
     return "";
 }
 
