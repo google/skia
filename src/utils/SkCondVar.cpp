@@ -18,9 +18,7 @@
 #endif
 
 bool SkCondVar::Supported() {
-#ifdef SK_USE_POSIX_THREADS
-    return true;
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     // If we're >= Vista we'll find these functions.  Otherwise (XP) SkCondVar is not supported.
     HMODULE kernel32 = GetModuleHandleA("kernel32.dll");
     set_fn_ptr(&initialize_condition_variable,
@@ -36,70 +34,70 @@ bool SkCondVar::Supported() {
         && wake_condition_variable
         && wake_all_condition_variable;
 #else
-    return false;
+    return true;
 #endif
 }
 
 SkCondVar::SkCondVar() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_mutex_init(&fMutex, NULL /* default mutex attr */);
-    pthread_cond_init(&fCond, NULL /* default cond attr */);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     InitializeCriticalSection(&fCriticalSection);
     SkASSERT(initialize_condition_variable);
     initialize_condition_variable(&fCondition);
+#else
+    pthread_mutex_init(&fMutex, NULL /* default mutex attr */);
+    pthread_cond_init(&fCond, NULL /* default cond attr */);
 #endif
 }
 
 SkCondVar::~SkCondVar() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_mutex_destroy(&fMutex);
-    pthread_cond_destroy(&fCond);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     DeleteCriticalSection(&fCriticalSection);
     // No need to clean up fCondition.
+#else
+    pthread_mutex_destroy(&fMutex);
+    pthread_cond_destroy(&fCond);
 #endif
 }
 
 void SkCondVar::lock() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_mutex_lock(&fMutex);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     EnterCriticalSection(&fCriticalSection);
+#else
+    pthread_mutex_lock(&fMutex);
 #endif
 }
 
 void SkCondVar::unlock() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_mutex_unlock(&fMutex);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     LeaveCriticalSection(&fCriticalSection);
+#else
+    pthread_mutex_unlock(&fMutex);
 #endif
 }
 
 void SkCondVar::wait() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_cond_wait(&fCond, &fMutex);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     SkASSERT(sleep_condition_variable);
     sleep_condition_variable(&fCondition, &fCriticalSection, INFINITE);
+#else
+    pthread_cond_wait(&fCond, &fMutex);
 #endif
 }
 
 void SkCondVar::signal() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_cond_signal(&fCond);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     SkASSERT(wake_condition_variable);
     wake_condition_variable(&fCondition);
+#else
+    pthread_cond_signal(&fCond);
 #endif
 }
 
 void SkCondVar::broadcast() {
-#ifdef SK_USE_POSIX_THREADS
-    pthread_cond_broadcast(&fCond);
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     SkASSERT(wake_all_condition_variable);
     wake_all_condition_variable(&fCondition);
+#else
+    pthread_cond_broadcast(&fCond);
 #endif
 }

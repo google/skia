@@ -632,14 +632,6 @@
       },
     ],
 
-    # We can POD-style initialization of static mutexes to avoid generating
-    # static initializers if we're using a pthread-compatible thread interface.
-    [ 'skia_os != "win"', {
-      'defines': [
-        'SK_USE_POSIX_THREADS',
-      ],
-    }],
-
     [ 'skia_moz2d', {
       'defines': [
         # add flags here (e.g. SK_SUPPORT_LEGACY_...) needed by moz2d

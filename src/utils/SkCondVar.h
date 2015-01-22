@@ -10,12 +10,10 @@
 
 #include "SkTypes.h"
 
-#ifdef SK_USE_POSIX_THREADS
-    #include <pthread.h>
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     #include <windows.h>
 #else
-    #error "SkCondVar requires pthreads or Windows."
+    #include <pthread.h>
 #endif
 
 /**
@@ -64,12 +62,12 @@ public:
     void broadcast();
 
 private:
-#ifdef SK_USE_POSIX_THREADS
-    pthread_mutex_t  fMutex;
-    pthread_cond_t   fCond;
-#elif defined(SK_BUILD_FOR_WIN32)
+#ifdef SK_BUILD_FOR_WIN32
     CRITICAL_SECTION   fCriticalSection;
     CONDITION_VARIABLE fCondition;
+#else
+    pthread_mutex_t  fMutex;
+    pthread_cond_t   fCond;
 #endif
 };
 
