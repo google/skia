@@ -936,22 +936,6 @@ static SkScalar fast_len(const SkVector& vec) {
     return x + SkScalarHalf(y);
 }
 
-static bool xfermodeSupportsCoverageAsAlpha(SkXfermode* xfer) {
-    SkXfermode::Coeff dc;
-    if (!SkXfermode::AsCoeff(xfer, NULL, &dc)) {
-        return false;
-    }
-
-    switch (dc) {
-        case SkXfermode::kOne_Coeff:
-        case SkXfermode::kISA_Coeff:
-        case SkXfermode::kISC_Coeff:
-            return true;
-        default:
-            return false;
-    }
-}
-
 bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix,
                                    SkScalar* coverage) {
     SkASSERT(strokeWidth > 0);
@@ -1063,7 +1047,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (SkDrawTreatAsHairline(origPaint, *matrix, &coverage)) {
             if (SK_Scalar1 == coverage) {
                 paint.writable()->setStrokeWidth(0);
-            } else if (xfermodeSupportsCoverageAsAlpha(origPaint.getXfermode())) {
+            } else if (SkXfermode::SupportsCoverageAsAlpha(origPaint.getXfermode())) {
                 U8CPU newAlpha;
 #if 0
                 newAlpha = SkToU8(SkScalarRoundToInt(coverage *

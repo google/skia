@@ -667,10 +667,6 @@ const ProcCoeff gProcCoeffs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkXfermode::asCoeff(Coeff* src, Coeff* dst) const {
-    return false;
-}
-
 bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
@@ -783,6 +779,14 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
     }
 }
 
+bool SkXfermode::supportsCoverageAsAlpha() const {
+    return false;
+}
+
+bool SkXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -805,18 +809,45 @@ bool SkProcCoeffXfermode::asMode(Mode* mode) const {
     return true;
 }
 
-bool SkProcCoeffXfermode::asCoeff(Coeff* sc, Coeff* dc) const {
+bool SkProcCoeffXfermode::supportsCoverageAsAlpha() const {
     if (CANNOT_USE_COEFF == fSrcCoeff) {
         return false;
     }
 
-    if (sc) {
-        *sc = fSrcCoeff;
+    switch (fDstCoeff) {
+        case SkXfermode::kOne_Coeff:
+        case SkXfermode::kISA_Coeff:
+        case SkXfermode::kISC_Coeff:
+            return true;
+        default:
+            return false;
     }
-    if (dc) {
-        *dc = fDstCoeff;
+}
+
+bool SkProcCoeffXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
+    if (CANNOT_USE_COEFF == fSrcCoeff) {
+        return false;
     }
-    return true;
+   
+    if (SkXfermode::kDA_Coeff == fSrcCoeff || SkXfermode::kDC_Coeff == fSrcCoeff ||
+        SkXfermode::kIDA_Coeff == fSrcCoeff || SkXfermode::kIDC_Coeff == fSrcCoeff) {
+        return false;
+    }
+        
+    switch (fDstCoeff) {
+        case SkXfermode::kZero_Coeff:
+            return true;
+        case SkXfermode::kISA_Coeff:
+            return SkXfermode::kOpaque_SrcColorOpacity == opacityType;
+        case SkXfermode::kSA_Coeff:
+            return SkXfermode::kTransparentBlack_SrcColorOpacity == opacityType ||
+                   SkXfermode::kTransparentAlpha_SrcColorOpacity == opacityType;
+        case SkXfermode::kSC_Coeff:
+            return SkXfermode::kTransparentBlack_SrcColorOpacity == opacityType;
+        default:
+            return false;
+    }
+
 }
 
 void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
@@ -1309,13 +1340,6 @@ bool SkXfermode::AsMode(const SkXfermode* xfer, Mode* mode) {
     return xfer->asMode(mode);
 }
 
-bool SkXfermode::AsCoeff(const SkXfermode* xfer, Coeff* src, Coeff* dst) {
-    if (NULL == xfer) {
-        return ModeAsCoeff(kSrcOver_Mode, src, dst);
-    }
-    return xfer->asCoeff(src, dst);
-}
-
 bool SkXfermode::IsMode(const SkXfermode* xfer, Mode mode) {
     // if xfer==null then the mode is srcover
     Mode m = kSrcOver_Mode;
@@ -1323,6 +1347,24 @@ bool SkXfermode::IsMode(const SkXfermode* xfer, Mode mode) {
         return false;
     }
     return mode == m;
+}
+
+bool SkXfermode::SupportsCoverageAsAlpha(const SkXfermode* xfer) {
+    // if xfer is NULL we treat it as srcOver which always supports coverageAsAlpha
+    if (!xfer) {
+        return true;
+    }
+
+    return xfer->supportsCoverageAsAlpha();
+}
+
+bool SkXfermode::IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType) {
+    // if xfer is NULL we treat it as srcOver which is opaque if our src is opaque
+    if (!xfer) {
+        return SkXfermode::kOpaque_SrcColorOpacity == opacityType;
+    }
+
+    return xfer->isOpaque(opacityType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

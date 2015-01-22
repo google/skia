@@ -32,7 +32,9 @@ public:
 
     bool asMode(Mode* mode) const SK_OVERRIDE;
 
-    bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE;
+    bool supportsCoverageAsAlpha() const SK_OVERRIDE;
+
+    bool isOpaque(SkXfermode::SrcColorOpacity opacityType) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
     virtual bool asFragmentProcessor(GrFragmentProcessor**,

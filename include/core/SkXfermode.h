@@ -57,29 +57,6 @@ public:
         kCoeffCount
     };
 
-    /** If the xfermode can be expressed as an equation using the coefficients
-        in Coeff, then asCoeff() returns true, and sets (if not null) src and
-        dst accordingly.
-
-            result = src_coeff * src_color + dst_coeff * dst_color;
-
-        As examples, here are some of the porterduff coefficients
-
-        MODE        SRC_COEFF       DST_COEFF
-        clear       zero            zero
-        src         one             zero
-        dst         zero            one
-        srcover     one             isa
-        dstover     ida             one
-     */
-    virtual bool asCoeff(Coeff* src, Coeff* dst) const;
-
-    /**
-     *  The same as calling xfermode->asCoeff(..), except that this also checks
-     *  if the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
-     */
-    static bool AsCoeff(const SkXfermode*, Coeff* src, Coeff* dst);
-
     /** List of predefined xfermodes.
         The algebra for the modes uses the following symbols:
         Sa, Sc  - source alpha and color
@@ -189,6 +166,41 @@ public:
     static bool IsMode(const SkXfermode* xfer, Mode* mode) {
         return AsMode(xfer, mode);
     }
+
+    /**
+     * Returns whether or not the xfer mode can support treating coverage as alpha
+     */    
+    virtual bool supportsCoverageAsAlpha() const;
+
+    /**
+     *  The same as calling xfermode->supportsCoverageAsAlpha(), except that this also checks if
+     *  the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
+     */
+    static bool SupportsCoverageAsAlpha(const SkXfermode* xfer);
+
+    enum SrcColorOpacity {
+        // The src color is known to be opaque (alpha == 255)
+        kOpaque_SrcColorOpacity = 0,
+        // The src color is known to be fully transparent (color == 0)
+        kTransparentBlack_SrcColorOpacity = 1,
+        // The src alpha is known to be fully transparent (alpha == 0)
+        kTransparentAlpha_SrcColorOpacity = 2,
+        // The src color opacity is unknown
+        kUnknown_SrcColorOpacity = 3
+    };
+
+    /**
+     * Returns whether or not the result of the draw with the xfer mode will be opaque or not. The
+     * input to this call is an enum describing known information about the opacity of the src color
+     * that will be given to the xfer mode.
+     */
+    virtual bool isOpaque(SrcColorOpacity opacityType) const;
+
+    /**
+     *  The same as calling xfermode->isOpaque(...), except that this also checks if
+     *  the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
+     */
+    static bool IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType);
 
     /** Implemented by a subclass to support use as an image filter in the GPU backend. When used as
         an image filter the xfer mode blends the source color against a background texture rather
