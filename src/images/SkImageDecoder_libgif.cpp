@@ -229,7 +229,8 @@ static void sanitize_indexed_bitmap(SkBitmap* bm) {
     }
 }
 
-int close_gif(GifFileType*);  // This function is a template argument, so can't be static.
+namespace {
+// This function is a template argument, so can't be static.
 int close_gif(GifFileType* gif) {
 #if GIFLIB_MAJOR < 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR == 0)
     return DGifCloseFile(gif);
@@ -237,6 +238,7 @@ int close_gif(GifFileType* gif) {
     return DGifCloseFile(gif, NULL);
 #endif
 }
+}//namespace
 
 SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
 #if GIFLIB_MAJOR < 5
