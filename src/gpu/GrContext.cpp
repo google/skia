@@ -298,7 +298,7 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
     rtDesc.fWidth  = GrNextPow2(desc.fWidth);
     rtDesc.fHeight = GrNextPow2(desc.fHeight);
 
-    GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
+    GrTexture* texture = fGpu->createTexture(rtDesc, true, NULL, 0);
 
     if (texture) {
         GrDrawState drawState;
@@ -347,7 +347,7 @@ GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
 
         size_t stretchedRowBytes = rtDesc.fWidth * bpp;
 
-        texture = fGpu->createTexture(rtDesc, stretchedPixels.get(), stretchedRowBytes);
+        texture = fGpu->createTexture(rtDesc, true, stretchedPixels.get(), stretchedRowBytes);
         SkASSERT(texture);
     }
 
@@ -371,7 +371,7 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
                                              srcData, rowBytes,
                                              GrTexturePriv::NeedsBilerp(resourceKey));
     } else {
-        texture = fGpu->createTexture(desc, srcData, rowBytes);
+        texture = fGpu->createTexture(desc, true, srcData, rowBytes);
     }
 
     if (texture) {
@@ -445,7 +445,7 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
         desc.writable()->fFlags = origFlags;
     }
 
-    GrTexture* texture = fGpu->createTexture(*desc, NULL, 0);
+    GrTexture* texture = fGpu->createTexture(*desc, true, NULL, 0);
 #ifdef SK_DEBUG
     GrScratchKey key;
     GrTexturePriv::ComputeScratchKey(*desc, &key);
@@ -464,17 +464,10 @@ void GrContext::OverBudgetCB(void* data) {
 }
 
 
-GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& descIn,
+GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& desc,
                                             void* srcData,
                                             size_t rowBytes) {
-    GrSurfaceDesc descCopy = descIn;
-    GrTexture* texture = fGpu->createTexture(descCopy, srcData, rowBytes);
-    if (texture) {
-        // TODO: It'd be nice to be able to do this before creation so we don't boot something
-        // out of the cache. We could temporarily boost the cache budget.
-        texture->cacheAccess().setBudgeted(false);
-    }
-    return texture;
+    return fGpu->createTexture(desc, false, srcData, rowBytes);
 }
 
 void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {

@@ -225,7 +225,7 @@ GrPlot* GrAtlas::addToAtlas(ClientPlotUsage* usage,
         desc.fHeight = fBackingTextureSize.height();
         desc.fConfig = fPixelConfig;
 
-        fTexture = fGpu->createTexture(desc, NULL, 0);
+        fTexture = fGpu->createTexture(desc, true, NULL, 0);
         if (NULL == fTexture) {
             return NULL;
         }

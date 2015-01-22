@@ -46,7 +46,7 @@ protected:
         size.fWidth /= 10;
         size.fHeight /= 10;
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
-        SkSurface* surface = SkSurface::NewRenderTarget(context, info);
+        SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info);
 
         if (NULL == surface) {
             return;

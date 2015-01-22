@@ -188,7 +188,7 @@ static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
         desc.fHeight = height;
         desc.fConfig = kAlpha_8_GrPixelConfig;
 
-        *gammaTexture = context->getGpu()->createTexture(desc, NULL, 0);
+        *gammaTexture = context->getGpu()->createTexture(desc, true, NULL, 0);
         if (NULL == *gammaTexture) {
             return;
         }

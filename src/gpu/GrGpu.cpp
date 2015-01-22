@@ -34,7 +34,7 @@ void GrGpu::contextAbandoned() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc,
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
                                 const void* srcData, size_t rowBytes) {
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return NULL;
@@ -56,10 +56,10 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc,
         }
 
         this->handleDirtyContext();
-        tex = this->onCreateCompressedTexture(desc, srcData);
+        tex = this->onCreateCompressedTexture(desc, budgeted, srcData);
     } else {
         this->handleDirtyContext();
-        tex = this->onCreateTexture(desc, srcData, rowBytes);
+        tex = this->onCreateTexture(desc, budgeted, srcData, rowBytes);
         if (tex &&
             (kRenderTarget_GrSurfaceFlag & desc.fFlags) &&
             !(kNoStencil_GrSurfaceFlag & desc.fFlags)) {

@@ -109,10 +109,8 @@ public:
     void setStencilBuffer(GrStencilBuffer* stencilBuffer);
 
 protected:
-    GrRenderTarget(GrGpu* gpu,
-                   bool isWrapped,
-                   const GrSurfaceDesc& desc)
-        : INHERITED(gpu, isWrapped, desc)
+    GrRenderTarget(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
+        : INHERITED(gpu, lifeCycle, desc)
         , fStencilBuffer(NULL) {
         fResolveRect.setLargestInverted();
     }

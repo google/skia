@@ -87,13 +87,12 @@ public:
 private:
     void onResetContext(uint32_t resetBits) SK_OVERRIDE {}
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                               const void* srcData,
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
                                size_t rowBytes) SK_OVERRIDE {
         return NULL;
     }
 
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, bool budgeted,
                                          const void* srcData) SK_OVERRIDE {
         return NULL;
     }

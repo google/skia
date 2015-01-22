@@ -50,8 +50,8 @@ public:
     static void ComputeKey(int width, int height, int sampleCnt, GrScratchKey* key);
 
 protected:
-    GrStencilBuffer(GrGpu* gpu, bool isWrapped, int width, int height, int bits, int sampleCnt)
-        : GrGpuResource(gpu, isWrapped)
+    GrStencilBuffer(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
+        : GrGpuResource(gpu, kCached_LifeCycle)
         , fWidth(width)
         , fHeight(height)
         , fBits(bits)

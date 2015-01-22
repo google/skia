@@ -224,12 +224,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     dummyDesc.fConfig = kSkia8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
-    SkAutoTUnref<GrTexture> dummyTexture1(gpu->createTexture(dummyDesc, NULL, 0));
+    SkAutoTUnref<GrTexture> dummyTexture1(gpu->createTexture(dummyDesc, false, NULL, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
-    SkAutoTUnref<GrTexture> dummyTexture2(gpu->createTexture(dummyDesc, NULL, 0));
+    SkAutoTUnref<GrTexture> dummyTexture2(gpu->createTexture(dummyDesc, false, NULL, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
         SkDebugf("Could not allocate dummy textures");

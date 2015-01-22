@@ -69,7 +69,9 @@ void SkImage_Gpu::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& 
 
 SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
     GrContext* ctx = this->getTexture()->getContext();
-    return SkSurface::NewRenderTarget(ctx, info, fSampleCountForNewSurfaces, &props);
+    // TODO: Change signature of onNewSurface to take a budgeted param.
+    static const SkSurface::Budgeted kBudgeted = SkSurface::kNo_Budgeted;
+    return SkSurface::NewRenderTarget(ctx, kBudgeted, info, fSampleCountForNewSurfaces, &props);
 }
 
 GrTexture* SkImage_Gpu::onGetTexture() const {

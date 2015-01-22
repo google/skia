@@ -15,7 +15,7 @@ enum {
 GrPathRange::GrPathRange(GrGpu* gpu,
                          PathGenerator* pathGenerator,
                          const SkStrokeRec& stroke)
-    : INHERITED(gpu, kIsWrapped),
+    : INHERITED(gpu, kCached_LifeCycle),
       fPathGenerator(SkRef(pathGenerator)),
       fNumPaths(fPathGenerator->getNumPaths()),
       fStroke(stroke) {
@@ -27,7 +27,7 @@ GrPathRange::GrPathRange(GrGpu* gpu,
 GrPathRange::GrPathRange(GrGpu* gpu,
                          int numPaths,
                          const SkStrokeRec& stroke)
-    : INHERITED(gpu, kIsWrapped),
+    : INHERITED(gpu, kCached_LifeCycle),
       fNumPaths(numPaths),
       fStroke(stroke) {
 }

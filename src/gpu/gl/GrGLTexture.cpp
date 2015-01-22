@@ -13,15 +13,15 @@
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
-    : GrSurface(gpu, idDesc.fIsWrapped, desc)
-    , INHERITED(gpu, idDesc.fIsWrapped, desc) {
+    : GrSurface(gpu, idDesc.fLifeCycle, desc)
+    , INHERITED(gpu, idDesc.fLifeCycle, desc) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc, Derived)
-    : GrSurface(gpu, idDesc.fIsWrapped, desc)
-    , INHERITED(gpu, idDesc.fIsWrapped, desc) {
+    : GrSurface(gpu, idDesc.fLifeCycle, desc)
+    , INHERITED(gpu, idDesc.fLifeCycle, desc) {
     this->init(desc, idDesc);
 }
 
@@ -30,7 +30,7 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fTextureID = idDesc.fTextureID;
-    fIsWrapped = idDesc.fIsWrapped;
+    fIsWrapped = kWrapped_LifeCycle == idDesc.fLifeCycle;
 }
 
 void GrGLTexture::onRelease() {

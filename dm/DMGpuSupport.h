@@ -25,7 +25,8 @@ static inline SkSurface* NewGpuSurface(GrContextFactory* grFactory,
                                        bool useDFText) {
     uint32_t flags = useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI), info, samples, &props);
+    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI), SkSurface::kNo_Budgeted,
+                                      info, samples, &props);
 }
 
 }  // namespace DM

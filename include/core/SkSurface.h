@@ -33,6 +33,18 @@ public:
     SK_DECLARE_INST_COUNT(SkSurface)
 
     /**
+     *  Indicates whether a new surface or image should count against a cache budget. Currently this
+     *  is only used by the GPU backend (sw-raster surfaces and images are never counted against the
+     *  resource cache budget.)
+     */
+    enum Budgeted {
+        /** The surface or image does not count against the cache budget. */
+        kNo_Budgeted,
+        /** The surface or image counts against the cache budget. */
+        kYes_Budgeted
+    };
+
+    /**
      *  Create a new surface, using the specified pixels/rowbytes as its
      *  backend.
      *
@@ -86,30 +98,27 @@ public:
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
-    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
+    static SkSurface* NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int sampleCount,
                                       const SkSurfaceProps* = NULL);
 
-    static SkSurface* NewRenderTarget(GrContext* gr, const SkImageInfo& info) {
-        return NewRenderTarget(gr, info, 0, NULL);
+    static SkSurface* NewRenderTarget(GrContext* gr, Budgeted b, const SkImageInfo& info) {
+        return NewRenderTarget(gr, b, info, 0, NULL);
     }
 
     /**
-     *  Return a new surface whose contents will be drawn to an offscreen
-     *  render target, allocated by the surface from the scratch texture pool
-     *  managed by the GrContext. The scratch texture pool serves the purpose
-     *  of retaining textures after they are no longer in use in order to
-     *  re-use them later without having to re-allocate.  Scratch textures
-     *  should be used in cases where high turnover is expected. This allows,
-     *  for example, the copy on write to recycle a texture from a recently
-     *  released SkImage snapshot of the surface.
-     *  Note: Scratch textures count against the GrContext's cached resource
-     *  budget.
+     * Deprecated - use the Budgeted param on NewRenderTarget.
      */
-    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount,
-                                             const SkSurfaceProps* = NULL);
+    static SkSurface* NewScratchRenderTarget(GrContext* gr, const SkImageInfo& info,
+                                             int sampleCount, const SkSurfaceProps* props) {
+        return NewRenderTarget(gr, kYes_Budgeted, info, sampleCount, props);
+    }
 
-    static SkSurface* NewScratchRenderTarget(GrContext* gr, const SkImageInfo& info) {
-        return NewScratchRenderTarget(gr, info, 0, NULL);
+    /**
+     * Deprecated - use the version that takes a Budgeted param.
+     */
+    static SkSurface* NewRenderTarget(GrContext* gr, const SkImageInfo& info, int sampleCount,
+                                      const SkSurfaceProps* props) {
+        return NewRenderTarget(gr, kNo_Budgeted, info, sampleCount, props);
     }
 
     int width() const { return fWidth; }

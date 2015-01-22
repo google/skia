@@ -85,13 +85,12 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
                 if (!GrContextFactory::IsRenderingGLContext(type)) {
                     continue;
                 }
-                GrContext* context = factory->get(type);
-                if (NULL == context) {
+                GrContext* ctx = factory->get(type);
+                if (NULL == ctx) {
                     continue;
                 }
-
-                device.reset(SkGpuDevice::Create(context, info,
-                                     SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), 0));
+                SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+                device.reset(SkGpuDevice::Create(ctx, SkSurface::kNo_Budgeted, info, 0, &props));
 #else
                 continue;
 #endif

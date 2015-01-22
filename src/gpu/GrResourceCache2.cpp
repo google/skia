@@ -261,10 +261,9 @@ void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
     bool noKey = !resource->cacheAccess().isScratch() &&
                  (NULL == resource->cacheAccess().getContentKey());
 
-    // Wrapped resources should never have a key.
-    SkASSERT(noKey || !resource->cacheAccess().isWrapped());
+    // Only cached resources should ever have a key.
+    SkASSERT(noKey || resource->cacheAccess().isBudgeted());
 
-    // And purge if the resource is wrapped
     if (overBudget || noKey) {
         SkDEBUGCODE(int beforeCount = fCount;)
         resource->cacheAccess().release();
@@ -307,6 +306,10 @@ void GrResourceCache2::didChangeBudgetStatus(GrGpuResource* resource) {
     if (resource->cacheAccess().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
+#if GR_CACHE_STATS
+        fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
+        fBudgetedHighWaterCount = SkTMax(fBudgetedCount, fBudgetedHighWaterCount);
+#endif
         this->purgeAsNeeded();
     } else {
         --fBudgetedCount;
@@ -315,7 +318,6 @@ void GrResourceCache2::didChangeBudgetStatus(GrGpuResource* resource) {
 
     this->validate();
 }
-
 
 void GrResourceCache2::internalPurgeAsNeeded() {
     SkASSERT(!fPurging);

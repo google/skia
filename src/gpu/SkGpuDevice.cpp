@@ -48,8 +48,6 @@
 
 enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 
-#define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
-
 #if 0
     extern bool (*gShouldDrawProc)();
     #define CHECK_SHOULD_DRAW(draw)                             \
@@ -68,8 +66,8 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 
 #define DO_DEFERRED_CLEAR()             \
     do {                                \
-        if (fFlags & kNeedClear_Flag) {  \
-            this->clearAll(); \
+        if (fNeedClear) {               \
+            this->clearAll();           \
         }                               \
     } while (false)                     \
 
@@ -124,56 +122,71 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice* SkGpuDevice::Create(GrSurface* surface, const SkSurfaceProps& props, unsigned flags) {
-    SkASSERT(surface);
-    if (NULL == surface->asRenderTarget() || surface->wasDestroyed()) {
+SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, const SkSurfaceProps* props, unsigned flags) {
+    if (!rt || rt->wasDestroyed()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkGpuDevice, (surface, props, flags));
+    return SkNEW_ARGS(SkGpuDevice, (rt, props, flags));
 }
 
-static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps& props) {
-    return SkDeviceProperties(props.pixelGeometry());
+static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps* props) {
+    if (props) {
+        return SkDeviceProperties(props->pixelGeometry());
+    } else {
+        return SkDeviceProperties(SkDeviceProperties::kLegacyLCD_InitType);
+    }
 }
 
-SkGpuDevice::SkGpuDevice(GrSurface* surface, const SkSurfaceProps& props, unsigned flags)
+static SkSurfaceProps copy_or_default_props(const SkSurfaceProps* props) {
+    if (props) {
+        return SkSurfaceProps(*props);
+    } else {
+        return SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+    }
+}
+
+SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, const SkSurfaceProps* props, unsigned flags)
     : INHERITED(surfaceprops_to_deviceprops(props))
+    , fSurfaceProps(copy_or_default_props(props))
 {
     fDrawProcs = NULL;
 
-    fContext = SkRef(surface->getContext());
+    fContext = SkRef(rt->getContext());
+    fNeedClear = flags & kNeedClear_Flag;
 
-    fFlags = flags;
+    fRenderTarget = SkRef(rt);
 
-    fRenderTarget = SkRef(surface->asRenderTarget());
-
-    SkImageInfo info = surface->surfacePriv().info();
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface));
+    SkImageInfo info = rt->surfacePriv().info();
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, rt));
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    bool useDFT = SkToBool(flags & kDFText_Flag);
+    bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
     fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFT);
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
-                                 const SkSurfaceProps& props, int sampleCount) {
+SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
+                                 const SkImageInfo& origInfo, int sampleCount,
+                                 const SkSurfaceProps* props, unsigned flags) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return NULL;
     }
 
+    if (!context) {
+        return NULL;
+    }
+
     SkColorType ct = origInfo.colorType();
     SkAlphaType at = origInfo.alphaType();
-    // TODO: perhaps we can loosen this check now that colortype is more detailed
-    // e.g. can we support both RGBA and BGRA here?
     if (kRGB_565_SkColorType == ct) {
         at = kOpaque_SkAlphaType;  // force this setting
-    } else {
+    } else if (ct != kBGRA_8888_SkColorType && ct != kRGBA_8888_SkColorType) {
+        // Fall back from whatever ct was to default of kRGBA or kBGRA which is aliased as kN32
         ct = kN32_SkColorType;
-        if (kOpaque_SkAlphaType != at) {
-            at = kPremul_SkAlphaType;  // force this setting
-        }
+    }
+    if (kOpaque_SkAlphaType != at) {
+        at = kPremul_SkAlphaType;  // force this setting
     }
     const SkImageInfo info = SkImageInfo::Make(origInfo.width(), origInfo.height(), ct, at);
 
@@ -184,12 +197,18 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
 
-    SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
-    if (!texture.get()) {
+    SkAutoTUnref<GrTexture> texture;
+    if (SkSurface::kYes_Budgeted == budgeted) {
+        texture.reset(context->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch));
+    } else {
+        texture.reset(context->createUncachedTexture(desc, NULL, 0));
+    }
+
+    if (!texture) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkGpuDevice, (texture.get(), props));
+    return SkNEW_ARGS(SkGpuDevice, (texture->asRenderTarget(), props, flags));
 }
 
 SkGpuDevice::~SkGpuDevice() {
@@ -295,7 +314,7 @@ void SkGpuDevice::clearAll() {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::clearAll", fContext);
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fContext->clear(&rect, color, true, fRenderTarget);
-    fFlags &= ~kNeedClear_Flag;
+    fNeedClear = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1517,7 +1536,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     // clear of the source device must occur before CHECK_SHOULD_DRAW
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawDevice", fContext);
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
-    if (dev->fFlags & kNeedClear_Flag) {
+    if (fNeedClear) {
         // TODO: could check here whether we really need to draw at all
         dev->clearAll();
     }
@@ -1800,21 +1819,17 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
     SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
     unsigned flags = cinfo.fInfo.isOpaque() ? 0 : kNeedClear_Flag;
-    // If we're using distance field text, enable in the new device
-    flags |= (fFlags & kDFText_Flag) ? kDFText_Flag : 0;
 
-#if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
     const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == cinfo.fUsage) ?
                                                 GrContext::kApprox_ScratchTexMatch :
                                                 GrContext::kExact_ScratchTexMatch;
     texture.reset(fContext->refScratchTexture(desc, match));
-#else
-    texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
-#endif
-    if (texture.get()) {
-        return SkGpuDevice::Create(texture, SkSurfaceProps(0, cinfo.fPixelGeometry), flags);
+
+    if (texture) {
+        SkSurfaceProps props(fSurfaceProps.flags(), cinfo.fPixelGeometry);
+        return SkGpuDevice::Create(texture->asRenderTarget(), &props, flags);
     } else {
         SkDebugf("---- failed to create compatible device texture [%d %d]\n",
                  cinfo.fInfo.width(), cinfo.fInfo.height());
@@ -1823,7 +1838,10 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
 }
 
 SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples(), &props);
+    // TODO: Change the signature of newSurface to take a budgeted parameter.
+    static const SkSurface::Budgeted kBudgeted = SkSurface::kNo_Budgeted;
+    return SkSurface::NewRenderTarget(fContext, kBudgeted, info, fRenderTarget->numSamples(),
+                                      &props);
 }
 
 bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture* mainPicture,

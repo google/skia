@@ -26,8 +26,6 @@ class GrPathRange : public GrGpuResource {
 public:
     SK_DECLARE_INST_COUNT(GrPathRange);
 
-    static const bool kIsWrapped = false;
-
     enum PathIndexType {
         kU8_PathIndexType,   //!< uint8_t
         kU16_PathIndexType,  //!< uint16_t

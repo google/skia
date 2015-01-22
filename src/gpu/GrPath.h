@@ -20,8 +20,8 @@ public:
     /**
      * Initialize to a path with a fixed stroke. Stroke must not be hairline.
      */
-    GrPath(GrGpu* gpu, bool isWrapped, const SkPath& skPath, const SkStrokeRec& stroke)
-        : INHERITED(gpu, isWrapped),
+    GrPath(GrGpu* gpu, const SkPath& skPath, const SkStrokeRec& stroke)
+        : INHERITED(gpu, kCached_LifeCycle),
           fSkPath(skPath),
           fStroke(stroke),
           fBounds(skPath.getBounds()) {

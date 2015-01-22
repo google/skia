@@ -46,7 +46,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu* gpu, bool isWrapped, const GrSurfaceDesc& desc);
+    GrTexture(GrGpu*, LifeCycle, const GrSurfaceDesc&);
 
     void validateDesc() const;
 

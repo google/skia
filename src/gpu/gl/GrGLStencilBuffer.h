@@ -24,12 +24,11 @@ public:
     };
 
     GrGLStencilBuffer(GrGpu* gpu,
-                      bool isWrapped,
                       GrGLint rbid,
                       int width, int height,
                       int sampleCnt,
                       const Format& format)
-        : GrStencilBuffer(gpu, isWrapped, width, height, format.fStencilBits, sampleCnt)
+        : GrStencilBuffer(gpu, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
         , fRenderbufferID(rbid) {
         this->registerWithCache();
