@@ -131,12 +131,6 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         } else if (0 == strcmp(mode, "playbackCreation") && kBench_PictureTool == tool) {
             renderer.reset(SkNEW_ARGS(sk_tools::PlaybackCreationRenderer, RENDERER_ARGS));
         // undocumented
-        } else if (0 == strcmp(mode, "gatherPixelRefs") && kBench_PictureTool == tool) {
-#if SK_SUPPORT_GPU
-            renderer.reset(sk_tools::CreateGatherPixelRefsRenderer(grContextOpts));
-#else
-            renderer.reset(sk_tools::CreateGatherPixelRefsRenderer());
-#endif
         } else if (0 == strcmp(mode, "rerecord") && kRender_PictureTool == tool) {
             renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
         } else if (0 == strcmp(mode, "simple")) {

@@ -59,8 +59,6 @@
         '<(skia_src_path)/utils/SkDumpCanvas.cpp',
         '<(skia_src_path)/utils/SkEventTracer.cpp',
         '<(skia_src_path)/utils/SkFloatUtils.h',
-        '<(skia_src_path)/utils/SkGatherPixelRefsAndRects.cpp',
-        '<(skia_src_path)/utils/SkGatherPixelRefsAndRects.h',
         '<(skia_src_path)/utils/SkInterpolator.cpp',
         '<(skia_src_path)/utils/SkLayer.cpp',
         '<(skia_src_path)/utils/SkMatrix22.cpp',

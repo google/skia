@@ -831,39 +831,4 @@ SkBBHFactory* PictureRenderer::getFactory() {
     return NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GatherRenderer : public PictureRenderer {
-public:
-#if SK_SUPPORT_GPU
-    GatherRenderer(const GrContext::Options& opts) : INHERITED(opts) { }
-#endif
-
-    bool render(SkBitmap** out = NULL) SK_OVERRIDE {
-        SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->cullRect().width()),
-                                       SkIntToScalar(fPicture->cullRect().height()));
-        SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
-        SkSafeUnref(data);
-
-        return (fWritePath.isEmpty());    // we don't have anything to write
-    }
-
-private:
-    SkString getConfigNameInternal() SK_OVERRIDE {
-        return SkString("gather_pixelrefs");
-    }
-
-    typedef PictureRenderer INHERITED;
-};
-
-#if SK_SUPPORT_GPU
-PictureRenderer* CreateGatherPixelRefsRenderer(const GrContext::Options& opts) {
-    return SkNEW_ARGS(GatherRenderer, (opts));
-}
-#else
-PictureRenderer* CreateGatherPixelRefsRenderer() {
-    return SkNEW(GatherRenderer);
-}
-#endif
-
 } // namespace sk_tools
