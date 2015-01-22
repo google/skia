@@ -28,8 +28,10 @@ static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
 
 DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
-    float controlPixelData[FP_CONTROL_ARRAY_SIZE];
-    float readBuffer[FP_CONTROL_ARRAY_SIZE];
+    SkTDArray<float> controlPixelData, readBuffer;
+    controlPixelData.setCount(FP_CONTROL_ARRAY_SIZE);
+    readBuffer.setCount(FP_CONTROL_ARRAY_SIZE);
+
     for (int i = 0; i < FP_CONTROL_ARRAY_SIZE; i += 4) {
         controlPixelData[i] = FLT_MIN;
         controlPixelData[i + 1] = FLT_MAX;
@@ -70,8 +72,8 @@ DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
             }
 
             // write square
-            fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData, 0);
-            fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer, 0);
+            fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData.begin(), 0);
+            fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer.begin(), 0);
             for (int j = 0; j < FP_CONTROL_ARRAY_SIZE; ++j) {
                 REPORTER_ASSERT(reporter, readBuffer[j] == controlPixelData[j]);
             }
@@ -82,8 +84,10 @@ DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
 static const int HALF_CONTROL_ARRAY_SIZE = DEV_W * DEV_H;
 
 DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
-    SkHalf controlPixelData[HALF_CONTROL_ARRAY_SIZE];
-    SkHalf readBuffer[HALF_CONTROL_ARRAY_SIZE];
+    SkTDArray<SkHalf> controlPixelData, readBuffer;
+    controlPixelData.setCount(HALF_CONTROL_ARRAY_SIZE);
+    readBuffer.setCount(HALF_CONTROL_ARRAY_SIZE);
+
     for (int i = 0; i < HALF_CONTROL_ARRAY_SIZE; i += 4) {
         controlPixelData[i] = SK_HalfMin;
         controlPixelData[i + 1] = SK_HalfMax;
@@ -124,8 +128,8 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
             }
 
             // write square
-            fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData, 0);
-            fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer, 0);
+            fpTexture->writePixels(0, 0, DEV_W, DEV_H, desc.fConfig, controlPixelData.begin(), 0);
+            fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer.begin(), 0);
             for (int j = 0; j < HALF_CONTROL_ARRAY_SIZE; ++j) {
                 REPORTER_ASSERT(reporter, readBuffer[j] == controlPixelData[j]);
             }
