@@ -14,35 +14,17 @@
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
-bool GrDrawState::isEqual(const GrDrawState& that, bool explicitLocalCoords) const {
-    if (this->getRenderTarget() != that.getRenderTarget() ||
-        this->fColorStages.count() != that.fColorStages.count() ||
-        this->fCoverageStages.count() != that.fCoverageStages.count() ||
-        this->fFlagBits != that.fFlagBits ||
-        this->fStencilSettings != that.fStencilSettings ||
-        this->fDrawFace != that.fDrawFace) {
-        return false;
-    }
-
-    if (!this->getXPFactory()->isEqual(*that.getXPFactory())) {
-        return false;
-    }
-
-    for (int i = 0; i < this->numColorStages(); i++) {
-        if (this->getColorStage(i) != that.getColorStage(i)) {
-            return false;
-        }
-    }
-    for (int i = 0; i < this->numCoverageStages(); i++) {
-        if (this->getCoverageStage(i) != that.getCoverageStage(i)) {
-            return false;
-        }
-    }
-
-    return true;
+GrDrawState::GrDrawState()
+    : fFlagBits(0x0)
+    , fDrawFace(kBoth_DrawFace)
+    , fColorProcInfoValid(false)
+    , fCoverageProcInfoValid(false)
+    , fColorCache(GrColor_ILLEGAL)
+    , fCoverageCache(GrColor_ILLEGAL)
+    , fColorPrimProc(NULL)
+    , fCoveragePrimProc(NULL) {
+    SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
-
-//////////////////////////////////////////////////////////////////////////////
 
 GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
@@ -66,28 +48,6 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
         fCoverageProcInfo = that.fCoverageProcInfo;
     }
     return *this;
-}
-
-void GrDrawState::onReset() {
-    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
-    fRenderTarget.reset(NULL);
-
-    fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
-    fColorStages.reset();
-    fCoverageStages.reset();
-
-    fFlagBits = 0x0;
-    fStencilSettings.setDisabled();
-    fDrawFace = kBoth_DrawFace;
-
-    fColorProcInfoValid = false;
-    fCoverageProcInfoValid = false;
-
-    fColorCache = GrColor_ILLEGAL;
-    fCoverageCache = GrColor_ILLEGAL;
-
-    fColorPrimProc = NULL;
-    fCoveragePrimProc = NULL;
 }
 
 void GrDrawState::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
@@ -142,13 +102,13 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
     // TODO we want to cache the result of this call, but we can probably clean up the interface
     // so we don't have to pass in a seemingly known coverage
     this->calcCoverageInvariantOutput(GrColor_WHITE);
-    return fXPFactory->canApplyCoverage(fColorProcInfo, fCoverageProcInfo);
+    return this->getXPFactory()->canApplyCoverage(fColorProcInfo, fCoverageProcInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////s
 
 bool GrDrawState::willEffectReadDstColor() const {
-    return fXPFactory->willReadDst();
+    return this->getXPFactory()->willReadDst();
 }
 
 void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
@@ -179,7 +139,7 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
 // Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
 // others will blend incorrectly.
 bool GrDrawState::canTweakAlphaForCoverage() const {
-    return fXPFactory->canTweakAlphaForCoverage();
+    return this->getXPFactory()->canTweakAlphaForCoverage();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

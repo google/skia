@@ -12,6 +12,12 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
+GrPaint::GrPaint()
+    : fAntiAlias(false)
+    , fDither(false)
+    , fColor(GrColor_WHITE) {
+}
+
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
     this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
@@ -50,10 +56,3 @@ bool GrPaint::isOpaqueAndConstantColor(GrColor* color) const {
     }
     return false;
 }
-
-void GrPaint::resetStages() {
-    fColorStages.reset();
-    fCoverageStages.reset();
-    fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
-}
-

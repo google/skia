@@ -859,8 +859,8 @@ private:
     void setupDrawBuffer();
 
     class AutoCheckFlush;
-    /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
-    /// draw state is left unmodified.
+    // Sets the paint and returns the target to draw into.  This function is overloaded to either
+    // take a GrDrawState, GrPaint, and AutoCheckFlush, or JUST an AutoCheckFlush
     GrDrawTarget* prepareToDraw(GrDrawState* ds, const GrPaint* paint, const AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget*,

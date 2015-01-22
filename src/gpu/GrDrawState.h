@@ -30,11 +30,7 @@ class GrTexture;
 
 class GrDrawState {
 public:
-    GrDrawState() {
-        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-        this->reset();
-    }
-
+    GrDrawState();
     /**
      * Copies another draw state.
      **/
@@ -44,11 +40,6 @@ public:
     }
 
     virtual ~GrDrawState();
-
-    /**
-     * Resets to the default state. GrProcessors will be removed from all stages.
-     */
-    void reset() { this->onReset(); }
 
     /**
      * Initializes the GrDrawState based on a GrPaint, view matrix and render target. Note that
@@ -102,7 +93,12 @@ public:
     int numCoverageStages() const { return fCoverageStages.count(); }
     int numFragmentStages() const { return this->numColorStages() + this->numCoverageStages(); }
 
-    const GrXPFactory* getXPFactory() const { return fXPFactory.get(); }
+    const GrXPFactory* getXPFactory() const {
+        if (!fXPFactory) {
+            fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
+        }
+        return fXPFactory.get();
+    }
 
     const GrFragmentStage& getColorStage(int idx) const { return fColorStages[idx]; }
     const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
@@ -404,8 +400,6 @@ public:
     GrDrawState& operator= (const GrDrawState& that);
 
 private:
-    bool isEqual(const GrDrawState& that, bool explicitLocalCoords) const;
-
     const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
         this->calcColorInvariantOutput(pp);
         return fColorProcInfo;
@@ -440,8 +434,6 @@ private:
      */
     void calcCoverageInvariantOutput(GrColor) const;
 
-    void onReset();
-
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
     SkDEBUGCODE(int fBlockEffectRemovalCnt;)
@@ -452,7 +444,7 @@ private:
     uint32_t                                fFlagBits;
     GrStencilSettings                       fStencilSettings;
     DrawFace                                fDrawFace;
-    SkAutoTUnref<const GrXPFactory>         fXPFactory;
+    mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
     FragmentStageArray                      fColorStages;
     FragmentStageArray                      fCoverageStages;
 

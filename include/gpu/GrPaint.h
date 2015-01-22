@@ -45,7 +45,7 @@
  */
 class GrPaint {
 public:
-    GrPaint() { this->reset(); }
+    GrPaint();
 
     GrPaint(const GrPaint& paint) { *this = paint; }
 
@@ -113,7 +113,12 @@ public:
     int numCoverageStages() const { return fCoverageStages.count(); }
     int numTotalStages() const { return this->numColorStages() + this->numCoverageStages(); }
 
-    const GrXPFactory* getXPFactory() const { return fXPFactory.get(); }
+    const GrXPFactory* getXPFactory() const {
+        if (!fXPFactory) {
+            fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
+        }
+        return fXPFactory.get();
+    }
 
     const GrFragmentStage& getColorStage(int s) const { return fColorStages[s]; }
     const GrFragmentStage& getCoverageStage(int s) const { return fCoverageStages[s]; }
@@ -133,22 +138,13 @@ public:
     }
 
     /**
-     * Resets the paint to the defaults.
-     */
-    void reset() {
-        this->resetOptions();
-        this->resetColor();
-        this->resetStages();
-    }
-
-    /**
      * Returns true if isOpaque would return true and the paint represents a solid constant color
      * draw. If the result is true, constantColor will be updated to contain the constant color.
      */
     bool isOpaqueAndConstantColor(GrColor* constantColor) const;
 
 private:
-    SkAutoTUnref<const GrXPFactory> fXPFactory;
+    mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
     SkSTArray<4, GrFragmentStage>   fColorStages;
     SkSTArray<2, GrFragmentStage>   fCoverageStages;
 
@@ -156,17 +152,6 @@ private:
     bool                            fDither;
 
     GrColor                         fColor;
-
-    void resetOptions() {
-        fAntiAlias = false;
-        fDither = false;
-    }
-
-    void resetColor() {
-        fColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
-    }
-
-    void resetStages();
 };
 
 #endif

@@ -44,13 +44,6 @@
 #include "effects/GrDashingEffect.h"
 #include "effects/GrSingleTextureEffect.h"
 
-#ifdef SK_DEBUG
-    // change this to a 1 to see notifications when partial coverage fails
-    #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
-#else
-    #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
-#endif
-
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 
@@ -462,7 +455,6 @@ void GrContext::OverBudgetCB(void* data) {
     // Flush the InOrderDrawBuffer to possibly free up some textures
     context->fFlushToReduceCacheSize = true;
 }
-
 
 GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& desc,
                                             void* srcData,
@@ -1569,19 +1561,8 @@ GrDrawTarget* GrContext::prepareToDraw(GrDrawState* ds,
 
     ASSERT_OWNED_RESOURCE(fRenderTarget.get());
     if (ds) {
-        if (paint) {
-            SkASSERT(acf);
-            ds->setFromPaint(*paint, fRenderTarget.get());
-#if GR_DEBUG_PARTIAL_COVERAGE_CHECK
-            if ((paint->hasMask()) &&
-                !fDrawState->canUseFracCoveragePrimProc(paint.getColor(), fGpu->caps())) {
-                SkDebugf("Partial pixel coverage will be incorrectly blended.\n");
-            }
-#endif
-        } else {
-            ds->reset();
-            ds->setRenderTarget(fRenderTarget.get());
-        }
+        SkASSERT(paint && acf);
+        ds->setFromPaint(*paint, fRenderTarget.get());
         ds->setState(GrDrawState::kClip_StateBit, fClip && !fClip->fClipStack->isWideOpen());
     }
     fDrawBuffer->setClip(fClip);
