@@ -25,6 +25,8 @@ while (( "$#" )); do
     BUILDTYPE=Release
   elif [[ "$1" == "--clang" ]]; then
     USE_CLANG="true"
+  elif [[ "$1" == "--logcat" ]]; then
+    LOGCAT=1
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
