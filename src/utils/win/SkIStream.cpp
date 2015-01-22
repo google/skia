@@ -113,7 +113,7 @@ SkIStream::SkIStream(SkStream* stream, bool deleteOnRelease)
 }
 
 SkIStream::~SkIStream() {
-    if (this->fSkStream && fDeleteOnRelease) {
+    if (fDeleteOnRelease) {
         delete this->fSkStream;
     }
 }

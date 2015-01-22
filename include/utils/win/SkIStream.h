@@ -75,12 +75,12 @@ public:
 };
 
 /**
- * A minimal read-only IStream implementation which wraps an SkIStream.
+ * A minimal read-only IStream implementation which wraps an SkStream.
  */
 class SkIStream : public SkBaseIStream {
 private:
     SkStream *fSkStream;
-    bool fDeleteOnRelease;
+    const bool fDeleteOnRelease;
     ULARGE_INTEGER fLocation;
 
     SkIStream(SkStream* stream, bool fDeleteOnRelease);
