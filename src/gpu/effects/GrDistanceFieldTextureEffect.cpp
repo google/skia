@@ -185,7 +185,9 @@ private:
     UniformHandle fTextureSizeUni;
     SkISize       fTextureSize;
     UniformHandle fLuminanceUni;
+#ifdef SK_GAMMA_APPLY_TO_A8
     float         fLuminance;
+#endif
 
     typedef GrGLGeometryProcessor INHERITED;
 };
