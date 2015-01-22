@@ -184,6 +184,7 @@ void* GrBufferAllocPool::makeSpace(size_t size,
         size_t pad = GrSizeAlignUpPad(usedBytes,
                                       alignment);
         if ((size + pad) <= back.fBytesFree) {
+            memset((void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes), 0, pad);
             usedBytes += pad;
             *offset = usedBytes;
             *buffer = back.fBuffer;
