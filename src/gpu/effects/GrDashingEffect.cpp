@@ -28,9 +28,9 @@
 
 // Returns whether or not the gpu can fast path the dash line effect.
 static bool can_fast_path_dash(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
-                               const GrDrawTarget& target, const GrDrawState& ds,
+                               const GrDrawTarget& target, const GrPipelineBuilder& pipelineBuilder,
                                const SkMatrix& viewMatrix) {
-    if (ds.getRenderTarget()->isMultisampled()) {
+    if (pipelineBuilder.getRenderTarget()->isMultisampled()) {
         return false;
     }
 
@@ -164,10 +164,11 @@ static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& m
     matrix.mapPoints(&verts[idx], 4);
 }
 
-bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState* drawState,
-                                   GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
+bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
+                                   GrPipelineBuilder* pipelineBuilder, GrColor color,
+                                   const SkMatrix& viewMatrix, const SkPoint pts[2],
                                    const GrPaint& paint, const GrStrokeInfo& strokeInfo) {
-    if (!can_fast_path_dash(pts, strokeInfo, *target, *drawState, viewMatrix)) {
+    if (!can_fast_path_dash(pts, strokeInfo, *target, *pipelineBuilder, viewMatrix)) {
         return false;
     }
 
@@ -442,7 +443,8 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target, GrDrawState
     }
 
     target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, totalRectCnt, 4, 6);
+    target->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType,
+                                 totalRectCnt, 4, 6);
     target->resetIndexSource();
     return true;
 }

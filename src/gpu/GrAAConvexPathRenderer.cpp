@@ -9,12 +9,12 @@
 #include "GrAAConvexPathRenderer.h"
 
 #include "GrContext.h"
-#include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
-#include "GrProcessor.h"
 #include "GrPathUtils.h"
+#include "GrProcessor.h"
+#include "GrPipelineBuilder.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -694,7 +694,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                         const GrDrawState*,
+                                         const GrPipelineBuilder*,
                                          const SkMatrix& viewMatrix,
                                          const SkPath& path,
                                          const SkStrokeRec& stroke,
@@ -704,7 +704,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
 }
 
 bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
-                                        GrDrawState* drawState,
+                                        GrPipelineBuilder* pipelineBuilder,
                                         GrColor color,
                                         const SkMatrix& vm,
                                         const SkPath& origPath,
@@ -782,7 +782,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     int vOffset = 0;
     for (int i = 0; i < draws.count(); ++i) {
         const Draw& draw = draws[i];
-        target->drawIndexed(drawState,
+        target->drawIndexed(pipelineBuilder,
                             quadProcessor,
                             kTriangles_GrPrimitiveType,
                             vOffset,  // start vertex

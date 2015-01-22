@@ -8,11 +8,11 @@
 #include "GrOvalRenderer.h"
 
 #include "GrProcessor.h"
-#include "GrDrawState.h"
 #include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "GrInvariantOutput.h"
+#include "GrPipelineBuilder.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
@@ -657,7 +657,7 @@ void GrOvalRenderer::reset() {
 }
 
 bool GrOvalRenderer::drawOval(GrDrawTarget* target,
-                              GrDrawState* drawState,
+                              GrPipelineBuilder* pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               bool useAA,
@@ -665,8 +665,8 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
                               const SkStrokeRec& stroke)
 {
     bool useCoverageAA = useAA &&
-        !drawState->getRenderTarget()->isMultisampled() &&
-        drawState->canUseFracCoveragePrimProc(color, *target->caps());
+        !pipelineBuilder->getRenderTarget()->isMultisampled() &&
+        pipelineBuilder->canUseFracCoveragePrimProc(color, *target->caps());
 
     if (!useCoverageAA) {
         return false;
@@ -674,14 +674,15 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
-        this->drawCircle(target, drawState, color, viewMatrix, useCoverageAA, oval, stroke);
+        this->drawCircle(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, drawState, color, viewMatrix, useCoverageAA, oval,
+        return this->drawDIEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
                                    stroke);
     // otherwise axis-aligned ellipses only
     } else if (viewMatrix.rectStaysRect()) {
-        return this->drawEllipse(target, drawState, color, viewMatrix, useCoverageAA, oval, stroke);
+        return this->drawEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
+                                 stroke);
     } else {
         return false;
     }
@@ -692,7 +693,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
-                                GrDrawState* drawState,
+                                GrPipelineBuilder* pipelineBuilder,
                                 GrColor color,
                                 const SkMatrix& viewMatrix,
                                 bool useCoverageAA,
@@ -778,14 +779,14 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     verts[3].fInnerRadius = innerRadius;
 
     target->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
-                                 GrDrawState* drawState,
+                                 GrPipelineBuilder* pipelineBuilder,
                                  GrColor color,
                                  const SkMatrix& viewMatrix,
                                  bool useCoverageAA,
@@ -912,14 +913,14 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
     target->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
     return true;
 }
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
-                                   GrDrawState* drawState,
+                                   GrPipelineBuilder* pipelineBuilder,
                                    GrColor color,
                                    const SkMatrix& viewMatrix,
                                    bool useCoverageAA,
@@ -1020,7 +1021,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
     target->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
+    target->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &bounds);
     target->resetIndexSource();
 
     return true;
@@ -1072,16 +1073,16 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly) {
 }
 
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
-                                GrDrawState* drawState,
+                                GrPipelineBuilder* pipelineBuilder,
                                 GrColor color,
                                 const SkMatrix& viewMatrix,
                                 bool useAA,
                                 const SkRRect& origOuter,
                                 const SkRRect& origInner) {
     bool applyAA = useAA &&
-                   !drawState->getRenderTarget()->isMultisampled() &&
-                   drawState->canUseFracCoveragePrimProc(color, *target->caps());
-    GrDrawState::AutoRestoreEffects are;
+                   !pipelineBuilder->getRenderTarget()->isMultisampled() &&
+                   pipelineBuilder->canUseFracCoveragePrimProc(color, *target->caps());
+    GrPipelineBuilder::AutoRestoreEffects are;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
         if (!viewMatrix.isIdentity()) {
@@ -1097,12 +1098,12 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
         if (NULL == fp) {
             return false;
         }
-        are.set(drawState);
-        drawState->addCoverageProcessor(fp)->unref();
+        are.set(pipelineBuilder);
+        pipelineBuilder->addCoverageProcessor(fp)->unref();
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (this->drawRRect(target, drawState, color, viewMatrix, useAA, origOuter, fillRec)) {
+    if (this->drawRRect(target, pipelineBuilder, color, viewMatrix, useAA, origOuter, fillRec)) {
         return true;
     }
 
@@ -1120,7 +1121,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
         return false;
     }
     if (!are.isSet()) {
-        are.set(drawState);
+        are.set(pipelineBuilder);
     }
 
     SkMatrix invert;
@@ -1128,30 +1129,30 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
         return false;
     }
 
-    drawState->addCoverageProcessor(effect)->unref();
+    pipelineBuilder->addCoverageProcessor(effect)->unref();
     SkRect bounds = outer->getBounds();
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(drawState, color, SkMatrix::I(), bounds, NULL, &invert);
+    target->drawRect(pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
     return true;
 }
 
 bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
-                               GrDrawState* drawState,
+                               GrPipelineBuilder* pipelineBuilder,
                                GrColor color,
                                const SkMatrix& viewMatrix,
                                bool useAA,
                                const SkRRect& rrect,
                                const SkStrokeRec& stroke) {
     if (rrect.isOval()) {
-        return this->drawOval(target, drawState, color, viewMatrix, useAA, rrect.getBounds(),
+        return this->drawOval(target, pipelineBuilder, color, viewMatrix, useAA, rrect.getBounds(),
                               stroke);
     }
 
     bool useCoverageAA = useAA &&
-        !drawState->getRenderTarget()->isMultisampled() &&
-        drawState->canUseFracCoveragePrimProc(color, *target->caps());
+        !pipelineBuilder->getRenderTarget()->isMultisampled() &&
+        pipelineBuilder->canUseFracCoveragePrimProc(color, *target->caps());
 
     // only anti-aliased rrects for now
     if (!useCoverageAA) {
@@ -1304,8 +1305,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexedInstances(drawState, effect, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
-                                     &bounds);
+        target->drawIndexedInstances(pipelineBuilder, effect, kTriangles_GrPrimitiveType, 1, 16,
+                                     indexCnt, &bounds);
 
     // otherwise we use the ellipse renderer
     } else {
@@ -1412,8 +1413,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         int indexCnt = isStrokeOnly ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                       SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
-        target->drawIndexedInstances(drawState, effect, kTriangles_GrPrimitiveType, 1, 16, indexCnt,
-                                     &bounds);
+        target->drawIndexedInstances(pipelineBuilder, effect, kTriangles_GrPrimitiveType, 1, 16,
+                                     indexCnt, &bounds);
     }
 
     target->resetIndexSource();

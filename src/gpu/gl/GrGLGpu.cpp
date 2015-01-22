@@ -10,7 +10,7 @@
 #include "GrGLStencilBuffer.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourceCacheAccess.h"
-#include "GrOptDrawState.h"
+#include "GrPipeline.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
 #include "GrTexturePriv.h"
@@ -242,7 +242,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         GL_CALL(Disable(GR_GL_DEPTH_TEST));
         GL_CALL(DepthMask(GR_GL_FALSE));
 
-        fHWDrawFace = GrDrawState::kInvalid_DrawFace;
+        fHWDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
         fHWDitherEnabled = kUnknown_TriState;
 
         if (kGL_GrGLStandard == this->glStandard()) {
@@ -1338,12 +1338,12 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
 
 bool GrGLGpu::flushGLState(const DrawArgs& args, bool isLineDraw) {
     GrXferProcessor::BlendInfo blendInfo;
-    const GrOptDrawState& optState = *args.fOptState;
-    args.fOptState->getXferProcessor()->getBlendInfo(&blendInfo);
+    const GrPipeline& pipeline = *args.fPipeline;
+    args.fPipeline->getXferProcessor()->getBlendInfo(&blendInfo);
 
-    this->flushDither(optState.isDitherState());
+    this->flushDither(pipeline.isDitherState());
     this->flushColorWrite(blendInfo.fWriteColor);
-    this->flushDrawFace(optState.getDrawFace());
+    this->flushDrawFace(pipeline.getDrawFace());
 
     fCurrentProgram.reset(fProgramCache->getProgram(args));
     if (NULL == fCurrentProgram.get()) {
@@ -1363,12 +1363,12 @@ bool GrGLGpu::flushGLState(const DrawArgs& args, bool isLineDraw) {
         this->flushBlend(blendInfo);
     }
 
-    fCurrentProgram->setData(*args.fPrimitiveProcessor, optState, *args.fBatchTracker);
+    fCurrentProgram->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(optState.getRenderTarget());
-    this->flushStencil(optState.getStencil());
-    this->flushScissor(optState.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushHWAAState(glRT, optState.isHWAntialiasState(), isLineDraw);
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+    this->flushStencil(pipeline.getStencil());
+    this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
+    this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), isLineDraw);
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -1432,10 +1432,10 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 
 void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
                                const GrPrimitiveProcessor& primProc,
-                               const GrOptDrawState& optState,
+                               const GrPipeline& pipeline,
                                const GrProgramDesc::DescInfo& descInfo,
                                const GrBatchTracker& batchTracker) const {
-    if (!GrGLProgramDescBuilder::Build(desc, primProc, optState, descInfo, this,
+    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, descInfo, this,
                                        batchTracker)) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
@@ -1864,7 +1864,7 @@ void GrGLGpu::onDraw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
 
 void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
     this->flushColorWrite(false);
-    this->flushDrawFace(GrDrawState::kBoth_DrawFace);
+    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(state.fRenderTarget);
     SkISize size = SkISize::Make(rt->width(), rt->height());
@@ -2234,18 +2234,18 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
     }
 }
 
-void GrGLGpu::flushDrawFace(GrDrawState::DrawFace face) {
+void GrGLGpu::flushDrawFace(GrPipelineBuilder::DrawFace face) {
     if (fHWDrawFace != face) {
         switch (face) {
-            case GrDrawState::kCCW_DrawFace:
+            case GrPipelineBuilder::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
                 break;
-            case GrDrawState::kCW_DrawFace:
+            case GrPipelineBuilder::kCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_FRONT));
                 break;
-            case GrDrawState::kBoth_DrawFace:
+            case GrPipelineBuilder::kBoth_DrawFace:
                 GL_CALL(Disable(GR_GL_CULL_FACE));
                 break;
             default:

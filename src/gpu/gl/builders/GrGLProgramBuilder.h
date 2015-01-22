@@ -15,8 +15,8 @@
 #include "../GrGLUniformHandle.h"
 #include "../GrGLGeometryProcessor.h"
 #include "../GrGLXferProcessor.h"
-#include "../../GrOptDrawState.h"
 #include "../../GrPendingFragmentStage.h"
+#include "../../GrPipeline.h"
 
 /*
  * This is the base class for a series of interfaces.  This base class *MUST* remain abstract with
@@ -283,7 +283,7 @@ protected:
     GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return *fArgs.fPrimitiveProcessor; }
-    const GrOptDrawState& optState() const { return *fArgs.fOptState; }
+    const GrPipeline& pipeline() const { return *fArgs.fPipeline; }
     const GrProgramDesc& desc() const { return *fArgs.fDesc; }
     const GrBatchTracker& batchTracker() const { return *fArgs.fBatchTracker; }
     const GrProgramDesc::KeyHeader& header() const { return fArgs.fDesc->header(); }

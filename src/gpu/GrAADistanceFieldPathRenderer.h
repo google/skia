@@ -25,7 +25,7 @@ public:
     virtual ~GrAADistanceFieldPathRenderer();
     
     virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrDrawState*,
+                             const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
@@ -33,12 +33,12 @@ public:
 
 protected:
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrDrawState*,
+                                               const GrPipelineBuilder*,
                                                const SkPath&,
                                                const SkStrokeRec&) const SK_OVERRIDE;
     
     virtual bool onDrawPath(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
@@ -81,7 +81,7 @@ private:
     SkTDynamicHash<PathData, PathData::Key> fPathCache;
     PathDataList                       fPathList;
     
-    bool internalDrawPath(GrDrawTarget*, GrDrawState*, GrColor, const SkMatrix& viewMatrix,
+    bool internalDrawPath(GrDrawTarget*, GrPipelineBuilder*, GrColor, const SkMatrix& viewMatrix,
                           const SkPath& path, const PathData* pathData);
     PathData* addPathToAtlas(const SkPath& path, const SkStrokeRec& stroke, bool antiAlias,
                              uint32_t dimension, SkScalar scale);

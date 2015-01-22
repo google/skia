@@ -10,7 +10,6 @@
 #define GrGLProgram_DEFINED
 
 #include "builders/GrGLProgramBuilder.h"
-#include "GrDrawState.h"
 #include "GrGLContext.h"
 #include "GrGLProgramDesc.h"
 #include "GrGLSL.h"
@@ -23,6 +22,7 @@
 class GrGLProcessor;
 class GrGLInstalledProcessors;
 class GrGLProgramBuilder;
+class GrPipeline;
 
 /**
  * This class manages a GPU program and records per-program information.
@@ -95,7 +95,7 @@ public:
      * GrGLGpu object to bind the textures required by the GrGLProcessors. The color and coverage
      * stages come from GrGLProgramDesc::Build().
      */
-    void setData(const GrPrimitiveProcessor&, const GrOptDrawState&, const GrBatchTracker&);
+    void setData(const GrPrimitiveProcessor&, const GrPipeline&, const GrBatchTracker&);
 
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -116,7 +116,7 @@ protected:
     void initSamplers(Proc*, int* texUnitIdx);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
-    void setFragmentData(const GrPrimitiveProcessor&, const GrOptDrawState&);
+    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&);
     virtual void setTransformData(const GrPrimitiveProcessor&,
                                   const GrPendingFragmentStage&,
                                   int index,
@@ -131,8 +131,8 @@ protected:
     virtual void didSetData() {}
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
-    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
+    void setRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
+    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;
@@ -180,7 +180,7 @@ private:
                                   const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*) SK_OVERRIDE;
-    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrOptDrawState&);
+    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
 
     friend class GrGLNvprProgramBuilder;
 

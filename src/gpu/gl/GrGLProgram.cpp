@@ -17,7 +17,7 @@
 #include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
-#include "GrOptDrawState.h"
+#include "GrPipeline.h"
 #include "GrXferProcessor.h"
 #include "SkXfermode.h"
 
@@ -103,11 +103,11 @@ void GrGLProgram::bindTextures(const Proc* ip, const GrProcessor& processor) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrOptDrawState& optState,
+void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
                           const GrBatchTracker& batchTracker) {
-    this->setRenderTargetState(primProc, optState);
+    this->setRenderTargetState(primProc, pipeline);
 
-    const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
+    const GrDeviceCoordTexture* dstCopy = pipeline.getDstCopy();
     if (dstCopy) {
         if (fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid()) {
             fProgramDataManager.set2f(fBuiltinUniformHandles.fDstCopyTopLeftUni,
@@ -135,21 +135,21 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrOptDrawS
     this->bindTextures(fGeometryProcessor.get(), primProc);
 
     if (fXferProcessor.get()) {
-        const GrXferProcessor& xp = *optState.getXferProcessor();
+        const GrXferProcessor& xp = *pipeline.getXferProcessor();
         fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
         this->bindTextures(fXferProcessor.get(), xp);
     }
-    this->setFragmentData(primProc, optState);
+    this->setFragmentData(primProc, pipeline);
 
     // Some of GrGLProgram subclasses need to update state here
     this->didSetData();
 }
 
 void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
-                                  const GrOptDrawState& optState) {
+                                  const GrPipeline& pipeline) {
     int numProcessors = fFragmentProcessors->fProcs.count();
     for (int e = 0; e < numProcessors; ++e) {
-        const GrPendingFragmentStage& stage = optState.getFragmentStage(e);
+        const GrPendingFragmentStage& stage = pipeline.getFragmentStage(e);
         const GrProcessor& processor = *stage.processor();
         fFragmentProcessors->fProcs[e]->fGLProc->setData(fProgramDataManager, processor);
         this->setTransformData(primProc,
@@ -170,21 +170,21 @@ void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
 }
 
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
-                                       const GrOptDrawState& optState) {
+                                       const GrPipeline& pipeline) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != optState.getRenderTarget()->height()) {
+        fRenderTargetState.fRenderTargetSize.fHeight != pipeline.getRenderTarget()->height()) {
         fProgramDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
-                                   SkIntToScalar(optState.getRenderTarget()->height()));
+                                   SkIntToScalar(pipeline.getRenderTarget()->height()));
     }
 
     // call subclasses to set the actual view matrix
-    this->onSetRenderTargetState(primProc, optState);
+    this->onSetRenderTargetState(primProc, pipeline);
 }
 
 void GrGLProgram::onSetRenderTargetState(const GrPrimitiveProcessor&,
-                                         const GrOptDrawState& optState) {
-    const GrRenderTarget* rt = optState.getRenderTarget();
+                                         const GrPipeline& pipeline) {
+    const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
     if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
@@ -228,9 +228,9 @@ void GrGLNvprProgram::setTransformData(const GrPrimitiveProcessor& primProc,
 }
 
 void GrGLNvprProgram::onSetRenderTargetState(const GrPrimitiveProcessor& primProc,
-                                             const GrOptDrawState& optState) {
+                                             const GrPipeline& pipeline) {
     SkASSERT(!primProc.willUseGeoShader() && primProc.numAttribs() == 0);
-    const GrRenderTarget* rt = optState.getRenderTarget();
+    const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
     fGpu->glPathRendering()->setProjectionMatrix(primProc.viewMatrix(),

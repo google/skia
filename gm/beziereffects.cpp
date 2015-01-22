@@ -150,7 +150,7 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(tt.target());
 
-                    GrDrawState ds;
+                    GrPipelineBuilder pipelineBuilder;
 
                     GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                     SkASSERT(gp->getVertexStride() == sizeof(Vertex));
@@ -165,10 +165,11 @@ protected:
                         verts[v].fKLM[2] = eval_line(verts[v].fPosition, klmEqs + 6, 1.f);
                     }
 
-                    ds.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(rt);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0,4,6);
+                    tt.target()->drawIndexed(&pipelineBuilder, gp, kTriangleFan_GrPrimitiveType,
+                                             0, 0,4,6);
                 }
                 ++col;
                 if (numCols == col) {
@@ -306,7 +307,7 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(tt.target());
 
-                    GrDrawState ds;
+                    GrPipelineBuilder pipelineBuilder;
 
                     GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                     SkASSERT(gp->getVertexStride() == sizeof(Vertex));
@@ -321,10 +322,11 @@ protected:
                         verts[v].fKLM[2] = eval_line(verts[v].fPosition, klmEqs + 6, 1.f);
                     }
 
-                    ds.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(rt);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0,4,6);
+                    tt.target()->drawIndexed(&pipelineBuilder, gp, kTriangleFan_GrPrimitiveType,
+                                             0, 0,4,6);
                 }
                 ++col;
                 if (numCols == col) {
@@ -493,7 +495,7 @@ protected:
                     context->getTestTarget(&tt);
                     SkASSERT(tt.target());
 
-                    GrDrawState ds;
+                    GrPipelineBuilder pipelineBuilder;
 
                     GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                     SkASSERT(gp->getVertexStride() == sizeof(Vertex));
@@ -506,10 +508,11 @@ protected:
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
                     DevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
 
-                    ds.setRenderTarget(rt);
+                    pipelineBuilder.setRenderTarget(rt);
 
                     tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                    tt.target()->drawIndexed(&ds, gp, kTriangles_GrPrimitiveType, 0, 0, 4, 6);
+                    tt.target()->drawIndexed(&pipelineBuilder, gp, kTriangles_GrPrimitiveType,
+                                             0, 0, 4, 6);
                 }
                 ++col;
                 if (numCols == col) {

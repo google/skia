@@ -25,13 +25,13 @@ enum CoverageAttribType {
 };
 }
 
-static const GrGeometryProcessor* create_rect_gp(const GrDrawState& drawState,
+static const GrGeometryProcessor* create_rect_gp(const GrPipelineBuilder& pipelineBuilder,
                                                  GrColor color,
                                                  CoverageAttribType* type,
                                                  const SkMatrix& localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     const GrGeometryProcessor* gp;
-    if (drawState.canTweakAlphaForCoverage()) {
+    if (pipelineBuilder.canTweakAlphaForCoverage()) {
         gp = GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), localMatrix);
         SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         *type = kUseColor_CoverageAttribType;
@@ -179,12 +179,12 @@ GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
 }
 
 void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
-                                          GrDrawState* drawState,
+                                          GrPipelineBuilder* pipelineBuilder,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkRect& rect,
                                           const SkRect& devRect) {
-    GrDrawState::AutoRestoreEffects are(drawState);
+    GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
 
     SkMatrix localMatrix;
     if (!viewMatrix.invert(&localMatrix)) {
@@ -193,7 +193,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     }
 
     CoverageAttribType type;
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type,
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*pipelineBuilder, color, &type,
                                                               localMatrix));
 
     size_t vertexStride = gp->getVertexStride();
@@ -306,7 +306,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
-    target->drawIndexedInstances(drawState,
+    target->drawIndexedInstances(pipelineBuilder,
                                  gp,
                                  kTriangles_GrPrimitiveType,
                                  1,
@@ -316,7 +316,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
 }
 
 void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
-                                    GrDrawState* drawState,
+                                    GrPipelineBuilder* pipelineBuilder,
                                     GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& rect,
@@ -364,7 +364,7 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, drawState, color, viewMatrix, devOutside,
+        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
                          devOutside);
         return;
     }
@@ -382,19 +382,19 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(target, drawState, color, viewMatrix, devOutside, devOutsideAssist,
+    this->geometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutsideAssist,
                                devInside, miterStroke);
 }
 
 void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
-                                            GrDrawState* drawState,
+                                            GrPipelineBuilder* pipelineBuilder,
                                             GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkRect& devOutside,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
                                             bool miterStroke) {
-    GrDrawState::AutoRestoreEffects are(drawState);
+    GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
 
     SkMatrix localMatrix;
     if (!viewMatrix.invert(&localMatrix)) {
@@ -403,7 +403,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     }
 
     CoverageAttribType type;
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*drawState, color, &type,
+    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(*pipelineBuilder, color, &type,
                                                               localMatrix));
 
     int innerVertexNum = 4;
@@ -517,7 +517,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
-    target->drawIndexedInstances(drawState,
+    target->drawIndexedInstances(pipelineBuilder,
                                  gp,
                                  kTriangles_GrPrimitiveType,
                                  1,
@@ -527,7 +527,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
 }
 
 void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
-                                         GrDrawState* drawState,
+                                         GrPipelineBuilder* pipelineBuilder,
                                          GrColor color,
                                          const SkMatrix& viewMatrix,
                                          const SkRect rects[2]) {
@@ -540,11 +540,11 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     viewMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, drawState, color, viewMatrix, devOutside,
+        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
                          devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(target, drawState, color, viewMatrix, devOutside, devOutsideAssist,
-                               devInside, true);
+    this->geometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
+                               devOutsideAssist, devInside, true);
 }

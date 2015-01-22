@@ -344,9 +344,9 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
                                     &fGlyphCache->getDescriptor(), fStroke);
     }
 
-    fStateRestore.set(&fDrawState);
+    fStateRestore.set(&fPipelineBuilder);
 
-    fDrawState.setFromPaint(fPaint, fContext->getRenderTarget());
+    fPipelineBuilder.setFromPaint(fPaint, fContext->getRenderTarget());
 
     GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
                                  kZero_StencilOp,
@@ -356,7 +356,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
                                  0x0000,
                                  0xffff);
 
-    *fDrawState.stencil() = kStencilPass;
+    *fPipelineBuilder.stencil() = kStencilPass;
 
     SkASSERT(0 == fQueuedGlyphCount);
     SkASSERT(kGlyphBufferSize == fFallbackGlyphsIdx);
@@ -408,7 +408,7 @@ void GrStencilAndCoverTextContext::flush() {
         SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor(),
                                                                  fViewMatrix,
                                                                  fLocalMatrix));
-        fDrawTarget->drawPaths(&fDrawState, pp, fGlyphs,
+        fDrawTarget->drawPaths(&fPipelineBuilder, pp, fGlyphs,
                                fGlyphIndices, GrPathRange::kU16_PathIndexType,
                                get_xy_scalar_array(fGlyphPositions),
                                GrPathRendering::kTranslate_PathTransformType,
@@ -453,7 +453,7 @@ void GrStencilAndCoverTextContext::finish() {
     SkGlyphCache::AttachCache(fGlyphCache);
     fGlyphCache = NULL;
 
-    fDrawState.stencil()->setDisabled();
+    fPipelineBuilder.stencil()->setDisabled();
     fStateRestore.set(NULL);
     fViewMatrix = fContextInitialMatrix;
     GrTextContext::finish();

@@ -636,8 +636,8 @@ void GrDistanceFieldTextContext::flush() {
     }
 
     if (fCurrVertex > 0) {
-        GrDrawState drawState;
-        drawState.setFromPaint(fPaint, fContext->getRenderTarget());
+        GrPipelineBuilder pipelineBuilder;
+        pipelineBuilder.setFromPaint(fPaint, fContext->getRenderTarget());
 
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));
@@ -657,7 +657,8 @@ void GrDistanceFieldTextContext::flush() {
             // TODO: move supportsRGBCoverage check to setupCoverageEffect and only add LCD
             // processor if the xp can support it. For now we will simply assume that if
             // fUseLCDText is true, then we have a known color output.
-            if (!drawState.getXPFactory()->supportsRGBCoverage(0, kRGBA_GrColorComponentFlags)) {
+            const GrXPFactory* xpFactory = pipelineBuilder.getXPFactory();
+            if (!xpFactory->supportsRGBCoverage(0, kRGBA_GrColorComponentFlags)) {
                 SkDebugf("LCD Text will not draw correctly.\n");
             }
             SkASSERT(!fCachedGeometryProcessor->hasVertexColor());
@@ -667,7 +668,7 @@ void GrDistanceFieldTextContext::flush() {
         }
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-        fDrawTarget->drawIndexedInstances(&drawState,
+        fDrawTarget->drawIndexedInstances(&pipelineBuilder,
                                           fCachedGeometryProcessor.get(),
                                           kTriangles_GrPrimitiveType,
                                           nGlyphs,

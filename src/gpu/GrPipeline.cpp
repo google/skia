@@ -1,29 +1,29 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "GrOptDrawState.h"
+#include "GrPipeline.h"
 
-#include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
+#include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
 #include "GrXferProcessor.h"
 
-GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
+GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
                                const GrPrimitiveProcessor* primProc,
                                const GrDrawTargetCaps& caps,
                                const GrScissorState& scissorState,
                                const GrDeviceCoordTexture* dstCopy) {
-    const GrProcOptInfo& colorPOI = drawState.colorProcInfo(primProc);
-    const GrProcOptInfo& coveragePOI = drawState.coverageProcInfo(primProc);
+    const GrProcOptInfo& colorPOI = pipelineBuilder.colorProcInfo(primProc);
+    const GrProcOptInfo& coveragePOI = pipelineBuilder.coverageProcInfo(primProc);
 
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
-        drawState.getXPFactory()->createXferProcessor(colorPOI, coveragePOI));
+        pipelineBuilder.getXPFactory()->createXferProcessor(colorPOI, coveragePOI));
 
     GrColor overrideColor = GrColor_ILLEGAL;
     if (colorPOI.firstEffectiveStageIndex() != 0) {
@@ -36,72 +36,72 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
 
         optFlags = xferProcessor->getOptimizations(colorPOI,
                                                    coveragePOI,
-                                                   drawState.getStencil().doesWrite(),
+                                                   pipelineBuilder.getStencil().doesWrite(),
                                                    &overrideColor,
                                                    caps);
     }
 
-    // When path rendering the stencil settings are not always set on the draw state
+    // When path rendering the stencil settings are not always set on the GrPipelineBuilder
     // so we must check the draw type. In cases where we will skip drawing we simply return a
-    // null GrOptDrawState.
+    // null GrPipeline.
     if (!xferProcessor || (GrXferProcessor::kSkipDraw_OptFlag & optFlags)) {
         // Set the fields that don't default init and return. The lack of a render target will
         // indicate that this can be skipped.
         fFlags = 0;
-        fDrawFace = GrDrawState::kInvalid_DrawFace;
+        fDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
         return;
     }
 
-    fRenderTarget.reset(drawState.fRenderTarget.get());
+    fRenderTarget.reset(pipelineBuilder.fRenderTarget.get());
     SkASSERT(fRenderTarget);
     fScissorState = scissorState;
-    fStencilSettings = drawState.getStencil();
-    fDrawFace = drawState.getDrawFace();
-    // TODO move this out of optDrawState
+    fStencilSettings = pipelineBuilder.getStencil();
+    fDrawFace = pipelineBuilder.getDrawFace();
+    // TODO move this out of GrPipeline
     if (dstCopy) {
         fDstCopy = *dstCopy;
     }
 
     fFlags = 0;
-    if (drawState.isHWAntialias()) {
+    if (pipelineBuilder.isHWAntialias()) {
         fFlags |= kHWAA_Flag;
     }
-    if (drawState.isDither()) {
+    if (pipelineBuilder.isDither()) {
         fFlags |= kDither_Flag;
     }
 
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
 
     // TODO: Once we can handle single or four channel input into coverage stages then we can use
-    // drawState's coverageProcInfo (like color above) to set this initial information.
+    // GrPipelineBuilder's coverageProcInfo (like color above) to set this initial information.
     int firstCoverageStageIdx = 0;
 
     GrXferProcessor::BlendInfo blendInfo;
     fXferProcessor->getBlendInfo(&blendInfo);
 
-    this->adjustProgramFromOptimizations(drawState, optFlags, colorPOI, coveragePOI,
+    this->adjustProgramFromOptimizations(pipelineBuilder, optFlags, colorPOI, coveragePOI,
                                          &firstColorStageIdx, &firstCoverageStageIdx);
 
     fDescInfo.fReadsDst = fXferProcessor->willReadDstColor();
 
     bool usesLocalCoords = false;
 
-    // Copy Stages from DS to ODS
-    for (int i = firstColorStageIdx; i < drawState.numColorStages(); ++i) {
+    // Copy Stages from PipelineBuilder to Pipeline
+    for (int i = firstColorStageIdx; i < pipelineBuilder.numColorStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
-                               (drawState.fColorStages[i]));
+                               (pipelineBuilder.fColorStages[i]));
         usesLocalCoords = usesLocalCoords ||
-                          drawState.fColorStages[i].processor()->usesLocalCoords();
+                          pipelineBuilder.fColorStages[i].processor()->usesLocalCoords();
     }
 
     fNumColorStages = fFragmentStages.count();
-    for (int i = firstCoverageStageIdx; i < drawState.numCoverageStages(); ++i) {
+    for (int i = firstCoverageStageIdx; i < pipelineBuilder.numCoverageStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
-                               (drawState.fCoverageStages[i]));
+                               (pipelineBuilder.fCoverageStages[i]));
         usesLocalCoords = usesLocalCoords ||
-                          drawState.fCoverageStages[i].processor()->usesLocalCoords();
+                          pipelineBuilder.fCoverageStages[i].processor()->usesLocalCoords();
     }
 
     // let the GP init the batch tracker
@@ -111,23 +111,23 @@ GrOptDrawState::GrOptDrawState(const GrDrawState& drawState,
     fInitBT.fUsesLocalCoords = usesLocalCoords;
 }
 
-void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
-                                                    GrXferProcessor::OptFlags flags,
-                                                    const GrProcOptInfo& colorPOI,
-                                                    const GrProcOptInfo& coveragePOI,
-                                                    int* firstColorStageIdx,
-                                                    int* firstCoverageStageIdx) {
+void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelineBuilder,
+                                                GrXferProcessor::OptFlags flags,
+                                                const GrProcOptInfo& colorPOI,
+                                                const GrProcOptInfo& coveragePOI,
+                                                int* firstColorStageIdx,
+                                                int* firstCoverageStageIdx) {
     fDescInfo.fReadsFragPosition = false;
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
-        *firstColorStageIdx = ds.numColorStages();
+        *firstColorStageIdx = pipelineBuilder.numColorStages();
     } else {
         fDescInfo.fReadsFragPosition = colorPOI.readsFragPosition();
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
-        *firstCoverageStageIdx = ds.numCoverageStages();
+        *firstCoverageStageIdx = pipelineBuilder.numCoverageStages();
     } else {
         if (coveragePOI.readsFragPosition()) {
             fDescInfo.fReadsFragPosition = true;
@@ -137,7 +137,7 @@ void GrOptDrawState::adjustProgramFromOptimizations(const GrDrawState& ds,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrOptDrawState::isEqual(const GrOptDrawState& that) const {
+bool GrPipeline::isEqual(const GrPipeline& that) const {
     if (this->getRenderTarget() != that.getRenderTarget() ||
         this->fFragmentStages.count() != that.fFragmentStages.count() ||
         this->fNumColorStages != that.fNumColorStages ||

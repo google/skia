@@ -1,12 +1,12 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrOptDrawState_DEFINED
-#define GrOptDrawState_DEFINED
+#ifndef GrPipeline_DEFINED
+#define GrPipeline_DEFINED
 
 #include "GrColor.h"
 #include "GrGpu.h"
@@ -18,26 +18,26 @@
 #include "SkRefCnt.h"
 
 class GrDeviceCoordTexture;
-class GrDrawState;
 class GrPathProcessor;
+class GrPipelineBuilder;
 
 /**
- * Class that holds an optimized version of a GrDrawState. It is meant to be an immutable class,
- * and contains all data needed to set the state for a gpu draw.
+ * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
+ * class, and contains all data needed to set the state for a gpu draw.
  */
-class GrOptDrawState {
+class GrPipeline {
 public:
-    SK_DECLARE_INST_COUNT(GrOptDrawState)
+    SK_DECLARE_INST_COUNT(GrPipeline)
 
-    GrOptDrawState(const GrDrawState& drawState, const GrPrimitiveProcessor*,
-                   const GrDrawTargetCaps&, const GrScissorState&,
-                   const GrDeviceCoordTexture* dstCopy);
+    GrPipeline(const GrPipelineBuilder& pipelineBuilder, const GrPrimitiveProcessor*,
+               const GrDrawTargetCaps&, const GrScissorState&,
+               const GrDeviceCoordTexture* dstCopy);
 
     /*
-     * Returns true if it is possible to combine the two GrOptDrawStates and it will update 'this'
+     * Returns true if it is possible to combine the two GrPipelines and it will update 'this'
      * to subsume 'that''s draw.
      */
-    bool isEqual(const GrOptDrawState& that) const;
+    bool isEqual(const GrPipeline& that) const;
 
     /// @}
 
@@ -122,7 +122,7 @@ public:
      * or both faces.
      * @return the current draw face(s).
      */
-    GrDrawState::DrawFace getDrawFace() const { return fDrawFace; }
+    GrPipelineBuilder::DrawFace getDrawFace() const { return fDrawFace; }
 
     /// @}
 
@@ -138,7 +138,7 @@ private:
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
-    void adjustProgramFromOptimizations(const GrDrawState& ds,
+    void adjustProgramFromOptimizations(const GrPipelineBuilder& ds,
                                         GrXferProcessor::OptFlags,
                                         const GrProcOptInfo& colorPOI,
                                         const GrProcOptInfo& coveragePOI,
@@ -150,7 +150,7 @@ private:
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrDrawState& ds, GrXferProcessor::OptFlags,
+    void setOutputStateInfo(const GrPipelineBuilder& ds, GrXferProcessor::OptFlags,
                             const GrDrawTargetCaps&);
 
     enum Flags {
@@ -164,7 +164,7 @@ private:
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
     GrStencilSettings                   fStencilSettings;
-    GrDrawState::DrawFace               fDrawFace;
+    GrPipelineBuilder::DrawFace               fDrawFace;
     GrDeviceCoordTexture                fDstCopy;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;

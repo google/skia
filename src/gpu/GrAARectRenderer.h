@@ -15,7 +15,7 @@
 #include "SkStrokeRec.h"
 
 class GrGpu;
-class GrDrawState;
+class GrPipelineBuilder;
 class GrDrawTarget;
 class GrIndexBuffer;
 
@@ -43,16 +43,16 @@ public:
     // between them by passing in stroke (==NULL means fill).
 
     void fillAARect(GrDrawTarget* target,
-                    GrDrawState* ds,
+                    GrPipelineBuilder* pipelineBuilder,
                     GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect& devRect) {
-        this->geometryFillAARect(target, ds, color, viewMatrix, rect, devRect);
+        this->geometryFillAARect(target, pipelineBuilder, color, viewMatrix, rect, devRect);
     }
 
     void strokeAARect(GrDrawTarget*,
-                      GrDrawState*,
+                      GrPipelineBuilder*,
                       GrColor,
                       const SkMatrix& viewMatrix,
                       const SkRect& rect,
@@ -61,7 +61,7 @@ public:
 
     // First rect is outer; second rect is inner
     void fillAANestedRects(GrDrawTarget*,
-                           GrDrawState*,
+                           GrPipelineBuilder*,
                            GrColor,
                            const SkMatrix& viewMatrix,
                            const SkRect rects[2]);
@@ -70,14 +70,14 @@ private:
     GrIndexBuffer* aaStrokeRectIndexBuffer(bool miterStroke);
 
     void geometryFillAARect(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkRect& rect,
                             const SkRect& devRect);
 
     void geometryStrokeAARect(GrDrawTarget*,
-                              GrDrawState*,
+                              GrPipelineBuilder*,
                               GrColor,
                               const SkMatrix& viewMatrix,
                               const SkRect& devOutside,

@@ -24,8 +24,8 @@ struct GrPoint;
 /**
  *  Base class for drawing paths into a GrDrawTarget.
  *
- *  Derived classes can use stages GrPaint::kTotalStages through GrDrawState::kNumStages-1. The
- *  stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and
+ *  Derived classes can use stages GrPaint::kTotalStages through GrPipelineBuilder::kNumStages-1.
+ *  The stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and
  *  filter masks).
  */
 class SK_API GrPathRenderer : public SkRefCnt {
@@ -54,7 +54,7 @@ public:
      * rendered into the stencil.
      *
      * A GrPathRenderer can provide three levels of support for stenciling paths:
-     * 1) kNoRestriction: This is the most general. The caller sets up the GrDrawState on the target
+     * 1) kNoRestriction: This is the most general. The caller sets up the GrPipelineBuilder on the target
      *                    and calls drawPath(). The path is rendered exactly as the draw state
      *                    indicates including support for simultaneous color and stenciling with
      *                    arbitrary stenciling rules. Pixels partially covered by AA paths are
@@ -82,11 +82,11 @@ public:
      * @param stroke    the stroke information (width, join, cap).
      */
     StencilSupport getStencilSupport(const GrDrawTarget* target,
-                                     const GrDrawState* drawState,
+                                     const GrPipelineBuilder* pipelineBuilder,
                                      const SkPath& path,
                                      const SkStrokeRec& stroke) const {
         SkASSERT(!path.isInverseFillType());
-        return this->onGetStencilSupport(target, drawState, path, stroke);
+        return this->onGetStencilSupport(target, pipelineBuilder, path, stroke);
     }
 
     /**
@@ -94,17 +94,17 @@ public:
      * caller to fallback to another path renderer This function is called when searching for a path
      * renderer capable of rendering a path.
      *
-     * @param target     The target that the path will be rendered to
-     * @param drawState  The drawState
-     * @param viewMatrix The viewMatrix
-     * @param path       The path to draw
-     * @param stroke     The stroke information (width, join, cap)
-     * @param antiAlias  True if anti-aliasing is required.
+     * @param target           The target that the path will be rendered to
+     * @param pipelineBuilder  The pipelineBuilder
+     * @param viewMatrix       The viewMatrix
+     * @param path             The path to draw
+     * @param stroke           The stroke information (width, join, cap)
+     * @param antiAlias        True if anti-aliasing is required.
      *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
     virtual bool canDrawPath(const GrDrawTarget* target,
-                             const GrDrawState* drawState,
+                             const GrPipelineBuilder* pipelineBuilder,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
                              const SkStrokeRec& rec,
@@ -114,14 +114,14 @@ public:
      * the subclass must respect the stencil settings of the target's draw state.
      *
      * @param target                The target that the path will be rendered to
-     * @param drawState             The drawState
+     * @param pipelineBuilder       The pipelineBuilder
      * @param viewMatrix            The viewMatrix
      * @param path                  the path to draw.
      * @param stroke                the stroke information (width, join, cap)
      * @param antiAlias             true if anti-aliasing is required.
      */
     bool drawPath(GrDrawTarget* target,
-                  GrDrawState* ds,
+                  GrPipelineBuilder* ds,
                   GrColor color,
                   const SkMatrix& viewMatrix,
                   const SkPath& path,
@@ -144,7 +144,7 @@ public:
      * @param target                target that the path will be rendered to
      */
     void stencilPath(GrDrawTarget* target,
-                     GrDrawState* ds,
+                     GrPipelineBuilder* ds,
                      const SkMatrix& viewMatrix,
                      const SkPath& path,
                      const SkStrokeRec& stroke) {
@@ -172,7 +172,7 @@ protected:
      * Subclass overrides if it has any limitations of stenciling support.
      */
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrDrawState*,
+                                               const GrPipelineBuilder*,
                                                const SkPath&,
                                                const SkStrokeRec&) const {
         return kNoRestriction_StencilSupport;
@@ -182,7 +182,7 @@ protected:
      * Subclass implementation of drawPath()
      */
     virtual bool onDrawPath(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
@@ -194,7 +194,7 @@ protected:
      * kStencilOnly in onGetStencilSupport().
      */
     virtual void onStencilPath(GrDrawTarget* target,
-                               GrDrawState* drawState,
+                               GrPipelineBuilder* pipelineBuilder,
                                const SkMatrix& viewMatrix,
                                const SkPath& path,
                                const SkStrokeRec& stroke) {
@@ -205,9 +205,9 @@ protected:
                                      0xffff,
                                      0xffff,
                                      0xffff);
-        drawState->setStencil(kIncrementStencil);
-        drawState->setDisableColorXPFactory();
-        this->drawPath(target, drawState, GrColor_WHITE, viewMatrix, path, stroke, false);
+        pipelineBuilder->setStencil(kIncrementStencil);
+        pipelineBuilder->setDisableColorXPFactory();
+        this->drawPath(target, pipelineBuilder, GrColor_WHITE, viewMatrix, path, stroke, false);
     }
 
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set

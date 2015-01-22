@@ -11,7 +11,6 @@
 #include "GrProcessor.h"
 #include "GrGLProcessor.h"
 #include "GrGLPathRendering.h"
-#include "GrOptDrawState.h"
 #include "SkRTConf.h"
 #include "SkTSearch.h"
 

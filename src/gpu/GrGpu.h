@@ -15,11 +15,11 @@
 
 class GrContext;
 class GrIndexBufferAllocPool;
-class GrOptDrawState;
 class GrPath;
 class GrPathRange;
 class GrPathRenderer;
 class GrPathRendererChain;
+class GrPipeline;
 class GrPrimitiveProcessor;
 class GrStencilBuffer;
 class GrVertexBufferAllocPool;
@@ -306,7 +306,7 @@ public:
 
     virtual void buildProgramDesc(GrProgramDesc*,
                                   const GrPrimitiveProcessor&,
-                                  const GrOptDrawState&,
+                                  const GrPipeline&,
                                   const GrProgramDesc::DescInfo&,
                                   const GrBatchTracker&) const = 0;
 
@@ -351,17 +351,17 @@ public:
     struct DrawArgs {
         typedef GrDrawTarget::DrawInfo DrawInfo;
         DrawArgs(const GrPrimitiveProcessor* primProc,
-                 const GrOptDrawState* optState,
+                 const GrPipeline* pipeline,
                  const GrProgramDesc* desc,
                  const GrBatchTracker* batchTracker)
             : fPrimitiveProcessor(primProc)
-            , fOptState(optState)
+            , fPipeline(pipeline)
             , fDesc(desc)
             , fBatchTracker(batchTracker) {
-            SkASSERT(primProc && optState && desc && batchTracker);
+            SkASSERT(primProc && pipeline && desc && batchTracker);
         }
         const GrPrimitiveProcessor* fPrimitiveProcessor;
-        const GrOptDrawState* fOptState;
+        const GrPipeline* fPipeline;
         const GrProgramDesc* fDesc;
         const GrBatchTracker* fBatchTracker;
     };

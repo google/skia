@@ -9,11 +9,11 @@
 
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrDrawState.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
@@ -643,7 +643,7 @@ void add_line(const SkPoint p[2],
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
-                                              GrDrawState* drawState,
+                                              GrPipelineBuilder* pipelineBuilder,
                                               const SkMatrix& viewMatrix,
                                               uint8_t coverage,
                                               size_t vertexStride,
@@ -683,7 +683,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(GrDrawTarget* target,
 }
 
 bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
-                                                GrDrawState* drawState,
+                                                GrPipelineBuilder* pipelineBuilder,
                                                 const SkMatrix& viewMatrix,
                                                 GrDrawTarget::AutoReleaseGeometry* arg,
                                                 SkRect* devBounds,
@@ -743,7 +743,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(GrDrawTarget* target,
 }
 
 bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
-                                           const GrDrawState* drawState,
+                                           const GrPipelineBuilder* pipelineBuilder,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
                                            const SkStrokeRec& stroke,
@@ -801,7 +801,7 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
-                                          GrDrawState* drawState,
+                                          GrPipelineBuilder* pipelineBuilder,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
@@ -814,7 +814,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     SkIRect devClipBounds;
-    target->getClip()->getConservativeBounds(drawState->getRenderTarget(), &devClipBounds);
+    target->getClip()->getConservativeBounds(pipelineBuilder->getRenderTarget(), &devClipBounds);
 
     int lineCnt;
     int quadCnt;
@@ -845,7 +845,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 
-        GrDrawState::AutoRestoreEffects are(drawState);
+        GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
         uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
                            GrDefaultGeoProcFactory::kCoverage_GPType;
         SkAutoTUnref<const GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Create(gpFlags,
@@ -856,7 +856,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                                                                    newCoverage));
 
         if (!this->createLineGeom(target,
-                                  drawState,
+                                  pipelineBuilder,
                                   viewMatrix,
                                   newCoverage,
                                   gp->getVertexStride(),
@@ -879,7 +879,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
             int lines = 0;
             while (lines < lineCnt) {
                 int n = SkTMin(lineCnt - lines, kLineSegsNumInIdxBuffer);
-                target->drawIndexed(drawState,
+                target->drawIndexed(pipelineBuilder,
                                     gp,
                                     kTriangles_GrPrimitiveType,
                                     kLineSegNumVertices*lines,     // startV
@@ -898,7 +898,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         SkRect devBounds;
 
         if (!this->createBezierGeom(target,
-                                    drawState,
+                                    pipelineBuilder,
                                     viewMatrix,
                                     &arg,
                                     &devBounds,
@@ -930,13 +930,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                          invert,
                                          newCoverage));
             SkASSERT(hairQuadProcessor);
-            GrDrawState::AutoRestoreEffects are(drawState);
+            GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
 
             int quads = 0;
             while (quads < quadCnt) {
                 int n = SkTMin(quadCnt - quads, kQuadsNumInIdxBuffer);
-                target->drawIndexed(drawState,
+                target->drawIndexed(pipelineBuilder,
                                     hairQuadProcessor,
                                     kTriangles_GrPrimitiveType,
                                     kQuadNumVertices*quads,               // startV
@@ -953,13 +953,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                     GrConicEffect::Create(color, vm, kHairlineAA_GrProcessorEdgeType,
                                           *target->caps(), invert, newCoverage));
             SkASSERT(hairConicProcessor);
-            GrDrawState::AutoRestoreEffects are(drawState);
+            GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
             target->setIndexSourceToBuffer(fQuadsIndexBuffer);
 
             int conics = 0;
             while (conics < conicCnt) {
                 int n = SkTMin(conicCnt - conics, kQuadsNumInIdxBuffer);
-                target->drawIndexed(drawState,
+                target->drawIndexed(pipelineBuilder,
                                     hairConicProcessor,
                                     kTriangles_GrPrimitiveType,
                                     kQuadNumVertices*(quadCnt + conics),  // startV

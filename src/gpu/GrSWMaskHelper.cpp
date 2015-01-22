@@ -7,7 +7,7 @@
 
 #include "GrSWMaskHelper.h"
 
-#include "GrDrawState.h"
+#include "GrPipelineBuilder.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
@@ -347,7 +347,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
 void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               GrDrawTarget* target,
-                                              GrDrawState* drawState,
+                                              GrPipelineBuilder* pipelineBuilder,
                                               GrColor color,
                                               const SkMatrix& viewMatrix,
                                               const SkIRect& rect) {
@@ -355,7 +355,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     if (!viewMatrix.invert(&invert)) {
         return;
     }
-    GrDrawState::AutoRestoreEffects are(drawState);
+    GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
 
     SkRect dstRect = SkRect::MakeLTRB(SK_Scalar1 * rect.fLeft,
                                       SK_Scalar1 * rect.fTop,
@@ -369,11 +369,11 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     maskMatrix.setIDiv(texture->width(), texture->height());
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
-    drawState->addCoverageProcessor(
+    pipelineBuilder->addCoverageProcessor(
                          GrSimpleTextureEffect::Create(texture,
                                                        maskMatrix,
                                                        GrTextureParams::kNone_FilterMode,
                                                        kDevice_GrCoordSet))->unref();
 
-    target->drawRect(drawState, color, SkMatrix::I(), dstRect, NULL, &invert);
+    target->drawRect(pipelineBuilder, color, SkMatrix::I(), dstRect, NULL, &invert);
 }

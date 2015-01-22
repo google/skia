@@ -14,7 +14,7 @@
 
 #include "GrContextFactory.h"
 #include "GrInvariantOutput.h"
-#include "GrOptDrawState.h"
+#include "GrPipeline.h"
 #include "GrTest.h"
 #include "GrXferProcessor.h"
 #include "SkChecksum.h"
@@ -121,12 +121,13 @@ static GrRenderTarget* random_render_target(GrContext* context,
     return SkRef(texture->asRenderTarget());
 }
 
-static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps, GrDrawState* ds,
-                           SkRandom* random, GrTexture* dummyTextures[]) {
+static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps,
+                           GrPipelineBuilder* pipelineBuilder, SkRandom* random,
+                           GrTexture* dummyTextures[]) {
     SkAutoTUnref<const GrXPFactory> xpf(
         GrProcessorTestFactory<GrXPFactory>::CreateStage(random, context, caps, dummyTextures));
     SkASSERT(xpf);
-    ds->setXPFactory(xpf.get());
+    pipelineBuilder->setXPFactory(xpf.get());
 }
 
 static const GrGeometryProcessor* get_random_gp(GrContext* context,
@@ -140,7 +141,7 @@ static const GrGeometryProcessor* get_random_gp(GrContext* context,
 }
 
 static void set_random_color_coverage_stages(GrGLGpu* gpu,
-                                             GrDrawState* ds,
+                                             GrPipelineBuilder* pipelineBuilder,
                                              int maxStages,
                                              bool usePathRendering,
                                              SkRandom* random,
@@ -171,24 +172,24 @@ static void set_random_color_coverage_stages(GrGLGpu* gpu,
 
         // finally add the stage to the correct pipeline in the drawstate
         if (s < numColorProcs) {
-            ds->addColorProcessor(fp);
+            pipelineBuilder->addColorProcessor(fp);
         } else {
-            ds->addCoverageProcessor(fp);
+            pipelineBuilder->addCoverageProcessor(fp);
         }
         ++s;
     }
 }
 
-static void set_random_state(GrDrawState* ds, SkRandom* random) {
+static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
     int state = 0;
-    for (int i = 1; i <= GrDrawState::kLast_StateBit; i <<= 1) {
+    for (int i = 1; i <= GrPipelineBuilder::kLast_StateBit; i <<= 1) {
         state |= random->nextBool() * i;
     }
-    ds->enableState(state);
+    pipelineBuilder->enableState(state);
 }
 
 // right now, the only thing we seem to care about in drawState's stencil is 'doesWrite()'
-static void set_random_stencil(GrDrawState* ds, SkRandom* random) {
+static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
     GR_STATIC_CONST_SAME_STENCIL(kDoesWriteStencil,
                                  kReplace_StencilOp,
                                  kReplace_StencilOp,
@@ -205,9 +206,9 @@ static void set_random_stencil(GrDrawState* ds, SkRandom* random) {
                                  0xffff);
 
     if (random->nextBool()) {
-        ds->setStencil(kDoesWriteStencil);
+        pipelineBuilder->setStencil(kDoesWriteStencil);
     } else {
-        ds->setStencil(kDoesNotWriteStencil);
+        pipelineBuilder->setStencil(kDoesNotWriteStencil);
     }
 }
 
@@ -266,8 +267,8 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
             return false;
         }
 
-        GrDrawState ds;
-        ds.setRenderTarget(rt.get());
+        GrPipelineBuilder pipelineBuilder;
+        pipelineBuilder.setRenderTarget(rt.get());
 
         // if path rendering we have to setup a couple of things like the draw type
         bool usePathRendering = gpu->glCaps().pathRenderingSupport() && random.nextBool();
@@ -282,17 +283,17 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
             pathProc.reset(GrPathProcessor::Create(GrColor_WHITE));
         }
         set_random_color_coverage_stages(gpu,
-                                         &ds,
+                                         &pipelineBuilder,
                                          maxStages - hasGeometryProcessor,
                                          usePathRendering,
                                          &random,
                                          dummyTextures);
 
         // creates a random xfer processor factory on the draw state 
-        set_random_xpf(fContext, gpu->glCaps(), &ds, &random, dummyTextures);
+        set_random_xpf(fContext, gpu->glCaps(), &pipelineBuilder, &random, dummyTextures);
 
-        set_random_state(&ds, &random);
-        set_random_stencil(&ds, &random);
+        set_random_state(&pipelineBuilder, &random);
+        set_random_stencil(&pipelineBuilder, &random);
 
         GrDeviceCoordTexture dstCopy;
 
@@ -302,24 +303,24 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         } else {
             primProc = pathProc.get();
         }
-        if (!this->setupDstReadIfNecessary(&ds, &dstCopy, NULL)) {
+        if (!this->setupDstReadIfNecessary(&pipelineBuilder, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        GrOptDrawState ods(ds, primProc, *gpu->caps(), scissor, &dstCopy);
-        if (ods.mustSkip()) {
+        GrPipeline pipeline(pipelineBuilder, primProc, *gpu->caps(), scissor, &dstCopy);
+        if (pipeline.mustSkip()) {
             continue;
         }
         GrBatchTracker bt;
-        primProc->initBatchTracker(&bt, ods.getInitBatchTracker());
+        primProc->initBatchTracker(&bt, pipeline.getInitBatchTracker());
 
         GrProgramDesc desc;
-        gpu->buildProgramDesc(&desc, *primProc, ods, ods.descInfo(), bt);
+        gpu->buildProgramDesc(&desc, *primProc, pipeline, pipeline.descInfo(), bt);
 
-        GrGpu::DrawArgs args(primProc, &ods, &desc, &bt);
+        GrGpu::DrawArgs args(primProc, &pipeline, &desc, &bt);
         SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(args, gpu));
 
         if (NULL == program.get()) {

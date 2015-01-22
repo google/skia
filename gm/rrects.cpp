@@ -112,7 +112,7 @@ protected:
                             SkDEBUGFAIL("Couldn't get Gr test target.");
                             return;
                         }
-                        GrDrawState drawState;
+                        GrPipelineBuilder pipelineBuilder;
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
@@ -120,13 +120,13 @@ protected:
                         SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
                                                                                    rrect));
                         if (fp) {
-                            drawState.addCoverageProcessor(fp);
-                            drawState.setRenderTarget(rt);
+                            pipelineBuilder.addCoverageProcessor(fp);
+                            pipelineBuilder.setRenderTarget(rt);
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            tt.target()->drawSimpleRect(&drawState, 0xff000000, SkMatrix::I(),
+                            tt.target()->drawSimpleRect(&pipelineBuilder, 0xff000000, SkMatrix::I(),
                                                         bounds);
                         } else {
                             drew = false;

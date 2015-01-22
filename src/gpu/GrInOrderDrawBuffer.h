@@ -9,7 +9,7 @@
 #define GrInOrderDrawBuffer_DEFINED
 
 #include "GrFlushToGpuDrawTarget.h"
-#include "GrOptDrawState.h"
+#include "GrPipeline.h"
 #include "GrPath.h"
 #include "GrTRecorder.h"
 
@@ -178,19 +178,20 @@ private:
         GrPendingIOResource<GrSurface, kRead_GrIOType> fSrc;
     };
 
+    // TODO: rename to SetPipeline once pp, batch tracker, and desc are removed
     struct SetState : public Cmd {
-        SetState(const GrDrawState& drawState, const GrPrimitiveProcessor* primProc,
+        SetState(const GrPipelineBuilder& pipelineBuilder, const GrPrimitiveProcessor* primProc,
                  const GrDrawTargetCaps& caps,
                  const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy)
         : Cmd(kSetState_Cmd)
         , fPrimitiveProcessor(primProc)
-        , fState(drawState, primProc, caps, scissor, dstCopy) {}
+        , fPipeline(pipelineBuilder, primProc, caps, scissor, dstCopy) {}
 
         void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
         ProgramPrimitiveProcessor   fPrimitiveProcessor;
-        const GrOptDrawState        fState;
+        const GrPipeline            fPipeline;
         GrProgramDesc               fDesc;
         GrBatchTracker              fBatchTracker;
     };
@@ -202,30 +203,30 @@ private:
     void onFlush() SK_OVERRIDE;
 
     // overrides from GrDrawTarget
-    void onDraw(const GrDrawState&,
+    void onDraw(const GrPipelineBuilder&,
                 const GrGeometryProcessor*,
                 const DrawInfo&,
                 const GrScissorState&,
                 const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    void onDrawRect(GrDrawState*,
+    void onDrawRect(GrPipelineBuilder*,
                     GrColor,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix) SK_OVERRIDE;
 
-    void onStencilPath(const GrDrawState&,
+    void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
                        const GrScissorState&,
                        const GrStencilSettings&) SK_OVERRIDE;
-    void onDrawPath(const GrDrawState&,
+    void onDrawPath(const GrPipelineBuilder&,
                     const GrPathProcessor*,
                     const GrPath*,
                     const GrScissorState&,
                     const GrStencilSettings&,
                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    void onDrawPaths(const GrDrawState&,
+    void onDrawPaths(const GrPipelineBuilder&,
                      const GrPathProcessor*,
                      const GrPathRange*,
                      const void* indices,
@@ -247,12 +248,12 @@ private:
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
-    int concatInstancedDraw(const GrDrawState&, const DrawInfo&);
+    int concatInstancedDraw(const GrPipelineBuilder&, const DrawInfo&);
 
-    // Determines whether the current draw operation requires a new GrOptDrawState and if so
-    // records it. If the draw can be skipped false is returned and no new GrOptDrawState is
+    // Determines whether the current draw operation requires a new GrPipeline and if so
+    // records it. If the draw can be skipped false is returned and no new GrPipeline is
     // recorded.
-    bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrDrawState&,
+    bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrPipelineBuilder&,
                                                         const GrPrimitiveProcessor*,
                                                         const GrScissorState&,
                                                         const GrDeviceCoordTexture*);

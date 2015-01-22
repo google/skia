@@ -7,7 +7,6 @@
 
 #include "GrDefaultGeoProcFactory.h"
 
-#include "GrDrawState.h"
 #include "GrInvariantOutput.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

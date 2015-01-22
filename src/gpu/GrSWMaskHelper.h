@@ -9,7 +9,7 @@
 #define GrSWMaskHelper_DEFINED
 
 #include "GrColor.h"
-#include "GrDrawState.h"
+#include "GrPipelineBuilder.h"
 #include "SkBitmap.h"
 #include "SkDraw.h"
 #include "SkMatrix.h"
@@ -92,7 +92,7 @@ public:
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,
-                                         GrDrawState* drawState,
+                                         GrPipelineBuilder* pipelineBuilder,
                                          GrColor,
                                          const SkMatrix& viewMatrix,
                                          const SkIRect& rect);

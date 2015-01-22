@@ -19,7 +19,6 @@
 #include "SkTypes.h"
 
 class GrAARectRenderer;
-class GrDrawState;
 class GrDrawTarget;
 class GrFontCache;
 class GrFragmentProcessor;
@@ -32,6 +31,7 @@ class GrLayerCache;
 class GrOvalRenderer;
 class GrPath;
 class GrPathRenderer;
+class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache2;
 class GrTestTarget;
@@ -773,7 +773,7 @@ public:
 
     GrPathRenderer* getPathRenderer(
                     const GrDrawTarget* target,
-                    const GrDrawState*,
+                    const GrPipelineBuilder*,
                     const SkMatrix& viewMatrix,
                     const SkPath& path,
                     const SkStrokeRec& stroke,
@@ -861,10 +861,10 @@ private:
     class AutoCheckFlush;
     // Sets the paint and returns the target to draw into.  This function is overloaded to either
     // take a GrDrawState, GrPaint, and AutoCheckFlush, or JUST an AutoCheckFlush
-    GrDrawTarget* prepareToDraw(GrDrawState* ds, const GrPaint* paint, const AutoCheckFlush*);
+    GrDrawTarget* prepareToDraw(GrPipelineBuilder*, const GrPaint* paint, const AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget*,
-                          GrDrawState*,
+                          GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
                           GrColor,
                           bool useAA,

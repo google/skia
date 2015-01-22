@@ -16,7 +16,7 @@ public:
     GrAAConvexPathRenderer();
 
     virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrDrawState*,
+                             const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
@@ -24,7 +24,7 @@ public:
 
 protected:
     virtual bool onDrawPath(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,

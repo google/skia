@@ -11,9 +11,9 @@
 #include "GrClipData.h"
 #include "GrClipMaskManager.h"
 #include "GrContext.h"
-#include "GrDrawState.h"
 #include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
+#include "GrPipelineBuilder.h"
 #include "GrTraceMarker.h"
 #include "GrVertexBuffer.h"
 
@@ -125,7 +125,7 @@ public:
      * snapshot of the data is made and the pointers are invalid.
      *
      * @param vertexCount  the number of vertices to reserve space for. Can be
-     *                     0. Vertex size is queried from the current GrDrawState.
+     *                     0. Vertex size is queried from the current GrPipelineBuilder.
      * @param indexCount   the number of indices to reserve space for. Can be 0.
      * @param vertices     will point to reserved vertex space if vertexCount is
      *                     non-zero. Illegal to pass NULL if vertexCount > 0.
@@ -148,7 +148,7 @@ public:
      *
      * @param vertexCount  in: hint about how many vertices the caller would
      *                     like to allocate. Vertex size is queried from the
-     *                     current GrDrawState.
+     *                     current GrPipelineBuilder.
      *                     out: a hint about the number of vertices that can be
      *                     allocated cheaply. Negative means no hint.
      *                     Ignored if NULL.
@@ -168,7 +168,7 @@ public:
      *
      * @param buffer        vertex buffer containing vertex data. Must be
      *                      unlocked before draw call. Vertex size is queried
-     *                      from current GrDrawState.
+     *                      from current GrPipelineBuilder.
      */
     void setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride);
 
@@ -232,7 +232,7 @@ public:
      * @param devBounds    optional bounds hint. This is a promise from the caller,
      *                     not a request for clipping.
      */
-    void drawIndexed(GrDrawState*,
+    void drawIndexed(GrPipelineBuilder*,
                      const GrGeometryProcessor*,
                      GrPrimitiveType type,
                      int startVertex,
@@ -252,7 +252,7 @@ public:
      * @param devBounds    optional bounds hint. This is a promise from the caller,
      *                     not a request for clipping.
      */
-    void drawNonIndexed(GrDrawState*,
+    void drawNonIndexed(GrPipelineBuilder*,
                         const GrGeometryProcessor*,
                         GrPrimitiveType type,
                         int startVertex,
@@ -262,21 +262,23 @@ public:
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
      * winding (not inverse or hairline). It will respect the HW antialias flag
-     * on the draw state (if possible in the 3D API).  Note, we will never have an inverse fill
-     * with stencil path
+     * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
+     * fill with stencil path
      */
-    void stencilPath(GrDrawState*, const GrPathProcessor*, const GrPath*,GrPathRendering::FillType);
+    void stencilPath(GrPipelineBuilder*, const GrPathProcessor*, const GrPath*,
+                     GrPathRendering::FillType);
 
     /**
      * Draws a path. Fill must not be a hairline. It will respect the HW
-     * antialias flag on the draw state (if possible in the 3D API).
+     * antialias flag on the GrPipelineBuilder (if possible in the 3D API).
      */
-    void drawPath(GrDrawState*, const GrPathProcessor*, const GrPath*, GrPathRendering::FillType);
+    void drawPath(GrPipelineBuilder*, const GrPathProcessor*, const GrPath*,
+                  GrPathRendering::FillType);
 
     /**
      * Draws the aggregate path from combining multiple. Note that this will not
      * always be equivalent to back-to-back calls to drawPath(). It will respect
-     * the HW antialias flag on the draw state (if possible in the 3D API).
+     * the HW antialias flag on the GrPipelineBuilder (if possible in the 3D API).
      *
      * @param pathRange       Source paths to draw from
      * @param indices         Array of path indices to draw
@@ -286,7 +288,7 @@ public:
      * @param count           Number of paths to draw
      * @param fill            Fill type for drawing all the paths
      */
-    void drawPaths(GrDrawState*,
+    void drawPaths(GrPipelineBuilder*,
                    const GrPathProcessor*,
                    const GrPathRange* pathRange,
                    const void* indices,
@@ -308,7 +310,7 @@ public:
      *                    that rectangle before it is input to GrCoordTransforms that read local
      *                    coordinates
      */
-    void drawRect(GrDrawState* ds,
+    void drawRect(GrPipelineBuilder* ds,
                   GrColor color,
                   const SkMatrix& viewMatrix,
                   const SkRect& rect,
@@ -321,10 +323,11 @@ public:
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkMatrix& viewM, const SkRect& rect) {
+    void drawSimpleRect(GrPipelineBuilder* ds, GrColor color, const SkMatrix& viewM,
+                        const SkRect& rect) {
         this->drawRect(ds, color, viewM, rect, NULL, NULL);
     }
-    void drawSimpleRect(GrDrawState* ds, GrColor color, const SkMatrix& viewM,
+    void drawSimpleRect(GrPipelineBuilder* ds, GrColor color, const SkMatrix& viewM,
                         const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
         this->drawRect(ds, color, viewM, rect, NULL, NULL);
@@ -360,7 +363,7 @@ public:
      * @param devBounds    optional bounds hint. This is a promise from the caller,
      *                     not a request for clipping.
      */
-    void drawIndexedInstances(GrDrawState*,
+    void drawIndexedInstances(GrPipelineBuilder*,
                               const GrGeometryProcessor*,
                               GrPrimitiveType type,
                               int instanceCount,
@@ -369,9 +372,9 @@ public:
                               const SkRect* devBounds = NULL);
 
     /**
-     * Clear the passed in render target. Ignores the draw state and clip. Clears the whole thing if
-     * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
-     * can be optionally cleared.
+     * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
+     * thing if rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire
+     * render target can be optionally cleared.
      */
     void clear(const SkIRect* rect,
                GrColor color,
@@ -660,7 +663,7 @@ protected:
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(GrDrawState*,
+    bool setupDstReadIfNecessary(GrPipelineBuilder*,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
 
@@ -700,31 +703,31 @@ private:
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
-    virtual void onDraw(const GrDrawState&,
+    virtual void onDraw(const GrPipelineBuilder&,
                         const GrGeometryProcessor*,
                         const DrawInfo&,
                         const GrScissorState&,
                         const GrDeviceCoordTexture* dstCopy) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
-    virtual void onDrawRect(GrDrawState*,
+    virtual void onDrawRect(GrPipelineBuilder*,
                             GrColor color,
                             const SkMatrix& viewMatrix,
                             const SkRect& rect,
                             const SkRect* localRect,
                             const SkMatrix* localMatrix) = 0;
 
-    virtual void onStencilPath(const GrDrawState&,
+    virtual void onStencilPath(const GrPipelineBuilder&,
                                const GrPathProcessor*,
                                const GrPath*,
                                const GrScissorState&,
                                const GrStencilSettings&) = 0;
-    virtual void onDrawPath(const GrDrawState&,
+    virtual void onDrawPath(const GrPipelineBuilder&,
                             const GrPathProcessor*,
                             const GrPath*,
                             const GrScissorState&,
                             const GrStencilSettings&,
                             const GrDeviceCoordTexture* dstCopy) = 0;
-    virtual void onDrawPaths(const GrDrawState&,
+    virtual void onDrawPaths(const GrPipelineBuilder&,
                              const GrPathProcessor*,
                              const GrPathRange*,
                              const void* indices,
@@ -771,7 +774,7 @@ private:
 
     // called by drawIndexed and drawNonIndexed. Use a negative indexCount to
     // indicate non-indexed drawing.
-    bool checkDraw(const GrDrawState&,
+    bool checkDraw(const GrPipelineBuilder&,
                    const GrGeometryProcessor*,
                    GrPrimitiveType type,
                    int startVertex,
@@ -788,9 +791,9 @@ private:
                                            const GrStencilBuffer*,
                                            GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
-    virtual bool setupClip(GrDrawState*,
-                           GrDrawState::AutoRestoreEffects* are,
-                           GrDrawState::AutoRestoreStencil* ars,
+    virtual bool setupClip(GrPipelineBuilder*,
+                           GrPipelineBuilder::AutoRestoreEffects* are,
+                           GrPipelineBuilder::AutoRestoreStencil* ars,
                            GrScissorState* scissorState,
                            const SkRect* devBounds) = 0;
 
@@ -848,9 +851,9 @@ protected:
 private:
     GrClipMaskManager* clipMaskManager() SK_OVERRIDE { return &fClipMaskManager; }
 
-    virtual bool setupClip(GrDrawState*,
-                           GrDrawState::AutoRestoreEffects* are,
-                           GrDrawState::AutoRestoreStencil* ars,
+    virtual bool setupClip(GrPipelineBuilder*,
+                           GrPipelineBuilder::AutoRestoreEffects* are,
+                           GrPipelineBuilder::AutoRestoreStencil* ars,
                            GrScissorState* scissorState,
                            const SkRect* devBounds) SK_OVERRIDE;
 

@@ -130,11 +130,12 @@ protected:
                     }
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    GrDrawState drawState;
-                    drawState.setRenderTarget(rt);
-                    drawState.addColorProcessor(fp);
+                    GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setRenderTarget(rt);
+                    pipelineBuilder.addColorProcessor(fp);
 
-                    tt.target()->drawSimpleRect(&drawState, GrColor_WHITE, viewMatrix, renderRect);
+                    tt.target()->drawSimpleRect(&pipelineBuilder, GrColor_WHITE, viewMatrix,
+                                                renderRect);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

@@ -12,9 +12,9 @@
 #include "SkTArray.h"
 
 class GrContext;
-class GrDrawState;
 class GrDrawTarget;
 class GrPathRenderer;
+class GrPipelineBuilder;
 class SkMatrix;
 class SkPath;
 class SkStrokeRec;
@@ -58,7 +58,7 @@ public:
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
-                                    const GrDrawState*,
+                                    const GrPipelineBuilder*,
                                     const SkMatrix& viewMatrix,
                                     const SkPath& path,
                                     const SkStrokeRec& rec,

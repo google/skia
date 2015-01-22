@@ -8,7 +8,6 @@
 #ifndef GrGLGpu_DEFINED
 #define GrGLGpu_DEFINED
 
-#include "GrDrawState.h"
 #include "GrGLContext.h"
 #include "GrGLIRect.h"
 #include "GrGLIndexBuffer.h"
@@ -20,9 +19,11 @@
 #include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
-#include "GrOptDrawState.h"
+#include "GrPipelineBuilder.h"
 #include "GrXferProcessor.h"
 #include "SkTypes.h"
+
+class GrPipeline;
 
 #ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
@@ -106,7 +107,7 @@ public:
 
     void buildProgramDesc(GrProgramDesc*,
                           const GrPrimitiveProcessor&,
-                          const GrOptDrawState&,
+                          const GrPipeline&,
                           const GrProgramDesc::DescInfo&,
                           const GrBatchTracker&) const SK_OVERRIDE;
 
@@ -166,7 +167,7 @@ private:
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    // Flushes state from GrOptDrawState to GL. Returns false if the state couldn't be set.
+    // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
     // TODO we only have need to know if this is a line draw for flushing AA state on some buggy
     // hardware.  Evaluate if this is really necessary anymore
     bool flushGLState(const DrawArgs&, bool isLineDraw);
@@ -227,7 +228,7 @@ private:
 
     void flushDither(bool dither);
     void flushColorWrite(bool writeColor);
-    void flushDrawFace(GrDrawState::DrawFace face);
+    void flushDrawFace(GrPipelineBuilder::DrawFace face);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -443,7 +444,7 @@ private:
     TriState                    fHWStencilTestEnabled;
 
 
-    GrDrawState::DrawFace       fHWDrawFace;
+    GrPipelineBuilder::DrawFace fHWDrawFace;
     TriState                    fHWWriteToColor;
     TriState                    fHWDitherEnabled;
     uint32_t                    fHWBoundRenderTargetUniqueID;

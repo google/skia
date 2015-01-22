@@ -132,12 +132,12 @@ protected:
                     continue;
                 }
 
-                GrDrawState ds;
+                GrPipelineBuilder pipelineBuilder;
                 SkAutoTUnref<const GrGeometryProcessor> gp(
                         GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                         0xff000000));
-                ds.addCoverageProcessor(fp);
-                ds.setRenderTarget(rt);
+                pipelineBuilder.addCoverageProcessor(fp);
+                pipelineBuilder.setRenderTarget(rt);
 
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                 SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
@@ -150,7 +150,8 @@ protected:
                 bounds.toQuad(verts);
 
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                tt.target()->drawIndexed(&pipelineBuilder, gp, kTriangleFan_GrPrimitiveType,
+                                         0, 0, 4, 6);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
@@ -189,12 +190,12 @@ protected:
                     continue;
                 }
 
-                GrDrawState ds;
+                GrPipelineBuilder pipelineBuilder;
                 SkAutoTUnref<const GrGeometryProcessor> gp(
                         GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                         0xff000000));
-                ds.addCoverageProcessor(fp);
-                ds.setRenderTarget(rt);
+                pipelineBuilder.addCoverageProcessor(fp);
+                pipelineBuilder.setRenderTarget(rt);
 
                 GrDrawTarget::AutoReleaseGeometry geo(tt.target(), 4, gp->getVertexStride(), 0);
                 SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
@@ -205,7 +206,8 @@ protected:
                 bounds.toQuad(verts);
 
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
-                tt.target()->drawIndexed(&ds, gp, kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                tt.target()->drawIndexed(&pipelineBuilder, gp, kTriangleFan_GrPrimitiveType,
+                                         0, 0, 4, 6);
 
                 x += SkScalarCeilToScalar(rect.width() + 10.f);
             }

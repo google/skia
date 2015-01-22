@@ -42,7 +42,7 @@ public:
      * Builds a GL specific program descriptor
      *
      * @param GrPrimitiveProcessor The geometry
-     * @param GrOptDrawState  The optimized drawstate.  The descriptor will represent a program
+     * @param GrPipeline  The optimized drawstate.  The descriptor will represent a program
      *                        which this optstate can use to draw with.  The optstate contains
      *                        general draw information, as well as the specific color, geometry,
      *                        and coverage stages which will be used to generate the GL Program for
@@ -57,7 +57,7 @@ public:
      **/
     static bool Build(GrProgramDesc*,
                       const GrPrimitiveProcessor&,
-                      const GrOptDrawState&,
+                      const GrPipeline&,
                       const GrProgramDesc::DescInfo&,
                       const GrGLGpu*,
                       const GrBatchTracker&);

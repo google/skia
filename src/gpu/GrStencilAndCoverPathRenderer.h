@@ -26,7 +26,7 @@ public:
     virtual ~GrStencilAndCoverPathRenderer();
 
     virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrDrawState*,
+                             const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
@@ -34,12 +34,12 @@ public:
 
 protected:
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrDrawState*,
+                                               const GrPipelineBuilder*,
                                                const SkPath&,
                                                const SkStrokeRec&) const SK_OVERRIDE;
 
     virtual bool onDrawPath(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
@@ -47,7 +47,7 @@ protected:
                             bool antiAlias) SK_OVERRIDE;
 
     virtual void onStencilPath(GrDrawTarget*,
-                               GrDrawState*,
+                               GrPipelineBuilder*,
                                const SkMatrix& viewMatrix,
                                const SkPath&,
                                const SkStrokeRec&) SK_OVERRIDE;

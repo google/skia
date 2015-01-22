@@ -193,8 +193,8 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     // First we loop over all of the installed processors and collect coord transforms.  These will
     // be sent to the GrGLPrimitiveProcessor in its emitCode function
     SkSTArray<8, GrGLProcessor::TransformedCoordsArray> outCoords;
-    for (int i = 0; i < this->optState().numFragmentStages(); i++) {
-        const GrFragmentProcessor* processor = this->optState().getFragmentStage(i).processor();
+    for (int i = 0; i < this->pipeline().numFragmentStages(); i++) {
+        const GrFragmentProcessor* processor = this->pipeline().getFragmentStage(i).processor();
         SkSTArray<2, const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
         for (int t = 0; t < processor->numTransforms(); t++) {
             procCoords.push_back(&processor->coordTransform(t));
@@ -205,10 +205,10 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     this->emitAndInstallProc(primProc, inputColor, inputCoverage);
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
-    int numProcs = this->optState().numFragmentStages();
-    this->emitAndInstallFragProcs(0, this->optState().numColorStages(), inputColor);
-    this->emitAndInstallFragProcs(this->optState().numColorStages(), numProcs,  inputCoverage);
-    this->emitAndInstallXferProc(*this->optState().getXferProcessor(), *inputColor, *inputCoverage);
+    int numProcs = this->pipeline().numFragmentStages();
+    this->emitAndInstallFragProcs(0, this->pipeline().numColorStages(), inputColor);
+    this->emitAndInstallFragProcs(this->pipeline().numColorStages(), numProcs,  inputCoverage);
+    this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
@@ -216,7 +216,7 @@ void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
                                                  GrGLSLExpr4* inOut) {
     for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
-        const GrPendingFragmentStage& stage = this->optState().getFragmentStage(e);
+        const GrPendingFragmentStage& stage = this->pipeline().getFragmentStage(e);
         this->emitAndInstallProc(stage, e, *inOut, &output);
         *inOut = output;
     }

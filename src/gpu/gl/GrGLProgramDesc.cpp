@@ -9,7 +9,7 @@
 #include "GrGLProcessor.h"
 #include "GrProcessor.h"
 #include "GrGLGpu.h"
-#include "GrOptDrawState.h"
+#include "GrPipeline.h"
 #include "SkChecksum.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 
@@ -88,7 +88,7 @@ static bool get_meta_key(const GrProcessor& proc,
 
 bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
                                    const GrPrimitiveProcessor& primProc,
-                                   const GrOptDrawState& optState,
+                                   const GrPipeline& pipeline,
                                    const GrProgramDesc::DescInfo& descInfo,
                                    const GrGLGpu* gpu,
                                    const GrBatchTracker& batchTracker) {
@@ -110,8 +110,8 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         return false;
     }
 
-    for (int s = 0; s < optState.numFragmentStages(); ++s) {
-        const GrPendingFragmentStage& fps = optState.getFragmentStage(s);
+    for (int s = 0; s < pipeline.numFragmentStages(); ++s) {
+        const GrPendingFragmentStage& fps = pipeline.getFragmentStage(s);
         const GrFragmentProcessor& fp = *fps.processor();
         fp.getGLProcessorKey(gpu->glCaps(), &b);
         if (!get_meta_key(fp, gpu->glCaps(), primProc.getTransformKey(fp.coordTransforms()), &b)) {
@@ -120,7 +120,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         }
     }
 
-    const GrXferProcessor& xp = *optState.getXferProcessor();
+    const GrXferProcessor& xp = *pipeline.getXferProcessor();
     xp.getGLProcessorKey(gpu->glCaps(), &b);
     if (!get_meta_key(xp, gpu->glCaps(), 0, &b)) {
         desc->fKey.reset();
@@ -136,7 +136,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     memset(header, 0, kHeaderSize);
 
     if (descInfo.fReadsDst) {
-        const GrDeviceCoordTexture* dstCopy = optState.getDstCopy();
+        const GrDeviceCoordTexture* dstCopy = pipeline.getDstCopy();
         SkASSERT(dstCopy || gpu->caps()->dstReadInShaderSupport());
         const GrTexture* dstCopyTexture = NULL;
         if (dstCopy) {
@@ -151,14 +151,14 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     if (descInfo.fReadsFragPosition) {
         header->fFragPosKey =
-                GrGLFragmentShaderBuilder::KeyForFragmentPosition(optState.getRenderTarget(),
+                GrGLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget(),
                                                                   gpu->glCaps());
     } else {
         header->fFragPosKey = 0;
     }
 
-    header->fColorEffectCnt = optState.numColorStages();
-    header->fCoverageEffectCnt = optState.numCoverageStages();
+    header->fColorEffectCnt = pipeline.numColorStages();
+    header->fCoverageEffectCnt = pipeline.numCoverageStages();
     desc->finalize();
     return true;
 }

@@ -48,7 +48,7 @@ void GrContext::purgeAllUnlockedResources() {
 #include "GrInOrderDrawBuffer.h"
 #include "GrGpu.h"
 
-class GrOptDrawState;
+class GrPipeline;
 
 class MockGpu : public GrGpu {
 public:
@@ -64,7 +64,7 @@ public:
                                    GrPixelConfig config,
                                    size_t rowBytes) const SK_OVERRIDE { return false; }
     void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
-                          const GrOptDrawState&,
+                          const GrPipeline&,
                           const GrProgramDesc::DescInfo&,
                           const GrBatchTracker&) const SK_OVERRIDE {}
 

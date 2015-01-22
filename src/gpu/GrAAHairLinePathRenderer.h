@@ -18,7 +18,7 @@ public:
     static GrPathRenderer* Create(GrContext* context);
 
     virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrDrawState*,
+                             const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
@@ -30,7 +30,7 @@ public:
 
 protected:
     virtual bool onDrawPath(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
@@ -43,7 +43,7 @@ private:
                              const GrIndexBuffer* fQuadsIndexBuffer);
 
     bool createLineGeom(GrDrawTarget* target,
-                        GrDrawState*,
+                        GrPipelineBuilder*,
                         const SkMatrix& viewMatrix,
                         uint8_t coverage,
                         size_t vertexStride,
@@ -54,7 +54,7 @@ private:
                         int lineCnt);
 
     bool createBezierGeom(GrDrawTarget* target,
-                          GrDrawState*,
+                          GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
                           GrDrawTarget::AutoReleaseGeometry* arg,
                           SkRect* devBounds,

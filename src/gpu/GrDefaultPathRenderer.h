@@ -20,7 +20,7 @@ public:
     GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
 
     virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrDrawState*,
+                             const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
@@ -29,12 +29,12 @@ public:
 private:
 
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrDrawState*,
+                                               const GrPipelineBuilder*,
                                                const SkPath&,
                                                const SkStrokeRec&) const SK_OVERRIDE;
 
     virtual bool onDrawPath(GrDrawTarget*,
-                            GrDrawState*,
+                            GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
@@ -42,13 +42,13 @@ private:
                             bool antiAlias) SK_OVERRIDE;
 
     virtual void onStencilPath(GrDrawTarget*,
-                               GrDrawState*,
+                               GrPipelineBuilder*,
                                const SkMatrix& viewMatrix,
                                const SkPath&,
                                const SkStrokeRec&) SK_OVERRIDE;
 
     bool internalDrawPath(GrDrawTarget*,
-                          GrDrawState*,
+                          GrPipelineBuilder*,
                           GrColor,
                           const SkMatrix& viewMatrix,
                           const SkPath&,
@@ -56,7 +56,7 @@ private:
                           bool stencilOnly);
 
     bool createGeom(GrDrawTarget*,
-                    GrDrawState*,
+                    GrPipelineBuilder*,
                     GrPrimitiveType*,
                     int* vertexCnt,
                     int* indexCnt,

@@ -10,7 +10,7 @@
 
 #include "GrAtlas.h"
 #include "GrContext.h"
-#include "GrDrawState.h"
+#include "GrPipelineBuilder.h"
 #include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
 #include "GrTexturePriv.h"
@@ -66,7 +66,7 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                                const GrDrawState* drawState,
+                                                const GrPipelineBuilder* pipelineBuilder,
                                                 const SkMatrix& viewMatrix,
                                                 const SkPath& path,
                                                 const SkStrokeRec& stroke,
@@ -95,7 +95,7 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
 
 GrPathRenderer::StencilSupport
 GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
-                                                   const GrDrawState*,
+                                                   const GrPipelineBuilder*,
                                                    const SkPath&,
                                                    const SkStrokeRec&) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
@@ -104,7 +104,7 @@ GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
-                                               GrDrawState* drawState,
+                                               GrPipelineBuilder* pipelineBuilder,
                                                GrColor color,
                                                const SkMatrix& viewMatrix,
                                                const SkPath& path,
@@ -144,7 +144,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     // use signed distance field to render
-    return this->internalDrawPath(target, drawState, color, viewMatrix, path, pathData);
+    return this->internalDrawPath(target, pipelineBuilder, color, viewMatrix, path, pathData);
 }
 
 // padding around path bounds to allow for antialiased pixels
@@ -306,13 +306,13 @@ bool GrAADistanceFieldPathRenderer::freeUnusedPlot() {
 }
 
 bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
-                                                     GrDrawState* drawState,
+                                                     GrPipelineBuilder* pipelineBuilder,
                                                      GrColor color,
                                                      const SkMatrix& viewMatrix,
                                                      const SkPath& path,
                                                      const PathData* pathData) {
     GrTexture* texture = fAtlas->getTexture();
-    GrDrawState::AutoRestoreEffects are(drawState);
+    GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
     
     SkASSERT(pathData->fPlot);
     GrDrawTarget::DrawToken drawToken = target->getCurrentDrawToken();
@@ -374,7 +374,7 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     
     viewMatrix.mapRect(&r);
     target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
-    target->drawIndexedInstances(drawState, fCachedGeometryProcessor.get(),
+    target->drawIndexedInstances(pipelineBuilder, fCachedGeometryProcessor.get(),
                                  kTriangles_GrPrimitiveType, 1, 4, 6, &r);
     target->resetVertexSource();
     

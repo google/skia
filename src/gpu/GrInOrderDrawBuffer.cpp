@@ -114,13 +114,13 @@ static inline uint8_t strip_trace_bit(uint8_t cmd) { return cmd & kCmdMask; }
 
 static inline bool cmd_has_trace_marker(uint8_t cmd) { return SkToBool(cmd & kTraceCmdBit); }
 
-void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
+void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
                                      GrColor color,
                                      const SkMatrix& viewMatrix,
                                      const SkRect& rect,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
-    GrDrawState::AutoRestoreEffects are(ds);
+    GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
 
     // Go to device coords to allow batching across matrix changes
     SkMatrix invert = SkMatrix::I();
@@ -183,10 +183,12 @@ void GrInOrderDrawBuffer::onDrawRect(GrDrawState* ds,
     }
 
     this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
-    this->drawIndexedInstances(ds, gp, kTriangles_GrPrimitiveType, 1, 4, 6, &devBounds);
+    this->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType, 1, 4, 6,
+                               &devBounds);
 }
 
-int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds, const DrawInfo& info) {
+int GrInOrderDrawBuffer::concatInstancedDraw(const GrPipelineBuilder& pipelineBuilder,
+                                             const DrawInfo& info) {
     SkASSERT(!fCmdBuffer.empty());
     SkASSERT(info.isInstanced());
 
@@ -238,20 +240,20 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrDrawState& ds, const DrawIn
     return instancesToConcat;
 }
 
-void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
+void GrInOrderDrawBuffer::onDraw(const GrPipelineBuilder& pipelineBuilder,
                                  const GrGeometryProcessor* gp,
                                  const DrawInfo& info,
                                  const GrScissorState& scissorState,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
-    if (!this->recordStateAndShouldDraw(ds, gp, scissorState, dstCopy)) {
+    if (!this->recordStateAndShouldDraw(pipelineBuilder, gp, scissorState, dstCopy)) {
         return;
     }
 
     Draw* draw;
     if (info.isInstanced()) {
-        int instancesConcated = this->concatInstancedDraw(ds, info);
+        int instancesConcated = this->concatInstancedDraw(pipelineBuilder, info);
         if (info.instanceCount() > instancesConcated) {
             draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info));
             draw->fInfo.adjustInstanceCount(-instancesConcated);
@@ -264,28 +266,28 @@ void GrInOrderDrawBuffer::onDraw(const GrDrawState& ds,
     this->recordTraceMarkersIfNecessary();
 }
 
-void GrInOrderDrawBuffer::onStencilPath(const GrDrawState& ds,
+void GrInOrderDrawBuffer::onStencilPath(const GrPipelineBuilder& pipelineBuilder,
                                         const GrPathProcessor* pathProc,
                                         const GrPath* path,
                                         const GrScissorState& scissorState,
                                         const GrStencilSettings& stencilSettings) {
     StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath,
-                                               (path, ds.getRenderTarget()));
+                                               (path, pipelineBuilder.getRenderTarget()));
     sp->fScissor = scissorState;
-    sp->fUseHWAA = ds.isHWAntialias();
+    sp->fUseHWAA = pipelineBuilder.isHWAntialias();
     sp->fViewMatrix = pathProc->viewMatrix();
     sp->fStencil = stencilSettings;
     this->recordTraceMarkersIfNecessary();
 }
 
-void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
+void GrInOrderDrawBuffer::onDrawPath(const GrPipelineBuilder& pipelineBuilder,
                                      const GrPathProcessor* pathProc,
                                      const GrPath* path,
                                      const GrScissorState& scissorState,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
-    // TODO: Only compare the subset of GrDrawState relevant to path covering?
-    if (!this->recordStateAndShouldDraw(ds, pathProc, scissorState, dstCopy)) {
+    // TODO: Only compare the subset of GrPipelineBuilder relevant to path covering?
+    if (!this->recordStateAndShouldDraw(pipelineBuilder, pathProc, scissorState, dstCopy)) {
         return;
     }
     DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
@@ -293,7 +295,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrDrawState& ds,
     this->recordTraceMarkersIfNecessary();
 }
 
-void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
+void GrInOrderDrawBuffer::onDrawPaths(const GrPipelineBuilder& pipelineBuilder,
                                       const GrPathProcessor* pathProc,
                                       const GrPathRange* pathRange,
                                       const void* indices,
@@ -308,7 +310,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
     SkASSERT(indices);
     SkASSERT(transformValues);
 
-    if (!this->recordStateAndShouldDraw(ds, pathProc, scissorState, dstCopy)) {
+    if (!this->recordStateAndShouldDraw(pipelineBuilder, pathProc, scissorState, dstCopy)) {
         return;
     }
 
@@ -338,7 +340,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrDrawState& ds,
             transformType == previous->fTransformType &&
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
-            !ds.willBlendWithDst(pathProc)) {
+            !pipelineBuilder.willBlendWithDst(pathProc)) {
             // Fold this DrawPaths call into the one previous.
             previous->fCount += count;
             return;
@@ -430,8 +432,8 @@ void GrInOrderDrawBuffer::onFlush() {
         if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
-            this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fState,
-                                             ss->fState.descInfo(), ss->fBatchTracker);
+            this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fPipeline,
+                                             ss->fPipeline.descInfo(), ss->fBatchTracker);
             currentState = ss;
 
         } else {
@@ -449,7 +451,7 @@ void GrInOrderDrawBuffer::onFlush() {
 
 void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
-    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
+    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fPipeline, &state->fDesc,
                   &state->fBatchTracker);
     buf->getGpu()->draw(args, fInfo);
 }
@@ -467,14 +469,14 @@ void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const S
 
 void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
-    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
+    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fPipeline, &state->fDesc,
                   &state->fBatchTracker);
     buf->getGpu()->drawPath(args, this->path(), fStencilSettings);
 }
 
 void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
     SkASSERT(state);
-    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fState, &state->fDesc,
+    DrawArgs args(state->fPrimitiveProcessor.get(), &state->fPipeline, &state->fDesc,
                   &state->fBatchTracker);
     buf->getGpu()->drawPaths(args, this->pathRange(),
                             &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
@@ -514,26 +516,26 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
     return false;
 }
 
-bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrDrawState& ds,
+bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrPipelineBuilder& pipelineBuilder,
                                                    const GrPrimitiveProcessor* primProc,
                                                    const GrScissorState& scissor,
                                                    const GrDeviceCoordTexture* dstCopy) {
     SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
-                                            (ds, primProc, *this->getGpu()->caps(), scissor,
-                                             dstCopy));
-    if (ss->fState.mustSkip()) {
+                                            (pipelineBuilder, primProc, *this->getGpu()->caps(),
+                                             scissor, dstCopy));
+    if (ss->fPipeline.mustSkip()) {
         fCmdBuffer.pop_back();
         return false;
     }
 
     ss->fPrimitiveProcessor->initBatchTracker(&ss->fBatchTracker,
-                                              ss->fState.getInitBatchTracker());
+                                              ss->fPipeline.getInitBatchTracker());
 
     if (fPrevState &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *ss->fPrimitiveProcessor,
                                                       ss->fBatchTracker) &&
-        fPrevState->fState.isEqual(ss->fState)) {
+        fPrevState->fPipeline.isEqual(ss->fPipeline)) {
         fCmdBuffer.pop_back();
     } else {
         fPrevState = ss;

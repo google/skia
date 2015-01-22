@@ -1,20 +1,20 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "GrDrawState.h"
+#include "GrPipelineBuilder.h"
 
 #include "GrBlend.h"
-#include "GrOptDrawState.h"
 #include "GrPaint.h"
+#include "GrPipeline.h"
 #include "GrProcOptInfo.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
-GrDrawState::GrDrawState()
+GrPipelineBuilder::GrPipelineBuilder()
     : fFlagBits(0x0)
     , fDrawFace(kBoth_DrawFace)
     , fColorProcInfoValid(false)
@@ -26,7 +26,7 @@ GrDrawState::GrDrawState()
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
+GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
     fFlagBits = that.fFlagBits;
     fStencilSettings = that.fStencilSettings;
@@ -50,7 +50,7 @@ GrDrawState& GrDrawState::operator=(const GrDrawState& that) {
     return *this;
 }
 
-void GrDrawState::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
+void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
 
     fColorStages.reset();
@@ -74,10 +74,10 @@ void GrDrawState::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
     fFlagBits = 0;
 
     // Enable the clip bit
-    this->enableState(GrDrawState::kClip_StateBit);
+    this->enableState(GrPipelineBuilder::kClip_StateBit);
 
-    this->setState(GrDrawState::kDither_StateBit, paint.isDither());
-    this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());
+    this->setState(GrPipelineBuilder::kDither_StateBit, paint.isDither());
+    this->setState(GrPipelineBuilder::kHWAntialias_StateBit, paint.isAntiAlias());
 
     fColorProcInfoValid = false;
     fCoverageProcInfoValid = false;
@@ -91,7 +91,8 @@ void GrDrawState::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCaps& caps) const {
+bool GrPipelineBuilder::canUseFracCoveragePrimProc(GrColor color,
+                                                   const GrDrawTargetCaps& caps) const {
     if (caps.dualSourceBlendingSupport()) {
         return true;
     }
@@ -107,30 +108,30 @@ bool GrDrawState::canUseFracCoveragePrimProc(GrColor color, const GrDrawTargetCa
 
 //////////////////////////////////////////////////////////////////////////////s
 
-bool GrDrawState::willEffectReadDstColor() const {
+bool GrPipelineBuilder::willEffectReadDstColor() const {
     return this->getXPFactory()->willReadDst();
 }
 
-void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
-    if (fDrawState) {
-        int m = fDrawState->numColorStages() - fColorEffectCnt;
+void GrPipelineBuilder::AutoRestoreEffects::set(GrPipelineBuilder* pipelineBuilder) {
+    if (fPipelineBuilder) {
+        int m = fPipelineBuilder->numColorStages() - fColorEffectCnt;
         SkASSERT(m >= 0);
-        fDrawState->fColorStages.pop_back_n(m);
+        fPipelineBuilder->fColorStages.pop_back_n(m);
 
-        int n = fDrawState->numCoverageStages() - fCoverageEffectCnt;
+        int n = fPipelineBuilder->numCoverageStages() - fCoverageEffectCnt;
         SkASSERT(n >= 0);
-        fDrawState->fCoverageStages.pop_back_n(n);
+        fPipelineBuilder->fCoverageStages.pop_back_n(n);
         if (m + n > 0) {
-            fDrawState->fColorProcInfoValid = false;
-            fDrawState->fCoverageProcInfoValid = false;
+            fPipelineBuilder->fColorProcInfoValid = false;
+            fPipelineBuilder->fCoverageProcInfoValid = false;
         }
-        SkDEBUGCODE(--fDrawState->fBlockEffectRemovalCnt;)
+        SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
     }
-    fDrawState = ds;
-    if (NULL != ds) {
-        fColorEffectCnt = ds->numColorStages();
-        fCoverageEffectCnt = ds->numCoverageStages();
-        SkDEBUGCODE(++ds->fBlockEffectRemovalCnt;)
+    fPipelineBuilder = pipelineBuilder;
+    if (NULL != pipelineBuilder) {
+        fColorEffectCnt = pipelineBuilder->numColorStages();
+        fCoverageEffectCnt = pipelineBuilder->numCoverageStages();
+        SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)
     }
 }
 
@@ -138,19 +139,19 @@ void GrDrawState::AutoRestoreEffects::set(GrDrawState* ds) {
 
 // Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
 // others will blend incorrectly.
-bool GrDrawState::canTweakAlphaForCoverage() const {
+bool GrPipelineBuilder::canTweakAlphaForCoverage() const {
     return this->getXPFactory()->canTweakAlphaForCoverage();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawState::~GrDrawState() {
+GrPipelineBuilder::~GrPipelineBuilder() {
     SkASSERT(0 == fBlockEffectRemovalCnt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawState::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
+bool GrPipelineBuilder::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
     this->calcColorInvariantOutput(pp);
     this->calcCoverageInvariantOutput(pp);
     
@@ -159,7 +160,7 @@ bool GrDrawState::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
     return output.fWillBlendWithDst;
 }
 
-void GrDrawState::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
+void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
     if (!fColorProcInfoValid || fColorPrimProc != pp) {
         fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorStages());
         fColorProcInfoValid = true;
@@ -167,7 +168,7 @@ void GrDrawState::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const
     }
 }
 
-void GrDrawState::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
+void GrPipelineBuilder::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
     if (!fCoverageProcInfoValid ||  fCoveragePrimProc != pp) {
         fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageStages.begin(),
                                                    this->numCoverageStages());
@@ -176,7 +177,7 @@ void GrDrawState::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) co
     }
 }
 
-void GrDrawState::calcColorInvariantOutput(GrColor color) const {
+void GrPipelineBuilder::calcColorInvariantOutput(GrColor color) const {
     if (!fColorProcInfoValid || color != fColorCache) {
         GrColorComponentFlags flags = kRGBA_GrColorComponentFlags;
         fColorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), color,
@@ -186,7 +187,7 @@ void GrDrawState::calcColorInvariantOutput(GrColor color) const {
     }
 }
 
-void GrDrawState::calcCoverageInvariantOutput(GrColor coverage) const {
+void GrPipelineBuilder::calcCoverageInvariantOutput(GrColor coverage) const {
     if (!fCoverageProcInfoValid || coverage != fCoverageCache) {
         GrColorComponentFlags flags = kRGBA_GrColorComponentFlags;
         fCoverageProcInfo.calcWithInitialValues(fCoverageStages.begin(),

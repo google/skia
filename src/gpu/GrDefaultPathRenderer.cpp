@@ -9,8 +9,8 @@
 
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrDrawState.h"
 #include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -165,7 +165,7 @@ static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& strok
 
 GrPathRenderer::StencilSupport
 GrDefaultPathRenderer::onGetStencilSupport(const GrDrawTarget*,
-                                           const GrDrawState*,
+                                           const GrPipelineBuilder*,
                                            const SkPath& path,
                                            const SkStrokeRec& stroke) const {
     if (single_pass_path(path, stroke)) {
@@ -208,7 +208,7 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
 }
 
 bool GrDefaultPathRenderer::createGeom(GrDrawTarget* target,
-                                       GrDrawState* drawState,
+                                       GrPipelineBuilder* pipelineBuilder,
                                        GrPrimitiveType* primType,
                                        int* vertexCnt,
                                        int* indexCnt,
@@ -342,7 +342,7 @@ FINISHED:
 }
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
-                                             GrDrawState* drawState,
+                                             GrPipelineBuilder* pipelineBuilder,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
@@ -368,7 +368,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     GrPrimitiveType primType;
     GrDrawTarget::AutoReleaseGeometry arg;
     if (!this->createGeom(target,
-                          drawState,
+                          pipelineBuilder,
                           &primType,
                           &vertexCnt,
                           &indexCnt,
@@ -379,13 +379,13 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         return false;
     }
     // Save the current xp on the draw state so we can reset it if needed
-    SkAutoTUnref<const GrXPFactory> backupXPFactory(SkRef(drawState->getXPFactory()));
+    SkAutoTUnref<const GrXPFactory> backupXPFactory(SkRef(pipelineBuilder->getXPFactory()));
     // face culling doesn't make sense here
-    SkASSERT(GrDrawState::kBoth_DrawFace == drawState->getDrawFace());
+    SkASSERT(GrPipelineBuilder::kBoth_DrawFace == pipelineBuilder->getDrawFace());
 
     int                         passCount = 0;
     const GrStencilSettings*    passes[3];
-    GrDrawState::DrawFace       drawFace[3];
+    GrPipelineBuilder::DrawFace       drawFace[3];
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
@@ -397,7 +397,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             passes[0] = NULL;
         }
         lastPassIsBounds = false;
-        drawFace[0] = GrDrawState::kBoth_DrawFace;
+        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
     } else {
         if (single_pass_path(path, *stroke)) {
             passCount = 1;
@@ -406,7 +406,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             } else {
                 passes[0] = NULL;
             }
-            drawFace[0] = GrDrawState::kBoth_DrawFace;
+            drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
             lastPassIsBounds = false;
         } else {
             switch (path.getFillType()) {
@@ -427,7 +427,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                             passes[1] = &gEOColorPass;
                         }
                     }
-                    drawFace[0] = drawFace[1] = GrDrawState::kBoth_DrawFace;
+                    drawFace[0] = drawFace[1] = GrPipelineBuilder::kBoth_DrawFace;
                     break;
 
                 case SkPath::kInverseWinding_FillType:
@@ -441,7 +441,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                             passes[0] = &gWindStencilSeparateNoWrap;
                         }
                         passCount = 2;
-                        drawFace[0] = GrDrawState::kBoth_DrawFace;
+                        drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
                     } else {
                         if (fStencilWrapOps) {
                             passes[0] = &gWindSingleStencilWithWrapInc;
@@ -451,8 +451,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                             passes[1] = &gWindSingleStencilNoWrapDec;
                         }
                         // which is cw and which is ccw is arbitrary.
-                        drawFace[0] = GrDrawState::kCW_DrawFace;
-                        drawFace[1] = GrDrawState::kCCW_DrawFace;
+                        drawFace[0] = GrPipelineBuilder::kCW_DrawFace;
+                        drawFace[1] = GrPipelineBuilder::kCCW_DrawFace;
                         passCount = 3;
                     }
                     if (stencilOnly) {
@@ -460,7 +460,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                         --passCount;
                     } else {
                         lastPassIsBounds = true;
-                        drawFace[passCount-1] = GrDrawState::kBoth_DrawFace;
+                        drawFace[passCount-1] = GrPipelineBuilder::kBoth_DrawFace;
                         if (reverse) {
                             passes[passCount-1] = &gInvWindColorPass;
                         } else {
@@ -476,21 +476,21 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     }
 
     SkRect devBounds;
-    GetPathDevBounds(path, drawState->getRenderTarget(), viewMatrix, &devBounds);
+    GetPathDevBounds(path, pipelineBuilder->getRenderTarget(), viewMatrix, &devBounds);
 
     for (int p = 0; p < passCount; ++p) {
-        drawState->setDrawFace(drawFace[p]);
+        pipelineBuilder->setDrawFace(drawFace[p]);
         if (passes[p]) {
-            *drawState->stencil() = *passes[p];
+            *pipelineBuilder->stencil() = *passes[p];
         }
 
         if (lastPassIsBounds && (p == passCount-1)) {
-            // Reset the XP Factory on drawState
-            drawState->setXPFactory(backupXPFactory);
+            // Reset the XP Factory on pipelineBuilder
+            pipelineBuilder->setXPFactory(backupXPFactory);
             SkRect bounds;
             SkMatrix localMatrix = SkMatrix::I();
             if (reverse) {
-                SkASSERT(drawState->getRenderTarget());
+                SkASSERT(pipelineBuilder->getRenderTarget());
                 // draw over the dev bounds (which will be the whole dst surface for inv fill).
                 bounds = devBounds;
                 SkMatrix vmi;
@@ -508,12 +508,12 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             GrDrawTarget::AutoGeometryPush agp(target);
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            target->drawRect(drawState, color, viewM, bounds, NULL, &localMatrix);
+            target->drawRect(pipelineBuilder, color, viewM, bounds, NULL, &localMatrix);
         } else {
             if (passCount > 1) {
-                drawState->setDisableColorXPFactory();
+                pipelineBuilder->setDisableColorXPFactory();
             }
-            GrDrawState::AutoRestoreEffects are(drawState);
+            GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
             SkAutoTUnref<const GrGeometryProcessor> gp(
                     GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                     color,
@@ -522,7 +522,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                                     false,
                                                     newCoverage));
             if (indexCnt) {
-                target->drawIndexed(drawState,
+                target->drawIndexed(pipelineBuilder,
                                     gp,
                                     primType,
                                     0,
@@ -531,7 +531,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                     indexCnt,
                                     &devBounds);
             } else {
-                target->drawNonIndexed(drawState, gp, primType, 0, vertexCnt, &devBounds);
+                target->drawNonIndexed(pipelineBuilder, gp, primType, 0, vertexCnt, &devBounds);
             }
         }
     }
@@ -539,7 +539,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
 }
 
 bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                        const GrDrawState* drawState,
+                                        const GrPipelineBuilder* pipelineBuilder,
                                         const SkMatrix& viewMatrix,
                                         const SkPath& path,
                                         const SkStrokeRec& stroke,
@@ -551,14 +551,14 @@ bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget* target,
 }
 
 bool GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
-                                       GrDrawState* drawState,
+                                       GrPipelineBuilder* pipelineBuilder,
                                        GrColor color,
                                        const SkMatrix& viewMatrix,
                                        const SkPath& path,
                                        const SkStrokeRec& stroke,
                                        bool antiAlias) {
     return this->internalDrawPath(target,
-                                  drawState,
+                                  pipelineBuilder,
                                   color,
                                   viewMatrix,
                                   path,
@@ -567,11 +567,11 @@ bool GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
 }
 
 void GrDefaultPathRenderer::onStencilPath(GrDrawTarget* target,
-                                          GrDrawState* drawState,
+                                          GrPipelineBuilder* pipelineBuilder,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           const SkStrokeRec& stroke) {
     SkASSERT(SkPath::kInverseEvenOdd_FillType != path.getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != path.getFillType());
-    this->internalDrawPath(target, drawState, GrColor_WHITE, viewMatrix, path, stroke, true);
+    this->internalDrawPath(target, pipelineBuilder, GrColor_WHITE, viewMatrix, path, stroke, true);
 }
