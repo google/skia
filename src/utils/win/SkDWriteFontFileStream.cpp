@@ -103,7 +103,7 @@ bool SkDWriteFontFileStream::move(long offset) {
 }
 
 SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const {
-    SkAutoTUnref<SkDWriteFontFileStream> that(this->duplicate());
+    SkAutoTDelete<SkDWriteFontFileStream> that(this->duplicate());
     that->seek(fPos);
     return that.detach();
 }

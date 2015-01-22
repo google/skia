@@ -41,14 +41,6 @@ public:
     virtual ~SkStream() {}
 
     /**
-     *  @deprecated
-     *  SkStream is no longer ref counted, but we leave this here for staging.
-     */
-    void unref() {
-        SkDebugf("SkStream is no longer ref counted!");
-    }
-
-    /**
      *  Attempts to open the specified file, and return a stream to it (using
      *  mmap if available). On success, the caller is responsible for deleting.
      *  On failure, returns NULL.

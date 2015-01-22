@@ -80,15 +80,15 @@ public:
 class SkIStream : public SkBaseIStream {
 private:
     SkStream *fSkStream;
-    bool fUnrefOnRelease;
+    bool fDeleteOnRelease;
     ULARGE_INTEGER fLocation;
 
-    SkIStream(SkStream* stream, bool unrefOnRelease);
+    SkIStream(SkStream* stream, bool fDeleteOnRelease);
     virtual ~SkIStream();
 
 public:
     HRESULT static CreateFromSkStream(SkStream* stream
-                                    , bool unrefOnRelease
+                                    , bool fDeleteOnRelease
                                     , IStream ** ppStream);
 
     virtual HRESULT STDMETHODCALLTYPE Read(void* pv, ULONG cb, ULONG* pcbRead);

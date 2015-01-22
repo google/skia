@@ -103,29 +103,29 @@ HRESULT STDMETHODCALLTYPE SkBaseIStream::Stat(STATSTG* pStatstg
 /**
  * SkIStream
  */
-SkIStream::SkIStream(SkStream* stream, bool unrefOnRelease)
+SkIStream::SkIStream(SkStream* stream, bool deleteOnRelease)
     : SkBaseIStream()
     , fSkStream(stream)
-    , fUnrefOnRelease(unrefOnRelease)
+    , fDeleteOnRelease(deleteOnRelease)
     , fLocation()
 {
     this->fSkStream->rewind();
 }
 
 SkIStream::~SkIStream() {
-    if (this->fSkStream && fUnrefOnRelease) {
-        this->fSkStream->unref();
+    if (this->fSkStream && fDeleteOnRelease) {
+        delete this->fSkStream;
     }
 }
 
 HRESULT SkIStream::CreateFromSkStream(SkStream* stream
-                                    , bool unrefOnRelease
+                                    , bool deleteOnRelease
                                     , IStream ** ppStream)
 {
     if (NULL == stream) {
         return E_INVALIDARG;
     }
-    *ppStream = new SkIStream(stream, unrefOnRelease);
+    *ppStream = new SkIStream(stream, deleteOnRelease);
     return S_OK;
 }
 
