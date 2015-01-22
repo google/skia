@@ -46,30 +46,6 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
     }
 }
 
-typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&,
-                               const SkBitmap&, const SkPoint&,
-                               SkTDArray<SkPixelRef*>* usedPixRefs);
-
-#if 0
-// Although specifiable, this case doesn't seem to make sense (i.e., the
-// bitmap in the shader is never used).
-static void drawsprite_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
-                                       const SkBitmap& altBM, const SkPoint& pos,
-                                       SkTDArray<SkPixelRef*>* usedPixRefs) {
-    SkPaint paint;
-    init_paint(&paint, bm);
-
-    const SkMatrix& ctm = canvas->getTotalMatrix();
-
-    SkPoint p(pos);
-    ctm.mapPoints(&p, 1);
-
-    canvas->drawSprite(altBM, (int)p.fX, (int)p.fY, &paint);
-    *usedPixRefs->append() = bm.pixelRef();
-    *usedPixRefs->append() = altBM.pixelRef();
-}
-#endif
-
 /* Hit a few SkPicture::Analysis cases not handled elsewhere. */
 static void test_analysis(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
