@@ -37,6 +37,32 @@ static void assert_mutex_held(const SkPDFCanon* canon, SkBaseMutex& mutex) {
     }
 }
 
+template <class T> T* assert_ptr(T* p) { SkASSERT(p); return p; }
+
+// TODO(halcanary):  add this method to SkTDArray.
+template <typename T>
+bool remove_item(SkTDArray<T>* array, const T& elem) {
+    int i = array->find(elem);
+    if (i >= 0) {
+        array->removeShuffle(i);
+        return true;
+    }
+    return false;
+}
+
+// requires `bool T::equals(const U&) const`
+template <typename T, typename U>
+T* find_item(const SkTDArray<T*>& ptrArray, const U& object) {
+    for (int i = 0; i < ptrArray.count(); ++i) {
+        if (ptrArray[i]->equals(object)) {
+            return ptrArray[i];
+        }
+    }
+    return NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 SkPDFFont* SkPDFCanon::findFont(uint32_t fontID,
                                 uint16_t glyphID,
                                 SkPDFFont** relatedFontPtr) const {
@@ -79,58 +105,67 @@ void SkPDFCanon::removeFont(SkPDFFont* pdfFont) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFShader* SkPDFCanon::findShader(const SkPDFShader::State& state) const {
+SkPDFFunctionShader* SkPDFCanon::findFunctionShader(
+        const SkPDFShader::State& state) const {
     assert_mutex_held(this, gSkPDFCanonShaderMutex);
-    for (int i = 0; i < fShaderRecords.count(); ++i) {
-        if (fShaderRecords[i]->equals(state)) {
-            return fShaderRecords[i];
-        }
-    }
-    return NULL;
+    return find_item(fFunctionShaderRecords, state);
+}
+void SkPDFCanon::addFunctionShader(SkPDFFunctionShader* pdfShader) {
+    assert_mutex_held(this, gSkPDFCanonShaderMutex);
+    fFunctionShaderRecords.push(assert_ptr(pdfShader));
+}
+void SkPDFCanon::removeFunctionShader(SkPDFFunctionShader* pdfShader) {
+    assert_mutex_held(this, gSkPDFCanonShaderMutex);
+    SkAssertResult(remove_item(&fFunctionShaderRecords, pdfShader));
 }
 
-void SkPDFCanon::addShader(SkPDFShader* shader) {
+////////////////////////////////////////////////////////////////////////////////
+
+SkPDFAlphaFunctionShader* SkPDFCanon::findAlphaShader(
+        const SkPDFShader::State& state) const {
     assert_mutex_held(this, gSkPDFCanonShaderMutex);
-    SkASSERT(shader);
-    fShaderRecords.push(shader);
+    return find_item(fAlphaShaderRecords, state);
+}
+void SkPDFCanon::addAlphaShader(SkPDFAlphaFunctionShader* pdfShader) {
+    assert_mutex_held(this, gSkPDFCanonShaderMutex);
+    fAlphaShaderRecords.push(assert_ptr(pdfShader));
+}
+void SkPDFCanon::removeAlphaShader(SkPDFAlphaFunctionShader* pdfShader) {
+    assert_mutex_held(this, gSkPDFCanonShaderMutex);
+    SkAssertResult(remove_item(&fAlphaShaderRecords, pdfShader));
 }
 
-void SkPDFCanon::removeShader(SkPDFShader* pdfShader) {
+////////////////////////////////////////////////////////////////////////////////
+
+SkPDFImageShader* SkPDFCanon::findImageShader(
+        const SkPDFShader::State& state) const {
     assert_mutex_held(this, gSkPDFCanonShaderMutex);
-    for (int i = 0; i < fShaderRecords.count(); ++i) {
-        if (fShaderRecords[i] == pdfShader) {
-            fShaderRecords.removeShuffle(i);
-            return;
-        }
-    }
-    SkDEBUGFAIL("pdfShader not found");
+    return find_item(fImageShaderRecords, state);
+}
+
+void SkPDFCanon::addImageShader(SkPDFImageShader* pdfShader) {
+    assert_mutex_held(this, gSkPDFCanonShaderMutex);
+    fImageShaderRecords.push(assert_ptr(pdfShader));
+}
+
+void SkPDFCanon::removeImageShader(SkPDFImageShader* pdfShader) {
+    assert_mutex_held(this, gSkPDFCanonShaderMutex);
+    SkAssertResult(remove_item(&fImageShaderRecords, pdfShader));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFGraphicState* SkPDFCanon::findGraphicState(const SkPaint& paint) const {
     assert_mutex_held(this, gSkPDFCanonPaintMutex);
-    for (int i = 0; i < fGraphicStateRecords.count(); ++i) {
-        if (fGraphicStateRecords[i]->equals(paint)) {
-            return fGraphicStateRecords[i];
-        }
-    }
-    return NULL;
+    return find_item(fGraphicStateRecords, paint);
 }
 
 void SkPDFCanon::addGraphicState(SkPDFGraphicState* state) {
     assert_mutex_held(this, gSkPDFCanonPaintMutex);
-    SkASSERT(state);
-    fGraphicStateRecords.push(state);
+    fGraphicStateRecords.push(assert_ptr(state));
 }
 
 void SkPDFCanon::removeGraphicState(SkPDFGraphicState* pdfGraphicState) {
     assert_mutex_held(this, gSkPDFCanonPaintMutex);
-    for (int i = 0; i < fGraphicStateRecords.count(); ++i) {
-        if (fGraphicStateRecords[i] == pdfGraphicState) {
-            fGraphicStateRecords.removeShuffle(i);
-            return;
-        }
-    }
-    SkDEBUGFAIL("pdfGraphicState not found");
+    SkAssertResult(remove_item(&fGraphicStateRecords, pdfGraphicState));
 }

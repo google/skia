@@ -16,7 +16,6 @@ class SkMatrix;
 class SkPDFFont;
 class SkPDFGraphicState;
 class SkPaint;
-class SkShader;
 
 // This class's fields and methods will eventually become part of
 // SkPDFDocument/SkDocument_PDF.  For now, it exists as a singleton to
@@ -51,9 +50,17 @@ public:
     void addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID);
     void removeFont(SkPDFFont*);
 
-    SkPDFShader* findShader(const SkPDFShader::State&) const;
-    void addShader(SkPDFShader*);
-    void removeShader(SkPDFShader*);
+    SkPDFFunctionShader* findFunctionShader(const SkPDFShader::State&) const;
+    void addFunctionShader(SkPDFFunctionShader*);
+    void removeFunctionShader(SkPDFFunctionShader*);
+
+    SkPDFAlphaFunctionShader* findAlphaShader(const SkPDFShader::State&) const;
+    void addAlphaShader(SkPDFAlphaFunctionShader*);
+    void removeAlphaShader(SkPDFAlphaFunctionShader*);
+
+    SkPDFImageShader* findImageShader(const SkPDFShader::State&) const;
+    void addImageShader(SkPDFImageShader*);
+    void removeImageShader(SkPDFImageShader*);
 
     SkPDFGraphicState* findGraphicState(const SkPaint&) const;
     void addGraphicState(SkPDFGraphicState*);
@@ -67,7 +74,11 @@ private:
     };
     SkTDArray<FontRec> fFontRecords;
 
-    SkTDArray<SkPDFShader*> fShaderRecords;
+    SkTDArray<SkPDFFunctionShader*> fFunctionShaderRecords;
+
+    SkTDArray<SkPDFAlphaFunctionShader*> fAlphaShaderRecords;
+
+    SkTDArray<SkPDFImageShader*> fImageShaderRecords;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateRecords;
 };
