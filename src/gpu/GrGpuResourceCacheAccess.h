@@ -86,7 +86,7 @@ public:
      */
     void release() {
         fResource->release();
-        if (fResource->isPurgable()) {            
+        if (fResource->isPurgeable()) {            
             SkDELETE(fResource);
         }
     }
@@ -96,7 +96,7 @@ public:
      */
     void abandon() {
         fResource->abandon();
-        if (fResource->isPurgable()) {            
+        if (fResource->isPurgeable()) {            
             SkDELETE(fResource);
         }
     }

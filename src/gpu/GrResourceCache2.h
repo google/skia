@@ -155,7 +155,7 @@ private:
     ////
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
-    void notifyPurgable(GrGpuResource*);
+    void notifyPurgeable(GrGpuResource*);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     bool didSetContentKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
@@ -230,7 +230,7 @@ private:
 
     // prevents recursive purging
     bool                                fPurging;
-    bool                                fNewlyPurgableResourceWhilePurging;
+    bool                                fNewlyPurgeableResourceWhilePurging;
 
     PFOverBudgetCB                      fOverBudgetCB;
     void*                               fOverBudgetData;
@@ -254,9 +254,9 @@ private:
     void removeResource(GrGpuResource* resource) { fCache->removeResource(resource); }
 
     /**
-     * Called by GrGpuResources when they detects that they are newly purgable.
+     * Called by GrGpuResources when they detects that they are newly purgeable.
      */
-    void notifyPurgable(GrGpuResource* resource) { fCache->notifyPurgable(resource); }
+    void notifyPurgeable(GrGpuResource* resource) { fCache->notifyPurgeable(resource); }
 
     /**
      * Called by GrGpuResources when their sizes change.

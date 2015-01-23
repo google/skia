@@ -269,7 +269,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() ==
                               cache2->getBudgetedResourceBytes());
 
-    // Our refs mean that the resources are non purgable.
+    // Our refs mean that the resources are non purgeable.
     cache2->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 4 == cache2->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + content->gpuMemorySize() +
@@ -472,7 +472,7 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() ==
                               cache2->getResourceBytes());
 
-    // Our refs mean that the resources are non purgable.
+    // Our refs mean that the resources are non purgeable.
     cache2->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
     REPORTER_ASSERT(reporter, 2 == cache2->getResourceCount());
@@ -483,7 +483,7 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache2->countScratchEntriesForKey(scratchKey));)
 
-    // Purge again. This time resources should be purgable.
+    // Purge again. This time resources should be purgeable.
     cache2->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
     REPORTER_ASSERT(reporter, 0 == cache2->getResourceCount());

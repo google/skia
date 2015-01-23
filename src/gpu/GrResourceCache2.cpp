@@ -72,7 +72,7 @@ GrResourceCache2::GrResourceCache2()
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
     , fPurging(false)
-    , fNewlyPurgableResourceWhilePurging(false)
+    , fNewlyPurgeableResourceWhilePurging(false)
     , fOverBudgetCB(NULL)
     , fOverBudgetData(NULL) {
 }
@@ -245,15 +245,15 @@ void GrResourceCache2::makeResourceMRU(GrGpuResource* resource) {
     fResources.addToHead(resource);
 }
 
-void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
+void GrResourceCache2::notifyPurgeable(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
-    SkASSERT(resource->isPurgable());
+    SkASSERT(resource->isPurgeable());
 
     // We can't purge if in the middle of purging because purge is iterating. Instead record
-    // that additional resources became purgable.
+    // that additional resources became purgeable.
     if (fPurging) {
-        fNewlyPurgableResourceWhilePurging = true;
+        fNewlyPurgeableResourceWhilePurging = true;
         return;
     }
 
@@ -343,21 +343,21 @@ void GrResourceCache2::didChangeBudgetStatus(GrGpuResource* resource) {
 
 void GrResourceCache2::internalPurgeAsNeeded() {
     SkASSERT(!fPurging);
-    SkASSERT(!fNewlyPurgableResourceWhilePurging);
+    SkASSERT(!fNewlyPurgeableResourceWhilePurging);
     SkASSERT(fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes);
 
     fPurging = true;
 
     bool overBudget = true;
     do {
-        fNewlyPurgableResourceWhilePurging = false;
+        fNewlyPurgeableResourceWhilePurging = false;
         ResourceList::Iter resourceIter;
         GrGpuResource* resource = resourceIter.init(fResources,
                                                     ResourceList::Iter::kTail_IterStart);
 
         while (resource) {
             GrGpuResource* prev = resourceIter.prev();
-            if (resource->isPurgable()) {
+            if (resource->isPurgeable()) {
                 resource->cacheAccess().release();
             }
             resource = prev;
@@ -367,41 +367,41 @@ void GrResourceCache2::internalPurgeAsNeeded() {
             }
         }
 
-        if (!fNewlyPurgableResourceWhilePurging && overBudget && fOverBudgetCB) {
+        if (!fNewlyPurgeableResourceWhilePurging && overBudget && fOverBudgetCB) {
             // Despite the purge we're still over budget. Call our over budget callback.
             (*fOverBudgetCB)(fOverBudgetData);
         }
-    } while (overBudget && fNewlyPurgableResourceWhilePurging);
+    } while (overBudget && fNewlyPurgeableResourceWhilePurging);
 
-    fNewlyPurgableResourceWhilePurging = false;
+    fNewlyPurgeableResourceWhilePurging = false;
     fPurging = false;
     this->validate();
 }
 
 void GrResourceCache2::purgeAllUnlocked() {
     SkASSERT(!fPurging);
-    SkASSERT(!fNewlyPurgableResourceWhilePurging);
+    SkASSERT(!fNewlyPurgeableResourceWhilePurging);
 
     fPurging = true;
 
     do {
-        fNewlyPurgableResourceWhilePurging = false;
+        fNewlyPurgeableResourceWhilePurging = false;
         ResourceList::Iter resourceIter;
         GrGpuResource* resource =
             resourceIter.init(fResources, ResourceList::Iter::kTail_IterStart);
 
         while (resource) {
             GrGpuResource* prev = resourceIter.prev();
-            if (resource->isPurgable()) {
+            if (resource->isPurgeable()) {
                 resource->cacheAccess().release();
             }
             resource = prev;
         }
 
-        if (!fNewlyPurgableResourceWhilePurging && fCount && fOverBudgetCB) {
+        if (!fNewlyPurgeableResourceWhilePurging && fCount && fOverBudgetCB) {
             (*fOverBudgetCB)(fOverBudgetData);
         }
-    } while (fNewlyPurgableResourceWhilePurging);
+    } while (fNewlyPurgeableResourceWhilePurging);
     fPurging = false;
     this->validate();
 }
@@ -430,7 +430,7 @@ void GrResourceCache2::validate() const {
         bytes += resource->gpuMemorySize();
         ++count;
 
-        if (!resource->isPurgable()) {
+        if (!resource->isPurgeable()) {
             ++locked;
         }
 
@@ -477,7 +477,7 @@ void GrResourceCache2::validate() const {
     SkASSERT(content == fContentHash.count());
     SkASSERT(scratch + couldBeScratch == fScratchMap.count());
 
-    // This assertion is not currently valid because we can be in recursive notifyIsPurgable()
+    // This assertion is not currently valid because we can be in recursive notifyIsPurgeable()
     // calls. This will be fixed when subresource registration is explicit.
     // bool overBudget = budgetedBytes > fMaxBytes || budgetedCount > fMaxCount;
     // SkASSERT(!overBudget || locked == count || fPurging);
@@ -497,7 +497,7 @@ void GrResourceCache2::printStats() const {
     GrGpuResource* resource = iter.init(fResources, ResourceList::Iter::kHead_IterStart);
 
     for ( ; resource; resource = iter.next()) {
-        if (!resource->isPurgable()) {
+        if (!resource->isPurgeable()) {
             ++locked;
         }
         if (resource->cacheAccess().isScratch()) {

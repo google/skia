@@ -34,7 +34,7 @@ class GrResourceCache2;
  *
  * The latter two ref types are private and intended only for Gr core code.
  *
- * When an item is purgable DERIVED:notifyIsPurgable() will be called (static poly morphism using
+ * When an item is purgeable DERIVED:notifyIsPurgeable() will be called (static poly morphism using
  * CRTP). GrIORef and GrGpuResource are separate classes for organizational reasons and to be
  * able to give access via friendship to only the functions related to pending IO operations.
  */
@@ -69,7 +69,7 @@ public:
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
 
-    bool isPurgable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
+    bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
 
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
@@ -103,7 +103,7 @@ private:
 private:
     void didUnref() const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyIsPurgable();
+            static_cast<const DERIVED*>(this)->notifyIsPurgeable();
         }
     }
 
@@ -260,7 +260,7 @@ private:
 
     // See comments in CacheAccess.
     bool setContentKey(const GrContentKey& contentKey);
-    void notifyIsPurgable() const;
+    void notifyIsPurgeable() const;
     void removeScratchKey();
     void makeBudgeted();
     void makeUnbudgeted();
@@ -290,7 +290,7 @@ private:
     SkAutoTUnref<const SkData>  fData;
 
     typedef GrIORef<GrGpuResource> INHERITED;
-    friend class GrIORef<GrGpuResource>; // to access notifyIsPurgable.
+    friend class GrIORef<GrGpuResource>; // to access notifyIsPurgeable.
 };
 
 #endif

@@ -104,13 +104,13 @@ bool GrGpuResource::setContentKey(const GrContentKey& key) {
     return true;
 }
 
-void GrGpuResource::notifyIsPurgable() const {
+void GrGpuResource::notifyIsPurgeable() const {
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
         SkDELETE(this);
     } else {
         GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
-        get_resource_cache2(fGpu)->resourceAccess().notifyPurgable(mutableThis);
+        get_resource_cache2(fGpu)->resourceAccess().notifyPurgeable(mutableThis);
     }
 }
 
