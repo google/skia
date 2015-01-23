@@ -13,7 +13,7 @@ $ out/Debug/dm -v -w dm_output
 When you run this, you may notice your CPU peg to 100% for a while, then taper
 off to 1 or 2 active cores as the run finishes.  This is intentional.  DM is
 very multithreaded, but some of the work, particularly GPU-backed work, is
-still forced to run on a single thread.  You can use --threads N to limit DM to
+still forced to run on a single thread.  You can use `--threads N` to limit DM to
 N threads if you like.  This can sometimes be helpful on machines that have
 relatively more CPU available than RAM.
 
@@ -56,12 +56,12 @@ The next line is an overview of the work DM is about to do.
 
 DM has found 382 unit tests (code linked in from tests/), and 492 other drawing
 sources.  These drawing sources may be GM integration tests (code linked in
-from gm/), image files (from --images, which defaults to "resources") or .skp
-files (from --skps, which defaults to "skps").  You can control the types of
-sources DM will use with --src (default, "tests gm image skp").
+from gm/), image files (from `--images`, which defaults to "resources") or .skp
+files (from `--skps`, which defaults to "skps").  You can control the types of
+sources DM will use with `--src` (default, "tests gm image skp").
 
 DM has found 3 usable ways to draw those 492 sources.  This is controlled by
---config, which today defaults to "565 8888 gpu nonrendering angle nvprmsaa4".
+`--config`, which today defaults to "565 8888 gpu nonrendering angle nvprmsaa4".
 DM has skipped nonrendering, angle, and nvprmssa4, leaving three usable configs:
 565, 8888, and gpu.  These three name different ways to draw using Skia:
 
@@ -121,7 +121,7 @@ dm_output/565/gm/bezier_quad_effects.png
                 ...
 ~~~
 
-The directories are nested first by sink type (--config), then by source type (--src).
+The directories are nested first by sink type (`--config`), then by source type (`--src`).
 The image from the task we just looked at, "8888 image mandrill_132x132_12x12.astc-5-subsets",
 can be found at dm_output/8888/image/mandrill_132x132_12x12.astc-5-subsets.png.
 
