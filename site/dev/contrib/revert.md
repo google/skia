@@ -9,8 +9,8 @@ Using one-click revert
 Using Git
 ---------
     * git checkout master
-    * git svn fetch && git svn rebase && gclient sync
-    * git checkout -t -b <branch_name>
+    * git pull --rebase && gclient sync
+    * git checkout -b <branch_name> origin/master
     * git log
     * <Find the SHA1 of the commit you want to revert>
     * git revert <SHA1>
