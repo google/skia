@@ -33,7 +33,7 @@ GrContentKey::Domain GrContentKey::GenerateDomain() {
     static int32_t gDomain = INHERITED::kInvalidDomain + 1;
 
     int32_t domain = sk_atomic_inc(&gDomain);
-    if (kInvalidDomain == gDomain) {
+    if (domain > SK_MaxU16) {
         SkFAIL("Too many Content Key Domains");
     }
 
