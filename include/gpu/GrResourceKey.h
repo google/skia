@@ -49,10 +49,12 @@ protected:
     }
 
     GrResourceKey& operator=(const GrResourceKey& that) {
-        size_t bytes = that.size();
-        SkASSERT(SkIsAlign4(bytes));
-        fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
-        memcpy(fKey.get(), that.fKey.get(), bytes);
+        if (this != &that) {
+            size_t bytes = that.size();
+            SkASSERT(SkIsAlign4(bytes));
+            fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
+            memcpy(fKey.get(), that.fKey.get(), bytes);
+        }
         return *this;
     }
 
