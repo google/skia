@@ -214,6 +214,7 @@
           '-Wextra',
           '-Winit-self',
           '-Wpointer-arith',
+          '-Wsign-compare',
 
           '-Wno-c++11-extensions',
           '-Wno-unused-parameter',
@@ -376,6 +377,7 @@
         '-Wextra',
         '-Winit-self',
         '-Wpointer-arith',
+        '-Wsign-compare',
       ],
       'cflags_cc!': [
         '-fno-rtti',
@@ -528,8 +530,11 @@
           'WARNING_CFLAGS': [
             '-Wall',
             '-Wextra',
+            '-Winit-self',
+            '-Wpointer-arith',
+            '-Wsign-compare',
+
             '-Wno-unused-parameter',
-            '-Wno-uninitialized',  # Disabled because we think GCC 4.2 is bad at this.
           ],
         },
       },
