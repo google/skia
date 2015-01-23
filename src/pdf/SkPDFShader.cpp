@@ -661,7 +661,7 @@ static SkStream* create_pattern_fill_content(int gsIndex, SkRect& bounds) {
  * Creates a ExtGState with the SMask set to the luminosityShader in
  * luminosity mode. The shader pattern extends to the bbox.
  */
-static SkPDFGraphicState* createsmask_graphic_state(
+static SkPDFGraphicState* create_smask_graphic_state(
         const SkPDFShader::State& state) {
     SkRect bbox;
     bbox.set(state.fBBox);
@@ -699,7 +699,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
 
     // Create resource dict with alpha graphics state as G0 and
     // pattern shader as P0, then write content stream.
-    SkAutoTUnref<SkPDFGraphicState> alphaGs(createsmask_graphic_state(state));
+    SkAutoTUnref<SkPDFGraphicState> alphaGs(create_smask_graphic_state(state));
 
     SkPDFAlphaFunctionShader* alphaFunctionShader =
             SkNEW_ARGS(SkPDFAlphaFunctionShader, (autoState->detach()));

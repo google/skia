@@ -39,7 +39,6 @@ static void assert_mutex_held(const SkPDFCanon* canon, SkBaseMutex& mutex) {
 
 template <class T> T* assert_ptr(T* p) { SkASSERT(p); return p; }
 
-// TODO(halcanary):  add this method to SkTDArray.
 template <typename T>
 bool remove_item(SkTDArray<T>* array, const T& elem) {
     int i = array->find(elem);
