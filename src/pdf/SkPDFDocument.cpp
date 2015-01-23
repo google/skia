@@ -89,9 +89,13 @@ public:
         : fCat(cat), fOut(out), fBaseOffset(SkToOffT(out->bytesWritten())) {
     }
 
-    void stream(SkPDFObject* obj) {
-        fCat->setFileOffset(obj, this->offset());
-        obj->emit(fOut, fCat, true);
+    void stream(SkPDFObject* object) {
+        fCat->setFileOffset(object, this->offset());
+        SkPDFObject* realObject = fCat->getSubstituteObject(object);
+        fCat->emitObjectNumber(fOut, realObject);
+        fOut->writeText(" obj\n");
+        realObject->emitObject(fOut, fCat);
+        fOut->writeText("\nendobj\n");
     }
 
     off_t offset() {

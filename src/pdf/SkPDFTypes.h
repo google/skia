@@ -30,12 +30,12 @@ class SkPDFObject : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkPDFObject)
 
-    /** Return the size (number of bytes) of this object in the final output
-     *  file. Only used for testing.
+    /** Subclasses must implement this method to print the object to the
+     *  PDF file.
      *  @param catalog  The object catalog to use.
-     *  @param indirect If true, output an object identifier with the object.
+     *  @param stream   The writable output stream to send the output to.
      */
-    size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) = 0;
 
     /** For non-primitive objects (i.e. objects defined outside this file),
      *  this method will add to newResourceObjects any objects that this method
@@ -48,23 +48,6 @@ public:
      */
     virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
                               SkTSet<SkPDFObject*>* newResourceObjects);
-
-    /** Emit this object unless the catalog has a substitute object, in which
-     *  case emit that.
-     *  @see emitObject
-     */
-    void emit(SkWStream* stream, SkPDFCatalog* catalog, bool indirect);
-
-    /** Helper function to output an indirect object.
-     *  @param catalog The object catalog to use.
-     *  @param stream  The writable output stream to send the output to.
-     */
-    void emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog);
-
-    /** Helper function to find the size of an indirect object.
-     *  @param catalog The object catalog to use.
-     */
-    size_t getIndirectOutputSize(SkPDFCatalog* catalog);
 
     /** Static helper function to add a resource to a list.  The list takes
      *  a reference.
@@ -88,14 +71,7 @@ public:
             const SkTSet<SkPDFObject*>& knownResourceObjects,
             SkTSet<SkPDFObject*>* newResourceObjects);
 
-protected:
-    /** Subclasses must implement this method to print the object to the
-     *  PDF file.
-     *  @param catalog  The object catalog to use.
-     *  @param stream   The writable output stream to send the output to.
-     */
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) = 0;
-
+private:
     typedef SkRefCnt INHERITED;
 };
 

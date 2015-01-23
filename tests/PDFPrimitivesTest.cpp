@@ -69,6 +69,29 @@ static bool stream_contains(const SkDynamicMemoryWStream& stream,
     return false;
 }
 
+static void emit_object(SkPDFObject* object,
+                        SkWStream* stream,
+                        SkPDFCatalog* catalog,
+                        bool indirect) {
+    SkPDFObject* realObject = catalog->getSubstituteObject(object);
+    if (indirect) {
+        catalog->emitObjectNumber(stream, realObject);
+        stream->writeText(" obj\n");
+        realObject->emitObject(stream, catalog);
+        stream->writeText("\nendobj\n");
+    } else {
+        realObject->emitObject(stream, catalog);
+    }
+}
+
+static size_t get_output_size(SkPDFObject* object,
+                              SkPDFCatalog* catalog,
+                              bool indirect) {
+    SkDynamicMemoryWStream buffer;
+    emit_object(object, &buffer, catalog, indirect);
+    return buffer.getOffset();
+}
+
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                               const char* expectedData, size_t expectedSize,
                               bool indirect, bool compression) {
@@ -77,11 +100,11 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
         docFlags = SkTBitOr(docFlags, SkPDFDocument::kFavorSpeedOverSize_Flags);
     }
     SkPDFCatalog catalog(docFlags);
-    size_t directSize = obj->getOutputSize(&catalog, false);
+    size_t directSize = get_output_size(obj, &catalog, false);
     REPORTER_ASSERT(reporter, directSize == expectedSize);
 
     SkDynamicMemoryWStream buffer;
-    obj->emit(&buffer, &catalog, false);
+    emit_object(obj, &buffer, &catalog, false);
     REPORTER_ASSERT(reporter, directSize == buffer.getOffset());
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedData,
                                             directSize));
@@ -95,12 +118,12 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
 
         catalog.addObject(obj, false);
 
-        size_t indirectSize = obj->getOutputSize(&catalog, true);
+        size_t indirectSize = get_output_size(obj, &catalog, true);
         REPORTER_ASSERT(reporter,
                         indirectSize == directSize + headerLen + footerLen);
 
         buffer.reset();
-        obj->emit(&buffer, &catalog, true);
+        emit_object(obj, &buffer, &catalog, true);
         REPORTER_ASSERT(reporter, indirectSize == buffer.getOffset());
         REPORTER_ASSERT(reporter, stream_equals(buffer, 0, header, headerLen));
         REPORTER_ASSERT(reporter, stream_equals(buffer, headerLen, expectedData,
@@ -227,18 +250,18 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     catalog.setSubstitute(proxy.get(), stub.get());
 
     SkDynamicMemoryWStream buffer;
-    proxy->emit(&buffer, &catalog, false);
+    emit_object(proxy, &buffer, &catalog, false);
     SkTSet<SkPDFObject*>* substituteResources =
             catalog.getSubstituteList(false);
     for (int i = 0; i < substituteResources->count(); ++i) {
-        (*substituteResources)[i]->emit(&buffer, &catalog, true);
+        emit_object((*substituteResources)[i], &buffer, &catalog, true);
     }
 
     char objectResult[] = "2 0 obj\n<</Value 33\n>>\nendobj\n";
     catalog.setFileOffset(proxy.get(), 0);
 
-    size_t outputSize = catalog.getSubstituteObject(proxy.get())
-                                ->getOutputSize(&catalog, true);
+    size_t outputSize = get_output_size(
+            catalog.getSubstituteObject(proxy.get()), &catalog, true);
     REPORTER_ASSERT(reporter, outputSize == strlen(objectResult));
 
     char expectedResult[] =
