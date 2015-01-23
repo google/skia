@@ -29,11 +29,12 @@ public:
     }
 
     /**
-     * Is the resource currently cached as scratch? This means it has a valid scratch key and does
-     * not have a content key.
+     * Is the resource currently cached as scratch? This means it is cached, has a valid scratch
+     * key, and does not have a content key.
      */
     bool isScratch() const {
-        return !this->getContentKey().isValid() && fResource->fScratchKey.isValid();
+        return !this->getContentKey().isValid() && fResource->fScratchKey.isValid() &&
+                this->isBudgeted();
     }
 
     /** 
@@ -62,13 +63,23 @@ public:
     /**
      * Does the resource count against the resource budget?
      */
-    bool isBudgeted() const { return GrGpuResource::kCached_LifeCycle == fResource->fLifeCycle; }
+    bool isBudgeted() const {
+        bool ret = GrGpuResource::kCached_LifeCycle == fResource->fLifeCycle;
+        SkASSERT(ret || !this->getContentKey().isValid());
+        return ret;
+    }
 
     /**
      * If the resource is uncached make it cached. Has no effect on resources that are wrapped or
      * already cached.
      */
     void makeBudgeted() { fResource->makeBudgeted(); }
+
+    /**
+     * If the resource is cached make it uncached. Has no effect on resources that are wrapped or
+     * already uncached. Furthermore, resources with content keys cannot be made unbudgeted.
+     */
+    void makeUnbudgeted() { fResource->makeUnbudgeted(); }
 
     /**
      * Called by the cache to delete the resource under normal circumstances.

@@ -257,23 +257,42 @@ void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
         return;
     }
 
-    // Purge the resource if we're over budget
-    bool overBudget = fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes;
+    bool release = false;
 
-    // Also purge if the resource has neither a valid scratch key nor a content key.
-    bool noKey = !resource->cacheAccess().getScratchKey().isValid() &&
-                 !resource->cacheAccess().getContentKey().isValid();
+    if (resource->cacheAccess().isWrapped()) {
+        release = true;
+    } else if (!resource->cacheAccess().isBudgeted()) {
+        // Check whether this resource could still be used as a scratch resource.
+        if (resource->cacheAccess().getScratchKey().isValid()) {
+            // We won't purge an existing resource to make room for this one.
+            bool underBudget = fBudgetedCount < fMaxCount &&
+                               fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes;
+            if (underBudget) {
+                resource->cacheAccess().makeBudgeted();
+            } else {
+                release = true;
+            }
+        } else {
+            release = true;
+        }
+    } else {
+        // Purge the resource if we're over budget
+        bool overBudget = fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes;
 
-    // Only cached resources should ever have a key.
-    SkASSERT(noKey || resource->cacheAccess().isBudgeted());
+        // Also purge if the resource has neither a valid scratch key nor a content key.
+        bool noKey = !resource->cacheAccess().getScratchKey().isValid() &&
+                     !resource->cacheAccess().getContentKey().isValid();
+        if (overBudget || noKey) {
+            release = true;
+        }
+    }
 
-    if (overBudget || noKey) {
+    if (release) {
         SkDEBUGCODE(int beforeCount = fCount;)
         resource->cacheAccess().release();
         // We should at least free this resource, perhaps dependent resources as well.
         SkASSERT(fCount < beforeCount);
     }
-
     this->validate();
 }
 
@@ -389,6 +408,13 @@ void GrResourceCache2::purgeAllUnlocked() {
 
 #ifdef SK_DEBUG
 void GrResourceCache2::validate() const {
+    // Reduce the frequency of validations for large resource counts.
+    static SkRandom gRandom;
+    int mask = (SkNextPow2(fCount + 1) >> 5) - 1;
+    if (~mask && (gRandom.nextU() & mask)) {
+        return;
+    }
+
     size_t bytes = 0;
     int count = 0;
     int budgetedCount = 0;
@@ -414,7 +440,8 @@ void GrResourceCache2::validate() const {
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
         } else if (resource->cacheAccess().getScratchKey().isValid()) {
-            SkASSERT(resource->cacheAccess().getContentKey().isValid());
+            SkASSERT(!resource->cacheAccess().isBudgeted() ||
+                     resource->cacheAccess().getContentKey().isValid());
             ++couldBeScratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
@@ -424,6 +451,7 @@ void GrResourceCache2::validate() const {
             ++content;
             SkASSERT(fContentHash.find(contentKey) == resource);
             SkASSERT(!resource->cacheAccess().isWrapped());
+            SkASSERT(resource->cacheAccess().isBudgeted());
         }
 
         if (resource->cacheAccess().isBudgeted()) {

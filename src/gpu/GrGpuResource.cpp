@@ -86,8 +86,8 @@ bool GrGpuResource::setContentKey(const GrContentKey& key) {
     // Currently this can only be called once and can't be called when the resource is scratch.
     SkASSERT(this->internalHasRef());
 
-    // Wrapped resources can never have a key.
-    if (this->isWrapped()) {
+    // Wrapped and uncached resources can never have a content key.
+    if (!this->cacheAccess().isBudgeted()) {
         return false;
     }
 
@@ -134,6 +134,13 @@ void GrGpuResource::removeScratchKey() {
 void GrGpuResource::makeBudgeted() {
     if (GrGpuResource::kUncached_LifeCycle == fLifeCycle) {
         fLifeCycle = kCached_LifeCycle;
+        get_resource_cache2(fGpu)->resourceAccess().didChangeBudgetStatus(this);
+    }
+}
+
+void GrGpuResource::makeUnbudgeted() {
+    if (GrGpuResource::kCached_LifeCycle == fLifeCycle && !fContentKey.isValid()) {
+        fLifeCycle = kUncached_LifeCycle;
         get_resource_cache2(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }

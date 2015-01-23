@@ -263,6 +263,7 @@ private:
     void notifyIsPurgable() const;
     void removeScratchKey();
     void makeBudgeted();
+    void makeUnbudgeted();
 
 #ifdef SK_DEBUG
     friend class GrGpu; // for assert in GrGpu to access getGpu
