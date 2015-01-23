@@ -171,8 +171,8 @@ void SkPaint::reset() {
     *this = init;
 }
 
-void SkPaint::setFilterLevel(FilterLevel level) {
-    fBitfields.fFilterLevel = level;
+void SkPaint::setFilterQuality(SkFilterQuality quality) {
+    fBitfields.fFilterQuality = quality;
 }
 
 void SkPaint::setHinting(Hinting hintingLevel) {

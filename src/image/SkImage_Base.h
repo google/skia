@@ -59,6 +59,10 @@ public:
                                   SkShader::TileMode,
                                   const SkMatrix* localMatrix) const { return NULL; };
 
+    // newWidth > 0, newHeight > 0, subset either NULL or a proper subset of this bounds
+    virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
+                                SkFilterQuality) const;
+
 private:
     const SkSurfaceProps fProps;
 

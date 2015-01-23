@@ -1,18 +1,17 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
-
-namespace skiagm {
+#include "SkImage.h"
 
 static SkBitmap make_chessbm(int w, int h) {
     SkBitmap bm;
@@ -28,7 +27,13 @@ static SkBitmap make_chessbm(int w, int h) {
     return bm;
 }
 
-static void makebm(SkBitmap* bm, int w, int h) {
+static SkImage* image_from_bitmap(const SkBitmap& bm) {
+    SkBitmap b(bm);
+    b.lockPixels();
+    return SkImage::NewRasterCopy(b.info(), b.getPixels(), b.rowBytes());
+}
+
+static SkImage* makebm(SkBitmap* bm, int w, int h) {
     bm->allocN32Pixels(w, h);
     bm->eraseColor(SK_ColorTRANSPARENT);
 
@@ -70,31 +75,83 @@ static void makebm(SkBitmap* bm, int w, int h) {
     }
     // Let backends know we won't change this, so they don't have to deep copy it defensively.
     bm->setImmutable();
+
+    return image_from_bitmap(*bm);
 }
 
-static const int gSize = 1024;
+static void canvasproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect* srcR,
+                       const SkRect& dstR) {
+    canvas->drawBitmapRect(bm, srcR, dstR);
+}
 
-class DrawBitmapRectGM : public GM {
+static void imageproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect* srcIR,
+                      const SkRect& dstR) {
+    SkRect storage, *srcR = NULL;
+    if (srcIR) {
+        storage.set(*srcIR);
+        srcR = &storage;
+    }
+    canvas->drawImageRect(image, srcR, dstR);
+}
+
+static void imagescaleproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect* srcIR,
+                           const SkRect& dstR) {
+    const int newW = SkScalarRoundToInt(dstR.width());
+    const int newH = SkScalarRoundToInt(dstR.height());
+    SkAutoTUnref<SkImage> newImage(image->newImage(newW, newH, srcIR));
+
+#ifdef SK_DEBUG
+    const SkIRect baseR = SkIRect::MakeWH(image->width(), image->height());
+    const bool containsSubset = !srcIR || baseR.contains(*srcIR);
+#endif
+
+    if (newImage) {
+        SkASSERT(containsSubset);
+        canvas->drawImage(newImage, dstR.x(), dstR.y());
+    } else {
+        // newImage() does not support subsets that are not contained by the original
+        // but drawImageRect does, so we just draw an X in its place to indicate that we are
+        // deliberately not drawing here.
+        SkASSERT(!containsSubset);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(4);
+        canvas->drawLine(4, 4, newW - 4.0f, newH - 4.0f, paint);
+        canvas->drawLine(4, newH - 4.0f, newW - 4.0f, 4, paint);
+    }
+}
+
+typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect*, const SkRect&);
+
+static const int gSize = 1024;
+static const int gBmpSize = 2048;
+
+class DrawBitmapRectGM : public skiagm::GM {
 public:
-    DrawBitmapRectGM() {
+    DrawBitmapRectGM(DrawRectRectProc proc, const char suffix[]) : fProc(proc) {
+        fName.set("drawbitmaprect");
+        if (suffix) {
+            fName.append(suffix);
+        }
     }
 
-    SkBitmap    fLargeBitmap;
+    DrawRectRectProc*     fProc;
+    SkBitmap              fLargeBitmap;
+    SkAutoTUnref<SkImage> fImage;
+    SkString              fName;
 
 protected:
-    SkString onShortName() {
-        return SkString("drawbitmaprect");
+    SkString onShortName() SK_OVERRIDE { return fName; }
+
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(gSize, gSize); }
+
+    void onOnceBeforeDraw() SK_OVERRIDE {
+        fImage.reset(makebm(&fLargeBitmap, gBmpSize, gBmpSize));
     }
 
-    SkISize onISize() { return SkISize::Make(gSize, gSize); }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        static const int kBmpSize = 2048;
-        if (fLargeBitmap.isNull()) {
-            makebm(&fLargeBitmap, kBmpSize, kBmpSize);
-        }
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
-        static const int kMaxSrcRectSize = 1 << (SkNextLog2(kBmpSize) + 2);
+        static const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
 
         static const int kPadX = 30;
         static const int kPadY = 40;
@@ -113,7 +170,7 @@ protected:
         blackPaint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&blackPaint);
         SkString title;
-        title.printf("Bitmap size: %d x %d", kBmpSize, kBmpSize);
+        title.printf("Bitmap size: %d x %d", gBmpSize, gBmpSize);
         canvas->drawText(title.c_str(), title.size(), 0,
                          titleHeight, blackPaint);
 
@@ -123,10 +180,8 @@ protected:
         for (int w = 1; w <= kMaxSrcRectSize; w *= 4) {
             for (int h = 1; h <= kMaxSrcRectSize; h *= 4) {
 
-                SkIRect srcRect = SkIRect::MakeXYWH((kBmpSize - w) / 2,
-                                                    (kBmpSize - h) / 2,
-                                                    w, h);
-                canvas->drawBitmapRect(fLargeBitmap, &srcRect, dstRect);
+                SkIRect srcRect = SkIRect::MakeXYWH((gBmpSize - w) / 2, (gBmpSize - h) / 2, w, h);
+                fProc(canvas, fImage, fLargeBitmap, &srcRect, dstRect);
 
                 SkString label;
                 label.appendf("%d x %d", w, h);
@@ -176,11 +231,9 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new DrawBitmapRectGM; }
-static GMRegistry reg(MyFactory);
-}
+DEF_GM( return new DrawBitmapRectGM(canvasproc, NULL); )
+DEF_GM( return new DrawBitmapRectGM(imageproc, "-imagerect"); )
+DEF_GM( return new DrawBitmapRectGM(imagescaleproc, "-imagescale"); )

@@ -94,6 +94,30 @@ const char* SkImage::toString(SkString* str) const {
     return str->c_str();
 }
 
+SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
+                           SkFilterQuality quality) const {
+    if (newWidth <= 0 || newHeight <= 0) {
+        return NULL;
+    }
+
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+
+    if (subset) {
+        if (!bounds.contains(*subset)) {
+            return NULL;
+        }
+        if (bounds == *subset) {
+            subset = NULL;  // and fall through to check below
+        }
+    }
+
+    if (NULL == subset && this->width() == newWidth && this->height() == newHeight) {
+        return SkRef(const_cast<SkImage*>(this));
+    }
+
+    return as_IB(this)->onNewImage(newWidth, newHeight, subset, quality);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool raster_canvas_supports(const SkImageInfo& info) {
@@ -126,3 +150,32 @@ bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
 
     return true;
 }
+
+SkImage* SkImage_Base::onNewImage(int newWidth, int newHeight, const SkIRect* subset,
+                                  SkFilterQuality quality) const {
+    const bool opaque = this->isOpaque();
+    const SkImageInfo info = SkImageInfo::Make(newWidth, newHeight, kN32_SkColorType,
+                                               opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    SkAutoTUnref<SkSurface> surface(this->newSurface(info, NULL));
+    if (!surface.get()) {
+        return NULL;
+    }
+
+    SkRect src;
+    if (subset) {
+        src.set(*subset);
+    } else {
+        src = SkRect::MakeIWH(this->width(), this->height());
+    }
+
+    surface->getCanvas()->scale(newWidth / src.width(), newHeight / src.height());
+    surface->getCanvas()->translate(-src.x(), -src.y());
+
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setFilterQuality(quality);
+    surface->getCanvas()->drawImage(this, 0, 0, &paint);
+    return surface->newImageSnapshot();
+}
+
+

@@ -8,6 +8,7 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
+#include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
@@ -131,6 +132,27 @@ public:
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL) const;
 
     const char* toString(SkString*) const;
+
+    /**
+     *  Return an image that is a rescale of this image (using newWidth, newHeight).
+     *
+     *  If subset is NULL, then the entire original image is used as the src for the scaling.
+     *  If subset is not NULL, then it specifies subset of src-pixels used for scaling. If
+     *  subset extends beyond the bounds of the original image, then NULL is returned.
+     *
+     *  Notes:
+     *  - newWidth and newHeight must be > 0 or NULL will be returned.
+     *
+     *  - it is legal for the returned image to be the same instance as the src image
+     *    (if the new dimensions == the src dimensions and subset is NULL or == src dimensions).
+     *
+     *  - it is legal for the "scaled" image to have changed its SkAlphaType from unpremul
+     *    to premul (as required by the impl). The image should draw (nearly) identically,
+     *    since during drawing we will "apply the alpha" to the pixels. Future optimizations
+     *    may take away this caveat, preserving unpremul.
+     */
+    SkImage* newImage(int newWidth, int newHeight, const SkIRect* subset = NULL,
+                      SkFilterQuality = kNone_SkFilterQuality) const;
 
 protected:
     SkImage(int width, int height) :

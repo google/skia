@@ -10,8 +10,12 @@
 
 #include "SkColor.h"
 #include "SkDrawLooper.h"
+#include "SkFilterQuality.h"
 #include "SkMatrix.h"
 #include "SkXfermode.h"
+
+// TODO: clean up Skia internals so we can remove this and only keep it for clients
+#define SK_SUPPORT_LEGACY_FILTERLEVEL_ENUM
 
 class SkAnnotation;
 class SkAutoGlyphCache;
@@ -294,11 +298,12 @@ public:
      */
     void setDistanceFieldTextTEMP(bool distanceFieldText);
 
+#ifdef SK_SUPPORT_LEGACY_FILTERLEVEL_ENUM
     enum FilterLevel {
-        kNone_FilterLevel,
-        kLow_FilterLevel,
-        kMedium_FilterLevel,
-        kHigh_FilterLevel
+        kNone_FilterLevel   = kNone_SkFilterQuality,
+        kLow_FilterLevel    = kLow_SkFilterQuality,
+        kMedium_FilterLevel = kMedium_SkFilterQuality,
+        kHigh_FilterLevel   = kHigh_SkFilterQuality
     };
 
     /**
@@ -306,14 +311,31 @@ public:
      *  drawing scaled images.
      */
     FilterLevel getFilterLevel() const {
-      return (FilterLevel)fBitfields.fFilterLevel;
+        return (FilterLevel)this->getFilterQuality();
     }
 
     /**
      *  Set the filter level. This affects the quality (and performance) of
      *  drawing scaled images.
      */
-    void setFilterLevel(FilterLevel);
+    void setFilterLevel(FilterLevel level) {
+        this->setFilterQuality((SkFilterQuality)level);
+    }
+#endif
+
+    /**
+     *  Return the filter level. This affects the quality (and performance) of
+     *  drawing scaled images.
+     */
+    SkFilterQuality getFilterQuality() const {
+        return (SkFilterQuality)fBitfields.fFilterQuality;
+    }
+    
+    /**
+     *  Set the filter quality. This affects the quality (and performance) of
+     *  drawing scaled images.
+     */
+    void setFilterQuality(SkFilterQuality quality);
 
     /**
      *  If the predicate is true, set the filterLevel to Low, else set it to
@@ -1040,7 +1062,7 @@ private:
             unsigned        fStyle : 2;
             unsigned        fTextEncoding : 2;  // 3 values
             unsigned        fHinting : 2;
-            unsigned        fFilterLevel : 2;
+            unsigned        fFilterQuality : 2;
             //unsigned      fFreeBits : 2;
         } fBitfields;
         uint32_t fBitfieldsUInt;
