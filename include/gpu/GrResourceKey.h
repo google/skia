@@ -11,7 +11,6 @@
 
 #include "GrTypes.h"
 #include "SkTemplates.h"
-#include "GrBinHashKey.h"
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 

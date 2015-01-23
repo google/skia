@@ -106,7 +106,6 @@
     '../tests/GpuDrawPathTest.cpp',
     '../tests/GpuLayerCacheTest.cpp',
     '../tests/GpuRectanizerTest.cpp',
-    '../tests/GrBinHashKeyTest.cpp',
     '../tests/GrContextFactoryTest.cpp',
     '../tests/GrDrawTargetTest.cpp',
     '../tests/GrAllocatorTest.cpp',

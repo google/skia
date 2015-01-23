@@ -16,7 +16,7 @@
 /**
  *  GrMurmur3HashKey is a hash key class that can take a data chunk of any predetermined
  *  length. It uses the Murmur3 hash function. It is intended to be used with
- *  SkTDynamicHash (where GrBinHashKey is for GrTHashTable).
+ *  SkTDynamicHash.
  */
 template<size_t KEY_SIZE_IN_BYTES>
 class GrMurmur3HashKey {

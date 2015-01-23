@@ -8,7 +8,6 @@
 {
   'variables': {
     'skgpu_sources': [
-      '<(skia_include_path)/gpu/GrBinHashKey.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
