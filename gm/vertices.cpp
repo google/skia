@@ -38,9 +38,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     void onOnceBeforeDraw() SK_OVERRIDE {
         const SkScalar X = 150;

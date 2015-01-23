@@ -82,9 +82,6 @@ static void draw_scene(SkCanvas* canvas, SkScalar pictureSize) {
 
 class PictureShaderTileGM : public skiagm::GM {
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("pictureshadertile");

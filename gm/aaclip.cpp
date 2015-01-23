@@ -101,8 +101,6 @@ protected:
         draw_rect_tests(canvas);
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag; }
-
 private:
     typedef skiagm::GM INHERITED;
 };
@@ -186,8 +184,6 @@ protected:
             canvas->translate(info.width() + 10, 0);
         }
     }
-
-    uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag; }
 
 private:
     typedef skiagm::GM INHERITED;

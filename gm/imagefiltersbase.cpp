@@ -207,14 +207,6 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    virtual uint32_t onGetFlags() const {
-        // Because of the use of drawSprite, this test is excluded
-        // from scaled replay tests because drawSprite ignores the
-        // reciprocal scale that is applied at record time, which is
-        // the intended behavior of drawSprite.
-        return kSkipScaledReplay_Flag | kSkipTiled_Flag;
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
         void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
             draw_paint,

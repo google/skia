@@ -106,12 +106,6 @@ protected:
         canvas->restore();
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // tiling w/ non-antialias paths can cause off-by-1-pixels differences which are
-        // unavoidable (chopping in floats -vs- stepping in scan-converter).
-        return kSkipTiled_Flag;
-    }
-
 private:
     SkTArray<SkPath> fPaths;
     typedef skiagm::GM INHERITED;

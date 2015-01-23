@@ -42,11 +42,6 @@ protected:
         return SkISize::Make(720, 800);
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // This is a GPU-specific GM.
-        return kGPUOnly_Flag;
-    }
-
     void onOnceBeforeDraw() SK_OVERRIDE {
         SkPath tri;
         tri.moveTo(5.f, 5.f);

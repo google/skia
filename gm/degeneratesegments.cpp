@@ -22,10 +22,6 @@ protected:
         const char* fName2;
     };
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     SkString onShortName() {
         return SkString("degeneratesegments");
     }

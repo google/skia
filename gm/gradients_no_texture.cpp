@@ -85,9 +85,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE { return SkString("gradients_no_texture"); }
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 615); }
@@ -211,9 +208,6 @@ public:
     GradientsManyColorsGM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE { return SkString("gradients_many"); }
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(850, 100); }

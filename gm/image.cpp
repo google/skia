@@ -188,10 +188,6 @@ protected:
         }
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return GM::kSkipPicture_Flag | GM::kSkipPipe_Flag;
-    }
-
 private:
     typedef skiagm::GM INHERITED;
 };

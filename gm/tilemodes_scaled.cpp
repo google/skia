@@ -73,13 +73,6 @@ protected:
         return name;
     }
 
-#ifdef SK_CPU_ARM64
-    // Skip tiled drawing on 64-bit ARM until https://skbug.com/2908 is fixed.
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-#endif
-
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(880, 760); }
 
     void onOnceBeforeDraw() SK_OVERRIDE {
@@ -213,9 +206,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return fName;

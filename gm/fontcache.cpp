@@ -88,11 +88,6 @@ protected:
 
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // this GM is meant only for the GPU
-        return kGPUOnly_Flag;
-    }
-
 private:
     SkTypeface* fTypefaces[TYPEFACE_COUNT];
     typedef GM INHERITED;

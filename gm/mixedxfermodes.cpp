@@ -164,11 +164,6 @@ protected:
         canvas->restore();
     }
 
-    virtual uint32_t onGetFlags() const {
-        // Skip PDF rasterization since rendering this PDF takes forever.
-        return kSkipPDFRasterization_Flag | kSkipTiled_Flag;
-    }
-
 private:
     enum {
         kNumShapes = 100,

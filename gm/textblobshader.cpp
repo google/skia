@@ -73,10 +73,6 @@ protected:
                                                      SkShader::kRepeat_TileMode));
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkip565_Flag;
-    }
-
     SkString onShortName() SK_OVERRIDE {
         return SkString("textblobshader");
     }

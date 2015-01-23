@@ -91,11 +91,6 @@ protected:
             canvas->drawBitmapRect(bmp, &subRect, dstRect, &paint);
             canvas->translate(SkIntToScalar(bmp.width() + 10), 0);
         }
-    }    
-
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // This GM causes issues in replay modes.
-        return kSkipTiled_Flag | kNoBBH_Flag | kSkipPicture_Flag;
     }
 
 private:

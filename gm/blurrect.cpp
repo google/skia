@@ -147,8 +147,6 @@ protected:
         }
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag | kSkipTiled_Flag; }
-
 private:
     void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,
                    bool doClip, const Proc procs[], size_t procsCount) {
@@ -248,8 +246,6 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
-
 private:
     typedef GM INHERITED;
 };
@@ -319,8 +315,6 @@ protected:
 
         canvas->drawBitmap(bm, SkIntToScalar(center_x), SkIntToScalar(center_y), NULL);
     }
-
-    virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
 
 private:
     typedef GM INHERITED;

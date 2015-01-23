@@ -56,14 +56,6 @@ protected:
 
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(kImageWidth, kImageHeight); }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        if (kEffect_Type == fType) {
-            return kGPUOnly_Flag | kSkipTiled_Flag;
-        } else {
-            return kSkipTiled_Flag;
-        }
-    }
-
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();

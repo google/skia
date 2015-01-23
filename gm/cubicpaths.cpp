@@ -16,9 +16,6 @@ public:
     ClippedCubicGM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() {
         return SkString("clippedcubic");
@@ -59,9 +56,6 @@ public:
     CubicPathGM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() {
         return SkString("cubicpath");
@@ -208,9 +202,6 @@ public:
     CubicClosePathGM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() {
         return SkString("cubicclosepath");

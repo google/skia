@@ -114,9 +114,6 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const { return kSkipPicture_Flag
-                                               | kSkipPipe_Flag; }
-
 private:
     typedef GM INHERITED;
 };

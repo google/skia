@@ -160,15 +160,6 @@ protected:
     static const int kNumVertTiles = 6;
     static const int kNumXtraCols = 2;
 
-    // SkPictureImageFilter doesn't support serialization yet.
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipPicture_Flag            |
-               kSkipPipe_Flag               |
-               kSkipPipeCrossProcess_Flag   |
-               kSkipTiled_Flag              |
-               kSkipScaledReplay_Flag;
-    }
-
     SkString onShortName() SK_OVERRIDE{ return SkString("filterfastbounds"); }
 
     SkISize onISize() SK_OVERRIDE{

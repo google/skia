@@ -34,10 +34,6 @@ protected:
         fTypeface = SkTypeface::CreateFromStream(stream.detach());
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kGPUOnly_Flag;
-    }
-
     SkString onShortName() SK_OVERRIDE {
         return SkString("dftext");
     }

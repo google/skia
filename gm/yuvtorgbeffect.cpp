@@ -38,11 +38,6 @@ protected:
         return SkISize::Make(334, 128);
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // This is a GPU-specific GM.
-        return kGPUOnly_Flag;
-    }
-
     void onOnceBeforeDraw() SK_OVERRIDE {
         SkImageInfo info = SkImageInfo::MakeA8(24, 24);
         fBmp[0].allocPixels(info);

@@ -214,10 +214,6 @@ protected:
         }
     }
 
-    virtual uint32_t onGetFlags() const {
-        return kSkipTiled_Flag;
-    }
-
     bool runAsBench() const SK_OVERRIDE { return true; }
 
 private:

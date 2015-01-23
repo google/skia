@@ -56,9 +56,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return fName;
@@ -205,11 +202,6 @@ public:
     }
 
 protected:
-#if 0
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-#endif
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("showmiplevels");
@@ -241,7 +233,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

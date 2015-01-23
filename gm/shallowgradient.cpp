@@ -42,12 +42,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        if (fName.contains("linear") || fName.contains("radial")) {
-            return kSkipTiled_Flag;
-        }
-        return 0;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return fName;

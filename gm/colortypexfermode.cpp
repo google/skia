@@ -156,10 +156,6 @@ protected:
         s->unref();
     }
 
-    virtual uint32_t onGetFlags() const {
-        return kSkipPipe_Flag | kSkipPicture_Flag;
-    }
-
 private:
     SkTypeface* fColorType;
 

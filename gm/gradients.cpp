@@ -105,9 +105,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() {
         return SkString("gradients");
@@ -162,9 +159,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() {
         return SkString("gradients_local_perspective");
@@ -334,9 +328,6 @@ public:
     RadialGradientGM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE { return SkString("radial_gradient"); }
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(1280, 1280); }
@@ -377,9 +368,6 @@ public:
     RadialGradient2GM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE { return SkString("radial_gradient2"); }
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(800, 400); }

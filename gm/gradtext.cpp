@@ -106,10 +106,6 @@ protected:
         return SkString("gradtext");
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(500, 480); }
 
     static void draw_text(SkCanvas* canvas, const SkPaint& paint) {

@@ -40,22 +40,6 @@ namespace skiagm {
         GM();
         virtual ~GM();
 
-        enum Flags {
-            kSkipPDF_Flag               = 1 << 0,
-            kSkipPicture_Flag           = 1 << 1,
-            kSkipPipe_Flag              = 1 << 2,
-            kSkipPipeCrossProcess_Flag  = 1 << 3,
-            kSkipTiled_Flag             = 1 << 4,
-            kSkip565_Flag               = 1 << 5,
-            kSkipScaledReplay_Flag      = 1 << 6,
-            kSkipGPU_Flag               = 1 << 7,
-            kSkipPDFRasterization_Flag  = 1 << 8,
-
-            kGPUOnly_Flag               = 1 << 9,
-
-            kNoBBH_Flag                 = 1 << 11, // May draw wrong using a bounding-box hierarchy
-        };
-
         enum Mode {
             kGM_Mode,
             kSample_Mode,
@@ -73,10 +57,6 @@ namespace skiagm {
         const char* getName();
 
         virtual bool runAsBench() const { return false; }
-
-        uint32_t getFlags() const {
-            return this->onGetFlags();
-        }
 
         SkScalar width() {
             return SkIntToScalar(this->getISize().width());
@@ -118,7 +98,7 @@ namespace skiagm {
         virtual void onDrawBackground(SkCanvas*);
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
-        virtual uint32_t onGetFlags() const { return 0; }
+
         virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
 
     private:

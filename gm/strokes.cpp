@@ -39,9 +39,6 @@ public:
     StrokesGM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("strokes_round");
@@ -95,9 +92,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("strokes_poly");
@@ -196,9 +190,6 @@ public:
     Strokes3GM() {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("strokes3");

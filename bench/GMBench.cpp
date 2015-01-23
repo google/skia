@@ -18,22 +18,7 @@ const char* GMBench::onGetName() {
 }
 
 bool GMBench::isSuitableFor(Backend backend) {
-    uint32_t flags = fGM->getFlags();
-    switch (backend) {
-        case kGPU_Backend:
-            return !(skiagm::GM::kSkipGPU_Flag & flags);
-        case kPDF_Backend:
-            return !(skiagm::GM::kSkipPDF_Flag & flags);
-        case kRaster_Backend:
-            // GM doesn't have an equivalent flag. If the GM has known issues with 565 then
-            // we skip it for ALL raster configs in bench.
-            return !(skiagm::GM::kSkip565_Flag & flags);
-        case kNonRendering_Backend:
-            return false;
-        default:
-            SkDEBUGFAIL("Unexpected backend type.");
-            return false;
-    }
+    return kNonRendering_Backend != backend;
 }
 
 void GMBench::onDraw(const int loops, SkCanvas* canvas) {

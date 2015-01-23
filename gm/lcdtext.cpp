@@ -158,10 +158,6 @@ protected:
 
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(230, 230); }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkip565_Flag;
-    }
-
     void onOnceBeforeDraw() SK_OVERRIDE {
         fInfo = SkImageInfo::MakeN32Premul(100, 100);
         SkPictureRecorder recorder;

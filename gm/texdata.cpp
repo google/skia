@@ -35,8 +35,6 @@ protected:
         return SkISize::Make(2*S, 2*S);
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
-
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();

@@ -25,8 +25,6 @@ public:
     DiscardGM() {
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
-
 protected:
     SkString onShortName() SK_OVERRIDE {
         return SkString("discard");

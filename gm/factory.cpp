@@ -53,11 +53,6 @@ protected:
         canvas->drawBitmap(fBitmap, 0, 0);
     }
 
-    // Skip cross process pipe due to https://code.google.com/p/skia/issues/detail?id=1520
-    virtual uint32_t onGetFlags() const {
-        return INHERITED::onGetFlags() | kSkipPipeCrossProcess_Flag;
-    }
-
 private:
     SkBitmap fBitmap;
 

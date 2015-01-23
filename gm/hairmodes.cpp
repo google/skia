@@ -121,9 +121,6 @@ namespace skiagm {
             }
         }
 
-        // disable pdf for now, since it crashes on mac
-        virtual uint32_t onGetFlags() const { return kSkipPDF_Flag | kSkipTiled_Flag; }
-
     private:
         typedef GM INHERITED;
     };

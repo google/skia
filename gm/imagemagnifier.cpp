@@ -21,10 +21,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // Skip tiled drawing until https://code.google.com/p/skia/issues/detail?id=781 is fixed.
-        return this->INHERITED::onGetFlags() | GM::kSkipTiled_Flag;
-    }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("imagemagnifier");

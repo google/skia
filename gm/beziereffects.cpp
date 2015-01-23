@@ -44,11 +44,6 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // This is a GPU-specific GM.
-        return kGPUOnly_Flag;
-    }
-
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
@@ -202,11 +197,6 @@ protected:
 
     SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(800, 800);
-    }
-
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // This is a GPU-specific GM.
-        return kGPUOnly_Flag;
     }
 
 
@@ -395,11 +385,6 @@ protected:
 
     SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(800, 800);
-    }
-
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // This is a GPU-specific GM.
-        return kGPUOnly_Flag;
     }
 
 

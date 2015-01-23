@@ -199,11 +199,6 @@ protected:
         }
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        // disable 565 for now, til mike fixes the debug assert
-        return kSkip565_Flag | kSkipTiled_Flag;
-    }
-
 private:
     typedef GM INHERITED;
 };

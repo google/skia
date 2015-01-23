@@ -63,10 +63,6 @@ protected:
         return SkString("bitmapscroll");
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     SkISize onISize() SK_OVERRIDE {
       return SkISize::Make(800, 600);
     }

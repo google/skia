@@ -101,10 +101,6 @@ protected:
         return SkString("testimagefilters");
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 460); }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {

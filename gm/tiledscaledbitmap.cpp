@@ -39,10 +39,6 @@ protected:
         return SkISize::Make(1016, 616);
     }
 
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-
     static SkBitmap make_bm(int width, int height) {
         SkBitmap bm;
         bm.allocN32Pixels(width, height);

@@ -25,13 +25,6 @@ protected:
         return SkString("resizeimagefilter");
     }
 
-#ifdef SK_CPU_ARM64
-    // Skip tiled drawing on 64-bit ARM until https://skbug.com/2908 is fixed.
-    uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag;
-    }
-#endif
-
     void draw(SkCanvas* canvas,
               const SkRect& rect,
               const SkSize& deviceSize,

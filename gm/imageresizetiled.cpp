@@ -22,7 +22,6 @@ public:
     }
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE { return kNoBBH_Flag; }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("imageresizetiled");
