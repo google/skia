@@ -1362,6 +1362,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
                             SkCanvas* c = surfs[index]->getCanvas();
                             c->translate(SkIntToScalar(-x * n.width()),
                                          SkIntToScalar(-y * n.height()));
+                            c->concat(orig->getTotalMatrix());
                             md.add(c, picture, NULL, NULL);
                             index++;
                         }
