@@ -105,22 +105,6 @@ public:
         return NewRenderTarget(gr, b, info, 0, NULL);
     }
 
-    /**
-     * Deprecated - use the Budgeted param on NewRenderTarget.
-     */
-    static SkSurface* NewScratchRenderTarget(GrContext* gr, const SkImageInfo& info,
-                                             int sampleCount, const SkSurfaceProps* props) {
-        return NewRenderTarget(gr, kYes_Budgeted, info, sampleCount, props);
-    }
-
-    /**
-     * Deprecated - use the version that takes a Budgeted param.
-     */
-    static SkSurface* NewRenderTarget(GrContext* gr, const SkImageInfo& info, int sampleCount,
-                                      const SkSurfaceProps* props) {
-        return NewRenderTarget(gr, kNo_Budgeted, info, sampleCount, props);
-    }
-
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 
