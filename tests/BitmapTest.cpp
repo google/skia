@@ -6,8 +6,21 @@
  */
 
 #include "SkBitmap.h"
-
+#include "SkMallocPixelRef.h"
 #include "Test.h"
+
+// https://code.google.com/p/chromium/issues/detail?id=446164
+static void test_bigalloc(skiatest::Reporter* reporter) {
+    const int width = 0x40000001;
+    const int height = 0x00000096;
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+
+    SkBitmap bm;
+    REPORTER_ASSERT(reporter, !bm.tryAllocPixels(info));
+
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), NULL);
+    REPORTER_ASSERT(reporter, !pr);
+}
 
 static void test_allocpixels(skiatest::Reporter* reporter) {
     const int width = 10;
@@ -81,4 +94,5 @@ DEF_TEST(Bitmap, reporter) {
 
     test_bigwidth(reporter);
     test_allocpixels(reporter);
+    test_bigalloc(reporter);
 }
