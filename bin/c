@@ -11,10 +11,12 @@ if [ $BRANCH == $CLEAN ]; then
     exit 1
 fi
 
-git checkout $CLEAN
-./gyp_skia >/dev/null
-ninja -C out/Release nanobench
-out/Release/nanobench $@ --samples $SAMPLES -v 2> $CLEAN.log
+if [ ! -f $CLEAN.log ]; then
+    git checkout $CLEAN
+    ./gyp_skia >/dev/null
+    ninja -C out/Release nanobench
+    out/Release/nanobench $@ --samples $SAMPLES -v 2> $CLEAN.log
+fi
 
 git checkout $BRANCH
 ./gyp_skia >/dev/null

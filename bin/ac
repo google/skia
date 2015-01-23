@@ -11,10 +11,12 @@ if [ $BRANCH == $CLEAN ]; then
     exit 1
 fi
 
-git checkout $CLEAN
-./gyp_skia >/dev/null
-platform_tools/android/bin/android_ninja -t Release nanobench
-platform_tools/android/bin/android_run_skia -t Release nanobench $@ --skps /data/local/tmp/skps -i /data/local/tmp/resources --samples $SAMPLES -v > $CLEAN.log
+if [ ! -f $CLEAN.log ]; then
+    git checkout $CLEAN
+    ./gyp_skia >/dev/null
+    platform_tools/android/bin/android_ninja -t Release nanobench
+    platform_tools/android/bin/android_run_skia -t Release nanobench $@ --skps /data/local/tmp/skps -i /data/local/tmp/resources --samples $SAMPLES -v > $CLEAN.log
+fi
 
 git checkout $BRANCH
 ./gyp_skia >/dev/null
