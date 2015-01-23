@@ -89,7 +89,7 @@ bool SkImage_Gpu::isOpaque() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage* SkNewImageFromBitmapTexture(const SkBitmap& bitmap, int sampleCountForNewSurfaces) {
-    if (NULL == bitmap.getTexture()) {
+    if (0 == bitmap.width() || 0 == bitmap.height() || NULL == bitmap.getTexture()) {
         return NULL;
     }
     return SkNEW_ARGS(SkImage_Gpu, (bitmap, sampleCountForNewSurfaces));

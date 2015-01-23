@@ -186,11 +186,18 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator) {
     if (!SkInstallDiscardablePixelRef(generator, &bitmap)) {
         return NULL;
     }
+    if (0 == bitmap.width() || 0 == bitmap.height()) {
+        return NULL;
+    }
+
     return SkNEW_ARGS(SkImage_Raster, (bitmap, NULL));
 }
 
 SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr, size_t rowBytes,
                                 const SkSurfaceProps* props) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
+        return NULL;
+    }
     return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes, props));
 }
 
