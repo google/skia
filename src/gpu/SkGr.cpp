@@ -86,25 +86,20 @@ static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void generate_bitmap_cache_id(const SkBitmap& bitmap, GrCacheID* id) {
+static void generate_bitmap_key(const SkBitmap& bitmap, GrContentKey* key) {
     // Our id includes the offset, width, and height so that bitmaps created by extractSubset()
     // are unique.
     uint32_t genID = bitmap.getGenerationID();
     SkIPoint origin = bitmap.pixelRefOrigin();
-    int16_t width = SkToS16(bitmap.width());
-    int16_t height = SkToS16(bitmap.height());
+    uint32_t width = SkToU16(bitmap.width());
+    uint32_t height = SkToU16(bitmap.height());
 
-    GrCacheID::Key key;
-    memcpy(key.fData8 +  0, &genID,     4);
-    memcpy(key.fData8 +  4, &origin.fX, 4);
-    memcpy(key.fData8 +  8, &origin.fY, 4);
-    memcpy(key.fData8 + 12, &width,     2);
-    memcpy(key.fData8 + 14, &height,    2);
-    static const size_t kKeyDataSize = 16;
-    memset(key.fData8 + kKeyDataSize, 0, sizeof(key) - kKeyDataSize);
-    GR_STATIC_ASSERT(sizeof(key) >= kKeyDataSize);
-    static const GrCacheID::Domain gBitmapTextureDomain = GrCacheID::GenerateDomain();
-    id->reset(gBitmapTextureDomain, key);
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey::Builder builder(key, kDomain, 4);
+    builder[0] = genID;
+    builder[1] = origin.fX;
+    builder[2] = origin.fY;
+    builder[3] = width | (height << 16);
 }
 
 static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrSurfaceDesc* desc) {
@@ -120,9 +115,9 @@ namespace {
 // When the SkPixelRef genID changes, invalidate a corresponding GrResource described by key.
 class GrResourceInvalidator : public SkPixelRef::GenIDChangeListener {
 public:
-    explicit GrResourceInvalidator(GrResourceKey key) : fKey(key) {}
+    explicit GrResourceInvalidator(const GrContentKey& key) : fKey(key) {}
 private:
-    GrResourceKey fKey;
+    GrContentKey fKey;
 
     void onChange() SK_OVERRIDE {
         const GrResourceInvalidatedMessage message = { fKey };
@@ -132,7 +127,7 @@ private:
 
 }  // namespace
 
-static void add_genID_listener(GrResourceKey key, SkPixelRef* pixelRef) {
+static void add_genID_listener(const GrContentKey& key, SkPixelRef* pixelRef) {
     SkASSERT(pixelRef);
     pixelRef->addGenIDChangeListener(SkNEW_ARGS(GrResourceInvalidator, (key)));
 }
@@ -147,11 +142,10 @@ static GrTexture* sk_gr_allocate_texture(GrContext* ctx,
     GrTexture* result;
     if (cache) {
         // This texture is likely to be used again so leave it in the cache
-        GrCacheID cacheID;
-        generate_bitmap_cache_id(bm, &cacheID);
+        GrContentKey key;
+        generate_bitmap_key(bm, &key);
 
-        GrResourceKey key;
-        result = ctx->createTexture(params, desc, cacheID, pixels, rowBytes, &key);
+        result = ctx->createTexture(params, desc, key, pixels, rowBytes, &key);
         if (result) {
             add_genID_listener(key, bm.pixelRef());
         }
@@ -399,12 +393,12 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         return true;
     }
 
-    GrCacheID cacheID;
-    generate_bitmap_cache_id(bitmap, &cacheID);
+    GrContentKey key;
+    generate_bitmap_key(bitmap, &key);
 
     GrSurfaceDesc desc;
     generate_bitmap_texture_desc(bitmap, &desc);
-    return ctx->isTextureInCache(desc, cacheID, params);
+    return ctx->isTextureInCache(desc, key, params);
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
@@ -420,13 +414,13 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
     if (cache) {
         // If the bitmap isn't changing try to find a cached copy first.
 
-        GrCacheID cacheID;
-        generate_bitmap_cache_id(bitmap, &cacheID);
+        GrContentKey key;
+        generate_bitmap_key(bitmap, &key);
 
         GrSurfaceDesc desc;
         generate_bitmap_texture_desc(bitmap, &desc);
 
-        result = ctx->findAndRefTexture(desc, cacheID, params);
+        result = ctx->findAndRefTexture(desc, key, params);
     }
     if (NULL == result) {
         result = sk_gr_create_bitmap_texture(ctx, cache, params, bitmap);

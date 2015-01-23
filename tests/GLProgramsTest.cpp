@@ -98,9 +98,7 @@ GrFragmentProcessor* BigKeyProcessor::TestCreate(SkRandom*,
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static GrRenderTarget* random_render_target(GrContext* context,
-                                            const GrCacheID& cacheId,
-                                            SkRandom* random) {
+static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random) {
     // setup render target
     GrTextureParams params;
     GrSurfaceDesc texDesc;
@@ -110,10 +108,15 @@ static GrRenderTarget* random_render_target(GrContext* context,
     texDesc.fConfig = kRGBA_8888_GrPixelConfig;
     texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
                                                    kBottomLeft_GrSurfaceOrigin;
+    GrContentKey key;
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey::Builder builder(&key, kDomain, 1);
+    builder[0] = texDesc.fOrigin;
+    builder.finish();
 
-    SkAutoTUnref<GrTexture> texture(context->findAndRefTexture(texDesc, cacheId, &params));
+    SkAutoTUnref<GrTexture> texture(context->findAndRefTexture(texDesc, key, &params));
     if (!texture) {
-        texture.reset(context->createTexture(&params, texDesc, cacheId, 0, 0));
+        texture.reset(context->createTexture(&params, texDesc, key, 0, 0));
         if (!texture) {
             return NULL;
         }
@@ -237,14 +240,6 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     // dummy scissor state
     GrScissorState scissor;
 
-    // Setup texture cache id key
-    const GrCacheID::Domain glProgramsDomain = GrCacheID::GenerateDomain();
-    GrCacheID::Key key;
-    memset(&key, 0, sizeof(key));
-    key.fData32[0] = kRenderTargetWidth;
-    key.fData32[1] = kRenderTargetHeight;
-    GrCacheID glProgramsCacheID(glProgramsDomain, key);
-
     // setup clip
     SkRect screen = SkRect::MakeWH(SkIntToScalar(kRenderTargetWidth),
                                    SkIntToScalar(kRenderTargetHeight));
@@ -261,7 +256,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     static const int NUM_TESTS = 512;
     for (int t = 0; t < NUM_TESTS;) {
         // setup random render target(can fail)
-        SkAutoTUnref<GrRenderTarget> rt(random_render_target(fContext, glProgramsCacheID, &random));
+        SkAutoTUnref<GrRenderTarget> rt(random_render_target(fContext, &random));
         if (!rt.get()) {
             SkDebugf("Could not allocate render target");
             return false;

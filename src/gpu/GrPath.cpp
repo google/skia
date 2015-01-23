@@ -13,15 +13,11 @@ template<int NumBits> static uint64_t get_top_n_float_bits(float f) {
     return floatBits >> (32 - NumBits);
 }
 
-GrResourceKey GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke) {
-    static const GrCacheID::Domain gPathDomain = GrCacheID::GenerateDomain();
-
-    GrCacheID::Key key;
-    uint64_t* keyData = key.fData64;
-    keyData[0] = path.getGenerationID();
-    keyData[1] = ComputeStrokeKey(stroke);
-
-    return GrResourceKey(GrCacheID(gPathDomain, key), 0);
+void GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke, GrContentKey* key) {
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey::Builder builder(key, kDomain, 3);
+    *reinterpret_cast<uint64_t*>(&builder[0]) = ComputeStrokeKey(stroke);
+    builder[2] = path.getGenerationID();
 }
 
 uint64_t GrPath::ComputeStrokeKey(const SkStrokeRec& stroke) {

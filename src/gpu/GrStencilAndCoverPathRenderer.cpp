@@ -72,11 +72,12 @@ GrStencilAndCoverPathRenderer::onGetStencilSupport(const GrDrawTarget*,
 
 static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const SkStrokeRec& stroke) {
     GrContext* ctx = gpu->getContext();
-    GrResourceKey resourceKey = GrPath::ComputeKey(skPath, stroke);
-    SkAutoTUnref<GrPath> path(static_cast<GrPath*>(ctx->findAndRefCachedResource(resourceKey)));
+    GrContentKey key;
+    GrPath::ComputeKey(skPath, stroke, &key);
+    SkAutoTUnref<GrPath> path(static_cast<GrPath*>(ctx->findAndRefCachedResource(key)));
     if (NULL == path || !path->isEqualTo(skPath, stroke)) {
         path.reset(gpu->pathRendering()->createPath(skPath, stroke));
-        ctx->addResourceToCache(resourceKey, path);
+        ctx->addResourceToCache(key, path);
     }
     return path.detach();
 }

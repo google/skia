@@ -259,7 +259,7 @@ private:
     virtual size_t onGpuMemorySize() const = 0;
 
     // See comments in CacheAccess.
-    bool setContentKey(const GrResourceKey& contentKey);
+    bool setContentKey(const GrContentKey& contentKey);
     void notifyIsPurgable() const;
     void removeScratchKey();
     void makeBudgeted();
@@ -275,27 +275,18 @@ private:
 
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
-    enum Flags {
-        /**
-         * If set then fContentKey is valid and the resource is cached based on its content.
-         */
-        kContentKeySet_Flag = 0x1,
-    };
-
-    GrScratchKey            fScratchKey;
-    // TODO(bsalomon): Remove GrResourceKey and use different simpler type for content keys.
-    GrResourceKey           fContentKey;
+    GrScratchKey                fScratchKey;
+    GrContentKey                fContentKey;
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
     // is destroyed. Those calls set will this to NULL.
-    GrGpu*                  fGpu;
-    mutable size_t          fGpuMemorySize;
+    GrGpu*                      fGpu;
+    mutable size_t              fGpuMemorySize;
 
-    uint32_t                fFlags;
-    LifeCycle               fLifeCycle;
-    const uint32_t          fUniqueID;
+    LifeCycle                   fLifeCycle;
+    const uint32_t              fUniqueID;
 
-    SkAutoTUnref<const SkData> fData;
+    SkAutoTUnref<const SkData>  fData;
 
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyIsPurgable.

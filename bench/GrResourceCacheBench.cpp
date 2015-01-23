@@ -28,14 +28,11 @@ public:
         this->registerWithCache();
     }
 
-    static GrResourceKey ComputeKey(int i) {
-        GrCacheID::Key key;
-        memset(&key, 0, sizeof(key));
-        key.fData32[0] = i;
-        static int gDomain = GrCacheID::GenerateDomain();
-        return GrResourceKey(GrCacheID(gDomain, key), 0);
+    static void ComputeKey(int i, GrContentKey* key) {
+        static GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+        GrContentKey::Builder builder(key, kDomain, 1);
+        builder[0] = i;
     }
-
 
 private:
     size_t onGpuMemorySize() const SK_OVERRIDE { return 100; }
@@ -45,7 +42,8 @@ private:
 
 static void populate_cache(GrGpu* gpu, int resourceCount) {
     for (int i = 0; i < resourceCount; ++i) {
-        GrResourceKey key = BenchResource::ComputeKey(i);
+        GrContentKey key;
+        BenchResource::ComputeKey(i, &key);
         GrGpuResource* resource = SkNEW_ARGS(BenchResource, (gpu));
         resource->cacheAccess().setContentKey(key);
         resource->unref();
@@ -127,7 +125,8 @@ protected:
         SkASSERT(CACHE_SIZE_COUNT == cache2->getResourceCount());
         for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < CACHE_SIZE_COUNT; ++k) {
-                GrResourceKey key = BenchResource::ComputeKey(k);
+                GrContentKey key;
+                BenchResource::ComputeKey(k, &key);
                 SkAutoTUnref<GrGpuResource> resource(cache2->findAndRefContentResource(key));
                 SkASSERT(resource);
             }

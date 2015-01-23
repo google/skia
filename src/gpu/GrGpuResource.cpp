@@ -20,7 +20,6 @@ static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
 GrGpuResource::GrGpuResource(GrGpu* gpu, LifeCycle lifeCycle)
     : fGpu(gpu)
     , fGpuMemorySize(kInvalidGpuMemorySize)
-    , fFlags(0)
     , fLifeCycle(lifeCycle)
     , fUniqueID(CreateUniqueID()) {
 }
@@ -83,7 +82,7 @@ void GrGpuResource::didChangeGpuMemorySize() const {
     get_resource_cache2(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
 }
 
-bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
+bool GrGpuResource::setContentKey(const GrContentKey& key) {
     // Currently this can only be called once and can't be called when the resource is scratch.
     SkASSERT(this->internalHasRef());
 
@@ -92,15 +91,14 @@ bool GrGpuResource::setContentKey(const GrResourceKey& contentKey) {
         return false;
     }
 
-    if ((fFlags & kContentKeySet_Flag) || this->wasDestroyed()) {
+    if (fContentKey.isValid() || this->wasDestroyed()) {
         return false;
     }
 
-    fContentKey = contentKey;
-    fFlags |= kContentKeySet_Flag;
+    fContentKey = key;
 
     if (!get_resource_cache2(fGpu)->resourceAccess().didSetContentKey(this)) {
-         fFlags &= ~kContentKeySet_Flag;
+        fContentKey.reset();
         return false;
     }
     return true;

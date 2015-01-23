@@ -342,26 +342,24 @@ void GrColorCubeEffect::GLProcessor::GenKey(const GrProcessor& proc,
 }
 
 GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {
-    static const GrCacheID::Domain gCubeDomain = GrCacheID::GenerateDomain();
-
-    GrCacheID::Key key;
-    key.fData32[0] = fUniqueID;
-    key.fData32[1] = fCache.cubeDimension();
-    key.fData64[1] = 0;
-    GrCacheID cacheID(gCubeDomain, key);
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey key;
+    GrContentKey::Builder builder(&key, kDomain, 2);
+    builder[0] = fUniqueID;
+    builder[1] = fCache.cubeDimension();
+    builder.finish();
 
     GrSurfaceDesc desc;
     desc.fWidth = fCache.cubeDimension();
     desc.fHeight = fCache.cubeDimension() * fCache.cubeDimension();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    GrResourceKey rkey = GrTexturePriv::ComputeKey(context->getGpu(), NULL, desc, cacheID);
-    GrSurface* surface = static_cast<GrSurface*>(context->findAndRefCachedResource(rkey));
+    GrSurface* surface = static_cast<GrSurface*>(context->findAndRefCachedResource(key));
     SkAutoTUnref<GrTexture> textureCube;
     if (surface) {
         textureCube.reset(surface->asTexture());
     } else {
-        textureCube.reset(context->createTexture(NULL, desc, cacheID, fCubeData->data(), 0));
+        textureCube.reset(context->createTexture(NULL, desc, key, fCubeData->data(), 0));
     }
 
     return textureCube ? GrColorCubeEffect::Create(textureCube) : NULL;

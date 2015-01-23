@@ -19,7 +19,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 //////////////////////////////////////////////////////////////////////////////
 
 GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
-    static int32_t gType = kInvalidResourceType + 1;
+    static int32_t gType = INHERITED::kInvalidDomain + 1;
 
     int32_t type = sk_atomic_inc(&gType);
     if (type > SK_MaxU16) {
@@ -29,15 +29,18 @@ GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
     return static_cast<ResourceType>(type);
 }
 
+GrContentKey::Domain GrContentKey::GenerateDomain() {
+    static int32_t gDomain = INHERITED::kInvalidDomain + 1;
 
-void GrScratchKey::Builder::finish() {
-    if (NULL == fKey) {
-        return;
+    int32_t domain = sk_atomic_inc(&gDomain);
+    if (kInvalidDomain == gDomain) {
+        SkFAIL("Too many Content Key Domains");
     }
-    GR_STATIC_ASSERT(0 == kHash_MetaDataIdx);
-    fKey->fKey[kHash_MetaDataIdx] = 
-        SkChecksum::Compute(&fKey->fKey[kHash_MetaDataIdx + 1], fKey->size() - sizeof(uint32_t));
-    fKey = NULL;
+
+    return static_cast<Domain>(domain);
+}
+uint32_t GrResourceKeyHash(const uint32_t* data, size_t size) {
+    return SkChecksum::Compute(data, size);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -129,8 +132,8 @@ void GrResourceCache2::removeResource(GrGpuResource* resource) {
     if (resource->cacheAccess().getScratchKey().isValid()) {
         fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
     }
-    if (const GrResourceKey* contentKey = resource->cacheAccess().getContentKey()) {
-        fContentHash.remove(*contentKey);
+    if (resource->cacheAccess().getContentKey().isValid()) {
+        fContentHash.remove(resource->cacheAccess().getContentKey());
     }
     this->validate();
 }
@@ -222,9 +225,9 @@ bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(!fPurging);
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
-    SkASSERT(resource->cacheAccess().getContentKey());
+    SkASSERT(resource->cacheAccess().getContentKey().isValid());
 
-    GrGpuResource* res = fContentHash.find(*resource->cacheAccess().getContentKey());
+    GrGpuResource* res = fContentHash.find(resource->cacheAccess().getContentKey());
     if (NULL != res) {
         return false;
     }
@@ -258,8 +261,8 @@ void GrResourceCache2::notifyPurgable(GrGpuResource* resource) {
     bool overBudget = fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes;
 
     // Also purge if the resource has neither a valid scratch key nor a content key.
-    bool noKey = !resource->cacheAccess().isScratch() &&
-                 (NULL == resource->cacheAccess().getContentKey());
+    bool noKey = !resource->cacheAccess().getScratchKey().isValid() &&
+                 !resource->cacheAccess().getContentKey().isValid();
 
     // Only cached resources should ever have a key.
     SkASSERT(noKey || resource->cacheAccess().isBudgeted());
@@ -406,20 +409,20 @@ void GrResourceCache2::validate() const {
         }
 
         if (resource->cacheAccess().isScratch()) {
-            SkASSERT(NULL == resource->cacheAccess().getContentKey());
+            SkASSERT(!resource->cacheAccess().getContentKey().isValid());
             ++scratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
         } else if (resource->cacheAccess().getScratchKey().isValid()) {
-            SkASSERT(NULL != resource->cacheAccess().getContentKey());
+            SkASSERT(resource->cacheAccess().getContentKey().isValid());
             ++couldBeScratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
         }
-
-        if (const GrResourceKey* contentKey = resource->cacheAccess().getContentKey()) {
+        const GrContentKey& contentKey = resource->cacheAccess().getContentKey();
+        if (contentKey.isValid()) {
             ++content;
-            SkASSERT(fContentHash.find(*contentKey) == resource);
+            SkASSERT(fContentHash.find(contentKey) == resource);
             SkASSERT(!resource->cacheAccess().isWrapped());
         }
 

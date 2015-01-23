@@ -110,7 +110,7 @@ public:
     /**
      * Find a resource that matches a content key.
      */
-    GrGpuResource* findAndRefContentResource(const GrResourceKey& contentKey) {
+    GrGpuResource* findAndRefContentResource(const GrContentKey& contentKey) {
         GrGpuResource* resource = fContentHash.find(contentKey);
         if (resource) {
             resource->ref();
@@ -122,7 +122,7 @@ public:
     /**
      * Query whether a content key exists in the cache.
      */
-    bool hasContentKey(const GrResourceKey& contentKey) const {
+    bool hasContentKey(const GrContentKey& contentKey) const {
         return SkToBool(fContentHash.find(contentKey));
     }
 
@@ -193,13 +193,13 @@ private:
     typedef SkTMultiMap<GrGpuResource, GrScratchKey, ScratchMapTraits> ScratchMap;
 
     struct ContentHashTraits {
-        static const GrResourceKey& GetKey(const GrGpuResource& r) {
-            return *r.cacheAccess().getContentKey();
+        static const GrContentKey& GetKey(const GrGpuResource& r) {
+            return r.cacheAccess().getContentKey();
         }
 
-        static uint32_t Hash(const GrResourceKey& key) { return key.getHash(); }
+        static uint32_t Hash(const GrContentKey& key) { return key.hash(); }
     };
-    typedef SkTDynamicHash<GrGpuResource, GrResourceKey, ContentHashTraits> ContentHash;
+    typedef SkTDynamicHash<GrGpuResource, GrContentKey, ContentHashTraits> ContentHash;
 
     typedef SkTInternalLList<GrGpuResource> ResourceList;
 

@@ -205,20 +205,25 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
                                   const SkTypeface* typeface,
                                   const SkDescriptor* desc,
                                   const SkStrokeRec& stroke) {
-    static const GrCacheID::Domain gGlyphsDomain = GrCacheID::GenerateDomain();
-
-    GrCacheID::Key key;
-    uint64_t* keyData = key.fData64;
-    keyData[0] = desc ? desc->getChecksum() : 0;
-    keyData[0] = (keyData[0] << 32) | (typeface ? typeface->uniqueID() : 0);
-    keyData[1] = GrPath::ComputeStrokeKey(stroke);
-    GrResourceKey resourceKey = GrResourceKey(GrCacheID(gGlyphsDomain, key), 0);
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey key;
+    GrContentKey::Builder builder(&key, kDomain, 4);
+    struct GlyphKey {
+        uint32_t fChecksum;
+        uint32_t fTypeface;
+        uint64_t fStroke;
+    };
+    GlyphKey* glyphKey = reinterpret_cast<GlyphKey*>(&builder[0]);
+    glyphKey->fChecksum = desc ? desc->getChecksum() : 0;
+    glyphKey->fTypeface = typeface ? typeface->uniqueID() : 0;
+    glyphKey->fStroke = GrPath::ComputeStrokeKey(stroke);
+    builder.finish();
 
     SkAutoTUnref<GrPathRange> glyphs(
-        static_cast<GrPathRange*>(ctx->findAndRefCachedResource(resourceKey)));
+        static_cast<GrPathRange*>(ctx->findAndRefCachedResource(key)));
     if (NULL == glyphs || (NULL != desc && !glyphs->isEqualTo(*desc))) {
         glyphs.reset(ctx->getGpu()->pathRendering()->createGlyphs(typeface, desc, stroke));
-        ctx->addResourceToCache(resourceKey, glyphs);
+        ctx->addResourceToCache(key, glyphs);
     }
 
     return glyphs.detach();

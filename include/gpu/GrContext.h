@@ -172,14 +172,14 @@ public:
     /**
      * Stores a custom resource in the cache, based on the specified key.
      */
-    void addResourceToCache(const GrResourceKey&, GrGpuResource*);
+    void addResourceToCache(const GrContentKey&, GrGpuResource*);
 
     /**
      * Finds a resource in the cache, based on the specified key. This is intended for use in
      * conjunction with addResourceToCache(). The return value will be NULL if not found. The
      * caller must balance with a call to unref().
      */
-    GrGpuResource* findAndRefCachedResource(const GrResourceKey&);
+    GrGpuResource* findAndRefCachedResource(const GrContentKey&);
 
     /**
      * Creates a new text rendering context that is optimal for the
@@ -198,45 +198,53 @@ public:
      * Creates a new entry, based on the specified key and texture and returns it. The caller owns a
      * ref on the returned texture which must be balanced by a call to unref.
      *
+     * TODO: Move resizing logic out of GrContext and have the caller set the content key on the
+     * returned texture rather than take it as a param.
+     *
      * @param params    The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      * @param desc      Description of the texture properties.
-     * @param cacheID   Cache-specific properties (e.g., texture gen ID)
+     * @param key       Key to associate with the texture.
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows. For compressed pixel configs, this
      *                  field is ignored.
-     * @param cacheKey  (optional) If non-NULL, we'll write the cache key we used to cacheKey.
+     * @param outKey    (optional) If non-NULL, we'll write the cache key we used to cacheKey. this
+     *                  may differ from key on GPUs that don't support tiling NPOT textures.
      */
     GrTexture* createTexture(const GrTextureParams* params,
                              const GrSurfaceDesc& desc,
-                             const GrCacheID& cacheID,
+                             const GrContentKey& key,
                              const void* srcData,
                              size_t rowBytes,
-                             GrResourceKey* cacheKey = NULL);
+                             GrContentKey* outKey = NULL);
     /**
      * Search for an entry based on key and dimensions. If found, ref it and return it. The return
      * value will be NULL if not found. The caller must balance with a call to unref.
      *
+     * TODO: Remove this function and do lookups generically.
+     *
      *  @param desc     Description of the texture properties.
-     *  @param cacheID Cache-specific properties (e.g., texture gen ID)
+     *  @param key      key to use for texture look up.
      *  @param params   The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
     GrTexture* findAndRefTexture(const GrSurfaceDesc& desc,
-                                 const GrCacheID& cacheID,
+                                 const GrContentKey& key,
                                  const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
      * will not be locked or returned. This call does not affect the priority of
      * the texture for deletion.
+     *
+     * TODO: Remove this function and do cache checks generically.
      */
     bool isTextureInCache(const GrSurfaceDesc& desc,
-                          const GrCacheID& cacheID,
+                          const GrContentKey& key,
                           const GrTextureParams* params) const;
 
     /**
@@ -871,8 +879,9 @@ private:
                           const SkPath&,
                           const GrStrokeInfo&);
 
-    GrTexture* createResizedTexture(const GrSurfaceDesc& desc,
-                                    const GrCacheID& cacheID,
+    // TODO: Move this out of GrContext.
+    GrTexture* createResizedTexture(const GrSurfaceDesc&,
+                                    const GrContentKey& origKey,
                                     const void* srcData,
                                     size_t rowBytes,
                                     bool filter);

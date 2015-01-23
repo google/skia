@@ -473,58 +473,6 @@ struct GrSurfaceDesc {
 typedef GrSurfaceDesc GrTextureDesc;
 
 /**
- * GrCacheID is used create and find cached GrResources (e.g. GrTextures). The ID has two parts:
- * the domain and the key. Domains simply allow multiple clients to use 0-based indices as their
- * cache key without colliding. The key uniquely identifies a GrResource within the domain.
- * Users of the cache must obtain a domain via GenerateDomain().
- */
-struct GrCacheID {
-public:
-    typedef uint8_t  Domain;
-
-    struct Key {
-        union {
-            uint8_t  fData8[16];
-            uint32_t fData32[4];
-            uint64_t fData64[2];
-        };
-    };
-
-    /**
-     * A default cache ID is invalid; a set method must be called before the object is used.
-     */
-    GrCacheID() { fDomain = kInvalid_Domain; }
-
-    /**
-     * Initialize the cache ID to a domain and key.
-     */
-    GrCacheID(Domain domain, const Key& key) {
-        SkASSERT(kInvalid_Domain != domain);
-        this->reset(domain, key);
-    }
-
-    void reset(Domain domain, const Key& key) {
-        fDomain = domain;
-        memcpy(&fKey, &key, sizeof(Key));
-    }
-
-    /** Has this been initialized to a valid domain */
-    bool isValid() const { return kInvalid_Domain != fDomain; }
-
-    const Key& getKey() const { SkASSERT(this->isValid()); return fKey; }
-    Domain getDomain() const { SkASSERT(this->isValid()); return fDomain; }
-
-    /** Creates a new unique ID domain. */
-    static Domain GenerateDomain();
-
-private:
-    Key             fKey;
-    Domain          fDomain;
-
-    static const Domain kInvalid_Domain = 0;
-};
-
-/**
  * Clips are composed from these objects.
  */
 enum GrClipType {

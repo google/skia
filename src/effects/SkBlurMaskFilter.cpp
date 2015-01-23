@@ -753,31 +753,29 @@ bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
     GrTextureParams params;
     GrSurfaceDesc texDesc;
 
-    unsigned int profile_size = SkScalarCeilToInt(6*sigma);
+    unsigned int profileSize = SkScalarCeilToInt(6*sigma);
 
-    texDesc.fWidth = profile_size;
+    texDesc.fWidth = profileSize;
     texDesc.fHeight = 1;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-    static const GrCacheID::Domain gBlurProfileDomain = GrCacheID::GenerateDomain();
-    GrCacheID::Key key;
-    memset(&key, 0, sizeof(key));
-    key.fData32[0] = profile_size;
-    key.fData32[1] = 1;
-    GrCacheID blurProfileKey(gBlurProfileDomain, key);
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey key;
+    GrContentKey::Builder builder(&key, kDomain, 1);
+    builder[0] = profileSize;
+    builder.finish();
 
     uint8_t *profile = NULL;
     SkAutoTDeleteArray<uint8_t> ada(NULL);
 
-    *blurProfileTexture = context->findAndRefTexture(texDesc, blurProfileKey, &params);
+    *blurProfileTexture = context->findAndRefTexture(texDesc, key, &params);
 
     if (NULL == *blurProfileTexture) {
 
         SkBlurMask::ComputeBlurProfile(sigma, &profile);
         ada.reset(profile);
 
-        *blurProfileTexture = context->createTexture(&params, texDesc, blurProfileKey,
-                                                     profile, 0);
+        *blurProfileTexture = context->createTexture(&params, texDesc, key, profile, 0);
 
         if (NULL == *blurProfileTexture) {
             return false;
@@ -920,12 +918,12 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         return NULL;
     }
 
-    static const GrCacheID::Domain gRRectBlurDomain = GrCacheID::GenerateDomain();
-    GrCacheID::Key key;
-    memset(&key, 0, sizeof(key));
-    key.fData32[0] = blurRadius;
-    key.fData32[1] = cornerRadius;
-    GrCacheID blurRRectNinePatchID(gRRectBlurDomain, key);
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey key;
+    GrContentKey::Builder builder(&key, kDomain, 2);
+    builder[0] = blurRadius;
+    builder[1] = cornerRadius;
+    builder.finish();
 
     GrTextureParams params;
     params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
@@ -937,7 +935,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
     texDesc.fHeight = texSide;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-    GrTexture *blurNinePatchTexture = context->findAndRefTexture(texDesc, blurRRectNinePatchID, &params);
+    GrTexture *blurNinePatchTexture = context->findAndRefTexture(texDesc, key, &params);
 
     if (NULL == blurNinePatchTexture) {
         SkMask mask;
@@ -964,7 +962,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         SkMask blurred_mask;
         SkBlurMask::BoxBlur(&blurred_mask, mask, sigma, kNormal_SkBlurStyle, kHigh_SkBlurQuality, NULL, true );
 
-        blurNinePatchTexture = context->createTexture(&params, texDesc, blurRRectNinePatchID, blurred_mask.fImage, 0);
+        blurNinePatchTexture = context->createTexture(&params, texDesc, key, blurred_mask.fImage, 0);
         SkMask::FreeImage(blurred_mask.fImage);
     }
 

@@ -27,7 +27,7 @@ public:
           fBounds(skPath.getBounds()) {
     }
 
-    static GrResourceKey ComputeKey(const SkPath& path, const SkStrokeRec& stroke);
+    static void ComputeKey(const SkPath& path, const SkStrokeRec& stroke, GrContentKey* key);
     static uint64_t ComputeStrokeKey(const SkStrokeRec&);
 
     bool isEqualTo(const SkPath& path, const SkStrokeRec& stroke) {

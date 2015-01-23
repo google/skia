@@ -39,14 +39,7 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
-    static GrResourceKey ComputeKey(const GrGpu* gpu,
-                                    const GrTextureParams* params,
-                                    const GrSurfaceDesc& desc,
-                                    const GrCacheID& cacheID);
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
-    static bool NeedsResizing(const GrResourceKey& key);
-    static bool NeedsBilerp(const GrResourceKey& key);
-
 
     // TODO: Move this logic and the shift values out of here and to the callers.
     SkFixed normalizeFixedX(SkFixed x) const {

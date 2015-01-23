@@ -196,15 +196,15 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
 
-    static const GrCacheID::Domain gTextureStripAtlasDomain = GrCacheID::GenerateDomain();
-    GrCacheID::Key key;
-    *key.fData32 = fCacheKey;
-    memset(key.fData32 + 1, 0, sizeof(key) - sizeof(uint32_t));
-    GrCacheID cacheID(gTextureStripAtlasDomain, key);
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    GrContentKey key;
+    GrContentKey::Builder builder(&key, kDomain, 1);
+    builder[0] = static_cast<uint32_t>(fCacheKey);
+    builder.finish();
 
-    fTexture = fDesc.fContext->findAndRefTexture(texDesc, cacheID, &params);
+    fTexture = fDesc.fContext->findAndRefTexture(texDesc, key, &params);
     if (NULL == fTexture) {
-        fTexture = fDesc.fContext->createTexture(&params, texDesc, cacheID, NULL, 0);
+        fTexture = fDesc.fContext->createTexture(&params, texDesc, key, NULL, 0);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();

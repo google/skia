@@ -66,42 +66,7 @@ void GrTexture::validateDesc() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-// These flags need to fit in a GrResourceKey::ResourceFlags so they can be folded into the texture
-// key
-enum TextureFlags {
-    /**
-     * The kStretchToPOT bit is set when the texture is NPOT and is being repeated but the
-     * hardware doesn't support that feature.
-     */
-    kStretchToPOT_TextureFlag = 0x1,
-    /**
-     * The kBilerp bit can only be set when the kStretchToPOT flag is set and indicates whether the
-     * stretched texture should be bilerped.
-     */
-     kBilerp_TextureFlag       = 0x2,
-};
-
 namespace {
-GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
-                                               const GrTextureParams* params,
-                                               const GrSurfaceDesc& desc) {
-    GrResourceKey::ResourceFlags flags = 0;
-    bool tiled = params && params->isTiled();
-    if (tiled && !gpu->caps()->npotTextureTileSupport()) {
-        if (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight)) {
-            flags |= kStretchToPOT_TextureFlag;
-            switch(params->filterMode()) {
-                case GrTextureParams::kNone_FilterMode:
-                    break;
-                case GrTextureParams::kBilerp_FilterMode:
-                case GrTextureParams::kMipMap_FilterMode:
-                    flags |= kBilerp_TextureFlag;
-                    break;
-            }
-        }
-    }
-    return flags;
-}
 
 // FIXME:  This should be refactored with the code in gl/GrGLGpu.cpp.
 GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
@@ -132,14 +97,6 @@ GrTexture::GrTexture(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
     fShiftFixedY = 31 - SkCLZ(fDesc.fHeight);
 }
 
-GrResourceKey GrTexturePriv::ComputeKey(const GrGpu* gpu,
-                                    const GrTextureParams* params,
-                                    const GrSurfaceDesc& desc,
-                                    const GrCacheID& cacheID) {
-    GrResourceKey::ResourceFlags flags = get_texture_flags(gpu, params, desc);
-    return GrResourceKey(cacheID, flags);
-}
-
 void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
 
@@ -157,12 +114,4 @@ void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* k
 
     builder[0] = desc.fWidth | (desc.fHeight << 16);
     builder[1] = desc.fConfig | (desc.fSampleCnt << 6) | (flags << 14) | (origin << 24);
-}
-
-bool GrTexturePriv::NeedsResizing(const GrResourceKey& key) {
-    return SkToBool(key.getResourceFlags() & kStretchToPOT_TextureFlag);
-}
-
-bool GrTexturePriv::NeedsBilerp(const GrResourceKey& key) {
-    return SkToBool(key.getResourceFlags() & kBilerp_TextureFlag);
 }

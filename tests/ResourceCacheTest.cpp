@@ -120,8 +120,8 @@ public:
     static void ComputeScratchKey(SimulatedProperty property, GrScratchKey* key) {
         static GrScratchKey::ResourceType t = GrScratchKey::GenerateResourceType();
         GrScratchKey::Builder builder(key, t, kScratchKeyFieldCnt);
-        for (size_t i = 0; i < kScratchKeyFieldCnt; ++i) {
-            builder[i] = i + static_cast<int>(property);
+        for (int i = 0; i < kScratchKeyFieldCnt; ++i) {
+            builder[i] = static_cast<uint32_t>(i + property);
         }
     }
 
@@ -130,7 +130,7 @@ public:
     }
 
 private:
-    static const size_t kScratchKeyFieldCnt = 6;
+    static const int kScratchKeyFieldCnt = 6;
 
     TestResource(GrGpu* gpu, SimulatedProperty property, ScratchConstructor)
         : INHERITED(gpu, kCached_LifeCycle)
@@ -209,6 +209,13 @@ static void test_no_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache2->getResourceBytes());
 }
 
+// Each integer passed as a template param creates a new domain.
+template <int> static void make_content_key(GrContentKey* key, int data) {
+    static GrContentKey::Domain d = GrContentKey::GenerateDomain();
+    GrContentKey::Builder builder(key, d, 1);
+    builder[0] = data;
+}
+
 static void test_budgeting(skiatest::Reporter* reporter) {
     SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
     REPORTER_ASSERT(reporter, SkToBool(context));
@@ -221,9 +228,8 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
     SkASSERT(0 == cache2->getBudgetedResourceCount() && 0 == cache2->getBudgetedResourceBytes());
 
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
-    GrResourceKey contentKey(GrCacheID(GrCacheID::GenerateDomain(), keyData), 0);
+    GrContentKey contentKey;
+    make_content_key<0>(&contentKey, 0);
 
     // Create a scratch, a content, and a wrapped resource
     TestResource* scratch =
@@ -241,8 +247,8 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     unbudgeted->setSize(13);
 
     // Make sure we can't add a content key to the wrapped resource
-    keyData.fData8[0] = 1;
-    GrResourceKey contentKey2(GrCacheID(GrCacheID::GenerateDomain(), keyData), 0);
+    GrContentKey contentKey2;
+    make_content_key<0>(&contentKey2, 1);
     REPORTER_ASSERT(reporter, !wrapped->cacheAccess().setContentKey(contentKey2));
     REPORTER_ASSERT(reporter, NULL == cache2->findAndRefContentResource(contentKey2));
 
@@ -315,9 +321,8 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
     SkASSERT(0 == cache2->getBudgetedResourceCount() && 0 == cache2->getBudgetedResourceBytes());
 
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
-    GrResourceKey contentKey(GrCacheID(GrCacheID::GenerateDomain(), keyData), 0);
+    GrContentKey contentKey;
+    make_content_key<0>(&contentKey, 0);
 
     TestResource* scratch;
     TestResource* content;
@@ -576,10 +581,8 @@ static void test_duplicate_content_key(skiatest::Reporter* reporter) {
     cache2->purgeAllUnlocked();
     SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
 
-    GrCacheID::Domain domain = GrCacheID::GenerateDomain();
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
-    GrResourceKey key(GrCacheID(domain, keyData), 0);
+    GrContentKey key;
+    make_content_key<0>(&key, 0);
     
     // Create two resources that we will attempt to register with the same content key.
     TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
@@ -627,16 +630,10 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
         return;
     }
 
-    GrCacheID::Domain domain = GrCacheID::GenerateDomain();
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
-
-    keyData.fData64[0] = 1;
-    GrResourceKey key1(GrCacheID(domain, keyData), 0);
-    keyData.fData64[0] = 2;
-    GrResourceKey key2(GrCacheID(domain, keyData), 0);
-    keyData.fData64[0] = 3;
-    GrResourceKey key3(GrCacheID(domain, keyData), 0);
+    GrContentKey key1, key2, key3;
+    make_content_key<0>(&key1, 1);
+    make_content_key<0>(&key2, 2);
+    make_content_key<0>(&key3, 3);
     
     context->setResourceCacheLimits(5, 30000);
     GrResourceCache2* cache2 = context->getResourceCache2();
@@ -694,15 +691,9 @@ static void test_cache_chained_purge(skiatest::Reporter* reporter) {
         return;
     }
 
-    GrCacheID::Domain domain = GrCacheID::GenerateDomain();
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
-
-    keyData.fData64[0] = 1;
-    GrResourceKey key1(GrCacheID(domain, keyData), 0);
-
-    keyData.fData64[0] = 2;
-    GrResourceKey key2(GrCacheID(domain, keyData), 0);
+    GrContentKey key1, key2;
+    make_content_key<0>(&key1, 1);
+    make_content_key<0>(&key2, 2);
 
     {
         context->setResourceCacheLimits(3, 30000);
@@ -745,17 +736,9 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         return;
     }
 
-    GrCacheID::Domain domain = GrCacheID::GenerateDomain();
-
-    GrCacheID::Key key1Data;
-    key1Data.fData64[0] = 0;
-    key1Data.fData64[1] = 0;
-    GrResourceKey key1(GrCacheID(domain, key1Data), 0);
-
-    GrCacheID::Key key2Data;
-    key2Data.fData64[0] = 1;
-    key2Data.fData64[1] = 0;
-    GrResourceKey key2(GrCacheID(domain, key2Data), 0);
+    GrContentKey key1, key2;
+    make_content_key<0>(&key1, 1);
+    make_content_key<0>(&key2, 2);
 
     // Test changing resources sizes (both increase & decrease).
     {
@@ -832,25 +815,21 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     cache2->purgeAllUnlocked();
     SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
 
-    GrCacheID::Domain domain0 = GrCacheID::GenerateDomain();
-    GrCacheID::Domain domain1 = GrCacheID::GenerateDomain();
-
-    GrCacheID::Key keyData;
-    memset(&keyData, 0, sizeof(keyData));
 
     for (int i = 0; i < kResourceCnt; ++i) {
-        TestResource* resource;
-        keyData.fData32[0] = i;
+        GrContentKey key1, key2;
+        make_content_key<1>(&key1, i);
+        make_content_key<2>(&key2, i);
 
-        GrResourceKey key0(GrCacheID(domain0, keyData), 0);
+        TestResource* resource;
+
         resource = SkNEW_ARGS(TestResource, (context->getGpu()));
-        resource->cacheAccess().setContentKey(key0);
+        resource->cacheAccess().setContentKey(key1);
         resource->setSize(1);
         resource->unref();
 
-        GrResourceKey key1(GrCacheID(domain1, keyData), 0);
         resource = SkNEW_ARGS(TestResource, (context->getGpu()));
-        resource->cacheAccess().setContentKey(key1);
+        resource->cacheAccess().setContentKey(key2);
         resource->setSize(1);
         resource->unref();
     }
@@ -861,11 +840,12 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, cache2->getResourceBytes() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache2->getResourceCount() == 2 * kResourceCnt);
     for (int i = 0; i < kResourceCnt; ++i) {
-        keyData.fData32[0] = i;
-        GrResourceKey key0(GrCacheID(domain0, keyData), 0);
-        REPORTER_ASSERT(reporter, cache2->hasContentKey(key0));
-        GrResourceKey key1(GrCacheID(domain0, keyData), 0);
+        GrContentKey key1, key2;
+        make_content_key<1>(&key1, i);
+        make_content_key<2>(&key2, i);
+
         REPORTER_ASSERT(reporter, cache2->hasContentKey(key1));
+        REPORTER_ASSERT(reporter, cache2->hasContentKey(key2));
     }
 
     cache2->purgeAllUnlocked();
@@ -876,11 +856,12 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, cache2->getResourceCount() == 0);
 
     for (int i = 0; i < kResourceCnt; ++i) {
-        keyData.fData32[0] = i;
-        GrResourceKey key0(GrCacheID(domain0, keyData), 0);
-        REPORTER_ASSERT(reporter, !cache2->hasContentKey(key0));
-        GrResourceKey key1(GrCacheID(domain0, keyData), 0);
+        GrContentKey key1, key2;
+        make_content_key<1>(&key1, i);
+        make_content_key<2>(&key2, i);
+
         REPORTER_ASSERT(reporter, !cache2->hasContentKey(key1));
+        REPORTER_ASSERT(reporter, !cache2->hasContentKey(key2));
     }
 }
 

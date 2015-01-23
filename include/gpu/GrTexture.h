@@ -13,7 +13,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-class GrResourceKey;
 class GrTextureParams;
 class GrTexturePriv;
 

@@ -24,7 +24,7 @@ public:
      * resource that currently is using the content key, allow resources' content keys to change,
      * and allow removal of a content key to convert a resource back to scratch.
      */
-    bool setContentKey(const GrResourceKey& contentKey) {
+    bool setContentKey(const GrContentKey& contentKey) {
         return fResource->setContentKey(contentKey);
     }
 
@@ -33,7 +33,7 @@ public:
      * not have a content key.
      */
     bool isScratch() const {
-        return NULL == this->getContentKey() && fResource->fScratchKey.isValid();
+        return !this->getContentKey().isValid() && fResource->fScratchKey.isValid();
     }
 
     /** 
@@ -52,12 +52,7 @@ public:
     /**
      * If the resource is currently cached by a content key, the key is returned, otherwise NULL.
      */
-    const GrResourceKey* getContentKey() const {
-        if (fResource->fFlags & GrGpuResource::kContentKeySet_Flag) {
-            return &fResource->fContentKey;
-        }
-        return NULL;
-    }
+    const GrContentKey& getContentKey() const { return fResource->fContentKey; }
 
     /**
      * Is the resource object wrapping an externally allocated GPU resource?
