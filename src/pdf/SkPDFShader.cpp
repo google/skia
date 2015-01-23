@@ -505,16 +505,21 @@ private:
     void AllocateGradientInfoStorage();
 };
 
+static void remove_from_canon(SkPDFShader* shader) {
+    SkAutoMutexAcquire lock(SkPDFCanon::GetShaderMutex());
+    SkPDFCanon::GetCanon().removeShader(shader);
+}
+
 class SkPDFFunctionShader : public SkPDFDict, public SkPDFShader {
     SK_DECLARE_INST_COUNT(SkPDFFunctionShader)
 public:
-    explicit SkPDFFunctionShader(SkPDFShader::State* state);
+    static SkPDFObject* Create(SkAutoTDelete<SkPDFShader::State>*);
+
     virtual ~SkPDFFunctionShader() {
-        SkPDFShader::RemoveFromCanonIfValid(this);
+        remove_from_canon(this);
         fResources.unrefAll();
     }
 
-    bool isValid() SK_OVERRIDE { return fResources.count() > 0; }
     SkPDFObject* toPDFObject() SK_OVERRIDE { return this; }
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
@@ -525,11 +530,9 @@ public:
     }
 
 private:
-    static SkPDFObject* RangeObject();
-
     SkTDArray<SkPDFObject*> fResources;
-
-    SkPDFStream* makePSFunction(const SkString& psCode, SkPDFArray* domain);
+    explicit SkPDFFunctionShader(SkPDFShader::State* state)
+        : SkPDFDict("Pattern"), SkPDFShader(state) {}
     typedef SkPDFDict INHERITED;
 };
 
@@ -540,18 +543,17 @@ private:
  */
 class SkPDFAlphaFunctionShader : public SkPDFStream, public SkPDFShader {
 public:
-    explicit SkPDFAlphaFunctionShader(SkPDFShader::State* state);
-    virtual ~SkPDFAlphaFunctionShader() {
-        SkPDFShader::RemoveFromCanonIfValid(this);
-    }
+    static SkPDFObject* Create(SkAutoTDelete<SkPDFShader::State>*);
 
-    bool isValid() SK_OVERRIDE {
-        return fColorShader.get() != NULL;
-    }
+    virtual ~SkPDFAlphaFunctionShader() { remove_from_canon(this); }
+
     SkPDFObject* toPDFObject() SK_OVERRIDE { return this; }
 
 private:
-    SkPDFGraphicState* CreateSMaskGraphicState();
+    explicit SkPDFAlphaFunctionShader(SkPDFShader::State* state);
+
+    static SkPDFGraphicState* CreateSMaskGraphicState(
+            const SkPDFShader::State&);
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
                       SkTSet<SkPDFObject*>* newResourceObjects) SK_OVERRIDE {
@@ -566,13 +568,13 @@ private:
 
 class SkPDFImageShader : public SkPDFStream, public SkPDFShader {
 public:
-    explicit SkPDFImageShader(SkPDFShader::State* state);
+    static SkPDFObject* Create(SkAutoTDelete<SkPDFShader::State>*);
+
     virtual ~SkPDFImageShader() {
-        SkPDFShader::RemoveFromCanonIfValid(this);
+        remove_from_canon(this);
         fResources.unrefAll();
     }
 
-    bool isValid() SK_OVERRIDE { return size() > 0; }
     SkPDFObject* toPDFObject() SK_OVERRIDE { return this; }
 
     void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
@@ -584,37 +586,22 @@ public:
 
 private:
     SkTSet<SkPDFObject*> fResources;
+    explicit SkPDFImageShader(SkPDFShader::State* state) : SkPDFShader(state) {}
 };
 
 SkPDFShader::SkPDFShader(SkPDFShader::State* s) : fShaderState(s) {}
 
 SkPDFShader::~SkPDFShader() {}
 
-void SkPDFShader::RemoveFromCanonIfValid(SkPDFShader* shader) {
-    if (shader->isValid()) {
-        SkAutoMutexAcquire lock(SkPDFCanon::GetShaderMutex());
-        SkPDFCanon::GetCanon().removeShader(shader);
-    }
-}
-
 bool SkPDFShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState.get();
 }
 
-SkPDFObject* SkPDFShader::AddToCanonIfValid(SkPDFShader* shader) {
-    if (!shader->isValid()) {
-        SkDELETE(shader);
-        return NULL;
-    }
-    SkPDFCanon::GetCanon().addShader(shader);
-    return shader->toPDFObject();
-}
-
 // static
-SkPDFObject* SkPDFShader::GetPDFShaderByState(State* inState) {
-    SkAutoTDelete<State> state(inState);
-    if (state->fType == SkShader::kNone_GradientType &&
-        state->fImage.isNull()) {
+SkPDFObject* SkPDFShader::GetPDFShaderByState(
+        SkAutoTDelete<SkPDFShader::State>* autoState) {
+    const State& state = **autoState;
+    if (state.fType == SkShader::kNone_GradientType && state.fImage.isNull()) {
         // TODO(vandebo) This drops SKComposeShader on the floor.  We could
         // handle compose shader by pulling things up to a layer, drawing with
         // the first shader, applying the xfer mode and drawing again with the
@@ -622,22 +609,18 @@ SkPDFObject* SkPDFShader::GetPDFShaderByState(State* inState) {
         return NULL;
     }
 
-    SkPDFShader* pdfShader = SkPDFCanon::GetCanon().findShader(*state);
+    SkPDFShader* pdfShader = SkPDFCanon::GetCanon().findShader(state);
     if (pdfShader) {
-        SkASSERT(pdfShader->isValid());
         return SkRef(pdfShader->toPDFObject());
     }
 
     // The PDFShader takes ownership of the shaderSate.
-    if (state->fType == SkShader::kNone_GradientType) {
-        return SkPDFShader::AddToCanonIfValid(
-                SkNEW_ARGS(SkPDFImageShader, (state.detach())));
-    } else if (state->GradientHasAlpha()) {
-        return SkPDFShader::AddToCanonIfValid(
-                SkNEW_ARGS(SkPDFAlphaFunctionShader, (state.detach())));
+    if (state.fType == SkShader::kNone_GradientType) {
+        return SkPDFImageShader::Create(autoState);
+    } else if (state.GradientHasAlpha()) {
+        return SkPDFAlphaFunctionShader::Create(autoState);
     } else {
-        return SkPDFShader::AddToCanonIfValid(
-                SkNEW_ARGS(SkPDFFunctionShader, (state.detach())));
+        return SkPDFFunctionShader::Create(autoState);
     }
 }
 
@@ -647,28 +630,9 @@ SkPDFObject* SkPDFShader::GetPDFShader(const SkShader& shader,
                                        const SkIRect& surfaceBBox,
                                        SkScalar rasterScale) {
     SkAutoMutexAcquire lock(SkPDFCanon::GetShaderMutex());
-    return GetPDFShaderByState(
+    SkAutoTDelete<SkPDFShader::State> state(
             SkNEW_ARGS(State, (shader, matrix, surfaceBBox, rasterScale)));
-}
-
-
-// static
-SkPDFObject* SkPDFFunctionShader::RangeObject() {
-    SkPDFCanon::GetShaderMutex().assertHeld();
-    static SkPDFArray* range = NULL;
-    // This method is only used with CanonicalShadersMutex, so it's safe to
-    // populate domain.
-    if (range == NULL) {
-        range = new SkPDFArray;
-        range->reserve(6);
-        range->appendInt(0);
-        range->appendInt(1);
-        range->appendInt(0);
-        range->appendInt(1);
-        range->appendInt(0);
-        range->appendInt(1);
-    }
-    return range;
+    return GetPDFShaderByState(&state);
 }
 
 static SkPDFResourceDict* get_gradient_resource_dict(
@@ -730,12 +694,15 @@ static SkStream* create_pattern_fill_content(int gsIndex, SkRect& bounds) {
  * Creates a ExtGState with the SMask set to the luminosityShader in
  * luminosity mode. The shader pattern extends to the bbox.
  */
-SkPDFGraphicState* SkPDFAlphaFunctionShader::CreateSMaskGraphicState() {
+SkPDFGraphicState* SkPDFAlphaFunctionShader::CreateSMaskGraphicState(
+        const SkPDFShader::State& state) {
     SkRect bbox;
-    bbox.set(fShaderState->fBBox);
+    bbox.set(state.fBBox);
 
-    SkAutoTUnref<SkPDFObject> luminosityShader(SkPDFShader::GetPDFShaderByState(
-            fShaderState->CreateAlphaToLuminosityState()));
+    SkAutoTDelete<SkPDFShader::State> alphaToLuminosityState(
+            state.CreateAlphaToLuminosityState());
+    SkAutoTUnref<SkPDFObject> luminosityShader(
+            SkPDFShader::GetPDFShaderByState(&alphaToLuminosityState));
 
     SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
@@ -750,27 +717,45 @@ SkPDFGraphicState* SkPDFAlphaFunctionShader::CreateSMaskGraphicState() {
             SkPDFGraphicState::kLuminosity_SMaskMode);
 }
 
-SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFShader::State* state)
-    : SkPDFShader(state) {
+SkPDFObject* SkPDFAlphaFunctionShader::Create(
+        SkAutoTDelete<SkPDFShader::State>* autoState) {
+    const SkPDFShader::State& state = **autoState;
     SkRect bbox;
-    bbox.set(fShaderState->fBBox);
+    bbox.set(state.fBBox);
 
-    fColorShader.reset(
-            SkPDFShader::GetPDFShaderByState(state->CreateOpaqueState()));
+    SkAutoTDelete<SkPDFShader::State> opaqueState(state.CreateOpaqueState());
+
+    SkPDFObject* colorShader = SkPDFShader::GetPDFShaderByState(&opaqueState);
+    if (!colorShader) {
+        return NULL;
+    }
 
     // Create resource dict with alpha graphics state as G0 and
     // pattern shader as P0, then write content stream.
-    SkAutoTUnref<SkPDFGraphicState> alphaGs(CreateSMaskGraphicState());
-    fResourceDict.reset(
-            get_gradient_resource_dict(fColorShader.get(), alphaGs.get()));
+    SkAutoTUnref<SkPDFGraphicState> alphaGs(
+            SkPDFAlphaFunctionShader::CreateSMaskGraphicState(state));
+
+    SkPDFAlphaFunctionShader* alphaFunctionShader =
+            SkNEW_ARGS(SkPDFAlphaFunctionShader, (autoState->detach()));
+
+    alphaFunctionShader->fColorShader.reset(colorShader);
+
+    alphaFunctionShader->fResourceDict.reset(get_gradient_resource_dict(
+            alphaFunctionShader->fColorShader.get(), alphaGs.get()));
 
     SkAutoTDelete<SkStream> colorStream(
             create_pattern_fill_content(0, bbox));
-    setData(colorStream.get());
+    alphaFunctionShader->setData(colorStream.get());
 
-    populate_tiling_pattern_dict(this, bbox, fResourceDict.get(),
+    populate_tiling_pattern_dict(alphaFunctionShader, bbox,
+                                 alphaFunctionShader->fResourceDict.get(),
                                  SkMatrix::I());
+    SkPDFCanon::GetCanon().addShader(alphaFunctionShader);
+    return alphaFunctionShader;
 }
+
+SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFShader::State* state)
+    : SkPDFShader(state) {}
 
 // Finds affine and persp such that in = affine * persp.
 // but it returns the inverse of perspective matrix.
@@ -810,18 +795,50 @@ static bool split_perspective(const SkMatrix in, SkMatrix* affine,
     return true;
 }
 
-SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
-    : SkPDFDict("Pattern"), SkPDFShader(state) {
+namespace {
+SkPDFObject* create_range_object() {
+    SkPDFArray* range = SkNEW(SkPDFArray);
+    range->reserve(6);
+    range->appendInt(0);
+    range->appendInt(1);
+    range->appendInt(0);
+    range->appendInt(1);
+    range->appendInt(0);
+    range->appendInt(1);
+    return range;
+}
+
+template <typename T> void unref(T* ptr) { ptr->unref();}
+}  // namespace
+
+SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject, rangeObject,
+                           create_range_object, unref<SkPDFObject>);
+
+static SkPDFStream* make_ps_function(const SkString& psCode,
+                                     SkPDFArray* domain) {
+    SkAutoDataUnref funcData(
+            SkData::NewWithCopy(psCode.c_str(), psCode.size()));
+    SkPDFStream* result = SkNEW_ARGS(SkPDFStream, (funcData.get()));
+    result->insertInt("FunctionType", 4);
+    result->insert("Domain", domain);
+    result->insert("Range", rangeObject.get());
+    return result;
+}
+
+SkPDFObject* SkPDFFunctionShader::Create(
+        SkAutoTDelete<SkPDFShader::State>* autoState) {
+    const SkPDFShader::State& state = **autoState;
+
     SkString (*codeFunction)(const SkShader::GradientInfo& info,
                              const SkMatrix& perspectiveRemover) = NULL;
     SkPoint transformPoints[2];
 
     // Depending on the type of the gradient, we want to transform the
     // coordinate space in different ways.
-    const SkShader::GradientInfo* info = &fShaderState->fInfo;
+    const SkShader::GradientInfo* info = &state.fInfo;
     transformPoints[0] = info->fPoint[0];
     transformPoints[1] = info->fPoint[1];
-    switch (fShaderState->fType) {
+    switch (state.fType) {
         case SkShader::kLinear_GradientType:
             codeFunction = &linearCode;
             break;
@@ -831,10 +848,9 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
             codeFunction = &radialCode;
             break;
         case SkShader::kRadial2_GradientType: {
-            // Bail out if the radii are the same.  Empty fResources signals
-            // an error and isValid will return false.
+            // Bail out if the radii are the same.
             if (info->fRadius[0] == info->fRadius[1]) {
-                return;
+                return NULL;
             }
             transformPoints[1] = transformPoints[0];
             SkScalar dr = info->fRadius[1] - info->fRadius[0];
@@ -856,7 +872,7 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
         case SkShader::kColor_GradientType:
         case SkShader::kNone_GradientType:
         default:
-            return;
+            return NULL;
     }
 
     // Move any scaling (assuming a unit gradient) or translation
@@ -866,8 +882,8 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     SkMatrix mapperMatrix;
     unitToPointsMatrix(transformPoints, &mapperMatrix);
 
-    SkMatrix finalMatrix = fShaderState->fCanvasTransform;
-    finalMatrix.preConcat(fShaderState->fShaderTransform);
+    SkMatrix finalMatrix = state.fCanvasTransform;
+    finalMatrix.preConcat(state.fShaderTransform);
     finalMatrix.preConcat(mapperMatrix);
 
     // Preserves as much as posible in the final matrix, and only removes
@@ -879,14 +895,14 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     if (finalMatrix.hasPerspective()) {
         if (!split_perspective(finalMatrix,
                                &finalMatrix, &perspectiveInverseOnly)) {
-            return;
+            return NULL;
         }
     }
 
     SkRect bbox;
-    bbox.set(fShaderState->fBBox);
+    bbox.set(state.fBBox);
     if (!inverseTransformBBox(finalMatrix, &bbox)) {
-        return;
+        return NULL;
     }
 
     SkAutoTUnref<SkPDFArray> domain(new SkPDFArray);
@@ -898,14 +914,14 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
 
     SkString functionCode;
     // The two point radial gradient further references
-    // fShaderState->fInfo
+    // state.fInfo
     // in translating from x, y coordinates to the t parameter. So, we have
     // to transform the points and radii according to the calculated matrix.
-    if (fShaderState->fType == SkShader::kRadial2_GradientType) {
+    if (state.fType == SkShader::kRadial2_GradientType) {
         SkShader::GradientInfo twoPointRadialInfo = *info;
         SkMatrix inverseMapperMatrix;
         if (!mapperMatrix.invert(&inverseMapperMatrix)) {
-            return;
+            return NULL;
         }
         inverseMapperMatrix.mapPoints(twoPointRadialInfo.fPoint, 2);
         twoPointRadialInfo.fRadius[0] =
@@ -922,18 +938,31 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     pdfShader->insertName("ColorSpace", "DeviceRGB");
     pdfShader->insert("Domain", domain.get());
 
-    SkPDFStream* function = makePSFunction(functionCode, domain.get());
+    SkPDFStream* function = make_ps_function(functionCode, domain.get());
     pdfShader->insert("Function", new SkPDFObjRef(function))->unref();
-    fResources.push(function);  // Pass ownership to resource list.
 
-    insertInt("PatternType", 2);
-    insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
-    insert("Shading", pdfShader.get());
+    SkAutoTUnref<SkPDFArray> matrixArray(
+            SkPDFUtils::MatrixToArray(finalMatrix));
+
+    SkPDFFunctionShader* pdfFunctionShader =
+            SkNEW_ARGS(SkPDFFunctionShader, (autoState->detach()));
+
+    pdfFunctionShader->fResources.push(function);
+    // Pass ownership to resource list.
+
+    pdfFunctionShader->insertInt("PatternType", 2);
+    pdfFunctionShader->insert("Matrix", matrixArray.get());
+    pdfFunctionShader->insert("Shading", pdfShader.get());
+
+    SkPDFCanon::GetCanon().addShader(pdfFunctionShader);
+    return pdfFunctionShader;
 }
 
-SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
-    : SkPDFShader(state) {
-    fShaderState->fImage.lockPixels();
+SkPDFObject* SkPDFImageShader::Create(
+        SkAutoTDelete<SkPDFShader::State>* autoState) {
+    const SkPDFShader::State& state = **autoState;
+
+    state.fImage.lockPixels();
 
     // The image shader pattern cell will be drawn into a separate device
     // in pattern cell space (no scaling on the bitmap, though there may be
@@ -941,15 +970,15 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
 
     // Map clip bounds to shader space to ensure the device is large enough
     // to handle fake clamping.
-    SkMatrix finalMatrix = fShaderState->fCanvasTransform;
-    finalMatrix.preConcat(fShaderState->fShaderTransform);
+    SkMatrix finalMatrix = state.fCanvasTransform;
+    finalMatrix.preConcat(state.fShaderTransform);
     SkRect deviceBounds;
-    deviceBounds.set(fShaderState->fBBox);
+    deviceBounds.set(state.fBBox);
     if (!inverseTransformBBox(finalMatrix, &deviceBounds)) {
-        return;
+        return NULL;
     }
 
-    const SkBitmap* image = &fShaderState->fImage;
+    const SkBitmap* image = &state.fImage;
     SkRect bitmapBounds;
     image->getBounds(&bitmapBounds);
 
@@ -958,8 +987,8 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
     // For clamp modes, we're only interested in the clip region, whether
     // or not the main bitmap is in it.
     SkShader::TileMode tileModes[2];
-    tileModes[0] = fShaderState->fImageTileModes[0];
-    tileModes[1] = fShaderState->fImageTileModes[1];
+    tileModes[0] = state.fImageTileModes[0];
+    tileModes[1] = state.fImageTileModes[1];
     if (tileModes[0] != SkShader::kClamp_TileMode ||
             tileModes[1] != SkShader::kClamp_TileMode) {
         deviceBounds.join(bitmapBounds);
@@ -1132,23 +1161,22 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
 
     // Put the canvas into the pattern stream (fContent).
     SkAutoTDelete<SkStream> content(pattern.content());
-    setData(content.get());
-    SkPDFResourceDict* resourceDict = pattern.getResourceDict();
-    resourceDict->getReferencedResources(fResources, &fResources, false);
 
-    populate_tiling_pattern_dict(this, patternBBox,
+    SkPDFImageShader* imageShader =
+            SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
+    imageShader->setData(content.get());
+
+    SkPDFResourceDict* resourceDict = pattern.getResourceDict();
+    resourceDict->getReferencedResources(imageShader->fResources,
+                                         &imageShader->fResources, false);
+
+    populate_tiling_pattern_dict(imageShader, patternBBox,
                                  pattern.getResourceDict(), finalMatrix);
 
-    fShaderState->fImage.unlockPixels();
-}
+    imageShader->fShaderState->fImage.unlockPixels();
 
-SkPDFStream* SkPDFFunctionShader::makePSFunction(const SkString& psCode, SkPDFArray* domain) {
-    SkAutoDataUnref funcData(SkData::NewWithCopy(psCode.c_str(), psCode.size()));
-    SkPDFStream* result = new SkPDFStream(funcData.get());
-    result->insertInt("FunctionType", 4);
-    result->insert("Domain", domain);
-    result->insert("Range", RangeObject());
-    return result;
+    SkPDFCanon::GetCanon().addShader(imageShader);
+    return imageShader;
 }
 
 bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
