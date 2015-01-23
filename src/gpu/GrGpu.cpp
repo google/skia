@@ -40,8 +40,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
         return NULL;
     }
 
-    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
-        !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    bool isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    if (isRT && !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return NULL;
     }
 
@@ -70,6 +70,9 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
                 return NULL;
             }
         }
+    }
+    if (!this->caps()->reuseScratchTextures() && !isRT) {
+        tex->cacheAccess().removeScratchKey();
     }
     return tex;
 }
