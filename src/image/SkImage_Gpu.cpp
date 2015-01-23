@@ -5,48 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage_Base.h"
-#include "SkImagePriv.h"
-#include "SkBitmap.h"
+#include "SkImage_Gpu.h"
 #include "SkCanvas.h"
-#include "SkSurface.h"
 #include "GrContext.h"
-#include "GrTexture.h"
 
-class SkImage_Gpu : public SkImage_Base {
-public:
-    SK_DECLARE_INST_COUNT(SkImage_Gpu)
-
-    SkImage_Gpu(const SkBitmap&, int sampleCountForNewSurfaces);
-
-    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const SK_OVERRIDE;
-    void onDrawRect(SkCanvas*, const SkRect* src, const SkRect& dst,
-                    const SkPaint*) const SK_OVERRIDE;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const SK_OVERRIDE;
-    GrTexture* onGetTexture() const SK_OVERRIDE;
-    bool getROPixels(SkBitmap*) const SK_OVERRIDE;
-
-    GrTexture* getTexture() const { return fBitmap.getTexture(); }
-
-    SkShader* onNewShader(SkShader::TileMode,
-                                  SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const SK_OVERRIDE;
-
-    bool isOpaque() const SK_OVERRIDE;
-
-private:
-    SkBitmap    fBitmap;
-    const int   fSampleCountForNewSurfaces;   // 0 if we don't know
-
-    typedef SkImage_Base INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap, int sampleCountForNewSurfaces)
+SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap, int sampleCountForNewSurfaces,
+                         SkSurface::Budgeted budgeted)
     : INHERITED(bitmap.width(), bitmap.height(), NULL)
     , fBitmap(bitmap)
     , fSampleCountForNewSurfaces(sampleCountForNewSurfaces)
+    , fBudgeted(budgeted)
 {
     SkASSERT(fBitmap.getTexture());
 }
@@ -88,14 +56,18 @@ bool SkImage_Gpu::isOpaque() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage* SkNewImageFromBitmapTexture(const SkBitmap& bitmap, int sampleCountForNewSurfaces) {
+SkImage* SkNewImageFromBitmapTexture(const SkBitmap& bitmap, int sampleCountForNewSurfaces,
+                                     SkSurface::Budgeted budgeted) {
     if (0 == bitmap.width() || 0 == bitmap.height() || NULL == bitmap.getTexture()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkImage_Gpu, (bitmap, sampleCountForNewSurfaces));
+    return SkNEW_ARGS(SkImage_Gpu, (bitmap, sampleCountForNewSurfaces, budgeted));
 }
 
 GrTexture* SkTextureImageGetTexture(SkImage* image) {
     return ((SkImage_Gpu*)image)->getTexture();
 }
 
+extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
+    ((SkImage_Gpu*)image)->applyBudgetDecision();
+}

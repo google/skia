@@ -183,12 +183,14 @@ public:
     /**
      *  Returns an image of the current state of the surface pixels up to this
      *  point. Subsequent changes to the surface (by drawing into its canvas)
-     *  will not be reflected in this image.
+     *  will not be reflected in this image. If a copy must be made the Budgeted
+     *  parameter controls whether it counts against the resource budget
+     *  (currently for the gpu backend only).
      */
-    SkImage* newImageSnapshot();
+    SkImage* newImageSnapshot(Budgeted = kYes_Budgeted);
 
     /**
-     *  Thought the caller could get a snapshot image explicitly, and draw that,
+     *  Though the caller could get a snapshot image explicitly, and draw that,
      *  it seems that directly drawing a surface into another canvas might be
      *  a common pattern, and that we could possibly be more efficient, since
      *  we'd know that the "snapshot" need only live until we've handed it off

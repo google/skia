@@ -23,7 +23,7 @@ public:
 
     SkCanvas* onNewCanvas() SK_OVERRIDE;
     SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
-    SkImage* onNewImageSnapshot() SK_OVERRIDE;
+    SkImage* onNewImageSnapshot(Budgeted) SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
     void onCopyOnWrite(ContentChangeMode) SK_OVERRIDE;

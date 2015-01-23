@@ -64,7 +64,7 @@ public:
         return NULL;
     }
 
-    SkImage* onNewImageSnapshot() SK_OVERRIDE {
+    SkImage* onNewImageSnapshot(Budgeted) SK_OVERRIDE {
         return SkNewImageFromBitmap(fBitmap, true, &this->props());
     }
 

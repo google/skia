@@ -24,7 +24,7 @@ public:
 
     SkCanvas* onNewCanvas() SK_OVERRIDE;
     SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
-    SkImage* onNewImageSnapshot() SK_OVERRIDE;
+    SkImage* onNewImageSnapshot(Budgeted) SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
     void onCopyOnWrite(ContentChangeMode) SK_OVERRIDE;
@@ -118,14 +118,14 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-SkImage* SkSurface_Raster::onNewImageSnapshot() {
+SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted) {
     return SkNewImageFromBitmap(fBitmap, fWeOwnThePixels, &this->props());
 }
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
-    SkASSERT(this->getCachedImage());
-    if (SkBitmapImageGetPixelRef(this->getCachedImage()) == fBitmap.pixelRef()) {
+    SkASSERT(this->getCachedImage(kNo_Budgeted));
+    if (SkBitmapImageGetPixelRef(this->getCachedImage(kNo_Budgeted)) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
         if (kDiscard_ContentChangeMode == mode) {
             fBitmap.setPixelRef(NULL);

@@ -455,6 +455,51 @@ static void TestGetTexture(skiatest::Reporter* reporter,
     surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
     REPORTER_ASSERT(reporter, image->getTexture() == texture);
 }
+
+#include "GrGpuResourceCacheAccess.h"
+#include "SkGpuDevice.h"
+#include "SkImage_Gpu.h"
+#include "SkSurface_Gpu.h"
+
+SkSurface::Budgeted is_budgeted(SkSurface* surf) {
+    return ((SkSurface_Gpu*)surf)->getDevice()->accessRenderTarget()->cacheAccess().isBudgeted() ?
+        SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
+}
+
+SkSurface::Budgeted is_budgeted(SkImage* image) {
+    return ((SkImage_Gpu*)image)->getTexture()->cacheAccess().isBudgeted() ?
+        SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
+}
+
+static void test_surface_budget(skiatest::Reporter* reporter, GrContext* context) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
+    for (int i = 0; i < 2; ++i) {
+        SkSurface::Budgeted sbudgeted = i ? SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
+        for (int j = 0; j < 2; ++j) {
+            SkSurface::Budgeted ibudgeted = j ? SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
+            SkAutoTUnref<SkSurface>
+                surface(SkSurface::NewRenderTarget(context, sbudgeted, info, 0));
+            SkASSERT(surface);
+            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
+
+            SkImage* image = surface->newImageSnapshot(ibudgeted);
+
+            // Initially the image shares a texture with the surface, and the surface decides
+            // whether it is budgeted or not.
+            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
+            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(image));
+
+            // Now trigger copy-on-write
+            surface->getCanvas()->clear(SK_ColorBLUE);
+
+            // They don't share a texture anymore. They should each have made their own budget
+            // decision.
+            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
+            REPORTER_ASSERT(reporter, ibudgeted == is_budgeted(image));
+        }
+    }
+}
+
 #endif
 
 static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
@@ -526,6 +571,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
                 TestGetTexture(reporter, kGpu_SurfaceType, context);
                 TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
                 test_empty_surface(reporter, context);
+                test_surface_budget(reporter, context);
             }
         }
     }
