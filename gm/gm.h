@@ -53,8 +53,6 @@ namespace skiagm {
 
             kGPUOnly_Flag               = 1 << 9,
 
-            kAsBench_Flag               = 1 << 10, // Run the GM as a benchmark in the bench tool
-
             kNoBBH_Flag                 = 1 << 11, // May draw wrong using a bounding-box hierarchy
         };
 
@@ -73,6 +71,8 @@ namespace skiagm {
 
         SkISize getISize() { return this->onISize(); }
         const char* getName();
+
+        virtual bool runAsBench() const { return false; }
 
         uint32_t getFlags() const {
             return this->onGetFlags();

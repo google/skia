@@ -534,7 +534,8 @@ namespace skiagm {
             return name;
         }
 
-        uint32_t onGetFlags() const SK_OVERRIDE { return kAsBench_Flag | kSkipTiled_Flag; }
+        uint32_t onGetFlags() const SK_OVERRIDE { return kSkipTiled_Flag; }
+        bool runAsBench() const SK_OVERRIDE { return true; }
 
     private:
         typedef GM INHERITED;

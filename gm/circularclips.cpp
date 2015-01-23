@@ -26,8 +26,10 @@ public:
 
 protected:
     uint32_t onGetFlags() const SK_OVERRIDE {
-        return kSkipTiled_Flag | kAsBench_Flag;
+        return kSkipTiled_Flag;
     }
+
+    bool runAsBench() const SK_OVERRIDE { return true; }
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("circular-clips");

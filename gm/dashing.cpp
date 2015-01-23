@@ -414,9 +414,11 @@ public:
     Dashing5GM(bool doAA) : fDoAA(doAA) {}
 
 protected:
-    uint32_t onGetFlags() const SK_OVERRIDE { return kAsBench_Flag | kSkipTiled_Flag; }
+    uint32_t onGetFlags() const SK_OVERRIDE { return kSkipTiled_Flag; }
 
-    SkString onShortName() SK_OVERRIDE { 
+    bool runAsBench() const SK_OVERRIDE { return true; }
+
+    SkString onShortName() SK_OVERRIDE {
         if (fDoAA) {
             return SkString("dashing5_aa");
         } else {

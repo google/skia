@@ -139,8 +139,9 @@ protected:
     uint32_t onGetFlags() const SK_OVERRIDE {
         // The aa hairline stroked rects used to visualize the clip draw slightly differently in
         // quilt mode in dm.
-        return kAsBench_Flag | kSkipTiled_Flag;
+        return kSkipTiled_Flag;
     }
+    bool runAsBench() const SK_OVERRIDE { return true; }
 
 private:
     static const int kCnt = 30;

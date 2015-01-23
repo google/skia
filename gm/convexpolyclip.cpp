@@ -215,8 +215,10 @@ protected:
     }
 
     virtual uint32_t onGetFlags() const {
-        return kAsBench_Flag | kSkipTiled_Flag;
+        return kSkipTiled_Flag;
     }
+
+    bool runAsBench() const SK_OVERRIDE { return true; }
 
 private:
     class Clip {

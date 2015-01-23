@@ -503,7 +503,7 @@ public:
         while (fGMs) {
             SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(NULL));
             fGMs = fGMs->next();
-            if (gm->getFlags() & skiagm::GM::kAsBench_Flag) {
+            if (gm->runAsBench()) {
                 fSourceType = "gm";
                 fBenchType  = "micro";
                 return SkNEW_ARGS(GMBench, (gm.detach()));
