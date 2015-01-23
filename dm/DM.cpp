@@ -45,13 +45,19 @@ static void fail(ImplicitString err) {
 static int32_t gPending = 0;  // Atomic.
 
 static void done(double ms, ImplicitString config, ImplicitString src, ImplicitString name) {
+    int32_t pending = sk_atomic_dec(&gPending)-1;
     SkDebugf("%s(%4dMB %5d) %s\t%s %s %s  ", FLAGS_verbose ? "\n" : kSkOverwriteLine
                                            , sk_tools::getMaxResidentSetSizeMB()
-                                           , sk_atomic_dec(&gPending)-1
+                                           , pending
                                            , HumanizeMs(ms).c_str()
                                            , config.c_str()
                                            , src.c_str()
                                            , name.c_str());
+    // We write our dm.json file every once in a while in case we crash.
+    // Notice this also handles the final dm.json when pending == 0.
+    if (pending % 500 == 0) {
+        JsonWriter::DumpJson();
+    }
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -450,8 +456,6 @@ int dm_main() {
     // At this point we're back in single-threaded land.
 
     SkDebugf("\n");
-    JsonWriter::DumpJson();
-
     if (gFailures.count() > 0) {
         SkDebugf("Failures:\n");
         for (int i = 0; i < gFailures.count(); i++) {
