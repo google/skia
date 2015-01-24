@@ -16,6 +16,8 @@
 #include "SkTArray.h"
 #include "SkTSort.h"
 
+#include "SkDmuxWStream.h"
+
 static const char kUsage[] =
     "This program takes a list of Skia Picture (SKP) files and renders\n"
     "each as a multipage PDF, then prints out the MD5 checksum of the\n"
@@ -30,7 +32,10 @@ DEFINE_string2(inputPaths,
                "A list of directories and files to use as input.\n"
                "Files are expected to have the .skp extension.");
 
+DEFINE_string2(outputDirectoryPath, w, "", "TODO: document this");
+
 static const char SKP_FILE_EXTENSION[] = ".skp";
+static const char PDF_FILE_EXTENSION[] = ".pdf";
 
 // Used by SkTQSort<SkString>()
 static bool operator<(const SkString& a, const SkString& b) {
@@ -111,6 +116,24 @@ static bool skp_to_pdf_md5(SkStream* input, SkMD5::Digest* digest) {
     return true;
 }
 
+static bool skp_to_pdf_and_md5(SkStream* input,
+                               const char* path,
+                               SkMD5::Digest* digest) {
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(input));
+    if (NULL == picture.get()) {
+        return false;
+    }
+
+    SkMD5 checksumWStream;
+    SkFILEWStream fileWStream(path);
+    SkWStream* wStreamArray[] = {&checksumWStream, &fileWStream};
+    SkDmuxWStream dmuxWStream(wStreamArray, SK_ARRAY_COUNT(wStreamArray));
+
+    picture_to_pdf(*picture, &dmuxWStream);
+    checksumWStream.finish(*digest);
+    return true;
+}
+
 SkString digest_to_hex(const SkMD5::Digest& digest) {
     static const char kHex[] = "0123456789ABCDEF";
     SkString string(2 * sizeof(digest.data));
@@ -123,9 +146,25 @@ SkString digest_to_hex(const SkMD5::Digest& digest) {
     return string;
 }
 
+static void str_replace_ending(SkString* str,
+                               const char* oldExt,
+                               const char* newExt) {
+    SkASSERT(str->endsWith(oldExt));
+    SkASSERT(str->size() >= strlen(oldExt));
+    str->remove(str->size() - strlen(oldExt), strlen(oldExt));
+    str->append(newExt);
+}
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage(kUsage);
     SkCommandLineFlags::Parse(argc, argv);
+    const char* outputDir = FLAGS_outputDirectoryPath.count() > 0
+                                    ? FLAGS_outputDirectoryPath[0]
+                                    : NULL;
+    if (outputDir) {
+        sk_mkdir(outputDir);
+    }
+
     SkAutoGraphics ag;
     int successCount = 0;
     SkTArray<SkString> files;
@@ -141,9 +180,19 @@ int main(int argc, char** argv) {
             continue;
         }
         SkMD5::Digest digest;
-        if (!skp_to_pdf_md5(&inputStream, &digest)) {
-            SkDebugf("invalid_skp %s\n", basename.c_str());
-            continue;
+
+        if (outputDir) {
+            SkString path = SkOSPath::Join(outputDir, basename.c_str());
+            str_replace_ending(&path, SKP_FILE_EXTENSION, PDF_FILE_EXTENSION);
+            if (!skp_to_pdf_and_md5(&inputStream, path.c_str(), &digest)) {
+                SkDebugf("invalid_skp %s\n", basename.c_str());
+                continue;
+            }
+        } else {
+            if (!skp_to_pdf_md5(&inputStream, &digest)) {
+                SkDebugf("invalid_skp %s\n", basename.c_str());
+                continue;
+            }
         }
         SkString hexDigest = digest_to_hex(digest);
         printf("%s %s\n", hexDigest.c_str(), basename.c_str());
@@ -151,3 +200,4 @@ int main(int argc, char** argv) {
     }
     return successCount == files.count() ? 0 : 1;
 }
+

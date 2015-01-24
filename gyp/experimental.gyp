@@ -93,6 +93,7 @@
       'type': 'executable',
       'sources': [
         '../experimental/tools/skp_to_pdf_md5.cpp',
+        '../experimental/tools/SkDmuxWStream.cpp',
       ],
       'include_dirs': [
         '../src/core',
