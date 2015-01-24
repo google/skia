@@ -482,7 +482,7 @@ static void test_surface_budget(skiatest::Reporter* reporter, GrContext* context
             SkASSERT(surface);
             REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
 
-            SkImage* image = surface->newImageSnapshot(ibudgeted);
+            SkAutoTUnref<SkImage> image(surface->newImageSnapshot(ibudgeted));
 
             // Initially the image shares a texture with the surface, and the surface decides
             // whether it is budgeted or not.
