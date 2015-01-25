@@ -112,6 +112,12 @@ size_t SkBitmapProcShader::contextSize() const {
     return sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
 }
 
+void SkBitmapProcShader::onPreroll() const {
+    SkBitmap bm(fRawBitmap);
+    bm.lockPixels();
+    bm.unlockPixels();
+}
+
 SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(
         const SkBitmapProcShader& shader, const ContextRec& rec, SkBitmapProcState* state)
     : INHERITED(shader, rec)

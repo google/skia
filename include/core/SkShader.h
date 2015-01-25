@@ -478,6 +478,8 @@ public:
      */
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
+    void preroll() const { this->onPreroll(); }
+
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
 
@@ -492,6 +494,7 @@ protected:
      */
     virtual Context* onCreateContext(const ContextRec&, void* storage) const;
 
+    virtual void onPreroll() const {}
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
     }

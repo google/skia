@@ -1340,6 +1340,10 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
 
         if (true) {
+            picture->preroll(NULL, NULL, NULL, NULL);
+        }
+
+        if (true) {
             this->installDrawFilter(orig);
             
             if (true) {

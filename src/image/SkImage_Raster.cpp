@@ -58,6 +58,7 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const SK_OVERRIDE;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
     bool getROPixels(SkBitmap*) const SK_OVERRIDE;
+    void onPreroll() const SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImageInfo&, SkPixelRef*, size_t rowBytes, const SkSurfaceProps*);
@@ -154,6 +155,12 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
     return true;
 }
 
+void SkImage_Raster::onPreroll() const {
+    SkBitmap bm(fBitmap);
+    bm.lockPixels();
+    bm.unlockPixels();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
@@ -208,3 +215,4 @@ const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
 bool SkImage_Raster::isOpaque() const {
     return fBitmap.isOpaque();
 }
+

@@ -87,7 +87,7 @@ public:
      *  by any device/pixels. Typically this use used by subclasses who handle
      *  the draw calls in some other way.
      */
-    SkCanvas(int width, int height);
+    SkCanvas(int width, int height, const SkSurfaceProps* = NULL);
 
     /** Construct a canvas with the specified device to draw into.
 

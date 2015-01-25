@@ -37,6 +37,7 @@ protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    void onPreroll() const SK_OVERRIDE;
 
 private:
     SkPictureShader(const SkPicture*, TileMode, TileMode, const SkMatrix*, const SkRect*);

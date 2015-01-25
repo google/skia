@@ -131,6 +131,8 @@ public:
      */
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL) const;
 
+    void preroll() const;
+
     const char* toString(SkString*) const;
 
     /**

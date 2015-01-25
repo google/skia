@@ -482,9 +482,9 @@ private:
     typedef SkBitmapDevice INHERITED;
 };
 
-SkCanvas::SkCanvas(int width, int height)
+SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fProps(SkSurfacePropsCopyOrDefault(props))
 {
     inc_canvas();
 

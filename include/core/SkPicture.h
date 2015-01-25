@@ -171,6 +171,22 @@ public:
      */
     bool willPlayBackBitmaps() const;
 
+    /**
+     *  This is a general hint that the picture will (soon) be drawn into a SkCanvas with
+     *  corresponding attributes (e.g. clip, matrix, props). No drawing occurs, but some
+     *  expensive operations may be run (e.g. image decoding).
+     *
+     *  Any of the parameters may be NULL.
+     *
+     *  @param srcBounds If not NULL, this is the subset of the picture (in the same coordinates
+     *                   as the picture's bounds) that preroll() should focus on.
+     *  @param initialMatrix If not NULL, this is the initialMatrix that is expected when the
+     *                       picture is actually drawn.
+     *  @param props If not NULL, these are the expected props when the picture is actually drawn.
+     */
+    void preroll(const SkRect* srcBounds, const SkMatrix* initialMatrix, const SkSurfaceProps*,
+                 void* gpuCacheAccessor) const;
+
     /** Return true if the SkStream/Buffer represents a serialized picture, and
         fills out SkPictInfo. After this function returns, the data source is not
         rewound so it will have to be manually reset before passing to
