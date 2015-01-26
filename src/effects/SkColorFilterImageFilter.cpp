@@ -12,6 +12,7 @@
 #include "SkDevice.h"
 #include "SkColorFilter.h"
 #include "SkReadBuffer.h"
+#include "SkTableColorFilter.h"
 #include "SkWriteBuffer.h"
 
 namespace {
@@ -21,7 +22,19 @@ void mult_color_matrix(SkScalar a[20], SkScalar b[20], SkScalar out[20]) {
         for (int i = 0; i < 5; ++i) {
             out[i+j*5] = 4 == i ? a[4+j*5] : 0;
             for (int k = 0; k < 4; ++k)
-                out[i+j*5] += SkScalarMul(a[k+j*5], b[i+k*5]);
+                out[i+j*5] += a[k+j*5] * b[i+k*5];
+        }
+    }
+}
+
+// Combines the two lookup tables so that making a lookup using OUT has
+// the same effect as making a lookup through B then A.
+void combine_color_tables(const uint8_t a[4 * 256],
+                          const uint8_t b[4 * 256],
+                          uint8_t out[4 * 256]) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 256; j++) {
+            out[i * 256 + j] = a[i * 256 + b[i * 256 + j]];
         }
     }
 }
@@ -59,23 +72,44 @@ bool matrix_needs_clamping(SkScalar matrix[20]) {
 
 SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID) {
-    SkASSERT(cf);
     if (NULL == cf) {
         return NULL;
     }
-    SkScalar colorMatrix[20], inputMatrix[20];
+
     SkColorFilter* inputColorFilter;
-    if (input && cf->asColorMatrix(colorMatrix)
-              && input->asColorFilter(&inputColorFilter)
-              && (inputColorFilter)) {
+    if (input && input->asColorFilter(&inputColorFilter) && inputColorFilter) {
         SkAutoUnref autoUnref(inputColorFilter);
-        if (inputColorFilter->asColorMatrix(inputMatrix) && !matrix_needs_clamping(inputMatrix)) {
+
+        // Try to collapse two consecutive matrix filters
+        SkScalar colorMatrix[20], inputMatrix[20];
+        if (cf->asColorMatrix(colorMatrix) && inputColorFilter->asColorMatrix(inputMatrix)
+                                           && !matrix_needs_clamping(inputMatrix)) {
             SkScalar combinedMatrix[20];
             mult_color_matrix(colorMatrix, inputMatrix, combinedMatrix);
             SkAutoTUnref<SkColorFilter> newCF(SkColorMatrixFilter::Create(combinedMatrix));
             return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect, 0));
         }
+
+        // Try to collapse two consecutive table filters
+        SkBitmap colorTable, inputTable;
+        if (cf->asComponentTable(&colorTable) && inputColorFilter->asComponentTable(&inputTable)) {
+            uint8_t combinedTable[4 * 256];
+            SkAutoLockPixels colorLock(colorTable);
+            SkAutoLockPixels inputLock(inputTable);
+
+            combine_color_tables(colorTable.getAddr8(0, 0), inputTable.getAddr8(0, 0),
+                                 combinedTable);
+            SkAutoTUnref<SkColorFilter> newCF(SkTableColorFilter::CreateARGB(
+                        &combinedTable[256 * 0],
+                        &combinedTable[256 * 1],
+                        &combinedTable[256 * 2],
+                        &combinedTable[256 * 3])
+            );
+
+            return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect, 0));
+        }
     }
+
     return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input, cropRect, uniqueID));
 }
 

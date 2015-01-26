@@ -59,6 +59,7 @@
     '../bench/ImageCacheBench.cpp',
     '../bench/ImageDecodeBench.cpp',
     '../bench/ImageFilterDAGBench.cpp',
+    '../bench/ImageFilterCollapse.cpp',
     '../bench/InterpBench.cpp',
     '../bench/LightingBench.cpp',
     '../bench/LineBench.cpp',
