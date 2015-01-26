@@ -180,7 +180,7 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
     // work, eg. that if the value the detector sees is wrong, the resulting image shows this.
     SkColor shapeColors[] = {
         SkColorSetARGB(255, 0, kDetectorGreenValue, 0),
-        SkColorSetARGB(255, 0, kDetectorGreenValue + 1, 0) // This tests that detectors work.
+        SkColorSetARGB(255, 0, (kDetectorGreenValue + 1), 0) // This tests that detectors work.
     };
 
     InstallDetectorFunc detectorInstallFuncs[] = {
