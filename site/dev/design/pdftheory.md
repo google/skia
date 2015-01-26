@@ -54,6 +54,8 @@ added to multiple documents. This for example, would let you generate
 a PDF with the single page you just drew as well as adding it to a
 longer document with a bunch of other pages.
 
+<!--?prettify lang=cc?-->
+
     SkAutoUnref<SkPDFDevice> pdfDevice(
         new SkPDFDevice(width, height, initial_transform));
 
