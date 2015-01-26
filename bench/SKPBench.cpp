@@ -19,7 +19,7 @@ SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, 
     , fScale(scale)
     , fName(name)
     , fUseMultiPictureDraw(useMultiPictureDraw) {
-    fUniqueName.printf("%s_%.2g", name, scale);  // Scale makes this unqiue for skiaperf.com traces.
+    fUniqueName.printf("%s_%.2g", name, scale);  // Scale makes this unqiue for perf.skia.org traces.
     if (useMultiPictureDraw) {
         fUniqueName.append("_mpd");
     }
