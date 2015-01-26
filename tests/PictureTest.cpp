@@ -140,7 +140,9 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setPathEffect(dash);
 
-        canvas->drawPath(path, paint);
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawPath(path, paint);
+        }
     }
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     // path effects currently render an SkPicture undesireable for GPU rendering
@@ -225,7 +227,10 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         paint.setPathEffect(pe)->unref();
 
         SkPoint points [2] = { { 0, 0 }, { 100, 0 } };
-        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, points, paint);
+
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, points, paint);
+        }
     }
     picture.reset(recorder.endRecording());
     // fast-path dashed effects are fine for GPU rendering ...
@@ -238,7 +243,9 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 25);
         paint.setPathEffect(pe)->unref();
 
-        canvas->drawRect(SkRect::MakeWH(10, 10), paint);
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawRect(SkRect::MakeWH(10, 10), paint);
+        }
     }
     picture.reset(recorder.endRecording());
     // ... but only when applied to drawPoint() calls
