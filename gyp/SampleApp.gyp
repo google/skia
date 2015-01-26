@@ -152,6 +152,7 @@
         'skia_lib.gyp:skia_lib',
         'tools.gyp:resources',
         'tools.gyp:sk_tool_utils',
+        'tools.gyp:checkerboard',
         'views.gyp:views',
         'views_animated.gyp:views_animated',
         'xml.gyp:xml',

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Checkerboard.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -33,18 +34,6 @@ static void apply_grid(SkPoint pts[], int count) {
 
 static void erase(SkSurface* surface) {
     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
-}
-
-static SkShader* createChecker(const SkMatrix& localMatrix) {
-//    SkColor colors[] = { 0xFFFDFDFD, 0xFFF4F4F4 };
-    SkColor colors[] = { 0xFFFFFFFF, 0xFFFFFFFF };
-    SkBitmap bm;
-    bm.allocN32Pixels(2, 2);
-    bm.lockPixels();
-    *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = SkPreMultiplyColor(colors[0]);
-    *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(colors[1]);
-    return SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                        SkShader::kRepeat_TileMode, &localMatrix);
 }
 
 class FatBits {
@@ -98,7 +87,8 @@ public:
         fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
-        fShader.reset(createChecker(fMatrix));
+        fShader.reset(sk_tools::CreateCheckerboardShader(
+                              0xFFCCCCCC, 0xFFFFFFFF, zoom));
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
         fMinSurface.reset(SkSurface::NewRaster(info));

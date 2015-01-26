@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkDisplacementMapEffect.h"
+#include "Checkerboard.h"
 #include "SkBitmapSource.h"
+#include "SkDisplacementMapEffect.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -47,22 +48,7 @@ protected:
     void make_checkerboard(SkBitmap* bitmap, int w, int h) {
         bitmap->allocN32Pixels(w, h);
         SkCanvas canvas(*bitmap);
-        canvas.clear(0x00000000);
-        SkPaint darkPaint;
-        darkPaint.setColor(0xFF804020);
-        SkPaint lightPaint;
-        lightPaint.setColor(0xFF244484);
-        for (int y = 0; y < h; y += 16) {
-          for (int x = 0; x < w; x += 16) {
-            canvas.save();
-            canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-            canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-            canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-            canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-            canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-            canvas.restore();
-          }
-        }
+        sk_tools::DrawCheckerboard(&canvas, 0xFF244484, 0xFF804020, 8);
     }
 
     virtual SkISize onISize() {

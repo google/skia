@@ -7,6 +7,9 @@
     '../src/images',
     '../src/lazy',
   ],
+  'dependencies': [
+     'tools.gyp:checkerboard',
+  ],
   'conditions': [
     # If we're building SampleApp on the bots, no need to link in the GM slides.
     # We're not going to run it; we're only making sure it still builds.

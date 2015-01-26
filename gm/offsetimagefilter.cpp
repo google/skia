@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkOffsetImageFilter.h"
+#include "Checkerboard.h"
 #include "SkBitmapSource.h"
+#include "SkOffsetImageFilter.h"
+#include "gm.h"
 
 #define WIDTH 600
 #define HEIGHT 100
@@ -37,27 +38,6 @@ protected:
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "e";
         canvas.drawText(str, strlen(str), SkIntToScalar(15), SkIntToScalar(65), paint);
-    }
-
-    void make_checkerboard() {
-        fCheckerboard.allocN32Pixels(80, 80);
-        SkCanvas canvas(fCheckerboard);
-        canvas.clear(0x00000000);
-        SkPaint darkPaint;
-        darkPaint.setColor(0xFF404040);
-        SkPaint lightPaint;
-        lightPaint.setColor(0xFFA0A0A0);
-        for (int y = 0; y < 80; y += 16) {
-          for (int x = 0; x < 80; x += 16) {
-            canvas.save();
-            canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-            canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-            canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-            canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-            canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-            canvas.restore();
-          }
-        }
     }
 
     virtual SkISize onISize() {
@@ -90,7 +70,11 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
             make_bitmap();
-            make_checkerboard();
+
+            fCheckerboard.allocN32Pixels(80, 80);
+            SkCanvas checkerboardCanvas(fCheckerboard);
+            sk_tools::DrawCheckerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
+
             fInitialized = true;
         }
         canvas->clear(0x00000000);
