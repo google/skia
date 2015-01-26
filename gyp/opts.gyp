@@ -220,19 +220,10 @@
         '../src/utils',
       ],
       'sources': [
+        '../src/opts/SkBlitRow_opts_SSE4.cpp',
         '../src/opts/SkBlurImage_opts_SSE4.cpp',
       ],
       'conditions': [
-        [ 'skia_arch_width == 64', {
-          'sources': [
-            '../src/opts/SkBlitRow_opts_SSE4_x64_asm.S',
-          ],
-        }],
-        [ 'skia_arch_width == 32', {
-          'sources': [
-            '../src/opts/SkBlitRow_opts_SSE4_asm.S',
-          ],
-        }],
         [ 'skia_os == "win"', {
             'defines' : [ 'SK_CPU_SSE_LEVEL=41' ],
         }],
