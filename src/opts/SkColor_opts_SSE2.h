@@ -81,8 +81,12 @@ static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const unsigned scale) {
 }
 
 static inline __m128i SkGetPackedA32_SSE2(const __m128i& src) {
+#if SK_A32_SHIFT == 24                // It's very common (universal?) that alpha is the top byte.
+    return _mm_srli_epi32(src, 24);   // You'd hope the compiler would remove the left shift then,
+#else                                 // but I've seen Clang just do a dumb left shift of zero. :(
     __m128i a = _mm_slli_epi32(src, (24 - SK_A32_SHIFT));
     return _mm_srli_epi32(a, 24);
+#endif
 }
 
 static inline __m128i SkGetPackedR32_SSE2(const __m128i& src) {
