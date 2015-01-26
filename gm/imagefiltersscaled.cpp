@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColor.h"
@@ -64,7 +64,7 @@ protected:
         if (!fInitialized) {
             fCheckerboard.allocN32Pixels(64, 64);
             SkCanvas checkerboardCanvas(fCheckerboard);
-            sk_tools::DrawCheckerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
+            sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
 
             this->make_gradient_circle(64, 64);
             fInitialized = true;

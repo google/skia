@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "SkBitmapSource.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
@@ -52,7 +52,7 @@ protected:
 
             fCheckerboard.allocN32Pixels(80, 80);
             SkCanvas checkerboardCanvas(fCheckerboard);
-            sk_tools::DrawCheckerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
+            sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
 
             fInitialized = true;
         }

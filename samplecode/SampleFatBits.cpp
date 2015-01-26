@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -87,7 +87,7 @@ public:
         fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
-        fShader.reset(sk_tools::CreateCheckerboardShader(
+        fShader.reset(sk_tool_utils::create_checkerboard_shader(
                               0xFFCCCCCC, 0xFFFFFFFF, zoom));
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);

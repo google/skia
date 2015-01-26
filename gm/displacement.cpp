@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "SkBitmapSource.h"
 #include "SkDisplacementMapEffect.h"
 #include "gm.h"
@@ -48,7 +48,7 @@ protected:
     void make_checkerboard(SkBitmap* bitmap, int w, int h) {
         bitmap->allocN32Pixels(w, h);
         SkCanvas canvas(*bitmap);
-        sk_tools::DrawCheckerboard(&canvas, 0xFF244484, 0xFF804020, 8);
+        sk_tool_utils::draw_checkerboard(&canvas, 0xFF244484, 0xFF804020, 8);
     }
 
     virtual SkISize onISize() {

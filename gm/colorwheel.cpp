@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkData.h"
 #include "gm.h"
@@ -31,7 +31,7 @@ static void draw_bitmap(SkCanvas* canvas, const char* resource, int x, int y) {
   background and compression artifacts.
  */
 DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
-    sk_tools::DrawCheckerboard(canvas);
+    sk_tool_utils::draw_checkerboard(canvas);
     draw_bitmap(canvas, "color_wheel.png", 0, 0);  // top left
     draw_bitmap(canvas, "color_wheel.gif", 128, 0);  // top right
     draw_bitmap(canvas, "color_wheel.webp", 0, 128);  // bottom left

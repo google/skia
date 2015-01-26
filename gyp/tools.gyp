@@ -89,13 +89,6 @@
       },
     },
     {
-      'target_name': 'checkerboard',
-      'type': 'static_library',
-      'sources': [ '../tools/Checkerboard.cpp', ],
-      'dependencies': [ 'skia_lib.gyp:skia_lib', ],
-      'direct_dependent_settings': { 'include_dirs': [ '../tools', ], },
-    },
-    {
       'target_name' : 'timer',
       'type': 'static_library',
       'sources': [

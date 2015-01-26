@@ -8,12 +8,14 @@
 #ifndef sk_tool_utils_DEFINED
 #define sk_tool_utils_DEFINED
 
+#include "SkColor.h"
 #include "SkImageInfo.h"
 #include "SkTypeface.h"
 
 class SkBitmap;
 class SkCanvas;
 class SkPaint;
+class SkShader;
 class SkTestFont;
 
 namespace sk_tool_utils {
@@ -37,6 +39,21 @@ namespace sk_tool_utils {
     // private to sk_tool_utils
     SkTypeface* create_font(const char* name, SkTypeface::Style );
     SkTypeface* resource_font(const char* name, SkTypeface::Style );
+
+    /** Returns a newly created CheckerboardShader. */
+    SkShader* create_checkerboard_shader(SkColor c1, SkColor c2, int size);
+
+    /** Draw a checkerboard pattern in the current canvas, restricted to
+        the current clip. */
+    void draw_checkerboard(SkCanvas* canvas,
+                           SkColor color1,
+                           SkColor color2,
+                           int size);
+
+    /** A default checkerboard. */
+    inline void draw_checkerboard(SkCanvas* canvas) {
+        sk_tool_utils::draw_checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
+    }
 
 }  // namespace sk_tool_utils
 

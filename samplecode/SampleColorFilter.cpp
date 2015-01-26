@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -118,7 +118,7 @@ class ColorFilterView : public SampleView {
 public:
     ColorFilterView() {
         fBitmap = createBitmap(N);
-        fShader = sk_tools::CreateCheckerboardShader(
+        fShader = sk_tool_utils::create_checkerboard_shader(
                 0xFFCCCCCC, 0xFFFFFFFF, 12);
 
         if (false) { // avoid bit rot, suppress warning

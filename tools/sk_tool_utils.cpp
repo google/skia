@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkShader.h"
 #include "SkTestScalerContext.h"
 
 DEFINE_bool(portableFonts, false, "Use portable fonts");
@@ -57,6 +58,22 @@ void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
     const SkImageInfo info = SkImageInfo::Make(tmp.width(), tmp.height(), colorType, alphaType);
 
     canvas->writePixels(info, tmp.getPixels(), tmp.rowBytes(), x, y);
+}
+
+SkShader* create_checkerboard_shader(SkColor c1, SkColor c2, int size) {
+    SkBitmap bm;
+    bm.allocN32Pixels(2 * size, 2 * size);
+    bm.eraseColor(c1);
+    bm.eraseArea(SkIRect::MakeLTRB(0, 0, size, size), c2);
+    bm.eraseArea(SkIRect::MakeLTRB(size, size, 2 * size, 2 * size), c2);
+    return SkShader::CreateBitmapShader(
+            bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+}
+
+void draw_checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
+    SkPaint paint;
+    paint.setShader(create_checkerboard_shader(c1, c2, size))->unref();
+    canvas->drawPaint(paint);
 }
 
 }  // namespace sk_tool_utils

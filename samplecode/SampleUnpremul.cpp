@@ -7,7 +7,7 @@
 
 #include "gm.h"
 
-#include "Checkerboard.h"
+#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SampleCode.h"
 #include "SkBlurMask.h"
@@ -76,7 +76,7 @@ protected:
     }
 
     void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
-        sk_tools::DrawCheckerboard(canvas, 0xFFCCCCCC, 0xFFFFFFFF, 12);
+        sk_tool_utils::draw_checkerboard(canvas, 0xFFCCCCCC, 0xFFFFFFFF, 12);
     }
 
     void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
