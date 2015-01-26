@@ -55,8 +55,9 @@ Step 3: Create your own Sample
 
 Create a file `experimental/SkiaExamples/Tutorial.cpp` within the Skia tree.  Copy the following code:
 
-~~~~
+<!--?prettify lang=cc?-->
 
+~~~~
 #include "SkExample.h"
 #include "SkDevice.h"
 
@@ -99,7 +100,6 @@ static SkExample* MyFactory(SkExampleWindow* window) {
     return new HelloTutorial(window);
 }
 static SkExample::Registry registry(MyFactory);
-
 ~~~~
 
 
@@ -108,16 +108,22 @@ Step 4: Compile and run SkiaExamples with your Sample
 
 Here is what you have to do to compile your example. There will be
 functionality to make this easier, but for now, this is what you have to do:
-  * Open `gyp/experimental.gyp` and look for the `SkiaExamples` target.
-  * In the 'sources' section of the SkiaExampels target, add
+
+*   Open `gyp/experimental.gyp` and look for the `SkiaExamples` target.
+
+*   In the 'sources' section of the SkiaExampels target, add
     `../experimental/SkiaExamples/Tutorial.cpp` to the list of sources.
-  * Repeat Step 2 to update our gyp targets and build our example.
-  * Run the SkiaExamples, specifying the name of our new example: `$> out/Release/SkiaExamples --match Tutorial`
+
+*   Repeat Step 2 to update our gyp targets and build our example.
+
+*   Run the SkiaExamples, specifying the name of our new example:
+
+        $> out/Release/SkiaExamples --match Tutorial
 
 Step 5: How to iterate through multiple examples
 ------------------------------------------------
 
-If you did not specify an example with the --match flag, or if your match
+If you did not specify an example with the `--match` flag, or if your match
 string matches more than one example, you can use the *n* key to iterate
 through all of the examples registered.
 
