@@ -239,31 +239,22 @@ SkPicture::Analysis::Analysis(const SkRecord& record) {
 bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
                                                       int sampleCount) const {
     // TODO: the heuristic used here needs to be refined
-    static const int kNumPaintWithPathEffectsUsesTol = 1;
-    static const int kNumAAConcavePathsTol = 5;
+    static const int kNumSlowPathsTol = 6;
 
-    int numNonDashedPathEffects = fNumPaintWithPathEffectUses -
-                                  fNumFastPathDashEffects;
-    bool suitableForDash = (0 == fNumPaintWithPathEffectUses) ||
-                           (numNonDashedPathEffects < kNumPaintWithPathEffectsUsesTol
-                               && 0 == sampleCount);
+    int numSlowPathDashedPaths = fNumPaintWithPathEffectUses;
+    if (0 == sampleCount) {
+        // The fast dashing path only works when MSAA is disabled
+        numSlowPathDashedPaths -= fNumFastPathDashEffects;
+    }
 
-    bool ret = suitableForDash &&
-               (fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
-                   < kNumAAConcavePathsTol;
+    int numSlowPaths = fNumAAConcavePaths - 
+                       fNumAAHairlineConcavePaths -
+                       fNumAADFEligibleConcavePaths;
+
+    bool ret = numSlowPathDashedPaths + numSlowPaths < kNumSlowPathsTol;
 
     if (!ret && reason) {
-        if (!suitableForDash) {
-            if (0 != sampleCount) {
-                *reason = "Can't use multisample on dash effect.";
-            } else {
-                *reason = "Too many non dashed path effects.";
-            }
-        } else if ((fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
-                    >= kNumAAConcavePathsTol)
-            *reason = "Too many anti-aliased concave paths.";
-        else
-            *reason = "Unknown reason for GPU unsuitability.";
+        *reason = "Too many slow paths (either concave or dashed).";
     }
     return ret;
 }
