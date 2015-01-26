@@ -20,4 +20,8 @@ void SkRecordNoopSaveRestores(SkRecord*);
 // draw, and no-op the SaveLayer and Restore.
 void SkRecordNoopSaveLayerDrawRestores(SkRecord*);
 
+// For SVG generated SaveLayer-Save-ClipRect-SaveLayer-3xRestore patterns, merge
+// the alpha of the first SaveLayer to the second SaveLayer.
+void SkRecordMergeSvgOpacityAndFilterLayers(SkRecord*);
+
 #endif//SkRecordOpts_DEFINED

@@ -21,6 +21,7 @@ void SkRecordOptimize(SkRecord* record) {
     //SkRecordNoopSaveRestores(record);
 
     SkRecordNoopSaveLayerDrawRestores(record);
+    SkRecordMergeSvgOpacityAndFilterLayers(record);
 }
 
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
@@ -56,6 +57,64 @@ struct SaveOnlyDrawsRestoreNooper {
         return true;
     }
 };
+
+static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
+                                              bool isSaveLayer,
+                                              SkPaint* paint) {
+    // We assume layerPaint is always from a saveLayer.  If isSaveLayer is
+    // true, we assume paint is too.
+
+    // The alpha folding can proceed if the filter layer paint does not have properties which cause
+    // the resulting filter layer to be "blended" in complex ways to the parent layer. For example,
+    // looper drawing unmodulated filter layer twice and then modulating the result produces
+    // different image to drawing modulated filter layer twice.
+    // TODO: most likely the looper and only some xfer modes are the hard constraints
+    if (paint->getXfermode() || paint->getLooper()) {
+        return false;
+    }
+
+    if (!isSaveLayer && paint->getImageFilter()) {
+        // For normal draws, the paint color is used as one input for the color for the draw. Image
+        // filter will operate on the result, and thus we can not change the input.
+        // For layer saves, the image filter is applied to the layer contents. The layer is then
+        // modulated with the paint color, so it's fine to proceed with the fold for saveLayer
+        // paints with image filters.
+        return false;
+    }
+
+    if (paint->getColorFilter()) {
+        // Filter input depends on the paint color.
+
+        // Here we could filter the color if we knew the draw is going to be uniform color.  This
+        // should be detectable as drawPath/drawRect/.. without a shader being uniform, while
+        // drawBitmap/drawSprite or a shader being non-uniform. However, current matchers don't
+        // give the type out easily, so just do not optimize that at the moment.
+        return false;
+    }
+
+    const uint32_t layerColor = layerPaint.getColor();
+    // The layer paint color must have only alpha component.
+    if (SK_ColorTRANSPARENT != SkColorSetA(layerColor, SK_AlphaTRANSPARENT)) {
+        return false;
+    }
+
+    // The layer paint can not have any effects.
+    if (layerPaint.getPathEffect() ||
+        layerPaint.getShader()      ||
+        layerPaint.getXfermode()    ||
+        layerPaint.getMaskFilter()  ||
+        layerPaint.getColorFilter() ||
+        layerPaint.getRasterizer()  ||
+        layerPaint.getLooper()      ||
+        layerPaint.getImageFilter()) {
+        return false;
+    }
+
+    paint->setAlpha(SkMulDiv255Round(paint->getAlpha(), SkColorGetA(layerColor)));
+
+    return true;
+}
+
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 struct SaveNoDrawsRestoreNooper {
     // Star matches greedily, so we also have to exclude Save and Restore.
@@ -104,14 +163,10 @@ struct SaveLayerDrawRestoreNooper {
             return false;
         }
 
-        const uint32_t layerColor = layerPaint->getColor();
-        const uint32_t  drawColor =  drawPaint->getColor();
-        if (!IsOnlyAlpha(layerColor) || HasAnyEffect(*layerPaint) || CantFoldAlpha(*drawPaint)) {
-            // Too fancy for us.
+        if (!fold_opacity_layer_color_to_paint(*layerPaint, false /*isSaveLayer*/, drawPaint)) {
             return false;
         }
 
-        drawPaint->setAlpha(SkMulDiv255Round(SkColorGetA(drawColor), SkColorGetA(layerColor)));
         return KillSaveLayerAndRestore(record, begin);
     }
 
@@ -120,35 +175,58 @@ struct SaveLayerDrawRestoreNooper {
         record->replace<NoOp>(saveLayerIndex+2);  // Restore
         return true;
     }
-
-    static bool HasAnyEffect(const SkPaint& paint) {
-        return paint.getPathEffect()  ||
-               paint.getShader()      ||
-               paint.getXfermode()    ||
-               paint.getMaskFilter()  ||
-               paint.getColorFilter() ||
-               paint.getRasterizer()  ||
-               paint.getLooper()      ||
-               paint.getImageFilter();
-    }
-
-    // The alpha folding can proceed if the single draw's paint has a shader,
-    // path effect, mask filter and/or rasterizer.
-    // TODO: most likely the looper and only some xfer modes are the hard
-    // constraints
-    static bool CantFoldAlpha(const SkPaint& paint) {
-        return paint.getXfermode()    ||
-               paint.getColorFilter() ||
-               paint.getLooper()      ||
-               paint.getImageFilter();
-    }
-
-    static bool IsOnlyAlpha(SkColor color) {
-        return SK_ColorTRANSPARENT == SkColorSetA(color, SK_AlphaTRANSPARENT);
-    }
 };
 void SkRecordNoopSaveLayerDrawRestores(SkRecord* record) {
     SaveLayerDrawRestoreNooper pass;
     apply(&pass, record);
 }
 
+
+/* For SVG generated:
+  SaveLayer (non-opaque, typically for CSS opacity)
+    Save
+      ClipRect
+      SaveLayer (typically for SVG filter)
+      Restore
+    Restore
+  Restore
+*/
+struct SvgOpacityAndFilterLayerMergePass {
+    typedef Pattern7<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>,
+                     Is<Restore>, Is<Restore>, Is<Restore> > Pattern;
+
+    bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
+        SkPaint* opacityPaint = pattern->first<SaveLayer>()->paint;
+        if (NULL == opacityPaint) {
+            // There wasn't really any point to this SaveLayer at all.
+            return KillSaveLayerAndRestore(record, begin);
+        }
+
+        // This layer typically contains a filter, but this should work for layers with for other
+        // purposes too.
+        SkPaint* filterLayerPaint = pattern->fourth<SaveLayer>()->paint;
+        if (filterLayerPaint == NULL) {
+            // We can just give the inner SaveLayer the paint of the outer SaveLayer.
+            // TODO(mtklein): figure out how to do this clearly
+            return false;
+        }
+
+        if (!fold_opacity_layer_color_to_paint(*opacityPaint, true /*isSaveLayer*/,
+                                               filterLayerPaint)) {
+            return false;
+        }
+
+        return KillSaveLayerAndRestore(record, begin);
+    }
+
+    static bool KillSaveLayerAndRestore(SkRecord* record, unsigned saveLayerIndex) {
+        record->replace<NoOp>(saveLayerIndex);     // SaveLayer
+        record->replace<NoOp>(saveLayerIndex + 6); // Restore
+        return true;
+    }
+};
+
+void SkRecordMergeSvgOpacityAndFilterLayers(SkRecord* record) {
+    SvgOpacityAndFilterLayerMergePass pass;
+    apply(&pass, record);
+}
