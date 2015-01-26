@@ -23,7 +23,7 @@ The Skia Directory
         Console](https://build.chromium.org/p/client.skia.compile/console)
 
 *   Other
-    -   [SkFiddle](https://skfiddle.com/) Try out Skia on the web!
+    -   [Fiddle](https://fiddle.skia.org/) Try out Skia on the web!
     -   [Gold](https://gold.skia.org/) Correctness testing.
     -   [Perf](https://perf.skia.org/) Performance testing.
     -   [Mon](https://mon.skia.org/) Grafana dashboard (requires login).
