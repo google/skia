@@ -131,6 +131,7 @@ public:
 
     virtual DashType asADash(DashInfo* info) const;
 
+    SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkPathEffect)
 
 protected:
@@ -162,6 +163,8 @@ protected:
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;
 
+    SK_TO_STRING_OVERRIDE()    
+
 private:
     typedef SkPathEffect INHERITED;
 };
@@ -185,11 +188,11 @@ public:
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
+    SK_TO_STRING_OVERRIDE()    
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 protected:
-    SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner)
-        : INHERITED(outer, inner) {}
+    SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner) : INHERITED(outer, inner) {}
 
 private:
     // illegal
@@ -218,11 +221,11 @@ public:
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
+    SK_TO_STRING_OVERRIDE()    
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 protected:
-    SkSumPathEffect(SkPathEffect* first, SkPathEffect* second)
-        : INHERITED(first, second) {}
+    SkSumPathEffect(SkPathEffect* first, SkPathEffect* second) : INHERITED(first, second) {}
 
 private:
     // illegal

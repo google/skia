@@ -480,7 +480,7 @@ public:
 
     void preroll() const { this->onPreroll(); }
 
-    SK_TO_STRING_VIRT()
+    SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
 
 protected:

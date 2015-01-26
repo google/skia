@@ -68,3 +68,11 @@ SkFlattenable* SkArcToPathEffect::CreateProc(SkReadBuffer& buffer) {
 void SkArcToPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fRadius);
 }
+
+#ifndef SK_IGNORE_TO_STRING
+void SkArcToPathEffect::toString(SkString* str) const {
+    str->appendf("SkArcToPathEffect: (");
+    str->appendf("radius: %f", fRadius);
+    str->appendf(")");
+}
+#endif

@@ -2113,6 +2113,7 @@ void SkPaint::toString(SkString* str) const {
     SkPathEffect* pathEffect = this->getPathEffect();
     if (pathEffect) {
         str->append("<dt>PathEffect:</dt><dd>");
+        pathEffect->toString(str);
         str->append("</dd>");
     }
 

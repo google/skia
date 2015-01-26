@@ -36,6 +36,13 @@ public:
     bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
                              const SkMatrix* localMatrix, GrColor* color,
                              GrFragmentProcessor** fp) const SK_OVERRIDE;
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const SK_OVERRIDE {
+        str->appendf("DCShader: ()");
+    }
+#endif
+
 private:
     const SkMatrix fDeviceMatrix;
 };

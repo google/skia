@@ -49,6 +49,19 @@ void SkPairPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fPE1);
 }
 
+#ifndef SK_IGNORE_TO_STRING
+void SkPairPathEffect::toString(SkString* str) const {
+    str->appendf("first: ");
+    if (fPE0) {
+        fPE0->toString(str);
+    }
+    str->appendf(" second: ");
+    if (fPE1) {
+        fPE1->toString(str);
+    }
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlattenable* SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
@@ -73,6 +86,15 @@ bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return fPE0->filterPath(dst, *ptr, rec, cullRect);
 }
 
+
+#ifndef SK_IGNORE_TO_STRING
+void SkComposePathEffect::toString(SkString* str) const {
+    str->appendf("SkComposePathEffect: (");
+    this->INHERITED::toString(str);
+    str->appendf(")");
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlattenable* SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
@@ -87,3 +109,12 @@ bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
     return fPE0->filterPath(dst, src, rec, cullRect) |
            fPE1->filterPath(dst, src, rec, cullRect);
 }
+
+
+#ifndef SK_IGNORE_TO_STRING
+void SkSumPathEffect::toString(SkString* str) const {
+    str->appendf("SkSumPathEffect: (");
+    this->INHERITED::toString(str);
+    str->appendf(")");
+}
+#endif

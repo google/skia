@@ -117,6 +117,13 @@ public:
         dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;
     }
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const SK_OVERRIDE {
+        str->appendf("InverseFillPE: ()");
+    }
+#endif
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(InverseFillPE)
 
 private:

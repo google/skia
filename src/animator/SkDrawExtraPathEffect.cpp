@@ -139,6 +139,14 @@ protected:
         return result;
     }
 
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const SK_OVERRIDE {
+        str->appendf("SkShape1DPathEffect: (");
+        // TODO: fill in
+        str->appendf(")");
+    }
+#endif
+
 private:
     static bool GetContourLength(const char* token, size_t len, void* clen, SkScriptValue* value) {
         if (SK_LITERAL_STR_EQUAL("contourLength", token, len)) {

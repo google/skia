@@ -196,3 +196,13 @@ SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
     }
     return fAdvance;
 }
+
+
+#ifndef SK_IGNORE_TO_STRING
+void SkPath1DPathEffect::toString(SkString* str) const {
+    str->appendf("SkPath1DPathEffect: (");
+    // TODO: add path and style
+    str->appendf("advance: %.2f phase %.2f", fAdvance, fInitialOffset);
+    str->appendf(")");
+}
+#endif
