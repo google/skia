@@ -568,7 +568,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             GrPipelineBuilder pipelineBuilder;
-            pipelineBuilder.enableState(GrPipelineBuilder::kClip_StateBit);
 
             GrPathRenderer* pr = NULL;
             bool useTemp = !this->canStencilAndDrawElement(&pipelineBuilder, result, &pr, element);
@@ -625,7 +624,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
             if (useTemp) {
                 GrPipelineBuilder backgroundPipelineBuilder;
-                backgroundPipelineBuilder.enableState(GrPipelineBuilder::kClip_StateBit);
                 backgroundPipelineBuilder.setRenderTarget(result->asRenderTarget());
 
                 // Now draw into the accumulator using the real operation and the temp buffer as a
@@ -638,7 +636,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                 maskSpaceElementIBounds);
             } else {
                 GrPipelineBuilder backgroundPipelineBuilder;
-                backgroundPipelineBuilder.enableState(GrPipelineBuilder::kClip_StateBit);
                 backgroundPipelineBuilder.setRenderTarget(result->asRenderTarget());
 
                 set_coverage_drawing_xpf(op, !invert, &backgroundPipelineBuilder);
@@ -657,7 +654,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
             }
         } else {
             GrPipelineBuilder pipelineBuilder;
-            pipelineBuilder.enableState(GrPipelineBuilder::kClip_StateBit);
 
             // all the remaining ops can just be directly draw into the accumulation buffer
             set_coverage_drawing_xpf(op, false, &pipelineBuilder);
@@ -718,7 +714,6 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
             GrPipelineBuilder pipelineBuilder;
             pipelineBuilder.setRenderTarget(rt);
-            pipelineBuilder.enableState(GrPipelineBuilder::kClip_StateBit);
 
             pipelineBuilder.setDisableColorXPFactory();
 
