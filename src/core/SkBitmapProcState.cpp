@@ -113,7 +113,7 @@ static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
 // Check to see that the size of the bitmap that would be produced by
 // scaling by the given inverted matrix is less than the maximum allowed.
 static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
-    size_t maximumAllocation = SkResourceCache::GetSingleAllocationByteLimit();
+    size_t maximumAllocation = SkResourceCache::GetEffectiveSingleAllocationByteLimit();
     if (0 == maximumAllocation) {
         return true;
     }

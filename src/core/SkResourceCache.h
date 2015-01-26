@@ -123,6 +123,7 @@ public:
 
     static size_t SetSingleAllocationByteLimit(size_t);
     static size_t GetSingleAllocationByteLimit();
+    static size_t GetEffectiveSingleAllocationByteLimit();
 
     static void PurgeAll();
 
@@ -186,6 +187,10 @@ public:
      */
     size_t setSingleAllocationByteLimit(size_t maximumAllocationSize);
     size_t getSingleAllocationByteLimit() const;
+    // returns the logical single allocation size (pinning against the budget when the cache
+    // is not backed by discardable memory.
+    size_t getEffectiveSingleAllocationByteLimit() const;
+
     /**
      *  Set the maximum number of bytes available to this cache. If the current
      *  cache exceeds this new value, it will be purged to try to fit within
