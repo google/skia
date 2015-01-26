@@ -473,7 +473,12 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
             }
             GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key, scratchFlags);
             if (resource) {
-                return static_cast<GrSurface*>(resource)->asTexture();
+                GrSurface* surface = static_cast<GrSurface*>(resource);
+                GrRenderTarget* rt = surface->asRenderTarget();
+                if (rt && fGpu->caps()->discardRenderTargetSupport()) {
+                    rt->discard();
+                }
+                return surface->asTexture();
             }
 
             if (kExact_ScratchTexMatch == match) {
