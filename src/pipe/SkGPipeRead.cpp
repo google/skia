@@ -345,15 +345,6 @@ static void restore_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void drawClear_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
-                         SkGPipeState* state) {
-    SkColor color = 0;
-    if (DrawOp_unpackFlags(op32) & kClear_HasColor_DrawOpFlag) {
-        color = reader->readU32();
-    }
-    canvas->clear(color);
-}
-
 static void drawPaint_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
     if (state->shouldDraw()) {
@@ -801,7 +792,6 @@ static const ReadProc gReadTable[] = {
     drawBitmap_rp,
     drawBitmapNine_rp,
     drawBitmapRect_rp,
-    drawClear_rp,
     drawDRRect_rp,
     drawOval_rp,
     drawPaint_rp,

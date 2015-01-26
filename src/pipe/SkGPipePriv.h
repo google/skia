@@ -42,7 +42,6 @@ enum DrawOps {
     kDrawBitmap_DrawOp,
     kDrawBitmapNine_DrawOp,
     kDrawBitmapRectToRect_DrawOp,
-    kDrawClear_DrawOp,
     kDrawDRRect_DrawOp,
     kDrawOval_DrawOp,
     kDrawPaint_DrawOp,
@@ -132,9 +131,6 @@ static inline uint32_t DrawOp_packOpFlagData(DrawOps op, unsigned flags, unsigne
 enum {
     kSaveLayer_HasBounds_DrawOpFlag = 1 << 0,
     kSaveLayer_HasPaint_DrawOpFlag = 1 << 1,
-};
-enum {
-    kClear_HasColor_DrawOpFlag  = 1 << 0
 };
 enum {
     kDrawTextOnPath_HasMatrix_DrawOpFlag = 1 << 0
