@@ -9,6 +9,9 @@
 #define GrInOrderDrawBuffer_DEFINED
 
 #include "GrFlushToGpuDrawTarget.h"
+
+#include "GrBatch.h"
+#include "GrBatchTarget.h"
 #include "GrPipeline.h"
 #include "GrPath.h"
 #include "GrTRecorder.h"
@@ -53,13 +56,14 @@ public:
 private:
     typedef GrGpu::DrawArgs DrawArgs;
     enum {
-        kDraw_Cmd           = 1,
-        kStencilPath_Cmd    = 2,
-        kSetState_Cmd       = 3,
-        kClear_Cmd          = 4,
-        kCopySurface_Cmd    = 5,
-        kDrawPath_Cmd       = 6,
-        kDrawPaths_Cmd      = 7,
+        kDraw_Cmd              = 1,
+        kStencilPath_Cmd       = 2,
+        kSetState_Cmd          = 3,
+        kClear_Cmd             = 4,
+        kCopySurface_Cmd       = 5,
+        kDrawPath_Cmd          = 6,
+        kDrawPaths_Cmd         = 7,
+        kDrawBatch_Cmd         = 8,
     };
 
     struct SetState;
@@ -180,12 +184,20 @@ private:
 
     // TODO: rename to SetPipeline once pp, batch tracker, and desc are removed
     struct SetState : public Cmd {
+        // TODO get rid of the prim proc version of this when we use batch everywhere
         SetState(const GrPipelineBuilder& pipelineBuilder, const GrPrimitiveProcessor* primProc,
                  const GrDrawTargetCaps& caps,
                  const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy)
         : Cmd(kSetState_Cmd)
         , fPrimitiveProcessor(primProc)
         , fPipeline(pipelineBuilder, primProc, caps, scissor, dstCopy) {}
+
+        SetState(GrBatch* batch,
+                 const GrPipelineBuilder& pipelineBuilder,
+                 const GrDrawTargetCaps& caps,
+                 const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy)
+        : Cmd(kSetState_Cmd)
+        , fPipeline(batch, pipelineBuilder, caps, scissor, dstCopy) {}
 
         void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
@@ -194,6 +206,17 @@ private:
         const GrPipeline            fPipeline;
         GrProgramDesc               fDesc;
         GrBatchTracker              fBatchTracker;
+    };
+
+    struct DrawBatch : public Cmd {
+        DrawBatch(GrBatch* batch) : Cmd(kDrawBatch_Cmd), fBatch(SkRef(batch)) {
+            SkASSERT(!batch->isUsed());
+        }
+
+        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+
+        // TODO it wouldn't be too hard to let batches allocate in the cmd buffer
+        SkAutoTUnref<GrBatch>  fBatch;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -208,6 +231,10 @@ private:
                 const DrawInfo&,
                 const GrScissorState&,
                 const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    void onDrawBatch(GrBatch*,
+                     const GrPipelineBuilder&,
+                     const GrScissorState&,
+                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
     void onDrawRect(GrPipelineBuilder*,
                     GrColor,
                     const SkMatrix& viewMatrix,
@@ -253,16 +280,24 @@ private:
     // Determines whether the current draw operation requires a new GrPipeline and if so
     // records it. If the draw can be skipped false is returned and no new GrPipeline is
     // recorded.
+    // TODO delete the primproc variant when we have batches everywhere
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrPipelineBuilder&,
                                                         const GrPrimitiveProcessor*,
                                                         const GrScissorState&,
                                                         const GrDeviceCoordTexture*);
+    bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(GrBatch*,
+                                                        const GrPipelineBuilder&,
+                                                        const GrScissorState&,
+                                                        const GrDeviceCoordTexture*);
+
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();
     // Records any trace markers for a command after adding it to the buffer.
     void recordTraceMarkersIfNecessary();
 
     bool isIssued(uint32_t drawID) SK_OVERRIDE { return drawID != fDrawID; }
+
+    GrBatchTarget* getBatchTarget() { return &fBatchTarget; }
 
     // TODO: Use a single allocator for commands and records
     enum {
@@ -277,6 +312,7 @@ private:
     SkTDArray<char>                     fPathIndexBuffer;
     SkTDArray<float>                    fPathTransformBuffer;
     uint32_t                            fDrawID;
+    GrBatchTarget                       fBatchTarget;
 
     typedef GrFlushToGpuDrawTarget INHERITED;
 };

@@ -11,6 +11,7 @@
 #include "GrColor.h"
 #include "GrInvariantOutput.h"
 
+class GrBatch;
 class GrFragmentStage;
 class GrFragmentProcessor;
 class GrPrimitiveProcessor;
@@ -33,6 +34,10 @@ public:
     void calcWithInitialValues(const GrFragmentStage*, int stageCount, GrColor startColor,
                                GrColorComponentFlags flags, bool areCoverageStages);
 
+    void calcColorWithBatch(const GrBatch*, const GrFragmentStage*, int stagecount);
+    void calcCoverageWithBatch(const GrBatch*, const GrFragmentStage*, int stagecount);
+
+    // TODO delete these when batch is everywhere
     void calcColorWithPrimProc(const GrPrimitiveProcessor*, const GrFragmentStage*, int stagecount);
     void calcCoverageWithPrimProc(const GrPrimitiveProcessor*, const GrFragmentStage*,
                                   int stagecount);

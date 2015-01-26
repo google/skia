@@ -516,7 +516,7 @@ void GrPathProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) con
     out->setKnownSingleComponent(0xff);
 }
 
-void GrPathProcessor::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+void GrPathProcessor::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     PathBatchTracker* local = bt->cast<PathBatchTracker>();
     if (init.fColorIgnored) {
         local->fInputColorType = kIgnored_GrGPInput;
