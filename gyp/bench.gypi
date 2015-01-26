@@ -72,6 +72,7 @@
     '../bench/MemoryBench.cpp',
     '../bench/MemsetBench.cpp',
     '../bench/MergeBench.cpp',
+    '../bench/MipMapBench.cpp',
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
     '../bench/PatchBench.cpp',
