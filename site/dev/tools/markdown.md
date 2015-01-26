@@ -7,6 +7,12 @@ Any file you put under `/site/` that has the extension `.md` will be processed
 as MarkDown. All other files will be served directly. For example, images
 can be added and they will be served correctly and referenced from within MarkDown files.
 
+When preparing for a code review of site docs you can get a preview of how the
+page will render by visiting the skia.org site and add a query parameter `cl`
+with the value of the Reitveld issue id:
+
+    https://skia.org?cl=REITVELD_ISSUE_NUMBER
+
 Some Example MarkDown
 ---------------------
 
