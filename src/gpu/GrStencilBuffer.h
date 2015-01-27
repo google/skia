@@ -50,16 +50,18 @@ public:
     static void ComputeKey(int width, int height, int sampleCnt, GrScratchKey* key);
 
 protected:
-    GrStencilBuffer(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
-        : GrGpuResource(gpu, kCached_LifeCycle)
+    GrStencilBuffer(GrGpu* gpu, LifeCycle lifeCycle, int width, int height, int bits, int sampleCnt)
+        : GrGpuResource(gpu, lifeCycle)
         , fWidth(width)
         , fHeight(height)
         , fBits(bits)
         , fSampleCnt(sampleCnt)
         , fLastClipStackGenID(SkClipStack::kInvalidGenID) {
-        GrScratchKey key;
-        ComputeKey(width, height, sampleCnt, &key);
-        this->setScratchKey(key);
+        if (kCached_LifeCycle == lifeCycle) {
+            GrScratchKey key;
+            ComputeKey(width, height, sampleCnt, &key);
+            this->setScratchKey(key);
+        }
         fLastClipStackRect.setEmpty();
     }
 

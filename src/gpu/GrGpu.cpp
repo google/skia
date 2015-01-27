@@ -65,7 +65,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
             !(kNoStencil_GrSurfaceFlag & desc.fFlags)) {
             SkASSERT(tex->asRenderTarget());
             // TODO: defer this and attach dynamically
-            if (!this->attachStencilBufferToRenderTarget(tex->asRenderTarget())) {
+            if (!this->attachStencilBufferToRenderTarget(tex->asRenderTarget(), budgeted)) {
                 tex->unref();
                 return NULL;
             }
@@ -77,7 +77,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
     return tex;
 }
 
-bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
+bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt, bool budgeted) {
     SkASSERT(NULL == rt->getStencilBuffer());
     GrScratchKey sbKey;
     GrStencilBuffer::ComputeKey(rt->width(), rt->height(), rt->numSamples(), &sbKey);
@@ -91,7 +91,7 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         }
         return attached;
     }
-    if (this->createStencilBufferForRenderTarget(rt, rt->width(), rt->height())) {
+    if (this->createStencilBufferForRenderTarget(rt, budgeted, rt->width(), rt->height())) {
         // Right now we're clearing the stencil buffer here after it is
         // attached to an RT for the first time. When we start matching
         // stencil buffers with smaller color targets this will no longer
@@ -116,7 +116,7 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc) {
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
     if (tgt &&
-        !this->attachStencilBufferToRenderTarget(tgt)) {
+        !this->attachStencilBufferToRenderTarget(tgt, true /*budgeted*/)) {
         tex->unref();
         return NULL;
     } else {

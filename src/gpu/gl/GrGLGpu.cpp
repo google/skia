@@ -430,6 +430,9 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
     GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget, (this, desc, idDesc));
     if (wrapDesc.fStencilBits) {
+        GrGLStencilBuffer::IDDesc sbDesc;
+        sbDesc.fRenderbufferID = 0;
+        sbDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
         GrGLStencilBuffer::Format format;
         format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;
         format.fPacked = false;
@@ -437,7 +440,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         format.fTotalBits = wrapDesc.fStencilBits;
         GrGLStencilBuffer* sb = SkNEW_ARGS(GrGLStencilBuffer,
                                            (this,
-                                            0,
+                                            sbDesc,
                                             desc.fWidth,
                                             desc.fHeight,
                                             desc.fSampleCnt,
@@ -1114,8 +1117,8 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
-bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) {
-
+bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, bool budgeted, int width,
+                                                 int height) {
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
     SkASSERT(rt->asTexture());
@@ -1123,17 +1126,20 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
     SkASSERT(height >= rt->height());
 
     int samples = rt->numSamples();
-    GrGLuint sbID = 0;
+    GrGLStencilBuffer::IDDesc sbDesc;
+    sbDesc.fRenderbufferID = 0;
+    sbDesc.fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle
+                                 : GrGpuResource::kUncached_LifeCycle;
 
     int stencilFmtCnt = this->glCaps().stencilFormats().count();
     for (int i = 0; i < stencilFmtCnt; ++i) {
-        if (!sbID) {
-            GL_CALL(GenRenderbuffers(1, &sbID));
+        if (!sbDesc.fRenderbufferID) {
+            GL_CALL(GenRenderbuffers(1, &sbDesc.fRenderbufferID));
         }
-        if (!sbID) {
+        if (!sbDesc.fRenderbufferID) {
             return false;
         }
-        GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbID));
+        GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
         // we start with the last stencil format that succeeded in hopes
         // that we won't go through this loop more than once after the
         // first (painful) stencil creation.
@@ -1155,12 +1161,13 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
             created = (GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
         }
         if (created) {
+
             // After sized formats we attempt an unsized format and take
             // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), &format);
             SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
-                                                  (this, sbID, width, height, samples, format)));
+                                                  (this, sbDesc, width, height, samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 rt->setStencilBuffer(sb);
@@ -1170,10 +1177,10 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
             // again.
             sb->cacheAccess().removeScratchKey();
             // Set this to 0 since we handed the valid ID off to the failed stencil buffer resource.
-            sbID = 0; 
+            sbDesc.fRenderbufferID = 0;
         }
     }
-    GL_CALL(DeleteRenderbuffers(1, &sbID));
+    GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
     return false;
 }
 

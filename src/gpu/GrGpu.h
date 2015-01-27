@@ -469,7 +469,8 @@ private:
     // width and height may be larger than rt (if underlying API allows it).
     // Should attach the SB to the RT. Returns false if compatible sb could
     // not be created.
-    virtual bool createStencilBufferForRenderTarget(GrRenderTarget*, int width, int height) = 0;
+    virtual bool createStencilBufferForRenderTarget(GrRenderTarget*, bool budgeted,
+                                                    int width, int height) = 0;
 
     // attaches an existing SB to an existing RT.
     virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer*, GrRenderTarget*) = 0;
@@ -478,7 +479,7 @@ private:
     virtual void clearStencil(GrRenderTarget* target) = 0;
 
     // Given a rt, find or create a stencil buffer and attach it
-    bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
+    bool attachStencilBufferToRenderTarget(GrRenderTarget* target, bool budgeted);
 
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;

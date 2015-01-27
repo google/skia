@@ -23,14 +23,19 @@ public:
         bool      fPacked;
     };
 
+    struct IDDesc {
+        GrGLuint fRenderbufferID;
+        GrGpuResource::LifeCycle fLifeCycle;
+    };
+
     GrGLStencilBuffer(GrGpu* gpu,
-                      GrGLint rbid,
+                      const IDDesc& idDesc,
                       int width, int height,
                       int sampleCnt,
                       const Format& format)
-        : GrStencilBuffer(gpu, width, height, format.fStencilBits, sampleCnt)
+        : GrStencilBuffer(gpu, idDesc.fLifeCycle, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
-        , fRenderbufferID(rbid) {
+        , fRenderbufferID(idDesc.fRenderbufferID) {
         this->registerWithCache();
     }
 
