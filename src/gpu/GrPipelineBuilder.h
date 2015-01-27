@@ -8,7 +8,7 @@
 #ifndef GrPipelineBuilder_DEFINED
 #define GrPipelineBuilder_DEFINED
 
-#include "GrBatch.h"
+
 #include "GrBlend.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGeometryProcessor.h"
@@ -391,15 +391,6 @@ public:
     GrPipelineBuilder& operator= (const GrPipelineBuilder& that);
 
 private:
-    // Calculating invariant color / coverage information is expensive, so we partially cache the
-    // results.
-    //
-    // canUseFracCoveragePrimProc() - Called in regular skia draw, caches results but only for a
-    //                                specific color and coverage.  May be called multiple times
-    // willBlendWithDst() - only called by Nvpr, does not cache results
-    // GrOptDrawState constructor - never caches results
-
-    // TODO delete when we have Batch
     const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
         this->calcColorInvariantOutput(pp);
         return fColorProcInfo;
@@ -410,28 +401,17 @@ private:
         return fCoverageProcInfo;
     }
 
-    const GrProcOptInfo& colorProcInfo(const GrBatch* batch) const {
-        this->calcColorInvariantOutput(batch);
-        return fColorProcInfo;
-    }
-
-    const GrProcOptInfo& coverageProcInfo(const GrBatch* batch) const {
-        this->calcCoverageInvariantOutput(batch);
-        return fCoverageProcInfo;
-    }
-
     /**
-     * Primproc variants of the calc functions
-     * TODO remove these when batch is everywhere
+     * If fColorProcInfoValid is false, function calculates the invariant output for the color
+     * stages and results are stored in fColorProcInfo.
      */
     void calcColorInvariantOutput(const GrPrimitiveProcessor*) const;
-    void calcCoverageInvariantOutput(const GrPrimitiveProcessor*) const;
 
     /**
-     * GrBatch provides the initial seed for these loops based off of its initial geometry data
+     * If fCoverageProcInfoValid is false, function calculates the invariant output for the coverage
+     * stages and results are stored in fCoverageProcInfo.
      */
-    void calcColorInvariantOutput(const GrBatch*) const;
-    void calcCoverageInvariantOutput(const GrBatch*) const;
+    void calcCoverageInvariantOutput(const GrPrimitiveProcessor*) const;
 
     /**
      * If fColorProcInfoValid is false, function calculates the invariant output for the color
@@ -465,6 +445,8 @@ private:
     mutable bool fCoverageProcInfoValid;
     mutable GrColor fColorCache;
     mutable GrColor fCoverageCache;
+    mutable const GrPrimitiveProcessor* fColorPrimProc;
+    mutable const GrPrimitiveProcessor* fCoveragePrimProc;
 
     friend class GrPipeline;
 };

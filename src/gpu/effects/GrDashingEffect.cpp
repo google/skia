@@ -501,7 +501,7 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker&,
                                                      const GrGLCaps&) const SK_OVERRIDE;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
@@ -706,7 +706,7 @@ bool DashingCircleEffect::onIsEqual(const GrGeometryProcessor& other) const {
             fCenterX == dce.fCenterX);
 }
 
-void DashingCircleEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
+void DashingCircleEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     DashingCircleBatchTracker* local = bt->cast<DashingCircleBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
@@ -795,7 +795,7 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLCaps&) const SK_OVERRIDE;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
@@ -1013,7 +1013,7 @@ bool DashingLineEffect::onIsEqual(const GrGeometryProcessor& other) const {
             fIntervalLength == de.fIntervalLength);
 }
 
-void DashingLineEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
+void DashingLineEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     DashingLineBatchTracker* local = bt->cast<DashingLineBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;

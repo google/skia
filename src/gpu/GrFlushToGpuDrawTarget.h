@@ -46,9 +46,6 @@ protected:
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const{ return fGpu; }
 
-    GrVertexBufferAllocPool* getVertexAllocPool() { return fVertexPool; }
-    GrIndexBufferAllocPool* getIndexAllocPool() { return fIndexPool; }
-
 private:
     enum {
         kGeoPoolStatePreAllocCnt = 4,

@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawTarget.h"
 
-#include "GrBatch.h"
+
+#include "GrDrawTarget.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrPath.h"
@@ -524,29 +524,6 @@ void GrDrawTarget::drawNonIndexed(GrPipelineBuilder* pipelineBuilder,
 
         this->onDraw(*pipelineBuilder, gp, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
-}
-
-
-void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
-                             GrBatch* batch,
-                             const SkRect* devBounds) {
-    SkASSERT(pipelineBuilder);
-    // TODO some kind of checkdraw, but not at this level
-
-    // Setup clip
-    GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreEffects are;
-    GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, devBounds)) {
-        return;
-    }
-
-    GrDeviceCoordTexture dstCopy;
-    if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, devBounds)) {
-        return;
-    }
-
-    this->onDrawBatch(batch, *pipelineBuilder, scissorState, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 static const GrStencilSettings& winding_path_stencil_settings() {
