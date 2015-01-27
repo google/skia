@@ -86,9 +86,7 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkSca
 
     // init to 0 so that all of the pointers will be null
     memset(fGlyphHash, 0, sizeof(fGlyphHash));
-    // init with 0xFF so that the charCode field will be -1, which is invalid
-    memset(fCharToGlyphHash, 0xFF, sizeof(fCharToGlyphHash));
-
+            
     fMemoryUsed = sizeof(*this);
 
     fGlyphArray.setReserve(kMinGlyphCount);
@@ -116,8 +114,8 @@ SkGlyphCache::~SkGlyphCache() {
             }
         }
 
-        printf("glyphPtrArray,%zu, Alloc,%zu, imageUsed,%zu, glyphUsed,%zu, glyphHashAlloc,%zu, glyphHashUsed,%zu, unicharHashAlloc,%zu, unicharHashUsed,%zu\n",
-                 ptrMem, glyphAlloc, imageUsed, glyphUsed, sizeof(fGlyphHash), glyphHashUsed, sizeof(fCharToGlyphHash), uniHashUsed);
+        SkDebugf("glyphPtrArray,%zu, Alloc,%zu, imageUsed,%zu, glyphUsed,%zu, glyphHashAlloc,%zu, glyphHashUsed,%zu, unicharHashAlloc,%zu, unicharHashUsed,%zu\n",
+                 ptrMem, glyphAlloc, imageUsed, glyphUsed, sizeof(fGlyphHash), glyphHashUsed, sizeof(CharGlyphRec) * kHashCount, uniHashUsed);
 
     }
 #endif
@@ -135,6 +133,16 @@ SkGlyphCache::~SkGlyphCache() {
     this->invokeAndRemoveAuxProcs();
 }
 
+SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(uint32_t id) {
+    if (NULL == fCharToGlyphHash) {
+        fCharToGlyphHash.reset(new CharGlyphRec[kHashCount]);
+        // init with 0xFF so that the charCode field will be -1, which is invalid
+        memset(fCharToGlyphHash, 0xFF, sizeof(CharGlyphRec) * kHashCount);
+    }
+    
+    return &fCharToGlyphHash[ID2HashIndex(id)];
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
@@ -146,7 +154,7 @@ SkGlyphCache::~SkGlyphCache() {
 uint16_t SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode);
-    const CharGlyphRec& rec = fCharToGlyphHash[ID2HashIndex(id)];
+    const CharGlyphRec& rec = *this->getCharGlyphRec(id);
 
     if (rec.fID == id) {
         return rec.fGlyph->getGlyphID();
@@ -168,7 +176,7 @@ unsigned SkGlyphCache::getGlyphCount() {
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode);
-    CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
+    CharGlyphRec* rec = this->getCharGlyphRec(id);
 
     if (rec->fID != id) {
         // this ID is based on the UniChar
@@ -198,7 +206,7 @@ const SkGlyph& SkGlyphCache::getGlyphIDAdvance(uint16_t glyphID) {
 const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode);
-    CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
+    CharGlyphRec* rec = this->getCharGlyphRec(id);
 
     if (rec->fID != id) {
         RecordHashCollisionIf(rec->fGlyph != NULL);
@@ -221,7 +229,7 @@ const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode,
                                                SkFixed x, SkFixed y) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode, x, y);
-    CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
+    CharGlyphRec* rec = this->getCharGlyphRec(id);
 
     if (rec->fID != id) {
         RecordHashCollisionIf(rec->fGlyph != NULL);
