@@ -42,7 +42,7 @@ public:
     const Attribute* inCoverage() const { return fInCoverage; }
     uint8_t coverage() const { return fCoverage; }
 
-    void initBatchTracker(GrBatchTracker* bt, const InitBT& init) const SK_OVERRIDE {
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE {
         BatchTracker* local = bt->cast<BatchTracker>();
         local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                    SkToBool(fInColor));

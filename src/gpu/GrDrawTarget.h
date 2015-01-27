@@ -26,6 +26,7 @@
 #include "SkTypes.h"
 #include "SkXfermode.h"
 
+class GrBatch;
 class GrClipData;
 class GrDrawTargetCaps;
 class GrPath;
@@ -259,6 +260,11 @@ public:
                         int vertexCount,
                         const SkRect* devBounds = NULL);
 
+    // TODO devbounds should live on the batch
+    void drawBatch(GrPipelineBuilder*,
+                   GrBatch*,
+                   const SkRect* devBounds = NULL);
+
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
      * winding (not inverse or hairline). It will respect the HW antialias flag
@@ -310,14 +316,14 @@ public:
      *                    that rectangle before it is input to GrCoordTransforms that read local
      *                    coordinates
      */
-    void drawRect(GrPipelineBuilder* ds,
+    void drawRect(GrPipelineBuilder* pipelineBuilder,
                   GrColor color,
                   const SkMatrix& viewMatrix,
                   const SkRect& rect,
                   const SkRect* localRect,
                   const SkMatrix* localMatrix) {
         AutoGeometryPush agp(this);
-        this->onDrawRect(ds, color, viewMatrix, rect, localRect, localMatrix);
+        this->onDrawRect(pipelineBuilder, color, viewMatrix, rect, localRect, localMatrix);
     }
 
     /**
@@ -527,6 +533,7 @@ public:
      */
     class DrawInfo {
     public:
+        DrawInfo() { fDevBounds = NULL; }
         DrawInfo(const DrawInfo& di) { (*this) = di; }
         DrawInfo& operator =(const DrawInfo& di);
 
@@ -538,6 +545,15 @@ public:
         int verticesPerInstance() const { return fVerticesPerInstance; }
         int indicesPerInstance() const { return fIndicesPerInstance; }
         int instanceCount() const { return fInstanceCount; }
+
+        void setPrimitiveType(GrPrimitiveType type) { fPrimitiveType = type; }
+        void setStartVertex(int startVertex) { fStartVertex = startVertex; }
+        void setStartIndex(int startIndex) { fStartIndex = startIndex; }
+        void setVertexCount(int vertexCount) { fVertexCount = vertexCount; }
+        void setIndexCount(int indexCount) { fIndexCount = indexCount; }
+        void setVerticesPerInstance(int verticesPerI) { fVerticesPerInstance = verticesPerI; }
+        void setIndicesPerInstance(int indicesPerI) { fIndicesPerInstance = indicesPerI; }
+        void setInstanceCount(int instanceCount) { fInstanceCount = instanceCount; }
 
         bool isIndexed() const { return fIndexCount > 0; }
 #ifdef SK_DEBUG
@@ -568,8 +584,6 @@ public:
         const SkRect* getDevBounds() const { return fDevBounds; }
 
     private:
-        DrawInfo() { fDevBounds = NULL; }
-
         friend class GrDrawTarget;
 
         GrPrimitiveType         fPrimitiveType;
@@ -708,6 +722,10 @@ private:
                         const DrawInfo&,
                         const GrScissorState&,
                         const GrDeviceCoordTexture* dstCopy) = 0;
+    virtual void onDrawBatch(GrBatch*,
+                             const GrPipelineBuilder&,
+                             const GrScissorState&,
+                             const GrDeviceCoordTexture* dstCopy) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrPipelineBuilder*,
                             GrColor color,
