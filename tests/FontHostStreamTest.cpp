@@ -96,7 +96,7 @@ DEF_TEST(FontHostStream, reporter) {
         }
 
         int ttcIndex;
-        SkAutoTDelete<SkStream> fontData(origTypeface->openStream(&ttcIndex));
+        SkAutoTDelete<SkStreamAsset> fontData(origTypeface->openStream(&ttcIndex));
         SkTypeface* streamTypeface = SkTypeface::CreateFromStream(fontData.detach());
 
         SkFontDescriptor desc;

@@ -184,7 +184,7 @@ SkAdvancedTypefaceMetrics* SkGTypeface::onGetAdvancedTypefaceMetrics(
     return fProxy->getAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
 }
 
-SkStream* SkGTypeface::onOpenStream(int* ttcIndex) const {
+SkStreamAsset* SkGTypeface::onOpenStream(int* ttcIndex) const {
     return fProxy->openStream(ttcIndex);
 }
 

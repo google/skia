@@ -112,7 +112,7 @@ public:
                                  FontIdentity* outFontIdentifier,
                                  SkString* outFamilyName,
                                  SkTypeface::Style* outStyle) SK_OVERRIDE;
-    SkStream* openStream(const FontIdentity&) SK_OVERRIDE;
+    SkStreamAsset* openStream(const FontIdentity&) SK_OVERRIDE;
 
     // new APIs
     SkDataTable* getFamilyNames() SK_OVERRIDE;
@@ -552,7 +552,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     return true;
 }
 
-SkStream* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
+SkStreamAsset* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
     return SkStream::NewFromFile(identity.fString.c_str());
 }
 

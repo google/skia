@@ -48,7 +48,7 @@ protected:
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontStyle) const SK_OVERRIDE;
 
-    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const SK_OVERRIDE;
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
 

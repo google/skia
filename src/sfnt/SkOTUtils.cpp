@@ -33,7 +33,7 @@ uint32_t SkOTUtils::CalcTableChecksum(SK_OT_ULONG *data, size_t length) {
     return sum;
 }
 
-SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int fontNameLen) {
+SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int fontNameLen) {
 
     // Get the sfnt header.
     SkSFNTHeader sfntHeader;

@@ -391,7 +391,7 @@ public:
         *serialize = true;
     }
 
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = fIndex;
         return fStream->duplicate();
     }
@@ -425,7 +425,7 @@ public:
         *serialize = false;
     }
 
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         FCLocker lock;
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
         return SkStream::NewFromFile(get_string(fPattern, FC_FILE));
@@ -809,8 +809,8 @@ protected:
         return this->matchFamilyStyle(get_string(fcTypeface->fPattern, FC_FAMILY), style);
     }
 
-    SkTypeface* onCreateFromStream(SkStream* inputStream, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> stream(inputStream);
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
             return NULL;

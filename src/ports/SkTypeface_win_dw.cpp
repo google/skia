@@ -209,7 +209,7 @@ size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
     return size;
 }
 
-SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
+SkStreamAsset* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
     *ttcIndex = fDWriteFontFace->GetIndex();
 
     UINT32 numFiles;

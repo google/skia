@@ -84,7 +84,7 @@ public:
         desc->setFontIndex(fIndex);
         *serialize = false;
     }
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = fIndex;
         return SkStream::NewFromFile(fPathName.c_str());
     }
@@ -98,7 +98,7 @@ public:
 
 class SkTypeface_AndroidStream : public SkTypeface_Android {
 public:
-    SkTypeface_AndroidStream(SkStream* stream,
+    SkTypeface_AndroidStream(SkStreamAsset* stream,
                              int index,
                              const SkFontStyle& style,
                              bool isFixedPitch,
@@ -115,13 +115,13 @@ public:
         *serialize = true;
     }
 
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = fIndex;
         return fStream->duplicate();
     }
 
 private:
-    SkAutoTDelete<SkStream> fStream;
+    SkAutoTDelete<SkStreamAsset> fStream;
 
     typedef SkTypeface_Android INHERITED;
 };
@@ -413,19 +413,19 @@ protected:
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+        SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 
-    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> streamDeleter(stream);
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStreamAsset> stream(bareStream);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
         if (!fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return NULL;
         }
-        return SkNEW_ARGS(SkTypeface_AndroidStream, (streamDeleter.detach(), ttcIndex,
+        return SkNEW_ARGS(SkTypeface_AndroidStream, (stream.detach(), ttcIndex,
                                                      style, isFixedPitch, name));
     }
 

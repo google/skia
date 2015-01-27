@@ -469,7 +469,7 @@ protected:
     friend class SkFontHost;    // to access our protected members for deprecated methods
 
     int onGetUPEM() const SK_OVERRIDE;
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
     int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
@@ -1685,7 +1685,7 @@ static SK_SFNT_ULONG get_font_type_tag(const SkTypeface_Mac* typeface) {
     }
 }
 
-SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
+SkStreamAsset* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
     SK_SFNT_ULONG fontType = get_font_type_tag(this);
     if (0 == fontType) {
         return NULL;
@@ -2245,7 +2245,7 @@ protected:
         return create_from_dataProvider(pr);
     }
 
-    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const SK_OVERRIDE {
         AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream));
         if (NULL == pr) {
             return NULL;

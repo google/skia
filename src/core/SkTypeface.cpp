@@ -29,7 +29,7 @@ public:
 protected:
     SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
 
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE { return NULL; }
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE { return NULL; }
     SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE {
         return NULL;
     }
@@ -138,7 +138,7 @@ SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
     return fm->matchFaceStyle(family, newStyle);
 }
 
-SkTypeface* SkTypeface::CreateFromStream(SkStream* stream, int index) {
+SkTypeface* SkTypeface::CreateFromStream(SkStreamAsset* stream, int index) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     return fm->createFromStream(stream, index);
 }
@@ -180,7 +180,7 @@ void SkTypeface::serializeForcingEmbedding(SkWStream* wstream) const {
 
 SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     SkFontDescriptor desc(stream);
-    SkStream* data = desc.transferFontData();
+    SkStreamAsset* data = desc.transferFontData();
     if (data) {
         SkTypeface* typeface = SkTypeface::CreateFromStream(data, desc.getFontIndex());
         if (typeface) {
@@ -209,7 +209,7 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
     return this->onGetTableData(tag, offset, length, data);
 }
 
-SkStream* SkTypeface::openStream(int* ttcIndex) const {
+SkStreamAsset* SkTypeface::openStream(int* ttcIndex) const {
     int ttcIndexStorage;
     if (NULL == ttcIndex) {
         // So our subclasses don't need to check for null param

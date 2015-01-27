@@ -73,7 +73,7 @@ public:
     const char* getUniqueString() const SK_OVERRIDE { return NULL; }
 
 protected:
-    SkStream* onOpenStream(int*) const SK_OVERRIDE { return NULL; }
+    SkStreamAsset* onOpenStream(int*) const SK_OVERRIDE { return NULL; }
 
 private:
     typedef SkTypeface_Custom INHERITED;
@@ -83,7 +83,7 @@ private:
 class SkTypeface_Stream : public SkTypeface_Custom {
 public:
     SkTypeface_Stream(const SkFontStyle& style, bool isFixedPitch, bool sysFont,
-                      const SkString familyName, SkStream* stream, int index)
+                      const SkString familyName, SkStreamAsset* stream, int index)
         : INHERITED(style, isFixedPitch, sysFont, familyName, index)
         , fStream(stream)
     { }
@@ -91,13 +91,13 @@ public:
     const char* getUniqueString() const SK_OVERRIDE { return NULL; }
 
 protected:
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = this->getIndex();
         return fStream->duplicate();
     }
 
 private:
-    const SkAutoTDelete<const SkStream> fStream;
+    const SkAutoTDelete<const SkStreamAsset> fStream;
 
     typedef SkTypeface_Custom INHERITED;
 };
@@ -128,7 +128,7 @@ public:
     }
 
 protected:
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = this->getIndex();
         if (fStream.get()) {
             return fStream->duplicate();
@@ -286,8 +286,8 @@ protected:
         return this->createFromStream(new SkMemoryStream(data), ttcIndex);
     }
 
-    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> streamDeleter(stream);
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStreamAsset> stream(bareStream);
         if (NULL == stream || stream->getLength() <= 0) {
             return NULL;
         }
@@ -297,14 +297,14 @@ protected:
         SkString name;
         if (fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
             return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
-                                                  streamDeleter.detach(), ttcIndex));
+                                                  stream.detach(), ttcIndex));
         } else {
             return NULL;
         }
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+        SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 

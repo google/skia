@@ -29,7 +29,7 @@ public:
     const char* getFontFileName() const { return fFontFileName.c_str(); }
     bool hasFontData() const { return fFontData.get() != NULL; }
     // Transfers ownership to the caller.
-    SkStream* transferFontData() { return fFontData.detach(); }
+    SkStreamAsset* transferFontData() { return fFontData.detach(); }
     int getFontIndex() const { return fFontIndex; }
 
     void setFamilyName(const char* name) { fFamilyName.set(name); }
@@ -39,7 +39,7 @@ public:
     /** Set the font data only if it is necessary for serialization.
      *  This method takes ownership of the stream (both reference and cursor).
      */
-    void setFontData(SkStream* stream) { fFontData.reset(stream); }
+    void setFontData(SkStreamAsset* stream) { fFontData.reset(stream); }
     void setFontIndex(int index) { fFontIndex = index; }
 
 private:
@@ -47,7 +47,7 @@ private:
     SkString fFullName;
     SkString fPostscriptName;
     SkString fFontFileName;
-    SkAutoTDelete<SkStream> fFontData;
+    SkAutoTDelete<SkStreamAsset> fFontData;
     int fFontIndex;
 
     SkTypeface::Style fStyle;

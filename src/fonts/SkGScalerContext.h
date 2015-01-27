@@ -26,7 +26,7 @@ protected:
                                     SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                     const uint32_t* glyphIDs,
                                     uint32_t glyphIDsCount) const SK_OVERRIDE;
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const SK_OVERRIDE;
 
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,

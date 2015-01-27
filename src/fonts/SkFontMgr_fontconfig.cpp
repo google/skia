@@ -295,8 +295,8 @@ protected:
 
     SkTypeface* onCreateFromData(SkData*, int ttcIndex) const SK_OVERRIDE { return NULL; }
 
-    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> streamDeleter(stream);
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const SK_OVERRIDE {
+        SkAutoTDelete<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (!length) {
             return NULL;
@@ -312,12 +312,12 @@ protected:
             return NULL;
         }
 
-        SkTypeface* face = FontConfigTypeface::Create(style, isFixedWidth, streamDeleter.detach());
+        SkTypeface* face = FontConfigTypeface::Create(style, isFixedWidth, stream.detach());
         return face;
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
+        SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 

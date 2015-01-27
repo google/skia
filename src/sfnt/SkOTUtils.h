@@ -36,7 +36,7 @@ struct SkOTUtils {
       *
       *  Does not affect fontData's ownership.
       */
-    static SkData* RenameFont(SkStream* fontData, const char* fontName, int fontNameLen);
+    static SkData* RenameFont(SkStreamAsset* fontData, const char* fontName, int fontNameLen);
 
     /** An implementation of LocalizedStrings which obtains it's data from a 'name' table. */
     class LocalizedStrings_NameTable : public SkTypeface::LocalizedStrings {

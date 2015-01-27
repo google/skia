@@ -12,7 +12,7 @@
 #include "SkFontStyle.h"
 
 class SkData;
-class SkStream;
+class SkStreamAsset;
 class SkString;
 class SkTypeface;
 
@@ -92,7 +92,7 @@ public:
      *  (pass 0 for none) or NULL if the stream is not recognized. The caller
      *  must call unref() on the returned object if it is not null.
      */
-    SkTypeface* createFromStream(SkStream*, int ttcIndex = 0) const;
+    SkTypeface* createFromStream(SkStreamAsset*, int ttcIndex = 0) const;
 
     /**
      *  Create a typeface for the specified fileName and TTC index
@@ -128,7 +128,7 @@ protected:
                                          const SkFontStyle&) const = 0;
 
     virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) const = 0;
-    virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) const = 0;
+    virtual SkTypeface* onCreateFromStream(SkStreamAsset*, int ttcIndex) const = 0;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],

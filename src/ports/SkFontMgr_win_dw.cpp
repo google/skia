@@ -276,7 +276,7 @@ protected:
                                                     SkUnichar character) const SK_OVERRIDE;
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle& fontstyle) const SK_OVERRIDE;
-    SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const SK_OVERRIDE;
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
@@ -534,7 +534,7 @@ private:
     T* fUnregister;
 };
 
-SkTypeface* SkFontMgr_DirectWrite::onCreateFromStream(SkStream* stream, int ttcIndex) const {
+SkTypeface* SkFontMgr_DirectWrite::onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const {
     SkTScopedComPtr<StreamFontFileLoader> fontFileLoader;
     // This transfers ownership of stream to the new object.
     HRN(StreamFontFileLoader::Create(stream, &fontFileLoader));

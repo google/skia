@@ -96,7 +96,7 @@ protected:
         INHERITED::weak_dispose();
     }
 
-    SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
