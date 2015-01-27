@@ -33,9 +33,9 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
 
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
-static const int kMediumDFFontSize = 78;
-static const int kMediumDFFontLimit = 78;
-static const int kLargeDFFontSize = 192;
+static const int kMediumDFFontSize = 64;
+static const int kMediumDFFontLimit = 64;
+static const int kLargeDFFontSize = 128;
 
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;

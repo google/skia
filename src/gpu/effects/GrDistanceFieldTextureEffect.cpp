@@ -73,19 +73,25 @@ public:
                                                kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                "TextureSize", &textureSizeUniName);
 
-        fsBuilder->codeAppend("\tvec4 texColor = ");
+        // Use highp to work around aliasing issues
+        fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                             pb->ctxInfo().standard()));
+        fsBuilder->codeAppendf("vec2 uv = %s;\n", v.fsIn());
+
+        fsBuilder->codeAppend("\tfloat texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
-                                       v.fsIn(),
+                                       "uv",
                                        kVec2f_GrSLType);
-        fsBuilder->codeAppend(";\n");
+        fsBuilder->codeAppend(".r;\n");
         fsBuilder->codeAppend("\tfloat distance = "
-                       SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
+                       SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
         // to ensure we're mapping 1:1 from texel space to pixel space.
-        fsBuilder->codeAppendf("\tvec2 uv = %s;\n", v.fsIn());
-        fsBuilder->codeAppendf("\tvec2 st = uv*%s;\n", textureSizeUniName);
+        fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                             pb->ctxInfo().standard()));
+        fsBuilder->codeAppendf("vec2 st = uv*%s;\n", textureSizeUniName);
         fsBuilder->codeAppend("\tfloat afwidth;\n");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
             // this gives us a smooth step across approximately one fragment
@@ -367,18 +373,24 @@ public:
                                               kVec2f_GrSLType, kDefault_GrSLPrecision,
                                               "TextureSize", &textureSizeUniName);
 
-        fsBuilder->codeAppend("vec4 texColor = ");
+        // Use highp to work around aliasing issues
+        fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                             pb->ctxInfo().standard()));
+        fsBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
+
+        fsBuilder->codeAppend("float texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
-                                       v.fsIn(),
+                                       "uv",
                                        kVec2f_GrSLType);
-        fsBuilder->codeAppend(";");
+        fsBuilder->codeAppend(".r;");
         fsBuilder->codeAppend("float distance = "
-            SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
+            SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
         // to ensure we're mapping 1:1 from texel space to pixel space.
-        fsBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
+        fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                             pb->ctxInfo().standard()));
         fsBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
         fsBuilder->codeAppend("float afwidth;");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
@@ -613,8 +625,13 @@ public:
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         // create LCD offset adjusted by inverse of transform
-        fsBuilder->codeAppendf("\tvec2 uv = %s;\n", v.fsIn());
-        fsBuilder->codeAppendf("\tvec2 st = uv*%s.xy;\n", textureSizeUniName);
+        // Use highp to work around aliasing issues
+        fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                             pb->ctxInfo().standard()));
+        fsBuilder->codeAppendf("vec2 uv = %s;\n", v.fsIn());
+        fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                             pb->ctxInfo().standard()));
+        fsBuilder->codeAppendf("vec2 st = uv*%s.xy;\n", textureSizeUniName);
         bool isUniformScale = !!(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
         if (isUniformScale) {
             fsBuilder->codeAppend("\tfloat dx = dFdx(st.x);\n");
@@ -689,22 +706,22 @@ public:
                                              "TextColor", &textColorUniName);
 
         fsBuilder->codeAppendf("\tuv = vec2(val.x, %s.x);\n", textColorUniName);
-        fsBuilder->codeAppend("\tvec4 gammaColor = ");
+        fsBuilder->codeAppend("float gammaColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(";\n");
-        fsBuilder->codeAppend("\tval.x = gammaColor.r;\n");
+        fsBuilder->codeAppend(".r;\n");
+        fsBuilder->codeAppend("\tval.x = gammaColor;\n");
 
         fsBuilder->codeAppendf("\tuv = vec2(val.y, %s.y);\n", textColorUniName);
         fsBuilder->codeAppend("\tgammaColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(";\n");
-        fsBuilder->codeAppend("\tval.y = gammaColor.r;\n");
+        fsBuilder->codeAppend(".r;\n");
+        fsBuilder->codeAppend("\tval.y = gammaColor;\n");
 
         fsBuilder->codeAppendf("\tuv = vec2(val.z, %s.z);\n", textColorUniName);
         fsBuilder->codeAppend("\tgammaColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(";\n");
-        fsBuilder->codeAppend("\tval.z = gammaColor.r;\n");
+        fsBuilder->codeAppend(".r;\n");
+        fsBuilder->codeAppend("\tval.z = gammaColor;\n");
 
         fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
