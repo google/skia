@@ -87,22 +87,25 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
+
 static void make_3x3_bitmap(SkBitmap* bitmap) {
+    const int xSize = 3;
+    const int ySize = 3;
 
-    static const int gXSize = 3;
-    static const int gYSize = 3;
-
-    SkColor textureData[gXSize][gYSize] = {
+    const SkColor textureData[xSize][ySize] = {
         { SK_ColorRED,    SK_ColorWHITE, SK_ColorBLUE },
         { SK_ColorGREEN,  SK_ColorBLACK, SK_ColorCYAN },
         { SK_ColorYELLOW, SK_ColorGRAY,  SK_ColorMAGENTA }
     };
 
+    bitmap->allocN32Pixels(xSize, ySize, true);
+    SkCanvas canvas(*bitmap);
+    SkPaint paint;
 
-    bitmap->allocN32Pixels(gXSize, gYSize);
-    for (int y = 0; y < gYSize; y++) {
-        for (int x = 0; x < gXSize; x++) {
-            *bitmap->getAddr32(x, y) = textureData[x][y];
+    for (int y = 0; y < ySize; y++) {
+        for (int x = 0; x < xSize; x++) {
+            paint.setColor(textureData[x][y]);
+            canvas.drawIRect(SkIRect::MakeXYWH(x, y, 1, 1), paint);
         }
     }
 }
