@@ -82,9 +82,7 @@ struct SkScalerContextRec {
 
     void    getMatrixFrom2x2(SkMatrix*) const;
     void    getLocalMatrix(SkMatrix*) const;
-    void    getLocalMatrixWithoutTextSize(SkMatrix*) const;
     void    getSingleMatrix(SkMatrix*) const;
-    void    getSingleMatrixWithoutTextSize(SkMatrix*) const;
 
     /** The kind of scale which will be applied by the underlying port (pre-matrix). */
     enum PreMatrixScale {

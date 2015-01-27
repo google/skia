@@ -700,21 +700,8 @@ void SkScalerContextRec::getLocalMatrix(SkMatrix* m) const {
     SkPaint::SetTextMatrix(m, fTextSize, fPreScaleX, fPreSkewX);
 }
 
-void SkScalerContextRec::getLocalMatrixWithoutTextSize(SkMatrix* m) const {
-    SkPaint::SetTextMatrix(m, SK_Scalar1, fPreScaleX, fPreSkewX);
-}
-
 void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
     this->getLocalMatrix(m);
-
-    //  now concat the device matrix
-    SkMatrix    deviceMatrix;
-    this->getMatrixFrom2x2(&deviceMatrix);
-    m->postConcat(deviceMatrix);
-}
-
-void SkScalerContextRec::getSingleMatrixWithoutTextSize(SkMatrix* m) const {
-    this->getLocalMatrixWithoutTextSize(m);
 
     //  now concat the device matrix
     SkMatrix    deviceMatrix;
