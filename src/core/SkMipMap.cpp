@@ -9,32 +9,54 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 
-static void downsampleby2_proc32(SkBitmap* dst, int x, int y,
-                                 const SkBitmap& src) {
+static void downsample32_nocheck(void* dst, int, int, const void* srcPtr, const SkBitmap& srcBM) {
+    const uint32_t* p = static_cast<const uint32_t*>(srcPtr);
+    const uint32_t* baseP = p;
+    uint32_t c, ag, rb;
+
+    c = *p; ag = (c >> 8) & 0xFF00FF; rb = c & 0xFF00FF;
+    p += 1;
+
+    c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
+
+    p = baseP;
+    p += srcBM.rowBytes() >> 2;
+
+    c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
+    p += 1;
+
+    c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
+
+    *(uint32_t*)dst = ((rb >> 2) & 0xFF00FF) | ((ag << 6) & 0xFF00FF00);
+}
+
+static void downsample32_check(void* dst, int x, int y, const void* srcPtr, const SkBitmap& srcBM) {
+    const uint32_t* p = static_cast<const uint32_t*>(srcPtr);
+    const uint32_t* baseP = p;
+
     x <<= 1;
     y <<= 1;
-    const SkPMColor* p = src.getAddr32(x, y);
-    const SkPMColor* baseP = p;
+    SkASSERT(srcBM.getAddr32(x, y) == p);
+
     SkPMColor c, ag, rb;
 
     c = *p; ag = (c >> 8) & 0xFF00FF; rb = c & 0xFF00FF;
-    if (x < src.width() - 1) {
+    if (x < srcBM.width() - 1) {
         p += 1;
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
 
     p = baseP;
-    if (y < src.height() - 1) {
-        p += src.rowBytes() >> 2;
+    if (y < srcBM.height() - 1) {
+        p += srcBM.rowBytes() >> 2;
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
-    if (x < src.width() - 1) {
+    if (x < srcBM.width() - 1) {
         p += 1;
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
 
-    *dst->getAddr32(x >> 1, y >> 1) =
-    ((rb >> 2) & 0xFF00FF) | ((ag << 6) & 0xFF00FF00);
+    *((uint32_t*)dst) = ((rb >> 2) & 0xFF00FF) | ((ag << 6) & 0xFF00FF00);
 }
 
 static inline uint32_t expand16(U16CPU c) {
@@ -47,31 +69,33 @@ static inline U16CPU pack16(uint32_t c) {
     return (c & ~SK_G16_MASK_IN_PLACE) | ((c >> 16) & SK_G16_MASK_IN_PLACE);
 }
 
-static void downsampleby2_proc16(SkBitmap* dst, int x, int y,
-                                 const SkBitmap& src) {
+static void downsample16(void* dst, int x, int y, const void* srcPtr, const SkBitmap& srcBM) {
+    const uint16_t* p = static_cast<const uint16_t*>(srcPtr);
+    const uint16_t* baseP = p;
+
     x <<= 1;
     y <<= 1;
-    const uint16_t* p = src.getAddr16(x, y);
-    const uint16_t* baseP = p;
-    SkPMColor       c;
+    SkASSERT(srcBM.getAddr16(x, y) == p);
+
+    SkPMColor c;
 
     c = expand16(*p);
-    if (x < src.width() - 1) {
+    if (x < srcBM.width() - 1) {
         p += 1;
     }
     c += expand16(*p);
 
     p = baseP;
-    if (y < src.height() - 1) {
-        p += src.rowBytes() >> 1;
+    if (y < srcBM.height() - 1) {
+        p += srcBM.rowBytes() >> 1;
     }
     c += expand16(*p);
-    if (x < src.width() - 1) {
+    if (x < srcBM.width() - 1) {
         p += 1;
     }
     c += expand16(*p);
 
-    *dst->getAddr16(x >> 1, y >> 1) = (uint16_t)pack16(c >> 2);
+    *((uint16_t*)dst) = (uint16_t)pack16(c >> 2);
 }
 
 static uint32_t expand4444(U16CPU c) {
@@ -82,31 +106,33 @@ static U16CPU collaps4444(uint32_t c) {
     return (c & 0xF0F) | ((c >> 12) & ~0xF0F);
 }
 
-static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
-                                   const SkBitmap& src) {
+static void downsample4444(void* dst, int x, int y, const void* srcPtr, const SkBitmap& srcBM) {
+    const uint16_t* p = static_cast<const uint16_t*>(srcPtr);
+    const uint16_t* baseP = p;
+
     x <<= 1;
     y <<= 1;
-    const uint16_t* p = src.getAddr16(x, y);
-    const uint16_t* baseP = p;
-    uint32_t        c;
+    SkASSERT(srcBM.getAddr16(x, y) == p);
+
+    uint32_t c;
 
     c = expand4444(*p);
-    if (x < src.width() - 1) {
+    if (x < srcBM.width() - 1) {
         p += 1;
     }
     c += expand4444(*p);
 
     p = baseP;
-    if (y < src.height() - 1) {
-        p += src.rowBytes() >> 1;
+    if (y < srcBM.height() - 1) {
+        p += srcBM.rowBytes() >> 1;
     }
     c += expand4444(*p);
-    if (x < src.width() - 1) {
+    if (x < srcBM.width() - 1) {
         p += 1;
     }
     c += expand4444(*p);
 
-    *dst->getAddr16(x >> 1, y >> 1) = (uint16_t)collaps4444(c >> 2);
+   *((uint16_t*)dst) = (uint16_t)collaps4444(c >> 2);
 }
 
 size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
@@ -120,21 +146,26 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
+typedef void SkDownSampleProc(void*, int x, int y, const void* srcPtr, const SkBitmap& srcBM);
+
 SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
-    void (*proc)(SkBitmap* dst, int x, int y, const SkBitmap& src);
+    SkDownSampleProc* proc_nocheck, *proc_check;
 
     const SkColorType ct = src.colorType();
     const SkAlphaType at = src.alphaType();
     switch (ct) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            proc = downsampleby2_proc32;
+            proc_check = downsample32_check;
+            proc_nocheck = downsample32_nocheck;
             break;
         case kRGB_565_SkColorType:
-            proc = downsampleby2_proc16;
+            proc_check = downsample16;
+            proc_nocheck = proc_check;
             break;
         case kARGB_4444_SkColorType:
-            proc = downsampleby2_proc4444;
+            proc_check = downsample4444;
+            proc_nocheck = proc_check;
             break;
         default:
             return NULL; // don't build mipmaps for any other colortypes (yet)
@@ -208,11 +239,37 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         dstBM.installPixels(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
 
         srcBM.lockPixels();
-        for (int y = 0; y < height; y++) {
+        const int widthEven = width & ~1;
+        const int heightEven = height & ~1;
+        const size_t pixelSize = srcBM.info().bytesPerPixel();
+
+        const void* srcBasePtr = srcBM.getPixels();
+        void* dstBasePtr = dstBM.getPixels();
+        for (int y = 0; y < heightEven; y++) {
+            const void* srcPtr = srcBasePtr;
+            void* dstPtr = dstBasePtr;
+            for (int x = 0; x < widthEven; x++) {
+                proc_nocheck(dstPtr, x, y, srcPtr, srcBM);
+                srcPtr = (char*)srcPtr + pixelSize * 2;
+                dstPtr = (char*)dstPtr + pixelSize;
+            }
+            if (width & 1) {
+                proc_check(dstPtr, widthEven, y, srcPtr, srcBM);
+            }
+
+            srcBasePtr = (char*)srcBasePtr + srcBM.rowBytes() * 2;
+            dstBasePtr = (char*)dstBasePtr + dstBM.rowBytes();
+        }
+        if (height & 1) {
+            const void* srcPtr = srcBasePtr;
+            void* dstPtr = dstBasePtr;
             for (int x = 0; x < width; x++) {
-                proc(&dstBM, x, y, srcBM);
+                proc_check(dstPtr, x, heightEven, srcPtr, srcBM);
+                srcPtr = (char*)srcPtr + pixelSize * 2;
+                dstPtr = (char*)dstPtr + pixelSize;
             }
         }
+
         srcBM.unlockPixels();
 
         srcBM = dstBM;
