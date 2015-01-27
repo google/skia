@@ -202,10 +202,7 @@ private:
         SkGlyph*    fGlyph;
     };
     // no reason to use the same kHashCount as fGlyphHash, but we do for now
-    // Dynamically allocated when chars are encountered.
-    SkAutoTDelete<CharGlyphRec> fCharToGlyphHash;
-    
-    CharGlyphRec* getCharGlyphRec(uint32_t id);
+    CharGlyphRec    fCharToGlyphHash[kHashCount];
 
     static inline unsigned ID2HashIndex(uint32_t id) {
         id ^= id >> 16;
