@@ -44,7 +44,14 @@ public:
      *  Write all collected results to the file FLAGS_writePath[0]/dm.json.
      */
     static void DumpJson();
+
+    /**
+     * Read JSON file at path written by DumpJson, calling callback for each
+     * BitmapResult recorded in the file.  Return success.
+     */
+    static bool ReadJson(const char* path, void(*callback)(BitmapResult));
 };
+
 
 } // namespace DM
 #endif // DMJsonWriter_DEFINED

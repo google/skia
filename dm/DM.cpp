@@ -4,11 +4,13 @@
 #include "OverwriteLine.h"
 #include "ProcStats.h"
 #include "SkBBHFactory.h"
+#include "SkChecksum.h"
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
+#include "SkTDynamicHash.h"
 #include "SkTaskGroup.h"
 #include "Test.h"
 #include "Timer.h"
@@ -27,6 +29,8 @@ DEFINE_string(blacklist, "",
         "Space-separated config/src/name triples to blacklist.  '_' matches anything.  E.g. \n"
         "'--blacklist gpu skp _' will blacklist all SKPs drawn into the gpu config.\n"
         "'--blacklist gpu skp _ 8888 gm aarects' will also blacklist the aarects GM on 8888.");
+
+DEFINE_string2(readPath, r, "", "If set check for equality with golden results in this directory.");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
@@ -57,6 +61,40 @@ static void done(double ms, ImplicitString config, ImplicitString src, ImplicitS
     // Notice this also handles the final dm.json when pending == 0.
     if (pending % 500 == 0) {
         JsonWriter::DumpJson();
+    }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+struct Gold : public SkString {
+    Gold(ImplicitString sink, ImplicitString src, ImplicitString name, ImplicitString md5)
+        : SkString("") {
+        this->append(sink);
+        this->append(src);
+        this->append(name);
+        this->append(md5);
+        while (this->size() % 4) {
+            this->append("!");  // Pad out if needed so we can pass this to Murmur3.
+        }
+    }
+    static const Gold& GetKey(const Gold& g) { return g; }
+    static uint32_t Hash(const Gold& g) {
+        return SkChecksum::Murmur3((const uint32_t*)g.c_str(), g.size());
+    }
+};
+static SkTDynamicHash<Gold, Gold> gGold;
+
+static void add_gold(JsonWriter::BitmapResult r) {
+    gGold.add(new Gold(r.config, r.sourceType, r.name, r.md5));  // We'll let these leak. Lazybones.
+}
+
+static void gather_gold() {
+    if (!FLAGS_readPath.isEmpty()) {
+        SkString path(FLAGS_readPath[0]);
+        path.append("/dm.json");
+        if (!JsonWriter::ReadJson(path.c_str(), add_gold)) {
+            fail(SkStringPrintf("Couldn't read %s for golden results.", path.c_str()));
+        }
     }
 }
 
@@ -256,14 +294,40 @@ struct Task {
                                     name.c_str(),
                                     err.c_str()));
             }
+            SkAutoTDelete<SkStreamAsset> data(stream.detachAsStream());
+
+            SkString md5;
+            if (!FLAGS_writePath.isEmpty() || !FLAGS_readPath.isEmpty()) {
+                SkMD5 hash;
+                if (data->getLength()) {
+                    hash.writeStream(data, data->getLength());
+                    data->rewind();
+                } else {
+                    hash.write(bitmap.getPixels(), bitmap.getSize());
+                }
+                SkMD5::Digest digest;
+                hash.finish(digest);
+                for (int i = 0; i < 16; i++) {
+                    md5.appendf("%02x", digest.data[i]);
+                }
+            }
+
+            if (!FLAGS_readPath.isEmpty() &&
+                !gGold.find(Gold(task->sink.tag, task->src.tag, name, md5))) {
+                fail(SkStringPrintf("%s not found for %s %s %s in %s",
+                                    md5.c_str(),
+                                    task->sink.tag,
+                                    task->src.tag,
+                                    name.c_str(),
+                                    FLAGS_readPath[0]));
+            }
+
             if (!FLAGS_writePath.isEmpty()) {
                 const char* ext = task->sink->fileExtension();
-                if (stream.bytesWritten() == 0) {
-                    SkMemoryStream pixels(bitmap.getPixels(), bitmap.getSize());
-                    WriteToDisk(*task, &pixels, bitmap.getSize(), &bitmap, ext);
+                if (data->getLength()) {
+                    WriteToDisk(*task, md5, ext, data, data->getLength(), NULL);
                 } else {
-                    SkAutoTDelete<SkStreamAsset> data(stream.detachAsStream());
-                    WriteToDisk(*task, data, data->getLength(), NULL, ext);
+                    WriteToDisk(*task, md5, ext, NULL, 0, &bitmap);
                 }
             }
         }
@@ -275,22 +339,16 @@ struct Task {
     }
 
     static void WriteToDisk(const Task& task,
+                            SkString md5,
+                            const char* ext,
                             SkStream* data, size_t len,
-                            const SkBitmap* bitmap,
-                            const char* ext) {
-        SkMD5 hash;
-        hash.writeStream(data, len);
-        SkMD5::Digest digest;
-        hash.finish(digest);
-
+                            const SkBitmap* bitmap) {
         JsonWriter::BitmapResult result;
         result.name       = task.src->name();
         result.config     = task.sink.tag;
         result.sourceType = task.src.tag;
         result.ext        = ext;
-        for (int i = 0; i < 16; i++) {
-            result.md5.appendf("%02x", digest.data[i]);
-        }
+        result.md5        = md5;
         JsonWriter::AddBitmapResult(result);
 
         const char* dir = FLAGS_writePath[0];
@@ -323,7 +381,6 @@ struct Task {
             return;
         }
 
-        data->rewind();
         if (bitmap) {
             // We can't encode A8 bitmaps as PNGs.  Convert them to 8888 first.
             SkBitmap converted;
@@ -417,6 +474,8 @@ int dm_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
+
+    gather_gold();
 
     gather_srcs();
     gather_sinks();
