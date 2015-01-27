@@ -354,6 +354,11 @@
         # Revert to -D_FORTIFY_SOURCE=1
         '-U_FORTIFY_SOURCE',
         '-D_FORTIFY_SOURCE=1',
+
+        # We can't use the skia_shared_library gyp setting because we need to
+        # isolate this define to Skia sources. CFLAGS are local to Android.mk
+        # and ensures that this define is not exported to clients of the library
+        '-DSKIA_IMPLEMENTATION=1',
       ],
       # Remove flags which are either unnecessary or problematic for the
       # Android framework build. Many of these flags are removed simply because
@@ -399,6 +404,9 @@
         'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
         'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
         'SK_IGNORE_ETC1_SUPPORT',
+        # We can't use the skia_shared_library gyp setting because we need expose
+        # this define globally and the the implemention define as a cflag.
+        'SKIA_DLL',
         # Defines from skia_for_android_framework_defines.gypi
         '<@(skia_for_android_framework_defines)',
       ],
