@@ -502,9 +502,11 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
 
     GrTexture* texture = fGpu->createTexture(*desc, true, NULL, 0);
 #ifdef SK_DEBUG
-    GrScratchKey key;
-    GrTexturePriv::ComputeScratchKey(*desc, &key);
-    SkASSERT(NULL == texture || texture->cacheAccess().getScratchKey() == key);
+    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+        GrScratchKey key;
+        GrTexturePriv::ComputeScratchKey(*desc, &key);
+        SkASSERT(NULL == texture || texture->cacheAccess().getScratchKey() == key);
+    }
 #endif
     return texture;
 }
