@@ -44,7 +44,7 @@ namespace sk_tool_utils {
     SkShader* create_checkerboard_shader(SkColor c1, SkColor c2, int size);
 
     /** Draw a checkerboard pattern in the current canvas, restricted to
-        the current clip. */
+        the current clip, using SkXfermode::kSrc_Mode. */
     void draw_checkerboard(SkCanvas* canvas,
                            SkColor color1,
                            SkColor color2,
