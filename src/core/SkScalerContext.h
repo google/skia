@@ -243,6 +243,8 @@ public:
 
     static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);
 
+    const Rec& getRec() const { return fRec; }
+
 protected:
     Rec         fRec;
 

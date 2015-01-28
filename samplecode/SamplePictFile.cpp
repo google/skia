@@ -30,6 +30,8 @@
 #include "SkSurface.h"
 #include "SkXMLParser.h"
 
+#include "SkGlyphCache.h"
+
 class PictFileView : public SampleView {
 public:
     PictFileView(const char name[] = NULL)
@@ -89,12 +91,21 @@ protected:
         SkASSERT(static_cast<int>(fBBox) < kBBoxTypeCount);
         SkPicture** picture = fPictures + fBBox;
 
+#ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
+        SkGraphics::PurgeFontCache();
+#endif
+
         if (!*picture) {
             *picture = LoadPicture(fFilename.c_str(), fBBox);
         }
         if (*picture) {
             canvas->drawPicture(*picture);
         }
+
+#ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
+        SkGlyphCache::Dump();
+        SkDebugf("\n");
+#endif
     }
 
 private:

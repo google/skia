@@ -52,6 +52,19 @@ public:
     }
 
     /**
+     * uint32_t -> uint32_t hash, useful for when you're about to trucate this hash but you
+     * suspect its low bits aren't well mixed.
+     *
+     *  This version is 2-lines cheaper than Mix, but seems to be sufficient for the font cache.
+     */
+    static uint32_t CheapMix(uint32_t hash) {
+        hash ^= hash >> 16;
+        hash *= 0x85ebca6b;
+        hash ^= hash >> 16;
+        return hash;
+    }
+
+    /**
      * Calculate 32-bit Murmur hash (murmur3).
      * This should take 2-3x longer than SkChecksum::Compute, but is a considerably better hash.
      * See en.wikipedia.org/wiki/MurmurHash.

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkGlyphCache_DEFINED
 #define SkGlyphCache_DEFINED
 
 #include "SkBitmap.h"
+#include "SkChecksum.h"
 #include "SkChunkAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
@@ -22,6 +21,10 @@ struct SkDeviceProperties;
 class SkPaint;
 
 class SkGlyphCache_Globals;
+
+// Enable this locally to add stats for hash-table hit rates. It also extends the dump()
+// output to show those stats.
+//#define SK_GLYPHCACHE_TRACK_HASH_STATS
 
 /** \class SkGlyphCache
 
@@ -101,6 +104,8 @@ public:
         return fScalerContext->isSubpixel();
     }
 
+    void dump() const;
+
     /*  AuxProc/Data allow a client to associate data with this cache entry.
         Multiple clients can use this, as their data is keyed with a function
         pointer. In addition to serving as a key, the function pointer is called
@@ -144,6 +149,8 @@ public:
                                      const SkDescriptor* desc) {
         return VisitCache(typeface, desc, DetachProc, NULL);
     }
+
+    static void Dump();
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -204,14 +211,18 @@ private:
     // no reason to use the same kHashCount as fGlyphHash, but we do for now
     CharGlyphRec    fCharToGlyphHash[kHashCount];
 
-    static inline unsigned ID2HashIndex(uint32_t id) {
-        id ^= id >> 16;
-        id ^= id >> 8;
-        return id & kHashMask;
+    static inline unsigned ID2HashIndex(uint32_t h) {
+        return SkChecksum::CheapMix(h) & kHashMask;
     }
 
     // used to track (approx) how much ram is tied-up in this cache
     size_t  fMemoryUsed;
+
+
+#ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
+    int fHashHitCount;
+    int fHashMissCount;
+#endif
 
     struct AuxProcRec {
         AuxProcRec* fNext;
