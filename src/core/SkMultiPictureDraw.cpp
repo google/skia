@@ -86,7 +86,7 @@ public:
 
 //#define FORCE_SINGLE_THREAD_DRAWING_FOR_TESTING
 
-void SkMultiPictureDraw::draw() {
+void SkMultiPictureDraw::draw(bool flush) {
     AutoMPDReset mpdreset(this);
 
 #ifdef FORCE_SINGLE_THREAD_DRAWING_FOR_TESTING
@@ -191,6 +191,9 @@ void SkMultiPictureDraw::draw() {
 #endif
         {
             canvas->drawPicture(picture, &data.fMatrix, data.fPaint);
+        }
+        if (flush) {
+            canvas->flush();
         }
     }
 
