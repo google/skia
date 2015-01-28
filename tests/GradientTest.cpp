@@ -12,6 +12,30 @@
 #include "SkTemplates.h"
 #include "Test.h"
 
+// https://code.google.com/p/chromium/issues/detail?id=448299
+// Giant (inverse) matrix causes overflow when converting/computing using 32.32
+// Before the fix, we would assert (and then crash).
+static void test_big_grad(skiatest::Reporter* reporter) {
+    const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+    const SkPoint pts[] = {{ 15, 14.7112684f }, { 0.709064007f, 12.6108112f }};
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    SkPaint paint;
+    paint.setShader(s)->unref();
+
+    SkBitmap bm;
+    bm.allocN32Pixels(2000, 1);
+    SkCanvas c(bm);
+
+    const SkScalar affine[] = {
+        1.06608627e-06f, 4.26434525e-07f, 6.2855f, 2.6611f, 273.4393f, 244.0046f
+    };
+    SkMatrix matrix;
+    matrix.setAffine(affine);
+    c.concat(matrix);
+    
+    c.drawPaint(paint);
+}
+
 struct GradRec {
     int             fColorCount;
     const SkColor*  fColors;
@@ -192,4 +216,5 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
+    test_big_grad(reporter);
 }

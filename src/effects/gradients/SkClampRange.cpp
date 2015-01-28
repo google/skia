@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,8 +5,33 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkClampRange.h"
+#include "SkMath.h"
+
+static int SkCLZ64(uint64_t value) {
+    int count = 0;
+    if (value >> 32) {
+        value >>= 32;
+    } else {
+        count += 32;
+    }
+    return count + SkCLZ(SkToU32(value));
+}
+
+static bool sk_64_smul_check(int64_t a, int64_t b, int64_t* result) {
+    // Do it the slow way until we have some assembly.
+    int64_t ua = SkTAbs(a);
+    int64_t ub = SkTAbs(b);
+    int zeros = SkCLZ64(ua) + SkCLZ64(ub);
+    // this is a conservative check: it may return false when in fact it would not have overflowed.
+    // Hackers Delight uses 34 as its convervative check, but that is for 32x32 multiplies.
+    // Since we are looking at 64x64 muls, we add 32 to the check.
+    if (zeros < (32 + 34)) {
+        return false;
+    }
+    *result = a * b;
+    return true;
+}
 
 /*
  *  returns [0..count] for the number of steps (<= count) for which x0 <= edge
@@ -58,6 +82,14 @@ void SkClampRange::init(SkGradFixed fx0, SkGradFixed dx0, int count, int v0, int
     int64_t dx = dx0;
 
     // start with ex equal to the last computed value
+    int64_t count_times_dx;
+    if (!sk_64_smul_check(count - 1, dx, &count_times_dx)) {
+        // we can't represent the computed end in 32.32, so just draw something (first color)
+        fCount1 = fCount2 = 0;
+        fCount0 = count;
+        return;
+    }
+
     int64_t ex = fx + (count - 1) * dx;
 
     if ((uint64_t)(fx | ex) <= kFracMax_SkGradFixed) {
@@ -77,8 +109,6 @@ void SkClampRange::init(SkGradFixed fx0, SkGradFixed dx0, int count, int v0, int
         return;
     }
 
-    int extraCount = 0;
-
     // now make ex be 1 past the last computed value
     ex += dx;
 
@@ -93,11 +123,15 @@ void SkClampRange::init(SkGradFixed fx0, SkGradFixed dx0, int count, int v0, int
 
 
     fCount0 = chop(fx, 0, ex, dx, count);
+    SkASSERT(fCount0 >= 0);
+    SkASSERT(fCount0 <= count);
     count -= fCount0;
     fx += fCount0 * dx;
     SkASSERT(fx >= 0);
     SkASSERT(fCount0 == 0 || (fx - dx) < 0);
     fCount1 = chop(fx, kFracMax_SkGradFixed, ex, dx, count);
+    SkASSERT(fCount1 >= 0);
+    SkASSERT(fCount1 <= count);
     count -= fCount1;
     fCount2 = count;
 
@@ -120,11 +154,5 @@ void SkClampRange::init(SkGradFixed fx0, SkGradFixed dx0, int count, int v0, int
 
     if (fCount1 > 0) {
         fFx1 = fx0 + fCount0 * dx;
-    }
-
-    if (dx > 0) {
-        fCount2 += extraCount;
-    } else {
-        fCount0 += extraCount;
     }
 }

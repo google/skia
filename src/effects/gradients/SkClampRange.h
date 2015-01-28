@@ -35,6 +35,15 @@ struct SkClampRange {
 
     void init(SkGradFixed fx, SkGradFixed dx, int count, int v0, int v1);
 
+    void validate(int count) const {
+#ifdef SK_DEBUG
+        SkASSERT(fCount0 >= 0);
+        SkASSERT(fCount1 >= 0);
+        SkASSERT(fCount2 >= 0);
+        SkASSERT(fCount0 + fCount1 + fCount2 == count);
+#endif
+    }
+
 private:
     void initFor1(SkGradFixed fx);
 };
