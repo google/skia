@@ -23,12 +23,8 @@ public:
 
     size_t size() const {
         this->validate();
+        SkASSERT(this->isValid());
         return this->internalSize();
-    }
-
-    const uint32_t* data() const {
-        this->validate();
-        return &fKey[kMetaDataCnt];
     }
 
 protected:
@@ -62,6 +58,15 @@ protected:
     bool isValid() const { return kInvalidDomain != this->domain(); }
 
     uint32_t domain() const { return fKey[kDomainAndSize_MetaDataIdx] & 0xffff; }
+
+    /** size of the key data, excluding meta-data (hash, domain, etc).  */
+    size_t dataSize() const { return this->size() - 4 * kMetaDataCnt; }
+ 
+    /** ptr to the key data, excluding meta-data (hash, domain, etc).  */
+    const uint32_t* data() const {
+        this->validate();
+        return &fKey[kMetaDataCnt];
+    }
 
     /** Used to initialize a key. */
     class Builder {
@@ -101,16 +106,6 @@ protected:
     };
 
 private:
-    size_t internalSize() const {
-        return fKey[kDomainAndSize_MetaDataIdx] >> 16;
-    }
-
-    void validate() const {
-        SkASSERT(fKey[kHash_MetaDataIdx] ==
-                 GrResourceKeyHash(&fKey[kHash_MetaDataIdx] + 1,
-                                   this->internalSize() - sizeof(uint32_t)));
-    }
-
     enum MetaDataIdx {
         kHash_MetaDataIdx,
         // The key domain and size are packed into a single uint32_t.
@@ -119,6 +114,17 @@ private:
         kLastMetaDataIdx = kDomainAndSize_MetaDataIdx
     };
     static const uint32_t kMetaDataCnt = kLastMetaDataIdx + 1;
+
+    size_t internalSize() const {
+        return fKey[kDomainAndSize_MetaDataIdx] >> 16;
+    }
+
+    void validate() const {
+        SkASSERT(fKey[kHash_MetaDataIdx] ==
+                 GrResourceKeyHash(&fKey[kHash_MetaDataIdx] + 1,
+                                   this->internalSize() - sizeof(uint32_t)));
+        SkASSERT(SkIsAlign4(this->internalSize()));
+    }
 
     friend class TestResource; // For unit test to access kMetaDataCnt.
 
@@ -213,12 +219,18 @@ public:
         /** Used to build a key that wraps another key and adds additional data. */
         Builder(GrContentKey* key, const GrContentKey& innerKey, Domain domain,
                 int extraData32Cnt)
-            : INHERITED::Builder(key, domain, (SkToInt(innerKey.size()) >> 2) + extraData32Cnt) {
-            int innerKeyCnt = SkToInt(innerKey.size()) >> 2;
+            : INHERITED::Builder(key, domain, Data32CntForInnerKey(innerKey) + extraData32Cnt) {
             // add the inner key to the end of the key so that op[] can be indexed normally.
-            for (int i = 0; i < innerKeyCnt; ++i) {
-                this->operator[](extraData32Cnt + i) = innerKey.data()[i];
-            }
+            uint32_t* innerKeyData = &this->operator[](extraData32Cnt);
+            const uint32_t* srcData = innerKey.data();
+            (*innerKeyData++) = innerKey.domain();
+            memcpy(innerKeyData, srcData, innerKey.dataSize());
+        }
+
+    private:
+        static int Data32CntForInnerKey(const GrContentKey& innerKey) {
+            // key data + domain
+            return SkToInt((innerKey.dataSize() >> 2) + 1);
         }
     };
 };
