@@ -117,6 +117,15 @@ private:
     SkColorType    fColorType;
 };
 
+class SKPSink : public Sink {
+public:
+    SKPSink();
+
+    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
+    const char* fileExtension() const SK_OVERRIDE { return "skp"; }
+};
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 class ViaMatrix : public Sink {

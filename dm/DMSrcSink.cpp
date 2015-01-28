@@ -197,6 +197,23 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+SKPSink::SKPSink() {}
+
+Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
+    SkSize size;
+    size = src.size();
+    SkPictureRecorder recorder;
+    Error err = src.draw(recorder.beginRecording(size.width(), size.height()));
+    if (!err.isEmpty()) {
+        return err;
+    }
+    SkAutoTUnref<SkPicture> pic(recorder.endRecording());
+    pic->serialize(dst);
+    return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 RasterSink::RasterSink(SkColorType colorType) : fColorType(colorType) {}
 
 Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
