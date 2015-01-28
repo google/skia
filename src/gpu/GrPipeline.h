@@ -17,8 +17,8 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
+class GrBatch;
 class GrDeviceCoordTexture;
-class GrPathProcessor;
 class GrPipelineBuilder;
 
 /**
@@ -29,9 +29,13 @@ class GrPipeline {
 public:
     SK_DECLARE_INST_COUNT(GrPipeline)
 
+    // TODO get rid of this version of the constructor when we use batch everywhere
     GrPipeline(const GrPipelineBuilder& pipelineBuilder, const GrPrimitiveProcessor*,
                const GrDrawTargetCaps&, const GrScissorState&,
                const GrDeviceCoordTexture* dstCopy);
+
+    GrPipeline(GrBatch*, const GrPipelineBuilder&, const GrDrawTargetCaps&,
+               const GrScissorState&, const GrDeviceCoordTexture* dstCopy);
 
     /*
      * Returns true if it is possible to combine the two GrPipelines and it will update 'this'
@@ -132,9 +136,17 @@ public:
 
     const GrProgramDesc::DescInfo& descInfo() const { return fDescInfo; }
 
-    const GrGeometryProcessor::InitBT& getInitBatchTracker() const { return fInitBT; }
+    const GrPipelineInfo& getInitBatchTracker() const { return fInitBT; }
 
 private:
+    // TODO we can have one constructor once GrBatch is complete
+    void internalConstructor(const GrPipelineBuilder&,
+                             const GrProcOptInfo& colorPOI,
+                             const GrProcOptInfo& coveragePOI,
+                             const GrDrawTargetCaps&,
+                             const GrScissorState&,
+                             const GrDeviceCoordTexture* dstCopy);
+
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
@@ -164,13 +176,13 @@ private:
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
     GrStencilSettings                   fStencilSettings;
-    GrPipelineBuilder::DrawFace               fDrawFace;
+    GrPipelineBuilder::DrawFace         fDrawFace;
     GrDeviceCoordTexture                fDstCopy;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
     GrProgramDesc::DescInfo             fDescInfo;
-    GrGeometryProcessor::InitBT         fInitBT;
+    GrPipelineInfo                      fInitBT;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;

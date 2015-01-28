@@ -87,8 +87,6 @@ void GrFlushToGpuDrawTarget::flush() {
     fFlushing = true;
 
     fGpu->getContext()->getFontCache()->updateTextures();
-    fVertexPool->unmap();
-    fIndexPool->unmap();
 
     fGpu->saveActiveTraceMarkers();
 

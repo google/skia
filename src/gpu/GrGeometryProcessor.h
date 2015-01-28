@@ -9,7 +9,6 @@
 #define GrGeometryProcessor_DEFINED
 
 #include "GrColor.h"
-#include "GrGeometryData.h"
 #include "GrProcessor.h"
 #include "GrShaderVar.h"
 
@@ -46,6 +45,8 @@
 /*
  * A struct for tracking batching decisions.  While this lives on GrOptState, it is managed
  * entirely by the derived classes of the GP.
+ * // TODO this was an early attempt at handling out of order batching.  It should be
+ * used carefully as it is being replaced by GrBatch
  */
 class GrBatchTracker {
 public:
@@ -65,12 +66,24 @@ private:
     SkAlignedSStorage<kMaxSize> fData;
 };
 
+class GrIndexBufferAllocPool;
 class GrGLCaps;
 class GrGLPrimitiveProcessor;
-class GrOptDrawState;
+class GrVertexBufferAllocPool;
 
 struct GrInitInvariantOutput;
 
+/*
+ * This struct allows the GrPipeline to communicate information about the pipeline.  Most of this
+ * is overrides, but some of it is general information.  Logically it should live in GrPipeline.h,
+ * but this is problematic due to circular dependencies.
+ */
+struct GrPipelineInfo {
+    bool fColorIgnored;
+    bool fCoverageIgnored;
+    GrColor fOverrideColor;
+    bool fUsesLocalCoords;
+};
 
 /*
  * This enum is shared by GrPrimitiveProcessors and GrGLPrimitiveProcessors to coordinate shaders
@@ -95,17 +108,7 @@ public:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
-    /*
-     * This struct allows the optstate to communicate requirements to the GrPrimitiveProcessor.
-     */
-    struct InitBT {
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        GrColor fOverrideColor;
-        bool fUsesLocalCoords;
-    };
-
-    virtual void initBatchTracker(GrBatchTracker*, const InitBT&) const = 0;
+    virtual void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const = 0;
 
     virtual bool canMakeEqual(const GrBatchTracker& mine,
                               const GrPrimitiveProcessor& that,
@@ -304,7 +307,8 @@ protected:
      * TODO this function changes quite a bit with deferred geometry.  There the GrGeometryProcessor
      * can upload a new color via attribute if needed.
      */
-    static GrGPInput GetColorInputType(GrColor* color, GrColor primitiveColor, const InitBT& init,
+    static GrGPInput GetColorInputType(GrColor* color, GrColor primitiveColor,
+                                       const GrPipelineInfo& init,
                                        bool hasVertexColor) {
         if (init.fColorIgnored) {
             *color = GrColor_ILLEGAL;
@@ -378,7 +382,7 @@ public:
         return SkNEW_ARGS(GrPathProcessor, (color, viewMatrix, localMatrix));
     }
     
-    void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const SK_OVERRIDE;
 
     bool canMakeEqual(const GrBatchTracker& mine,
                       const GrPrimitiveProcessor& that,

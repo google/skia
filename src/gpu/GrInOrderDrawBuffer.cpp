@@ -7,6 +7,7 @@
 
 #include "GrInOrderDrawBuffer.h"
 
+#include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
@@ -20,7 +21,9 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     : INHERITED(gpu, vertexPool, indexPool)
     , fCmdBuffer(kCmdBufferInitialSizeInBytes)
     , fPrevState(NULL)
-    , fDrawID(0) {
+    , fDrawID(0)
+    , fBatchTarget(gpu, vertexPool, indexPool)
+    , fDrawBatch(NULL) {
 
     SkASSERT(vertexPool);
     SkASSERT(indexPool);
@@ -210,6 +213,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrPipelineBuilder& pipelineBu
     Draw* draw = static_cast<Draw*>(&fCmdBuffer.back());
 
     if (!draw->fInfo.isInstanced() ||
+        draw->fInfo.primitiveType() != info.primitiveType() ||
         draw->fInfo.verticesPerInstance() != info.verticesPerInstance() ||
         draw->fInfo.indicesPerInstance() != info.indicesPerInstance() ||
         draw->fInfo.vertexBuffer() != info.vertexBuffer() ||
@@ -247,6 +251,9 @@ void GrInOrderDrawBuffer::onDraw(const GrPipelineBuilder& pipelineBuilder,
                                  const GrDeviceCoordTexture* dstCopy) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
 
+    // This closeBatch call is required because we may introduce new draws when we setup clip
+    this->closeBatch();
+
     if (!this->recordStateAndShouldDraw(pipelineBuilder, gp, scissorState, dstCopy)) {
         return;
     }
@@ -262,6 +269,30 @@ void GrInOrderDrawBuffer::onDraw(const GrPipelineBuilder& pipelineBuilder,
         }
     } else {
         draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info));
+    }
+    this->recordTraceMarkersIfNecessary();
+}
+
+void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
+                                      const GrPipelineBuilder& pipelineBuilder,
+                                      const GrScissorState& scissorState,
+                                      const GrDeviceCoordTexture* dstCopy) {
+    if (!this->recordStateAndShouldDraw(batch, pipelineBuilder, scissorState, dstCopy)) {
+        return;
+    }
+
+    // Check if there is a Batch Draw we can batch with
+    if (kDrawBatch_Cmd != strip_trace_bit(fCmdBuffer.back().fType)) {
+        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
+        return;
+    }
+
+    DrawBatch* draw = static_cast<DrawBatch*>(&fCmdBuffer.back());
+    if (draw->fBatch->combineIfPossible(batch)) {
+        return;
+    } else {
+        this->closeBatch();
+        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
     }
     this->recordTraceMarkersIfNecessary();
 }
@@ -286,6 +317,8 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPipelineBuilder& pipelineBuilder,
                                      const GrScissorState& scissorState,
                                      const GrStencilSettings& stencilSettings,
                                      const GrDeviceCoordTexture* dstCopy) {
+    this->closeBatch();
+
     // TODO: Only compare the subset of GrPipelineBuilder relevant to path covering?
     if (!this->recordStateAndShouldDraw(pipelineBuilder, pathProc, scissorState, dstCopy)) {
         return;
@@ -309,6 +342,8 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(pathRange);
     SkASSERT(indices);
     SkASSERT(transformValues);
+
+    this->closeBatch();
 
     if (!this->recordStateAndShouldDraw(pipelineBuilder, pathProc, scissorState, dstCopy)) {
         return;
@@ -403,6 +438,7 @@ void GrInOrderDrawBuffer::onReset() {
     reset_data_buffer(&fPathIndexBuffer, kPathIdxBufferMinReserve);
     reset_data_buffer(&fPathTransformBuffer, kPathXformBufferMinReserve);
     fGpuCmdMarkers.reset();
+    fDrawBatch = NULL;
 }
 
 void GrInOrderDrawBuffer::onFlush() {
@@ -410,14 +446,20 @@ void GrInOrderDrawBuffer::onFlush() {
         return;
     }
 
-
-    CmdBuffer::Iter iter(fCmdBuffer);
-
-    int currCmdMarker = 0;
-
     // Updated every time we find a set state cmd to reflect the current state in the playback
     // stream.
     SetState* currentState = NULL;
+
+    // TODO this is temporary while batch is being rolled out
+    this->closeBatch();
+    this->getVertexAllocPool()->unmap();
+    this->getIndexAllocPool()->unmap();
+    fBatchTarget.preFlush();
+
+    currentState = NULL;
+    CmdBuffer::Iter iter(fCmdBuffer);
+
+    int currCmdMarker = 0;
 
     while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
@@ -429,13 +471,25 @@ void GrInOrderDrawBuffer::onFlush() {
             ++currCmdMarker;
         }
 
-        if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
+        // TODO temporary hack
+        if (kDrawBatch_Cmd == strip_trace_bit(iter->fType)) {
+            fBatchTarget.flushNext();
+            continue;
+        }
+
+        bool isSetState = kSetState_Cmd == strip_trace_bit(iter->fType);
+        if (isSetState) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
-            this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fPipeline,
-                                             ss->fPipeline.descInfo(), ss->fBatchTracker);
+            // TODO sometimes we have a prim proc, othertimes we have a GrBatch.  Eventually we will
+            // only have GrBatch and we can delete this
+            if (ss->fPrimitiveProcessor) {
+                this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor,
+                                                 ss->fPipeline,
+                                                 ss->fPipeline.descInfo(),
+                                                 ss->fBatchTracker);
+            }
             currentState = ss;
-
         } else {
             iter->execute(this, currentState);
         }
@@ -444,6 +498,9 @@ void GrInOrderDrawBuffer::onFlush() {
             this->getGpu()->removeGpuTraceMarker(&newMarker);
         }
     }
+
+    // TODO see copious notes about hack
+    fBatchTarget.postFlush();
 
     SkASSERT(fGpuCmdMarkers.count() == currCmdMarker);
     ++fDrawID;
@@ -482,6 +539,11 @@ void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const Set
                             &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
                             fCount, fStencilSettings);
+}
+
+void GrInOrderDrawBuffer::DrawBatch::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+    SkASSERT(state);
+    fBatch->generateGeometry(buf->getBatchTarget(), &state->fPipeline);
 }
 
 void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const SetState*) {}
@@ -531,13 +593,41 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrPipelineBuilder& pipe
     ss->fPrimitiveProcessor->initBatchTracker(&ss->fBatchTracker,
                                               ss->fPipeline.getInitBatchTracker());
 
-    if (fPrevState &&
+    if (fPrevState && fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *ss->fPrimitiveProcessor,
                                                       ss->fBatchTracker) &&
         fPrevState->fPipeline.isEqual(ss->fPipeline)) {
         fCmdBuffer.pop_back();
     } else {
+        fPrevState = ss;
+        this->recordTraceMarkersIfNecessary();
+    }
+    return true;
+}
+
+bool GrInOrderDrawBuffer::recordStateAndShouldDraw(GrBatch* batch,
+                                                   const GrPipelineBuilder& pipelineBuilder,
+                                                   const GrScissorState& scissor,
+                                                   const GrDeviceCoordTexture* dstCopy) {
+    // TODO this gets much simpler when we have batches everywhere.
+    // If the previous command is also a set state, then we check to see if it has a Batch.  If so,
+    // and we can make the two batches equal, and we can combine the states, then we make them equal
+    SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
+                                            (batch, pipelineBuilder, *this->getGpu()->caps(), scissor,
+                                             dstCopy));
+    if (ss->fPipeline.mustSkip()) {
+        fCmdBuffer.pop_back();
+        return false;
+    }
+
+    batch->initBatchTracker(ss->fPipeline.getInitBatchTracker());
+
+    if (fPrevState && !fPrevState->fPrimitiveProcessor.get() &&
+        fPrevState->fPipeline.isEqual(ss->fPipeline)) {
+        fCmdBuffer.pop_back();
+    } else {
+        this->closeBatch();
         fPrevState = ss;
         this->recordTraceMarkersIfNecessary();
     }
@@ -551,5 +641,44 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
     if (activeTraceMarkers.count() > 0) {
         fCmdBuffer.back().fType = add_trace_bit(fCmdBuffer.back().fType);
         fGpuCmdMarkers.push_back(activeTraceMarkers);
+    }
+}
+
+void GrInOrderDrawBuffer::closeBatch() {
+    if (fDrawBatch) {
+        fDrawBatch->execute(this, fPrevState);
+        fDrawBatch = NULL;
+    }
+}
+
+void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
+                                                         size_t vertexStride,
+                                                         int indexCount) {
+    this->closeBatch();
+
+    // We use geometryHints() to know whether to flush the draw buffer. We
+    // can't flush if we are inside an unbalanced pushGeometrySource.
+    // Moreover, flushing blows away vertex and index data that was
+    // previously reserved. So if the vertex or index data is pulled from
+    // reserved space and won't be released by this request then we can't
+    // flush.
+    bool insideGeoPush = this->getGeoPoolStateStack().count() > 1;
+
+    bool unreleasedVertexSpace =
+        !vertexCount &&
+        kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc;
+
+    bool unreleasedIndexSpace =
+        !indexCount &&
+        kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
+
+    int vcount = vertexCount;
+    int icount = indexCount;
+
+    if (!insideGeoPush &&
+        !unreleasedVertexSpace &&
+        !unreleasedIndexSpace &&
+        this->geometryHints(vertexStride, &vcount, &icount)) {
+        this->flush();
     }
 }

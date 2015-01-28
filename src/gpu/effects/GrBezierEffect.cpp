@@ -208,7 +208,7 @@ bool GrConicEffect::onIsEqual(const GrGeometryProcessor& other) const {
     return (ce.fEdgeType == fEdgeType);
 }
 
-void GrConicEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+void GrConicEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     ConicBatchTracker* local = bt->cast<ConicBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fCoverageScale = fCoverageScale;
@@ -432,7 +432,7 @@ bool GrQuadEffect::onIsEqual(const GrGeometryProcessor& other) const {
     return (ce.fEdgeType == fEdgeType);
 }
 
-void GrQuadEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+void GrQuadEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     QuadBatchTracker* local = bt->cast<QuadBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fCoverageScale = fCoverageScale;
@@ -677,7 +677,7 @@ bool GrCubicEffect::onIsEqual(const GrGeometryProcessor& other) const {
     return (ce.fEdgeType == fEdgeType);
 }
 
-void GrCubicEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
+void GrCubicEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     CubicBatchTracker* local = bt->cast<CubicBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;

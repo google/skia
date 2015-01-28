@@ -8,7 +8,6 @@
 #include "GrProcessor.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
-#include "GrGeometryData.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
@@ -168,19 +167,6 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
 
 void GrFragmentProcessor::computeInvariantOutput(GrInvariantOutput* inout) const {
     this->onComputeInvariantOutput(inout);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
- * GrGeometryData shares the same pool so it lives in this file too
- */
-void* GrGeometryData::operator new(size_t size) {
-    return GrProcessor_Globals::GetTLS()->allocate(size);
-}
-
-void GrGeometryData::operator delete(void* target) {
-    GrProcessor_Globals::GetTLS()->release(target);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

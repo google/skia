@@ -43,7 +43,7 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLCaps& caps) const SK_OVERRIDE;
 
-    void initBatchTracker(GrBatchTracker*, const InitBT&) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const SK_OVERRIDE;
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
                         const GrBatchTracker&) const SK_OVERRIDE;
