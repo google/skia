@@ -53,7 +53,14 @@ namespace skiagm {
         void drawBackground(SkCanvas*);
         void drawContent(SkCanvas*);
 
-        SkISize getISize() { return this->onISize(); }
+        SkISize getISize() {
+            SkISize size = this->onISize();
+            // Sanity cap on GM dimensions.
+            SkASSERT(size.width() * size.height() <= 2359296 &&  // 2.25 megapixels
+                     size.width()                 <= 2048    &&  // Typical GPU max dimension.
+                     size.height()                <= 2048);
+            return size;
+        }
         const char* getName();
 
         virtual bool runAsBench() const { return false; }

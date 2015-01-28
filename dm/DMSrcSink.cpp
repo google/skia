@@ -4,6 +4,7 @@
 #include "SkDocument.h"
 #include "SkMultiPictureDraw.h"
 #include "SkOSFile.h"
+#include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -101,8 +102,6 @@ Name ImageSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const SkRect kSKPViewport = {0,0, 1000,1000};
-
 SKPSrc::SKPSrc(SkString path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
@@ -115,19 +114,34 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
     stream.reset((SkStream*)NULL);  // Might as well drop this when we're done with it.
-    canvas->clipRect(kSKPViewport);
     canvas->drawPicture(pic);
     return "";
 }
 
 SkISize SKPSrc::size() const {
-    // This may be unnecessarily large.
-    return kSKPViewport.roundOut().size();
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
+    SkPictInfo info;
+    if (!stream || !SkPicture::InternalOnly_StreamIsSKP(stream, &info)) {
+        return SkISize::Make(0,0);
+    }
+    return info.fCullRect.roundOut().size();
 }
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static SkISize limit_raster_dimensions(const SkISize& size) {
+    // Clamp both dimensions to 2K to stay within typical GPU maximum texture limits.
+    int width  = SkTMin(2048, size.width()),
+        height = SkTMin(2048, size.height());
+    // Clamp our largest dimension until we're no more than 2.25 megapixels, to keep RAM usage sane.
+    int& largest = width > height ? width : height;
+    while (width * height > 2359296) {
+        largest /= 2;
+    }
+    return SkISize::Make(width, height);
+}
 
 GPUSink::GPUSink(GrContextFactory::GLContextType ct,
                  GrGLStandard api,
@@ -146,7 +160,7 @@ int GPUSink::enclave() const {
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
     GrContextFactory factory;
-    const SkISize size = src.size();
+    const SkISize size = limit_raster_dimensions(src.size());
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(
@@ -229,7 +243,7 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
 RasterSink::RasterSink(SkColorType colorType) : fColorType(colorType) {}
 
 Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
-    const SkISize size = src.size();
+    const SkISize size = limit_raster_dimensions(src.size());
     // If there's an appropriate alpha type for this color type, use it, otherwise use premul.
     SkAlphaType alphaType = kPremul_SkAlphaType;
     (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
