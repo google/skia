@@ -180,18 +180,37 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
 PDFSink::PDFSink() {}
 
 Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
-    SkSize size;
-    size = src.size();
+    // Print the given DM:Src to a PDF, breaking on 8.5x11 pages.
     SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
-    SkCanvas* canvas = doc->beginPage(size.width(), size.height());
 
-    Error err = src.draw(canvas);
-    if (!err.isEmpty()) {
-        return err;
+    int width  = src.size().width(),
+        height = src.size().height();
+
+    const int kLetterWidth  = 612,  // 8.5 * 72
+              kLetterHeight = 792;  // 11 * 72
+    const SkRect letter = SkRect::MakeWH(SkIntToScalar(kLetterWidth),
+                                         SkIntToScalar(kLetterHeight));
+
+    int xPages = ((width - 1) / kLetterWidth) + 1;
+    int yPages = ((height - 1) / kLetterHeight) + 1;
+
+    for (int y = 0; y < yPages; ++y) {
+        for (int x = 0; x < xPages; ++x) {
+            int w = SkTMin(kLetterWidth, width - (x * kLetterWidth));
+            int h = SkTMin(kLetterHeight, height - (y * kLetterHeight));
+            SkCanvas* canvas =
+                    doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
+            canvas->clipRect(letter);
+            canvas->translate(-letter.width() * x, -letter.height() * y);
+            Error err = src.draw(canvas);
+            if (!err.isEmpty()) {
+                return err;
+            }
+            doc->endPage();
+        }
     }
-    canvas->flush();
-    doc->endPage();
     doc->close();
+    dst->flush();
     return "";
 }
 
