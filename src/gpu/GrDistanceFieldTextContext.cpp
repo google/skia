@@ -33,9 +33,9 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
 
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
-static const int kMediumDFFontSize = 64;
-static const int kMediumDFFontLimit = 64;
-static const int kLargeDFFontSize = 128;
+static const int kMediumDFFontSize = 78;
+static const int kMediumDFFontLimit = 78;
+static const int kLargeDFFontSize = 192;
 
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;
@@ -80,7 +80,20 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
 }
 
 bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) {
-    if (!fEnableDFRendering && !paint.isDistanceFieldTextTEMP()) {
+    // TODO: support perspective (need getMaxScale replacement)
+    if (viewMatrix.hasPerspective()) {
+        return false;
+    }
+
+    SkScalar maxScale = viewMatrix.getMaxScale();
+    SkScalar scaledTextSize = maxScale*paint.getTextSize();
+    // Scaling up beyond 2x yields undesireable artifacts
+    if (scaledTextSize > 2*kLargeDFFontSize) {
+        return false;
+    }
+
+    if (!fEnableDFRendering && !paint.isDistanceFieldTextTEMP() &&
+        scaledTextSize < kLargeDFFontSize) {
         return false;
     }
 
@@ -93,12 +106,6 @@ bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint, const SkMatrix& v
 
     // TODO: add some stroking support
     if (paint.getStyle() != SkPaint::kFill_Style) {
-        return false;
-    }
-
-    // TODO: choose an appropriate maximum scale for distance fields and
-    //       enable perspective
-    if (SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix)) {
         return false;
     }
 
