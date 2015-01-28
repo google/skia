@@ -47,13 +47,15 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
     // Transform from Skia's device coords to GL's normalized device coords. Note that
     // because we want to "nudge" the device space positions we are converting to 
     // non-homogeneous NDC.
+    // The "0.05" nudge serves to match the raster path's rounding for bw draws.
+    // For aa draws we just assume the impact will be minimal - so we always perform the nudge.
     if (kVec3f_GrSLType == posVar.getType()) {
-        this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy)/%s.z, dot(%s.yz, %s.zw)/%s.z, 0, 1);",
-                          posVar.c_str(), fRtAdjustName, posVar.c_str(),
-                          posVar.c_str(), fRtAdjustName, posVar.c_str());
+        this->codeAppendf("gl_Position = vec4((dot(%s.xz, %s.xy)/%s.z) + 0.05 * %s.x, (dot(%s.yz, %s.zw)/%s.z) + 0.05 * %s.z, 0, 1);",
+                          posVar.c_str(), fRtAdjustName, posVar.c_str(), fRtAdjustName,
+                          posVar.c_str(), fRtAdjustName, posVar.c_str(), fRtAdjustName);
     } else {
         SkASSERT(kVec2f_GrSLType == posVar.getType());
-        this->codeAppendf("gl_Position = vec4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
+        this->codeAppendf("gl_Position = vec4((%s.x + 0.05) * %s.x + %s.y, (%s.y + 0.05) * %s.z + %s.w, 0, 1);",
                           posVar.c_str(), fRtAdjustName, fRtAdjustName,
                           posVar.c_str(), fRtAdjustName, fRtAdjustName);
     }
