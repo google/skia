@@ -7,28 +7,9 @@
 
 #include "GrProcOptInfo.h"
 
-#include "GrBatch.h"
 #include "GrFragmentProcessor.h"
 #include "GrFragmentStage.h"
 #include "GrGeometryProcessor.h"
-
-void GrProcOptInfo::calcColorWithBatch(const GrBatch* batch,
-                                       const GrFragmentStage* stages,
-                                       int stageCount) {
-    GrInitInvariantOutput out;
-    batch->getInvariantOutputColor(&out);
-    fInOut.reset(out);
-    this->internalCalc(stages, stageCount, batch->willReadFragmentPosition());
-}
-
-void GrProcOptInfo::calcCoverageWithBatch(const GrBatch* batch,
-                                          const GrFragmentStage* stages,
-                                          int stageCount) {
-    GrInitInvariantOutput out;
-    batch->getInvariantOutputCoverage(&out);
-    fInOut.reset(out);
-    this->internalCalc(stages, stageCount, batch->willReadFragmentPosition());
-}
 
 void GrProcOptInfo::calcColorWithPrimProc(const GrPrimitiveProcessor* primProc,
                                           const GrFragmentStage* stages,

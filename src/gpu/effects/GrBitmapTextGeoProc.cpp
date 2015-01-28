@@ -145,7 +145,7 @@ GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
     return SkNEW_ARGS(GrGLBitmapTextGeoProc, (*this, bt));
 }
 
-void GrBitmapTextGeoProc::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
+void GrBitmapTextGeoProc::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     BitmapTextBatchTracker* local = bt->cast<BitmapTextBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));

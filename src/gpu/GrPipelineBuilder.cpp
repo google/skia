@@ -20,7 +20,9 @@ GrPipelineBuilder::GrPipelineBuilder()
     , fColorProcInfoValid(false)
     , fCoverageProcInfoValid(false)
     , fColorCache(GrColor_ILLEGAL)
-    , fCoverageCache(GrColor_ILLEGAL) {
+    , fCoverageCache(GrColor_ILLEGAL)
+    , fColorPrimProc(NULL)
+    , fCoveragePrimProc(NULL) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
@@ -37,6 +39,8 @@ GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     fCoverageProcInfoValid = that.fCoverageProcInfoValid;
     fColorCache = that.fColorCache;
     fCoverageCache = that.fCoverageCache;
+    fColorPrimProc = that.fColorPrimProc;
+    fCoveragePrimProc = that.fCoveragePrimProc;
     if (fColorProcInfoValid) {
         fColorProcInfo = that.fColorProcInfo;
     }
@@ -80,6 +84,9 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
 
     fColorCache = GrColor_ILLEGAL;
     fCoverageCache = GrColor_ILLEGAL;
+
+    fColorPrimProc = NULL;
+    fCoveragePrimProc = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,28 +161,21 @@ bool GrPipelineBuilder::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
 }
 
 void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorStages());
-    fColorProcInfoValid = false;
-
+    if (!fColorProcInfoValid || fColorPrimProc != pp) {
+        fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorStages());
+        fColorProcInfoValid = true;
+        fColorPrimProc = pp;
+    }
 }
 
 void GrPipelineBuilder::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageStages.begin(),
-                                               this->numCoverageStages());
-    fCoverageProcInfoValid = false;
+    if (!fCoverageProcInfoValid ||  fCoveragePrimProc != pp) {
+        fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageStages.begin(),
+                                                   this->numCoverageStages());
+        fCoverageProcInfoValid = true;
+        fCoveragePrimProc = pp;
+    }
 }
-
-void GrPipelineBuilder::calcColorInvariantOutput(const GrBatch* batch) const {
-    fColorProcInfo.calcColorWithBatch(batch, fColorStages.begin(), this->numColorStages());
-    fColorProcInfoValid = false;
-}
-
-void GrPipelineBuilder::calcCoverageInvariantOutput(const GrBatch* batch) const {
-    fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageStages.begin(),
-                                            this->numCoverageStages());
-    fCoverageProcInfoValid = false;
-}
-
 
 void GrPipelineBuilder::calcColorInvariantOutput(GrColor color) const {
     if (!fColorProcInfoValid || color != fColorCache) {

@@ -7,7 +7,6 @@
 
 #include "GrInOrderDrawBuffer.h"
 
-#include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
@@ -21,9 +20,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     : INHERITED(gpu, vertexPool, indexPool)
     , fCmdBuffer(kCmdBufferInitialSizeInBytes)
     , fPrevState(NULL)
-    , fDrawID(0)
-    , fBatchTarget(gpu, vertexPool, indexPool)
-    , fFlushBatches(false) {
+    , fDrawID(0) {
 
     SkASSERT(vertexPool);
     SkASSERT(indexPool);
@@ -213,7 +210,6 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const GrPipelineBuilder& pipelineBu
     Draw* draw = static_cast<Draw*>(&fCmdBuffer.back());
 
     if (!draw->fInfo.isInstanced() ||
-        draw->fInfo.primitiveType() != info.primitiveType() ||
         draw->fInfo.verticesPerInstance() != info.verticesPerInstance() ||
         draw->fInfo.indicesPerInstance() != info.indicesPerInstance() ||
         draw->fInfo.vertexBuffer() != info.vertexBuffer() ||
@@ -266,32 +262,6 @@ void GrInOrderDrawBuffer::onDraw(const GrPipelineBuilder& pipelineBuilder,
         }
     } else {
         draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info));
-    }
-    this->recordTraceMarkersIfNecessary();
-}
-
-void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
-                                      const GrPipelineBuilder& pipelineBuilder,
-                                      const GrScissorState& scissorState,
-                                      const GrDeviceCoordTexture* dstCopy) {
-    if (!this->recordStateAndShouldDraw(batch, pipelineBuilder, scissorState, dstCopy)) {
-        return;
-    }
-
-    // TODO hack until batch is everywhere
-    fFlushBatches = true;
-
-    // Check if there is a Batch Draw we can batch with
-    if (kDrawBatch_Cmd != strip_trace_bit(fCmdBuffer.back().fType)) {
-        GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
-        return;
-    }
-
-    DrawBatch* draw = static_cast<DrawBatch*>(&fCmdBuffer.back());
-    if (draw->fBatch->combineIfPossible(batch)) {
-        return;
-    } else {
-        GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
     }
     this->recordTraceMarkersIfNecessary();
 }
@@ -441,38 +411,13 @@ void GrInOrderDrawBuffer::onFlush() {
     }
 
 
-    // Updated every time we find a set state cmd to reflect the current state in the playback
-    // stream.
-    SetState* currentState = NULL;
-
-    // TODO we noticed a huge regression on MacMinis with the initial implementation of GrBatch
-    // Because of vertex buffer mismanagement between batch and non batch.  To compensate we
-    // flush all the batches into one contigous buffer
-    if (fFlushBatches) {
-        fFlushBatches = false;
-        CmdBuffer::Iter preflush(fCmdBuffer);
-        while(preflush.next()) {
-            bool isSetState = kSetState_Cmd == strip_trace_bit(preflush->fType);
-            if (isSetState) {
-                SetState* ss = reinterpret_cast<SetState*>(preflush.get());
-                if (!ss->fPrimitiveProcessor) {
-                    currentState = ss;
-                }
-            } else if (kDrawBatch_Cmd == strip_trace_bit(preflush->fType)) {
-                preflush->execute(this, currentState);
-            }
-        }
-    }
-
-    // TODO this is temporary while batch is being rolled out
-    this->getVertexAllocPool()->unmap();
-    this->getIndexAllocPool()->unmap();
-    fBatchTarget.preFlush();
-
-    currentState = NULL;
     CmdBuffer::Iter iter(fCmdBuffer);
 
     int currCmdMarker = 0;
+
+    // Updated every time we find a set state cmd to reflect the current state in the playback
+    // stream.
+    SetState* currentState = NULL;
 
     while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
@@ -484,25 +429,13 @@ void GrInOrderDrawBuffer::onFlush() {
             ++currCmdMarker;
         }
 
-        // TODO temporary hack
-        if (kDrawBatch_Cmd == strip_trace_bit(iter->fType)) {
-            fBatchTarget.flushNext();
-            continue;
-        }
-
-        bool isSetState = kSetState_Cmd == strip_trace_bit(iter->fType);
-        if (isSetState) {
+        if (kSetState_Cmd == strip_trace_bit(iter->fType)) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
-            // TODO sometimes we have a prim proc, othertimes we have a GrBatch.  Eventually we will
-            // only have GrBatch and we can delete this
-            if (ss->fPrimitiveProcessor) {
-                this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor,
-                                                 ss->fPipeline,
-                                                 ss->fPipeline.descInfo(),
-                                                 ss->fBatchTracker);
-            }
+            this->getGpu()->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor, ss->fPipeline,
+                                             ss->fPipeline.descInfo(), ss->fBatchTracker);
             currentState = ss;
+
         } else {
             iter->execute(this, currentState);
         }
@@ -511,9 +444,6 @@ void GrInOrderDrawBuffer::onFlush() {
             this->getGpu()->removeGpuTraceMarker(&newMarker);
         }
     }
-
-    // TODO see copious notes about hack
-    fBatchTarget.postFlush();
 
     SkASSERT(fGpuCmdMarkers.count() == currCmdMarker);
     ++fDrawID;
@@ -552,11 +482,6 @@ void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const Set
                             &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
                             &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
                             fCount, fStencilSettings);
-}
-
-void GrInOrderDrawBuffer::DrawBatch::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
-    SkASSERT(state);
-    fBatch->generateGeometry(buf->getBatchTarget(), &state->fPipeline);
 }
 
 void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const SetState*) {}
@@ -606,37 +531,10 @@ bool GrInOrderDrawBuffer::recordStateAndShouldDraw(const GrPipelineBuilder& pipe
     ss->fPrimitiveProcessor->initBatchTracker(&ss->fBatchTracker,
                                               ss->fPipeline.getInitBatchTracker());
 
-    if (fPrevState && fPrevState->fPrimitiveProcessor.get() &&
+    if (fPrevState &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *ss->fPrimitiveProcessor,
                                                       ss->fBatchTracker) &&
-        fPrevState->fPipeline.isEqual(ss->fPipeline)) {
-        fCmdBuffer.pop_back();
-    } else {
-        fPrevState = ss;
-        this->recordTraceMarkersIfNecessary();
-    }
-    return true;
-}
-
-bool GrInOrderDrawBuffer::recordStateAndShouldDraw(GrBatch* batch,
-                                                   const GrPipelineBuilder& pipelineBuilder,
-                                                   const GrScissorState& scissor,
-                                                   const GrDeviceCoordTexture* dstCopy) {
-    // TODO this gets much simpler when we have batches everywhere.
-    // If the previous command is also a set state, then we check to see if it has a Batch.  If so,
-    // and we can make the two batches equal, and we can combine the states, then we make them equal
-    SetState* ss = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, SetState,
-                                            (batch, pipelineBuilder, *this->getGpu()->caps(), scissor,
-                                             dstCopy));
-    if (ss->fPipeline.mustSkip()) {
-        fCmdBuffer.pop_back();
-        return false;
-    }
-
-    batch->initBatchTracker(ss->fPipeline.getInitBatchTracker());
-
-    if (fPrevState && !fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->fPipeline.isEqual(ss->fPipeline)) {
         fCmdBuffer.pop_back();
     } else {

@@ -258,7 +258,7 @@ GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt,
     return SkNEW_ARGS(GrGLDistanceFieldTextureEffect, (*this, bt));
 }
 
-void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
+void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt, const InitBT& init) const {
     DistanceFieldBatchTracker* local = bt->cast<DistanceFieldBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
@@ -520,7 +520,7 @@ GrDistanceFieldNoGammaTextureEffect::createGLInstance(const GrBatchTracker& bt,
 }
 
 void GrDistanceFieldNoGammaTextureEffect::initBatchTracker(GrBatchTracker* bt,
-                                                           const GrPipelineInfo& init) const {
+                                                           const InitBT& init) const {
     DistanceFieldNoGammaBatchTracker* local = bt->cast<DistanceFieldNoGammaBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
@@ -841,7 +841,7 @@ GrDistanceFieldLCDTextureEffect::createGLInstance(const GrBatchTracker& bt,
 }
 
 void GrDistanceFieldLCDTextureEffect::initBatchTracker(GrBatchTracker* bt,
-                                                       const GrPipelineInfo& init) const {
+                                                       const InitBT& init) const {
     DistanceFieldLCDBatchTracker* local = bt->cast<DistanceFieldLCDBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
