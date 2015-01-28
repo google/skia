@@ -55,6 +55,7 @@ void S32A_Opaque_BlitRow32_SSE4(SkPMColor* SK_RESTRICT dst,
     }
 
     // Wrap up the last <= 15 pixels.
+    SkASSERT(count - (count16*16) <= 15);
     for (int i = count16*16; i < count; i++) {
         // This check is not really necessarily, but it prevents pointless autovectorization.
         if (src[i] & 0xFF000000) {
