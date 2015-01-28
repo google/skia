@@ -209,7 +209,10 @@ private:
         SkGlyph*    fGlyph;
     };
     // no reason to use the same kHashCount as fGlyphHash, but we do for now
-    CharGlyphRec    fCharToGlyphHash[kHashCount];
+    // Dynamically allocated when chars are encountered.
+    SkAutoTArray<CharGlyphRec> fCharToGlyphHash;
+    
+    CharGlyphRec* getCharGlyphRec(uint32_t id);
 
     static inline unsigned ID2HashIndex(uint32_t h) {
         return SkChecksum::CheapMix(h) & kHashMask;
