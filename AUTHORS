@@ -9,20 +9,24 @@
 # Organization <fnmatch pattern>
 # See examples below or python fnmatch module documentation for more information.
 #
-# Please keep the list sorted.
+# Please keep the list sorted alphabetically.
 
 ACCESS CO., LTD. <*@access-company.com>
+Anthony Catel <paraboul@gmail.com>
 ARM <*@arm.com>
 Ehsan Akhgari <ehsan.akhgari@gmail.com>
 George Wright <george@mozilla.com>
-Jeff Muizelaar <jmuizelaar@mozilla.com>
 Google Inc. <*@google.com>
+Herb Derby <herbderby@gmail.com>
 Igalia <*@igalia.com>
 Intel <*@intel.com>
+Ion Rosca <rosca@adobe.com>
 Jacek Caban <cjacek@gmail.com>
+Jeff Muizelaar <jmuizelaar@mozilla.com>
 MIPS <*@imgtec.com>
 NVIDIA <*@nvidia.com>
 Opera Software ASA <*@opera.com>
+Pavel Krajcevski <pavel@cs.unc.edu>
 Samsung <*@samsung.com>
 Samsung Open Source Group <*@osg.samsung.com>
 Skia <*@skia.org>
@@ -30,6 +34,3 @@ Skia Buildbots <skia.buildbots@gmail.com>
 Steve Singer <steve@ssinger.info>
 The Chromium Authors <*@chromium.org>
 Thiago Fransosi Farina <thiago.farina@gmail.com>
-Pavel Krajcevski <pavel@cs.unc.edu>
-Ion Rosca <rosca@adobe.com>
-Anthony Catel <paraboul@gmail.com>
