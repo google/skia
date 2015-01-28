@@ -23,7 +23,7 @@ class SkWriteBuffer;
 class SK_API SkTextBlob : public SkRefCnt {
 public:
     /**
-     *  Returns the blob bounding box.
+     *  Returns a conservative blob bounding box.
      */
     const SkRect& bounds() const { return fBounds; }
 
@@ -187,6 +187,9 @@ private:
     bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                   int count, SkPoint offset);
     void updateDeferredBounds();
+
+    static SkRect ConservativeRunBounds(const SkTextBlob::RunRecord&);
+    static SkRect TightRunBounds(const SkTextBlob::RunRecord&);
 
     SkAutoTMalloc<uint8_t> fStorage;
     size_t                 fStorageSize;
