@@ -230,7 +230,7 @@ void GrGLConvexPolyEffect::emitCode(GrGLFPBuilder* builder,
         // Add a device space "nudge" of 0.05f, 0.05f to match raster's rounding behavior for
         // BW clipping/drawing. Since we are "nudging" fragment positions we have to go in
         // the opposite direction.
-        fsBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x - 0.05f, %s.y - 0.05f, 1));\n",
+        fsBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x - 0.05, %s.y - 0.05, 1));\n",
                                edgeArrayName, i, fragmentPos, fragmentPos);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
             fsBuilder->codeAppend("\t\tedge = clamp(edge, 0.0, 1.0);\n");
