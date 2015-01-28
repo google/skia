@@ -157,7 +157,8 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         scale.set(SkScalarSqrt(m.getScaleX() * m.getScaleX() + m.getSkewX() * m.getSkewX()),
                   SkScalarSqrt(m.getScaleY() * m.getScaleY() + m.getSkewY() * m.getSkewY()));
     }
-    SkSize scaledSize = SkSize::Make(scale.x() * fTile.width(), scale.y() * fTile.height());
+    SkSize scaledSize = SkSize::Make(SkScalarAbs(scale.x() * fTile.width()),
+                                     SkScalarAbs(scale.y() * fTile.height()));
 
     // Clamp the tile size to about 16M pixels
     static const SkScalar kMaxTileArea = 4096 * 4096;
