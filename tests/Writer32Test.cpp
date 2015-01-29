@@ -281,34 +281,3 @@ DEF_TEST(Writer32_misc, reporter) {
     test_rewind(reporter);
 }
 
-DEF_TEST(Writer32_snapshot, reporter) {
-    int32_t array[] = { 1, 2, 4, 11 };
-    SkSWriter32<sizeof(array) + 4> writer;
-    writer.write(array, sizeof(array));
-    check_contents(reporter, writer, array, sizeof(array));
-    const void* beforeData = writer.contiguousArray();
-    SkAutoDataUnref snapshot(writer.snapshotAsData());
-    // check the snapshot forced a copy of the static data
-    REPORTER_ASSERT(reporter, snapshot->data() != beforeData);
-    REPORTER_ASSERT(reporter, snapshot->size() == writer.bytesWritten());
-}
-
-DEF_TEST(Writer32_snapshot_dynamic, reporter) {
-    int32_t array[] = { 1, 2, 4, 11 };
-    SkWriter32 writer;
-    writer.write(array, sizeof(array));
-    check_contents(reporter, writer, array, sizeof(array));
-    // force a capacity increase so we can test COW behaviour
-    writer.write(array, sizeof(array));
-    writer.rewindToOffset(sizeof(array));
-    const void* beforeData = writer.contiguousArray();
-    SkAutoDataUnref snapshot(writer.snapshotAsData());
-    // check the snapshot still points to the same data as the writer
-    REPORTER_ASSERT(reporter, writer.contiguousArray() == beforeData);
-    REPORTER_ASSERT(reporter, snapshot->data() == beforeData);
-    REPORTER_ASSERT(reporter, snapshot->size() == writer.bytesWritten());
-    // write more data that would fit in the buffer
-    writer.write(array, sizeof(array));
-    // test it triggered COW anyway
-    REPORTER_ASSERT(reporter, writer.contiguousArray() != beforeData);
-}

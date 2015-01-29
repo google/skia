@@ -74,32 +74,8 @@ void SkWriter32::growToAtLeast(size_t size) {
         // we were external, so copy in the data
         memcpy(fData, fExternal, fUsed);
     }
-    // Invalidate the snapshot, we know it is no longer useful.
-    fSnapshot.reset(NULL);
 }
 
 SkData* SkWriter32::snapshotAsData() const {
-    // get a non const version of this, we are only conceptually const
-    SkWriter32& mutable_this = *const_cast<SkWriter32*>(this);
-    // we use size change detection to invalidate the cached data
-    if ((fSnapshot.get() != NULL) && (fSnapshot->size() != fUsed)) {
-        mutable_this.fSnapshot.reset(NULL);
-    }
-    if (fSnapshot.get() == NULL) {
-        uint8_t* buffer = NULL;
-        if ((fExternal != NULL) && (fData == fExternal)) {
-            // We need to copy to an allocated buffer before returning.
-            buffer = (uint8_t*)sk_malloc_throw(fUsed);
-            memcpy(buffer, fData, fUsed);
-        } else {
-            buffer = mutable_this.fInternal.detach();
-            // prepare us to do copy on write, by pretending the data buffer
-            // is external and size limited
-            mutable_this.fData = buffer;
-            mutable_this.fCapacity = fUsed;
-            mutable_this.fExternal = buffer;
-        }
-        mutable_this.fSnapshot.reset(SkData::NewFromMalloc(buffer, fUsed));
-    }
-    return SkRef(fSnapshot.get()); // Take an extra ref for the caller.
+    return SkData::NewWithCopy(fData, fUsed);
 }

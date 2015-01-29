@@ -45,7 +45,6 @@ public:
         SkASSERT(SkIsAlign4((uintptr_t)external));
         SkASSERT(SkIsAlign4(externalBytes));
 
-        fSnapshot.reset(NULL);
         fData = (uint8_t*)external;
         fCapacity = externalBytes;
         fUsed = 0;
@@ -89,7 +88,6 @@ public:
     void overwriteTAt(size_t offset, const T& value) {
         SkASSERT(SkAlign4(offset) == offset);
         SkASSERT(offset < fUsed);
-        SkASSERT(fSnapshot.get() == NULL);
         *(T*)(fData + offset) = value;
     }
 
@@ -235,14 +233,6 @@ public:
 
     /**
      *  Captures a snapshot of the data as it is right now, and return it.
-     *  Multiple calls without intervening writes may return the same SkData,
-     *  but this is not guaranteed.
-     *  Future appends will not affect the returned buffer.
-     *  It is illegal to call overwriteTAt after this without an intervening
-     *  append. It may cause the snapshot buffer to be corrupted.
-     *  Callers must unref the returned SkData.
-     *  This is not thread safe, it should only be called on the writing thread,
-     *  the result however can be shared across threads.
      */
     SkData* snapshotAsData() const;
 private:
@@ -253,7 +243,6 @@ private:
     size_t fUsed;                      // Number of bytes written.
     void* fExternal;                   // Unmanaged memory block.
     SkAutoTMalloc<uint8_t> fInternal;  // Managed memory block.
-    SkAutoTUnref<SkData> fSnapshot;    // Holds the result of last asData.
 };
 
 /**
