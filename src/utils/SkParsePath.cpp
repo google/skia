@@ -86,6 +86,8 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
             if (op == '\0') {
                 return false;
             }
+        } else if (is_sep(ch)) {
+            data = skip_sep(data);
         } else {
             op = ch;
             relative = false;
