@@ -364,6 +364,13 @@ static const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm[] = {
     NULL,   // S32A_D565_Blend_Dither
 };
 
+static const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm[] = {
+    NULL,   // Color32_D565,
+    NULL,   // Color32A_D565,
+    NULL,   // Color32_D565_Dither,
+    NULL,   // Color32A_D565_Dither
+};
+
 static const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
     NULL,   // S32_Opaque,
     NULL,   // S32_Blend,
@@ -378,7 +385,7 @@ SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
 }
 
 SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
-    return NULL;
+    return SK_ARM_NEON_WRAP(sk_blitrow_platform_565_colorprocs_arm)[flags];
 }
 
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {

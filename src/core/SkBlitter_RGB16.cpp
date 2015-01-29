@@ -77,6 +77,8 @@ protected:
     uint16_t    fRawDither16;   // unscaled
     SkBool8     fDoDither;
 
+    SkBlitRow::ColorProc16 fColorProc16;
+
     // illegal
     SkRGB16_Blitter& operator=(const SkRGB16_Blitter&);
 
@@ -544,6 +546,19 @@ SkRGB16_Blitter::SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint)
     fColor16 = SkPackRGB16( SkAlphaMul(r, fScale) >> (8 - SK_R16_BITS),
                             SkAlphaMul(g, fScale) >> (8 - SK_G16_BITS),
                             SkAlphaMul(b, fScale) >> (8 - SK_B16_BITS));
+
+    // compute SkBlitRow::Procs
+    unsigned flags = 0;
+
+    if (SkGetPackedA32(fSrcColor32) < 0xFF) {
+        flags |= SkBlitRow::kSrcPixelAlpha_Flag;
+    }
+
+    if (fDoDither) {
+        flags |= SkBlitRow::kDither_Flag;
+    }
+
+    fColorProc16 = SkBlitRow::ColorFactory16(flags);
 }
 
 const SkBitmap* SkRGB16_Blitter::justAnOpaqueColor(uint32_t* value) {
@@ -554,31 +569,12 @@ const SkBitmap* SkRGB16_Blitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
 
-static uint32_t pmcolor_to_expand16(SkPMColor c) {
-    unsigned r = SkGetPackedR32(c);
-    unsigned g = SkGetPackedG32(c);
-    unsigned b = SkGetPackedB32(c);
-    return (g << 24) | (r << 13) | (b << 2);
-}
-
-static inline void blend32_16_row(SkPMColor src, uint16_t dst[], int count) {
-    SkASSERT(count > 0);
-    uint32_t src_expand = pmcolor_to_expand16(src);
-    unsigned scale = SkAlpha255To256(0xFF - SkGetPackedA32(src)) >> 3;
-    do {
-        uint32_t dst_expand = SkExpand_rgb_16(*dst) * scale;
-        *dst = SkCompact_rgb_16((src_expand + dst_expand) >> 5);
-        dst += 1;
-    } while (--count != 0);
-}
-
 void SkRGB16_Blitter::blitH(int x, int y, int width) {
     SkASSERT(width > 0);
     SkASSERT(x + width <= fDevice.width());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
 
-    // TODO: respect fDoDither
-    blend32_16_row(fSrcColor32, device, width);
+    fColorProc16(device, fSrcColor32, width, x, y);
 }
 
 void SkRGB16_Blitter::blitAntiH(int x, int y,
@@ -681,10 +677,9 @@ void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(x + width <= fDevice.width() && y + height <= fDevice.height());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     size_t    deviceRB = fDevice.rowBytes();
-    SkPMColor src32 = fSrcColor32;
 
     while (--height >= 0) {
-        blend32_16_row(src32, device, width);
+        fColorProc16(device, fSrcColor32, width, x, y);
         device = (uint16_t*)((char*)device + deviceRB);
     }
 }
