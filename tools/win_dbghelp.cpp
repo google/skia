@@ -202,7 +202,7 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
  *  This function expects the .pdb file to be in the same directory.
  */
 void setUpDebuggingFromArgs(const char* vargs0) {
-    int i = strlen(vargs0);
+    size_t i = strlen(vargs0);
 
     if (i >= 4 && _stricmp(vargs0 - 4, ".exe") == 0) {
         // Ignore .exe

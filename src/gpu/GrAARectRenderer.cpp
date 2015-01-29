@@ -227,8 +227,8 @@ private:
     }
 
     void generateAAFillRectGeometry(void* vertices,
-                                    uint32_t offset,
-                                    uint32_t vertexStride,
+                                    size_t offset,
+                                    size_t vertexStride,
                                     GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& rect,
