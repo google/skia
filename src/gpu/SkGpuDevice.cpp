@@ -719,8 +719,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
     SkASSERT(!pathIsMutable || origSrcPath.isVolatile());
 
-    GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), paint, *draw.fMatrix, true, &grPaint);
+    GrStrokeInfo strokeInfo(paint);
 
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
@@ -728,25 +727,37 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
     SkTLazy<SkPath> tmpPath;
     SkTLazy<SkPath> effectPath;
+    SkPathEffect* pathEffect = paint.getPathEffect();
+
+    SkMatrix viewMatrix = *draw.fMatrix;
 
     if (prePathMatrix) {
-        SkPath* result = pathPtr;
+        // stroking and path effects are supposed to be applied *after* the prePathMatrix.
+        // The pre-path-matrix also should not affect shadeing.
+        if (NULL == pathEffect && NULL == paint.getShader() &&
+            (strokeInfo.getStrokeRec().isFillStyle() ||
+             strokeInfo.getStrokeRec().isHairlineStyle())) {
+            viewMatrix.preConcat(*prePathMatrix);
+        } else {
+            SkPath* result = pathPtr;
 
-        if (!pathIsMutable) {
-            result = tmpPath.init();
-            result->setIsVolatile(true);
-            pathIsMutable = true;
+            if (!pathIsMutable) {
+                result = tmpPath.init();
+                result->setIsVolatile(true);
+                pathIsMutable = true;
+            }
+            // should I push prePathMatrix on our MV stack temporarily, instead
+            // of applying it here? See SkDraw.cpp
+            pathPtr->transform(*prePathMatrix, result);
+            pathPtr = result;
         }
-        // should I push prePathMatrix on our MV stack temporarily, instead
-        // of applying it here? See SkDraw.cpp
-        pathPtr->transform(*prePathMatrix, result);
-        pathPtr = result;
     }
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    GrStrokeInfo strokeInfo(paint);
-    SkPathEffect* pathEffect = paint.getPathEffect();
+    GrPaint grPaint;
+    SkPaint2GrPaintShader(this->context(), paint, viewMatrix, true, &grPaint);
+
     const SkRect* cullRect = NULL;  // TODO: what is our bounds?
     SkStrokeRec* strokePtr = strokeInfo.getStrokeRecPtr();
     if (pathEffect && pathEffect->filterPath(effectPath.init(), *pathPtr, strokePtr,
@@ -774,17 +785,13 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         }
 
         // transform the path into device space
-        pathPtr->transform(*draw.fMatrix, devPathPtr);
+        pathPtr->transform(viewMatrix, devPathPtr);
 
         SkRect maskRect;
         if (paint.getMaskFilter()->canFilterMaskGPU(devPathPtr->getBounds(),
                                                     draw.fClip->getBounds(),
-                                                    *draw.fMatrix,
+                                                    viewMatrix,
                                                     &maskRect)) {
-            // The context's matrix may change while creating the mask, so save the CTM here to
-            // pass to filterMaskGPU.
-            const SkMatrix ctm = *draw.fMatrix;
-
             SkIRect finalIRect;
             maskRect.roundOut(&finalIRect);
             if (draw.fClip->quickReject(finalIRect)) {
@@ -792,7 +799,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                 return;
             }
 
-            if (paint.getMaskFilter()->directFilterMaskGPU(fContext, &grPaint, *draw.fMatrix,
+            if (paint.getMaskFilter()->directFilterMaskGPU(fContext, &grPaint, viewMatrix,
                                                            stroke, *devPathPtr)) {
                 // the mask filter was able to draw itself directly, so there's nothing
                 // left to do.
@@ -806,10 +813,10 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
             if (mask) {
                 GrTexture* filtered;
 
-                if (paint.getMaskFilter()->filterMaskGPU(mask, ctm, maskRect, &filtered, true)) {
+                if (paint.getMaskFilter()->filterMaskGPU(mask, viewMatrix, maskRect, &filtered, true)) {
                     // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
-                    if (draw_mask(fContext, *draw.fMatrix, maskRect, &grPaint, filtered)) {
+                    if (draw_mask(fContext, viewMatrix, maskRect, &grPaint, filtered)) {
                         // This path is completely drawn
                         return;
                     }
@@ -821,12 +828,12 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         // GPU path fails
         SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
                                                           SkPaint::kFill_Style;
-        draw_with_mask_filter(fContext, *draw.fMatrix, *devPathPtr, paint.getMaskFilter(),
+        draw_with_mask_filter(fContext, viewMatrix, *devPathPtr, paint.getMaskFilter(),
                               *draw.fClip, &grPaint, style);
         return;
     }
 
-    fContext->drawPath(grPaint, *draw.fMatrix, *pathPtr, strokeInfo);
+    fContext->drawPath(grPaint, viewMatrix, *pathPtr, strokeInfo);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
