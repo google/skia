@@ -36,7 +36,6 @@
         '<(skia_include_path)/utils/SkPictureUtils.h',
         '<(skia_include_path)/utils/SkRandom.h',
         '<(skia_include_path)/utils/SkRTConf.h',
-        '<(skia_include_path)/utils/SkProxyCanvas.h',
         '<(skia_include_path)/utils/SkTextBox.h',
 
         '<(skia_src_path)/utils/SkBase64.cpp',
@@ -80,7 +79,6 @@
         '<(skia_src_path)/utils/SkPatchUtils.cpp',
         '<(skia_src_path)/utils/SkPatchUtils.h',
         '<(skia_src_path)/utils/SkPathUtils.cpp',
-        '<(skia_src_path)/utils/SkProxyCanvas.cpp',
         '<(skia_src_path)/utils/SkSHA1.cpp',
         '<(skia_src_path)/utils/SkSHA1.h',
         '<(skia_src_path)/utils/SkRTConf.cpp',

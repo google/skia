@@ -56,7 +56,6 @@
 #include "SkPicture.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
-#include "SkProxyCanvas.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -229,8 +228,6 @@ static const char* const kCanvasDrawAssertMessageFormat =
     "Drawing test step %s with SkCanvas";
 static const char* const kDeferredDrawAssertMessageFormat =
     "Drawing test step %s with SkDeferredCanvas";
-static const char* const kProxyDrawAssertMessageFormat =
-    "Drawing test step %s with SkProxyCanvas";
 static const char* const kNWayDrawAssertMessageFormat =
     "Drawing test step %s with SkNWayCanvas";
 static const char* const kDeferredPreFlushAssertMessageFormat =
@@ -239,10 +236,6 @@ static const char* const kDeferredPostFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after flush";
 static const char* const kDeferredPostSilentFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after silent flush";
-static const char* const kProxyStateAssertMessageFormat =
-    "test step %s, SkProxyCanvas state consistency";
-static const char* const kProxyIndirectStateAssertMessageFormat =
-    "test step %s, SkProxyCanvas indirect canvas state consistency";
 static const char* const kNWayStateAssertMessageFormat =
     "test step %s, SkNWayCanvas state consistency";
 static const char* const kNWayIndirect1StateAssertMessageFormat =
@@ -619,27 +612,6 @@ public:
 };
 
 // unused
-static void TestProxyCanvasStateConsistency(
-    skiatest::Reporter* reporter,
-    const TestData& d,
-    CanvasTestStep* testStep,
-    const SkCanvas& referenceCanvas) {
-
-    SkBitmap indirectStore;
-    createBitmap(&indirectStore, 0xFFFFFFFF);
-    SkCanvas indirectCanvas(indirectStore);
-    SkProxyCanvas proxyCanvas(&indirectCanvas);
-    testStep->setAssertMessageFormat(kProxyDrawAssertMessageFormat);
-    testStep->draw(&proxyCanvas, d, reporter);
-    // Verify that the SkProxyCanvas reports consitent state
-    testStep->setAssertMessageFormat(kProxyStateAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, d, &proxyCanvas, &referenceCanvas, testStep);
-    // Verify that the indirect canvas reports consitent state
-    testStep->setAssertMessageFormat(kProxyIndirectStateAssertMessageFormat);
-    AssertCanvasStatesEqual(reporter, d, &indirectCanvas, &referenceCanvas, testStep);
-}
-
-// unused
 static void TestNWayCanvasStateConsistency(
     skiatest::Reporter* reporter,
     const TestData& d,
@@ -661,7 +633,7 @@ static void TestNWayCanvasStateConsistency(
 
     testStep->setAssertMessageFormat(kNWayDrawAssertMessageFormat);
     testStep->draw(&nWayCanvas, d, reporter);
-    // Verify that the SkProxyCanvas reports consitent state
+    // Verify that the SkNWayCanvas reports consitent state
     testStep->setAssertMessageFormat(kNWayStateAssertMessageFormat);
     AssertCanvasStatesEqual(reporter, d, &nWayCanvas, &referenceCanvas, testStep);
     // Verify that the indirect canvases report consitent state
@@ -688,15 +660,6 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
     SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, d, testStep, referenceCanvas, false);
 
     SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, d, testStep, referenceCanvas, true);
-
-    // The following test code is disabled because SkProxyCanvas is
-    // missing a lot of virtual overrides on get* methods, which are used
-    // to verify canvas state.
-    // Issue: http://code.google.com/p/skia/issues/detail?id=500
-
-    if (false) { // avoid bit rot, suppress warning
-        TestProxyCanvasStateConsistency(reporter, d, testStep, referenceCanvas);
-    }
 
     // The following test code is disabled because SkNWayCanvas does not
     // report correct clipping and device bounds information
