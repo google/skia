@@ -1340,41 +1340,16 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
 
     if (sweepAngle >= kFullCircleAngle || sweepAngle <= -kFullCircleAngle) {
         this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction);
-        return;
+    } else {
+        this->arcTo(oval, startAngle, sweepAngle, true);
     }
-
-    SkPoint lonePt;
-    if (arc_is_lone_point(oval, startAngle, sweepAngle, &lonePt)) {
-        this->moveTo(lonePt);
-        return;
-    }
-
-    SkPoint pts[kSkBuildQuadArcStorage];
-    int count = build_arc_points(oval, startAngle, sweepAngle, pts);
-
-    SkDEBUGCODE(this->validate();)
-    SkASSERT(count & 1);
-
-    fLastMoveToIndex = fPathRef->countPoints();
-
-    SkPathRef::Editor ed(&fPathRef, 1+(count-1)/2, count);
-
-    ed.growForVerb(kMove_Verb)->set(pts[0].fX, pts[0].fY);
-    if (count > 1) {
-        SkPoint* p = ed.growForRepeatedVerb(kQuad_Verb, (count-1)/2);
-        memcpy(p, &pts[1], (count-1) * sizeof(SkPoint));
-    }
-
-    DIRTY_AFTER_EDIT;
-    SkDEBUGCODE(this->validate();)
 }
 
 /*
     Need to handle the case when the angle is sharp, and our computed end-points
     for the arc go behind pt1 and/or p2...
 */
-void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
-                   SkScalar radius) {
+void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius) {
     if (radius == 0) {
         this->lineTo(x1, y1);
         return;

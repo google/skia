@@ -458,26 +458,23 @@ public:
     void rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                   SkScalar x3, SkScalar y3);
 
-    /** Append the specified arc to the path as a new contour. If the start of
-        the path is different from the path's current last point, then an
-        automatic lineTo() is added to connect the current contour to the start
-        of the arc. However, if the path is empty, then we call moveTo() with
-        the first point of the arc. The sweep angle is treated mod 360.
+    /**
+     *  Append the specified arc to the path. If the start of the arc is different from the path's
+     *  current last point, then an automatic lineTo() is added to connect the current contour
+     *  to the start of the arc. However, if the path is empty, then we call moveTo() with
+     *  the first point of the arc. The sweep angle is treated mod 360.
+     *
+     *  @param oval The bounding oval defining the shape and size of the arc
+     *  @param startAngle Starting angle (in degrees) where the arc begins
+     *  @param sweepAngle Sweep angle (in degrees) measured clockwise. This is treated mod 360.
+     *  @param forceMoveTo If true, always begin a new contour with the arc
+     */
+    void arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo);
 
-        @param oval The bounding oval defining the shape and size of the arc
-        @param startAngle Starting angle (in degrees) where the arc begins
-        @param sweepAngle Sweep angle (in degrees) measured clockwise. This is
-                          treated mod 360.
-        @param forceMoveTo If true, always begin a new contour with the arc
-    */
-    void arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
-               bool forceMoveTo);
-
-    /** Append a line and arc to the current path. This is the same as the
-        PostScript call "arct".
-    */
-    void arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
-               SkScalar radius);
+    /**
+     *  Append a line and arc to the current path. This is the same as the PostScript call "arct".
+     */
+    void arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius);
 
     /** Append a line and arc to the current path. This is the same as the
         PostScript call "arct".
