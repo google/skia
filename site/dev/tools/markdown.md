@@ -13,6 +13,28 @@ with the value of the Reitveld issue id:
 
     https://skia.org?cl=REITVELD_ISSUE_NUMBER
 
+You can also run a local copy of the documentation server, which will allow
+you to preview changes much quicker. You must have [Go](https://golang.org)
+installed on your computer, which you will have if you are running on a Google
+corporate workstation. Run:
+
+    go get skia.googlesource.com/buildbot.git/doc/go/docserver
+
+And then **from within** the directory of your local Git checkout of Skia run:
+
+    docserver --preview
+
+Then visit http://localhost:8000 to preview your changes. There is no need to
+restart the server for file changes, but you will need to restart it if there
+are changes to the navigation menu, i.e. you add or remove a file and want it
+to appear in the navigation on the right hand side of the page.
+
+If port 8000 is unavailable on your machine you can set the port to use via
+the --port flag:
+
+    docserver --preview --port=:8002
+
+
 Some Example MarkDown
 ---------------------
 
