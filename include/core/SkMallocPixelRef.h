@@ -50,6 +50,11 @@ public:
      *
      *  This pixelref will ref() the specified colortable (if not NULL).
      *
+     *  If ReleaseProc is NULL, the pixels will never be released. This
+     *  can be useful if the pixels were stack allocated. However, such an
+     *  SkMallocPixelRef must not live beyond its pixels (e.g. by copying
+     *  an SkBitmap pointing to it, or drawing to an SkPicture).
+     *
      *  Returns NULL on failure.
      */
     typedef void (*ReleaseProc)(void* addr, void* context);
