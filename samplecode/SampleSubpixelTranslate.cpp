@@ -71,6 +71,7 @@ protected:
 
         SkPaint paint;
         paint.setTextSize(48);
+        paint.setSubpixelText(true);
 
         paint.setAntiAlias(true);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gLevels); ++i) {
