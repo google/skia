@@ -15,6 +15,7 @@
       'sources': [
         '../gm/aaclip.cpp',
         '../gm/aarectmodes.cpp',
+        '../gm/addarc.cpp',
         '../gm/alphagradients.cpp',
         '../gm/arcofzorro.cpp',
         '../gm/arithmode.cpp',
