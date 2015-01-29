@@ -59,10 +59,8 @@ static bool webp_parse_header(SkStream* stream, int* width, int* height, int* al
         unsigned char* dst = buffer + totalBytesRead;
         const size_t bytesRead = stream->read(dst, bytesToRead);
         if (0 == bytesRead) {
-            // Could not read any bytes. Check to see if we are at the end (exit
-            // condition), and continue reading if not. Important for streams
-            // that do not have all the data ready.
-            continue;
+            SkASSERT(stream->isAtEnd());
+            break;
         }
         bytesToRead -= bytesRead;
         totalBytesRead += bytesRead;
