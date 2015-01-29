@@ -418,6 +418,19 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             break;
     }
 
+    if (!fDoAA) {
+        // Here we mimic a non-anti-aliased scanline system. If there is
+        // no anti-aliasing we can integerize the bounding box to exclude
+        // fractional parts that won't be rendered.
+        // Note: the left edge is handled slightly differently below. We
+        // are a bit more generous in the rounding since we don't want to
+        // risk missing the left pixels when fLeft is very close to .5
+        fFiniteBound.set(SkScalarFloorToScalar(fFiniteBound.fLeft+0.45f),
+                         SkScalarRoundToScalar(fFiniteBound.fTop),
+                         SkScalarRoundToScalar(fFiniteBound.fRight),
+                         SkScalarRoundToScalar(fFiniteBound.fBottom));
+    }
+
     // Now determine the previous Element's bound information taking into
     // account that there may be no previous clip
     SkRect prevFinite;
