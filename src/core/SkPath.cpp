@@ -894,17 +894,14 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
 
 #include "SkGeometry.h"
 
-static int build_arc_points(const SkRect& oval, SkScalar startAngle,
-                            SkScalar sweepAngle,
-                            SkPoint pts[kSkBuildQuadArcStorage]) {
-
-    if (0 == sweepAngle &&
-        (0 == startAngle || SkIntToScalar(360) == startAngle)) {
+static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                              SkPoint* pt) {
+    if (0 == sweepAngle && (0 == startAngle || SkIntToScalar(360) == startAngle)) {
         // Chrome uses this path to move into and out of ovals. If not
         // treated as a special case the moves can distort the oval's
         // bounding box (and break the circle special case).
-        pts[0].set(oval.fRight, oval.centerY());
-        return 1;
+        pt->set(oval.fRight, oval.centerY());
+        return true;
     } else if (0 == oval.width() && 0 == oval.height()) {
         // Chrome will sometimes create 0 radius round rects. Having degenerate
         // quad segments in the path prevents the path from being recognized as
@@ -912,10 +909,14 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle,
         // TODO: optimizing the case where only one of width or height is zero
         // should also be considered. This case, however, doesn't seem to be
         // as common as the single point case.
-        pts[0].set(oval.fRight, oval.fTop);
-        return 1;
+        pt->set(oval.fRight, oval.fTop);
+        return true;
     }
+    return false;
+}
 
+static int build_arc_points(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                            SkPoint pts[kSkBuildQuadArcStorage]) {
     SkVector start, stop;
 
     start.fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &start.fX);
@@ -1309,13 +1310,20 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
         return;
     }
 
+    if (fPathRef->countVerbs() == 0) {
+        forceMoveTo = true;
+    }
+
+    SkPoint lonePt;
+    if (arc_is_lone_point(oval, startAngle, sweepAngle, &lonePt)) {
+        forceMoveTo ? this->moveTo(lonePt) : this->lineTo(lonePt);
+        return;
+    }
+
     SkPoint pts[kSkBuildQuadArcStorage];
     int count = build_arc_points(oval, startAngle, sweepAngle, pts);
     SkASSERT((count & 1) == 1);
 
-    if (fPathRef->countVerbs() == 0) {
-        forceMoveTo = true;
-    }
     this->incReserve(count);
     forceMoveTo ? this->moveTo(pts[0]) : this->lineTo(pts[0]);
     for (int i = 1; i < count; i += 2) {
@@ -1332,6 +1340,12 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
 
     if (sweepAngle >= kFullCircleAngle || sweepAngle <= -kFullCircleAngle) {
         this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction);
+        return;
+    }
+
+    SkPoint lonePt;
+    if (arc_is_lone_point(oval, startAngle, sweepAngle, &lonePt)) {
+        this->moveTo(lonePt);
         return;
     }
 
