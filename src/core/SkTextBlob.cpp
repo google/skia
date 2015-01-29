@@ -306,60 +306,44 @@ SkTextBlobBuilder::~SkTextBlobBuilder() {
 }
 
 SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
+    SkASSERT(SkTextBlob::kDefault_Positioning == run.positioning());
+
     SkRect bounds;
-
-    if (SkTextBlob::kDefault_Positioning == run.positioning()) {
-        run.font().measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t), &bounds);
-        return bounds;
-    }
-
-    SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
-             SkTextBlob::kHorizontal_Positioning == run.positioning());
-
-    SkAutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
-    run.font().getTextWidths(run.glyphBuffer(),
-                             run.glyphCount() * sizeof(uint16_t),
-                             NULL,
-                             glyphBounds.get());
-
-    bounds = SkRect::MakeEmpty();
-    SkScalar* glyphPos = run.posBuffer();
-    for (unsigned i = 0; i < run.glyphCount(); ++i) {
-        if (SkTextBlob::kFull_Positioning == run.positioning()) {
-            // [ x, y, x, y... ]
-            glyphBounds[i].offset(glyphPos[0], glyphPos[1]);
-            SkASSERT(2 == SkTextBlob::ScalarsPerGlyph(run.positioning()));
-            glyphPos += 2;
-        } else {
-            // [ x, x, x... ], const y applied by runBounds.offset(run->offset()) later.
-            glyphBounds[i].offset(glyphPos[0], 0);
-            SkASSERT(1 == SkTextBlob::ScalarsPerGlyph(run.positioning()));
-            glyphPos += 1;
-        }
-
-        bounds.join(glyphBounds[i]);
-    }
-
-    SkASSERT((void*)glyphPos <= SkTextBlob::RunRecord::Next(&run));
+    run.font().measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t), &bounds);
 
     return bounds.makeOffset(run.offset().x(), run.offset().y());
 }
 
 SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run) {
-    const SkScalar* glyphPos = run.posBuffer();
-    int posScalars = SkTextBlob::ScalarsPerGlyph(run.positioning());
-
-    SkASSERT(1 == posScalars || 2 == posScalars);
     SkASSERT(run.glyphCount() > 0);
-    SkASSERT((void*)(glyphPos + run.glyphCount() * posScalars) <=
-             SkTextBlob::RunRecord::Next(&run));
+    SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
+             SkTextBlob::kHorizontal_Positioning == run.positioning());
 
     // First, compute the glyph position bbox.
-    SkRect bounds = SkRect::MakeXYWH(glyphPos[0], (2 == posScalars) ? glyphPos[1] : 0, 0, 0);
-    for (unsigned i = 1; i < run.glyphCount(); ++i) {
-        SkScalar xpos = glyphPos[i * posScalars];
-        SkScalar ypos = (2 == posScalars) ? glyphPos[i * posScalars + 1] : 0;
-        bounds.growToInclude(xpos, ypos);
+    SkRect bounds;
+    switch (run.positioning()) {
+    case SkTextBlob::kHorizontal_Positioning: {
+        const SkScalar* glyphPos = run.posBuffer();
+        SkASSERT((void*)(glyphPos + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
+
+        SkScalar minX = *glyphPos;
+        SkScalar maxX = *glyphPos;
+        for (unsigned i = 1; i < run.glyphCount(); ++i) {
+            SkScalar x = glyphPos[i];
+            minX = SkMinScalar(x, minX);
+            maxX = SkMaxScalar(x, maxX);
+        }
+
+        bounds.setLTRB(minX, 0, maxX, 0);
+    } break;
+    case SkTextBlob::kFull_Positioning: {
+        const SkPoint* glyphPosPts = reinterpret_cast<const SkPoint*>(run.posBuffer());
+        SkASSERT((void*)(glyphPosPts + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
+
+        bounds.setBounds(glyphPosPts, run.glyphCount());
+    } break;
+    default:
+        SkFAIL("unsupported positioning mode");
     }
 
     // Expand by typeface glyph bounds.
@@ -385,18 +369,9 @@ void SkTextBlobBuilder::updateDeferredBounds() {
                                                                           fLastRun);
     SkASSERT(SkPaint::kGlyphID_TextEncoding == run->font().getTextEncoding());
 
-    SkRect runBounds;
-#ifdef SK_SUPPORT_LEGACY_BLOB_BOUNDS
-    runBounds = TightRunBounds(*run);
-#else
-    // FIXME: conservative bounds for default positioning?
-    if (SkTextBlob::kDefault_Positioning == run->positioning()) {
-        runBounds = TightRunBounds(*run);
-    } else {
-        runBounds = ConservativeRunBounds(*run);
-    }
-#endif
-
+    // FIXME: we should also use conservative bounds for kDefault_Positioning.
+    SkRect runBounds = SkTextBlob::kDefault_Positioning == run->positioning() ?
+                       TightRunBounds(*run) : ConservativeRunBounds(*run);
     fBounds.join(runBounds);
     fDeferredBounds = false;
 }
