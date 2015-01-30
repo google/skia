@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkGPipe.h"
+#include "SkNullCanvas.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -173,6 +174,15 @@ private:
     const int                   fW, fH;
     SkAutoTDelete<SkBBHFactory> fFactory;
     SkAutoTDelete<Sink>         fSink;
+};
+
+class NullSink : public Sink {
+public:
+    Error draw(const Src& src, SkBitmap*, SkWStream* out) const SK_OVERRIDE {
+        return src.draw(SkCreateNullCanvas());
+    }
+    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
+    const char* fileExtension() const SK_OVERRIDE { return ""; }
 };
 
 }  // namespace DM

@@ -75,6 +75,7 @@ void JsonWriter::DumpJson() {
     }
 
     SkString path = SkOSPath::Join(FLAGS_writePath[0], "dm.json");
+    sk_mkdir(FLAGS_writePath[0]);
     SkFILEWStream stream(path.c_str());
     stream.writeText(Json::StyledWriter().write(root).c_str());
     stream.flush();

@@ -221,6 +221,7 @@ static Sink* create_sink(const char* tag) {
         SINK("8888", RasterSink, kN32_SkColorType);
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
+        SINK("null",  NullSink);
     }
 #undef SINK
     return NULL;
@@ -339,7 +340,8 @@ struct Task {
                 const char* ext = task->sink->fileExtension();
                 if (data->getLength()) {
                     WriteToDisk(*task, md5, ext, data, data->getLength(), NULL);
-                } else {
+                    SkASSERT(bitmap.drawsNothing());
+                } else if (!bitmap.drawsNothing()) {
                     WriteToDisk(*task, md5, ext, NULL, 0, &bitmap);
                 }
             }
