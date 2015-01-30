@@ -51,17 +51,17 @@
  * can read these variables that are relevant to the current parsing.
  */
 struct FamilyData {
-    FamilyData(XML_Parser* parserRef, SkTDArray<FontFamily*> &familiesRef) :
+    FamilyData(XML_Parser parserRef, SkTDArray<FontFamily*> &familiesRef) :
         parser(parserRef),
         families(familiesRef),
         currentFamily(NULL),
         currentFontInfo(NULL),
         currentTag(NO_TAG) {};
 
-    XML_Parser* parser;                // The expat parser doing the work
-    SkTDArray<FontFamily*> &families;  // The array that each family is put into as it is parsed
-    FontFamily* currentFamily;         // The current family being created
-    FontFileInfo* currentFontInfo;     // The current fontInfo being created
+    XML_Parser parser;                 // The expat parser doing the work, owned by caller
+    SkTDArray<FontFamily*>& families;  // The array to append families, owned by caller
+    FontFamily* currentFamily;         // The current family being created, owned by this
+    FontFileInfo* currentFontInfo;     // The current fontInfo being created, owned by currentFamily
     int currentTag;                    // A flag to indicate whether we're in nameset/fileset tags
 };
 
@@ -122,7 +122,7 @@ void fontFileNameHandler(void* data, const char* s, int len) {
     familyData->currentFontInfo->fFileName.set(s, len);
 }
 
-void fontElementHandler(XML_Parser* parser, FontFileInfo* file, const char** attributes) {
+void fontElementHandler(XML_Parser parser, FontFileInfo* file, const char** attributes) {
     // A <font> should have weight (integer) and style (normal, italic) attributes.
     // NOTE: we ignore the style.
     // The element should contain a filename.
@@ -138,7 +138,7 @@ void fontElementHandler(XML_Parser* parser, FontFileInfo* file, const char** att
             }
         }
     }
-    XML_SetCharacterDataHandler(*parser, fontFileNameHandler);
+    XML_SetCharacterDataHandler(parser, fontFileNameHandler);
 }
 
 FontFamily* findFamily(FamilyData* familyData, const char* familyName) {
@@ -225,7 +225,7 @@ void endElementHandler(void* data, const char* tag) {
         *familyData->families.append() = familyData->currentFamily;
         familyData->currentFamily = NULL;
     } else if (len == 4 && !strncmp(tag, "font", len)) {
-        XML_SetCharacterDataHandler(*familyData->parser, NULL);
+        XML_SetCharacterDataHandler(familyData->parser, NULL);
     }
 }
 
@@ -309,7 +309,7 @@ static void fontFileElementHandler(FamilyData* familyData, const char** attribut
         }
     }
     familyData->currentFontInfo = &newFileInfo;
-    XML_SetCharacterDataHandler(*familyData->parser, textHandler);
+    XML_SetCharacterDataHandler(familyData->parser, textHandler);
 }
 
 /**
@@ -328,7 +328,7 @@ static void startElementHandler(void* data, const char* tag, const char** atts) 
             const char* valueString = atts[i+1];
             int version;
             if (parseNonNegativeInteger(valueString, &version) && (version >= 21)) {
-                XML_SetElementHandler(*familyData->parser,
+                XML_SetElementHandler(familyData->parser,
                                       lmpParser::startElementHandler,
                                       lmpParser::endElementHandler);
             }
@@ -351,7 +351,7 @@ static void startElementHandler(void* data, const char* tag, const char** atts) 
         familyData->currentTag = FILESET_TAG;
     } else if (len == 4 && strncmp(tag, "name", len) == 0 && familyData->currentTag == NAMESET_TAG) {
         // If it's a Name, parse the text inside
-        XML_SetCharacterDataHandler(*familyData->parser, textHandler);
+        XML_SetCharacterDataHandler(familyData->parser, textHandler);
     } else if (len == 4 && strncmp(tag, "file", len) == 0 && familyData->currentTag == FILESET_TAG) {
         // If it's a file, parse the attributes, then parse the text inside
         fontFileElementHandler(familyData, atts);
@@ -380,7 +380,7 @@ static void endElementHandler(void* data, const char* tag) {
                 strncmp(tag, "file", len) == 0 &&
                 familyData->currentTag == FILESET_TAG)) {
         // Disable the arbitrary text handler installed to load Name data
-        XML_SetCharacterDataHandler(*familyData->parser, NULL);
+        XML_SetCharacterDataHandler(familyData->parser, NULL);
     }
 }
 
@@ -401,7 +401,7 @@ static void parseConfigFile(const char* filename, SkTDArray<FontFamily*> &famili
     }
 
     XML_Parser parser = XML_ParserCreate(NULL);
-    FamilyData* familyData = new FamilyData(&parser, families);
+    FamilyData* familyData = new FamilyData(parser, families);
     XML_SetUserData(parser, familyData);
     // Start parsing oldschool; switch these in flight if we detect a newer version of the file.
     XML_SetElementHandler(parser, jbParser::startElementHandler, jbParser::endElementHandler);
