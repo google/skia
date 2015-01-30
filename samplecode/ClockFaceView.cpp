@@ -18,7 +18,6 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTypeface.h"
-#include "SkAvoidXfermode.h"
 
 static inline SkPMColor rgb2gray(SkPMColor c) {
     unsigned r = SkGetPackedR32(c);

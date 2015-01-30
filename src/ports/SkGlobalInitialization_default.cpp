@@ -17,7 +17,6 @@
 #include "Sk2DPathEffect.h"
 #include "SkArithmeticMode.h"
 #include "SkArcToPathEffect.h"
-#include "SkAvoidXfermode.h"
 #include "SkBitmapSource.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
@@ -65,7 +64,6 @@ class SkPrivateEffectInitializer {
 public:
     static void Init() {
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArcToPathEffect)
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAvoidXfermode)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapSource)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurDrawLooper)
