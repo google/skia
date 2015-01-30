@@ -21,6 +21,7 @@ struct ImplicitString : public SkString {
 };
 typedef ImplicitString Error;
 typedef ImplicitString Name;
+typedef ImplicitString Path;
 
 struct Src {
     // All Srcs must be thread safe.
@@ -60,25 +61,25 @@ private:
 
 class ImageSrc : public Src {
 public:
-    explicit ImageSrc(SkString path, int subsets = 0);
+    explicit ImageSrc(Path path, int subsets = 0);
 
     Error draw(SkCanvas*) const SK_OVERRIDE;
     SkISize size() const SK_OVERRIDE;
     Name name() const SK_OVERRIDE;
 private:
-    SkString                     fPath;
-    int                          fSubsets;
+    Path fPath;
+    int  fSubsets;
 };
 
 class SKPSrc : public Src {
 public:
-    explicit SKPSrc(SkString path);
+    explicit SKPSrc(Path path);
 
     Error draw(SkCanvas*) const SK_OVERRIDE;
     SkISize size() const SK_OVERRIDE;
     Name name() const SK_OVERRIDE;
 private:
-    SkString                        fPath;
+    Path fPath;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

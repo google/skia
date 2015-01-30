@@ -130,7 +130,7 @@ static void gather_srcs() {
                 push_src("skp", new SKPSrc(SkOSPath::Join(path, file.c_str())));
             }
         } else {
-            push_src("skp", new SKPSrc(SkString(path)));
+            push_src("skp", new SKPSrc(path));
         }
     }
     static const char* const exts[] = {
@@ -150,8 +150,8 @@ static void gather_srcs() {
             }
         } else if (sk_exists(flag)) {
             // assume that FLAGS_images[i] is a valid image if it is a file.
-            push_src("image", new ImageSrc(SkString(flag)));     // Decode entire image.
-            push_src("image", new ImageSrc(SkString(flag), 5));  // Decode 5 random subsets.
+            push_src("image", new ImageSrc(flag));     // Decode entire image.
+            push_src("image", new ImageSrc(flag, 5));  // Decode 5 random subsets.
         }
     }
 }

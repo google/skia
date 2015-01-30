@@ -31,7 +31,7 @@ Name GMSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageSrc::ImageSrc(SkString path, int subsets) : fPath(path), fSubsets(subsets) {}
+ImageSrc::ImageSrc(Path path, int subsets) : fPath(path), fSubsets(subsets) {}
 
 Error ImageSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
@@ -103,7 +103,7 @@ Name ImageSrc::name() const {
 
 static const SkRect kSKPViewport = {0,0, 1000,1000};
 
-SKPSrc::SKPSrc(SkString path) : fPath(path) {}
+SKPSrc::SKPSrc(Path path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
     SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
