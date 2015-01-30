@@ -407,6 +407,7 @@
         # We can't use the skia_shared_library gyp setting because we need expose
         # this define globally and the the implemention define as a cflag.
         'SKIA_DLL',
+        'SK_OVERRIDE override',
         # Defines from skia_for_android_framework_defines.gypi
         '<@(skia_for_android_framework_defines)',
       ],
