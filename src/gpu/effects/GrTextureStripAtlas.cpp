@@ -190,7 +190,6 @@ GrTextureStripAtlas::AtlasRow* GrTextureStripAtlas::getLRU() {
 }
 
 void GrTextureStripAtlas::lockTexture() {
-    GrTextureParams params;
     GrSurfaceDesc texDesc;
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
@@ -202,9 +201,10 @@ void GrTextureStripAtlas::lockTexture() {
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 
-    fTexture = fDesc.fContext->findAndRefTexture(texDesc, key, &params);
+    fTexture = fDesc.fContext->findAndRefCachedTexture(key);
     if (NULL == fTexture) {
-        fTexture = fDesc.fContext->createTexture(&params, texDesc, key, NULL, 0);
+        fTexture = fDesc.fContext->createTexture(texDesc, NULL, 0);
+        SkAssertResult(fDesc.fContext->addResourceToCache(key, fTexture));
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
