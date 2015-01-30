@@ -26,7 +26,6 @@
       'sources': [
         '../experimental/SkiaExamples/SkExample.h',
         '../experimental/SkiaExamples/SkExample.cpp',
-        '../experimental/SkiaExamples/HelloSkiaExample.cpp',
       ],
       'dependencies': [
         'flags.gyp:flags',
@@ -36,7 +35,7 @@
       'conditions' : [
         [ 'skia_gpu == 1', {
           'include_dirs' : [
-            '../src/gpu',
+            '../include/gpu',
           ],
         }],
         [ 'skia_os == "win"', {

@@ -10,6 +10,7 @@
 #ifndef SkExample_DEFINED
 #define SkExample_DEFINED
 
+#include "SkSurface.h"
 #include "SkWindow.h"
 #include "SkTRegistry.h"
 
@@ -44,33 +45,42 @@ public:
         kGPU_DeviceType,
     };
     SkExampleWindow(void* hwnd);
+    virtual ~SkExampleWindow() SK_OVERRIDE;
 
     // Changes the device type of the object.
-    bool setupBackend(DeviceType type);
-    void tearDownBackend();
+    bool setUpBackend();
 
     DeviceType getDeviceType() const { return fType; }
 
 protected:
+    SkSurface* createSurface() SK_OVERRIDE {
+        if (kGPU_DeviceType == fType) {
+            SkSurfaceProps props(INHERITED::getSurfaceProps());
+            return SkSurface::NewRenderTargetDirect(fRenderTarget, &props);
+        }
+        static const SkImageInfo info = SkImageInfo::MakeN32Premul(
+                SkScalarRoundToInt(this->width()), SkScalarRoundToInt(this->height()));
+        return fSurface = SkSurface::NewRaster(info);
+   }
+
     void draw(SkCanvas* canvas) SK_OVERRIDE;
+    void drawContents(SkCanvas* canvas);
 
     void onSizeChange() SK_OVERRIDE;
 
-#ifdef SK_BUILD_FOR_WIN
-    void onHandleInval(const SkIRect&) SK_OVERRIDE;
-#endif
-
-    SkCanvas* createCanvas() SK_OVERRIDE;
-
 private:
     bool findNextMatch();  // Set example to the first one that matches FLAGS_match.
-    void setupRenderTarget();
+    void setTitle();
+    void setUpRenderTarget();
     bool onHandleChar(SkUnichar unichar) SK_OVERRIDE;
+    void tearDownBackend();
 
+    // draw contents
+    SkScalar fRotationAngle;
+
+    // support framework
     DeviceType fType;
-
-    SkExample* fCurrExample;
-    const SkExample::Registry* fRegistry;
+    SkSurface* fSurface;
     GrContext* fContext;
     GrRenderTarget* fRenderTarget;
     AttachmentInfo fAttachmentInfo;

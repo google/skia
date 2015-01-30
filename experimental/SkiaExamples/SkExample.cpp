@@ -9,22 +9,12 @@
 
 #include "SkExample.h"
 
-#include "gl/GrGLUtil.h"
-#include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
 #include "SkApplication.h"
-#include "SkCommandLineFlags.h"
-#include "SkGpuDevice.h"
+#include "SkCanvas.h"
+#include "SkGradientShader.h"
 #include "SkGraphics.h"
-
-DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n" \
-                               "Multiple matches may be separated by spaces.\n" \
-                               "~ causes a matching test to always be skipped\n" \
-                               "^ requires the start of the test to match\n" \
-                               "$ requires the end of the test to match\n" \
-                               "^ and $ requires an exact match\n" \
-                               "If a test does not match any list entry,\n" \
-                               "it is skipped unless some list entry starts with ~");
+#include "SkGr.h"
 
 void application_init() {
     SkGraphics::Init();
@@ -38,36 +28,37 @@ void application_term() {
 
 SkExampleWindow::SkExampleWindow(void* hwnd)
     : INHERITED(hwnd) {
-    fRegistry = SkExample::Registry::Head();
-    fCurrExample = fRegistry->factory()(this);
+    fType = SkExampleWindow::kGPU_DeviceType;
+    fRenderTarget = NULL;
+    fRotationAngle = 0;
+    this->setTitle();
+    this->setUpBackend();
+}
 
-    if (FLAGS_match.count()) {
-        // Start with the a matching sample if possible.
-        bool found = this->findNextMatch();
-        if (!found) {
-            SkDebugf("No matching SkExample found.\n");
-        }
-    }
+SkExampleWindow::~SkExampleWindow() {
+    tearDownBackend();
 }
 
 void SkExampleWindow::tearDownBackend() {
-  if (kGPU_DeviceType == fType) {
-        SkSafeUnref(fContext);
-        fContext = NULL;
+    SkSafeUnref(fContext);
+    fContext = NULL;
 
-        SkSafeUnref(fInterface);
-        fInterface = NULL;
+    SkSafeUnref(fInterface);
+    fInterface = NULL;
 
-        SkSafeUnref(fRenderTarget);
-        fRenderTarget = NULL;
+    SkSafeUnref(fRenderTarget);
+    fRenderTarget = NULL;
 
-        detach();
-    }
+    INHERITED::detach();
 }
 
-bool SkExampleWindow::setupBackend(DeviceType type) {
-    fType = type;
+void SkExampleWindow::setTitle() {
+    SkString title("SkiaExample ");
+    title.appendf(fType == kRaster_DeviceType ? "raster" : "opengl");
+    INHERITED::setTitle(title.c_str());
+}
 
+bool SkExampleWindow::setUpBackend() {
     this->setColorType(kRGBA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
@@ -86,109 +77,117 @@ bool SkExampleWindow::setupBackend(DeviceType type) {
     fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fInterface);
     SkASSERT(NULL != fContext);
 
-    setupRenderTarget();
-
+    this->setUpRenderTarget();
     return true;
 }
 
-void SkExampleWindow::setupRenderTarget() {
-    GrBackendRenderTargetDesc desc;
-    desc.fWidth = SkScalarRoundToInt(width());
-    desc.fHeight = SkScalarRoundToInt(height());
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    desc.fSampleCnt = fAttachmentInfo.fSampleCount;
-    desc.fStencilBits = fAttachmentInfo.fStencilBits;
-
-    GrGLint buffer;
-    GR_GL_GetIntegerv(fInterface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
-    desc.fRenderTargetHandle = buffer;
-
-    fRenderTarget = fContext->wrapBackendRenderTarget(desc);
-
-    fContext->setRenderTarget(fRenderTarget);
+void SkExampleWindow::setUpRenderTarget() {
+    SkSafeUnref(fRenderTarget);
+    fRenderTarget = this->renderTarget(fAttachmentInfo, fInterface, fContext);
 }
 
-SkCanvas* SkExampleWindow::createCanvas() {
-    if (fType == kGPU_DeviceType) {
-        if (NULL != fContext && NULL != fRenderTarget) {
-            SkAutoTUnref<SkBaseDevice> device(new SkGpuDevice(fContext, fRenderTarget));
-            return new SkCanvas(device);
-        }
-        tearDownBackend();
-        setupBackend(kRaster_DeviceType);
+void SkExampleWindow::drawContents(SkCanvas* canvas) {
+    // Clear background
+    canvas->drawColor(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+
+    // Draw a rectangle with red paint
+    SkRect rect = {
+            10, 10,
+            128, 128
+    };
+    canvas->drawRect(rect, paint);
+
+    // Set up a linear gradient and draw a circle
+    {
+        SkPoint linearPoints[] = {
+                {0, 0},
+                {300, 300}
+        };
+        SkColor linearColors[] = {SK_ColorGREEN, SK_ColorBLACK};
+
+        SkShader* shader = SkGradientShader::CreateLinear(
+                linearPoints, linearColors, NULL, 2,
+                SkShader::kMirror_TileMode);
+        SkAutoUnref shader_deleter(shader);
+
+        paint.setShader(shader);
+        paint.setFlags(SkPaint::kAntiAlias_Flag);
+
+        canvas->drawCircle(200, 200, 64, paint);
+
+        // Detach shader
+        paint.setShader(NULL);
     }
-    return INHERITED::createCanvas();
+
+    // Draw a message with a nice black paint.
+    paint.setFlags(
+            SkPaint::kAntiAlias_Flag |
+            SkPaint::kSubpixelText_Flag |  // ... avoid waggly text when rotating.
+            SkPaint::kUnderlineText_Flag);
+    paint.setColor(SK_ColorBLACK);
+    paint.setTextSize(20);
+
+    canvas->save();
+
+    static const char message[] = "Hello Skia!!!";
+
+    // Translate and rotate
+    canvas->translate(300, 300);
+    fRotationAngle += 0.2f;
+    if (fRotationAngle > 360) {
+        fRotationAngle -= 360;
+    }
+    canvas->rotate(fRotationAngle);
+
+    // Draw the text:
+    canvas->drawText(message, strlen(message), 0, 0, paint);
+
+    canvas->restore();
 }
 
 void SkExampleWindow::draw(SkCanvas* canvas) {
-    if (NULL != fCurrExample) {
-        fCurrExample->draw(canvas);
-    }
-    if (fType == kGPU_DeviceType) {
+    drawContents(canvas);
+    // in case we have queued drawing calls
+    fContext->flush();
+    // Invalidate the window to force a redraw. Poor man's animation mechanism.
+    this->inval(NULL);
 
-        SkASSERT(NULL != fContext);
-        fContext->flush();
-    }
-    if (fType == kRaster_DeviceType) {
+    if (kRaster_DeviceType == fType) {
         // need to send the raster bits to the (gpu) window
-        fContext->setRenderTarget(fRenderTarget);
-        const SkBitmap& bm = getBitmap();
-        fRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
-                                      kSkia8888_GrPixelConfig,
-                                      bm.getPixels(),
-                                      bm.rowBytes());
+        SkImage* snap = fSurface->newImageSnapshot();
+        size_t rowBytes;
+        SkImageInfo info;
+        const void* pixels = snap->peekPixels(&info, &rowBytes);
+        fRenderTarget->writePixels(0, 0, snap->width(), snap->height(),
+                                        SkImageInfo2GrPixelConfig(info.colorType(),
+                                                                info.alphaType(),
+                                                                info.profileType()),
+                                        pixels,
+                                        rowBytes,
+                                        GrContext::kFlushWrites_PixelOp);
+        SkSafeUnref(snap);
     }
     INHERITED::present();
 }
 
 void SkExampleWindow::onSizeChange() {
-    setupRenderTarget();
-}
-
-#ifdef SK_BUILD_FOR_WIN
-void SkExampleWindow::onHandleInval(const SkIRect& rect) {
-    RECT winRect;
-    winRect.top = rect.top();
-    winRect.bottom = rect.bottom();
-    winRect.right = rect.right();
-    winRect.left = rect.left();
-    InvalidateRect((HWND)this->getHWND(), &winRect, false);
-}
-#endif
-
-bool SkExampleWindow::findNextMatch() {
-    bool found = false;
-    // Avoid infinite loop by knowing where we started.
-    const SkExample::Registry* begin = fRegistry;
-    while (!found) {
-        fRegistry = fRegistry->next();
-        if (NULL == fRegistry) {  // Reached the end of the registered samples. GOTO head.
-            fRegistry = SkExample::Registry::Head();
-        }
-        SkExample* next = fRegistry->factory()(this);
-        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, next->getName().c_str())) {
-            fCurrExample = next;
-            found = true;
-        }
-        if (begin == fRegistry) {  // We looped through every sample without finding anything.
-            break;
-        }
-    }
-    return found;
+    setUpRenderTarget();
 }
 
 bool SkExampleWindow::onHandleChar(SkUnichar unichar) {
-    if ('n' == unichar) {
-        bool found = findNextMatch();
-        if (!found) {
-            SkDebugf("No SkExample that matches your query\n");
-        }
+    if (' ' == unichar) {
+        fType = fType == kRaster_DeviceType ? kGPU_DeviceType: kRaster_DeviceType;
+        tearDownBackend();
+        setUpBackend();
+        this->setTitle();
+        this->inval(NULL);
     }
     return true;
 }
 
-SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+SkOSWindow* create_sk_window(void* hwnd, int , char** ) {
     return new SkExampleWindow(hwnd);
 }

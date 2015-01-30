@@ -20,11 +20,6 @@ public:
         kNativeGL_BackEndType,
     };
 
-    struct AttachmentInfo {
-        int fSampleCount;
-        int fStencilBits;
-    };
-
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info);
     void detach() {}
     void present() {}

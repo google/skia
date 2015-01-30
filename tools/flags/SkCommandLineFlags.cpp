@@ -303,6 +303,11 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                 flag = flag->next();
             }
             if (!flagMatched) {
+#if SK_BUILD_FOR_MAC
+                if (SkStrStartsWith(argv[i], "NSDocumentRevisions")) {
+                        i++;  // skip YES
+                } else
+#endif
                 if (!FLAGS_undefok) {
                     SkDebugf("Got unknown flag \"%s\". Exiting.\n", argv[i]);
                     exit(-1);

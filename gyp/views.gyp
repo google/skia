@@ -77,6 +77,11 @@
         '../src/views/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
+        [ 'skia_gpu == 1', {
+          'include_dirs' : [
+            '../src/gpu',
+          ],
+        }],
         [ 'skia_os == "mac"', {
           'link_settings': {
             'libraries': [

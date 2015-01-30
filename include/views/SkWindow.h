@@ -25,10 +25,21 @@
 class SkSurface;
 class SkOSMenu;
 
+#if SK_SUPPORT_GPU
+struct GrGLInterface;
+class GrContext;
+class GrRenderTarget;
+#endif
+
 class SkWindow : public SkView {
 public:
             SkWindow();
     virtual ~SkWindow();
+
+    struct AttachmentInfo {
+        int fSampleCount;
+        int fStencilBits;
+    };
 
     SkSurfaceProps getSurfaceProps() const { return fSurfaceProps; }
     void setSurfaceProps(const SkSurfaceProps& props) {
@@ -84,6 +95,11 @@ protected:
     virtual bool handleInval(const SkRect*);
     virtual bool onGetFocusView(SkView** focus) const;
     virtual bool onSetFocusView(SkView* focus);
+
+#if SK_SUPPORT_GPU
+    GrRenderTarget* renderTarget(const AttachmentInfo& attachmentInfo,
+                                 const GrGLInterface* , GrContext* grContext);
+#endif
 
 private:
     SkSurfaceProps  fSurfaceProps;

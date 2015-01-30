@@ -341,3 +341,26 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
     }
     return handled;
 }
+
+#if SK_SUPPORT_GPU
+
+#include "gl/GrGLInterface.h"
+#include "gl/GrGLUtil.h"
+#include "SkGr.h"
+
+GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
+        const GrGLInterface* interface, GrContext* grContext) {
+    GrBackendRenderTargetDesc desc;
+    desc.fWidth = SkScalarRoundToInt(this->width());
+    desc.fHeight = SkScalarRoundToInt(this->height());
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    desc.fSampleCnt = attachmentInfo.fSampleCount;
+    desc.fStencilBits = attachmentInfo.fStencilBits;
+    GrGLint buffer;
+    GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+    desc.fRenderTargetHandle = buffer;
+    return grContext->wrapBackendRenderTarget(desc);
+}
+
+#endif

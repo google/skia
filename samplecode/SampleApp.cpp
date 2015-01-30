@@ -315,20 +315,8 @@ public:
         if (fCurContext) {
             AttachmentInfo attachmentInfo;
             win->attach(fBackend, fMSAASampleCount, &attachmentInfo);
-
-            GrBackendRenderTargetDesc desc;
-            desc.fWidth = SkScalarRoundToInt(win->width());
-            desc.fHeight = SkScalarRoundToInt(win->height());
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-            desc.fSampleCnt = attachmentInfo.fSampleCount;
-            desc.fStencilBits = attachmentInfo.fStencilBits;
-            GrGLint buffer;
-            GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &buffer);
-            desc.fRenderTargetHandle = buffer;
-
             SkSafeUnref(fCurRenderTarget);
-            fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
+            fCurRenderTarget = win->renderTarget(attachmentInfo, fCurIntf, fCurContext);
         }
 #endif
     }
