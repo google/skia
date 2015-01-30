@@ -137,14 +137,10 @@ void GLAARectEffect::emitCode(GrGLFPBuilder* builder,
         fsBuilder->codeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
     } else {
         fsBuilder->codeAppendf("\t\tfloat alpha = 1.0;\n");
-        fsBuilder->codeAppendf("\t\talpha *= (%s.x - %s.x) > -0.5 ? 1.0 : 0.0;\n",
-                               fragmentPos, rectName);
-        fsBuilder->codeAppendf("\t\talpha *= (%s.z - %s.x) > -0.5 ? 1.0 : 0.0;\n",
-                               rectName, fragmentPos);
-        fsBuilder->codeAppendf("\t\talpha *= (%s.y - %s.y) > -0.5 ? 1.0 : 0.0;\n",
-                               fragmentPos, rectName);
-        fsBuilder->codeAppendf("\t\talpha *= (%s.w - %s.y) > -0.5 ? 1.0 : 0.0;\n",
-                               rectName, fragmentPos);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.z - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.y - %s.y) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
+        fsBuilder->codeAppendf("\t\talpha *= (%s.w - %s.y) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
     }
 
     if (GrProcessorEdgeTypeIsInverseFill(aare.getEdgeType())) {
@@ -158,10 +154,8 @@ void GLAARectEffect::setData(const GrGLProgramDataManager& pdman, const GrProces
     const AARectEffect& aare = processor.cast<AARectEffect>();
     const SkRect& rect = aare.getRect();
     if (rect != fPrevRect) {
-        // Add a device space "nudge" of 0.05f, 0.05f to match raster's rounding behavior for
-        // BW clipping/drawing
-        pdman.set4f(fRectUniform, rect.fLeft + 0.55f, rect.fTop + 0.55f,
-                                  rect.fRight - 0.45f, rect.fBottom - 0.45f);
+        pdman.set4f(fRectUniform, rect.fLeft + 0.5f, rect.fTop + 0.5f,
+                   rect.fRight - 0.5f, rect.fBottom - 0.5f);
         fPrevRect = rect;
     }
 }
@@ -227,10 +221,7 @@ void GrGLConvexPolyEffect::emitCode(GrGLFPBuilder* builder,
     fsBuilder->codeAppend("\t\tfloat edge;\n");
     const char* fragmentPos = fsBuilder->fragmentPosition();
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        // Add a device space "nudge" of 0.05f, 0.05f to match raster's rounding behavior for
-        // BW clipping/drawing. Since we are "nudging" fragment positions we have to go in
-        // the opposite direction.
-        fsBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x - 0.05, %s.y - 0.05, 1));\n",
+        fsBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x, %s.y, 1));\n",
                                edgeArrayName, i, fragmentPos, fragmentPos);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
             fsBuilder->codeAppend("\t\tedge = clamp(edge, 0.0, 1.0);\n");
