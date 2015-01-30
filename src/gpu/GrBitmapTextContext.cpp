@@ -425,13 +425,10 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     SkFixed height = glyph->fBounds.height();
 
     // check if we clipped out
-    if (true || NULL == glyph->fPlot) {
-        int x = vx >> 16;
-        int y = vy >> 16;
-        if (fClipRect.quickReject(x, y, x + width, y + height)) {
-//            SkCLZ(3);    // so we can set a break-point in the debugger
-            return;
-        }
+    int x = vx >> 16;
+    int y = vy >> 16;
+    if (fClipRect.quickReject(x, y, x + width, y + height)) {
+        return;
     }
 
     // If the glyph is too large we fall back to paths
