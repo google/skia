@@ -79,6 +79,9 @@ int SkCLZ_portable(uint32_t);
             if (mask) {
                 DWORD index;
                 _BitScanReverse(&index, mask);
+                // Suppress this bogus /analyze warning. The check for non-zero
+                // guarantees that _BitScanReverse will succeed.
+#pragma warning(suppress : 6102) // Using 'index' from failed function call
                 return index ^ 0x1F;
             } else {
                 return 32;
