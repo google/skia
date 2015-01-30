@@ -133,18 +133,25 @@ static void gather_srcs() {
             push_src("skp", new SKPSrc(SkString(path)));
         }
     }
-    if (!FLAGS_images.isEmpty()) {
-        const char* exts[] = {
-            "bmp", "gif", "jpg", "jpeg", "png", "webp", "ktx", "astc", "wbmp", "ico",
-            "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "KTX", "ASTC", "WBMP", "ICO",
-        };
-        for (size_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
-            SkOSFile::Iter it(FLAGS_images[0], exts[i]);
-            for (SkString file; it.next(&file); ) {
-                SkString path = SkOSPath::Join(FLAGS_images[0], file.c_str());
-                push_src("image", new ImageSrc(path));     // Decode entire image.
-                push_src("image", new ImageSrc(path, 5));  // Decode 5 random subsets.
+    static const char* const exts[] = {
+        "bmp", "gif", "jpg", "jpeg", "png", "webp", "ktx", "astc", "wbmp", "ico",
+        "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "KTX", "ASTC", "WBMP", "ICO",
+    };
+    for (int i = 0; i < FLAGS_images.count(); i++) {
+        const char* flag = FLAGS_images[i];
+        if (sk_isdir(flag)) {
+            for (size_t j = 0; j < SK_ARRAY_COUNT(exts); j++) {
+                SkOSFile::Iter it(flag, exts[j]);
+                for (SkString file; it.next(&file); ) {
+                    SkString path = SkOSPath::Join(flag, file.c_str());
+                    push_src("image", new ImageSrc(path));     // Decode entire image.
+                    push_src("image", new ImageSrc(path, 5));  // Decode 5 random subsets.
+                }
             }
+        } else if (sk_exists(flag)) {
+            // assume that FLAGS_images[i] is a valid image if it is a file.
+            push_src("image", new ImageSrc(SkString(flag)));     // Decode entire image.
+            push_src("image", new ImageSrc(SkString(flag), 5));  // Decode 5 random subsets.
         }
     }
 }
