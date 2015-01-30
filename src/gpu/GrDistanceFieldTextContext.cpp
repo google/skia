@@ -539,7 +539,6 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
                               SkScalarTruncToInt(dstRect.top()),
                               SkScalarTruncToInt(dstRect.right()),
                               SkScalarTruncToInt(dstRect.bottom()))) {
-//            SkCLZ(3);    // so we can set a break-point in the debugger
         return true;
     }
 
