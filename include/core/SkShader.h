@@ -47,14 +47,6 @@ public:
      */
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
-    /**
-     *  Returns true if the local matrix is not an identity matrix.
-     *
-     *  FIXME: This can be incorrect for a Shader with its own local matrix
-     *  that is also wrapped via CreateLocalMatrixShader.
-     */
-    bool hasLocalMatrix() const { return !fLocalMatrix.isIdentity(); }
-
     enum TileMode {
         /** replicate the edge color if the shader draws outside of its
          *  original bounds
