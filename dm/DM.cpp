@@ -122,10 +122,15 @@ static void gather_srcs() {
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         push_src("gm", new GMSrc(r->factory()));
     }
-    if (!FLAGS_skps.isEmpty()) {
-        SkOSFile::Iter it(FLAGS_skps[0], "skp");
-        for (SkString file; it.next(&file); ) {
-            push_src("skp", new SKPSrc(SkOSPath::Join(FLAGS_skps[0], file.c_str())));
+    for (int i = 0; i < FLAGS_skps.count(); i++) {
+        const char* path = FLAGS_skps[i];
+        if (sk_isdir(path)) {
+            SkOSFile::Iter it(path, "skp");
+            for (SkString file; it.next(&file); ) {
+                push_src("skp", new SKPSrc(SkOSPath::Join(path, file.c_str())));
+            }
+        } else {
+            push_src("skp", new SKPSrc(SkString(path)));
         }
     }
     if (!FLAGS_images.isEmpty()) {
