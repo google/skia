@@ -25,6 +25,7 @@
         'render_pictures',
         'skdiff',
         'skhello',
+        'skp2svg',
         'skpdiff',
         'skpinfo',
         'skpmaker',
@@ -261,6 +262,26 @@
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
+      ],
+    },
+    {
+      'target_name': 'skp2svg',
+      'type': 'executable',
+      'sources': [
+        '../experimental/svg/skp2svg.cpp',
+        '../experimental/svg/SkSVGDevice.cpp',
+        '../experimental/svg/SkSVGDevice.h',
+        '../tools/LazyDecodeBitmap.cpp',
+      ],
+      'include_dirs': [
+        '../src/core/',
+        '../src/lazy/',
+        '../tools/',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
+        'xml.gyp:xml',
       ],
     },
     {
