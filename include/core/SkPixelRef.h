@@ -264,22 +264,6 @@ public:
         return NULL;
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
-    /**
-     *  Acquire a "global" ref on this object.
-     *  The default implementation just calls ref(), but subclasses can override
-     *  this method to implement additional behavior.
-     */
-    virtual void globalRef(void* data=NULL);
-
-    /**
-     *  Release a "global" ref on this object.
-     *  The default implementation just calls unref(), but subclasses can override
-     *  this method to implement additional behavior.
-     */
-    virtual void globalUnref();
-#endif
-
     // Register a listener that may be called the next time our generation ID changes.
     //
     // We'll only call the listener if we're confident that we are the only SkPixelRef with this
