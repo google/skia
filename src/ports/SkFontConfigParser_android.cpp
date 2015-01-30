@@ -58,11 +58,11 @@ struct FamilyData {
         currentFontInfo(NULL),
         currentTag(NO_TAG) {};
 
-    XML_Parser parser;                 // The expat parser doing the work, owned by caller
-    SkTDArray<FontFamily*>& families;  // The array to append families, owned by caller
-    FontFamily* currentFamily;         // The current family being created, owned by this
-    FontFileInfo* currentFontInfo;     // The current fontInfo being created, owned by currentFamily
-    int currentTag;                    // A flag to indicate whether we're in nameset/fileset tags
+    XML_Parser parser;                       // The expat parser doing the work, owned by caller
+    SkTDArray<FontFamily*>& families;        // The array to append families, owned by caller
+    SkAutoTDelete<FontFamily> currentFamily; // The family being created, owned by this
+    FontFileInfo* currentFontInfo;           // The fontInfo being created, owned by currentFamily
+    int currentTag;                          // Flag to indicate when we're in nameset/fileset tags
 };
 
 /** http://www.w3.org/TR/html-markup/datatypes.html#common.data.integer.non-negative-def */
@@ -207,7 +207,7 @@ void startElementHandler(void* data, const char* tag, const char** attributes) {
     FamilyData* familyData = (FamilyData*) data;
     size_t len = strlen(tag);
     if (len == 6 && !strncmp(tag, "family", len)) {
-        familyData->currentFamily = new FontFamily();
+        familyData->currentFamily.reset(new FontFamily());
         familyElementHandler(familyData->currentFamily, attributes);
     } else if (len == 4 && !strncmp(tag, "font", len)) {
         FontFileInfo* file = &familyData->currentFamily->fFonts.push_back();
@@ -222,8 +222,7 @@ void endElementHandler(void* data, const char* tag) {
     FamilyData* familyData = (FamilyData*) data;
     size_t len = strlen(tag);
     if (len == 6 && strncmp(tag, "family", len) == 0) {
-        *familyData->families.append() = familyData->currentFamily;
-        familyData->currentFamily = NULL;
+        *familyData->families.append() = familyData->currentFamily.detach();
     } else if (len == 4 && !strncmp(tag, "font", len)) {
         XML_SetCharacterDataHandler(familyData->parser, NULL);
     }
@@ -240,7 +239,7 @@ namespace jbParser {
 static void textHandler(void* data, const char* s, int len) {
     FamilyData* familyData = (FamilyData*) data;
     // Make sure we're in the right state to store this name information
-    if (familyData->currentFamily &&
+    if (familyData->currentFamily.get() &&
             (familyData->currentTag == NAMESET_TAG || familyData->currentTag == FILESET_TAG)) {
         switch (familyData->currentTag) {
         case NAMESET_TAG: {
@@ -334,7 +333,7 @@ static void startElementHandler(void* data, const char* tag, const char** atts) 
             }
         }
     } else if (len == 6 && strncmp(tag, "family", len) == 0) {
-        familyData->currentFamily = new FontFamily();
+        familyData->currentFamily.reset(new FontFamily());
         // The Family tag has an optional "order" attribute with an integer value >= 0
         // If this attribute does not exist, the default value is -1
         for (size_t i = 0; atts[i] != NULL &&
@@ -367,8 +366,7 @@ static void endElementHandler(void* data, const char* tag) {
     size_t len = strlen(tag);
     if (len == 6 && strncmp(tag, "family", len)== 0) {
         // Done parsing a Family - store the created currentFamily in the families array
-        *familyData->families.append() = familyData->currentFamily;
-        familyData->currentFamily = NULL;
+        *familyData->families.append() = familyData->currentFamily.detach();
     } else if (len == 7 && strncmp(tag, "nameset", len) == 0) {
         familyData->currentTag = NO_TAG;
     } else if (len == 7 && strncmp(tag, "fileset", len) == 0) {
@@ -401,8 +399,8 @@ static void parseConfigFile(const char* filename, SkTDArray<FontFamily*> &famili
     }
 
     XML_Parser parser = XML_ParserCreate(NULL);
-    FamilyData* familyData = new FamilyData(parser, families);
-    XML_SetUserData(parser, familyData);
+    FamilyData familyData(parser, families);
+    XML_SetUserData(parser, &familyData);
     // Start parsing oldschool; switch these in flight if we detect a newer version of the file.
     XML_SetElementHandler(parser, jbParser::startElementHandler, jbParser::endElementHandler);
 
