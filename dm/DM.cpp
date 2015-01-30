@@ -16,7 +16,7 @@
 #include "Timer.h"
 
 DEFINE_string(images, "resources", "Images to decode.");
-DEFINE_string(src, "tests gm skp image", "Source types to test.");
+DEFINE_string(src, "tests gm skp image subset", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
@@ -145,13 +145,13 @@ static void gather_srcs() {
                 for (SkString file; it.next(&file); ) {
                     SkString path = SkOSPath::Join(flag, file.c_str());
                     push_src("image", new ImageSrc(path));     // Decode entire image.
-                    push_src("image", new ImageSrc(path, 5));  // Decode 5 random subsets.
+                    push_src("subset", new ImageSrc(path, 2)); // Decode into 2 x 2 subsets
                 }
             }
         } else if (sk_exists(flag)) {
             // assume that FLAGS_images[i] is a valid image if it is a file.
             push_src("image", new ImageSrc(flag));     // Decode entire image.
-            push_src("image", new ImageSrc(flag, 5));  // Decode 5 random subsets.
+            push_src("subset", new ImageSrc(flag, 2)); // Decode into 2 x 2 subsets
         }
     }
 }

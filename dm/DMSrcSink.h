@@ -61,14 +61,16 @@ private:
 
 class ImageSrc : public Src {
 public:
-    explicit ImageSrc(Path path, int subsets = 0);
+    // divisor == 0 means decode the whole image
+    // divisor > 0 means decode in subsets, dividing into a divisor x divisor grid.
+    explicit ImageSrc(Path path, int divisor = 0);
 
     Error draw(SkCanvas*) const SK_OVERRIDE;
     SkISize size() const SK_OVERRIDE;
     Name name() const SK_OVERRIDE;
 private:
     Path fPath;
-    int  fSubsets;
+    const int  fDivisor;
 };
 
 class SKPSrc : public Src {

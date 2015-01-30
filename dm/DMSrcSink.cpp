@@ -31,24 +31,26 @@ Name GMSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageSrc::ImageSrc(Path path, int subsets) : fPath(path), fSubsets(subsets) {}
+ImageSrc::ImageSrc(Path path, int divisor) : fPath(path), fDivisor(divisor) {}
 
 Error ImageSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    if (fSubsets == 0) {
+    const SkColorType dstColorType = canvas->imageInfo().colorType();
+    if (fDivisor == 0) {
         // Decode the full image.
         SkBitmap bitmap;
-        if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap)) {
+        if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
+                                          dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
             return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
         }
         encoded.reset((SkData*)NULL);  // Might as well drop this when we're done with it.
         canvas->drawBitmap(bitmap, 0,0);
         return "";
     }
-    // Decode random subsets.  This is a little involved.
+    // Decode subsets.  This is a little involved.
     SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream.get()));
     if (!decoder) {
@@ -59,21 +61,24 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
     if (!decoder->buildTileIndex(stream.detach(), &w, &h) || w*h == 1) {
         return "";  // Not an error.  Subset decoding is not always supported.
     }
-    SkRandom rand;
-    for (int i = 0; i < fSubsets; i++) {
-        SkIRect rect;
-        do {
-            rect.fLeft   = rand.nextULessThan(w);
-            rect.fTop    = rand.nextULessThan(h);
-            rect.fRight  = rand.nextULessThan(w);
-            rect.fBottom = rand.nextULessThan(h);
-            rect.sort();
-        } while (rect.isEmpty());
-        SkBitmap subset;
-        if (!decoder->decodeSubset(&subset, rect, kUnknown_SkColorType/*use best fit*/)) {
-            return SkStringPrintf("Could not decode subset %d.\n", i);
+
+    // Divide the image into subsets that cover the entire image.
+    if (fDivisor > w || fDivisor > h) {
+        return SkStringPrintf("divisor %d is too big for %s with dimensions (%d x %d)",
+                              fDivisor, fPath.c_str(), w, h);
+    }
+    const int subsetWidth  = w / fDivisor,
+              subsetHeight = h / fDivisor;
+    for (int y = 0; y < h; y += subsetHeight) {
+        for (int x = 0; x < w; x += subsetWidth) {
+            SkBitmap subset;
+            SkIRect rect = SkIRect::MakeXYWH(x, y, subsetWidth, subsetHeight);
+            if (!decoder->decodeSubset(&subset, rect, dstColorType)) {
+                return SkStringPrintf("Could not decode subset (%d, %d, %d, %d).",
+                                      x, y, x+subsetWidth, y+subsetHeight);
+            }
+            canvas->drawBitmap(subset, SkIntToScalar(x), SkIntToScalar(y));
         }
-        canvas->drawBitmap(subset, SkIntToScalar(rect.fLeft), SkIntToScalar(rect.fTop));
     }
     return "";
 }
@@ -92,11 +97,7 @@ SkISize ImageSrc::size() const {
 }
 
 Name ImageSrc::name() const {
-    Name name = SkOSPath::Basename(fPath.c_str());
-    if (fSubsets > 0) {
-        name.appendf("-%d-subsets", fSubsets);
-    }
-    return name;
+    return SkOSPath::Basename(fPath.c_str());
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
