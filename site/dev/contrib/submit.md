@@ -32,48 +32,15 @@ Adding a unit test
 If you are willing to change Skia codebase, it's nice to add a test at the same
 time. Skia has a simple unittest framework so you can add a case to it.
 
-Test code is located under the 'tests' directory. Assuming we are adding
-tests/FooTest.cpp, The test code will look like:
+Test code is located under the 'tests' directory.
 
-<!--?prettify?-->
-~~~~
-/*
- * Copyright ........
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
-#include "Test.h"
-
-DEF_TEST(TestFoo, reporter) {
-   int x = 2 * 3;
-   if (x != 6) {
-       ERRORF(reporter, "x should be 6, but is %d", x);
-       return;
-   }
-   REPORTER_ASSERT(reporter, 1 + 1 == 2);
-}
-~~~~
-
-And we need to add this new file to gyp/tests.gyp. Note that file names are
-sorted alphabetically.
-
-<!--?prettify?-->
-~~~~
-'sources': [
-  '../tests/AAClipTest.cpp'
-  '../tests/FooTest.cpp',
-  '../tests/XfermodeTest.cpp',
-],
-~~~~
+See [Writing Unit and Rendering Tests](tests) for details.
 
 Unit tests are best, but if your change touches rendering and you can't think of
 an automated way to verify the results, consider writing a GM test or a new page
 of SampleApp. Also, if your change is the GPU code, you may not be able to write
 it as part of the standard unit test suite, but there are GPU-specific testing
 paths you can extend.
-
 
 Submitting a patch
 ------------------
