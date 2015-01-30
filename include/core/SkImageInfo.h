@@ -155,7 +155,7 @@ enum SkColorProfileType {
  *  Describe an image's dimensions and pixel type.
  *  Used for both src images and render-targets (surfaces).
  */
-struct SkImageInfo {
+struct SK_API SkImageInfo {
 public:
     SkImageInfo()
         : fWidth(0)
