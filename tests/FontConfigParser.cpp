@@ -33,24 +33,19 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
     for (int i = 0; i < fontFamilies.count(); ++i) {
         SkDebugf("Family %d:\n", i);
         switch(fontFamilies[i]->fVariant) {
-            case SkPaintOptionsAndroid::kElegant_Variant: SkDebugf("  elegant"); break;
-            case SkPaintOptionsAndroid::kCompact_Variant: SkDebugf("  compact"); break;
+            case kElegant_FontVariant: SkDebugf("  elegant\n"); break;
+            case kCompact_FontVariant: SkDebugf("  compact\n"); break;
             default: break;
         }
         if (!fontFamilies[i]->fLanguage.getTag().isEmpty()) {
-            SkDebugf("  language: %s", fontFamilies[i]->fLanguage.getTag().c_str());
+            SkDebugf("  language %s\n", fontFamilies[i]->fLanguage.getTag().c_str());
         }
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
         }
         for (int j = 0; j < fontFamilies[i]->fFonts.count(); ++j) {
             const FontFileInfo& ffi = fontFamilies[i]->fFonts[j];
-            SkDebugf("  file (%d %s %d) %s\n",
-                     ffi.fWeight,
-                     ffi.fPaintOptions.getLanguage().getTag().isEmpty() ? "" :
-                         ffi.fPaintOptions.getLanguage().getTag().c_str(),
-                     ffi.fPaintOptions.getFontVariant(),
-                     ffi.fFileName.c_str());
+            SkDebugf("  file (%d) %s#%d\n", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
         }
     }
 #endif // SK_DEBUG_FONTS
