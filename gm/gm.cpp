@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-
+#include "SkShader.h"
 using namespace skiagm;
 
 GM::GM() {
@@ -62,6 +62,29 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     SkPaint paint;
     paint.setColor(color);
     canvas->drawRect(r, paint);
+}
+
+void GM::drawGpuOnlyMessage(SkCanvas* canvas) {
+    SkBitmap bmp;
+    bmp.allocN32Pixels(128, 64);
+    SkCanvas bmpCanvas(bmp);
+    bmpCanvas.drawColor(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(20);
+    paint.setColor(SK_ColorRED);
+    static const char kTxt[] = "GPU Only";
+    bmpCanvas.drawText(kTxt, strlen(kTxt), 20, 40, paint);
+    SkMatrix localM;
+    localM.setRotate(35.f);
+    localM.postTranslate(10.f, 0.f);
+    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(bmp, SkShader::kMirror_TileMode,
+                                                               SkShader::kMirror_TileMode,
+                                                               &localM));
+    paint.setShader(shader);
+    paint.setFilterQuality(kMedium_SkFilterQuality);
+    canvas->drawPaint(paint);
+    return;
 }
 
 // need to explicitly declare this, or we get some weird infinite loop llist

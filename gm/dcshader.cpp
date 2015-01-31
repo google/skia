@@ -248,6 +248,12 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        // This GM exists to test a specific feature of the GPU backend. It does not work with the
+        // sw rasterizer, tile modes, etc.
+        if (NULL == canvas->getGrContext()) {
+            this->drawGpuOnlyMessage(canvas);
+            return;
+        }
         SkPaint paint;
         SkTArray<SkMatrix> devMats;
         devMats.push_back().reset();

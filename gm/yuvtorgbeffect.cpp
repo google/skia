@@ -66,6 +66,7 @@ protected:
         }
         GrContext* context = rt->getContext();
         if (NULL == context) {
+            this->drawGpuOnlyMessage(canvas);
             return;
         }
 

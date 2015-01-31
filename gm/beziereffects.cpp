@@ -48,6 +48,7 @@ protected:
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
+            this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();
@@ -203,6 +204,7 @@ protected:
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
+            this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();
@@ -391,6 +393,7 @@ protected:
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
+            this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();

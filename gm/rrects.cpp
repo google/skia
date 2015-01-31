@@ -57,13 +57,15 @@ protected:
     SkISize onISize() SK_OVERRIDE { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        GrContext* context = NULL;
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        GrContext* context = rt ? rt->getContext() : NULL;
+        context = rt ? rt->getContext() : NULL;
+#endif
         if (kEffect_Type == fType && NULL == context) {
+            this->drawGpuOnlyMessage(canvas);
             return;
         }
-#endif
 
         SkPaint paint;
         if (kAA_Draw_Type == fType) {

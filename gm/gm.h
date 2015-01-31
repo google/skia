@@ -93,6 +93,9 @@ namespace skiagm {
         }
 
     protected:
+        /** draws a standard message that the GM is only intended to be used with the GPU.*/
+        void drawGpuOnlyMessage(SkCanvas* 
+                                );
         virtual void onOnceBeforeDraw() {}
         virtual void onDraw(SkCanvas*) = 0;
         virtual void onDrawBackground(SkCanvas*);

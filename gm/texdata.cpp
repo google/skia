@@ -128,6 +128,8 @@ protected:
                                      4 * stride);
                 ctx->drawRect(paint, vm, SkRect::MakeWH(2*S, 2*S));
             }
+        } else {
+            this->drawGpuOnlyMessage(canvas);
         }
     }
 
