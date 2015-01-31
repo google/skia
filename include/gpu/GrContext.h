@@ -169,10 +169,10 @@ public:
      */
     void purgeAllUnlockedResources();
 
-    /** Sets a content key on the resource. The resource must not already have a content key and
-     *  the key must not already be in use for this to succeed.
+    /**
+     * Stores a custom resource in the cache, based on the specified key.
      */
-    bool addResourceToCache(const GrContentKey&, GrGpuResource*);
+    void addResourceToCache(const GrContentKey&, GrGpuResource*);
 
     /**
      * Finds a resource in the cache, based on the specified key. This is intended for use in
@@ -180,25 +180,6 @@ public:
      * caller must balance with a call to unref().
      */
     GrGpuResource* findAndRefCachedResource(const GrContentKey&);
-
-    /** Helper for casting resource to a texture. Caller must be sure that the resource cached
-        with the key is either NULL or a texture and not another resource type. */
-    GrTexture* findAndRefCachedTexture(const GrContentKey& key) {
-        GrGpuResource* resource = this->findAndRefCachedResource(key);
-        if (resource) {
-            GrTexture* texture = static_cast<GrSurface*>(resource)->asTexture();
-            SkASSERT(texture);
-            return texture;
-        }
-        return NULL;
-    }
-
-    /**
-     * Determines whether a resource is in the cache. If the resource is found it
-     * will not be locked or returned. This call does not affect the priority of
-     * the resource for deletion.
-     */
-    bool isResourceInCache(const GrContentKey& key) const;
 
     /**
      * Creates a new text rendering context that is optimal for the
@@ -214,28 +195,57 @@ public:
     // Textures
 
     /**
-     * Creates a new texture in the resource cache and returns it. The caller owns a
+     * Creates a new entry, based on the specified key and texture and returns it. The caller owns a
      * ref on the returned texture which must be balanced by a call to unref.
      *
+     * TODO: Move resizing logic out of GrContext and have the caller set the content key on the
+     * returned texture rather than take it as a param.
+     *
+     * @param params    The texture params used to draw a texture may help determine
+     *                  the cache entry used. (e.g. different versions may exist
+     *                  for different wrap modes on GPUs with limited NPOT
+     *                  texture support). NULL implies clamp wrap modes.
      * @param desc      Description of the texture properties.
+     * @param key       Key to associate with the texture.
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows. For compressed pixel configs, this
      *                  field is ignored.
+     * @param outKey    (optional) If non-NULL, we'll write the cache key we used to cacheKey. this
+     *                  may differ from key on GPUs that don't support tiling NPOT textures.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, const void* srcData, size_t rowBytes);
-
-    GrTexture* createTexture(const GrSurfaceDesc& desc) {
-        return this->createTexture(desc, NULL, 0);
-    }
-
+    GrTexture* createTexture(const GrTextureParams* params,
+                             const GrSurfaceDesc& desc,
+                             const GrContentKey& key,
+                             const void* srcData,
+                             size_t rowBytes,
+                             GrContentKey* outKey = NULL);
     /**
-     * Creates a texture that is outside the cache. Does not count against
-     * cache's budget.
+     * Search for an entry based on key and dimensions. If found, ref it and return it. The return
+     * value will be NULL if not found. The caller must balance with a call to unref.
      *
-     * TODO: Add a budgeted param to createTexture and remove this function.
+     * TODO: Remove this function and do lookups generically.
+     *
+     *  @param desc     Description of the texture properties.
+     *  @param key      key to use for texture look up.
+     *  @param params   The texture params used to draw a texture may help determine
+     *                  the cache entry used. (e.g. different versions may exist
+     *                  for different wrap modes on GPUs with limited NPOT
+     *                  texture support). NULL implies clamp wrap modes.
      */
-    GrTexture* createUncachedTexture(const GrSurfaceDesc& desc, void* srcData, size_t rowBytes);
+    GrTexture* findAndRefTexture(const GrSurfaceDesc& desc,
+                                 const GrContentKey& key,
+                                 const GrTextureParams* params);
+    /**
+     * Determines whether a texture is in the cache. If the texture is found it
+     * will not be locked or returned. This call does not affect the priority of
+     * the texture for deletion.
+     *
+     * TODO: Remove this function and do cache checks generically.
+     */
+    bool isTextureInCache(const GrSurfaceDesc& desc,
+                          const GrContentKey& key,
+                          const GrTextureParams* params) const;
 
     /**
      * Enum that determines how closely a returned scratch texture must match
@@ -274,9 +284,26 @@ public:
                                  bool internalFlag = false);
 
     /**
-     * Returns true if index8 textures are supported.
+     * Creates a texture that is outside the cache. Does not count against
+     * cache's budget.
+     *
+     * Textures created by createTexture() hide the complications of
+     * tiling non-power-of-two textures on APIs that don't support this (e.g.
+     * unextended GLES2). NPOT uncached textures are not tilable on such APIs.
      */
-    bool supportsIndex8PixelConfig() const;
+    GrTexture* createUncachedTexture(const GrSurfaceDesc& desc,
+                                     void* srcData,
+                                     size_t rowBytes);
+
+    /**
+     * Returns true if the specified use of an indexed texture is supported.
+     * Support may depend upon whether the texture params indicate that the
+     * texture will be tiled. Passing NULL for the texture params indicates
+     * clamp mode.
+     */
+    bool supportsIndex8PixelConfig(const GrTextureParams*,
+                                   int width,
+                                   int height) const;
 
     /**
      *  Return the max width or height of a texture supported by the current GPU.

@@ -302,22 +302,6 @@ static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
     }
 }
 
-/** If the pixel config is compressed, return an equivalent uncompressed format. */
-static inline GrPixelConfig GrMakePixelConfigUncompressed(GrPixelConfig config) {
-    switch (config) {
-        case kIndex_8_GrPixelConfig:
-        case kETC1_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
-            return kRGBA_8888_GrPixelConfig;
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-            return kAlpha_8_GrPixelConfig;
-        default:
-            SkASSERT(!GrPixelConfigIsCompressed(config));
-            return config;
-    }
-}
-
 // Returns true if the pixel config is 32 bits per pixel
 static inline bool GrPixelConfigIs8888(GrPixelConfig config) {
     switch (config) {

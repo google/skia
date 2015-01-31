@@ -25,15 +25,23 @@
  * created by subclassing GrProcessor.
  *
  * The primitive color computation starts with the color specified by setColor(). This color is the
- * input to the first color stage. Each color stage feeds its output to the next color stage.
+ * input to the first color stage. Each color stage feeds its output to the next color stage. The
+ * final color stage's output color is input to the color filter specified by
+ * setXfermodeColorFilter which produces the final source color, S.
  *
  * Fractional pixel coverage follows a similar flow. The coverage is initially the value specified
  * by setCoverage(). This is input to the first coverage stage. Coverage stages are chained
  * together in the same manner as color stages. The output of the last stage is modulated by any
  * fractional coverage produced by anti-aliasing. This last step produces the final coverage, C.
  *
- * setXPFactory is used to control blending between the output color and dest. It also implements
- * the application of fractional coverage from the coverage pipeline.
+ * setBlendFunc() specifies blending coefficients for S (described above) and D, the initial value
+ * of the destination pixel, labeled Bs and Bd respectively. The final value of the destination
+ * pixel is then D' = (1-C)*D + C*(Bd*D + Bs*S).
+ *
+ * Note that the coverage is applied after the blend. This is why they are computed as distinct
+ * values.
+ *
+ * TODO: Encapsulate setXfermodeColorFilter in a GrProcessor and remove from GrPaint.
  */
 class GrPaint {
 public:
