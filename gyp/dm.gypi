@@ -2,15 +2,16 @@
 {
   'include_dirs': [
     '../dm',
+    '../experimental/svg',
     '../gm',
-    '../tests',
-    '../src/images',
-    '../src/lazy',
     '../src/core',
     '../src/effects',
+    '../src/images',
+    '../src/lazy',
     '../src/pipe/utils/',
     '../src/utils',
     '../src/utils/debugger',
+    '../tests',
     '../tools',
   ],
   'dependencies': [
@@ -22,6 +23,7 @@
     'tools.gyp:proc_stats',
     'tools.gyp:sk_tool_utils',
     'tools.gyp:timer',
+    'xml.gyp:xml',
   ],
   'includes': [
     'gmslides.gypi',
@@ -34,6 +36,7 @@
     '../dm/DMJsonWriter.cpp',
     '../gm/gm.cpp',
 
+    '../experimental/svg/SkSVGDevice.cpp',
     '../src/pipe/utils/SamplePipeControllers.cpp',
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkDrawCommand.cpp',

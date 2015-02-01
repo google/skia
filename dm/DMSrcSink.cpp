@@ -6,6 +6,7 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
+#include "SkSVGDevice.h"
 #include "SkStream.h"
 
 namespace DM {
@@ -223,6 +224,16 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
     SkAutoTUnref<SkPicture> pic(recorder.endRecording());
     pic->serialize(dst);
     return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+SVGSink::SVGSink() {}
+
+Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
+    SkAutoTUnref<SkBaseDevice> device(SkSVGDevice::Create(src.size(), dst));
+    SkCanvas canvas(device);
+    return src.draw(&canvas);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

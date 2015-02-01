@@ -221,7 +221,8 @@ static Sink* create_sink(const char* tag) {
         SINK("8888", RasterSink, kN32_SkColorType);
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
-        SINK("null",  NullSink);
+        SINK("svg",  SVGSink);
+        SINK("null", NullSink);
     }
 #undef SINK
     return NULL;

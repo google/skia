@@ -130,6 +130,16 @@ public:
     const char* fileExtension() const SK_OVERRIDE { return "skp"; }
 };
 
+class SVGSink : public Sink {
+public:
+    SVGSink();
+
+    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
+    const char* fileExtension() const SK_OVERRIDE { return "svg"; }
+};
+
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 class ViaMatrix : public Sink {
