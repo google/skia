@@ -223,9 +223,219 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, const void* srcData,
-                                    size_t rowBytes) {
-    return fGpu->createTexture(desc, true, srcData, rowBytes);
+static void stretch_image(void* dst,
+                          int dstW,
+                          int dstH,
+                          const void* src,
+                          int srcW,
+                          int srcH,
+                          size_t bpp) {
+    SkFixed dx = (srcW << 16) / dstW;
+    SkFixed dy = (srcH << 16) / dstH;
+
+    SkFixed y = dy >> 1;
+
+    size_t dstXLimit = dstW*bpp;
+    for (int j = 0; j < dstH; ++j) {
+        SkFixed x = dx >> 1;
+        const uint8_t* srcRow = reinterpret_cast<const uint8_t *>(src) + (y>>16)*srcW*bpp;
+        uint8_t* dstRow = reinterpret_cast<uint8_t *>(dst) + j*dstW*bpp;
+        for (size_t i = 0; i < dstXLimit; i += bpp) {
+            memcpy(dstRow + i, srcRow + (x>>16)*bpp, bpp);
+            x += dx;
+        }
+        y += dy;
+    }
+}
+
+enum ResizeFlags {
+    /**
+     * The kStretchToPOT bit is set when the texture is NPOT and is being repeated or mipped but the
+     * hardware doesn't support that feature.
+     */
+    kStretchToPOT_ResizeFlag    = 0x1,
+    /**
+     * The kBilerp bit can only be set when the kStretchToPOT flag is set and indicates whether the
+     * stretched texture should be bilerped.
+     */
+    kBilerp_ResizeFlag          = 0x2,
+};
+
+static uint32_t get_texture_flags(const GrGpu* gpu,
+                                  const GrTextureParams* params,
+                                  const GrSurfaceDesc& desc) {
+    uint32_t flags = 0;
+    bool tiled = params && params->isTiled();
+    if (tiled && !gpu->caps()->npotTextureTileSupport()) {
+        if (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight)) {
+            flags |= kStretchToPOT_ResizeFlag;
+            switch(params->filterMode()) {
+                case GrTextureParams::kNone_FilterMode:
+                    break;
+                case GrTextureParams::kBilerp_FilterMode:
+                case GrTextureParams::kMipMap_FilterMode:
+                    flags |= kBilerp_ResizeFlag;
+                    break;
+            }
+        }
+    }
+    return flags;
+}
+// The desired texture is NPOT and tiled but that isn't supported by
+// the current hardware. Resize the texture to be a POT
+GrTexture* GrContext::createResizedTexture(const GrSurfaceDesc& desc,
+                                           const GrContentKey& origKey,
+                                           const void* srcData,
+                                           size_t rowBytes,
+                                           bool filter) {
+    SkAutoTUnref<GrTexture> clampedTexture(this->findAndRefTexture(desc, origKey, NULL));
+    if (NULL == clampedTexture) {
+        clampedTexture.reset(this->createTexture(NULL, desc, origKey, srcData, rowBytes));
+
+        if (NULL == clampedTexture) {
+            return NULL;
+        }
+        clampedTexture->cacheAccess().setContentKey(origKey);
+    }
+
+    GrSurfaceDesc rtDesc = desc;
+    rtDesc.fFlags =  rtDesc.fFlags |
+                     kRenderTarget_GrSurfaceFlag |
+                     kNoStencil_GrSurfaceFlag;
+    rtDesc.fWidth  = GrNextPow2(desc.fWidth);
+    rtDesc.fHeight = GrNextPow2(desc.fHeight);
+
+    GrTexture* texture = fGpu->createTexture(rtDesc, true, NULL, 0);
+
+    if (texture) {
+        GrPipelineBuilder pipelineBuilder;
+        pipelineBuilder.setRenderTarget(texture->asRenderTarget());
+
+        // if filtering is not desired then we want to ensure all
+        // texels in the resampled image are copies of texels from
+        // the original.
+        GrTextureParams params(SkShader::kClamp_TileMode,
+                               filter ? GrTextureParams::kBilerp_FilterMode :
+                                        GrTextureParams::kNone_FilterMode);
+        pipelineBuilder.addColorTextureProcessor(clampedTexture, SkMatrix::I(), params);
+
+        uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
+                         GrDefaultGeoProcFactory::kLocalCoord_GPType;
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE));
+
+        GrDrawTarget::AutoReleaseGeometry arg(fDrawBuffer, 4, gp->getVertexStride(),  0);
+        SkASSERT(gp->getVertexStride() == 2 * sizeof(SkPoint));
+
+        if (arg.succeeded()) {
+            SkPoint* verts = (SkPoint*) arg.vertices();
+            verts[0].setIRectFan(0, 0, texture->width(), texture->height(), 2 * sizeof(SkPoint));
+            verts[1].setIRectFan(0, 0, 1, 1, 2 * sizeof(SkPoint));
+            fDrawBuffer->drawNonIndexed(&pipelineBuilder, gp, kTriangleFan_GrPrimitiveType, 0, 4);
+        } else {
+            texture->unref();
+            texture = NULL;
+        }
+    } else {
+        // TODO: Our CPU stretch doesn't filter. But we create separate
+        // stretched textures when the texture params is either filtered or
+        // not. Either implement filtered stretch blit on CPU or just create
+        // one when FBO case fails.
+
+        rtDesc.fFlags = kNone_GrSurfaceFlags;
+        // no longer need to clamp at min RT size.
+        rtDesc.fWidth  = GrNextPow2(desc.fWidth);
+        rtDesc.fHeight = GrNextPow2(desc.fHeight);
+
+        // We shouldn't be resizing a compressed texture.
+        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+
+        size_t bpp = GrBytesPerPixel(desc.fConfig);
+        GrAutoMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
+        stretch_image(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
+                      srcData, desc.fWidth, desc.fHeight, bpp);
+
+        size_t stretchedRowBytes = rtDesc.fWidth * bpp;
+
+        texture = fGpu->createTexture(rtDesc, true, stretchedPixels.get(), stretchedRowBytes);
+        SkASSERT(texture);
+    }
+
+    return texture;
+}
+
+static GrContentKey::Domain ResizeDomain() {
+    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
+    return kDomain;
+}
+
+GrTexture* GrContext::createTexture(const GrTextureParams* params,
+                                    const GrSurfaceDesc& desc,
+                                    const GrContentKey& origKey,
+                                    const void* srcData,
+                                    size_t rowBytes,
+                                    GrContentKey* outKey) {
+    GrTexture* texture;
+    uint32_t flags = get_texture_flags(fGpu, params, desc);
+    SkTCopyOnFirstWrite<GrContentKey> key(origKey);
+    if (flags) {
+        // We don't have a code path to resize compressed textures.
+        if (GrPixelConfigIsCompressed(desc.fConfig)) {
+            return NULL;
+        }
+        texture = this->createResizedTexture(desc, origKey, srcData, rowBytes,
+                                             SkToBool(flags & kBilerp_ResizeFlag));
+
+        GrContentKey::Builder builder(key.writable(), origKey, ResizeDomain(), 1);
+        builder[0] = flags;
+
+    } else {
+        texture = fGpu->createTexture(desc, true, srcData, rowBytes);
+    }
+
+    if (texture) {
+        if (texture->cacheAccess().setContentKey(*key)) {
+            if (outKey) {
+                *outKey = *key;
+            }
+        } else {
+            texture->unref();
+            texture = NULL;
+        }
+    }
+
+    return texture;
+}
+
+GrTexture* GrContext::findAndRefTexture(const GrSurfaceDesc& desc,
+                                        const GrContentKey& origKey,
+                                        const GrTextureParams* params) {
+    uint32_t flags = get_texture_flags(fGpu, params, desc);
+    SkTCopyOnFirstWrite<GrContentKey> key(origKey);
+    if (flags) {
+        GrContentKey::Builder builder(key.writable(), origKey, ResizeDomain(), 1);
+        builder[0] = flags;
+    }
+
+    GrGpuResource* resource = this->findAndRefCachedResource(*key);
+    if (resource) {
+        SkASSERT(static_cast<GrSurface*>(resource)->asTexture());
+        return static_cast<GrSurface*>(resource)->asTexture();
+    }
+    return NULL;
+}
+
+bool GrContext::isTextureInCache(const GrSurfaceDesc& desc,
+                                 const GrContentKey& origKey,
+                                 const GrTextureParams* params) const {
+    uint32_t flags = get_texture_flags(fGpu, params, desc);
+    SkTCopyOnFirstWrite<GrContentKey> key(origKey);
+    if (flags) {
+        GrContentKey::Builder builder(key.writable(), origKey, ResizeDomain(), 1);
+        builder[0] = flags;
+    }
+
+    return fResourceCache2->hasContentKey(*key);
 }
 
 GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexMatch match,
@@ -316,6 +526,19 @@ GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& desc,
     return fGpu->createTexture(desc, false, srcData, rowBytes);
 }
 
+void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
+    if (maxTextures) {
+        *maxTextures = fResourceCache2->getMaxResourceCount();
+    }
+    if (maxTextureBytes) {
+        *maxTextureBytes = fResourceCache2->getMaxResourceBytes();
+    }
+}
+
+void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
+    fResourceCache2->setLimits(maxTextures, maxTextureBytes);
+}
+
 int GrContext::getMaxTextureSize() const {
     return SkTMin(fGpu->caps()->maxTextureSize(), fMaxTextureSizeOverride);
 }
@@ -340,9 +563,22 @@ GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDe
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrContext::supportsIndex8PixelConfig() const {
+bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
+                                          int width, int height) const {
     const GrDrawTargetCaps* caps = fGpu->caps();
-    return caps->isConfigTexturable(kIndex_8_GrPixelConfig);
+    if (!caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
+        return false;
+    }
+
+    bool isPow2 = SkIsPow2(width) && SkIsPow2(height);
+
+    if (!isPow2) {
+        bool tiled = params && params->isTiled();
+        if (tiled && !caps->npotTextureTileSupport()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -1531,38 +1767,13 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
-    if (maxTextures) {
-        *maxTextures = fResourceCache2->getMaxResourceCount();
-    }
-    if (maxTextureBytes) {
-        *maxTextureBytes = fResourceCache2->getMaxResourceBytes();
-    }
-}
-
-void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
-    fResourceCache2->setLimits(maxTextures, maxTextureBytes);
-}
-
-bool GrContext::addResourceToCache(const GrContentKey& key, GrGpuResource* resource) {
-    ASSERT_OWNED_RESOURCE(resource);
-    if (!resource || resource->wasDestroyed()) {
-        return false;
-    }
-    return resource->cacheAccess().setContentKey(key);
-}
-
-bool GrContext::isResourceInCache(const GrContentKey& key) const {
-    return fResourceCache2->hasContentKey(key);
+void GrContext::addResourceToCache(const GrContentKey& key, GrGpuResource* resource) {
+    resource->cacheAccess().setContentKey(key);
 }
 
 GrGpuResource* GrContext::findAndRefCachedResource(const GrContentKey& key) {
     return fResourceCache2->findAndRefContentResource(key);
 }
-
-//////////////////////////////////////////////////////////////////////////////
 
 void GrContext::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
     fGpu->addGpuTraceMarker(marker);

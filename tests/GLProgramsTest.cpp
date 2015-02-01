@@ -114,14 +114,14 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     builder[0] = texDesc.fOrigin;
     builder.finish();
 
-    GrTexture* texture = context->findAndRefCachedTexture(key);
+    SkAutoTUnref<GrTexture> texture(context->findAndRefTexture(texDesc, key, &params));
     if (!texture) {
-        texture = context->createTexture(texDesc);
-        if (texture) {
-            SkAssertResult(context->addResourceToCache(key, texture));            
+        texture.reset(context->createTexture(&params, texDesc, key, 0, 0));
+        if (!texture) {
+            return NULL;
         }
     }
-    return texture ? texture->asRenderTarget() : NULL;
+    return SkRef(texture->asRenderTarget());
 }
 
 static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps,

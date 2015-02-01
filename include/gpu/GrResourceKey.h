@@ -220,7 +220,6 @@ public:
         Builder(GrContentKey* key, const GrContentKey& innerKey, Domain domain,
                 int extraData32Cnt)
             : INHERITED::Builder(key, domain, Data32CntForInnerKey(innerKey) + extraData32Cnt) {
-            SkASSERT(&innerKey != key);
             // add the inner key to the end of the key so that op[] can be indexed normally.
             uint32_t* innerKeyData = &this->operator[](extraData32Cnt);
             const uint32_t* srcData = innerKey.data();
