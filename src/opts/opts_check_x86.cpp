@@ -227,17 +227,21 @@ static SkBlitRow::Proc32 platform_32_procs_SSE2[] = {
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
 
+#if defined(SK_ATT_ASM_SUPPORTED)
 static SkBlitRow::Proc32 platform_32_procs_SSE4[] = {
     NULL,                               // S32_Opaque,
     S32_Blend_BlitRow32_SSE2,           // S32_Blend,
-    S32A_Opaque_BlitRow32_SSE4,         // S32A_Opaque
+    S32A_Opaque_BlitRow32_SSE4_asm,     // S32A_Opaque
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
+#endif
 
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
+#if defined(SK_ATT_ASM_SUPPORTED)
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE41)) {
         return platform_32_procs_SSE4[flags];
     } else
+#endif
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return platform_32_procs_SSE2[flags];
     } else {
