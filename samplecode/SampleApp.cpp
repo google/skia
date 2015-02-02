@@ -662,6 +662,19 @@ static bool curr_title(SkWindow* wind, SkString* title) {
     return false;
 }
 
+bool SampleWindow::sendAnimatePulse() {
+    SkView* view = curr_view(this);
+    if (SampleView::IsSampleView(view)) {
+        if (fDoAnimate) {
+            return ((SampleView*)view)->animatePulse(gAnimTime, gAnimTimePrev);
+        } else {
+            // 0 signals the view that we are no longer animating
+            ((SampleView*)view)->animatePulse(0, 0);
+        }
+    }
+    return false;
+}
+
 void SampleWindow::setZoomCenter(float x, float y)
 {
     fZoomCenterX = x;
@@ -823,6 +836,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fDeviceType = kANGLE_DeviceType;
 #endif
 
+    fDoAnimate = true;
     fUseClip = false;
     fNClip = false;
     fAnimating = false;
@@ -1128,6 +1142,10 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (fMeasureFPS && fMeasureFPS_Time) {
         this->updateTitle();
         this->postInvalDelay();
+    }
+
+    if (this->sendAnimatePulse()) {
+        this->inval(NULL);
     }
 
     // do this last
@@ -1709,6 +1727,12 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
+        case ' ':
+            fDoAnimate = !fDoAnimate;
+            if (this->sendAnimatePulse()) {
+                this->inval(NULL);
+            }
+            break;
         case 'B':
             post_event_to_sink(SkNEW_ARGS(SkEvent, ("PictFileView::toggleBBox")), curr_view(this));
             // Cannot call updateTitle() synchronously, because the toggleBBox event is still in

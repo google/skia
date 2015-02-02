@@ -175,6 +175,7 @@ private:
     bool fSaveToPdf;
     SkAutoTUnref<SkDocument> fPDFDocument;
 
+    bool fDoAnimate;
     bool fUseClip;
     bool fNClip;
     bool fAnimating;
@@ -238,6 +239,7 @@ private:
     int findByTitle(const char*);
     void listTitles();
     SkSize tileSize() const;
+    bool sendAnimatePulse();
 
     typedef SkOSWindow INHERITED;
 };

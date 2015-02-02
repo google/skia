@@ -95,7 +95,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Picture");
             return true;
@@ -123,7 +123,7 @@ protected:
 
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         this->drawSomething(canvas);
 
         SkPictureRecorder recorder;
@@ -150,22 +150,6 @@ protected:
         canvas->translate(-SkIntToScalar(100), 0);
         canvas->drawPicture(pict);
         canvas->restore();
-
-#ifdef SK_DEVELOPER
-        if (false) {
-            SkDebugfDumper dumper;
-            SkDumpCanvas dumpCanvas(&dumper);
-            dumpCanvas.drawPicture(pict);
-        }
-#endif
-
-        // This used to re-record the sub-picture and redraw the parent
-        // A capability that is now forbidden!
-
-        SkRandom rand(SampleCode::GetAnimTime());
-        canvas->translate(SkIntToScalar(10), SkIntToScalar(250));
-        canvas->drawPicture(fPicture);
-        delayInval(500);
     }
 
 private:
@@ -175,7 +159,7 @@ private:
         (new SkEvent(INVAL_ALL_TYPE, this->getSinkID()))->postDelay(delay);
     }
 
-    virtual bool onEvent(const SkEvent& evt) {
+    bool onEvent(const SkEvent& evt) SK_OVERRIDE {
         if (evt.isType(INVAL_ALL_TYPE)) {
             this->inval(NULL);
             return true;

@@ -37,7 +37,6 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
 
 
 class DegenerateTwoPtRadialsView : public SampleView {
-
 public:
     DegenerateTwoPtRadialsView() {
         fTime = 0;
@@ -45,8 +44,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "DegenerateTwoPtRadials");
             return true;
@@ -54,8 +52,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
-        fTime += SampleCode::GetAnimSecondsDelta();
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkScalar delta = fTime / 15.f;
         int intPart = SkScalarFloorToInt(delta);
         delta = delta - SK_Scalar1 * intPart;
@@ -77,7 +74,11 @@ protected:
         paint.setAntiAlias(true);
         paint.setColor(SK_ColorBLACK);
         canvas->drawText(txt.c_str(), txt.size(), l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
-        this->inval(NULL);
+    }
+
+    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+        fTime += (curr - prev) * 0.001f;
+        return true;
     }
 
 private:

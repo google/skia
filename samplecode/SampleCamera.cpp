@@ -86,12 +86,14 @@ protected:
             SkRect r = { -150, -150, 150, 150 };
             canvas->drawRoundRect(r, 30, 30, paint);
         }
+    }
 
-        fRY += SampleCode::GetAnimSecondsDelta() * 90;
-        if (fRY >= SkIntToScalar(360)) {
+    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+        fRY += (curr - prev) * 0.09f;
+        if (fRY >= 360) {
             fRY = 0;
         }
-        this->inval(NULL);
+        return true;
     }
 
 private:

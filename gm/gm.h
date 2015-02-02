@@ -92,6 +92,8 @@ namespace skiagm {
             fStarterMatrix = matrix;
         }
 
+        bool animatePulse(SkMSec curr, SkMSec prev);
+
     protected:
         /** draws a standard message that the GM is only intended to be used with the GPU.*/
         void drawGpuOnlyMessage(SkCanvas*);
@@ -101,6 +103,7 @@ namespace skiagm {
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
+        virtual bool onAnimatePulse(SkMSec curr, SkMSec prev) { return false; }
         virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
 
     private:

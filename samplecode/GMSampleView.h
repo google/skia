@@ -70,6 +70,10 @@ protected:
         fGM->drawBackground(canvas);
     }
 
+    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+        return fGM->animatePulse(curr, prev);
+    }
+
 private:
     GM* fGM;
     typedef SampleView INHERITED;

@@ -30,20 +30,6 @@
 
 static SkRandom gRand;
 
-static void test_chromium_9005() {
-    SkBitmap bm;
-    bm.allocN32Pixels(800, 600);
-
-    SkCanvas canvas(bm);
-
-    SkPoint pt0 = { 799.33374f, 1.2360189f };
-    SkPoint pt1 = { 808.49969f, -7.4338055f };
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    canvas.drawLine(pt0.fX, pt0.fY, pt1.fX, pt1.fY, paint);
-}
-
 static void generate_pts(SkPoint pts[], int count, int w, int h) {
     for (int i = 0; i < count; i++) {
         pts[i].set(gRand.nextUScalar1() * 3 * w - SkIntToScalar(w),
@@ -191,7 +177,6 @@ class HairlineView : public SampleView {
     bool fDoAA;
 public:
     HairlineView() {
-        fCounter = 0;
         fProcIndex = 0;
         fDoAA = true;
         fNow = 0;
@@ -199,7 +184,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SkString str;
             str.printf("Hair-%s", gProcs[fProcIndex].fName);
@@ -215,14 +200,8 @@ protected:
         canvas->drawBitmap(b1, SkIntToScalar(b0.width()), 0, NULL);
     }
 
-    int fCounter;
-
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         gRand.setSeed(fNow);
-
-        if (false) { // avoid bit rot, suppress warning
-            test_chromium_9005();
-        }
 
         SkBitmap bm, bm2;
         bm.allocN32Pixels(WIDTH + MARGIN*2, HEIGHT + MARGIN*2);
@@ -240,23 +219,18 @@ protected:
         bm2.eraseColor(SK_ColorTRANSPARENT);
         gProcs[fProcIndex].fProc(&c2, paint, bm);
         canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), NULL);
-
-        SkMSec now = SampleCode::GetAnimTime();
-        if (fNow != now) {
-            fNow = now;
-            fCounter += 1;
-            fDoAA = !fDoAA;
-            if (fCounter > 50) {
-                fProcIndex = cycle_hairproc_index(fProcIndex);
-                // todo: signal that we want to rebuild our TITLE
-                fCounter = 0;
-            }
-            this->inval(NULL);
-        }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) {
+    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+        if (fDoAA) {
+            fProcIndex = cycle_hairproc_index(fProcIndex);
+            // todo: signal that we want to rebuild our TITLE
+        }
+        fDoAA = !fDoAA;
+        return true;
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
         fDoAA = !fDoAA;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);

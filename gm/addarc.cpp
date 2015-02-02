@@ -10,6 +10,9 @@
 #include "SkRandom.h"
 
 class AddArcGM : public skiagm::GM {
+public:
+    AddArcGM() : fRotate(0) {}
+
 protected:
     SkString onShortName() SK_OVERRIDE { return SkString("addarc"); }
 
@@ -29,20 +32,30 @@ protected:
         const SkScalar sweepAngle = 345;
         SkRandom rand;
 
+        SkScalar sign = 1;
         while (r.width() > paint.getStrokeWidth() * 3) {
             paint.setColor(rand.nextU() | (0xFF << 24));
             SkScalar startAngle = rand.nextUScalar1() * 360;
+
+            SkScalar speed = SkScalarSqrt(16 / r.width()) * 0.5f;
+            startAngle += fRotate * 360 * speed * sign;
 
             SkPath path;
             path.addArc(r, startAngle, sweepAngle);
             canvas->drawPath(path, paint);
 
             r.inset(inset, inset);
-
+            sign = -sign;
         }
     }
 
+    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+        fRotate = SkDoubleToScalar(fmod(curr * 0.001, 360));
+        return true;
+    }
+
 private:
+    SkScalar fRotate;
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new AddArcGM; )

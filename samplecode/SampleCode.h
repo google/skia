@@ -36,6 +36,7 @@ public:
 
     static bool FastTextQ(const SkEvent&);
 
+private:
     static SkMSec GetAnimTime();
     static SkMSec GetAnimTimeDelta();
     static SkScalar GetAnimSecondsDelta();
@@ -44,6 +45,8 @@ public:
     static SkScalar GetAnimSinScalar(SkScalar amplitude,
                                      SkScalar periodInSec,
                                      SkScalar phaseInSec = 0);
+
+    friend class SampleWindow;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -117,6 +120,7 @@ public:
     {}
 
     void setBGColor(SkColor color) { fBGColor = color; }
+    bool animatePulse(SkMSec curr, SkMSec prev) { return this->onAnimatePulse(curr, prev); }
 
     static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
@@ -136,6 +140,7 @@ public:
 protected:
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
+    virtual bool onAnimatePulse(SkMSec curr, SkMSec prev) { return false; }
 
     // overrides
     virtual bool onEvent(const SkEvent& evt);

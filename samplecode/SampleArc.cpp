@@ -195,9 +195,13 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
-        fAnimatingDrawable->setSweep(SampleCode::GetAnimScalar(360/24, 360));
         canvas->EXPERIMENTAL_drawDrawable(fRootDrawable);
-        this->inval(NULL);
+    }
+
+    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+        SkScalar angle = SkDoubleToScalar(fmod(curr * 0.36 / 24, 360));
+        fAnimatingDrawable->setSweep(angle);
+        return true;
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {

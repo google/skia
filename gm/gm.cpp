@@ -51,6 +51,12 @@ void GM::setBGColor(SkColor color) {
     fBGColor = color;
 }
 
+bool GM::animatePulse(SkMSec curr, SkMSec prev) {
+    return this->onAnimatePulse(curr, prev);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 void GM::onDrawBackground(SkCanvas* canvas) {
     canvas->drawColor(fBGColor, SkXfermode::kSrc_Mode);
 }
@@ -101,3 +107,4 @@ SkISize skiagm::SimpleGM::onISize() {
 SkString skiagm::SimpleGM::onShortName() {
     return fName;
 }
+
