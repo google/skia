@@ -51,8 +51,8 @@ void GM::setBGColor(SkColor color) {
     fBGColor = color;
 }
 
-bool GM::animatePulse(SkMSec curr, SkMSec prev) {
-    return this->onAnimatePulse(curr, prev);
+bool GM::animate(const SkAnimTimer& timer) {
+    return this->onAnimate(timer);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

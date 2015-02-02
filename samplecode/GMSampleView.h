@@ -70,8 +70,8 @@ protected:
         fGM->drawBackground(canvas);
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        return fGM->animatePulse(curr, prev);
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        return fGM->animate(timer);
     }
 
 private:

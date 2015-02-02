@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -76,8 +77,8 @@ protected:
         canvas->drawText(txt.c_str(), txt.size(), l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        fTime += (curr - prev) * 0.001f;
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fTime = SkDoubleToScalar(timer.secs() / 15);
         return true;
     }
 

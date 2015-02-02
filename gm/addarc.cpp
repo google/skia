@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"
 
@@ -49,8 +50,8 @@ protected:
         }
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        fRotate = SkDoubleToScalar(fmod(curr * 0.001, 360));
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fRotate = timer.scaled(1, 360);
         return true;
     }
 

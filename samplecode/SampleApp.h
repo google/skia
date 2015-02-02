@@ -175,14 +175,11 @@ private:
     bool fSaveToPdf;
     SkAutoTUnref<SkDocument> fPDFDocument;
 
-    bool fDoAnimate;
     bool fUseClip;
     bool fNClip;
     bool fAnimating;
     bool fRotate;
-    SkScalar fRotateAnimTime;
     bool fPerspAnim;
-    SkScalar fPerspAnimTime;
     bool fRequestGrabImage;
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;

@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -198,8 +199,8 @@ protected:
         canvas->EXPERIMENTAL_drawDrawable(fRootDrawable);
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        SkScalar angle = SkDoubleToScalar(fmod(curr * 0.36 / 24, 360));
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;
     }

@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"
@@ -221,7 +222,7 @@ protected:
         canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), NULL);
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer&) SK_OVERRIDE {
         if (fDoAA) {
             fProcIndex = cycle_hairproc_index(fProcIndex);
             // todo: signal that we want to rebuild our TITLE

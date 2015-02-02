@@ -1,21 +1,22 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorPriv.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"
 
-SkScalar get_anim_sin(SkMSec time, SkScalar amplitude, SkScalar periodInSec, SkScalar phaseInSec) {
+SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkScalar phaseInSec) {
     if (!periodInSec) {
         return 0;
     }
-    double t = (double)time / 1000.0 + phaseInSec;
+    double t = secs + phaseInSec;
     t *= SkScalarToFloat(2 * SK_ScalarPI) / periodInSec;
     amplitude = SK_ScalarHalf * amplitude;
     return amplitude * SkDoubleToScalar(sin(t)) + amplitude;
@@ -58,9 +59,9 @@ protected:
         }
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        fBlurSigma = get_anim_sin(curr, 100, 4, 5);
-        fCircleRadius = 3 + get_anim_sin(curr, 150, 25, 3);
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fBlurSigma = get_anim_sin(timer.secs(), 100, 4, 5);
+        fCircleRadius = 3 + get_anim_sin(timer.secs(), 150, 25, 3);
         return true;
     }
 

@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SampleCode_DEFINED
 #define SampleCode_DEFINED
@@ -15,7 +13,9 @@
 #include "SkKey.h"
 #include "SkView.h"
 #include "SkOSMenu.h"
+
 class GrContext;
+class SkAnimTimer;
 
 #define DEF_SAMPLE(code) \
     static SkView*          SK_MACRO_APPEND_LINE(F_)() { code } \
@@ -35,16 +35,6 @@ public:
     static void PrefSizeR(SkEvent*, SkScalar width, SkScalar height);
 
     static bool FastTextQ(const SkEvent&);
-
-private:
-    static SkMSec GetAnimTime();
-    static SkMSec GetAnimTimeDelta();
-    static SkScalar GetAnimSecondsDelta();
-    static SkScalar GetAnimScalar(SkScalar speedPerSec, SkScalar period = 0);
-    // gives a sinusoidal value between 0 and amplitude
-    static SkScalar GetAnimSinScalar(SkScalar amplitude,
-                                     SkScalar periodInSec,
-                                     SkScalar phaseInSec = 0);
 
     friend class SampleWindow;
 };
@@ -120,7 +110,7 @@ public:
     {}
 
     void setBGColor(SkColor color) { fBGColor = color; }
-    bool animatePulse(SkMSec curr, SkMSec prev) { return this->onAnimatePulse(curr, prev); }
+    bool animate(const SkAnimTimer& timer) { return this->onAnimate(timer); }
 
     static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
@@ -140,7 +130,7 @@ public:
 protected:
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
-    virtual bool onAnimatePulse(SkMSec curr, SkMSec prev) { return false; }
+    virtual bool onAnimate(const SkAnimTimer&) { return false; }
 
     // overrides
     virtual bool onEvent(const SkEvent& evt);

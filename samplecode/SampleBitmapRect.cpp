@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -75,15 +76,19 @@ class BitmapRectView : public SampleView {
         bounce_pt(&fSrcPts[1], &fSrcVec[1], fSrcLimit);
     }
 
+    void resetBounce() {
+        fSrcPts[0].set(0, 0);
+        fSrcPts[1].set(SCALAR_SIZE, SCALAR_SIZE);
+        
+        fSrcVec[0] = unit_vec(30);
+        fSrcVec[1] = unit_vec(107);
+    }
+
 public:
     BitmapRectView() {
         this->setBGColor(SK_ColorGRAY);
 
-        fSrcPts[0].set(0, 0);
-        fSrcPts[1].set(SCALAR_SIZE, SCALAR_SIZE);
-
-        fSrcVec[0] = unit_vec(30);
-        fSrcVec[1] = unit_vec(107);
+        this->resetBounce();
 
         fSrcLimit.set(-SCALAR_SIZE/4, -SCALAR_SIZE/4,
                       SCALAR_SIZE*5/4, SCALAR_SIZE*5/4);
@@ -98,8 +103,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "BitmapRect");
             return true;
@@ -107,7 +111,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkRect srcR;
         srcR.set(fSrcPts[0], fSrcPts[1]);
         srcR = SkRect::MakeXYWH(fSrcPts[0].fX, fSrcPts[0].fY, 32, 32);
@@ -130,13 +134,19 @@ protected:
             canvas->drawBitmapRectToRect(bitmap, &srcR, fDstR[i], &paint);
             canvas->drawRect(fDstR[i], paint);
         }
+    }
 
-        this->bounce();
-        this->inval(NULL);
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        if (timer.isStopped()) {
+            this->resetBounce();
+        } else if (timer.isRunning()) {
+            this->bounce();
+        }
+        return true;
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -179,32 +189,28 @@ class BitmapRectView2 : public SampleView {
         fSrcR.fRight = fSrcR.fLeft + width;
     }
 
+    void resetBounce() {
+        fSrcR.iset(0, 0, fBitmap.height() * 3, fBitmap.height());
+        fDX = SK_Scalar1;
+    }
+
 public:
     BitmapRectView2() {
         make_big_bitmap(&fBitmap);
 
         this->setBGColor(SK_ColorGRAY);
 
-        fSrcR.fLeft = 0;
-        fSrcR.fTop = 0;
-        fSrcR.fRight = SkIntToScalar(fBitmap.height()) * 3;
-        fSrcR.fBottom = SkIntToScalar(fBitmap.height());
+        this->resetBounce();
 
-        fLimitR.set(0, 0,
-                    SkIntToScalar(fBitmap.width()),
-                    SkIntToScalar(fBitmap.height()));
+        fLimitR.iset(0, 0, fBitmap.width(), fBitmap.height());
 
-        fDX = SK_Scalar1;
-
-        fDstR[0] = SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
-                                    SkIntToScalar(600), SkIntToScalar(200));
+        fDstR[0] = SkRect::MakeXYWH(20, 20, 600, 200);
         fDstR[1] = fDstR[0];
         fDstR[1].offset(0, fDstR[0].height() * 5/4);
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "BigBitmapRect");
             return true;
@@ -212,7 +218,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorYELLOW);
@@ -222,13 +228,19 @@ protected:
             canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR[i], &paint);
             canvas->drawRect(fDstR[i], paint);
         }
+    }
 
-        this->bounceMe();
-        this->inval(NULL);
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        if (timer.isStopped()) {
+            this->resetBounce();
+        } else if (timer.isRunning()) {
+            this->bounceMe();
+        }
+        return true;
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

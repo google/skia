@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkCanvasDrawable.h"
@@ -155,8 +156,8 @@ protected:
         canvas->EXPERIMENTAL_drawDrawable(fRoot);
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        fTime = curr;
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fTime = timer.msec();
         for (int i = 0; i < N; ++i) {
             fArray[i].fDrawable->setTime(fTime);
         }

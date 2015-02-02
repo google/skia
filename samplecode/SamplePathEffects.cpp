@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -158,8 +159,8 @@ protected:
         canvas->drawPath(fPath, paint);
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        fPhase -= (curr - prev) * 0.04f;
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fPhase = timer.scaled(40);
         return true;
     }
 

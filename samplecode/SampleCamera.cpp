@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkCamera.h"
@@ -88,10 +89,11 @@ protected:
         }
     }
 
-    bool onAnimatePulse(SkMSec curr, SkMSec prev) SK_OVERRIDE {
-        fRY += (curr - prev) * 0.09f;
-        if (fRY >= 360) {
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        if (timer.isStopped()) {
             fRY = 0;
+        } else {
+            fRY = timer.scaled(90, 360);
         }
         return true;
     }

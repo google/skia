@@ -11,6 +11,7 @@
 #include "Resources.h"
 #include "SampleCode.h"
 #include "SamplePipeControllers.h"
+#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -101,6 +102,8 @@ static bool gShowGMBounds;
 static void post_event_to_sink(SkEvent* evt, SkEventSink* sink) {
     evt->setTargetID(sink->getSinkID())->post();
 }
+
+static SkAnimTimer gAnimTimer;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -577,39 +580,6 @@ bool SampleCode::FastTextQ(const SkEvent& evt) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkMSec gAnimTime;
-static SkMSec gAnimTimePrev;
-
-SkMSec SampleCode::GetAnimTime() { return gAnimTime; }
-SkMSec SampleCode::GetAnimTimeDelta() { return gAnimTime - gAnimTimePrev; }
-SkScalar SampleCode::GetAnimSecondsDelta() {
-    return SkDoubleToScalar(GetAnimTimeDelta() / 1000.0);
-}
-
-SkScalar SampleCode::GetAnimScalar(SkScalar speed, SkScalar period) {
-    // since gAnimTime can be up to 32 bits, we can't convert it to a float
-    // or we'll lose the low bits. Hence we use doubles for the intermediate
-    // calculations
-    double seconds = (double)gAnimTime / 1000.0;
-    double value = SkScalarToDouble(speed) * seconds;
-    if (period) {
-        value = ::fmod(value, SkScalarToDouble(period));
-    }
-    return SkDoubleToScalar(value);
-}
-
-SkScalar SampleCode::GetAnimSinScalar(SkScalar amplitude,
-                                      SkScalar periodInSec,
-                                      SkScalar phaseInSec) {
-    if (!periodInSec) {
-        return 0;
-    }
-    double t = (double)gAnimTime / 1000.0 + phaseInSec;
-    t *= SkScalarToFloat(2 * SK_ScalarPI) / periodInSec;
-    amplitude = SK_ScalarHalf * amplitude;
-    return SkScalarMul(amplitude, SkDoubleToScalar(sin(t))) + amplitude;
-}
-
 enum TilingMode {
     kNo_Tiling,
     kAbs_128x128_Tiling,
@@ -665,12 +635,7 @@ static bool curr_title(SkWindow* wind, SkString* title) {
 bool SampleWindow::sendAnimatePulse() {
     SkView* view = curr_view(this);
     if (SampleView::IsSampleView(view)) {
-        if (fDoAnimate) {
-            return ((SampleView*)view)->animatePulse(gAnimTime, gAnimTimePrev);
-        } else {
-            // 0 signals the view that we are no longer animating
-            ((SampleView*)view)->animatePulse(0, 0);
-        }
+        return ((SampleView*)view)->animate(gAnimTimer);
     }
     return false;
 }
@@ -836,14 +801,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fDeviceType = kANGLE_DeviceType;
 #endif
 
-    fDoAnimate = true;
     fUseClip = false;
     fNClip = false;
     fAnimating = false;
     fRotate = false;
-    fRotateAnimTime = 0;
     fPerspAnim = false;
-    fPerspAnimTime = 0;
     fRequestGrabImage = false;
     fPipeState = SkOSMenu::kOffState;
     fTilingMode = kNo_Tiling;
@@ -974,6 +936,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     // constructor first. Hence we post an event to ourselves.
 //    this->updateTitle();
     post_event_to_sink(new SkEvent(gUpdateWindowTitleEvtName), this);
+
+    gAnimTimer.run();
 }
 
 SampleWindow::~SampleWindow() {
@@ -1050,15 +1014,7 @@ static void drawText(SkCanvas* canvas, SkString string, SkScalar left, SkScalar 
 #define YCLIP_N  8
 
 void SampleWindow::draw(SkCanvas* canvas) {
-    // update the animation time
-    if (!gAnimTimePrev && !gAnimTime) {
-        // first time make delta be 0
-        gAnimTime = SkTime::GetMSecs();
-        gAnimTimePrev = gAnimTime;
-    } else {
-        gAnimTimePrev = gAnimTime;
-        gAnimTime = SkTime::GetMSecs();
-    }
+    gAnimTimer.updateTime();
 
     if (fGesture.isActive()) {
         this->updateMatrix();
@@ -1408,22 +1364,20 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
 void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     if (fRotate) {
-        fRotateAnimTime += SampleCode::GetAnimSecondsDelta();
-
         SkScalar cx = this->width() / 2;
         SkScalar cy = this->height() / 2;
         canvas->translate(cx, cy);
-        canvas->rotate(fRotateAnimTime * 10);
+        canvas->rotate(gAnimTimer.scaled(10));
         canvas->translate(-cx, -cy);
     }
 
     if (fPerspAnim) {
-        fPerspAnimTime += SampleCode::GetAnimSecondsDelta();
+        SkScalar secs = gAnimTimer.scaled(1);
 
         static const SkScalar gAnimPeriod = 10 * SK_Scalar1;
         static const SkScalar gAnimMag = SK_Scalar1 / 1000;
-        SkScalar t = SkScalarMod(fPerspAnimTime, gAnimPeriod);
-        if (SkScalarFloorToInt(SkScalarDiv(fPerspAnimTime, gAnimPeriod)) & 0x1) {
+        SkScalar t = SkScalarMod(secs, gAnimPeriod);
+        if (SkScalarFloorToInt(SkScalarDiv(secs, gAnimPeriod)) & 0x1) {
             t = gAnimPeriod - t;
         }
         t = 2 * t - gAnimPeriod;
@@ -1669,20 +1623,6 @@ bool SampleWindow::onQuery(SkEvent* query) {
     return this->INHERITED::onQuery(query);
 }
 
-#if 0 // UNUSED
-static void cleanup_for_filename(SkString* name) {
-    char* str = name->writable_str();
-    for (size_t i = 0; i < name->size(); i++) {
-        switch (str[i]) {
-            case ':': str[i] = '-'; break;
-            case '/': str[i] = '-'; break;
-            case ' ': str[i] = '_'; break;
-            default: break;
-        }
-    }
-}
-#endif
-
 DECLARE_bool(portableFonts);
 
 bool SampleWindow::onHandleChar(SkUnichar uni) {
@@ -1727,8 +1667,14 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
+        case 27:    // ESC
+            gAnimTimer.stop();
+            if (this->sendAnimatePulse()) {
+                this->inval(NULL);
+            }
+            break;
         case ' ':
-            fDoAnimate = !fDoAnimate;
+            gAnimTimer.togglePauseResume();
             if (this->sendAnimatePulse()) {
                 this->inval(NULL);
             }
@@ -1769,7 +1715,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'r':
             fRotate = !fRotate;
-            fRotateAnimTime = 0;
             this->inval(NULL);
             this->updateTitle();
             return true;

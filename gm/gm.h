@@ -16,6 +16,8 @@
 #include "SkTRegistry.h"
 #include "sk_tool_utils.h"
 
+class SkAnimTimer;
+
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
@@ -92,7 +94,7 @@ namespace skiagm {
             fStarterMatrix = matrix;
         }
 
-        bool animatePulse(SkMSec curr, SkMSec prev);
+        bool animate(const SkAnimTimer&);
 
     protected:
         /** draws a standard message that the GM is only intended to be used with the GPU.*/
@@ -103,7 +105,7 @@ namespace skiagm {
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
-        virtual bool onAnimatePulse(SkMSec curr, SkMSec prev) { return false; }
+        virtual bool onAnimate(const SkAnimTimer&) { return false; }
         virtual SkMatrix onGetInitialTransform() const { return SkMatrix::I(); }
 
     private:
