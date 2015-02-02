@@ -94,13 +94,13 @@ namespace SkFontConfigParser {
  * Parses all system font configuration files and returns the results in an
  * array of FontFamily structures.
  */
-void GetFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
+void GetFontFamilies(SkTDArray<FontFamily*>& fontFamilies);
 
 /**
  * Parses all test font configuration files and returns the results in an
  * array of FontFamily structures.
  */
-void GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilies,
+void GetTestFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
                          const char* testMainConfigFile,
                          const char* testFallbackConfigFile);
 
