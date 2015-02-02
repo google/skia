@@ -79,5 +79,6 @@
         ],
         'sse41_sources': [
             '<(skia_src_path)/opts/SkBlurImage_opts_SSE4.cpp',
+            '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
         ],
 }
