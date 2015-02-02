@@ -102,7 +102,9 @@ Run correctness tests
 First build the app and then run it on an attached device:
 
     ./platform_tools/android/bin/android_ninja [-d device_id] dm
-    ./platform_tools/android/bin/android_run_skia dm # uploads and runs the dm binary on the attached device
+
+    # uploads dm binary and resources and runs dm on the attached device
+    ./platform_tools/android/bin/android_run_skia dm --resourcePath /data/local/tmp/skia/resources/
 
 Run performance tests
 ---------------------
