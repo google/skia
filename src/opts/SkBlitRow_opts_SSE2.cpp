@@ -74,6 +74,7 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
         return;
     }
 
+#ifdef SK_USE_ACCURATE_BLENDING
     if (count >= 4) {
         SkASSERT(((size_t)dst & 0x03) == 0);
         while (((size_t)dst & 0x0F) != 0) {
@@ -85,7 +86,6 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 
         const __m128i *s = reinterpret_cast<const __m128i*>(src);
         __m128i *d = reinterpret_cast<__m128i*>(dst);
-#ifdef SK_USE_ACCURATE_BLENDING
         __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
         __m128i c_128 = _mm_set1_epi16(128);  // 8 copies of 128 (16-bit)
         __m128i c_255 = _mm_set1_epi16(255);  // 8 copies of 255 (16-bit)
@@ -134,51 +134,6 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             d++;
             count -= 4;
         }
-#else
-        __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
-        __m128i c_256 = _mm_set1_epi16(0x0100);  // 8 copies of 256 (16-bit)
-        while (count >= 4) {
-            // Load 4 pixels
-            __m128i src_pixel = _mm_loadu_si128(s);
-            __m128i dst_pixel = _mm_load_si128(d);
-
-            __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
-            __m128i dst_ag = _mm_srli_epi16(dst_pixel, 8);
-
-            // (a0, g0, a1, g1, a2, g2, a3, g3)  (low byte of each word)
-            __m128i alpha = _mm_srli_epi16(src_pixel, 8);
-
-            // (a0, a0, a1, a1, a2, g2, a3, g3)
-            alpha = _mm_shufflehi_epi16(alpha, 0xF5);
-
-            // (a0, a0, a1, a1, a2, a2, a3, a3)
-            alpha = _mm_shufflelo_epi16(alpha, 0xF5);
-
-            // Subtract alphas from 256, to get 1..256
-            alpha = _mm_sub_epi16(c_256, alpha);
-
-            // Multiply by red and blue by src alpha.
-            dst_rb = _mm_mullo_epi16(dst_rb, alpha);
-            // Multiply by alpha and green by src alpha.
-            dst_ag = _mm_mullo_epi16(dst_ag, alpha);
-
-            // Divide by 256.
-            dst_rb = _mm_srli_epi16(dst_rb, 8);
-
-            // Mask out high bits (already in the right place)
-            dst_ag = _mm_andnot_si128(rb_mask, dst_ag);
-
-            // Combine back into RGBA.
-            dst_pixel = _mm_or_si128(dst_rb, dst_ag);
-
-            // Add result
-            __m128i result = _mm_add_epi8(src_pixel, dst_pixel);
-            _mm_store_si128(d, result);
-            s++;
-            d++;
-            count -= 4;
-        }
-#endif
         src = reinterpret_cast<const SkPMColor*>(s);
         dst = reinterpret_cast<SkPMColor*>(d);
     }
@@ -189,6 +144,51 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
         dst++;
         count--;
     }
+#else
+    int count16 = count / 16;
+    __m128i* dst4 = (__m128i*)dst;
+    const __m128i* src4 = (const __m128i*)src;
+
+    for (int i = 0; i < count16 * 4; i += 4) {
+        // Load 16 source pixels.
+        __m128i s0 = _mm_loadu_si128(src4+i+0),
+                s1 = _mm_loadu_si128(src4+i+1),
+                s2 = _mm_loadu_si128(src4+i+2),
+                s3 = _mm_loadu_si128(src4+i+3);
+
+        const __m128i alphaMask = _mm_set1_epi32(0xFF << SK_A32_SHIFT);
+        const __m128i ORed = _mm_or_si128(s3, _mm_or_si128(s2, _mm_or_si128(s1, s0)));
+        __m128i cmp = _mm_cmpeq_epi8(_mm_and_si128(ORed, alphaMask), _mm_setzero_si128());
+        if (0xffff == _mm_movemask_epi8(cmp)) {
+            // All 16 source pixels are fully transparent. There's nothing to do!
+            continue;
+        }
+        const __m128i ANDed = _mm_and_si128(s3, _mm_and_si128(s2, _mm_and_si128(s1, s0)));
+        cmp = _mm_cmpeq_epi8(_mm_and_si128(ANDed, alphaMask), alphaMask);
+        if (0xffff == _mm_movemask_epi8(cmp)) {
+            // All 16 source pixels are fully opaque. There's no need to read dst or blend it.
+            _mm_storeu_si128(dst4+i+0, s0);
+            _mm_storeu_si128(dst4+i+1, s1);
+            _mm_storeu_si128(dst4+i+2, s2);
+            _mm_storeu_si128(dst4+i+3, s3);
+            continue;
+        }
+        // The general slow case: do the blend for all 16 pixels.
+        _mm_storeu_si128(dst4+i+0, SkPMSrcOver_SSE2(s0, _mm_loadu_si128(dst4+i+0)));
+        _mm_storeu_si128(dst4+i+1, SkPMSrcOver_SSE2(s1, _mm_loadu_si128(dst4+i+1)));
+        _mm_storeu_si128(dst4+i+2, SkPMSrcOver_SSE2(s2, _mm_loadu_si128(dst4+i+2)));
+        _mm_storeu_si128(dst4+i+3, SkPMSrcOver_SSE2(s3, _mm_loadu_si128(dst4+i+3)));
+    }
+
+    // Wrap up the last <= 15 pixels.
+    SkASSERT(count - (count16*16) <= 15);
+    for (int i = count16*16; i < count; i++) {
+        // This check is not really necessarily, but it prevents pointless autovectorization.
+        if (src[i] & 0xFF000000) {
+            dst[i] = SkPMSrcOver(src[i], dst[i]);
+        }
+    }
+#endif
 }
 
 void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
