@@ -82,7 +82,7 @@ namespace skiagm {
             return SkString("hairmodes");
         }
 
-        virtual SkISize onISize() { return SkISize::Make(640, 480); }
+        virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
 
         void onOnceBeforeDraw() SK_OVERRIDE {
             fBGPaint.setShader(make_bg_shader())->unref();

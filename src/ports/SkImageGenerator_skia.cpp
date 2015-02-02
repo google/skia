@@ -47,13 +47,13 @@ protected:
         return SkRef(fData.get());
     }
 
-    virtual bool onGetInfo(SkImageInfo* info) {
+    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = fInfo;
         return true;
     }
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             SkPMColor ctableEntries[], int* ctableCount) {
+                             SkPMColor ctableEntries[], int* ctableCount) SK_OVERRIDE {
         SkMemoryStream stream(fData->data(), fData->size(), false);
         SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,
                                                                (info, pixels, rowBytes)));

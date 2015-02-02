@@ -96,11 +96,11 @@ public:
     ImageFiltersCroppedGM () {}
 
 protected:
-    virtual SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("imagefilterscropped");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(400, 880); }
+    virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(400, 880); }
 
     void make_checkerboard() {
         fCheckerboard.allocN32Pixels(80, 80);
@@ -134,7 +134,7 @@ protected:
         make_checkerboard();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
             draw_sprite, draw_bitmap, draw_path, draw_paint, draw_text
         };

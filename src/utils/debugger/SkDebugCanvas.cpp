@@ -117,7 +117,7 @@ public:
 
     Factory getFactory() const SK_OVERRIDE { return NULL; }
 #ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const { str->set("OverdrawXfermode"); }
+    virtual void toString(SkString* str) const SK_OVERRIDE { str->set("OverdrawXfermode"); }
 #endif
 };
 

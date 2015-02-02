@@ -1256,7 +1256,7 @@ struct CountingBBH : public SkBBoxHierarchy {
     }
 
     void insert(SkAutoTMalloc<SkRect>*, int) SK_OVERRIDE {}
-    virtual size_t bytesUsed() const { return 0; }
+    virtual size_t bytesUsed() const SK_OVERRIDE { return 0; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {
