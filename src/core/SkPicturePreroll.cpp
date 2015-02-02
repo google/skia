@@ -62,7 +62,7 @@ protected:
         this->handlePaint(paint);
     }
 
-    void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint& paint) {
+    void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint& paint) SK_OVERRIDE {
         this->handlePaint(paint);
     }
 
