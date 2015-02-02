@@ -33,7 +33,7 @@ public:
      * key, and does not have a content key.
      */
     bool isScratch() const {
-        return !fResource->getContentKey().isValid() && fResource->fScratchKey.isValid() &&
+        return !this->getContentKey().isValid() && fResource->fScratchKey.isValid() &&
                 this->isBudgeted();
     }
 
@@ -51,6 +51,11 @@ public:
     void removeScratchKey() const { fResource->removeScratchKey();  }
 
     /**
+     * If the resource is currently cached by a content key, the key is returned, otherwise NULL.
+     */
+    const GrContentKey& getContentKey() const { return fResource->fContentKey; }
+
+    /**
      * Is the resource object wrapping an externally allocated GPU resource?
      */
     bool isWrapped() const { return GrGpuResource::kWrapped_LifeCycle == fResource->fLifeCycle; }
@@ -60,7 +65,7 @@ public:
      */
     bool isBudgeted() const {
         bool ret = GrGpuResource::kCached_LifeCycle == fResource->fLifeCycle;
-        SkASSERT(ret || !fResource->getContentKey().isValid());
+        SkASSERT(ret || !this->getContentKey().isValid());
         return ret;
     }
 

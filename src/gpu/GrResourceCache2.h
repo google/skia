@@ -194,7 +194,7 @@ private:
 
     struct ContentHashTraits {
         static const GrContentKey& GetKey(const GrGpuResource& r) {
-            return r.getContentKey();
+            return r.cacheAccess().getContentKey();
         }
 
         static uint32_t Hash(const GrContentKey& key) { return key.hash(); }

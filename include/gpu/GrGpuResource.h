@@ -188,10 +188,6 @@ public:
      */
     uint32_t getUniqueID() const { return fUniqueID; }
 
-    /** Returns the current content key for the resource. It will be invalid if the resource has not
-        been cached by its contents. */
-    const GrContentKey& getContentKey() const { return fContentKey; }
-
     /**
      * Attach a custom data object to this resource. The data will remain attached
      * for the lifetime of this resource (until it is abandoned or released).
