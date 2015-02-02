@@ -100,6 +100,14 @@ public:
                         structure are copied to the canvas.
     */
     explicit SkCanvas(const SkBitmap& bitmap);
+
+    /** Construct a canvas with the specified bitmap to draw into.
+        @param bitmap   Specifies a bitmap for the canvas to draw into. Its
+                        structure are copied to the canvas.
+        @param props    New canvas surface properties.
+    */
+    SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
+
     virtual ~SkCanvas();
 
     SkMetaData& getMetaData();
@@ -1278,7 +1286,6 @@ private:
     };
     SkCanvas(const SkIRect& bounds, InitFlags);
     SkCanvas(SkBaseDevice*, const SkSurfaceProps*, InitFlags);
-    SkCanvas(const SkBitmap&, const SkSurfaceProps&);
 
     // needs gettotalclip()
     friend class SkCanvasStateUtils;

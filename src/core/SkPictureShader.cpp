@@ -194,7 +194,9 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         }
         bm.eraseColor(SK_ColorTRANSPARENT);
 
-        SkCanvas canvas(bm);
+        // Always disable LCD text, since we can't assume our image will be opaque.
+        SkCanvas canvas(bm, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+
         canvas.scale(tileScale.width(), tileScale.height());
         canvas.translate(-fTile.x(), -fTile.y());
         canvas.drawPicture(fPicture);
