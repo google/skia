@@ -77,4 +77,6 @@
     #define SK_DECLARE_INST_COUNT(T)
 #endif
 
+void SkInstCountPrintLeaksOnExit();
+
 #endif // SkInstCnt_DEFINED

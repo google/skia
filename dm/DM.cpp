@@ -8,6 +8,7 @@
 #include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkInstCnt.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkTDynamicHash.h"
@@ -490,6 +491,9 @@ int dm_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
+    if (FLAGS_leaks) {
+        SkInstCountPrintLeaksOnExit();
+    }
 
     gather_gold();
 
