@@ -6,7 +6,7 @@
 # More targets are defined within the gyp/ directory, but those are
 # not intended for external use and may change without notice.
 #
-# Full documentation at https://sites.google.com/site/skiadocs/
+# Full documentation at https://skia.org.
 #
 {
   'targets': [

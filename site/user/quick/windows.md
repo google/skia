@@ -34,7 +34,7 @@ Make sure the following have been installed:
 Check out the source code
 -------------------------
 
-see https://sites.google.com/site/skiadocs/developer-documentation/contributing-code/downloading
+see https://skia.org/user/download
 
 Generate Visual Studio projects
 -------------------------------

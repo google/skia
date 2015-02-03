@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 # "Makefile" replacement to build skia for Windows.
-# More info at https://sites.google.com/site/skiadocs/
+# More info at https://skia.org.
 #
 # Some usage examples:
 #   make clean
@@ -150,19 +150,19 @@ def Make(args):
     elif os.name == 'posix':
         if sys.platform == 'darwin':
             print 'Mac developers should not run this script; see ' \
-                'https://sites.google.com/site/skiadocs/user-documentation/quick-start-guides/mac'
+                'https://skia.org/user/quick/macos'
             sys.exit(1)
         elif sys.platform == 'cygwin':
             print 'Windows development on Cygwin is not currently supported; see ' \
-                'https://sites.google.com/site/skiadocs/user-documentation/quick-start-guides/windows'
+                'https://skia.org/user/quick/windows'
             sys.exit(1)
         else:
             print 'Unix developers should not run this script; see ' \
-                'https://sites.google.com/site/skiadocs/user-documentation/quick-start-guides/linux'
+                'https://skia.org/user/quick/linux'
             sys.exit(1)
     else:
         print 'unknown platform (os.name=%s, sys.platform=%s); see %s' % (
-            os.name, sys.platform, 'https://sites.google.com/site/skiadocs/')
+            os.name, sys.platform, 'https://skia.org/user/quick')
         sys.exit(1)
     sys.exit(0)
 

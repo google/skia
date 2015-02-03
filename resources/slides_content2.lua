@@ -1,8 +1,8 @@
 Skia Update
 
 Skia : Access
-- code.google.com/p/skia
-- sites.google.com/site/skiadocs
+- https://skia.org
+- https://skia.googlesource.com/skia
 
 Skia : Overview
 - portable graphics engine

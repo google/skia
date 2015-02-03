@@ -5,7 +5,7 @@
 @ECHO OFF
 
 rem Launches make.py on Windows, after setting Visual Studio environment variables.
-rem See https://sites.google.com/site/skiadocs/user-documentation/quick-start-guides/windows
+rem See https://skia.org/user/quick/windows.
 
 rem Skip environment setup on bots.
 if "%CHROME_HEADLESS%"=="1" goto run_python
