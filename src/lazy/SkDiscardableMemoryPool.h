@@ -9,6 +9,7 @@
 #define SkDiscardableMemoryPool_DEFINED
 
 #include "SkDiscardableMemory.h"
+#include "SkMutex.h"
 
 #ifndef SK_LAZY_CACHE_STATS
     #ifdef SK_DEBUG

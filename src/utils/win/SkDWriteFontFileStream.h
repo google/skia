@@ -10,6 +10,7 @@
 
 #include "SkTypes.h"
 
+#include "SkMutex.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
 

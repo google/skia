@@ -10,8 +10,7 @@
 #ifndef SkRefCnt_DEFINED
 #define SkRefCnt_DEFINED
 
-#include "SkDynamicAnnotations.h"
-#include "SkThread.h"
+#include "SkAtomics.h"
 #include "SkInstCnt.h"
 #include "SkTemplates.h"
 
@@ -51,22 +50,20 @@ public:
      *  Ensures that all previous owner's actions are complete.
      */
     bool unique() const {
-        // We believe we're reading fRefCnt in a safe way here, so we stifle the TSAN warning about
-        // an unproctected read.  Generally, don't read fRefCnt, and don't stifle this warning.
-        bool const unique = (1 == sk_acquire_load(&fRefCnt));
-        if (unique) {
-            // Acquire barrier (L/SL), if not provided by load of fRefCnt.
-            // Prevents user's 'unique' code from happening before decrements.
-            //TODO: issue the barrier only when unique is true
+        if (1 == sk_atomic_load(&fRefCnt, sk_memory_order_acquire)) {
+            // The acquire barrier is only really needed if we return true.  It
+            // prevents code conditioned on the result of unique() from running
+            // until previous owners are all totally done calling unref().
+            return true;
         }
-        return unique;
+        return false;
     }
 
     /** Increment the reference count. Must be balanced by a call to unref().
     */
     void ref() const {
         SkASSERT(fRefCnt > 0);
-        sk_atomic_inc(&fRefCnt);  // No barrier required.
+        (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed);  // No barrier required.
     }
 
     /** Decrement the reference count. If the reference count is 1 before the
@@ -75,12 +72,11 @@ public:
     */
     void unref() const {
         SkASSERT(fRefCnt > 0);
-        // Release barrier (SL/S), if not provided below.
-        if (sk_atomic_dec(&fRefCnt) == 1) {
-            // Acquire barrier (L/SL), if not provided above.
-            // Prevents code in dispose from happening before the decrement.
-            sk_membar_acquire__after_atomic_dec();
-            internal_dispose();
+        // A release here acts in place of all releases we "should" have been doing in ref().
+        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
+            // Like unique(), the acquire is only needed on success, to make sure
+            // code in internal_dispose() doesn't happen before the decrement.
+            this->internal_dispose();
         }
     }
 
@@ -262,17 +258,15 @@ public:
     //   - ref() doesn't need any barrier;
     //   - unref() needs a release barrier, and an acquire if it's going to call delete.
 
-    bool unique() const { return 1 == sk_acquire_load(&fRefCnt); }
-    void    ref() const { sk_atomic_inc(&fRefCnt); }
+    bool unique() const { return 1 == sk_atomic_load(&fRefCnt, sk_memory_order_acquire); }
+    void    ref() const { (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed); }
     void  unref() const {
-        int32_t prevValue = sk_atomic_dec(&fRefCnt);
-        SkASSERT(prevValue >= 1);
-        if (1 == prevValue) {
+        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
             SkDEBUGCODE(fRefCnt = 1;)   // restore the 1 for our destructor's assert
             SkDELETE((const Derived*)this);
         }
     }
-    void  deref() const { this->unref(); }  // Chrome prefers to call deref().
+    void  deref() const { this->unref(); }
 
 private:
     mutable int32_t fRefCnt;

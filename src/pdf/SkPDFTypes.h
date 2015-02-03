@@ -10,6 +10,7 @@
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
 
+#include "SkMutex.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkString.h"
