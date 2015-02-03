@@ -75,6 +75,7 @@ DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
+DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));
@@ -766,10 +767,11 @@ int nanobench_main() {
                         , bench->getUniqueName()
                         );
             }
-#if SK_SUPPORT_GPU && GR_CACHE_STATS
-            if (FLAGS_veryVerbose &&
+#if SK_SUPPORT_GPU
+            if (FLAGS_gpuStats &&
                 Benchmark::kGPU_Backend == targets[j]->config.backend) {
                 gGrFactory->get(targets[j]->config.ctxType)->printCacheStats();
+                gGrFactory->get(targets[j]->config.ctxType)->printGpuStats();
             }
 #endif
         }

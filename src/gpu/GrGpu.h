@@ -369,21 +369,34 @@ public:
 #if GR_GPU_STATS
         Stats() { this->reset(); }
 
-        void reset() { fRenderTargetBinds = 0; fShaderCompilations = 0; }
+        void reset() {
+            fRenderTargetBinds = 0;
+            fShaderCompilations = 0;
+            fTextureCreates = 0;
+            fTextureUploads = 0;
+        }
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
         void incRenderTargetBinds() { fRenderTargetBinds++; }
         int shaderCompilations() const { return fShaderCompilations; }
         void incShaderCompilations() { fShaderCompilations++; }
+        int textureCreates() const { return fTextureCreates; }
+        void incTextureCreates() { fTextureCreates++; }
+        int textureUploads() const { return fTextureUploads; }
+        void incTextureUploads() { fTextureUploads++; }
         void dump(SkString*);
 
     private:
         int fRenderTargetBinds;
         int fShaderCompilations;
+        int fTextureCreates;
+        int fTextureUploads;
 #else
         void dump(SkString*) {};
         void incRenderTargetBinds() {}
         void incShaderCompilations() {}
+        void incTextureCreates() {}
+        void incTextureUploads() {}
 #endif
     };
 

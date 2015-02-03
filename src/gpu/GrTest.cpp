@@ -69,6 +69,8 @@ void GrContext::printGpuStats() const {
 void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
+    out->appendf("Textures Created: %d\n", fTextureCreates);
+    out->appendf("Texture Uploads: %d\n", fTextureUploads);
 }
 #endif
 

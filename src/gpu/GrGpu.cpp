@@ -74,6 +74,12 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
     if (!this->caps()->reuseScratchTextures() && !isRT) {
         tex->cacheAccess().removeScratchKey();
     }
+    if (tex) {
+        fStats.incTextureCreates();
+        if (srcData) {
+            fStats.incTextureUploads();
+        }
+    }
     return tex;
 }
 
@@ -203,8 +209,12 @@ bool GrGpu::writeTexturePixels(GrTexture* texture,
                                GrPixelConfig config, const void* buffer,
                                size_t rowBytes) {
     this->handleDirtyContext();
-    return this->onWriteTexturePixels(texture, left, top, width, height,
-                                      config, buffer, rowBytes);
+    if (this->onWriteTexturePixels(texture, left, top, width, height,
+                                   config, buffer, rowBytes)) {
+        fStats.incTextureUploads();
+        return true;
+    }
+    return false;
 }
 
 void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
