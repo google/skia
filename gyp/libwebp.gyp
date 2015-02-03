@@ -165,9 +165,8 @@
             'include_dirs': [
               '../third_party/externals/libwebp/src',
             ],
-            'cflags': [
-              '-Wno-unused-function',  # In C++11 mode, we get this warning when including decode.h.
-            ]
+            'cflags': [ '-w' ],
+            'xcode_settings': { 'WARNING_CFLAGS': [ '-w' ] },
           },
           'conditions': [
             ['OS!="win"', {'product_name': 'webp'}],
