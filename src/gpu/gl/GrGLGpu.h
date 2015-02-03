@@ -283,7 +283,15 @@ private:
     bool createRenderTargetObjects(const GrSurfaceDesc&, bool budgeted, GrGLuint texID, 
                                    GrGLRenderTarget::IDDesc*);
 
-    GrGLuint bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport);
+    enum TempFBOTarget {
+        kSrc_TempFBOTarget,
+        kDst_TempFBOTarget
+    };
+
+    GrGLuint bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
+                              TempFBOTarget tempFBOTarget);
+
+    void unbindTextureFromFBO(GrGLenum fboTarget);
 
     GrGLContext fGLContext;
 
@@ -302,6 +310,9 @@ private:
         kYes_TriState,
         kUnknown_TriState
     };
+
+    GrGLuint                    fTempSrcFBOID;
+    GrGLuint                    fTempDstFBOID;
 
     // last scissor / viewport scissor state seen by the GL.
     struct {

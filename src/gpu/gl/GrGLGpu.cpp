@@ -150,6 +150,8 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
 
     fLastSuccessfulStencilFmtIdx = 0;
     fHWProgramID = 0;
+    fTempSrcFBOID = 0;
+    fTempDstFBOID = 0;
 
     if (this->glCaps().pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
@@ -164,6 +166,13 @@ GrGLGpu::~GrGLGpu() {
         GL_CALL(UseProgram(0));
     }
 
+    if (0 != fTempSrcFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &fTempSrcFBOID));
+    }
+    if (0 != fTempDstFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &fTempDstFBOID));
+    }
+
     delete fProgramCache;
 }
 
@@ -171,6 +180,8 @@ void GrGLGpu::contextAbandoned() {
     INHERITED::contextAbandoned();
     fProgramCache->abandon();
     fHWProgramID = 0;
+    fTempSrcFBOID = 0;
+    fTempDstFBOID = 0;
     if (this->glCaps().pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
@@ -2452,8 +2463,7 @@ namespace {
 // Determines whether glBlitFramebuffer could be used between src and dst.
 inline bool can_blit_framebuffer(const GrSurface* dst,
                                  const GrSurface* src,
-                                 const GrGLGpu* gpu,
-                                 bool* wouldNeedTempFBO = NULL) {
+                                 const GrGLGpu* gpu) {
     if (gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) &&
         gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
         gpu->glCaps().usesMSAARenderBuffers()) {
@@ -2463,9 +2473,6 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
             (src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
            return false;
         }
-        if (wouldNeedTempFBO) {
-            *wouldNeedTempFBO = NULL == dst->asRenderTarget() || NULL == src->asRenderTarget();
-        }
         return true;
     } else {
         return false;
@@ -2474,8 +2481,7 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
 
 inline bool can_copy_texsubimage(const GrSurface* dst,
                                  const GrSurface* src,
-                                 const GrGLGpu* gpu,
-                                 bool* wouldNeedTempFBO = NULL) {
+                                 const GrGLGpu* gpu) {
     // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
     // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
     // many drivers would allow it to work, but ANGLE does not.
@@ -2499,9 +2505,6 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
         dst->asTexture() &&
         dst->origin() == src->origin() &&
         !GrPixelConfigIsCompressed(src->config())) {
-        if (wouldNeedTempFBO) {
-            *wouldNeedTempFBO = NULL == src->asRenderTarget();
-        }
         return true;
     } else {
         return false;
@@ -2512,15 +2515,21 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
 
 // If a temporary FBO was created, its non-zero ID is returned. The viewport that the copy rect is
 // relative to is output.
-GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport) {
+GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
+                                   TempFBOTarget tempFBOTarget) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-    GrGLuint tempFBOID;
     if (NULL == rt) {
         SkASSERT(surface->asTexture());
         GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
-        GR_GL_CALL(this->glInterface(), GenFramebuffers(1, &tempFBOID));
+        GrGLuint* tempFBOID;
+        tempFBOID = kSrc_TempFBOTarget == tempFBOTarget ? &fTempSrcFBOID : &fTempDstFBOID;
+
+        if (0 == *tempFBOID) {
+            GR_GL_CALL(this->glInterface(), GenFramebuffers(1, tempFBOID));
+        }
+
         fStats.incRenderTargetBinds();
-        GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, tempFBOID));
+        GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, *tempFBOID));
         GR_GL_CALL(this->glInterface(), FramebufferTexture2D(fboTarget,
                                                              GR_GL_COLOR_ATTACHMENT0,
                                                              GR_GL_TEXTURE_2D,
@@ -2530,13 +2539,22 @@ GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLI
         viewport->fBottom = 0;
         viewport->fWidth = surface->width();
         viewport->fHeight = surface->height();
+        return *tempFBOID;
     } else {
-        tempFBOID = 0;
+        GrGLuint tempFBOID = 0;
         fStats.incRenderTargetBinds();
         GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, rt->renderFBOID()));
         *viewport = rt->getViewport();
+        return tempFBOID;
     }
-    return tempFBOID;
+}
+
+void GrGLGpu::unbindTextureFromFBO(GrGLenum fboTarget) {
+    GR_GL_CALL(this->glInterface(), FramebufferTexture2D(fboTarget,
+                                                         GR_GL_COLOR_ATTACHMENT0,
+                                                         GR_GL_TEXTURE_2D,
+                                                         0,
+                                                         0));
 }
 
 bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
@@ -2590,7 +2608,7 @@ bool GrGLGpu::copySurface(GrSurface* dst,
     if (can_copy_texsubimage(dst, src, this)) {
         GrGLuint srcFBO;
         GrGLIRect srcVP;
-        srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP);
+        srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
         GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
         SkASSERT(dstTex);
         // We modified the bound FBO
@@ -2617,7 +2635,7 @@ bool GrGLGpu::copySurface(GrSurface* dst,
                                   srcGLRect.fWidth, srcGLRect.fHeight));
         copied = true;
         if (srcFBO) {
-            GL_CALL(DeleteFramebuffers(1, &srcFBO));
+            this->unbindTextureFromFBO(GR_GL_FRAMEBUFFER);
         }
     } else if (can_blit_framebuffer(dst, src, this)) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
@@ -2632,8 +2650,10 @@ bool GrGLGpu::copySurface(GrSurface* dst,
             GrGLuint srcFBO;
             GrGLIRect dstVP;
             GrGLIRect srcVP;
-            dstFBO = this->bindSurfaceAsFBO(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP);
-            srcFBO = this->bindSurfaceAsFBO(src, GR_GL_READ_FRAMEBUFFER, &srcVP);
+            dstFBO = this->bindSurfaceAsFBO(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP,
+                                            kDst_TempFBOTarget);
+            srcFBO = this->bindSurfaceAsFBO(src, GR_GL_READ_FRAMEBUFFER, &srcVP,
+                                            kSrc_TempFBOTarget);
             // We modified the bound FBO
             fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
             GrGLIRect srcGLRect;
@@ -2674,10 +2694,10 @@ bool GrGLGpu::copySurface(GrSurface* dst,
                                     dstGLRect.fBottom + dstGLRect.fHeight,
                                     GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
             if (dstFBO) {
-                GL_CALL(DeleteFramebuffers(1, &dstFBO));
+                this->unbindTextureFromFBO(GR_GL_DRAW_FRAMEBUFFER);
             }
             if (srcFBO) {
-                GL_CALL(DeleteFramebuffers(1, &srcFBO));
+                this->unbindTextureFromFBO(GR_GL_READ_FRAMEBUFFER);
             }
             copied = true;
         }
@@ -2689,14 +2709,11 @@ bool GrGLGpu::canCopySurface(const GrSurface* dst,
                              const GrSurface* src,
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) {
-    // This mirrors the logic in onCopySurface.  We prefer our base makes the copy if we need to
-    // create a temp fbo. TODO verify the assumption that temp fbos are expensive; it may not be
-    // true at all.
-    bool wouldNeedTempFBO = false;
-    if (can_copy_texsubimage(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
+    // This mirrors the logic in onCopySurface.
+    if (can_copy_texsubimage(dst, src, this)) {
         return true;
     }
-    if (can_blit_framebuffer(dst, src, this, &wouldNeedTempFBO) && !wouldNeedTempFBO) {
+    if (can_blit_framebuffer(dst, src, this)) {
         if (dst == src) {
             SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                                 srcRect.width(), srcRect.height());
