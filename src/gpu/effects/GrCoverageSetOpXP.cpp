@@ -21,7 +21,15 @@ public:
 
     ~GrGLCoverageSetOpXP() SK_OVERRIDE {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+                       GrProcessorKeyBuilder* b) {
+        const GrCoverageSetOpXP& xp = processor.cast<GrCoverageSetOpXP>();
+        uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
+        b->add32(key);
+    };
+
+private:
+    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrCoverageSetOpXP& xp = args.fXP.cast<GrCoverageSetOpXP>();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -32,16 +40,8 @@ public:
         }
     }
 
-    void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
-                       GrProcessorKeyBuilder* b) {
-        const GrCoverageSetOpXP& xp = processor.cast<GrCoverageSetOpXP>();
-        uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
-        b->add32(key);
-    };
-
-private:
     typedef GrGLXferProcessor INHERITED;
 };
 
@@ -56,7 +56,7 @@ GrCoverageSetOpXP::GrCoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
 GrCoverageSetOpXP::~GrCoverageSetOpXP() {
 }
 
-void GrCoverageSetOpXP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrCoverageSetOpXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLCoverageSetOpXP::GenKey(*this, caps, b);
 }
 
@@ -179,8 +179,10 @@ GrXPFactory* GrCoverageSetOpXPFactory::Create(SkRegion::Op regionOp, bool invert
     }
 }
 
-GrXferProcessor* GrCoverageSetOpXPFactory::createXferProcessor(const GrProcOptInfo& /* colorPOI*/,
-                                                               const GrProcOptInfo& covPOI) const {
+GrXferProcessor*
+GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                                const GrProcOptInfo& covPOI,
+                                                const GrDeviceCoordTexture* dstCopy) const {
     return GrCoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
 }
 

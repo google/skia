@@ -55,9 +55,6 @@ public:
     }
 
     struct KeyHeader {
-        uint8_t                     fDstReadKey;   // set by GrGLShaderBuilder if there
-                                                   // are effects that must read the dst.
-                                                   // Otherwise, 0.
         uint8_t                     fFragPosKey;   // set by GrGLShaderBuilder if there are
                                                    // effects that read the fragment position.
                                                    // Otherwise, 0.
@@ -78,20 +75,6 @@ public:
 
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
-
-    // A struct to communicate descriptor information to the program descriptor builder
-    struct DescInfo {
-        bool operator==(const DescInfo& that) const {
-            return fReadsDst == that.fReadsDst &&
-                   fReadsFragPosition == that.fReadsFragPosition;
-        }
-        bool operator!=(const DescInfo& that) const { return !(*this == that); };
-
-        // These flags give aggregated info on the processor stages that are used when building
-        // programs.
-        bool            fReadsDst;
-        bool            fReadsFragPosition;
-    };
 
 private:
     template<typename T, size_t OFFSET> T* atOffset() {

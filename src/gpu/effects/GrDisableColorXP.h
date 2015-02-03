@@ -27,8 +27,6 @@ public:
 
     const char* name() const SK_OVERRIDE { return "Disable Color"; }
 
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
-
     GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
 
     bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
@@ -46,6 +44,8 @@ public:
 private:
     GrDisableColorXP();
 
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+
     bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
         return true;
     }
@@ -60,9 +60,6 @@ public:
     static GrXPFactory* Create() {
         return SkNEW(GrDisableColorXPFactory);
     }
-
-    GrXferProcessor* createXferProcessor(const GrProcOptInfo& colorPOI,
-                                         const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE {
         return true;
@@ -81,10 +78,14 @@ public:
         output->fWillBlendWithDst = 0;
     }
 
-    bool willReadDst() const SK_OVERRIDE { return false; }
-
 private:
     GrDisableColorXPFactory();
+
+    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                           const GrProcOptInfo& coveragePOI,
+                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
+
+    bool willReadDstColor() const SK_OVERRIDE { return false; }
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         return true;

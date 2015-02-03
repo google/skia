@@ -298,7 +298,6 @@ public:
     virtual void buildProgramDesc(GrProgramDesc*,
                                   const GrPrimitiveProcessor&,
                                   const GrPipeline&,
-                                  const GrProgramDesc::DescInfo&,
                                   const GrBatchTracker&) const = 0;
 
     // Called to determine whether a copySurface call would succeed or not. Derived

@@ -108,7 +108,6 @@ public:
     void buildProgramDesc(GrProgramDesc*,
                           const GrPrimitiveProcessor&,
                           const GrPipeline&,
-                          const GrProgramDesc::DescInfo&,
                           const GrBatchTracker&) const SK_OVERRIDE;
 
 private:
