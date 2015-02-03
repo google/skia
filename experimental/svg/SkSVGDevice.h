@@ -62,11 +62,13 @@ private:
     SkSVGDevice(const SkISize& size, SkWStream* wstream);
     virtual ~SkSVGDevice();
 
-    void addPaint(const SkPaint& paint);
-    void addTransform(const SkMatrix& t);
+    class AutoElement;
+    class ResourceBucket;
 
-    SkXMLWriter*  fWriter;
-    SkBitmap      fLegacyBitmap;
+    SkAutoTDelete<SkXMLWriter>    fWriter;
+    SkAutoTDelete<AutoElement>    fRootElement;
+    SkAutoTDelete<ResourceBucket> fResourceBucket;
+    SkBitmap                      fLegacyBitmap;
 };
 
 #endif // SkSVGDevice_DEFINED
