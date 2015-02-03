@@ -208,7 +208,10 @@ private:
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
+        if (this->usesLocalCoords() != that->usesLocalCoords()) {
+            return false;
+        }
+
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
         // local coords then we won't be able to batch.  We could actually upload the viewmatrix
         // using vertex attributes in these cases, but haven't investigated that
