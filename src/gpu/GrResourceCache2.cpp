@@ -132,8 +132,8 @@ void GrResourceCache2::removeResource(GrGpuResource* resource) {
     if (resource->cacheAccess().getScratchKey().isValid()) {
         fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
     }
-    if (resource->cacheAccess().getContentKey().isValid()) {
-        fContentHash.remove(resource->cacheAccess().getContentKey());
+    if (resource->getContentKey().isValid()) {
+        fContentHash.remove(resource->getContentKey());
     }
     this->validate();
 }
@@ -225,9 +225,9 @@ bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(!fPurging);
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
-    SkASSERT(resource->cacheAccess().getContentKey().isValid());
+    SkASSERT(resource->getContentKey().isValid());
 
-    GrGpuResource* res = fContentHash.find(resource->cacheAccess().getContentKey());
+    GrGpuResource* res = fContentHash.find(resource->getContentKey());
     if (NULL != res) {
         return false;
     }
@@ -281,7 +281,7 @@ void GrResourceCache2::notifyPurgeable(GrGpuResource* resource) {
 
         // Also purge if the resource has neither a valid scratch key nor a content key.
         bool noKey = !resource->cacheAccess().getScratchKey().isValid() &&
-                     !resource->cacheAccess().getContentKey().isValid();
+                     !resource->getContentKey().isValid();
         if (overBudget || noKey) {
             release = true;
         }
@@ -435,18 +435,18 @@ void GrResourceCache2::validate() const {
         }
 
         if (resource->cacheAccess().isScratch()) {
-            SkASSERT(!resource->cacheAccess().getContentKey().isValid());
+            SkASSERT(!resource->getContentKey().isValid());
             ++scratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
         } else if (resource->cacheAccess().getScratchKey().isValid()) {
             SkASSERT(!resource->cacheAccess().isBudgeted() ||
-                     resource->cacheAccess().getContentKey().isValid());
+                     resource->getContentKey().isValid());
             ++couldBeScratch;
             SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
         }
-        const GrContentKey& contentKey = resource->cacheAccess().getContentKey();
+        const GrContentKey& contentKey = resource->getContentKey();
         if (contentKey.isValid()) {
             ++content;
             SkASSERT(fContentHash.find(contentKey) == resource);
