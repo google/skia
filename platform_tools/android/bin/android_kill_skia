@@ -6,27 +6,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-SERIAL=""
-
-while (( "$#" )); do
-
-  if [[ "$1" == "-s" ]];
-  then
-    if [[ $# -lt 2 ]];
-    then
-      echo "ERROR: missing serial number"
-      exit 1;
-    fi
-    SERIAL="-s $2"
-    shift
-  fi
-  shift
-done
-
 if [ $(uname) == "Linux" ]; then
-    $ADB $SERIAL shell ps | grep skia | awk '{print $2}' | xargs -r $ADB $SERIAL shell kill
+    $ADB $DEVICE_SERIAL shell ps | grep skia | awk '{print $2}' | xargs -r $ADB $DEVICE_SERIAL shell kill
 elif [ $(uname) == "Darwin" ]; then
-    $ADB $SERIAL shell ps | grep skia | awk '{print $2}' | xargs $ADB $SERIAL shell kill
+    $ADB $DEVICE_SERIAL shell ps | grep skia | awk '{print $2}' | xargs $ADB $DEVICE_SERIAL shell kill
 else
     echo "Could not automatically determine OS!"
     exit 1;

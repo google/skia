@@ -137,7 +137,7 @@ The SampleApp on Android provides a simple UI for viewing sample slides and gm i
 
 Then, install the app onto the device:
 
-    ./platform_tools/android/bin/android_install_apk
+    ./platform_tools/android/bin/android_install_app
 
 Finally to run the application you must navigate to the Skia Samples
 application using the application launcher on your device.
@@ -162,7 +162,7 @@ device and placed into a temporary folder. The script does not build the app -
 you'll have to do that first.
 
     # you can include additional arguments in quotes (e.g. "dm --nopdf")
-    ./platform_tools/android/bin/android_gdb_exe dm
+    ./platform_tools/android/bin/android_gdb_native dm
 
 When the gdb client is ready, insert a breakpoint, and continue to let the
 program resume execution.

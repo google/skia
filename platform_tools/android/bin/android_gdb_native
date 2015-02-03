@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# android_gdb: Pushes gdbserver. Connects and enters debugging environment.
+# android_gdb_native: Pushes gdbserver, connects to specified Skia app,
+#                     and enters command line debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
@@ -47,5 +48,8 @@ echo "Entering gdb client shell"
 GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/*-gdb | head -n1)
 "$GDB_COMMAND" -x $GDBSETUP
 
-# Clean up
-rm -rf $GDB_TMP_DIR
+# Clean up:
+# We could 'rm -rf $GDB_TMP_DIR', but doing so would cause subsequent debugging
+# sessions to take longer than necessary. The tradeoff is to now force the user
+# to remove the directory when they are done debugging.
+rm $GDBSETUP

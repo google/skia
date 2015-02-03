@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# android_install_skia: installs the skia apk on the device.
+# android_install_app: installs the skia sampleApp on the device.
 
 function print_usage {
-  echo "USAGE: android_install_skia [options]"
+  echo "USAGE: android_install_app [options]"
   echo " Options:         -f  Forces the package to be installed by removing any"
   echo "                      previously installed packages"
   echo "                  -h  Prints this help message"

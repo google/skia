@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-# android_install_skia: installs the skia apk on the device.
-
-echo "The install step is now a no-op"
-exit;

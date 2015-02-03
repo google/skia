@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# android_gdb: Pushes parameter binary and gdbserver. Connects
-# and enters debugging environment.
+# android_gdb_app: Pushes gdbserver, launches sampleApp, and connects
+# the debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
@@ -13,10 +13,17 @@ source $SCRIPT_DIR/utils/setup_adb.sh
 
 
 # Forward local to remote socket connection.
-$ADB forward "tcp:$PORT" "tcp:$PORT"
+$ADB $DEVICE_SERIAL forward "tcp:$PORT" "tcp:$PORT"
 
 # We kill all previous instances of gdbserver to rid all port overriding errors.
-$ADB shell ps | grep gdbserver | awk '{print $2}' | xargs -r $ADB shell kill
+if [ $(uname) == "Linux" ]; then
+    $ADB $DEVICE_SERIAL shell ps | grep gdbserver | awk '{print $2}' | xargs -r $ADB $DEVICE_SERIAL shell kill
+elif [ $(uname) == "Darwin" ]; then
+    $ADB $DEVICE_SERIAL shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB $DEVICE_SERIAL shell kill
+else
+    echo "Could not automatically determine OS!"
+    exit 1;
+fi
 
 # We need the debug symbols from these files
 GDB_TMP_DIR=$(pwd)/android_gdb_tmp
@@ -31,14 +38,16 @@ echo "Pushing gdbserver..."
 adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver /data/local/tmp
 
 # Launch the app
-SK_COMMAND="$APP_ARGS"
-echo "Running command $SK_COMMAND"
-adb shell am start -n com.skia/com.skia.SkiaSampleActivity
+echo "Launching the app..."
+$ADB $DEVICE_SERIAL shell am start -n com.skia/com.skia.SkiaSampleActivity
+
+# Wait for app process to initialize
+sleep 2
 
 # Attach gdbserver to the app process
 PID=$($ADB shell ps | grep com.skia | awk '{print $2}')
 echo "Attaching to pid: $PID"
-$ADB shell /data/local/tmp/gdbserver :$PORT --attach $PID &
+$ADB $DEVICE_SERIAL shell /data/local/tmp/gdbserver :$PORT --attach $PID &
 
 # Wait for gdbserver
 sleep 2
@@ -55,6 +64,10 @@ echo "Entering gdb client shell"
 GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/*-gdb | head -n1)
 "$GDB_COMMAND" -x $GDBSETUP
 
-# Clean up
-rm -rf $GDB_TMP_DIR
+# Clean up:
+# We could 'rm -rf $GDB_TMP_DIR', but doing so would cause subsequent debugging
+# sessions to take longer than necessary. The tradeoff is to now force the user
+# to remove the directory when they are done debugging.
+rm $GDBSETUP
+
 
