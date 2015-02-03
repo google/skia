@@ -26,7 +26,6 @@ class GrVertexBufferAllocPool;
 
 class GrGpu : public SkRefCnt {
 public:
-
     /**
      * Additional blend coefficients for dual source blending, not exposed
      * through GrPaint/GrContext.
@@ -62,9 +61,7 @@ public:
      */
     const GrDrawTargetCaps* caps() const { return fCaps.get(); }
 
-    GrPathRendering* pathRendering() {
-        return fPathRendering.get();
-    }
+    GrPathRendering* pathRendering() { return fPathRendering.get(); }
 
     // Called by GrContext when the underlying backend context has been destroyed.
     // GrGpu should use this to ensure that no backend API calls will be made from
@@ -78,11 +75,7 @@ public:
      * the GrGpu that the state was modified and it shouldn't make assumptions
      * about the state.
      */
-    void markContextDirty(uint32_t state = kAll_GrBackendState) {
-        fResetBits |= state;
-    }
-
-    void unimpl(const char[]);
+    void markContextDirty(uint32_t state = kAll_GrBackendState) { fResetBits |= state; }
 
     /**
      * Creates a texture object. If kRenderTarget_GrSurfaceFlag the texture can
@@ -302,32 +295,11 @@ public:
     // is dirty.
     ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
-    GrContext::GPUStats* gpuStats() { return &fGPUStats; }
-
     virtual void buildProgramDesc(GrProgramDesc*,
                                   const GrPrimitiveProcessor&,
                                   const GrPipeline&,
                                   const GrProgramDesc::DescInfo&,
                                   const GrBatchTracker&) const = 0;
-
-    /**
-     * Called at start and end of gpu trace marking
-     * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
-     * and end of a code block respectively
-     */
-    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
-    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
-
-    /**
-     * Takes the current active set of markers and stores them for later use. Any current marker
-     * in the active set is removed from the active set and the targets remove function is called.
-     * These functions do not work as a stack so you cannot call save a second time before calling
-     * restore. Also, it is assumed that when restore is called the current active set of markers
-     * is empty. When the stored markers are added back into the active set, the targets add marker
-     * is called.
-     */
-    void saveActiveTraceMarkers();
-    void restoreActiveTraceMarkers();
 
     // Called to determine whether a copySurface call would succeed or not. Derived
     // classes must keep this consistent with their implementation of onCopySurface(). Fallbacks
@@ -389,6 +361,53 @@ public:
                    int count,
                    const GrStencilSettings&);
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Debugging and Stats
+
+    class Stats {
+    public:
+#if GR_GPU_STATS
+        Stats() { this->reset(); }
+
+        void reset() { fRenderTargetBinds = 0; fShaderCompilations = 0; }
+
+        int renderTargetBinds() const { return fRenderTargetBinds; }
+        void incRenderTargetBinds() { fRenderTargetBinds++; }
+        int shaderCompilations() const { return fShaderCompilations; }
+        void incShaderCompilations() { fShaderCompilations++; }
+        void dump(SkString*);
+
+    private:
+        int fRenderTargetBinds;
+        int fShaderCompilations;
+#else
+        void dump(SkString*) {};
+        void incRenderTargetBinds() {}
+        void incShaderCompilations() {}
+#endif
+    };
+
+    Stats* stats() { return &fStats; }
+
+    /**
+     * Called at start and end of gpu trace marking
+     * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
+     * and end of a code block respectively
+     */
+    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
+    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
+
+    /**
+     * Takes the current active set of markers and stores them for later use. Any current marker
+     * in the active set is removed from the active set and the targets remove function is called.
+     * These functions do not work as a stack so you cannot call save a second time before calling
+     * restore. Also, it is assumed that when restore is called the current active set of markers
+     * is empty. When the stored markers are added back into the active set, the targets add marker
+     * is called.
+     */
+    void saveActiveTraceMarkers();
+    void restoreActiveTraceMarkers();
+
 protected:
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
@@ -401,14 +420,12 @@ protected:
                                           unsigned int* ref,
                                           unsigned int* mask);
 
-    const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
+    const GrTraceMarkerSet& getActiveTraceMarkers() const { return fActiveTraceMarkers; }
 
-    GrContext::GPUStats         fGPUStats;
-
-    SkAutoTDelete<GrPathRendering> fPathRendering;
-
+    Stats                                   fStats;
+    SkAutoTDelete<GrPathRendering>          fPathRendering;
     // Subclass must initialize this in its constructor.
-    SkAutoTUnref<const GrDrawTargetCaps> fCaps;
+    SkAutoTUnref<const GrDrawTargetCaps>    fCaps;
 
 private:
     // called when the 3D context state is unknown. Subclass should emit any
@@ -432,9 +449,7 @@ private:
 
     // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is
     // ONLY used by the the clip target
-    virtual void onClearStencilClip(GrRenderTarget*,
-                                    const SkIRect& rect,
-                                    bool insideClip) = 0;
+    virtual void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) = 0;

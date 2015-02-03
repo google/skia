@@ -85,9 +85,8 @@ bool GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId,
     vertShaderSrc.append("void main() {");
     vertShaderSrc.append(fCode);
     vertShaderSrc.append("}\n");
-    GrGLuint vertShaderId = GrGLCompileAndAttachShader(glCtx, programId,
-                                                       GR_GL_VERTEX_SHADER, vertShaderSrc,
-                                                       gpu->gpuStats());
+    GrGLuint vertShaderId = GrGLCompileAndAttachShader(glCtx, programId, GR_GL_VERTEX_SHADER,
+                                                       vertShaderSrc, gpu->stats());
     if (!vertShaderId) {
         return false;
     }

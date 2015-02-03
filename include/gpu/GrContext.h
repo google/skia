@@ -768,33 +768,13 @@ public:
      */
     const Options& getOptions() const { return fOptions; }
 
-#if GR_CACHE_STATS
+    /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
+    void dumpCacheStats(SkString*) const;
     void printCacheStats() const;
-#endif
 
-    class GPUStats {
-    public:
-#if GR_GPU_STATS
-        GPUStats() { this->reset(); }
-
-        void reset() { fRenderTargetBinds = 0; fShaderCompilations = 0; }
-
-        int renderTargetBinds() const { return fRenderTargetBinds; }
-        void incRenderTargetBinds() { fRenderTargetBinds++; }
-        int shaderCompilations() const { return fShaderCompilations; }
-        void incShaderCompilations() { fShaderCompilations++; }
-    private:
-        int fRenderTargetBinds;
-        int fShaderCompilations;
-#else
-        void incRenderTargetBinds() {}
-        void incShaderCompilations() {}
-#endif
-    };
-
-#if GR_GPU_STATS
-    const GPUStats* gpuStats() const;
-#endif
+    /** Prints GPU stats to the string if GR_GPU_STATS == 1. */
+    void dumpGpuStats(SkString*) const;
+    void printGpuStats() const;
 
 private:
     GrGpu*                          fGpu;

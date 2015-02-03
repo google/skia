@@ -33,9 +33,9 @@ struct Src {
 
 struct Sink {
     virtual ~Sink() {}
-    // You may write to either the bitmap or stream.
-    virtual Error SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*) const
-        = 0;
+    // You may write to either the bitmap or stream.  If you write to log, we'll print that out.
+    virtual Error SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*, SkString* log)
+        const = 0;
     // Sinks in the same enclave (except kAnyThread_Enclave) will run serially on the same thread.
     virtual int enclave() const = 0;
 
@@ -90,7 +90,7 @@ class GPUSink : public Sink {
 public:
     GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples, bool dfText, bool threaded);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE;
     const char* fileExtension() const SK_OVERRIDE { return "png"; }
 private:
@@ -105,7 +105,7 @@ class PDFSink : public Sink {
 public:
     PDFSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return kPDFSink_Enclave; }
     const char* fileExtension() const SK_OVERRIDE { return "pdf"; }
 };
@@ -114,7 +114,7 @@ class RasterSink : public Sink {
 public:
     explicit RasterSink(SkColorType);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
     const char* fileExtension() const SK_OVERRIDE { return "png"; }
 private:
@@ -125,7 +125,7 @@ class SKPSink : public Sink {
 public:
     SKPSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
     const char* fileExtension() const SK_OVERRIDE { return "skp"; }
 };
@@ -134,7 +134,7 @@ class SVGSink : public Sink {
 public:
     SVGSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
     const char* fileExtension() const SK_OVERRIDE { return "svg"; }
 };
@@ -146,7 +146,7 @@ class ViaMatrix : public Sink {
 public:
     ViaMatrix(SkMatrix, Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return fSink->enclave(); }
     const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
 private:
@@ -158,7 +158,7 @@ class ViaPipe : public Sink {
 public:
     explicit ViaPipe(Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return fSink->enclave(); }
     const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
 private:
@@ -169,7 +169,7 @@ class ViaSerialization : public Sink {
 public:
     explicit ViaSerialization(Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return fSink->enclave(); }
     const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
 private:
@@ -180,7 +180,7 @@ class ViaTiles : public Sink {
 public:
     ViaTiles(int w, int h, SkBBHFactory*, Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*) const SK_OVERRIDE;
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return fSink->enclave(); }
     const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
 private:
@@ -191,7 +191,7 @@ private:
 
 class NullSink : public Sink {
 public:
-    Error draw(const Src& src, SkBitmap*, SkWStream* out) const SK_OVERRIDE {
+    Error draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE {
         return src.draw(SkCreateNullCanvas());
     }
     int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }

@@ -131,6 +131,8 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
+
 GPUSink::GPUSink(GrContextFactory::GLContextType ct,
                  GrGLStandard api,
                  int samples,
@@ -146,7 +148,7 @@ int GPUSink::enclave() const {
     return fThreaded ? kAnyThread_Enclave : kGPU_Enclave;
 }
 
-Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
+Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextFactory factory;
     const SkISize size = src.size();
     const SkImageInfo info =
@@ -162,6 +164,10 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
         return err;
     }
     canvas->flush();
+    if (FLAGS_gpuStats) {
+        canvas->getGrContext()->dumpCacheStats(log);
+        canvas->getGrContext()->dumpGpuStats(log);
+    }
     dst->allocPixels(info);
     canvas->readPixels(dst, 0,0);
     if (FLAGS_abandonGpuContext) {
@@ -174,7 +180,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
 
 PDFSink::PDFSink() {}
 
-Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
+Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     // Print the given DM:Src to a PDF, breaking on 8.5x11 pages.
     SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
 
@@ -213,7 +219,7 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
 
 SKPSink::SKPSink() {}
 
-Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
+Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     SkSize size;
     size = src.size();
     SkPictureRecorder recorder;
@@ -230,7 +236,7 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
 
 SVGSink::SVGSink() {}
 
-Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
+Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     SkAutoTUnref<SkBaseDevice> device(SkSVGDevice::Create(src.size(), dst));
     SkCanvas canvas(device);
     return src.draw(&canvas);
@@ -240,7 +246,7 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst) const {
 
 RasterSink::RasterSink(SkColorType colorType) : fColorType(colorType) {}
 
-Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
+Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     const SkISize size = src.size();
     // If there's an appropriate alpha type for this color type, use it, otherwise use premul.
     SkAlphaType alphaType = kPremul_SkAlphaType;
@@ -256,7 +262,7 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*) const {
 
 ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : fMatrix(matrix), fSink(sink) {}
 
-Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
+Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     // We turn our arguments into a Src, then draw that Src into our Sink to fill bitmap or stream.
     struct ProxySrc : public Src {
         const Src& fSrc;
@@ -270,14 +276,14 @@ Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const
         SkISize size() const SK_OVERRIDE { return fSrc.size(); }
         Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(src, fMatrix);
-    return fSink->draw(proxy, bitmap, stream);
+    return fSink->draw(proxy, bitmap, stream, log);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaPipe::ViaPipe(Sink* sink) : fSink(sink) {}
 
-Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
+Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     // We turn ourselves into another Src that draws our argument into bitmap/stream via pipe.
     struct ProxySrc : public Src {
         const Src& fSrc;
@@ -293,14 +299,15 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
         SkISize size() const SK_OVERRIDE { return fSrc.size(); }
         Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(src);
-    return fSink->draw(proxy, bitmap, stream);
+    return fSink->draw(proxy, bitmap, stream, log);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaSerialization::ViaSerialization(Sink* sink) : fSink(sink) {}
 
-Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
+Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log)
+    const {
     // Record our Src into a picture.
     SkSize size;
     size = src.size();
@@ -330,7 +337,7 @@ Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream
         SkISize size() const SK_OVERRIDE { return fSize; }
         Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(deserialized, src.size());
-    return fSink->draw(proxy, bitmap, stream);
+    return fSink->draw(proxy, bitmap, stream, log);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -341,7 +348,7 @@ ViaTiles::ViaTiles(int w, int h, SkBBHFactory* factory, Sink* sink)
     , fFactory(factory)
     , fSink(sink) {}
 
-Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const {
+Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     // Record our Src into a picture.
     SkSize size;
     size = src.size();
@@ -396,7 +403,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream) const 
         SkISize size() const SK_OVERRIDE { return fSize; }
         Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(fW, fH, pic, src.size());
-    return fSink->draw(proxy, bitmap, stream);
+    return fSink->draw(proxy, bitmap, stream, log);
 }
 
 }  // namespace DM

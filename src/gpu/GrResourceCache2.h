@@ -16,6 +16,8 @@
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
+class SkString;
+
 /**
  * Manages the lifetime of all GrGpuResource instances.
  *
@@ -146,7 +148,7 @@ public:
     }
 
 #if GR_GPU_STATS
-    void printStats() const;
+    void dumpStats(SkString*) const;
 #endif
 
 private:

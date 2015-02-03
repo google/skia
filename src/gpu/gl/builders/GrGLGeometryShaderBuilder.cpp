@@ -62,7 +62,7 @@ bool GrGLGeometryBuilder::compileAndAttachShaders(GrGLuint programId,
     GrGLuint geomShaderId =
         GrGLCompileAndAttachShader(glCtx, programId,
                                    GR_GL_GEOMETRY_SHADER, geomShaderSrc,
-                                   fProgramBuilder->gpu()->gpuStats());
+                                   fProgramBuilder->gpu()->stats());
     if (!geomShaderId) {
         return false;
     }

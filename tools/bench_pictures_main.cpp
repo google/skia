@@ -473,9 +473,7 @@ int tool_main(int argc, char** argv) {
 
 #if GR_GPU_STATS && SK_SUPPORT_GPU
     if (FLAGS_gpuStats && benchmark.renderer()->isUsingGpuDevice()) {
-        GrContext* ctx = benchmark.renderer()->getGrContext();
-        SkDebugf("RenderTarget Binds: %d\n", ctx->gpuStats()->renderTargetBinds());
-        SkDebugf("Shader Compilations: %d\n", ctx->gpuStats()->shaderCompilations());
+        benchmark.renderer()->getGrContext()->printGpuStats();
     }
 #endif
 

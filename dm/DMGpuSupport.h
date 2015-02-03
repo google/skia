@@ -42,6 +42,12 @@ enum GrGLStandard {
 };
 static const int kGrGLStandardCnt = 3;
 
+class GrContext {
+public:
+    void dumpCacheStats(SkString*) const {}
+    void dumpGpuStats(SkString*) const {}
+};
+
 class GrContextFactory {
 public:
     typedef int GLContextType;

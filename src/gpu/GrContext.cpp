@@ -1578,16 +1578,3 @@ void GrContext::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-#if GR_CACHE_STATS
-void GrContext::printCacheStats() const {
-    fResourceCache2->printStats();
-}
-#endif
-
-#if GR_GPU_STATS
-const GrContext::GPUStats* GrContext::gpuStats() const {
-    return fGpu->gpuStats();
-}
-#endif
-

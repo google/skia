@@ -49,15 +49,21 @@ static void fail(ImplicitString err) {
 
 static int32_t gPending = 0;  // Atomic.
 
-static void done(double ms, ImplicitString config, ImplicitString src, ImplicitString name) {
+static void done(double ms,
+                 ImplicitString config, ImplicitString src, ImplicitString name,
+                 ImplicitString log) {
+    if (!log.isEmpty()) {
+        log.prepend("\n");
+    }
     int32_t pending = sk_atomic_dec(&gPending)-1;
-    SkDebugf("%s(%4dMB %5d) %s\t%s %s %s  ", FLAGS_verbose ? "\n" : kSkOverwriteLine
+    SkDebugf("%s(%4dMB %5d) %s\t%s %s %s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
                                            , sk_tools::getMaxResidentSetSizeMB()
                                            , pending
                                            , HumanizeMs(ms).c_str()
                                            , config.c_str()
                                            , src.c_str()
-                                           , name.c_str());
+                                           , name.c_str()
+                                           , log.c_str());
     // We write our dm.json file every once in a while in case we crash.
     // Notice this also handles the final dm.json when pending == 0.
     if (pending % 500 == 0) {
@@ -177,7 +183,8 @@ static void push_sink(const char* tag, Sink* s) {
 
     SkBitmap bitmap;
     SkDynamicMemoryWStream stream;
-    Error err = sink->draw(noop, &bitmap, &stream);
+    SkString log;
+    Error err = sink->draw(noop, &bitmap, &stream, &log);
     if (!err.isEmpty()) {
         SkDebugf("Skipping %s: %s\n", tag, err.c_str());
         return;
@@ -297,12 +304,13 @@ struct Task {
     static void Run(Task* task) {
         SkString name = task->src->name();
         SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag, name.c_str());
+        SkString log;
         WallTimer timer;
         timer.start();
         if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
-            Error err = task->sink->draw(*task->src, &bitmap, &stream);
+            Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
                 fail(SkStringPrintf("%s %s %s: %s",
                                     task->sink.tag,
@@ -352,7 +360,7 @@ struct Task {
         if (!whyBlacklisted.isEmpty()) {
             name.appendf(" (--blacklist, %s)", whyBlacklisted.c_str());
         }
-        done(timer.fWall, task->sink.tag, task->src.tag, name);
+        done(timer.fWall, task->sink.tag, task->src.tag, name, log);
     }
 
     static void WriteToDisk(const Task& task,
@@ -473,7 +481,7 @@ static void run_test(skiatest::Test* test) {
         test->proc(&reporter, &factory);
     }
     timer.end();
-    done(timer.fWall, "unit", "test", test->name);
+    done(timer.fWall, "unit", "test", test->name, "");
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

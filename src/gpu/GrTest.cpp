@@ -10,6 +10,7 @@
 
 #include "GrInOrderDrawBuffer.h"
 #include "GrResourceCache2.h"
+#include "SkString.h"
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
     SkASSERT(!fContext);
@@ -39,6 +40,80 @@ void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
 void GrContext::purgeAllUnlockedResources() {
     fResourceCache2->purgeAllUnlocked();
 }
+
+void GrContext::dumpCacheStats(SkString* out) const {
+#if GR_CACHE_STATS
+    fResourceCache2->dumpStats(out);
+#endif
+}
+
+void GrContext::printCacheStats() const {
+    SkString out;
+    this->dumpCacheStats(&out);
+    SkDebugf(out.c_str());
+}
+
+void GrContext::dumpGpuStats(SkString* out) const {
+#if GR_GPU_STATS
+    return fGpu->stats()->dump(out);
+#endif
+}
+
+void GrContext::printGpuStats() const {
+    SkString out;
+    this->dumpGpuStats(&out);
+    SkDebugf(out.c_str());
+}
+
+#if GR_GPU_STATS
+void GrGpu::Stats::dump(SkString* out) {
+    out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
+    out->appendf("Shader Compilations: %d\n", fShaderCompilations);
+}
+#endif
+
+#if GR_CACHE_STATS
+void GrResourceCache2::dumpStats(SkString* out) const {
+    this->validate();
+
+    int locked = 0;
+    int scratch = 0;
+    int wrapped = 0;
+    size_t unbudgetedSize = 0;
+
+    ResourceList::Iter iter;
+    GrGpuResource* resource = iter.init(fResources, ResourceList::Iter::kHead_IterStart);
+
+    for ( ; resource; resource = iter.next()) {
+        if (!resource->isPurgeable()) {
+            ++locked;
+        }
+        if (resource->cacheAccess().isScratch()) {
+            ++scratch;
+        }
+        if (resource->cacheAccess().isWrapped()) {
+            ++wrapped;
+        }
+        if (!resource->cacheAccess().isBudgeted()) {
+            unbudgetedSize += resource->gpuMemorySize();
+        }
+    }
+
+    float countUtilization = (100.f * fBudgetedCount) / fMaxCount;
+    float byteUtilization = (100.f * fBudgetedBytes) / fMaxBytes;
+
+    out->appendf("Budget: %d items %d bytes\n", fMaxCount, (int)fMaxBytes);
+    out->appendf("\t\tEntry Count: current %d"
+                 " (%d budgeted, %d wrapped, %d locked, %d scratch %.2g%% full), high %d\n",
+                 fCount, fBudgetedCount, wrapped, locked, scratch, countUtilization,
+                 fHighWaterCount);
+    out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
+                 (int)fBytes, (int)fBudgetedBytes, byteUtilization,
+                 (int)unbudgetedSize, (int)fHighWaterBytes);
+}
+
+#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.

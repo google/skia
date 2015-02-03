@@ -21,7 +21,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
                                     const SkString& shaderSrc,
-                                    GrContext::GPUStats* gpuStats) {
+                                    GrGpu::Stats* stats) {
     const GrGLInterface* gli = glCtx.interface();
 
     GrGLuint shaderId;
@@ -39,7 +39,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     const GrGLchar* sourceStr = shaderSrc.c_str();
 #endif
     GR_GL_CALL(gli, ShaderSource(shaderId, 1, &sourceStr, &sourceLength));
-    gpuStats->incShaderCompilations();
+    stats->incShaderCompilations();
     GR_GL_CALL(gli, CompileShader(shaderId));
 
     // Calling GetShaderiv in Chromium is quite expensive. Assume success in release builds.

@@ -850,7 +850,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted
                                        desc.fWidth, desc.fHeight)) {
             goto FAILED;
         }
-        fGPUStats.incRenderTargetBinds();
+        fStats.incRenderTargetBinds();
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fRTFBOID));
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                       GR_GL_COLOR_ATTACHMENT0,
@@ -865,7 +865,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted
             fGLContext.caps()->markConfigAsValidColorAttachment(desc.fConfig);
         }
     }
-    fGPUStats.incRenderTargetBinds();
+    fStats.incRenderTargetBinds();
     GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fTexFBOID));
 
     if (this->glCaps().usesImplicitMSAAResolve() && desc.fSampleCnt > 0) {
@@ -1209,7 +1209,7 @@ bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
         GrGLuint rb = glsb->renderbufferID();
 
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-        fGPUStats.incRenderTargetBinds();
+        fStats.incRenderTargetBinds();
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo));
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                         GR_GL_STENCIL_ATTACHMENT,
@@ -1509,7 +1509,7 @@ void GrGLGpu::discard(GrRenderTarget* renderTarget) {
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     if (renderTarget->getUniqueID() != fHWBoundRenderTargetUniqueID) {
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-        fGPUStats.incRenderTargetBinds();
+        fStats.incRenderTargetBinds();
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRT->renderFBOID()));
     }
     switch (this->glCaps().invalidateFBType()) {
@@ -1670,7 +1670,7 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
         case GrGLRenderTarget::kCanResolve_ResolveType:
             this->onResolveRenderTarget(tgt);
             // we don't track the state of the READ FBO ID.
-            fGPUStats.incRenderTargetBinds();
+            fStats.incRenderTargetBinds();
             GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER,
                                     tgt->textureFBOID()));
             break;
@@ -1768,7 +1768,7 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
 
     uint32_t rtID = target->getUniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
-        fGPUStats.incRenderTargetBinds();
+        fStats.incRenderTargetBinds();
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing
@@ -1912,8 +1912,8 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
         // Some extensions automatically resolves the texture when it is read.
         if (this->glCaps().usesMSAARenderBuffers()) {
             SkASSERT(rt->textureFBOID() != rt->renderFBOID());
-            fGPUStats.incRenderTargetBinds();
-            fGPUStats.incRenderTargetBinds();
+            fStats.incRenderTargetBinds();
+            fStats.incRenderTargetBinds();
             GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID()));
             GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID()));
             // make sure we go through flushRenderTarget() since we've modified
@@ -2519,7 +2519,7 @@ GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLI
         SkASSERT(surface->asTexture());
         GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
         GR_GL_CALL(this->glInterface(), GenFramebuffers(1, &tempFBOID));
-        fGPUStats.incRenderTargetBinds();
+        fStats.incRenderTargetBinds();
         GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, tempFBOID));
         GR_GL_CALL(this->glInterface(), FramebufferTexture2D(fboTarget,
                                                              GR_GL_COLOR_ATTACHMENT0,
@@ -2532,7 +2532,7 @@ GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLI
         viewport->fHeight = surface->height();
     } else {
         tempFBOID = 0;
-        fGPUStats.incRenderTargetBinds();
+        fStats.incRenderTargetBinds();
         GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, rt->renderFBOID()));
         *viewport = rt->getViewport();
     }
