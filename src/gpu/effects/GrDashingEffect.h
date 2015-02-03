@@ -15,36 +15,14 @@
 
 class GrGpu;
 class GrDrawTarget;
-class GrGeometryProcessor;
 class GrPaint;
 class GrPipelineBuilder;
 class GrStrokeInfo;
-
-class GrGLDashingEffect;
-class SkPath;
 
 namespace GrDashingEffect {
     bool DrawDashLine(GrGpu*, GrDrawTarget*, GrPipelineBuilder*, GrColor,
                       const SkMatrix& viewMatrix, const SkPoint pts[2], const GrPaint& paint,
                       const GrStrokeInfo& strokeInfo);
-
-    enum DashCap {
-        kRound_DashCap,
-        kNonRound_DashCap,
-    };
-
-    /**
-     * An effect that renders a dashed line. It is intended to be used as a coverage effect.
-     * The effect is meant for dashed lines that only have a single on/off interval pair.
-     * Bounding geometry is rendered and the effect computes coverage based on the fragment's
-     * position relative to the dashed line.
-     */
-    GrGeometryProcessor* Create(GrColor,
-                                GrPrimitiveEdgeType edgeType,
-                                const SkPathEffect::DashInfo& info,
-                                SkScalar strokeWidth,
-                                DashCap cap,
-                                const SkMatrix& localMatrix);
 }
 
 #endif
