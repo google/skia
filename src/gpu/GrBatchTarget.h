@@ -17,6 +17,9 @@
  * that render their batch.
  */
 
+class GrIndexBufferAllocPool;
+class GrVertexBufferAllocPool;
+
 class GrBatchTarget : public SkNoncopyable {
 public:
     GrBatchTarget(GrGpu* gpu,
@@ -26,11 +29,13 @@ public:
         , fVertexPool(vpool)
         , fIndexPool(ipool)
         , fFlushBuffer(kFlushBufferInitialSizeInBytes)
-        , fIter(fFlushBuffer) {}
+        , fIter(fFlushBuffer)
+        , fNumberOfDraws(0) {}
 
     typedef GrDrawTarget::DrawInfo DrawInfo;
     void initDraw(const GrPrimitiveProcessor* primProc, const GrPipeline* pipeline) {
         GrNEW_APPEND_TO_RECORDER(fFlushBuffer, BufferedFlush, (primProc, pipeline));
+        fNumberOfDraws++;
     }
 
     void draw(const GrDrawTarget::DrawInfo& draw) {
@@ -39,8 +44,10 @@ public:
 
     // TODO this is temporary until batch is everywhere
     //void flush();
+    void resetNumberOfDraws() { fNumberOfDraws = 0; }
+    int numberOfDraws() const { return fNumberOfDraws; }
     void preFlush() { fIter = FlushBuffer::Iter(fFlushBuffer); }
-    void flushNext();
+    void flushNext(int n);
     void postFlush() { SkASSERT(!fIter.next()); fFlushBuffer.reset(); }
 
     // TODO This goes away when everything uses batch
@@ -48,6 +55,8 @@ public:
         SkASSERT(!fFlushBuffer.empty());
         return &fFlushBuffer.back().fBatchTracker;
     }
+
+    const GrDrawTargetCaps& caps() const { return *fGpu->caps(); }
 
     GrVertexBufferAllocPool* vertexPool() { return fVertexPool; }
     GrIndexBufferAllocPool* indexPool() { return fIndexPool; }
@@ -62,8 +71,7 @@ private:
     struct BufferedFlush {
         BufferedFlush(const GrPrimitiveProcessor* primProc, const GrPipeline* pipeline)
             : fPrimitiveProcessor(primProc)
-            , fPipeline(pipeline)
-            , fDraws(kDrawRecorderInitialSizeInBytes) {}
+            , fPipeline(pipeline) {}
         typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
         ProgramPrimitiveProcessor fPrimitiveProcessor;
         const GrPipeline* fPipeline;
@@ -73,7 +81,6 @@ private:
 
     enum {
         kFlushBufferInitialSizeInBytes = 8 * sizeof(BufferedFlush),
-        kDrawRecorderInitialSizeInBytes = 8 * sizeof(DrawInfo),
     };
 
     typedef GrTRecorder<BufferedFlush, TBufferAlign> FlushBuffer;
@@ -81,6 +88,7 @@ private:
     FlushBuffer fFlushBuffer;
     // TODO this is temporary
     FlushBuffer::Iter fIter;
+    int fNumberOfDraws;
 };
 
 #endif

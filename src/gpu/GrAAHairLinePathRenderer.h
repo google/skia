@@ -42,31 +42,6 @@ private:
                              const GrIndexBuffer* fLinesIndexBuffer,
                              const GrIndexBuffer* fQuadsIndexBuffer);
 
-    bool createLineGeom(GrDrawTarget* target,
-                        GrPipelineBuilder*,
-                        const SkMatrix& viewMatrix,
-                        uint8_t coverage,
-                        size_t vertexStride,
-                        GrDrawTarget::AutoReleaseGeometry* arg,
-                        SkRect* devBounds,
-                        const SkPath& path,
-                        const PtArray& lines,
-                        int lineCnt);
-
-    bool createBezierGeom(GrDrawTarget* target,
-                          GrPipelineBuilder*,
-                          const SkMatrix& viewMatrix,
-                          GrDrawTarget::AutoReleaseGeometry* arg,
-                          SkRect* devBounds,
-                          const SkPath& path,
-                          const PtArray& quads,
-                          int quadCnt,
-                          const PtArray& conics,
-                          int conicCnt,
-                          const IntArray& qSubdivs,
-                          const FloatArray& cWeights,
-                          size_t vertexStride);
-
     const GrIndexBuffer*        fLinesIndexBuffer;
     const GrIndexBuffer*        fQuadsIndexBuffer;
 

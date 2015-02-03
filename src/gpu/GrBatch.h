@@ -46,7 +46,7 @@ struct GrBatchOpt {
 class GrBatch : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrBatch)
-    GrBatch() { SkDEBUGCODE(fUsed = false;) }
+    GrBatch() : fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
     virtual ~GrBatch() {}
 
     virtual const char* name() const = 0;
@@ -74,6 +74,10 @@ public:
     virtual bool onCombineIfPossible(GrBatch*) = 0;
 
     virtual void generateGeometry(GrBatchTarget*, const GrPipeline*) = 0;
+
+    // TODO this goes away when batches are everywhere
+    void setNumberOfDraws(int numberOfDraws) { fNumberOfDraws = numberOfDraws; }
+    int numberOfDraws() const { return fNumberOfDraws; }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -125,6 +129,8 @@ private:
     static int32_t gCurrBatchClassID;
 
     SkDEBUGCODE(bool fUsed;)
+
+    int fNumberOfDraws;
 
     typedef SkRefCnt INHERITED;
 };

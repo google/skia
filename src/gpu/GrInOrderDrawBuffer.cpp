@@ -473,7 +473,8 @@ void GrInOrderDrawBuffer::onFlush() {
 
         // TODO temporary hack
         if (kDrawBatch_Cmd == strip_trace_bit(iter->fType)) {
-            fBatchTarget.flushNext();
+            DrawBatch* db = reinterpret_cast<DrawBatch*>(iter.get());
+            fBatchTarget.flushNext(db->fBatch->numberOfDraws());
             continue;
         }
 
@@ -646,7 +647,9 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
 
 void GrInOrderDrawBuffer::closeBatch() {
     if (fDrawBatch) {
+        fBatchTarget.resetNumberOfDraws();
         fDrawBatch->execute(this, fPrevState);
+        fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
         fDrawBatch = NULL;
     }
 }
