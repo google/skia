@@ -104,10 +104,8 @@ struct SkGlyph {
         kSubShiftY = 0
     };
 
-    // The code is increased by one in MakeID. Adjust back. This allows the zero
-    // id to be the invalid id.
     static unsigned ID2Code(uint32_t id) {
-        return (id & kCodeMask) - 1;
+        return id & kCodeMask;
     }
 
     static unsigned ID2SubX(uint32_t id) {
@@ -127,21 +125,17 @@ struct SkGlyph {
         return sub << (16 - kSubBits);
     }
 
-    // This and the MakeID below must not return an id of zero. Zero is used as
-    // the invalid id.
     static uint32_t MakeID(unsigned code) {
-        SkASSERT(code + 1 <= kCodeMask);
-        return code + 1;
+        return code;
     }
 
-    // See comment for MakeID above.
     static uint32_t MakeID(unsigned code, SkFixed x, SkFixed y) {
-        SkASSERT(code + 1 <= kCodeMask);
+        SkASSERT(code <= kCodeMask);
         x = FixedToSub(x);
         y = FixedToSub(y);
         return (x << (kSubShift + kSubShiftX)) |
                (y << (kSubShift + kSubShiftY)) |
-               (code + 1);
+               code;
     }
 
     void toMask(SkMask* mask) const;
