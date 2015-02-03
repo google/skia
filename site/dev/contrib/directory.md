@@ -29,7 +29,6 @@ The Skia Directory
     -   [Perf](https://perf.skia.org/) Performance testing.
     -   [Mon](https://mon.skia.org/) Grafana dashboard (requires login).
     -   [Alerts](https://alerts.skia.org/) Monitor testing and bot status.
-    -   [Push](https://push.skia.org/)
     -   [Code Review](https://codereview.chromium.org/)
 
 *   Mailing Lists
