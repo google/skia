@@ -1058,7 +1058,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
     SkDEBUGCODE(geometry.fDevBounds = devRect;)
     geometry.fDevClipBounds = devClipBounds;
 
-    GrBatch* batch = AAHairlineBatch::Create(geometry, fLinesIndexBuffer, fQuadsIndexBuffer);
+    SkAutoTUnref<GrBatch> batch(AAHairlineBatch::Create(geometry, fLinesIndexBuffer,
+                                                        fQuadsIndexBuffer));
     target->drawBatch(pipelineBuilder, batch, &devRect);
 
     return true;
