@@ -324,12 +324,16 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalK
         return NULL;
     }
 
+    const bool useCache = optionalKey.isValid();
     SkYUVPlanesCache::Info yuvInfo;
-    SkAutoTUnref<SkCachedData> cachedData(
-        SkYUVPlanesCache::FindAndRef(pixelRef->getGenerationID(), &yuvInfo));
+    SkAutoTUnref<SkCachedData> cachedData;
+    SkAutoMalloc storage;
+    if (useCache) {
+        cachedData.reset(SkYUVPlanesCache::FindAndRef(pixelRef->getGenerationID(), &yuvInfo));
+    }
 
     void* planes[3];
-    if (cachedData && cachedData->data()) {
+    if (cachedData.get()) {
         planes[0] = (void*)cachedData->data();
         planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
         planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
@@ -347,8 +351,13 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalK
             yuvInfo.fSizeInMemory[i] = yuvInfo.fRowBytes[i] * yuvInfo.fSize[i].fHeight;
             totalSize += yuvInfo.fSizeInMemory[i];
         }
-        cachedData.reset(SkResourceCache::NewCachedData(totalSize));
-        planes[0] = cachedData->writable_data();
+        if (useCache) {
+            cachedData.reset(SkResourceCache::NewCachedData(totalSize));
+            planes[0] = cachedData->writable_data();
+        } else {
+            storage.reset(totalSize);
+            planes[0] = storage.get();
+        }
         planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
         planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
 
@@ -358,8 +367,10 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalK
             return NULL;
         }
 
-        // Decoding is done, cache the resulting YUV planes
-        SkYUVPlanesCache::Add(pixelRef->getGenerationID(), cachedData, &yuvInfo);
+        if (useCache) {
+            // Decoding is done, cache the resulting YUV planes
+            SkYUVPlanesCache::Add(pixelRef->getGenerationID(), cachedData, &yuvInfo);
+        }
     }
 
     GrSurfaceDesc yuvDesc;
