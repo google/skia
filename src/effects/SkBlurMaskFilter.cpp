@@ -262,54 +262,43 @@ static bool rect_exceeds(const SkRect& r, SkScalar v) {
 
 #include "SkMaskCache.h"
 
-static bool copy_cacheddata_to_mask(SkCachedData* data, SkMask* mask) {
-    const size_t size = data->size();
-    SkASSERT(mask->computeTotalImageSize() <= size);
-
-    mask->fImage = SkMask::AllocImage(size);
-    if (mask->fImage) {
-        memcpy(mask->fImage, data->data(), size);
-        return true;
-    }
-    return false;
-}
-
-static SkCachedData* copy_mask_to_cacheddata(const SkMask& mask) {
-    const size_t size = mask.computeTotalImageSize();
+static SkCachedData* copy_mask_to_cacheddata(SkMask* mask) {
+    const size_t size = mask->computeTotalImageSize();
     SkCachedData* data = SkResourceCache::NewCachedData(size);
     if (data) {
-        memcpy(data->writable_data(), mask.fImage, size);
-        return data;
+        memcpy(data->writable_data(), mask->fImage, size);
+        SkMask::FreeImage(mask->fImage);
+        mask->fImage = (uint8_t*)data->data();
     }
-    return NULL;
+    return data;
 }
 
-static bool find_cached_rrect(SkMask* mask, SkScalar sigma, SkBlurStyle style,
-                              SkBlurQuality quality, const SkRRect& rrect) {
-    SkAutoTUnref<SkCachedData> data(SkMaskCache::FindAndRef(sigma, style, quality, rrect, mask));
-    return data.get() && copy_cacheddata_to_mask(data, mask);
+static SkCachedData* find_cached_rrect(SkMask* mask, SkScalar sigma, SkBlurStyle style,
+                                       SkBlurQuality quality, const SkRRect& rrect) {
+    return SkMaskCache::FindAndRef(sigma, style, quality, rrect, mask);
 }
 
-static void add_cached_rrect(const SkMask& mask, SkScalar sigma, SkBlurStyle style,
-                             SkBlurQuality quality, const SkRRect& rrect) {
-    SkAutoTUnref<SkCachedData> data(copy_mask_to_cacheddata(mask));
-    if (data.get()) {
-        SkMaskCache::Add(sigma, style, quality, rrect, mask, data);
+static SkCachedData* add_cached_rrect(SkMask* mask, SkScalar sigma, SkBlurStyle style,
+                                      SkBlurQuality quality, const SkRRect& rrect) {
+    SkCachedData* cache = copy_mask_to_cacheddata(mask);
+    if (cache) {
+        SkMaskCache::Add(sigma, style, quality, rrect, *mask, cache);
     }
+    return cache;
 }
 
-static bool find_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle style,
-                              SkBlurQuality quality, const SkRect rects[], int count) {
-    SkAutoTUnref<SkCachedData> data(SkMaskCache::FindAndRef(sigma, style, quality, rects, count, mask));
-    return data.get() && copy_cacheddata_to_mask(data, mask);
+static SkCachedData* find_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle style,
+                                       SkBlurQuality quality, const SkRect rects[], int count) {
+    return SkMaskCache::FindAndRef(sigma, style, quality, rects, count, mask);
 }
 
-static void add_cached_rects(const SkMask& mask, SkScalar sigma, SkBlurStyle style,
-                             SkBlurQuality quality, const SkRect rects[], int count) {
-    SkAutoTUnref<SkCachedData> data(copy_mask_to_cacheddata(mask));
-    if (data.get()) {
-        SkMaskCache::Add(sigma, style, quality, rects, count, mask, data);
+static SkCachedData* add_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle style,
+                                      SkBlurQuality quality, const SkRect rects[], int count) {
+    SkCachedData* cache = copy_mask_to_cacheddata(mask);
+    if (cache) {
+        SkMaskCache::Add(sigma, style, quality, rects, count, *mask, cache);
     }
+    return cache;
 }
 
 #ifdef SK_IGNORE_FAST_RRECT_BLUR
@@ -420,7 +409,9 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     smallRR.setRectRadii(smallR, radii);
 
     const SkScalar sigma = this->computeXformedSigma(matrix);
-    if (!find_cached_rrect(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallRR)) {
+    SkCachedData* cache = find_cached_rrect(&patch->fMask, sigma, fBlurStyle,
+                                            this->getQuality(), smallRR);
+    if (!cache) {
         bool analyticBlurWorked = false;
         if (c_analyticBlurRRect) {
             analyticBlurWorked =
@@ -439,13 +430,15 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
                 return kFalse_FilterReturn;
             }
         }
-        add_cached_rrect(patch->fMask, sigma, fBlurStyle, this->getQuality(), smallRR);
+        cache = add_cached_rrect(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallRR);
     }
 
     patch->fMask.fBounds.offsetTo(0, 0);
     patch->fOuterRect = dstM.fBounds;
     patch->fCenter.fX = SkScalarCeilToInt(leftUnstretched) + 1;
     patch->fCenter.fY = SkScalarCeilToInt(topUnstretched) + 1;
+    SkASSERT(NULL == patch->fCache);
+    patch->fCache = cache;  // transfer ownership to patch
     return kTrue_FilterReturn;
 }
 
@@ -550,7 +543,9 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     }
 
     const SkScalar sigma = this->computeXformedSigma(matrix);
-    if (!find_cached_rects(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count)) {
+    SkCachedData* cache = find_cached_rects(&patch->fMask, sigma, fBlurStyle,
+                                            this->getQuality(), smallR, count);
+    if (!cache) {
         if (count > 1 || !c_analyticBlurNinepatch) {
             if (!draw_rects_into_mask(smallR, count, &srcM)) {
                 return kFalse_FilterReturn;
@@ -567,11 +562,13 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
                 return kFalse_FilterReturn;
             }
         }
-        add_cached_rects(patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count);
+        cache = add_cached_rects(&patch->fMask, sigma, fBlurStyle, this->getQuality(), smallR, count);
     }
     patch->fMask.fBounds.offsetTo(0, 0);
     patch->fOuterRect = dstM.fBounds;
     patch->fCenter = center;
+    SkASSERT(NULL == patch->fCache);
+    patch->fCache = cache;  // transfer ownership to patch
     return kTrue_FilterReturn;
 }
 

@@ -19,6 +19,7 @@ class GrContext;
 class GrPaint;
 class SkBitmap;
 class SkBlitter;
+class SkCachedData;
 class SkMatrix;
 class SkPath;
 class SkRasterClip;
@@ -162,10 +163,17 @@ protected:
         kUnimplemented_FilterReturn
     };
 
-    struct NinePatch {
+    class NinePatch : ::SkNoncopyable {
+    public:
+        NinePatch() : fCache(NULL) {
+            fMask.fImage = NULL;
+        }
+        ~NinePatch();
+
         SkMask      fMask;      // fBounds must have [0,0] in its top-left
         SkIRect     fOuterRect; // width/height must be >= fMask.fBounds'
         SkIPoint    fCenter;    // identifies center row/col for stretching
+        SkCachedData* fCache;
     };
 
     /**

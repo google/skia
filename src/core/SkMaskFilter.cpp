@@ -10,6 +10,7 @@
 #include "SkMaskFilter.h"
 #include "SkBlitter.h"
 #include "SkDraw.h"
+#include "SkCachedData.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
 #include "SkTypes.h"
@@ -19,6 +20,15 @@
 #include "SkGr.h"
 #include "SkGrPixelRef.h"
 #endif
+
+SkMaskFilter::NinePatch::~NinePatch() {
+    if (fCache) {
+        SkASSERT((const void*)fMask.fImage == fCache->data());
+        fCache->unref();
+    } else {
+        SkMask::FreeImage(fMask.fImage);
+    }
+}
 
 bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
                               SkIPoint*) const {
@@ -219,7 +229,6 @@ bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
         return false;
     }
     draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, true, clip, blitter);
-    SkMask::FreeImage(patch.fMask.fImage);
     return true;
 }
 
@@ -234,9 +243,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     if (rectCount > 0) {
         NinePatch patch;
 
-        patch.fMask.fImage = NULL;
-        switch (this->filterRectsToNine(rects, rectCount, matrix,
-                                        clip.getBounds(), &patch)) {
+        switch (this->filterRectsToNine(rects, rectCount, matrix, clip.getBounds(), &patch)) {
             case kFalse_FilterReturn:
                 SkASSERT(NULL == patch.fMask.fImage);
                 return false;
@@ -244,7 +251,6 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
             case kTrue_FilterReturn:
                 draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, 1 == rectCount, clip,
                           blitter);
-                SkMask::FreeImage(patch.fMask.fImage);
                 return true;
 
             case kUnimplemented_FilterReturn:
