@@ -216,10 +216,10 @@
           '-Wpointer-arith',
           '-Wsign-compare',
 
+          '-Wno-c++11-extensions',
           '-Wno-unused-parameter',
         ],
         'cflags_cc': [
-          '-std=c++11',
           '-fno-rtti',
           '-Wnon-virtual-dtor',
           '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
@@ -479,6 +479,8 @@
           }],
           [ 'skia_clang_build', {
             'cflags_cc': [
+                # Build in C++11 mode to make sure we'll have an easy time switching.
+                '-std=c++11',
                 '-Wno-unknown-warning-option',  # Allows unknown warnings.
                 '-Wno-deprecated',              # From Qt, via debugger (older Clang).
                 '-Wno-deprecated-register',     # From Qt, via debugger (newer Clang).
