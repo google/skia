@@ -492,27 +492,28 @@ static GrTexture* create_bitmap_texture(GrContext* ctx,
 
 }
 
-static GrTexture* get_texture_backing_bmp(const SkBitmap& bitmap, const GrContext* context,
-                                          const GrTextureParams* params) {
-    if (GrTexture* texture = bitmap.getTexture()) {
-        // Our texture-resizing-for-tiling used to upscale NPOT textures for tiling only works with
-        // content-key cached resources. Rather than invest in that legacy code path, we'll just
-        // take the horribly slow route of causing a cache miss which will cause the pixels to be
-        // read and reuploaded to a texture with a content key.
-        if (params && !context->getGpu()->caps()->npotTextureTileSupport() &&
-            (params->isTiled() || GrTextureParams::kMipMap_FilterMode == params->filterMode())) {
-            return NULL;
-        }
-        return texture;
-    }
-    return NULL;
-}
-
 bool GrIsBitmapInCache(const GrContext* ctx,
                        const SkBitmap& bitmap,
                        const GrTextureParams* params) {
-    if (get_texture_backing_bmp(bitmap, ctx, params)) {
-        return true;
+    Stretch stretch = get_stretch_type(ctx, bitmap.width(), bitmap.height(), params);
+
+    // Handle the case where the bitmap is explicitly texture backed.
+    GrTexture* texture = bitmap.getTexture();
+    if (texture) {
+        if (kNo_Stretch == stretch) {
+            return true;
+        }
+        // No keys for volatile bitmaps.
+        if (bitmap.isVolatile()) {
+            return false;
+        }
+        const GrContentKey& key = texture->getContentKey();
+        if (!key.isValid()) {
+            return false;
+        }
+        GrContentKey resizedKey;
+        make_resize_key(key, stretch, &resizedKey);
+        return ctx->isResourceInCache(resizedKey);
     }
 
     // We don't cache volatile bitmaps
@@ -520,29 +521,37 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         return false;
     }
 
-    // If it is inherently texture backed, consider it in the cache
-    if (bitmap.getTexture()) {
-        return true;
-    }
-
-    Stretch stretch = get_stretch_type(ctx, bitmap.width(), bitmap.height(), params);
     GrContentKey key, resizedKey;
     generate_bitmap_keys(bitmap, stretch, &key, &resizedKey);
-
-    GrSurfaceDesc desc;
-    generate_bitmap_texture_desc(bitmap, &desc);
     return ctx->isResourceInCache((kNo_Stretch == stretch) ? key : resizedKey);
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
                                     const SkBitmap& bitmap,
                                     const GrTextureParams* params) {
-    GrTexture* result = get_texture_backing_bmp(bitmap, ctx, params);
-    if (result) {
-        return SkRef(result);
-    }
 
     Stretch stretch = get_stretch_type(ctx, bitmap.width(), bitmap.height(), params);
+
+    GrTexture* result = bitmap.getTexture();
+    if (result) {
+        if (kNo_Stretch == stretch) {
+            return SkRef(result);
+        }
+        GrContentKey resizedKey;
+        // Don't create a key for the resized version if the bmp is volatile.
+        if (!bitmap.isVolatile()) {
+            const GrContentKey& key = result->getContentKey();
+            if (key.isValid()) {
+                make_resize_key(key, stretch, &resizedKey);
+                GrTexture* stretched = ctx->findAndRefCachedTexture(resizedKey);
+                if (stretched) {
+                    return stretched;
+                }
+            }
+        }
+        return resize_texture(result, stretch, resizedKey);
+    }
+
     GrContentKey key, resizedKey;
 
     if (!bitmap.isVolatile()) {
