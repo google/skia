@@ -31,6 +31,32 @@ static SkScalar svg_opacity(SkColor color) {
     return SkIntToScalar(SkColorGetA(color)) / SK_AlphaOPAQUE;
 }
 
+// Keep in sync with SkPaint::Cap
+static const char* cap_map[]  = {
+    NULL,    // kButt_Cap (default)
+    "round", // kRound_Cap
+    "square" // kSquare_Cap
+};
+SK_COMPILE_ASSERT(SK_ARRAY_COUNT(cap_map) == SkPaint::kCapCount, missing_cap_map_entry);
+
+static const char* svg_cap(SkPaint::Cap cap) {
+    SkASSERT(cap < SK_ARRAY_COUNT(cap_map));
+    return cap_map[cap];
+}
+
+// Keep in sync with SkPaint::Join
+static const char* join_map[] = {
+    NULL,    // kMiter_Join (default)
+    "round", // kRound_Join
+    "bevel"  // kBevel_Join
+};
+SK_COMPILE_ASSERT(SK_ARRAY_COUNT(join_map) == SkPaint::kJoinCount, missing_join_map_entry);
+
+static const char* svg_join(SkPaint::Join join) {
+    SkASSERT(join < SK_ARRAY_COUNT(join_map));
+    return join_map[join];
+}
+
 static void append_escaped_unichar(SkUnichar c, SkString* text) {
     switch(c) {
     case '&':
@@ -191,19 +217,44 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
     SkPaint::Style style = paint.getStyle();
     if (style == SkPaint::kFill_Style || style == SkPaint::kStrokeAndFill_Style) {
         this->addAttribute("fill", resources.fPaintServer);
+
+        if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
+            this->addAttribute("fill-opacity", svg_opacity(paint.getColor()));
+        }
     } else {
+        SkASSERT(style == SkPaint::kStroke_Style);
         this->addAttribute("fill", "none");
     }
 
     if (style == SkPaint::kStroke_Style || style == SkPaint::kStrokeAndFill_Style) {
         this->addAttribute("stroke", resources.fPaintServer);
-        this->addAttribute("stroke-width", paint.getStrokeWidth());
-    } else {
-        this->addAttribute("stroke", "none");
-    }
 
-    if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
-        this->addAttribute("opacity", svg_opacity(paint.getColor()));
+        SkScalar strokeWidth = paint.getStrokeWidth();
+        if (strokeWidth == 0) {
+            // Hairline stroke
+            strokeWidth = 1;
+            this->addAttribute("vector-effect", "non-scaling-stroke");
+        }
+        this->addAttribute("stroke-width", strokeWidth);
+
+        if (const char* cap = svg_cap(paint.getStrokeCap())) {
+            this->addAttribute("stroke-linecap", cap);
+        }
+
+        if (const char* join = svg_join(paint.getStrokeJoin())) {
+            this->addAttribute("stroke-linejoin", join);
+        }
+
+        if (paint.getStrokeJoin() == SkPaint::kMiter_Join) {
+            this->addAttribute("stroke-miterlimit", paint.getStrokeMiter());
+        }
+
+        if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
+            this->addAttribute("stroke-opacity", svg_opacity(paint.getColor()));
+        }
+    } else {
+        SkASSERT(style == SkPaint::kFill_Style);
+        this->addAttribute("stroke", "none");
     }
 
     if (!resources.fClip.isEmpty()) {
