@@ -460,7 +460,9 @@ void GrInOrderDrawBuffer::onFlush() {
 
     int currCmdMarker = 0;
 
+    int i = 0;
     while (iter.next()) {
+        i++;
         GrGpuTraceMarker newMarker("", -1);
         SkString traceString;
         if (cmd_has_trace_marker(iter->fType)) {
@@ -472,7 +474,8 @@ void GrInOrderDrawBuffer::onFlush() {
 
         // TODO temporary hack
         if (kDrawBatch_Cmd == strip_trace_bit(iter->fType)) {
-            fBatchTarget.flushNext();
+            DrawBatch* db = reinterpret_cast<DrawBatch*>(iter.get());
+            fBatchTarget.flushNext(db->fBatch->numberOfDraws());
             continue;
         }
 
@@ -652,7 +655,9 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
 
 void GrInOrderDrawBuffer::closeBatch() {
     if (fDrawBatch) {
+        fBatchTarget.resetNumberOfDraws();
         fDrawBatch->execute(this, fPrevState);
+        fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
         fDrawBatch = NULL;
     }
 }
