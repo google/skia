@@ -1,0 +1,61 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "gl/GrGLXferProcessor.h"
+
+#include "GrXferProcessor.h"
+#include "gl/builders/GrGLFragmentShaderBuilder.h"
+#include "gl/builders/GrGLProgramBuilder.h"
+
+void GrGLXferProcessor::emitCode(const EmitArgs& args) {
+    if (args.fXP.getDstCopyTexture()) {
+        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        const char* dstColor = fsBuilder->dstColor();
+
+        const char* dstCopyTopLeftName;
+        const char* dstCopyCoordScaleName;
+
+        fDstCopyTopLeftUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                   kVec2f_GrSLType,
+                                                   kDefault_GrSLPrecision,
+                                                   "DstCopyUpperLeft",
+                                                   &dstCopyTopLeftName);
+        fDstCopyScaleUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                kVec2f_GrSLType,
+                                                kDefault_GrSLPrecision,
+                                                "DstCopyCoordScale",
+                                                &dstCopyCoordScaleName);
+        const char* fragPos = fsBuilder->fragmentPosition();
+
+        fsBuilder->codeAppend("// Read color from copy of the destination.\n");
+        fsBuilder->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;",
+                               fragPos, dstCopyTopLeftName, dstCopyCoordScaleName);
+        fsBuilder->codeAppendf("vec4 %s = ", dstColor);
+        fsBuilder->appendTextureLookup(args.fSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
+        fsBuilder->codeAppend(";");
+    }
+
+    this->onEmitCode(args);
+}
+
+void GrGLXferProcessor::setData(const GrGLProgramDataManager& pdm, const GrXferProcessor& xp) {
+    if (xp.getDstCopyTexture()) {
+        if (fDstCopyTopLeftUni.isValid()) {
+            pdm.set2f(fDstCopyTopLeftUni, static_cast<GrGLfloat>(xp.dstCopyTextureOffset().fX),
+                      static_cast<GrGLfloat>(xp.dstCopyTextureOffset().fY));
+            pdm.set2f(fDstCopyScaleUni, 1.f / xp.getDstCopyTexture()->width(),
+                      1.f / xp.getDstCopyTexture()->height());
+        } else {
+            SkASSERT(!fDstCopyScaleUni.isValid());
+        }
+    } else {
+        SkASSERT(!fDstCopyTopLeftUni.isValid());
+        SkASSERT(!fDstCopyScaleUni.isValid());
+    }
+    this->onSetData(pdm, xp);
+}
+

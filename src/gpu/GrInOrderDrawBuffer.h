@@ -233,12 +233,11 @@ private:
     void onDraw(const GrPipelineBuilder&,
                 const GrGeometryProcessor*,
                 const DrawInfo&,
-                const GrScissorState&,
-                const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+                const GrScissorState&) SK_OVERRIDE;
     void onDrawBatch(GrBatch*,
                      const GrPipelineBuilder&,
                      const GrScissorState&,
-                     const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+                     const SkRect* devBounds) SK_OVERRIDE;
     void onDrawRect(GrPipelineBuilder*,
                     GrColor,
                     const SkMatrix& viewMatrix,
@@ -256,7 +255,7 @@ private:
                     const GrPath*,
                     const GrScissorState&,
                     const GrStencilSettings&,
-                    const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+                    const SkRect* devBounds) SK_OVERRIDE;
     void onDrawPaths(const GrPipelineBuilder&,
                      const GrPathProcessor*,
                      const GrPathRange*,
@@ -267,7 +266,7 @@ private:
                      int count,
                      const GrScissorState&,
                      const GrStencilSettings&,
-                     const GrDeviceCoordTexture*) SK_OVERRIDE;
+                     const SkRect* devBounds) SK_OVERRIDE;
     void onClear(const SkIRect* rect,
                  GrColor color,
                  bool canIgnoreRect,
@@ -288,11 +287,11 @@ private:
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrPipelineBuilder&,
                                                         const GrPrimitiveProcessor*,
                                                         const GrScissorState&,
-                                                        const GrDeviceCoordTexture*);
+                                                        const SkRect*);
     bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(GrBatch*,
                                                         const GrPipelineBuilder&,
                                                         const GrScissorState&,
-                                                        const GrDeviceCoordTexture*);
+                                                        const SkRect*);
 
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();
