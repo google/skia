@@ -26,6 +26,11 @@ void SkXMLAnimatorWriter::onAddAttributeLen(const char name[], const char value[
     fParser->onAddAttributeLen(name, value, length);
 }
 
+void SkXMLAnimatorWriter::onAddText(const char text[])
+{
+    SkDebugf("not implemented: SkXMLAnimatorWriter::onAddText()\n");
+}
+
 void SkXMLAnimatorWriter::onEndElement()
 {
     Elem* elem = getEnd();

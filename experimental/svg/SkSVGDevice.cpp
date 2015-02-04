@@ -13,6 +13,8 @@
 #include "SkParsePath.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkTypeface.h"
+#include "SkUtils.h"
 #include "SkXMLWriter.h"
 
 namespace {
@@ -28,6 +30,71 @@ static SkString svg_color(SkColor color) {
 
 static SkScalar svg_opacity(SkColor color) {
     return SkIntToScalar(SkColorGetA(color)) / SK_AlphaOPAQUE;
+}
+
+static void append_escaped_unichar(SkUnichar c, SkString* text) {
+    switch(c) {
+    case '&':
+        text->append("&amp;");
+        break;
+    case '"':
+        text->append("&quot;");
+        break;
+    case '\'':
+        text->append("&apos;");
+        break;
+    case '<':
+        text->append("&lt;");
+        break;
+    case '>':
+        text->append("&gt;");
+        break;
+    default:
+        text->appendUnichar(c);
+        break;
+    }
+}
+
+static SkString svg_text(const void* text, size_t byteLen, const SkPaint& paint) {
+    SkString svgText;
+    int count = paint.countText(text, byteLen);
+
+    switch(paint.getTextEncoding()) {
+    case SkPaint::kGlyphID_TextEncoding: {
+        SkASSERT(count * sizeof(uint16_t) == byteLen);
+        SkAutoSTArray<64, SkUnichar> unichars(count);
+        paint.glyphsToUnichars((const uint16_t*)text, count, unichars.get());
+        for (int i = 0; i < count; ++i) {
+            append_escaped_unichar(unichars[i], &svgText);
+        }
+    } break;
+    case SkPaint::kUTF8_TextEncoding: {
+        const char* c8 = reinterpret_cast<const char*>(text);
+        for (int i = 0; i < count; ++i) {
+            append_escaped_unichar(SkUTF8_NextUnichar(&c8), &svgText);
+        }
+        SkASSERT(reinterpret_cast<const char*>(text) + byteLen == c8);
+    } break;
+    case SkPaint::kUTF16_TextEncoding: {
+        const uint16_t* c16 = reinterpret_cast<const uint16_t*>(text);
+        for (int i = 0; i < count; ++i) {
+            append_escaped_unichar(SkUTF16_NextUnichar(&c16), &svgText);
+        }
+        SkASSERT(SkIsAlign2(byteLen));
+        SkASSERT(reinterpret_cast<const uint16_t*>(text) + (byteLen / 2) == c16);
+    } break;
+    case SkPaint::kUTF32_TextEncoding: {
+        SkASSERT(count * sizeof(uint32_t) == byteLen);
+        const uint32_t* c32 = reinterpret_cast<const uint32_t*>(text);
+        for (int i = 0; i < count; ++i) {
+            append_escaped_unichar(c32[i], &svgText);
+        }
+    } break;
+    default:
+        SkFAIL("unknown text encoding");
+    }
+
+    return svgText;
 }
 
 struct Resources {
@@ -95,6 +162,12 @@ public:
     void addAttribute(const char name[], SkScalar val) {
         fWriter->addScalarAttribute(name, val);
     }
+
+    void addText(const SkString& text) {
+        fWriter->addText(text.c_str());
+    }
+
+    void addFontAttributes(const SkPaint&);
 
 private:
     Resources addResources(const SkPaint& paint);
@@ -234,6 +307,26 @@ SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::Gradient
     return id;
 }
 
+void SkSVGDevice::AutoElement::addFontAttributes(const SkPaint& paint) {
+    this->addAttribute("font-size", paint.getTextSize());
+
+    SkTypeface::Style style = paint.getTypeface()->style();
+    if (style & SkTypeface::kItalic) {
+        this->addAttribute("font-style", "italic");
+    }
+    if (style & SkTypeface::kBold) {
+        this->addAttribute("font-weight", "bold");
+    }
+
+    SkAutoTUnref<const SkTypeface> tface(paint.getTypeface() ?
+        SkRef(paint.getTypeface()) : SkTypeface::RefDefault(style));
+    SkString familyName;
+    tface->getFamilyName(&familyName);
+    if (!familyName.isEmpty()) {
+        this->addAttribute("font-family", familyName);
+    }
+}
+
 SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkWStream* wstream) {
     if (!SkToBool(wstream)) {
         return NULL;
@@ -281,7 +374,7 @@ void SkSVGDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 void SkSVGDevice::drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                              const SkPoint[], const SkPaint& paint) {
     // todo
-    SkDebugf("unsupported operation: drawPoints()");
+    SkDebugf("unsupported operation: drawPoints()\n");
 }
 
 void SkSVGDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
@@ -302,7 +395,7 @@ void SkSVGDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
 
 void SkSVGDevice::drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) {
     // todo
-    SkDebugf("unsupported operation: drawRRect()");
+    SkDebugf("unsupported operation: drawRRect()\n");
 }
 
 void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint& paint,
@@ -317,38 +410,62 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
 void SkSVGDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                              const SkMatrix& matrix, const SkPaint& paint) {
     // todo
-    SkDebugf("unsupported operation: drawBitmap()");
+    SkDebugf("unsupported operation: drawBitmap()\n");
 }
 
 void SkSVGDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
                              int x, int y, const SkPaint& paint) {
     // todo
-    SkDebugf("unsupported operation: drawSprite()");
+    SkDebugf("unsupported operation: drawSprite()\n");
 }
 
 void SkSVGDevice::drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect* srcOrNull,
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::DrawBitmapRectFlags flags) {
     // todo
-    SkDebugf("unsupported operation: drawBitmapRect()");
+    SkDebugf("unsupported operation: drawBitmapRect()\n");
 }
 
-void SkSVGDevice::drawText(const SkDraw&, const void* text, size_t len,
+void SkSVGDevice::drawText(const SkDraw& draw, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
-    // todo
-    SkDebugf("unsupported operation: drawText()");
+    AutoElement elem("text", fWriter, fResourceBucket, draw, paint);
+    elem.addFontAttributes(paint);
+    elem.addAttribute("x", x);
+    elem.addAttribute("y", y);
+    elem.addText(svg_text(text, len, paint));
 }
 
-void SkSVGDevice::drawPosText(const SkDraw&, const void* text, size_t len,const SkScalar pos[],
-                              int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    // todo
-    SkDebugf("unsupported operation: drawPosText()");
+void SkSVGDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
+                              const SkScalar pos[], int scalarsPerPos, const SkPoint& offset,
+                              const SkPaint& paint) {
+    SkASSERT(scalarsPerPos == 1 || scalarsPerPos == 2);
+
+    AutoElement elem("text", fWriter, fResourceBucket, draw, paint);
+    elem.addFontAttributes(paint);
+
+    SkString xStr;
+    SkString yStr;
+    for (int i = 0; i < paint.countText(text, len); ++i) {
+        xStr.appendf("%.8g, ", offset.x() + pos[i * scalarsPerPos]);
+
+        if (scalarsPerPos == 2) {
+            yStr.appendf("%.8g, ", offset.y() + pos[i * scalarsPerPos + 1]);
+        }
+    }
+
+    if (scalarsPerPos != 2) {
+        yStr.appendScalar(offset.y());
+    }
+
+    elem.addAttribute("x", xStr);
+    elem.addAttribute("y", yStr);
+    elem.addText(svg_text(text, len, paint));
 }
 
 void SkSVGDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath& path,
                                  const SkMatrix* matrix, const SkPaint& paint) {
     // todo
-    SkDebugf("unsupported operation: drawTextOnPath()");
+    SkDebugf("unsupported operation: drawTextOnPath()\n");
 }
 
 void SkSVGDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
@@ -357,11 +474,11 @@ void SkSVGDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCo
                                const uint16_t indices[], int indexCount,
                                const SkPaint& paint) {
     // todo
-    SkDebugf("unsupported operation: drawVertices()");
+    SkDebugf("unsupported operation: drawVertices()\n");
 }
 
 void SkSVGDevice::drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                              const SkPaint&) {
     // todo
-    SkDebugf("unsupported operation: drawDevice()");
+    SkDebugf("unsupported operation: drawDevice()\n");
 }

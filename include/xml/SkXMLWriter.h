@@ -27,6 +27,7 @@ public:
     void    addAttributeLen(const char name[], const char value[], size_t length);
     void    addHexAttribute(const char name[], uint32_t value, int minDigits = 0);
     void    addScalarAttribute(const char name[], SkScalar value);
+    void    addText(const char text[]);
     void    endElement() { this->onEndElement(); }
     void    startElement(const char elem[]);
     void    startElementLen(const char elem[], size_t length);
@@ -37,11 +38,18 @@ public:
 protected:
     virtual void onStartElementLen(const char elem[], size_t length) = 0;
     virtual void onAddAttributeLen(const char name[], const char value[], size_t length) = 0;
+    virtual void onAddText(const char text[]) = 0;
     virtual void onEndElement() = 0;
 
     struct Elem {
+        Elem(const char name[], size_t len)
+            : fName(name, len)
+            , fHasChildren(false)
+            , fHasText(false) {}
+
         SkString    fName;
         bool        fHasChildren;
+        bool        fHasText;
     };
     void doEnd(Elem* elem);
     bool doStart(const char name[], size_t length);
@@ -65,6 +73,8 @@ protected:
     virtual void onStartElementLen(const char elem[], size_t length);
     virtual void onEndElement();
     virtual void onAddAttributeLen(const char name[], const char value[], size_t length);
+    virtual void onAddText(const char text[]) SK_OVERRIDE;
+
 private:
     SkWStream&      fStream;
 };
@@ -77,6 +87,7 @@ protected:
     virtual void onStartElementLen(const char elem[], size_t length);
     virtual void onEndElement();
     virtual void onAddAttributeLen(const char name[], const char value[], size_t length);
+    virtual void onAddText(const char text[]) SK_OVERRIDE;
 private:
     SkXMLParser&        fParser;
 };

@@ -51,6 +51,17 @@ void SkXMLWriter::addScalarAttribute(const char name[], SkScalar value)
     this->addAttribute(name, tmp.c_str());
 }
 
+void SkXMLWriter::addText(const char text[])
+{
+    if (fElems.isEmpty()) {
+        return;
+    }
+
+    this->onAddText(text);
+
+    fElems.top()->fHasText = true;
+}
+
 void SkXMLWriter::doEnd(Elem* elem)
 {
     delete elem;
@@ -63,9 +74,7 @@ bool SkXMLWriter::doStart(const char name[], size_t length)
     if (firstChild)
         fElems[level-1]->fHasChildren = true;
     Elem** elem = fElems.push();
-    *elem = new Elem;
-    (*elem)->fName.set(name, length);
-    (*elem)->fHasChildren = 0;
+    *elem = new Elem(name, length);
     return firstChild;
 }
 
@@ -212,7 +221,7 @@ SkXMLStreamWriter::~SkXMLStreamWriter()
 
 void SkXMLStreamWriter::onAddAttributeLen(const char name[], const char value[], size_t length)
 {
-    SkASSERT(!fElems.top()->fHasChildren);
+    SkASSERT(!fElems.top()->fHasChildren && !fElems.top()->fHasText);
     fStream.writeText(" ");
     fStream.writeText(name);
     fStream.writeText("=\"");
@@ -220,18 +229,32 @@ void SkXMLStreamWriter::onAddAttributeLen(const char name[], const char value[],
     fStream.writeText("\"");
 }
 
+void SkXMLStreamWriter::onAddText(const char text[])
+{
+    Elem* elem = fElems.top();
+
+    if (!elem->fHasChildren && !elem->fHasText) {
+        fStream.writeText(">");
+        fStream.newline();
+    }
+
+    tab(fStream, fElems.count() + 1);
+    fStream.writeText(text);
+    fStream.newline();
+}
+
 void SkXMLStreamWriter::onEndElement()
 {
     Elem* elem = getEnd();
-    if (elem->fHasChildren)
+    if (elem->fHasChildren || elem->fHasText)
     {
         tab(fStream, fElems.count());
         fStream.writeText("</");
         fStream.writeText(elem->fName.c_str());
         fStream.writeText(">");
-    }
-    else
+    } else {
         fStream.writeText("/>");
+    }
     fStream.newline();
     doEnd(elem);
 }
@@ -274,9 +297,14 @@ SkXMLParserWriter::~SkXMLParserWriter()
 
 void SkXMLParserWriter::onAddAttributeLen(const char name[], const char value[], size_t length)
 {
-    SkASSERT(fElems.count() == 0 || !fElems.top()->fHasChildren);
+    SkASSERT(fElems.count() == 0 || (!fElems.top()->fHasChildren && !fElems.top()->fHasText));
     SkString str(value, length);
     fParser.addAttribute(name, str.c_str());
+}
+
+void SkXMLParserWriter::onAddText(const char text[])
+{
+    fParser.text(text, SkToInt(strlen(text)));
 }
 
 void SkXMLParserWriter::onEndElement()

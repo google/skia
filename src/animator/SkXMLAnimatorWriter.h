@@ -25,6 +25,8 @@ protected:
     virtual void onAddAttributeLen(const char name[], const char value[], size_t length);
     virtual void onEndElement();
     virtual void onStartElementLen(const char elem[], size_t length);
+    virtual void onAddText(const char text[]) SK_OVERRIDE;
+
 private:
     SkAnimator* fAnimator;
     SkDisplayXMLParser* fParser;
