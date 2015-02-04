@@ -11,7 +11,7 @@ When preparing for a code review of site docs you can get a preview of how the
 page will render by visiting the skia.org site and add a query parameter `cl`
 with the value of the Reitveld issue id:
 
-    https://skia.org?cl=REITVELD_ISSUE_NUMBER
+    https://skia.org/path/to/markdown-file?cl=REITVELD_ISSUE_NUMBER
 
 You can also run a local copy of the documentation server, which will allow
 you to preview changes much quicker. You must have [Go](https://golang.org)
