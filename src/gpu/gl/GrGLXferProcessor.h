@@ -11,7 +11,6 @@
 #include "GrGLProcessor.h"
 
 class GrGLXPBuilder;
-class GrXferProcessor;
 
 class GrGLXferProcessor {
 public:
@@ -47,25 +46,16 @@ public:
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
      * This allows the effect subclass to emit vertex code.
      */
-    void emitCode(const EmitArgs&);
+    virtual void emitCode(const EmitArgs&) = 0;
 
     /** A GrGLXferProcessor instance can be reused with any GrGLXferProcessor that produces
         the same stage key; this function reads data from a GrGLXferProcessor and uploads any
         uniform variables required  by the shaders created in emitCode(). The GrXferProcessor
         parameter is guaranteed to be of the same type that created this GrGLXferProcessor and
-        to have an identical processor key as the one that created this GrGLXferProcessor. This
-        function calls onSetData on the subclass of GrGLXferProcessor
-     */
-    void setData(const GrGLProgramDataManager& pdm, const GrXferProcessor& xp);
-
+        to have an identical processor key as the one that created this GrGLXferProcessor.  */
+    virtual void setData(const GrGLProgramDataManager&,
+                         const GrXferProcessor&) = 0;
 private:
-    virtual void onEmitCode(const EmitArgs&) = 0;
-
-    virtual void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) = 0;
-
-    GrGLProgramDataManager::UniformHandle fDstCopyTopLeftUni;
-    GrGLProgramDataManager::UniformHandle fDstCopyScaleUni;
-
     typedef GrGLProcessor INHERITED;
 };
 #endif

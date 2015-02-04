@@ -12,21 +12,20 @@
 #include "GrXferProcessor.h"
 #include "SkXfermode.h"
 
-class GrDrawTargetCaps;
 class GrProcOptInfo;
 
 class GrPorterDuffXferProcessor : public GrXferProcessor {
 public:
     static GrXferProcessor* Create(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend,
-                                   GrColor constant, const GrDeviceCoordTexture* dstCopy,
-                                   bool willReadDstColor) {
-        return SkNEW_ARGS(GrPorterDuffXferProcessor, (srcBlend, dstBlend, constant, dstCopy,
-                                                      willReadDstColor));
+                                   GrColor constant = 0) {
+        return SkNEW_ARGS(GrPorterDuffXferProcessor, (srcBlend, dstBlend, constant));
     }
 
     ~GrPorterDuffXferProcessor() SK_OVERRIDE;
 
     const char* name() const SK_OVERRIDE { return "Porter Duff"; }
+
+    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
 
@@ -76,10 +75,7 @@ public:
     }
 
 private:
-    GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
-                              const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
-
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant);
 
     bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
         const GrPorterDuffXferProcessor& xp = xpBase.cast<GrPorterDuffXferProcessor>();
@@ -123,6 +119,9 @@ public:
         return SkNEW_ARGS(GrPorterDuffXPFactory, (src, dst));
     }
 
+    GrXferProcessor* createXferProcessor(const GrProcOptInfo& colorPOI,
+                                         const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
+
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
     bool canApplyCoverage(const GrProcOptInfo& colorPOI,
@@ -133,14 +132,10 @@ public:
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
+    bool willReadDst() const SK_OVERRIDE { return false; }
+
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 
-
-    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
-                                           const GrProcOptInfo& coveragePOI,
-                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
-
-    bool willReadDstColor() const SK_OVERRIDE;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();

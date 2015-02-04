@@ -499,15 +499,7 @@ public:
     GLCustomXP(const GrXferProcessor&) {}
     ~GLCustomXP() SK_OVERRIDE {}
 
-    static void GenKey(const GrXferProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
-        uint32_t key = proc.numTextures();
-        SkASSERT(key <= 1);
-        key |= proc.cast<GrCustomXP>().mode() << 1;
-        b->add32(key);
-    }
-
-private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         SkXfermode::Mode mode = args.fXP.cast<GrCustomXP>().mode();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         const char* dstColor = fsBuilder->dstColor();
@@ -519,20 +511,28 @@ private:
                                args.fInputCoverage, dstColor);
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
+    void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
 
+    static void GenKey(const GrXferProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+        uint32_t key = proc.numTextures();
+        SkASSERT(key <= 1);
+        key |= proc.cast<GrCustomXP>().mode() << 1;
+        b->add32(key);
+    }
+
+private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrCustomXP::GrCustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
-                       bool willReadDstColor)
-    : INHERITED(dstCopy, willReadDstColor), fMode(mode) {
+GrCustomXP::GrCustomXP(SkXfermode::Mode mode)
+    : fMode(mode) {
     this->initClassID<GrCustomXP>();
+    this->setWillReadDstColor();
 }
 
-void GrCustomXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrCustomXP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
 }
 

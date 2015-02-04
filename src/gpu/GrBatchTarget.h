@@ -56,7 +56,8 @@ public:
             BufferedFlush* bf = fIter.get();
             const GrPipeline* pipeline = bf->fPipeline;
             const GrPrimitiveProcessor* primProc = bf->fPrimitiveProcessor.get();
-            fGpu->buildProgramDesc(&desc, *primProc, *pipeline, bf->fBatchTracker);
+            fGpu->buildProgramDesc(&desc, *primProc, *pipeline, pipeline->descInfo(),
+                                   bf->fBatchTracker);
 
             GrGpu::DrawArgs args(primProc, pipeline, &desc, &bf->fBatchTracker);
 

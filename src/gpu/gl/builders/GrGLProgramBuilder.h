@@ -267,6 +267,11 @@ public:
         // We use the render target height to provide a y-down frag coord when specifying
         // origin_upper_left is not supported.
         UniformHandle       fRTHeightUni;
+
+        // Uniforms for computing texture coords to do the dst-copy lookup
+        UniformHandle       fDstCopyTopLeftUni;
+        UniformHandle       fDstCopyScaleUni;
+        UniformHandle       fDstCopySamplerUni;
     };
 
 protected:

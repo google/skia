@@ -61,6 +61,10 @@ void GrGLProgram::abandon() {
 void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
     GrGLint texUnitIdx = 0;
+    if (fBuiltinUniformHandles.fDstCopySamplerUni.isValid()) {
+        fProgramDataManager.setSampler(fBuiltinUniformHandles.fDstCopySamplerUni, texUnitIdx);
+        fDstCopyTexUnit = texUnitIdx++;
+    }
     this->initSamplers(fGeometryProcessor.get(), &texUnitIdx);
     if (fXferProcessor.get()) {
         this->initSamplers(fXferProcessor.get(), &texUnitIdx);
@@ -103,15 +107,38 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
                           const GrBatchTracker& batchTracker) {
     this->setRenderTargetState(primProc, pipeline);
 
+    const GrDeviceCoordTexture* dstCopy = pipeline.getDstCopy();
+    if (dstCopy) {
+        if (fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid()) {
+            fProgramDataManager.set2f(fBuiltinUniformHandles.fDstCopyTopLeftUni,
+                                       static_cast<GrGLfloat>(dstCopy->offset().fX),
+                                       static_cast<GrGLfloat>(dstCopy->offset().fY));
+            fProgramDataManager.set2f(fBuiltinUniformHandles.fDstCopyScaleUni,
+                                       1.f / dstCopy->texture()->width(),
+                                       1.f / dstCopy->texture()->height());
+            GrGLTexture* texture = static_cast<GrGLTexture*>(dstCopy->texture());
+            static GrTextureParams kParams; // the default is clamp, nearest filtering.
+            fGpu->bindTexture(fDstCopyTexUnit, kParams, texture);
+        } else {
+            SkASSERT(!fBuiltinUniformHandles.fDstCopyScaleUni.isValid());
+            SkASSERT(!fBuiltinUniformHandles.fDstCopySamplerUni.isValid());
+        }
+    } else {
+        SkASSERT(!fBuiltinUniformHandles.fDstCopyTopLeftUni.isValid());
+        SkASSERT(!fBuiltinUniformHandles.fDstCopyScaleUni.isValid());
+        SkASSERT(!fBuiltinUniformHandles.fDstCopySamplerUni.isValid());
+    }
+
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
     fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc, batchTracker);
     this->bindTextures(fGeometryProcessor.get(), primProc);
 
-    const GrXferProcessor& xp = *pipeline.getXferProcessor();
-    fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
-    this->bindTextures(fXferProcessor.get(), xp);
-
+    if (fXferProcessor.get()) {
+        const GrXferProcessor& xp = *pipeline.getXferProcessor();
+        fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
+        this->bindTextures(fXferProcessor.get(), xp);
+    }
     this->setFragmentData(primProc, pipeline);
 
     // Some of GrGLProgram subclasses need to update state here
