@@ -166,15 +166,7 @@ public:
 
     ~GLArithmeticXP() SK_OVERRIDE {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
-                       GrProcessorKeyBuilder* b) {
-        const GrArithmeticXP& arith = processor.cast<GrArithmeticXP>();
-        uint32_t key = arith.enforcePMColor() ? 1 : 0;
-        b->add32(key);
-    }
-
-private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void emitCode(const EmitArgs& args) SK_OVERRIDE {
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         const char* dstColor = fsBuilder->dstColor();
@@ -192,13 +184,21 @@ private:
                                args.fInputCoverage, dstColor);
     }
 
-    void onSetData(const GrGLProgramDataManager& pdman,
-                   const GrXferProcessor& processor) SK_OVERRIDE {
+    void setData(const GrGLProgramDataManager& pdman,
+                 const GrXferProcessor& processor) SK_OVERRIDE {
         const GrArithmeticXP& arith = processor.cast<GrArithmeticXP>();
         pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
         fEnforcePMColor = arith.enforcePMColor();
     };
 
+    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+                       GrProcessorKeyBuilder* b) {
+        const GrArithmeticXP& arith = processor.cast<GrArithmeticXP>();
+        uint32_t key = arith.enforcePMColor() ? 1 : 0;
+        b->add32(key);
+    }
+
+private:
     GrGLProgramDataManager::UniformHandle fKUni;
     bool fEnforcePMColor;
 
@@ -207,18 +207,17 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrArithmeticXP::GrArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                               const GrDeviceCoordTexture* dstCopy, bool willReadDstColor)
-    : INHERITED(dstCopy, willReadDstColor)
-    , fK1(k1)
+GrArithmeticXP::GrArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor)
+    : fK1(k1)
     , fK2(k2)
     , fK3(k3)
     , fK4(k4)
     , fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrPorterDuffXferProcessor>();
+    this->setWillReadDstColor();
 }
 
-void GrArithmeticXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrArithmeticXP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 

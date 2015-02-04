@@ -56,6 +56,12 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
 
     GrGLProgramBuilder* pb = builder.get();
 
+    // emit code to read the dst copy texture, if necessary
+    if (GrGLFragmentShaderBuilder::kNoDstRead_DstReadKey != pb->header().fDstReadKey &&
+        !gpu->glCaps().fbFetchSupport()) {
+        pb->fFS.emitCodeToReadDstTexture();
+    }
+
     // TODO: Once all stages can handle taking a float or vec4 and correctly handling them we can
     // seed correctly here
     GrGLSLExpr4 inputColor;

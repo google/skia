@@ -142,6 +142,7 @@ public:
                                    size_t rowBytes) const SK_OVERRIDE { return false; }
     void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
                           const GrPipeline&,
+                          const GrProgramDesc::DescInfo&,
                           const GrBatchTracker&) const SK_OVERRIDE {}
 
     void discard(GrRenderTarget*) SK_OVERRIDE {}

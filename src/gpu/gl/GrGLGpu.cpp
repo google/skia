@@ -1451,8 +1451,10 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
                                const GrPrimitiveProcessor& primProc,
                                const GrPipeline& pipeline,
+                               const GrProgramDesc::DescInfo& descInfo,
                                const GrBatchTracker& batchTracker) const {
-    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, this, batchTracker)) {
+    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, descInfo, this,
+                                       batchTracker)) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }
