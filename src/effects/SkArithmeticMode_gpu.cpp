@@ -213,7 +213,7 @@ GrArithmeticXP::GrArithmeticXP(float k1, float k2, float k3, float k4, bool enfo
     , fK3(k3)
     , fK4(k4)
     , fEnforcePMColor(enforcePMColor) {
-    this->initClassID<GrPorterDuffXferProcessor>();
+    this->initClassID<GrArithmeticXP>();
     this->setWillReadDstColor();
 }
 
