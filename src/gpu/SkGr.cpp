@@ -7,9 +7,6 @@
 
 #include "SkGr.h"
 
-#include "GrDrawTargetCaps.h"
-#include "GrGpu.h"
-#include "GrGpuResourceCacheAccess.h"
 #include "GrXferProcessor.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
@@ -96,8 +93,7 @@ enum Stretch {
 static Stretch get_stretch_type(const GrContext* ctx, int width, int height,
                                 const GrTextureParams* params) {
     if (params && params->isTiled()) {
-        const GrDrawTargetCaps* caps = ctx->getGpu()->caps();
-        if (!caps->npotTextureTileSupport() && (!SkIsPow2(width) || !SkIsPow2(height))) {
+        if (!ctx->npotTextureTileSupport() && (!SkIsPow2(width) || !SkIsPow2(height))) {
             switch(params->filterMode()) {
                 case GrTextureParams::kNone_FilterMode:
                     return kNearest_Stretch;
@@ -184,7 +180,7 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
                                          const void* pixels,
                                          size_t rowBytes) {
     GrTexture* result;
-    if (optionalKey.isValid()) {
+    if (optionalKey.isValid() || GrPixelConfigIsCompressed(desc.fConfig)) {
         result = ctx->createTexture(desc, pixels, rowBytes);
         if (result) {
             SkAssertResult(ctx->addResourceToCache(optionalKey, result));
@@ -426,7 +422,7 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
     generate_bitmap_texture_desc(*bitmap, &desc);
 
     if (kIndex_8_SkColorType == bitmap->colorType()) {
-        if (ctx->supportsIndex8PixelConfig()) {
+        if (ctx->isConfigTexturable(kIndex_8_GrPixelConfig)) {
             size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
                                                           bitmap->width(), bitmap->height());
             SkAutoMalloc storage(imageSize);
@@ -445,18 +441,14 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 
     // Is this an ETC1 encoded texture?
 #ifndef SK_IGNORE_ETC1_SUPPORT
-    else if (
-        // We do not support scratch ETC1 textures, hence they should all be at least
-        // trying to go to the cache.
-        optionalKey.isValid()
-        // Make sure that the underlying device supports ETC1 textures before we go ahead
-        // and check the data.
-        && ctx->getGpu()->caps()->isConfigTexturable(kETC1_GrPixelConfig)
-        // If the bitmap had compressed data and was then uncompressed, it'll still return
-        // compressed data on 'refEncodedData' and upload it. Probably not good, since if
-        // the bitmap has available pixels, then they might not be what the decompressed
-        // data is.
-        && !(bitmap->readyToDraw())) {
+    // Make sure that the underlying device supports ETC1 textures before we go ahead
+    // and check the data.
+    else if (ctx->isConfigTexturable(kETC1_GrPixelConfig)
+            // If the bitmap had compressed data and was then uncompressed, it'll still return
+            // compressed data on 'refEncodedData' and upload it. Probably not good, since if
+            // the bitmap has available pixels, then they might not be what the decompressed
+            // data is.
+            && !(bitmap->readyToDraw())) {
         GrTexture *texture = load_etc1_texture(ctx, optionalKey, *bitmap, desc);
         if (texture) {
             return texture;
@@ -464,12 +456,11 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
     }
 #endif   // SK_IGNORE_ETC1_SUPPORT
 
-    else {
-        GrTexture *texture = load_yuv_texture(ctx, optionalKey, *bitmap, desc);
-        if (texture) {
-            return texture;
-        }
+    GrTexture *texture = load_yuv_texture(ctx, optionalKey, *bitmap, desc);
+    if (texture) {
+        return texture;
     }
+
     SkAutoLockPixels alp(*bitmap);
     if (!bitmap->readyToDraw()) {
         return NULL;

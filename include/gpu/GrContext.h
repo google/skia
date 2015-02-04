@@ -274,9 +274,14 @@ public:
                                  bool internalFlag = false);
 
     /**
-     * Returns true if index8 textures are supported.
+     * Can the provided configuration act as a texture?
      */
-    bool supportsIndex8PixelConfig() const;
+    bool isConfigTexturable(GrPixelConfig) const;
+
+    /**
+     * Can non-power-of-two textures be used with tile modes other than clamp?
+     */
+    bool npotTextureTileSupport() const;
 
     /**
      *  Return the max width or height of a texture supported by the current GPU.

@@ -87,7 +87,7 @@ GrTexture::GrTexture(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
     : INHERITED(gpu, lifeCycle, desc)
     , fMipMapsStatus(kNotAllocated_MipMapsStatus) {
 
-    if (kWrapped_LifeCycle != lifeCycle) {
+    if (kWrapped_LifeCycle != lifeCycle && !GrPixelConfigIsCompressed(desc.fConfig)) {
         GrScratchKey key;
         GrTexturePriv::ComputeScratchKey(desc, &key);
         this->setScratchKey(key);

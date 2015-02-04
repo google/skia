@@ -223,6 +223,14 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrContext::isConfigTexturable(GrPixelConfig config) const {
+    return fGpu->caps()->isConfigTexturable(config);
+}
+
+bool GrContext::npotTextureTileSupport() const {
+    return fGpu->caps()->npotTextureTileSupport();
+}
+
 GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, const void* srcData,
                                     size_t rowBytes) {
     return fGpu->createTexture(desc, true, srcData, rowBytes);
@@ -230,6 +238,11 @@ GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, const void* srcDa
 
 GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexMatch match,
                                         bool calledDuringFlush) {
+    // Currently we don't recycle compressed textures as scratch.
+    if (GrPixelConfigIsCompressed(inDesc.fConfig)) {
+        return NULL;
+    }
+
     // kNoStencil has no meaning if kRT isn't set.
     SkASSERT((inDesc.fFlags & kRenderTarget_GrSurfaceFlag) ||
              !(inDesc.fFlags & kNoStencil_GrSurfaceFlag));
@@ -337,14 +350,6 @@ GrTexture* GrContext::wrapBackendTexture(const GrBackendTextureDesc& desc) {
 GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
     return fGpu->wrapBackendRenderTarget(desc);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-bool GrContext::supportsIndex8PixelConfig() const {
-    const GrDrawTargetCaps* caps = fGpu->caps();
-    return caps->isConfigTexturable(kIndex_8_GrPixelConfig);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
