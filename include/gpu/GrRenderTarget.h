@@ -30,20 +30,6 @@ public:
 
     // GrRenderTarget
     /**
-     * If this RT is multisampled, this is the multisample buffer
-     * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
-     */
-    virtual GrBackendObject getRenderTargetHandle() const = 0;
-
-    /**
-     * If this RT is multisampled, this is the buffer it is resolved to.
-     * Otherwise, same as getRenderTargetHandle().
-     * (In GL a separate FBO ID is used for the MSAA and resolved buffers)
-     * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
-     */
-    virtual GrBackendObject getRenderTargetResolvedHandle() const = 0;
-
-    /**
      * @return true if the surface is multisampled, false otherwise
      */
     bool isMultisampled() const { return 0 != fDesc.fSampleCnt; }

@@ -42,8 +42,6 @@ public:
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
     // override of GrRenderTarget
-    GrBackendObject getRenderTargetHandle() const SK_OVERRIDE { return this->renderFBOID(); }
-    GrBackendObject getRenderTargetResolvedHandle() const SK_OVERRIDE { return this->textureFBOID(); }
     ResolveType getResolveType() const SK_OVERRIDE {
         if (!this->isMultisampled() ||
             fRTFBOID == fTexFBOID) {
