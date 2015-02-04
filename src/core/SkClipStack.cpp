@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkPath.h"
+#include "SkPathOps.h"
 #include "SkThread.h"
 
 #include <new>
@@ -663,6 +664,35 @@ bool SkClipStack::quickContains(const SkRect& rect) const {
         element = iter.prev();
     }
     return true;
+}
+
+bool SkClipStack::asPath(SkPath *path) const {
+    bool isAA = false;
+
+    path->reset();
+    path->setFillType(SkPath::kInverseEvenOdd_FillType);
+
+    SkClipStack::Iter iter(*this, SkClipStack::Iter::kBottom_IterStart);
+    while (const SkClipStack::Element* element = iter.next()) {
+        SkPath operand;
+        if (element->getType() != SkClipStack::Element::kEmpty_Type) {
+            element->asPath(&operand);
+        }
+
+        SkRegion::Op elementOp = element->getOp();
+        if (elementOp == SkRegion::kReplace_Op) {
+            *path = operand;
+        } else {
+            Op(*path, operand, (SkPathOp)elementOp, path);
+        }
+
+        // if the prev and curr clips disagree about aa -vs- not, favor the aa request.
+        // perhaps we need an API change to avoid this sort of mixed-signals about
+        // clipping.
+        isAA = (isAA || element->isAA());
+    }
+
+    return isAA;
 }
 
 void SkClipStack::pushElement(const Element& element) {

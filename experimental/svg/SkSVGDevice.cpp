@@ -11,6 +11,7 @@
 #include "SkDraw.h"
 #include "SkPaint.h"
 #include "SkParsePath.h"
+#include "SkPathOps.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -20,12 +21,10 @@
 namespace {
 
 static SkString svg_color(SkColor color) {
-    SkString colorStr;
-    colorStr.printf("rgb(%u,%u,%u)",
-                     SkColorGetR(color),
-                     SkColorGetG(color),
-                     SkColorGetB(color));
-    return colorStr;
+    return SkStringPrintf("rgb(%u,%u,%u)",
+                          SkColorGetR(color),
+                          SkColorGetG(color),
+                          SkColorGetB(color));
 }
 
 static SkScalar svg_opacity(SkColor color) {
@@ -102,6 +101,7 @@ struct Resources {
         : fPaintServer(svg_color(paint.getColor())) {}
 
     SkString fPaintServer;
+    SkString fClip;
 };
 
 }
@@ -110,16 +110,19 @@ struct Resources {
 // and deduplicate resources.
 class SkSVGDevice::ResourceBucket : ::SkNoncopyable {
 public:
-    ResourceBucket() : fGradientCount(0) {}
+    ResourceBucket() : fGradientCount(0), fClipCount(0) {}
 
     SkString addLinearGradient() {
-        SkString id;
-        id.printf("gradient_%d", fGradientCount++);
-        return id;
+        return SkStringPrintf("gradient_%d", fGradientCount++);
+    }
+
+    SkString addClip() {
+        return SkStringPrintf("clip_%d", fClipCount++);
     }
 
 private:
     uint32_t fGradientCount;
+    uint32_t fClipCount;
 };
 
 class SkSVGDevice::AutoElement : ::SkNoncopyable {
@@ -135,7 +138,7 @@ public:
         : fWriter(writer)
         , fResourceBucket(bucket) {
 
-        Resources res = this->addResources(paint);
+        Resources res = this->addResources(draw, paint);
 
         fWriter->startElement(name);
 
@@ -167,11 +170,13 @@ public:
         fWriter->addText(text.c_str());
     }
 
+    void addRectAttributes(const SkRect&);
     void addFontAttributes(const SkPaint&);
 
 private:
-    Resources addResources(const SkPaint& paint);
-    void addResourceDefs(const SkPaint& paint, Resources* resources);
+    Resources addResources(const SkDraw& draw, const SkPaint& paint);
+    void addClipResources(const SkDraw& draw, Resources* resources);
+    void addShaderResources(const SkPaint& paint, Resources* resources);
 
     void addPaint(const SkPaint& paint, const Resources& resources);
     void addTransform(const SkMatrix& transform, const char name[] = "transform");
@@ -199,6 +204,10 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
 
     if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
         this->addAttribute("opacity", svg_opacity(paint.getColor()));
+    }
+
+    if (!resources.fClip.isEmpty()) {
+        this->addAttribute("clip-path", resources.fClip);
     }
 }
 
@@ -233,18 +242,31 @@ void SkSVGDevice::AutoElement::addTransform(const SkMatrix& t, const char name[]
     fWriter->addAttribute(name, tstr.c_str());
 }
 
-Resources SkSVGDevice::AutoElement::addResources(const SkPaint& paint) {
+Resources SkSVGDevice::AutoElement::addResources(const SkDraw& draw, const SkPaint& paint) {
     Resources resources(paint);
-    this->addResourceDefs(paint, &resources);
+
+    // FIXME: this is a weak heuristic and we end up with LOTS of redundant clips.
+    bool hasClip   = !draw.fClipStack->isWideOpen();
+    bool hasShader = SkToBool(paint.getShader());
+
+    if (hasClip || hasShader) {
+        AutoElement defs("defs", fWriter);
+
+        if (hasClip) {
+            this->addClipResources(draw, &resources);
+        }
+
+        if (hasShader) {
+            this->addShaderResources(paint, &resources);
+        }
+    }
+
     return resources;
 }
 
-void SkSVGDevice::AutoElement::addResourceDefs(const SkPaint& paint, Resources* resources) {
+void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resources* resources) {
     const SkShader* shader = paint.getShader();
-    if (!SkToBool(shader)) {
-        // TODO: clip support
-        return;
-    }
+    SkASSERT(SkToBool(shader));
 
     SkShader::GradientInfo grInfo;
     grInfo.fColorCount = 0;
@@ -254,21 +276,49 @@ void SkSVGDevice::AutoElement::addResourceDefs(const SkPaint& paint, Resources* 
         return;
     }
 
+    SkAutoSTArray<16, SkColor>  grColors(grInfo.fColorCount);
+    SkAutoSTArray<16, SkScalar> grOffsets(grInfo.fColorCount);
+    grInfo.fColors = grColors.get();
+    grInfo.fColorOffsets = grOffsets.get();
+
+    // One more call to get the actual colors/offsets.
+    shader->asAGradient(&grInfo);
+    SkASSERT(grInfo.fColorCount <= grColors.count());
+    SkASSERT(grInfo.fColorCount <= grOffsets.count());
+
+    resources->fPaintServer.printf("url(#%s)", addLinearGradientDef(grInfo, shader).c_str());
+}
+
+void SkSVGDevice::AutoElement::addClipResources(const SkDraw& draw, Resources* resources) {
+    SkASSERT(!draw.fClipStack->isWideOpen());
+
+    SkPath clipPath;
+    (void) draw.fClipStack->asPath(&clipPath);
+
+    SkString clipID = fResourceBucket->addClip();
+    const char* clipRule = clipPath.getFillType() == SkPath::kEvenOdd_FillType ?
+                           "evenodd" : "nonzero";
     {
-        AutoElement defs("defs", fWriter);
+        // clipPath is in device space, but since we're only pushing transform attributes
+        // to the leaf nodes, so are all our elements => SVG userSpaceOnUse == device space.
+        AutoElement clipPathElement("clipPath", fWriter);
+        clipPathElement.addAttribute("id", clipID);
 
-        SkAutoSTArray<16, SkColor>  grColors(grInfo.fColorCount);
-        SkAutoSTArray<16, SkScalar> grOffsets(grInfo.fColorCount);
-        grInfo.fColors = grColors.get();
-        grInfo.fColorOffsets = grOffsets.get();
-
-        // One more call to get the actual colors/offsets.
-        shader->asAGradient(&grInfo);
-        SkASSERT(grInfo.fColorCount <= grColors.count());
-        SkASSERT(grInfo.fColorCount <= grOffsets.count());
-
-        resources->fPaintServer.printf("url(#%s)", addLinearGradientDef(grInfo, shader).c_str());
+        SkRect clipRect = SkRect::MakeEmpty();
+        if (clipPath.isEmpty() || clipPath.isRect(&clipRect)) {
+            AutoElement rectElement("rect", fWriter);
+            rectElement.addRectAttributes(clipRect);
+            rectElement.addAttribute("clip-rule", clipRule);
+        } else {
+            AutoElement pathElement("path", fWriter);
+            SkString pathStr;
+            SkParsePath::ToSVGString(clipPath, &pathStr);
+            pathElement.addAttribute("d", pathStr.c_str());
+            pathElement.addAttribute("clip-rule", clipRule);
+        }
     }
+
+    resources->fClip.printf("url(#%s)", clipID.c_str());
 }
 
 SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::GradientInfo& info,
@@ -305,6 +355,19 @@ SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::Gradient
     }
 
     return id;
+}
+
+void SkSVGDevice::AutoElement::addRectAttributes(const SkRect& rect) {
+    // x, y default to 0
+    if (rect.x() != 0) {
+        this->addAttribute("x", rect.x());
+    }
+    if (rect.y() != 0) {
+        this->addAttribute("y", rect.y());
+    }
+
+    this->addAttribute("width", rect.width());
+    this->addAttribute("height", rect.height());
 }
 
 void SkSVGDevice::AutoElement::addFontAttributes(const SkPaint& paint) {
@@ -365,10 +428,8 @@ const SkBitmap& SkSVGDevice::onAccessBitmap() {
 
 void SkSVGDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     AutoElement rect("rect", fWriter, fResourceBucket, draw, paint);
-    rect.addAttribute("x", 0);
-    rect.addAttribute("y", 0);
-    rect.addAttribute("width", this->width());
-    rect.addAttribute("height", this->height());
+    rect.addRectAttributes(SkRect::MakeWH(SkIntToScalar(this->width()),
+                                          SkIntToScalar(this->height())));
 }
 
 void SkSVGDevice::drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
@@ -379,10 +440,7 @@ void SkSVGDevice::drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t cou
 
 void SkSVGDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
     AutoElement rect("rect", fWriter, fResourceBucket, draw, paint);
-    rect.addAttribute("x", r.fLeft);
-    rect.addAttribute("y", r.fTop);
-    rect.addAttribute("width", r.width());
-    rect.addAttribute("height", r.height());
+    rect.addRectAttributes(r);
 }
 
 void SkSVGDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
