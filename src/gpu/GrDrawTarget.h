@@ -677,7 +677,7 @@ protected:
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(const GrPipelineBuilder&,
+    bool setupDstReadIfNecessary(GrPipelineBuilder*,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
 
@@ -720,11 +720,12 @@ private:
     virtual void onDraw(const GrPipelineBuilder&,
                         const GrGeometryProcessor*,
                         const DrawInfo&,
-                        const GrScissorState&) = 0;
+                        const GrScissorState&,
+                        const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawBatch(GrBatch*,
                              const GrPipelineBuilder&,
                              const GrScissorState&,
-                             const SkRect* devBounds) = 0;
+                             const GrDeviceCoordTexture* dstCopy) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrPipelineBuilder*,
                             GrColor color,
@@ -743,7 +744,7 @@ private:
                             const GrPath*,
                             const GrScissorState&,
                             const GrStencilSettings&,
-                            const SkRect* devBounds) = 0;
+                            const GrDeviceCoordTexture* dstCopy) = 0;
     virtual void onDrawPaths(const GrPipelineBuilder&,
                              const GrPathProcessor*,
                              const GrPathRange*,
@@ -754,7 +755,7 @@ private:
                              int count,
                              const GrScissorState&,
                              const GrStencilSettings&,
-                             const SkRect* devBounds) = 0;
+                             const GrDeviceCoordTexture*) = 0;
 
     virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
                          GrRenderTarget* renderTarget) = 0;

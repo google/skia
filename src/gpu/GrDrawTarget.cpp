@@ -384,15 +384,15 @@ bool GrDrawTarget::checkDraw(const GrPipelineBuilder& pipelineBuilder,
     return true;
 }
 
-bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
+bool GrDrawTarget::setupDstReadIfNecessary(GrPipelineBuilder* pipelineBuilder,
                                            GrDeviceCoordTexture* dstCopy,
                                            const SkRect* drawBounds) {
-    if (!pipelineBuilder.willXPNeedDstCopy(*this->caps())) {
+    if (this->caps()->dstReadInShaderSupport() || !pipelineBuilder->willEffectReadDstColor()) {
         return true;
     }
     SkIRect copyRect;
     const GrClipData* clip = this->getClip();
-    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
+    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
     clip->getConservativeBounds(rt, &copyRect);
 
     if (drawBounds) {
@@ -470,9 +470,14 @@ void GrDrawTarget::drawIndexed(GrPipelineBuilder* pipelineBuilder,
             info.setDevBounds(*devBounds);
         }
 
+        // TODO: We should continue with incorrect blending.
+        GrDeviceCoordTexture dstCopy;
+        if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, devBounds)) {
+            return;
+        }
         this->setDrawBuffers(&info, gp->getVertexStride());
 
-        this->onDraw(*pipelineBuilder, gp, info, scissorState);
+        this->onDraw(*pipelineBuilder, gp, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
 }
 
@@ -509,9 +514,15 @@ void GrDrawTarget::drawNonIndexed(GrPipelineBuilder* pipelineBuilder,
             info.setDevBounds(*devBounds);
         }
 
+        // TODO: We should continue with incorrect blending.
+        GrDeviceCoordTexture dstCopy;
+        if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, devBounds)) {
+            return;
+        }
+
         this->setDrawBuffers(&info, gp->getVertexStride());
 
-        this->onDraw(*pipelineBuilder, gp, info, scissorState);
+        this->onDraw(*pipelineBuilder, gp, info, scissorState, dstCopy.texture() ? &dstCopy : NULL);
     }
 }
 
@@ -530,7 +541,12 @@ void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
         return;
     }
 
-    this->onDrawBatch(batch, *pipelineBuilder, scissorState, devBounds);
+    GrDeviceCoordTexture dstCopy;
+    if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, devBounds)) {
+        return;
+    }
+
+    this->onDrawBatch(batch, *pipelineBuilder, scissorState, dstCopy.texture() ? &dstCopy : NULL);
 }
 
 static const GrStencilSettings& winding_path_stencil_settings() {
@@ -620,8 +636,13 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
                                             pipelineBuilder->getRenderTarget()->getStencilBuffer(),
                                             &stencilSettings);
 
+    GrDeviceCoordTexture dstCopy;
+    if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, &devBounds)) {
+        return;
+    }
+
     this->onDrawPath(*pipelineBuilder, pathProc, path, scissorState, stencilSettings,
-                     &devBounds);
+                     dstCopy.texture() ? &dstCopy : NULL);
 }
 
 void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
@@ -655,12 +676,18 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
                                             pipelineBuilder->getRenderTarget()->getStencilBuffer(),
                                             &stencilSettings);
 
-    // Don't compute a bounding box for dst copy texture, we'll opt
+    // Don't compute a bounding box for setupDstReadIfNecessary(), we'll opt
     // instead for it to just copy the entire dst. Realistically this is a moot
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
+    GrDeviceCoordTexture dstCopy;
+    if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, NULL)) {
+        return;
+    }
+
     this->onDrawPaths(*pipelineBuilder, pathProc, pathRange, indices, indexType, transformValues,
-                      transformType, count, scissorState, stencilSettings, NULL);
+                      transformType, count, scissorState, stencilSettings,
+                      dstCopy.texture() ? &dstCopy : NULL);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect,
@@ -766,6 +793,12 @@ void GrDrawTarget::drawIndexedInstances(GrPipelineBuilder* pipelineBuilder,
         info.setDevBounds(*devBounds);
     }
 
+    // TODO: We should continue with incorrect blending.
+    GrDeviceCoordTexture dstCopy;
+    if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, devBounds)) {
+        return;
+    }
+
     while (instanceCount) {
         info.fInstanceCount = SkTMin(instanceCount, maxInstancesPerDraw);
         info.fVertexCount = info.fInstanceCount * verticesPerInstance;
@@ -779,7 +812,8 @@ void GrDrawTarget::drawIndexedInstances(GrPipelineBuilder* pipelineBuilder,
                             info.fVertexCount,
                             info.fIndexCount)) {
             this->setDrawBuffers(&info, gp->getVertexStride());
-            this->onDraw(*pipelineBuilder, gp, info, scissorState);
+            this->onDraw(*pipelineBuilder, gp, info, scissorState,
+                         dstCopy.texture() ? &dstCopy : NULL);
         }
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;

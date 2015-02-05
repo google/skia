@@ -102,9 +102,10 @@ public:
     const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
 
     /**
-     * Checks whether the xp will need a copy of the destination to correctly blend.
+     * Checks whether the xp will read the dst pixel color.
+     * TODO: remove when we have dstCpy contained inside of GrXP
      */
-    bool willXPNeedDstCopy(const GrDrawTargetCaps& caps) const;
+    bool willEffectReadDstColor() const;
 
     /**
      * The xfer processor factory.

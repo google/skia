@@ -48,7 +48,7 @@ void GrPipeline::internalConstructor(const GrPipelineBuilder& pipelineBuilder,
                                          const GrDeviceCoordTexture* dstCopy) {
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
-        pipelineBuilder.getXPFactory()->createXferProcessor(colorPOI, coveragePOI, dstCopy, caps));
+        pipelineBuilder.getXPFactory()->createXferProcessor(colorPOI, coveragePOI));
 
     GrColor overrideColor = GrColor_ILLEGAL;
     if (colorPOI.firstEffectiveStageIndex() != 0) {
@@ -82,6 +82,10 @@ void GrPipeline::internalConstructor(const GrPipelineBuilder& pipelineBuilder,
     fScissorState = scissorState;
     fStencilSettings = pipelineBuilder.getStencil();
     fDrawFace = pipelineBuilder.getDrawFace();
+    // TODO move this out of GrPipeline
+    if (dstCopy) {
+        fDstCopy = *dstCopy;
+    }
 
     fFlags = 0;
     if (pipelineBuilder.isHWAntialias()) {
@@ -102,6 +106,8 @@ void GrPipeline::internalConstructor(const GrPipelineBuilder& pipelineBuilder,
 
     this->adjustProgramFromOptimizations(pipelineBuilder, optFlags, colorPOI, coveragePOI,
                                          &firstColorStageIdx, &firstCoverageStageIdx);
+
+    fDescInfo.fReadsDst = fXferProcessor->willReadDstColor();
 
     bool usesLocalCoords = false;
 
@@ -136,20 +142,20 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 const GrProcOptInfo& coveragePOI,
                                                 int* firstColorStageIdx,
                                                 int* firstCoverageStageIdx) {
-    fReadsFragPosition = false;
+    fDescInfo.fReadsFragPosition = false;
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorStageIdx = pipelineBuilder.numColorStages();
     } else {
-        fReadsFragPosition = colorPOI.readsFragPosition();
+        fDescInfo.fReadsFragPosition = colorPOI.readsFragPosition();
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
         *firstCoverageStageIdx = pipelineBuilder.numCoverageStages();
     } else {
         if (coveragePOI.readsFragPosition()) {
-            fReadsFragPosition = true;
+            fDescInfo.fReadsFragPosition = true;
         }
     }
 }
@@ -163,7 +169,8 @@ bool GrPipeline::isEqual(const GrPipeline& that) const {
         this->fScissorState != that.fScissorState ||
         this->fFlags != that.fFlags ||
         this->fStencilSettings != that.fStencilSettings ||
-        this->fDrawFace != that.fDrawFace) {
+        this->fDrawFace != that.fDrawFace ||
+        this->fDstCopy.texture() != that.fDstCopy.texture()) {
         return false;
     }
 

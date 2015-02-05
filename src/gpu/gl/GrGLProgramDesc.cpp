@@ -89,6 +89,7 @@ static bool get_meta_key(const GrProcessor& proc,
 bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
                                    const GrPrimitiveProcessor& primProc,
                                    const GrPipeline& pipeline,
+                                   const GrProgramDesc::DescInfo& descInfo,
                                    const GrGLGpu* gpu,
                                    const GrBatchTracker& batchTracker) {
     // The descriptor is used as a cache key. Thus when a field of the
@@ -134,7 +135,21 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    if (pipeline.readsFragPosition()) {
+    if (descInfo.fReadsDst) {
+        const GrDeviceCoordTexture* dstCopy = pipeline.getDstCopy();
+        SkASSERT(dstCopy || gpu->caps()->dstReadInShaderSupport());
+        const GrTexture* dstCopyTexture = NULL;
+        if (dstCopy) {
+            dstCopyTexture = dstCopy->texture();
+        }
+        header->fDstReadKey = GrGLFragmentShaderBuilder::KeyForDstRead(dstCopyTexture,
+                                                                       gpu->glCaps());
+        SkASSERT(0 != header->fDstReadKey);
+    } else {
+        header->fDstReadKey = 0;
+    }
+
+    if (descInfo.fReadsFragPosition) {
         header->fFragPosKey =
                 GrGLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget(),
                                                                   gpu->glCaps());

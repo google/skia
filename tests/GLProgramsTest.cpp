@@ -298,7 +298,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         } else {
             primProc = pathProc.get();
         }
-        if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, NULL)) {
+        if (!this->setupDstReadIfNecessary(&pipelineBuilder, &dstCopy, NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
@@ -313,7 +313,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         primProc->initBatchTracker(&bt, pipeline.getInitBatchTracker());
 
         GrProgramDesc desc;
-        gpu->buildProgramDesc(&desc, *primProc, pipeline, bt);
+        gpu->buildProgramDesc(&desc, *primProc, pipeline, pipeline.descInfo(), bt);
 
         GrGpu::DrawArgs args(primProc, &pipeline, &desc, &bt);
         SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(args, gpu));

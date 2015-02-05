@@ -132,7 +132,9 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool readsFragPosition() const { return fReadsFragPosition; }
+    const GrDeviceCoordTexture* getDstCopy() const { return fDstCopy.texture() ? &fDstCopy : NULL; }
+
+    const GrProgramDesc::DescInfo& descInfo() const { return fDescInfo; }
 
     const GrPipelineInfo& getInitBatchTracker() const { return fInitBT; }
 
@@ -175,10 +177,11 @@ private:
     GrScissorState                      fScissorState;
     GrStencilSettings                   fStencilSettings;
     GrPipelineBuilder::DrawFace         fDrawFace;
+    GrDeviceCoordTexture                fDstCopy;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
-    bool                                fReadsFragPosition;
+    GrProgramDesc::DescInfo             fDescInfo;
     GrPipelineInfo                      fInitBT;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
