@@ -57,6 +57,48 @@ static const char* svg_join(SkPaint::Join join) {
     return join_map[join];
 }
 
+// Keep in sync with SkPaint::Align
+static const char* text_align_map[] = {
+    NULL,     // kLeft_Align (default)
+    "middle", // kCenter_Align
+    "end"     // kRight_Align
+};
+SK_COMPILE_ASSERT(SK_ARRAY_COUNT(text_align_map) == SkPaint::kAlignCount,
+                  missing_text_align_map_entry);
+static const char* svg_text_align(SkPaint::Align align) {
+    SkASSERT(align < SK_ARRAY_COUNT(text_align_map));
+    return text_align_map[align];
+}
+
+static SkString svg_transform(const SkMatrix& t) {
+    SkASSERT(!t.isIdentity());
+
+    SkString tstr;
+    switch (t.getType()) {
+    case SkMatrix::kPerspective_Mask:
+        SkDebugf("Can't handle perspective matrices.");
+        break;
+    case SkMatrix::kTranslate_Mask:
+        tstr.printf("translate(%g %g)", t.getTranslateX(), t.getTranslateY());
+        break;
+    case SkMatrix::kScale_Mask:
+        tstr.printf("scale(%g %g)", t.getScaleX(), t.getScaleY());
+        break;
+    default:
+        // http://www.w3.org/TR/SVG/coords.html#TransformMatrixDefined
+        //    | a c e |
+        //    | b d f |
+        //    | 0 0 1 |
+        tstr.printf("matrix(%g %g %g %g %g %g)",
+                    t.getScaleX(),     t.getSkewY(),
+                    t.getSkewX(),      t.getScaleY(),
+                    t.getTranslateX(), t.getTranslateY());
+        break;
+    }
+
+    return tstr;
+}
+
 static void append_escaped_unichar(SkUnichar c, SkString* text) {
     switch(c) {
     case '&':
@@ -136,7 +178,7 @@ struct Resources {
 // and deduplicate resources.
 class SkSVGDevice::ResourceBucket : ::SkNoncopyable {
 public:
-    ResourceBucket() : fGradientCount(0), fClipCount(0) {}
+    ResourceBucket() : fGradientCount(0), fClipCount(0), fPathCount(0) {}
 
     SkString addLinearGradient() {
         return SkStringPrintf("gradient_%d", fGradientCount++);
@@ -146,9 +188,14 @@ public:
         return SkStringPrintf("clip_%d", fClipCount++);
     }
 
+    SkString addPath() {
+        return SkStringPrintf("path_%d", fPathCount++);
+    }
+
 private:
     uint32_t fGradientCount;
     uint32_t fClipCount;
+    uint32_t fPathCount;
 };
 
 class SkSVGDevice::AutoElement : ::SkNoncopyable {
@@ -169,7 +216,10 @@ public:
         fWriter->startElement(name);
 
         this->addPaint(paint, res);
-        this->addTransform(*draw.fMatrix);
+
+        if (!draw.fMatrix->isIdentity()) {
+            this->addAttribute("transform", svg_transform(*draw.fMatrix));
+        }
     }
 
     ~AutoElement() {
@@ -197,7 +247,8 @@ public:
     }
 
     void addRectAttributes(const SkRect&);
-    void addFontAttributes(const SkPaint&);
+    void addPathAttributes(const SkPath&);
+    void addTextAttributes(const SkPaint&);
 
 private:
     Resources addResources(const SkDraw& draw, const SkPaint& paint);
@@ -205,7 +256,6 @@ private:
     void addShaderResources(const SkPaint& paint, Resources* resources);
 
     void addPaint(const SkPaint& paint, const Resources& resources);
-    void addTransform(const SkMatrix& transform, const char name[] = "transform");
 
     SkString addLinearGradientDef(const SkShader::GradientInfo& info, const SkShader* shader);
 
@@ -260,37 +310,6 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
     if (!resources.fClip.isEmpty()) {
         this->addAttribute("clip-path", resources.fClip);
     }
-}
-
-void SkSVGDevice::AutoElement::addTransform(const SkMatrix& t, const char name[]) {
-    if (t.isIdentity()) {
-        return;
-    }
-
-    SkString tstr;
-    switch (t.getType()) {
-    case SkMatrix::kPerspective_Mask:
-        SkDebugf("Can't handle perspective matrices.");
-        break;
-    case SkMatrix::kTranslate_Mask:
-        tstr.printf("translate(%g %g)",
-                     SkScalarToFloat(t.getTranslateX()),
-                     SkScalarToFloat(t.getTranslateY()));
-        break;
-    case SkMatrix::kScale_Mask:
-        tstr.printf("scale(%g %g)",
-                     SkScalarToFloat(t.getScaleX()),
-                     SkScalarToFloat(t.getScaleY()));
-        break;
-    default:
-        tstr.printf("matrix(%g %g %g %g %g %g)",
-                     SkScalarToFloat(t.getScaleX()), SkScalarToFloat(t.getSkewY()),
-                     SkScalarToFloat(t.getSkewX()), SkScalarToFloat(t.getScaleY()),
-                     SkScalarToFloat(t.getTranslateX()), SkScalarToFloat(t.getTranslateY()));
-        break;
-    }
-
-    fWriter->addAttribute(name, tstr.c_str());
 }
 
 Resources SkSVGDevice::AutoElement::addResources(const SkDraw& draw, const SkPaint& paint) {
@@ -362,9 +381,7 @@ void SkSVGDevice::AutoElement::addClipResources(const SkDraw& draw, Resources* r
             rectElement.addAttribute("clip-rule", clipRule);
         } else {
             AutoElement pathElement("path", fWriter);
-            SkString pathStr;
-            SkParsePath::ToSVGString(clipPath, &pathStr);
-            pathElement.addAttribute("d", pathStr.c_str());
+            pathElement.addPathAttributes(clipPath);
             pathElement.addAttribute("clip-rule", clipRule);
         }
     }
@@ -386,7 +403,10 @@ SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::Gradient
         gradient.addAttribute("y1", info.fPoint[0].y());
         gradient.addAttribute("x2", info.fPoint[1].x());
         gradient.addAttribute("y2", info.fPoint[1].y());
-        gradient.addTransform(shader->getLocalMatrix(), "gradientTransform");
+
+        if (!shader->getLocalMatrix().isIdentity()) {
+            this->addAttribute("gradientTransform", svg_transform(shader->getLocalMatrix()));
+        }
 
         SkASSERT(info.fColorCount >= 2);
         for (int i = 0; i < info.fColorCount; ++i) {
@@ -421,7 +441,13 @@ void SkSVGDevice::AutoElement::addRectAttributes(const SkRect& rect) {
     this->addAttribute("height", rect.height());
 }
 
-void SkSVGDevice::AutoElement::addFontAttributes(const SkPaint& paint) {
+void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path) {
+    SkString pathData;
+    SkParsePath::ToSVGString(path, &pathData);
+    this->addAttribute("d", pathData);
+}
+
+void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     this->addAttribute("font-size", paint.getTextSize());
 
     SkTypeface::Style style = paint.getTypeface()->style();
@@ -438,6 +464,10 @@ void SkSVGDevice::AutoElement::addFontAttributes(const SkPaint& paint) {
     tface->getFamilyName(&familyName);
     if (!familyName.isEmpty()) {
         this->addAttribute("font-family", familyName);
+    }
+
+    if (const char* textAlign = svg_text_align(paint.getTextAlign())) {
+        this->addAttribute("text-anchor", textAlign);
     }
 }
 
@@ -510,10 +540,7 @@ void SkSVGDevice::drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& pai
 void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint& paint,
                            const SkMatrix* prePathMatrix, bool pathIsMutable) {
     AutoElement elem("path", fWriter, fResourceBucket, draw, paint);
-
-    SkString pathStr;
-    SkParsePath::ToSVGString(path, &pathStr);
-    elem.addAttribute("d", pathStr.c_str());
+    elem.addPathAttributes(path);
 }
 
 void SkSVGDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
@@ -538,7 +565,7 @@ void SkSVGDevice::drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect* s
 void SkSVGDevice::drawText(const SkDraw& draw, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
     AutoElement elem("text", fWriter, fResourceBucket, draw, paint);
-    elem.addFontAttributes(paint);
+    elem.addTextAttributes(paint);
     elem.addAttribute("x", x);
     elem.addAttribute("y", y);
     elem.addText(svg_text(text, len, paint));
@@ -550,7 +577,7 @@ void SkSVGDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
     SkASSERT(scalarsPerPos == 1 || scalarsPerPos == 2);
 
     AutoElement elem("text", fWriter, fResourceBucket, draw, paint);
-    elem.addFontAttributes(paint);
+    elem.addTextAttributes(paint);
 
     SkString xStr;
     SkString yStr;
@@ -573,8 +600,38 @@ void SkSVGDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
 
 void SkSVGDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath& path,
                                  const SkMatrix* matrix, const SkPaint& paint) {
-    // todo
-    SkDebugf("unsupported operation: drawTextOnPath()\n");
+    SkString pathID = fResourceBucket->addPath();
+
+    {
+        AutoElement defs("defs", fWriter);
+        AutoElement pathElement("path", fWriter);
+        pathElement.addAttribute("id", pathID);
+        pathElement.addPathAttributes(path);
+
+    }
+
+    {
+        AutoElement textElement("text", fWriter);
+        textElement.addTextAttributes(paint);
+
+        if (matrix && !matrix->isIdentity()) {
+            textElement.addAttribute("transform", svg_transform(*matrix));
+        }
+
+        {
+            AutoElement textPathElement("textPath", fWriter);
+            textPathElement.addAttribute("xlink:href", SkStringPrintf("#%s", pathID.c_str()));
+
+            if (paint.getTextAlign() != SkPaint::kLeft_Align) {
+                SkASSERT(paint.getTextAlign() == SkPaint::kCenter_Align ||
+                         paint.getTextAlign() == SkPaint::kRight_Align);
+                textPathElement.addAttribute("startOffset",
+                    paint.getTextAlign() == SkPaint::kCenter_Align ? "50%" : "100%");
+            }
+
+            textPathElement.addText(svg_text(text, len, paint));
+        }
+    }
 }
 
 void SkSVGDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
