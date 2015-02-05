@@ -243,7 +243,7 @@ public:
     }
 
     void addText(const SkString& text) {
-        fWriter->addText(text.c_str());
+        fWriter->addText(text.c_str(), text.size());
     }
 
     void addRectAttributes(const SkRect&);

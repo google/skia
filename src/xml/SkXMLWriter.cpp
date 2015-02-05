@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkXMLWriter.h"
 #include "SkStream.h"
@@ -51,14 +49,13 @@ void SkXMLWriter::addScalarAttribute(const char name[], SkScalar value)
     this->addAttribute(name, tmp.c_str());
 }
 
-void SkXMLWriter::addText(const char text[])
-{
+void SkXMLWriter::addText(const char text[], size_t length) {
     if (fElems.isEmpty()) {
         return;
     }
-
-    this->onAddText(text);
-
+    
+    this->onAddText(text, length);
+    
     fElems.top()->fHasText = true;
 }
 
@@ -229,8 +226,7 @@ void SkXMLStreamWriter::onAddAttributeLen(const char name[], const char value[],
     fStream.writeText("\"");
 }
 
-void SkXMLStreamWriter::onAddText(const char text[])
-{
+void SkXMLStreamWriter::onAddText(const char text[], size_t length) {
     Elem* elem = fElems.top();
 
     if (!elem->fHasChildren && !elem->fHasText) {
@@ -239,7 +235,7 @@ void SkXMLStreamWriter::onAddText(const char text[])
     }
 
     tab(fStream, fElems.count() + 1);
-    fStream.writeText(text);
+    fStream.write(text, length);
     fStream.newline();
 }
 
@@ -302,9 +298,8 @@ void SkXMLParserWriter::onAddAttributeLen(const char name[], const char value[],
     fParser.addAttribute(name, str.c_str());
 }
 
-void SkXMLParserWriter::onAddText(const char text[])
-{
-    fParser.text(text, SkToInt(strlen(text)));
+void SkXMLParserWriter::onAddText(const char text[], size_t length) {
+    fParser.text(text, SkToInt(length));
 }
 
 void SkXMLParserWriter::onEndElement()

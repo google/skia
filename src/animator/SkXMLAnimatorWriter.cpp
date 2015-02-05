@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkXMLAnimatorWriter.h"
 #include "SkAnimator.h"
@@ -26,8 +24,7 @@ void SkXMLAnimatorWriter::onAddAttributeLen(const char name[], const char value[
     fParser->onAddAttributeLen(name, value, length);
 }
 
-void SkXMLAnimatorWriter::onAddText(const char text[])
-{
+void SkXMLAnimatorWriter::onAddText(const char text[], size_t length) {
     SkDebugf("not implemented: SkXMLAnimatorWriter::onAddText()\n");
 }
 
