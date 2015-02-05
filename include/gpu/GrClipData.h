@@ -22,8 +22,8 @@ struct SkIRect;
  */
 class GrClipData : SkNoncopyable {
 public:
-    const SkClipStack*  fClipStack;
-    SkIPoint            fOrigin;
+    SkAutoTUnref<const SkClipStack>  fClipStack;
+    SkIPoint                         fOrigin;
 
     GrClipData()
         : fClipStack(NULL) {

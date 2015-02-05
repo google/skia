@@ -280,12 +280,12 @@ void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 
     // Canvas promises that this ptr is valid until onDetachFromCanvas is called
-    fClipData.fClipStack = canvas->getClipStack();
+    fClipData.fClipStack.reset(SkRef(canvas->getClipStack()));
 }
 
 void SkGpuDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
-    fClipData.fClipStack = NULL;
+    fClipData.fClipStack.reset(NULL);
 }
 
 // call this every draw call, to ensure that the context reflects our state,

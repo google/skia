@@ -700,7 +700,7 @@ public:
         AutoClip(GrContext* context, InitialClip SkDEBUGCODE(initialState))
         : fContext(context) {
             SkASSERT(kWideOpen_InitialClip == initialState);
-            fNewClipData.fClipStack = &fNewClipStack;
+            fNewClipData.fClipStack.reset(SkRef(&fNewClipStack));
 
             fOldClip = context->getClip();
             context->setClip(&fNewClipData);
@@ -709,7 +709,7 @@ public:
         AutoClip(GrContext* context, const SkRect& newClipRect)
         : fContext(context)
         , fNewClipStack(newClipRect) {
-            fNewClipData.fClipStack = &fNewClipStack;
+            fNewClipData.fClipStack.reset(SkRef(&fNewClipStack));
 
             fOldClip = fContext->getClip();
             fContext->setClip(&fNewClipData);

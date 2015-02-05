@@ -86,7 +86,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
 
     // wrap the SkClipStack in a GrClipData
     GrClipData clipData;
-    clipData.fClipStack = &stack;
+    clipData.fClipStack.reset(SkRef(&stack));
 
     SkIRect devGrClipDataBound;
     clipData.getConservativeBounds(texture,

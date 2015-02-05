@@ -880,7 +880,7 @@ GrDrawTarget::AutoClipRestore::AutoClipRestore(GrDrawTarget* target, const SkIRe
     fClip = fTarget->getClip();
     fStack.init();
     fStack.get()->clipDevRect(newClip, SkRegion::kReplace_Op);
-    fReplacementClip.fClipStack = fStack.get();
+    fReplacementClip.fClipStack.reset(SkRef(fStack.get()));
     target->setClip(&fReplacementClip);
 }
 

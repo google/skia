@@ -1081,7 +1081,7 @@ public:
      *  @return the current clip stack ("list" of individual clip elements)
      */
     const SkClipStack* getClipStack() const {
-        return &fClipStack;
+        return fClipStack;
     }
 
     typedef SkCanvasClipVisitor ClipVisitor;
@@ -1243,7 +1243,7 @@ protected:
 private:
     class MCRec;
 
-    SkClipStack fClipStack;
+    SkAutoTUnref<SkClipStack> fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;

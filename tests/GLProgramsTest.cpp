@@ -249,7 +249,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
     // wrap the SkClipStack in a GrClipData
     GrClipData clipData;
-    clipData.fClipStack = &stack;
+    clipData.fClipStack.reset(SkRef(&stack));
     this->setClip(&clipData);
 
     SkRandom random;
