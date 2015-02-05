@@ -55,7 +55,7 @@ static void done(double ms,
     if (!log.isEmpty()) {
         log.prepend("\n");
     }
-    int32_t pending = sk_atomic_dec(&gPending)-1;
+    auto pending = sk_atomic_dec(&gPending)-1;
     SkDebugf("%s(%4dMB %5d) %s\t%s %s %s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
                                            , sk_tools::getMaxResidentSetSizeMB()
                                            , pending
