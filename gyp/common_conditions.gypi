@@ -216,10 +216,10 @@
           '-Wpointer-arith',
           '-Wsign-compare',
 
-          '-Wno-c++11-extensions',
           '-Wno-unused-parameter',
         ],
         'cflags_cc': [
+          '-std=c++11',
           '-fno-rtti',
           '-Wnon-virtual-dtor',
           '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
@@ -340,6 +340,13 @@
         ],
       },
     ],
+
+    [ 'skia_os == "nacl"', {
+      # NaCl compiler is GCC 4.4, which is too old to understand 'c++11', so call it '0x'.
+      # NaCl's newlib needs gnu++ mode to see snprintf, vsnprintf, etc in C++11 mode.
+      'cflags_cc!': [ '-std=c++11' ],
+      'cflags_cc' : [ '-std=gnu++0x' ],
+    }],
 
     ['skia_android_framework', {
       'includes' : [
@@ -479,8 +486,6 @@
           }],
           [ 'skia_clang_build', {
             'cflags_cc': [
-                # Build in C++11 mode to make sure we'll have an easy time switching.
-                '-std=c++11',
                 '-Wno-unknown-warning-option',  # Allows unknown warnings.
                 '-Wno-deprecated',              # From Qt, via debugger (older Clang).
                 '-Wno-deprecated-register',     # From Qt, via debugger (newer Clang).
@@ -586,6 +591,7 @@
           'TARGETED_DEVICE_FAMILY': '1,2',
           'GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO': 'NO',   # -Wno-invalid-offsetof
           'OTHER_CPLUSPLUSFLAGS': [
+            '-std=c++0x',
             '-fvisibility=hidden',
             '-fvisibility-inlines-hidden',
           ],
