@@ -21,8 +21,7 @@ void GrBatchTarget::flush() {
         BufferedFlush* bf = iter.get();
         const GrPipeline* pipeline = bf->fPipeline;
         const GrPrimitiveProcessor* primProc = bf->fPrimitiveProcessor.get();
-        fGpu->buildProgramDesc(&desc, *primProc, *pipeline, pipeline->descInfo(),
-                               bf->fBatchTracker);
+        fGpu->buildProgramDesc(&desc, *primProc, *pipeline, bf->fBatchTracker);
 
         GrGpu::DrawArgs args(primProc, pipeline, &desc, &bf->fBatchTracker);
         for (int i = 0; i < bf->fDraws.count(); i++) {
@@ -40,8 +39,7 @@ void GrBatchTarget::flushNext(int n) {
         BufferedFlush* bf = fIter.get();
         const GrPipeline* pipeline = bf->fPipeline;
         const GrPrimitiveProcessor* primProc = bf->fPrimitiveProcessor.get();
-        fGpu->buildProgramDesc(&desc, *primProc, *pipeline, pipeline->descInfo(),
-                               bf->fBatchTracker);
+        fGpu->buildProgramDesc(&desc, *primProc, *pipeline, bf->fBatchTracker);
 
         GrGpu::DrawArgs args(primProc, pipeline, &desc, &bf->fBatchTracker);
         for (int i = 0; i < bf->fDraws.count(); i++) {

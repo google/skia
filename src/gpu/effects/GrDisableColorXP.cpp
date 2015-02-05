@@ -17,7 +17,10 @@ public:
 
     ~GrGLDisableColorXP() SK_OVERRIDE {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
+
+private:
+    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
         // This emit code should be empty. However, on the nexus 6 there is a driver bug where if
         // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
         // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
@@ -25,11 +28,8 @@ public:
         fsBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
     }
 
-    void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
 
-    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
-
-private:
     typedef GrGLXferProcessor INHERITED;
 };
 
@@ -39,7 +39,7 @@ GrDisableColorXP::GrDisableColorXP() {
     this->initClassID<GrDisableColorXP>();
 }
 
-void GrDisableColorXP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrDisableColorXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLDisableColorXP::GenKey(*this, caps, b);
 }
 
@@ -57,8 +57,10 @@ GrDisableColorXPFactory::GrDisableColorXPFactory() {
     this->initClassID<GrDisableColorXPFactory>();
 }
 
-GrXferProcessor* GrDisableColorXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
-                                                              const GrProcOptInfo& covPOI) const {
+GrXferProcessor*
+GrDisableColorXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                               const GrProcOptInfo& covPOI,
+                                               const GrDeviceCoordTexture* dstCopy) const {
     return GrDisableColorXP::Create();
 }
 

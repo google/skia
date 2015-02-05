@@ -29,8 +29,6 @@ public:
 
     const char* name() const SK_OVERRIDE { return "Coverage Set Op"; }
 
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
-
     GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
 
     bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
@@ -47,6 +45,8 @@ public:
 
 private:
     GrCoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
+
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
         const GrCoverageSetOpXP& xp = xpBase.cast<GrCoverageSetOpXP>();
@@ -66,9 +66,6 @@ class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkRegion::Op regionOp, bool invertCoverage = false);
 
-    GrXferProcessor* createXferProcessor(const GrProcOptInfo& colorPOI,
-                                         const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
-
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE {
         return true;
     }
@@ -83,10 +80,14 @@ public:
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
-    bool willReadDst() const SK_OVERRIDE { return false; }
-
 private:
     GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
+
+    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                           const GrProcOptInfo& coveragePOI,
+                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
+
+    bool willReadDstColor() const SK_OVERRIDE { return false; }
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         const GrCoverageSetOpXPFactory& xpf = xpfBase.cast<GrCoverageSetOpXPFactory>();

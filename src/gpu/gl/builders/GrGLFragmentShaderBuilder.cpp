@@ -179,56 +179,9 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
             fbFetchColorName = declared_color_output_name();
         }
         return fbFetchColorName;
-    } else if (fProgramBuilder->fUniformHandles.fDstCopySamplerUni.isValid()) {
+    } else {
         return kDstCopyColorName;
-    } else {
-        return "";
-    }
-}
-
-void GrGLFragmentShaderBuilder::emitCodeToReadDstTexture() {
-    bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & fProgramBuilder->header().fDstReadKey);
-    const char* dstCopyTopLeftName;
-    const char* dstCopyCoordScaleName;
-    const char* dstCopySamplerName;
-    uint32_t configMask;
-    if (SkToBool(kUseAlphaConfig_DstReadKeyBit & fProgramBuilder->header().fDstReadKey)) {
-        configMask = kA_GrColorComponentFlag;
-    } else {
-        configMask = kRGBA_GrColorComponentFlags;
-    }
-    fProgramBuilder->fUniformHandles.fDstCopySamplerUni =
-            fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                        kSampler2D_GrSLType,
-                                        kDefault_GrSLPrecision,
-                                        "DstCopySampler",
-                                        &dstCopySamplerName);
-    fProgramBuilder->fUniformHandles.fDstCopyTopLeftUni =
-            fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                        kVec2f_GrSLType,
-                                        kDefault_GrSLPrecision,
-                                        "DstCopyUpperLeft",
-                                        &dstCopyTopLeftName);
-    fProgramBuilder->fUniformHandles.fDstCopyScaleUni =
-            fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                        kVec2f_GrSLType,
-                                        kDefault_GrSLPrecision,
-                                        "DstCopyCoordScale",
-                                        &dstCopyCoordScaleName);
-    const char* fragPos = this->fragmentPosition();
-
-    this->codeAppend("// Read color from copy of the destination.\n");
-    this->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;",
-                      fragPos, dstCopyTopLeftName, dstCopyCoordScaleName);
-    if (!topDown) {
-        this->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
-    }
-    this->codeAppendf("vec4 %s = ", GrGLFragmentShaderBuilder::kDstCopyColorName);
-    this->appendTextureLookup(dstCopySamplerName,
-                              "_dstTexCoord",
-                              configMask,
-                              "rgba");
-    this->codeAppend(";");
+    } 
 }
 
 void GrGLFragmentShaderBuilder::enableCustomOutput() {
