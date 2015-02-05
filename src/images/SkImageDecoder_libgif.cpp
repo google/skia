@@ -477,8 +477,8 @@ SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
                 if (AddExtensionBlock(&temp_save, extData[0],
                                       &extData[1]) == GIF_ERROR) {
 #else
-                if (GifAddExtensionBlock(&gif->ExtensionBlockCount,
-                                         &gif->ExtensionBlocks,
+                if (GifAddExtensionBlock(&temp_save.ExtensionBlockCount,
+                                         &temp_save.ExtensionBlocks,
                                          extFunction,
                                          extData[0],
                                          &extData[1]) == GIF_ERROR) {
