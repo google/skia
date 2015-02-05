@@ -111,6 +111,16 @@
     fun:FcFontRenderPrepare
 }
 {
+    #Same root cause as font_config_bug_2.
+    #The 'leak' is copies of font or pattern values into returned pattern values.
+    font_config_bug_4
+    Memcheck:Leak
+    fun:*alloc
+    ...
+    fun:FcValue*
+    fun:FcFontRenderPrepare
+}
+{
     zlib_bug_1
     Memcheck:Cond
     fun:inflateReset2
