@@ -8,6 +8,9 @@
 
 #include "GrAAConvexPathRenderer.h"
 
+#include "GrBatch.h"
+#include "GrBatchTarget.h"
+#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGeometryProcessor.h"
@@ -222,46 +225,34 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::
 }
 
 static inline void add_line_to_segment(const SkPoint& pt,
-                                       SegmentArray* segments,
-                                       SkRect* devBounds) {
+                                       SegmentArray* segments) {
     segments->push_back();
     segments->back().fType = Segment::kLine;
     segments->back().fPts[0] = pt;
-    devBounds->growToInclude(pt.fX, pt.fY);
 }
-
-#ifdef SK_DEBUG
-static inline bool contains_inclusive(const SkRect& rect, const SkPoint& p) {
-    return p.fX >= rect.fLeft && p.fX <= rect.fRight && p.fY >= rect.fTop && p.fY <= rect.fBottom;
-}
-#endif
 
 static inline void add_quad_segment(const SkPoint pts[3],
-                                    SegmentArray* segments,
-                                    SkRect* devBounds) {
+                                    SegmentArray* segments) {
     if (pts[0].distanceToSqd(pts[1]) < kCloseSqd || pts[1].distanceToSqd(pts[2]) < kCloseSqd) {
         if (pts[0] != pts[2]) {
-            add_line_to_segment(pts[2], segments, devBounds);
+            add_line_to_segment(pts[2], segments);
         }
     } else {
         segments->push_back();
         segments->back().fType = Segment::kQuad;
         segments->back().fPts[0] = pts[1];
         segments->back().fPts[1] = pts[2];
-        SkASSERT(contains_inclusive(*devBounds, pts[0]));
-        devBounds->growToInclude(pts + 1, 2);
     }
 }
 
 static inline void add_cubic_segments(const SkPoint pts[4],
                                       SkPath::Direction dir,
-                                      SegmentArray* segments,
-                                      SkRect* devBounds) {
+                                      SegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, true, dir, &quads);
     int count = quads.count();
     for (int q = 0; q < count; q += 3) {
-        add_quad_segment(&quads[q], segments, devBounds);
+        add_quad_segment(&quads[q], segments);
     }
 }
 
@@ -270,8 +261,7 @@ static bool get_segments(const SkPath& path,
                          SegmentArray* segments,
                          SkPoint* fanPt,
                          int* vCount,
-                         int* iCount,
-                         SkRect* devBounds) {
+                         int* iCount) {
     SkPath::Iter iter(path, true);
     // This renderer over-emphasizes very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
@@ -294,19 +284,18 @@ static bool get_segments(const SkPath& path,
             case SkPath::kMove_Verb:
                 m.mapPoints(pts, 1);
                 update_degenerate_test(&degenerateData, pts[0]);
-                devBounds->set(pts->fX, pts->fY, pts->fX, pts->fY);
                 break;
             case SkPath::kLine_Verb: {
                 m.mapPoints(&pts[1], 1);
                 update_degenerate_test(&degenerateData, pts[1]);
-                add_line_to_segment(pts[1], segments, devBounds);
+                add_line_to_segment(pts[1], segments);
                 break;
             }
             case SkPath::kQuad_Verb:
                 m.mapPoints(pts, 3);
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
-                add_quad_segment(pts, segments, devBounds);
+                add_quad_segment(pts, segments);
                 break;
             case SkPath::kConic_Verb: {
                 m.mapPoints(pts, 3);
@@ -316,7 +305,7 @@ static bool get_segments(const SkPath& path,
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     update_degenerate_test(&degenerateData, quadPts[2*i + 1]);
                     update_degenerate_test(&degenerateData, quadPts[2*i + 2]);
-                    add_quad_segment(quadPts + 2*i, segments, devBounds);
+                    add_quad_segment(quadPts + 2*i, segments);
                 }
                 break;
             }
@@ -325,7 +314,7 @@ static bool get_segments(const SkPath& path,
                 update_degenerate_test(&degenerateData, pts[1]);
                 update_degenerate_test(&degenerateData, pts[2]);
                 update_degenerate_test(&degenerateData, pts[3]);
-                add_cubic_segments(pts, dir, segments, devBounds);
+                add_cubic_segments(pts, dir, segments);
                 break;
             };
             case SkPath::kDone_Verb:
@@ -703,95 +692,214 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 
+class AAConvexPathBatch : public GrBatch {
+public:
+    struct Geometry {
+        GrColor fColor;
+        SkMatrix fViewMatrix;
+        SkPath fPath;
+        SkDEBUGCODE(SkRect fDevBounds;)
+    };
+
+    static GrBatch* Create(const Geometry& geometry) {
+        return SkNEW_ARGS(AAConvexPathBatch, (geometry));
+    }
+
+    const char* name() const SK_OVERRIDE { return "AAConvexBatch"; }
+
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        // When this is called on a batch, there is only one geometry bundle
+        out->setKnownFourComponents(fGeoData[0].fColor);
+    }
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
+    }
+
+    void initBatchOpt(const GrBatchOpt& batchOpt) {
+        fBatchOpt = batchOpt;
+    }
+
+    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+        // Handle any color overrides
+        if (init.fColorIgnored) {
+            fGeoData[0].fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fGeoData[0].fColor = init.fOverrideColor;
+        }
+
+        // setup batch properties
+        fBatch.fColorIgnored = init.fColorIgnored;
+        fBatch.fColor = fGeoData[0].fColor;
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
+    }
+
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+        int instanceCount = fGeoData.count();
+
+        SkMatrix invert;
+        if (!this->viewMatrix().invert(&invert)) {
+            SkDebugf("Could not invert viewmatrix\n");
+            return;
+        }
+
+        // Setup GrGeometryProcessor
+        SkAutoTUnref<GrGeometryProcessor> quadProcessor(QuadEdgeEffect::Create(this->color(),
+                                                                               invert));
+
+        batchTarget->initDraw(quadProcessor, pipeline);
+
+        // TODO remove this when batch is everywhere
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        quadProcessor->initBatchTracker(batchTarget->currentBatchTracker(), init);
+
+        // TODO generate all segments for all paths and use one vertex buffer
+        for (int i = 0; i < instanceCount; i++) {
+            Geometry& args = fGeoData[i];
+
+            // We use the fact that SkPath::transform path does subdivision based on
+            // perspective. Otherwise, we apply the view matrix when copying to the
+            // segment representation.
+            const SkMatrix* viewMatrix = &args.fViewMatrix;
+            if (viewMatrix->hasPerspective()) {
+                args.fPath.transform(*viewMatrix);
+                viewMatrix = &SkMatrix::I();
+            }
+
+            int vertexCount;
+            int indexCount;
+            enum {
+                kPreallocSegmentCnt = 512 / sizeof(Segment),
+                kPreallocDrawCnt = 4,
+            };
+            SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
+            SkPoint fanPt;
+
+            if (!get_segments(args.fPath, *viewMatrix, &segments, &fanPt, &vertexCount,
+                              &indexCount)) {
+                continue;
+            }
+
+            const GrVertexBuffer* vertexBuffer;
+            int firstVertex;
+
+            size_t vertexStride = quadProcessor->getVertexStride();
+            void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                                  vertexCount,
+                                                                  &vertexBuffer,
+                                                                  &firstVertex);
+
+            const GrIndexBuffer* indexBuffer;
+            int firstIndex;
+
+            void *indices = batchTarget->indexPool()->makeSpace(indexCount,
+                                                                &indexBuffer,
+                                                                &firstIndex);
+
+            QuadVertex* verts = reinterpret_cast<QuadVertex*>(vertices);
+            uint16_t* idxs = reinterpret_cast<uint16_t*>(indices);
+
+            SkSTArray<kPreallocDrawCnt, Draw, true> draws;
+            create_vertices(segments, fanPt, &draws, verts, idxs);
+
+#ifdef SK_DEBUG
+            // Check devBounds
+            SkRect actualBounds;
+            actualBounds.set(verts[0].fPos, verts[1].fPos);
+            for (int i = 2; i < vertexCount; ++i) {
+                actualBounds.growToInclude(verts[i].fPos.fX, verts[i].fPos.fY);
+            }
+            SkASSERT(args.fDevBounds.contains(actualBounds));
+#endif
+
+            GrDrawTarget::DrawInfo info;
+            info.setVertexBuffer(vertexBuffer);
+            info.setIndexBuffer(indexBuffer);
+            info.setPrimitiveType(kTriangles_GrPrimitiveType);
+            info.setStartIndex(firstIndex);
+
+            int vOffset = 0;
+            for (int i = 0; i < draws.count(); ++i) {
+                const Draw& draw = draws[i];
+                info.setStartVertex(vOffset + firstVertex);
+                info.setVertexCount(draw.fVertexCnt);
+                info.setIndexCount(draw.fIndexCnt);
+                batchTarget->draw(info);
+                vOffset += draw.fVertexCnt;
+            }
+        }
+    }
+
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    AAConvexPathBatch(const Geometry& geometry) {
+        this->initClassID<AAConvexPathBatch>();
+        fGeoData.push_back(geometry);
+    }
+
+    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+        AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
+
+        if (this->color() != that->color()) {
+            return false;
+        }
+
+        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
+        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+            return false;
+        }
+
+        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        return true;
+    }
+
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+
+    struct BatchTracker {
+        GrColor fColor;
+        bool fUsesLocalCoords;
+        bool fColorIgnored;
+        bool fCoverageIgnored;
+    };
+
+    GrBatchOpt fBatchOpt;
+    BatchTracker fBatch;
+    SkSTArray<1, Geometry, true> fGeoData;
+};
+
 bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrPipelineBuilder* pipelineBuilder,
                                         GrColor color,
                                         const SkMatrix& vm,
-                                        const SkPath& origPath,
+                                        const SkPath& path,
                                         const SkStrokeRec&,
                                         bool antiAlias) {
-
-    const SkPath* path = &origPath;
-    if (path->isEmpty()) {
+    if (path.isEmpty()) {
         return true;
     }
 
-    SkMatrix viewMatrix = vm;
-    SkMatrix invert;
-    if (!viewMatrix.invert(&invert)) {
-        return false;
-    }
+    // We outset our vertices one pixel and add one more pixel for precision.
+    // TODO create tighter bounds when we start reordering.
+    SkRect devRect = path.getBounds();
+    vm.mapRect(&devRect);
+    devRect.outset(2, 2);
 
-    // We use the fact that SkPath::transform path does subdivision based on
-    // perspective. Otherwise, we apply the view matrix when copying to the
-    // segment representation.
-    SkPath tmpPath;
-    if (viewMatrix.hasPerspective()) {
-        origPath.transform(viewMatrix, &tmpPath);
-        path = &tmpPath;
-        viewMatrix = SkMatrix::I();
-    }
+    AAConvexPathBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fViewMatrix = vm;
+    geometry.fPath = path;
+    SkDEBUGCODE(geometry.fDevBounds = devRect;)
 
-    QuadVertex *verts;
-    uint16_t* idxs;
-
-    int vCount;
-    int iCount;
-    enum {
-        kPreallocSegmentCnt = 512 / sizeof(Segment),
-        kPreallocDrawCnt = 4,
-    };
-    SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
-    SkPoint fanPt;
-
-    // We can't simply use the path bounds because we may degenerate cubics to quads which produces
-    // new control points outside the original convex hull.
-    SkRect devBounds;
-    if (!get_segments(*path, viewMatrix, &segments, &fanPt, &vCount, &iCount, &devBounds)) {
-        return false;
-    }
-
-    // Our computed verts should all be within one pixel of the segment control points.
-    devBounds.outset(SK_Scalar1, SK_Scalar1);
-
-    SkAutoTUnref<GrGeometryProcessor> quadProcessor(QuadEdgeEffect::Create(color, invert));
-
-    GrDrawTarget::AutoReleaseGeometry arg(target, vCount, quadProcessor->getVertexStride(), iCount);
-    SkASSERT(quadProcessor->getVertexStride() == sizeof(QuadVertex));
-    if (!arg.succeeded()) {
-        return false;
-    }
-    verts = reinterpret_cast<QuadVertex*>(arg.vertices());
-    idxs = reinterpret_cast<uint16_t*>(arg.indices());
-
-    SkSTArray<kPreallocDrawCnt, Draw, true> draws;
-    create_vertices(segments, fanPt, &draws, verts, idxs);
-
-    // Check devBounds
-#ifdef SK_DEBUG
-    SkRect tolDevBounds = devBounds;
-    tolDevBounds.outset(SK_Scalar1 / 10000, SK_Scalar1 / 10000);
-    SkRect actualBounds;
-    actualBounds.set(verts[0].fPos, verts[1].fPos);
-    for (int i = 2; i < vCount; ++i) {
-        actualBounds.growToInclude(verts[i].fPos.fX, verts[i].fPos.fY);
-    }
-    SkASSERT(tolDevBounds.contains(actualBounds));
-#endif
-
-    int vOffset = 0;
-    for (int i = 0; i < draws.count(); ++i) {
-        const Draw& draw = draws[i];
-        target->drawIndexed(pipelineBuilder,
-                            quadProcessor,
-                            kTriangles_GrPrimitiveType,
-                            vOffset,  // start vertex
-                            0,        // start index
-                            draw.fVertexCnt,
-                            draw.fIndexCnt,
-                            &devBounds);
-        vOffset += draw.fVertexCnt;
-    }
+    SkAutoTUnref<GrBatch> batch(AAConvexPathBatch::Create(geometry));
+    target->drawBatch(pipelineBuilder, batch, &devRect);
 
     return true;
+
 }
