@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkCanvasDrawable_DEFINED
-#define SkCanvasDrawable_DEFINED
+#ifndef SkDrawable_DEFINED
+#define SkDrawable_DEFINED
 
 #include "SkRefCnt.h"
 
@@ -21,9 +21,9 @@ struct SkRect;
  *  allow for clients of the drawable that may want to cache the results, the drawable must
  *  change its generation ID whenever its internal state changes such that it will draw differently.
  */
-class SkCanvasDrawable : public SkRefCnt {
+class SkDrawable : public SkRefCnt {
 public:
-    SkCanvasDrawable();
+    SkDrawable();
 
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
@@ -60,6 +60,13 @@ public:
 protected:
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
+    
+    /**
+     *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses
+     *  may override if they have a more efficient way to return a picture for the current state
+     *  of their drawable. Note: this picture must draw the same as what would be drawn from
+     *  onDraw().
+     */
     virtual SkPicture* onNewPictureSnapshot();
 
 private:

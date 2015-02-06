@@ -9,7 +9,7 @@
 #include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkCanvasDrawable.h"
+#include "SkDrawable.h"
 #include "SkInterpolator.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
@@ -43,7 +43,7 @@ static SkColor rand_opaque_color(uint32_t seed) {
     return rand.nextU() | (0xFF << 24);
 }
 
-class HTDrawable : public SkCanvasDrawable {
+class HTDrawable : public SkDrawable {
     SkRect          fR;
     SkColor         fColor;
     SkInterpolator* fInterp;
@@ -127,7 +127,7 @@ public:
         HTDrawable* fDrawable;
     };
     Rec fArray[N];
-    SkAutoTUnref<SkCanvasDrawable> fRoot;
+    SkAutoTUnref<SkDrawable> fRoot;
     SkMSec fTime;
     
     HTView() {
@@ -137,10 +137,10 @@ public:
         SkCanvas* canvas = recorder.beginRecording(SkRect::MakeWH(W, H));
         for (int i = 0; i < N; ++i) {
             fArray[i].fDrawable = new HTDrawable(rand);
-            canvas->EXPERIMENTAL_drawDrawable(fArray[i].fDrawable);
+            canvas->drawDrawable(fArray[i].fDrawable);
             fArray[i].fDrawable->unref();
         }
-        fRoot.reset(recorder.EXPERIMENTAL_endRecordingAsDrawable());
+        fRoot.reset(recorder.endRecordingAsDrawable());
     }
 
 protected:
@@ -153,7 +153,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
-        canvas->EXPERIMENTAL_drawDrawable(fRoot);
+        canvas->drawDrawable(fRoot);
     }
 
     bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {

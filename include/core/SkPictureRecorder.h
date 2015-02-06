@@ -19,7 +19,7 @@ namespace android {
 #endif
 
 class SkCanvas;
-class SkCanvasDrawable;
+class SkDrawable;
 class SkPictureRecord;
 class SkRecord;
 class SkRecorder;
@@ -79,7 +79,7 @@ public:
      *  and therefore this drawable will reflect the current state of those nested drawables anytime
      *  it is drawn or a new picture is snapped from it (by calling drawable->newPictureSnapshot()).
      */
-    SkCanvasDrawable* EXPERIMENTAL_endRecordingAsDrawable();
+    SkDrawable* endRecordingAsDrawable();
 
     // Legacy API -- use endRecordingAsPicture instead.
     SkPicture* endRecording() { return this->endRecordingAsPicture(); }
