@@ -12,7 +12,7 @@
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
                   SkPicture const* const drawablePicts[],
-                  SkDrawable* const drawables[],
+                  SkCanvasDrawable* const drawables[],
                   int drawableCount,
                   const SkBBoxHierarchy* bbh,
                   SkPicture::AbortCallback* callback) {
@@ -124,7 +124,7 @@ template <> void Draw::draw(const DrawDrawable& r) {
     SkASSERT(r.index < fDrawableCount);
     if (fDrawables) {
         SkASSERT(NULL == fDrawablePicts);
-        fCanvas->drawDrawable(fDrawables[r.index]);
+        fCanvas->EXPERIMENTAL_drawDrawable(fDrawables[r.index]);
     } else {
         fCanvas->drawPicture(fDrawablePicts[r.index]);
     }

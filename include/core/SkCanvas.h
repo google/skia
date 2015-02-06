@@ -21,8 +21,8 @@
 
 class SkBaseDevice;
 class SkCanvasClipVisitor;
+class SkCanvasDrawable;
 class SkDraw;
-class SkDrawable;
 class SkDrawFilter;
 class SkImage;
 class SkMetaData;
@@ -1018,15 +1018,7 @@ public:
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
-    /**
-     *  Draw the contents of this drawable into the canvas. If the canvas is async
-     *  (e.g. it is recording into a picture) then the drawable will be referenced instead,
-     *  to have its draw() method called when the picture is finalized.
-     *
-     *  If the intent is to force the contents of the drawable into this canvas immediately,
-     *  then drawable->draw(canvas) may be called.
-     */
-    void drawDrawable(SkDrawable* drawable);
+    void EXPERIMENTAL_drawDrawable(SkCanvasDrawable*);
 
     /** Add comments. beginCommentGroup/endCommentGroup open/close a new group.
         Each comment added via addComment is notionally attached to its
@@ -1196,7 +1188,7 @@ protected:
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
-    virtual void onDrawDrawable(SkDrawable*);
+    virtual void onDrawDrawable(SkCanvasDrawable*);
 
     virtual void onDrawPaint(const SkPaint&);
     virtual void onDrawRect(const SkRect&, const SkPaint&);

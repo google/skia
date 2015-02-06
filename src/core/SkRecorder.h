@@ -15,20 +15,20 @@
 
 class SkBBHFactory;
 
-class SkDrawableList : SkNoncopyable {
+class SkCanvasDrawableList : SkNoncopyable {
 public:
-    ~SkDrawableList();
+    ~SkCanvasDrawableList();
 
     int count() const { return fArray.count(); }
-    SkDrawable* const* begin() const { return fArray.begin(); }
+    SkCanvasDrawable* const* begin() const { return fArray.begin(); }
 
-    void append(SkDrawable* drawable);
+    void append(SkCanvasDrawable* drawable);
 
     // Return a new or ref'd array of pictures that were snapped from our drawables.
     SkPicture::SnapshotArray* newDrawableSnapshot();
 
 private:
-    SkTDArray<SkDrawable*> fArray;
+    SkTDArray<SkCanvasDrawable*> fArray;
 };
 
 // SkRecorder provides an SkCanvas interface for recording into an SkRecord.
@@ -39,8 +39,8 @@ public:
     SkRecorder(SkRecord*, int width, int height);   // legacy version
     SkRecorder(SkRecord*, const SkRect& bounds);
 
-    SkDrawableList* getDrawableList() const { return fDrawableList.get(); }
-    SkDrawableList* detachDrawableList() { return fDrawableList.detach(); }
+    SkCanvasDrawableList* getDrawableList() const { return fDrawableList.get(); }
+    SkCanvasDrawableList* detachDrawableList() { return fDrawableList.detach(); }
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
@@ -54,7 +54,7 @@ public:
     void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawDrawable(SkDrawable*) SK_OVERRIDE;
+    void onDrawDrawable(SkCanvasDrawable*) SK_OVERRIDE;
     void onDrawText(const void* text,
                     size_t byteLength,
                     SkScalar x,
@@ -131,7 +131,7 @@ private:
 
     SkRecord* fRecord;
 
-    SkAutoTDelete<SkDrawableList> fDrawableList;
+    SkAutoTDelete<SkCanvasDrawableList> fDrawableList;
 };
 
 #endif//SkRecorder_DEFINED

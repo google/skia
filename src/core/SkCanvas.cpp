@@ -6,11 +6,11 @@
  */
 
 #include "SkCanvas.h"
+#include "SkCanvasDrawable.h"
 #include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDraw.h"
-#include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
 #include "SkImage.h"
@@ -2293,13 +2293,13 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
     LOOPER_END
 }
 
-void SkCanvas::drawDrawable(SkDrawable* dr) {
+void SkCanvas::EXPERIMENTAL_drawDrawable(SkCanvasDrawable* dr) {
     if (dr && !this->quickReject(dr->getBounds())) {
         this->onDrawDrawable(dr);
     }
 }
 
-void SkCanvas::onDrawDrawable(SkDrawable* dr) {
+void SkCanvas::onDrawDrawable(SkCanvasDrawable* dr) {
     dr->draw(this);
 }
 

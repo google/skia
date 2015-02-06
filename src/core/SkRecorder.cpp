@@ -9,11 +9,11 @@
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 
-SkDrawableList::~SkDrawableList() {
+SkCanvasDrawableList::~SkCanvasDrawableList() {
     fArray.unrefAll();
 }
 
-SkPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
+SkPicture::SnapshotArray* SkCanvasDrawableList::newDrawableSnapshot() {
     const int count = fArray.count();
     if (0 == count) {
         return NULL;
@@ -25,7 +25,7 @@ SkPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     return SkNEW_ARGS(SkPicture::SnapshotArray, (pics.detach(), count));
 }
 
-void SkDrawableList::append(SkDrawable* drawable) {
+void SkCanvasDrawableList::append(SkCanvasDrawable* drawable) {
     *fArray.append() = SkRef(drawable);
 }
 
@@ -143,9 +143,9 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
     APPEND(DrawDRRect, delay_copy(paint), outer, inner);
 }
 
-void SkRecorder::onDrawDrawable(SkDrawable* drawable) {
+void SkRecorder::onDrawDrawable(SkCanvasDrawable* drawable) {
     if (!fDrawableList) {
-        fDrawableList.reset(SkNEW(SkDrawableList));
+        fDrawableList.reset(SkNEW(SkCanvasDrawableList));
     }
     fDrawableList->append(drawable);
     APPEND(DrawDrawable, drawable->getBounds(), fDrawableList->count() - 1);

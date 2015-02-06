@@ -13,7 +13,7 @@
 #include "SkMatrix.h"
 #include "SkRecord.h"
 
-class SkDrawable;
+class SkCanvasDrawable;
 class SkLayerInfo;
 
 // Fill a BBH to be used by SkRecordDraw to accelerate playback.
@@ -25,7 +25,7 @@ void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
 
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePicts[],
-                  SkDrawable* const drawables[], int drawableCount,
+                  SkCanvasDrawable* const drawables[], int drawableCount,
                   const SkBBoxHierarchy*, SkPicture::AbortCallback*);
 
 // Draw a portion of an SkRecord into an SkCanvas.
@@ -43,7 +43,7 @@ namespace SkRecords {
 class Draw : SkNoncopyable {
 public:
     explicit Draw(SkCanvas* canvas, SkPicture const* const drawablePicts[],
-                  SkDrawable* const drawables[], int drawableCount,
+                  SkCanvasDrawable* const drawables[], int drawableCount,
                   const SkMatrix* initialCTM = NULL)
         : fInitialCTM(initialCTM ? *initialCTM : canvas->getTotalMatrix())
         , fCanvas(canvas)
@@ -70,7 +70,7 @@ private:
     const SkMatrix fInitialCTM;
     SkCanvas* fCanvas;
     SkPicture const* const* fDrawablePicts;
-    SkDrawable* const* fDrawables;
+    SkCanvasDrawable* const* fDrawables;
     int fDrawableCount;
 };
 

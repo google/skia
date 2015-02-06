@@ -6,7 +6,7 @@
  */
 
 #include "SkCanvas.h"
-#include "SkDrawable.h"
+#include "SkCanvasDrawable.h"
 #include "SkThread.h"
 
 static int32_t next_generation_id() {
@@ -21,7 +21,7 @@ static int32_t next_generation_id() {
     return genID;
 }
 
-SkDrawable::SkDrawable() : fGenerationID(0) {}
+SkCanvasDrawable::SkCanvasDrawable() : fGenerationID(0) {}
 
 static void draw_bbox(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -32,7 +32,7 @@ static void draw_bbox(SkCanvas* canvas, const SkRect& r) {
     canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
 }
 
-void SkDrawable::draw(SkCanvas* canvas) {
+void SkCanvasDrawable::draw(SkCanvas* canvas) {
     SkAutoCanvasRestore acr(canvas, true);
     this->onDraw(canvas);
 
@@ -41,22 +41,22 @@ void SkDrawable::draw(SkCanvas* canvas) {
     }
 }
 
-SkPicture* SkDrawable::newPictureSnapshot() {
+SkPicture* SkCanvasDrawable::newPictureSnapshot() {
     return this->onNewPictureSnapshot();
 }
 
-uint32_t SkDrawable::getGenerationID() {
+uint32_t SkCanvasDrawable::getGenerationID() {
     if (0 == fGenerationID) {
         fGenerationID = next_generation_id();
     }
     return fGenerationID;
 }
 
-SkRect SkDrawable::getBounds() {
+SkRect SkCanvasDrawable::getBounds() {
     return this->onGetBounds();
 }
 
-void SkDrawable::notifyDrawingChanged() {
+void SkCanvasDrawable::notifyDrawingChanged() {
     fGenerationID = 0;
 }
 
@@ -64,7 +64,7 @@ void SkDrawable::notifyDrawingChanged() {
 
 #include "SkPictureRecorder.h"
 
-SkPicture* SkDrawable::onNewPictureSnapshot() {
+SkPicture* SkCanvasDrawable::onNewPictureSnapshot() {
     SkPictureRecorder recorder;
 
     const SkRect bounds = this->getBounds();
