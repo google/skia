@@ -222,6 +222,11 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+enum ScratchTextureFlags {
+    kExact_ScratchTextureFlag           = 0x1,
+    kNoPendingIO_ScratchTextureFlag     = 0x2,
+    kNoCreate_ScratchTextureFlag        = 0x4,
+};
 
 bool GrContext::isConfigTexturable(GrPixelConfig config) const {
     return fGpu->caps()->isConfigTexturable(config);
@@ -231,31 +236,57 @@ bool GrContext::npotTextureTileSupport() const {
     return fGpu->caps()->npotTextureTileSupport();
 }
 
-GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, const void* srcData,
+GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
                                     size_t rowBytes) {
-    return fGpu->createTexture(desc, true, srcData, rowBytes);
-}
-
-GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexMatch match,
-                                        bool calledDuringFlush) {
-    // Currently we don't recycle compressed textures as scratch.
-    if (GrPixelConfigIsCompressed(inDesc.fConfig)) {
+    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
+        !this->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return NULL;
     }
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
+        static const uint32_t kFlags = kExact_ScratchTextureFlag |
+                                       kNoCreate_ScratchTextureFlag;
+        if (GrTexture* texture = this->internalRefScratchTexture(desc, kFlags)) {
+            if (!srcData || texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                                 srcData, rowBytes)) {
+                if (!budgeted) {
+                    texture->cacheAccess().makeUnbudgeted();
+                }
+                return texture;
+            }
+            texture->unref();
+        }
+    }
+    return fGpu->createTexture(desc, budgeted, srcData, rowBytes);
+}
 
+GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMatch match,
+                                        bool calledDuringFlush) {
+    // Currently we don't recycle compressed textures as scratch.
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        return NULL;
+    } else {
+        uint32_t flags = 0;
+        if (kExact_ScratchTexMatch == match) {
+            flags |= kExact_ScratchTextureFlag;
+        }
+        if (calledDuringFlush) {
+            flags |= kNoPendingIO_ScratchTextureFlag;
+        }
+        return this->internalRefScratchTexture(desc, flags);
+    }
+}
+
+GrTexture* GrContext::internalRefScratchTexture(const GrSurfaceDesc& inDesc, uint32_t flags) {
+    SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
     // kNoStencil has no meaning if kRT isn't set.
     SkASSERT((inDesc.fFlags & kRenderTarget_GrSurfaceFlag) ||
              !(inDesc.fFlags & kNoStencil_GrSurfaceFlag));
-
-    // Make sure caller has checked for renderability if kRT is set.
-    SkASSERT(!(inDesc.fFlags & kRenderTarget_GrSurfaceFlag) ||
-             this->isConfigRenderable(inDesc.fConfig, inDesc.fSampleCnt > 0));
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
     if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
         GrSurfaceFlags origFlags = desc->fFlags;
-        if (kApprox_ScratchTexMatch == match) {
+        if (!(kExact_ScratchTextureFlag & flags)) {
             // bin by pow2 with a reasonable min
             static const int MIN_SIZE = 16;
             GrSurfaceDesc* wdesc = desc.writable();
@@ -267,7 +298,7 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
             GrScratchKey key;
             GrTexturePriv::ComputeScratchKey(*desc, &key);
             uint32_t scratchFlags = 0;
-            if (calledDuringFlush) {
+            if (kNoPendingIO_ScratchTextureFlag & flags) {
                 scratchFlags = GrResourceCache2::kRequireNoPendingIO_ScratchFlag;
             } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
                 // If it is not a render target then it will most likely be populated by
@@ -284,7 +315,7 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
                 return surface->asTexture();
             }
 
-            if (kExact_ScratchTexMatch == match) {
+            if (kExact_ScratchTextureFlag & flags) {
                 break;
             }
             // We had a cache miss and we are in approx mode, relax the fit of the flags.
@@ -303,15 +334,19 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& inDesc, ScratchTexM
         desc.writable()->fFlags = origFlags;
     }
 
-    GrTexture* texture = fGpu->createTexture(*desc, true, NULL, 0);
-#ifdef SK_DEBUG
-    if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
-        GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(*desc, &key);
-        SkASSERT(NULL == texture || texture->cacheAccess().getScratchKey() == key);
+    if (!(kNoCreate_ScratchTextureFlag & flags)) {
+        GrTexture* texture = fGpu->createTexture(*desc, true, NULL, 0);
+    #ifdef SK_DEBUG
+        if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+            GrScratchKey key;
+            GrTexturePriv::ComputeScratchKey(*desc, &key);
+            SkASSERT(NULL == texture || texture->cacheAccess().getScratchKey() == key);
+        }
+    #endif
+        return texture;
     }
-#endif
-    return texture;
+
+    return NULL;
 }
 
 void GrContext::OverBudgetCB(void* data) {
@@ -321,12 +356,6 @@ void GrContext::OverBudgetCB(void* data) {
 
     // Flush the InOrderDrawBuffer to possibly free up some textures
     context->fFlushToReduceCacheSize = true;
-}
-
-GrTexture* GrContext::createUncachedTexture(const GrSurfaceDesc& desc,
-                                            void* srcData,
-                                            size_t rowBytes) {
-    return fGpu->createTexture(desc, false, srcData, rowBytes);
 }
 
 int GrContext::getMaxTextureSize() const {

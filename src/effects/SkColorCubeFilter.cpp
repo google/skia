@@ -356,7 +356,7 @@ GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) 
 
     SkAutoTUnref<GrTexture> textureCube(context->findAndRefCachedTexture(key));
     if (!textureCube) {
-        textureCube.reset(context->createTexture(desc, fCubeData->data(), 0));
+        textureCube.reset(context->createTexture(desc, true, fCubeData->data(), 0));
         if (textureCube) {
             SkAssertResult(context->addResourceToCache(key, textureCube));
         }

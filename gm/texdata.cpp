@@ -84,8 +84,7 @@ protected:
                 desc.fConfig    = kSkia8888_GrPixelConfig;
                 desc.fWidth     = 2 * S;
                 desc.fHeight    = 2 * S;
-                GrTexture* texture =
-                    ctx->createUncachedTexture(desc, gTextureData.get(), 0);
+                GrTexture* texture = ctx->createTexture(desc, false, gTextureData.get(), 0);
 
                 if (!texture) {
                     return;

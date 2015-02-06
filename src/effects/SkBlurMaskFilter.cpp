@@ -771,7 +771,7 @@ bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
         SkBlurMask::ComputeBlurProfile(sigma, &profile);
         ada.reset(profile);
 
-        *blurProfileTexture = context->createTexture(texDesc, profile, 0);
+        *blurProfileTexture = context->createTexture(texDesc, true, profile, 0);
 
         if (NULL == *blurProfileTexture) {
             return false;
@@ -959,7 +959,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         texDesc.fHeight = texSide;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-        blurNinePatchTexture = context->createTexture(texDesc, blurred_mask.fImage, 0);
+        blurNinePatchTexture = context->createTexture(texDesc, true, blurred_mask.fImage, 0);
         SkAssertResult(context->addResourceToCache(key, blurNinePatchTexture));
 
         SkMask::FreeImage(blurred_mask.fImage);

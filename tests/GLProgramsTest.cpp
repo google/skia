@@ -116,7 +116,7 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
 
     GrTexture* texture = context->findAndRefCachedTexture(key);
     if (!texture) {
-        texture = context->createTexture(texDesc);
+        texture = context->createTexture(texDesc, true);
         if (texture) {
             SkAssertResult(context->addResourceToCache(key, texture));            
         }

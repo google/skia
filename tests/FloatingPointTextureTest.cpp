@@ -59,8 +59,8 @@ DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
                 continue;
             }
 
-            SkAutoTUnref<GrTexture> fpTexture(
-                    context->createUncachedTexture(desc, controlPixelData.begin(), 0));
+            SkAutoTUnref<GrTexture> fpTexture(context->createTexture(desc, false,
+                                                                     controlPixelData.begin(), 0));
             // Floating point textures are NOT supported everywhere
             if (NULL == fpTexture) {
                 continue;
@@ -106,8 +106,8 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
                 continue;
             }
 
-            SkAutoTUnref<GrTexture> fpTexture(
-                    context->createUncachedTexture(desc, controlPixelData.begin(), 0));
+            SkAutoTUnref<GrTexture> fpTexture(context->createTexture(desc, false,
+                                                                     controlPixelData.begin(), 0));
             // 16-bit floating point textures are NOT supported everywhere
             if (NULL == fpTexture) {
                 continue;

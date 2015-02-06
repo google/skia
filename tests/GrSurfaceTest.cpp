@@ -27,7 +27,7 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
         desc.fWidth = 256;
         desc.fHeight = 256;
         desc.fSampleCnt = 0;
-        GrSurface* texRT1 = context->createUncachedTexture(desc, NULL, 0);
+        GrSurface* texRT1 = context->createTexture(desc, false, NULL, 0);
 
         REPORTER_ASSERT(reporter, texRT1 == texRT1->asRenderTarget());
         REPORTER_ASSERT(reporter, texRT1 == texRT1->asTexture());
@@ -39,7 +39,7 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
                                   static_cast<GrSurface*>(texRT1->asTexture()));
 
         desc.fFlags = kNone_GrSurfaceFlags;
-        GrSurface* tex1 = context->createUncachedTexture(desc, NULL, 0);
+        GrSurface* tex1 = context->createTexture(desc, false, NULL, 0);
         REPORTER_ASSERT(reporter, NULL == tex1->asRenderTarget());
         REPORTER_ASSERT(reporter, tex1 == tex1->asTexture());
         REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1) == tex1->asTexture());

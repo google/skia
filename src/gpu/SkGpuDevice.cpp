@@ -197,13 +197,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgete
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
 
-    SkAutoTUnref<GrTexture> texture;
-    if (SkSurface::kYes_Budgeted == budgeted) {
-        texture.reset(context->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch));
-    } else {
-        texture.reset(context->createUncachedTexture(desc, NULL, 0));
-    }
-
+    SkAutoTUnref<GrTexture> texture(context->createTexture(desc, SkToBool(budgeted), NULL, 0));
     if (!texture) {
         return NULL;
     }

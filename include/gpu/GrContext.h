@@ -218,28 +218,30 @@ public:
      * ref on the returned texture which must be balanced by a call to unref.
      *
      * @param desc      Description of the texture properties.
-     * @param srcData   Pointer to the pixel values.
+     * @param budgeted  Does the texture count against the resource cache budget?
+     * @param srcData   Pointer to the pixel values (optional).
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows. For compressed pixel configs, this
      *                  field is ignored.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, const void* srcData, size_t rowBytes);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
+                             size_t rowBytes);
 
-    GrTexture* createTexture(const GrSurfaceDesc& desc) {
-        return this->createTexture(desc, NULL, 0);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted) {
+        return this->createTexture(desc, budgeted, NULL, 0);
     }
 
     /**
-     * Creates a texture that is outside the cache. Does not count against
-     * cache's budget.
-     *
-     * TODO: Add a budgeted param to createTexture and remove this function.
+     * DEPRECATED: use createTexture().
      */
-    GrTexture* createUncachedTexture(const GrSurfaceDesc& desc, void* srcData, size_t rowBytes);
+    GrTexture* createUncachedTexture(const GrSurfaceDesc& desc, void* srcData, size_t rowBytes) {
+        return this->createTexture(desc, false, srcData, rowBytes);
+    }
 
     /**
      * Enum that determines how closely a returned scratch texture must match
-     * a provided GrSurfaceDesc.
+     * a provided GrSurfaceDesc. TODO: Remove this. createTexture() should be used
+     * for exact match and refScratchTexture() should be replaced with createApproxTexture().
      */
     enum ScratchTexMatch {
         /**
@@ -269,6 +271,10 @@ public:
      *
      * internalFlag is a temporary workaround until changes in the internal
      * architecture are complete. Use the default value.
+     *
+     * TODO: Once internal flag can be removed, this should be replaced with
+     * createApproxTexture() and exact textures should be created with
+     * createTexture().
      */
     GrTexture* refScratchTexture(const GrSurfaceDesc&, ScratchTexMatch match,
                                  bool internalFlag = false);
@@ -837,12 +843,7 @@ private:
                           const SkPath&,
                           const GrStrokeInfo&);
 
-    // TODO: Move this out of GrContext.
-    GrTexture* createResizedTexture(const GrSurfaceDesc&,
-                                    const GrContentKey& origKey,
-                                    const void* srcData,
-                                    size_t rowBytes,
-                                    bool filter);
+    GrTexture* internalRefScratchTexture(const GrSurfaceDesc&, uint32_t flags);
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair

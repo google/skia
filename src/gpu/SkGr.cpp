@@ -179,17 +179,9 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
                                          GrSurfaceDesc desc,
                                          const void* pixels,
                                          size_t rowBytes) {
-    GrTexture* result;
-    if (optionalKey.isValid() || GrPixelConfigIsCompressed(desc.fConfig)) {
-        result = ctx->createTexture(desc, pixels, rowBytes);
-        if (result) {
-            SkAssertResult(ctx->addResourceToCache(optionalKey, result));
-        }
-    } else {
-        result = ctx->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch);
-        if (pixels && result) {
-            result->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig, pixels, rowBytes);
-        }
+    GrTexture* result = ctx->createTexture(desc, true, pixels, rowBytes);
+    if (result && optionalKey.isValid()) {
+        SkAssertResult(ctx->addResourceToCache(optionalKey, result));
     }
     return result;
 }

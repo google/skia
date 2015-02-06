@@ -318,8 +318,7 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                 desc.fHeight = DEV_H;
                 desc.fConfig = kSkia8888_GrPixelConfig;
                 desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-                SkAutoTUnref<GrTexture> texture(
-                    context->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch));
+                SkAutoTUnref<GrTexture> texture(context->createTexture(desc, false));
                 surface.reset(SkSurface::NewRenderTargetDirect(texture->asRenderTarget()));
 #else
                 continue;
