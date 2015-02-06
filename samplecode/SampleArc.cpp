@@ -9,6 +9,7 @@
 #include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
+#include "SkDrawable.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRegion.h"
@@ -24,8 +25,6 @@
 #include "SkColorFilter.h"
 #include "SkLayerRasterizer.h"
 
-#include "SkCanvasDrawable.h"
-
 #include "SkParsePath.h"
 static void testparse() {
     SkRect r;
@@ -40,7 +39,7 @@ static void testparse() {
 }
 
 class ArcsView : public SampleView {
-    class MyDrawable : public SkCanvasDrawable {
+    class MyDrawable : public SkDrawable {
         SkRect   fR;
         SkScalar fSweep;
     public:
@@ -84,7 +83,7 @@ class ArcsView : public SampleView {
 public:
     SkRect fRect;
     MyDrawable* fAnimatingDrawable;
-    SkCanvasDrawable* fRootDrawable;
+    SkDrawable* fRootDrawable;
 
     ArcsView() {
         testparse();
@@ -97,7 +96,7 @@ public:
 
         SkPictureRecorder recorder;
         this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
-        fRootDrawable = recorder.EXPERIMENTAL_endRecordingAsDrawable();
+        fRootDrawable = recorder.endRecordingAsDrawable();
     }
 
     ~ArcsView() SK_OVERRIDE {
@@ -190,13 +189,13 @@ protected:
 
         DrawRectWithLines(canvas, fRect, paint);
 
-        canvas->EXPERIMENTAL_drawDrawable(fAnimatingDrawable);
+        canvas->drawDrawable(fAnimatingDrawable);
 
         DrawArcs(canvas);
     }
 
     void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
-        canvas->EXPERIMENTAL_drawDrawable(fRootDrawable);
+        canvas->drawDrawable(fRootDrawable);
     }
 
     bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {

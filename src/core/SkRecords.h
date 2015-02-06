@@ -9,7 +9,7 @@
 #define SkRecords_DEFINED
 
 #include "SkCanvas.h"
-#include "SkCanvasDrawable.h"
+#include "SkDrawable.h"
 #include "SkPicture.h"
 #include "SkTextBlob.h"
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvasDrawable.h"
 #include "SkData.h"
+#include "SkDrawable.h"
 #include "SkLayerInfo.h"
 #include "SkPictureRecorder.h"
 #include "SkRecord.h"
@@ -51,7 +51,7 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
         saveLayerData.reset(SkNEW_ARGS(SkLayerInfo, (key)));
     }
 
-    SkCanvasDrawableList* drawableList = fRecorder->getDrawableList();
+    SkDrawableList* drawableList = fRecorder->getDrawableList();
     SkPicture::SnapshotArray* pictList = drawableList ? drawableList->newDrawableSnapshot() : NULL;
 
     if (fBBH.get()) {
@@ -82,8 +82,8 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     }
 
     int drawableCount = 0;
-    SkCanvasDrawable* const* drawables = NULL;
-    SkCanvasDrawableList* drawableList = fRecorder->getDrawableList();
+    SkDrawable* const* drawables = NULL;
+    SkDrawableList* drawableList = fRecorder->getDrawableList();
     if (drawableList) {
         drawableCount = drawableList->count();
         drawables = drawableList->begin();
@@ -93,15 +93,15 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkRecordedDrawable : public SkCanvasDrawable {
-    SkAutoTUnref<SkRecord>              fRecord;
-    SkAutoTUnref<SkBBoxHierarchy>       fBBH;
-    SkAutoTDelete<SkCanvasDrawableList> fDrawableList;
-    const SkRect                        fBounds;
-    const bool                          fDoSaveLayerInfo;
+class SkRecordedDrawable : public SkDrawable {
+    SkAutoTUnref<SkRecord>          fRecord;
+    SkAutoTUnref<SkBBoxHierarchy>   fBBH;
+    SkAutoTDelete<SkDrawableList>   fDrawableList;
+    const SkRect                    fBounds;
+    const bool                      fDoSaveLayerInfo;
 
 public:
-    SkRecordedDrawable(SkRecord* record, SkBBoxHierarchy* bbh, SkCanvasDrawableList* drawableList,
+    SkRecordedDrawable(SkRecord* record, SkBBoxHierarchy* bbh, SkDrawableList* drawableList,
                        const SkRect& bounds, bool doSaveLayerInfo)
         : fRecord(SkRef(record))
         , fBBH(SkSafeRef(bbh))
@@ -114,7 +114,7 @@ protected:
     SkRect onGetBounds() SK_OVERRIDE { return fBounds; }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkCanvasDrawable* const* drawables = NULL;
+        SkDrawable* const* drawables = NULL;
         int drawableCount = 0;
         if (fDrawableList) {
             drawables = fDrawableList->begin();
@@ -153,7 +153,7 @@ protected:
     }
 };
 
-SkCanvasDrawable* SkPictureRecorder::EXPERIMENTAL_endRecordingAsDrawable() {
+SkDrawable* SkPictureRecorder::endRecordingAsDrawable() {
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord);
 
@@ -161,10 +161,10 @@ SkCanvasDrawable* SkPictureRecorder::EXPERIMENTAL_endRecordingAsDrawable() {
         SkRecordFillBounds(fCullRect, *fRecord, fBBH.get());
     }
 
-    SkCanvasDrawable* drawable = SkNEW_ARGS(SkRecordedDrawable,
-                                            (fRecord, fBBH, fRecorder->detachDrawableList(),
-                                             fCullRect,
-                                             SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag)));
+    SkDrawable* drawable = SkNEW_ARGS(SkRecordedDrawable,
+                                        (fRecord, fBBH, fRecorder->detachDrawableList(),
+                                         fCullRect,
+                                         SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag)));
 
     // release our refs now, so only the drawable will be the owner.
     fRecorder.reset(NULL);
