@@ -621,7 +621,7 @@
           '<(skia_include_path)/pdf',
           '<(skia_include_path)/pipe',
           '<(skia_include_path)/ports',
-          '<(skia_include_path)/svg',
+          '<(skia_include_path)/svg/parser',
           '<(skia_include_path)/utils',
           '<(skia_include_path)/views',
           '<(skia_include_path)/xml',
