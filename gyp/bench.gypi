@@ -25,6 +25,7 @@
     '../bench/AAClipBench.cpp',
     '../bench/AlternatingColorPatternBench.cpp',
     '../bench/BezierBench.cpp',
+    '../bench/BigPathBench.cpp',
     '../bench/BitmapBench.cpp',
     '../bench/BitmapRectBench.cpp',
     '../bench/BitmapScaleBench.cpp',
