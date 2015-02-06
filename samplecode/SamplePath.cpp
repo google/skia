@@ -7,6 +7,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -82,13 +83,15 @@ static void test_cubic2() {
 }
 
 class PathView : public SampleView {
+    SkScalar fPrevSecs;
 public:
-    int fDStroke, fStroke, fMinStroke, fMaxStroke;
+    SkScalar fDStroke, fStroke, fMinStroke, fMaxStroke;
     SkPath fPath[6];
     bool fShowHairline;
     bool fOnce;
 
     PathView() {
+        fPrevSecs = 0;
         fOnce = false;
     }
 
@@ -108,39 +111,33 @@ public:
         fMinStroke = 10;
         fMaxStroke = 180;
 
-        const int V = 85;
+        const SkScalar V = 85;
 
-        fPath[0].moveTo(SkIntToScalar(40), SkIntToScalar(70));
-        fPath[0].lineTo(SkIntToScalar(70), SkIntToScalar(70) + SK_Scalar1/1);
-        fPath[0].lineTo(SkIntToScalar(110), SkIntToScalar(70));
+        fPath[0].moveTo(40, 70);
+        fPath[0].lineTo(70, 70 + SK_ScalarHalf);
+        fPath[0].lineTo(110, 70);
 
-        fPath[1].moveTo(SkIntToScalar(40), SkIntToScalar(70));
-        fPath[1].lineTo(SkIntToScalar(70), SkIntToScalar(70) - SK_Scalar1/1);
-        fPath[1].lineTo(SkIntToScalar(110), SkIntToScalar(70));
+        fPath[1].moveTo(40, 70);
+        fPath[1].lineTo(70, 70 - SK_ScalarHalf);
+        fPath[1].lineTo(110, 70);
 
-        fPath[2].moveTo(SkIntToScalar(V), SkIntToScalar(V));
-        fPath[2].lineTo(SkIntToScalar(50), SkIntToScalar(V));
-        fPath[2].lineTo(SkIntToScalar(50), SkIntToScalar(50));
+        fPath[2].moveTo(V, V);
+        fPath[2].lineTo(50, V);
+        fPath[2].lineTo(50, 50);
 
-        fPath[3].moveTo(SkIntToScalar(50), SkIntToScalar(50));
-        fPath[3].lineTo(SkIntToScalar(50), SkIntToScalar(V));
-        fPath[3].lineTo(SkIntToScalar(V), SkIntToScalar(V));
+        fPath[3].moveTo(50, 50);
+        fPath[3].lineTo(50, V);
+        fPath[3].lineTo(V, V);
 
-        fPath[4].moveTo(SkIntToScalar(50), SkIntToScalar(50));
-        fPath[4].lineTo(SkIntToScalar(50), SkIntToScalar(V));
-        fPath[4].lineTo(SkIntToScalar(52), SkIntToScalar(50));
+        fPath[4].moveTo(50, 50);
+        fPath[4].lineTo(50, V);
+        fPath[4].lineTo(52, 50);
 
-        fPath[5].moveTo(SkIntToScalar(52), SkIntToScalar(50));
-        fPath[5].lineTo(SkIntToScalar(50), SkIntToScalar(V));
-        fPath[5].lineTo(SkIntToScalar(50), SkIntToScalar(50));
+        fPath[5].moveTo(52, 50);
+        fPath[5].lineTo(50, V);
+        fPath[5].lineTo(50, 50);
 
         this->setBGColor(0xFFDDDDDD);
-    }
-
-    void nextStroke() {
-        fStroke += fDStroke;
-        if (fStroke > fMaxStroke || fStroke < fMinStroke)
-            fDStroke = -fDStroke;
     }
 
 protected:
@@ -159,7 +156,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeJoin(j);
-        paint.setStrokeWidth(SkIntToScalar(fStroke));
+        paint.setStrokeWidth(fStroke);
 
         if (fShowHairline) {
             SkPath  fill;
@@ -178,7 +175,7 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
         this->init();
-        canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
+        canvas->translate(50, 50);
 
         static const SkPaint::Join gJoins[] = {
             SkPaint::kBevel_Join,
@@ -190,15 +187,24 @@ protected:
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(fPath); j++) {
                 this->drawPath(canvas, fPath[j], gJoins[i]);
-                canvas->translate(SkIntToScalar(200), 0);
+                canvas->translate(200, 0);
             }
             canvas->restore();
 
-            canvas->translate(0, SkIntToScalar(200));
+            canvas->translate(0, 200);
         }
+    }
+    
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        SkScalar currSecs = timer.scaled(100);
+        SkScalar delta = currSecs - fPrevSecs;
+        fPrevSecs = currSecs;
 
-        this->nextStroke();
-        this->inval(NULL);
+        fStroke += fDStroke * delta;
+        if (fStroke > fMaxStroke || fStroke < fMinStroke) {
+            fDStroke = -fDStroke;
+        }
+        return true;
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {

@@ -82,9 +82,6 @@
         '../samplecode/SampleLua.cpp',
         '../samplecode/SampleManyRects.cpp',
         '../samplecode/SampleMeasure.cpp',
-        '../samplecode/SampleMipMap.cpp',
-        '../samplecode/SampleMovie.cpp',
-        '../samplecode/SampleOvalTest.cpp',
         '../samplecode/SamplePatch.cpp',
         '../samplecode/SamplePath.cpp',
         '../samplecode/SamplePathClip.cpp',
@@ -97,7 +94,6 @@
         '../samplecode/SampleRectanizer.cpp',
         '../samplecode/SampleRegion.cpp',
         '../samplecode/SampleRepeatTile.cpp',
-        '../samplecode/SampleRotateCircles.cpp',
         '../samplecode/SampleShaders.cpp',
         '../samplecode/SampleShaderText.cpp',
         '../samplecode/SampleSkLayer.cpp',
@@ -139,7 +135,6 @@
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
-        '../samplecode/SampleWarp.cpp',
         '../samplecode/SampleFontCache.cpp',
       ],
       'dependencies': [

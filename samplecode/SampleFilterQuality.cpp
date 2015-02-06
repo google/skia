@@ -9,6 +9,7 @@
 
 #include "Resources.h"
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkInterpolator.h"
 #include "SkSurface.h"
@@ -131,6 +132,7 @@ class FilterQualityView : public SampleView {
     AnimValue             fScale, fAngle;
     SkSize              fCell;
     SkInterpolator      fTrans;
+    SkMSec              fCurrTime;
     bool                fShowFatBits;
 
 public:
@@ -144,11 +146,13 @@ public:
         fTrans.setMirror(true);
         fTrans.setReset(true);
 
+        fCurrTime = 0;
+
         fTrans.setRepeatCount(999);
         values[0] = values[1] = 0;
-        fTrans.setKeyFrame(0, SkTime::GetMSecs(), values);
+        fTrans.setKeyFrame(0, fCurrTime, values);
         values[0] = values[1] = 1;
-        fTrans.setKeyFrame(1, SkTime::GetMSecs() + 2000, values);
+        fTrans.setKeyFrame(1, fCurrTime + 2000, values);
     }
 
 protected:
@@ -239,7 +243,7 @@ protected:
         fCell.set(this->height() / 2, this->height() / 2);
 
         SkScalar trans[2];
-        fTrans.timeToValues(SkTime::GetMSecs(), trans);
+        fTrans.timeToValues(fCurrTime, trans);
 
         for (int y = 0; y < 2; ++y) {
             for (int x = 0; x < 2; ++x) {
@@ -270,8 +274,11 @@ protected:
         canvas->drawText(str.c_str(), str.size(), textX, 200, paint);
         str.reset(); str.appendScalar(trans[1]);
         canvas->drawText(str.c_str(), str.size(), textX, 250, paint);
+    }
 
-        this->inval(NULL);
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fCurrTime = timer.msec();
+        return true;
     }
 
     virtual bool handleKey(SkKey key) {
