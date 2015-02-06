@@ -319,7 +319,16 @@ private:
     // TODO hack until batch is everywhere
     DrawBatch*                          fDrawBatch;
 
-    void closeBatch();
+    // This will go away when everything uses batch.  However, in the short term anything which
+    // might be put into the GrInOrderDrawBuffer needs to make sure it closes the last batch
+    void closeBatch() {
+        if (fDrawBatch) {
+            fBatchTarget.resetNumberOfDraws();
+            fDrawBatch->execute(this, fPrevState);
+            fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
+            fDrawBatch = NULL;
+        }
+    }
 
     typedef GrFlushToGpuDrawTarget INHERITED;
 };

@@ -249,8 +249,6 @@ void GrInOrderDrawBuffer::onDraw(const GrPipelineBuilder& pipelineBuilder,
                                  const DrawInfo& info,
                                  const GrScissorState& scissorState) {
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
-
-    // This closeBatch call is required because we may introduce new draws when we setup clip
     this->closeBatch();
 
     if (!this->recordStateAndShouldDraw(pipelineBuilder, gp, scissorState, info.getDevBounds())) {
@@ -301,6 +299,8 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPipelineBuilder& pipelineBuilder
                                         const GrPath* path,
                                         const GrScissorState& scissorState,
                                         const GrStencilSettings& stencilSettings) {
+    this->closeBatch();
+
     StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath,
                                                (path, pipelineBuilder.getRenderTarget()));
     sp->fScissor = scissorState;
@@ -341,7 +341,6 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(pathRange);
     SkASSERT(indices);
     SkASSERT(transformValues);
-
     this->closeBatch();
 
     if (!this->recordStateAndShouldDraw(pipelineBuilder, pathProc, scissorState, devBounds)) {
@@ -395,6 +394,8 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPipelineBuilder& pipelineBuilder,
 void GrInOrderDrawBuffer::onClear(const SkIRect* rect, GrColor color,
                                   bool canIgnoreRect, GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
+    this->closeBatch();
+
     SkIRect r;
     if (NULL == rect) {
         // We could do something smart and remove previous draws and clears to
@@ -415,6 +416,8 @@ void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
                                            bool insideClip,
                                            GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
+    this->closeBatch();
+
     ClearStencilClip* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, ClearStencilClip, (renderTarget));
     clr->fRect = rect;
     clr->fInsideClip = insideClip;
@@ -423,6 +426,8 @@ void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
 
 void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
+    this->closeBatch();
+
     if (!this->caps()->discardRenderTargetSupport()) {
         return;
     }
@@ -650,15 +655,6 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
     if (activeTraceMarkers.count() > 0) {
         fCmdBuffer.back().fType = add_trace_bit(fCmdBuffer.back().fType);
         fGpuCmdMarkers.push_back(activeTraceMarkers);
-    }
-}
-
-void GrInOrderDrawBuffer::closeBatch() {
-    if (fDrawBatch) {
-        fBatchTarget.resetNumberOfDraws();
-        fDrawBatch->execute(this, fPrevState);
-        fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
-        fDrawBatch = NULL;
     }
 }
 
