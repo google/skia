@@ -471,17 +471,18 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     }
 }
 
-SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkWStream* wstream) {
-    if (!SkToBool(wstream)) {
+SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer) {
+    if (!writer) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkSVGDevice, (size, wstream));
+    return SkNEW_ARGS(SkSVGDevice, (size, writer));
 }
 
-SkSVGDevice::SkSVGDevice(const SkISize& size, SkWStream* wstream)
-    : fWriter(SkNEW_ARGS(SkXMLStreamWriter, (wstream)))
+SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
+    : fWriter(writer)
     , fResourceBucket(SkNEW(ResourceBucket)) {
+    SkASSERT(writer);
 
     fLegacyBitmap.setInfo(SkImageInfo::MakeUnknown(size.width(), size.height()));
 

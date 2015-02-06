@@ -10,12 +10,11 @@
 
 #include "SkDevice.h"
 
-class SkWStream;
 class SkXMLWriter;
 
 class SkSVGDevice : public SkBaseDevice {
 public:
-    static SkBaseDevice* Create(const SkISize& size, SkWStream* wstream);
+    static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer);
 
     virtual SkImageInfo imageInfo() const SK_OVERRIDE;
 
@@ -59,13 +58,13 @@ protected:
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
 
 private:
-    SkSVGDevice(const SkISize& size, SkWStream* wstream);
+    SkSVGDevice(const SkISize& size, SkXMLWriter* writer);
     virtual ~SkSVGDevice();
 
     class AutoElement;
     class ResourceBucket;
 
-    SkAutoTDelete<SkXMLWriter>    fWriter;
+    SkXMLWriter*                  fWriter;
     SkAutoTDelete<AutoElement>    fRootElement;
     SkAutoTDelete<ResourceBucket> fResourceBucket;
     SkBitmap                      fLegacyBitmap;

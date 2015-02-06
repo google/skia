@@ -10,6 +10,31 @@
         'xml.gyp:*',
       ],
       'include_dirs': [
+        '../include/svg',
+      ],
+      'sources': [
+        '<(skia_include_path)/svg/SkSVGCanvas.h',
+
+        '<(skia_src_path)/svg/SkSVGCanvas.cpp',
+        '<(skia_src_path)/svg/SkSVGDevice.cpp',
+        '<(skia_src_path)/svg/SkSVGDevice.h',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../include/svg',
+        ],
+      },
+    },
+    {
+      'target_name': 'svg_parser',
+      'product_name': 'skia_svg_parser',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'xml.gyp:*',
+      ],
+      'include_dirs': [
         '../include/svg/parser',
       ],
       'sources': [

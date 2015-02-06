@@ -9,7 +9,8 @@
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkStream.h"
-#include "SkSVGDevice.h"
+#include "SkSVGCanvas.h"
+#include "SkXMLWriter.h"
 
 DEFINE_string2(input, i, "", "input skp file");
 DEFINE_string2(output, o, "", "output svg file (optional)");
@@ -54,11 +55,10 @@ int tool_main(int argc, char** argv) {
         outStream.reset(SkNEW(SkDebugWStream));
     }
 
-    SkISize size = pic->cullRect().roundOut().size();
-    SkAutoTUnref<SkBaseDevice> svgDevice(SkSVGDevice::Create(size, outStream));
-    SkCanvas svgCanvas(svgDevice.get());
+    SkAutoTDelete<SkXMLWriter> xmlWriter(SkNEW_ARGS(SkXMLStreamWriter, (outStream.get())));
+    SkAutoTUnref<SkCanvas> svgCanvas(SkSVGCanvas::Create(pic->cullRect(), xmlWriter.get()));
 
-    pic->playback(&svgCanvas);
+    pic->playback(svgCanvas);
 
     return kSuccess;
 }

@@ -2,7 +2,6 @@
 {
   'include_dirs': [
     '../dm',
-    '../experimental/svg',
     '../gm',
     '../src/core',
     '../src/effects',
@@ -19,6 +18,7 @@
     'flags.gyp:flags',
     'jsoncpp.gyp:jsoncpp',
     'skia_lib.gyp:skia_lib',
+    'svg.gyp:svg',
     'tools.gyp:crash_handler',
     'tools.gyp:proc_stats',
     'tools.gyp:sk_tool_utils',
@@ -36,7 +36,6 @@
     '../dm/DMJsonWriter.cpp',
     '../gm/gm.cpp',
 
-    '../experimental/svg/SkSVGDevice.cpp',
     '../src/pipe/utils/SamplePipeControllers.cpp',
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkDrawCommand.cpp',

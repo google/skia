@@ -265,12 +265,11 @@
       ],
     },
     {
+      # Superseded by dm, should be removed.
       'target_name': 'skp2svg',
       'type': 'executable',
       'sources': [
-        '../experimental/svg/skp2svg.cpp',
-        '../experimental/svg/SkSVGDevice.cpp',
-        '../experimental/svg/SkSVGDevice.h',
+        '../src/svg/skp2svg.cpp',
         '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
@@ -281,6 +280,7 @@
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
+        'svg.gyp:svg',
         'xml.gyp:xml',
       ],
     },

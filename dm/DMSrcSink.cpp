@@ -6,8 +6,9 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
-#include "SkSVGDevice.h"
+#include "SkSVGCanvas.h"
 #include "SkStream.h"
+#include "SkXMLWriter.h"
 
 namespace DM {
 
@@ -237,9 +238,11 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 SVGSink::SVGSink() {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkAutoTUnref<SkBaseDevice> device(SkSVGDevice::Create(src.size(), dst));
-    SkCanvas canvas(device);
-    return src.draw(&canvas);
+    SkAutoTDelete<SkXMLWriter> xmlWriter(SkNEW_ARGS(SkXMLStreamWriter, (dst)));
+    SkAutoTUnref<SkCanvas> canvas(SkSVGCanvas::Create(
+        SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
+        xmlWriter));
+    return src.draw(canvas);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
