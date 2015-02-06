@@ -97,7 +97,6 @@ public:
 
 private:
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
-    void emitCodeToReadDstTexture();
     void enableCustomOutput();
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;

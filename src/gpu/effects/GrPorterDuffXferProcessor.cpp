@@ -38,7 +38,15 @@ public:
 
     virtual ~GrGLPorterDuffXferProcessor() {}
 
-    void emitCode(const EmitArgs& args) SK_OVERRIDE {
+    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+                       GrProcessorKeyBuilder* b) {
+        const GrPorterDuffXferProcessor& xp = processor.cast<GrPorterDuffXferProcessor>();
+        b->add32(xp.primaryOutputType());
+        b->add32(xp.secondaryOutputType());
+    };
+
+private:
+    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
         const GrPorterDuffXferProcessor& xp = args.fXP.cast<GrPorterDuffXferProcessor>();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         if (xp.hasSecondaryOutput()) {
@@ -80,23 +88,18 @@ public:
         }
     }
 
-    void setData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
-                       GrProcessorKeyBuilder* b) {
-        const GrPorterDuffXferProcessor& xp = processor.cast<GrPorterDuffXferProcessor>();
-        b->add32(xp.primaryOutputType());
-        b->add32(xp.secondaryOutputType());
-    };
-
-private:
     typedef GrGLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPorterDuffXferProcessor::GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend,
-                                                     GrColor constant)
+GrPorterDuffXferProcessor::GrPorterDuffXferProcessor(GrBlendCoeff srcBlend,
+                                                     GrBlendCoeff dstBlend,
+                                                     GrColor constant,
+                                                     const GrDeviceCoordTexture* dstCopy,
+                                                     bool willReadDstColor)
     : fSrcBlend(srcBlend)
     , fDstBlend(dstBlend)
     , fBlendConstant(constant)
@@ -108,8 +111,8 @@ GrPorterDuffXferProcessor::GrPorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBl
 GrPorterDuffXferProcessor::~GrPorterDuffXferProcessor() {
 }
 
-void GrPorterDuffXferProcessor::getGLProcessorKey(const GrGLCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {
+void GrPorterDuffXferProcessor::onGetGLProcessorKey(const GrGLCaps& caps,
+                                                    GrProcessorKeyBuilder* b) const {
     GrGLPorterDuffXferProcessor::GenKey(*this, caps, b);
 }
 
@@ -353,16 +356,20 @@ GrXPFactory* GrPorterDuffXPFactory::Create(SkXfermode::Mode mode) {
     }
 }
 
-GrXferProcessor* GrPorterDuffXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
-                                                            const GrProcOptInfo& covPOI) const {
+GrXferProcessor*
+GrPorterDuffXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                             const GrProcOptInfo& covPOI,
+                                             const GrDeviceCoordTexture* dstCopy) const {
     if (!covPOI.isFourChannelOutput()) {
-        return GrPorterDuffXferProcessor::Create(fSrcCoeff, fDstCoeff);
+        return GrPorterDuffXferProcessor::Create(fSrcCoeff, fDstCoeff, 0, dstCopy,
+                                                 this->willReadDstColor());
     } else {
         if (this->supportsRGBCoverage(colorPOI.color(), colorPOI.validFlags())) {
             SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
             GrColor blendConstant = GrUnPreMulColor(colorPOI.color());
             return GrPorterDuffXferProcessor::Create(kConstC_GrBlendCoeff, kISC_GrBlendCoeff,
-                                                     blendConstant);
+                                                     blendConstant, dstCopy,
+                                                     this->willReadDstColor());
         } else {
             return NULL;
         }
@@ -482,6 +489,10 @@ void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
     }
 
     output->fWillBlendWithDst = false;
+}
+
+bool GrPorterDuffXPFactory::willReadDstColor() const {
+    return false;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);

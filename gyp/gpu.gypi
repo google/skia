@@ -175,6 +175,7 @@
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
       '<(skia_src_path)/gpu/GrTRecorder.h',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
+      '<(skia_src_path)/gpu/GrXferProcessor.cpp',
 
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',
@@ -274,6 +275,8 @@
       '<(skia_src_path)/gpu/gl/GrGLVertexArray.h',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.h',
+      '<(skia_src_path)/gpu/gl/GrGLXferProcessor.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLXferProcessor.h',
 
       # Files for building GLSL shaders
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.cpp',

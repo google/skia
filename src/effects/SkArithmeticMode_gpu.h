@@ -13,6 +13,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrCoordTransform.h"
+#include "GrDrawTargetCaps.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
 #include "GrTypes.h"
@@ -72,15 +73,16 @@ private:
 
 class GrArithmeticXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(float k1, float k2, float k3, float k4, bool enforcePMColor) {
-        return SkNEW_ARGS(GrArithmeticXP, (k1, k2, k3, k4, enforcePMColor));
+    static GrXferProcessor* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                                         const GrDeviceCoordTexture* dstCopy,
+                                         bool willReadDstColor) {
+        return SkNEW_ARGS(GrArithmeticXP, (k1, k2, k3, k4, enforcePMColor, dstCopy,
+                                           willReadDstColor));
     }
 
     ~GrArithmeticXP() SK_OVERRIDE {};
 
     const char* name() const SK_OVERRIDE { return "Arithmetic"; }
-
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
 
@@ -105,7 +107,10 @@ public:
     bool enforcePMColor() const { return fEnforcePMColor; }
 
 private:
-    GrArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor);
+    GrArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                   const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
         const GrArithmeticXP& xp = xpBase.cast<GrArithmeticXP>();
@@ -133,11 +138,6 @@ public:
         return SkNEW_ARGS(GrArithmeticXPFactory, (k1, k2, k3, k4, enforcePMColor));
     }
 
-    GrXferProcessor* createXferProcessor(const GrProcOptInfo& colorPOI,
-                                         const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
-        return GrArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor);
-    }
-
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE {
         return true;
     }
@@ -154,10 +154,17 @@ public:
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
-    bool willReadDst() const SK_OVERRIDE { return true; }
-
 private:
     GrArithmeticXPFactory(float k1, float k2, float k3, float k4, bool enforcePMColor); 
+
+    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                           const GrProcOptInfo& coveragePOI,
+                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE {
+        return GrArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor, dstCopy,
+                                      this->willReadDstColor());
+    }
+
+    bool willReadDstColor() const SK_OVERRIDE { return true; }
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         const GrArithmeticXPFactory& xpf = xpfBase.cast<GrArithmeticXPFactory>();
