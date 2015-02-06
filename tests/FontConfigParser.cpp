@@ -37,6 +37,9 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
             case kCompact_FontVariant: SkDebugf("  compact\n"); break;
             default: break;
         }
+        if (fontFamilies[i]->fBasePath) {
+            SkDebugf("  basePath %s\n", fontFamilies[i]->fBasePath);
+        }
         if (!fontFamilies[i]->fLanguage.getTag().isEmpty()) {
             SkDebugf("  language %s\n", fontFamilies[i]->fLanguage.getTag().c_str());
         }
@@ -56,7 +59,8 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
     bool resourcesMissing = false;
 
     SkTDArray<FontFamily*> preV17FontFamilies;
-    SkFontConfigParser::GetTestFontFamilies(preV17FontFamilies,
+    SkFontConfigParser::GetCustomFontFamilies(preV17FontFamilies,
+        SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/pre_v17/system_fonts.xml").c_str(),
         GetResourcePath("android_fonts/pre_v17/fallback_fonts.xml").c_str());
 
@@ -72,7 +76,8 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
 
 
     SkTDArray<FontFamily*> v17FontFamilies;
-    SkFontConfigParser::GetTestFontFamilies(v17FontFamilies,
+    SkFontConfigParser::GetCustomFontFamilies(v17FontFamilies,
+        SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/v17/system_fonts.xml").c_str(),
         GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str());
 
@@ -88,7 +93,8 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
 
 
     SkTDArray<FontFamily*> v22FontFamilies;
-    SkFontConfigParser::GetTestFontFamilies(v22FontFamilies,
+    SkFontConfigParser::GetCustomFontFamilies(v22FontFamilies,
+        SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/v22/fonts.xml").c_str(),
         NULL);
 

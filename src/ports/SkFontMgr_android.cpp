@@ -9,6 +9,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
+#include "SkFontMgr_android.h"
 #include "SkFontStyle.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
@@ -18,26 +19,11 @@
 #include "SkTypefaceCache.h"
 
 #include <limits>
-#include <stdlib.h>
-
-#ifndef SK_FONT_FILE_PREFIX
-#    define SK_FONT_FILE_PREFIX "/fonts/"
-#endif
-
-#ifndef SK_DEBUG_FONTS
-    #define SK_DEBUG_FONTS 0
-#endif
-
-#if SK_DEBUG_FONTS
-#    define DEBUG_FONT(args) SkDebugf args
-#else
-#    define DEBUG_FONT(args)
-#endif
 
 // For test only.
-static const char* gTestMainConfigFile = NULL;
-static const char* gTestFallbackConfigFile = NULL;
-static const char* gTestFontFilePrefix = NULL;
+static const char* gTestFontsXml = NULL;
+static const char* gTestFallbackFontsXml = NULL;
+static const char* gTestBasePath = NULL;
 
 class SkTypeface_Android : public SkTypeface_FreeType {
 public:
@@ -126,19 +112,9 @@ private:
     typedef SkTypeface_Android INHERITED;
 };
 
-void get_path_for_sys_fonts(const char* basePath, const SkString& name, SkString* full) {
-    if (basePath) {
-        full->set(basePath);
-    } else {
-        full->set(getenv("ANDROID_ROOT"));
-        full->append(SK_FONT_FILE_PREFIX);
-    }
-    full->append(name);
-}
-
 class SkFontStyleSet_Android : public SkFontStyleSet {
 public:
-    explicit SkFontStyleSet_Android(const FontFamily& family, const char* basePath,
+    explicit SkFontStyleSet_Android(const FontFamily& family,
                                     const SkTypeface_FreeType::Scanner& scanner)
     {
         const SkString* cannonicalFamilyName = NULL;
@@ -149,12 +125,13 @@ public:
         for (int i = 0; i < family.fFonts.count(); ++i) {
             const FontFileInfo& fontFile = family.fFonts[i];
 
-            SkString pathName;
-            get_path_for_sys_fonts(basePath, fontFile.fFileName, &pathName);
+            SkString pathName(family.fBasePath);
+            pathName.append(fontFile.fFileName);
 
             SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(pathName.c_str()));
             if (!stream.get()) {
-                DEBUG_FONT(("---- SystemFonts[%d] file=%s (NOT EXIST)", i, pathName.c_str()));
+                SkDEBUGF(("Requested font file %s does not exist or cannot be opened.\n",
+                          pathName.c_str()));
                 continue;
             }
 
@@ -163,7 +140,8 @@ public:
             SkFontStyle style;
             bool isFixedWidth;
             if (!scanner.scanFont(stream.get(), ttcIndex, &familyName, &style, &isFixedWidth)) {
-                DEBUG_FONT(("---- SystemFonts[%d] file=%s (INVALID)", i, pathName.c_str()));
+                SkDEBUGF(("Requested font file %s exists, but is not a valid font.\n",
+                          pathName.c_str()));
                 continue;
             }
 
@@ -265,19 +243,26 @@ struct NameToFamily {
 
 class SkFontMgr_Android : public SkFontMgr {
 public:
-    SkFontMgr_Android() {
-        SkTDArray<FontFamily*> fontFamilies;
-        SkFontConfigParser::GetFontFamilies(fontFamilies);
-        this->buildNameToFamilyMap(fontFamilies, NULL);
+    SkFontMgr_Android(const SkFontMgr_Android_CustomFonts* custom) {
+        SkTDArray<FontFamily*> families;
+        if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem != custom->fSystemFontUse) {
+            SkString base(custom->fBasePath);
+            SkFontConfigParser::GetCustomFontFamilies(families, base,
+                                                      custom->fFontsXml, custom->fFallbackFontsXml);
+        }
+        if (!custom ||
+            (custom && SkFontMgr_Android_CustomFonts::kOnlyCustom != custom->fSystemFontUse))
+        {
+            SkFontConfigParser::GetSystemFontFamilies(families);
+        }
+        if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem == custom->fSystemFontUse) {
+            SkString base(custom->fBasePath);
+            SkFontConfigParser::GetCustomFontFamilies(families, base,
+                                                      custom->fFontsXml, custom->fFallbackFontsXml);
+        }
+        this->buildNameToFamilyMap(families);
         this->findDefaultFont();
-    }
-    SkFontMgr_Android(const char* mainConfigFile, const char* fallbackConfigFile,
-                      const char* basePath)
-    {
-        SkTDArray<FontFamily*> fontFamilies;
-        SkFontConfigParser::GetTestFontFamilies(fontFamilies, mainConfigFile, fallbackConfigFile);
-        this->buildNameToFamilyMap(fontFamilies, basePath);
-        this->findDefaultFont();
+        families.deleteAll();
     }
 
 protected:
@@ -456,7 +441,7 @@ private:
     SkTDArray<NameToFamily> fNameToFamilyMap;
     SkTDArray<NameToFamily> fFallbackNameToFamilyMap;
 
-    void buildNameToFamilyMap(SkTDArray<FontFamily*> families, const char* basePath) {
+    void buildNameToFamilyMap(SkTDArray<FontFamily*> families) {
         for (int i = 0; i < families.count(); i++) {
             FontFamily& family = *families[i];
 
@@ -471,7 +456,7 @@ private:
             }
 
             SkFontStyleSet_Android* newSet =
-                SkNEW_ARGS(SkFontStyleSet_Android, (family, basePath, fScanner));
+                SkNEW_ARGS(SkFontStyleSet_Android, (family, fScanner));
             if (0 == newSet->count()) {
                 SkDELETE(newSet);
                 continue;
@@ -515,37 +500,50 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SkFontMgr* SkFontMgr::Factory() {
-    // The call to SkGetTestFontConfiguration is so that Chromium can override the environment.
-    // TODO: these globals need to be removed, in favor of a constructor / separate Factory
-    // which can be used instead.
-    const char* mainConfigFile;
-    const char* fallbackConfigFile;
-    const char* basePath;
-    SkGetTestFontConfiguration(&mainConfigFile, &fallbackConfigFile, &basePath);
-    if (mainConfigFile) {
-        return SkNEW_ARGS(SkFontMgr_Android, (mainConfigFile, fallbackConfigFile, basePath));
+#ifdef SK_DEBUG
+static char const * const gSystemFontUseStrings[] = {
+    "OnlyCustom", "PreferCustom", "PreferSystem"
+};
+#endif
+SkFontMgr* SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
+    if (custom) {
+        SkASSERT(0 <= custom->fSystemFontUse);
+        SkASSERT(custom->fSystemFontUse < SK_ARRAY_COUNT(gSystemFontUseStrings));
+        SkDEBUGF(("SystemFontUse: %s BasePath: %s Fonts: %s FallbackFonts: %s\n",
+                  gSystemFontUseStrings[custom->fSystemFontUse],
+                  custom->fBasePath,
+                  custom->fFontsXml,
+                  custom->fFallbackFontsXml));
     }
 
-    return SkNEW(SkFontMgr_Android);
+    return SkNEW_ARGS(SkFontMgr_Android, (custom));
 }
 
-void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
-                             const char* fontsdir) {
-    gTestMainConfigFile = mainconf;
-    gTestFallbackConfigFile = fallbackconf;
-    gTestFontFilePrefix = fontsdir;
-    SkASSERT(gTestMainConfigFile);
-    SkASSERT(gTestFallbackConfigFile);
-    SkASSERT(gTestFontFilePrefix);
-    SkDEBUGF(("Use Test Config File Main %s, Fallback %s, Font Dir %s",
-              gTestMainConfigFile, gTestFallbackConfigFile, gTestFontFilePrefix));
+SkFontMgr* SkFontMgr::Factory() {
+    // These globals exist so that Chromium can override the environment.
+    // TODO: these globals need to be removed, and Chromium use SkFontMgr_New_Android instead.
+    if ((gTestFontsXml || gTestFallbackFontsXml) && gTestBasePath) {
+        SkFontMgr_Android_CustomFonts custom = {
+            SkFontMgr_Android_CustomFonts::kOnlyCustom,
+            gTestBasePath,
+            gTestFontsXml,
+            gTestFallbackFontsXml
+        };
+        return SkFontMgr_New_Android(&custom);
+    }
+
+    return SkFontMgr_New_Android(NULL);
 }
 
-void SkGetTestFontConfiguration(const char** mainconf, const char** fallbackconf,
-                                const char** fontsdir) {
-    *mainconf = gTestMainConfigFile;
-    *fallbackconf = gTestFallbackConfigFile;
-    *fontsdir = gTestFontFilePrefix;
+void SkUseTestFontConfigFile(const char* fontsXml, const char* fallbackFontsXml,
+                             const char* basePath)
+{
+    gTestFontsXml = fontsXml;
+    gTestFallbackFontsXml = fallbackFontsXml;
+    gTestBasePath = basePath;
+    SkASSERT(gTestFontsXml);
+    SkASSERT(gTestFallbackFontsXml);
+    SkASSERT(gTestBasePath);
+    SkDEBUGF(("Test BasePath: %s Fonts: %s FallbackFonts: %s\n",
+              gTestBasePath, gTestFontsXml, gTestFallbackFontsXml));
 }

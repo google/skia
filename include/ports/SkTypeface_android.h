@@ -20,15 +20,5 @@
 SK_API void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
                                     const char* fontsdir);
 
-/**
- *  For test only.
- *  Returns the information set by SkUseTestFontConfigFile.
- *  TODO: this should be removed once SkFontConfigInterface_android is removed,
- *  and then Chromium should be given a better way to set up it's test environment
- *  than SkUseTestFontConfigFile.
- */
-void SkGetTestFontConfiguration(const char** mainconf, const char** fallbackconf,
-                                const char** fontsdir);
-
 #endif // #ifdef SK_BUILD_FOR_ANDROID
 #endif // #ifndef SkTypeface_android_DEFINED
