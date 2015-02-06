@@ -28,6 +28,8 @@ public:
         return fResource->setContentKey(contentKey);
     }
 
+    void removeContentKey() { return fResource->removeContentKey(); }
+
     /**
      * Is the resource currently cached as scratch? This means it is cached, has a valid scratch
      * key, and does not have a content key.

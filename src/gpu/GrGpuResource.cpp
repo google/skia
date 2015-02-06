@@ -82,9 +82,16 @@ void GrGpuResource::didChangeGpuMemorySize() const {
     get_resource_cache2(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
 }
 
+void GrGpuResource::removeContentKey() {
+    SkASSERT(fContentKey.isValid());
+    get_resource_cache2(fGpu)->resourceAccess().willRemoveContentKey(this);
+    fContentKey.reset();
+}
+
 bool GrGpuResource::setContentKey(const GrContentKey& key) {
     // Currently this can only be called once and can't be called when the resource is scratch.
     SkASSERT(this->internalHasRef());
+    SkASSERT(key.isValid());
 
     // Wrapped and uncached resources can never have a content key.
     if (!this->cacheAccess().isBudgeted()) {

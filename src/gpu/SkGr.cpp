@@ -106,22 +106,20 @@ static Stretch get_stretch_type(const GrContext* ctx, int width, int height,
     return kNo_Stretch;
 }
 
-static bool make_resize_key(const GrContentKey& origKey, Stretch stretch, GrContentKey* resizeKey) {
+static bool make_stretched_key(const GrContentKey& origKey, Stretch stretch,
+                               GrContentKey* stretchedKey) {
     if (origKey.isValid() && kNo_Stretch != stretch) {
         static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-        GrContentKey::Builder builder(resizeKey, origKey, kDomain, 1);
+        GrContentKey::Builder builder(stretchedKey, origKey, kDomain, 1);
         builder[0] = stretch;
         builder.finish();
         return true;
     }
-    SkASSERT(!resizeKey->isValid());
+    SkASSERT(!stretchedKey->isValid());
     return false;
 }
 
-static void generate_bitmap_keys(const SkBitmap& bitmap,
-                                 Stretch stretch,
-                                 GrContentKey* key,
-                                 GrContentKey* resizedKey) {
+static void make_unstretched_key(const SkBitmap& bitmap, GrContentKey* key) {
     // Our id includes the offset, width, and height so that bitmaps created by extractSubset()
     // are unique.
     uint32_t genID = bitmap.getGenerationID();
@@ -135,10 +133,15 @@ static void generate_bitmap_keys(const SkBitmap& bitmap,
     builder[1] = origin.fX;
     builder[2] = origin.fY;
     builder[3] = width | (height << 16);
-    builder.finish();
+}
 
+static void make_bitmap_keys(const SkBitmap& bitmap,
+                             Stretch stretch,
+                             GrContentKey* key,
+                             GrContentKey* stretchedKey) {
+    make_unstretched_key(bitmap, key);
     if (kNo_Stretch != stretch) {
-        make_resize_key(*key, stretch, resizedKey);
+        make_stretched_key(*key, stretch, stretchedKey);
     }
 }
 
@@ -153,34 +156,30 @@ static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrSurfaceDesc* 
 namespace {
 
 // When the SkPixelRef genID changes, invalidate a corresponding GrResource described by key.
-class GrResourceInvalidator : public SkPixelRef::GenIDChangeListener {
+class BitmapInvalidator : public SkPixelRef::GenIDChangeListener {
 public:
-    explicit GrResourceInvalidator(const GrContentKey& key) : fKey(key) {}
+    explicit BitmapInvalidator(const GrContentKey& key) : fMsg(key) {}
 private:
-    GrContentKey fKey;
+    GrContentKeyInvalidatedMessage fMsg;
 
     void onChange() SK_OVERRIDE {
-        const GrResourceInvalidatedMessage message = { fKey };
-        SkMessageBus<GrResourceInvalidatedMessage>::Post(message);
+        SkMessageBus<GrContentKeyInvalidatedMessage>::Post(fMsg);
     }
 };
 
 }  // namespace
 
-#if 0 // TODO: plug this back up
-static void add_genID_listener(const GrContentKey& key, SkPixelRef* pixelRef) {
-    SkASSERT(pixelRef);
-    pixelRef->addGenIDChangeListener(SkNEW_ARGS(GrResourceInvalidator, (key)));
-}
-#endif
 
 static GrTexture* create_texture_for_bmp(GrContext* ctx,
                                          const GrContentKey& optionalKey,
                                          GrSurfaceDesc desc,
+                                         SkPixelRef* pixelRefForInvalidationNotification,
                                          const void* pixels,
                                          size_t rowBytes) {
     GrTexture* result = ctx->createTexture(desc, true, pixels, rowBytes);
     if (result && optionalKey.isValid()) {
+        BitmapInvalidator* listener = SkNEW_ARGS(BitmapInvalidator, (optionalKey));
+        pixelRefForInvalidationNotification->addGenIDChangeListener(listener);
         SkAssertResult(ctx->addResourceToCache(optionalKey, result));
     }
     return result;
@@ -189,8 +188,9 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
 // creates a new texture that is the input texture scaled up to the next power of two in
 // width or height. If optionalKey is valid it will be set on the new texture. stretch
 // controls whether the scaling is done using nearest or bilerp filtering.
-GrTexture* resize_texture(GrTexture* inputTexture, Stretch stretch,
-                          const GrContentKey& optionalKey) {
+GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
+                                       SkPixelRef* pixelRef,
+                                       const GrContentKey& optionalKey) {
     SkASSERT(kNo_Stretch != stretch);
 
     GrContext* context = inputTexture->getContext();
@@ -228,9 +228,9 @@ GrTexture* resize_texture(GrTexture* inputTexture, Stretch stretch,
         }
     }
 
-    GrTexture* resized = create_texture_for_bmp(context, optionalKey, rtDesc, NULL, 0);
+    GrTexture* stretched = create_texture_for_bmp(context, optionalKey, rtDesc, pixelRef, NULL, 0);
 
-    if (!resized) {
+    if (!stretched) {
         return NULL;
     }
     GrPaint paint;
@@ -245,11 +245,11 @@ GrTexture* resize_texture(GrTexture* inputTexture, Stretch stretch,
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
     SkRect localRect = SkRect::MakeWH(1.f, 1.f);
 
-    GrContext::AutoRenderTarget autoRT(context, resized->asRenderTarget());
+    GrContext::AutoRenderTarget autoRT(context, stretched->asRenderTarget());
     GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
     context->drawNonAARectToRect(paint, SkMatrix::I(), rect, localRect);
 
-    return resized;
+    return stretched;
 }
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
@@ -298,7 +298,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx, const GrContentKey& optional
         return NULL;
     }
 
-    return create_texture_for_bmp(ctx, optionalKey, desc, bytes, 0);
+    return create_texture_for_bmp(ctx, optionalKey, desc, bm.pixelRef(), bytes, 0);
 }
 #endif   // SK_IGNORE_ETC1_SUPPORT
 
@@ -381,7 +381,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalK
                     kRenderTarget_GrSurfaceFlag |
                     kNoStencil_GrSurfaceFlag;
 
-    GrTexture* result = create_texture_for_bmp(ctx, optionalKey, rtDesc, NULL, 0);
+    GrTexture* result = create_texture_for_bmp(ctx, optionalKey, rtDesc, pixelRef, NULL, 0);
     if (!result) {
         return NULL;
     }
@@ -422,7 +422,8 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
-            return create_texture_for_bmp(ctx, optionalKey, desc, storage.get(), bitmap->width());
+            return create_texture_for_bmp(ctx, optionalKey, desc, origBitmap.pixelRef(),
+                                          storage.get(), bitmap->width());
         } else {
             origBitmap.copyTo(&tmpBitmap, kN32_SkColorType);
             // now bitmap points to our temp, which has been promoted to 32bits
@@ -458,7 +459,8 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
         return NULL;
     }
 
-    return create_texture_for_bmp(ctx, optionalKey, desc, bitmap->getPixels(), bitmap->rowBytes());
+    return create_texture_for_bmp(ctx, optionalKey, desc, origBitmap.pixelRef(),
+                                  bitmap->getPixels(), bitmap->rowBytes());
 }
 
 static GrTexture* create_bitmap_texture(GrContext* ctx,
@@ -478,8 +480,9 @@ static GrTexture* create_bitmap_texture(GrContext* ctx,
                 return NULL;
             }
         }
-        GrTexture* resized = resize_texture(unstretched, stretch, stretchedKey);
-        return resized;
+        GrTexture* stretched = stretch_texture_to_next_pot(unstretched, stretch, bmp.pixelRef(),
+                                                           stretchedKey);
+        return stretched;
     }
 
     return create_unstretched_bitmap_texture(ctx, bmp, unstretchedKey);
@@ -505,9 +508,9 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         if (!key.isValid()) {
             return false;
         }
-        GrContentKey resizedKey;
-        make_resize_key(key, stretch, &resizedKey);
-        return ctx->isResourceInCache(resizedKey);
+        GrContentKey stretchedKey;
+        make_stretched_key(key, stretch, &stretchedKey);
+        return ctx->isResourceInCache(stretchedKey);
     }
 
     // We don't cache volatile bitmaps
@@ -515,9 +518,9 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         return false;
     }
 
-    GrContentKey key, resizedKey;
-    generate_bitmap_keys(bitmap, stretch, &key, &resizedKey);
-    return ctx->isResourceInCache((kNo_Stretch == stretch) ? key : resizedKey);
+    GrContentKey key, stretchedKey;
+    make_bitmap_keys(bitmap, stretch, &key, &stretchedKey);
+    return ctx->isResourceInCache((kNo_Stretch == stretch) ? key : stretchedKey);
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
@@ -531,26 +534,26 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         if (kNo_Stretch == stretch) {
             return SkRef(result);
         }
-        GrContentKey resizedKey;
+        GrContentKey stretchedKey;
         // Don't create a key for the resized version if the bmp is volatile.
         if (!bitmap.isVolatile()) {
             const GrContentKey& key = result->getContentKey();
             if (key.isValid()) {
-                make_resize_key(key, stretch, &resizedKey);
-                GrTexture* stretched = ctx->findAndRefCachedTexture(resizedKey);
+                make_stretched_key(key, stretch, &stretchedKey);
+                GrTexture* stretched = ctx->findAndRefCachedTexture(stretchedKey);
                 if (stretched) {
                     return stretched;
                 }
             }
         }
-        return resize_texture(result, stretch, resizedKey);
+        return stretch_texture_to_next_pot(result, stretch, bitmap.pixelRef(), stretchedKey);
     }
 
     GrContentKey key, resizedKey;
 
     if (!bitmap.isVolatile()) {
         // If the bitmap isn't changing try to find a cached copy first.
-        generate_bitmap_keys(bitmap, stretch, &key, &resizedKey);
+        make_bitmap_keys(bitmap, stretch, &key, &resizedKey);
 
         result = ctx->findAndRefCachedTexture(resizedKey.isValid() ? resizedKey : key);
         if (result) {

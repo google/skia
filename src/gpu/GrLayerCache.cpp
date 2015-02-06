@@ -470,7 +470,7 @@ void GrLayerCache::purgeAll() {
 #endif
 
 void GrLayerCache::processDeletedPictures() {
-    SkTDArray<SkPicture::DeletionMessage> deletedPictures;
+    SkTArray<SkPicture::DeletionMessage> deletedPictures;
     fPictDeletionInbox.poll(&deletedPictures);
 
     for (int i = 0; i < deletedPictures.count(); i++) {

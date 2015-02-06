@@ -46,11 +46,13 @@ protected:
     }
 
     GrResourceKey& operator=(const GrResourceKey& that) {
+        SkASSERT(that.isValid());
         if (this != &that) {
             size_t bytes = that.size();
             SkASSERT(SkIsAlign4(bytes));
             fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
             memcpy(fKey.get(), that.fKey.get(), bytes);
+            this->validate();
         }
         return *this;
     }
@@ -236,4 +238,17 @@ public:
     };
 };
 
+// The cache listens for these messages to purge junk resources proactively.
+class GrContentKeyInvalidatedMessage {
+public:
+    explicit GrContentKeyInvalidatedMessage(const GrContentKey& key) : fKey(key) {}
+    GrContentKeyInvalidatedMessage(const GrContentKeyInvalidatedMessage& that) : fKey(that.fKey) {}
+    GrContentKeyInvalidatedMessage& operator=(const GrContentKeyInvalidatedMessage& that) {
+        fKey = that.fKey;
+        return *this;
+    }
+    const GrContentKey& key() const { return fKey; }
+private:
+    GrContentKey fKey;
+};
 #endif

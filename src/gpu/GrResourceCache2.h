@@ -12,7 +12,9 @@
 #include "GrGpuResource.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceKey.h"
+#include "SkMessageBus.h"
 #include "SkRefCnt.h"
+#include "SkTArray.h"
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
@@ -128,6 +130,20 @@ public:
         return SkToBool(fContentHash.find(contentKey));
     }
 
+    /** Purges resources to become under budget and processes resources with invalidated content
+        keys. */
+    void purgeAsNeeded() {
+        SkTArray<GrContentKeyInvalidatedMessage> invalidKeyMsgs;
+        fInvalidContentKeyInbox.poll(&invalidKeyMsgs);
+        if (invalidKeyMsgs.count()) {
+            this->processInvalidContentKeys(invalidKeyMsgs);
+        }
+        if (fPurging || (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes)) {
+            return;
+        }
+        this->internalPurgeAsNeeded();
+    }
+
     /** Purges all resources that don't have external owners. */
     void purgeAllUnlocked();
 
@@ -161,18 +177,13 @@ private:
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     bool didSetContentKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
+    void willRemoveContentKey(const GrGpuResource*);
     void didChangeBudgetStatus(GrGpuResource*);
     void makeResourceMRU(GrGpuResource*);
     /// @}
 
-    void purgeAsNeeded() {
-        if (fPurging || (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes)) {
-            return;
-        }
-        this->internalPurgeAsNeeded();
-    }
-
     void internalPurgeAsNeeded();
+    void processInvalidContentKeys(const SkTArray<GrContentKeyInvalidatedMessage>&);
 
 #ifdef SK_DEBUG
     bool isInCache(const GrGpuResource* r) const { return fResources.isInList(r); }
@@ -205,6 +216,8 @@ private:
 
     typedef SkTInternalLList<GrGpuResource> ResourceList;
 
+    typedef SkMessageBus<GrContentKeyInvalidatedMessage>::Inbox InvalidContentKeyInbox;
+
     ResourceList                        fResources;
     // This map holds all resources that can be used as scratch resources.
     ScratchMap                          fScratchMap;
@@ -236,6 +249,8 @@ private:
 
     PFOverBudgetCB                      fOverBudgetCB;
     void*                               fOverBudgetData;
+
+    InvalidContentKeyInbox              fInvalidContentKeyInbox;
 
 };
 
@@ -278,7 +293,14 @@ private:
     bool didSetContentKey(GrGpuResource* resource) { return fCache->didSetContentKey(resource); }
 
     /**
-     * Called by GrGpuResources when the remove their scratch key.
+     * Called by a GrGpuResource when it removes its content key.
+     */
+    void willRemoveContentKey(GrGpuResource* resource) {
+        return fCache->willRemoveContentKey(resource);
+    }
+
+    /**
+     * Called by a GrGpuResource when it removes its scratch key.
      */
     void willRemoveScratchKey(const GrGpuResource* resource) {
         fCache->willRemoveScratchKey(resource);

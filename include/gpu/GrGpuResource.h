@@ -264,6 +264,7 @@ private:
 
     // See comments in CacheAccess.
     bool setContentKey(const GrContentKey& contentKey);
+    void removeContentKey();
     void notifyIsPurgeable() const;
     void removeScratchKey();
     void makeBudgeted();

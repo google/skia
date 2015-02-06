@@ -25,7 +25,7 @@ DEF_TEST(MessageBus, r) {
     SkMessageBus<TestMessage>::Post(m2);
 
     // Make sure we got two.
-    SkTDArray<TestMessage> messages;
+    SkTArray<TestMessage> messages;
     inbox1.poll(&messages);
     REPORTER_ASSERT(r, 2 == messages.count());
     REPORTER_ASSERT(r, 5 == messages[0].x);

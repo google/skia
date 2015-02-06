@@ -14,7 +14,7 @@
 #include "SkGr.h"
 #include "SkMessageBus.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrContentKeyInvalidatedMessage);
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -221,6 +221,13 @@ void GrResourceCache2::willRemoveScratchKey(const GrGpuResource* resource) {
     fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
 }
 
+void GrResourceCache2::willRemoveContentKey(const GrGpuResource* resource) {
+    // Someone has a ref to this resource in order to invalidate it. When the ref count reaches
+    // zero we will get a notifyPurgable() and figure out what to do with it.
+    SkASSERT(resource->getContentKey().isValid());
+    fContentHash.remove(resource->getContentKey());
+}
+
 bool GrResourceCache2::didSetContentKey(GrGpuResource* resource) {
     SkASSERT(!fPurging);
     SkASSERT(resource);
@@ -404,6 +411,17 @@ void GrResourceCache2::purgeAllUnlocked() {
     } while (fNewlyPurgeableResourceWhilePurging);
     fPurging = false;
     this->validate();
+}
+
+void GrResourceCache2::processInvalidContentKeys(
+    const SkTArray<GrContentKeyInvalidatedMessage>& msgs) {
+    for (int i = 0; i < msgs.count(); ++i) {
+        GrGpuResource* resource = this->findAndRefContentResource(msgs[i].key());
+        if (resource) {
+            resource->cacheAccess().removeContentKey();
+            resource->unref(); // will call notifyPurgeable, if it is indeed now purgeable.
+        }
+    }
 }
 
 #ifdef SK_DEBUG

@@ -9,6 +9,7 @@
 #define SkMessageBus_DEFINED
 
 #include "SkLazyPtr.h"
+#include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkThread.h"
 #include "SkTypes.h"
@@ -25,10 +26,10 @@ public:
         ~Inbox();
 
         // Overwrite out with all the messages we've received since the last call.  Threadsafe.
-        void poll(SkTDArray<Message>* out);
+        void poll(SkTArray<Message>* out);
 
     private:
-        SkTDArray<Message> fMessages;
+        SkTArray<Message>  fMessages;
         SkMutex            fMessagesMutex;
 
         friend class SkMessageBus;
@@ -82,15 +83,15 @@ SkMessageBus<Message>::Inbox::~Inbox() {
 template<typename Message>
 void SkMessageBus<Message>::Inbox::receive(const Message& m) {
     SkAutoMutexAcquire lock(fMessagesMutex);
-    fMessages.push(m);
+    fMessages.push_back(m);
 }
 
 template<typename Message>
-void SkMessageBus<Message>::Inbox::poll(SkTDArray<Message>* messages) {
+void SkMessageBus<Message>::Inbox::poll(SkTArray<Message>* messages) {
     SkASSERT(messages);
     messages->reset();
     SkAutoMutexAcquire lock(fMessagesMutex);
-    messages->swap(fMessages);
+    fMessages.swap(messages);
 }
 
 //   ----------------------- Implementation of SkMessageBus -----------------------
