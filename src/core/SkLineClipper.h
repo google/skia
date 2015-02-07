@@ -30,7 +30,7 @@ public:
             3rd segment: lines[2]..lines[3]
      */
     static int ClipLine(const SkPoint pts[2], const SkRect& clip,
-                        SkPoint lines[kMaxPoints], bool canClipToTheRight);
+                        SkPoint lines[kMaxPoints]);
 
     /*  Intersect the line segment against the rect. If there is a non-empty
         resulting segment, return true and set dst[] to that segment. If not,
