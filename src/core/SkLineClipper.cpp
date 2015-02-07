@@ -173,7 +173,12 @@ static void sect_with_horizontal_test_for_pin_results() {
 #endif
 
 int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
-                            SkPoint lines[]) {
+                            SkPoint lines[], bool canClipToTheRight) {
+#if 1
+    // Disable this while we investigate layouttest failures
+    canClipToTheRight = false;
+#endif
+
 #ifdef SK_DEBUG
     {
         static bool gOnce;
@@ -241,6 +246,9 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
         result = tmp;
         reverse = false;
     } else if (tmp[index0].fX >= clip.fRight) {    // wholly to the right
+        if (canClipToTheRight) {
+            return 0;
+        }
         tmp[0].fX = tmp[1].fX = clip.fRight;
         result = tmp;
         reverse = false;

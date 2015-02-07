@@ -22,7 +22,7 @@ public:
 
     // returns the number of built edges. The array of those edge pointers
     // is returned from edgeList().
-    int build(const SkPath& path, const SkIRect* clip, int shiftUp);
+    int build(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
 
     SkEdge** edgeList() { return fEdgeList; }
 
@@ -36,9 +36,9 @@ private:
      *  empty, as we will have preallocated room for the pointers in fAlloc's
      *  block, and fEdgeList will point into that.
      */
-    SkEdge**            fEdgeList;
+    SkEdge**    fEdgeList;
 
-    int                 fShiftUp;
+    int         fShiftUp;
 
 public:
     void addLine(const SkPoint pts[]);
@@ -46,7 +46,7 @@ public:
     void addCubic(const SkPoint pts[]);
     void addClipper(SkEdgeClipper*);
 
-    int buildPoly(const SkPath& path, const SkIRect* clip, int shiftUp);
+    int buildPoly(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
 };
 
 #endif
