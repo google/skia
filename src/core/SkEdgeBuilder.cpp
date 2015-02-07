@@ -79,8 +79,8 @@ static void setShiftedClip(SkRect* dst, const SkIRect& src, int shift) {
              SkIntToScalar(src.fBottom >> shift));
 }
 
-int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
-                             int shiftUp) {
+int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shiftUp,
+                             bool clipToTheRight) {
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
     SkPath::Verb    verb;
@@ -115,7 +115,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
                     break;
                 case SkPath::kLine_Verb: {
                     SkPoint lines[SkLineClipper::kMaxPoints];
-                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines);
+                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, clipToTheRight);
                     SkASSERT(lineCount <= SkLineClipper::kMaxClippedLineSegments);
                     for (int i = 0; i < lineCount; i++) {
                         if (edge->setLine(lines[i], lines[i + 1], shiftUp)) {
@@ -161,14 +161,14 @@ static void handle_quad(SkEdgeBuilder* builder, const SkPoint pts[3]) {
     }
 }
 
-int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
-                         int shiftUp) {
+int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
+                         bool clipToTheRight) {
     fAlloc.reset();
     fList.reset();
     fShiftUp = shiftUp;
 
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
-        return this->buildPoly(path, iclip, shiftUp);
+        return this->buildPoly(path, iclip, shiftUp, clipToTheRight);
     }
 
     SkAutoConicToQuads quadder;
@@ -192,7 +192,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
                     break;
                 case SkPath::kLine_Verb: {
                     SkPoint lines[SkLineClipper::kMaxPoints];
-                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines);
+                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, clipToTheRight);
                     for (int i = 0; i < lineCount; i++) {
                         this->addLine(&lines[i]);
                     }
