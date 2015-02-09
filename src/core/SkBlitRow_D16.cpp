@@ -255,14 +255,10 @@ SkBlitRow::Proc16 SkBlitRow::Factory16(unsigned flags) {
 
 static const SkBlitRow::ColorProc16 gDefault_565_ColorProcs[] = {
 #if 0
-    Color32_D565,
     Color32A_D565,
-    Color32_D565_Dither,
     Color32A_D565_Dither
 #else
-    // TODO: stop cheating and fill in the above specializations!
-    Color32A_D565,
-    Color32A_D565,
+    // TODO: stop cheating and fill dither from the above specializations!
     Color32A_D565,
     Color32A_D565,
 #endif
@@ -272,8 +268,9 @@ SkBlitRow::ColorProc16 SkBlitRow::ColorFactory16(unsigned flags) {
     SkASSERT((flags & ~kFlags16_Mask) == 0);
     // just so we don't crash
     flags &= kFlags16_Mask;
-    // we ignore kGlobalAlpha_Flag, so shift down
-    flags >>= 1;
+    // we ignore both kGlobalAlpha_Flag and kSrcPixelAlpha_Flag, so shift down
+    // since this factory is only used for transparent source alphas
+    flags >>= 2;
 
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_ColorProcs));
 

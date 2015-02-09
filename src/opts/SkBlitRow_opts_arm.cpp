@@ -365,9 +365,7 @@ static const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm[] = {
 };
 
 static const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm[] = {
-    NULL,   // Color32_D565,
     NULL,   // Color32A_D565,
-    NULL,   // Color32_D565_Dither,
     NULL,   // Color32A_D565_Dither
 };
 
