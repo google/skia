@@ -122,8 +122,7 @@ protected:
         canvas->drawLine(r.centerX(), r.fTop, r.centerX(), r.fBottom, p);
     }
 
-    static void DrawLabel(SkCanvas* canvas, const SkRect& rect,
-                            int start, int sweep) {
+    static void DrawLabel(SkCanvas* canvas, const SkRect& rect, SkScalar start, SkScalar sweep) {
         SkPaint paint;
 
         paint.setAntiAlias(true);
@@ -131,9 +130,9 @@ protected:
 
         SkString    str;
 
-        str.appendS32(start);
+        str.appendScalar(start);
         str.append(", ");
-        str.appendS32(sweep);
+        str.appendScalar(sweep);
         canvas->drawText(str.c_str(), str.size(), rect.centerX(),
                          rect.fBottom + paint.getTextSize() * 5/4, paint);
     }
@@ -141,8 +140,8 @@ protected:
     static void DrawArcs(SkCanvas* canvas) {
         SkPaint paint;
         SkRect  r;
-        SkScalar w = SkIntToScalar(75);
-        SkScalar h = SkIntToScalar(50);
+        SkScalar w = 75;
+        SkScalar h = 50;
 
         r.set(0, 0, w, h);
         paint.setAntiAlias(true);
@@ -153,7 +152,7 @@ protected:
 
         paint.setStrokeWidth(SkIntToScalar(1));
 
-        static const int gAngles[] = {
+        static const SkScalar gAngles[] = {
             0, 360,
             0, 45,
             0, -45,
@@ -170,8 +169,7 @@ protected:
             DrawRectWithLines(canvas, r, paint);
 
             paint.setColor(SK_ColorRED);
-            canvas->drawArc(r, SkIntToScalar(gAngles[i]),
-                            SkIntToScalar(gAngles[i+1]), false, paint);
+            canvas->drawArc(r, gAngles[i], gAngles[i+1], false, paint);
 
             DrawLabel(canvas, r, gAngles[i], gAngles[i+1]);
 

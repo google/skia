@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkPathMeasure.h"
 #include "SkRandom.h"
 
 class AddArcGM : public skiagm::GM {
@@ -60,3 +61,53 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new AddArcGM; )
+
+///////////////////////////////////////////////////
+
+#define R   400
+
+class AddArcMeasGM : public skiagm::GM {
+public:
+    AddArcMeasGM() {}
+
+protected:
+    SkString onShortName() SK_OVERRIDE { return SkString("addarc_meas"); }
+
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(2*R + 40, 2*R + 40); }
+
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        canvas->translate(R + 20, R + 20);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        SkPaint measPaint;
+        measPaint.setAntiAlias(true);
+        measPaint.setColor(SK_ColorRED);
+
+        const SkRect oval = SkRect::MakeLTRB(-R, -R, R, R);
+        canvas->drawOval(oval, paint);
+
+        for (SkScalar deg = 0; deg < 360; deg += 10) {
+            const SkScalar rad = SkDegreesToRadians(deg);
+            SkScalar rx = SkScalarCos(rad) * R;
+            SkScalar ry = SkScalarSin(rad) * R;
+
+            canvas->drawLine(0, 0, rx, ry, paint);
+
+            SkPath path;
+            path.addArc(oval, 0, deg);
+            SkPathMeasure meas(path, false);
+            SkScalar arcLen = rad * R;
+            SkPoint pos;
+            if (meas.getPosTan(arcLen, &pos, NULL)) {
+                canvas->drawLine(0, 0, pos.x(), pos.y(), measPaint);
+            }
+        }
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new AddArcMeasGM; )
