@@ -13,48 +13,6 @@
 
 class GrProcOptInfo;
 
-/**
- * This xfer processor disables color writing. Thus color and coverage and ignored and no blending
- * occurs. This XP is usful for things like stenciling.
- */
-class GrDisableColorXP : public GrXferProcessor {
-public:
-    static GrXferProcessor* Create() {
-        return SkNEW(GrDisableColorXP);
-    }
-
-    ~GrDisableColorXP() SK_OVERRIDE {};
-
-    const char* name() const SK_OVERRIDE { return "Disable Color"; }
-
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
-
-    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
-
-    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               bool doesStencilWrite,
-                                               GrColor* color,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE {
-        return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
-    }
-
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE;
-
-private:
-    GrDisableColorXP();
-
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
-
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
-        return true;
-    }
-
-    typedef GrXferProcessor INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class GrDisableColorXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create() {

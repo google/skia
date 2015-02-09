@@ -13,7 +13,6 @@
 
 void GrGLXferProcessor::emitCode(const EmitArgs& args) {
     if (args.fXP.getDstCopyTexture()) {
-
         bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstCopyTexture()->origin();
 
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();

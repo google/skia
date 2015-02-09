@@ -484,6 +484,53 @@ GrFragmentProcessor* GrCustomXferFP::TestCreate(SkRandom* rand,
 // Xfer Processor
 ///////////////////////////////////////////////////////////////////////////////
 
+class CustomXP : public GrXferProcessor {
+public:
+    static GrXferProcessor* Create(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
+                                   bool willReadDstColor) {
+        if (!GrCustomXfermode::IsSupportedMode(mode)) {
+            return NULL;
+        } else {
+            return SkNEW_ARGS(CustomXP, (mode, dstCopy, willReadDstColor));
+        }
+    }
+
+    ~CustomXP() SK_OVERRIDE {};
+
+    const char* name() const SK_OVERRIDE { return "Custom Xfermode"; }
+
+    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+
+    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
+
+    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
+                                               const GrProcOptInfo& coveragePOI,
+                                               bool doesStencilWrite,
+                                               GrColor* overrideColor,
+                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+        blendInfo->fSrcBlend = kOne_GrBlendCoeff;
+        blendInfo->fDstBlend = kZero_GrBlendCoeff;
+        blendInfo->fBlendConstant = 0;
+    }
+
+    SkXfermode::Mode mode() const { return fMode; }
+
+private:
+    CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+
+    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE;
+
+    SkXfermode::Mode fMode;
+
+    typedef GrXferProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
         return NULL;
@@ -502,13 +549,13 @@ public:
     static void GenKey(const GrXferProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
         uint32_t key = proc.numTextures();
         SkASSERT(key <= 1);
-        key |= proc.cast<GrCustomXP>().mode() << 1;
+        key |= proc.cast<CustomXP>().mode() << 1;
         b->add32(key);
     }
 
 private:
     void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
-        SkXfermode::Mode mode = args.fXP.cast<GrCustomXP>().mode();
+        SkXfermode::Mode mode = args.fXP.cast<CustomXP>().mode();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         const char* dstColor = fsBuilder->dstColor();
 
@@ -526,26 +573,26 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrCustomXP::GrCustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
-                       bool willReadDstColor)
+CustomXP::CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
+                   bool willReadDstColor)
     : INHERITED(dstCopy, willReadDstColor), fMode(mode) {
-    this->initClassID<GrCustomXP>();
+    this->initClassID<CustomXP>();
 }
 
-void GrCustomXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void CustomXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* GrCustomXP::createGLInstance() const {
+GrGLXferProcessor* CustomXP::createGLInstance() const {
     return SkNEW_ARGS(GLCustomXP, (*this));
 }
 
-bool GrCustomXP::onIsEqual(const GrXferProcessor& other) const {
-    const GrCustomXP& s = other.cast<GrCustomXP>();
+bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
+    const CustomXP& s = other.cast<CustomXP>();
     return fMode == s.fMode;
 }
 
-GrXferProcessor::OptFlags GrCustomXP::getOptimizations(const GrProcOptInfo& colorPOI,
+GrXferProcessor::OptFlags CustomXP::getOptimizations(const GrProcOptInfo& colorPOI,
                                                        const GrProcOptInfo& coveragePOI,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
@@ -559,6 +606,14 @@ GrCustomXPFactory::GrCustomXPFactory(SkXfermode::Mode mode)
     : fMode(mode) {
     this->initClassID<GrCustomXPFactory>();
 }
+
+GrXferProcessor*
+GrCustomXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                         const GrProcOptInfo& coveragePOI,
+                                         const GrDeviceCoordTexture* dstCopy) const {
+    return CustomXP::Create(fMode, dstCopy, this->willReadDstColor());
+}
+
 
 void GrCustomXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,

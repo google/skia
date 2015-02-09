@@ -14,54 +14,6 @@
 
 class GrProcOptInfo;
 
-/**
- * This xfer processor directly blends the the src coverage with the dst using a set operator. It is
- * useful for rendering coverage masks using CSG. It can optionally invert the src coverage before
- * applying the set operator.
- * */
-class GrCoverageSetOpXP : public GrXferProcessor {
-public:
-    static GrXferProcessor* Create(SkRegion::Op regionOp, bool invertCoverage) {
-        return SkNEW_ARGS(GrCoverageSetOpXP, (regionOp, invertCoverage));
-    }
-
-    ~GrCoverageSetOpXP() SK_OVERRIDE;
-
-    const char* name() const SK_OVERRIDE { return "Coverage Set Op"; }
-
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
-
-    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
-
-    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               bool doesStencilWrite,
-                                               GrColor* color,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
-
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE;
-
-    bool invertCoverage() const { return fInvertCoverage; }
-
-private:
-    GrCoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
-
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
-
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
-        const GrCoverageSetOpXP& xp = xpBase.cast<GrCoverageSetOpXP>();
-        return (fRegionOp == xp.fRegionOp &&
-                fInvertCoverage == xp.fInvertCoverage);
-    }
-
-    SkRegion::Op fRegionOp;
-    bool         fInvertCoverage;
-
-    typedef GrXferProcessor INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkRegion::Op regionOp, bool invertCoverage = false);

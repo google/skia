@@ -158,6 +158,67 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);
 // Xfer Processor
 ///////////////////////////////////////////////////////////////////////////////
 
+class ArithmeticXP : public GrXferProcessor {
+public:
+    static GrXferProcessor* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                                   const GrDeviceCoordTexture* dstCopy,
+                                   bool willReadDstColor) {
+        return SkNEW_ARGS(ArithmeticXP, (k1, k2, k3, k4, enforcePMColor, dstCopy,
+                                         willReadDstColor));
+    }
+
+    ~ArithmeticXP() SK_OVERRIDE {};
+
+    const char* name() const SK_OVERRIDE { return "Arithmetic"; }
+
+    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+
+    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
+
+    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
+                                               const GrProcOptInfo& coveragePOI,
+                                               bool doesStencilWrite,
+                                               GrColor* overrideColor,
+                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+        blendInfo->fSrcBlend = kOne_GrBlendCoeff;
+        blendInfo->fDstBlend = kZero_GrBlendCoeff;
+        blendInfo->fBlendConstant = 0;
+    }
+
+    float k1() const { return fK1; }
+    float k2() const { return fK2; }
+    float k3() const { return fK3; }
+    float k4() const { return fK4; }
+    bool enforcePMColor() const { return fEnforcePMColor; }
+
+private:
+    ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                   const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+
+    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
+        const ArithmeticXP& xp = xpBase.cast<ArithmeticXP>();
+        if (fK1 != xp.fK1 ||
+            fK2 != xp.fK2 ||
+            fK3 != xp.fK3 ||
+            fK4 != xp.fK4 ||
+            fEnforcePMColor != xp.fEnforcePMColor) {
+            return false;
+        }
+        return true;
+    }
+
+    float                       fK1, fK2, fK3, fK4;
+    bool                        fEnforcePMColor;
+
+    typedef GrXferProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class GLArithmeticXP : public GrGLXferProcessor {
 public:
     GLArithmeticXP(const GrProcessor&)
@@ -168,7 +229,7 @@ public:
 
     static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
                        GrProcessorKeyBuilder* b) {
-        const GrArithmeticXP& arith = processor.cast<GrArithmeticXP>();
+        const ArithmeticXP& arith = processor.cast<ArithmeticXP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
         b->add32(key);
     }
@@ -194,7 +255,7 @@ private:
 
     void onSetData(const GrGLProgramDataManager& pdman,
                    const GrXferProcessor& processor) SK_OVERRIDE {
-        const GrArithmeticXP& arith = processor.cast<GrArithmeticXP>();
+        const ArithmeticXP& arith = processor.cast<ArithmeticXP>();
         pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
         fEnforcePMColor = arith.enforcePMColor();
     };
@@ -207,30 +268,30 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrArithmeticXP::GrArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                               const GrDeviceCoordTexture* dstCopy, bool willReadDstColor)
+ArithmeticXP::ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                           const GrDeviceCoordTexture* dstCopy, bool willReadDstColor)
     : INHERITED(dstCopy, willReadDstColor)
     , fK1(k1)
     , fK2(k2)
     , fK3(k3)
     , fK4(k4)
     , fEnforcePMColor(enforcePMColor) {
-    this->initClassID<GrArithmeticXP>();
+    this->initClassID<ArithmeticXP>();
 }
 
-void GrArithmeticXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void ArithmeticXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* GrArithmeticXP::createGLInstance() const {
+GrGLXferProcessor* ArithmeticXP::createGLInstance() const {
     return SkNEW_ARGS(GLArithmeticXP, (*this));
 }
 
-GrXferProcessor::OptFlags GrArithmeticXP::getOptimizations(const GrProcOptInfo& colorPOI,
-                                                           const GrProcOptInfo& coveragePOI,
-                                                           bool doesStencilWrite,
-                                                           GrColor* overrideColor,
-                                                           const GrDrawTargetCaps& caps) {
+GrXferProcessor::OptFlags ArithmeticXP::getOptimizations(const GrProcOptInfo& colorPOI,
+                                                         const GrProcOptInfo& coveragePOI,
+                                                         bool doesStencilWrite,
+                                                         GrColor* overrideColor,
+                                                         const GrDrawTargetCaps& caps) {
    return GrXferProcessor::kNone_Opt;
 }
 
@@ -241,6 +302,15 @@ GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float
     : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticXPFactory>();
 }
+
+GrXferProcessor*
+GrArithmeticXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
+                                             const GrProcOptInfo& coveragePOI,
+                                             const GrDeviceCoordTexture* dstCopy) const {
+    return ArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor, dstCopy,
+                                  this->willReadDstColor());
+}
+
 
 void GrArithmeticXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
