@@ -67,13 +67,6 @@ template <typename T>
 T sk_acquire_load(T* ptr) { return sk_atomic_load(ptr, sk_memory_order_acquire); }
 
 template <typename T>
-T sk_consume_load(T* ptr) {
-    // On every platform we care about, consume is the same as relaxed.
-    // If we pass consume here, some compilers turn that into acquire, which is overkill.
-    return sk_atomic_load(ptr, sk_memory_order_relaxed);
-}
-
-template <typename T>
 void sk_release_store(T* ptr, T val) { sk_atomic_store(ptr, val, sk_memory_order_release); }
 
 inline void sk_membar_acquire__after_atomic_dec() {}

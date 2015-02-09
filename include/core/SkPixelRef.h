@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkDynamicAnnotations.h"
+#include "SkMutex.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkImageInfo.h"
@@ -35,7 +36,6 @@
 class SkColorTable;
 class SkData;
 struct SkIRect;
-class SkMutex;
 
 class GrTexture;
 

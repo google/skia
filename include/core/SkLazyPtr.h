@@ -60,9 +60,7 @@
 
 // Everything below here is private implementation details.  Don't touch, don't even look.
 
-#include "SkDynamicAnnotations.h"
-#include "SkThread.h"
-#include "SkThreadPriv.h"
+#include "SkAtomics.h"
 
 // See FIXME below.
 class SkFontConfigInterfaceDirect;
@@ -70,18 +68,21 @@ class SkFontConfigInterfaceDirect;
 namespace Private {
 
 // Set *dst to ptr if *dst is NULL.  Returns value of *dst, destroying ptr if not swapped in.
-// Issues the same memory barriers as sk_atomic_cas: acquire on failure, release on success.
+// Issues acquire memory barrier on failure, release on success.
 template <typename P, void (*Destroy)(P)>
-static P try_cas(void** dst, P ptr) {
-    P prev = (P)sk_atomic_cas(dst, NULL, ptr);
-
-    if (prev) {
-        // We need an acquire barrier before returning prev, which sk_atomic_cas provided.
-        Destroy(ptr);
-        return prev;
-    } else {
-        // We need a release barrier before returning ptr, which sk_atomic_cas provided.
+static P try_cas(P* dst, P ptr) {
+    P prev = NULL;
+    if (sk_atomic_compare_exchange(dst, &prev, ptr,
+                                   sk_memory_order_release/*on success*/,
+                                   sk_memory_order_acquire/*on failure*/)) {
+        // We need a release barrier before returning ptr.  The compare_exchange provides it.
+        SkASSERT(!prev);
         return ptr;
+    } else {
+        Destroy(ptr);
+        // We need an acquire barrier before returning prev.  The compare_exchange provided it.
+        SkASSERT(prev);
+        return prev;
     }
 }
 
@@ -97,8 +98,20 @@ template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
 // reader-consumes memory pairing rather than the more general write-releases /
 // reader-acquires convention.
 //
-// This is nice, because a sk_consume_load is free on all our platforms: x86,
-// ARM, MIPS.  In contrast, sk_acquire_load issues a memory barrier on non-x86.
+// This is nice, because a consume load is free on all our platforms: x86,
+// ARM, MIPS.  In contrast, an acquire load issues a memory barrier on non-x86.
+
+template <typename T>
+T consume_load(T* ptr) {
+#if DYNAMIC_ANNOTATIONS_ENABLED
+    // TSAN gets anxious if we don't tell it what we're actually doing, a consume load.
+    return sk_atomic_load(ptr, sk_memory_order_consume);
+#else
+    // All current compilers blindly upgrade consume memory order to acquire memory order.
+    // For our purposes, though, no memory barrier is required, so we lie and use relaxed.
+    return sk_atomic_load(ptr, sk_memory_order_relaxed);
+#endif
+}
 
 // This has no constructor and must be zero-initalized (the macro above does this).
 template <typename T, T* (*Create)() = sk_new<T>, void (*Destroy)(T*) = sk_delete<T> >
@@ -107,12 +120,12 @@ public:
     T* get() {
         // If fPtr has already been filled, we need a consume barrier when loading it.
         // If not, we need a release barrier when setting it.  try_cas will do that.
-        T* ptr = (T*)sk_consume_load(&fPtr);
+        T* ptr = consume_load(&fPtr);
         return ptr ? ptr : try_cas<T*, Destroy>(&fPtr, Create());
     }
 
 private:
-    void* fPtr;
+    T* fPtr;
 };
 
 template <typename T> T* sk_new_arg(int i) { return SkNEW_ARGS(T, (i)); }
@@ -125,12 +138,12 @@ public:
         SkASSERT(i >= 0 && i < N);
         // If fPtr has already been filled, we need an consume barrier when loading it.
         // If not, we need a release barrier when setting it.  try_cas will do that.
-        T* ptr = (T*)sk_consume_load(&fArray[i]);
+        T* ptr = consume_load(&fArray[i]);
         return ptr ? ptr : try_cas<T*, Destroy>(&fArray[i], Create(i));
     }
 
 private:
-    void* fArray[N];
+    T* fArray[N];
 };
 
 }  // namespace Private
@@ -148,18 +161,18 @@ public:
     ~SkLazyPtr() { if (fPtr) { Destroy((T*)fPtr); } }
 
     T* get() const {
-        T* ptr = (T*)sk_consume_load(&fPtr);
+        T* ptr = Private::consume_load(&fPtr);
         return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, SkNEW(T));
     }
 
     template <typename Create>
     T* get(const Create& create) const {
-        T* ptr = (T*)sk_consume_load(&fPtr);
+        T* ptr = Private::consume_load(&fPtr);
         return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, create());
     }
 
 private:
-    mutable void* fPtr;
+    mutable T* fPtr;
 };
 
 
