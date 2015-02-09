@@ -16,6 +16,7 @@
 // fractionally (via an animator) to expose snapping bugs. The key bindings are:
 //      1-9: the different geometries
 //      t:   toggle which is drawn first the clip or the normal geometry
+//      f:   flip-flops which corner the bottom AA clip rect occupies in the complex clip cases
 
 // The possible geometric combinations to test
 enum Geometry {
@@ -34,6 +35,10 @@ enum Geometry {
 static const float kMin = 100.5f;
 static const float kMid = 200.0f;
 static const float kMax = 299.5f;
+
+// The translation applied to the base AA rect in the combination cases
+// (i.e., kRectAndRect through kRectAndConcave)
+static const float kXlate = 100.0f;
 
 SkRect create_rect(const SkPoint& offset) {
     SkRect r = SkRect::MakeLTRB(kMin, kMin, kMax, kMax);
@@ -79,62 +84,6 @@ SkPath create_concave_path(const SkPoint& offset) {
     return concavePath;
 }
 
-static void draw_clipped_geom(SkCanvas* canvas, const SkPoint& offset, int geom, bool useAA) {
-
-    int count = canvas->save();
-
-    switch (geom) {
-    case kRect_Geometry:
-        canvas->clipRect(create_rect(offset), SkRegion::kReplace_Op, useAA);
-        break;
-    case kRRect_Geometry:
-        canvas->clipRRect(create_rrect(offset), SkRegion::kReplace_Op, useAA);
-        break;
-    case kCircle_Geometry:
-        canvas->clipRRect(create_circle(offset), SkRegion::kReplace_Op, useAA);
-        break;
-    case kConvexPath_Geometry:
-        canvas->clipPath(create_convex_path(offset), SkRegion::kReplace_Op, useAA);
-        break;
-    case kConcavePath_Geometry:
-        canvas->clipPath(create_concave_path(offset), SkRegion::kReplace_Op, useAA);
-        break;
-    case kRectAndRect_Geometry: {
-        SkRect r = create_rect(offset);
-        r.offset(-100.0f, -100.0f);
-        canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-        canvas->clipRect(create_rect(offset), SkRegion::kIntersect_Op, useAA);
-        } break;
-    case kRectAndRRect_Geometry: {
-        SkRect r = create_rect(offset);
-        r.offset(-100.0f, -100.0f);
-        canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-        canvas->clipRRect(create_rrect(offset), SkRegion::kIntersect_Op, useAA);
-        } break;
-    case kRectAndConvex_Geometry: {
-        SkRect r = create_rect(offset);
-        r.offset(-100.0f, -100.0f);
-        canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-        canvas->clipPath(create_convex_path(offset), SkRegion::kIntersect_Op, useAA);
-        } break;
-    case kRectAndConcave_Geometry: {
-        SkRect r = create_rect(offset);
-        r.offset(-100.0f, -100.0f);
-        canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
-        canvas->clipPath(create_concave_path(offset), SkRegion::kIntersect_Op, useAA);
-        } break;
-    } 
-
-    SkISize size = canvas->getDeviceSize();
-    SkRect bigR = SkRect::MakeWH(SkIntToScalar(size.width()), SkIntToScalar(size.height()));
-
-    SkPaint p;
-    p.setColor(SK_ColorRED);
-
-    canvas->drawRect(bigR, p);
-    canvas->restoreToCount(count);
-}
-
 static void draw_normal_geom(SkCanvas* canvas, const SkPoint& offset, int geom, bool useAA) {
     SkPaint p;
     p.setAntiAlias(useAA);
@@ -165,7 +114,7 @@ static void draw_normal_geom(SkCanvas* canvas, const SkPoint& offset, int geom, 
 
 class ClipDrawMatchView : public SampleView {
 public:
-    ClipDrawMatchView() : fTrans(2, 5), fGeom(kRect_Geometry), fClipFirst(true) {
+    ClipDrawMatchView() : fTrans(2, 5), fGeom(kRect_Geometry), fClipFirst(true), fSign(1) {
         SkScalar values[2];
 
         fTrans.setRepeatCount(999);
@@ -199,6 +148,7 @@ protected:
                 case '7': fGeom = kRectAndRRect_Geometry; this->inval(NULL); return true;
                 case '8': fGeom = kRectAndConvex_Geometry; this->inval(NULL); return true;
                 case '9': fGeom = kRectAndConcave_Geometry; this->inval(NULL); return true;
+                case 'f': fSign = -fSign; this->inval(NULL); return true;
                 case 't': fClipFirst = !fClipFirst; this->inval(NULL); return true;
                 default: break;
             }
@@ -206,18 +156,74 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
+    void drawClippedGeom(SkCanvas* canvas, const SkPoint& offset, bool useAA) {
+
+        int count = canvas->save();
+
+        switch (fGeom) {
+        case kRect_Geometry:
+            canvas->clipRect(create_rect(offset), SkRegion::kReplace_Op, useAA);
+            break;
+        case kRRect_Geometry:
+            canvas->clipRRect(create_rrect(offset), SkRegion::kReplace_Op, useAA);
+            break;
+        case kCircle_Geometry:
+            canvas->clipRRect(create_circle(offset), SkRegion::kReplace_Op, useAA);
+            break;
+        case kConvexPath_Geometry:
+            canvas->clipPath(create_convex_path(offset), SkRegion::kReplace_Op, useAA);
+            break;
+        case kConcavePath_Geometry:
+            canvas->clipPath(create_concave_path(offset), SkRegion::kReplace_Op, useAA);
+            break;
+        case kRectAndRect_Geometry: {
+            SkRect r = create_rect(offset);
+            r.offset(fSign * kXlate, fSign * kXlate);
+            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipRect(create_rect(offset), SkRegion::kIntersect_Op, useAA);
+            } break;
+        case kRectAndRRect_Geometry: {
+            SkRect r = create_rect(offset);
+            r.offset(fSign * kXlate, fSign * kXlate);
+            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipRRect(create_rrect(offset), SkRegion::kIntersect_Op, useAA);
+            } break;
+        case kRectAndConvex_Geometry: {
+            SkRect r = create_rect(offset);
+            r.offset(fSign * kXlate, fSign * kXlate);
+            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipPath(create_convex_path(offset), SkRegion::kIntersect_Op, useAA);
+            } break;
+        case kRectAndConcave_Geometry: {
+            SkRect r = create_rect(offset);
+            r.offset(fSign * kXlate, fSign * kXlate);
+            canvas->clipRect(r, SkRegion::kReplace_Op, true); // AA here forces shader clips
+            canvas->clipPath(create_concave_path(offset), SkRegion::kIntersect_Op, useAA);
+            } break;
+        } 
+
+        SkISize size = canvas->getDeviceSize();
+        SkRect bigR = SkRect::MakeWH(SkIntToScalar(size.width()), SkIntToScalar(size.height()));
+
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+
+        canvas->drawRect(bigR, p);
+        canvas->restoreToCount(count);
+    }
+
     // Draw a big red rect through some clip geometry and also draw that same
     // geometry in black. The order in which they are drawn can be swapped.
     // This tests whether the clip and normally drawn geometry match up.
     void drawGeometry(SkCanvas* canvas, const SkPoint& offset, bool useAA) {
         if (fClipFirst) {
-            draw_clipped_geom(canvas, offset, fGeom, useAA);
+            this->drawClippedGeom(canvas, offset, useAA);
         }
 
         draw_normal_geom(canvas, offset, fGeom, useAA);
 
         if (!fClipFirst) {
-            draw_clipped_geom(canvas, offset, fGeom, useAA);
+            this->drawClippedGeom(canvas, offset, useAA);
         }
     }
 
@@ -239,6 +245,7 @@ private:
     SkInterpolator  fTrans;
     Geometry        fGeom;
     bool            fClipFirst;
+    int             fSign;
 
     typedef SampleView INHERITED;
 };
