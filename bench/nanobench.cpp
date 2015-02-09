@@ -10,7 +10,6 @@
 #include "Benchmark.h"
 #include "CrashHandler.h"
 #include "GMBench.h"
-#include "LazyDecodeBitmap.h"
 #include "ProcStats.h"
 #include "ResultsWriter.h"
 #include "RecordingBench.h"
@@ -485,7 +484,7 @@ public:
             return false;
         }
 
-        pic->reset(SkPicture::CreateFromStream(stream.get(), &sk_tools::LazyDecodeBitmap));
+        pic->reset(SkPicture::CreateFromStream(stream.get()));
         if (pic->get() == NULL) {
             SkDebugf("Could not read %s as an SkPicture.\n", path);
             return false;
