@@ -175,7 +175,9 @@ bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementS
     const uint32_t count = this->getArrayCount();
     this->validate(size == count);
     (void)this->skip(sizeof(uint32_t)); // Skip array count
+    const uint64_t byteLength64 = sk_64_mul(count, elementSize);
     const size_t byteLength = count * elementSize;
+    this->validate(byteLength == byteLength64);
     const void* ptr = this->skip(SkAlign4(byteLength));
     if (!fError) {
         memcpy(value, ptr, byteLength);
