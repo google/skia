@@ -3230,6 +3230,13 @@ static void check_path_is_quad_and_reset(skiatest::Reporter* reporter, SkPath* p
     check_done_and_reset(reporter, p, &iter);
 }
 
+static bool nearly_equal(const SkRect& a, const SkRect& b) {
+    return  SkScalarNearlyEqual(a.fLeft, b.fLeft) &&
+            SkScalarNearlyEqual(a.fTop, b.fTop) &&
+            SkScalarNearlyEqual(a.fRight, b.fRight) &&
+            SkScalarNearlyEqual(a.fBottom, b.fBottom);
+}
+
 static void test_arcTo(skiatest::Reporter* reporter) {
     SkPath p;
     p.arcTo(0, 0, 1, 2, 1);
@@ -3256,15 +3263,16 @@ static void test_arcTo(skiatest::Reporter* reporter) {
     check_path_is_move_and_reset(reporter, &p, oval.fRight, oval.centerY());
     p.arcTo(oval, 360, 0, false);
     check_path_is_move_and_reset(reporter, &p, oval.fRight, oval.centerY());
+
     for (float sweep = 359, delta = 0.5f; sweep != (float) (sweep + delta); ) {
         p.arcTo(oval, 0, sweep, false);
-        REPORTER_ASSERT(reporter, p.getBounds() == oval);
+        REPORTER_ASSERT(reporter, nearly_equal(p.getBounds(), oval));
         sweep += delta;
         delta /= 2;
     }
     for (float sweep = 361, delta = 0.5f; sweep != (float) (sweep - delta);) {
         p.arcTo(oval, 0, sweep, false);
-        REPORTER_ASSERT(reporter, p.getBounds() == oval);
+        REPORTER_ASSERT(reporter, nearly_equal(p.getBounds(), oval));
         sweep -= delta;
         delta /= 2;
     }

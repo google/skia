@@ -226,7 +226,6 @@ enum SkRotationDirection {
 int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
                    SkRotationDirection, const SkMatrix*, SkPoint quadPoints[]);
 
-// experimental
 struct SkConic {
     SkConic() {}
     SkConic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
@@ -245,6 +244,13 @@ struct SkConic {
 
     void set(const SkPoint pts[3], SkScalar w) {
         memcpy(fPts, pts, 3 * sizeof(SkPoint));
+        fW = w;
+    }
+
+    void set(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
+        fPts[0] = p0;
+        fPts[1] = p1;
+        fPts[2] = p2;
         fW = w;
     }
 
@@ -292,6 +298,12 @@ struct SkConic {
     bool findMaxCurvature(SkScalar* t) const;
 
     static SkScalar TransformW(const SkPoint[3], SkScalar w, const SkMatrix&);
+
+    enum {
+        kMaxConicsForArc = 5
+    };
+    static int BuildUnitArc(const SkVector& start, const SkVector& stop, SkRotationDirection,
+                            const SkMatrix*, SkConic conics[kMaxConicsForArc]);
 };
 
 #include "SkTemplates.h"

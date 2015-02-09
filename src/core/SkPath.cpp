@@ -915,23 +915,22 @@ static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar 
     return false;
 }
 
-static int build_arc_points(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
-                            SkPoint pts[kSkBuildQuadArcStorage]) {
-    SkVector start, stop;
-
-    start.fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &start.fX);
-    stop.fY = SkScalarSinCos(SkDegreesToRadians(startAngle + sweepAngle),
-                             &stop.fX);
+// Return the unit vectors pointing at the start/stop points for the given start/sweep angles
+//
+static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
+                                   SkVector* startV, SkVector* stopV, SkRotationDirection* dir) {
+    startV->fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &startV->fX);
+    stopV->fY = SkScalarSinCos(SkDegreesToRadians(startAngle + sweepAngle), &stopV->fX);
 
     /*  If the sweep angle is nearly (but less than) 360, then due to precision
-        loss in radians-conversion and/or sin/cos, we may end up with coincident
-        vectors, which will fool SkBuildQuadArc into doing nothing (bad) instead
-        of drawing a nearly complete circle (good).
-             e.g. canvas.drawArc(0, 359.99, ...)
-             -vs- canvas.drawArc(0, 359.9, ...)
-        We try to detect this edge case, and tweak the stop vector
+     loss in radians-conversion and/or sin/cos, we may end up with coincident
+     vectors, which will fool SkBuildQuadArc into doing nothing (bad) instead
+     of drawing a nearly complete circle (good).
+     e.g. canvas.drawArc(0, 359.99, ...)
+     -vs- canvas.drawArc(0, 359.9, ...)
+     We try to detect this edge case, and tweak the stop vector
      */
-    if (start == stop) {
+    if (*startV == *stopV) {
         SkScalar sw = SkScalarAbs(sweepAngle);
         if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
             SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
@@ -940,21 +939,34 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle, SkScalar sw
             // not sure how much will be enough, so we use a loop
             do {
                 stopRad -= deltaRad;
-                stop.fY = SkScalarSinCos(stopRad, &stop.fX);
-            } while (start == stop);
+                stopV->fY = SkScalarSinCos(stopRad, &stopV->fX);
+            } while (*startV == *stopV);
         }
     }
+    *dir = sweepAngle > 0 ? kCW_SkRotationDirection : kCCW_SkRotationDirection;
+}
 
+#ifdef SK_SUPPORT_LEGACY_ARCTO_QUADS
+static int build_arc_points(const SkRect& oval, const SkVector& start, const SkVector& stop,
+                            SkRotationDirection dir, SkPoint pts[kSkBuildQuadArcStorage]) {
     SkMatrix    matrix;
 
     matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
     matrix.postTranslate(oval.centerX(), oval.centerY());
 
-    return SkBuildQuadArc(start, stop,
-                          sweepAngle > 0 ? kCW_SkRotationDirection :
-                                           kCCW_SkRotationDirection,
-                          &matrix, pts);
+    return SkBuildQuadArc(start, stop, dir, &matrix, pts);
 }
+#else
+static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkVector& stop,
+                            SkRotationDirection dir, SkConic conics[SkConic::kMaxConicsForArc]) {
+    SkMatrix    matrix;
+
+    matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
+    matrix.postTranslate(oval.centerX(), oval.centerY());
+
+    return SkConic::BuildUnitArc(start, stop, dir, &matrix, conics);
+}
+#endif
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
                           Direction dir) {
@@ -1320,8 +1332,13 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
         return;
     }
 
+    SkVector startV, stopV;
+    SkRotationDirection dir;
+    angles_to_unit_vectors(startAngle, sweepAngle, &startV, &stopV, &dir);
+
+#ifdef SK_SUPPORT_LEGACY_ARCTO_QUADS
     SkPoint pts[kSkBuildQuadArcStorage];
-    int count = build_arc_points(oval, startAngle, sweepAngle, pts);
+    int count = build_arc_points(oval, startV, stopV, dir, pts);
     SkASSERT((count & 1) == 1);
 
     this->incReserve(count);
@@ -1329,6 +1346,18 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     for (int i = 1; i < count; i += 2) {
         this->quadTo(pts[i], pts[i+1]);
     }
+#else
+    SkConic conics[SkConic::kMaxConicsForArc];
+    int count = build_arc_conics(oval, startV, stopV, dir, conics);
+    if (count) {
+        this->incReserve(count * 2 + 1);
+        const SkPoint& pt = conics[0].fPts[0];
+        forceMoveTo ? this->moveTo(pt) : this->lineTo(pt);
+        for (int i = 0; i < count; ++i) {
+            this->conicTo(conics[i].fPts[1], conics[i].fPts[2], conics[i].fW);
+        }
+    }
+#endif
 }
 
 void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle) {
