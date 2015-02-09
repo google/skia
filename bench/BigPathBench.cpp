@@ -27,10 +27,14 @@ class BigPathBench : public Benchmark {
     SkPath      fPath;
     SkString    fName;
     Align       fAlign;
+    bool        fRound;
 
 public:
-    BigPathBench(Align align) : fAlign(align) {
+    BigPathBench(Align align, bool round) : fAlign(align), fRound(round) {
         fName.printf("bigpath_%s", gAlignName[fAlign]);
+        if (round) {
+            fName.append("_round");
+        }
     }
 
 protected:
@@ -51,6 +55,9 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(2);
+        if (fRound) {
+            paint.setStrokeJoin(SkPaint::kRound_Join);
+        }
         this->setupPaint(&paint);
 
         const SkRect r = fPath.getBounds();
@@ -74,7 +81,11 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new BigPathBench(kLeft_Align); )
-DEF_BENCH( return new BigPathBench(kMiddle_Align); )
-DEF_BENCH( return new BigPathBench(kRight_Align); )
+DEF_BENCH( return new BigPathBench(kLeft_Align,     false); )
+DEF_BENCH( return new BigPathBench(kMiddle_Align,   false); )
+DEF_BENCH( return new BigPathBench(kRight_Align,    false); )
+
+DEF_BENCH( return new BigPathBench(kLeft_Align,     true); )
+DEF_BENCH( return new BigPathBench(kMiddle_Align,   true); )
+DEF_BENCH( return new BigPathBench(kRight_Align,    true); )
 
