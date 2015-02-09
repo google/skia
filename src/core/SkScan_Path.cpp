@@ -257,8 +257,6 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             if (L < R) {
                 count += 1;
                 blitter->blitRect(L, local_top, R - L, count);
-                left += count * dLeft;
-                rite += count * dRite;
             }
             local_top = local_bot + 1;
         } else {
