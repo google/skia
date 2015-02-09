@@ -80,7 +80,7 @@ static void setShiftedClip(SkRect* dst, const SkIRect& src, int shift) {
 }
 
 int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shiftUp,
-                             bool clipToTheRight) {
+                             bool canCullToTheRight) {
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
     SkPath::Verb    verb;
@@ -115,7 +115,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
                     break;
                 case SkPath::kLine_Verb: {
                     SkPoint lines[SkLineClipper::kMaxPoints];
-                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, clipToTheRight);
+                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, canCullToTheRight);
                     SkASSERT(lineCount <= SkLineClipper::kMaxClippedLineSegments);
                     for (int i = 0; i < lineCount; i++) {
                         if (edge->setLine(lines[i], lines[i + 1], shiftUp)) {
@@ -162,13 +162,13 @@ static void handle_quad(SkEdgeBuilder* builder, const SkPoint pts[3]) {
 }
 
 int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
-                         bool clipToTheRight) {
+                         bool canCullToTheRight) {
     fAlloc.reset();
     fList.reset();
     fShiftUp = shiftUp;
 
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
-        return this->buildPoly(path, iclip, shiftUp, clipToTheRight);
+        return this->buildPoly(path, iclip, shiftUp, canCullToTheRight);
     }
 
     SkAutoConicToQuads quadder;
@@ -181,7 +181,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
     if (iclip) {
         SkRect clip;
         setShiftedClip(&clip, *iclip, shiftUp);
-        SkEdgeClipper clipper;
+        SkEdgeClipper clipper(canCullToTheRight);
 
         while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
             switch (verb) {
@@ -192,7 +192,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
                     break;
                 case SkPath::kLine_Verb: {
                     SkPoint lines[SkLineClipper::kMaxPoints];
-                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, clipToTheRight);
+                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, canCullToTheRight);
                     for (int i = 0; i < lineCount; i++) {
                         this->addLine(&lines[i]);
                     }

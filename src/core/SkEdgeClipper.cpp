@@ -148,7 +148,9 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
         return;
     }
     if (pts[0].fX >= clip.fRight) {  // wholly to the right
-        this->appendVLine(clip.fRight, pts[0].fY, pts[2].fY, reverse);
+        if (!this->canCullToTheRight()) {
+            this->appendVLine(clip.fRight, pts[0].fY, pts[2].fY, reverse);
+        }
         return;
     }
 
@@ -350,7 +352,9 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
         return;
     }
     if (pts[0].fX >= clip.fRight) {  // wholly to the right
-        this->appendVLine(clip.fRight, pts[0].fY, pts[3].fY, reverse);
+        if (!this->canCullToTheRight()) {
+            this->appendVLine(clip.fRight, pts[0].fY, pts[3].fY, reverse);
+        }
         return;
     }
 

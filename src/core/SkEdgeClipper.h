@@ -17,14 +17,19 @@
  */
 class SkEdgeClipper {
 public:
+    SkEdgeClipper(bool canCullToTheRight) : fCanCullToTheRight(canCullToTheRight) {}
+
     bool clipQuad(const SkPoint pts[3], const SkRect& clip);
     bool clipCubic(const SkPoint pts[4], const SkRect& clip);
 
     SkPath::Verb next(SkPoint pts[]);
 
+    bool canCullToTheRight() const { return fCanCullToTheRight; }
+
 private:
     SkPoint*        fCurrPoint;
     SkPath::Verb*   fCurrVerb;
+    const bool      fCanCullToTheRight;
 
     enum {
         kMaxVerbs = 13,

@@ -431,12 +431,14 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     SkEdgeBuilder   builder;
 
     // If we're convex, then we need both edges, even the right edge is past the clip
-    const bool cullToTheRight = !path.isConvex();
+    const bool canCullToTheRight = !path.isConvex();
 
-    int count = builder.build(path, clipRect, shiftEdgesUp, cullToTheRight);
+    int count = builder.build(path, clipRect, shiftEdgesUp, canCullToTheRight);
+    SkASSERT(count >= 0);
+
     SkEdge**    list = builder.edgeList();
 
-    if (count < 2) {
+    if (0 == count) {
         if (path.isInverseFillType()) {
             /*
              *  Since we are in inverse-fill, our caller has already drawn above
@@ -458,7 +460,6 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
                                   rect.height() << shiftEdgesUp);
             }
         }
-
         return;
     }
 
@@ -498,6 +499,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     }
 
     if (path.isConvex() && (NULL == proc)) {
+        SkASSERT(count >= 2);   // convex walker does not handle missing right edges
         walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, NULL);
     } else {
         int rightEdge;
