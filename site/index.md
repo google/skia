@@ -1,5 +1,13 @@
 Overview
 ========
+
+<a href="https://fiddle.skia.org/c/40bca23ae5625f7812b30316f879ced1"><img style="margin: 0" src="https://fiddle.skia.org/i/40bca23ae5625f7812b30316f879ced1_raster.png"></a>
+
+> *Click the above image to see the code that generated it.*
+
+<br>
+<br>
+
 Skia is an open source 2D graphics library which provides common APIs that work
 across a variety of hardware and software platforms.  It serves as the graphics
 engine for Google Chrome and Chrome OS, Android, Mozilla Firefox and Firefox
