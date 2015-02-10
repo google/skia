@@ -128,7 +128,7 @@
 #ifndef SK_ENABLE_INST_COUNT
 // Only enabled for static builds, because instance counting relies on static
 // variables in functions defined in header files.
-#  if defined(SK_DEBUG) && !defined(SKIA_DLL)
+#  if SK_DEVELOPER && !defined(SKIA_DLL)
 #    define SK_ENABLE_INST_COUNT 1
 #  else
 #    define SK_ENABLE_INST_COUNT 0
