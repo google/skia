@@ -420,12 +420,6 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
     }
 
     if (!fDoAA) {
-        // Here we mimic a non-anti-aliased scanline system. If there is
-        // no anti-aliasing we can integerize the bounding box to exclude
-        // fractional parts that won't be rendered.
-        // Note: the left edge is handled slightly differently below. We
-        // are a bit more generous in the rounding since we don't want to
-        // risk missing the left pixels when fLeft is very close to .5
         fFiniteBound.set(SkScalarFloorToScalar(fFiniteBound.fLeft+0.45f),
                          SkScalarRoundToScalar(fFiniteBound.fTop),
                          SkScalarRoundToScalar(fFiniteBound.fRight),
@@ -619,25 +613,6 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
     *boundType = element->fFiniteBoundType;
     if (isIntersectionOfRects) {
         *isIntersectionOfRects = element->fIsIntersectionOfRects;
-    }
-}
-
-bool SkClipStack::intersectRectWithClip(SkRect* rect) const {
-    SkASSERT(rect);
-
-    SkRect bounds;
-    SkClipStack::BoundsType bt;
-    this->getBounds(&bounds, &bt);
-    if (bt == SkClipStack::kInsideOut_BoundsType) {
-        if (bounds.contains(*rect)) {
-            return false;
-        } else {
-            // If rect's x values are both within bound's x range we
-            // could clip here. Same for y. But we don't bother to check.
-            return true;
-        }
-    } else {
-        return rect->intersect(bounds);
     }
 }
 

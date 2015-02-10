@@ -1327,13 +1327,13 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
 void GrGLGpu::flushScissor(const GrScissorState& scissorState,
                            const GrGLIRect& rtViewport,
                            GrSurfaceOrigin rtOrigin) {
-    if (scissorState.fEnabled) {
+    if (scissorState.enabled()) {
         GrGLIRect scissor;
         scissor.setRelativeTo(rtViewport,
-                              scissorState.fRect.fLeft,
-                              scissorState.fRect.fTop,
-                              scissorState.fRect.width(),
-                              scissorState.fRect.height(),
+                              scissorState.rect().fLeft,
+                              scissorState.rect().fTop,
+                              scissorState.rect().width(),
+                              scissorState.rect().height(),
                               rtOrigin);
         // if the scissor fully contains the viewport then we fall through and
         // disable the scissor test.
@@ -1489,9 +1489,8 @@ void GrGLGpu::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
 
     this->flushRenderTarget(glRT, rect);
     GrScissorState scissorState;
-    scissorState.fEnabled = SkToBool(rect);
-    if (scissorState.fEnabled) {
-        scissorState.fRect = *rect;
+    if (rect) {
+        scissorState.set(*rect);
     }
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
 
@@ -1602,8 +1601,7 @@ void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
     GrScissorState scissorState;
-    scissorState.fEnabled = true;
-    scissorState.fRect = rect;
+    scissorState.set(rect);
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
@@ -1930,18 +1928,18 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
             fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
             const GrGLIRect& vp = rt->getViewport();
             const SkIRect dirtyRect = rt->getResolveRect();
-            GrGLIRect r;
-            r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
-                            dirtyRect.width(), dirtyRect.height(), target->origin());
 
             if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
                 GrScissorState scissorState;
-                scissorState.fEnabled = true;
-                scissorState.fRect = dirtyRect;
-                this->flushScissor(scissorState, rt->getViewport(), rt->origin());
+                scissorState.set(dirtyRect);
+                this->flushScissor(scissorState, vp, rt->origin());
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
+                GrGLIRect r;
+                r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
+                                dirtyRect.width(), dirtyRect.height(), target->origin());
+
                 int right = r.fLeft + r.fWidth;
                 int top = r.fBottom + r.fHeight;
 

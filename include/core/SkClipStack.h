@@ -310,13 +310,6 @@ public:
                    bool* isIntersectionOfRects = NULL) const;
 
     /**
-     * Takes an input rect in device space and conservatively clips it to the
-     * clip-stack. If false is returned then the rect does not intersect the
-     * clip and is unmodified.
-     */
-    bool intersectRectWithClip(SkRect* devRect) const;
-
-    /**
      * Returns true if the input rect in device space is entirely contained
      * by the clip. A return value of false does not guarantee that the rect
      * is not contained by the clip.

@@ -49,13 +49,11 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
     if (NULL == rt) {
         return false;
     }
-    *devPathBounds = SkIRect::MakeWH(rt->width(), rt->height());
 
     target->getClip()->getConservativeBounds(rt, devClipBounds);
 
-    // TODO: getConservativeBounds already intersects with the
-    // render target's bounding box. Remove this next line
-    if (!devPathBounds->intersect(*devClipBounds)) {
+    if (devClipBounds->isEmpty()) {
+        *devPathBounds = SkIRect::MakeWH(rt->width(), rt->height());
         return false;
     }
 
@@ -64,6 +62,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         matrix.mapRect(&pathSBounds, path.getBounds());
         SkIRect pathIBounds;
         pathSBounds.roundOut(&pathIBounds);
+        *devPathBounds = *devClipBounds;
         if (!devPathBounds->intersect(pathIBounds)) {
             // set the correct path bounds, as this would be used later.
             *devPathBounds = pathIBounds;

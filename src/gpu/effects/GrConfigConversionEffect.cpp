@@ -156,6 +156,8 @@ GrGLFragmentProcessor* GrConfigConversionEffect::createGLInstance() const {
     return SkNEW_ARGS(GrGLConfigConversionEffect, (*this));
 }
 
+
+
 void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context,
                                                               PMConversion* pmToUPMRule,
                                                               PMConversion* upmToPMRule) {

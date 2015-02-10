@@ -11,74 +11,51 @@ namespace skiagm {
 
 // This GM exercises the use case found in crbug.com/423834.
 // The following pattern:
-//    clipRect(r);
-//    drawRect(r, withAA);
-//    drawRect(r, noAA);
+//    save();
+//    clipRect(rect, noAA);
+//    drawRect(bigRect, noAA);
+//    restore();
+//
+//    drawRect(rect, noAA);
 // can leave 1 pixel wide remnants of the first rect.
 class ClipDrawDrawGM : public GM {
 public:
-    ClipDrawDrawGM() {
-        this->setBGColor(0xFFCCCCCC);
-    }
+    ClipDrawDrawGM() { this->setBGColor(0xFFCCCCCC); }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
-        return SkString("clipdrawdraw");
-    }
+    SkString onShortName() SK_OVERRIDE { return SkString("clipdrawdraw"); }
 
-    SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(512, 512);
-    }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(512, 512); }
 
-    // Vertical remnant
-    static void draw1(SkCanvas* canvas) {
+    static void Draw(SkCanvas* canvas, const SkRect& rect) {
         SkPaint p;
-        p.setAntiAlias(true);
-
-        const SkRect rect = SkRect::MakeXYWH(8, 9, 404, 313);
-
-        canvas->save();
-
-        canvas->scale(0.5f, 0.5f);
-        canvas->translate(265, 265);
-
-        canvas->save();
-        canvas->clipRect(rect);
-        canvas->drawRect(rect, p);
-        canvas->restore();
-
-        p.setColor(SK_ColorWHITE);
         p.setAntiAlias(false);
-        canvas->drawRect(rect, p);
-        canvas->restore();
-    }
 
-    // Horizontal remnant
-    static void draw2(SkCanvas* canvas) {
-        SkPaint p;
-        p.setAntiAlias(true);
-
-        const SkRect rect = SkRect::MakeXYWH(8, 9, 404, 313);
+        const SkRect bigRect = SkRect::MakeWH(600, 600);
 
         canvas->save();
+            // draw a black rect through the clip
+            canvas->save();
+                canvas->clipRect(rect);
+                canvas->drawRect(bigRect, p);
+            canvas->restore();
 
-        canvas->translate(200.800003f, 172.299988f);
-        canvas->scale(0.8f, 0.8f);
-
-        canvas->save();
-        canvas->clipRect(rect);
-        canvas->drawRect(rect, p);
-        canvas->restore();
-
-        p.setColor(SK_ColorWHITE);
-        p.setAntiAlias(false);
-        canvas->drawRect(rect, p);
+            // now draw the white rect on top
+            p.setColor(SK_ColorWHITE);
+            canvas->drawRect(rect, p);
         canvas->restore();
     }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw1(canvas);
-        draw2(canvas);
+        // Vertical remnant
+        const SkRect rect1 = SkRect::MakeLTRB(136.5f, 137.5f, 338.5f, 293.5f);
+
+        // Horizontal remnant
+        // 179.488 rounds the right way (i.e., 179), 179.499 rounds the wrong way (i.e., 180)
+        const SkRect rect2 = SkRect::MakeLTRB(207.5f, 179.499f, 530.5f, 429.5f);
+
+        Draw(canvas, rect1);
+        Draw(canvas, rect2);
     }
 
 private:

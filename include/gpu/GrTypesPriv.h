@@ -249,6 +249,11 @@ struct GrScissorState {
                 (false == fEnabled || fRect == other.fRect);
     }
     bool operator!=(const GrScissorState& other) const { return !(*this == other); }
+
+    bool enabled() const { return fEnabled; }
+    const SkIRect& rect() const { return fRect; }
+
+private:
     bool    fEnabled;
     SkIRect fRect;
 };

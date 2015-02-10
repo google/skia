@@ -24,15 +24,9 @@ GrTextContext::~GrTextContext() {
 void GrTextContext::init(const GrPaint& grPaint, const SkPaint& skPaint) {
     const GrClipData* clipData = fContext->getClip();
 
-    SkRect devConservativeBound;
-    clipData->fClipStack->getConservativeBounds(
-                                     -clipData->fOrigin.fX,
-                                     -clipData->fOrigin.fY,
-                                     fContext->getRenderTarget()->width(),
+    clipData->getConservativeBounds(fContext->getRenderTarget()->width(),
                                      fContext->getRenderTarget()->height(),
-                                     &devConservativeBound);
-
-    devConservativeBound.roundOut(&fClipRect);
+                                     &fClipRect);
 
     fDrawTarget = fContext->getTextTarget();
 

@@ -23,7 +23,6 @@
 #include "effects/GrRRectEffect.h"
 #include "effects/GrTextureDomain.h"
 
-#define GR_AA_CLIP 1
 typedef SkClipStack::Element Element;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +152,7 @@ bool GrClipMaskManager::installClipEffects(GrPipelineBuilder* pipelineBuilder,
 
         if (!skip) {
             GrPrimitiveEdgeType edgeType;
-            if (GR_AA_CLIP && iter.get()->isAA()) {
+            if (iter.get()->isAA()) {
                 if (rt->isMultisampled()) {
                     // Coverage based AA clips don't place nicely with MSAA.
                     failed = true;
@@ -276,7 +275,6 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
         }
     }
 
-#if GR_AA_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
     if (0 == rt->numSamples() && requiresAA) {
         GrTexture* result = NULL;
@@ -314,7 +312,6 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
     }
-#endif // GR_AA_CLIP
 
     // Either a hard (stencil buffer) clip was explicitly requested or an anti-aliased clip couldn't
     // be created. In either case, free up the texture in the anti-aliased mask cache.
