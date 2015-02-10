@@ -44,7 +44,9 @@
       'cflags': [
         '-w',
         '-fexceptions',
-        '-DHAVE_EXPAT_CONFIG_H',
+      ],
+      'defines': [
+        'HAVE_EXPAT_CONFIG_H',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

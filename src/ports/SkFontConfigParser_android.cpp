@@ -115,7 +115,7 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 
 namespace lmpParser {
 
-void familyElementHandler(FontFamily* family, const char** attributes) {
+static void family_element_handler(FontFamily* family, const char** attributes) {
     // A non-fallback <family> tag must have a canonical name attribute.
     // A fallback <family> tag has no name, and may have lang and variant
     // attributes.
@@ -142,12 +142,12 @@ void familyElementHandler(FontFamily* family, const char** attributes) {
     }
 }
 
-void XMLCALL fontFileNameHandler(void* data, const char* s, int len) {
+static void XMLCALL font_file_name_handler(void* data, const char* s, int len) {
     FamilyData* self = static_cast<FamilyData*>(data);
     self->fCurrentFontInfo->fFileName.append(s, len);
 }
 
-void fontElementHandler(FamilyData* self, FontFileInfo* file, const char** attributes) {
+static void font_element_handler(FamilyData* self, FontFileInfo* file, const char** attributes) {
     // A <font> should have weight (integer) and style (normal, italic) attributes.
     // NOTE: we ignore the style.
     // The element should contain a filename.
@@ -161,10 +161,10 @@ void fontElementHandler(FamilyData* self, FontFileInfo* file, const char** attri
             }
         }
     }
-    XML_SetCharacterDataHandler(self->fParser, fontFileNameHandler);
+    XML_SetCharacterDataHandler(self->fParser, font_file_name_handler);
 }
 
-FontFamily* findFamily(FamilyData* self, const SkString& familyName) {
+static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
     for (int i = 0; i < self->fFamilies.count(); i++) {
         FontFamily* candidate = self->fFamilies[i];
         for (int j = 0; j < candidate->fNames.count(); j++) {
@@ -176,7 +176,7 @@ FontFamily* findFamily(FamilyData* self, const SkString& familyName) {
     return NULL;
 }
 
-void aliasElementHandler(FamilyData* self, const char** attributes) {
+static void alias_element_handler(FamilyData* self, const char** attributes) {
     // An <alias> must have name and to attributes.
     //   It may have weight (integer).
     // If it *does not* have a weight, it is a variant name for a <family>.
@@ -203,7 +203,7 @@ void aliasElementHandler(FamilyData* self, const char** attributes) {
     }
 
     // Assumes that the named family is already declared
-    FontFamily* targetFamily = findFamily(self, to);
+    FontFamily* targetFamily = find_family(self, to);
     if (!targetFamily) {
         SkDebugf("---- Font alias target %s (NOT FOUND)", to.c_str());
         return;
@@ -224,22 +224,22 @@ void aliasElementHandler(FamilyData* self, const char** attributes) {
     }
 }
 
-void XMLCALL startElementHandler(void* data, const char* tag, const char** attributes) {
+static void XMLCALL start_element_handler(void* data, const char* tag, const char** attributes) {
     FamilyData* self = static_cast<FamilyData*>(data);
     size_t len = strlen(tag);
     if (MEMEQ("family", tag, len)) {
         self->fCurrentFamily.reset(new FontFamily(self->fBasePath, self->fIsFallback));
-        familyElementHandler(self->fCurrentFamily, attributes);
+        family_element_handler(self->fCurrentFamily, attributes);
     } else if (MEMEQ("font", tag, len)) {
         FontFileInfo* file = &self->fCurrentFamily->fFonts.push_back();
         self->fCurrentFontInfo = file;
-        fontElementHandler(self, file, attributes);
+        font_element_handler(self, file, attributes);
     } else if (MEMEQ("alias", tag, len)) {
-        aliasElementHandler(self, attributes);
+        alias_element_handler(self, attributes);
     }
 }
 
-void XMLCALL endElementHandler(void* data, const char* tag) {
+static void XMLCALL end_element_handler(void* data, const char* tag) {
     FamilyData* self = static_cast<FamilyData*>(data);
     size_t len = strlen(tag);
     if (MEMEQ("family", tag, len)) {
@@ -337,8 +337,8 @@ static void XMLCALL start_element_handler(void* data, const char* tag, const cha
             int version;
             if (parse_non_negative_integer(valueString, &version) && (version >= 21)) {
                 XML_SetElementHandler(self->fParser,
-                                      lmpParser::startElementHandler,
-                                      lmpParser::endElementHandler);
+                                      lmpParser::start_element_handler,
+                                      lmpParser::end_element_handler);
                 self->fVersion = version;
             }
         }
@@ -405,6 +405,12 @@ static void XMLCALL xml_entity_decl_handler(void *data,
     XML_StopParser(self->fParser, XML_FALSE);
 }
 
+static const XML_Memory_Handling_Suite sk_XML_alloc = {
+    sk_malloc_throw,
+    sk_realloc_throw,
+    sk_free
+};
+
 template<typename T> struct remove_ptr {typedef T type;};
 template<typename T> struct remove_ptr<T*> {typedef T type;};
 
@@ -424,7 +430,8 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
         return -1;
     }
 
-    SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(XML_ParserCreate(NULL));
+    SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(
+        XML_ParserCreate_MM(NULL, &sk_XML_alloc, NULL));
     if (!parser) {
         SkDebugf("Could not create XML parser.\n");
         return -1;
@@ -439,12 +446,20 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     // Start parsing oldschool; switch these in flight if we detect a newer version of the file.
     XML_SetElementHandler(parser, jbParser::start_element_handler, jbParser::end_element_handler);
 
-    char buffer[512];
+    // One would assume it would be faster to have a buffer on the stack and call XML_Parse.
+    // But XML_Parse will call XML_GetBuffer anyway and memmove the passed buffer into it.
+    // (Unless XML_CONTEXT_BYTES is undefined, but all users define it.)
+    static const int bufferSize = 512;
     bool done = false;
     while (!done) {
-        size_t len = file.read(buffer, SK_ARRAY_COUNT(buffer));
+        void* buffer = XML_GetBuffer(parser, bufferSize);
+        if (!buffer) {
+            SkDebugf("Could not buffer enough to continue.\n");
+            return -1;
+        }
+        size_t len = file.read(buffer, bufferSize);
         done = file.isAtEnd();
-        XML_Status status = XML_Parse(parser, buffer, len, done);
+        XML_Status status = XML_ParseBuffer(parser, len, done);
         if (XML_STATUS_ERROR == status) {
             XML_Error error = XML_GetErrorCode(parser);
             int line = XML_GetCurrentLineNumber(parser);
