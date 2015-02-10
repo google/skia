@@ -14,5 +14,8 @@ void S32A_Opaque_BlitRow32_SSE4(SkPMColor* SK_RESTRICT,
                                 const SkPMColor* SK_RESTRICT,
                                 int count,
                                 U8CPU alpha);
+
+void Color32A_D565_SSE4(uint16_t dst[], SkPMColor src, int count, int x, int y);
+
 #endif
 

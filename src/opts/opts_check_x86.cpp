@@ -197,7 +197,7 @@ void SkBitmapProcState::platformProcs() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static SkBlitRow::Proc16 platform_16_procs[] = {
+static const SkBlitRow::Proc16 platform_16_procs[] = {
     S32_D565_Opaque_SSE2,               // S32_D565_Opaque
     NULL,                               // S32_D565_Blend
     S32A_D565_Opaque_SSE2,              // S32A_D565_Opaque
@@ -216,18 +216,27 @@ SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
     }
 }
 
+static const SkBlitRow::ColorProc16 platform_565_colorprocs_SSE4[] = {
+    Color32A_D565_SSE4,                 // Color32A_D565,
+    NULL,                               // Color32A_D565_Dither
+};
+
 SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
-    return NULL;
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE41)) {
+        return platform_565_colorprocs_SSE4[flags];
+    } else {
+        return NULL;
+    }
 }
 
-static SkBlitRow::Proc32 platform_32_procs_SSE2[] = {
+static const SkBlitRow::Proc32 platform_32_procs_SSE2[] = {
     NULL,                               // S32_Opaque,
     S32_Blend_BlitRow32_SSE2,           // S32_Blend,
     S32A_Opaque_BlitRow32_SSE2,         // S32A_Opaque
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
 
-static SkBlitRow::Proc32 platform_32_procs_SSE4[] = {
+static const SkBlitRow::Proc32 platform_32_procs_SSE4[] = {
     NULL,                               // S32_Opaque,
     S32_Blend_BlitRow32_SSE2,           // S32_Blend,
     S32A_Opaque_BlitRow32_SSE4,         // S32A_Opaque
