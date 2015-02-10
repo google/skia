@@ -1612,7 +1612,7 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     const SkPoint finalP = { x, y };
     const SkPoint& lastQ = quadrantPts[quadrant * 2];  // will already be a unit-vector
     const SkScalar dot = SkVector::DotProduct(lastQ, finalP);
-    SkASSERT(0 <= dot && dot <= SK_Scalar1);
+    SkASSERT(0 <= dot && dot <= SK_Scalar1 + SK_ScalarNearlyZero);
 
     if (dot < 1 - SK_ScalarNearlyZero) {
         SkVector offCurve = { lastQ.x() + x, lastQ.y() + y };

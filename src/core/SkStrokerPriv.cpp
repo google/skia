@@ -22,6 +22,7 @@ static void RoundCapper(SkPath* path, const SkPoint& pivot,
                         const SkVector& normal, const SkPoint& stop,
                         SkPath*)
 {
+#ifdef SK_SUPPORT_LEGACY_ARCTO_QUADS
     SkScalar    px = pivot.fX;
     SkScalar    py = pivot.fY;
     SkScalar    nx = normal.fX;
@@ -35,6 +36,15 @@ static void RoundCapper(SkPath* path, const SkPoint& pivot,
     path->cubicTo(px + CWX(nx, ny) - sx, py + CWY(nx, ny) - sy,
                   px - nx + CWX(sx, sy), py - ny + CWY(sx, sy),
                   stop.fX, stop.fY);
+#else
+    SkVector parallel;
+    normal.rotateCW(&parallel);
+
+    SkPoint projectedCenter = pivot + parallel;
+
+    path->conicTo(projectedCenter + normal, projectedCenter, SK_ScalarRoot2Over2);
+    path->conicTo(projectedCenter - normal, stop, SK_ScalarRoot2Over2);
+#endif
 }
 
 static void SquareCapper(SkPath* path, const SkPoint& pivot,
@@ -136,21 +146,31 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
         dir = kCCW_SkRotationDirection;
     }
 
-    SkPoint     pts[kSkBuildQuadArcStorage];
     SkMatrix    matrix;
     matrix.setScale(radius, radius);
     matrix.postTranslate(pivot.fX, pivot.fY);
+#ifdef SK_SUPPORT_LEGACY_ARCTO_QUADS
+    SkPoint     pts[kSkBuildQuadArcStorage];
     int count = SkBuildQuadArc(before, after, dir, &matrix, pts);
     SkASSERT((count & 1) == 1);
-
-    if (count > 1)
-    {
-        for (int i = 1; i < count; i += 2)
+    if (count > 1) {
+        for (int i = 1; i < count; i += 2) {
             outer->quadTo(pts[i].fX, pts[i].fY, pts[i+1].fX, pts[i+1].fY);
-
+        }
         after.scale(radius);
         HandleInnerJoin(inner, pivot, after);
     }
+#else
+    SkConic conics[SkConic::kMaxConicsForArc];
+    int count = SkConic::BuildUnitArc(before, after, dir, &matrix, conics);
+    if (count > 0) {
+        for (int i = 0; i < count; ++i) {
+            outer->conicTo(conics[i].fPts[1], conics[i].fPts[2], conics[i].fW);
+        }
+        after.scale(radius);
+        HandleInnerJoin(inner, pivot, after);
+    }
+#endif
 }
 
 #define kOneOverSqrt2   (0.707106781f)
