@@ -1776,7 +1776,12 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     SkRect storage;
     const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
-        bounds = &paint.computeFastBounds(r, &storage);
+        // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
+        // To prevent accidental rejecting at this stage, we have to sort it before we check.
+        SkRect tmp(r);
+        tmp.sort();
+
+        bounds = &paint.computeFastBounds(tmp, &storage);
         if (this->quickReject(*bounds)) {
             return;
         }
