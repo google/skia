@@ -28,7 +28,7 @@
       'conditions': [
         [ 'skia_arch_type == "x86" and skia_os != "ios"', {
           'cflags': [ '-msse2' ],
-          'dependencies': [ 'opts_ssse3', 'opts_sse41' ],
+          'dependencies': [ 'opts_ssse3', 'opts_sse41', 'opts_avx' ],
           'sources': [ '<@(sse2_sources)' ],
         }],
 
@@ -55,6 +55,7 @@
           'cflags':  [ '-fomit-frame-pointer' ],
           'variables': { 'arm_neon_optional%': '<(arm_neon_optional>' },
           'sources': [ '<@(armv7_sources)' ],
+          'dependencies': [ 'opts_neon_fp16' ],
           'conditions': [
             [ 'arm_neon == 1 or arm_neon_optional == 1', {
               'dependencies': [ 'opts_neon' ]
@@ -120,6 +121,26 @@
       ],
     },
     {
+      'target_name': 'opts_avx',
+      'product_name': 'skia_opts_avx',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [ 'core.gyp:*' ],
+      'sources': [ '<@(avx_sources)' ],
+      'conditions': [
+        [ 'skia_os == "win"', {
+            'defines' : [ 'SK_CPU_SSE_LEVEL=50' ],
+            'msvs_settings': { 'VCCLCompilerTool': { 'EnabledEnhancedInstructionSet': '3' } },
+        }],
+        [ 'not skia_android_framework', {
+          'cflags': [ '-mavx' ],
+        }],
+        [ 'skia_os == "mac"', {
+          'xcode_settings': { 'OTHER_CPLUSPLUSFLAGS': [ '-mavx' ] },
+        }],
+      ],
+    },
+    {
       'target_name': 'opts_neon',
       'product_name': 'skia_opts_neon',
       'type': 'static_library',
@@ -144,6 +165,28 @@
         [ 'not skia_android_framework', {
           'cflags': [
             '-mfpu=neon',
+            '-fomit-frame-pointer',
+          ],
+        }],
+      ],
+      'ldflags': [
+        '-march=armv7-a',
+        '-Wl,--fix-cortex-a8',
+      ],
+    },
+    {
+      'target_name': 'opts_neon_fp16',
+      'product_name': 'skia_opts_neon_fp16',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [ '../src/core' ],
+      'sources': [ '<@(neon_fp16_sources)' ],
+      'conditions': [
+        [ 'not skia_android_framework', {
+          'cflags': [
+            '-mfpu=neon-fp16',
+            '-mfp16-format=ieee',
             '-fomit-frame-pointer',
           ],
         }],
