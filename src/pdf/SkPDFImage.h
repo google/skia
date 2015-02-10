@@ -54,19 +54,9 @@ public:
 
     virtual ~SkPDFImage();
 
-    /** Add a Soft Mask (alpha or shape channel) to the image.  Refs mask.
-     *  @param mask A gray scale image representing the mask.
-     *  @return The mask argument is returned.
-     */
-    SkPDFImage* addSMask(SkPDFImage* mask);
-
     bool isEmpty() {
         return fSrcRect.isEmpty();
     }
-
-    // The SkPDFObject interface.
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
 
 private:
     SkBitmap fBitmap;
@@ -74,8 +64,6 @@ private:
     SkIRect fSrcRect;
     SkPicture::EncodeBitmap fEncoder;
     bool fStreamValid;
-
-    SkTDArray<SkPDFObject*> fResources;
 
     /** Create a PDF image XObject. Entries for the image properties are
      *  automatically added to the stream dictionary.

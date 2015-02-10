@@ -43,17 +43,10 @@ public:
      */
     void setFileOffset(SkPDFObject* obj, off_t offset);
 
-    /** Output the object number for the passed object.
+    /** Get the object number for the passed object.
      *  @param obj         The object of interest.
-     *  @param stream      The writable output stream to send the output to.
      */
-    void emitObjectNumber(SkWStream* stream, SkPDFObject* obj);
-
-    /** Return the number of bytes that would be emitted for the passed
-     *  object's object number.
-     *  @param obj         The object of interest
-     */
-    size_t getObjectNumberSize(SkPDFObject* obj);
+    int32_t getObjectNumber(SkPDFObject* obj);
 
     /** Return the document flags in effect for this catalog/document.
      */
@@ -75,10 +68,6 @@ public:
      *  there is none, return the passed object.
      */
     SkPDFObject* getSubstituteObject(SkPDFObject* object);
-
-    /** get the resources of substitute objects.
-     */
-    SkTSet<SkPDFObject*>* getSubstituteList(bool firstPage);
 
 private:
     struct Rec {
@@ -103,7 +92,7 @@ private:
     };
 
     // TODO(vandebo): Make this a hash if it's a performance problem.
-    SkTDArray<struct Rec> fCatalog;
+    SkTDArray<Rec> fCatalog;
 
     // TODO(arthurhsu): Make this a hash if it's a performance problem.
     SkTDArray<SubstituteMapping> fSubstituteMap;
@@ -119,7 +108,7 @@ private:
 
     SkPDFDocument::Flags fDocumentFlags;
 
-    int findObjectIndex(SkPDFObject* obj) const;
+    int findObjectIndex(SkPDFObject* obj);
 
     int assignObjNum(SkPDFObject* obj);
 };

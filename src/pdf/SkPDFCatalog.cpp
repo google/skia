@@ -33,7 +33,7 @@ SkPDFObject* SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
         fFirstPageCount++;
     }
 
-    struct Rec newEntry(obj, onFirstPage);
+    Rec newEntry(obj, onFirstPage);
     fCatalog.append(1, &newEntry);
     return obj;
 }
@@ -45,18 +45,11 @@ void SkPDFCatalog::setFileOffset(SkPDFObject* obj, off_t offset) {
     fCatalog[objIndex].fFileOffset = offset;
 }
 
-void SkPDFCatalog::emitObjectNumber(SkWStream* stream, SkPDFObject* obj) {
-    stream->writeDecAsText(assignObjNum(obj));
-    stream->writeText(" 0");  // Generation number is always 0.
+int32_t SkPDFCatalog::getObjectNumber(SkPDFObject* obj) {
+    return (int32_t)assignObjNum(obj);
 }
 
-size_t SkPDFCatalog::getObjectNumberSize(SkPDFObject* obj) {
-    SkDynamicMemoryWStream buffer;
-    emitObjectNumber(&buffer, obj);
-    return buffer.getOffset();
-}
-
-int SkPDFCatalog::findObjectIndex(SkPDFObject* obj) const {
+int SkPDFCatalog::findObjectIndex(SkPDFObject* obj) {
     for (int i = 0; i < fCatalog.count(); i++) {
         if (fCatalog[i].fObject == obj) {
             return i;
@@ -68,7 +61,9 @@ int SkPDFCatalog::findObjectIndex(SkPDFObject* obj) const {
             return findObjectIndex(fSubstituteMap[i].fOriginal);
         }
     }
-    return -1;
+    Rec newEntry(obj, false);
+    fCatalog.append(1, &newEntry);
+    return fCatalog.count() - 1;
 }
 
 int SkPDFCatalog::assignObjNum(SkPDFObject* obj) {
@@ -150,35 +145,8 @@ void SkPDFCatalog::setSubstitute(SkPDFObject* original,
         }
     }
 #endif
-    // Check if the original is on first page.
-    bool onFirstPage = false;
-    for (int i = 0; i < fCatalog.count(); ++i) {
-        if (fCatalog[i].fObject == original) {
-            onFirstPage = fCatalog[i].fOnFirstPage;
-            break;
-        }
-#if defined(SK_DEBUG)
-        if (i == fCatalog.count() - 1) {
-            SkASSERT(false);  // original not in catalog
-            return;
-        }
-#endif
-    }
-
     SubstituteMapping newMapping(original, substitute);
     fSubstituteMap.append(1, &newMapping);
-
-    // Add resource objects of substitute object to catalog.
-    SkTSet<SkPDFObject*>* targetSet = getSubstituteList(onFirstPage);
-    SkTSet<SkPDFObject*> newResourceObjects;
-    newMapping.fSubstitute->getResources(*targetSet, &newResourceObjects);
-    for (int i = 0; i < newResourceObjects.count(); ++i) {
-        addObject(newResourceObjects[i], onFirstPage);
-    }
-    // mergeInto returns the number of duplicates.
-    // If there are duplicates, there is a bug and we mess ref counting.
-    SkDEBUGCODE(int duplicates =) targetSet->mergeInto(newResourceObjects);
-    SkASSERT(duplicates == 0);
 }
 
 SkPDFObject* SkPDFCatalog::getSubstituteObject(SkPDFObject* object) {
@@ -190,7 +158,3 @@ SkPDFObject* SkPDFCatalog::getSubstituteObject(SkPDFObject* object) {
     return object;
 }
 
-SkTSet<SkPDFObject*>* SkPDFCatalog::getSubstituteList(bool firstPage) {
-    return firstPage ? &fSubstituteResourcesFirstPage :
-                       &fSubstituteResourcesRemaining;
-}

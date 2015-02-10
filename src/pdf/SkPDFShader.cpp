@@ -510,11 +510,6 @@ private:
 SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     : SkPDFDict("Pattern"), fShaderState(state) {}
 
-void SkPDFFunctionShader::getResources(const SkTSet<SkPDFObject*>& known,
-                                       SkTSet<SkPDFObject*>* newr) {
-    GetResourcesHelper(&fResources, known, newr);
-}
-
 SkPDFFunctionShader::~SkPDFFunctionShader() {
     SkAutoMutexAcquire lock(SkPDFCanon::GetShaderMutex());
     SkPDFCanon::GetCanon().removeFunctionShader(this);
@@ -540,11 +535,6 @@ SkPDFAlphaFunctionShader::~SkPDFAlphaFunctionShader() {
     SkPDFCanon::GetCanon().removeAlphaShader(this);
 }
 
-void SkPDFAlphaFunctionShader::getResources(const SkTSet<SkPDFObject*>& known,
-                                            SkTSet<SkPDFObject*>* newr) {
-    fResourceDict->getReferencedResources(known, newr, true);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
@@ -559,11 +549,6 @@ SkPDFImageShader::~SkPDFImageShader() {
     SkPDFCanon::GetCanon().removeImageShader(this);
     lock.release();
     fResources.unrefAll();
-}
-
-void SkPDFImageShader::getResources(const SkTSet<SkPDFObject*>& known,
-                                    SkTSet<SkPDFObject*>* newr) {
-    GetResourcesHelper(&fResources.toArray(), known, newr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1128,10 +1113,6 @@ SkPDFImageShader* SkPDFImageShader::Create(
     SkPDFImageShader* imageShader =
             SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
     imageShader->setData(content.get());
-
-    SkPDFResourceDict* resourceDict = pattern.getResourceDict();
-    resourceDict->getReferencedResources(imageShader->fResources,
-                                         &imageShader->fResources, false);
 
     populate_tiling_pattern_dict(imageShader, patternBBox,
                                  pattern.getResourceDict(), finalMatrix);

@@ -21,6 +21,8 @@
 class SkPDFCatalog;
 class SkWStream;
 
+class SkPDFObject;
+
 /** \class SkPDFObject
 
     A PDF Object is the base class for primitive elements in a PDF file.  A
@@ -36,41 +38,17 @@ public:
      *  @param catalog  The object catalog to use.
      *  @param stream   The writable output stream to send the output to.
      */
+    // TODO(halcanary): make this method const
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) = 0;
 
-    /** For non-primitive objects (i.e. objects defined outside this file),
-     *  this method will add to newResourceObjects any objects that this method
-     *  depends on, but not already in knownResourceObjects. This operates
-     *  recursively so if this object depends on another object and that object
-     *  depends on two more, all three objects will be added.
+    /**
+     *  Adds all transitive dependencies of this object to resourceSet.
      *
-     *  @param knownResourceObjects  The set of resources to be ignored.
-     *  @param newResourceObjects  The set to append dependant resources to.
+     *  @param catalog Implementations should respect the catalog's
+     *                 object substitution map.
      */
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
-
-    /** Static helper function to add a resource to a list.  The list takes
-     *  a reference.
-     * @param resource  The resource to add.
-     * @param list      The list to add the resource to.
-     */
-    static void AddResourceHelper(SkPDFObject* resource,
-                                  SkTDArray<SkPDFObject*>* list);
-
-    /** Static helper function to copy and reference the resources (and all
-     *   their subresources) into a new list.
-     * @param resources The resource list.
-     * @param newResourceObjects All the resource objects (recursively) used on
-     *                         the page are added to this array.  This gives
-     *                         the caller a chance to deduplicate resources
-     *                         across pages.
-     * @param knownResourceObjects  The set of resources to be ignored.
-     */
-    static void GetResourcesHelper(
-            const SkTDArray<SkPDFObject*>* resources,
-            const SkTSet<SkPDFObject*>& knownResourceObjects,
-            SkTSet<SkPDFObject*>* newResourceObjects);
+    virtual void addResources(SkTSet<SkPDFObject*>* resourceSet,
+                              SkPDFCatalog* catalog) const {}
 
 private:
     typedef SkRefCnt INHERITED;
@@ -92,6 +70,7 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void addResources(SkTSet<SkPDFObject*>*, SkPDFCatalog*) const SK_OVERRIDE;
 
 private:
     SkAutoTUnref<SkPDFObject> fObj;
@@ -255,6 +234,7 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void addResources(SkTSet<SkPDFObject*>*, SkPDFCatalog*) const SK_OVERRIDE;
 
     /** The size of the array.
      */
@@ -326,6 +306,7 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void addResources(SkTSet<SkPDFObject*>*, SkPDFCatalog*) const SK_OVERRIDE;
 
     /** The size of the dictionary.
      */

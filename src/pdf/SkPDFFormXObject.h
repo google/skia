@@ -47,15 +47,9 @@ public:
                               SkPDFResourceDict* resourceDict);
     virtual ~SkPDFFormXObject();
 
-    // The SkPDFObject interface.
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
-
 private:
     void init(const char* colorSpace,
               SkPDFDict* resourceDict, SkPDFArray* bbox);
-
-    SkTSet<SkPDFObject*> fResources;
 };
 
 #endif

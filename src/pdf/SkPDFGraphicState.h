@@ -36,9 +36,6 @@ public:
 
     virtual ~SkPDFGraphicState();
 
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
-
     // Override emitObject so that we can populate the dictionary on
     // demand.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog);
@@ -78,7 +75,6 @@ public:
 
 private:
     const SkPaint fPaint;
-    SkTDArray<SkPDFObject*> fResources;
     bool fPopulated;
     bool fSMask;
 
@@ -86,8 +82,6 @@ private:
     explicit SkPDFGraphicState(const SkPaint& paint);
 
     void populateDict();
-
-    static SkPDFObject* GetInvertFunction();
 
     typedef SkPDFDict INHERITED;
 };

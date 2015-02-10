@@ -82,9 +82,6 @@ class SkPDFFont : public SkPDFDict {
 public:
     virtual ~SkPDFFont();
 
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
-
     /** Returns the typeface represented by this class. Returns NULL for the
      *  default typeface.
      */
@@ -162,9 +159,6 @@ protected:
     uint16_t lastGlyphID() const;
     void setLastGlyphID(uint16_t glyphID);
 
-    // Add object to resource list.
-    void addResource(SkPDFObject* object);
-
     // Accessors for FontDescriptor associated with this object.
     SkPDFDict* getFontDescriptor();
     void setFontDescriptor(SkPDFDict* descriptor);
@@ -196,7 +190,6 @@ private:
     uint16_t fFirstGlyphID;
     uint16_t fLastGlyphID;
     SkAutoTUnref<const SkAdvancedTypefaceMetrics> fFontInfo;
-    SkTDArray<SkPDFObject*> fResources;
     SkAutoTUnref<SkPDFDict> fDescriptor;
 
     SkAdvancedTypefaceMetrics::FontType fFontType;

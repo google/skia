@@ -24,9 +24,8 @@ SkPDFPage::~SkPDFPage() {}
 void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
                              const SkTSet<SkPDFObject*>& knownResourceObjects,
                              SkTSet<SkPDFObject*>* newResourceObjects) {
-    SkPDFResourceDict* resourceDict = fDevice->getResourceDict();
     if (fContentStream.get() == NULL) {
-        insert("Resources", resourceDict);
+        this->insert("Resources", fDevice->getResourceDict());
         SkSafeUnref(this->insert("MediaBox", fDevice->copyMediaBox()));
         if (!SkToBool(catalog->getDocumentFlags() &
                       SkPDFDocument::kNoLinks_Flags)) {
@@ -41,9 +40,6 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
         insert("Contents", new SkPDFObjRef(fContentStream.get()))->unref();
     }
     catalog->addObject(fContentStream.get(), firstPage);
-    resourceDict->getReferencedResources(knownResourceObjects,
-                                         newResourceObjects,
-                                         true);
 }
 
 // static

@@ -117,13 +117,6 @@ SkPDFGraphicState::~SkPDFGraphicState() {
     if (!fSMask) {
         SkPDFCanon::GetCanon().removeGraphicState(this);
     }
-    fResources.unrefAll();
-}
-
-void SkPDFGraphicState::getResources(
-        const SkTSet<SkPDFObject*>& knownResourceObjects,
-        SkTSet<SkPDFObject*>* newResourceObjects) {
-    GetResourcesHelper(&fResources, knownResourceObjects, newResourceObjects);
 }
 
 void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
@@ -174,11 +167,6 @@ SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject, invertFunction,
                            create_invert_function, unref<SkPDFObject>);
 
 // static
-SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
-    return invertFunction.get();
-}
-
-// static
 SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
         SkPDFFormXObject* sMask, bool invert, SkPDFSMaskMode sMaskMode) {
     // The practical chances of using the same mask more than once are unlikely
@@ -196,14 +184,9 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
     result->fSMask = true;
     result->insertName("Type", "ExtGState");
     result->insert("SMask", sMaskDict.get());
-    result->fResources.push(sMask);
-    sMask->ref();
 
     if (invert) {
-        SkPDFObject* invertFunction = GetInvertFunction();
-        result->fResources.push(invertFunction);
-        invertFunction->ref();
-        sMaskDict->insert("TR", new SkPDFObjRef(invertFunction))->unref();
+        sMaskDict->insert("TR", new SkPDFObjRef(invertFunction.get()))->unref();
     }
 
     return result;

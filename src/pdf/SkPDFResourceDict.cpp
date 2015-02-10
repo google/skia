@@ -77,27 +77,6 @@ SkPDFObject* SkPDFResourceDict::insertResourceAsReference(
     return value;
 }
 
-void SkPDFResourceDict::getReferencedResources(
-        const SkTSet<SkPDFObject*>& knownResourceObjects,
-        SkTSet<SkPDFObject*>* newResourceObjects,
-        bool recursive) const {
-    // TODO: reserve not correct if we need to recursively explore.
-    newResourceObjects->setReserve(newResourceObjects->count() +
-                                   fResources.count());
-
-    for (int i = 0; i < fResources.count(); i++) {
-        if (!knownResourceObjects.contains(fResources[i]) &&
-                !newResourceObjects->contains(fResources[i])) {
-            newResourceObjects->add(fResources[i]);
-            fResources[i]->ref();
-            if (recursive) {
-                fResources[i]->getResources(knownResourceObjects,
-                                            newResourceObjects);
-            }
-        }
-    }
-}
-
 SkString SkPDFResourceDict::getResourceName(
         SkPDFResourceType type, int key) {
     SkString keyString;

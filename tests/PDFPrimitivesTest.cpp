@@ -75,8 +75,8 @@ static void emit_object(SkPDFObject* object,
                         bool indirect) {
     SkPDFObject* realObject = catalog->getSubstituteObject(object);
     if (indirect) {
-        catalog->emitObjectNumber(stream, realObject);
-        stream->writeText(" obj\n");
+        stream->writeDecAsText(catalog->getObjectNumber(object));
+        stream->writeText(" 0 obj\n");  // Generation number is always 0.
         realObject->emitObject(stream, catalog);
         stream->writeText("\nendobj\n");
     } else {
@@ -201,18 +201,10 @@ static void TestCatalog(skiatest::Reporter* reporter) {
     catalog.addObject(int2.get(), false);
     catalog.addObject(int3.get(), false);
 
-    REPORTER_ASSERT(reporter, catalog.getObjectNumberSize(int1.get()) == 3);
-    REPORTER_ASSERT(reporter, catalog.getObjectNumberSize(int2.get()) == 3);
-    REPORTER_ASSERT(reporter, catalog.getObjectNumberSize(int3.get()) == 3);
-
-    SkDynamicMemoryWStream buffer;
-    catalog.emitObjectNumber(&buffer, int1.get());
-    catalog.emitObjectNumber(&buffer, int2.get());
-    catalog.emitObjectNumber(&buffer, int3.get());
-    catalog.emitObjectNumber(&buffer, int1Again.get());
-    char expectedResult[] = "1 02 03 01 0";
-    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
-                                            strlen(expectedResult)));
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1.get()) == 1);
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(int2.get()) == 2);
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(int3.get()) == 3);
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1Again.get()) == 1);
 }
 
 static void TestObjectRef(skiatest::Reporter* reporter) {
@@ -223,8 +215,8 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     SkPDFCatalog catalog((SkPDFDocument::Flags)0);
     catalog.addObject(int1.get(), false);
     catalog.addObject(int2.get(), false);
-    REPORTER_ASSERT(reporter, catalog.getObjectNumberSize(int1.get()) == 3);
-    REPORTER_ASSERT(reporter, catalog.getObjectNumberSize(int2.get()) == 3);
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1.get()) == 1);
+    REPORTER_ASSERT(reporter, catalog.getObjectNumber(int2.get()) == 2);
 
     char expectedResult[] = "2 0 R";
     SkDynamicMemoryWStream buffer;
@@ -237,38 +229,16 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
 static void TestSubstitute(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPDFTestDict> proxy(new SkPDFTestDict());
     SkAutoTUnref<SkPDFTestDict> stub(new SkPDFTestDict());
-    SkAutoTUnref<SkPDFInt> int33(new SkPDFInt(33));
-    SkAutoTUnref<SkPDFDict> stubResource(new SkPDFDict());
-    SkAutoTUnref<SkPDFInt> int44(new SkPDFInt(44));
 
-    stub->insert("Value", int33.get());
-    stubResource->insert("InnerValue", int44.get());
-    stub->addResource(stubResource.get());
+    proxy->insert("Value", new SkPDFInt(33))->unref();
+    stub->insert("Value", new SkPDFInt(44))->unref();
 
     SkPDFCatalog catalog((SkPDFDocument::Flags)0);
     catalog.addObject(proxy.get(), false);
     catalog.setSubstitute(proxy.get(), stub.get());
 
-    SkDynamicMemoryWStream buffer;
-    emit_object(proxy, &buffer, &catalog, false);
-    SkTSet<SkPDFObject*>* substituteResources =
-            catalog.getSubstituteList(false);
-    for (int i = 0; i < substituteResources->count(); ++i) {
-        emit_object((*substituteResources)[i], &buffer, &catalog, true);
-    }
-
-    char objectResult[] = "2 0 obj\n<</Value 33\n>>\nendobj\n";
-    catalog.setFileOffset(proxy.get(), 0);
-
-    size_t outputSize = get_output_size(
-            catalog.getSubstituteObject(proxy.get()), &catalog, true);
-    REPORTER_ASSERT(reporter, outputSize == strlen(objectResult));
-
-    char expectedResult[] =
-        "<</Value 33\n>>1 0 obj\n<</InnerValue 44\n>>\nendobj\n";
-    REPORTER_ASSERT(reporter, buffer.getOffset() == strlen(expectedResult));
-    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
-                                            buffer.getOffset()));
+    REPORTER_ASSERT(reporter, stub.get() == catalog.getSubstituteObject(proxy));
+    REPORTER_ASSERT(reporter, proxy.get() != catalog.getSubstituteObject(stub));
 }
 
 // Create a bitmap that would be very eficiently compressed in a ZIP.

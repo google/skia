@@ -504,27 +504,12 @@ SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
         SkAutoTUnref<SkPDFImage> mask(
                 SkNEW_ARGS(SkPDFImage, (alphaData.get(), bitmap,
                                         true, srcRect, NULL)));
-        image->addSMask(mask);
+        image->insert("SMask", new SkPDFObjRef(mask))->unref();
     }
-
     return image;
 }
 
-SkPDFImage::~SkPDFImage() {
-    fResources.unrefAll();
-}
-
-SkPDFImage* SkPDFImage::addSMask(SkPDFImage* mask) {
-    fResources.push(mask);
-    mask->ref();
-    insert("SMask", new SkPDFObjRef(mask))->unref();
-    return mask;
-}
-
-void SkPDFImage::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects) {
-    GetResourcesHelper(&fResources, knownResourceObjects, newResourceObjects);
-}
+SkPDFImage::~SkPDFImage() {}
 
 SkPDFImage::SkPDFImage(SkStream* stream,
                        const SkBitmap& bitmap,
@@ -673,8 +658,6 @@ class PDFJPEGImage : public SkPDFObject {
 public:
     PDFJPEGImage(SkData* data, int width, int height)
         : fData(SkRef(data)), fWidth(width), fHeight(height) {}
-    virtual void getResources(const SkTSet<SkPDFObject*>&,
-                              SkTSet<SkPDFObject*>*) SK_OVERRIDE {}
     virtual void emitObject(
             SkWStream* stream,
             SkPDFCatalog* catalog, bool indirect) SK_OVERRIDE {

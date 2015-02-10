@@ -55,8 +55,6 @@ public:
     static SkPDFFunctionShader* Create(SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFFunctionShader();
     bool equals(const SkPDFShader::State&) const;
-    void getResources(const SkTSet<SkPDFObject*>&,
-                      SkTSet<SkPDFObject*>*) SK_OVERRIDE;
 
 private:
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
@@ -74,8 +72,6 @@ class SkPDFAlphaFunctionShader : public SkPDFStream {
 public:
     static SkPDFAlphaFunctionShader* Create(SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFAlphaFunctionShader();
-    void getResources(const SkTSet<SkPDFObject*>&,
-                      SkTSet<SkPDFObject*>*) SK_OVERRIDE;
     bool equals(const SkPDFShader::State&) const;
 
 private:
@@ -89,8 +85,6 @@ class SkPDFImageShader : public SkPDFStream {
 public:
     static SkPDFImageShader* Create(SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFImageShader();
-    void getResources(const SkTSet<SkPDFObject*>&,
-                      SkTSet<SkPDFObject*>*) SK_OVERRIDE;
     bool equals(const SkPDFShader::State&) const;
 
 private:
