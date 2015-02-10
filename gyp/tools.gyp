@@ -50,6 +50,12 @@
         'direct_dependent_settings': {
           'include_dirs': [ '../tools' ],
         },
+        'conditions': [
+          [ 'skia_is_bot', {
+            'defines': [ 'SK_CRASH_HANDLER' ],
+          }],
+        ],
+
         'all_dependent_settings': {
           'msvs_settings': {
             'VCLinkerTool': {
