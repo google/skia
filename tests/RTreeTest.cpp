@@ -80,7 +80,7 @@ DEF_TEST(RTree, reporter) {
             rects[j] = random_rect(rand);
         }
 
-        rtree.insert(&rects, NUM_RECTS);
+        rtree.insert(rects.get(), NUM_RECTS);
         SkASSERT(rects);  // SkRTree doesn't take ownership of rects.
 
         run_queries(reporter, rand, rects, rtree);

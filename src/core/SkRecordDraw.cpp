@@ -177,7 +177,7 @@ public:
 
         // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
         if (bbh) {
-            bbh->insert(&fBounds, fNumRecords);
+            bbh->insert(fBounds.get(), fNumRecords);
         }
     }
 

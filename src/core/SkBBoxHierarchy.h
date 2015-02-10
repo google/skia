@@ -24,9 +24,8 @@ public:
 
     /**
      * Insert N bounding boxes into the hierarchy.
-     * The SkBBoxHierarchy may take ownership of boundsArray by calling detach().
      */
-    virtual void insert(SkAutoTMalloc<SkRect>* boundsArray, int N) = 0;
+    virtual void insert(const SkRect[], int N) = 0;
 
     /**
      * Populate results with the indices of bounding boxes interesecting that query.

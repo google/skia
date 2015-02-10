@@ -1255,7 +1255,7 @@ struct CountingBBH : public SkBBoxHierarchy {
         this->searchCalls++;
     }
 
-    void insert(SkAutoTMalloc<SkRect>*, int) SK_OVERRIDE {}
+    void insert(const SkRect[], int) SK_OVERRIDE {}
     virtual size_t bytesUsed() const SK_OVERRIDE { return 0; }
 };
 
