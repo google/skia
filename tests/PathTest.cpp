@@ -3113,10 +3113,12 @@ static void test_rrect(skiatest::Reporter* reporter) {
     rr.setRectRadii(largeR, radii);
     p.addRRect(rr);
     test_rrect_convexity_is_unknown(reporter, &p, SkPath::kCW_Direction);
+
+    // we check for non-finites
     SkRect infR = {0, 0, SK_ScalarMax, SK_ScalarInfinity};
     rr.setRectRadii(infR, radii);
-    p.addRRect(rr);
-    test_rrect_convexity_is_unknown(reporter, &p, SkPath::kCW_Direction);
+    REPORTER_ASSERT(reporter, rr.isEmpty());
+
     SkRect tinyR = {0, 0, 1e-9f, 1e-9f};
     p.addRoundRect(tinyR, 5e-11f, 5e-11f);
     test_rrect_is_convex(reporter, &p, SkPath::kCW_Direction);

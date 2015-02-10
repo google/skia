@@ -128,7 +128,23 @@ static inline bool SkScalarIsFinite(SkScalar x) {
     // 0 * NaN --> NaN
     SkScalar prod = x * 0;
     // At this point, prod will either be NaN or 0
-    // Therefore we can return (prod == prod) or (0 == prod).
+    return !SkScalarIsNaN(prod);
+}
+
+static inline bool SkScalarsAreFinite(SkScalar a, SkScalar b) {
+    SkScalar prod = 0;
+    prod *= a;
+    prod *= b;
+    // At this point, prod will either be NaN or 0
+    return !SkScalarIsNaN(prod);
+}
+
+static inline bool SkScalarsAreFinite(const SkScalar array[], int count) {
+    SkScalar prod = 0;
+    for (int i = 0; i < count; ++i) {
+        prod *= array[i];
+    }
+    // At this point, prod will either be NaN or 0
     return !SkScalarIsNaN(prod);
 }
 

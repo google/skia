@@ -11,11 +11,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
-    if (rect.isEmpty()) {
+    if (rect.isEmpty() || !rect.isFinite()) {
         this->setEmpty();
         return;
     }
 
+    if (!SkScalarsAreFinite(xRad, yRad)) {
+        xRad = yRad = 0;    // devolve into a simple rect
+    }
     if (xRad <= 0 || yRad <= 0) {
         // all corners are square in this case
         this->setRect(rect);
@@ -45,8 +48,14 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
 
 void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
                            SkScalar rightRad, SkScalar bottomRad) {
-    if (rect.isEmpty()) {
+    if (rect.isEmpty() || !rect.isFinite()) {
         this->setEmpty();
+        return;
+    }
+
+    const SkScalar array[4] = { leftRad, topRad, rightRad, bottomRad };
+    if (!SkScalarsAreFinite(array, 4)) {
+        this->setRect(rect);    // devolve into a simple rect
         return;
     }
 
@@ -125,8 +134,13 @@ static SkScalar clamp_radius_sub(SkScalar rad, SkScalar min, SkScalar max) {
 }
 
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
-    if (rect.isEmpty()) {
+    if (rect.isEmpty() || !rect.isFinite()) {
         this->setEmpty();
+        return;
+    }
+
+    if (!SkScalarsAreFinite(&radii[0].fX, 8)) {
+        this->setRect(rect);    // devolve into a simple rect
         return;
     }
 
