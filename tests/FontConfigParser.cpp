@@ -22,6 +22,16 @@ int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
     return countOfFallbackFonts;
 }
 
+//https://tools.ietf.org/html/rfc5234#appendix-B.1
+static bool isALPHA(int c) {
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+
+//https://tools.ietf.org/html/rfc5234#appendix-B.1
+static bool isDIGIT(int c) {
+    return ('0' <= c && c <= '9');
+}
+
 void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstExpectedFile,
                          skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.count() == 5);
@@ -29,6 +39,15 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
     REPORTER_ASSERT(reporter,
                     !strcmp(fontFamilies[0]->fFonts[0].fFileName.c_str(), firstExpectedFile));
     REPORTER_ASSERT(reporter, !fontFamilies[0]->fIsFallbackFont);
+
+    // Check that the languages are all sane.
+    for (int i = 0; i < fontFamilies.count(); ++i) {
+        const SkString& lang = fontFamilies[i]->fLanguage.getTag();
+        for (size_t j = 0; j < lang.size(); ++j) {
+            int c = lang[j];
+            REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
+        }
+    }
 }
 
 void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
@@ -55,6 +74,7 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
             SkDebugf("  file (%d) %s#%d\n", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
         }
     }
+    SkDebugf("\n\n");
 }
 
 DEF_TEST(FontConfigParserAndroid, reporter) {
@@ -82,11 +102,12 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
     SkFontConfigParser::GetCustomFontFamilies(v17FontFamilies,
         SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/v17/system_fonts.xml").c_str(),
-        GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str());
+        GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str(),
+        GetResourcePath("android_fonts/v17").c_str());
 
     if (v17FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, v17FontFamilies.count() == 41);
-        REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 31);
+        REPORTER_ASSERT(reporter, v17FontFamilies.count() == 56);
+        REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 46);
 
         DumpLoadedFonts(v17FontFamilies);
         ValidateLoadedFonts(v17FontFamilies, "Roboto-Regular.ttf", reporter);

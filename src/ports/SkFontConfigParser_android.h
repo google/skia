@@ -101,7 +101,8 @@ void GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies);
 void GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
                            const SkString& basePath,
                            const char* fontsXml,
-                           const char* fallbackFontsXml);
+                           const char* fallbackFontsXml,
+                           const char* langFallbackFontsDir = NULL);
 
 } // SkFontConfigParser namespace
 

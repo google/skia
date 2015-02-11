@@ -502,44 +502,42 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
     return;
 #endif
 
-    DIR* fontDirectory = opendir(dir);
-    if (fontDirectory != NULL){
-        struct dirent* dirEntry = readdir(fontDirectory);
-        while (dirEntry) {
+    SkAutoTCallIProc<DIR, closedir> fontDirectory(opendir(dir));
+    if (NULL == fontDirectory) {
+        return;
+    }
 
-            // The size of both the prefix, suffix, and a minimum valid language code
-            static const size_t minSize = strlen(LOCALE_FALLBACK_FONTS_PREFIX) +
-                                          strlen(LOCALE_FALLBACK_FONTS_SUFFIX) + 2;
+    for (struct dirent* dirEntry; (dirEntry = readdir(fontDirectory));) {
+        // The size of both the prefix, suffix, and a minimum valid language code
+        static const size_t minSize = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
+                                    + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1
+                                    + 2;
 
-            SkString fileName(dirEntry->d_name);
-            if (fileName.size() >= minSize &&
-                    fileName.startsWith(LOCALE_FALLBACK_FONTS_PREFIX) &&
-                    fileName.endsWith(LOCALE_FALLBACK_FONTS_SUFFIX)) {
-
-                static const size_t fixedLen = strlen(LOCALE_FALLBACK_FONTS_PREFIX) -
-                                               strlen(LOCALE_FALLBACK_FONTS_SUFFIX);
-
-                SkString locale(fileName.c_str() - strlen(LOCALE_FALLBACK_FONTS_PREFIX),
-                                fileName.size() - fixedLen);
-
-                SkString absoluteFilename;
-                absoluteFilename.printf("%s/%s", dir, fileName.c_str());
-
-                SkTDArray<FontFamily*> langSpecificFonts;
-                parse_config_file(absoluteFilename.c_str(), langSpecificFonts, basePath, true);
-
-                for (int i = 0; i < langSpecificFonts.count(); ++i) {
-                    FontFamily* family = langSpecificFonts[i];
-                    family->fLanguage = SkLanguage(locale);
-                    *fallbackFonts.append() = family;
-                }
-            }
-
-            // proceed to the next entry in the directory
-            dirEntry = readdir(fontDirectory);
+        SkString fileName(dirEntry->d_name);
+        if (fileName.size() < minSize ||
+            !fileName.startsWith(LOCALE_FALLBACK_FONTS_PREFIX) ||
+            !fileName.endsWith(LOCALE_FALLBACK_FONTS_SUFFIX))
+        {
+            continue;
         }
-        // cleanup the directory reference
-        closedir(fontDirectory);
+
+        static const size_t fixedLen = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
+                                     + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1;
+
+        SkString locale(fileName.c_str() + sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1,
+                        fileName.size() - fixedLen);
+
+        SkString absoluteFilename;
+        absoluteFilename.printf("%s/%s", dir, fileName.c_str());
+
+        SkTDArray<FontFamily*> langSpecificFonts;
+        parse_config_file(absoluteFilename.c_str(), langSpecificFonts, basePath, true);
+
+        for (int i = 0; i < langSpecificFonts.count(); ++i) {
+            FontFamily* family = langSpecificFonts[i];
+            family->fLanguage = SkLanguage(locale);
+            *fallbackFonts.append() = family;
+        }
     }
 }
 
@@ -604,13 +602,19 @@ void SkFontConfigParser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamil
 void SkFontConfigParser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
                                                const SkString& basePath,
                                                const char* fontsXml,
-                                               const char* fallbackFontsXml)
+                                               const char* fallbackFontsXml,
+                                               const char* langFallbackFontsDir)
 {
     if (fontsXml) {
         parse_config_file(fontsXml, fontFamilies, basePath, false);
     }
     if (fallbackFontsXml) {
         parse_config_file(fallbackFontsXml, fontFamilies, basePath, true);
+    }
+    if (langFallbackFontsDir) {
+        append_fallback_font_families_for_locale(fontFamilies,
+                                                 langFallbackFontsDir,
+                                                 basePath);
     }
 }
 

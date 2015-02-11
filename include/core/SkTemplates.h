@@ -107,6 +107,10 @@ template <typename T, int (*P)(T*)> class SkAutoTCallIProc : SkNoncopyable {
 public:
     SkAutoTCallIProc(T* obj): fObj(obj) {}
     ~SkAutoTCallIProc() { if (fObj) P(fObj); }
+
+    operator T*() const { return fObj; }
+    T* operator->() const { SkASSERT(fObj); return fObj; }
+
     T* detach() { T* obj = fObj; fObj = NULL; return obj; }
 private:
     T* fObj;
