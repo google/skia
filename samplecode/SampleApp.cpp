@@ -188,8 +188,6 @@ public:
             case kPicture_DeviceType:
                 // fallthrough
             case kGPU_DeviceType:
-                // fallthrough
-            case kNullGPU_DeviceType:
                 // all these guys use the native backend
                 fBackend = kNativeGL_BackEndType;
                 break;
@@ -227,9 +225,6 @@ public:
                 glInterface.reset(GrGLCreateANGLEInterface());
                 break;
 #endif // SK_ANGLE
-            case kNullGPU_DeviceType:
-                glInterface.reset(GrGLCreateNullInterface());
-                break;
             default:
                 SkASSERT(false);
                 break;
@@ -680,7 +675,6 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 #if SK_ANGLE
         SampleWindow::kANGLE_DeviceType,
 #endif // SK_ANGLE
-        SampleWindow::kRaster_DeviceType, // skip the null gpu device in normal cycling
 #endif // SK_SUPPORT_GPU
         SampleWindow::kRaster_DeviceType
     };
@@ -1258,12 +1252,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     } else if (kPicture_DeviceType == fDeviceType) {
         canvas = fRecorder.beginRecording(9999, 9999, NULL, 0);
     } else {
-#if SK_SUPPORT_GPU
-        if (kNullGPU_DeviceType != fDeviceType)
-#endif
-        {
-            canvas = this->INHERITED::beforeChildren(canvas);
-        }
+        canvas = this->INHERITED::beforeChildren(canvas);
     }
 
     if (fUseClip) {
@@ -1724,11 +1713,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->updateTitle();
             return true;
 #if SK_SUPPORT_GPU
-        case '\\':
-            this->setDeviceType(kNullGPU_DeviceType);
-            this->inval(NULL);
-            this->updateTitle();
-            return true;
         case 'p':
             {
                 GrContext* grContext = this->getGrContext();
@@ -1961,7 +1945,6 @@ static const char* gDeviceTypePrefix[] = {
 #if SK_ANGLE
     "angle: ",
 #endif // SK_ANGLE
-    "null-gl: "
 #endif // SK_SUPPORT_GPU
 };
 SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,

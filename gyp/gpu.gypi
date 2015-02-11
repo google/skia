@@ -370,11 +370,8 @@
       '<(skia_src_path)/gpu/gl/debug/SkDebugGLContext.h',
     ],
     'skgpu_null_gl_sources': [
-      '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',
-
-      # Sk files
       '<(skia_src_path)/gpu/gl/SkNullGLContext.cpp',
-      '<(skia_src_path)/gpu/gl/SkNullGLContext.h',
+      '<(skia_include_path)/gpu/gl/SkNullGLContext.h',
     ],
   },
 }

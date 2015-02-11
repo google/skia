@@ -38,7 +38,6 @@ public:
 #if SK_ANGLE
         kANGLE_DeviceType,
 #endif // SK_ANGLE
-        kNullGPU_DeviceType,
 #endif // SK_SUPPORT_GPU
 
         kDeviceTypeCnt
@@ -51,7 +50,6 @@ public:
     #if SK_ANGLE
             case kANGLE_DeviceType:
     #endif // SK_ANGLE
-            case kNullGPU_DeviceType:
                 return true;
             default:
                 return false;
