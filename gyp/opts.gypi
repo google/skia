@@ -84,6 +84,5 @@
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
         ],
         'avx_sources': [
-            '<(skia_src_path)/opts/SkDummy_opts_AVX.cpp',
         ],
 }
