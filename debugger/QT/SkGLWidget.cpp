@@ -32,19 +32,16 @@ void SkGLWidget::initializeGL() {
     if (!fCurIntf) {
         return;
     }
-    if (!fCurContext) {
-        fCurContext.reset(GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf.get()));
-    }
-    if (!fCurContext) {
-        return;
-    }
-
     // The call may come multiple times, for example after setSampleCount().  The QGLContext will be
     // different, but we do not have a mechanism to catch the destroying of QGLContext, so that
-    // proper resource cleanup could be made. Instead, we assume that the underlying GL context
-    // never actually changes. If it would, we could not destroy the resources.
+    // proper resource cleanup could be made.
+    if (fCurContext) {
+        fCurContext->abandonContext();
+    }
     fGpuDevice.reset(NULL);
     fCanvas.reset(NULL);
+
+    fCurContext.reset(GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf.get()));
 }
 
 void SkGLWidget::createRenderTarget() {
@@ -76,6 +73,7 @@ void SkGLWidget::resizeGL(int w, int h) {
 
 void SkGLWidget::paintGL() {
     if (!this->isHidden() && fCanvas) {
+        fCurContext->resetContext();
         fDebugger->draw(fCanvas.get());
         // TODO(chudy): Implement an optional flush button in Gui.
         fCanvas->flush();
