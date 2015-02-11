@@ -13,7 +13,7 @@
 #include "GrGpuResource.h"
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrResourceCache2.h"
+#include "GrResourceCache.h"
 #include "SkCanvas.h"
 
 enum {
@@ -69,17 +69,17 @@ protected:
         // Set the cache budget to be very large so no purging occurs.
         context->setResourceCacheLimits(CACHE_SIZE_COUNT, 1 << 30);
 
-        GrResourceCache2* cache2 = context->getResourceCache2();
+        GrResourceCache* cache = context->getResourceCache();
 
         // Make sure the cache is empty.
-        cache2->purgeAllUnlocked();
-        SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
 
         GrGpu* gpu = context->getGpu();
 
         for (int i = 0; i < loops; ++i) {
             populate_cache(gpu, CACHE_SIZE_COUNT);
-            SkASSERT(CACHE_SIZE_COUNT == cache2->getResourceCount());
+            SkASSERT(CACHE_SIZE_COUNT == cache->getResourceCount());
         }
     }
 
@@ -106,11 +106,11 @@ protected:
         // Set the cache budget to be very large so no purging occurs.
         fContext->setResourceCacheLimits(CACHE_SIZE_COUNT, 1 << 30);
 
-        GrResourceCache2* cache2 = fContext->getResourceCache2();
+        GrResourceCache* cache = fContext->getResourceCache();
 
         // Make sure the cache is empty.
-        cache2->purgeAllUnlocked();
-        SkASSERT(0 == cache2->getResourceCount() && 0 == cache2->getResourceBytes());
+        cache->purgeAllUnlocked();
+        SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
 
         GrGpu* gpu = fContext->getGpu();
 
@@ -121,13 +121,13 @@ protected:
         if (!fContext) {
             return;
         }
-        GrResourceCache2* cache2 = fContext->getResourceCache2();
-        SkASSERT(CACHE_SIZE_COUNT == cache2->getResourceCount());
+        GrResourceCache* cache = fContext->getResourceCache();
+        SkASSERT(CACHE_SIZE_COUNT == cache->getResourceCount());
         for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < CACHE_SIZE_COUNT; ++k) {
                 GrContentKey key;
                 BenchResource::ComputeKey(k, &key);
-                SkAutoTUnref<GrGpuResource> resource(cache2->findAndRefContentResource(key));
+                SkAutoTUnref<GrGpuResource> resource(cache->findAndRefContentResource(key));
                 SkASSERT(resource);
             }
         }

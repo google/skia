@@ -16,7 +16,7 @@
 
 class GrContext;
 class GrGpu;
-class GrResourceCache2;
+class GrResourceCache;
 
 /**
  * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base
@@ -113,13 +113,13 @@ private:
 
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
-    friend class GrResourceCache2; // to check IO ref counts.
+    friend class GrResourceCache; // to check IO ref counts.
 
     template <typename, GrIOType> friend class GrPendingIOResource;
 };
 
 /**
- * Base class for objects that can be kept in the GrResourceCache2.
+ * Base class for objects that can be kept in the GrResourceCache.
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
@@ -276,7 +276,7 @@ private:
 
     static uint32_t CreateUniqueID();
 
-    // We're in an internal doubly linked list owned by GrResourceCache2
+    // We're in an internal doubly linked list owned by GrResourceCache
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuResource);
 
 

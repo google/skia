@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrResourceCache2_DEFINED
-#define GrResourceCache2_DEFINED
+#ifndef GrResourceCache_DEFINED
+#define GrResourceCache_DEFINED
 
 #include "GrGpuResource.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -36,10 +36,10 @@ class SkString;
  * If a resource has neither key type then it will be deleted as soon as the last reference to it
  * is dropped. If a key has both keys the content key takes precedence.
  */
-class GrResourceCache2 {
+class GrResourceCache {
 public:
-    GrResourceCache2();
-    ~GrResourceCache2();
+    GrResourceCache();
+    ~GrResourceCache();
 
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
@@ -254,9 +254,9 @@ private:
 
 };
 
-class GrResourceCache2::ResourceAccess {
+class GrResourceCache::ResourceAccess {
 private:
-    ResourceAccess(GrResourceCache2* cache) : fCache(cache) { }
+    ResourceAccess(GrResourceCache* cache) : fCache(cache) { }
     ResourceAccess(const ResourceAccess& that) : fCache(that.fCache) { }
     ResourceAccess& operator=(const ResourceAccess&); // unimpl
 
@@ -315,13 +315,13 @@ private:
     const ResourceAccess* operator&() const;
     ResourceAccess* operator&();
 
-    GrResourceCache2* fCache;
+    GrResourceCache* fCache;
 
     friend class GrGpuResource; // To access all the proxy inline methods.
-    friend class GrResourceCache2; // To create this type.
+    friend class GrResourceCache; // To create this type.
 };
 
-inline GrResourceCache2::ResourceAccess GrResourceCache2::resourceAccess() {
+inline GrResourceCache::ResourceAccess GrResourceCache::resourceAccess() {
     return ResourceAccess(this);
 }
 

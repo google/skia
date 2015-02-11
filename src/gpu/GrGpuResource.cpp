@@ -7,14 +7,14 @@
  */
 
 #include "GrGpuResource.h"
-#include "GrResourceCache2.h"
+#include "GrResourceCache.h"
 #include "GrGpu.h"
 
-static inline GrResourceCache2* get_resource_cache2(GrGpu* gpu) {
+static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
     SkASSERT(gpu->getContext());
-    SkASSERT(gpu->getContext()->getResourceCache2());
-    return gpu->getContext()->getResourceCache2();
+    SkASSERT(gpu->getContext()->getResourceCache());
+    return gpu->getContext()->getResourceCache();
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu, LifeCycle lifeCycle)
@@ -25,7 +25,7 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, LifeCycle lifeCycle)
 }
 
 void GrGpuResource::registerWithCache() {
-    get_resource_cache2(fGpu)->resourceAccess().insertResource(this);
+    get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }
 
 GrGpuResource::~GrGpuResource() {
@@ -36,7 +36,7 @@ GrGpuResource::~GrGpuResource() {
 void GrGpuResource::release() { 
     SkASSERT(fGpu);
     this->onRelease();
-    get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
+    get_resource_cache(fGpu)->resourceAccess().removeResource(this);
     fGpu = NULL;
     fGpuMemorySize = 0;
 }
@@ -44,7 +44,7 @@ void GrGpuResource::release() {
 void GrGpuResource::abandon() {
     SkASSERT(fGpu);
     this->onAbandon();
-    get_resource_cache2(fGpu)->resourceAccess().removeResource(this);
+    get_resource_cache(fGpu)->resourceAccess().removeResource(this);
     fGpu = NULL;
     fGpuMemorySize = 0;
 }
@@ -79,12 +79,12 @@ void GrGpuResource::didChangeGpuMemorySize() const {
     size_t oldSize = fGpuMemorySize;
     SkASSERT(kInvalidGpuMemorySize != oldSize);
     fGpuMemorySize = kInvalidGpuMemorySize;
-    get_resource_cache2(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
+    get_resource_cache(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
 }
 
 void GrGpuResource::removeContentKey() {
     SkASSERT(fContentKey.isValid());
-    get_resource_cache2(fGpu)->resourceAccess().willRemoveContentKey(this);
+    get_resource_cache(fGpu)->resourceAccess().willRemoveContentKey(this);
     fContentKey.reset();
 }
 
@@ -104,7 +104,7 @@ bool GrGpuResource::setContentKey(const GrContentKey& key) {
 
     fContentKey = key;
 
-    if (!get_resource_cache2(fGpu)->resourceAccess().didSetContentKey(this)) {
+    if (!get_resource_cache(fGpu)->resourceAccess().didSetContentKey(this)) {
         fContentKey.reset();
         return false;
     }
@@ -117,7 +117,7 @@ void GrGpuResource::notifyIsPurgeable() const {
         SkDELETE(this);
     } else {
         GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
-        get_resource_cache2(fGpu)->resourceAccess().notifyPurgeable(mutableThis);
+        get_resource_cache(fGpu)->resourceAccess().notifyPurgeable(mutableThis);
     }
 }
 
@@ -133,7 +133,7 @@ void GrGpuResource::setScratchKey(const GrScratchKey& scratchKey) {
 
 void GrGpuResource::removeScratchKey() {
     if (!this->wasDestroyed() && fScratchKey.isValid()) {
-        get_resource_cache2(fGpu)->resourceAccess().willRemoveScratchKey(this);
+        get_resource_cache(fGpu)->resourceAccess().willRemoveScratchKey(this);
         fScratchKey.reset();
     }
 }
@@ -141,14 +141,14 @@ void GrGpuResource::removeScratchKey() {
 void GrGpuResource::makeBudgeted() {
     if (GrGpuResource::kUncached_LifeCycle == fLifeCycle) {
         fLifeCycle = kCached_LifeCycle;
-        get_resource_cache2(fGpu)->resourceAccess().didChangeBudgetStatus(this);
+        get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }
 
 void GrGpuResource::makeUnbudgeted() {
     if (GrGpuResource::kCached_LifeCycle == fLifeCycle && !fContentKey.isValid()) {
         fLifeCycle = kUncached_LifeCycle;
-        get_resource_cache2(fGpu)->resourceAccess().didChangeBudgetStatus(this);
+        get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }
 

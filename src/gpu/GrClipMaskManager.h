@@ -57,7 +57,7 @@ public:
 
     /**
      * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs
-     * which will allow ResourceCache2 to automatically purge anything this class has created.
+     * which will allow Resourcecache to automatically purge anything this class has created.
      */
     void purgeResources();
 

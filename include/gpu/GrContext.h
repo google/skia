@@ -33,7 +33,7 @@ class GrPath;
 class GrPathRenderer;
 class GrPipelineBuilder;
 class GrResourceEntry;
-class GrResourceCache2;
+class GrResourceCache;
 class GrTestTarget;
 class GrTextContext;
 class GrTextureParams;
@@ -755,7 +755,7 @@ public:
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
     GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
-    GrResourceCache2* getResourceCache2() { return fResourceCache2; }
+    GrResourceCache* getResourceCache() { return fResourceCache; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
@@ -792,7 +792,7 @@ private:
     SkAutoTUnref<GrRenderTarget>    fRenderTarget;
     const GrClipData*               fClip;  // TODO: make this ref counted
 
-    GrResourceCache2*               fResourceCache2;
+    GrResourceCache*                fResourceCache;
     GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
 

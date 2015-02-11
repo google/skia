@@ -9,7 +9,7 @@
 #include "GrTest.h"
 
 #include "GrInOrderDrawBuffer.h"
-#include "GrResourceCache2.h"
+#include "GrResourceCache.h"
 #include "SkString.h"
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
@@ -38,12 +38,12 @@ void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
 }
 
 void GrContext::purgeAllUnlockedResources() {
-    fResourceCache2->purgeAllUnlocked();
+    fResourceCache->purgeAllUnlocked();
 }
 
 void GrContext::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fResourceCache2->dumpStats(out);
+    fResourceCache->dumpStats(out);
 #endif
 }
 
@@ -75,7 +75,7 @@ void GrGpu::Stats::dump(SkString* out) {
 #endif
 
 #if GR_CACHE_STATS
-void GrResourceCache2::dumpStats(SkString* out) const {
+void GrResourceCache::dumpStats(SkString* out) const {
     this->validate();
 
     int locked = 0;

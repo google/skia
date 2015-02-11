@@ -23,7 +23,7 @@
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
-#include "GrResourceCache2.h"
+#include "GrResourceCache.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilAndCoverTextContext.h"
 #include "GrStrokeInfo.h"
@@ -88,7 +88,7 @@ GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fClip = NULL;
     fPathRendererChain = NULL;
     fSoftwarePathRenderer = NULL;
-    fResourceCache2 = NULL;
+    fResourceCache = NULL;
     fFontCache = NULL;
     fDrawBuffer = NULL;
     fDrawBufferVBAllocPool = NULL;
@@ -111,8 +111,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 }
 
 void GrContext::initCommon() {
-    fResourceCache2 = SkNEW(GrResourceCache2);
-    fResourceCache2->setOverBudgetCallback(OverBudgetCB, this);
+    fResourceCache = SkNEW(GrResourceCache);
+    fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
 
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
@@ -137,7 +137,7 @@ GrContext::~GrContext() {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
     }
 
-    SkDELETE(fResourceCache2);
+    SkDELETE(fResourceCache);
     SkDELETE(fFontCache);
     SkDELETE(fDrawBuffer);
     SkDELETE(fDrawBufferVBAllocPool);
@@ -154,7 +154,7 @@ GrContext::~GrContext() {
 void GrContext::abandonContext() {
     // abandon first to so destructors
     // don't try to free the resources in the API.
-    fResourceCache2->abandonAll();
+    fResourceCache->abandonAll();
 
     fGpu->contextAbandoned();
 
@@ -202,10 +202,10 @@ void GrContext::freeGpuResources() {
 
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
     if (resourceCount) {
-        *resourceCount = fResourceCache2->getBudgetedResourceCount();
+        *resourceCount = fResourceCache->getBudgetedResourceCount();
     }
     if (resourceBytes) {
-        *resourceBytes = fResourceCache2->getBudgetedResourceBytes();
+        *resourceBytes = fResourceCache->getBudgetedResourceBytes();
     }
 }
 
@@ -299,13 +299,13 @@ GrTexture* GrContext::internalRefScratchTexture(const GrSurfaceDesc& inDesc, uin
             GrTexturePriv::ComputeScratchKey(*desc, &key);
             uint32_t scratchFlags = 0;
             if (kNoPendingIO_ScratchTextureFlag & flags) {
-                scratchFlags = GrResourceCache2::kRequireNoPendingIO_ScratchFlag;
+                scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
             } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
                 // If it is not a render target then it will most likely be populated by
                 // writePixels() which will trigger a flush if the texture has pending IO.
-                scratchFlags = GrResourceCache2::kPreferNoPendingIO_ScratchFlag;
+                scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
             }
-            GrGpuResource* resource = fResourceCache2->findAndRefScratchResource(key, scratchFlags);
+            GrGpuResource* resource = fResourceCache->findAndRefScratchResource(key, scratchFlags);
             if (resource) {
                 GrSurface* surface = static_cast<GrSurface*>(resource);
                 GrRenderTarget* rt = surface->asRenderTarget();
@@ -1569,15 +1569,15 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
 
 void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
     if (maxTextures) {
-        *maxTextures = fResourceCache2->getMaxResourceCount();
+        *maxTextures = fResourceCache->getMaxResourceCount();
     }
     if (maxTextureBytes) {
-        *maxTextureBytes = fResourceCache2->getMaxResourceBytes();
+        *maxTextureBytes = fResourceCache->getMaxResourceBytes();
     }
 }
 
 void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
-    fResourceCache2->setLimits(maxTextures, maxTextureBytes);
+    fResourceCache->setLimits(maxTextures, maxTextureBytes);
 }
 
 bool GrContext::addResourceToCache(const GrContentKey& key, GrGpuResource* resource) {
@@ -1589,11 +1589,11 @@ bool GrContext::addResourceToCache(const GrContentKey& key, GrGpuResource* resou
 }
 
 bool GrContext::isResourceInCache(const GrContentKey& key) const {
-    return fResourceCache2->hasContentKey(key);
+    return fResourceCache->hasContentKey(key);
 }
 
 GrGpuResource* GrContext::findAndRefCachedResource(const GrContentKey& key) {
-    return fResourceCache2->findAndRefContentResource(key);
+    return fResourceCache->findAndRefContentResource(key);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
-#include "GrResourceCache2.h"
+#include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
 #include "GrVertexBuffer.h"
 
@@ -88,7 +88,7 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt, bool budgeted)
     GrScratchKey sbKey;
     GrStencilBuffer::ComputeKey(rt->width(), rt->height(), rt->numSamples(), &sbKey);
     SkAutoTUnref<GrStencilBuffer> sb(static_cast<GrStencilBuffer*>(
-        this->getContext()->getResourceCache2()->findAndRefScratchResource(sbKey)));
+        this->getContext()->getResourceCache()->findAndRefScratchResource(sbKey)));
     if (sb) {
         rt->setStencilBuffer(sb);
         bool attached = this->attachStencilBufferToRenderTarget(sb, rt);
