@@ -217,7 +217,6 @@
         '../gm/yuvtorgbeffect.cpp',
 
         # Files needed by particular GMs
-        '../src/gpu/GrTestBatch.h',
         '../src/utils/debugger/SkDrawCommand.h',
         '../src/utils/debugger/SkDrawCommand.cpp',
         '../src/utils/debugger/SkDebugCanvas.h',
