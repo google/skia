@@ -58,7 +58,61 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     // {0, 3, 2 }
 }
 
+namespace {
+SkTArray<int>* make() {
+    typedef SkTArray<int> IntArray;
+    return SkNEW(IntArray);
+}
+
+template <int N> SkTArray<int>* make_s() {
+    typedef SkSTArray<N, int> IntArray;
+    return SkNEW(IntArray);
+}
+}
+
+static void test_swap(skiatest::Reporter* reporter) {
+    typedef SkTArray<int>* (*ArrayMaker)();
+    ArrayMaker arrayMakers[] = {make, make_s<5>, make_s<10>, make_s<20>};
+    static int kSizes[] = {0, 1, 5, 10, 15, 20, 25};
+    for (size_t arrayA = 0; arrayA < SK_ARRAY_COUNT(arrayMakers); ++arrayA) {
+        for (size_t arrayB = arrayA; arrayB < SK_ARRAY_COUNT(arrayMakers); ++arrayB) {
+            for (size_t dataSizeA = 0; dataSizeA < SK_ARRAY_COUNT(kSizes); ++dataSizeA) {
+                for (size_t dataSizeB = 0; dataSizeB < SK_ARRAY_COUNT(kSizes); ++dataSizeB) {
+                    int curr = 0;
+                    SkTArray<int>* a = arrayMakers[arrayA]();
+                    SkTArray<int>* b = arrayMakers[arrayB]();
+                    for (int i = 0; i < kSizes[dataSizeA]; ++i) {
+                        a->push_back(curr++);
+                    }
+                    for (int i = 0; i < kSizes[dataSizeB]; ++i) {
+                        b->push_back(curr++);
+                    }
+                    a->swap(b);
+                    REPORTER_ASSERT(reporter, kSizes[dataSizeA] == b->count());
+                    REPORTER_ASSERT(reporter, kSizes[dataSizeB] == a->count());
+                    curr = 0;
+                    for (int i = 0; i < kSizes[dataSizeA]; ++i) {
+                        REPORTER_ASSERT(reporter, curr++ == (*b)[i]);
+                    }
+                    for (int i = 0; i < kSizes[dataSizeB]; ++i) {
+                        REPORTER_ASSERT(reporter, curr++ == (*a)[i]);
+                    }
+                    SkDELETE(b);
+
+                    a->swap(a);
+                    curr = kSizes[dataSizeA];
+                    for (int i = 0; i < kSizes[dataSizeB]; ++i) {
+                        REPORTER_ASSERT(reporter, curr++ == (*a)[i]);
+                    }
+                    SkDELETE(a);
+                }
+            }
+        }
+    }
+}
+
 DEF_TEST(TArray, reporter) {
     TestTSet_basic<true>(reporter);
     TestTSet_basic<false>(reporter);
+    test_swap(reporter);
 }

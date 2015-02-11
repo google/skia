@@ -273,6 +273,9 @@ public:
     /** Swaps the contents of this array with that array. Does a pointer swap if possible,
         otherwise copies the T values. */
     void swap(SkTArray* that) {
+        if (this == that) {
+            return;
+        }
         if (this->fPreAllocMemArray != this->fItemArray &&
             that->fPreAllocMemArray != that->fItemArray) {
             // If neither is using a preallocated array then just swap.
