@@ -13,7 +13,6 @@
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
-#include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "picture_utils.h"

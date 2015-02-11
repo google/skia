@@ -7,9 +7,6 @@
 
 #include "SkDebuggerGUI.h"
 #include "PictureRenderer.h"
-#include "SkPictureData.h"
-#include "SkPicturePlayback.h"
-#include "SkPictureRecord.h"
 #include <QListWidgetItem>
 #include <QtGui>
 
