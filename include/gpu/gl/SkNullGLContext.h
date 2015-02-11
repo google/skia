@@ -18,7 +18,7 @@ public:
 
     static SkNullGLContext* Create(GrGLStandard);
 
-    struct ContextState;
+    class ContextState;
 
 private:
     SkNullGLContext();

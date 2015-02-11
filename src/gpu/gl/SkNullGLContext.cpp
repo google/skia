@@ -13,7 +13,7 @@
 #include "SkTDArray.h"
 #include "SkTLS.h"
 
-static const SkNullGLContext* current_context();
+static SkNullGLContext::ContextState* current_context();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +115,7 @@ private:
 /**
  * The state object for the null interface.
  */
-struct SkNullGLContext::ContextState {
+class SkNullGLContext::ContextState : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(ContextState);
 
@@ -132,11 +132,7 @@ public:
         , fCurrProgramID(0)
         , fCurrShaderID(0) {}
 
-    static ContextState* Get() {
-        const SkNullGLContext* context = current_context();
-        SkASSERT(context);
-        return context->fState;
-    }
+    static ContextState* Get() { return current_context(); }
 };
 
 typedef SkNullGLContext::ContextState State;
@@ -338,10 +334,19 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenu
     }
 };
 
+class NullInterface : public GrGLInterface {
+public:
+    NullInterface(State* state) : fState(SkRef(state)) {}
+    ~NullInterface() SK_OVERRIDE {
+        fState->unref();
+    }
+    State* fState;
+};
+
 } // end anonymous namespace
 
-static const GrGLInterface* create_null_interface() {
-    GrGLInterface* interface = SkNEW(GrGLInterface);
+static GrGLInterface* create_null_interface(State* state) {
+    GrGLInterface* interface = SkNEW_ARGS(NullInterface, (state));
 
     interface->fStandard = kGL_GrGLStandard;
 
@@ -489,34 +494,39 @@ static const GrGLInterface* create_null_interface() {
 //////////////////////////////////////////////////////////////////////////////
 
 static void* create_tls() {
-    const SkNullGLContext** current = SkNEW(const SkNullGLContext*);
+    State** current = SkNEW(State*);
     *current = NULL;
     return current;
 }
 
 static void delete_tls(void* ctx) {
-    const SkNullGLContext** current = static_cast<const SkNullGLContext**>(ctx);
+    State** current = static_cast<State**>(ctx);
     if (*current) {
         (*current)->unref();
     }
     SkDELETE(current);
 }
 
-static const SkNullGLContext* current_context() {
-    return *static_cast<const SkNullGLContext**>(SkTLS::Get(create_tls, delete_tls));
+static State* current_context() {
+    return *static_cast<State**>(SkTLS::Get(create_tls, delete_tls));
 }
 
-static void set_current_context(const SkNullGLContext* context) {
-    const SkNullGLContext** current =
-        static_cast<const SkNullGLContext**>(SkTLS::Get(create_tls, delete_tls));
+static void set_current_context(State* state) {
+    State** current = static_cast<State**>(SkTLS::Get(create_tls, delete_tls));
     if (*current) {
         (*current)->unref();
     }
-    *current = context;
-    if (context) {
-        context->ref();
+    *current = state;
+    if (state) {
+        state->ref();
     }
 }
+
+#if GR_GL_PER_GL_FUNC_CALLBACK
+static void set_current_context_from_interface(const GrGLInterface* interface) {
+    set_current_context(reinterpret_cast<State*>(interface->fCallbackData));
+}
+#endif
 
 SkNullGLContext* SkNullGLContext::Create(GrGLStandard forcedGpuAPI) {
     if (kGLES_GrGLStandard == forcedGpuAPI) {
@@ -531,13 +541,18 @@ SkNullGLContext* SkNullGLContext::Create(GrGLStandard forcedGpuAPI) {
 }
 
 SkNullGLContext::SkNullGLContext() {
-    fGL.reset(create_null_interface());
     fState = SkNEW(ContextState);
+    GrGLInterface* interface = create_null_interface(fState);
+    fGL.reset(interface);
+#if GR_GL_PER_GL_FUNC_CALLBACK
+    interface->fCallback = set_current_context_from_interface;
+    interface->fCallbackData = reinterpret_cast<GrGLInterfaceCallbackData>(fState);
+#endif
 }
 
 SkNullGLContext::~SkNullGLContext() {
     fGL.reset(NULL);
-    SkDELETE(fState);
+    fState->unref();
 }
 
-void SkNullGLContext::makeCurrent() const { set_current_context(this); }
+void SkNullGLContext::makeCurrent() const { set_current_context(fState); }
