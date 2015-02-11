@@ -396,7 +396,20 @@ void SkDebugCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
 }
 
 void SkDebugCanvas::didConcat(const SkMatrix& matrix) {
-    this->addDrawCommand(new SkConcatCommand(matrix));
+    switch (matrix.getType()) {
+        case SkMatrix::kTranslate_Mask:
+            this->addDrawCommand(new SkTranslateCommand(matrix.getTranslateX(),
+                                                        matrix.getTranslateY()));
+            break;
+        case SkMatrix::kScale_Mask:
+            this->addDrawCommand(new SkScaleCommand(matrix.getScaleX(),
+                                                    matrix.getScaleY()));
+            break;
+        default:
+            this->addDrawCommand(new SkConcatCommand(matrix));
+            break;
+    }
+
     this->INHERITED::didConcat(matrix);
 }
 
@@ -503,12 +516,6 @@ void SkDebugCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const 
 void SkDebugCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                    const SkPaint& paint) {
     this->addDrawCommand(new SkDrawTextBlobCommand(blob, x, y, paint));
-}
-
-void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                                const SkPoint texCoords[4], SkXfermode* xmode,
-                                const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, xmode, paint));
 }
 
 void SkDebugCanvas::onDrawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
