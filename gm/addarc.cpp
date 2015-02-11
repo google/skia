@@ -111,3 +111,54 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new AddArcMeasGM; )
+
+///////////////////////////////////////////////////
+
+// Emphasize drawing a stroked oval (containing conics) and then scaling the results up,
+// to ensure that we compute the stroke taking the CTM into account
+//
+class StrokeCircleGM : public skiagm::GM {
+public:
+    StrokeCircleGM() : fRotate(0) {}
+    
+protected:
+    SkString onShortName() SK_OVERRIDE { return SkString("strokecircle"); }
+    
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(520, 520); }
+    
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        canvas->scale(20, 20);
+        canvas->translate(13, 13);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(SK_Scalar1 / 2);
+
+        const SkScalar delta = paint.getStrokeWidth() * 3 / 2;
+        SkRect r = SkRect::MakeXYWH(-12, -12, 24, 24);
+        SkRandom rand;
+
+        SkScalar sign = 1;
+        while (r.width() > paint.getStrokeWidth() * 2) {
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->rotate(fRotate * sign);
+
+            paint.setColor(rand.nextU() | (0xFF << 24));
+            canvas->drawOval(r, paint);
+            r.inset(delta, delta);
+            sign = -sign;
+        }
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+        fRotate = timer.scaled(60, 360);
+        return true;
+    }
+
+private:
+    SkScalar fRotate;
+
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new StrokeCircleGM; )
