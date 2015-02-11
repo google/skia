@@ -575,6 +575,7 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
                                         const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
     if (getGpu()->canCopySurface(dst, src, srcRect, dstPoint)) {
+        this->closeBatch();
         CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
         cs->fSrcRect = srcRect;
         cs->fDstPoint = dstPoint;
