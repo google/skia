@@ -7,7 +7,7 @@
 
 #include "SkFontDescriptor.h"
 #include "SkStream.h"
-#include <SkData.h>
+#include "SkData.h"
 
 enum {
     // these must match the sfnt 'name' enums

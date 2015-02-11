@@ -8,7 +8,7 @@
 #ifndef SkMorphology_opts_DEFINED
 #define SkMorphology_opts_DEFINED
 
-#include <SkMorphologyImageFilter.h>
+#include "SkMorphologyImageFilter.h"
 
 enum SkMorphologyProcType {
     kDilateX_SkMorphologyProcType,
