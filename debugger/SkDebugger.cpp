@@ -66,8 +66,8 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
     const SkTDArray<SkDrawCommand*>& commands = this->getDrawCommands();
 
     SkTDArray<int> counts;
-    counts.setCount(LAST_DRAWTYPE_ENUM+1);
-    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
+    counts.setCount(SkDrawCommand::kOpTypeCount);
+    for (int i = 0; i < SkDrawCommand::kOpTypeCount; ++i) {
         counts[i] = 0;
     }
 
@@ -80,14 +80,14 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
 #ifdef SK_DEBUG
     double totPercent = 0, tempSum = 0;
 #endif
-    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
+    for (int i = 0; i < SkDrawCommand::kOpTypeCount; ++i) {
         if (0 == counts[i]) {
             // if there were no commands of this type then they should've consumed no time
             SkASSERT(NULL == typeTimes || 0.0 == (*typeTimes)[i]);
             continue;
         }
 
-        overview->append(SkDrawCommand::GetCommandString((DrawType) i));
+        overview->append(SkDrawCommand::GetCommandString((SkDrawCommand::OpType) i));
         overview->append(": ");
         overview->appendS32(counts[i]);
         if (typeTimes && totTime >= 0.0) {

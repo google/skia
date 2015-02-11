@@ -9,13 +9,13 @@
 
 #include "SkDrawCommand.h"
 #include "SkObjectParser.h"
-
+#include "SkPicture.h"
 #include "SkTextBlob.h"
 
 // TODO(chudy): Refactor into non subclass model.
 
-SkDrawCommand::SkDrawCommand(DrawType type)
-    : fDrawType(type)
+SkDrawCommand::SkDrawCommand(OpType type)
+    : fOpType(type)
     , fOffset(0)
     , fVisible(true) {
 }
@@ -24,49 +24,42 @@ SkDrawCommand::~SkDrawCommand() {
     fInfo.deleteAll();
 }
 
-const char* SkDrawCommand::GetCommandString(DrawType type) {
+const char* SkDrawCommand::GetCommandString(OpType type) {
     switch (type) {
-        case UNUSED: SkDEBUGFAIL("DrawType UNUSED\n"); break;
-        case DRAW_CLEAR: return "Clear";
-        case CLIP_PATH: return "Clip Path";
-        case CLIP_REGION: return "Clip Region";
-        case CLIP_RECT: return "Clip Rect";
-        case CLIP_RRECT: return "Clip RRect";
-        case CONCAT: return "Concat";
-        case DRAW_BITMAP: return "Draw Bitmap";
-        case DRAW_BITMAP_MATRIX: return "Draw Bitmap Matrix";
-        case DRAW_BITMAP_NINE: return "Draw Bitmap Nine";
-        case DRAW_BITMAP_RECT_TO_RECT: return "Draw Bitmap Rect";
-        case DRAW_DATA: return "Draw Data";
-        case DRAW_OVAL: return "Draw Oval";
-        case DRAW_PAINT: return "Draw Paint";
-        case DRAW_PATH: return "Draw Path";
-        case DRAW_PICTURE: return "Draw Picture";
-        case DRAW_POINTS: return "Draw Points";
-        case DRAW_POS_TEXT: return "Draw Pos Text";
-        case DRAW_POS_TEXT_H: return "Draw Pos Text H";
-        case DRAW_RECT: return "Draw Rect";
-        case DRAW_RRECT: return "Draw RRect";
-        case DRAW_SPRITE: return "Draw Sprite";
-        case DRAW_TEXT: return "Draw Text";
-        case DRAW_TEXT_BLOB: return "Draw Text Blob";
-        case DRAW_TEXT_ON_PATH: return "Draw Text On Path";
-        case DRAW_VERTICES: return "Draw Vertices";
-        case RESTORE: return "Restore";
-        case ROTATE: return "Rotate";
-        case SAVE: return "Save";
-        case SAVE_LAYER: return "Save Layer";
-        case SCALE: return "Scale";
-        case SET_MATRIX: return "Set Matrix";
-        case SKEW: return "Skew";
-        case TRANSLATE: return "Translate";
-        case NOOP: return "NoOp";
-        case BEGIN_COMMENT_GROUP: return "BeginCommentGroup";
-        case COMMENT: return "Comment";
-        case END_COMMENT_GROUP: return "EndCommentGroup";
-        case DRAW_DRRECT: return "Draw DRRect";
+        case kBeginCommentGroup_OpType: return "BeginCommentGroup";
+        case kClipPath_OpType: return "ClipPath";
+        case kClipRegion_OpType: return "ClipRegion";
+        case kClipRect_OpType: return "ClipRect";
+        case kClipRRect_OpType: return "ClipRRect";
+        case kComment_OpType: return "Comment";
+        case kConcat_OpType: return "Concat";
+        case kDrawBitmap_OpType: return "DrawBitmap";
+        case kDrawBitmapNine_OpType: return "DrawBitmapNine";
+        case kDrawBitmapRect_OpType: return "DrawBitmapRect";
+        case kDrawClear_OpType: return "DrawClear";
+        case kDrawDRRect_OpType: return "DrawDRRect";
+        case kDrawOval_OpType: return "DrawOval";
+        case kDrawPaint_OpType: return "DrawPaint";
+        case kDrawPatch_OpType: return "DrawPatch";
+        case kDrawPath_OpType: return "DrawPath";
+        case kDrawPicture_OpType: return "DrawPicture";
+        case kDrawPoints_OpType: return "DrawPoints";
+        case kDrawPosText_OpType: return "DrawPosText";
+        case kDrawPosTextH_OpType: return "DrawPosTextH";
+        case kDrawRect_OpType: return "DrawRect";
+        case kDrawRRect_OpType: return "DrawRRect";
+        case kDrawSprite_OpType: return "DrawSprite";
+        case kDrawText_OpType: return "DrawText";
+        case kDrawTextBlob_OpType: return "DrawTextBlob";
+        case kDrawTextOnPath_OpType: return "DrawTextOnPath";
+        case kDrawVertices_OpType: return "DrawVertices";
+        case kEndCommentGroup_OpType: return "EndCommentGroup";
+        case kRestore_OpType: return "Restore";
+        case kSave_OpType: return "Save";
+        case kSaveLayer_OpType: return "SaveLayer";
+        case kSetMatrix_OpType: return "SetMatrix";
         default:
-            SkDebugf("DrawType error 0x%08x\n", type);
+            SkDebugf("OpType error 0x%08x\n", type);
             SkASSERT(0);
             break;
     }
@@ -75,10 +68,10 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
 }
 
 SkString SkDrawCommand::toString() const {
-    return SkString(GetCommandString(fDrawType));
+    return SkString(GetCommandString(fOpType));
 }
 
-SkClearCommand::SkClearCommand(SkColor color) : INHERITED(DRAW_CLEAR) {
+SkClearCommand::SkClearCommand(SkColor color) : INHERITED(kDrawClear_OpType) {
     fColor = color;
     fInfo.push(SkObjectParser::CustomTextToString("No Parameters"));
 }
@@ -190,7 +183,7 @@ void render_drrect(SkCanvas* canvas, const SkRRect& outer, const SkRRect& inner)
 
 
 SkClipPathCommand::SkClipPathCommand(const SkPath& path, SkRegion::Op op, bool doAA)
-    : INHERITED(CLIP_PATH) {
+    : INHERITED(kClipPath_OpType) {
     fPath = path;
     fOp = op;
     fDoAA = doAA;
@@ -210,7 +203,7 @@ bool SkClipPathCommand::render(SkCanvas* canvas) const {
 }
 
 SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkRegion::Op op)
-    : INHERITED(CLIP_REGION) {
+    : INHERITED(kClipRegion_OpType) {
     fRegion = region;
     fOp = op;
 
@@ -223,7 +216,7 @@ void SkClipRegionCommand::execute(SkCanvas* canvas) const {
 }
 
 SkClipRectCommand::SkClipRectCommand(const SkRect& rect, SkRegion::Op op, bool doAA)
-    : INHERITED(CLIP_RECT) {
+    : INHERITED(kClipRect_OpType) {
     fRect = rect;
     fOp = op;
     fDoAA = doAA;
@@ -238,7 +231,7 @@ void SkClipRectCommand::execute(SkCanvas* canvas) const {
 }
 
 SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkRegion::Op op, bool doAA)
-    : INHERITED(CLIP_RRECT) {
+    : INHERITED(kClipRRect_OpType) {
     fRRect = rrect;
     fOp = op;
     fDoAA = doAA;
@@ -258,7 +251,7 @@ bool SkClipRRectCommand::render(SkCanvas* canvas) const {
 }
 
 SkConcatCommand::SkConcatCommand(const SkMatrix& matrix)
-    : INHERITED(CONCAT) {
+    : INHERITED(kConcat_OpType) {
     fMatrix = matrix;
 
     fInfo.push(SkObjectParser::MatrixToString(matrix));
@@ -270,7 +263,7 @@ void SkConcatCommand::execute(SkCanvas* canvas) const {
 
 SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                                          const SkPaint* paint)
-    : INHERITED(DRAW_BITMAP) {
+    : INHERITED(kDrawBitmap_OpType) {
     fBitmap = bitmap;
     fLeft = left;
     fTop = top;
@@ -300,7 +293,7 @@ bool SkDrawBitmapCommand::render(SkCanvas* canvas) const {
 
 SkDrawBitmapNineCommand::SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
                                                  const SkRect& dst, const SkPaint* paint)
-    : INHERITED(DRAW_BITMAP_NINE) {
+    : INHERITED(kDrawBitmapNine_OpType) {
     fBitmap = bitmap;
     fCenter = center;
     fDst = dst;
@@ -331,7 +324,7 @@ bool SkDrawBitmapNineCommand::render(SkCanvas* canvas) const {
 SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
                                                  const SkRect& dst, const SkPaint* paint,
                                                  SkCanvas::DrawBitmapRectFlags flags)
-    : INHERITED(DRAW_BITMAP_RECT_TO_RECT) {
+    : INHERITED(kDrawBitmapRect_OpType) {
     fBitmap = bitmap;
     if (src) {
         fSrc = *src;
@@ -369,7 +362,7 @@ bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {
 }
 
 SkBeginCommentGroupCommand::SkBeginCommentGroupCommand(const char* description)
-    : INHERITED(BEGIN_COMMENT_GROUP)
+    : INHERITED(kBeginCommentGroup_OpType)
     , fDescription(description) {
     SkString* temp = new SkString;
     temp->appendf("Description: %s", description);
@@ -377,7 +370,7 @@ SkBeginCommentGroupCommand::SkBeginCommentGroupCommand(const char* description)
 }
 
 SkCommentCommand::SkCommentCommand(const char* kywd, const char* value)
-    : INHERITED(COMMENT)
+    : INHERITED(kComment_OpType)
     , fKywd(kywd)
     , fValue(value) {
     SkString* temp = new SkString;
@@ -386,11 +379,11 @@ SkCommentCommand::SkCommentCommand(const char* kywd, const char* value)
 }
 
 SkEndCommentGroupCommand::SkEndCommentGroupCommand()
-    : INHERITED(END_COMMENT_GROUP) {
+    : INHERITED(kEndCommentGroup_OpType) {
 }
 
 SkDrawOvalCommand::SkDrawOvalCommand(const SkRect& oval, const SkPaint& paint)
-    : INHERITED(DRAW_OVAL) {
+    : INHERITED(kDrawOval_OpType) {
     fOval = oval;
     fPaint = paint;
 
@@ -419,7 +412,7 @@ bool SkDrawOvalCommand::render(SkCanvas* canvas) const {
 }
 
 SkDrawPaintCommand::SkDrawPaintCommand(const SkPaint& paint)
-    : INHERITED(DRAW_PAINT) {
+    : INHERITED(kDrawPaint_OpType) {
     fPaint = paint;
 
     fInfo.push(SkObjectParser::PaintToString(paint));
@@ -436,7 +429,7 @@ bool SkDrawPaintCommand::render(SkCanvas* canvas) const {
 }
 
 SkDrawPathCommand::SkDrawPathCommand(const SkPath& path, const SkPaint& paint)
-    : INHERITED(DRAW_PATH) {
+    : INHERITED(kDrawPath_OpType) {
     fPath = path;
     fPaint = paint;
 
@@ -456,7 +449,7 @@ bool SkDrawPathCommand::render(SkCanvas* canvas) const {
 SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture,
                                            const SkMatrix* matrix,
                                            const SkPaint* paint)
-    : INHERITED(DRAW_PICTURE)
+    : INHERITED(kDrawPicture_OpType)
     , fPicture(SkRef(picture))
     , fMatrixPtr(NULL)
     , fPaintPtr(NULL) {
@@ -502,7 +495,7 @@ bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
 
 SkDrawPointsCommand::SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count,
                                          const SkPoint pts[], const SkPaint& paint)
-    : INHERITED(DRAW_POINTS) {
+    : INHERITED(kDrawPoints_OpType) {
     fMode = mode;
     fCount = count;
     fPts = new SkPoint[count];
@@ -545,7 +538,7 @@ bool SkDrawPointsCommand::render(SkCanvas* canvas) const {
 
 SkDrawPosTextCommand::SkDrawPosTextCommand(const void* text, size_t byteLength,
                                            const SkPoint pos[], const SkPaint& paint)
-    : INHERITED(DRAW_POS_TEXT) {
+    : INHERITED(kDrawPosText_OpType) {
     size_t numPts = paint.countText(text, byteLength);
 
     fText = new char[byteLength];
@@ -571,7 +564,7 @@ void SkDrawPosTextCommand::execute(SkCanvas* canvas) const {
 SkDrawPosTextHCommand::SkDrawPosTextHCommand(const void* text, size_t byteLength,
                                              const SkScalar xpos[], SkScalar constY,
                                              const SkPaint& paint)
-    : INHERITED(DRAW_POS_TEXT_H) {
+    : INHERITED(kDrawPosTextH_OpType) {
     size_t numPts = paint.countText(text, byteLength);
 
     fText = new char[byteLength];
@@ -596,7 +589,7 @@ void SkDrawPosTextHCommand::execute(SkCanvas* canvas) const {
 
 SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
-    : INHERITED(DRAW_TEXT_BLOB)
+    : INHERITED(kDrawTextBlob_OpType)
     , fBlob(blob)
     , fXPos(x)
     , fYPos(y)
@@ -629,8 +622,25 @@ bool SkDrawTextBlobCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
+SkDrawPatchCommand::SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],
+                                       const SkPoint texCoords[4], SkXfermode* xfermode,
+                                       const SkPaint& paint)
+    : INHERITED(kDrawPatch_OpType) {
+    memcpy(fCubics, cubics, sizeof(fCubics));
+    memcpy(fColors, colors, sizeof(fColors));
+    memcpy(fTexCoords, texCoords, sizeof(fTexCoords));
+    fXfermode.reset(xfermode);
+    fPaint = paint;
+
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void SkDrawPatchCommand::execute(SkCanvas* canvas) const {
+    canvas->drawPatch(fCubics, fColors, fTexCoords, fXfermode, fPaint);
+}
+
 SkDrawRectCommand::SkDrawRectCommand(const SkRect& rect, const SkPaint& paint)
-    : INHERITED(DRAW_RECT) {
+    : INHERITED(kDrawRect_OpType) {
     fRect = rect;
     fPaint = paint;
 
@@ -643,7 +653,7 @@ void SkDrawRectCommand::execute(SkCanvas* canvas) const {
 }
 
 SkDrawRRectCommand::SkDrawRRectCommand(const SkRRect& rrect, const SkPaint& paint)
-    : INHERITED(DRAW_RRECT) {
+    : INHERITED(kDrawRRect_OpType) {
     fRRect = rrect;
     fPaint = paint;
 
@@ -663,7 +673,7 @@ bool SkDrawRRectCommand::render(SkCanvas* canvas) const {
 SkDrawDRRectCommand::SkDrawDRRectCommand(const SkRRect& outer,
                                          const SkRRect& inner,
                                          const SkPaint& paint)
-    : INHERITED(DRAW_DRRECT) {
+    : INHERITED(kDrawDRRect_OpType) {
     fOuter = outer;
     fInner = inner;
     fPaint = paint;
@@ -684,7 +694,7 @@ bool SkDrawDRRectCommand::render(SkCanvas* canvas) const {
 
 SkDrawSpriteCommand::SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int top,
                                          const SkPaint* paint)
-    : INHERITED(DRAW_SPRITE) {
+    : INHERITED(kDrawSprite_OpType) {
     fBitmap = bitmap;
     fLeft = left;
     fTop = top;
@@ -714,7 +724,7 @@ bool SkDrawSpriteCommand::render(SkCanvas* canvas) const {
 
 SkDrawTextCommand::SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                      const SkPaint& paint)
-    : INHERITED(DRAW_TEXT) {
+    : INHERITED(kDrawText_OpType) {
     fText = new char[byteLength];
     memcpy(fText, text, byteLength);
     fByteLength = byteLength;
@@ -735,7 +745,7 @@ void SkDrawTextCommand::execute(SkCanvas* canvas) const {
 SkDrawTextOnPathCommand::SkDrawTextOnPathCommand(const void* text, size_t byteLength,
                                                  const SkPath& path, const SkMatrix* matrix,
                                                  const SkPaint& paint)
-    : INHERITED(DRAW_TEXT_ON_PATH) {
+    : INHERITED(kDrawTextOnPath_OpType) {
     fText = new char[byteLength];
     memcpy(fText, text, byteLength);
     fByteLength = byteLength;
@@ -766,7 +776,7 @@ SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int ver
                                              const SkColor colors[], SkXfermode* xfermode,
                                              const uint16_t indices[], int indexCount,
                                              const SkPaint& paint)
-    : INHERITED(DRAW_VERTICES) {
+    : INHERITED(kDrawVertices_OpType) {
     fVmode = vmode;
 
     fVertexCount = vertexCount;
@@ -823,7 +833,7 @@ void SkDrawVerticesCommand::execute(SkCanvas* canvas) const {
 }
 
 SkRestoreCommand::SkRestoreCommand()
-    : INHERITED(RESTORE) {
+    : INHERITED(kRestore_OpType) {
     fInfo.push(SkObjectParser::CustomTextToString("No Parameters"));
 }
 
@@ -831,19 +841,8 @@ void SkRestoreCommand::execute(SkCanvas* canvas) const {
     canvas->restore();
 }
 
-SkRotateCommand::SkRotateCommand(SkScalar degrees)
-    : INHERITED(ROTATE) {
-    fDegrees = degrees;
-
-    fInfo.push(SkObjectParser::ScalarToString(degrees, "SkScalar degrees: "));
-}
-
-void SkRotateCommand::execute(SkCanvas* canvas) const {
-    canvas->rotate(fDegrees);
-}
-
 SkSaveCommand::SkSaveCommand()
-    : INHERITED(SAVE) {
+    : INHERITED(kSave_OpType) {
 }
 
 void SkSaveCommand::execute(SkCanvas* canvas) const {
@@ -852,7 +851,7 @@ void SkSaveCommand::execute(SkCanvas* canvas) const {
 
 SkSaveLayerCommand::SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
                                        SkCanvas::SaveFlags flags)
-    : INHERITED(SAVE_LAYER) {
+    : INHERITED(kSaveLayer_OpType) {
     if (bounds) {
         fBounds = *bounds;
     } else {
@@ -886,21 +885,8 @@ void SkSaveLayerCommand::vizExecute(SkCanvas* canvas) const {
     canvas->save();
 }
 
-SkScaleCommand::SkScaleCommand(SkScalar sx, SkScalar sy)
-    : INHERITED(SCALE) {
-    fSx = sx;
-    fSy = sy;
-
-    fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
-    fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
-}
-
-void SkScaleCommand::execute(SkCanvas* canvas) const {
-    canvas->scale(fSx, fSy);
-}
-
 SkSetMatrixCommand::SkSetMatrixCommand(const SkMatrix& matrix)
-    : INHERITED(SET_MATRIX) {
+    : INHERITED(kSetMatrix_OpType) {
     fUserMatrix.reset();
     fMatrix = matrix;
 
@@ -914,31 +900,5 @@ void SkSetMatrixCommand::setUserMatrix(const SkMatrix& userMatrix) {
 void SkSetMatrixCommand::execute(SkCanvas* canvas) const {
     SkMatrix temp = SkMatrix::Concat(fUserMatrix, fMatrix);
     canvas->setMatrix(temp);
-}
-
-SkSkewCommand::SkSkewCommand(SkScalar sx, SkScalar sy)
-    : INHERITED(SKEW) {
-    fSx = sx;
-    fSy = sy;
-
-    fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
-    fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
-}
-
-void SkSkewCommand::execute(SkCanvas* canvas) const {
-    canvas->skew(fSx, fSy);
-}
-
-SkTranslateCommand::SkTranslateCommand(SkScalar dx, SkScalar dy)
-    : INHERITED(TRANSLATE) {
-    fDx = dx;
-    fDy = dy;
-
-    fInfo.push(SkObjectParser::ScalarToString(dx, "SkScalar dx: "));
-    fInfo.push(SkObjectParser::ScalarToString(dy, "SkScalar dy: "));
-}
-
-void SkTranslateCommand::execute(SkCanvas* canvas) const {
-    canvas->translate(fDx, fDy);
 }
 
