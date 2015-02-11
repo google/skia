@@ -6,9 +6,6 @@
  */
 
 #include "Test.h"
-
-#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
-
 #include "SkCanvas.h"
 #include "SkDebugCanvas.h"
 #include "SkPicture.h"
@@ -55,6 +52,7 @@
 //        system is ready for prime time
 //   bench the recording times with/without matrix/clip collapsing
 
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
 
 // Enable/disable debugging helper code
 //#define TEST_COLLAPSE_MATRIX_CLIP_STATE 1

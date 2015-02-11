@@ -72,8 +72,6 @@ private:
     bool   fVisible;
 };
 
-typedef SkDrawCommand::OpType DrawType;
-
 class SkRestoreCommand : public SkDrawCommand {
 public:
     SkRestoreCommand();
