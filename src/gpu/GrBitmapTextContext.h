@@ -32,7 +32,6 @@ private:
     GrTexture*                        fCurrTexture;
     GrMaskFormat                      fCurrMaskFormat;
     SkAutoTUnref<const GrGeometryProcessor> fCachedGeometryProcessor;
-    SkAutoTUnref<const GrFragmentProcessor> fCachedTextureProcessor;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                          fEffectTextureUniqueID;
     SkMatrix                          fLocalMatrix;

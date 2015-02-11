@@ -561,33 +561,19 @@ void GrBitmapTextContext::flush() {
         }
 
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
-        if (kARGB_GrMaskFormat == fCurrMaskFormat) {
-            uint32_t textureUniqueID = fCurrTexture->getUniqueID();
-            if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->color() != color) {
-                uint32_t flags = GrDefaultGeoProcFactory::kLocalCoord_GPType;
-                fCachedGeometryProcessor.reset(GrDefaultGeoProcFactory::Create(flags, color));
-                fCachedTextureProcessor.reset(GrSimpleTextureEffect::Create(fCurrTexture,
-                                                                            SkMatrix::I(),
-                                                                            params));
-                fEffectTextureUniqueID = textureUniqueID;
-            }
-            pipelineBuilder.addColorProcessor(fCachedTextureProcessor.get());
-        } else {
-            uint32_t textureUniqueID = fCurrTexture->getUniqueID();
-            if (textureUniqueID != fEffectTextureUniqueID ||
-                fCachedGeometryProcessor->color() != color ||
-                !fCachedGeometryProcessor->localMatrix().cheapEqualTo(fLocalMatrix)) {
-                bool hasColor = kA8_GrMaskFormat == fCurrMaskFormat;
-                bool opaqueVertexColors = GrColorIsOpaque(fPaint.getColor());
-                fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(color,
-                                                                           fCurrTexture,
-                                                                           params,
-                                                                           hasColor,
-                                                                           opaqueVertexColors,
-                                                                           fLocalMatrix));
-                fEffectTextureUniqueID = textureUniqueID;
-            }
+        uint32_t textureUniqueID = fCurrTexture->getUniqueID();
+        if (textureUniqueID != fEffectTextureUniqueID ||
+            fCachedGeometryProcessor->color() != color ||
+            !fCachedGeometryProcessor->localMatrix().cheapEqualTo(fLocalMatrix)) {
+            // This will be ignored in the non A8 case
+            bool opaqueVertexColors = GrColorIsOpaque(fPaint.getColor());
+            fCachedGeometryProcessor.reset(GrBitmapTextGeoProc::Create(color,
+                                                                       fCurrTexture,
+                                                                       params,
+                                                                       fCurrMaskFormat,
+                                                                       opaqueVertexColors,
+                                                                       fLocalMatrix));
+            fEffectTextureUniqueID = textureUniqueID;
         }
 
         int nGlyphs = fCurrVertex / kVerticesPerGlyph;
