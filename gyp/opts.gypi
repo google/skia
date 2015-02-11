@@ -33,8 +33,6 @@
             '<(skia_src_path)/opts/memset16_neon.S',
             '<(skia_src_path)/opts/memset32_neon.S',
         ],
-        'neon_fp16_sources': [
-        ],
         'arm64_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_arm_neon.cpp',
             '<(skia_src_path)/opts/SkBitmapProcState_matrixProcs_neon.cpp',
@@ -82,7 +80,5 @@
         'sse41_sources': [
             '<(skia_src_path)/opts/SkBlurImage_opts_SSE4.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
-        ],
-        'avx_sources': [
         ],
 }
