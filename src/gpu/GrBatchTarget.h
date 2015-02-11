@@ -80,6 +80,8 @@ public:
     GrVertexBufferAllocPool* vertexPool() { return fVertexPool; }
     GrIndexBufferAllocPool* indexPool() { return fIndexPool; }
 
+    const GrIndexBuffer* quadIndexBuffer() const { return fGpu->getQuadIndexBuffer(); }
+
 private:
     GrGpu* fGpu;
     GrVertexBufferAllocPool* fVertexPool;
