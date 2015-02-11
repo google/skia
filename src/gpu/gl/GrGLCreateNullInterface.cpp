@@ -12,6 +12,12 @@
 #include "GrGLNoOpInterface.h"
 #include "SkTLS.h"
 
+// TODO: Delete this file after chrome starts using SkNullGLContext.
+
+// added to suppress 'no previous prototype' warning and because this code is duplicated in
+// SkNullGLContext.cpp
+namespace {      
+
 class BufferObj {
 public:
     SK_DECLARE_INST_COUNT(BufferObj);
@@ -140,8 +146,6 @@ private:
 };
 
 // Functions not declared in GrGLBogusInterface.h (not common with the Debug GL interface).
-
-namespace { // added to suppress 'no previous prototype' warning
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLActiveTexture(GrGLenum texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shader) {}
