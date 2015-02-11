@@ -110,7 +110,15 @@ private:
     bool   fVisible;
 };
 
+// TODO: switch Chromium over to not using these
 typedef SkDrawCommand::OpType DrawType;
+
+#define SAVE SkDrawCommand::kSave_OpType
+#define SCALE SkDrawCommand::kSetMatrix_OpType
+#define TRANSLATE SkDrawCommand::kSetMatrix_OpType
+#define DRAW_RECT SkDrawCommand::kDrawRect_OpType
+#define RESTORE SkDrawCommand::kRestore_OpType
+#define CLIP_RECT SkDrawCommand::kClipRect_OpType
 
 class SkRestoreCommand : public SkDrawCommand {
 public:
