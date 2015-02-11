@@ -83,6 +83,8 @@ private:
     
     bool internalDrawPath(GrDrawTarget*, GrPipelineBuilder*, GrColor, const SkMatrix& viewMatrix,
                           const SkPath& path, const PathData* pathData);
+    inline bool uploadPath(GrPlot** plot, SkIPoint16* atlasLocation, int width, int height,
+                           void* dfStorage);
     PathData* addPathToAtlas(const SkPath& path, const SkStrokeRec& stroke, bool antiAlias,
                              uint32_t dimension, SkScalar scale);
     bool freeUnusedPlot();

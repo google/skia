@@ -150,6 +150,40 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
 // padding around path bounds to allow for antialiased pixels
 const SkScalar kAntiAliasPad = 1.0f;
 
+inline bool GrAADistanceFieldPathRenderer::uploadPath(GrPlot** plot, SkIPoint16* atlasLocation,
+                                                      int width, int height, void* dfStorage) {
+    *plot = fAtlas->addToAtlas(&fPlotUsage, width, height, dfStorage, atlasLocation);
+
+    // if atlas full
+    if (NULL == *plot) {
+        if (this->freeUnusedPlot()) {
+            *plot = fAtlas->addToAtlas(&fPlotUsage, width, height, dfStorage, atlasLocation);
+            if (*plot) {
+                return true;
+            }
+        }
+
+        if (c_DumpPathCache) {
+#ifdef SK_DEVELOPER
+            GrTexture* texture = fAtlas->getTexture();
+            texture->surfacePriv().savePixels("pathcache.png");
+#endif
+        }
+
+        // before we purge the cache, we must flush any accumulated draws
+        fContext->flush();
+
+        if (this->freeUnusedPlot()) {
+            *plot = fAtlas->addToAtlas(&fPlotUsage, width, height, dfStorage, atlasLocation);
+            if (*plot) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return true;
+}
+
 GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathToAtlas(
                                                                         const SkPath& path,
                                                                         const SkStrokeRec& stroke,
@@ -209,42 +243,12 @@ GrAADistanceFieldPathRenderer::PathData* GrAADistanceFieldPathRenderer::addPathT
     helper.toSDF((unsigned char*) dfStorage.get());
     
     // add to atlas
+    GrPlot* plot;
     SkIPoint16  atlasLocation;
-    GrPlot* plot = fAtlas->addToAtlas(&fPlotUsage, width, height, dfStorage.get(),
-                                      &atlasLocation);
-    
-    // if atlas full
-    if (NULL == plot) {
-        if (this->freeUnusedPlot()) {
-            plot = fAtlas->addToAtlas(&fPlotUsage, width, height, dfStorage.get(),
-                                      &atlasLocation);
-            if (plot) {
-                goto HAS_ATLAS;
-            }
-        }
-    
-        if (c_DumpPathCache) {
-#ifdef SK_DEVELOPER
-            GrTexture* texture = fAtlas->getTexture();
-            texture->surfacePriv().savePixels("pathcache.png");
-#endif
-        }
-        
-        // before we purge the cache, we must flush any accumulated draws
-        fContext->flush();
-        
-        if (this->freeUnusedPlot()) {
-            plot = fAtlas->addToAtlas(&fPlotUsage, width, height, dfStorage.get(),
-                                      &atlasLocation);
-            if (plot) {
-                goto HAS_ATLAS;
-            }
-        }
-            
+    if (!this->uploadPath(&plot, &atlasLocation, width, height, dfStorage.get())) {
         return NULL;
     }
-    
-HAS_ATLAS:
+
     // add to cache
     PathData* pathData = SkNEW(PathData);
     pathData->fKey.fGenID = path.getGenerationID();
