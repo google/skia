@@ -727,7 +727,7 @@ private:
 
     void generateAAStrokeRectGeometry(void* vertices,
                                       uint32_t offset,
-                                      size_t vertexStride,
+                                      uint32_t vertexStride,
                                       int outerVertexNum,
                                       int innerVertexNum,
                                       GrColor color,
