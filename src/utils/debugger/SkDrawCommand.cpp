@@ -14,6 +14,15 @@
 
 // TODO(chudy): Refactor into non subclass model.
 
+const char* SkDrawCommand::kDrawRectString = "Draw Rect";
+const char* SkDrawCommand::kClipRectString = "Clip Rect";
+
+const SkDrawCommand::OpType SkDrawCommand::kSave_OpType = SAVE;
+const SkDrawCommand::OpType SkDrawCommand::kClipRect_OpType = CLIP_RECT;
+const SkDrawCommand::OpType SkDrawCommand::kDrawRect_OpType = DRAW_RECT;
+const SkDrawCommand::OpType SkDrawCommand::kRestore_OpType = RESTORE;
+const SkDrawCommand::OpType SkDrawCommand::kSetMatrix_OpType = SET_MATRIX;
+
 SkDrawCommand::SkDrawCommand(DrawType type)
     : fDrawType(type)
     , fOffset(0)
@@ -57,7 +66,7 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case SAVE: return "Save";
         case SAVE_LAYER: return "Save Layer";
         case SCALE: return "Scale";
-        case SET_MATRIX: return "Set Matrix";
+        case SET_MATRIX: return "SetMatrix";
         case SKEW: return "Skew";
         case TRANSLATE: return "Translate";
         case NOOP: return "NoOp";

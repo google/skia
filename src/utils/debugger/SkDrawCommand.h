@@ -15,6 +15,22 @@
 
 class SK_API SkDrawCommand {
 public:
+    // Staging for Chromium
+    typedef DrawType OpType;
+
+    static const int kOpTypeCount = LAST_DRAWTYPE_ENUM+1;
+
+    static const char* kDrawRectString;
+    static const char* kClipRectString;
+
+    static const OpType kSave_OpType;
+    static const OpType kClipRect_OpType;
+    static const OpType kDrawRect_OpType;
+    static const OpType kRestore_OpType;
+    static const OpType kSetMatrix_OpType;
+    // End Staging
+
+
     SkDrawCommand(DrawType drawType);
 
     virtual ~SkDrawCommand();
