@@ -24,7 +24,7 @@
 #include "SkTSet.h"
 #include "SkTypes.h"
 
-static bool inverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
+static bool inverse_transform_bbox(const SkMatrix& matrix, SkRect* bbox) {
     SkMatrix inverse;
     if (!matrix.invert(&inverse)) {
         return false;
@@ -849,7 +849,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
 
     SkRect bbox;
     bbox.set(state.fBBox);
-    if (!inverseTransformBBox(finalMatrix, &bbox)) {
+    if (!inverse_transform_bbox(finalMatrix, &bbox)) {
         return NULL;
     }
 
@@ -922,7 +922,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     finalMatrix.preConcat(state.fShaderTransform);
     SkRect deviceBounds;
     deviceBounds.set(state.fBBox);
-    if (!inverseTransformBBox(finalMatrix, &deviceBounds)) {
+    if (!inverse_transform_bbox(finalMatrix, &deviceBounds)) {
         return NULL;
     }
 
@@ -1200,6 +1200,15 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
             //  * shade the whole area
             //  * use the result as a bitmap shader
 
+            // bbox is in device space. While that's exactly what we want for sizing our bitmap,
+            // we need to map it into shader space for adjustments (to match
+            // SkPDFImageShader::Create's behavior).
+            SkRect shaderRect = SkRect::Make(bbox);
+            if (!inverse_transform_bbox(canvasTransform, &shaderRect)) {
+                fImage.reset();
+                return;
+            }
+
             // Clamp the bitmap size to about 1M pixels
             static const SkScalar kMaxBitmapArea = 1024 * 1024;
             SkScalar bitmapArea = rasterScale * bbox.width() * rasterScale * bbox.height();
@@ -1209,8 +1218,8 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
 
             SkISize size = SkISize::Make(SkScalarRoundToInt(rasterScale * bbox.width()),
                                          SkScalarRoundToInt(rasterScale * bbox.height()));
-            SkSize scale = SkSize::Make(SkIntToScalar(size.width()) / SkIntToScalar(bbox.width()),
-                                        SkIntToScalar(size.height()) / SkIntToScalar(bbox.height()));
+            SkSize scale = SkSize::Make(SkIntToScalar(size.width()) / shaderRect.width(),
+                                        SkIntToScalar(size.height()) / shaderRect.height());
 
             fImage.allocN32Pixels(size.width(), size.height());
             fImage.eraseColor(SK_ColorTRANSPARENT);
@@ -1220,10 +1229,10 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
 
             SkCanvas canvas(fImage);
             canvas.scale(scale.width(), scale.height());
-            canvas.translate(-SkIntToScalar(bbox.x()), -SkIntToScalar(bbox.y()));
+            canvas.translate(-shaderRect.x(), -shaderRect.y());
             canvas.drawPaint(p);
 
-            fShaderTransform.setTranslate(SkIntToScalar(bbox.x()), SkIntToScalar(bbox.y()));
+            fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
             fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
         } else {
             SkASSERT(matrix.isIdentity());
