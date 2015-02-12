@@ -135,9 +135,22 @@ If a test fails, DM will print out its assertion failures, both at the time
 they happen and then again all together after everything is done running.
 These failures are also included in the dm.json file.
 
-DM does not currently have a built-in image comparison facility, though we
-might add one.  For now, you can use the skdiff tool to compare corresponding
-images from two runs of DM.
+DM has a simple facility to compare against the results of a previous run:
+~~~
+$ ./gyp_skia
+$ ninja -C out/Debug dm
+$ out/Debug/dm -w good
+
+   (do some work)
+
+$ ./gyp_skia
+$ ninja -C out/Debug dm
+$ out/Debug/dm -r good -w bad
+~~~
+When using `-r`, DM will display a failure for any test that didn't produce the
+same image as the `good` run.
+
+For anything fancier, I suggest using skdiff:
 ~~~
 $ ./gyp_skia
 $ ninja -C out/Debug dm
