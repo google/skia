@@ -254,6 +254,11 @@ public:
         return fArray[index];
     }
 
+    void swap(SkAutoTArray& other) {
+        SkTSwap(fArray, other.fArray);
+        SkDEBUGCODE(SkTSwap(fCount, other.fCount));
+    }
+
 private:
     T*  fArray;
     SkDEBUGCODE(int fCount;)
