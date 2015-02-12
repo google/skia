@@ -11,7 +11,6 @@
 #include "GrBatch.h"
 #include "GrBlend.h"
 #include "GrDrawTargetCaps.h"
-#include "GrGeometryProcessor.h"
 #include "GrGpuResourceRef.h"
 #include "GrFragmentStage.h"
 #include "GrProcOptInfo.h"

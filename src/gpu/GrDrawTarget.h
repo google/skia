@@ -11,6 +11,8 @@
 #include "GrClipData.h"
 #include "GrClipMaskManager.h"
 #include "GrContext.h"
+#include "GrPathProcessor.h"
+#include "GrPrimitiveProcessor.h"
 #include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
 #include "GrPipelineBuilder.h"

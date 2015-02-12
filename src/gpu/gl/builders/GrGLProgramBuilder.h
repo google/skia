@@ -13,7 +13,7 @@
 #include "GrGLVertexShaderBuilder.h"
 #include "../GrGLProgramDataManager.h"
 #include "../GrGLUniformHandle.h"
-#include "../GrGLGeometryProcessor.h"
+#include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
 #include "../../GrPendingFragmentStage.h"
 #include "../../GrPipeline.h"

@@ -6,11 +6,14 @@
  */
 
 #include "GrGLProgramBuilder.h"
+
+#include "gl/GrGLGeometryProcessor.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLPathProcessor.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLUniformHandle.h"
-#include "../GrGLXferProcessor.h"
-#include "../GrGLGpu.h"
+#include "gl/GrGLXferProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
 #include "GrTexture.h"
