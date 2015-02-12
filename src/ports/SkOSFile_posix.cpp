@@ -8,7 +8,9 @@
 #include "SkOSFile.h"
 
 #include "SkTFitsIn.h"
+#include "SkTypes.h"
 
+#include <dirent.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -89,4 +91,91 @@ void* sk_fmmap(SkFILE* f, size_t* size) {
     }
 
     return sk_fdmmap(fd, size);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+struct SkOSFileIterData {
+    SkOSFileIterData() : fDIR(0) { }
+    DIR* fDIR;
+    SkString fPath, fSuffix;
+};
+SK_COMPILE_ASSERT(sizeof(SkOSFileIterData) <= SkOSFile::Iter::kStorageSize, not_enough_space);
+
+SkOSFile::Iter::Iter() {
+    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
+}
+
+SkOSFile::Iter::Iter(const char path[], const char suffix[]) {
+    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
+    this->reset(path, suffix);
+}
+
+SkOSFile::Iter::~Iter() {
+    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    if (self.fDIR) {
+        ::closedir(self.fDIR);
+    }
+    self.~SkOSFileIterData();
+}
+
+void SkOSFile::Iter::reset(const char path[], const char suffix[]) {
+    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    if (self.fDIR) {
+        ::closedir(self.fDIR);
+        self.fDIR = 0;
+    }
+
+    self.fPath.set(path);
+    if (path) {
+        self.fDIR = ::opendir(path);
+        self.fSuffix.set(suffix);
+    } else {
+        self.fSuffix.reset();
+    }
+}
+
+// returns true if suffix is empty, or if str ends with suffix
+static bool issuffixfor(const SkString& suffix, const char str[]) {
+    size_t  suffixLen = suffix.size();
+    size_t  strLen = strlen(str);
+
+    return  strLen >= suffixLen &&
+            memcmp(suffix.c_str(), str + strLen - suffixLen, suffixLen) == 0;
+}
+
+bool SkOSFile::Iter::next(SkString* name, bool getDir) {
+    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    if (self.fDIR) {
+        dirent* entry;
+
+        while ((entry = ::readdir(self.fDIR)) != NULL) {
+            struct stat s;
+            SkString str(self.fPath);
+
+            if (!str.endsWith("/") && !str.endsWith("\\")) {
+                str.append("/");
+            }
+            str.append(entry->d_name);
+
+            if (0 == stat(str.c_str(), &s)) {
+                if (getDir) {
+                    if (s.st_mode & S_IFDIR) {
+                        break;
+                    }
+                } else {
+                    if (!(s.st_mode & S_IFDIR) && issuffixfor(self.fSuffix, entry->d_name)) {
+                        break;
+                    }
+                }
+            }
+        }
+        if (entry) { // we broke out with a file
+            if (name) {
+                name->set(entry->d_name);
+            }
+            return true;
+        }
+    }
+    return false;
 }

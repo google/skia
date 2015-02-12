@@ -14,12 +14,6 @@
 
 #include "SkString.h"
 
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
-    #include <dirent.h>
-#endif
-
-#include <stddef.h> // ptrdiff_t
-
 struct SkFILE;
 
 enum SkFILE_Flags {
@@ -109,14 +103,9 @@ public:
         */
         bool next(SkString* name, bool getDir = false);
 
+        static const size_t kStorageSize = 40;
     private:
-#ifdef SK_BUILD_FOR_WIN
-        HANDLE      fHandle;
-        uint16_t*   fPath16;
-#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
-        DIR*        fDIR;
-        SkString    fPath, fSuffix;
-#endif
+        SkAlignedSStorage<kStorageSize> fSelf;
     };
 };
 
@@ -154,7 +143,6 @@ public:
      *      final slash, or the full name if ending in a slash.
      */
     static SkString Dirname(const char* fullPath);
-    
 };
 
 #endif

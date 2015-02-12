@@ -120,3 +120,125 @@ void* sk_fmmap(SkFILE* f, size_t* length) {
 
     return sk_fdmmap(fileno, length);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+struct SkOSFileIterData {
+    SkOSFileIterData() : fHandle(0), fPath16(NULL) { }
+    HANDLE fHandle;
+    uint16_t* fPath16;
+};
+SK_COMPILE_ASSERT(sizeof(SkOSFileIterData) <= SkOSFile::Iter::kStorageSize, not_enough_space);
+
+static uint16_t* concat_to_16(const char src[], const char suffix[]) {
+    size_t  i, len = strlen(src);
+    size_t  len2 = 3 + (suffix ? strlen(suffix) : 0);
+    uint16_t* dst = (uint16_t*)sk_malloc_throw((len + len2) * sizeof(uint16_t));
+
+    for (i = 0; i < len; i++) {
+        dst[i] = src[i];
+    }
+
+    if (i > 0 && dst[i-1] != '/') {
+        dst[i++] = '/';
+    }
+    dst[i++] = '*';
+
+    if (suffix) {
+        while (*suffix) {
+            dst[i++] = *suffix++;
+        }
+    }
+    dst[i] = 0;
+    SkASSERT(i + 1 <= len + len2);
+
+    return dst;
+}
+
+SkOSFile::Iter::Iter() {
+    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
+}
+
+SkOSFile::Iter::Iter(const char path[], const char suffix[]) {
+    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
+    this->reset(path, suffix);
+}
+
+SkOSFile::Iter::~Iter() {
+    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    sk_free(self.fPath16);
+    if (self.fHandle) {
+        ::FindClose(self.fHandle);
+    }
+    self.~SkOSFileIterData();
+}
+
+void SkOSFile::Iter::reset(const char path[], const char suffix[]) {
+    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    if (self.fHandle) {
+        ::FindClose(self.fHandle);
+        self.fHandle = 0;
+    }
+    if (NULL == path) {
+        path = "";
+    }
+
+    sk_free(self.fPath16);
+    self.fPath16 = concat_to_16(path, suffix);
+}
+
+static bool is_magic_dir(const uint16_t dir[]) {
+    // return true for "." and ".."
+    return dir[0] == '.' && (dir[1] == 0 || (dir[1] == '.' && dir[2] == 0));
+}
+
+static bool get_the_file(HANDLE handle, SkString* name, WIN32_FIND_DATAW* dataPtr, bool getDir) {
+    WIN32_FIND_DATAW    data;
+
+    if (NULL == dataPtr) {
+        if (::FindNextFileW(handle, &data))
+            dataPtr = &data;
+        else
+            return false;
+    }
+
+    for (;;) {
+        if (getDir) {
+            if ((dataPtr->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+                !is_magic_dir((uint16_t*)dataPtr->cFileName))
+            {
+                break;
+            }
+        } else {
+            if (!(dataPtr->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                break;
+            }
+        }
+        if (!::FindNextFileW(handle, dataPtr)) {
+            return false;
+        }
+    }
+    // if we get here, we've found a file/dir
+    if (name) {
+        name->setUTF16((uint16_t*)dataPtr->cFileName);
+    }
+    return true;
+}
+
+bool SkOSFile::Iter::next(SkString* name, bool getDir) {
+    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    WIN32_FIND_DATAW    data;
+    WIN32_FIND_DATAW*   dataPtr = NULL;
+
+    if (self.fHandle == 0) {  // our first time
+        if (self.fPath16 == NULL || *self.fPath16 == 0) {  // check for no path
+            return false;
+        }
+
+        self.fHandle = ::FindFirstFileW((LPCWSTR)self.fPath16, &data);
+        if (self.fHandle != 0 && self.fHandle != (HANDLE)~0) {
+            dataPtr = &data;
+        }
+    }
+    return self.fHandle != (HANDLE)~0 && get_the_file(self.fHandle, name, dataPtr, getDir);
+}
