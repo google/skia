@@ -41,7 +41,7 @@ DEF_TEST(HashMap, r) {
     REPORTER_ASSERT(r, map.count() == N);
 }
 
-namespace { uint32_t hash_string(SkString s) { return s.size(); } }
+namespace { uint32_t hash_string(SkString s) { return (uint32_t)s.size(); } }
 
 DEF_TEST(HashSet, r) {
     SkTHashSet<SkString, hash_string> set;
