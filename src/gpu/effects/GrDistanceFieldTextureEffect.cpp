@@ -57,12 +57,8 @@ public:
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
                                     dfTexEffect.inColor(), &fColorUniform);
 
-        // setup uniform viewMatrix
-        this->addUniformViewMatrix(pb);
-
         // Setup position
-        SetupPosition(vsBuilder, gpArgs, dfTexEffect.inPosition()->fName,
-                      dfTexEffect.viewMatrix(), this->uViewM());
+        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
@@ -357,12 +353,8 @@ public:
 
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
-        // setup uniform viewMatrix
-        this->addUniformViewMatrix(pb);
-
         // Setup position
-        SetupPosition(vsBuilder, gpArgs, dfTexEffect.inPosition()->fName,
-                      dfTexEffect.viewMatrix(), this->uViewM());
+        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
@@ -602,12 +594,8 @@ public:
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                     &fColorUniform);
 
-        // setup uniform viewMatrix
-        this->addUniformViewMatrix(pb);
-
         // Setup position
-        SetupPosition(vsBuilder, gpArgs, dfTexEffect.inPosition()->fName,
-                      dfTexEffect.viewMatrix(), this->uViewM());
+        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,

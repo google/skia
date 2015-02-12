@@ -95,13 +95,8 @@ public:
             // Setup pass through color
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, gp.inColor(),
                                         &fColorUniform);
-
-            // setup uniform viewMatrix
-            this->addUniformViewMatrix(pb);
-
             // Setup position
-            SetupPosition(vsBuilder, gpArgs, gp.inPosition()->fName,
-                          gp.viewMatrix(), this->uViewM());
+            this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
 
             if (gp.inLocalCoords()) {
                 // emit transforms with explicit local coords

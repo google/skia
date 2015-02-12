@@ -105,12 +105,8 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup uniform viewMatrix
-            this->addUniformViewMatrix(pb);
-
             // Setup position
-            SetupPosition(vsBuilder, gpArgs, ce.inPosition()->fName,
-                          ce.viewMatrix(), this->uViewM());
+            this->setupPosition(pb, gpArgs, ce.inPosition()->fName, ce.viewMatrix());
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
@@ -288,12 +284,8 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup uniform viewMatrix
-            this->addUniformViewMatrix(pb);
-
             // Setup position
-            SetupPosition(vsBuilder, gpArgs, ee.inPosition()->fName,
-                          ee.viewMatrix(), this->uViewM());
+            this->setupPosition(pb, gpArgs, ee.inPosition()->fName, ee.viewMatrix());
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
@@ -493,12 +485,8 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup uniform viewMatrix
-            this->addUniformViewMatrix(pb);
-
             // Setup position
-            SetupPosition(vsBuilder, gpArgs, ee.inPosition()->fName,
-                          ee.viewMatrix(), this->uViewM());
+            this->setupPosition(pb, gpArgs, ee.inPosition()->fName, ee.viewMatrix());
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,

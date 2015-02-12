@@ -185,8 +185,7 @@ void GrGLProgramDataManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    // TODO: Re-enable this assert once texture matrices aren't forced on all effects
-    // SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
+    SkASSERT(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), UniformMatrix3fv(uni.fFSLocation, 1, false, matrix));
     }

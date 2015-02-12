@@ -25,5 +25,3 @@ void GrGeometryProcessor::getInvariantOutputColor(GrInitInvariantOutput* out) co
 void GrGeometryProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     this->onGetInvariantOutputCoverage(out);
 }
-
-

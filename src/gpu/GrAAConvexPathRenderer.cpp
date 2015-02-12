@@ -542,12 +542,8 @@ public:
             this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                         &fColorUniform);
 
-            // setup uniform viewMatrix
-            this->addUniformViewMatrix(pb);
-
             // Setup position
-            SetupPosition(vsBuilder, gpArgs, qe.inPosition()->fName,
-                          qe.viewMatrix(), this->uViewM());
+            this->setupPosition(pb, gpArgs, qe.inPosition()->fName, qe.viewMatrix());
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, qe.inPosition()->fName,

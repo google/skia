@@ -231,7 +231,6 @@ private:
 
     GrColorCubeEffect(GrTexture* colorCube);
 
-    GrCoordTransform    fColorCubeTransform;
     GrTextureAccess     fColorCubeAccess;
 
     typedef GrFragmentProcessor INHERITED;
@@ -240,10 +239,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
-    : fColorCubeTransform(kLocal_GrCoordSet, colorCube, GrTextureParams::kBilerp_FilterMode)
-    , fColorCubeAccess(colorCube, "bgra", GrTextureParams::kBilerp_FilterMode) {
+    : fColorCubeAccess(colorCube, "bgra", GrTextureParams::kBilerp_FilterMode) {
     this->initClassID<GrColorCubeEffect>();
-    this->addCoordTransform(&fColorCubeTransform);
     this->addTextureAccess(&fColorCubeAccess);
 }
 
@@ -319,9 +316,9 @@ void GrColorCubeEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
 
     // Apply the cube.
     fsBuilder->codeAppendf("%s = vec4(mix(", outputColor);
-    fsBuilder->appendTextureLookup(samplers[0], cCoords1, coords[0].getType());
+    fsBuilder->appendTextureLookup(samplers[0], cCoords1);
     fsBuilder->codeAppend(".rgb, ");
-    fsBuilder->appendTextureLookup(samplers[0], cCoords2, coords[0].getType());
+    fsBuilder->appendTextureLookup(samplers[0], cCoords2);
 
     // Premultiply color by alpha. Note that the input alpha is not modified by this shader.
     fsBuilder->codeAppendf(".rgb, fract(%s.b)) * vec3(%s), %s.a);\n",
@@ -338,7 +335,6 @@ void GrColorCubeEffect::GLProcessor::setData(const GrGLProgramDataManager& pdman
 
 void GrColorCubeEffect::GLProcessor::GenKey(const GrProcessor& proc,
                                             const GrGLCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(1); // Always same shader for now
 }
 
 GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {

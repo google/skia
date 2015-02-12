@@ -10,7 +10,7 @@
 
 #include "GrGLPrimitiveProcessor.h"
 
-class GrGLVertexBuilder;
+class GrGLGPBuilder;
 
 /**
  * If a GL effect needs a GrGLFullShaderBuilder* object to emit vertex code, then it must inherit
@@ -51,11 +51,10 @@ protected:
     };
 
     // Create the correct type of position variable given the CTM
-    static void SetupPosition(GrGLVertexBuilder* vsBuilder,
-                              GrGPArgs* gpArgs,
-                              const char* posName,
-                              const SkMatrix& mat,
-                              const char* matName);
+    void setupPosition(GrGLGPBuilder* pb,
+                       GrGPArgs* gpArgs,
+                       const char* posName,
+                       const SkMatrix& mat);
 
     static uint32_t ComputePosKey(const SkMatrix& mat) {
         if (mat.isIdentity()) {

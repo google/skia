@@ -6,7 +6,7 @@
  */
 
 #include "GrGLShaderStringBuilder.h"
-#include "../GrGLGpu.h"
+#include "gl/GrGLGpu.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "SkRTConf.h"
 #include "SkTraceEvent.h"

@@ -83,11 +83,8 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupColorPassThrough(args.fPB, local.fInputColorType, args.fOutputColor, NULL,
                                 &fColorUniform);
 
-    // setup uniform viewMatrix
-    this->addUniformViewMatrix(pb);
-
     // Setup position
-    SetupPosition(vsBuilder, gpArgs, gp.inPosition()->fName, gp.viewMatrix(), this->uViewM());
+    this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
 
     // emit transforms with position
     this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
@@ -153,10 +150,10 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     if (0xff != local.fCoverageScale) {
         const char* coverageScale;
         fCoverageScaleUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                          kFloat_GrSLType,
-                                          kDefault_GrSLPrecision,
-                                          "Coverage",
-                                          &coverageScale);
+                                               kFloat_GrSLType,
+                                               kDefault_GrSLPrecision,
+                                               "Coverage",
+                                               &coverageScale);
         fsBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
         fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
@@ -321,11 +318,8 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupColorPassThrough(args.fPB, local.fInputColorType, args.fOutputColor, NULL,
                                 &fColorUniform);
 
-    // setup uniform viewMatrix
-    this->addUniformViewMatrix(pb);
-
     // Setup position
-    SetupPosition(vsBuilder, gpArgs, gp.inPosition()->fName, gp.viewMatrix(), this->uViewM());
+    this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
 
     // emit transforms with position
     this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
@@ -538,11 +532,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupColorPassThrough(args.fPB, local.fInputColorType, args.fOutputColor, NULL,
                                 &fColorUniform);
 
-    // setup uniform viewMatrix
-    this->addUniformViewMatrix(args.fPB);
-
     // Setup position
-    SetupPosition(vsBuilder, gpArgs, gp.inPosition()->fName, gp.viewMatrix(), this->uViewM());
+    this->setupPosition(args.fPB, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
 
     // emit transforms with position
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),

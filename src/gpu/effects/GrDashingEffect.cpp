@@ -645,11 +645,8 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Setup pass through color
     this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
-    // setup uniform viewMatrix
-    this->addUniformViewMatrix(pb);
-
     // Setup position
-    SetupPosition(vsBuilder, gpArgs, dce.inPosition()->fName, dce.viewMatrix(), this->uViewM());
+    this->setupPosition(pb, gpArgs, dce.inPosition()->fName, dce.viewMatrix());
 
     // emit transforms
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, dce.inPosition()->fName, dce.localMatrix(),
@@ -892,11 +889,8 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Setup pass through color
     this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
-    // setup uniform viewMatrix
-    this->addUniformViewMatrix(pb);
-
     // Setup position
-    SetupPosition(vsBuilder, gpArgs, de.inPosition()->fName, de.viewMatrix(), this->uViewM());
+    this->setupPosition(pb, gpArgs, de.inPosition()->fName, de.viewMatrix());
 
     // emit transforms
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, de.inPosition()->fName, de.localMatrix(),

@@ -64,7 +64,7 @@ void GrGLPrimitiveProcessor::addUniformViewMatrix(GrGLGPBuilder* pb) {
 
 void GrGLPrimitiveProcessor::setUniformViewMatrix(const GrGLProgramDataManager& pdman,
                                                   const SkMatrix& viewMatrix) {
-    if (!fViewMatrix.cheapEqualTo(viewMatrix)) {
+    if (!viewMatrix.isIdentity() && !fViewMatrix.cheapEqualTo(viewMatrix)) {
         SkASSERT(fViewMatrixUniform.isValid());
         fViewMatrix = viewMatrix;
 
