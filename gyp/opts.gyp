@@ -1,3 +1,4 @@
+# Gyp file for building opts target.
 {
   # Source lists live in opts.gypi.  This makes it easier to maintain our Chrome GYP/GN setup.
   # (To be honest, I'm not sure why we need to include common.gypi.  I thought it was automatic.)
@@ -26,7 +27,7 @@
         '../include/utils',
       ],
       'conditions': [
-        [ 'skia_arch_type == "x86" and skia_os != "ios"', {
+        [ '"x86" in skia_arch_type and skia_os != "ios"', {
           'cflags': [ '-msse2' ],
           'dependencies': [ 'opts_ssse3', 'opts_sse41' ],
           'sources': [ '<@(sse2_sources)' ],
@@ -44,7 +45,9 @@
 
         [ '(skia_arch_type == "arm" and arm_version < 7) \
             or (skia_os == "ios") \
-            or (skia_os == "android" and skia_arch_type not in ["x86", "arm", "mips", "arm64"])', {
+            or (skia_os == "android" \
+                and skia_arch_type not in ["x86", "x86_64", "arm", "mips", \
+                                           "arm64"])', {
           'sources': [ '<@(none_sources)' ],
         }],
 

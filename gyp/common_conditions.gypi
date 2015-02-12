@@ -227,7 +227,7 @@
         'conditions': [
           [ 'skia_os != "chromeos"', {
             'conditions': [
-              [ 'skia_arch_width == 64 and skia_arch_type == "x86"', {
+              [ 'skia_arch_type == "x86_64"', {
                 'cflags': [
                   '-m64',
                 ],
@@ -235,7 +235,7 @@
                   '-m64',
                 ],
               }],
-              [ 'skia_arch_width == 32 and skia_arch_type == "x86"', {
+              [ 'skia_arch_type == "x86"', {
                 'cflags': [
                   '-m32',
                 ],
@@ -628,7 +628,7 @@
           '-fuse-ld=gold',
         ],
         'conditions': [
-          [ 'skia_arch_type == "x86"', {
+          [ '"x86" in skia_arch_type', {
             'cflags': [
               '-mssse3',
             ],
