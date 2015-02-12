@@ -1008,7 +1008,6 @@ public:
         SkAutoTUnref<GrGeometryProcessor> gp(EllipseEdgeEffect::Create(this->color(),
                                                                        this->stroke(),
                                                                        invert));
-        SkASSERT(gp->getVertexStride() == sizeof(EllipseVertex));
 
         batchTarget->initDraw(gp, pipeline);
 
@@ -1025,7 +1024,7 @@ public:
         int instanceCount = fGeoData.count();
         int vertexCount = kVertsPerEllipse * instanceCount;
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(vertexStride == sizeof(CircleVertex));
+        SkASSERT(vertexStride == sizeof(EllipseVertex));
 
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
@@ -1306,8 +1305,6 @@ public:
                                                                          this->viewMatrix(),
                                                                          this->mode()));
 
-        SkASSERT(gp->getVertexStride() == sizeof(DIEllipseVertex));
-
         batchTarget->initDraw(gp, pipeline);
 
         // TODO this is hacky, but the only way we have to initialize the GP is to use the
@@ -1323,7 +1320,7 @@ public:
         int instanceCount = fGeoData.count();
         int vertexCount = kVertsPerEllipse * instanceCount;
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(vertexStride == sizeof(CircleVertex));
+        SkASSERT(vertexStride == sizeof(DIEllipseVertex));
 
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
