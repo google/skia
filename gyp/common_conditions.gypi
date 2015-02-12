@@ -227,7 +227,7 @@
         'conditions': [
           [ 'skia_os != "chromeos"', {
             'conditions': [
-              [ 'skia_arch_type == "x86_64"', {
+              [ 'skia_arch_type == "x86_64" and not skia_android_framework', {
                 'cflags': [
                   '-m64',
                 ],
@@ -235,7 +235,7 @@
                   '-m64',
                 ],
               }],
-              [ 'skia_arch_type == "x86"', {
+              [ 'skia_arch_type == "x86" and not skia_android_framework', {
                 'cflags': [
                   '-m32',
                 ],
@@ -636,6 +636,7 @@
           [ 'skia_android_framework', {
             'cflags!': [
               '-fuse-ld=gold',
+              '-mssse3',
             ],
           }],
           [ 'skia_shared_lib', {
