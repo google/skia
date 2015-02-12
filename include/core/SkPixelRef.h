@@ -353,8 +353,8 @@ private:
     LockRec         fRec;
     int             fLockCount;
 
-    mutable SkTRacy<uint32_t> fGenerationID;
-    mutable SkTRacy<bool>     fUniqueGenerationID;
+    mutable uint32_t fGenerationID;
+    mutable bool     fUniqueGenerationID;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     const uint32_t fStableID;
 #endif
