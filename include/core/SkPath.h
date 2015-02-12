@@ -42,6 +42,11 @@ public:
         return !(a == b);
     }
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    /** Returns true if the caller is the only owner of the underlying path data */
+    bool unique() const { return fPathRef->unique(); }
+#endif
+
     enum FillType {
         /** Specifies that "inside" is computed by a non-zero sum of signed
             edge crossings
