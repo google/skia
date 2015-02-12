@@ -158,12 +158,12 @@ class SkPathStroker {
 public:
 #if QUAD_STROKE_APPROXIMATION
     SkPathStroker(const SkPath& src,
-                  SkScalar radius, SkScalar miterLimit, SkScalar error, SkPaint::Cap cap,
-                  SkPaint::Join join);
+                  SkScalar radius, SkScalar miterLimit, SkScalar error, SkPaint::Cap,
+                  SkPaint::Join, SkScalar resScale);
 #else
     SkPathStroker(const SkPath& src,
-                  SkScalar radius, SkScalar miterLimit, SkPaint::Cap cap,
-                  SkPaint::Join join);
+                  SkScalar radius, SkScalar miterLimit, SkPaint::Cap,
+                  SkPaint::Join, SkScalar resScale);
 #endif
 
     void moveTo(const SkPoint&);
@@ -178,12 +178,15 @@ public:
         dst->swap(fOuter);
     }
 
+    SkScalar getResScale() const { return fResScale; }
+
 private:
 #if QUAD_STROKE_APPROXIMATION
     SkScalar    fError;
 #endif
     SkScalar    fRadius;
     SkScalar    fInvMiterLimit;
+    SkScalar    fResScale;
 
     SkVector    fFirstNormal, fPrevNormal, fFirstUnitNormal, fPrevUnitNormal;
     SkPoint     fFirstPt, fPrevPt;  // on original path
@@ -348,13 +351,13 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
 #if QUAD_STROKE_APPROXIMATION
 SkPathStroker::SkPathStroker(const SkPath& src,
                              SkScalar radius, SkScalar miterLimit, SkScalar error,
-                             SkPaint::Cap cap, SkPaint::Join join)
+                             SkPaint::Cap cap, SkPaint::Join join, SkScalar resScale)
 #else
 SkPathStroker::SkPathStroker(const SkPath& src,
                              SkScalar radius, SkScalar miterLimit,
-                             SkPaint::Cap cap, SkPaint::Join join)
+                             SkPaint::Cap cap, SkPaint::Join join, SkScalar resScale)
 #endif
-        : fRadius(radius) {
+        : fRadius(radius), fResScale(resScale) {
 
     /*  This is only used when join is miter_join, but we initialize it here
         so that it is always defined, to fis valgrind warnings.
@@ -1429,14 +1432,13 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     }
 
     SkAutoConicToQuads converter;
-    const SkScalar conicTol = SK_Scalar1 / 4;
+    const SkScalar conicTol = SK_Scalar1 / 4 / fResScale;
 
 #if QUAD_STROKE_APPROXIMATION
     SkPathStroker   stroker(src, radius, fMiterLimit, fError, this->getCap(),
-                            this->getJoin());
+                            this->getJoin(), fResScale);
 #else
-    SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(),
-                            this->getJoin());
+    SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(), fResScale);
 #endif
     SkPath::Iter    iter(src, false);
     SkPath::Verb    lastSegment = SkPath::kMove_Verb;

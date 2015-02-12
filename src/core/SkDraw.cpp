@@ -1004,6 +1004,17 @@ DRAW_PATH:
     this->drawPath(path, paint, NULL, true);
 }
 
+static SkScalar compute_res_scale_for_stroking(const SkMatrix& matrix) {
+    if (!matrix.hasPerspective()) {
+        SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
+        SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
+        if (SkScalarsAreFinite(sx, sy)) {
+            return SkTMax(sx, sy);
+        }
+    }
+    return 1;
+}
+
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
                       bool drawCoverage, SkBlitter* customBlitter) const {
@@ -1072,7 +1083,8 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr);
+        doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr,
+                                    compute_res_scale_for_stroking(*fMatrix));
         pathPtr = &tmpPath;
     }
 

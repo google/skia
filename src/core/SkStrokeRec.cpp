@@ -12,6 +12,7 @@
 #define kStrokeRec_FillStyleWidth     (-SK_Scalar1)
 
 SkStrokeRec::SkStrokeRec(InitStyle s) {
+    fResScale       = 1;
     fWidth          = (kFill_InitStyle == s) ? kStrokeRec_FillStyleWidth : 0;
     fMiterLimit     = SkPaintDefaults_MiterLimit;
     fCap            = SkPaint::kDefault_Cap;
@@ -23,15 +24,17 @@ SkStrokeRec::SkStrokeRec(const SkStrokeRec& src) {
     memcpy(this, &src, sizeof(src));
 }
 
-SkStrokeRec::SkStrokeRec(const SkPaint& paint) {
-    this->init(paint, paint.getStyle());
+SkStrokeRec::SkStrokeRec(const SkPaint& paint, SkScalar resScale) {
+    this->init(paint, paint.getStyle(), resScale);
 }
 
-SkStrokeRec::SkStrokeRec(const SkPaint& paint, SkPaint::Style styleOverride) {
-    this->init(paint, styleOverride);
+SkStrokeRec::SkStrokeRec(const SkPaint& paint, SkPaint::Style styleOverride, SkScalar resScale) {
+    this->init(paint, styleOverride, resScale);
 }
 
-void SkStrokeRec::init(const SkPaint& paint, SkPaint::Style style) {
+void SkStrokeRec::init(const SkPaint& paint, SkPaint::Style style, SkScalar resScale) {
+    fResScale = resScale;
+
     switch (style) {
         case SkPaint::kFill_Style:
             fWidth = kStrokeRec_FillStyleWidth;
@@ -108,6 +111,7 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     stroker.setMiterLimit(fMiterLimit);
     stroker.setWidth(fWidth);
     stroker.setDoFill(fStrokeAndFill);
+    stroker.setResScale(fResScale);
 #if QUAD_STROKE_APPROXIMATION
     stroker.setError(1);
 #endif

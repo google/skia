@@ -21,8 +21,8 @@ public:
     SkStrokeRec(InitStyle style);
 
     SkStrokeRec(const SkStrokeRec&);
-    SkStrokeRec(const SkPaint&, SkPaint::Style);
-    explicit SkStrokeRec(const SkPaint&);
+    SkStrokeRec(const SkPaint&, SkPaint::Style, SkScalar resScale = 1);
+    explicit SkStrokeRec(const SkPaint&, SkScalar resScale = 1);
 
     enum Style {
         kHairline_Style,
@@ -99,9 +99,9 @@ public:
     }
 
 private:
-    void init(const SkPaint& paint, SkPaint::Style style);
+    void init(const SkPaint&, SkPaint::Style, SkScalar resScale);
 
-
+    SkScalar        fResScale;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
     SkPaint::Cap    fCap;

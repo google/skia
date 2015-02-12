@@ -53,6 +53,20 @@ public:
     void    setDoFill(bool doFill) { fDoFill = SkToU8(doFill); }
 
     /**
+     *  ResScale is the "intended" resolution for the output.
+     *      Default is 1.0.
+     *      Larger values (res > 1) indicate that the result should be more precise, since it will
+     *          be zoomed up, and small errors will be magnified.
+     *      Smaller values (0 < res < 1) indicate that the result can be less precise, since it will
+     *          be zoomed down, and small errors may be invisible.
+     */
+    SkScalar getResScale() const { return fResScale; }
+    void setResScale(SkScalar rs) {
+        SkASSERT(rs > 0 && SkScalarIsFinite(rs));
+        fResScale = rs;
+    }
+
+    /**
      *  Stroke the specified rect, winding it in the specified direction..
      */
     void    strokeRect(const SkRect& rect, SkPath* result,
@@ -66,6 +80,7 @@ private:
     SkScalar    fError;
 #endif
     SkScalar    fWidth, fMiterLimit;
+    SkScalar    fResScale;
     uint8_t     fCap, fJoin;
     SkBool8     fDoFill;
 

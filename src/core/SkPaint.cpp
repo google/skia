@@ -2003,9 +2003,9 @@ SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPaint::getFillPath(const SkPath& src, SkPath* dst,
-                          const SkRect* cullRect) const {
-    SkStrokeRec rec(*this);
+bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                          SkScalar resScale) const {
+    SkStrokeRec rec(*this, resScale);
 
     const SkPath* srcPtr = &src;
     SkPath tmpPath;

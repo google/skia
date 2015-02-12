@@ -512,11 +512,17 @@ public:
      *  @param src  input path
      *  @param dst  output path (may be the same as src)
      *  @param cullRect If not null, the dst path may be culled to this rect.
+     *  @param resScale If > 1, increase precision, else if (0 < res < 1) reduce precision
+     *              in favor of speed/size.
      *  @return     true if the path should be filled, or false if it should be
      *              drawn with a hairline (width == 0)
      */
-    bool getFillPath(const SkPath& src, SkPath* dst,
-                     const SkRect* cullRect = NULL) const;
+    bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                     SkScalar resScale = 1) const;
+
+    bool getFillPath(const SkPath& src, SkPath* dst) const {
+        return this->getFillPath(src, dst, NULL, 1);
+    }
 
     /** Get the paint's shader object.
         <p />
