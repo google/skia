@@ -19,8 +19,10 @@ function setenv {
 
   ARCH_WIDTH=$1
   if [ ${ARCH_WIDTH} = "32" ]; then
+    ARCH_TYPE=x86
     CROSS_ID=i686
   elif [ ${ARCH_WIDTH} = "64" ]; then
+    ARCH_TYPE=x86_64
     CROSS_ID=x86_64
   else
     echo "ERROR: Unknown arch width: ${ARCH_WIDTH}"
@@ -66,7 +68,8 @@ function setenv {
   exportVar PATH ${NACL_BIN_PATH}:${PATH};
   exportVar C_INCLUDE_PATH "${NACL_SDK_ROOT}/include:${NACL_SDK_ROOT}/ports/include:${C_INCLUDE_PATH}"
   exportVar CPLUS_INCLUDE_PATH "${NACL_SDK_ROOT}/include:${NACL_SDK_ROOT}/ports/include:${CPLUS_INCLUDE_PATH}"
-  exportVar GYP_DEFINES "skia_os=nacl skia_gpu=0 skia_arch_width=${ARCH_WIDTH}"
+  exportVar GYP_DEFINES \
+      "skia_os=nacl skia_gpu=0 skia_arch_width=${ARCH_WIDTH} skia_arch_type=${ARCH_TYPE}"
 }
 
 function build {
