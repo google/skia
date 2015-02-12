@@ -9,56 +9,29 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
+#include "SkPictureFlat.h"
 #include "SkCanvas.h"
 #include "SkString.h"
 
 class SK_API SkDrawCommand {
 public:
     // Staging for Chromium
+    typedef DrawType OpType;
+
+    static const int kOpTypeCount = LAST_DRAWTYPE_ENUM+1;
+
     static const char* kDrawRectString;
     static const char* kClipRectString;
+
+    static const OpType kSave_OpType;
+    static const OpType kClipRect_OpType;
+    static const OpType kDrawRect_OpType;
+    static const OpType kRestore_OpType;
+    static const OpType kSetMatrix_OpType;
     // End Staging
 
-    enum OpType {
-        kBeginCommentGroup_OpType,
-        kClipPath_OpType,
-        kClipRegion_OpType,
-        kClipRect_OpType,
-        kClipRRect_OpType,
-        kComment_OpType,
-        kConcat_OpType,
-        kDrawBitmap_OpType,
-        kDrawBitmapNine_OpType,
-        kDrawBitmapRect_OpType,
-        kDrawClear_OpType,
-        kDrawDRRect_OpType,
-        kDrawOval_OpType,
-        kDrawPaint_OpType,
-        kDrawPatch_OpType,
-        kDrawPath_OpType,
-        kDrawPicture_OpType,
-        kDrawPoints_OpType,
-        kDrawPosText_OpType,
-        kDrawPosTextH_OpType,
-        kDrawRect_OpType,
-        kDrawRRect_OpType,
-        kDrawSprite_OpType,
-        kDrawText_OpType,
-        kDrawTextBlob_OpType,
-        kDrawTextOnPath_OpType,
-        kDrawVertices_OpType,
-        kEndCommentGroup_OpType,
-        kRestore_OpType,
-        kSave_OpType,
-        kSaveLayer_OpType,
-        kSetMatrix_OpType,
 
-        kLast_OpType = kSetMatrix_OpType
-    };
-
-    static const int kOpTypeCount = kLast_OpType + 1;
-
-    SkDrawCommand(OpType opType);
+    SkDrawCommand(DrawType drawType);
 
     virtual ~SkDrawCommand();
 
@@ -68,7 +41,7 @@ public:
     size_t offset() const { return fOffset; }
 
     virtual const char* toCString() const {
-        return GetCommandString(fOpType);
+        return GetCommandString(fDrawType);
     }
 
     bool isVisible() const {
@@ -100,17 +73,17 @@ public:
     virtual void setActive(bool active) {}
     virtual bool active() const { return false; }
 
-    OpType getType() const { return fOpType; }
+    DrawType getType() const { return fDrawType; }
 
     virtual bool render(SkCanvas* canvas) const { return false; }
 
-    static const char* GetCommandString(OpType type);
+    static const char* GetCommandString(DrawType type);
 
 protected:
     SkTDArray<SkString*> fInfo;
 
 private:
-    OpType fOpType;
+    DrawType fDrawType;
     size_t fOffset;
     bool   fVisible;
 };
@@ -457,24 +430,6 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkDrawPatchCommand : public SkDrawCommand {
-public:
-    SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],
-                       const SkPoint texCoords[4], SkXfermode* xmode,
-                       const SkPaint& paint);
-    void execute(SkCanvas* canvas) const SK_OVERRIDE;
-
-private:
-    SkPoint fCubics[12];
-    SkColor fColors[4];
-    SkPoint fTexCoords[4];
-    SkAutoTUnref<SkXfermode> fXfermode;
-    SkPaint fPaint;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-
 class SkDrawRectCommand : public SkDrawCommand {
 public:
     SkDrawRectCommand(const SkRect& rect, const SkPaint& paint);
@@ -553,6 +508,16 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
+class SkRotateCommand : public SkDrawCommand {
+public:
+    SkRotateCommand(SkScalar degrees);
+    void execute(SkCanvas* canvas) const SK_OVERRIDE;
+private:
+    SkScalar fDegrees;
+
+    typedef SkDrawCommand INHERITED;
+};
+
 class SkSaveCommand : public SkDrawCommand {
 public:
     SkSaveCommand();
@@ -585,6 +550,21 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
+class SkScaleCommand : public SkDrawCommand {
+public:
+    SkScaleCommand(SkScalar sx, SkScalar sy);
+    void execute(SkCanvas* canvas) const SK_OVERRIDE;
+
+    SkScalar x() const { return fSx; }
+    SkScalar y() const { return fSy; }
+
+private:
+    SkScalar fSx;
+    SkScalar fSy;
+
+    typedef SkDrawCommand INHERITED;
+};
+
 class SkSetMatrixCommand : public SkDrawCommand {
 public:
     SkSetMatrixCommand(const SkMatrix& matrix);
@@ -593,6 +573,32 @@ public:
 private:
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkSkewCommand : public SkDrawCommand {
+public:
+    SkSkewCommand(SkScalar sx, SkScalar sy);
+    void execute(SkCanvas* canvas) const SK_OVERRIDE;
+private:
+    SkScalar fSx;
+    SkScalar fSy;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkTranslateCommand : public SkDrawCommand {
+public:
+    SkTranslateCommand(SkScalar dx, SkScalar dy);
+    void execute(SkCanvas* canvas) const SK_OVERRIDE;
+
+    SkScalar x() const { return fDx; }
+    SkScalar y() const { return fDy; }
+
+private:
+    SkScalar fDx;
+    SkScalar fDy;
 
     typedef SkDrawCommand INHERITED;
 };
