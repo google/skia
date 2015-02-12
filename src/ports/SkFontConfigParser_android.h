@@ -102,7 +102,8 @@ void GetFontFamilies(SkTDArray<FontFamily*> &fontFamilies);
  */
 void GetTestFontFamilies(SkTDArray<FontFamily*> &fontFamilies,
                          const char* testMainConfigFile,
-                         const char* testFallbackConfigFile);
+                         const char* testFallbackConfigFile,
+                         const char* langFallbackFontsDir = NULL);
 
 } // SkFontConfigParser namespace
 

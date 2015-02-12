@@ -6,8 +6,11 @@
  */
 
 #include "Resources.h"
+#include "SkCommandLineFlags.h"
 #include "SkFontConfigParser_android.h"
 #include "Test.h"
+
+DECLARE_bool(verboseFontMgr);
 
 int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
     int countOfFallbackFonts = 0;
@@ -19,6 +22,16 @@ int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
     return countOfFallbackFonts;
 }
 
+//https://tools.ietf.org/html/rfc5234#appendix-B.1
+static bool isALPHA(int c) {
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+
+//https://tools.ietf.org/html/rfc5234#appendix-B.1
+static bool isDIGIT(int c) {
+    return ('0' <= c && c <= '9');
+}
+
 void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstExpectedFile,
                          skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.count() == 5);
@@ -26,34 +39,41 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
     REPORTER_ASSERT(reporter,
                     !strcmp(fontFamilies[0]->fFonts[0].fFileName.c_str(), firstExpectedFile));
     REPORTER_ASSERT(reporter, !fontFamilies[0]->fIsFallbackFont);
+
+    // Check that the languages are all sane.
+    for (int i = 0; i < fontFamilies.count(); ++i) {
+        const SkString& lang = fontFamilies[i]->fLanguage.getTag();
+        for (size_t j = 0; j < lang.size(); ++j) {
+            int c = lang[j];
+            REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
+        }
+    }
 }
 
 void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
-#if SK_DEBUG_FONTS
+    if (!FLAGS_verboseFontMgr) {
+        return;
+    }
+
     for (int i = 0; i < fontFamilies.count(); ++i) {
         SkDebugf("Family %d:\n", i);
         switch(fontFamilies[i]->fVariant) {
-            case SkPaintOptionsAndroid::kElegant_Variant: SkDebugf("  elegant"); break;
-            case SkPaintOptionsAndroid::kCompact_Variant: SkDebugf("  compact"); break;
+            case kElegant_FontVariant: SkDebugf("  elegant\n"); break;
+            case kCompact_FontVariant: SkDebugf("  compact\n"); break;
             default: break;
         }
         if (!fontFamilies[i]->fLanguage.getTag().isEmpty()) {
-            SkDebugf("  language: %s", fontFamilies[i]->fLanguage.getTag().c_str());
+            SkDebugf("  language %s\n", fontFamilies[i]->fLanguage.getTag().c_str());
         }
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
         }
         for (int j = 0; j < fontFamilies[i]->fFonts.count(); ++j) {
             const FontFileInfo& ffi = fontFamilies[i]->fFonts[j];
-            SkDebugf("  file (%d %s %d) %s\n",
-                     ffi.fWeight,
-                     ffi.fPaintOptions.getLanguage().getTag().isEmpty() ? "" :
-                         ffi.fPaintOptions.getLanguage().getTag().c_str(),
-                     ffi.fPaintOptions.getFontVariant(),
-                     ffi.fFileName.c_str());
+            SkDebugf("  file (%d) %s#%d\n", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
         }
     }
-#endif // SK_DEBUG_FONTS
+    SkDebugf("\n\n");
 }
 
 DEF_TEST(FontConfigParserAndroid, reporter) {
@@ -79,11 +99,12 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
     SkTDArray<FontFamily*> v17FontFamilies;
     SkFontConfigParser::GetTestFontFamilies(v17FontFamilies,
         GetResourcePath("android_fonts/v17/system_fonts.xml").c_str(),
-        GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str());
+        GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str(),
+        GetResourcePath("android_fonts/v17").c_str());
 
     if (v17FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, v17FontFamilies.count() == 41);
-        REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 31);
+        REPORTER_ASSERT(reporter, v17FontFamilies.count() == 56);
+        REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 46);
 
         DumpLoadedFonts(v17FontFamilies);
         ValidateLoadedFonts(v17FontFamilies, "Roboto-Regular.ttf", reporter);
