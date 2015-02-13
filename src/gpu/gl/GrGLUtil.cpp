@@ -214,6 +214,18 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                          SK_ARRAY_COUNT(kPowerVRRogueStr)-1)) {
             return kPowerVRRogue_GrGLRenderer;
         }
+        int adrenoNumber;
+        n = sscanf(rendererString, "Adreno (TM) %d", &adrenoNumber);
+        if (1 == n) {
+            if (adrenoNumber >= 300) {
+                if (adrenoNumber < 400) {
+                    return kAdreno3xx_GrGLRenderer;
+                }
+                if (adrenoNumber < 500) {
+                    return kAdreno4xx_GrGLRenderer;
+                }
+            }
+        }
     }
     return kOther_GrGLRenderer;
 }

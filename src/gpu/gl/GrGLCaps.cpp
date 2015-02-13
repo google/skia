@@ -403,7 +403,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
-        kQualcomm_GrGLVendor == ctxInfo.vendor()) {
+        kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
         fUseDrawInsteadOfClear = true;
     }
 

@@ -45,6 +45,8 @@ enum GrGLRenderer {
     kTegra3_GrGLRenderer,
     kPowerVR54x_GrGLRenderer,
     kPowerVRRogue_GrGLRenderer,
+    kAdreno3xx_GrGLRenderer,
+    kAdreno4xx_GrGLRenderer,
     kOther_GrGLRenderer
 };
 
