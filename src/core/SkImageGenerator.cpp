@@ -15,21 +15,22 @@ bool SkImageGenerator::getInfo(SkImageInfo* info) {
     return this->onGetInfo(info);
 }
 
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                 SkPMColor ctable[], int* ctableCount) {
+SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
+                                                     size_t rowBytes, SkPMColor ctable[],
+                                                     int* ctableCount) {
     if (kUnknown_SkColorType == info.colorType()) {
-        return false;
+        return kInvalidConversion;
     }
     if (NULL == pixels) {
-        return false;
+        return kInvalidParameters;
     }
     if (rowBytes < info.minRowBytes()) {
-        return false;
+        return kInvalidParameters;
     }
 
     if (kIndex_8_SkColorType == info.colorType()) {
         if (NULL == ctable || NULL == ctableCount) {
-            return false;
+            return kInvalidParameters;
         }
     } else {
         if (ctableCount) {
@@ -39,18 +40,19 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
         ctable = NULL;
     }
 
-    bool success = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
+    const Result result = this->onGetPixelsEnum(info, pixels, rowBytes, ctable, ctableCount);
 
-    if (success && ctableCount) {
+    if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
         SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
     }
-    return success;
+    return result;
 }
 
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
+                                                     size_t rowBytes) {
     SkASSERT(kIndex_8_SkColorType != info.colorType());
     if (kIndex_8_SkColorType == info.colorType()) {
-        return false;
+        return kInvalidConversion;
     }
     return this->getPixels(info, pixels, rowBytes, NULL, NULL);
 }
@@ -117,6 +119,19 @@ bool SkImageGenerator::onGetInfo(SkImageInfo*) {
     return false;
 }
 
-bool SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t, SkPMColor*, int*) {
-    return false;
+#ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
+bool SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,
+                                                       SkPMColor*, int*) {
+    return kUnimplemented;
+}
+#endif
+SkImageGenerator::Result SkImageGenerator::onGetPixelsEnum(const SkImageInfo& info, void* pixels,
+                                                           size_t rowBytes, SkPMColor* colors,
+                                                           int* colorCount) {
+#ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
+    if (this->onGetPixels(info, pixels, rowBytes, colors, colorCount)) {
+        return kSuccess;
+    }
+#endif
+    return kUnimplemented;
 }

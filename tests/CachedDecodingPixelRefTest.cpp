@@ -189,15 +189,15 @@ protected:
         return true;
     }
 
-    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             SkPMColor ctable[], int* ctableCount) SK_OVERRIDE {
+    virtual Result onGetPixelsEnum(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                               SkPMColor ctable[], int* ctableCount) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, pixels != NULL);
-        size_t minRowBytes = static_cast<size_t>(info.width() * info.bytesPerPixel());
-        REPORTER_ASSERT(fReporter, rowBytes >= minRowBytes);
-        if ((NULL == pixels)
-            || (fType != kSucceedGetPixels_TestType)
-            || (info.colorType() != kN32_SkColorType)) {
-            return false;
+        REPORTER_ASSERT(fReporter, rowBytes >= info.minRowBytes());
+        if (fType != kSucceedGetPixels_TestType) {
+            return kUnimplemented;
+        }
+        if (info.colorType() != kN32_SkColorType) {
+            return kInvalidConversion;
         }
         char* bytePtr = static_cast<char*>(pixels);
         for (int y = 0; y < info.height(); ++y) {
@@ -205,7 +205,7 @@ protected:
                         TestImageGenerator::Color(), info.width());
             bytePtr += rowBytes;
         }
-        return true;
+        return kSuccess;
     }
 
 private:

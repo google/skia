@@ -15,6 +15,8 @@ class SkBitmap;
 class SkData;
 class SkImageGenerator;
 
+//#define SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
+
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
  *  whatever reason, it will return false and immediatetely delete
@@ -45,7 +47,7 @@ SK_API bool SkInstallDiscardablePixelRef(SkData* encoded, SkBitmap* destination)
  *  An interface that allows a purgeable PixelRef (such as a
  *  SkDiscardablePixelRef) to decode and re-decode an image as needed.
  */
-class SK_API SkImageGenerator {
+class SK_API SkImageGenerator : public SkNoncopyable {
 public:
     /**
      *  The PixelRef which takes ownership of this SkImageGenerator
@@ -74,6 +76,49 @@ public:
     bool getInfo(SkImageInfo* info);
 
     /**
+     *  Used to describe the result of a call to getPixels().
+     *
+     *  Result is the union of possible results from subclasses.
+     */
+    enum Result {
+        /**
+         *  General return value for success.
+         */
+        kSuccess,
+        /**
+         *  The input is incomplete. A partial image was generated.
+         */
+        kIncompleteInput,
+        /**
+         *  The generator cannot convert to match the request, ignoring
+         *  dimensions.
+         */
+        kInvalidConversion,
+        /**
+         *  The generator cannot scale to requested size.
+         */
+        kInvalidScale,
+        /**
+         *  Parameters (besides info) are invalid. e.g. NULL pixels, rowBytes
+         *  too small, etc.
+         */
+        kInvalidParameters,
+        /**
+         *  The input did not contain a valid image.
+         */
+        kInvalidInput,
+        /**
+         *  Fulfilling this request requires rewinding the input, which is not
+         *  supported for this input.
+         */
+        kCouldNotRewind,
+        /**
+         *  This method is not implemented by this generator.
+         */
+        kUnimplemented,
+    };
+
+    /**
      *  Decode into the given pixels, a block of memory of size at
      *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
      *  bytesPerPixel)
@@ -89,6 +134,10 @@ public:
      *         different output-configs, which the implementation can
      *         decide to support or not.
      *
+     *         A size that does not match getInfo() implies a request
+     *         to scale. If the generator cannot perform this scale,
+     *         it will return kInvalidScale.
+     *
      *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
      *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
      *  (where N is the logical number of table entries) and set ctableCount to N.
@@ -96,16 +145,15 @@ public:
      *  If info is not kIndex8_SkColorType, then the last two parameters may be NULL. If ctableCount
      *  is not null, it will be set to 0.
      *
-     *  @return false if anything goes wrong or if the image info is
-     *          unsupported.
+     *  @return Result kSuccess, or another value explaining the type of failure.
      */
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                   SkPMColor ctable[], int* ctableCount);
+    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                     SkPMColor ctable[], int* ctableCount);
 
     /**
      *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType.
      */
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
      *  If planes or rowBytes is NULL or if any entry in planes is NULL or if any entry in rowBytes
@@ -131,9 +179,15 @@ public:
 protected:
     virtual SkData* onRefEncodedData();
     virtual bool onGetInfo(SkImageInfo* info);
+#ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
     virtual bool onGetPixels(const SkImageInfo& info,
                              void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);
+#endif
+    // TODO (scroggo): rename to onGetPixels.
+    virtual Result onGetPixelsEnum(const SkImageInfo& info,
+                                   void* pixels, size_t rowBytes,
+                                   SkPMColor ctable[], int* ctableCount);
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);

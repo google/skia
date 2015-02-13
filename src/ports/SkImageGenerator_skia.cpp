@@ -52,8 +52,8 @@ protected:
         return true;
     }
 
-    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             SkPMColor ctableEntries[], int* ctableCount) SK_OVERRIDE {
+    virtual Result onGetPixelsEnum(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                               SkPMColor ctableEntries[], int* ctableCount) SK_OVERRIDE {
         SkMemoryStream stream(fData->data(), fData->size(), false);
         SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,
                                                                (info, pixels, rowBytes)));
@@ -61,13 +61,10 @@ protected:
         fDecoder->setRequireUnpremultipliedColors(kUnpremul_SkAlphaType == info.alphaType());
 
         SkBitmap bm;
-        SkImageDecoder::Result result = fDecoder->decode(&stream, &bm, info.colorType(),
-                                                         SkImageDecoder::kDecodePixels_Mode);
-        switch (result) {
-            case SkImageDecoder::kSuccess:
-                break;
-            default:
-                return false;
+        const SkImageDecoder::Result result = fDecoder->decode(&stream, &bm, info.colorType(),
+                                                               SkImageDecoder::kDecodePixels_Mode);
+        if (SkImageDecoder::kFailure == result) {
+            return kInvalidInput;
         }
 
         SkASSERT(info.colorType() == bm.info().colorType());
@@ -77,13 +74,16 @@ protected:
 
             SkColorTable* ctable = bm.getColorTable();
             if (NULL == ctable) {
-                return false;
+                return kInvalidConversion;
             }
             const int count = ctable->count();
             memcpy(ctableEntries, ctable->readColors(), count * sizeof(SkPMColor));
             *ctableCount = count;
         }
-        return true;
+        if (SkImageDecoder::kPartialSuccess == result) {
+            return kIncompleteInput;
+        }
+        return kSuccess;
     }
 
     bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
