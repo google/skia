@@ -3,6 +3,7 @@
 #include "SkCommonFlags.h"
 #include "SkDocument.h"
 #include "SkMultiPictureDraw.h"
+#include "SkNullCanvas.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
@@ -129,6 +130,13 @@ SkISize SKPSrc::size() const {
 }
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
+    SkAutoTDelete<SkCanvas> canvas(SkCreateNullCanvas());
+    return src.draw(canvas);
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
