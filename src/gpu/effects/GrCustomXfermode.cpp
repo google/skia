@@ -611,7 +611,7 @@ GrXferProcessor*
 GrCustomXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
                                          const GrDeviceCoordTexture* dstCopy) const {
-    return CustomXP::Create(fMode, dstCopy, this->willReadDstColor());
+    return CustomXP::Create(fMode, dstCopy, this->willReadDstColor(colorPOI, coveragePOI));
 }
 
 

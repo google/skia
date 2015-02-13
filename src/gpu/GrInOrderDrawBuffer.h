@@ -188,28 +188,28 @@ private:
 
     // TODO: rename to SetPipeline once pp, batch tracker, and desc are removed
     struct SetState : public Cmd {
-        // TODO get rid of the prim proc version of this when we use batch everywhere
-        SetState(const GrPipelineBuilder& pipelineBuilder, const GrPrimitiveProcessor* primProc,
-                 const GrDrawTargetCaps& caps,
-                 const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy)
+        // TODO get rid of the prim proc parameter when we use batch everywhere
+        SetState(const GrPrimitiveProcessor* primProc = NULL)
         : Cmd(kSetState_Cmd)
-        , fPrimitiveProcessor(primProc)
-        , fPipeline(pipelineBuilder, primProc, caps, scissor, dstCopy) {}
+        , fPrimitiveProcessor(primProc) {}
 
-        SetState(GrBatch* batch,
-                 const GrPipelineBuilder& pipelineBuilder,
-                 const GrDrawTargetCaps& caps,
-                 const GrScissorState& scissor, const GrDeviceCoordTexture* dstCopy)
-        : Cmd(kSetState_Cmd)
-        , fPipeline(batch, pipelineBuilder, caps, scissor, dstCopy) {}
+        ~SetState() { reinterpret_cast<GrPipeline*>(fPipeline.get())->~GrPipeline(); }
+
+        // This function is only for getting the location in memory where we will create our
+        // pipeline object.
+        GrPipeline* pipelineLocation() { return reinterpret_cast<GrPipeline*>(fPipeline.get()); }
+
+        const GrPipeline* getPipeline() const {
+            return reinterpret_cast<const GrPipeline*>(fPipeline.get());
+        }
 
         void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
 
         typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
-        ProgramPrimitiveProcessor   fPrimitiveProcessor;
-        const GrPipeline            fPipeline;
-        GrProgramDesc               fDesc;
-        GrBatchTracker              fBatchTracker;
+        ProgramPrimitiveProcessor               fPrimitiveProcessor;
+        SkAlignedSStorage<sizeof(GrPipeline)>   fPipeline;
+        GrProgramDesc                           fDesc;
+        GrBatchTracker                          fBatchTracker;
     };
 
     struct DrawBatch : public Cmd {
@@ -230,14 +230,8 @@ private:
     void onFlush() SK_OVERRIDE;
 
     // overrides from GrDrawTarget
-    void onDraw(const GrPipelineBuilder&,
-                const GrGeometryProcessor*,
-                const DrawInfo&,
-                const GrScissorState&) SK_OVERRIDE;
-    void onDrawBatch(GrBatch*,
-                     const GrPipelineBuilder&,
-                     const GrScissorState&,
-                     const SkRect* devBounds) SK_OVERRIDE;
+    void onDraw(const GrGeometryProcessor*, const DrawInfo&, const PipelineInfo&) SK_OVERRIDE;
+    void onDrawBatch(GrBatch*, const PipelineInfo&) SK_OVERRIDE;
     void onDrawRect(GrPipelineBuilder*,
                     GrColor,
                     const SkMatrix& viewMatrix,
@@ -250,23 +244,19 @@ private:
                        const GrPath*,
                        const GrScissorState&,
                        const GrStencilSettings&) SK_OVERRIDE;
-    void onDrawPath(const GrPipelineBuilder&,
-                    const GrPathProcessor*,
+    void onDrawPath(const GrPathProcessor*,
                     const GrPath*,
-                    const GrScissorState&,
                     const GrStencilSettings&,
-                    const SkRect* devBounds) SK_OVERRIDE;
-    void onDrawPaths(const GrPipelineBuilder&,
-                     const GrPathProcessor*,
+                    const PipelineInfo&) SK_OVERRIDE;
+    void onDrawPaths(const GrPathProcessor*,
                      const GrPathRange*,
                      const void* indices,
                      PathIndexType,
                      const float transformValues[],
                      PathTransformType,
                      int count,
-                     const GrScissorState&,
                      const GrStencilSettings&,
-                     const SkRect* devBounds) SK_OVERRIDE;
+                     const PipelineInfo&) SK_OVERRIDE;
     void onClear(const SkIRect* rect,
                  GrColor color,
                  bool canIgnoreRect,
@@ -278,20 +268,15 @@ private:
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
-    int concatInstancedDraw(const GrPipelineBuilder&, const DrawInfo&);
+    int concatInstancedDraw(const DrawInfo&);
 
     // Determines whether the current draw operation requires a new GrPipeline and if so
     // records it. If the draw can be skipped false is returned and no new GrPipeline is
     // recorded.
     // TODO delete the primproc variant when we have batches everywhere
-    bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(const GrPipelineBuilder&,
-                                                        const GrPrimitiveProcessor*,
-                                                        const GrScissorState&,
-                                                        const SkRect*);
-    bool SK_WARN_UNUSED_RESULT recordStateAndShouldDraw(GrBatch*,
-                                                        const GrPipelineBuilder&,
-                                                        const GrScissorState&,
-                                                        const SkRect*);
+    bool SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(const GrPrimitiveProcessor*,
+                                                          const PipelineInfo&);
+    bool SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrBatch*, const PipelineInfo&);
 
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();

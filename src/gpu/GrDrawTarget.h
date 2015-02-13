@@ -33,6 +33,7 @@ class GrClipData;
 class GrDrawTargetCaps;
 class GrPath;
 class GrPathRange;
+class GrPipeline;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -680,8 +681,35 @@ protected:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(const GrPipelineBuilder&,
+                                 const GrProcOptInfo& colorPOI,
+                                 const GrProcOptInfo& coveragePOI,
                                  GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
+
+    struct PipelineInfo {
+        PipelineInfo(GrPipelineBuilder* pipelineBuilder, GrScissorState* scissor,
+                     const GrPrimitiveProcessor* primProc, const SkRect* devBounds,
+                     GrDrawTarget* target);
+
+        PipelineInfo(GrPipelineBuilder* pipelineBuilder, GrScissorState* scissor,
+                     const GrBatch* batch, const SkRect* devBounds, GrDrawTarget* target);
+
+        bool willBlendWithDst(const GrPrimitiveProcessor* primProc) const {
+            return fPipelineBuilder->willBlendWithDst(primProc);
+        }
+    private:
+        friend class GrDrawTarget;
+
+        bool mustSkipDraw() const { return (NULL == fPipelineBuilder); }
+
+        GrPipelineBuilder*      fPipelineBuilder;
+        GrScissorState*         fScissor;
+        GrProcOptInfo           fColorPOI; 
+        GrProcOptInfo           fCoveragePOI; 
+        GrDeviceCoordTexture    fDstCopy;
+    };
+
+    void setupPipeline(const PipelineInfo& pipelineInfo, GrPipeline* pipeline);
 
 private:
     /**
@@ -719,14 +747,8 @@ private:
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
-    virtual void onDraw(const GrPipelineBuilder&,
-                        const GrGeometryProcessor*,
-                        const DrawInfo&,
-                        const GrScissorState&) = 0;
-    virtual void onDrawBatch(GrBatch*,
-                             const GrPipelineBuilder&,
-                             const GrScissorState&,
-                             const SkRect* devBounds) = 0;
+    virtual void onDraw(const GrGeometryProcessor*, const DrawInfo&, const PipelineInfo&) = 0;
+    virtual void onDrawBatch(GrBatch*, const PipelineInfo&) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrPipelineBuilder*,
                             GrColor color,
@@ -740,23 +762,19 @@ private:
                                const GrPath*,
                                const GrScissorState&,
                                const GrStencilSettings&) = 0;
-    virtual void onDrawPath(const GrPipelineBuilder&,
-                            const GrPathProcessor*,
+    virtual void onDrawPath(const GrPathProcessor*,
                             const GrPath*,
-                            const GrScissorState&,
                             const GrStencilSettings&,
-                            const SkRect* devBounds) = 0;
-    virtual void onDrawPaths(const GrPipelineBuilder&,
-                             const GrPathProcessor*,
+                            const PipelineInfo&) = 0;
+    virtual void onDrawPaths(const GrPathProcessor*,
                              const GrPathRange*,
                              const void* indices,
                              PathIndexType,
                              const float transformValues[],
                              PathTransformType,
                              int count,
-                             const GrScissorState&,
                              const GrStencilSettings&,
-                             const SkRect* devBounds) = 0;
+                             const PipelineInfo&) = 0;
 
     virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
                          GrRenderTarget* renderTarget) = 0;

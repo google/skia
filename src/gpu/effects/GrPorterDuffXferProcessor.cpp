@@ -458,14 +458,14 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                              const GrDeviceCoordTexture* dstCopy) const {
     if (!covPOI.isFourChannelOutput()) {
         return PorterDuffXferProcessor::Create(fSrcCoeff, fDstCoeff, 0, dstCopy,
-                                               this->willReadDstColor());
+                                               this->willReadDstColor(colorPOI, covPOI));
     } else {
         if (this->supportsRGBCoverage(colorPOI.color(), colorPOI.validFlags())) {
             SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
             GrColor blendConstant = GrUnPreMulColor(colorPOI.color());
             return PorterDuffXferProcessor::Create(kConstC_GrBlendCoeff, kISC_GrBlendCoeff,
                                                    blendConstant, dstCopy,
-                                                   this->willReadDstColor());
+                                                   this->willReadDstColor(colorPOI, covPOI));
         } else {
             return NULL;
         }
@@ -587,7 +587,8 @@ void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
     output->fWillBlendWithDst = false;
 }
 
-bool GrPorterDuffXPFactory::willReadDstColor() const {
+bool GrPorterDuffXPFactory::willReadDstColor(const GrProcOptInfo& colorPOI,
+                                             const GrProcOptInfo& coveragePOI) const {
     return false;
 }
 

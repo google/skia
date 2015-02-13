@@ -15,37 +15,11 @@
 #include "GrXferProcessor.h"
 
 GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
-                       const GrPrimitiveProcessor* primProc,
+                       const GrProcOptInfo& colorPOI,
+                       const GrProcOptInfo& coveragePOI,
                        const GrDrawTargetCaps& caps,
                        const GrScissorState& scissorState,
                        const GrDeviceCoordTexture* dstCopy) {
-    const GrProcOptInfo& colorPOI = pipelineBuilder.colorProcInfo(primProc);
-    const GrProcOptInfo& coveragePOI = pipelineBuilder.coverageProcInfo(primProc);
-
-    this->internalConstructor(pipelineBuilder, colorPOI, coveragePOI, caps, scissorState, dstCopy);
-}
-
-GrPipeline::GrPipeline(GrBatch* batch,
-                       const GrPipelineBuilder& pipelineBuilder,
-                       const GrDrawTargetCaps& caps,
-                       const GrScissorState& scissorState,
-                       const GrDeviceCoordTexture* dstCopy) {
-    GrBatchOpt batchOpt;
-    batchOpt.fCanTweakAlphaForCoverage = pipelineBuilder.canTweakAlphaForCoverage();
-    batch->initBatchOpt(batchOpt);
-
-    const GrProcOptInfo& colorPOI = pipelineBuilder.colorProcInfo(batch);
-    const GrProcOptInfo& coveragePOI = pipelineBuilder.coverageProcInfo(batch);
-
-    this->internalConstructor(pipelineBuilder, colorPOI, coveragePOI, caps, scissorState, dstCopy);
-}
-
-void GrPipeline::internalConstructor(const GrPipelineBuilder& pipelineBuilder,
-                                         const GrProcOptInfo& colorPOI,
-                                         const GrProcOptInfo& coveragePOI,
-                                         const GrDrawTargetCaps& caps,
-                                         const GrScissorState& scissorState,
-                                         const GrDeviceCoordTexture* dstCopy) {
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
         pipelineBuilder.getXPFactory()->createXferProcessor(colorPOI, coveragePOI, dstCopy, caps));

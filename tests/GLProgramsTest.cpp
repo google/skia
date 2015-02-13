@@ -298,14 +298,20 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         } else {
             primProc = pathProc.get();
         }
-        if (!this->setupDstReadIfNecessary(pipelineBuilder, &dstCopy, NULL)) {
+
+        const GrProcOptInfo& colorPOI = pipelineBuilder.colorProcInfo(primProc);
+        const GrProcOptInfo& coveragePOI = pipelineBuilder.coverageProcInfo(primProc);
+
+        if (!this->setupDstReadIfNecessary(pipelineBuilder, colorPOI, coveragePOI, &dstCopy,
+                                           NULL)) {
             SkDebugf("Couldn't setup dst read texture");
             return false;
         }
 
         // create optimized draw state, setup readDst texture if required, and build a descriptor
         // and program.  ODS creation can fail, so we have to check
-        GrPipeline pipeline(pipelineBuilder, primProc, *gpu->caps(), scissor, &dstCopy);
+        GrPipeline pipeline(pipelineBuilder, colorPOI, coveragePOI,
+                            *gpu->caps(), scissor, &dstCopy);
         if (pipeline.mustSkip()) {
             continue;
         }

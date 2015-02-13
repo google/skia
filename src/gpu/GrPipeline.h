@@ -29,13 +29,12 @@ class GrPipeline {
 public:
     SK_DECLARE_INST_COUNT(GrPipeline)
 
-    // TODO get rid of this version of the constructor when we use batch everywhere
-    GrPipeline(const GrPipelineBuilder& pipelineBuilder, const GrPrimitiveProcessor*,
-               const GrDrawTargetCaps&, const GrScissorState&,
+    GrPipeline(const GrPipelineBuilder&,
+               const GrProcOptInfo& colorPOI,
+               const GrProcOptInfo& coveragePOI,
+               const GrDrawTargetCaps&,
+               const GrScissorState&,
                const GrDeviceCoordTexture* dstCopy);
-
-    GrPipeline(GrBatch*, const GrPipelineBuilder&, const GrDrawTargetCaps&,
-               const GrScissorState&, const GrDeviceCoordTexture* dstCopy);
 
     /*
      * Returns true if it is possible to combine the two GrPipelines and it will update 'this'
@@ -137,14 +136,6 @@ public:
     const GrPipelineInfo& getInitBatchTracker() const { return fInitBT; }
 
 private:
-    // TODO we can have one constructor once GrBatch is complete
-    void internalConstructor(const GrPipelineBuilder&,
-                             const GrProcOptInfo& colorPOI,
-                             const GrProcOptInfo& coveragePOI,
-                             const GrDrawTargetCaps&,
-                             const GrScissorState&,
-                             const GrDeviceCoordTexture* dstCopy);
-
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */

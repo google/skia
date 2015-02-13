@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrPath.h"
+#include "GrPipeline.h"
 #include "GrRenderTarget.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
@@ -385,9 +386,11 @@ bool GrDrawTarget::checkDraw(const GrPipelineBuilder& pipelineBuilder,
 }
 
 bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
+                                           const GrProcOptInfo& colorPOI,
+                                           const GrProcOptInfo& coveragePOI,
                                            GrDeviceCoordTexture* dstCopy,
                                            const SkRect* drawBounds) {
-    if (!pipelineBuilder.willXPNeedDstCopy(*this->caps())) {
+    if (!pipelineBuilder.willXPNeedDstCopy(*this->caps(), colorPOI, coveragePOI)) {
         return true;
     }
     SkIRect copyRect;
@@ -470,9 +473,15 @@ void GrDrawTarget::drawIndexed(GrPipelineBuilder* pipelineBuilder,
             info.setDevBounds(*devBounds);
         }
 
+        GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, gp, devBounds,
+                                                this);
+        if (pipelineInfo.mustSkipDraw()) {
+            return;
+        }
+
         this->setDrawBuffers(&info, gp->getVertexStride());
 
-        this->onDraw(*pipelineBuilder, gp, info, scissorState);
+        this->onDraw(gp, info, pipelineInfo);
     }
 }
 
@@ -509,9 +518,15 @@ void GrDrawTarget::drawNonIndexed(GrPipelineBuilder* pipelineBuilder,
             info.setDevBounds(*devBounds);
         }
 
+        GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, gp, devBounds,
+                                                this);
+        if (pipelineInfo.mustSkipDraw()) {
+            return;
+        }
+
         this->setDrawBuffers(&info, gp->getVertexStride());
 
-        this->onDraw(*pipelineBuilder, gp, info, scissorState);
+        this->onDraw(gp, info, pipelineInfo);
     }
 }
 
@@ -530,7 +545,17 @@ void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
         return;
     }
 
-    this->onDrawBatch(batch, *pipelineBuilder, scissorState, devBounds);
+    // init batch and my other crap
+    GrBatchOpt batchOpt;
+    batchOpt.fCanTweakAlphaForCoverage = pipelineBuilder->canTweakAlphaForCoverage();
+    batch->initBatchOpt(batchOpt);
+
+    GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, batch, devBounds, this);
+    if (pipelineInfo.mustSkipDraw()) {
+        return;
+    }
+
+    this->onDrawBatch(batch, pipelineInfo);
 }
 
 static const GrStencilSettings& winding_path_stencil_settings() {
@@ -620,8 +645,13 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
                                             pipelineBuilder->getRenderTarget()->getStencilBuffer(),
                                             &stencilSettings);
 
-    this->onDrawPath(*pipelineBuilder, pathProc, path, scissorState, stencilSettings,
-                     &devBounds);
+    GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, pathProc, &devBounds,
+                                            this);
+    if (pipelineInfo.mustSkipDraw()) {
+        return;
+    }
+
+    this->onDrawPath(pathProc, path, stencilSettings, pipelineInfo);
 }
 
 void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
@@ -659,8 +689,13 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
     // instead for it to just copy the entire dst. Realistically this is a moot
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
-    this->onDrawPaths(*pipelineBuilder, pathProc, pathRange, indices, indexType, transformValues,
-                      transformType, count, scissorState, stencilSettings, NULL);
+    GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, pathProc, NULL, this);
+    if (pipelineInfo.mustSkipDraw()) {
+        return;
+    }
+
+    this->onDrawPaths(pathProc, pathRange, indices, indexType, transformValues,
+                      transformType, count, stencilSettings, pipelineInfo);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect,
@@ -778,8 +813,15 @@ void GrDrawTarget::drawIndexedInstances(GrPipelineBuilder* pipelineBuilder,
                             info.fStartIndex,
                             info.fVertexCount,
                             info.fIndexCount)) {
+
+            GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, gp, devBounds,
+                                                    this);
+            if (pipelineInfo.mustSkipDraw()) {
+                return;
+            }
+
             this->setDrawBuffers(&info, gp->getVertexStride());
-            this->onDraw(*pipelineBuilder, gp, info, scissorState);
+            this->onDraw(gp, info, pipelineInfo);
         }
         info.fStartVertex += info.fVertexCount;
         instanceCount -= info.fInstanceCount;
@@ -983,6 +1025,47 @@ bool GrDrawTarget::internalCanCopySurface(const GrSurface* dst,
     // The base class can do it as a draw or the subclass may be able to handle it.
     return ((dst != src) && dst->asRenderTarget() && src->asTexture()) ||
            this->onCanCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
+}
+
+void GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,
+                                 GrPipeline* pipeline) {
+    SkNEW_PLACEMENT_ARGS(pipeline, GrPipeline, (*pipelineInfo.fPipelineBuilder,
+                                                pipelineInfo.fColorPOI,
+                                                pipelineInfo.fCoveragePOI,
+                                                *this->caps(),
+                                                *pipelineInfo.fScissor,
+                                                &pipelineInfo.fDstCopy));
+}
+///////////////////////////////////////////////////////////////////////////////
+
+GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
+                                         GrScissorState* scissor,
+                                         const GrPrimitiveProcessor* primProc,
+                                         const SkRect* devBounds,
+                                         GrDrawTarget* target)
+    : fPipelineBuilder(pipelineBuilder)
+    , fScissor(scissor) {
+    fColorPOI = fPipelineBuilder->colorProcInfo(primProc);
+    fCoveragePOI = fPipelineBuilder->coverageProcInfo(primProc);
+    if (!target->setupDstReadIfNecessary(*fPipelineBuilder, fColorPOI, fCoveragePOI,
+                                         &fDstCopy, devBounds)) {
+        fPipelineBuilder = NULL;
+    }
+}
+
+GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
+                                         GrScissorState* scissor,
+                                         const GrBatch* batch,
+                                         const SkRect* devBounds,
+                                         GrDrawTarget* target)
+    : fPipelineBuilder(pipelineBuilder)
+    , fScissor(scissor) {
+    fColorPOI = fPipelineBuilder->colorProcInfo(batch);
+    fCoveragePOI = fPipelineBuilder->coverageProcInfo(batch);
+    if (!target->setupDstReadIfNecessary(*fPipelineBuilder, fColorPOI, fCoveragePOI,
+                                         &fDstCopy, devBounds)) {
+        fPipelineBuilder = NULL;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

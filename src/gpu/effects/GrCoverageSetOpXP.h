@@ -39,7 +39,10 @@ private:
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
 
-    bool willReadDstColor() const SK_OVERRIDE { return false; }
+    bool willReadDstColor(const GrProcOptInfo& colorPOI,
+                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
+        return false;
+    }
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         const GrCoverageSetOpXPFactory& xpf = xpfBase.cast<GrCoverageSetOpXPFactory>();

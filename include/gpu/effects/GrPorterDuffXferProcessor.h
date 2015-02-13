@@ -43,7 +43,8 @@ private:
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
 
-    bool willReadDstColor() const SK_OVERRIDE;
+    bool willReadDstColor(const GrProcOptInfo& colorPOI,
+                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
         const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();

@@ -103,7 +103,8 @@ public:
     /**
      * Checks whether the xp will need a copy of the destination to correctly blend.
      */
-    bool willXPNeedDstCopy(const GrDrawTargetCaps& caps) const;
+    bool willXPNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
+                           const GrProcOptInfo& coveragePOI) const;
 
     /**
      * The xfer processor factory.
@@ -388,15 +389,6 @@ public:
 
     GrPipelineBuilder& operator= (const GrPipelineBuilder& that);
 
-private:
-    // Calculating invariant color / coverage information is expensive, so we partially cache the
-    // results.
-    //
-    // canUseFracCoveragePrimProc() - Called in regular skia draw, caches results but only for a
-    //                                specific color and coverage.  May be called multiple times
-    // willBlendWithDst() - only called by Nvpr, does not cache results
-    // GrOptDrawState constructor - never caches results
-
     // TODO delete when we have Batch
     const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
         this->calcColorInvariantOutput(pp);
@@ -417,6 +409,14 @@ private:
         this->calcCoverageInvariantOutput(batch);
         return fCoverageProcInfo;
     }
+private:
+    // Calculating invariant color / coverage information is expensive, so we partially cache the
+    // results.
+    //
+    // canUseFracCoveragePrimProc() - Called in regular skia draw, caches results but only for a
+    //                                specific color and coverage.  May be called multiple times
+    // willBlendWithDst() - only called by Nvpr, does not cache results
+    // GrOptDrawState constructor - never caches results
 
     /**
      * Primproc variants of the calc functions

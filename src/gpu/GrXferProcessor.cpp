@@ -38,7 +38,7 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
                                                   const GrDeviceCoordTexture* dstCopy,
                                                   const GrDrawTargetCaps& caps) const {
 #ifdef SK_DEBUG
-    if (this->willReadDstColor()) {
+    if (this->willReadDstColor(colorPOI, coveragePOI)) {
         if (!caps.dstReadInShaderSupport()) {
             SkASSERT(dstCopy && dstCopy->texture());
         } else {
@@ -52,7 +52,8 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
     return this->onCreateXferProcessor(colorPOI, coveragePOI, dstCopy);
 }
 
-bool GrXPFactory::willNeedDstCopy(const GrDrawTargetCaps& caps) const {
-    return (this->willReadDstColor() && !caps.dstReadInShaderSupport());
+bool GrXPFactory::willNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
+                                  const GrProcOptInfo& coveragePOI) const {
+    return (this->willReadDstColor(colorPOI, coveragePOI) && !caps.dstReadInShaderSupport());
 }
 

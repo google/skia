@@ -308,7 +308,7 @@ GrArithmeticXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI,
                                              const GrDeviceCoordTexture* dstCopy) const {
     return ArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor, dstCopy,
-                                  this->willReadDstColor());
+                                this->willReadDstColor(colorPOI, coveragePOI));
 }
 
 

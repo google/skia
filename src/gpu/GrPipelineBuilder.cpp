@@ -101,8 +101,10 @@ bool GrPipelineBuilder::canUseFracCoveragePrimProc(GrColor color,
 
 //////////////////////////////////////////////////////////////////////////////s
 
-bool GrPipelineBuilder::willXPNeedDstCopy(const GrDrawTargetCaps& caps) const {
-    return this->getXPFactory()->willNeedDstCopy(caps);
+bool GrPipelineBuilder::willXPNeedDstCopy(const GrDrawTargetCaps& caps,
+                                          const GrProcOptInfo& colorPOI,
+                                          const GrProcOptInfo& coveragePOI) const {
+    return this->getXPFactory()->willNeedDstCopy(caps, colorPOI, coveragePOI);
 }
 
 void GrPipelineBuilder::AutoRestoreEffects::set(GrPipelineBuilder* pipelineBuilder) {
