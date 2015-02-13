@@ -48,6 +48,19 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
             REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
         }
     }
+
+    // All file names in the test configuration files start with a capital letter.
+    // This is not a general requirement, but it is true of all the test configuration data.
+    // Verifying ensures the filenames have been read sanely and have not been 'sliced'.
+    for (int i = 0; i < fontFamilies.count(); ++i) {
+        FontFamily& family = *fontFamilies[i];
+        for (int j = 0; j < family.fFonts.count(); ++j) {
+            FontFileInfo& file = family.fFonts[j];
+            REPORTER_ASSERT(reporter, !file.fFileName.isEmpty() &&
+                                      file.fFileName[0] >= 'A' &&
+                                      file.fFileName[0] <= 'Z');
+        }
+    }
 }
 
 void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {

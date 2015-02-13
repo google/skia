@@ -449,7 +449,8 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     // One would assume it would be faster to have a buffer on the stack and call XML_Parse.
     // But XML_Parse will call XML_GetBuffer anyway and memmove the passed buffer into it.
     // (Unless XML_CONTEXT_BYTES is undefined, but all users define it.)
-    static const int bufferSize = 512;
+    // In debug, buffer a small odd number of bytes to detect slicing in XML_CharacterDataHandler.
+    static const int bufferSize = 512 SkDEBUGCODE( - 507);
     bool done = false;
     while (!done) {
         void* buffer = XML_GetBuffer(parser, bufferSize);
@@ -508,10 +509,12 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
     }
 
     for (struct dirent* dirEntry; (dirEntry = readdir(fontDirectory));) {
-        // The size of both the prefix, suffix, and a minimum valid language code
-        static const size_t minSize = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
-                                    + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1
-                                    + 2;
+        // The size of the prefix and suffix.
+        static const size_t fixedLen = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
+                                     + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1;
+
+        // The size of the prefix, suffix, and a minimum valid language code
+        static const size_t minSize = fixedLen + 2;
 
         SkString fileName(dirEntry->d_name);
         if (fileName.size() < minSize ||
@@ -520,9 +523,6 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
         {
             continue;
         }
-
-        static const size_t fixedLen = sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1
-                                     + sizeof(LOCALE_FALLBACK_FONTS_SUFFIX) - 1;
 
         SkString locale(fileName.c_str() + sizeof(LOCALE_FALLBACK_FONTS_PREFIX) - 1,
                         fileName.size() - fixedLen);
