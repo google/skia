@@ -207,11 +207,18 @@ public:
     const SkData* getCustomData() const { return fData.get(); }
 
     /**
-     * Internal-only helper class used for cache manipulations of the reosurce.
+     * Internal-only helper class used for manipulations of the resource by the cache.
      */
     class CacheAccess;
     inline CacheAccess cacheAccess();
     inline const CacheAccess cacheAccess() const;
+
+    /**
+     * Internal-only helper class used for manipulations of the resource by internal code.
+     */
+    class ResourcePriv;
+    inline ResourcePriv resourcePriv();
+    inline const ResourcePriv resourcePriv() const;
 
     /**
      * Removes references to objects in the underlying 3D API without freeing them.

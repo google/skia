@@ -13,7 +13,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrFontCache.h"
 #include "GrGpuResource.h"
-#include "GrGpuResourceCacheAccess.h"
+#include "GrGpuResourcePriv.h"
 #include "GrDistanceFieldTextContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
@@ -249,7 +249,7 @@ GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, bool budgeted, co
             if (!srcData || texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                                  srcData, rowBytes)) {
                 if (!budgeted) {
-                    texture->cacheAccess().makeUnbudgeted();
+                    texture->resourcePriv().makeUnbudgeted();
                 }
                 return texture;
             }
@@ -335,15 +335,7 @@ GrTexture* GrContext::internalRefScratchTexture(const GrSurfaceDesc& inDesc, uin
     }
 
     if (!(kNoCreate_ScratchTextureFlag & flags)) {
-        GrTexture* texture = fGpu->createTexture(*desc, true, NULL, 0);
-    #ifdef SK_DEBUG
-        if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
-            GrScratchKey key;
-            GrTexturePriv::ComputeScratchKey(*desc, &key);
-            SkASSERT(NULL == texture || texture->cacheAccess().getScratchKey() == key);
-        }
-    #endif
-        return texture;
+        return fGpu->createTexture(*desc, true, NULL, 0);
     }
 
     return NULL;
@@ -1585,7 +1577,7 @@ bool GrContext::addResourceToCache(const GrContentKey& key, GrGpuResource* resou
     if (!resource || resource->wasDestroyed()) {
         return false;
     }
-    return resource->cacheAccess().setContentKey(key);
+    return resource->resourcePriv().setContentKey(key);
 }
 
 bool GrContext::isResourceInCache(const GrContentKey& key) const {

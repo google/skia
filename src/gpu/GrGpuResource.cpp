@@ -9,6 +9,7 @@
 #include "GrGpuResource.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
+#include "GrGpuResourcePriv.h"
 
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
@@ -94,7 +95,7 @@ bool GrGpuResource::setContentKey(const GrContentKey& key) {
     SkASSERT(key.isValid());
 
     // Wrapped and uncached resources can never have a content key.
-    if (!this->cacheAccess().isBudgeted()) {
+    if (!this->resourcePriv().isBudgeted()) {
         return false;
     }
 

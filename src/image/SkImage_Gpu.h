@@ -9,7 +9,7 @@
 #define SkImage_Gpu_DEFINED
 
 #include "GrTexture.h"
-#include "GrGpuResourceCacheAccess.h"
+#include "GrGpuResourcePriv.h"
 #include "SkBitmap.h"
 #include "SkImage_Base.h"
 #include "SkImagePriv.h"
@@ -38,9 +38,9 @@ public:
 
     void applyBudgetDecision() const {
         if (fBudgeted) {
-            fBitmap.getTexture()->cacheAccess().makeBudgeted();
+            fBitmap.getTexture()->resourcePriv().makeBudgeted();
         } else {
-            fBitmap.getTexture()->cacheAccess().makeUnbudgeted();
+            fBitmap.getTexture()->resourcePriv().makeUnbudgeted();
         }
     }
 

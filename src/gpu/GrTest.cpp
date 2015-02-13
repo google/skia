@@ -8,6 +8,7 @@
 
 #include "GrTest.h"
 
+#include "GrGpuResourceCacheAccess.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrResourceCache.h"
 #include "SkString.h"
@@ -96,7 +97,7 @@ void GrResourceCache::dumpStats(SkString* out) const {
         if (resource->cacheAccess().isWrapped()) {
             ++wrapped;
         }
-        if (!resource->cacheAccess().isBudgeted()) {
+        if (!resource->resourcePriv().isBudgeted()) {
             unbudgetedSize += resource->gpuMemorySize();
         }
     }

@@ -12,6 +12,7 @@
 #include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
+#include "GrGpuResourcePriv.h"
 #include "GrIndexBuffer.h"
 #include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
@@ -72,7 +73,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
         }
     }
     if (!this->caps()->reuseScratchTextures() && !isRT) {
-        tex->cacheAccess().removeScratchKey();
+        tex->resourcePriv().removeScratchKey();
     }
     if (tex) {
         fStats.incTextureCreates();

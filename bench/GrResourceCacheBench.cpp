@@ -11,6 +11,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrGpuResource.h"
+#include "GrGpuResourcePriv.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
@@ -45,7 +46,7 @@ static void populate_cache(GrGpu* gpu, int resourceCount) {
         GrContentKey key;
         BenchResource::ComputeKey(i, &key);
         GrGpuResource* resource = SkNEW_ARGS(BenchResource, (gpu));
-        resource->cacheAccess().setContentKey(key);
+        resource->resourcePriv().setContentKey(key);
         resource->unref();
     }
 }

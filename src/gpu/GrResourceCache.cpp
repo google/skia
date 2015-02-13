@@ -8,8 +8,7 @@
 
 
 #include "GrResourceCache.h"
-#include "GrGpuResource.h"  
-
+#include "GrGpuResourceCacheAccess.h"
 #include "SkChecksum.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -101,7 +100,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     fHighWaterCount = SkTMax(fCount, fHighWaterCount);
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (resource->cacheAccess().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
 #if GR_CACHE_STATS
@@ -109,9 +108,9 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
 #endif
     }
-    if (resource->cacheAccess().getScratchKey().isValid()) {
+    if (resource->resourcePriv().getScratchKey().isValid()) {
         SkASSERT(!resource->cacheAccess().isWrapped());
-        fScratchMap.insert(resource->cacheAccess().getScratchKey(), resource);
+        fScratchMap.insert(resource->resourcePriv().getScratchKey(), resource);
     }
     
     this->purgeAsNeeded();
@@ -123,14 +122,14 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     size_t size = resource->gpuMemorySize();
     --fCount;
     fBytes -= size;
-    if (resource->cacheAccess().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
     }
 
     fResources.remove(resource);
-    if (resource->cacheAccess().getScratchKey().isValid()) {
-        fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
+    if (resource->resourcePriv().getScratchKey().isValid()) {
+        fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
     }
     if (resource->getContentKey().isValid()) {
         fContentHash.remove(resource->getContentKey());
@@ -217,8 +216,8 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
 }
 
 void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
-    SkASSERT(resource->cacheAccess().getScratchKey().isValid());
-    fScratchMap.remove(resource->cacheAccess().getScratchKey(), resource);
+    SkASSERT(resource->resourcePriv().getScratchKey().isValid());
+    fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
 }
 
 void GrResourceCache::willRemoveContentKey(const GrGpuResource* resource) {
@@ -268,14 +267,14 @@ void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
 
     if (resource->cacheAccess().isWrapped()) {
         release = true;
-    } else if (!resource->cacheAccess().isBudgeted()) {
+    } else if (!resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
-        if (resource->cacheAccess().getScratchKey().isValid()) {
+        if (resource->resourcePriv().getScratchKey().isValid()) {
             // We won't purge an existing resource to make room for this one.
             bool underBudget = fBudgetedCount < fMaxCount &&
                                fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes;
             if (underBudget) {
-                resource->cacheAccess().makeBudgeted();
+                resource->resourcePriv().makeBudgeted();
             } else {
                 release = true;
             }
@@ -287,7 +286,7 @@ void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
         bool overBudget = fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes;
 
         // Also purge if the resource has neither a valid scratch key nor a content key.
-        bool noKey = !resource->cacheAccess().getScratchKey().isValid() &&
+        bool noKey = !resource->resourcePriv().getScratchKey().isValid() &&
                      !resource->getContentKey().isValid();
         if (overBudget || noKey) {
             release = true;
@@ -314,7 +313,7 @@ void GrResourceCache::didChangeGpuMemorySize(const GrGpuResource* resource, size
 #if GR_CACHE_STATS
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (resource->cacheAccess().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         fBudgetedBytes += delta;
 #if GR_CACHE_STATS
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
@@ -332,7 +331,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 
     size_t size = resource->gpuMemorySize();
 
-    if (resource->cacheAccess().isBudgeted()) {
+    if (resource->resourcePriv().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
 #if GR_CACHE_STATS
@@ -418,7 +417,7 @@ void GrResourceCache::processInvalidContentKeys(
     for (int i = 0; i < msgs.count(); ++i) {
         GrGpuResource* resource = this->findAndRefContentResource(msgs[i].key());
         if (resource) {
-            resource->cacheAccess().removeContentKey();
+            resource->resourcePriv().removeContentKey();
             resource->unref(); // will call notifyPurgeable, if it is indeed now purgeable.
         }
     }
@@ -455,13 +454,13 @@ void GrResourceCache::validate() const {
         if (resource->cacheAccess().isScratch()) {
             SkASSERT(!resource->getContentKey().isValid());
             ++scratch;
-            SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
+            SkASSERT(fScratchMap.countForKey(resource->resourcePriv().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
-        } else if (resource->cacheAccess().getScratchKey().isValid()) {
-            SkASSERT(!resource->cacheAccess().isBudgeted() ||
+        } else if (resource->resourcePriv().getScratchKey().isValid()) {
+            SkASSERT(!resource->resourcePriv().isBudgeted() ||
                      resource->getContentKey().isValid());
             ++couldBeScratch;
-            SkASSERT(fScratchMap.countForKey(resource->cacheAccess().getScratchKey()));
+            SkASSERT(fScratchMap.countForKey(resource->resourcePriv().getScratchKey()));
             SkASSERT(!resource->cacheAccess().isWrapped());
         }
         const GrContentKey& contentKey = resource->getContentKey();
@@ -469,10 +468,10 @@ void GrResourceCache::validate() const {
             ++content;
             SkASSERT(fContentHash.find(contentKey) == resource);
             SkASSERT(!resource->cacheAccess().isWrapped());
-            SkASSERT(resource->cacheAccess().isBudgeted());
+            SkASSERT(resource->resourcePriv().isBudgeted());
         }
 
-        if (resource->cacheAccess().isBudgeted()) {
+        if (resource->resourcePriv().isBudgeted()) {
             ++budgetedCount;
             budgetedBytes += resource->gpuMemorySize();
         }

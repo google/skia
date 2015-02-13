@@ -456,18 +456,18 @@ static void TestGetTexture(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, image->getTexture() == texture);
 }
 
-#include "GrGpuResourceCacheAccess.h"
+#include "GrGpuResourcePriv.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Gpu.h"
 #include "SkSurface_Gpu.h"
 
 SkSurface::Budgeted is_budgeted(SkSurface* surf) {
-    return ((SkSurface_Gpu*)surf)->getDevice()->accessRenderTarget()->cacheAccess().isBudgeted() ?
+    return ((SkSurface_Gpu*)surf)->getDevice()->accessRenderTarget()->resourcePriv().isBudgeted() ?
         SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
 }
 
 SkSurface::Budgeted is_budgeted(SkImage* image) {
-    return ((SkImage_Gpu*)image)->getTexture()->cacheAccess().isBudgeted() ?
+    return ((SkImage_Gpu*)image)->getTexture()->resourcePriv().isBudgeted() ?
         SkSurface::kYes_Budgeted : SkSurface::kNo_Budgeted;
 }
 

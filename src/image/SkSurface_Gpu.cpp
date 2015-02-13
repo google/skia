@@ -7,7 +7,7 @@
 
 #include "SkSurface_Gpu.h"
 
-#include "GrGpuResourceCacheAccess.h"
+#include "GrGpuResourcePriv.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
@@ -70,8 +70,8 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     SkASSERT(image);
     if (rt->asTexture() == SkTextureImageGetTexture(image)) {
         GrRenderTarget* oldRT = this->fDevice->accessRenderTarget();
-        SkSurface::Budgeted budgeted = oldRT->cacheAccess().isBudgeted() ? kYes_Budgeted :
-                                                                           kNo_Budgeted;
+        SkSurface::Budgeted budgeted = oldRT->resourcePriv().isBudgeted() ? kYes_Budgeted :
+                                                                            kNo_Budgeted;
         SkAutoTUnref<SkGpuDevice> newDevice(
             SkGpuDevice::Create(oldRT->getContext(), budgeted, fDevice->imageInfo(),
                                 oldRT->numSamples(), &this->props(), 0));

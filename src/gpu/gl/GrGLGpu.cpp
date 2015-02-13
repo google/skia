@@ -9,7 +9,7 @@
 #include "GrGLGpu.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTextureRenderTarget.h"
-#include "GrGpuResourceCacheAccess.h"
+#include "GrGpuResourcePriv.h"
 #include "GrPipeline.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
@@ -1186,7 +1186,7 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, bool budget
             }
             // Remove the scratch key from this resource so we don't grab it from the cache ever
             // again.
-            sb->cacheAccess().removeScratchKey();
+            sb->resourcePriv().removeScratchKey();
             // Set this to 0 since we handed the valid ID off to the failed stencil buffer resource.
             sbDesc.fRenderbufferID = 0;
         }
