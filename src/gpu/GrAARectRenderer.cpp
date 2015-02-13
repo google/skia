@@ -70,24 +70,11 @@ public:
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
         // When this is called on a batch, there is only one geometry bundle
-        if (!this->canTweakAlphaForCoverage() && GrColorIsOpaque(fGeoData[0].fColor)) {
-            out->setUnknownOpaqueFourComponents();
-        } else {
-            out->setUnknownFourComponents();
-        }
+        out->setKnownFourComponents(fGeoData[0].fColor);
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
-        if (this->canTweakAlphaForCoverage()) {
-            // uniform coverage
-            out->setKnownSingleComponent(0xff);
-        } else {
-            out->setUnknownSingleComponent();
-        }
-    }
-
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
+        out->setUnknownSingleComponent();
     }
 
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
@@ -103,6 +90,7 @@ public:
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
+        fBatch.fCanTweakAlphaForCoverage = init.fCanTweakAlphaForCoverage;
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
@@ -194,19 +182,12 @@ private:
 
     GrColor color() const { return fBatch.fColor; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fBatchOpt.fCanTweakAlphaForCoverage; }
+    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
     bool colorIgnored() const { return fBatch.fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
 
     bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();
-        if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-            return false;
-        }
-
-        if (this->colorIgnored() != that->colorIgnored()) {
-            return false;
-        }
 
         SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
@@ -219,6 +200,13 @@ private:
         if (this->color() != that->color()) {
             fBatch.fColor = GrColor_ILLEGAL;
         }
+
+        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
+        // not tweaking
+        if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
+            fBatch.fCanTweakAlphaForCoverage = false;
+        }
+
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
         return true;
     }
@@ -321,9 +309,9 @@ private:
         bool fUsesLocalCoords;
         bool fColorIgnored;
         bool fCoverageIgnored;
+        bool fCanTweakAlphaForCoverage;
     };
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     const GrIndexBuffer* fIndexBuffer;
     SkSTArray<1, Geometry, true> fGeoData;

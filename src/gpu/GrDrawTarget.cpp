@@ -545,11 +545,6 @@ void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
         return;
     }
 
-    // init batch and my other crap
-    GrBatchOpt batchOpt;
-    batchOpt.fCanTweakAlphaForCoverage = pipelineBuilder->canTweakAlphaForCoverage();
-    batch->initBatchOpt(batchOpt);
-
     GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, batch, devBounds, this);
     if (pipelineInfo.mustSkipDraw()) {
         return;

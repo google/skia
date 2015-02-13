@@ -711,10 +711,6 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
-    }
-
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
         // Handle any color overrides
         if (init.fColorIgnored) {
@@ -873,7 +869,6 @@ private:
     static const int kVertsPerCircle = 4;
     static const int kIndicesPerCircle = 6;
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 };
@@ -964,10 +959,6 @@ public:
     }
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
-    }
-
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
     }
 
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
@@ -1133,7 +1124,6 @@ private:
     static const int kVertsPerEllipse = 4;
     static const int kIndicesPerEllipse = 6;
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 };
@@ -1265,10 +1255,6 @@ public:
     }
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
-    }
-
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
     }
 
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
@@ -1425,7 +1411,6 @@ private:
     static const int kVertsPerEllipse = 4;
     static const int kIndicesPerEllipse = 6;
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 };
@@ -1655,10 +1640,6 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
-    }
-
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
         // Handle any color overrides
         if (init.fColorIgnored) {
@@ -1831,7 +1812,6 @@ private:
         bool fCoverageIgnored;
     };
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
     const GrIndexBuffer* fIndexBuffer;
@@ -1862,10 +1842,6 @@ public:
     }
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
         out->setUnknownSingleComponent();
-    }
-
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
     }
 
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
@@ -2050,7 +2026,6 @@ private:
         bool fCoverageIgnored;
     };
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
     const GrIndexBuffer* fIndexBuffer;

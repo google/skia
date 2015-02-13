@@ -39,10 +39,6 @@ struct GrInitInvariantOutput;
  * information will be communicated to the GrBatch prior to geometry generation.
  */
 
-struct GrBatchOpt {
-  bool fCanTweakAlphaForCoverage;
-};
-
 class GrBatch : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrBatch)
@@ -54,13 +50,9 @@ public:
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 
     /*
-     * initBatchOpt is used to communicate possible optimizations to the GrBatch.  initBatchTracker
-     * is a hook for the some additional overrides from the GrXferProcessor.  This is a bit
-     * confusing but has to be like this until GrBatch is everywhere.
-     *
-     * TODO combine to a single init call when GrBatch is everywhere.
+     * initBatchTracker is a hook for the some additional overrides / optimization possibilities
+     * from the GrXferProcessor.
      */
-    virtual void initBatchOpt(const GrBatchOpt&) = 0;
     virtual void initBatchTracker(const GrPipelineInfo& init) = 0;
 
     bool combineIfPossible(GrBatch* that) {

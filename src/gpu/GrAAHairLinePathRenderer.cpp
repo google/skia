@@ -727,10 +727,6 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    void initBatchOpt(const GrBatchOpt& batchOpt) {
-        fBatchOpt = batchOpt;
-    }
-
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
         // Handle any color overrides
         if (init.fColorIgnored) {
@@ -813,7 +809,6 @@ private:
         bool fCoverageIgnored;
     };
 
-    GrBatchOpt fBatchOpt;
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
     const GrIndexBuffer* fLinesIndexBuffer;

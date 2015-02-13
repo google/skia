@@ -35,8 +35,6 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    void initBatchOpt(const GrBatchOpt& batchOpt) {}
-
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
         // Handle any color overrides
         if (init.fColorIgnored) {
