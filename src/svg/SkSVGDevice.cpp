@@ -8,12 +8,14 @@
 #include "SkSVGDevice.h"
 
 #include "SkBitmap.h"
+#include "SkChecksum.h"
 #include "SkDraw.h"
 #include "SkPaint.h"
 #include "SkParsePath.h"
 #include "SkPathOps.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXMLWriter.h"
@@ -162,6 +164,12 @@ static SkString svg_text(const void* text, size_t byteLen, const SkPaint& paint)
     }
 
     return svgText;
+}
+
+uint32_t hash_family_string(const SkString& family) {
+    // This is a lame hash function, but we don't really expect to see more than 1-2
+    // family names under normal circumstances.
+    return SkChecksum::Mix(SkToU32(family.size()));
 }
 
 struct Resources {
@@ -458,16 +466,26 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
         this->addAttribute("font-weight", "bold");
     }
 
-    SkAutoTUnref<const SkTypeface> tface(paint.getTypeface() ?
-        SkRef(paint.getTypeface()) : SkTypeface::RefDefault(style));
-    SkString familyName;
-    tface->getFamilyName(&familyName);
-    if (!familyName.isEmpty()) {
-        this->addAttribute("font-family", familyName);
-    }
-
     if (const char* textAlign = svg_text_align(paint.getTextAlign())) {
         this->addAttribute("text-anchor", textAlign);
+    }
+
+    SkString familyName;
+    SkTHashSet<SkString, hash_family_string> familySet;
+    SkAutoTUnref<const SkTypeface> tface(paint.getTypeface() ?
+        SkRef(paint.getTypeface()) : SkTypeface::RefDefault(style));
+    SkAutoTUnref<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());
+    SkTypeface::LocalizedString familyString;
+    while (familyNameIter->next(&familyString)) {
+        if (familySet.contains(familyString.fString)) {
+            continue;
+        }
+        familySet.add(familyString.fString);
+        familyName.appendf((familyName.isEmpty() ? "%s" : ", %s"), familyString.fString.c_str());
+    }
+
+    if (!familyName.isEmpty()) {
+        this->addAttribute("font-family", familyName);
     }
 }
 

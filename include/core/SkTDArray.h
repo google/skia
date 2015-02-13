@@ -218,7 +218,7 @@ public:
 
         for (; iter < stop; iter++) {
             if (*iter == elem) {
-                return (int) (iter - fArray);
+                return SkToInt(iter - fArray);
             }
         }
         return -1;

@@ -11,6 +11,7 @@
       ],
       'include_dirs': [
         '../include/svg',
+        '../src/core',
       ],
       'sources': [
         '<(skia_include_path)/svg/SkSVGCanvas.h',
