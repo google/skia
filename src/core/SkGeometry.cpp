@@ -1439,8 +1439,17 @@ bool SkConic::asQuadTol(SkScalar tol) const {
     return (x * x + y * y) <= tol * tol;
 }
 
+// Limit the number of suggested quads to approximate a conic
+#define kMaxConicToQuadPOW2     5
+
 int SkConic::computeQuadPOW2(SkScalar tol) const {
+    if (tol < 0 || !SkScalarIsFinite(tol)) {
+        return 0;
+    }
+
     AS_QUAD_ERROR_SETUP
+
+#ifdef SK_SUPPORT_LEGACY_CONIC_COMPUTE_QUAD_POW2
     SkScalar error = SkScalarSqrt(x * x + y * y) - tol;
 
     if (error <= 0) {
@@ -1448,6 +1457,34 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
     }
     uint32_t ierr = (uint32_t)error;
     return (34 - SkCLZ(ierr)) >> 1;
+#else
+    SkScalar error = SkScalarSqrt(x * x + y * y);
+    int pow2;
+    for (pow2 = 0; pow2 < kMaxConicToQuadPOW2; ++pow2) {
+        if (error <= tol) {
+            break;
+        }
+        error *= 0.25f;
+    }
+    // float version -- using ceil gives the same results as the above.
+    if (false) {
+        SkScalar err = SkScalarSqrt(x * x + y * y);
+        if (err <= tol) {
+            return 0;
+        }
+        SkScalar tol2 = tol * tol;
+        if (tol2 == 0) {
+            return kMaxConicToQuadPOW2;
+        }
+        SkScalar fpow2 = SkScalarLog2((x * x + y * y) / tol2) * 0.25f;
+        int altPow2 = SkScalarCeilToInt(fpow2);
+        if (altPow2 != pow2) {
+            SkDebugf("pow2 %d altPow2 %d fbits %g err %g tol %g\n", pow2, altPow2, fpow2, err, tol);
+        }
+        pow2 = altPow2;
+    }
+    return pow2;
+#endif
 }
 
 static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
