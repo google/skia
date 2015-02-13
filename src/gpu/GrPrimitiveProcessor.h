@@ -83,6 +83,7 @@ struct GrPipelineInfo {
     bool fCoverageIgnored;
     GrColor fOverrideColor;
     bool fUsesLocalCoords;
+    bool fCanTweakAlphaForCoverage;
 };
 
 /*

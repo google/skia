@@ -330,7 +330,13 @@ PorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPOI,
         // check whether coverage can be safely rolled into alpha
         // of if we can skip color computation and just emit coverage
         if (can_tweak_alpha_for_coverage(fDstBlend)) {
-            return GrXferProcessor::kSetCoverageDrawing_OptFlag;
+            if (colorPOI.allStagesMultiplyInput()) {
+                return GrXferProcessor::kSetCoverageDrawing_OptFlag |
+                       GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag;
+            } else {
+                return GrXferProcessor::kSetCoverageDrawing_OptFlag;
+
+            }
         }
         if (dstCoeffIsZero) {
             if (kZero_GrBlendCoeff == fSrcBlend) {
@@ -346,12 +352,25 @@ PorterDuffXferProcessor::internalGetOptimizations(const GrProcOptInfo& colorPOI,
                 // If Sa is 1 then we can replace Sa with c
                 // and set dst coeff to 1-Sa.
                 fDstBlend = kISA_GrBlendCoeff;
-                return GrXferProcessor::kSetCoverageDrawing_OptFlag;
+                if (colorPOI.allStagesMultiplyInput()) {
+                    return GrXferProcessor::kSetCoverageDrawing_OptFlag |
+                           GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag;
+                } else {
+                    return GrXferProcessor::kSetCoverageDrawing_OptFlag;
+
+                }
             }
         } else if (dstCoeffIsOne) {
             // the dst coeff is effectively one so blend works out to:
             // cS + (c)(1)D + (1-c)D = cS + D.
             fDstBlend = kOne_GrBlendCoeff;
+            if (colorPOI.allStagesMultiplyInput()) {
+                return GrXferProcessor::kSetCoverageDrawing_OptFlag |
+                       GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag;
+            } else {
+                return GrXferProcessor::kSetCoverageDrawing_OptFlag;
+
+            }
             return GrXferProcessor::kSetCoverageDrawing_OptFlag;
         }
     }

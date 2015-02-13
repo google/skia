@@ -73,6 +73,10 @@ public:
          * Set CoverageDrawing_StateBit
          */
         kSetCoverageDrawing_OptFlag       = 0x10,
+        /**
+         * Can tweak alpha for coverage. Currently this flag should only be used by a batch
+         */
+        kCanTweakAlphaForCoverage_OptFlag = 0x20,
     };
 
     GR_DECL_BITFIELD_OPS_FRIENDS(OptFlags);

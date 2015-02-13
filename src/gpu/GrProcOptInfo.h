@@ -45,6 +45,7 @@ public:
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
     bool isSingleComponent() const { return fInOut.isSingleComponent(); }
+    bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
 
     // TODO: Once texture pixel configs quaries are updated, we no longer need this function.
     // For now this function will correctly tell us if we are using LCD text or not and should only

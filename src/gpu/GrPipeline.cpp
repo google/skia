@@ -102,6 +102,8 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     fInitBT.fOverrideColor = fInitBT.fColorIgnored ? GrColor_ILLEGAL : overrideColor;
     fInitBT.fCoverageIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag);
     fInitBT.fUsesLocalCoords = usesLocalCoords;
+    fInitBT.fCanTweakAlphaForCoverage =
+        SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag);
 }
 
 void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelineBuilder,

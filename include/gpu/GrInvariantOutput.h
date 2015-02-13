@@ -210,6 +210,7 @@ private:
     bool willUseInputColor() const { return fWillUseInputColor; }
     void resetWillUseInputColor() { fWillUseInputColor = true; }
 
+    bool allStagesMulInput() const { return !fNonMulStageFound; }
     void resetNonMulStageFound() { fNonMulStageFound = false; }
 
     bool isLCDCoverage() const { return fIsLCDCoverage; }
