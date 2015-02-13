@@ -122,7 +122,7 @@ bool SkImageGenerator::onGetInfo(SkImageInfo*) {
 #ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
 bool SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,
                                                        SkPMColor*, int*) {
-    return kUnimplemented;
+    return false;
 }
 #endif
 SkImageGenerator::Result SkImageGenerator::onGetPixelsEnum(const SkImageInfo& info, void* pixels,
