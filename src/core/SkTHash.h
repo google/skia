@@ -33,7 +33,7 @@ public:
 
     // Copy val into the hash table, returning a pointer to the copy now in the table.
     // If there already is an entry in the table with the same key, we overwrite it.
-    T* set(T val) {
+    T* set(const T& val) {
         if (4 * fCount >= 3 * fCapacity) {
             this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
@@ -41,7 +41,7 @@ public:
     }
 
     // If there is an entry in the table with this key, return a pointer to it.  If not, NULL.
-    T* find(K key) const {
+    T* find(const K& key) const {
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
@@ -70,8 +70,8 @@ public:
     }
 
 private:
-    T* uncheckedSet(T val) {
-        K key = Traits::GetKey(val);
+    T* uncheckedSet(const T& val) {
+        const K& key = Traits::GetKey(val);
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
@@ -85,6 +85,7 @@ private:
             }
             if (hash == s.hash && key == Traits::GetKey(s.val)) {
                 // Overwrite previous entry.
+                // Note: this triggers extra copies when adding the same value repeatedly.
                 s.val = val;
                 return &s.val;
             }
@@ -119,7 +120,7 @@ private:
         return (index + n + 1) & (fCapacity-1);        // Quadratic probing.
     }
 
-    static uint32_t Hash(K key) {
+    static uint32_t Hash(const K& key) {
         uint32_t hash = Traits::Hash(key);
         return hash == 0 ? 1 : hash;  // We reserve hash == 0 to mark empty slots.
     }
@@ -138,7 +139,7 @@ private:
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
-template <typename K, typename V, uint32_t(*HashK)(K)>
+template <typename K, typename V, uint32_t(*HashK)(const K&)>
 class SkTHashMap : SkNoncopyable {
 public:
     SkTHashMap() {}
@@ -150,7 +151,7 @@ public:
 
     // Set key to val in the table, replacing any previous value with the same key.
     // We copy both key and val, and return a pointer to the value copy now in the table.
-    V* set(K key, V val) {
+    V* set(const K& key, const V& val) {
         Pair in = { key, val };
         Pair* out = fTable.set(in);
         return &out->val;
@@ -158,7 +159,7 @@ public:
 
     // If there is key/value entry in the table with this key, return a pointer to the value.
     // If not, return NULL.
-    V* find(K key) const {
+    V* find(const K& key) const {
         if (Pair* p = fTable.find(key)) {
             return &p->val;
         }
@@ -172,8 +173,8 @@ private:
     struct Pair {
         K key;
         V val;
-        static K GetKey(Pair p) { return p.key; }
-        static uint32_t Hash(K key) { return HashK(key); }
+        static const K& GetKey(const Pair& p) { return p.key; }
+        static uint32_t Hash(const K& key) { return HashK(key); }
     };
     static void ForEach(Pair* p, void (*fn)(K, V*)) { fn(p->key, &p->val); }
 
@@ -181,7 +182,7 @@ private:
 };
 
 // A set of T.  T is treated as an ordiary copyable C++ type.
-template <typename T, uint32_t(*HashT)(T)>
+template <typename T, uint32_t(*HashT)(const T&)>
 class SkTHashSet : SkNoncopyable {
 public:
     SkTHashSet() {}
@@ -190,15 +191,15 @@ public:
     int count() const { return fTable.count(); }
 
     // Copy an item into the set.
-    void add(T item) { fTable.set(item); }
+    void add(const T& item) { fTable.set(item); }
 
     // Is this item in the set?
-    bool contains(T item) const { return SkToBool(fTable.find(item)); }
+    bool contains(const T& item) const { return SkToBool(fTable.find(item)); }
 
 private:
     struct Traits {
-        static T GetKey(T item) { return item; }
-        static uint32_t Hash(T item) { return HashT(item); }
+        static const T& GetKey(const T& item) { return item; }
+        static uint32_t Hash(const T& item) { return HashT(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
 };
