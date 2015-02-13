@@ -202,6 +202,7 @@
     '../tests/StrokerTest.cpp',
     '../tests/SurfaceTest.cpp',
     '../tests/TArrayTest.cpp',
+    '../tests/TDPQueueTest.cpp',
     '../tests/THashCache.cpp',
     '../tests/Time.cpp',
     '../tests/TLSTest.cpp',
