@@ -18,7 +18,7 @@ namespace GrYUVtoRGBEffect {
      * Creates an effect that performs color conversion from YUV to RGB
      */
     GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                                SkISize sizes[3], SkYUVColorSpace colorSpace);
+                                SkYUVColorSpace colorSpace);
 };
 
 #endif
