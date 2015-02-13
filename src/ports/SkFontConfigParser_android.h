@@ -60,6 +60,7 @@ enum FontVariants {
 };
 typedef uint32_t FontVariant;
 
+// Must remain trivially movable (can be memmoved).
 struct FontFileInfo {
     FontFileInfo() : fIndex(0), fWeight(0) { }
 
@@ -83,8 +84,8 @@ struct FontFamily {
         , fBasePath(basePath)
     { }
 
-    SkTArray<SkString> fNames;
-    SkTArray<FontFileInfo> fFonts;
+    SkTArray<SkString, true> fNames;
+    SkTArray<FontFileInfo, true> fFonts;
     SkLanguage fLanguage;
     FontVariant fVariant;
     int fOrder; // internal to SkFontConfigParser
