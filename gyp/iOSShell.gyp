@@ -18,6 +18,8 @@
             'xml.gyp:xml',
           ],
           'sources': [
+            '../bench/DecodingBench.cpp',
+            '../bench/DecodingSubsetBench.cpp',
             '../bench/GMBench.cpp',
             '../bench/RecordingBench.cpp',
             '../bench/SKPBench.cpp',

@@ -15,6 +15,7 @@ DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
 DECLARE_string(gpuAPI);
+DECLARE_string(images);
 DECLARE_bool(leaks);
 DECLARE_string(match);
 DECLARE_bool(quiet);

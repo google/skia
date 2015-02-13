@@ -23,6 +23,8 @@ DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
               "Defaults to empty string, which selects the API native to the "
               "system.");
 
+DEFINE_string(images, "resources", "Directory of images to decode.");
+
 DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 
 DEFINE_string2(match, m, NULL,

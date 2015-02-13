@@ -9,6 +9,8 @@
 
 #include "Benchmark.h"
 #include "CrashHandler.h"
+#include "DecodingBench.h"
+#include "DecodingSubsetBench.h"
 #include "GMBench.h"
 #include "ProcStats.h"
 #include "ResultsWriter.h"
@@ -20,6 +22,7 @@
 #include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
@@ -439,7 +442,11 @@ public:
                       , fCurrentRecording(0)
                       , fCurrentScale(0)
                       , fCurrentSKP(0)
-                      , fCurrentUseMPD(0) {
+                      , fCurrentUseMPD(0)
+                      , fCurrentImage(0)
+                      , fCurrentSubsetImage(0)
+                      , fCurrentColorType(0)
+                      , fDivisor(2) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
             if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
                 fSKPs.push_back() = FLAGS_skps[i];
@@ -469,6 +476,27 @@ public:
         if (FLAGS_mpd) {
             fUseMPDs.push_back() = true;
         }
+        
+        // Prepare the images for decoding
+        for (int i = 0; i < FLAGS_images.count(); i++) {
+            const char* flag = FLAGS_images[i];
+            if (sk_isdir(flag)) {
+                // If the value passed in is a directory, add all the images
+                SkOSFile::Iter it(flag);
+                SkString file;
+                while (it.next(&file)) {
+                    fImages.push_back() = SkOSPath::Join(flag, file.c_str());
+                }
+            } else if (sk_exists(flag)) {
+                // Also add the value if it is a single image
+                fImages.push_back() = flag;
+            }
+        }
+        
+        // Choose the candidate color types for image decoding
+        const SkColorType colorTypes[] =
+            { kN32_SkColorType, kRGB_565_SkColorType, kAlpha_8_SkColorType };
+        fColorTypes.push_back_n(SK_ARRAY_COUNT(colorTypes), colorTypes);
     }
 
     static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
@@ -562,6 +590,75 @@ public:
             fCurrentScale++;
         }
 
+        // Run the DecodingBenches
+        while (fCurrentImage < fImages.count()) {
+            while (fCurrentColorType < fColorTypes.count()) {
+                const SkString& path = fImages[fCurrentImage];
+                SkColorType colorType = fColorTypes[fCurrentColorType];
+                fCurrentColorType++;
+                // Check if the image decodes before creating the benchmark
+                SkBitmap bitmap;
+                if (SkImageDecoder::DecodeFile(path.c_str(), &bitmap,
+                        colorType, SkImageDecoder::kDecodePixels_Mode)) {
+                    return new DecodingBench(path, colorType);
+                }
+            }
+            fCurrentColorType = 0;
+            fCurrentImage++;
+        }
+
+        // Run the DecodingSubsetBenches
+        while (fCurrentSubsetImage < fImages.count()) {
+            while (fCurrentColorType < fColorTypes.count()) {
+                const SkString& path = fImages[fCurrentSubsetImage];
+                SkColorType colorType = fColorTypes[fCurrentColorType];
+                fCurrentColorType++;
+                // Check if the image decodes before creating the benchmark
+                SkAutoTUnref<SkData> encoded(
+                        SkData::NewFromFileName(path.c_str()));
+                SkAutoTDelete<SkMemoryStream> stream(
+                        new SkMemoryStream(encoded));
+                SkAutoTDelete<SkImageDecoder>
+                    decoder(SkImageDecoder::Factory(stream.get()));
+                if (!decoder) {
+                    SkDebugf("Cannot find decoder for %s\n", path.c_str());
+                } else {
+                    stream->rewind();
+                    int w, h;
+                    bool success;
+                    if (!decoder->buildTileIndex(stream.detach(), &w, &h)
+                            || w*h == 1) {
+                        // This is not an error, but in this case we still
+                        // do not want to run the benchmark.
+                        success = false;
+                    } else if (fDivisor > w || fDivisor > h) {
+                        SkDebugf("Divisor %d is too big for %s %dx%d\n",
+                                fDivisor, path.c_str(), w, h);
+                        success = false;
+                    } else {
+                        const int sW  = w / fDivisor;
+                        const int sH = h / fDivisor;
+                        SkBitmap bitmap;
+                        success = true;
+                        for (int y = 0; y < h; y += sH) {
+                            for (int x = 0; x < w; x += sW) {
+                                SkIRect rect = SkIRect::MakeXYWH(x, y, sW, sH);
+                                success &= decoder->decodeSubset(&bitmap, rect,
+                                                                 colorType);
+                            }
+                        }
+                    }
+                    // Create the benchmark if successful
+                    if (success) {
+                        return new DecodingSubsetBench(path, colorType,
+                                                       fDivisor);
+                    }
+                }
+            }
+            fCurrentColorType = 0;
+            fCurrentSubsetImage++;
+        }
+
         return NULL;
     }
 
@@ -591,6 +688,8 @@ private:
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
     SkTArray<bool>     fUseMPDs;
+    SkTArray<SkString> fImages;
+    SkTArray<SkColorType> fColorTypes;
 
     double fSKPBytes, fSKPOps;
 
@@ -600,6 +699,10 @@ private:
     int fCurrentScale;
     int fCurrentSKP;
     int fCurrentUseMPD;
+    int fCurrentImage;
+    int fCurrentSubsetImage;
+    int fCurrentColorType;
+    const int fDivisor;
 };
 
 int nanobench_main();

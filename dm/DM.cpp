@@ -16,7 +16,6 @@
 #include "Test.h"
 #include "Timer.h"
 
-DEFINE_string(images, "resources", "Images to decode.");
 DEFINE_string(src, "tests gm skp image subset", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "

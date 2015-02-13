@@ -10,6 +10,8 @@
       'type': 'executable',
       'sources': [
         '../gm/gm.cpp',
+        '../bench/DecodingBench.cpp',
+        '../bench/DecodingSubsetBench.cpp',
         '../bench/GMBench.cpp',
         '../bench/RecordingBench.cpp',
         '../bench/SKPBench.cpp',
