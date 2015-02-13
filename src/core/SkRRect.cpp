@@ -117,17 +117,12 @@ static inline SkScalar SkScalarDecULP(SkScalar value) {
 #endif
 }
 
-static SkScalar clamp_radius_add(SkScalar rad, SkScalar min, SkScalar max) {
-    SkASSERT(rad <= max - min);
-    if (min + rad > max) {
-        rad = SkScalarDecULP(rad);
-    }
-    return rad;
-}
-
-static SkScalar clamp_radius_sub(SkScalar rad, SkScalar min, SkScalar max) {
-    SkASSERT(rad <= max - min);
-    if (max - rad < min) {
+ /**
+ *  We need all combinations of predicates to be true to have a "safe" radius value.
+ */
+static SkScalar clamp_radius_check_predicates(SkScalar rad, SkScalar min, SkScalar max) {
+    SkASSERT(min < max);
+    if (rad > max - min || min + rad > max || max - rad < min) {
         rad = SkScalarDecULP(rad);
     }
     return rad;
@@ -211,15 +206,10 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     // We need to detect and "fix" this now, otherwise we can have the following wackiness:
     //     path.addRRect(rrect);
     //     rrect.rect() != path.getBounds()
-    fRadii[0].fX = clamp_radius_add(fRadii[0].fX, rect.fLeft, rect.fRight);
-    fRadii[0].fY = clamp_radius_add(fRadii[0].fY, rect.fTop, rect.fBottom);
-    fRadii[1].fX = clamp_radius_sub(fRadii[1].fX, rect.fLeft, rect.fRight);
-    fRadii[1].fY = clamp_radius_add(fRadii[1].fY, rect.fTop, rect.fBottom);
-    fRadii[2].fX = clamp_radius_sub(fRadii[2].fX, rect.fLeft, rect.fRight);
-    fRadii[2].fY = clamp_radius_sub(fRadii[2].fY, rect.fTop, rect.fBottom);
-    fRadii[3].fX = clamp_radius_add(fRadii[3].fX, rect.fLeft, rect.fRight);
-    fRadii[3].fY = clamp_radius_sub(fRadii[3].fY, rect.fTop, rect.fBottom);
-
+    for (int i = 0; i < 4; ++i) {
+        fRadii[i].fX = clamp_radius_check_predicates(fRadii[i].fX, rect.fLeft, rect.fRight);
+        fRadii[i].fY = clamp_radius_check_predicates(fRadii[i].fY, rect.fTop, rect.fBottom);
+    }
     // At this point we're either oval, simple, or complex (not empty or rect).
     this->computeType();
 
@@ -397,6 +387,13 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         return false;
     }
 
+    // The matrix may have scaled us to zero (or due to float madness, we now have collapsed
+    // some dimension of the rect, so we need to check for that.
+    if (newRect.isEmpty()) {
+        dst->setEmpty();
+        return true;
+    }
+
     // At this point, this is guaranteed to succeed, so we can modify dst.
     dst->fRect = newRect;
 
@@ -528,6 +525,16 @@ void SkRRect::dump(bool asHex) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
+/**
+ *  We need all combinations of predicates to be true to have a "safe" radius value.
+ */
+static void validate_radius_check_predicates(SkScalar rad, SkScalar min, SkScalar max) {
+    SkASSERT(min <= max);
+    SkASSERT(rad <= max - min);
+    SkASSERT(min + rad <= max);
+    SkASSERT(max - rad >= min);
+}
+
 void SkRRect::validate() const {
     bool allRadiiZero = (0 == fRadii[0].fX && 0 == fRadii[0].fY);
     bool allCornersSquare = (0 == fRadii[0].fX || 0 == fRadii[0].fY);
@@ -580,6 +587,11 @@ void SkRRect::validate() const {
             SkASSERT(!allRadiiZero && !allRadiiSame && !allCornersSquare);
             SkASSERT(!patchesOfNine);
             break;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        validate_radius_check_predicates(fRadii[i].fX, fRect.fLeft, fRect.fRight);
+        validate_radius_check_predicates(fRadii[i].fY, fRect.fTop, fRect.fBottom);
     }
 }
 #endif // SK_DEBUG
