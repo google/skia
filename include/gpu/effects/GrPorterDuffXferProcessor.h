@@ -28,10 +28,8 @@ public:
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
-    bool canApplyCoverage(const GrProcOptInfo& /*colorPOI*/,
-                          const GrProcOptInfo& /*coveragePOI*/) const SK_OVERRIDE {
-        return true;
-    }
+    bool canApplyCoverage(const GrProcOptInfo& colorPOI,
+                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
     bool canTweakAlphaForCoverage() const SK_OVERRIDE;
 
@@ -41,13 +39,11 @@ public:
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 
 
-    GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                           const GrProcOptInfo& colorPOI,
+    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
 
-    bool willReadDstColor(const GrDrawTargetCaps& caps,
-                          const GrProcOptInfo& colorPOI,
+    bool willReadDstColor(const GrProcOptInfo& colorPOI,
                           const GrProcOptInfo& coveragePOI) const SK_OVERRIDE;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {

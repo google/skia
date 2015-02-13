@@ -35,13 +35,11 @@ public:
 private:
     GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                           const GrProcOptInfo& colorPOI,
+    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
 
-    bool willReadDstColor(const GrDrawTargetCaps& caps,
-                          const GrProcOptInfo& colorPOI,
+    bool willReadDstColor(const GrProcOptInfo& colorPOI,
                           const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
         return false;
     }

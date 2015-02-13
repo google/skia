@@ -77,13 +77,11 @@ public:
                             GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
 
 private:
-    GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                           const GrProcOptInfo& colorPOI,
+    GrXferProcessor* onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE; 
 
-    bool willReadDstColor(const GrDrawTargetCaps& caps,
-                          const GrProcOptInfo& colorPOI,
+    bool willReadDstColor(const GrProcOptInfo& colorPOI,
                           const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
         return true;
     }

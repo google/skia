@@ -304,12 +304,11 @@ GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float
 }
 
 GrXferProcessor*
-GrArithmeticXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                             const GrProcOptInfo& colorPOI,
+GrArithmeticXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI,
                                              const GrDeviceCoordTexture* dstCopy) const {
     return ArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor, dstCopy,
-                                this->willReadDstColor(caps, colorPOI, coveragePOI));
+                                this->willReadDstColor(colorPOI, coveragePOI));
 }
 
 

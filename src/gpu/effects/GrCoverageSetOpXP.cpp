@@ -228,8 +228,7 @@ GrXPFactory* GrCoverageSetOpXPFactory::Create(SkRegion::Op regionOp, bool invert
 }
 
 GrXferProcessor*
-GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                                const GrProcOptInfo& colorPOI,
+GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                                 const GrProcOptInfo& covPOI,
                                                 const GrDeviceCoordTexture* dstCopy) const {
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);

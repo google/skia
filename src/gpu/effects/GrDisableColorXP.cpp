@@ -100,8 +100,7 @@ GrDisableColorXPFactory::GrDisableColorXPFactory() {
 }
 
 GrXferProcessor*
-GrDisableColorXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                               const GrProcOptInfo& colorPOI,
+GrDisableColorXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& covPOI,
                                                const GrDeviceCoordTexture* dstCopy) const {
     return DisableColorXP::Create();

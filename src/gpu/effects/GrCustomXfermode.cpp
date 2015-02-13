@@ -608,11 +608,10 @@ GrCustomXPFactory::GrCustomXPFactory(SkXfermode::Mode mode)
 }
 
 GrXferProcessor*
-GrCustomXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
-                                         const GrProcOptInfo& colorPOI,
+GrCustomXPFactory::onCreateXferProcessor(const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
                                          const GrDeviceCoordTexture* dstCopy) const {
-    return CustomXP::Create(fMode, dstCopy, this->willReadDstColor(caps, colorPOI, coveragePOI));
+    return CustomXP::Create(fMode, dstCopy, this->willReadDstColor(colorPOI, coveragePOI));
 }
 
 
