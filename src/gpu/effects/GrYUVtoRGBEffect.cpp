@@ -18,8 +18,22 @@ namespace {
 class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture,
-                                       GrTexture* vTexture, SkYUVColorSpace colorSpace) {
-        return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, colorSpace));
+                                       GrTexture* vTexture, SkISize sizes[3],
+                                       SkYUVColorSpace colorSpace) {
+        SkScalar w[3], h[3];
+        w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
+        h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
+        w[1] = SkIntToScalar(sizes[1].fWidth)  / SkIntToScalar(uTexture->width());
+        h[1] = SkIntToScalar(sizes[1].fHeight) / SkIntToScalar(uTexture->height());
+        w[2] = SkIntToScalar(sizes[2].fWidth)  / SkIntToScalar(vTexture->width());
+        h[2] = SkIntToScalar(sizes[2].fHeight) / SkIntToScalar(vTexture->height());
+        SkMatrix yuvMatrix[3];
+        yuvMatrix[0] = GrCoordTransform::MakeDivByTextureWHMatrix(yTexture);
+        yuvMatrix[1] = yuvMatrix[0];
+        yuvMatrix[1].preScale(w[1] / w[0], h[1] / h[0]);
+        yuvMatrix[2] = yuvMatrix[0];
+        yuvMatrix[2].preScale(w[2] / w[0], h[2] / h[0]);
+        return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, yuvMatrix, colorSpace));
     }
 
     const char* name() const SK_OVERRIDE { return "YUV to RGB"; }
@@ -53,9 +67,9 @@ public:
             fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", outputColor);
             fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
             fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(samplers[1], coords[0].c_str(), coords[0].getType());
+            fsBuilder->appendTextureLookup(samplers[1], coords[1].c_str(), coords[1].getType());
             fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(samplers[2], coords[0].c_str(), coords[0].getType());
+            fsBuilder->appendTextureLookup(samplers[2], coords[2].c_str(), coords[2].getType());
             fsBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
         }
 
@@ -89,18 +103,20 @@ public:
 
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                   SkYUVColorSpace colorSpace)
-     : fCoordTransform(kLocal_GrCoordSet,
-                       GrCoordTransform::MakeDivByTextureWHMatrix(yTexture),
-                       yTexture, GrTextureParams::kNone_FilterMode)
+                   SkMatrix yuvMatrix[3], SkYUVColorSpace colorSpace)
+    : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
     , fYAccess(yTexture)
+    , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, GrTextureParams::kNone_FilterMode)
     , fUAccess(uTexture)
+    , fVTransform(kLocal_GrCoordSet, yuvMatrix[2], vTexture, GrTextureParams::kNone_FilterMode)
     , fVAccess(vTexture)
     , fColorSpace(colorSpace) {
         this->initClassID<YUVtoRGBEffect>();
-        this->addCoordTransform(&fCoordTransform);
+        this->addCoordTransform(&fYTransform);
         this->addTextureAccess(&fYAccess);
+        this->addCoordTransform(&fUTransform);
         this->addTextureAccess(&fUAccess);
+        this->addCoordTransform(&fVTransform);
         this->addTextureAccess(&fVAccess);
     }
 
@@ -115,9 +131,11 @@ private:
                           GrInvariantOutput::kWillNot_ReadInput);
     }
 
-    GrCoordTransform fCoordTransform;
+    GrCoordTransform fYTransform;
     GrTextureAccess fYAccess;
+    GrCoordTransform fUTransform;
     GrTextureAccess fUAccess;
+    GrCoordTransform fVTransform;
     GrTextureAccess fVAccess;
     SkYUVColorSpace fColorSpace;
 
@@ -140,6 +158,7 @@ const GrGLfloat YUVtoRGBEffect::GLProcessor::kRec601ConversionMatrix[16] = {
 
 GrFragmentProcessor*
 GrYUVtoRGBEffect::Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                         SkYUVColorSpace colorSpace) {
-    return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture, colorSpace);
+                         SkISize sizes[3], SkYUVColorSpace colorSpace) {
+    SkASSERT(yTexture && uTexture && vTexture && sizes);
+    return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture, sizes, colorSpace);
 }
