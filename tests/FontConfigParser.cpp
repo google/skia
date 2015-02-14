@@ -63,11 +63,12 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
     }
 }
 
-void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies) {
+void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
     if (!FLAGS_verboseFontMgr) {
         return;
     }
 
+    SkDebugf("\n--- Dumping %s\n", label);
     for (int i = 0; i < fontFamilies.count(); ++i) {
         SkDebugf("Family %d:\n", i);
         switch(fontFamilies[i]->fVariant) {
@@ -104,7 +105,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         REPORTER_ASSERT(reporter, preV17FontFamilies.count() == 14);
         REPORTER_ASSERT(reporter, CountFallbacks(preV17FontFamilies) == 10);
 
-        DumpLoadedFonts(preV17FontFamilies);
+        DumpLoadedFonts(preV17FontFamilies, "pre version 17");
         ValidateLoadedFonts(preV17FontFamilies, "Roboto-Regular.ttf", reporter);
     } else {
         resourcesMissing = true;
@@ -122,7 +123,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         REPORTER_ASSERT(reporter, v17FontFamilies.count() == 56);
         REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 46);
 
-        DumpLoadedFonts(v17FontFamilies);
+        DumpLoadedFonts(v17FontFamilies, "version 17");
         ValidateLoadedFonts(v17FontFamilies, "Roboto-Regular.ttf", reporter);
     } else {
         resourcesMissing = true;
@@ -139,7 +140,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         REPORTER_ASSERT(reporter, v22FontFamilies.count() == 53);
         REPORTER_ASSERT(reporter, CountFallbacks(v22FontFamilies) == 42);
 
-        DumpLoadedFonts(v22FontFamilies);
+        DumpLoadedFonts(v22FontFamilies, "version 22");
         ValidateLoadedFonts(v22FontFamilies, "Roboto-Thin.ttf", reporter);
     } else {
         resourcesMissing = true;
