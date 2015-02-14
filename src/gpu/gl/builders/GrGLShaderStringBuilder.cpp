@@ -20,9 +20,7 @@ SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
-                                    const char** strings,
-                                    int* lengths,
-                                    int count,
+                                    const SkString& shaderSrc,
                                     GrGpu::Stats* stats) {
     const GrGLInterface* gli = glCtx.interface();
 
@@ -33,23 +31,14 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     }
 
 #ifdef SK_DEBUG
-    SkString prettySource = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, false);
+    SkString prettySource = GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, false);
     const GrGLchar* sourceStr = prettySource.c_str();
     GrGLint sourceLength = static_cast<GrGLint>(prettySource.size());
-    GR_GL_CALL(gli, ShaderSource(shaderId, 1, &sourceStr, &sourceLength));
 #else
-    GR_GL_CALL(gli, ShaderSource(shaderId, count, strings, lengths));
+    GrGLint sourceLength = static_cast<GrGLint>(shaderSrc.size());
+    const GrGLchar* sourceStr = shaderSrc.c_str();
 #endif
-
-    // If tracing is enabled in chrome then we pretty print
-    bool traceShader;
-    TRACE_EVENT_CATEGORY_GROUP_ENABLED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), &traceShader);
-    if (traceShader) {
-        SkString shader = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, false);
-        TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "skia_gpu::GLShader",
-                             TRACE_EVENT_SCOPE_THREAD, "shader", TRACE_STR_COPY(shader.c_str()));
-    }
-
+    GR_GL_CALL(gli, ShaderSource(shaderId, 1, &sourceStr, &sourceLength));
     stats->incShaderCompilations();
     GR_GL_CALL(gli, CompileShader(shaderId));
 
@@ -70,8 +59,9 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 // retrieve length even though we don't need it to workaround bug in Chromium cmd
                 // buffer param validation.
                 GrGLsizei length = GR_GL_INIT_ZERO;
-                GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
-                SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
+                GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1,
+                                                 &length, (char*)log.get()));
+                SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
                 SkDebugf("\n%s", log.get());
             }
             SkDEBUGFAIL("Shader compilation failed!");
@@ -80,8 +70,10 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         }
     }
 
+    TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "skia_gpu::GLShader",
+                         TRACE_EVENT_SCOPE_THREAD, "shader", TRACE_STR_COPY(shaderSrc.c_str()));
     if (c_PrintShaders) {
-        SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
+        SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(shaderSrc, true).c_str());
         SkDebugf("\n");
     }
 

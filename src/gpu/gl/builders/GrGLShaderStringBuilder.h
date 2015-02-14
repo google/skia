@@ -16,9 +16,7 @@
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
-                                    const char** strings,
-                                    int* lengths,
-                                    int count,
+                                    const SkString& shaderSrc,
                                     GrGpu::Stats*);
 
 #endif

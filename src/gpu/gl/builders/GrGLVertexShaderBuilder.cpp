@@ -7,6 +7,7 @@
 
 #include "GrGLVertexShaderBuilder.h"
 #include "GrGLProgramBuilder.h"
+#include "GrGLShaderStringBuilder.h"
 #include "../GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
@@ -72,13 +73,25 @@ void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
     return;
 }
 
-bool
-GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) {
-    this->versionDecl() = GrGetGLSLVersionDecl(fProgramBuilder->ctxInfo());
-    fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &this->uniforms());
-    this->appendDecls(fInputs, &this->inputs());
-    this->appendDecls(fOutputs, &this->outputs());
-    return this->finalize(programId, GR_GL_VERTEX_SHADER, shaderIds);
+bool GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId,
+        SkTDArray<GrGLuint>* shaderIds) const {
+    GrGLGpu* gpu = fProgramBuilder->gpu();
+    const GrGLContext& glCtx = gpu->glContext();
+    const GrGLContextInfo& ctxInfo = gpu->ctxInfo();
+    SkString vertShaderSrc(GrGetGLSLVersionDecl(ctxInfo));
+    fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &vertShaderSrc);
+    this->appendDecls(fInputs, &vertShaderSrc);
+    this->appendDecls(fOutputs, &vertShaderSrc);
+    vertShaderSrc.append("void main() {");
+    vertShaderSrc.append(fCode);
+    vertShaderSrc.append("}\n");
+    GrGLuint vertShaderId = GrGLCompileAndAttachShader(glCtx, programId, GR_GL_VERTEX_SHADER,
+                                                       vertShaderSrc, gpu->stats());
+    if (!vertShaderId) {
+        return false;
+    }
+    *shaderIds->append() = vertShaderId;
+    return true;
 }
 
 bool GrGLVertexBuilder::addAttribute(const GrShaderVar& var) {

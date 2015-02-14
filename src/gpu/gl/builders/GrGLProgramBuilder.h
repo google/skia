@@ -356,12 +356,7 @@ protected:
     };
     class AutoStageAdvance {
     public:
-        AutoStageAdvance(GrGLProgramBuilder* pb)
-            : fPB(pb) {
-            fPB->reset();
-            // Each output to the fragment processor gets its own code section
-            fPB->fFS.nextStage();
-        }
+        AutoStageAdvance(GrGLProgramBuilder* pb) : fPB(pb) { fPB->reset(); }
         ~AutoStageAdvance() { fPB->exitStage(); }
     private:
         GrGLProgramBuilder* fPB;

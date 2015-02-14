@@ -10,10 +10,7 @@
 #include "SkString.h"
 
 namespace GrGLSLPrettyPrint {
-    SkString PrettyPrintGLSL(const char** strings,
-                             int* lengths,
-                             int count,
-                             bool countlines);
+    SkString PrettyPrintGLSL(const SkString& input, bool countlines);
 };
 
 #endif /* GRGLPRETTYPRINTSL_H_ */

@@ -7,7 +7,7 @@
 
 #include "GrGLShaderBuilder.h"
 #include "GrGLProgramBuilder.h"
-#include "GrGLShaderStringBuilder.h"
+#include "GrGLProgramBuilder.h"
 #include "../GrGLGpu.h"
 #include "../GrGLShaderVar.h"
 
@@ -59,17 +59,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
     : fProgramBuilder(program)
     , fInputs(GrGLProgramBuilder::kVarsPerBlock)
     , fOutputs(GrGLProgramBuilder::kVarsPerBlock)
-    , fFeaturesAddedMask(0)
-    , fCodeIndex(kCode)
-    , fFinalized(false) {
-    // We push back some dummy pointers which will later become our header
-    for (int i = 0; i <= kCode; i++) {
-        fShaderStrings.push_back();
-        fCompilerStrings.push_back(NULL);
-        fCompilerStringLengths.push_back(0);
-    }
-
-    this->main() = "void main() {";
+    , fFeaturesAddedMask(0) {
 }
 
 void GrGLShaderBuilder::declAppend(const GrGLShaderVar& var) {
@@ -84,20 +74,20 @@ void GrGLShaderBuilder::emitFunction(GrSLType returnType,
                                      const GrGLShaderVar* args,
                                      const char* body,
                                      SkString* outName) {
-    this->functions().append(GrGLSLTypeString(returnType));
+    fFunctions.append(GrGLSLTypeString(returnType));
     fProgramBuilder->nameVariable(outName, '\0', name);
-    this->functions().appendf(" %s", outName->c_str());
-    this->functions().append("(");
+    fFunctions.appendf(" %s", outName->c_str());
+    fFunctions.append("(");
     const GrGLContextInfo& ctxInfo = fProgramBuilder->gpu()->ctxInfo();
     for (int i = 0; i < argCnt; ++i) {
-        args[i].appendDecl(ctxInfo, &this->functions());
+        args[i].appendDecl(ctxInfo, &fFunctions);
         if (i < argCnt - 1) {
-            this->functions().append(", ");
+            fFunctions.append(", ");
         }
     }
-    this->functions().append(") {\n");
-    this->functions().append(body);
-    this->functions().append("}\n\n");
+    fFunctions.append(") {\n");
+    fFunctions.append(body);
+    fFunctions.append("}\n\n");
 }
 
 void GrGLShaderBuilder::appendTextureLookup(SkString* out,
@@ -116,7 +106,7 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
 void GrGLShaderBuilder::appendTextureLookup(const TextureSampler& sampler,
                                             const char* coordName,
                                             GrSLType varyingType) {
-    this->appendTextureLookup(&this->code(), sampler, coordName, varyingType);
+    this->appendTextureLookup(&fCode, sampler, coordName, varyingType);
 }
 
 void GrGLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
@@ -147,8 +137,8 @@ const GrGLenum* GrGLShaderBuilder::GetTexParamSwizzle(GrPixelConfig config, cons
 
 void GrGLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
     if (!(featureBit & fFeaturesAddedMask)) {
-        this->extensions().appendf("#extension %s: require\n", extensionName);
-        fFeaturesAddedMask |= featureBit;
+        fExtensions.appendf("#extension %s: require\n", extensionName);
+            fFeaturesAddedMask |= featureBit;
     }
 }
 
@@ -163,42 +153,11 @@ void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
                                             const char* coordName,
                                             uint32_t configComponentMask,
                                             const char* swizzle) {
-    append_texture_lookup(&this->code(),
+    append_texture_lookup(&fCode,
                           fProgramBuilder->gpu(),
                           samplerName,
                           coordName,
                           configComponentMask,
                           swizzle,
                           kVec2f_GrSLType);
-}
-
-bool
-GrGLShaderBuilder::finalize(GrGLuint programId, GrGLenum type, SkTDArray<GrGLuint>* shaderIds) {
-    SkASSERT(!fFinalized);
-    // append the 'footer' to code
-    this->code().append("}");
-
-    for (int i = 0; i <= fCodeIndex; i++) {
-        fCompilerStrings[i] = fShaderStrings[i].c_str();
-        fCompilerStringLengths[i] = fShaderStrings[i].size();
-    }
-
-    GrGLGpu* gpu = fProgramBuilder->gpu();
-    GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
-                                                   programId,
-                                                   type,
-                                                   fCompilerStrings.begin(),
-                                                   fCompilerStringLengths.begin(),
-                                                   fCompilerStrings.count(),
-                                                   gpu->stats());
-
-    fFinalized = true;
-
-    if (!shaderId) {
-        return false;
-    }
-
-    *shaderIds->append() = shaderId;
-
-    return true;
 }

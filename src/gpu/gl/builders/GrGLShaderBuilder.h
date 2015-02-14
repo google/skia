@@ -8,7 +8,6 @@
 #ifndef GrGLShaderBuilder_DEFINED
 #define GrGLShaderBuilder_DEFINED
 
-#include "SkTArray.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLProgramDataManager.h"
@@ -74,16 +73,16 @@ public:
     void codeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;
        va_start(args, format);
-       this->code().appendVAList(format, args);
+       fCode.appendVAList(format, args);
        va_end(args);
     }
 
-    void codeAppend(const char* str) { this->code().append(str); }
+    void codeAppend(const char* str) { fCode.append(str); }
 
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;
        va_start(args, format);
-       this->code().prependVAList(format, args);
+       fCode.prependVAList(format, args);
        va_end(args);
     }
 
@@ -139,40 +138,8 @@ protected:
      */
     void addFeature(uint32_t featureBit, const char* extensionName);
 
-    void nextStage() {
-        fShaderStrings.push_back();
-        fCompilerStrings.push_back(this->code().c_str());
-        fCompilerStringLengths.push_back(this->code().size());
-        fCodeIndex++;
-    }
-
-    SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
-    SkString& extensions() { return fShaderStrings[kExtensions]; }
-    SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
-    SkString& uniforms() { return fShaderStrings[kUniforms]; }
-    SkString& inputs() { return fShaderStrings[kInputs]; }
-    SkString& outputs() { return fShaderStrings[kOutputs]; }
-    SkString& functions() { return fShaderStrings[kFunctions]; }
-    SkString& main() { return fShaderStrings[kMain]; }
-    SkString& code() { return fShaderStrings[fCodeIndex]; }
-    bool finalize(GrGLuint programId, GrGLenum type, SkTDArray<GrGLuint>* shaderIds);
-
-    enum {
-        kVersionDecl,
-        kExtensions,
-        kPrecisionQualifier,
-        kUniforms,
-        kInputs,
-        kOutputs,
-        kFunctions,
-        kMain,
-        kCode,
-    };
-
     GrGLProgramBuilder* fProgramBuilder;
-    SkSTArray<kCode, const char*, true> fCompilerStrings;
-    SkSTArray<kCode, int, true> fCompilerStringLengths;
-    SkSTArray<kCode, SkString> fShaderStrings;
+
     SkString fCode;
     SkString fFunctions;
     SkString fExtensions;
@@ -180,9 +147,5 @@ protected:
     VarArray fInputs;
     VarArray fOutputs;
     uint32_t fFeaturesAddedMask;
-    int fCodeIndex;
-    bool fFinalized;
-
-    friend class GrGLProgramBuilder;
 };
 #endif
