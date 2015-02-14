@@ -22,7 +22,7 @@ private:
      */
     void addVarying(const char* name, GrGLVarying*);
 
-    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
+    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds);
 
     friend class GrGLProgramBuilder;
 

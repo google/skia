@@ -101,7 +101,7 @@ private:
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
-    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
+    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds);
     void bindFragmentShaderLocations(GrGLuint programID);
 
     // As GLProcessors emit code, there are some conditions we need to verify.  We use the below
