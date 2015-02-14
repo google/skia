@@ -6,7 +6,6 @@
  */
 
 #include "GrGLGeometryShaderBuilder.h"
-#include "GrGLShaderStringBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "../GrGLGpu.h"
 
@@ -37,35 +36,7 @@ void GrGLGeometryBuilder::addVarying(const char* name, GrGLVarying* v) {
 }
 
 bool GrGLGeometryBuilder::compileAndAttachShaders(GrGLuint programId,
-        SkTDArray<GrGLuint>* shaderIds) const {
-    const GrGLContext& glCtx = fProgramBuilder->gpu()->glContext();
-    SkASSERT(fProgramBuilder->ctxInfo().glslGeneration() >= k150_GrGLSLGeneration);
-    SkString geomShaderSrc(GrGetGLSLVersionDecl(fProgramBuilder->ctxInfo()));
-    geomShaderSrc.append("layout(triangles) in;\n"
-                         "layout(triangle_strip, max_vertices = 6) out;\n");
-    this->appendDecls(fInputs, &geomShaderSrc);
-    this->appendDecls(fOutputs, &geomShaderSrc);
-    geomShaderSrc.append("void main() {\n");
-    geomShaderSrc.append("\tfor (int i = 0; i < 3; ++i) {\n"
-                         "\t\tgl_Position = gl_in[i].gl_Position;\n");
-    geomShaderSrc.append("\t\tgl_PointSize = 1.0;\n");
-    SkASSERT(fInputs.count() == fOutputs.count());
-    for (int i = 0; i < fInputs.count(); ++i) {
-        geomShaderSrc.appendf("\t\t%s = %s[i];\n",
-                              fOutputs[i].getName().c_str(),
-                              fInputs[i].getName().c_str());
-    }
-    geomShaderSrc.append("\t\tEmitVertex();\n"
-                         "\t}\n"
-                         "\tEndPrimitive();\n");
-    geomShaderSrc.append("}\n");
-    GrGLuint geomShaderId =
-        GrGLCompileAndAttachShader(glCtx, programId,
-                                   GR_GL_GEOMETRY_SHADER, geomShaderSrc,
-                                   fProgramBuilder->gpu()->stats());
-    if (!geomShaderId) {
-        return false;
-    }
-    *shaderIds->append() = geomShaderId;
-    return true;
+        SkTDArray<GrGLuint>* shaderIds) {
+    SkFAIL("Geometry shaders are not currently supported");
+    return false;
 }

@@ -35,7 +35,7 @@ private:
      * private helpers for compilation by GrGLProgramBuilder
      */
     void bindVertexAttributes(GrGLuint programID);
-    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
+    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds);
 
     // an internal call which checks for uniquness of a var before adding it to the list of inputs
     bool addAttribute(const GrShaderVar& var);

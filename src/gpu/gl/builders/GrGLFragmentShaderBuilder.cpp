@@ -6,7 +6,6 @@
  */
 
 #include "GrGLFragmentShaderBuilder.h"
-#include "GrGLShaderStringBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "../GrGLGpu.h"
 
@@ -210,33 +209,19 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 }
 
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
-                                                        SkTDArray<GrGLuint>* shaderIds) const {
+                                                        SkTDArray<GrGLuint>* shaderIds) {
     GrGLGpu* gpu = fProgramBuilder->gpu();
-    SkString fragShaderSrc(GrGetGLSLVersionDecl(gpu->ctxInfo()));
-    fragShaderSrc.append(fExtensions);
+    this->versionDecl() = GrGetGLSLVersionDecl(gpu->ctxInfo());
     append_default_precision_qualifier(kDefault_GrSLPrecision,
                                        gpu->glStandard(),
-                                       &fragShaderSrc);
-    fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility, &fragShaderSrc);
-    this->appendDecls(fInputs, &fragShaderSrc);
+                                       &this->precisionQualifier());
+    fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility,
+                                        &this->uniforms());
+    this->appendDecls(fInputs, &this->inputs());
     // We shouldn't have declared outputs on 1.10
     SkASSERT(k110_GrGLSLGeneration != gpu->glslGeneration() || fOutputs.empty());
-    this->appendDecls(fOutputs, &fragShaderSrc);
-    fragShaderSrc.append(fFunctions);
-    fragShaderSrc.append("void main() {\n");
-    fragShaderSrc.append(fCode);
-    fragShaderSrc.append("}\n");
-
-    GrGLuint fragShaderId = GrGLCompileAndAttachShader(gpu->glContext(), programId,
-                                                       GR_GL_FRAGMENT_SHADER, fragShaderSrc,
-                                                       gpu->stats());
-    if (!fragShaderId) {
-        return false;
-    }
-
-    *shaderIds->append() = fragShaderId;
-
-    return true;
+    this->appendDecls(fOutputs, &this->outputs());
+    return this->finalize(programId, GR_GL_FRAGMENT_SHADER, shaderIds);
 }
 
 void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) {
