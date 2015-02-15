@@ -57,7 +57,6 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
-    void onPreroll() const SK_OVERRIDE;
 
     SkBitmap    fRawBitmap;   // experimental for RLE encoding
     uint8_t     fTileModeX, fTileModeY;

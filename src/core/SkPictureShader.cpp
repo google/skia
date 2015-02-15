@@ -223,10 +223,6 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
     return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
 }
 
-void SkPictureShader::onPreroll() const {
-    fPicture->preroll(NULL, NULL, NULL, NULL);
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,

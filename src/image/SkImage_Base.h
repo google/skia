@@ -63,8 +63,6 @@ public:
     virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
                                 SkFilterQuality) const;
 
-    virtual void onPreroll() const {}
-
 private:
     const SkSurfaceProps fProps;
 

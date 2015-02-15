@@ -118,10 +118,6 @@ SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
     return as_IB(this)->onNewImage(newWidth, newHeight, subset, quality);
 }
 
-void SkImage::preroll() const {
-    as_IB(this)->onPreroll();
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool raster_canvas_supports(const SkImageInfo& info) {

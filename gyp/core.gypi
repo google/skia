@@ -144,7 +144,6 @@
         '<(skia_src_path)/core/SkPictureFlat.h',
         '<(skia_src_path)/core/SkPicturePlayback.cpp',
         '<(skia_src_path)/core/SkPicturePlayback.h',
-        '<(skia_src_path)/core/SkPicturePreroll.cpp',
         '<(skia_src_path)/core/SkPictureRecord.cpp',
         '<(skia_src_path)/core/SkPictureRecord.h',
         '<(skia_src_path)/core/SkPictureRecorder.cpp',
