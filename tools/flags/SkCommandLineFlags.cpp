@@ -282,7 +282,12 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                         case SkFlagInfo::kString_FlagType:
                             flag->resetStrings();
                             // Add all arguments until another flag is reached.
-                            while (i+1 < argc && !SkStrStartsWith(argv[i+1], '-')) {
+                            while (i+1 < argc) {
+                                char* end = NULL;
+                                (void)strtod(argv[i+1], &end); // Negative numbers aren't flags.
+                                if (end == argv[i+1] && SkStrStartsWith(argv[i+1], '-')) {
+                                    break;
+                                }
                                 i++;
                                 flag->append(argv[i]);
                             }
