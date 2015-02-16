@@ -869,15 +869,15 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
     PREALLOC_PTARRAY(128) conics;
     IntArray qSubdivs;
     FloatArray cWeights;
+    int quadCount = 0;
 
     int instanceCount = fGeoData.count();
     for (int i = 0; i < instanceCount; i++) {
         const Geometry& args = fGeoData[i];
-        gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
-                               &lines, &quads, &conics, &qSubdivs, &cWeights);
+        quadCount += gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
+                                            &lines, &quads, &conics, &qSubdivs, &cWeights);
     }
 
-    int quadCount = quads.count() / 3;
     int lineCount = lines.count() / 2;
     int conicCount = conics.count() / 3;
 
@@ -945,7 +945,6 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
         // Setup vertices
         BezierVertex* verts = reinterpret_cast<BezierVertex*>(vertices);
 
-        // is this the same as quadcount? TODO
         int unsubdivQuadCnt = quads.count() / 3;
         for (int i = 0; i < unsubdivQuadCnt; ++i) {
             SkASSERT(qSubdivs[i] >= 0);
