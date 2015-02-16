@@ -69,6 +69,10 @@ protected:
     typedef SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> GeoPoolStateStack;
     const GeoPoolStateStack& getGeoPoolStateStack() const { return fGeoPoolStateStack; }
 
+    void willReserveVertexAndIndexSpace(int vertexCount,
+                                        size_t vertexStride,
+                                        int indexCount) SK_OVERRIDE;
+
 private:
     virtual void onReset() = 0;
 
@@ -81,9 +85,6 @@ private:
     void releaseReservedIndexSpace() SK_OVERRIDE;
     void geometrySourceWillPush() SK_OVERRIDE;
     void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-    void willReserveVertexAndIndexSpace(int vertexCount,
-                                        size_t vertexStride,
-                                        int indexCount) SK_OVERRIDE;
     bool onCanCopySurface(const GrSurface* dst,
                           const GrSurface* src,
                           const SkIRect& srcRect,

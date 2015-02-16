@@ -53,6 +53,7 @@ public:
 
     void discard(GrRenderTarget*) SK_OVERRIDE;
 
+protected:
     void willReserveVertexAndIndexSpace(int vertexCount,
                                         size_t vertexStride,
                                         int indexCount);

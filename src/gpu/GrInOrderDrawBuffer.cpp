@@ -641,29 +641,5 @@ void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
                                                          int indexCount) {
     this->closeBatch();
 
-    // We use geometryHints() to know whether to flush the draw buffer. We
-    // can't flush if we are inside an unbalanced pushGeometrySource.
-    // Moreover, flushing blows away vertex and index data that was
-    // previously reserved. So if the vertex or index data is pulled from
-    // reserved space and won't be released by this request then we can't
-    // flush.
-    bool insideGeoPush = this->getGeoPoolStateStack().count() > 1;
-
-    bool unreleasedVertexSpace =
-        !vertexCount &&
-        kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc;
-
-    bool unreleasedIndexSpace =
-        !indexCount &&
-        kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
-
-    int vcount = vertexCount;
-    int icount = indexCount;
-
-    if (!insideGeoPush &&
-        !unreleasedVertexSpace &&
-        !unreleasedIndexSpace &&
-        this->geometryHints(vertexStride, &vcount, &icount)) {
-        this->flush();
-    }
+    this->INHERITED::willReserveVertexAndIndexSpace(vertexCount, vertexStride, indexCount);
 }

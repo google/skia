@@ -711,6 +711,12 @@ protected:
 
     void setupPipeline(const PipelineInfo& pipelineInfo, GrPipeline* pipeline);
 
+    // A subclass can optionally overload this function to be notified before
+    // vertex and index space is reserved.
+    virtual void willReserveVertexAndIndexSpace(int vertexCount,
+                                                size_t vertexStride,
+                                                int indexCount) {}
+
 private:
     /**
      * This will be called before allocating a texture as a dst for copySurface. This function
@@ -730,12 +736,6 @@ private:
                                 const GrSurface* src,
                                 const SkIRect& clippedSrcRect,
                                 const SkIPoint& clippedDstRect);
-
-    // A subclass can optionally overload this function to be notified before
-    // vertex and index space is reserved.
-    virtual void willReserveVertexAndIndexSpace(int vertexCount,
-                                                size_t vertexStride,
-                                                int indexCount) {}
 
     // implemented by subclass to allocate space for reserved geom
     virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) = 0;
