@@ -630,9 +630,14 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
             fStreamValid = true;
         }
         return INHERITED::populate(catalog);
-    } else if (getState() == kNoCompression_State &&
-            !skip_compression(catalog) &&
-            (SkFlate::HaveFlate() || fEncoder)) {
+    }
+#ifndef SK_NO_FLATE
+    else if (getState() == kNoCompression_State && !skip_compression(catalog)) {
+#else  // SK_NO_FLATE
+    else if (getState() == kNoCompression_State &&
+             !skip_compression(catalog) &&
+             fEncoder) {
+#endif  // SK_NO_FLATE
         // Compression has not been requested when the stream was first created,
         // but the new catalog wants it compressed.
         if (!getSubstitute()) {

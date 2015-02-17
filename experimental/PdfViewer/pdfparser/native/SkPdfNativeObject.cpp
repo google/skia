@@ -22,12 +22,6 @@
 SkPdfNativeObject SkPdfNativeObject::kNull = SkPdfNativeObject::makeNull();
 
 bool SkPdfNativeObject::applyFlateDecodeFilter() {
-    if (!SkFlate::HaveFlate()) {
-        SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNoFlateLibrary_SkPdfIssue,
-                    "forgot to link with flate library?", NULL, NULL);
-        return false;
-    }
-
     const unsigned char* old = fStr.fBuffer;
     bool deleteOld = isStreamOwned();
 

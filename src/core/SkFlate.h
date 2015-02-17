@@ -12,6 +12,8 @@
 
 #include "SkTypes.h"
 
+#ifndef Sk_NO_FLATE
+
 class SkData;
 class SkWStream;
 class SkStream;
@@ -21,10 +23,6 @@ class SkStream;
 */
 class SkFlate {
 public:
-    /** Indicates if the flate algorithm is available.
-     */
-    static bool HaveFlate();
-
     /**
      *  Use the flate compression algorithm to compress the data in src,
      *  putting the result into dst.  Returns false if an error occurs.
@@ -49,4 +47,5 @@ public:
     static bool Inflate(SkStream* src, SkWStream* dst);
 };
 
-#endif
+#endif  // SK_NO_FLATE
+#endif  // SkFlate_DEFINED

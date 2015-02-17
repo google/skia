@@ -153,7 +153,8 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                             "<</Length 12\n/Attribute 42\n>> stream\n"
                                 "Test\nFoo\tBar\nendstream");
 
-    if (SkFlate::HaveFlate()) {
+#ifndef SK_NO_FLATE
+    {
         char streamBytes2[] = "This is a longer string, so that compression "
                               "can do something with it. With shorter strings, "
                               "the short circuit logic cuts in and we end up "
@@ -187,6 +188,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                           (const char*) expectedResultData2->data(),
                           expectedResultData2->size(), true, true);
     }
+#endif  // SK_NO_FLATE
 }
 
 static void TestCatalog(skiatest::Reporter* reporter) {
@@ -283,9 +285,7 @@ static void TestUncompressed(skiatest::Reporter* reporter) {
 }
 
 static void TestFlateDecode(skiatest::Reporter* reporter) {
-    if (!SkFlate::HaveFlate()) {
-        return;
-    }
+#ifndef SK_NO_FLATE
     SkBitmap bitmap;
     setup_bitmap(&bitmap, 10, 10);
     TestImage(reporter, bitmap,
@@ -298,6 +298,7 @@ static void TestFlateDecode(skiatest::Reporter* reporter) {
               "/Length 13\n"
               ">> stream",
               false);
+#endif  // SK_NO_FLATE
 }
 
 static void TestDCTDecode(skiatest::Reporter* reporter) {

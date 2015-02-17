@@ -83,8 +83,18 @@ size_t SkPDFStream::dataSize() const {
 }
 
 bool SkPDFStream::populate(SkPDFCatalog* catalog) {
+#ifdef SK_NO_FLATE
     if (fState == kUnused_State) {
-        if (!skip_compression(catalog) && SkFlate::HaveFlate()) {
+        fState = kNoCompression_State;
+        insertInt("Length", this->dataSize());
+    }
+    return true;
+
+#else  // !SK_NO_FLATE
+
+    if (fState == kUnused_State) {
+        fState = kNoCompression_State;
+        if (!skip_compression(catalog)) {
             SkDynamicMemoryWStream compressedData;
 
             SkAssertResult(
@@ -101,8 +111,8 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
             fState = kNoCompression_State;
         }
         insertInt("Length", this->dataSize());
-    } else if (fState == kNoCompression_State && !skip_compression(catalog) &&
-               SkFlate::HaveFlate()) {
+    }
+    else if (fState == kNoCompression_State && !skip_compression(catalog)) {
         if (!fSubstitute.get()) {
             fSubstitute.reset(new SkPDFStream(*this));
             catalog->setSubstitute(this, fSubstitute.get());
@@ -110,4 +120,5 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
         return false;
     }
     return true;
+#endif  // SK_NO_FLATE
 }

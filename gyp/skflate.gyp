@@ -9,7 +9,7 @@
       ],
       'conditions': [
         # When zlib is not availible on a system,
-        # SkFlate::HaveFlate will just return false.
+        # SK_NO_FLATE will be defined.
         [ 'skia_os != "win"',
           {
             'dependencies': [

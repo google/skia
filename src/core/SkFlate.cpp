@@ -11,18 +11,7 @@
 #include "SkFlate.h"
 #include "SkStream.h"
 
-#ifdef SK_NO_FLATE
-bool SkFlate::HaveFlate() { return false; }
-bool SkFlate::Deflate(SkStream*, SkWStream*) { return false; }
-bool SkFlate::Deflate(const void*, size_t, SkWStream*) { return false; }
-bool SkFlate::Deflate(const SkData*, SkWStream*) { return false; }
-bool SkFlate::Inflate(SkStream*, SkWStream*) { return false; }
-#else
-
-// static
-bool SkFlate::HaveFlate() {
-    return true;
-}
+#ifndef SK_NO_FLATE
 
 namespace {
 
@@ -133,4 +122,5 @@ bool SkFlate::Inflate(SkStream* src, SkWStream* dst) {
     return doFlate(false, src, dst);
 }
 
-#endif
+#endif  // SK_NO_FLATE
+

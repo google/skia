@@ -10,6 +10,8 @@
 #include "SkStream.h"
 #include "Test.h"
 
+#ifndef SK_NO_FLATE
+
 // A memory stream that reports zero size with the standard call, like
 // an unseekable file stream would.
 class SkZeroSizeMemStream : public SkMemoryStream {
@@ -104,16 +106,12 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
 }
 
 DEF_TEST(Flate, reporter) {
-#ifndef SK_NO_FLATE
-    REPORTER_ASSERT(reporter, SkFlate::HaveFlate());
-#endif
-    if (SkFlate::HaveFlate()) {
-        SkMemoryStream memStream;
-        TestFlate(reporter, &memStream, 512);
-        TestFlate(reporter, &memStream, 10240);
+    SkMemoryStream memStream;
+    TestFlate(reporter, &memStream, 512);
+    TestFlate(reporter, &memStream, 10240);
 
-        SkZeroSizeMemStream fileStream;
-        TestFlate(reporter, &fileStream, 512);
-        TestFlate(reporter, &fileStream, 10240);
-    }
+    SkZeroSizeMemStream fileStream;
+    TestFlate(reporter, &fileStream, 512);
+    TestFlate(reporter, &fileStream, 10240);
 }
+#endif  // SK_NO_FLATE
