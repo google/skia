@@ -18,14 +18,6 @@ class GrPorterDuffXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkXfermode::Mode mode); 
 
-    static GrXPFactory* Create(SkXfermode::Coeff src, SkXfermode::Coeff dst) {
-        return SkNEW_ARGS(GrPorterDuffXPFactory, ((GrBlendCoeff)(src), (GrBlendCoeff)(dst)));
-    }
-
-    static GrXPFactory* Create(GrBlendCoeff src, GrBlendCoeff dst) {
-        return SkNEW_ARGS(GrPorterDuffXPFactory, (src, dst));
-    }
-
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
     bool canApplyCoverage(const GrProcOptInfo& colorPOI,

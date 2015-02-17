@@ -9,7 +9,6 @@
 
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrDashingEffect.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -677,16 +676,8 @@ GrTexture* create_mask_GPU(GrContext* context,
     context->clear(NULL, 0x0, true, mask->asRenderTarget());
 
     GrPaint tempPaint;
-    if (doAA) {
-        tempPaint.setAntiAlias(true);
-        // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
-        // blend coeff of zero requires dual source blending support in order
-        // to properly blend partially covered pixels. This means the AA
-        // code path may not be taken. So we use a dst blend coeff of ISA. We
-        // could special case AA draws to a dst surface with known alpha=0 to
-        // use a zero dst coeff when dual source blending isn't available.
-        tempPaint.setPorterDuffXPFactory(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
-    }
+    tempPaint.setAntiAlias(doAA);
+    tempPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
 
     // Draw the mask into maskTexture with the path's top-left at the origin using tempPaint.
     SkMatrix translate;

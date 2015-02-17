@@ -24,7 +24,6 @@
 #include "GrInvariantOutput.h"
 #include "SkGrPixelRef.h"
 #include "SkDraw.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -1217,18 +1216,18 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
         matrix.setIDiv(src->width(), src->height());
         // Blend pathTexture over blurTexture.
         GrContext::AutoRenderTarget art(context, (*result)->asRenderTarget());
-        paint.addColorProcessor(GrSimpleTextureEffect::Create(src, matrix))->unref();
+        paint.addCoverageProcessor(GrSimpleTextureEffect::Create(src, matrix))->unref();
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
-            paint.setPorterDuffXPFactory(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
+            paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);
         } else if (kSolid_SkBlurStyle == fBlurStyle) {
             // solid:  dst = src + dst - src * dst
-            //             = (1 - dst) * src + 1 * dst
-            paint.setPorterDuffXPFactory(kIDC_GrBlendCoeff, kOne_GrBlendCoeff);
+            //             = src + (1 - src) * dst
+            paint.setCoverageSetOpXPFactory(SkRegion::kUnion_Op);
         } else if (kOuter_SkBlurStyle == fBlurStyle) {
             // outer:  dst = dst * (1 - src)
             //             = 0 * src + (1 - src) * dst
-            paint.setPorterDuffXPFactory(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
+            paint.setCoverageSetOpXPFactory(SkRegion::kDifference_Op);
         }
         context->drawRect(paint, SkMatrix::I(), clipRect);
     }

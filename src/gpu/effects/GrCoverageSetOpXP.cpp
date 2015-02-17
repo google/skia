@@ -15,11 +15,6 @@
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-/**
- * This xfer processor directly blends the the src coverage with the dst using a set operator. It is
- * useful for rendering coverage masks using CSG. It can optionally invert the src coverage before
- * applying the set operator.
- * */
 class CoverageSetOpXP : public GrXferProcessor {
 public:
     static GrXferProcessor* Create(SkRegion::Op regionOp, bool invertCoverage) {

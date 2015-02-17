@@ -266,15 +266,15 @@ void PorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFlags
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color
                 fSecondaryOutputType = kCoverage_SecondaryOutputType;
-                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+                fDstBlend = kIS2C_GrBlendCoeff;
             } else if (kSA_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
                 fSecondaryOutputType = kCoverageISA_SecondaryOutputType;
-                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+                fDstBlend = kIS2C_GrBlendCoeff;
             } else if (kSC_GrBlendCoeff == fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
                 fSecondaryOutputType = kCoverageISC_SecondaryOutputType;
-                fDstBlend = (GrBlendCoeff)GrGpu::kIS2C_GrBlendCoeff;
+                fDstBlend = kIS2C_GrBlendCoeff;
             }
         }
     }
@@ -617,16 +617,7 @@ GrXPFactory* GrPorterDuffXPFactory::TestCreate(SkRandom* random,
                                                GrContext*,
                                                const GrDrawTargetCaps&,
                                                GrTexture*[]) {
-    GrBlendCoeff src;
-    do {
-        src = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
-    } while (GrBlendCoeffRefsSrc(src));
-
-    GrBlendCoeff dst;
-    do {
-        dst = GrBlendCoeff(random->nextRangeU(kFirstPublicGrBlendCoeff, kLastPublicGrBlendCoeff));
-    } while (GrBlendCoeffRefsDst(dst));
-
-    return GrPorterDuffXPFactory::Create(src, dst);
+    SkXfermode::Mode mode = SkXfermode::Mode(random->nextULessThan(SkXfermode::kLastCoeffMode));
+    return GrPorterDuffXPFactory::Create(mode);
 }
 

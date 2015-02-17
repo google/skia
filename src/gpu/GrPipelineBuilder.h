@@ -114,14 +114,6 @@ public:
         return xpFactory;
     }
 
-    void setPorterDuffXPFactory(SkXfermode::Mode mode) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(mode));
-    }
-
-    void setPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(src, dst));
-    }
-
     void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false) {
         fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
     }

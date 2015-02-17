@@ -27,21 +27,6 @@ class GrVertexBufferAllocPool;
 class GrGpu : public SkRefCnt {
 public:
     /**
-     * Additional blend coefficients for dual source blending, not exposed
-     * through GrPaint/GrContext.
-     */
-    enum ExtendedBlendCoeffs {
-        // source 2 refers to second output color when
-        // using dual source blending.
-        kS2C_GrBlendCoeff = kPublicGrBlendCoeffCount,
-        kIS2C_GrBlendCoeff,
-        kS2A_GrBlendCoeff,
-        kIS2A_GrBlendCoeff,
-
-        kTotalGrBlendCoeffCount
-    };
-
-    /**
      * Create an instance of GrGpu that matches the specified backend. If the requested backend is
      * not supported (at compile-time or run-time) this returns NULL. The context will not be
      * fully constructed and should not be used by GrGpu until after this function returns.

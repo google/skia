@@ -8,6 +8,7 @@
 
 #include "GrTypes.h"
 #include "GrColor.h"
+#include "GrXferProcessor.h"
 
 #ifndef GrBlend_DEFINED
 #define GrBlend_DEFINED

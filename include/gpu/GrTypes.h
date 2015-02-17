@@ -156,32 +156,6 @@ static inline bool GrIsPrimTypeTris(GrPrimitiveType type) {
 }
 
 /**
- * Coeffecients for alpha-blending.
- */
-enum GrBlendCoeff {
-    kInvalid_GrBlendCoeff = -1,
-
-    kZero_GrBlendCoeff,    //<! 0
-    kOne_GrBlendCoeff,     //<! 1
-    kSC_GrBlendCoeff,      //<! src color
-    kISC_GrBlendCoeff,     //<! one minus src color
-    kDC_GrBlendCoeff,      //<! dst color
-    kIDC_GrBlendCoeff,     //<! one minus dst color
-    kSA_GrBlendCoeff,      //<! src alpha
-    kISA_GrBlendCoeff,     //<! one minus src alpha
-    kDA_GrBlendCoeff,      //<! dst alpha
-    kIDA_GrBlendCoeff,     //<! one minus dst alpha
-    kConstC_GrBlendCoeff,  //<! constant color
-    kIConstC_GrBlendCoeff, //<! one minus constant color
-    kConstA_GrBlendCoeff,  //<! constant color alpha
-    kIConstA_GrBlendCoeff, //<! one minus constant color alpha
-
-    kFirstPublicGrBlendCoeff = kZero_GrBlendCoeff,
-    kLastPublicGrBlendCoeff = kIConstA_GrBlendCoeff,
-};
-static const int kPublicGrBlendCoeffCount = kLastPublicGrBlendCoeff + 1;
-
-/**
  *  Formats for masks, used by the font cache.
  *  Important that these are 0-based.
  */

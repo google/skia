@@ -20,6 +20,34 @@ class GrGLXferProcessor;
 class GrProcOptInfo;
 
 /**
+ * Coeffecients for alpha-blending.
+ */
+enum GrBlendCoeff {
+    kInvalid_GrBlendCoeff = -1,
+
+    kZero_GrBlendCoeff,    //<! 0
+    kOne_GrBlendCoeff,     //<! 1
+    kSC_GrBlendCoeff,      //<! src color
+    kISC_GrBlendCoeff,     //<! one minus src color
+    kDC_GrBlendCoeff,      //<! dst color
+    kIDC_GrBlendCoeff,     //<! one minus dst color
+    kSA_GrBlendCoeff,      //<! src alpha
+    kISA_GrBlendCoeff,     //<! one minus src alpha
+    kDA_GrBlendCoeff,      //<! dst alpha
+    kIDA_GrBlendCoeff,     //<! one minus dst alpha
+    kConstC_GrBlendCoeff,  //<! constant color
+    kIConstC_GrBlendCoeff, //<! one minus constant color
+    kConstA_GrBlendCoeff,  //<! constant color alpha
+    kIConstA_GrBlendCoeff, //<! one minus constant color alpha
+    kS2C_GrBlendCoeff,
+    kIS2C_GrBlendCoeff,
+    kS2A_GrBlendCoeff,
+    kIS2A_GrBlendCoeff,
+
+    kTotalGrBlendCoeffCount
+};
+
+/**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
  * color. It does this by emitting fragment shader code and controlling the fixed-function blend
  * state. The inputs to its shader code are the final computed src color and fractional pixel

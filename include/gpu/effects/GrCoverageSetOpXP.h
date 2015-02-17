@@ -14,16 +14,22 @@
 
 class GrProcOptInfo;
 
+/**
+ * This xfer processor directly blends the the src coverage with the dst using a set operator. It is
+ * useful for rendering coverage masks using CSG. It can optionally invert the src coverage before
+ * applying the set operator.
+ */
 class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkRegion::Op regionOp, bool invertCoverage = false);
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE {
+    bool supportsRGBCoverage(GrColor /*knownColor*/,
+                             uint32_t /*knownColorFlags*/) const SK_OVERRIDE {
         return true;
     }
 
-    bool canApplyCoverage(const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
+    bool canApplyCoverage(const GrProcOptInfo& /*colorPOI*/,
+                          const GrProcOptInfo& /*coveragePOI*/) const SK_OVERRIDE {
         return true;
     }
 
@@ -39,8 +45,8 @@ private:
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
 
-    bool willReadDstColor(const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
+    bool willReadDstColor(const GrProcOptInfo& /*colorPOI*/,
+                          const GrProcOptInfo& /*coveragePOI*/) const SK_OVERRIDE {
         return false;
     }
 

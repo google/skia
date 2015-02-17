@@ -15,6 +15,7 @@
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
+#include "SkRegion.h"
 #include "SkXfermode.h"
 
 /**
@@ -70,9 +71,7 @@ public:
         fXPFactory.reset(GrPorterDuffXPFactory::Create(mode));
     }
 
-    void setPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst) {
-        fXPFactory.reset(GrPorterDuffXPFactory::Create(src, dst));
-    }
+    void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false); 
 
     /**
      * Appends an additional color processor to the color computation.
