@@ -84,6 +84,7 @@
       '<(skia_src_path)/gpu/GrDrawTargetCaps.h',
       '<(skia_src_path)/gpu/GrFlushToGpuDrawTarget.cpp',
       '<(skia_src_path)/gpu/GrFlushToGpuDrawTarget.h',
+      '<(skia_src_path)/gpu/GrFontAtlasSizes.h',
       '<(skia_src_path)/gpu/GrFontScaler.cpp',
       '<(skia_src_path)/gpu/GrFontScaler.h',
       '<(skia_src_path)/gpu/GrGeometryBuffer.h',

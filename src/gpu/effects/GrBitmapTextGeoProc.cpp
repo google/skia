@@ -6,6 +6,7 @@
  */
 
 #include "GrBitmapTextGeoProc.h"
+#include "GrFontAtlasSizes.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "gl/GrGLProcessor.h"
@@ -37,7 +38,10 @@ public:
 
         GrGLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v);
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), cte.inTextureCoords()->fName);
+        // this is only used with text, so our texture bounds always match the glyph atlas
+        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
+                               GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", v.vsOut(),
+                               cte.inTextureCoords()->fName);
 
         // Setup pass through color
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, cte.inColor(),
@@ -122,7 +126,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
         this->setHasVertexColor();
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2f_GrVertexAttribType));
+                                                        kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 

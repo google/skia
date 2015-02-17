@@ -6,6 +6,7 @@
  */
 
 #include "GrDistanceFieldTextureEffect.h"
+#include "GrFontAtlasSizes.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "SkDistanceFieldGen.h"
@@ -29,7 +30,6 @@ public:
     GrGLDistanceFieldTextureEffect(const GrGeometryProcessor&,
                                    const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL)
-        , fTextureSize(SkISize::Make(-1,-1))
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fLuminance(-1.0f)
 #endif
@@ -49,9 +49,16 @@ public:
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
+        GrGLVertToFrag st(kVec2f_GrSLType);
+        args.fPB->addVarying("IntTextureCoords", &st);
+        vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
+        
+        GrGLVertToFrag uv(kVec2f_GrSLType);
+        args.fPB->addVarying("TextureCoords", &uv);
+        // this is only used with text, so our texture bounds always match the glyph atlas
+        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
+                               GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
+                               dfTexEffect.inTextureCoords()->fName);
 
         // Setup pass through color
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
@@ -64,15 +71,10 @@ public:
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-        const char* textureSizeUniName = NULL;
-        fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                               kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                               "TextureSize", &textureSizeUniName);
-
         // Use highp to work around aliasing issues
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 uv = %s;\n", v.fsIn());
+        fsBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
 
         fsBuilder->codeAppend("\tfloat texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
@@ -87,7 +89,7 @@ public:
         // to ensure we're mapping 1:1 from texel space to pixel space.
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 st = uv*%s;\n", textureSizeUniName);
+        fsBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
         fsBuilder->codeAppend("\tfloat afwidth;\n");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
             // this gives us a smooth step across approximately one fragment
@@ -137,16 +139,6 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& proc,
                          const GrBatchTracker& bt) SK_OVERRIDE {
-        SkASSERT(fTextureSizeUni.isValid());
-
-        GrTexture* texture = proc.texture(0);
-        if (texture->width() != fTextureSize.width() ||
-            texture->height() != fTextureSize.height()) {
-            fTextureSize = SkISize::Make(texture->width(), texture->height());
-            pdman.set2f(fTextureSizeUni,
-                        SkIntToScalar(fTextureSize.width()),
-                        SkIntToScalar(fTextureSize.height()));
-        }
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 proc.cast<GrDistanceFieldTextureEffect>();
@@ -184,8 +176,6 @@ public:
 private:
     GrColor       fColor;
     UniformHandle fColorUniform;
-    UniformHandle fTextureSizeUni;
-    SkISize       fTextureSize;
     UniformHandle fLuminanceUni;
 #ifdef SK_GAMMA_APPLY_TO_A8
     float         fLuminance;
@@ -222,7 +212,7 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
         this->setHasVertexColor();
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                          kVec2f_GrVertexAttribType));
+                                                          kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 #ifdef SK_GAMMA_APPLY_TO_A8
     this->addTextureAccess(&fGammaTextureAccess);
@@ -326,7 +316,7 @@ class GrGLDistanceFieldNoGammaTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldNoGammaTextureEffect(const GrGeometryProcessor&,
                                           const GrBatchTracker&)
-        : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
+        : fColor(GrColor_ILLEGAL) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
@@ -344,14 +334,24 @@ public:
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        GrGLVertToFrag st(kVec2f_GrSLType);
+        args.fPB->addVarying("IntTextureCoords", &st);
+        vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
+        
+        const char* recipTextureSizeUniName = NULL;
+        fRecipTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                    "RecipTextureSize", &recipTextureSizeUniName);
+        GrGLVertToFrag uv(kVec2f_GrSLType);
+        args.fPB->addVarying("TextureCoords", &uv);
+        // this GP can be used with either text or paths, so texture bound params need to
+        // be set by a uniform
+        vsBuilder->codeAppendf("%s = %s*%s;", uv.vsOut(), recipTextureSizeUniName,
+                               dfTexEffect.inTextureCoords()->fName);
 
         // setup pass through color
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
                                     dfTexEffect.inColor(), &fColorUniform);
-
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
         this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
@@ -360,15 +360,10 @@ public:
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-        const char* textureSizeUniName = NULL;
-        fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                              "TextureSize", &textureSizeUniName);
-
         // Use highp to work around aliasing issues
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
+        fsBuilder->codeAppendf("vec2 uv = %s;", uv.fsIn());
 
         fsBuilder->codeAppend("float texColor = ");
         fsBuilder->appendTextureLookup(args.fSamplers[0],
@@ -383,7 +378,7 @@ public:
         // to ensure we're mapping 1:1 from texel space to pixel space.
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
+        fsBuilder->codeAppendf("vec2 st = %s;", st.fsIn());
         fsBuilder->codeAppend("float afwidth;");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
             // this gives us a smooth step across approximately one fragment
@@ -418,15 +413,15 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& proc,
                          const GrBatchTracker& bt) SK_OVERRIDE {
-        SkASSERT(fTextureSizeUni.isValid());
+        SkASSERT(fRecipTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
         if (texture->width() != fTextureSize.width() || 
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
-            pdman.set2f(fTextureSizeUni,
-                        SkIntToScalar(fTextureSize.width()),
-                        SkIntToScalar(fTextureSize.height()));
+            pdman.set2f(fRecipTextureSizeUni,
+                        1.0f/SkIntToScalar(fTextureSize.width()),
+                        1.0f/SkIntToScalar(fTextureSize.height()));
         }
 
         this->setUniformViewMatrix(pdman, proc.viewMatrix());
@@ -457,7 +452,7 @@ public:
 
 private:
     UniformHandle fColorUniform;
-    UniformHandle fTextureSizeUni;
+    UniformHandle fRecipTextureSizeUni;
     GrColor       fColor;
     SkISize       fTextureSize;
 
@@ -485,7 +480,7 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
         this->setHasVertexColor();
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                          kVec2f_GrVertexAttribType));
+                                                          kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -572,7 +567,6 @@ public:
     GrGLDistanceFieldLCDTextureEffect(const GrGeometryProcessor&,
                                       const GrBatchTracker&)
     : fColor(GrColor_ILLEGAL)
-    , fTextureSize(SkISize::Make(-1,-1))
     , fTextColor(GrColor_ILLEGAL) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
@@ -586,10 +580,17 @@ public:
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
-        vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
-
+        GrGLVertToFrag st(kVec2f_GrSLType);
+        args.fPB->addVarying("IntTextureCoords", &st);
+        vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
+        
+        GrGLVertToFrag uv(kVec2f_GrSLType);
+        args.fPB->addVarying("TextureCoords", &uv);
+        // this is only used with text, so our texture bounds always match the glyph atlas
+        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
+                               GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
+                               dfTexEffect.inTextureCoords()->fName);
+        
         // setup pass through color
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
                                     &fColorUniform);
@@ -601,12 +602,6 @@ public:
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-        const char* textureSizeUniName = NULL;
-        // width, height, 1/(3*width)
-        fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                              kVec3f_GrSLType, kDefault_GrSLPrecision,
-                                              "TextureSize", &textureSizeUniName);
-
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         SkAssertResult(fsBuilder->enableFeature(
@@ -616,18 +611,24 @@ public:
         // Use highp to work around aliasing issues
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 uv = %s;\n", v.fsIn());
+        fsBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 st = uv*%s.xy;\n", textureSizeUniName);
+        fsBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
         bool isUniformScale = !!(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
+        
+        if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
+            fsBuilder->codeAppend("float delta = -" GR_FONT_ATLAS_LCD_DELTA ";\n");
+        } else {
+            fsBuilder->codeAppend("float delta = " GR_FONT_ATLAS_LCD_DELTA ";\n");
+        }
         if (isUniformScale) {
             fsBuilder->codeAppend("\tfloat dx = dFdx(st.x);\n");
-            fsBuilder->codeAppendf("\tvec2 offset = vec2(dx*%s.z, 0.0);\n", textureSizeUniName);
+            fsBuilder->codeAppend("\tvec2 offset = vec2(dx*delta, 0.0);\n");
         } else {
             fsBuilder->codeAppend("\tvec2 Jdx = dFdx(st);\n");
             fsBuilder->codeAppend("\tvec2 Jdy = dFdy(st);\n");
-            fsBuilder->codeAppendf("\tvec2 offset = %s.z*Jdx;\n", textureSizeUniName);
+            fsBuilder->codeAppend("\tvec2 offset = delta*Jdx;\n");
         }
 
         // green is distance to uv center
@@ -688,7 +689,6 @@ public:
 
         // adjust based on gamma
         const char* textColorUniName = NULL;
-        // width, height, 1/(3*width)
         fTextColorUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec3f_GrSLType, kDefault_GrSLPrecision,
                                              "TextColor", &textColorUniName);
@@ -717,25 +717,10 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& processor,
                          const GrBatchTracker& bt) SK_OVERRIDE {
-        SkASSERT(fTextureSizeUni.isValid());
         SkASSERT(fTextColorUni.isValid());
 
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldLCDTextureEffect>();
-        GrTexture* texture = processor.texture(0);
-        if (texture->width() != fTextureSize.width() ||
-            texture->height() != fTextureSize.height()) {
-            fTextureSize = SkISize::Make(texture->width(), texture->height());
-            float delta = 1.0f/(3.0f*texture->width());
-            if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
-                delta = -delta;
-            }
-            pdman.set3f(fTextureSizeUni,
-                        SkIntToScalar(fTextureSize.width()),
-                        SkIntToScalar(fTextureSize.height()),
-                        delta);
-        }
-
         GrColor textColor = dfTexEffect.getTextColor();
         if (textColor != fTextColor) {
             static const float ONE_OVER_255 = 1.f / 255.f;
@@ -775,8 +760,6 @@ public:
 private:
     GrColor       fColor;
     UniformHandle fColorUniform;
-    UniformHandle fTextureSizeUni;
-    SkISize       fTextureSize;
     UniformHandle fTextColorUni;
     SkColor       fTextColor;
 
@@ -800,7 +783,7 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
     this->initClassID<GrDistanceFieldLCDTextureEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                          kVec2f_GrVertexAttribType));
+                                                          kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
     this->addTextureAccess(&fGammaTextureAccess);
 }

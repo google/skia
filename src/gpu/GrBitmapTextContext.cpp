@@ -34,12 +34,12 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
 namespace {
-static const size_t kLCDTextVASize = 2 * sizeof(SkPoint);
+static const size_t kLCDTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
 
 // position + local coord
-static const size_t kColorTextVASize = 2 * sizeof(SkPoint);
+static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
 
-static const size_t kGrayTextVASize = 2 * sizeof(SkPoint) + sizeof(GrColor);
+static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
 
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;
@@ -421,8 +421,8 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     vy += SkIntToFixed(glyph->fBounds.fTop);
 
     // keep them as ints until we've done the clip-test
-    SkFixed width = glyph->fBounds.width();
-    SkFixed height = glyph->fBounds.height();
+    int width = glyph->fBounds.width();
+    int height = glyph->fBounds.height();
 
     // check if we clipped out
     int x = vx >> 16;
@@ -463,10 +463,6 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     GrDrawTarget::DrawToken drawToken = fDrawTarget->getCurrentDrawToken();
     glyph->fPlot->setDrawToken(drawToken);
 
-    // now promote them to fixed (TODO: Rethink using fixed pt).
-    width = SkIntToFixed(width);
-    height = SkIntToFixed(height);
-
     // the current texture/maskformat must match what the glyph needs
     GrTexture* texture = glyph->fPlot->texture();
     SkASSERT(texture);
@@ -484,39 +480,66 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         fVertices = alloc_vertices(fDrawTarget, fAllocVertexCount, fCurrMaskFormat);
     }
 
-    SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
-    SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
-
     SkRect r;
     r.fLeft = SkFixedToFloat(vx);
     r.fTop = SkFixedToFloat(vy);
-    r.fRight = SkFixedToFloat(vx + width);
-    r.fBottom = SkFixedToFloat(vy + height);
+    r.fRight = r.fLeft + width;
+    r.fBottom = r.fTop + height;
 
     fVertexBounds.joinNonEmptyArg(r);
+    
+    int u0 = glyph->fAtlasLocation.fX;
+    int v0 = glyph->fAtlasLocation.fY;
+    int u1 = u0 + width;
+    int v1 = v0 + height;
 
     size_t vertSize = get_vertex_stride(fCurrMaskFormat);
+    intptr_t vertex = reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex;
 
-    SkPoint* positions = reinterpret_cast<SkPoint*>(
-        reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
-    positions->setRectFan(r.fLeft, r.fTop, r.fRight, r.fBottom, vertSize);
-
-    // The texture coords are last in both the with and without color vertex layouts.
-    SkPoint* textureCoords = reinterpret_cast<SkPoint*>(
-            reinterpret_cast<intptr_t>(positions) + vertSize  - sizeof(SkPoint));
-    textureCoords->setRectFan(SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx + width)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + height)),
-                              vertSize);
+    // V0
+    SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(r.fLeft, r.fTop);
     if (kA8_GrMaskFormat == fCurrMaskFormat) {
-        // color comes after position.
-        GrColor* colors = reinterpret_cast<GrColor*>(positions + 1);
-        for (int i = 0; i < 4; ++i) {
-           *colors = fPaint.getColor();
-           colors = reinterpret_cast<GrColor*>(reinterpret_cast<intptr_t>(colors) + vertSize);
-        }
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
     }
+    SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize -
+                                                              sizeof(SkIPoint16));
+    textureCoords->set(u0, v0);
+    vertex += vertSize;
+    
+    // V1
+    position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(r.fLeft, r.fBottom);
+    if (kA8_GrMaskFormat == fCurrMaskFormat) {
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
+    }
+    textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
+    textureCoords->set(u0, v1);
+    vertex += vertSize;
+    
+    // V2
+    position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(r.fRight, r.fBottom);
+    if (kA8_GrMaskFormat == fCurrMaskFormat) {
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
+    }
+    textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
+    textureCoords->set(u1, v1);
+    vertex += vertSize;
+    
+    // V3
+    position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(r.fRight, r.fTop);
+    if (kA8_GrMaskFormat == fCurrMaskFormat) {
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
+    }
+    textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
+    textureCoords->set(u1, v0);
+
     fCurrVertex += 4;
 }
 

@@ -374,8 +374,8 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
 }
 
 static size_t get_vertex_stride(bool useColorVerts) {
-    return useColorVerts ? (2 * sizeof(SkPoint) + sizeof(GrColor)) :
-                           (2 * sizeof(SkPoint));
+    return useColorVerts ? (sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16)) :
+                           (sizeof(SkPoint) + sizeof(SkIPoint16));
 }
 
 static void* alloc_vertices(GrDrawTarget* drawTarget,
@@ -600,36 +600,59 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
                                    useColorVerts);
     }
 
-    SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX + SK_DistanceFieldInset);
-    SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY + SK_DistanceFieldInset);
-    SkFixed tw = SkIntToFixed(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
-    SkFixed th = SkIntToFixed(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
-
     fVertexBounds.joinNonEmptyArg(glyphRect);
 
+    int u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
+    int v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
+    int u1 = u0 + glyph->fBounds.width() - 2*SK_DistanceFieldInset;
+    int v1 = v0 + glyph->fBounds.height() - 2*SK_DistanceFieldInset;
+
     size_t vertSize = get_vertex_stride(useColorVerts);
+    intptr_t vertex = reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex;
 
-    SkPoint* positions = reinterpret_cast<SkPoint*>(
-                               reinterpret_cast<intptr_t>(fVertices) + vertSize * fCurrVertex);
-    positions->setRectFan(glyphRect.fLeft, glyphRect.fTop, glyphRect.fRight, glyphRect.fBottom,
-                          vertSize);
-
-    // The texture coords are last in both the with and without color vertex layouts.
-    SkPoint* textureCoords = reinterpret_cast<SkPoint*>(
-                               reinterpret_cast<intptr_t>(positions) + vertSize  - sizeof(SkPoint));
-    textureCoords->setRectFan(SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx + tw)),
-                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
-                              vertSize);
+    // V0
+    SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(glyphRect.fLeft, glyphRect.fTop);
     if (useColorVerts) {
-        // color comes after position.
-        GrColor* colors = reinterpret_cast<GrColor*>(positions + 1);
-        for (int i = 0; i < 4; ++i) {
-            *colors = fPaint.getColor();
-            colors = reinterpret_cast<GrColor*>(reinterpret_cast<intptr_t>(colors) + vertSize);
-        }
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
     }
+    SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize -
+                                                              sizeof(SkIPoint16));
+    textureCoords->set(u0, v0);
+    vertex += vertSize;
+
+    // V1
+    position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(glyphRect.fLeft, glyphRect.fBottom);
+    if (useColorVerts) {
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
+    }
+    textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
+    textureCoords->set(u0, v1);
+    vertex += vertSize;
+
+    // V2
+    position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(glyphRect.fRight, glyphRect.fBottom);
+    if (useColorVerts) {
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
+    }
+    textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
+    textureCoords->set(u1, v1);
+    vertex += vertSize;
+
+    // V3
+    position = reinterpret_cast<SkPoint*>(vertex);
+    position->set(glyphRect.fRight, glyphRect.fTop);
+    if (useColorVerts) {
+        SkColor* color = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *color = fPaint.getColor();
+    }
+    textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
+    textureCoords->set(u1, v0);
 
     fCurrVertex += 4;
     

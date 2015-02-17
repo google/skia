@@ -34,6 +34,7 @@ static inline const GrGLAttribLayout& GrGLAttribTypeToLayout(GrVertexAttribType 
         {4, GR_GL_FLOAT, false},         // kVec4f_GrVertexAttribType
         {1, GR_GL_UNSIGNED_BYTE, true},  // kUByte_GrVertexAttribType
         {4, GR_GL_UNSIGNED_BYTE, true},  // kVec4ub_GrVertexAttribType
+        {2, GR_GL_SHORT, false},         // kVec2s_GrVertexAttribType
     };
     GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
     GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
@@ -41,6 +42,7 @@ static inline const GrGLAttribLayout& GrGLAttribTypeToLayout(GrVertexAttribType 
     GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
     GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
     GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
+    GR_STATIC_ASSERT(6 == kVec2s_GrVertexAttribType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kLayouts) == kGrVertexAttribTypeCount);
     return kLayouts[type];
 }
