@@ -259,7 +259,7 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a.getGenerationID() == x);
     REPORTER_ASSERT(reporter, w != x);
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     static bool kExpectGenIDToIgnoreFill = false;
 #else
     static bool kExpectGenIDToIgnoreFill = true;
