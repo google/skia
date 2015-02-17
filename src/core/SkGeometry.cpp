@@ -1449,15 +1449,6 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
 
     AS_QUAD_ERROR_SETUP
 
-#ifdef SK_SUPPORT_LEGACY_CONIC_COMPUTE_QUAD_POW2
-    SkScalar error = SkScalarSqrt(x * x + y * y) - tol;
-
-    if (error <= 0) {
-        return 0;
-    }
-    uint32_t ierr = (uint32_t)error;
-    return (34 - SkCLZ(ierr)) >> 1;
-#else
     SkScalar error = SkScalarSqrt(x * x + y * y);
     int pow2;
     for (pow2 = 0; pow2 < kMaxConicToQuadPOW2; ++pow2) {
@@ -1484,7 +1475,6 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
         pow2 = altPow2;
     }
     return pow2;
-#endif
 }
 
 static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
