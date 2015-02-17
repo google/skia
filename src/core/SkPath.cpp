@@ -952,135 +952,6 @@ void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
     this->addRRect(rrect, dir);
 }
 
-#ifdef SK_SUPPORT_LEGACY_ADDRRECT
-/* The inline clockwise and counterclockwise round rect quad approximations
-   make it easier to see the symmetry patterns used by add corner quads.
-Clockwise                                                     corner value
-    path->lineTo(rect.fLeft,           rect.fTop    + ry);    0 upper left
-    path->quadTo(rect.fLeft,           rect.fTop    + offPtY,
-                 rect.fLeft  + midPtX, rect.fTop    + midPtY);
-    path->quadTo(rect.fLeft  + offPtX, rect.fTop,
-                 rect.fLeft  + rx,     rect.fTop);
-
-    path->lineTo(rect.fRight - rx,     rect.fTop);            1 upper right
-    path->quadTo(rect.fRight - offPtX, rect.fTop,
-                 rect.fRight - midPtX, rect.fTop    + midPtY);
-    path->quadTo(rect.fRight,          rect.fTop    + offPtY,
-                 rect.fRight,          rect.fTop    + ry);
-
-    path->lineTo(rect.fRight,          rect.fBottom - ry);    2 lower right
-    path->quadTo(rect.fRight,          rect.fBottom - offPtY,
-                 rect.fRight - midPtX, rect.fBottom - midPtY);
-    path->quadTo(rect.fRight - offPtX, rect.fBottom,
-                 rect.fRight - rx,     rect.fBottom);
-
-    path->lineTo(rect.fLeft  + rx,     rect.fBottom);         3 lower left
-    path->quadTo(rect.fLeft  + offPtX, rect.fBottom,
-                 rect.fLeft  + midPtX, rect.fBottom - midPtY);
-    path->quadTo(rect.fLeft,           rect.fBottom - offPtY,
-                 rect.fLeft,           rect.fBottom - ry);
-
-Counterclockwise
-    path->lineTo(rect.fLeft,           rect.fBottom - ry);    3 lower left
-    path->quadTo(rect.fLeft,           rect.fBottom - offPtY,
-                 rect.fLeft  + midPtX, rect.fBottom - midPtY);
-    path->quadTo(rect.fLeft  + offPtX, rect.fBottom,
-                 rect.fLeft  + rx,     rect.fBottom);
-
-    path->lineTo(rect.fRight - rx,     rect.fBottom);         2 lower right
-    path->quadTo(rect.fRight - offPtX, rect.fBottom,
-                 rect.fRight - midPtX, rect.fBottom - midPtY);
-    path->quadTo(rect.fRight,          rect.fBottom - offPtY,
-                 rect.fRight,          rect.fBottom - ry);
-
-    path->lineTo(rect.fRight,          rect.fTop    + ry);    1 upper right
-    path->quadTo(rect.fRight,          rect.fTop    + offPtY,
-                 rect.fRight - midPtX, rect.fTop    + midPtY);
-    path->quadTo(rect.fRight - offPtX, rect.fTop,
-                 rect.fRight - rx,     rect.fTop);
-
-    path->lineTo(rect.fLeft  + rx,     rect.fTop);            0 upper left
-    path->quadTo(rect.fLeft  + offPtX, rect.fTop,
-                 rect.fLeft  + midPtX, rect.fTop    + midPtY);
-    path->quadTo(rect.fLeft,           rect.fTop    + offPtY,
-                 rect.fLeft,           rect.fTop    + ry);
-*/
-static void add_corner_quads(SkPath* path, const SkRRect& rrect,
-                             SkRRect::Corner corner, SkPath::Direction dir) {
-    const SkRect& rect = rrect.rect();
-    const SkVector& radii = rrect.radii(corner);
-    SkScalar rx = radii.fX;
-    SkScalar ry = radii.fY;
-    // The mid point of the quadratic arc approximation is half way between the two
-    // control points.
-    const SkScalar mid = 1 - (SK_Scalar1 + SK_ScalarTanPIOver8) / 2;
-    SkScalar midPtX = rx * mid;
-    SkScalar midPtY = ry * mid;
-    const SkScalar control = 1 - SK_ScalarTanPIOver8;
-    SkScalar offPtX = rx * control;
-    SkScalar offPtY = ry * control;
-    static const int kCornerPts = 5;
-    SkScalar xOff[kCornerPts];
-    SkScalar yOff[kCornerPts];
-
-    if ((corner & 1) == (dir == SkPath::kCCW_Direction)) {  // corners always alternate direction
-        SkASSERT(dir == SkPath::kCCW_Direction
-             ? corner == SkRRect::kLowerLeft_Corner || corner == SkRRect::kUpperRight_Corner
-             : corner == SkRRect::kUpperLeft_Corner || corner == SkRRect::kLowerRight_Corner);
-        xOff[0] = xOff[1] = 0;
-        xOff[2] = midPtX;
-        xOff[3] = offPtX;
-        xOff[4] = rx;
-        yOff[0] = ry;
-        yOff[1] = offPtY;
-        yOff[2] = midPtY;
-        yOff[3] = yOff[4] = 0;
-    } else {
-        xOff[0] = rx;
-        xOff[1] = offPtX;
-        xOff[2] = midPtX;
-        xOff[3] = xOff[4] = 0;
-        yOff[0] = yOff[1] = 0;
-        yOff[2] = midPtY;
-        yOff[3] = offPtY;
-        yOff[4] = ry;
-    }
-    if ((corner - 1) & 2) {
-        SkASSERT(corner == SkRRect::kLowerLeft_Corner || corner == SkRRect::kUpperLeft_Corner);
-        for (int i = 0; i < kCornerPts; ++i) {
-            xOff[i] = rect.fLeft + xOff[i];
-        }
-    } else {
-        SkASSERT(corner == SkRRect::kLowerRight_Corner || corner == SkRRect::kUpperRight_Corner);
-        for (int i = 0; i < kCornerPts; ++i) {
-            xOff[i] = rect.fRight - xOff[i];
-        }
-    }
-    if (corner < SkRRect::kLowerRight_Corner) {
-        for (int i = 0; i < kCornerPts; ++i) {
-            yOff[i] = rect.fTop + yOff[i];
-        }
-    } else {
-        for (int i = 0; i < kCornerPts; ++i) {
-            yOff[i] = rect.fBottom - yOff[i];
-        }
-    }
-
-    SkPoint lastPt;
-    SkAssertResult(path->getLastPt(&lastPt));
-    if (lastPt.fX != xOff[0] || lastPt.fY != yOff[0]) {
-        path->lineTo(xOff[0], yOff[0]);
-    }
-    if (rx || ry) {
-        path->quadTo(xOff[1], yOff[1], xOff[2], yOff[2]);
-        path->quadTo(xOff[3], yOff[3], xOff[4], yOff[4]);
-    } else {
-        path->lineTo(xOff[2], yOff[2]);
-        path->lineTo(xOff[4], yOff[4]);
-    }
-}
-#endif
-
 void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
     assert_known_direction(dir);
 
@@ -1100,24 +971,6 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         SkAutoPathBoundsUpdate apbu(this, bounds);
         SkAutoDisableDirectionCheck addc(this);
 
-#ifdef SK_SUPPORT_LEGACY_ADDRRECT
-        this->incReserve(21);
-        if (kCW_Direction == dir) {
-            this->moveTo(bounds.fLeft,
-                         bounds.fBottom - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY);
-            add_corner_quads(this, rrect, SkRRect::kUpperLeft_Corner, dir);
-            add_corner_quads(this, rrect, SkRRect::kUpperRight_Corner, dir);
-            add_corner_quads(this, rrect, SkRRect::kLowerRight_Corner, dir);
-            add_corner_quads(this, rrect, SkRRect::kLowerLeft_Corner, dir);
-        } else {
-            this->moveTo(bounds.fLeft,
-                         bounds.fTop + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY);
-            add_corner_quads(this, rrect, SkRRect::kLowerLeft_Corner, dir);
-            add_corner_quads(this, rrect, SkRRect::kLowerRight_Corner, dir);
-            add_corner_quads(this, rrect, SkRRect::kUpperRight_Corner, dir);
-            add_corner_quads(this, rrect, SkRRect::kUpperLeft_Corner, dir);
-        }
-#else
         const SkScalar L = bounds.fLeft;
         const SkScalar T = bounds.fTop;
         const SkScalar R = bounds.fRight;
@@ -1154,7 +1007,6 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
             this->lineTo(L + rrect.fRadii[SkRRect::kUpperLeft_Corner].fX, T);
             this->conicTo(L, T, L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY, W);
         }
-#endif
         this->close();
     }
     SkDEBUGCODE(fPathRef->validate();)
