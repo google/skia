@@ -106,17 +106,6 @@ template<typename T> static void reset_data_buffer(SkTDArray<T>* buffer, int min
     }
 }
 
-enum {
-    kTraceCmdBit = 0x80,
-    kCmdMask = 0x7f,
-};
-
-static inline uint8_t add_trace_bit(uint8_t cmd) { return cmd | kTraceCmdBit; }
-
-static inline uint8_t strip_trace_bit(uint8_t cmd) { return cmd & kCmdMask; }
-
-static inline bool cmd_has_trace_marker(uint8_t cmd) { return SkToBool(cmd & kTraceCmdBit); }
-
 void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
                                      GrColor color,
                                      const SkMatrix& viewMatrix,
@@ -205,7 +194,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     }
     // Check if there is a draw info that is compatible that uses the same VB from the pool and
     // the same IB
-    if (kDraw_Cmd != strip_trace_bit(fCmdBuffer.back().fType)) {
+    if (Cmd::kDraw_Cmd != fCmdBuffer.back().type()) {
         return 0;
     }
 
@@ -232,11 +221,11 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
 
     // update last fGpuCmdMarkers to include any additional trace markers that have been added
     if (this->getActiveTraceMarkers().count() > 0) {
-        if (cmd_has_trace_marker(draw->fType)) {
+        if (draw->isTraced()) {
             fGpuCmdMarkers.back().addSet(this->getActiveTraceMarkers());
         } else {
             fGpuCmdMarkers.push_back(this->getActiveTraceMarkers());
-            draw->fType = add_trace_bit(draw->fType);
+            draw->makeTraced();
         }
     }
 
@@ -275,7 +264,7 @@ void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
     }
 
     // Check if there is a Batch Draw we can batch with
-    if (kDrawBatch_Cmd != strip_trace_bit(fCmdBuffer.back().fType)) {
+    if (Cmd::kDrawBatch_Cmd != fCmdBuffer.back().type()) {
         fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
         return;
     }
@@ -351,7 +340,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
                                  count * GrPathRendering::PathTransformSize(transformType),
                                  transformValues);
 
-    if (kDrawPaths_Cmd == strip_trace_bit(fCmdBuffer.back().fType)) {
+    if (Cmd::kDrawPaths_Cmd == fCmdBuffer.back().type()) {
         // The previous command was also DrawPaths. Try to collapse this call into the one
         // before. Note that stenciling all the paths at once, then covering, may not be
         // equivalent to two separate draw calls if there is overlap. Blending won't work,
@@ -462,7 +451,7 @@ void GrInOrderDrawBuffer::onFlush() {
         i++;
         GrGpuTraceMarker newMarker("", -1);
         SkString traceString;
-        if (cmd_has_trace_marker(iter->fType)) {
+        if (iter->isTraced()) {
             traceString = fGpuCmdMarkers[currCmdMarker].toString();
             newMarker.fMarker = traceString.c_str();
             this->getGpu()->addGpuTraceMarker(&newMarker);
@@ -470,14 +459,13 @@ void GrInOrderDrawBuffer::onFlush() {
         }
 
         // TODO temporary hack
-        if (kDrawBatch_Cmd == strip_trace_bit(iter->fType)) {
+        if (Cmd::kDrawBatch_Cmd == iter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(iter.get());
             fBatchTarget.flushNext(db->fBatch->numberOfDraws());
             continue;
         }
 
-        bool isSetState = kSetState_Cmd == strip_trace_bit(iter->fType);
-        if (isSetState) {
+        if (Cmd::kSetState_Cmd == iter->type()) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
             // TODO sometimes we have a prim proc, othertimes we have a GrBatch.  Eventually we will
@@ -492,7 +480,7 @@ void GrInOrderDrawBuffer::onFlush() {
             iter->execute(this, currentState);
         }
 
-        if (cmd_has_trace_marker(iter->fType)) {
+        if (iter->isTraced()) {
             this->getGpu()->removeGpuTraceMarker(&newMarker);
         }
     }
@@ -628,10 +616,10 @@ bool GrInOrderDrawBuffer::setupPipelineAndShouldDraw(GrBatch* batch,
 
 void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
     SkASSERT(!fCmdBuffer.empty());
-    SkASSERT(!cmd_has_trace_marker(fCmdBuffer.back().fType));
+    SkASSERT(!fCmdBuffer.back().isTraced());
     const GrTraceMarkerSet& activeTraceMarkers = this->getActiveTraceMarkers();
     if (activeTraceMarkers.count() > 0) {
-        fCmdBuffer.back().fType = add_trace_bit(fCmdBuffer.back().fType);
+        fCmdBuffer.back().makeTraced();
         fGpuCmdMarkers.push_back(activeTraceMarkers);
     }
 }

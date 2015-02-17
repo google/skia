@@ -60,24 +60,34 @@ protected:
 
 private:
     typedef GrGpu::DrawArgs DrawArgs;
-    enum {
-        kDraw_Cmd              = 1,
-        kStencilPath_Cmd       = 2,
-        kSetState_Cmd          = 3,
-        kClear_Cmd             = 4,
-        kCopySurface_Cmd       = 5,
-        kDrawPath_Cmd          = 6,
-        kDrawPaths_Cmd         = 7,
-        kDrawBatch_Cmd         = 8,
-    };
 
     struct SetState;
 
     struct Cmd : ::SkNoncopyable {
+        enum {
+            kDraw_Cmd              = 1,
+            kStencilPath_Cmd       = 2,
+            kSetState_Cmd          = 3,
+            kClear_Cmd             = 4,
+            kCopySurface_Cmd       = 5,
+            kDrawPath_Cmd          = 6,
+            kDrawPaths_Cmd         = 7,
+            kDrawBatch_Cmd         = 8,
+        };
+
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
         virtual void execute(GrInOrderDrawBuffer*, const SetState*) = 0;
+
+        uint8_t type() const { return fType & kCmdMask; }
+
+        bool isTraced() const { return SkToBool(fType & kTraceCmdBit); }
+        void makeTraced() { fType |= kTraceCmdBit; }
+
+    private:
+        static const int kCmdMask = 0x7F;
+        static const int kTraceCmdBit = 0x80;
 
         uint8_t fType;
     };
