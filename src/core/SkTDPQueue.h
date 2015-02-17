@@ -92,6 +92,10 @@ public:
         this->validate();
     }
 
+#ifdef SK_DEBUG
+    T at(int i) const { return fArray[i]; }
+#endif
+
 private:
     static int LeftOf(int x) { SkASSERT(x >= 0); return 2 * x + 1; }
     static int ParentOf(int x) { SkASSERT(x > 0); return (x - 1) >> 1; }

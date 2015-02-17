@@ -23,6 +23,7 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, LifeCycle lifeCycle)
     , fGpuMemorySize(kInvalidGpuMemorySize)
     , fLifeCycle(lifeCycle)
     , fUniqueID(CreateUniqueID()) {
+    SkDEBUGCODE(fCacheArrayIndex = -1);
 }
 
 void GrGpuResource::registerWithCache() {

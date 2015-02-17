@@ -269,7 +269,7 @@ private:
 
     virtual size_t onGpuMemorySize() const = 0;
 
-    // See comments in CacheAccess.
+    // See comments in CacheAccess and ResourcePriv.
     bool setContentKey(const GrContentKey& contentKey);
     void removeContentKey();
     void notifyIsPurgeable() const;
@@ -283,9 +283,15 @@ private:
 
     static uint32_t CreateUniqueID();
 
-    // We're in an internal doubly linked list owned by GrResourceCache
+    // We're in an internal doubly linked list owned by GrResourceCache. TODO: Replace this with an
+    // array of unpurgeable resources in the cache.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuResource);
 
+    // An index into a heap when this resource is purgeable. This is maintained by the cache.
+    int                         fCacheArrayIndex;
+    // This value reflects how recently this resource was accessed in the cache. This is maintained
+    // by the cache.
+    uint32_t                    fTimestamp;
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     GrScratchKey                fScratchKey;

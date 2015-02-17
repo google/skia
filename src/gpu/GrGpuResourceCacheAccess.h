@@ -55,6 +55,11 @@ private:
         }
     }
 
+    uint32_t timestamp() const { return fResource->fTimestamp; }
+    void setTimestamp(uint32_t ts) { fResource->fTimestamp = ts; }
+
+    int* accessCacheIndex() const { return &fResource->fCacheArrayIndex; }
+
     CacheAccess(GrGpuResource* resource) : fResource(resource) {}
     CacheAccess(const CacheAccess& that) : fResource(that.fResource) {}
     CacheAccess& operator=(const CacheAccess&); // unimpl

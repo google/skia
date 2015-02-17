@@ -10,11 +10,13 @@
 #define GrResourceCache_DEFINED
 
 #include "GrGpuResource.h"
+#include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
 #include "GrResourceKey.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
+#include "SkTDPQueue.h"
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
@@ -117,8 +119,7 @@ public:
     GrGpuResource* findAndRefContentResource(const GrContentKey& contentKey) {
         GrGpuResource* resource = fContentHash.find(contentKey);
         if (resource) {
-            resource->ref();
-            this->makeResourceMRU(resource);
+            this->refAndMakeResourceMRU(resource);
         }
         return resource;
     }
@@ -138,7 +139,7 @@ public:
         if (invalidKeyMsgs.count()) {
             this->processInvalidContentKeys(invalidKeyMsgs);
         }
-        if (fPurging || (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes)) {
+        if (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes) {
             return;
         }
         this->internalPurgeAsNeeded();
@@ -179,7 +180,7 @@ private:
     void willRemoveScratchKey(const GrGpuResource*);
     void willRemoveContentKey(const GrGpuResource*);
     void didChangeBudgetStatus(GrGpuResource*);
-    void makeResourceMRU(GrGpuResource*);
+    void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
     void internalPurgeAsNeeded();
@@ -216,9 +217,26 @@ private:
 
     typedef SkTInternalLList<GrGpuResource> ResourceList;
 
-    typedef SkMessageBus<GrContentKeyInvalidatedMessage>::Inbox InvalidContentKeyInbox;
+    static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
+        return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
+    }
 
+    static int* AccessResourceIndex(GrGpuResource* const& res) {
+        return res->cacheAccess().accessCacheIndex();
+    }
+
+    typedef SkMessageBus<GrContentKeyInvalidatedMessage>::Inbox InvalidContentKeyInbox;
+    typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
+
+    // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
+    // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
+    // purgeable resources by this value, and thus is used to purge resources in LRU order.
+    uint32_t                            fTimestamp;
+    PurgeableQueue                      fPurgeableQueue;
+
+    // TODO: Replace this with an array of nonpurgeable resources
     ResourceList                        fResources;
+
     // This map holds all resources that can be used as scratch resources.
     ScratchMap                          fScratchMap;
     // This holds all resources that have content keys.
@@ -243,15 +261,10 @@ private:
     int                                 fBudgetedCount;
     size_t                              fBudgetedBytes;
 
-    // prevents recursive purging
-    bool                                fPurging;
-    bool                                fNewlyPurgeableResourceWhilePurging;
-
     PFOverBudgetCB                      fOverBudgetCB;
     void*                               fOverBudgetData;
 
     InvalidContentKeyInbox              fInvalidContentKeyInbox;
-
 };
 
 class GrResourceCache::ResourceAccess {
