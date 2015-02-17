@@ -104,7 +104,7 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
 }
 
 DEF_TEST(Flate, reporter) {
-#ifdef SK_HAS_ZLIB
+#ifndef SK_NO_FLATE
     REPORTER_ASSERT(reporter, SkFlate::HaveFlate());
 #endif
     if (SkFlate::HaveFlate()) {

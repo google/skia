@@ -135,12 +135,6 @@
       #     libpng in third_party/externals/libpng.
       'skia_libpng_static%': '0',
 
-      # skia_zlib_static - on OS variants that normally would link zlib with
-      #     '-lz' or libz.dylib and include the headers from '<zlib.h>',
-      #     don't do that; instead compile and staticlly link the version of
-      #     zlib in third_party/externals/zlib.
-      'skia_zlib_static%': '0',
-
       # skia_no_fontconfig - On POSIX systems that would normally use the
       #     SkFontHost_fontconfig interface; use the SkFontHost_linux
       #     version instead.
@@ -214,7 +208,6 @@
     'skia_freetype_static%': '<(skia_freetype_static)',
     'skia_giflib_static%': '<(skia_giflib_static)',
     'skia_libpng_static%': '<(skia_libpng_static)',
-    'skia_zlib_static%': '<(skia_zlib_static)',
     'skia_no_fontconfig%': '<(skia_no_fontconfig)',
     'skia_sanitizer%': '<(skia_sanitizer)',
     'skia_scalar%': '<(skia_scalar)',
