@@ -54,7 +54,7 @@ void JsonWriter::DumpJson() {
             result["key"]["name"]        = gBitmapResults[i].name.c_str();
             result["key"]["config"]      = gBitmapResults[i].config.c_str();
             result["key"]["source_type"] = gBitmapResults[i].sourceType.c_str();
-            result["ext"]                = gBitmapResults[i].ext.c_str();
+            result["options"]["ext"]     = gBitmapResults[i].ext.c_str();
             result["md5"]                = gBitmapResults[i].md5.c_str();
 
             root["results"].append(result);
@@ -101,7 +101,7 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
         br.name       = r["key"]["name"].asCString();
         br.config     = r["key"]["config"].asCString();
         br.sourceType = r["key"]["source_type"].asCString();
-        br.ext        = r["ext"].asCString();
+        br.ext        = r["options"]["ext"].asCString();
         br.md5        = r["md5"].asCString();
         callback(br);
     }
