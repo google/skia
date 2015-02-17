@@ -953,10 +953,8 @@ public:
     */
     uint32_t getGenerationID() const;
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     static const int kPathRefGenIDBitCnt = 30; // leave room for the fill type (skbug.com/1762)
-    const SkPath* getSourcePath() const;
-    void setSourcePath(const SkPath* path);
 #else
     static const int kPathRefGenIDBitCnt = 32;
 #endif
@@ -982,9 +980,6 @@ private:
     mutable uint8_t     fConvexity;
     mutable uint8_t     fDirection;
     mutable SkBool8     fIsVolatile;
-#ifdef SK_BUILD_FOR_ANDROID
-    const SkPath*       fSourcePath;
-#endif
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.

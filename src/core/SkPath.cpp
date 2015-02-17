@@ -125,11 +125,7 @@ private:
 #define INITIAL_LASTMOVETOINDEX_VALUE   ~0
 
 SkPath::SkPath()
-    : fPathRef(SkPathRef::CreateEmpty())
-#ifdef SK_BUILD_FOR_ANDROID
-    , fSourcePath(NULL)
-#endif
-{
+    : fPathRef(SkPathRef::CreateEmpty()) {
     this->resetFields();
     fIsVolatile = false;
 }
@@ -148,9 +144,6 @@ void SkPath::resetFields() {
 SkPath::SkPath(const SkPath& that)
     : fPathRef(SkRef(that.fPathRef.get())) {
     this->copyFields(that);
-#ifdef SK_BUILD_FOR_ANDROID
-    fSourcePath   = that.fSourcePath;
-#endif
     SkDEBUGCODE(that.validate();)
 }
 
@@ -164,9 +157,6 @@ SkPath& SkPath::operator=(const SkPath& that) {
     if (this != &that) {
         fPathRef.reset(SkRef(that.fPathRef.get()));
         this->copyFields(that);
-#ifdef SK_BUILD_FOR_ANDROID
-        fSourcePath = that.fSourcePath;
-#endif
     }
     SkDEBUGCODE(this->validate();)
     return *this;
@@ -198,9 +188,6 @@ void SkPath::swap(SkPath& that) {
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
         SkTSwap<uint8_t>(fDirection, that.fDirection);
         SkTSwap<SkBool8>(fIsVolatile, that.fIsVolatile);
-#ifdef SK_BUILD_FOR_ANDROID
-        SkTSwap<const SkPath*>(fSourcePath, that.fSourcePath);
-#endif
     }
 }
 
@@ -308,22 +295,12 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
 
 uint32_t SkPath::getGenerationID() const {
     uint32_t genID = fPathRef->genID();
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkASSERT((unsigned)fFillType < (1 << (32 - kPathRefGenIDBitCnt)));
     genID |= static_cast<uint32_t>(fFillType) << kPathRefGenIDBitCnt;
 #endif
     return genID;
 }
-
-#ifdef SK_BUILD_FOR_ANDROID
-const SkPath* SkPath::getSourcePath() const {
-    return fSourcePath;
-}
-
-void SkPath::setSourcePath(const SkPath* path) {
-    fSourcePath = path;
-}
-#endif
 
 void SkPath::reset() {
     SkDEBUGCODE(this->validate();)

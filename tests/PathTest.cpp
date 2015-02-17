@@ -225,57 +225,6 @@ static void test_path_close_issue1474(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 95 == last.fY);
 }
 
-static void test_android_specific_behavior(skiatest::Reporter* reporter) {
-#ifdef SK_BUILD_FOR_ANDROID
-    // Make sure we treat fGenerationID and fSourcePath correctly for each of
-    // copy, assign, rewind, reset, and swap.
-    SkPath original, source, anotherSource;
-    original.setSourcePath(&source);
-    original.moveTo(0, 0);
-    original.lineTo(1, 1);
-    REPORTER_ASSERT(reporter, original.getSourcePath() == &source);
-
-    uint32_t copyID, assignID;
-
-    // Test copy constructor.  Copy generation ID, copy source path.
-    SkPath copy(original);
-    REPORTER_ASSERT(reporter, copy.getGenerationID() == original.getGenerationID());
-    REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
-
-    // Test assigment operator.  Change generation ID, copy source path.
-    SkPath assign;
-    assignID = assign.getGenerationID();
-    assign = original;
-    REPORTER_ASSERT(reporter, assign.getGenerationID() != assignID);
-    REPORTER_ASSERT(reporter, assign.getSourcePath() == original.getSourcePath());
-
-    // Test rewind.  Change generation ID, don't touch source path.
-    copyID = copy.getGenerationID();
-    copy.rewind();
-    REPORTER_ASSERT(reporter, copy.getGenerationID() != copyID);
-    REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
-
-    // Test reset.  Change generation ID, don't touch source path.
-    assignID = assign.getGenerationID();
-    assign.reset();
-    REPORTER_ASSERT(reporter, assign.getGenerationID() != assignID);
-    REPORTER_ASSERT(reporter, assign.getSourcePath() == original.getSourcePath());
-
-    // Test swap.  Swap the generation IDs, swap source paths.
-    copy.reset();
-    copy.moveTo(2, 2);
-    copy.setSourcePath(&anotherSource);
-    copyID = copy.getGenerationID();
-    assign.moveTo(3, 3);
-    assignID = assign.getGenerationID();
-    copy.swap(assign);
-    REPORTER_ASSERT(reporter, copy.getGenerationID() != copyID);
-    REPORTER_ASSERT(reporter, assign.getGenerationID() != assignID);
-    REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
-    REPORTER_ASSERT(reporter, assign.getSourcePath() == &anotherSource);
-#endif
-}
-
 static void test_gen_id(skiatest::Reporter* reporter) {
     SkPath a, b;
     REPORTER_ASSERT(reporter, a.getGenerationID() == b.getGenerationID());
@@ -3748,7 +3697,6 @@ DEF_TEST(Paths, reporter) {
     test_crbug_170666();
     test_bad_cubic_crbug229478();
     test_bad_cubic_crbug234190();
-    test_android_specific_behavior(reporter);
     test_gen_id(reporter);
     test_path_close_issue1474(reporter);
     test_path_to_region(reporter);
