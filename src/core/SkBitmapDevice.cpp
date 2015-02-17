@@ -329,13 +329,6 @@ void SkBitmapDevice::drawPosText(const SkDraw& draw, const void* text, size_t le
     draw.drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint);
 }
 
-void SkBitmapDevice::drawTextOnPath(const SkDraw& draw, const void* text,
-                                    size_t len, const SkPath& path,
-                                    const SkMatrix* matrix,
-                                    const SkPaint& paint) {
-    draw.drawTextOnPath((const char*)text, len, path, matrix, paint);
-}
-
 void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                   int vertexCount,
                                   const SkPoint verts[], const SkPoint textures[],

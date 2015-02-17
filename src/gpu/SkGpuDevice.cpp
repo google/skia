@@ -1767,15 +1767,6 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
     }
 }
 
-void SkGpuDevice::drawTextOnPath(const SkDraw& draw, const void* text,
-                                 size_t len, const SkPath& path,
-                                 const SkMatrix* m, const SkPaint& paint) {
-    CHECK_SHOULD_DRAW(draw);
-
-    SkASSERT(draw.fDevice == this);
-    draw.drawTextOnPath((const char*)text, len, path, m, paint);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {

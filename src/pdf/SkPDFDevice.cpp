@@ -1194,15 +1194,6 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     content.entry()->fContent.writeText("ET\n");
 }
 
-void SkPDFDevice::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
-                                 const SkPath& path, const SkMatrix* matrix,
-                                 const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
-        return;
-    }
-    d.drawTextOnPath((const char*)text, len, path, matrix, paint);
-}
-
 void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
                                int vertexCount, const SkPoint verts[],
                                const SkPoint texs[], const SkColor colors[],

@@ -132,16 +132,6 @@ void SkPDFDeviceFlattener::drawPosText(const SkDraw& d, const void* text, size_t
     INHERITED::drawPosText(d, text, len, pos, scalarsPerPos, offset, paint);
 }
 
-void SkPDFDeviceFlattener::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
-                                          const SkPath& path, const SkMatrix* matrix,
-                                          const SkPaint& paint) {
-    if (mustPathText(d, paint) || (matrix && matrix->hasPerspective())) {
-        d.drawTextOnPath((const char*)text, len, path, matrix, paint);
-        return;
-    }
-    INHERITED::drawTextOnPath(d, text, len, path, matrix, paint);
-}
-
 bool SkPDFDeviceFlattener::mustFlatten(const SkDraw& d) const {
     // TODO(edisonn): testability, add flag to force return true.
     return d.fMatrix->hasPerspective();

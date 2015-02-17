@@ -68,8 +68,6 @@ public:
     void    drawPosText(const char text[], size_t byteLength,
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint& paint) const;
-    void    drawTextOnPath(const char text[], size_t byteLength,
-                        const SkPath&, const SkMatrix*, const SkPaint&) const;
     void    drawVertices(SkCanvas::VertexMode mode, int count,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], SkXfermode* xmode,
