@@ -12,7 +12,6 @@
 #include "GrTypesPriv.h"
 #include "SkData.h"
 #include "SkInstCnt.h"
-#include "SkTInternalLList.h"
 
 class GrContext;
 class GrGpu;
@@ -283,11 +282,8 @@ private:
 
     static uint32_t CreateUniqueID();
 
-    // We're in an internal doubly linked list owned by GrResourceCache. TODO: Replace this with an
-    // array of unpurgeable resources in the cache.
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuResource);
-
-    // An index into a heap when this resource is purgeable. This is maintained by the cache.
+    // An index into a heap when this resource is purgeable or an array when not. This is maintained
+    // by the cache.
     int                         fCacheArrayIndex;
     // This value reflects how recently this resource was accessed in the cache. This is maintained
     // by the cache.

@@ -79,27 +79,35 @@ void GrGpu::Stats::dump(SkString* out) {
 void GrResourceCache::dumpStats(SkString* out) const {
     this->validate();
 
-    int locked = 0;
-    int scratch = 0;
-    int wrapped = 0;
-    size_t unbudgetedSize = 0;
+    int locked = fNonpurgeableResources.count();
 
-    ResourceList::Iter iter;
-    GrGpuResource* resource = iter.init(fResources, ResourceList::Iter::kHead_IterStart);
+    struct Stats {
+        int fScratch;
+        int fWrapped;
+        size_t fUnbudgetedSize;
 
-    for ( ; resource; resource = iter.next()) {
-        if (!resource->isPurgeable()) {
-            ++locked;
+        Stats() : fScratch(0), fWrapped(0), fUnbudgetedSize(0) {}
+
+        void update(GrGpuResource* resource) {
+            if (resource->cacheAccess().isScratch()) {
+                ++fScratch;
+            }
+            if (resource->cacheAccess().isWrapped()) {
+                ++fWrapped;
+            }
+            if (!resource->resourcePriv().isBudgeted()) {
+                fUnbudgetedSize += resource->gpuMemorySize();
+            }
         }
-        if (resource->cacheAccess().isScratch()) {
-            ++scratch;
-        }
-        if (resource->cacheAccess().isWrapped()) {
-            ++wrapped;
-        }
-        if (!resource->resourcePriv().isBudgeted()) {
-            unbudgetedSize += resource->gpuMemorySize();
-        }
+    };
+
+    Stats stats;
+
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        stats.update(fNonpurgeableResources[i]);
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        stats.update(fPurgeableQueue.at(i));
     }
 
     float countUtilization = (100.f * fBudgetedCount) / fMaxCount;
@@ -108,11 +116,11 @@ void GrResourceCache::dumpStats(SkString* out) const {
     out->appendf("Budget: %d items %d bytes\n", fMaxCount, (int)fMaxBytes);
     out->appendf("\t\tEntry Count: current %d"
                  " (%d budgeted, %d wrapped, %d locked, %d scratch %.2g%% full), high %d\n",
-                 fCount, fBudgetedCount, wrapped, locked, scratch, countUtilization,
+                 fCount, fBudgetedCount, stats.fWrapped, locked, stats.fScratch, countUtilization,
                  fHighWaterCount);
     out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
-                 (int)fBytes, (int)fBudgetedBytes, byteUtilization,
-                 (int)unbudgetedSize, (int)fHighWaterBytes);
+                 SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization,
+                 SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));
 }
 
 #endif

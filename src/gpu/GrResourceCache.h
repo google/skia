@@ -55,7 +55,9 @@ public:
     /**
      * Returns the number of resources.
      */
-    int getResourceCount() const { return fCount; }
+    int getResourceCount() const {
+        return fPurgeableQueue.count() + fNonpurgeableResources.count();
+    }
 
     /**
      * Returns the number of resources that count against the budget.
@@ -185,9 +187,12 @@ private:
 
     void internalPurgeAsNeeded();
     void processInvalidContentKeys(const SkTArray<GrContentKeyInvalidatedMessage>&);
+    void addToNonpurgeableArray(GrGpuResource*);
+    void removeFromNonpurgeableArray(GrGpuResource*);
+    bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
 
 #ifdef SK_DEBUG
-    bool isInCache(const GrGpuResource* r) const { return fResources.isInList(r); }
+    bool isInCache(const GrGpuResource* r) const;
     void validate() const;
 #else
     void validate() const {}
@@ -215,8 +220,6 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrContentKey, ContentHashTraits> ContentHash;
 
-    typedef SkTInternalLList<GrGpuResource> ResourceList;
-
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
     }
@@ -227,15 +230,14 @@ private:
 
     typedef SkMessageBus<GrContentKeyInvalidatedMessage>::Inbox InvalidContentKeyInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
+    typedef SkTDArray<GrGpuResource*> ResourceArray;
 
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
     // purgeable resources by this value, and thus is used to purge resources in LRU order.
     uint32_t                            fTimestamp;
     PurgeableQueue                      fPurgeableQueue;
-
-    // TODO: Replace this with an array of nonpurgeable resources
-    ResourceList                        fResources;
+    ResourceArray                       fNonpurgeableResources;
 
     // This map holds all resources that can be used as scratch resources.
     ScratchMap                          fScratchMap;
@@ -254,7 +256,7 @@ private:
 #endif
 
     // our current stats for all resources
-    int                                 fCount;
+    SkDEBUGCODE(int                     fCount;)
     size_t                              fBytes;
 
     // our current stats for resources that count against the budget

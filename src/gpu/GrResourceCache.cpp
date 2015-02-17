@@ -67,12 +67,12 @@ GrResourceCache::GrResourceCache()
     , fBudgetedHighWaterCount(0)
     , fBudgetedHighWaterBytes(0)
 #endif
-    , fCount(0)
     , fBytes(0)
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
     , fOverBudgetCB(NULL)
     , fOverBudgetData(NULL) {
+    SkDEBUGCODE(fCount = 0;)
 }
 
 GrResourceCache::~GrResourceCache() {
@@ -87,15 +87,16 @@ void GrResourceCache::setLimits(int count, size_t bytes) {
 
 void GrResourceCache::insertResource(GrGpuResource* resource) {
     SkASSERT(resource);
-    SkASSERT(!resource->wasDestroyed());
     SkASSERT(!this->isInCache(resource));
-    fResources.addToHead(resource);
+    SkASSERT(!resource->wasDestroyed());
+    SkASSERT(!resource->isPurgeable());
+    this->addToNonpurgeableArray(resource);
 
     size_t size = resource->gpuMemorySize();
-    ++fCount;
+    SkDEBUGCODE(++fCount;)
     fBytes += size;
 #if GR_CACHE_STATS
-    fHighWaterCount = SkTMax(fCount, fHighWaterCount);
+    fHighWaterCount = SkTMax(this->getResourceCount(), fHighWaterCount);
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
     if (resource->resourcePriv().isBudgeted()) {
@@ -122,17 +123,18 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 
     if (resource->isPurgeable()) {
         fPurgeableQueue.remove(resource);
+    } else {
+        this->removeFromNonpurgeableArray(resource);
     }
 
     size_t size = resource->gpuMemorySize();
-    --fCount;
+    SkDEBUGCODE(--fCount;)
     fBytes -= size;
     if (resource->resourcePriv().isBudgeted()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
     }
 
-    fResources.remove(resource);
     if (resource->resourcePriv().getScratchKey().isValid()) {
         fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
     }
@@ -145,15 +147,22 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
-    while (GrGpuResource* head = fResources.head()) {
-        SkASSERT(!head->wasDestroyed());
-        head->cacheAccess().abandon();
-        // abandon should have already removed this from the list.
-        SkASSERT(head != fResources.head());
+    while (fNonpurgeableResources.count()) {
+        GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
+        SkASSERT(!back->wasDestroyed());
+        back->cacheAccess().abandon();
     }
+
+    while (fPurgeableQueue.count()) {
+        GrGpuResource* top = fPurgeableQueue.peek();
+        SkASSERT(!top->wasDestroyed());
+        top->cacheAccess().abandon();
+    }
+
     SkASSERT(!fScratchMap.count());
     SkASSERT(!fContentHash.count());
     SkASSERT(!fCount);
+    SkASSERT(!this->getResourceCount());
     SkASSERT(!fBytes);
     SkASSERT(!fBudgetedCount);
     SkASSERT(!fBudgetedBytes);
@@ -162,14 +171,22 @@ void GrResourceCache::abandonAll() {
 void GrResourceCache::releaseAll() {
     AutoValidate av(this);
 
-    while (GrGpuResource* head = fResources.head()) {
-        SkASSERT(!head->wasDestroyed());
-        head->cacheAccess().release();
-        // release should have already removed this from the list.
-        SkASSERT(head != fResources.head());
+    while(fNonpurgeableResources.count()) {
+        GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
+        SkASSERT(!back->wasDestroyed());
+        back->cacheAccess().release();
     }
+
+    while (fPurgeableQueue.count()) {
+        GrGpuResource* top = fPurgeableQueue.peek();
+        SkASSERT(!top->wasDestroyed());
+        top->cacheAccess().release();
+    }
+
     SkASSERT(!fScratchMap.count());
+    SkASSERT(!fContentHash.count());
     SkASSERT(!fCount);
+    SkASSERT(!this->getResourceCount());
     SkASSERT(!fBytes);
     SkASSERT(!fBudgetedCount);
     SkASSERT(!fBudgetedBytes);
@@ -248,10 +265,11 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
     if (resource->isPurgeable()) {
         // It's about to become unpurgeable.
         fPurgeableQueue.remove(resource);
+        this->addToNonpurgeableArray(resource);
     }
     resource->ref();
     resource->cacheAccess().setTimestamp(fTimestamp++);
-    SkASSERT(!resource->isPurgeable());
+    this->validate();
 }
 
 void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
@@ -259,7 +277,7 @@ void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
     SkASSERT(this->isInCache(resource));
     SkASSERT(resource->isPurgeable());
 
-    SkASSERT(-1 == *resource->cacheAccess().accessCacheIndex());
+    this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
 
     if (!resource->resourcePriv().isBudgeted()) {
@@ -267,29 +285,26 @@ void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
         if (!resource->cacheAccess().isWrapped() &&
             resource->resourcePriv().getScratchKey().isValid()) {
             // We won't purge an existing resource to make room for this one.
-            bool underBudget = fBudgetedCount < fMaxCount &&
-                               fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes;
-            if (underBudget) {
+            if (fBudgetedCount < fMaxCount &&
+                fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes) {
                 resource->resourcePriv().makeBudgeted();
                 return;
             }
         }
     } else {
         // Purge the resource immediately if we're over budget
-        bool overBudget = fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes;
-
         // Also purge if the resource has neither a valid scratch key nor a content key.
         bool noKey = !resource->resourcePriv().getScratchKey().isValid() &&
-                        !resource->getContentKey().isValid();
-        if (!overBudget && !noKey) {
+                     !resource->getContentKey().isValid();
+        if (!this->overBudget() && !noKey) {
             return;
         }
     }
 
-    SkDEBUGCODE(int beforeCount = fCount;)
+    SkDEBUGCODE(int beforeCount = this->getResourceCount();)
     resource->cacheAccess().release();
     // We should at least free this resource, perhaps dependent resources as well.
-    SkASSERT(fCount < beforeCount);
+    SkASSERT(this->getResourceCount() < beforeCount);
     this->validate();
 }
 
@@ -338,14 +353,14 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 }
 
 void GrResourceCache::internalPurgeAsNeeded() {
-    SkASSERT(fBudgetedCount > fMaxCount || fBudgetedBytes > fMaxBytes);
+    SkASSERT(this->overBudget());
 
     bool stillOverbudget = true;
     while (fPurgeableQueue.count()) {
         GrGpuResource* resource = fPurgeableQueue.peek();
         SkASSERT(resource->isPurgeable());
         resource->cacheAccess().release();
-        if (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes) {
+        if (!this->overBudget()) {
             stillOverbudget = false;
             break;
         }
@@ -384,6 +399,24 @@ void GrResourceCache::processInvalidContentKeys(
     }
 }
 
+void GrResourceCache::addToNonpurgeableArray(GrGpuResource* resource) {
+    int index = fNonpurgeableResources.count();
+    *fNonpurgeableResources.append() = resource;
+    *resource->cacheAccess().accessCacheIndex() = index;
+}
+
+void GrResourceCache::removeFromNonpurgeableArray(GrGpuResource* resource) {
+    int* index = resource->cacheAccess().accessCacheIndex();
+    // Fill the whole we will create in the array with the tail object, adjust its index, and
+    // then pop the array
+    GrGpuResource* tail = *(fNonpurgeableResources.end() - 1);
+    SkASSERT(fNonpurgeableResources[*index] == resource);
+    fNonpurgeableResources[*index] = tail;
+    *tail->cacheAccess().accessCacheIndex() = *index;
+    fNonpurgeableResources.pop();
+    SkDEBUGCODE(*index = -1);
+}
+
 #ifdef SK_DEBUG
 void GrResourceCache::validate() const {
     // Reduce the frequency of validations for large resource counts.
@@ -393,80 +426,108 @@ void GrResourceCache::validate() const {
         return;
     }
 
-    size_t bytes = 0;
-    int count = 0;
-    int budgetedCount = 0;
-    size_t budgetedBytes = 0;
-    int locked = 0;
-    int scratch = 0;
-    int couldBeScratch = 0;
-    int content = 0;
+    struct Stats {
+        size_t fBytes;
+        int fBudgetedCount;
+        size_t fBudgetedBytes;
+        int fLocked;
+        int fScratch;
+        int fCouldBeScratch;
+        int fContent;
+        const ScratchMap* fScratchMap;
+        const ContentHash* fContentHash;
 
-    ResourceList::Iter iter;
-    GrGpuResource* resource = iter.init(fResources, ResourceList::Iter::kHead_IterStart);
-    for ( ; resource; resource = iter.next()) {
-        bytes += resource->gpuMemorySize();
-        ++count;
-
-        if (!resource->isPurgeable()) {
-            ++locked;
+        Stats(const GrResourceCache* cache) {
+            memset(this, 0, sizeof(*this));
+            fScratchMap = &cache->fScratchMap;
+            fContentHash = &cache->fContentHash;
         }
 
-        if (resource->cacheAccess().isScratch()) {
-            SkASSERT(!resource->getContentKey().isValid());
-            ++scratch;
-            SkASSERT(fScratchMap.countForKey(resource->resourcePriv().getScratchKey()));
-            SkASSERT(!resource->cacheAccess().isWrapped());
-        } else if (resource->resourcePriv().getScratchKey().isValid()) {
-            SkASSERT(!resource->resourcePriv().isBudgeted() ||
-                     resource->getContentKey().isValid());
-            ++couldBeScratch;
-            SkASSERT(fScratchMap.countForKey(resource->resourcePriv().getScratchKey()));
-            SkASSERT(!resource->cacheAccess().isWrapped());
-        }
-        const GrContentKey& contentKey = resource->getContentKey();
-        if (contentKey.isValid()) {
-            ++content;
-            SkASSERT(fContentHash.find(contentKey) == resource);
-            SkASSERT(!resource->cacheAccess().isWrapped());
-            SkASSERT(resource->resourcePriv().isBudgeted());
-        }
+        void update(GrGpuResource* resource) {
+            fBytes += resource->gpuMemorySize();
 
-        if (resource->resourcePriv().isBudgeted()) {
-            ++budgetedCount;
-            budgetedBytes += resource->gpuMemorySize();
-        }
+            if (!resource->isPurgeable()) {
+                ++fLocked;
+            }
 
-        if (!resource->isPurgeable()) {
-            SkASSERT(-1 == *resource->cacheAccess().accessCacheIndex());
+            if (resource->cacheAccess().isScratch()) {
+                SkASSERT(!resource->getContentKey().isValid());
+                ++fScratch;
+                SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
+                SkASSERT(!resource->cacheAccess().isWrapped());
+            } else if (resource->resourcePriv().getScratchKey().isValid()) {
+                SkASSERT(!resource->resourcePriv().isBudgeted() ||
+                         resource->getContentKey().isValid());
+                ++fCouldBeScratch;
+                SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
+                SkASSERT(!resource->cacheAccess().isWrapped());
+            }
+            const GrContentKey& contentKey = resource->getContentKey();
+            if (contentKey.isValid()) {
+                ++fContent;
+                SkASSERT(fContentHash->find(contentKey) == resource);
+                SkASSERT(!resource->cacheAccess().isWrapped());
+                SkASSERT(resource->resourcePriv().isBudgeted());
+            }
+
+            if (resource->resourcePriv().isBudgeted()) {
+                ++fBudgetedCount;
+                fBudgetedBytes += resource->gpuMemorySize();
+            }
         }
+    };
+
+    Stats stats(this);
+
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        SkASSERT(!fNonpurgeableResources[i]->isPurgeable());
+        SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
+        SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
+        stats.update(fNonpurgeableResources[i]);
     }
-
     for (int i = 0; i < fPurgeableQueue.count(); ++i) {
         SkASSERT(fPurgeableQueue.at(i)->isPurgeable());
+        SkASSERT(*fPurgeableQueue.at(i)->cacheAccess().accessCacheIndex() == i);
+        SkASSERT(!fPurgeableQueue.at(i)->wasDestroyed());
+        stats.update(fPurgeableQueue.at(i));
     }
 
-    SkASSERT(fCount - locked == fPurgeableQueue.count());
+    SkASSERT(fCount == this->getResourceCount());
     SkASSERT(fBudgetedCount <= fCount);
-    SkASSERT(fBudgetedBytes <= fBudgetedBytes);
-    SkASSERT(bytes == fBytes);
-    SkASSERT(count == fCount);
-    SkASSERT(budgetedBytes == fBudgetedBytes);
-    SkASSERT(budgetedCount == fBudgetedCount);
+    SkASSERT(fBudgetedBytes <= fBytes);
+    SkASSERT(stats.fBytes == fBytes);
+    SkASSERT(stats.fBudgetedBytes == fBudgetedBytes);
+    SkASSERT(stats.fBudgetedCount == fBudgetedCount);
 #if GR_CACHE_STATS
     SkASSERT(fBudgetedHighWaterCount <= fHighWaterCount);
     SkASSERT(fBudgetedHighWaterBytes <= fHighWaterBytes);
-    SkASSERT(bytes <= fHighWaterBytes);
-    SkASSERT(count <= fHighWaterCount);
-    SkASSERT(budgetedBytes <= fBudgetedHighWaterBytes);
-    SkASSERT(budgetedCount <= fBudgetedHighWaterCount);
+    SkASSERT(fBytes <= fHighWaterBytes);
+    SkASSERT(fCount <= fHighWaterCount);
+    SkASSERT(fBudgetedBytes <= fBudgetedHighWaterBytes);
+    SkASSERT(fBudgetedCount <= fBudgetedHighWaterCount);
 #endif
-    SkASSERT(content == fContentHash.count());
-    SkASSERT(scratch + couldBeScratch == fScratchMap.count());
+    SkASSERT(stats.fContent == fContentHash.count());
+    SkASSERT(stats.fScratch + stats.fCouldBeScratch == fScratchMap.count());
 
     // This assertion is not currently valid because we can be in recursive notifyIsPurgeable()
     // calls. This will be fixed when subresource registration is explicit.
     // bool overBudget = budgetedBytes > fMaxBytes || budgetedCount > fMaxCount;
     // SkASSERT(!overBudget || locked == count || fPurging);
 }
+
+bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
+    int index = *resource->cacheAccess().accessCacheIndex();
+    if (index < 0) {
+        return false;
+    }
+    if (index < fPurgeableQueue.count() && fPurgeableQueue.at(index) == resource) {
+        return true;
+    }
+    if (index < fNonpurgeableResources.count() && fNonpurgeableResources[index] == resource) {
+        return true;
+    }
+    SkDEBUGFAIL("Resource index should be -1 or the resource should be in the cache.");
+    return false;
+}
+
 #endif
