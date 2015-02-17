@@ -360,7 +360,7 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
 #if SK_ANGLE
             // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
             if (type == GrContextFactory::kANGLE_GLContextType) {
-                maxStages = 3;
+                maxStages = 2;
             }
 #endif
             GrTestTarget target;
