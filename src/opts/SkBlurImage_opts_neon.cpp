@@ -123,7 +123,7 @@ void SkBoxBlur_NEON(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
     const uint32x4_t scale = vdupq_n_u32((1 << 24) / kernelSize);
     const uint32x4_t half = vdupq_n_u32(1 << 23);
 
-    if (kernelSize < 128)
+    if (1 < kernelSize && kernelSize < 128)
     {
         SkDoubleRowBoxBlur_NEON<srcDirection, dstDirection>(&src, srcStride, &dst, kernelSize,
             leftOffset, rightOffset, width, &height);
