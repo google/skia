@@ -934,14 +934,23 @@ static int build_arc_points(const SkRect& oval, const SkVector& start, const SkV
     return SkBuildQuadArc(start, stop, dir, &matrix, pts);
 }
 #else
+/**
+ *  If this returns 0, then the caller should just line-to the singlePt, else it should
+ *  ignore singlePt and append the specified number of conics.
+ */
 static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkVector& stop,
-                            SkRotationDirection dir, SkConic conics[SkConic::kMaxConicsForArc]) {
+                            SkRotationDirection dir, SkConic conics[SkConic::kMaxConicsForArc],
+                            SkPoint* singlePt) {
     SkMatrix    matrix;
 
     matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
     matrix.postTranslate(oval.centerX(), oval.centerY());
 
-    return SkConic::BuildUnitArc(start, stop, dir, &matrix, conics);
+    int count = SkConic::BuildUnitArc(start, stop, dir, &matrix, conics);
+    if (0 == count) {
+        matrix.mapXY(start.x(), start.y(), singlePt);
+    }
+    return count;
 }
 #endif
 
@@ -1176,8 +1185,9 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
         this->quadTo(pts[i], pts[i+1]);
     }
 #else
+    SkPoint singlePt;
     SkConic conics[SkConic::kMaxConicsForArc];
-    int count = build_arc_conics(oval, startV, stopV, dir, conics);
+    int count = build_arc_conics(oval, startV, stopV, dir, conics, &singlePt);
     if (count) {
         this->incReserve(count * 2 + 1);
         const SkPoint& pt = conics[0].fPts[0];
@@ -1185,6 +1195,8 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
         for (int i = 0; i < count; ++i) {
             this->conicTo(conics[i].fPts[1], conics[i].fPts[2], conics[i].fW);
         }
+    } else {
+        forceMoveTo ? this->moveTo(singlePt) : this->lineTo(singlePt);
     }
 #endif
 }

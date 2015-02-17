@@ -162,3 +162,72 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new StrokeCircleGM; )
+
+//////////////////////
+
+static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, SkScalar start,
+                            SkScalar end, bool ccw) {
+    SkRect bounds = { x - r, y - r, x + r, y + r };
+    SkScalar sweep = ccw ? end - start : start - end;
+    path->arcTo(bounds, start, sweep, false);
+}
+
+// Lifted from canvas-arc-circumference-fill-diffs.html
+class ManyArcsGM : public skiagm::GM {
+public:
+    ManyArcsGM() {}
+    
+protected:
+    SkString onShortName() SK_OVERRIDE { return SkString("manyarcs"); }
+    
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(620, 330); }
+    
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        canvas->translate(10, 10);
+
+        // 20 angles.
+        SkScalar sweepAngles[] = {
+                           -123.7f, -2.3f, -2, -1, -0.3f, -0.000001f, 0, 0.000001f, 0.3f, 0.7f,
+                           1, 1.3f, 1.5f, 1.7f, 1.99999f, 2, 2.00001f, 2.3f, 4.3f, 3934723942837.3f
+        };
+        for (size_t i = 0; i < SK_ARRAY_COUNT(sweepAngles); ++i) {
+            sweepAngles[i] *= 180;
+        }
+        
+        SkScalar startAngles[] = { -1, -0.5f, 0, 0.5f };
+        for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles); ++i) {
+            startAngles[i] *= 180;
+        }
+        
+        bool anticlockwise = false;
+        SkScalar sign = 1;
+        for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles) * 2; ++i) {
+            if (i == SK_ARRAY_COUNT(startAngles)) {
+                anticlockwise = true;
+                sign = -1;
+            }
+            SkScalar startAngle = startAngles[i % SK_ARRAY_COUNT(startAngles)] * sign;
+            canvas->save();
+            for (size_t j = 0; j < SK_ARRAY_COUNT(sweepAngles); ++j) {
+                SkPath path;
+                path.moveTo(0, 2);
+                html_canvas_arc(&path, 18, 15, 10, startAngle, startAngle + (sweepAngles[j] * sign),
+                                anticlockwise);
+                path.lineTo(0, 28);
+                canvas->drawPath(path, paint);
+                canvas->translate(30, 0);
+            }
+            canvas->restore();
+            canvas->translate(0, 40);
+        }
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new ManyArcsGM; )
+
