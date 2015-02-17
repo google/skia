@@ -271,23 +271,69 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
+    SkRect bounds = SkRect::MakeIWH(srcW, srcH);
+    matrix->mapRect(&bounds);
+    matrix->postTranslate(-bounds.x(), -bounds.y());
+    return SkISize::Make(SkScalarRoundToInt(bounds.width()), SkScalarRoundToInt(bounds.height()));
+}
+
 ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : fMatrix(matrix), fSink(sink) {}
 
 Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     // We turn our arguments into a Src, then draw that Src into our Sink to fill bitmap or stream.
     struct ProxySrc : public Src {
-        const Src& fSrc;
-        SkMatrix fMatrix;
-        ProxySrc(const Src& src, SkMatrix matrix) : fSrc(src), fMatrix(matrix) {}
+        const Src&  fSrc;
+        SkMatrix    fMatrix;
+        SkISize     fSize;
+
+        ProxySrc(const Src& src, SkMatrix matrix) : fSrc(src), fMatrix(matrix) {
+            fSize = auto_compute_translate(&fMatrix, src.size().width(), src.size().height());
+        }
 
         Error draw(SkCanvas* canvas) const SK_OVERRIDE {
             canvas->concat(fMatrix);
             return fSrc.draw(canvas);
         }
-        SkISize size() const SK_OVERRIDE { return fSrc.size(); }
+        SkISize size() const SK_OVERRIDE { return fSize; }
         Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(src, fMatrix);
     return fSink->draw(proxy, bitmap, stream, log);
+}
+
+// Undoes any flip or 90 degree rotate without changing the scale of the bitmap.
+// This should be pixel-preserving.
+ViaUpright::ViaUpright(SkMatrix matrix, Sink* sink) : fMatrix(matrix), fSink(sink) {}
+
+Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    Error err = fSink->draw(src, bitmap, stream, log);
+    if (!err.isEmpty()) {
+        return err;
+    }
+
+    SkMatrix inverse;
+    if (!fMatrix.rectStaysRect() || !fMatrix.invert(&inverse)) {
+        return "Cannot upright --matrix.";
+    }
+    SkMatrix upright = SkMatrix::I();
+    upright.setScaleX(SkScalarSignAsScalar(inverse.getScaleX()));
+    upright.setScaleY(SkScalarSignAsScalar(inverse.getScaleY()));
+    upright.setSkewX(SkScalarSignAsScalar(inverse.getSkewX()));
+    upright.setSkewY(SkScalarSignAsScalar(inverse.getSkewY()));
+
+    SkBitmap uprighted;
+    SkISize size = auto_compute_translate(&upright, bitmap->width(), bitmap->height());
+    uprighted.allocPixels(bitmap->info().makeWH(size.width(), size.height()));
+
+    SkCanvas canvas(uprighted);
+    canvas.concat(upright);
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    canvas.drawBitmap(*bitmap, 0, 0, &paint);
+
+    *bitmap = uprighted;
+    bitmap->lockPixels();
+    return "";
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

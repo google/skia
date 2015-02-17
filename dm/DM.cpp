@@ -21,8 +21,9 @@ DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
 DEFINE_bool2(pathOpsExtended, x, false, "Run extended pathOps tests.");
-DEFINE_string(matrix, "1 0 0 0 1 0 0 0 1",
-              "Matrix to apply when using 'matrix' in config.");
+DEFINE_string(matrix, "1 0 0 1",
+              "2x2 scale+skew matrix to apply or upright when using "
+              "'matrix' or 'upright' in config.");
 DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
 DEFINE_string(blacklist, "",
@@ -242,12 +243,15 @@ static Sink* create_via(const char* tag, Sink* wrapped) {
     VIA("tiles",     ViaTiles, 256, 256,               NULL, wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 
-    if (FLAGS_matrix.count() == 9) {
+    if (FLAGS_matrix.count() == 4) {
         SkMatrix m;
-        for (int i = 0; i < 9; i++) {
-            m[i] = (SkScalar)atof(FLAGS_matrix[i]);
-        }
-        VIA("matrix", ViaMatrix, m, wrapped);
+        m.reset();
+        m.setScaleX((SkScalar)atof(FLAGS_matrix[0]));
+        m.setSkewX ((SkScalar)atof(FLAGS_matrix[1]));
+        m.setSkewY ((SkScalar)atof(FLAGS_matrix[2]));
+        m.setScaleY((SkScalar)atof(FLAGS_matrix[3]));
+        VIA("matrix",  ViaMatrix,  m, wrapped);
+        VIA("upright", ViaUpright, m, wrapped);
     }
 #undef VIA
     return NULL;

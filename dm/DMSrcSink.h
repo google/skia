@@ -163,6 +163,18 @@ private:
     SkAutoTDelete<Sink> fSink;
 };
 
+class ViaUpright : public Sink {
+public:
+    ViaUpright(SkMatrix, Sink*);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
+    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
+    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+private:
+    SkMatrix            fMatrix;
+    SkAutoTDelete<Sink> fSink;
+};
+
 class ViaPipe : public Sink {
 public:
     explicit ViaPipe(Sink*);
