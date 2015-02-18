@@ -12,6 +12,8 @@
 
         '<(skia_src_path)/doc/SkDocument_PDF.cpp',
 
+        '<(skia_src_path)/pdf/SkPDFBitmap.cpp',
+        '<(skia_src_path)/pdf/SkPDFBitmap.h',
         '<(skia_src_path)/pdf/SkPDFCanon.cpp',
         '<(skia_src_path)/pdf/SkPDFCanon.h',
         '<(skia_src_path)/pdf/SkPDFCatalog.cpp',
@@ -42,5 +44,7 @@
         '<(skia_src_path)/pdf/SkPDFUtils.cpp',
         '<(skia_src_path)/pdf/SkPDFUtils.h',
         '<(skia_src_path)/pdf/SkTSet.h',
+        '<(skia_src_path)/pdf/SkDeflateWStream.cpp',
+        '<(skia_src_path)/pdf/SkDeflateWStream.h',
     ],
 }

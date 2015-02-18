@@ -6,6 +6,7 @@
  */
 
 #include "SkLazyPtr.h"
+#include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFont.h"
 #include "SkPDFGraphicState.h"
@@ -16,10 +17,12 @@
 SK_DECLARE_STATIC_MUTEX(gSkPDFCanonFontMutex);
 SK_DECLARE_STATIC_MUTEX(gSkPDFCanonShaderMutex);
 SK_DECLARE_STATIC_MUTEX(gSkPDFCanonPaintMutex);
+SK_DECLARE_STATIC_MUTEX(gSkPDFCanonBitmapMutex);
 
 SkBaseMutex& SkPDFCanon::GetFontMutex() { return gSkPDFCanonFontMutex; }
 SkBaseMutex& SkPDFCanon::GetShaderMutex() { return gSkPDFCanonShaderMutex; }
 SkBaseMutex& SkPDFCanon::GetPaintMutex() { return gSkPDFCanonPaintMutex; }
+SkBaseMutex& SkPDFCanon::GetBitmapMutex() { return gSkPDFCanonBitmapMutex; }
 
 SkPDFCanon::SkPDFCanon() {}
 
@@ -167,4 +170,21 @@ void SkPDFCanon::addGraphicState(SkPDFGraphicState* state) {
 void SkPDFCanon::removeGraphicState(SkPDFGraphicState* pdfGraphicState) {
     assert_mutex_held(this, gSkPDFCanonPaintMutex);
     SkAssertResult(remove_item(&fGraphicStateRecords, pdfGraphicState));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+SkPDFBitmap* SkPDFCanon::findBitmap(const SkBitmap& bm) const {
+    assert_mutex_held(this, gSkPDFCanonBitmapMutex);
+    return find_item(fBitmapRecords, bm);
+}
+
+void SkPDFCanon::addBitmap(SkPDFBitmap* pdfBitmap) {
+    assert_mutex_held(this, gSkPDFCanonBitmapMutex);
+    fBitmapRecords.push(assert_ptr(pdfBitmap));
+}
+
+void SkPDFCanon::removeBitmap(SkPDFBitmap* pdfBitmap) {
+    assert_mutex_held(this, gSkPDFCanonBitmapMutex);
+    SkAssertResult(remove_item(&fBitmapRecords, pdfBitmap));
 }

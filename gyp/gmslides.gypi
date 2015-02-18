@@ -161,6 +161,7 @@
         '../gm/quadpaths.cpp',
         '../gm/recordopts.cpp',
         '../gm/rects.cpp',
+        '../gm/repeated_bitmap.cpp',
         '../gm/resizeimagefilter.cpp',
         '../gm/rrect.cpp',
         '../gm/rrects.cpp',

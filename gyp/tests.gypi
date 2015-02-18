@@ -78,6 +78,7 @@
     '../tests/DashPathEffectTest.cpp',
     '../tests/DataRefTest.cpp',
     '../tests/DeferredCanvasTest.cpp',
+    '../tests/DeflateWStream.cpp',
     '../tests/DequeTest.cpp',
     '../tests/DeviceLooperTest.cpp',
     '../tests/DiscardableMemoryPoolTest.cpp',

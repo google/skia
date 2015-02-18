@@ -12,9 +12,11 @@
 #include "SkTDArray.h"
 
 struct SkIRect;
+class SkBitmap;
 class SkMatrix;
 class SkPDFFont;
 class SkPDFGraphicState;
+class SkPDFBitmap;
 class SkPaint;
 
 // This class's fields and methods will eventually become part of
@@ -40,6 +42,7 @@ public:
     static SkBaseMutex& GetFontMutex();
     static SkBaseMutex& GetShaderMutex();
     static SkBaseMutex& GetPaintMutex();
+    static SkBaseMutex& GetBitmapMutex();
 
     // Returns exact match if there is one.  If not, it returns NULL.
     // If there is no exact match, but there is a related font, we
@@ -66,6 +69,10 @@ public:
     void addGraphicState(SkPDFGraphicState*);
     void removeGraphicState(SkPDFGraphicState*);
 
+    SkPDFBitmap* findBitmap(const SkBitmap&) const;
+    void addBitmap(SkPDFBitmap*);
+    void removeBitmap(SkPDFBitmap*);
+
 private:
     struct FontRec {
         SkPDFFont* fFont;
@@ -81,5 +88,7 @@ private:
     SkTDArray<SkPDFImageShader*> fImageShaderRecords;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateRecords;
+
+    SkTDArray<SkPDFBitmap*> fBitmapRecords;
 };
 #endif  // SkPDFCanon_DEFINED

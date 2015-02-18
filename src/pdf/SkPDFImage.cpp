@@ -12,6 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkFlate.h"
+#include "SkPDFBitmap.h"
 #include "SkPDFCatalog.h"
 #include "SkPixelRef.h"
 #include "SkRect.h"
@@ -728,6 +729,9 @@ SkPDFObject* SkPDFCreateImageObject(
         const SkBitmap& bitmap,
         const SkIRect& subset,
         SkPicture::EncodeBitmap encoder) {
+    if (SkPDFObject* pdfBitmap = SkPDFBitmap::Create(bitmap, subset)) {
+        return pdfBitmap;
+    }
 #if 0  // reenable when we can figure out the JPEG colorspace
     if (SkIRect::MakeWH(bitmap.width(), bitmap.height()) == subset) {
         SkAutoTUnref<SkData> encodedData(ref_encoded_data(bitmap));

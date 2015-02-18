@@ -41,11 +41,6 @@ private:
 
 #define DUMMY_TEXT "DCT compessed stream."
 
-static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
-    *pixelRefOffset = 0;
-    return SkData::NewWithProc(DUMMY_TEXT, sizeof(DUMMY_TEXT) - 1, NULL, NULL);
-}
-
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const void* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
@@ -53,20 +48,6 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
         return false;
     }
     return memcmp(data->bytes() + offset, buffer, len) == 0;
-}
-
-static bool stream_contains(const SkDynamicMemoryWStream& stream,
-                            const char* buffer) {
-    SkAutoDataUnref data(stream.copyToData());
-    size_t len = strlen(buffer);  // our buffer does not have EOSs.
-
-    for (size_t offset = 0 ; offset < data->size() - len; offset++) {
-        if (memcmp(data->bytes() + offset, buffer, len) == 0) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 static void emit_object(SkPDFObject* object,
@@ -243,86 +224,6 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, proxy.get() != catalog.getSubstituteObject(stub));
 }
 
-// Create a bitmap that would be very eficiently compressed in a ZIP.
-static void setup_bitmap(SkBitmap* bitmap, int width, int height) {
-    bitmap->allocN32Pixels(width, height);
-    bitmap->eraseColor(SK_ColorWHITE);
-}
-
-static void TestImage(skiatest::Reporter* reporter, const SkBitmap& bitmap,
-                      const char* expected, bool useDCTEncoder) {
-    SkISize pageSize = SkISize::Make(bitmap.width(), bitmap.height());
-    SkAutoTUnref<SkPDFDevice> dev(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
-
-    if (useDCTEncoder) {
-        dev->setDCTEncoder(encode_to_dct_data);
-    }
-
-    SkCanvas c(dev);
-    c.drawBitmap(bitmap, 0, 0, NULL);
-
-    SkPDFDocument doc;
-    doc.appendPage(dev);
-
-    SkDynamicMemoryWStream stream;
-    doc.emitPDF(&stream);
-
-    REPORTER_ASSERT(reporter, stream_contains(stream, expected));
-}
-
-static void TestUncompressed(skiatest::Reporter* reporter) {
-    SkBitmap bitmap;
-    setup_bitmap(&bitmap, 1, 1);
-    TestImage(reporter, bitmap,
-              "/Subtype /Image\n"
-              "/Width 1\n"
-              "/Height 1\n"
-              "/ColorSpace /DeviceRGB\n"
-              "/BitsPerComponent 8\n"
-              "/Length 3\n"
-              ">> stream",
-              true);
-}
-
-static void TestFlateDecode(skiatest::Reporter* reporter) {
-#ifndef SK_NO_FLATE
-    SkBitmap bitmap;
-    setup_bitmap(&bitmap, 10, 10);
-    TestImage(reporter, bitmap,
-              "/Subtype /Image\n"
-              "/Width 10\n"
-              "/Height 10\n"
-              "/ColorSpace /DeviceRGB\n"
-              "/BitsPerComponent 8\n"
-              "/Filter /FlateDecode\n"
-              "/Length 13\n"
-              ">> stream",
-              false);
-#endif  // SK_NO_FLATE
-}
-
-static void TestDCTDecode(skiatest::Reporter* reporter) {
-    SkBitmap bitmap;
-    setup_bitmap(&bitmap, 32, 32);
-    TestImage(reporter, bitmap,
-              "/Subtype /Image\n"
-              "/Width 32\n"
-              "/Height 32\n"
-              "/ColorSpace /DeviceRGB\n"
-              "/BitsPerComponent 8\n"
-              "/Filter /DCTDecode\n"
-              "/ColorTransform 0\n"
-              "/Length 21\n"
-              ">> stream",
-              true);
-}
-
-static void TestImages(skiatest::Reporter* reporter) {
-    TestUncompressed(reporter);
-    TestFlateDecode(reporter);
-    TestDCTDecode(reporter);
-}
-
 // This test used to assert without the fix submitted for
 // http://code.google.com/p/skia/issues/detail?id=1083.
 // SKP files might have invalid glyph ids. This test ensures they are ignored,
@@ -426,8 +327,6 @@ DEF_TEST(PDFPrimitives, reporter) {
     TestSubstitute(reporter);
 
     test_issue1083();
-
-    TestImages(reporter);
 }
 
 namespace {
