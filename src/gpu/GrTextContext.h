@@ -25,35 +25,38 @@ class GrTextContext {
 public:
     virtual ~GrTextContext();
 
-    bool drawText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix, const char text[],
-                  size_t byteLength, SkScalar x, SkScalar y);
-    bool drawPosText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
+    bool drawText(GrRenderTarget* rt, const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
+                  const char text[], size_t byteLength, SkScalar x, SkScalar y);
+    bool drawPosText(GrRenderTarget* rt, const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset);
 
 protected:
-    GrTextContext*     fFallbackTextContext;
-    GrContext*         fContext;
-    SkDeviceProperties fDeviceProperties;
+    GrTextContext*               fFallbackTextContext;
+    GrContext*                   fContext;
+    SkDeviceProperties           fDeviceProperties;
 
-    GrDrawTarget*      fDrawTarget;
-    SkIRect            fClipRect;
-    GrPaint            fPaint;
-    SkPaint            fSkPaint;
+    SkAutoTUnref<GrRenderTarget> fRenderTarget;
+    GrDrawTarget*                fDrawTarget;
+    SkIRect                      fClipRect;
+    GrPaint                      fPaint;
+    SkPaint                      fSkPaint;
 
     GrTextContext(GrContext*, const SkDeviceProperties&);
 
     virtual bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) = 0;
 
-    virtual void onDrawText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
-                            const char text[], size_t byteLength, SkScalar x, SkScalar y) = 0;
-    virtual void onDrawPosText(const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
+    virtual void onDrawText(GrRenderTarget*, const GrPaint&, const SkPaint&,
+                            const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                            SkScalar x, SkScalar y) = 0;
+    virtual void onDrawPosText(GrRenderTarget*, const GrPaint&, const SkPaint&,
+                               const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset) = 0;
 
-    void init(const GrPaint&, const SkPaint&);
+    void init(GrRenderTarget*, const GrPaint&, const SkPaint&);
     void finish() { fDrawTarget = NULL; }
 
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);

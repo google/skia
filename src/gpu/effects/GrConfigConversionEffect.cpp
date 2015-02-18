@@ -206,7 +206,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundDown_PMConversion},
     };
 
-    GrContext::AutoWideOpenIdentityDraw awoid(context, NULL);
+    GrContext::AutoWideOpenIdentityDraw awoid(context);
 
     bool failed = true;
 
@@ -230,22 +230,22 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                 SkNEW_ARGS(GrConfigConversionEffect,
                            (tempTex, false, *pmToUPMRule, SkMatrix::I())));
 
-        context->setRenderTarget(readTex->asRenderTarget());
         GrPaint paint1;
         paint1.addColorProcessor(pmToUPM1);
-        context->drawNonAARectToRect(paint1, SkMatrix::I(), kDstRect, kSrcRect);
+        context->drawNonAARectToRect(readTex->asRenderTarget(), paint1, SkMatrix::I(), kDstRect,
+                                     kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
-        context->setRenderTarget(tempTex->asRenderTarget());
         GrPaint paint2;
         paint2.addColorProcessor(upmToPM);
-        context->drawNonAARectToRect(paint2, SkMatrix::I(), kDstRect, kSrcRect);
-        context->setRenderTarget(readTex->asRenderTarget());
+        context->drawNonAARectToRect(tempTex->asRenderTarget(), paint2, SkMatrix::I(), kDstRect,
+                                     kSrcRect);
 
         GrPaint paint3;
         paint3.addColorProcessor(pmToUPM2);
-        context->drawNonAARectToRect(paint3, SkMatrix::I(), kDstRect, kSrcRect);
+        context->drawNonAARectToRect(readTex->asRenderTarget(), paint3, SkMatrix::I(), kDstRect,
+                                     kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
 

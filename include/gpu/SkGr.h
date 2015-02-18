@@ -80,13 +80,13 @@ GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTexture
 // that the final paint will draw the same color at every pixel. This allows
 // an optimization where the the color filter can be applied to the SkPaint's
 // color once while converting to GrPaint and then ignored.
-void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
-                             bool constantColor, GrPaint* grPaint);
+void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget*, const SkPaint& skPaint,
+                             GrColor paintColor, bool constantColor, GrPaint* grPaint);
 
 // This function is similar to skPaint2GrPaintNoShader but also converts
 // skPaint's shader to a GrFragmentProcessor if possible.
 // constantColor has the same meaning as in skPaint2GrPaintNoShader.
-void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
+void SkPaint2GrPaintShader(GrContext* context, GrRenderTarget*, const SkPaint& skPaint,
                            const SkMatrix& viewM, bool constantColor, GrPaint* grPaint);
 
 ////////////////////////////////////////////////////////////////////////////////

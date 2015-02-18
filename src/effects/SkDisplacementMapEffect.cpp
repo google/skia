@@ -429,8 +429,6 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
         return false;
     }
 
-    GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
-
     SkVector scale = SkVector::Make(fScale, fScale);
     ctx.ctm().mapVectors(&scale, 1);
 
@@ -451,7 +449,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     SkMatrix matrix;
     matrix.setTranslate(-SkIntToScalar(colorBounds.x()),
                         -SkIntToScalar(colorBounds.y()));
-    context->drawRect(paint, matrix, SkRect::Make(colorBounds));
+    context->drawRect(dst->asRenderTarget(), paint, matrix, SkRect::Make(colorBounds));
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     WrapTexture(dst, bounds.width(), bounds.height(), result);

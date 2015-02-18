@@ -17,6 +17,7 @@
 
 class GrContext;
 class GrPaint;
+class GrRenderTarget;
 class SkBitmap;
 class SkBlitter;
 class SkCachedData;
@@ -97,6 +98,7 @@ public:
      *  true if drawing was successful.
      */
     virtual bool directFilterMaskGPU(GrContext* context,
+                                     GrRenderTarget* rt,
                                      GrPaint* grp,
                                      const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
@@ -106,6 +108,7 @@ public:
      *  true if drawing was successful.
      */
     virtual bool directFilterRRectMaskGPU(GrContext* context,
+                                          GrRenderTarget* rt,
                                           GrPaint* grp,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,

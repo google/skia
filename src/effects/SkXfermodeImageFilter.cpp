@@ -154,7 +154,6 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     if (!dst) {
         return false;
     }
-    GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
 
     if (!fMode || !fMode->asFragmentProcessor(&xferProcessor, backgroundTex)) {
         // canFilterImageGPU() should've taken care of this
@@ -173,7 +172,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrPaint paint;
     paint.addColorTextureProcessor(foregroundTex, foregroundMatrix);
     paint.addColorProcessor(xferProcessor)->unref();
-    context->drawRect(paint, SkMatrix::I(), srcRect);
+    context->drawRect(dst->asRenderTarget(), paint, SkMatrix::I(), srcRect);
 
     offset->fX = backgroundOffset.fX;
     offset->fY = backgroundOffset.fY;

@@ -292,7 +292,6 @@ public:
 
             if (!IsGpuDeviceType(dType)) {
                 // need to send the raster bits to the (gpu) window
-                fCurContext->setRenderTarget(fCurRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
                 fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
                                              SkImageInfo2GrPixelConfig(bm.colorType(),

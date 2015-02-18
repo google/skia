@@ -383,20 +383,22 @@ void GrContext::clear(const SkIRect* rect,
 
     AutoCheckFlush acf(this);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContext::clear", this);
-    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, &acf);
+    GrDrawTarget* target = this->prepareToDraw(NULL, renderTarget, NULL, &acf);
     if (NULL == target) {
         return;
     }
     target->clear(rect, color, canIgnoreRect, renderTarget);
 }
 
-void GrContext::drawPaint(const GrPaint& origPaint, const SkMatrix& viewMatrix) {
+void GrContext::drawPaint(GrRenderTarget* rt,
+                          const GrPaint& origPaint,
+                          const SkMatrix& viewMatrix) {
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
     SkRect r;
     r.setLTRB(0, 0,
-              SkIntToScalar(getRenderTarget()->width()),
-              SkIntToScalar(getRenderTarget()->height()));
+              SkIntToScalar(rt->width()),
+              SkIntToScalar(rt->height()));
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
 
     // by definition this fills the entire clip, no need for AA
@@ -416,7 +418,7 @@ void GrContext::drawPaint(const GrPaint& origPaint, const SkMatrix& viewMatrix) 
             return;
         }
         inverse.mapRect(&r);
-        this->drawRect(*paint, viewMatrix, r);
+        this->drawRect(rt, *paint, viewMatrix, r);
     } else {
         SkMatrix localMatrix;
         if (!viewMatrix.invert(&localMatrix)) {
@@ -426,7 +428,7 @@ void GrContext::drawPaint(const GrPaint& origPaint, const SkMatrix& viewMatrix) 
 
         AutoCheckFlush acf(this);
         GrPipelineBuilder pipelineBuilder;
-        GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, paint, &acf);
+        GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, paint, &acf);
         if (NULL == target) {
             return;
         }
@@ -522,20 +524,21 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
 
-void GrContext::drawRect(const GrPaint& paint,
+void GrContext::drawRect(GrRenderTarget* rt,
+                         const GrPaint& paint,
                          const SkMatrix& viewMatrix,
                          const SkRect& rect,
                          const GrStrokeInfo* strokeInfo) {
     if (strokeInfo && strokeInfo->isDashed()) {
         SkPath path;
         path.addRect(rect);
-        this->drawPath(paint, viewMatrix, path, *strokeInfo);
+        this->drawPath(rt, paint, viewMatrix, path, *strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
     if (NULL == target) {
         return;
     }
@@ -571,7 +574,7 @@ void GrContext::drawRect(const GrPaint& paint,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isOpaqueAndConstantColor(&clearColor)) {
-                    target->clear(NULL, clearColor, true, fRenderTarget);
+                    target->clear(NULL, clearColor, true, rt);
                     return;
                 }
             }
@@ -654,14 +657,15 @@ void GrContext::drawRect(const GrPaint& paint,
     }
 }
 
-void GrContext::drawNonAARectToRect(const GrPaint& paint,
+void GrContext::drawNonAARectToRect(GrRenderTarget* rt,
+                                    const GrPaint& paint,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& rectToDraw,
                                     const SkRect& localRect,
                                     const SkMatrix* localMatrix) {
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
     if (NULL == target) {
         return;
     }
@@ -696,7 +700,8 @@ static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords
     return GrDefaultGeoProcFactory::Create(flags, color, viewMatrix, SkMatrix::I());
 }
 
-void GrContext::drawVertices(const GrPaint& paint,
+void GrContext::drawVertices(GrRenderTarget* rt,
+                             const GrPaint& paint,
                              const SkMatrix& viewMatrix,
                              GrPrimitiveType primitiveType,
                              int vertexCount,
@@ -709,7 +714,7 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrPipelineBuilder pipelineBuilder;
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
 
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
     if (NULL == target) {
         return;
     }
@@ -757,7 +762,8 @@ void GrContext::drawVertices(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::drawRRect(const GrPaint& paint,
+void GrContext::drawRRect(GrRenderTarget*rt,
+                          const GrPaint& paint,
                           const SkMatrix& viewMatrix,
                           const SkRRect& rrect,
                           const GrStrokeInfo& strokeInfo) {
@@ -768,13 +774,13 @@ void GrContext::drawRRect(const GrPaint& paint,
     if (strokeInfo.isDashed()) {
         SkPath path;
         path.addRRect(rrect);
-        this->drawPath(paint, viewMatrix, path, strokeInfo);
+        this->drawPath(rt, paint, viewMatrix, path, strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
     if (NULL == target) {
         return;
     }
@@ -795,7 +801,8 @@ void GrContext::drawRRect(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::drawDRRect(const GrPaint& paint,
+void GrContext::drawDRRect(GrRenderTarget* rt,
+                           const GrPaint& paint,
                            const SkMatrix& viewMatrix,
                            const SkRRect& outer,
                            const SkRRect& inner) {
@@ -805,7 +812,7 @@ void GrContext::drawDRRect(const GrPaint& paint,
 
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
 
     GR_CREATE_TRACE_MARKER("GrContext::drawDRRect", target);
 
@@ -825,7 +832,8 @@ void GrContext::drawDRRect(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::drawOval(const GrPaint& paint,
+void GrContext::drawOval(GrRenderTarget*rt,
+                         const GrPaint& paint,
                          const SkMatrix& viewMatrix,
                          const SkRect& oval,
                          const GrStrokeInfo& strokeInfo) {
@@ -836,13 +844,13 @@ void GrContext::drawOval(const GrPaint& paint,
     if (strokeInfo.isDashed()) {
         SkPath path;
         path.addOval(oval);
-        this->drawPath(paint, viewMatrix, path, strokeInfo);
+        this->drawPath(rt, paint, viewMatrix, path, strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
     if (NULL == target) {
         return;
     }
@@ -919,14 +927,15 @@ static bool is_nested_rects(GrDrawTarget* target,
     return allEq || allGoE1;
 }
 
-void GrContext::drawPath(const GrPaint& paint,
+void GrContext::drawPath(GrRenderTarget* rt,
+                         const GrPaint& paint,
                          const SkMatrix& viewMatrix,
                          const SkPath& path,
                          const GrStrokeInfo& strokeInfo) {
 
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
-           this->drawPaint(paint, viewMatrix);
+           this->drawPaint(rt, paint, viewMatrix);
        }
        return;
     }
@@ -937,7 +946,7 @@ void GrContext::drawPath(const GrPaint& paint,
         if (path.isLine(pts)) {
             AutoCheckFlush acf(this);
             GrPipelineBuilder pipelineBuilder;
-            GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+            GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
             if (NULL == target) {
                 return;
             }
@@ -954,11 +963,11 @@ void GrContext::drawPath(const GrPaint& paint,
         GrStrokeInfo newStrokeInfo(strokeInfo, false);
         SkStrokeRec* stroke = newStrokeInfo.getStrokeRecPtr();
         if (SkDashPath::FilterDashPath(effectPath.init(), path, stroke, NULL, info)) {
-            this->drawPath(paint, viewMatrix, *effectPath.get(), newStrokeInfo);
+            this->drawPath(rt, paint, viewMatrix, *effectPath.get(), newStrokeInfo);
             return;
         }
 
-        this->drawPath(paint, viewMatrix, path, newStrokeInfo);
+        this->drawPath(rt, paint, viewMatrix, path, newStrokeInfo);
         return;
     }
 
@@ -969,7 +978,7 @@ void GrContext::drawPath(const GrPaint& paint,
     // OK.
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, &paint, &acf);
+    GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, &paint, &acf);
     if (NULL == target) {
         return;
     }
@@ -1194,7 +1203,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     // drawing a rect to the render target.
     // The bracket ensures we pop the stack if we wind up flushing below.
     {
-        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, NULL, NULL);
+        GrDrawTarget* drawTarget = this->prepareToDraw(NULL, NULL, NULL, NULL);
         GrDrawTarget::AutoGeometryPush agp(drawTarget);
 
         GrPipelineBuilder pipelineBuilder;
@@ -1376,7 +1385,7 @@ void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
     ASSERT_OWNED_RESOURCE(renderTarget);
     AutoCheckFlush acf(this);
-    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, &acf);
+    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL, NULL);
     if (NULL == target) {
         return;
     }
@@ -1394,7 +1403,7 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     // Since we're going to the draw target and not GPU, no need to check kNoFlush
     // here.
 
-    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL);
+    GrDrawTarget* target = this->prepareToDraw(NULL, NULL, NULL, NULL);
     if (NULL == target) {
         return;
     }
@@ -1412,16 +1421,17 @@ void GrContext::flushSurfaceWrites(GrSurface* surface) {
 }
 
 GrDrawTarget* GrContext::prepareToDraw(GrPipelineBuilder* pipelineBuilder,
+                                       GrRenderTarget* rt,
                                        const GrPaint* paint,
                                        const AutoCheckFlush* acf) {
     if (NULL == fGpu) {
         return NULL;
     }
 
-    ASSERT_OWNED_RESOURCE(fRenderTarget.get());
     if (pipelineBuilder) {
-        SkASSERT(paint && acf);
-        pipelineBuilder->setFromPaint(*paint, fRenderTarget.get());
+        ASSERT_OWNED_RESOURCE(rt);
+        SkASSERT(rt && paint && acf);
+        pipelineBuilder->setFromPaint(*paint, rt);
         pipelineBuilder->setState(GrPipelineBuilder::kClip_StateBit,
                                   fClip && !fClip->fClipStack->isWideOpen());
     }
@@ -1508,7 +1518,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget() {
-    return this->prepareToDraw(NULL, NULL, NULL);
+    return this->prepareToDraw(NULL, NULL, NULL, NULL);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {

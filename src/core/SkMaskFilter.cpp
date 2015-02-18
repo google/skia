@@ -316,6 +316,7 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
 }
 
  bool SkMaskFilter::directFilterMaskGPU(GrContext* context,
+                                        GrRenderTarget* rt,
                                         GrPaint* grp,
                                         const SkMatrix& viewMatrix,
                                         const SkStrokeRec& strokeRec,
@@ -325,6 +326,7 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
 
 
 bool SkMaskFilter::directFilterRRectMaskGPU(GrContext* context,
+                                            GrRenderTarget* rt,
                                             GrPaint* grp,
                                             const SkMatrix& viewMatrix,
                                             const SkStrokeRec& strokeRec,

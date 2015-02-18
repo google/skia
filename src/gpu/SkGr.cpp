@@ -245,9 +245,9 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
     SkRect localRect = SkRect::MakeWH(1.f, 1.f);
 
-    GrContext::AutoRenderTarget autoRT(context, stretched->asRenderTarget());
     GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
-    context->drawNonAARectToRect(paint, SkMatrix::I(), rect, localRect);
+    context->drawNonAARectToRect(stretched->asRenderTarget(), paint, SkMatrix::I(), rect,
+                                 localRect);
 
     return stretched;
 }
@@ -396,9 +396,8 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalK
     paint.addColorProcessor(yuvToRgbProcessor);
     SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
                               SkIntToScalar(yuvInfo.fSize[0].fHeight));
-    GrContext::AutoRenderTarget autoRT(ctx, renderTarget);
     GrContext::AutoClip ac(ctx, GrContext::AutoClip::kWideOpen_InitialClip);
-    ctx->drawRect(paint, SkMatrix::I(), r);
+    ctx->drawRect(renderTarget, paint, SkMatrix::I(), r);
 
     return result;
 }
@@ -640,8 +639,8 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
-                             bool constantColor, GrPaint* grPaint) {
+void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
+                             GrColor paintColor, bool constantColor, GrPaint* grPaint) {
 
     grPaint->setDither(skPaint.isDither());
     grPaint->setAntiAlias(skPaint.isAntiAlias());
@@ -678,13 +677,12 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
     // supports it. If not, then install a dither effect.
     if (skPaint.isDither() && grPaint->numColorStages() > 0) {
         // What are we rendering into?
-        const GrRenderTarget *target = context->getRenderTarget();
-        SkASSERT(target);
+        SkASSERT(rt);
 
         // Suspect the dithering flag has no effect on these configs, otherwise
         // fall back on setting the appropriate state.
-        if (target->config() == kRGBA_8888_GrPixelConfig ||
-            target->config() == kBGRA_8888_GrPixelConfig) {
+        if (GrPixelConfigIs8888(rt->config()) ||
+            GrPixelConfigIs8888(rt->config())) {
             // The dither flag is set and the target is likely
             // not going to be dithered by the GPU.
             SkAutoTUnref<GrFragmentProcessor> fp(GrDitherEffect::Create());
@@ -697,11 +695,11 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor
 #endif
 }
 
-void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
-                           bool constantColor, GrPaint* grPaint) {
+void SkPaint2GrPaintShader(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
+                           const SkMatrix& viewM, bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
-        SkPaint2GrPaintNoShader(context, skPaint, SkColor2GrColor(skPaint.getColor()),
+        SkPaint2GrPaintNoShader(context, rt, skPaint, SkColor2GrColor(skPaint.getColor()),
                                 constantColor, grPaint);
         return;
     }
@@ -712,9 +710,6 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint, const SkM
     // asFragmentProcessor(). Since these calls get passed back to the client, we don't really
     // want them messing around with the context.
     {
-        // SkShader::asFragmentProcessor() may do offscreen rendering. Save off the current RT,
-        // and clip
-        GrContext::AutoRenderTarget art(context, NULL);
         GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
 
         // Allow the shader to modify paintColor and also create an effect to be installed as
@@ -728,5 +723,5 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint, const SkM
 
     // The grcolor is automatically set when calling asFragmentProcessor.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
-    SkPaint2GrPaintNoShader(context, skPaint, paintColor, constantColor, grPaint);
+    SkPaint2GrPaintNoShader(context, rt, skPaint, paintColor, constantColor, grPaint);
 }

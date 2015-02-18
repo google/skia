@@ -303,24 +303,6 @@ public:
      */
     void setMaxTextureSizeOverride(int maxTextureSizeOverride);
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Render targets
-
-    /**
-     * Sets the render target.
-     * @param target    the render target to set.
-     */
-    void setRenderTarget(GrRenderTarget* target) {
-        fRenderTarget.reset(SkSafeRef(target));
-    }
-
-    /**
-     * Gets the current render target.
-     * @return the currently bound render target.
-     */
-    const GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
-    GrRenderTarget* getRenderTarget() { return fRenderTarget.get(); }
-
     /**
      * Can the provided configuration act as a color render target?
      */
@@ -408,7 +390,7 @@ public:
     /**
      *  Draw everywhere (respecting the clip) with the paint.
      */
-    void drawPaint(const GrPaint&, const SkMatrix& viewMatrix);
+    void drawPaint(GrRenderTarget*, const GrPaint&, const SkMatrix& viewMatrix);
 
     /**
      *  Draw the rect using a paint.
@@ -422,7 +404,8 @@ public:
      *                      mitered/beveled stroked based on stroke width.
      *  The rects coords are used to access the paint (through texture matrix)
      */
-    void drawRect(const GrPaint& paint,
+    void drawRect(GrRenderTarget*,
+                  const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect&,
                   const GrStrokeInfo* strokeInfo = NULL);
@@ -437,7 +420,8 @@ public:
      * @param localMatrix   an optional matrix to transform the shader coordinates before applying
      *                      to rectToDraw
      */
-    void drawNonAARectToRect(const GrPaint& paint,
+    void drawNonAARectToRect(GrRenderTarget*,
+                             const GrPaint& paint,
                              const SkMatrix& viewMatrix,
                              const SkRect& rectToDraw,
                              const SkRect& localRect,
@@ -446,11 +430,12 @@ public:
     /**
      * Draws a non-AA rect with paint and a localMatrix
      */
-    void drawNonAARectWithLocalMatrix(const GrPaint& paint,
+    void drawNonAARectWithLocalMatrix(GrRenderTarget* rt,
+                                      const GrPaint& paint,
                                       const SkMatrix& viewMatrix,
                                       const SkRect& rect,
                                       const SkMatrix& localMatrix) {
-        this->drawNonAARectToRect(paint, viewMatrix, rect, rect, &localMatrix);
+        this->drawNonAARectToRect(rt, paint, viewMatrix, rect, rect, &localMatrix);
     }
 
     /**
@@ -462,7 +447,10 @@ public:
      *  @param strokeInfo   the stroke information (width, join, cap) and
      *                      the dash information (intervals, count, phase).
      */
-    void drawRRect(const GrPaint&, const SkMatrix& viewMatrix, const SkRRect& rrect,
+    void drawRRect(GrRenderTarget*,
+                   const GrPaint&,
+                   const SkMatrix& viewMatrix,
+                   const SkRRect& rrect,
                    const GrStrokeInfo&);
 
     /**
@@ -475,7 +463,10 @@ public:
      *  @param outer        the outer roundrect
      *  @param inner        the inner roundrect
      */
-    void drawDRRect(const GrPaint&, const SkMatrix& viewMatrix, const SkRRect& outer,
+    void drawDRRect(GrRenderTarget*,
+                    const GrPaint&,
+                    const SkMatrix& viewMatrix,
+                    const SkRRect& outer,
                     const SkRRect& inner);
 
 
@@ -488,7 +479,11 @@ public:
      * @param strokeInfo    the stroke information (width, join, cap) and
      *                      the dash information (intervals, count, phase).
      */
-    void drawPath(const GrPaint&, const SkMatrix& viewMatrix, const SkPath&, const GrStrokeInfo&);
+    void drawPath(GrRenderTarget*,
+                  const GrPaint&,
+                  const SkMatrix& viewMatrix,
+                  const SkPath&,
+                  const GrStrokeInfo&);
 
     /**
      * Draws vertices with a paint.
@@ -507,7 +502,8 @@ public:
      * @param   indexCount      if indices is non-null then this is the
      *                          number of indices.
      */
-    void drawVertices(const GrPaint& paint,
+    void drawVertices(GrRenderTarget*,
+                      const GrPaint& paint,
                       const SkMatrix& viewMatrix,
                       GrPrimitiveType primitiveType,
                       int vertexCount,
@@ -526,7 +522,8 @@ public:
      * @param strokeInfo    the stroke information (width, join, cap) and
      *                      the dash information (intervals, count, phase).
      */
-    void drawOval(const GrPaint& paint,
+    void drawOval(GrRenderTarget*,
+                  const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect& oval,
                   const GrStrokeInfo& strokeInfo);
@@ -670,30 +667,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
-    class AutoRenderTarget : public ::SkNoncopyable {
-    public:
-        AutoRenderTarget(GrContext* context, GrRenderTarget* target) {
-            fPrevTarget = context->getRenderTarget();
-            SkSafeRef(fPrevTarget);
-            context->setRenderTarget(target);
-            fContext = context;
-        }
-        AutoRenderTarget(GrContext* context) {
-            fPrevTarget = context->getRenderTarget();
-            SkSafeRef(fPrevTarget);
-            fContext = context;
-        }
-        ~AutoRenderTarget() {
-            if (fContext) {
-                fContext->setRenderTarget(fPrevTarget);
-            }
-            SkSafeUnref(fPrevTarget);
-        }
-    private:
-        GrContext*      fContext;
-        GrRenderTarget* fPrevTarget;
-    };
-
     class AutoClip : public ::SkNoncopyable {
     public:
         // This enum exists to require a caller of the constructor to acknowledge that the clip will
@@ -736,14 +709,12 @@ public:
 
     class AutoWideOpenIdentityDraw {
     public:
-        AutoWideOpenIdentityDraw(GrContext* ctx, GrRenderTarget* rt)
-            : fAutoClip(ctx, AutoClip::kWideOpen_InitialClip)
-            , fAutoRT(ctx, rt) {
+        AutoWideOpenIdentityDraw(GrContext* ctx)
+            : fAutoClip(ctx, AutoClip::kWideOpen_InitialClip) {
         }
 
     private:
         AutoClip fAutoClip;
-        AutoRenderTarget fAutoRT;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -789,7 +760,6 @@ public:
 
 private:
     GrGpu*                          fGpu;
-    SkAutoTUnref<GrRenderTarget>    fRenderTarget;
     const GrClipData*               fClip;  // TODO: make this ref counted
 
     GrResourceCache*                fResourceCache;
@@ -833,7 +803,8 @@ private:
     class AutoCheckFlush;
     // Sets the paint and returns the target to draw into.  This function is overloaded to either
     // take a GrDrawState, GrPaint, and AutoCheckFlush, or JUST an AutoCheckFlush
-    GrDrawTarget* prepareToDraw(GrPipelineBuilder*, const GrPaint* paint, const AutoCheckFlush*);
+    GrDrawTarget* prepareToDraw(GrPipelineBuilder*, GrRenderTarget* rt, const GrPaint* paint,
+                                const AutoCheckFlush*);
 
     void internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,

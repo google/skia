@@ -64,7 +64,8 @@ bool GrStencilAndCoverTextContext::canDraw(const SkPaint& paint, const SkMatrix&
     return rec.getFormat() != SkMask::kARGB32_Format;
 }
 
-void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
+void GrStencilAndCoverTextContext::onDrawText(GrRenderTarget* rt,
+                                              const GrPaint& paint,
                                               const SkPaint& skPaint,
                                               const SkMatrix& viewMatrix,
                                               const char text[],
@@ -91,7 +92,7 @@ void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
     // will turn off the use of device-space glyphs when perspective transforms
     // are in use.
 
-    this->init(paint, skPaint, byteLength, kMaxAccuracy_RenderMode, viewMatrix);
+    this->init(rt, paint, skPaint, byteLength, kMaxAccuracy_RenderMode, viewMatrix);
 
     // Transform our starting point.
     if (fUsingDeviceSpaceGlyphs) {
@@ -153,7 +154,8 @@ void GrStencilAndCoverTextContext::onDrawText(const GrPaint& paint,
     this->finish();
 }
 
-void GrStencilAndCoverTextContext::onDrawPosText(const GrPaint& paint,
+void GrStencilAndCoverTextContext::onDrawPosText(GrRenderTarget* rt,
+                                                 const GrPaint& paint,
                                                  const SkPaint& skPaint,
                                                  const SkMatrix& viewMatrix,
                                                  const char text[],
@@ -177,7 +179,7 @@ void GrStencilAndCoverTextContext::onDrawPosText(const GrPaint& paint,
     // transform is not part of SkPaint::measureText API, and thus we use the
     // same glyphs as what were measured.
 
-    this->init(paint, skPaint, byteLength, kMaxPerformance_RenderMode, viewMatrix);
+    this->init(rt, paint, skPaint, byteLength, kMaxPerformance_RenderMode, viewMatrix);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -229,12 +231,13 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
     return glyphs.detach();
 }
 
-void GrStencilAndCoverTextContext::init(const GrPaint& paint,
+void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
+                                        const GrPaint& paint,
                                         const SkPaint& skPaint,
                                         size_t textByteLength,
                                         RenderMode renderMode,
                                         const SkMatrix& viewMatrix) {
-    GrTextContext::init(paint, skPaint);
+    GrTextContext::init(rt, paint, skPaint);
 
     fContextInitialMatrix = viewMatrix;
     fViewMatrix = viewMatrix;
@@ -351,7 +354,7 @@ void GrStencilAndCoverTextContext::init(const GrPaint& paint,
 
     fStateRestore.set(&fPipelineBuilder);
 
-    fPipelineBuilder.setFromPaint(fPaint, fContext->getRenderTarget());
+    fPipelineBuilder.setFromPaint(fPaint, fRenderTarget);
 
     GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
                                  kZero_StencilOp,
@@ -439,8 +442,8 @@ void GrStencilAndCoverTextContext::flush() {
             inverse.mapPoints(&fGlyphPositions[fFallbackGlyphsIdx], fallbackGlyphCount);
         }
 
-        fFallbackTextContext->drawPosText(paintFallback, skPaintFallback, fViewMatrix,
-                                          (char*)&fGlyphIndices[fFallbackGlyphsIdx],
+        fFallbackTextContext->drawPosText(fRenderTarget, paintFallback, skPaintFallback,
+                                          fViewMatrix, (char*)&fGlyphIndices[fFallbackGlyphsIdx],
                                           2 * fallbackGlyphCount,
                                           get_xy_scalar_array(&fGlyphPositions[fFallbackGlyphsIdx]),
                                           2, SkPoint::Make(0, 0));
