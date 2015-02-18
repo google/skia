@@ -14,11 +14,6 @@
 
 class SK_API SkDrawCommand {
 public:
-    // Staging for Chromium
-    static const char* kDrawRectString;
-    static const char* kClipRectString;
-    // End Staging
-
     enum OpType {
         kBeginCommentGroup_OpType,
         kClipPath_OpType,

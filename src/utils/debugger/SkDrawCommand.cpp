@@ -14,9 +14,6 @@
 
 // TODO(chudy): Refactor into non subclass model.
 
-const char* SkDrawCommand::kDrawRectString = "DrawRect";
-const char* SkDrawCommand::kClipRectString = "ClipRect";
-
 SkDrawCommand::SkDrawCommand(OpType type)
     : fOpType(type)
     , fOffset(0)
