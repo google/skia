@@ -35,7 +35,7 @@ public:
         IDWriteFontFileStream** fontFileStream);
 
     // Takes ownership of stream.
-    static HRESULT Create(SkStream* stream, StreamFontFileLoader** streamFontFileLoader) {
+    static HRESULT Create(SkStreamAsset* stream, StreamFontFileLoader** streamFontFileLoader) {
         *streamFontFileLoader = new StreamFontFileLoader(stream);
         if (NULL == streamFontFileLoader) {
             return E_OUTOFMEMORY;
@@ -43,10 +43,10 @@ public:
         return S_OK;
     }
 
-    SkAutoTDelete<SkStream> fStream;
+    SkAutoTDelete<SkStreamAsset> fStream;
 
 private:
-    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(stream) { }
+    StreamFontFileLoader(SkStreamAsset* stream) : fRefCount(1), fStream(stream) { }
     virtual ~StreamFontFileLoader() { }
 
     ULONG fRefCount;
