@@ -25,5 +25,15 @@
  *  unref() when it is finished.
  */
 SK_API extern SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef);
-
+/**
+ *  Returns the platform-specific CTFontRef handle for a
+ *  given SkTypeface. Note that the returned CTFontRef gets
+ *  released when the source SkTypeface is destroyed.
+ *
+ *  This method is deprecated. It may only be used by Blink Mac
+ *  legacy code in special cases related to text-shaping
+ *  with AAT fonts, clipboard handling and font fallback.
+ *  See https://code.google.com/p/skia/issues/detail?id=3408
+ */
+SK_API extern CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face);
 #endif
