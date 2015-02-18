@@ -85,9 +85,10 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(
         return NULL;
     }
 
+    SkString familyFaceName;
     if (familyFace) {
-        FontConfigTypeface* fct = (FontConfigTypeface*)familyFace;
-        familyName = fct->getFamilyName();
+        familyFace->getFamilyName(&familyFaceName);
+        familyName = familyFaceName.c_str();
     }
 
     SkFontStyle requestedStyle(style);
@@ -144,12 +145,14 @@ SkStreamAsset* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
 }
 
 void FontConfigTypeface::onGetFamilyName(SkString* familyName) const {
-    *familyName = this->getFamilyName();
+    *familyName = fFamilyName;
 }
 
 void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
                                              bool* isLocalStream) const {
-    desc->setFamilyName(this->getFamilyName());
+    SkString name;
+    this->getFamilyName(&name);
+    desc->setFamilyName(name.c_str());
     desc->setFontIndex(this->getIdentity().fTTCIndex);
     *isLocalStream = SkToBool(this->getLocalStream());
 }

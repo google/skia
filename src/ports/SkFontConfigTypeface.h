@@ -33,7 +33,6 @@ public:
         return fIdentity;
     }
 
-    const char* getFamilyName() const { return fFamilyName.c_str(); }
     SkStreamAsset* getLocalStream() const { return fLocalStream.get(); }
 
     bool isFamilyName(const char* name) const {
