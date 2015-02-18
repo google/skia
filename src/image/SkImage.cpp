@@ -55,7 +55,7 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
     return as_IB(this)->onReadPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
 }
 
-GrTexture* SkImage::getTexture() {
+GrTexture* SkImage::getTexture() const {
     return as_IB(this)->onGetTexture();
 }
 

@@ -74,7 +74,7 @@ public:
      * does not affect the reference count of the GrTexture object.
      * Will return NULL if the image does not use a texture.
      */
-    GrTexture* getTexture();
+    GrTexture* getTexture() const;
 
     virtual SkShader* newShader(SkShader::TileMode,
                                 SkShader::TileMode,
