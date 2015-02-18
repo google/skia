@@ -19,10 +19,10 @@
 #include "SkDistanceFieldGen.h"
 #include "SkRTConf.h"
 
-#define ATLAS_TEXTURE_WIDTH  1024
+#define ATLAS_TEXTURE_WIDTH 1024
 #define ATLAS_TEXTURE_HEIGHT 2048
-#define PLOT_WIDTH           256
-#define PLOT_HEIGHT          256
+#define PLOT_WIDTH  256
+#define PLOT_HEIGHT 256
 
 #define NUM_PLOTS_X   (ATLAS_TEXTURE_WIDTH / PLOT_WIDTH)
 #define NUM_PLOTS_Y   (ATLAS_TEXTURE_HEIGHT / PLOT_HEIGHT)
@@ -342,41 +342,39 @@ bool GrAADistanceFieldPathRenderer::internalDrawPath(GrDrawTarget* target,
     bool success = target->reserveVertexAndIndexSpace(4,
                                                       fCachedGeometryProcessor->getVertexStride(),
                                                       0, &vertices, NULL);
-    SkASSERT(fCachedGeometryProcessor->getVertexStride() == sizeof(SkPoint) + sizeof(SkIPoint16));
+    SkASSERT(fCachedGeometryProcessor->getVertexStride() == 2 * sizeof(SkPoint));
     GrAlwaysAssert(success);
     
     SkScalar dx = pathData->fBounds.fLeft;
     SkScalar dy = pathData->fBounds.fTop;
-    // need to compute integer sizes for the glyph because we're using
-    // uint16_t tex coords and they need to lie on integer texel bounds
-    int iwidth = SkScalarCeilToInt(pathData->fBounds.width());
-    int iheight = SkScalarCeilToInt(pathData->fBounds.height());
-    // the quad rect before we scale needs to be the same size as the path data in the atlas
-    SkScalar width = SkIntToScalar(iwidth);
-    SkScalar height = SkIntToScalar(iheight);
+    SkScalar width = pathData->fBounds.width();
+    SkScalar height = pathData->fBounds.height();
     
     SkScalar invScale = 1.0f/pathData->fScale;
     dx *= invScale;
     dy *= invScale;
     width *= invScale;
     height *= invScale;
-
-    int u0 = pathData->fAtlasLocation.fX;
-    int v0 = pathData->fAtlasLocation.fY;
-    int u1 = u0 + iwidth;
-    int v1 = v0 + iheight;
+    
+    SkFixed tx = SkIntToFixed(pathData->fAtlasLocation.fX);
+    SkFixed ty = SkIntToFixed(pathData->fAtlasLocation.fY);
+    SkFixed tw = SkScalarToFixed(pathData->fBounds.width());
+    SkFixed th = SkScalarToFixed(pathData->fBounds.height());
+    
     // vertex positions
     SkRect r = SkRect::MakeXYWH(dx, dy, width, height);    
-    size_t vertSize = sizeof(SkPoint) + sizeof(SkIPoint16);
+    size_t vertSize = 2 * sizeof(SkPoint);
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
     positions->setRectFan(r.left(), r.top(), r.right(), r.bottom(), vertSize);
     
     // vertex texture coords
-    intptr_t textureCoords = reinterpret_cast<intptr_t>(positions) + vertSize - sizeof(SkIPoint16);
-    ((SkIPoint16*)(textureCoords + 0 * vertSize))->set(u0, v0);
-    ((SkIPoint16*)(textureCoords + 1 * vertSize))->set(u0, v1);
-    ((SkIPoint16*)(textureCoords + 2 * vertSize))->set(u1, v1);
-    ((SkIPoint16*)(textureCoords + 3 * vertSize))->set(u1, v0);
+    intptr_t intPtr = reinterpret_cast<intptr_t>(positions);
+    SkPoint* textureCoords = reinterpret_cast<SkPoint*>(intPtr + vertSize - sizeof(SkPoint));
+    textureCoords->setRectFan(SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx)),
+                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty)),
+                              SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx + tw)),
+                              SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
+                              vertSize);
     
     viewMatrix.mapRect(&r);
     target->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
