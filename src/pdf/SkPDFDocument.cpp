@@ -47,10 +47,10 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
     }
 }
 
-SkPDFDocument::SkPDFDocument(Flags flags)
+SkPDFDocument::SkPDFDocument()
         : fXRefFileOffset(0),
           fTrailerDict(NULL) {
-    fCatalog.reset(new SkPDFCatalog(flags));
+    fCatalog.reset(SkNEW(SkPDFCatalog));
     fDocCatalog = SkNEW_ARGS(SkPDFDict, ("Catalog"));
     fCatalog->addObject(fDocCatalog, true);
     fFirstPageResources = NULL;

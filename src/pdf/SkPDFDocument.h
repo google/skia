@@ -29,18 +29,7 @@ template <typename T> class SkTSet;
 */
 class SkPDFDocument {
 public:
-    enum Flags {
-        kNoCompression_Flags = 0x01,  //!< DEPRECATED.
-        kFavorSpeedOverSize_Flags = 0x01,  //!< Don't compress the stream, but
-                                           // if it is already compressed return
-                                           // the compressed stream.
-        kNoLinks_Flags       = 0x02,  //!< do not honor link annotations.
-
-        kDraftMode_Flags     = 0x01,
-    };
-    /** Create a PDF document.
-     */
-    explicit SK_API SkPDFDocument(Flags flags = (Flags)0);
+    SK_API SkPDFDocument();
     SK_API ~SkPDFDocument();
 
     /** Output the PDF to the passed stream.  It is an error to call this (it

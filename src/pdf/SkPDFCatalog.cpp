@@ -12,12 +12,10 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 
-SkPDFCatalog::SkPDFCatalog(SkPDFDocument::Flags flags)
-    : fFirstPageCount(0),
-      fNextObjNum(1),
-      fNextFirstPageObjNum(0),
-      fDocumentFlags(flags) {
-}
+SkPDFCatalog::SkPDFCatalog()
+    : fFirstPageCount(0)
+    , fNextObjNum(1)
+    , fNextFirstPageObjNum(0) {}
 
 SkPDFCatalog::~SkPDFCatalog() {
     fSubstituteResourcesRemaining.safeUnrefAll();

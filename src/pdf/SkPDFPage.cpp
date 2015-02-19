@@ -27,12 +27,9 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
     if (fContentStream.get() == NULL) {
         this->insert("Resources", fDevice->getResourceDict());
         SkSafeUnref(this->insert("MediaBox", fDevice->copyMediaBox()));
-        if (!SkToBool(catalog->getDocumentFlags() &
-                      SkPDFDocument::kNoLinks_Flags)) {
-            SkPDFArray* annots = fDevice->getAnnotations();
-            if (annots && annots->size() > 0) {
-                insert("Annots", annots);
-            }
+        SkPDFArray* annots = fDevice->getAnnotations();
+        if (annots && annots->size() > 0) {
+            insert("Annots", annots);
         }
 
         SkAutoTUnref<SkData> content(fDevice->copyContentToData());

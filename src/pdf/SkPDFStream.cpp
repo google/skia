@@ -14,11 +14,6 @@
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 
-static bool skip_compression(SkPDFCatalog* catalog) {
-    return SkToBool(catalog->getDocumentFlags() &
-                    SkPDFDocument::kFavorSpeedOverSize_Flags);
-}
-
 SkPDFStream::SkPDFStream(SkStream* stream) : fState(kUnused_State) {
     this->setData(stream);
 }
@@ -94,25 +89,21 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
 
     if (fState == kUnused_State) {
         fState = kNoCompression_State;
-        if (!skip_compression(catalog)) {
-            SkDynamicMemoryWStream compressedData;
+        SkDynamicMemoryWStream compressedData;
 
-            SkAssertResult(
-                    SkFlate::Deflate(fDataStream.get(), &compressedData));
-            SkAssertResult(fDataStream->rewind());
-            if (compressedData.getOffset() < this->dataSize()) {
-                SkAutoTDelete<SkStream> compressed(
-                        compressedData.detachAsStream());
-                this->setData(compressed.get());
-                insertName("Filter", "FlateDecode");
-            }
-            fState = kCompressed_State;
-        } else {
-            fState = kNoCompression_State;
+        SkAssertResult(
+                SkFlate::Deflate(fDataStream.get(), &compressedData));
+        SkAssertResult(fDataStream->rewind());
+        if (compressedData.getOffset() < this->dataSize()) {
+            SkAutoTDelete<SkStream> compressed(
+                    compressedData.detachAsStream());
+            this->setData(compressed.get());
+            insertName("Filter", "FlateDecode");
         }
+        fState = kCompressed_State;
         insertInt("Length", this->dataSize());
     }
-    else if (fState == kNoCompression_State && !skip_compression(catalog)) {
+    else if (fState == kNoCompression_State) {
         if (!fSubstitute.get()) {
             fSubstitute.reset(new SkPDFStream(*this));
             catalog->setSubstitute(this, fSubstitute.get());

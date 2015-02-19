@@ -26,7 +26,7 @@ class SkPDFCatalog {
 public:
     /** Create a PDF catalog.
      */
-    explicit SkPDFCatalog(SkPDFDocument::Flags flags);
+    SkPDFCatalog();
     ~SkPDFCatalog();
 
     /** Add the passed object to the catalog.  Refs obj.
@@ -47,10 +47,6 @@ public:
      *  @param obj         The object of interest.
      */
     int32_t getObjectNumber(SkPDFObject* obj);
-
-    /** Return the document flags in effect for this catalog/document.
-     */
-    SkPDFDocument::Flags getDocumentFlags() const { return fDocumentFlags; }
 
     /** Output the cross reference table for objects in the catalog.
      *  Returns the total number of objects.
@@ -105,8 +101,6 @@ private:
     uint32_t fNextObjNum;
     // Next object number to assign on the first page.
     uint32_t fNextFirstPageObjNum;
-
-    SkPDFDocument::Flags fDocumentFlags;
 
     int findObjectIndex(SkPDFObject* obj);
 

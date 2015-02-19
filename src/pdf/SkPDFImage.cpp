@@ -22,11 +22,6 @@
 
 static const int kNoColorTransform = 0;
 
-static bool skip_compression(SkPDFCatalog* catalog) {
-    return SkToBool(catalog->getDocumentFlags() &
-                    SkPDFDocument::kFavorSpeedOverSize_Flags);
-}
-
 static size_t get_uncompressed_size(const SkBitmap& bitmap,
                                     const SkIRect& srcRect) {
     switch (bitmap.colorType()) {
@@ -603,8 +598,7 @@ SkPDFImage::SkPDFImage(SkPDFImage& pdfImage)
 bool SkPDFImage::populate(SkPDFCatalog* catalog) {
     if (getState() == kUnused_State) {
         // Initializing image data for the first time.
-        if (!skip_compression(catalog) && fEncoder &&
-                get_uncompressed_size(fBitmap, fSrcRect) > 1) {
+        if (fEncoder && get_uncompressed_size(fBitmap, fSrcRect) > 1) {
             SkBitmap subset;
             // Extract subset
             if (!fBitmap.extractSubset(&subset, fSrcRect)) {
@@ -633,11 +627,9 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
         return INHERITED::populate(catalog);
     }
 #ifndef SK_NO_FLATE
-    else if (getState() == kNoCompression_State && !skip_compression(catalog)) {
+    else if (getState() == kNoCompression_State) {
 #else  // SK_NO_FLATE
-    else if (getState() == kNoCompression_State &&
-             !skip_compression(catalog) &&
-             fEncoder) {
+    else if (getState() == kNoCompression_State && fEncoder) {
 #endif  // SK_NO_FLATE
         // Compression has not been requested when the stream was first created,
         // but the new catalog wants it compressed.

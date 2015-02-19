@@ -75,12 +75,8 @@ static size_t get_output_size(SkPDFObject* object,
 
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                               const char* expectedData, size_t expectedSize,
-                              bool indirect, bool compression) {
-    SkPDFDocument::Flags docFlags = (SkPDFDocument::Flags) 0;
-    if (!compression) {
-        docFlags = SkTBitOr(docFlags, SkPDFDocument::kFavorSpeedOverSize_Flags);
-    }
-    SkPDFCatalog catalog(docFlags);
+                              bool indirect) {
+    SkPDFCatalog catalog;
     size_t directSize = get_output_size(obj, &catalog, false);
     REPORTER_ASSERT(reporter, directSize == expectedSize);
 
@@ -118,7 +114,7 @@ static void SimpleCheckObjectOutput(skiatest::Reporter* reporter,
                                     SkPDFObject* obj,
                                     const char* expectedResult) {
     CheckObjectOutput(reporter, obj, expectedResult,
-                      strlen(expectedResult), true, false);
+                      strlen(expectedResult), true);
 }
 
 static void TestPDFStream(skiatest::Reporter* reporter) {
@@ -148,32 +144,21 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         SkFlate::Deflate(streamData2.get(), &compressedByteStream);
         SkAutoDataUnref compressedData(compressedByteStream.copyToData());
 
-        // Check first without compression.
-        SkDynamicMemoryWStream expectedResult1;
-        expectedResult1.writeText("<</Length 167\n>> stream\n");
-        expectedResult1.writeText(streamBytes2);
-        expectedResult1.writeText("\nendstream");
-        SkAutoDataUnref expectedResultData1(expectedResult1.copyToData());
-        CheckObjectOutput(reporter, stream.get(),
-                          (const char*) expectedResultData1->data(),
-                          expectedResultData1->size(), true, false);
-
-        // Then again with compression.
-        SkDynamicMemoryWStream expectedResult2;
-        expectedResult2.writeText("<</Filter /FlateDecode\n/Length 116\n"
+        SkDynamicMemoryWStream expected;
+        expected.writeText("<</Filter /FlateDecode\n/Length 116\n"
                                  ">> stream\n");
-        expectedResult2.write(compressedData->data(), compressedData->size());
-        expectedResult2.writeText("\nendstream");
-        SkAutoDataUnref expectedResultData2(expectedResult2.copyToData());
+        expected.write(compressedData->data(), compressedData->size());
+        expected.writeText("\nendstream");
+        SkAutoDataUnref expectedResultData2(expected.copyToData());
         CheckObjectOutput(reporter, stream.get(),
                           (const char*) expectedResultData2->data(),
-                          expectedResultData2->size(), true, true);
+                          expectedResultData2->size(), true);
     }
 #endif  // SK_NO_FLATE
 }
 
 static void TestCatalog(skiatest::Reporter* reporter) {
-    SkPDFCatalog catalog((SkPDFDocument::Flags)0);
+    SkPDFCatalog catalog;
     SkAutoTUnref<SkPDFInt> int1(new SkPDFInt(1));
     SkAutoTUnref<SkPDFInt> int2(new SkPDFInt(2));
     SkAutoTUnref<SkPDFInt> int3(new SkPDFInt(3));
@@ -195,7 +180,7 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPDFInt> int2(new SkPDFInt(2));
     SkAutoTUnref<SkPDFObjRef> int2ref(new SkPDFObjRef(int2.get()));
 
-    SkPDFCatalog catalog((SkPDFDocument::Flags)0);
+    SkPDFCatalog catalog;
     catalog.addObject(int1.get(), false);
     catalog.addObject(int2.get(), false);
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1.get()) == 1);
@@ -216,7 +201,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     proxy->insert("Value", new SkPDFInt(33))->unref();
     stub->insert("Value", new SkPDFInt(44))->unref();
 
-    SkPDFCatalog catalog((SkPDFDocument::Flags)0);
+    SkPDFCatalog catalog;
     catalog.addObject(proxy.get(), false);
     catalog.setSubstitute(proxy.get(), stub.get());
 
@@ -278,12 +263,12 @@ DEF_TEST(PDFPrimitives, reporter) {
     SkAutoTUnref<SkPDFName> name(new SkPDFName("Test name\twith#tab"));
     const char expectedResult[] = "/Test#20name#09with#23tab";
     CheckObjectOutput(reporter, name.get(), expectedResult,
-                      strlen(expectedResult), false, false);
+                      strlen(expectedResult), false);
 
     SkAutoTUnref<SkPDFName> escapedName(new SkPDFName("A#/%()<>[]{}B"));
     const char escapedNameExpected[] = "/A#23#2F#25#28#29#3C#3E#5B#5D#7B#7DB";
     CheckObjectOutput(reporter, escapedName.get(), escapedNameExpected,
-                      strlen(escapedNameExpected), false, false);
+                      strlen(escapedNameExpected), false);
 
     // Test that we correctly handle characters with the high-bit set.
     const unsigned char highBitCString[] = {0xDE, 0xAD, 'b', 'e', 0xEF, 0};
@@ -291,7 +276,7 @@ DEF_TEST(PDFPrimitives, reporter) {
         new SkPDFName((const char*)highBitCString));
     const char highBitExpectedResult[] = "/#DE#ADbe#EF";
     CheckObjectOutput(reporter, highBitName.get(), highBitExpectedResult,
-                      strlen(highBitExpectedResult), false, false);
+                      strlen(highBitExpectedResult), false);
 
     SkAutoTUnref<SkPDFArray> array(new SkPDFArray);
     SimpleCheckObjectOutput(reporter, array.get(), "[]");

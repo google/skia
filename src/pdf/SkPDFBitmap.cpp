@@ -30,14 +30,6 @@ static size_t pixel_count(const SkBitmap& bm) {
     return SkToSizeT(bm.width()) * SkToSizeT(bm.height());
 }
 
-static bool skip_compression(SkPDFDocument::Flags flag) {
-#ifndef SK_NO_FLATE
-    return SkToBool(flag & SkPDFDocument::kFavorSpeedOverSize_Flags);
-#else
-    return true;
-#endif  // SK_NO_FLATE
-}
-
 // write a single byte to a stream n times.
 static void fill_stream(SkWStream* out, char value, size_t n) {
     char buffer[4096];
@@ -164,14 +156,6 @@ private:
 void PDFAlphaBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     SkAutoLockPixels autoLockPixels(fBitmap);
 
-    if (skip_compression(catalog->getDocumentFlags())) {
-        this->emitDict(stream, catalog, pixel_count(fBitmap),
-                       /*deflate=*/false);
-        pdf_stream_begin(stream);
-        pmcolor_alpha_to_a8(fBitmap, stream);
-        pdf_stream_end(stream);
-        return;
-    }
 #ifndef SK_NO_FLATE
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
@@ -183,6 +167,11 @@ void PDFAlphaBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     this->emitDict(stream, catalog, asset->getLength(), /*deflate=*/true);
     pdf_stream_begin(stream);
     stream->writeStream(asset.get(), asset->getLength());
+    pdf_stream_end(stream);
+#else
+    this->emitDict(stream, catalog, pixel_count(fBitmap), /*deflate=*/false);
+    pdf_stream_begin(stream);
+    pmcolor_alpha_to_a8(fBitmap, stream);
     pdf_stream_end(stream);
 #endif  // SK_NO_FLATE
 }
@@ -217,14 +206,6 @@ void SkPDFBitmap::addResources(SkTSet<SkPDFObject*>* resourceSet,
 void SkPDFBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     SkAutoLockPixels autoLockPixels(fBitmap);
 
-    if (skip_compression(catalog->getDocumentFlags())) {
-        this->emitDict(stream, catalog, 3 * pixel_count(fBitmap),
-                       /*deflate=*/false);
-        pdf_stream_begin(stream);
-        pmcolor_to_rgb24(fBitmap, stream);
-        pdf_stream_end(stream);
-        return;
-    }
 #ifndef SK_NO_FLATE
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
@@ -237,6 +218,12 @@ void SkPDFBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     pdf_stream_begin(stream);
     stream->writeStream(asset.get(), asset->getLength());
     pdf_stream_end(stream);
+#else
+    this->emitDict(stream, catalog, 3 * pixel_count(fBitmap), /*deflate=*/false);
+    pdf_stream_begin(stream);
+    pmcolor_to_rgb24(fBitmap, stream);
+    pdf_stream_end(stream);
+    return;
 #endif  // SK_NO_FLATE
 }
 
