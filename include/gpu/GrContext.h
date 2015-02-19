@@ -169,10 +169,11 @@ public:
      */
     void purgeAllUnlockedResources();
 
-    /** Sets a unique key on the resource. The resource must not already have a unique key and the
-     *  key must not already be in use for this to succeed.
+    /**
+     * Sets a unique key on the resource. Upon key collision this resource takes the place of the
+     * previous resource that had the key.
      */
-    bool addResourceToCache(const GrUniqueKey&, GrGpuResource*);
+    void addResourceToCache(const GrUniqueKey&, GrGpuResource*);
 
     /**
      * Finds a resource in the cache, based on the specified key. This is intended for use in

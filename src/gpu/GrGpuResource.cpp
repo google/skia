@@ -86,31 +86,23 @@ void GrGpuResource::didChangeGpuMemorySize() const {
 
 void GrGpuResource::removeUniqueKey() {
     SkASSERT(fUniqueKey.isValid());
-    get_resource_cache(fGpu)->resourceAccess().willRemoveUniqueKey(this);
-    fUniqueKey.reset();
+    get_resource_cache(fGpu)->resourceAccess().removeUniqueKey(this);
 }
 
-bool GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
-    // Currently this can only be called once and can't be called when the resource is scratch.
+void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
     SkASSERT(this->internalHasRef());
     SkASSERT(key.isValid());
 
     // Wrapped and uncached resources can never have a unique key.
     if (!this->resourcePriv().isBudgeted()) {
-        return false;
+        return;
     }
 
-    if (fUniqueKey.isValid() || this->wasDestroyed()) {
-        return false;
+    if (this->wasDestroyed()) {
+        return;
     }
 
-    fUniqueKey = key;
-
-    if (!get_resource_cache(fGpu)->resourceAccess().didSetUniqueKey(this)) {
-        fUniqueKey.reset();
-        return false;
-    }
-    return true;
+    get_resource_cache(fGpu)->resourceAccess().changeUniqueKey(this, key);
 }
 
 void GrGpuResource::notifyIsPurgeable() const {

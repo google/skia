@@ -19,17 +19,15 @@ class GrGpuResource::ResourcePriv {
 public:
     /**
      * Sets a unique key for the resource. If the resource was previously cached as scratch it will
-     * be converted to a uniquely-keyed resource. Currently this may only be called once per
-     * resource. It fails if there is already a resource with the same unique key. TODO: make this
-     * supplant the resource that currently is using the unique key, allow resources' unique keys
-     * to change, and allow removal of a unique key to convert a resource back to scratch.
+     * be converted to a uniquely-keyed resource. If the key is invalid then this is equivalent to
+     * removeUniqueKey(). If another resource is using the key then its unique key is removed and
+     * this resource takes over the key.
      */
-    bool setUniqueKey(const GrUniqueKey& key) {
-        return fResource->setUniqueKey(key);
-    }
+    void setUniqueKey(const GrUniqueKey& key) { fResource->setUniqueKey(key); }
 
-    /** Removes the unique key from a resource */
-    void removeUniqueKey() { return fResource->removeUniqueKey(); }
+    /** Removes the unique key from a resource. If the resource has a scratch key, it may be
+        preserved for recycling as scratch. */
+    void removeUniqueKey() { fResource->removeUniqueKey(); }
 
     /**
      * If the resource is uncached make it cached. Has no effect on resources that are wrapped or

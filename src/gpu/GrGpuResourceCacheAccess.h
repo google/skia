@@ -55,6 +55,12 @@ private:
         }
     }
 
+    /** Called by the cache to assign a new unique key. */
+    void setUniqueKey(const GrUniqueKey& key) { fResource->fUniqueKey = key; }
+
+    /** Called by the cache to make the unique key invalid. */
+    void removeUniqueKey() { fResource->fUniqueKey.reset(); }
+
     uint32_t timestamp() const { return fResource->fTimestamp; }
     void setTimestamp(uint32_t ts) { fResource->fTimestamp = ts; }
 

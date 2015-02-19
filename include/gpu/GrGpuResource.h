@@ -269,7 +269,7 @@ private:
     virtual size_t onGpuMemorySize() const = 0;
 
     // See comments in CacheAccess and ResourcePriv.
-    bool setUniqueKey(const GrUniqueKey&);
+    void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
     void notifyIsPurgeable() const;
     void removeScratchKey();

@@ -45,7 +45,6 @@ protected:
     }
 
     bool operator==(const GrResourceKey& that) const {
-        SkASSERT(this->isValid() && that.isValid());
         return 0 == memcmp(fKey.get(), that.fKey.get(), this->size());
     }
 

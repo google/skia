@@ -180,7 +180,7 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
     if (result && optionalKey.isValid()) {
         BitmapInvalidator* listener = SkNEW_ARGS(BitmapInvalidator, (optionalKey));
         pixelRefForInvalidationNotification->addGenIDChangeListener(listener);
-        SkAssertResult(ctx->addResourceToCache(optionalKey, result));
+        ctx->addResourceToCache(optionalKey, result);
     }
     return result;
 }

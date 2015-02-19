@@ -32,9 +32,9 @@ class SkString;
  *         between two temporary surfaces). The scratch key is set at resource creation time and
  *         should never change. Resources need not have a scratch key.
  *      2) A unique key. This key's meaning is specific to the domain that created the key. Only one
- *         resource may have a given unique key. The unique key can be set after resource creation
- *         creation. Currently it may only be set once and cannot be cleared. This restriction will
- *         be removed.
+ *         resource may have a given unique key. The unique key can be set, cleared, or changed
+ *         anytime after resource creation.
+ *
  * A unique key always takes precedence over a scratch key when a resource has both types of keys.
  * If a resource has neither key type then it will be deleted as soon as the last reference to it
  * is dropped.
@@ -179,9 +179,9 @@ private:
     void removeResource(GrGpuResource*);
     void notifyPurgeable(GrGpuResource*);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
-    bool didSetUniqueKey(GrGpuResource*);
+    void changeUniqueKey(GrGpuResource*, const GrUniqueKey&);
+    void removeUniqueKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
-    void willRemoveUniqueKey(const GrGpuResource*);
     void didChangeBudgetStatus(GrGpuResource*);
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
@@ -297,20 +297,16 @@ private:
     }
 
     /**
-     * Called by GrGpuResources when their unique keys change.
-     *
-     * This currently returns a bool and fails when an existing resource has a key that collides
-     * with the new key. In the future it will null out the unique key for the existing resource.
-     * The failure is a temporary measure which will be fixed soon.
+     * Called by GrGpuResources to change their unique keys.
      */
-    bool didSetUniqueKey(GrGpuResource* resource) { return fCache->didSetUniqueKey(resource); }
+    void changeUniqueKey(GrGpuResource* resource, const GrUniqueKey& newKey) {
+         fCache->changeUniqueKey(resource, newKey);
+    }
 
     /**
-     * Called by a GrGpuResource when it removes its unique key.
+     * Called by a GrGpuResource to remove its unique key.
      */
-    void willRemoveUniqueKey(GrGpuResource* resource) {
-        return fCache->willRemoveUniqueKey(resource);
-    }
+    void removeUniqueKey(GrGpuResource* resource) { fCache->removeUniqueKey(resource); }
 
     /**
      * Called by a GrGpuResource when it removes its scratch key.

@@ -777,7 +777,7 @@ bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
         if (NULL == *blurProfileTexture) {
             return false;
         }
-        SkAssertResult(context->addResourceToCache(key, *blurProfileTexture));
+        context->addResourceToCache(key, *blurProfileTexture);
     }
 
     return true;
@@ -962,7 +962,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
         blurNinePatchTexture = context->createTexture(texDesc, true, blurred_mask.fImage, 0);
-        SkAssertResult(context->addResourceToCache(key, blurNinePatchTexture));
+        context->addResourceToCache(key, blurNinePatchTexture);
 
         SkMask::FreeImage(blurred_mask.fImage);
     }

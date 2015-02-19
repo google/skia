@@ -118,7 +118,7 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     if (!texture) {
         texture = context->createTexture(texDesc, true);
         if (texture) {
-            SkAssertResult(context->addResourceToCache(key, texture));            
+            context->addResourceToCache(key, texture);
         }
     }
     return texture ? texture->asRenderTarget() : NULL;

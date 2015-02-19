@@ -245,7 +245,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     scratch->setSize(10);
     TestResource* unique = SkNEW_ARGS(TestResource, (context->getGpu()));
     unique->setSize(11);
-    REPORTER_ASSERT(reporter, unique->resourcePriv().setUniqueKey(uniqueKey));
+    unique->resourcePriv().setUniqueKey(uniqueKey);
     TestResource* wrapped = SkNEW_ARGS(TestResource,
                                        (context->getGpu(), GrGpuResource::kWrapped_LifeCycle));
     wrapped->setSize(12);
@@ -256,7 +256,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     // Make sure we can't add a unique key to the wrapped resource
     GrUniqueKey uniqueKey2;
     make_unique_key<0>(&uniqueKey2, 1);
-    REPORTER_ASSERT(reporter, !wrapped->resourcePriv().setUniqueKey(uniqueKey2));
+    wrapped->resourcePriv().setUniqueKey(uniqueKey2);
     REPORTER_ASSERT(reporter, NULL == cache->findAndRefUniqueResource(uniqueKey2));
 
     // Make sure sizes are as we expect
@@ -340,7 +340,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
 
     unique = SkNEW_ARGS(TestResource, (context->getGpu()));
     unique->setSize(11);
-    REPORTER_ASSERT(reporter, unique->resourcePriv().setUniqueKey(uniqueKey));
+    unique->resourcePriv().setUniqueKey(uniqueKey);
     unique->unref();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
@@ -500,7 +500,6 @@ static void test_remove_scratch_key(skiatest::Reporter* reporter) {
     a->unref();
     b->unref();
 
-
     GrScratchKey scratchKey;
     // Ensure that scratch key lookup is correct for negative case.
     TestResource::ComputeScratchKey(TestResource::kA_SimulatedProperty, &scratchKey);
@@ -616,38 +615,72 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     
     // Create two resources that we will attempt to register with the same unique key.
     TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
-    TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
     a->setSize(11);
-    b->setSize(12);
     
-    // Can't set the same unique key on two resources.
-    REPORTER_ASSERT(reporter, a->resourcePriv().setUniqueKey(key));
-    REPORTER_ASSERT(reporter, !b->resourcePriv().setUniqueKey(key));
+    // Set key on resource a.
+    a->resourcePriv().setUniqueKey(key);
+    REPORTER_ASSERT(reporter, a == cache->findAndRefUniqueResource(key));
+    a->unref();
 
-    // Still have two resources because b is still reffed.
-    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
-    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() ==
-                              cache->getResourceBytes());
-    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
-
-    b->unref();
-    // Now b should be gone.
-    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
-    REPORTER_ASSERT(reporter, a->gpuMemorySize() == cache->getResourceBytes());
-    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
-
-    cache->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
-    REPORTER_ASSERT(reporter, a->gpuMemorySize() == cache->getResourceBytes());
-    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
-
-    // Drop the ref on a but it isn't immediately purged as it still has a valid scratch key.
+    // Make sure that redundantly setting a's key works.
+    a->resourcePriv().setUniqueKey(key);
+    REPORTER_ASSERT(reporter, a == cache->findAndRefUniqueResource(key));
     a->unref();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, a->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
+    // Create resource b and set the same key. It should replace a's unique key cache entry.
+    TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
+    b->setSize(12);
+    b->resourcePriv().setUniqueKey(key);
+    REPORTER_ASSERT(reporter, b == cache->findAndRefUniqueResource(key));
+    b->unref();
+
+    // Still have two resources because a is still reffed.
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    a->unref();
+    // Now a should be gone.
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, b->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+
+    // Now replace b with c, but make sure c can start with one unique key and change it to b's key.
+    // Also make b be unreffed when replacement occurs.
+    b->unref();
+    TestResource* c = SkNEW_ARGS(TestResource, (context->getGpu()));
+    GrUniqueKey differentKey;
+    make_unique_key<0>(&differentKey, 1);
+    c->setSize(13);
+    c->resourcePriv().setUniqueKey(differentKey);
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, b->gpuMemorySize() + c->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    // c replaces b and b should be immediately purged.
+    c->resourcePriv().setUniqueKey(key);
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, c->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+
+    // c shouldn't be purged because it is ref'ed.
     cache->purgeAllUnlocked();
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, c->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+
+    // Drop the ref on c, it should be kept alive because it has a unique key.
+    c->unref();
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, c->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+
+    // Verify that we can find c, then remove its unique key. It should get purged immediately.
+    REPORTER_ASSERT(reporter, c == cache->findAndRefUniqueResource(key));
+    c->resourcePriv().removeUniqueKey();
+    c->unref();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
