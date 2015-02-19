@@ -195,9 +195,9 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
 
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey key;
-    GrContentKey::Builder builder(&key, kDomain, 1);
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 1);
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 

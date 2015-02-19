@@ -756,9 +756,9 @@ bool GrRectBlurEffect::CreateBlurProfileTexture(GrContext *context, float sigma,
     texDesc.fHeight = 1;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey key;
-    GrContentKey::Builder builder(&key, kDomain, 1);
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 1);
     builder[0] = profileSize;
     builder.finish();
 
@@ -917,9 +917,9 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         return NULL;
     }
 
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey key;
-    GrContentKey::Builder builder(&key, kDomain, 2);
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 2);
     builder[0] = blurRadius;
     builder[1] = cornerRadius;
     builder.finish();

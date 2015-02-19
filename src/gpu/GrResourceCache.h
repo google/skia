@@ -29,14 +29,15 @@ class SkString;
  *      1) A scratch key. This is for resources whose allocations are cached but not their contents.
  *         Multiple resources can share the same scratch key. This is so a caller can have two
  *         resource instances with the same properties (e.g. multipass rendering that ping-pongs
- *         between two temporary surfaces. The scratch key is set at resource creation time and
+ *         between two temporary surfaces). The scratch key is set at resource creation time and
  *         should never change. Resources need not have a scratch key.
- *      2) A content key. This key represents the contents of the resource rather than just its
- *         allocation properties. They may not collide. The content key can be set after resource
+ *      2) A unique key. This key's meaning is specific to the domain that created the key. Only one
+ *         resource may have a given unique key. The unique key can be set after resource creation
  *         creation. Currently it may only be set once and cannot be cleared. This restriction will
  *         be removed.
+ * A unique key always takes precedence over a scratch key when a resource has both types of keys.
  * If a resource has neither key type then it will be deleted as soon as the last reference to it
- * is dropped. If a key has both keys the content key takes precedence.
+ * is dropped.
  */
 class GrResourceCache {
 public:
@@ -116,10 +117,10 @@ public:
 #endif
 
     /**
-     * Find a resource that matches a content key.
+     * Find a resource that matches a unique key.
      */
-    GrGpuResource* findAndRefContentResource(const GrContentKey& contentKey) {
-        GrGpuResource* resource = fContentHash.find(contentKey);
+    GrGpuResource* findAndRefUniqueResource(const GrUniqueKey& key) {
+        GrGpuResource* resource = fUniqueHash.find(key);
         if (resource) {
             this->refAndMakeResourceMRU(resource);
         }
@@ -127,19 +128,19 @@ public:
     }
 
     /**
-     * Query whether a content key exists in the cache.
+     * Query whether a unique key exists in the cache.
      */
-    bool hasContentKey(const GrContentKey& contentKey) const {
-        return SkToBool(fContentHash.find(contentKey));
+    bool hasUniqueKey(const GrUniqueKey& key) const {
+        return SkToBool(fUniqueHash.find(key));
     }
 
-    /** Purges resources to become under budget and processes resources with invalidated content
+    /** Purges resources to become under budget and processes resources with invalidated unique
         keys. */
     void purgeAsNeeded() {
-        SkTArray<GrContentKeyInvalidatedMessage> invalidKeyMsgs;
-        fInvalidContentKeyInbox.poll(&invalidKeyMsgs);
+        SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
+        fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
         if (invalidKeyMsgs.count()) {
-            this->processInvalidContentKeys(invalidKeyMsgs);
+            this->processInvalidUniqueKeys(invalidKeyMsgs);
         }
         if (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes) {
             return;
@@ -178,15 +179,15 @@ private:
     void removeResource(GrGpuResource*);
     void notifyPurgeable(GrGpuResource*);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
-    bool didSetContentKey(GrGpuResource*);
+    bool didSetUniqueKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
-    void willRemoveContentKey(const GrGpuResource*);
+    void willRemoveUniqueKey(const GrGpuResource*);
     void didChangeBudgetStatus(GrGpuResource*);
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
     void internalPurgeAsNeeded();
-    void processInvalidContentKeys(const SkTArray<GrContentKeyInvalidatedMessage>&);
+    void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
     bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
@@ -211,14 +212,12 @@ private:
     };
     typedef SkTMultiMap<GrGpuResource, GrScratchKey, ScratchMapTraits> ScratchMap;
 
-    struct ContentHashTraits {
-        static const GrContentKey& GetKey(const GrGpuResource& r) {
-            return r.getContentKey();
-        }
+    struct UniqueHashTraits {
+        static const GrUniqueKey& GetKey(const GrGpuResource& r) { return r.getUniqueKey(); }
 
-        static uint32_t Hash(const GrContentKey& key) { return key.hash(); }
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
-    typedef SkTDynamicHash<GrGpuResource, GrContentKey, ContentHashTraits> ContentHash;
+    typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
 
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
@@ -228,7 +227,7 @@ private:
         return res->cacheAccess().accessCacheIndex();
     }
 
-    typedef SkMessageBus<GrContentKeyInvalidatedMessage>::Inbox InvalidContentKeyInbox;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage>::Inbox InvalidUniqueKeyInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -241,8 +240,8 @@ private:
 
     // This map holds all resources that can be used as scratch resources.
     ScratchMap                          fScratchMap;
-    // This holds all resources that have content keys.
-    ContentHash                         fContentHash;
+    // This holds all resources that have unique keys.
+    UniqueHash                          fUniqueHash;
 
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;
@@ -266,7 +265,7 @@ private:
     PFOverBudgetCB                      fOverBudgetCB;
     void*                               fOverBudgetData;
 
-    InvalidContentKeyInbox              fInvalidContentKeyInbox;
+    InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
 };
 
 class GrResourceCache::ResourceAccess {
@@ -298,20 +297,19 @@ private:
     }
 
     /**
-     * Called by GrGpuResources when their content keys change.
+     * Called by GrGpuResources when their unique keys change.
      *
      * This currently returns a bool and fails when an existing resource has a key that collides
-     * with the new content key. In the future it will null out the content key for the existing
-     * resource. The failure is a temporary measure taken because duties are split between two
-     * cache objects currently.
+     * with the new key. In the future it will null out the unique key for the existing resource.
+     * The failure is a temporary measure which will be fixed soon.
      */
-    bool didSetContentKey(GrGpuResource* resource) { return fCache->didSetContentKey(resource); }
+    bool didSetUniqueKey(GrGpuResource* resource) { return fCache->didSetUniqueKey(resource); }
 
     /**
-     * Called by a GrGpuResource when it removes its content key.
+     * Called by a GrGpuResource when it removes its unique key.
      */
-    void willRemoveContentKey(GrGpuResource* resource) {
-        return fCache->willRemoveContentKey(resource);
+    void willRemoveUniqueKey(GrGpuResource* resource) {
+        return fCache->willRemoveUniqueKey(resource);
     }
 
     /**

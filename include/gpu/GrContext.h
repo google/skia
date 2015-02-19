@@ -169,21 +169,21 @@ public:
      */
     void purgeAllUnlockedResources();
 
-    /** Sets a content key on the resource. The resource must not already have a content key and
-     *  the key must not already be in use for this to succeed.
+    /** Sets a unique key on the resource. The resource must not already have a unique key and the
+     *  key must not already be in use for this to succeed.
      */
-    bool addResourceToCache(const GrContentKey&, GrGpuResource*);
+    bool addResourceToCache(const GrUniqueKey&, GrGpuResource*);
 
     /**
      * Finds a resource in the cache, based on the specified key. This is intended for use in
      * conjunction with addResourceToCache(). The return value will be NULL if not found. The
      * caller must balance with a call to unref().
      */
-    GrGpuResource* findAndRefCachedResource(const GrContentKey&);
+    GrGpuResource* findAndRefCachedResource(const GrUniqueKey&);
 
     /** Helper for casting resource to a texture. Caller must be sure that the resource cached
         with the key is either NULL or a texture and not another resource type. */
-    GrTexture* findAndRefCachedTexture(const GrContentKey& key) {
+    GrTexture* findAndRefCachedTexture(const GrUniqueKey& key) {
         GrGpuResource* resource = this->findAndRefCachedResource(key);
         if (resource) {
             GrTexture* texture = static_cast<GrSurface*>(resource)->asTexture();
@@ -198,7 +198,7 @@ public:
      * will not be locked or returned. This call does not affect the priority of
      * the resource for deletion.
      */
-    bool isResourceInCache(const GrContentKey& key) const;
+    bool isResourceInCache(const GrUniqueKey& key) const;
 
     /**
      * Creates a new text rendering context that is optimal for the

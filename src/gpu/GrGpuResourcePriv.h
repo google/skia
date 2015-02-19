@@ -18,18 +18,18 @@
 class GrGpuResource::ResourcePriv {
 public:
     /**
-     * Sets a content key for the resource. If the resource was previously cached as scratch it will
-     * be converted to a content resource. Currently this may only be called once per resource. It
-     * fails if there is already a resource with the same content key. TODO: make this supplant the
-     * resource that currently is using the content key, allow resources' content keys to change,
-     * and allow removal of a content key to convert a resource back to scratch.
+     * Sets a unique key for the resource. If the resource was previously cached as scratch it will
+     * be converted to a uniquely-keyed resource. Currently this may only be called once per
+     * resource. It fails if there is already a resource with the same unique key. TODO: make this
+     * supplant the resource that currently is using the unique key, allow resources' unique keys
+     * to change, and allow removal of a unique key to convert a resource back to scratch.
      */
-    bool setContentKey(const GrContentKey& contentKey) {
-        return fResource->setContentKey(contentKey);
+    bool setUniqueKey(const GrUniqueKey& key) {
+        return fResource->setUniqueKey(key);
     }
 
-    /** Removes the content key from a resource */
-    void removeContentKey() { return fResource->removeContentKey(); }
+    /** Removes the unique key from a resource */
+    void removeUniqueKey() { return fResource->removeUniqueKey(); }
 
     /**
      * If the resource is uncached make it cached. Has no effect on resources that are wrapped or
@@ -39,7 +39,7 @@ public:
 
     /**
      * If the resource is cached make it uncached. Has no effect on resources that are wrapped or
-     * already uncached. Furthermore, resources with content keys cannot be made unbudgeted.
+     * already uncached. Furthermore, resources with unique keys cannot be made unbudgeted.
      */
     void makeUnbudgeted() { fResource->makeUnbudgeted(); }
 
@@ -48,14 +48,14 @@ public:
      */
     bool isBudgeted() const {
         bool ret = GrGpuResource::kCached_LifeCycle == fResource->fLifeCycle;
-        SkASSERT(ret || !fResource->getContentKey().isValid());
+        SkASSERT(ret || !fResource->getUniqueKey().isValid());
         return ret;
     }
 
     /** 
      * If this resource can be used as a scratch resource this returns a valid scratch key.
      * Otherwise it returns a key for which isNullScratch is true. The resource may currently be
-     * used as a content resource rather than scratch. Check isScratch().
+     * used as a uniquely keyed resource rather than scratch. Check isScratch().
      */
     const GrScratchKey& getScratchKey() const { return fResource->fScratchKey; }
 

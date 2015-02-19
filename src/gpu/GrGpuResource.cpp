@@ -84,30 +84,30 @@ void GrGpuResource::didChangeGpuMemorySize() const {
     get_resource_cache(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
 }
 
-void GrGpuResource::removeContentKey() {
-    SkASSERT(fContentKey.isValid());
-    get_resource_cache(fGpu)->resourceAccess().willRemoveContentKey(this);
-    fContentKey.reset();
+void GrGpuResource::removeUniqueKey() {
+    SkASSERT(fUniqueKey.isValid());
+    get_resource_cache(fGpu)->resourceAccess().willRemoveUniqueKey(this);
+    fUniqueKey.reset();
 }
 
-bool GrGpuResource::setContentKey(const GrContentKey& key) {
+bool GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
     // Currently this can only be called once and can't be called when the resource is scratch.
     SkASSERT(this->internalHasRef());
     SkASSERT(key.isValid());
 
-    // Wrapped and uncached resources can never have a content key.
+    // Wrapped and uncached resources can never have a unique key.
     if (!this->resourcePriv().isBudgeted()) {
         return false;
     }
 
-    if (fContentKey.isValid() || this->wasDestroyed()) {
+    if (fUniqueKey.isValid() || this->wasDestroyed()) {
         return false;
     }
 
-    fContentKey = key;
+    fUniqueKey = key;
 
-    if (!get_resource_cache(fGpu)->resourceAccess().didSetContentKey(this)) {
-        fContentKey.reset();
+    if (!get_resource_cache(fGpu)->resourceAccess().didSetUniqueKey(this)) {
+        fUniqueKey.reset();
         return false;
     }
     return true;
@@ -148,7 +148,7 @@ void GrGpuResource::makeBudgeted() {
 }
 
 void GrGpuResource::makeUnbudgeted() {
-    if (GrGpuResource::kCached_LifeCycle == fLifeCycle && !fContentKey.isValid()) {
+    if (GrGpuResource::kCached_LifeCycle == fLifeCycle && !fUniqueKey.isValid()) {
         fLifeCycle = kUncached_LifeCycle;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }

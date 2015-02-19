@@ -108,9 +108,9 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     texDesc.fConfig = kRGBA_8888_GrPixelConfig;
     texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
                                                    kBottomLeft_GrSurfaceOrigin;
-    GrContentKey key;
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey::Builder builder(&key, kDomain, 1);
+    GrUniqueKey key;
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(&key, kDomain, 1);
     builder[0] = texDesc.fOrigin;
     builder.finish();
 

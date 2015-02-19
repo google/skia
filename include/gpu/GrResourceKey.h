@@ -14,6 +14,10 @@
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 
+/**
+ * Base class for all GrGpuResource cache keys. There are two types of cache keys. Refer to the
+ * comments for each key type below.
+ */
 class GrResourceKey {
 public:
     uint32_t hash() const {
@@ -135,9 +139,25 @@ private:
 };
 
 /**
- * A key used for scratch resources. The key consists of a resource type (subclass) identifier, a
- * hash, a data length, and type-specific data. A Builder object is used to initialize the
- * key contents. The contents must be initialized before the key can be used.
+ * A key used for scratch resources. There are three important rules about scratch keys:
+ *        * Multiple resources can share the same scratch key. Therefore resources assigned the same
+ *          scratch key should be interchangeable with respect to the code that uses them.
+ *        * A resource can have at most one scratch key and it is set at resource creation by the
+ *          resource itself.
+ *        * When a scratch resource is ref'ed it will not be returned from the
+ *          cache for a subsequent cache request until all refs are released. This facilitates using
+ *          a scratch key for multiple render-to-texture scenarios. An example is a separable blur:
+ *
+ *  GrTexture* texture[2];
+ *  texture[0] = get_scratch_texture(scratchKey);
+ *  texture[1] = get_scratch_texture(scratchKey); // texture[0] is already owned so we will get a
+ *                                                // different one for texture[1]
+ *  draw_mask(texture[0], path);        // draws path mask to texture[0]
+ *  blur_x(texture[0], texture[1]);     // blurs texture[0] in y and stores result in texture[1]
+ *  blur_y(texture[1], texture[0]);     // blurs texture[1] in y and stores result in texture[0]
+ *  texture[1]->unref();  // texture 1 can now be recycled for the next request with scratchKey
+ *  consume_blur(texture[0]);
+ *  texture[0]->unref();  // texture 0 can now be recycled for the next request with scratchKey
  */
 class GrScratchKey : public GrResourceKey {
 private:
@@ -180,46 +200,55 @@ public:
 };
 
 /**
- * A key used to cache resources based on their content. The key consists of a domain type (use
- * case for the cache), a hash, a data length, and domain-specific data. A Builder object is used to
- * initialize the key contents. The contents must be initialized before the key can be used.
+ * A key that allows for exclusive use of a resource for a use case (AKA "domain"). There are three
+ * rules governing the use of unique keys:
+ *        * Only one resource can have a given unique key at a time. Hence, "unique".
+ *        * A resource can have at most one unique key at a time.
+ *        * Unlike scratch keys, multiple requests for a unique key will return the same
+ *          resource even if the resource already has refs.
+ * This key type allows a code path to create cached resources for which it is the exclusive user.
+ * The code path creates a domain which it sets on its keys. This guarantees that there are no
+ * cross-domain collisions.
+ *
+ * Unique keys preempt scratch keys. While a resource has a unique key it is inaccessible via its
+ * scratch key. It can become scratch again if the unique key is removed.
  */
-class GrContentKey : public GrResourceKey {
+class GrUniqueKey : public GrResourceKey {
 private:
     typedef GrResourceKey INHERITED;
 
 public:
     typedef uint32_t Domain;
-    /** Generate a unique Domain of content keys. */
+    /** Generate a Domain for unique keys. */
     static Domain GenerateDomain();
 
-    /** Creates an invalid content key. It must be initialized using a Builder object before use. */
-    GrContentKey() {}
+    /** Creates an invalid unique key. It must be initialized using a Builder object before use. */
+    GrUniqueKey() {}
 
-    GrContentKey(const GrContentKey& that) { *this = that; }
+    GrUniqueKey(const GrUniqueKey& that) { *this = that; }
 
     /** reset() returns the key to the invalid state. */
     using INHERITED::reset;
 
     using INHERITED::isValid;
 
-    GrContentKey& operator=(const GrContentKey& that) {
+    GrUniqueKey& operator=(const GrUniqueKey& that) {
         this->INHERITED::operator=(that);
         return *this;
     }
 
-    bool operator==(const GrContentKey& that) const {
+    bool operator==(const GrUniqueKey& that) const {
         return this->INHERITED::operator==(that);
     }
-    bool operator!=(const GrContentKey& that) const { return !(*this == that); }
+    bool operator!=(const GrUniqueKey& that) const { return !(*this == that); }
 
     class Builder : public INHERITED::Builder {
     public:
-        Builder(GrContentKey* key, Domain domain, int data32Count)
+        Builder(GrUniqueKey* key, Domain domain, int data32Count)
             : INHERITED::Builder(key, domain, data32Count) {}
 
         /** Used to build a key that wraps another key and adds additional data. */
-        Builder(GrContentKey* key, const GrContentKey& innerKey, Domain domain,
+        Builder(GrUniqueKey* key, const GrUniqueKey& innerKey, Domain domain,
                 int extraData32Cnt)
             : INHERITED::Builder(key, domain, Data32CntForInnerKey(innerKey) + extraData32Cnt) {
             SkASSERT(&innerKey != key);
@@ -231,7 +260,7 @@ public:
         }
 
     private:
-        static int Data32CntForInnerKey(const GrContentKey& innerKey) {
+        static int Data32CntForInnerKey(const GrUniqueKey& innerKey) {
             // key data + domain
             return SkToInt((innerKey.dataSize() >> 2) + 1);
         }
@@ -239,16 +268,20 @@ public:
 };
 
 // The cache listens for these messages to purge junk resources proactively.
-class GrContentKeyInvalidatedMessage {
+class GrUniqueKeyInvalidatedMessage {
 public:
-    explicit GrContentKeyInvalidatedMessage(const GrContentKey& key) : fKey(key) {}
-    GrContentKeyInvalidatedMessage(const GrContentKeyInvalidatedMessage& that) : fKey(that.fKey) {}
-    GrContentKeyInvalidatedMessage& operator=(const GrContentKeyInvalidatedMessage& that) {
+    explicit GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key) : fKey(key) {}
+
+    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage& that) : fKey(that.fKey) {}
+
+    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage& that) {
         fKey = that.fKey;
         return *this;
     }
-    const GrContentKey& key() const { return fKey; }
+
+    const GrUniqueKey& key() const { return fKey; }
+
 private:
-    GrContentKey fKey;
+    GrUniqueKey fKey;
 };
 #endif

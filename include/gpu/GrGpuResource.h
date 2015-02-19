@@ -127,7 +127,7 @@ public:
     enum LifeCycle {
         /**
          * The resource is cached and owned by Skia. Resources with this status may be kept alive
-         * by the cache as either scratch or content resources even when there are no refs to them.
+         * by the cache as either scratch or unique resources even when there are no refs to them.
          * The cache may release them whenever there are no refs.
          */
         kCached_LifeCycle,
@@ -187,9 +187,9 @@ public:
      */
     uint32_t getUniqueID() const { return fUniqueID; }
 
-    /** Returns the current content key for the resource. It will be invalid if the resource has not
-        been cached by its contents. */
-    const GrContentKey& getContentKey() const { return fContentKey; }
+    /** Returns the current unique key for the resource. It will be invalid if the resource has no
+        associated unique key. */
+    const GrUniqueKey& getUniqueKey() const { return fUniqueKey; }
 
     /**
      * Attach a custom data object to this resource. The data will remain attached
@@ -269,8 +269,8 @@ private:
     virtual size_t onGpuMemorySize() const = 0;
 
     // See comments in CacheAccess and ResourcePriv.
-    bool setContentKey(const GrContentKey& contentKey);
-    void removeContentKey();
+    bool setUniqueKey(const GrUniqueKey&);
+    void removeUniqueKey();
     void notifyIsPurgeable() const;
     void removeScratchKey();
     void makeBudgeted();
@@ -291,7 +291,7 @@ private:
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     GrScratchKey                fScratchKey;
-    GrContentKey                fContentKey;
+    GrUniqueKey                 fUniqueKey;
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
     // is destroyed. Those calls set will this to NULL.

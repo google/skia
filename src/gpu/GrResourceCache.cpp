@@ -13,7 +13,7 @@
 #include "SkGr.h"
 #include "SkMessageBus.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrContentKeyInvalidatedMessage);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -28,12 +28,12 @@ GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
     return static_cast<ResourceType>(type);
 }
 
-GrContentKey::Domain GrContentKey::GenerateDomain() {
+GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
     static int32_t gDomain = INHERITED::kInvalidDomain + 1;
 
     int32_t domain = sk_atomic_inc(&gDomain);
     if (domain > SK_MaxU16) {
-        SkFAIL("Too many Content Key Domains");
+        SkFAIL("Too many GrUniqueKey Domains");
     }
 
     return static_cast<Domain>(domain);
@@ -138,8 +138,8 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     if (resource->resourcePriv().getScratchKey().isValid()) {
         fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
     }
-    if (resource->getContentKey().isValid()) {
-        fContentHash.remove(resource->getContentKey());
+    if (resource->getUniqueKey().isValid()) {
+        fUniqueHash.remove(resource->getUniqueKey());
     }
     this->validate();
 }
@@ -160,7 +160,7 @@ void GrResourceCache::abandonAll() {
     }
 
     SkASSERT(!fScratchMap.count());
-    SkASSERT(!fContentHash.count());
+    SkASSERT(!fUniqueHash.count());
     SkASSERT(!fCount);
     SkASSERT(!this->getResourceCount());
     SkASSERT(!fBytes);
@@ -184,7 +184,7 @@ void GrResourceCache::releaseAll() {
     }
 
     SkASSERT(!fScratchMap.count());
-    SkASSERT(!fContentHash.count());
+    SkASSERT(!fUniqueHash.count());
     SkASSERT(!fCount);
     SkASSERT(!this->getResourceCount());
     SkASSERT(!fBytes);
@@ -237,24 +237,24 @@ void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
     fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
 }
 
-void GrResourceCache::willRemoveContentKey(const GrGpuResource* resource) {
+void GrResourceCache::willRemoveUniqueKey(const GrGpuResource* resource) {
     // Someone has a ref to this resource in order to invalidate it. When the ref count reaches
     // zero we will get a notifyPurgable() and figure out what to do with it.
-    SkASSERT(resource->getContentKey().isValid());
-    fContentHash.remove(resource->getContentKey());
+    SkASSERT(resource->getUniqueKey().isValid());
+    fUniqueHash.remove(resource->getUniqueKey());
 }
 
-bool GrResourceCache::didSetContentKey(GrGpuResource* resource) {
+bool GrResourceCache::didSetUniqueKey(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
-    SkASSERT(resource->getContentKey().isValid());
+    SkASSERT(resource->getUniqueKey().isValid());
 
-    GrGpuResource* res = fContentHash.find(resource->getContentKey());
+    GrGpuResource* res = fUniqueHash.find(resource->getUniqueKey());
     if (NULL != res) {
         return false;
     }
 
-    fContentHash.add(resource);
+    fUniqueHash.add(resource);
     this->validate();
     return true;
 }
@@ -293,9 +293,9 @@ void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
         }
     } else {
         // Purge the resource immediately if we're over budget
-        // Also purge if the resource has neither a valid scratch key nor a content key.
+        // Also purge if the resource has neither a valid scratch key nor a unique key.
         bool noKey = !resource->resourcePriv().getScratchKey().isValid() &&
-                     !resource->getContentKey().isValid();
+                     !resource->getUniqueKey().isValid();
         if (!this->overBudget() && !noKey) {
             return;
         }
@@ -388,12 +388,12 @@ void GrResourceCache::purgeAllUnlocked() {
     this->validate();
 }
 
-void GrResourceCache::processInvalidContentKeys(
-    const SkTArray<GrContentKeyInvalidatedMessage>& msgs) {
+void GrResourceCache::processInvalidUniqueKeys(
+    const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
     for (int i = 0; i < msgs.count(); ++i) {
-        GrGpuResource* resource = this->findAndRefContentResource(msgs[i].key());
+        GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
-            resource->resourcePriv().removeContentKey();
+            resource->resourcePriv().removeUniqueKey();
             resource->unref(); // will call notifyPurgeable, if it is indeed now purgeable.
         }
     }
@@ -435,12 +435,12 @@ void GrResourceCache::validate() const {
         int fCouldBeScratch;
         int fContent;
         const ScratchMap* fScratchMap;
-        const ContentHash* fContentHash;
+        const UniqueHash* fUniqueHash;
 
         Stats(const GrResourceCache* cache) {
             memset(this, 0, sizeof(*this));
             fScratchMap = &cache->fScratchMap;
-            fContentHash = &cache->fContentHash;
+            fUniqueHash = &cache->fUniqueHash;
         }
 
         void update(GrGpuResource* resource) {
@@ -451,21 +451,21 @@ void GrResourceCache::validate() const {
             }
 
             if (resource->cacheAccess().isScratch()) {
-                SkASSERT(!resource->getContentKey().isValid());
+                SkASSERT(!resource->getUniqueKey().isValid());
                 ++fScratch;
                 SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
                 SkASSERT(!resource->cacheAccess().isWrapped());
             } else if (resource->resourcePriv().getScratchKey().isValid()) {
                 SkASSERT(!resource->resourcePriv().isBudgeted() ||
-                         resource->getContentKey().isValid());
+                         resource->getUniqueKey().isValid());
                 ++fCouldBeScratch;
                 SkASSERT(fScratchMap->countForKey(resource->resourcePriv().getScratchKey()));
                 SkASSERT(!resource->cacheAccess().isWrapped());
             }
-            const GrContentKey& contentKey = resource->getContentKey();
-            if (contentKey.isValid()) {
+            const GrUniqueKey& uniqueKey = resource->getUniqueKey();
+            if (uniqueKey.isValid()) {
                 ++fContent;
-                SkASSERT(fContentHash->find(contentKey) == resource);
+                SkASSERT(fUniqueHash->find(uniqueKey) == resource);
                 SkASSERT(!resource->cacheAccess().isWrapped());
                 SkASSERT(resource->resourcePriv().isBudgeted());
             }
@@ -506,7 +506,7 @@ void GrResourceCache::validate() const {
     SkASSERT(fBudgetedBytes <= fBudgetedHighWaterBytes);
     SkASSERT(fBudgetedCount <= fBudgetedHighWaterCount);
 #endif
-    SkASSERT(stats.fContent == fContentHash.count());
+    SkASSERT(stats.fContent == fUniqueHash.count());
     SkASSERT(stats.fScratch + stats.fCouldBeScratch == fScratchMap.count());
 
     // This assertion is not currently valid because we can be in recursive notifyIsPurgeable()

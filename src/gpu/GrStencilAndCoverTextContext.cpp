@@ -207,9 +207,9 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
                                   const SkTypeface* typeface,
                                   const SkDescriptor* desc,
                                   const SkStrokeRec& stroke) {
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey key;
-    GrContentKey::Builder builder(&key, kDomain, 4);
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 4);
     struct GlyphKey {
         uint32_t fChecksum;
         uint32_t fTypeface;

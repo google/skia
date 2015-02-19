@@ -1582,20 +1582,20 @@ void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) 
     fResourceCache->setLimits(maxTextures, maxTextureBytes);
 }
 
-bool GrContext::addResourceToCache(const GrContentKey& key, GrGpuResource* resource) {
+bool GrContext::addResourceToCache(const GrUniqueKey& key, GrGpuResource* resource) {
     ASSERT_OWNED_RESOURCE(resource);
     if (!resource || resource->wasDestroyed()) {
         return false;
     }
-    return resource->resourcePriv().setContentKey(key);
+    return resource->resourcePriv().setUniqueKey(key);
 }
 
-bool GrContext::isResourceInCache(const GrContentKey& key) const {
-    return fResourceCache->hasContentKey(key);
+bool GrContext::isResourceInCache(const GrUniqueKey& key) const {
+    return fResourceCache->hasUniqueKey(key);
 }
 
-GrGpuResource* GrContext::findAndRefCachedResource(const GrContentKey& key) {
-    return fResourceCache->findAndRefContentResource(key);
+GrGpuResource* GrContext::findAndRefCachedResource(const GrUniqueKey& key) {
+    return fResourceCache->findAndRefUniqueResource(key);
 }
 
 //////////////////////////////////////////////////////////////////////////////

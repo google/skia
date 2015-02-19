@@ -23,10 +23,10 @@ class GrGpuResource::CacheAccess {
 private:
     /**
      * Is the resource currently cached as scratch? This means it is cached, has a valid scratch
-     * key, and does not have a content key.
+     * key, and does not have a unique key.
      */
     bool isScratch() const {
-        return !fResource->getContentKey().isValid() && fResource->fScratchKey.isValid() &&
+        return !fResource->getUniqueKey().isValid() && fResource->fScratchKey.isValid() &&
                 fResource->resourcePriv().isBudgeted();
     }
 

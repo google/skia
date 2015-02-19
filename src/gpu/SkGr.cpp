@@ -106,11 +106,11 @@ static Stretch get_stretch_type(const GrContext* ctx, int width, int height,
     return kNo_Stretch;
 }
 
-static bool make_stretched_key(const GrContentKey& origKey, Stretch stretch,
-                               GrContentKey* stretchedKey) {
+static bool make_stretched_key(const GrUniqueKey& origKey, Stretch stretch,
+                               GrUniqueKey* stretchedKey) {
     if (origKey.isValid() && kNo_Stretch != stretch) {
-        static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-        GrContentKey::Builder builder(stretchedKey, origKey, kDomain, 1);
+        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey::Builder builder(stretchedKey, origKey, kDomain, 1);
         builder[0] = stretch;
         builder.finish();
         return true;
@@ -119,7 +119,7 @@ static bool make_stretched_key(const GrContentKey& origKey, Stretch stretch,
     return false;
 }
 
-static void make_unstretched_key(const SkBitmap& bitmap, GrContentKey* key) {
+static void make_unstretched_key(const SkBitmap& bitmap, GrUniqueKey* key) {
     // Our id includes the offset, width, and height so that bitmaps created by extractSubset()
     // are unique.
     uint32_t genID = bitmap.getGenerationID();
@@ -127,8 +127,8 @@ static void make_unstretched_key(const SkBitmap& bitmap, GrContentKey* key) {
     uint32_t width = SkToU16(bitmap.width());
     uint32_t height = SkToU16(bitmap.height());
 
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey::Builder builder(key, kDomain, 4);
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kDomain, 4);
     builder[0] = genID;
     builder[1] = origin.fX;
     builder[2] = origin.fY;
@@ -137,8 +137,8 @@ static void make_unstretched_key(const SkBitmap& bitmap, GrContentKey* key) {
 
 static void make_bitmap_keys(const SkBitmap& bitmap,
                              Stretch stretch,
-                             GrContentKey* key,
-                             GrContentKey* stretchedKey) {
+                             GrUniqueKey* key,
+                             GrUniqueKey* stretchedKey) {
     make_unstretched_key(bitmap, key);
     if (kNo_Stretch != stretch) {
         make_stretched_key(*key, stretch, stretchedKey);
@@ -158,12 +158,12 @@ namespace {
 // When the SkPixelRef genID changes, invalidate a corresponding GrResource described by key.
 class BitmapInvalidator : public SkPixelRef::GenIDChangeListener {
 public:
-    explicit BitmapInvalidator(const GrContentKey& key) : fMsg(key) {}
+    explicit BitmapInvalidator(const GrUniqueKey& key) : fMsg(key) {}
 private:
-    GrContentKeyInvalidatedMessage fMsg;
+    GrUniqueKeyInvalidatedMessage fMsg;
 
     void onChange() SK_OVERRIDE {
-        SkMessageBus<GrContentKeyInvalidatedMessage>::Post(fMsg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
     }
 };
 
@@ -171,7 +171,7 @@ private:
 
 
 static GrTexture* create_texture_for_bmp(GrContext* ctx,
-                                         const GrContentKey& optionalKey,
+                                         const GrUniqueKey& optionalKey,
                                          GrSurfaceDesc desc,
                                          SkPixelRef* pixelRefForInvalidationNotification,
                                          const void* pixels,
@@ -190,7 +190,7 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
 // controls whether the scaling is done using nearest or bilerp filtering.
 GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
                                        SkPixelRef* pixelRef,
-                                       const GrContentKey& optionalKey) {
+                                       const GrUniqueKey& optionalKey) {
     SkASSERT(kNo_Stretch != stretch);
 
     GrContext* context = inputTexture->getContext();
@@ -253,7 +253,7 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
 }
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
-static GrTexture *load_etc1_texture(GrContext* ctx, const GrContentKey& optionalKey,
+static GrTexture *load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
                                     const SkBitmap &bm, GrSurfaceDesc desc) {
     SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
 
@@ -302,7 +302,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx, const GrContentKey& optional
 }
 #endif   // SK_IGNORE_ETC1_SUPPORT
 
-static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalKey,
+static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
                                    const SkBitmap& bm, const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
     SkPixelRef* pixelRef = bm.pixelRef();
@@ -404,7 +404,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrContentKey& optionalK
 
 static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
                                                     const SkBitmap& origBitmap,
-                                                    const GrContentKey& optionalKey) {
+                                                    const GrUniqueKey& optionalKey) {
     SkBitmap tmpBitmap;
 
     const SkBitmap* bitmap = &origBitmap;
@@ -465,8 +465,8 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 static GrTexture* create_bitmap_texture(GrContext* ctx,
                                         const SkBitmap& bmp,
                                         Stretch stretch,
-                                        const GrContentKey& unstretchedKey,
-                                        const GrContentKey& stretchedKey) {
+                                        const GrUniqueKey& unstretchedKey,
+                                        const GrUniqueKey& stretchedKey) {
     if (kNo_Stretch != stretch) {
         SkAutoTUnref<GrTexture> unstretched;
         // Check if we have the unstretched version in the cache, if not create it.
@@ -503,11 +503,11 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         if (bitmap.isVolatile()) {
             return false;
         }
-        const GrContentKey& key = texture->getContentKey();
+        const GrUniqueKey& key = texture->getUniqueKey();
         if (!key.isValid()) {
             return false;
         }
-        GrContentKey stretchedKey;
+        GrUniqueKey stretchedKey;
         make_stretched_key(key, stretch, &stretchedKey);
         return ctx->isResourceInCache(stretchedKey);
     }
@@ -517,7 +517,7 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         return false;
     }
 
-    GrContentKey key, stretchedKey;
+    GrUniqueKey key, stretchedKey;
     make_bitmap_keys(bitmap, stretch, &key, &stretchedKey);
     return ctx->isResourceInCache((kNo_Stretch == stretch) ? key : stretchedKey);
 }
@@ -533,10 +533,10 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         if (kNo_Stretch == stretch) {
             return SkRef(result);
         }
-        GrContentKey stretchedKey;
+        GrUniqueKey stretchedKey;
         // Don't create a key for the resized version if the bmp is volatile.
         if (!bitmap.isVolatile()) {
-            const GrContentKey& key = result->getContentKey();
+            const GrUniqueKey& key = result->getUniqueKey();
             if (key.isValid()) {
                 make_stretched_key(key, stretch, &stretchedKey);
                 GrTexture* stretched = ctx->findAndRefCachedTexture(stretchedKey);
@@ -548,7 +548,7 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         return stretch_texture_to_next_pot(result, stretch, bitmap.pixelRef(), stretchedKey);
     }
 
-    GrContentKey key, resizedKey;
+    GrUniqueKey key, resizedKey;
 
     if (!bitmap.isVolatile()) {
         // If the bitmap isn't changing try to find a cached copy first.

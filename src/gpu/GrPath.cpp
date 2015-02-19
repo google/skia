@@ -13,9 +13,9 @@ template<int NumBits> static uint64_t get_top_n_float_bits(float f) {
     return floatBits >> (32 - NumBits);
 }
 
-void GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke, GrContentKey* key) {
-    static const GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-    GrContentKey::Builder builder(key, kDomain, 3);
+void GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke, GrUniqueKey* key) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kDomain, 3);
     *reinterpret_cast<uint64_t*>(&builder[0]) = ComputeStrokeKey(stroke);
     builder[2] = path.getGenerationID();
 }

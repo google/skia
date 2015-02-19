@@ -29,9 +29,9 @@ public:
         this->registerWithCache();
     }
 
-    static void ComputeKey(int i, GrContentKey* key) {
-        static GrContentKey::Domain kDomain = GrContentKey::GenerateDomain();
-        GrContentKey::Builder builder(key, kDomain, 1);
+    static void ComputeKey(int i, GrUniqueKey* key) {
+        static GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey::Builder builder(key, kDomain, 1);
         builder[0] = i;
     }
 
@@ -43,10 +43,10 @@ private:
 
 static void populate_cache(GrGpu* gpu, int resourceCount) {
     for (int i = 0; i < resourceCount; ++i) {
-        GrContentKey key;
+        GrUniqueKey key;
         BenchResource::ComputeKey(i, &key);
         GrGpuResource* resource = SkNEW_ARGS(BenchResource, (gpu));
-        resource->resourcePriv().setContentKey(key);
+        resource->resourcePriv().setUniqueKey(key);
         resource->unref();
     }
 }
@@ -126,9 +126,9 @@ protected:
         SkASSERT(CACHE_SIZE_COUNT == cache->getResourceCount());
         for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < CACHE_SIZE_COUNT; ++k) {
-                GrContentKey key;
+                GrUniqueKey key;
                 BenchResource::ComputeKey(k, &key);
-                SkAutoTUnref<GrGpuResource> resource(cache->findAndRefContentResource(key));
+                SkAutoTUnref<GrGpuResource> resource(cache->findAndRefUniqueResource(key));
                 SkASSERT(resource);
             }
         }
