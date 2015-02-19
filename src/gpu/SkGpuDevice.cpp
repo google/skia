@@ -1544,10 +1544,10 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     // clear of the source device must occur before CHECK_SHOULD_DRAW
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawDevice", fContext);
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
-    if (fNeedClear) {
-        // TODO: could check here whether we really need to draw at all
-        dev->clearAll();
-    }
+
+    // TODO: If the source device covers the whole of this device, we could
+    // omit fNeedsClear -related flushing.
+    // TODO: if source needs clear, we could maybe omit the draw fully.
 
     // drawDevice is defined to be in device coords.
     CHECK_SHOULD_DRAW(draw);
