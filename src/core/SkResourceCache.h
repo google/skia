@@ -35,6 +35,8 @@ public:
         // length must be a multiple of 4
         void init(void* nameSpace, size_t length);
 
+        void* getNamespace() const { return fNamespace; }
+
         // This is only valid after having called init().
         uint32_t hash() const { return fHash; }
 
@@ -92,7 +94,21 @@ public:
      *  true, then the Rec is considered "valid". If false is returned, the Rec will be considered
      *  "stale" and will be purged from the cache.
      */
-    typedef bool (*VisitorProc)(const Rec&, void* context);
+    typedef bool (*FindVisitor)(const Rec&, void* context);
+
+    enum PurgeVisitorResult {
+        kRetainAndContinue_PurgeVisitorResult,
+        kPurgeAndContinue_PurgeVisitorResult,
+        kRetainAndStop_PurgeVisitorResult,
+        kPurgeAndStop_PurgeVisitorResult,
+    };
+
+    /**
+     *  Callback function for purge(). If called, the cache will have found a match for the
+     *  specified Key, and will pass in the corresponding Rec, along with a caller-specified
+     *  context. The function can read the data in Rec.
+     */
+    typedef PurgeVisitorResult (*PurgeVisitor)(const Rec&, void* context);
 
     /**
      *  Returns a locked/pinned SkDiscardableMemory instance for the specified
@@ -114,7 +130,7 @@ public:
      *      true  : Rec is valid
      *      false : Rec is "stale" -- the cache will purge it.
      */
-    static bool Find(const Key& key, VisitorProc, void* context);
+    static bool Find(const Key& key, FindVisitor, void* context);
     static void Add(Rec*);
 
     static size_t GetTotalBytesUsed();
@@ -124,6 +140,12 @@ public:
     static size_t SetSingleAllocationByteLimit(size_t);
     static size_t GetSingleAllocationByteLimit();
     static size_t GetEffectiveSingleAllocationByteLimit();
+
+    /**
+     *  Visit all Rec that match the specified namespace, and purge entries as indicated by the
+     *  visitor.
+     */
+    static void Purge(const void* nameSpace, PurgeVisitor, void* context);
 
     static void PurgeAll();
 
@@ -174,7 +196,7 @@ public:
      *      true  : Rec is valid
      *      false : Rec is "stale" -- the cache will purge it.
      */
-    bool find(const Key&, VisitorProc, void* context);
+    bool find(const Key&, FindVisitor, void* context);
     void add(Rec*);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
@@ -198,8 +220,12 @@ public:
      */
     size_t setTotalByteLimit(size_t newLimit);
 
+    void purge(const void* nameSpace, PurgeVisitor, void* context);
+
     void purgeAll() {
+        fInsidePurgeAllCounter += 1;
         this->purgeAsNeeded(true);
+        fInsidePurgeAllCounter -= 1;
     }
 
     DiscardableFactory discardableFactory() const { return fDiscardableFactory; }
@@ -227,6 +253,12 @@ private:
     size_t  fTotalByteLimit;
     size_t  fSingleAllocationByteLimit;
     int     fCount;
+
+    bool insidePurgeAll() const {
+        SkASSERT(fInsidePurgeAllCounter >= 0);
+        return fInsidePurgeAllCounter > 0;
+    }
+    int fInsidePurgeAllCounter;
 
     void purgeAsNeeded(bool forcePurge = false);
 
