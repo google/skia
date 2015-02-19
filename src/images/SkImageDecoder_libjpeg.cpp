@@ -798,11 +798,11 @@ static bool output_raw_data(jpeg_decompress_struct& cinfo, void* planes[3], size
     size_t rowBytesV = rowBytes[2];
 
     int yScanlinesToRead = DCTSIZE * v;
-    SkAutoMalloc lastRowStorage(yWidth * 8);
+    SkAutoMalloc lastRowStorage(rowBytesY * 4);
     JSAMPROW yLastRow = (JSAMPROW)lastRowStorage.get();
-    JSAMPROW uLastRow = yLastRow + 2 * yWidth;
-    JSAMPROW vLastRow = uLastRow + 2 * yWidth;
-    JSAMPROW dummyRow = vLastRow + 2 * yWidth;
+    JSAMPROW uLastRow = yLastRow + rowBytesY;
+    JSAMPROW vLastRow = uLastRow + rowBytesY;
+    JSAMPROW dummyRow = vLastRow + rowBytesY;
 
     while (cinfo.output_scanline < cinfo.output_height) {
         // Request 8 or 16 scanlines: returns 0 or more scanlines.
