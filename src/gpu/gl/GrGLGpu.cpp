@@ -141,7 +141,7 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
         SkDebugf("------ EXTENSIONS\n");
         ctx.extensions().print();
         SkDebugf("\n");
-        SkDebugf(this->glCaps().dump().c_str());
+        SkDebugf("%s", this->glCaps().dump().c_str());
     }
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this));

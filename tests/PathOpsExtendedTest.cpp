@@ -443,7 +443,7 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
         }
         const char testFunction[] = "testSimplify(reporter, path);";
         outputToStream(pathStr, pathPrefix, nameSuffix, testFunction, false, stream);
-        SkDebugf(temp);
+        SkDebugf("%s", temp);
         REPORTER_ASSERT(state.fReporter, 0);
     }
     state.fReporter->bumpTestCount();

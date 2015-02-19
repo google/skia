@@ -71,7 +71,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 // buffer param validation.
                 GrGLsizei length = GR_GL_INIT_ZERO;
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
-                SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
+                SkDebugf("%s", GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
                 SkDebugf("\n%s", log.get());
             }
             SkDEBUGFAIL("Shader compilation failed!");
@@ -81,7 +81,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     }
 
     if (c_PrintShaders) {
-        SkDebugf(GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
+        SkDebugf("%s", GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true).c_str());
         SkDebugf("\n");
     }
 

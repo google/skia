@@ -23,7 +23,7 @@ inline void SkDebugDumpMathematica( const T val ) {
 
 template<class T>
 inline void SkDebugDumpMathematica(const char *name, const T *array, int size) {
-    SkDebugf(name);
+    SkDebugf("%s", name);
     SkDebugf(" = {");
     for (int i=0 ; i < size ; i++) {
         SkDebugDumpMathematica<T>(array[i]);
@@ -34,7 +34,7 @@ inline void SkDebugDumpMathematica(const char *name, const T *array, int size) {
 
 template<class T>
 inline void SkDebugDumpMathematica(const char *name, const T *array, int width, int height) {
-    SkDebugf(name);
+    SkDebugf("%s", name);
     SkDebugf(" = {\n");
     for (int i=0 ; i < height ; i++) {
         SkDebugf("  {");
@@ -54,7 +54,7 @@ inline void SkDebugDumpMathematica(const char *name, const T *array, int width, 
 
 template<class T>
 inline void SkDebugDumpMathematica( const char *name, const T val ) {
-    SkDebugf(name);
+    SkDebugf("%s", name);
     SkDebugf(" = ");
     SkDebugDumpMathematica<T>(val);
     SkDebugf(";\n");

@@ -51,7 +51,7 @@ void GrContext::dumpCacheStats(SkString* out) const {
 void GrContext::printCacheStats() const {
     SkString out;
     this->dumpCacheStats(&out);
-    SkDebugf(out.c_str());
+    SkDebugf("%s", out.c_str());
 }
 
 void GrContext::dumpGpuStats(SkString* out) const {
@@ -63,7 +63,7 @@ void GrContext::dumpGpuStats(SkString* out) const {
 void GrContext::printGpuStats() const {
     SkString out;
     this->dumpGpuStats(&out);
-    SkDebugf(out.c_str());
+    SkDebugf("%s", out.c_str());
 }
 
 #if GR_GPU_STATS

@@ -399,7 +399,7 @@ static int process_input(const char* input, const SkString* writePath,
     } else {
         SkString warning;
         warning.printf("Warning: skipping %s\n", input);
-        SkDebugf(warning.c_str());
+        SkDebugf("%s", warning.c_str());
     }
     return failures;
 }

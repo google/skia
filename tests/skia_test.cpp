@@ -164,7 +164,7 @@ int test_main() {
         if (FLAGS_veryVerbose) {
             header.appendf("\n");
         }
-        SkDebugf(header.c_str());
+        SkDebugf("%s", header.c_str());
     }
 
 

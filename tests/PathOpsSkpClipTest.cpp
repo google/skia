@@ -1086,7 +1086,7 @@ int tool_main(int argc, char** argv) {
     if (FLAGS_verbose) {
         header.appendf("\n");
     }
-    SkDebugf(header.c_str());
+    SkDebugf("%s", header.c_str());
     Iter iter;
     Test* test;
     while ((test = iter.next()) != NULL) {
