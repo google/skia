@@ -133,6 +133,7 @@
         '../gm/matriximagefilter.cpp',
         '../gm/megalooper.cpp',
         '../gm/mixedxfermodes.cpp',
+        '../gm/mipmap.cpp',
         '../gm/modecolorfilters.cpp',
         '../gm/morphology.cpp',
         '../gm/multipicturedraw.cpp',
