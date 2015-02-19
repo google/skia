@@ -171,6 +171,9 @@ public:
     void dumpStats(SkString*) const;
 #endif
 
+    // This function is for unit testing and is only defined in test tools.
+    void changeTimestamp(uint32_t newTimestamp);
+
 private:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Methods accessible via ResourceAccess
@@ -191,6 +194,8 @@ private:
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
     bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
+
+    uint32_t getNextTimestamp();
 
 #ifdef SK_DEBUG
     bool isInCache(const GrGpuResource* r) const;

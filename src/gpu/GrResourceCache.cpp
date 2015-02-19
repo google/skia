@@ -12,6 +12,7 @@
 #include "SkChecksum.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
+#include "SkTSort.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
@@ -90,6 +91,11 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     SkASSERT(!this->isInCache(resource));
     SkASSERT(!resource->wasDestroyed());
     SkASSERT(!resource->isPurgeable());
+
+    // We must set the timestamp before adding to the array in case the timestamp wraps and we wind
+    // up iterating over all the resources that already have timestamps.
+    resource->cacheAccess().setTimestamp(this->getNextTimestamp());
+
     this->addToNonpurgeableArray(resource);
 
     size_t size = resource->gpuMemorySize();
@@ -111,8 +117,6 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
         SkASSERT(!resource->cacheAccess().isWrapped());
         fScratchMap.insert(resource->resourcePriv().getScratchKey(), resource);
     }
-
-    resource->cacheAccess().setTimestamp(fTimestamp++);
 
     this->purgeAsNeeded();
 }
@@ -286,13 +290,15 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
 void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
+
     if (resource->isPurgeable()) {
         // It's about to become unpurgeable.
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
     }
     resource->ref();
-    resource->cacheAccess().setTimestamp(fTimestamp++);
+
+    resource->cacheAccess().setTimestamp(this->getNextTimestamp());
     this->validate();
 }
 
@@ -439,6 +445,73 @@ void GrResourceCache::removeFromNonpurgeableArray(GrGpuResource* resource) {
     *tail->cacheAccess().accessCacheIndex() = *index;
     fNonpurgeableResources.pop();
     SkDEBUGCODE(*index = -1);
+}
+
+uint32_t GrResourceCache::getNextTimestamp() {
+    // If we wrap then all the existing resources will appear older than any resources that get
+    // a timestamp after the wrap.
+    if (0 == fTimestamp) {
+        int count = this->getResourceCount();
+        if (count) {
+            // Reset all the timestamps. We sort the resources by timestamp and then assign
+            // sequential timestamps beginning with 0. This is O(n*lg(n)) but it should be extremely
+            // rare.
+            SkTDArray<GrGpuResource*> sortedPurgeableResources;
+            sortedPurgeableResources.setReserve(fPurgeableQueue.count());
+
+            while (fPurgeableQueue.count()) {
+                *sortedPurgeableResources.append() = fPurgeableQueue.peek();
+                fPurgeableQueue.pop();
+            }
+
+            struct Less {
+                bool operator()(GrGpuResource* a, GrGpuResource* b) {
+                    return CompareTimestamp(a,b);
+                }
+            };
+            Less less;
+            SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end() - 1, less);
+
+            // Pick resources out of the purgeable and non-purgeable arrays based on lowest
+            // timestamp and assign new timestamps.
+            int currP = 0;
+            int currNP = 0;
+            while (currP < sortedPurgeableResources.count() &&
+                   currNP < fNonpurgeableResources.count()) {                
+                uint32_t tsP = sortedPurgeableResources[currP]->cacheAccess().timestamp();
+                uint32_t tsNP = fNonpurgeableResources[currNP]->cacheAccess().timestamp();
+                SkASSERT(tsP != tsNP);
+                if (tsP < tsNP) {
+                    sortedPurgeableResources[currP++]->cacheAccess().setTimestamp(fTimestamp++);
+                } else {
+                    // Correct the index in the nonpurgeable array stored on the resource post-sort.
+                    *fNonpurgeableResources[currNP]->cacheAccess().accessCacheIndex() = currNP;
+                    fNonpurgeableResources[currNP++]->cacheAccess().setTimestamp(fTimestamp++);
+                }
+            }
+
+            // The above loop ended when we hit the end of one array. Finish the other one.
+            while (currP < sortedPurgeableResources.count()) {
+                sortedPurgeableResources[currP++]->cacheAccess().setTimestamp(fTimestamp++);
+            }
+            while (currNP < fNonpurgeableResources.count()) {
+                *fNonpurgeableResources[currNP]->cacheAccess().accessCacheIndex() = currNP;
+                fNonpurgeableResources[currNP++]->cacheAccess().setTimestamp(fTimestamp++);
+            }
+
+            // Rebuild the queue.
+            for (int i = 0; i < sortedPurgeableResources.count(); ++i) {
+                fPurgeableQueue.insert(sortedPurgeableResources[i]);
+            }
+
+            this->validate();
+            SkASSERT(count == this->getResourceCount());
+
+            // count should be the next timestamp we return.
+            SkASSERT(fTimestamp == SkToU32(count));
+        }        
+    }
+    return fTimestamp++;
 }
 
 #ifdef SK_DEBUG

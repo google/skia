@@ -125,6 +125,9 @@ void GrResourceCache::dumpStats(SkString* out) const {
 
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+
+void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newTimestamp; }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.

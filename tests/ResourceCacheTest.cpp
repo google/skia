@@ -923,6 +923,71 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_timestamp_wrap(skiatest::Reporter* reporter) {
+    static const int kCount = 50;
+    static const int kBudgetCnt = kCount / 2;
+    static const int kLockedFreq = 8;
+    static const int kBudgetSize = 0x80000000;
+
+    SkRandom random;
+
+    // Run the test 2*kCount times;
+    for (int i = 0; i < 2 * kCount; ++i ) {
+        Mock mock(kBudgetCnt, kBudgetSize);
+        GrContext* context = mock.context();
+        GrResourceCache* cache = mock.cache();
+
+        // Pick a random number of resources to add before the timestamp will wrap.
+        cache->changeTimestamp(SK_MaxU32 - random.nextULessThan(kCount + 1));
+
+        static const int kNumToPurge = kCount - kBudgetCnt;
+
+        SkTDArray<int> shouldPurgeIdxs;
+        int purgeableCnt = 0;
+        SkTDArray<GrGpuResource*> resourcesToUnref;
+
+        // Add kCount resources, holding onto resources at random so we have a mix of purgeable and
+        // unpurgeable resources.
+        for (int j = 0; j < kCount; ++j) {
+            GrUniqueKey key;
+            make_unique_key<0>(&key, j);
+
+            TestResource* r = SkNEW_ARGS(TestResource, (context->getGpu()));
+            r->resourcePriv().setUniqueKey(key);
+            if (random.nextU() % kLockedFreq) {
+                // Make this is purgeable.
+                r->unref();
+                ++purgeableCnt;
+                if (purgeableCnt <= kNumToPurge) {
+                    *shouldPurgeIdxs.append() = j;
+                }
+            } else {
+                *resourcesToUnref.append() = r;
+            }
+        }
+
+        // Verify that the correct resources were purged.
+        int currShouldPurgeIdx = 0;
+        for (int j = 0; j < kCount; ++j) {
+            GrUniqueKey key;
+            make_unique_key<0>(&key, j);
+            GrGpuResource* res = cache->findAndRefUniqueResource(key);
+            if (currShouldPurgeIdx < shouldPurgeIdxs.count() &&
+                shouldPurgeIdxs[currShouldPurgeIdx] == j) {
+                ++currShouldPurgeIdx;
+                REPORTER_ASSERT(reporter, NULL == res);
+            } else {
+                REPORTER_ASSERT(reporter, NULL != res);
+            }
+            SkSafeUnref(res);
+        }
+
+        for (int j = 0; j < resourcesToUnref.count(); ++j) {
+            resourcesToUnref[j]->unref();
+        }
+    }
+}
+
 static void test_large_resource_count(skiatest::Reporter* reporter) {
     // Set the cache size to double the resource count because we're going to create 2x that number
     // resources, using two different key domains. Add a little slop to the bytes because we resize
@@ -982,7 +1047,6 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST(ResourceCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
@@ -1018,6 +1082,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
     test_purge_invalidated(reporter);
     test_cache_chained_purge(reporter);
     test_resource_size_changed(reporter);
+    test_timestamp_wrap(reporter);
     test_large_resource_count(reporter);
 }
 
