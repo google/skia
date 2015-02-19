@@ -229,8 +229,7 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE { return; }
 
-    bool createStencilBufferForRenderTarget(GrRenderTarget*, bool budgeted,
-                                            int width, int height) SK_OVERRIDE {
+    bool createStencilBufferForRenderTarget(GrRenderTarget*, int width, int height) SK_OVERRIDE {
         return false;
     }
 

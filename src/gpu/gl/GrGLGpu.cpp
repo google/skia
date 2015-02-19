@@ -442,8 +442,6 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget, (this, desc, idDesc));
     if (wrapDesc.fStencilBits) {
         GrGLStencilBuffer::IDDesc sbDesc;
-        sbDesc.fRenderbufferID = 0;
-        sbDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
         GrGLStencilBuffer::Format format;
         format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;
         format.fPacked = false;
@@ -1128,8 +1126,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
-bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, bool budgeted, int width,
-                                                 int height) {
+bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) {
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
     SkASSERT(rt->asTexture());
@@ -1138,9 +1135,6 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, bool budget
 
     int samples = rt->numSamples();
     GrGLStencilBuffer::IDDesc sbDesc;
-    sbDesc.fRenderbufferID = 0;
-    sbDesc.fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle
-                                 : GrGpuResource::kUncached_LifeCycle;
 
     int stencilFmtCnt = this->glCaps().stencilFormats().count();
     for (int i = 0; i < stencilFmtCnt; ++i) {

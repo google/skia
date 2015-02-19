@@ -24,6 +24,7 @@ public:
     };
 
     struct IDDesc {
+        IDDesc() : fRenderbufferID(0), fLifeCycle(kCached_LifeCycle) {}
         GrGLuint fRenderbufferID;
         GrGpuResource::LifeCycle fLifeCycle;
     };

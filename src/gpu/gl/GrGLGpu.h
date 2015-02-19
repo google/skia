@@ -122,8 +122,7 @@ private:
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) SK_OVERRIDE;
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) SK_OVERRIDE;
-    bool createStencilBufferForRenderTarget(GrRenderTarget* rt, bool budgeted,
-                                            int width, int height) SK_OVERRIDE;
+    bool createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) SK_OVERRIDE;
     bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTarget* rt) SK_OVERRIDE;
 
     void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,

@@ -63,6 +63,73 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context, SkCanva
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
+static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* context) {
+    GrSurfaceDesc smallDesc;
+    smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    smallDesc.fConfig = kSkia8888_GrPixelConfig;
+    smallDesc.fWidth = 4;
+    smallDesc.fHeight = 4;
+    smallDesc.fSampleCnt = 0;
+
+    // Test that two budgeted RTs with the same desc share a stencil buffer.
+    SkAutoTUnref<GrTexture> smallRT0(context->createTexture(smallDesc, true));
+    SkAutoTUnref<GrTexture> smallRT1(context->createTexture(smallDesc, true));
+    REPORTER_ASSERT(reporter, smallRT0 && smallRT1 &&
+                              smallRT0->asRenderTarget() && smallRT1->asRenderTarget() &&
+                              smallRT0->asRenderTarget()->getStencilBuffer() ==
+                              smallRT1->asRenderTarget()->getStencilBuffer());
+
+    // An unbudgeted RT with the same desc should also share.
+    SkAutoTUnref<GrTexture> smallRT2(context->createTexture(smallDesc, false));
+    REPORTER_ASSERT(reporter, smallRT0 && smallRT2 &&
+                              smallRT0->asRenderTarget() && smallRT2->asRenderTarget() &&
+                              smallRT0->asRenderTarget()->getStencilBuffer() ==
+                              smallRT2->asRenderTarget()->getStencilBuffer());
+
+    // An RT with a much larger size should not share.
+    GrSurfaceDesc bigDesc;
+    bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    bigDesc.fConfig = kSkia8888_GrPixelConfig;
+    bigDesc.fWidth = 400;
+    bigDesc.fHeight = 200;
+    bigDesc.fSampleCnt = 0;
+    SkAutoTUnref<GrTexture> bigRT(context->createTexture(bigDesc, false));
+    REPORTER_ASSERT(reporter, smallRT0 && bigRT &&
+                              smallRT0->asRenderTarget() && bigRT->asRenderTarget() &&
+                              smallRT0->asRenderTarget()->getStencilBuffer() !=
+                              bigRT->asRenderTarget()->getStencilBuffer());
+
+    if (context->getMaxSampleCount() >= 4) {
+        // An RT with a different sample count should not share. 
+        GrSurfaceDesc smallMSAADesc = smallDesc;
+        smallMSAADesc.fSampleCnt = 4;
+        SkAutoTUnref<GrTexture> smallMSAART0(context->createTexture(smallMSAADesc, false));
+        REPORTER_ASSERT(reporter, smallRT0 && smallMSAART0 &&
+                                  smallRT0->asRenderTarget() && smallMSAART0->asRenderTarget() &&
+                                  smallRT0->asRenderTarget()->getStencilBuffer() !=
+                                  smallMSAART0->asRenderTarget()->getStencilBuffer());
+        // A second MSAA RT should share with the first MSAA RT.
+        SkAutoTUnref<GrTexture> smallMSAART1(context->createTexture(smallMSAADesc, false));
+        REPORTER_ASSERT(reporter, smallMSAART0 && smallMSAART1 &&
+                                  smallMSAART0->asRenderTarget() &&
+                                  smallMSAART1->asRenderTarget() &&
+                                  smallMSAART0->asRenderTarget()->getStencilBuffer() ==
+                                  smallMSAART1->asRenderTarget()->getStencilBuffer());
+        // But not one with a larger sample count should not. (Also check that the request for 4
+        // samples didn't get rounded up to >= 8 or else they could share.).
+        if (context->getMaxSampleCount() >= 8 && smallMSAART0 && smallMSAART0->asRenderTarget() &&
+            smallMSAART0->asRenderTarget()->numSamples() < 8) {
+            smallMSAADesc.fSampleCnt = 8;
+            smallMSAART1.reset(context->createTexture(smallMSAADesc, false));
+            REPORTER_ASSERT(reporter, smallMSAART0 && smallMSAART1 &&
+                                      smallMSAART0->asRenderTarget() &&
+                                      smallMSAART1->asRenderTarget() &&
+                                      smallMSAART0->asRenderTarget()->getStencilBuffer() !=
+                                      smallMSAART1->asRenderTarget()->getStencilBuffer());
+        }
+    }
+}
+
 class TestResource : public GrGpuResource {
     static const size_t kDefaultSize = 100;
     enum ScratchConstructor { kScratchConstructor };
@@ -936,6 +1003,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context,
                                                                    SkSurface::kNo_Budgeted, info));
         test_cache(reporter, context, surface->getCanvas());
+        test_stencil_buffers(reporter, context);
     }
 
     // The below tests create their own mock contexts.

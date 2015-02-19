@@ -47,7 +47,10 @@ public:
                !fLastClipStackRect.contains(clipSpaceRect);
     }
 
-    static void ComputeKey(int width, int height, int sampleCnt, GrScratchKey* key);
+    // We create a unique stencil buffer at each width, height and sampleCnt and share it for
+    // all render targets that require a stencil with those params.
+    static void ComputeSharedStencilBufferKey(int width, int height, int sampleCnt,
+                                              GrUniqueKey* key);
 
 protected:
     GrStencilBuffer(GrGpu* gpu, LifeCycle lifeCycle, int width, int height, int bits, int sampleCnt)
@@ -57,11 +60,6 @@ protected:
         , fBits(bits)
         , fSampleCnt(sampleCnt)
         , fLastClipStackGenID(SkClipStack::kInvalidGenID) {
-        if (kCached_LifeCycle == lifeCycle) {
-            GrScratchKey key;
-            ComputeKey(width, height, sampleCnt, &key);
-            this->setScratchKey(key);
-        }
         fLastClipStackRect.setEmpty();
     }
 

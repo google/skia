@@ -9,11 +9,11 @@
 #include "GrStencilBuffer.h"
 #include "GrResourceKey.h"
 
-void GrStencilBuffer::ComputeKey(int width, int height, int sampleCnt, GrScratchKey* key) {
-    static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
-    GrScratchKey::Builder builder(key, kType, 2);
-    SkASSERT(width <= SK_MaxU16);
-    SkASSERT(height <= SK_MaxU16);
-    builder[0] = width | (height << 16);
-    builder[1] = sampleCnt;
+void GrStencilBuffer::ComputeSharedStencilBufferKey(int width, int height, int sampleCnt,
+                                                    GrUniqueKey* key) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kDomain, 3);
+    builder[0] = width;
+    builder[1] = height;
+    builder[2] = sampleCnt;
 }
