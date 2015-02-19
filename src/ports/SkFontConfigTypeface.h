@@ -39,9 +39,7 @@ public:
         return fFamilyName.equals(name);
     }
 
-    static SkTypeface* LegacyCreateTypeface(const SkTypeface* family,
-                                            const char familyName[],
-                                            SkTypeface::Style);
+    static SkTypeface* LegacyCreateTypeface(const char familyName[], SkTypeface::Style);
 
 protected:
     friend class SkFontHost;    // hack until we can make public versions
