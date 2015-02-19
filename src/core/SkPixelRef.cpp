@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
 #include "SkPixelRef.h"
 #include "SkThread.h"
 
@@ -223,7 +222,6 @@ void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
     *fGenIDChangeListeners.append() = listener;
 }
 
-// we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
     if (fUniqueGenerationID) {
@@ -233,15 +231,6 @@ void SkPixelRef::callGenIDChangeListeners() {
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
     fGenIDChangeListeners.deleteAll();
-
-    // if fGenerationID is 0, then perhaps we never had one, and we are in the destructor
-    if (fGenerationID) {
-        // If the ResourceCache ever generalizes/standardizes on accessing the gen-id field,
-        // then it would be more efficient to roll these together, and only grab the mutex
-        // and fixing the resources once...
-        SkBitmapCache::NotifyGenIDStale(fGenerationID);
-        SkMipMapCache::NotifyGenIDStale(fGenerationID);
-    }
 }
 
 void SkPixelRef::notifyPixelsChanged() {

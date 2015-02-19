@@ -48,22 +48,12 @@ public:
      */
     static bool Add(uint32_t genID, const SkIRect& subset, const SkBitmap& result,
                     SkResourceCache* localCache = NULL);
-
-    /**
-     *  Call this to (as a hint) preemptively purge caches related to this genID
-     */
-    static void NotifyGenIDStale(uint32_t);
 };
 
 class SkMipMapCache {
 public:
     static const SkMipMap* FindAndRef(const SkBitmap& src, SkResourceCache* localCache = NULL);
     static const SkMipMap* AddAndRef(const SkBitmap& src, SkResourceCache* localCache = NULL);
-
-    /**
-     *  Call this to (as a hint) preemptively purge caches related to this genID
-     */
-    static void NotifyGenIDStale(uint32_t);
 };
 
 #endif

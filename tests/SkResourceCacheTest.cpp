@@ -156,14 +156,6 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
 
     mipmap = SkMipMapCache::AddAndRef(src, cache);
     REPORTER_ASSERT(reporter, mipmap);
-
-    {
-        const SkMipMap* mm = SkMipMapCache::FindAndRef(src, cache);
-        REPORTER_ASSERT(reporter, mm);
-        REPORTER_ASSERT(reporter, mm == mipmap);
-        mm->unref();
-    }
-
     check_data(reporter, mipmap, 2, kInCache, kLocked);
 
     mipmap->unref();
@@ -179,67 +171,6 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     check_data(reporter, mipmap, 1, kNotInCache, kLocked);
 
     mipmap->unref();
-}
-
-// In a multi-threaded run, we can't reliably assert that something is in the global cache
-// even if we just added it, since another thread might have caused a purge, hence we guard
-// those checks with this flag (to be defined only when run locally in 1 thread).
-#define ONLY_WORKS_RELIABLY_SINGLE_THREADED_SINCE_CACHE_MAY_HAVE_BEEN_PURGED
-
-static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* cache) {
-    // TODO make our pixelref notification work for all caches (right now it is only global caches)
-    cache = NULL;
-
-    const int N = 3;
-    SkBitmap src[N];
-    for (int i = 0; i < N; ++i) {
-        src[i].allocN32Pixels(5, 5);
-        src[i].setImmutable();
-        SkMipMapCache::AddAndRef(src[i], cache)->unref();
-    }
-
-    for (int i = 0; i < N; ++i) {
-        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(src[i], cache);
-#ifdef ONLY_WORKS_RELIABLY_SINGLE_THREADED_SINCE_CACHE_MAY_HAVE_BEEN_PURGED
-        REPORTER_ASSERT(reporter, mipmap);
-#endif
-        SkSafeUnref(mipmap);
-
-        src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
-
-        mipmap = SkMipMapCache::FindAndRef(src[i], cache);
-        REPORTER_ASSERT(reporter, !mipmap);
-    }
-}
-
-static void test_bitmap_notify(skiatest::Reporter* reporter, SkResourceCache* cache) {
-    // TODO make our pixelref notification work for all caches (right now it is only global caches)
-    cache = NULL;
-
-    const SkIRect subset = SkIRect::MakeWH(5, 5);
-    const int N = 3;
-    SkBitmap src[N], dst[N];
-    for (int i = 0; i < N; ++i) {
-        src[i].allocN32Pixels(5, 5);
-        src[i].setImmutable();
-        dst[i].allocN32Pixels(5, 5);
-        dst[i].setImmutable();
-        SkBitmapCache::Add(src[i].getGenerationID(), subset, dst[i], cache);
-    }
-
-    for (int i = 0; i < N; ++i) {
-        const uint32_t genID = src[i].getGenerationID();
-        SkBitmap result;
-        bool found = SkBitmapCache::Find(genID, subset, &result, cache);
-#ifdef ONLY_WORKS_RELIABLY_SINGLE_THREADED_SINCE_CACHE_MAY_HAVE_BEEN_PURGED
-        REPORTER_ASSERT(reporter, found);
-#endif
-
-        src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
-
-        found = SkBitmapCache::Find(genID, subset, &result, cache);
-        REPORTER_ASSERT(reporter, !found);
-    }
 }
 
 DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
@@ -288,6 +219,4 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
 
     test_mipmapcache(reporter, cache);
-    test_bitmap_notify(reporter, cache);
-    test_mipmap_notify(reporter, cache);
 }

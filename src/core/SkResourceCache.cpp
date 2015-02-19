@@ -61,8 +61,6 @@ void SkResourceCache::init() {
     // One of these should be explicit set by the caller after we return.
     fTotalByteLimit = 0;
     fDiscardableFactory = NULL;
-
-    fInsidePurgeAllCounter = 0;
 }
 
 #include "SkDiscardableMemory.h"
@@ -201,7 +199,7 @@ SkResourceCache::~SkResourceCache() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SkResourceCache::find(const Key& key, FindVisitor visitor, void* context) {
+bool SkResourceCache::find(const Key& key, VisitorProc visitor, void* context) {
     Rec* rec = fHash->find(key);
     if (rec) {
         if (visitor(*rec, context)) {
@@ -292,34 +290,6 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
 
         Rec* prev = rec->fPrev;
         this->remove(rec);
-        rec = prev;
-    }
-}
-
-void SkResourceCache::purge(const void* nameSpace, PurgeVisitor proc, void* context) {
-    if (this->insidePurgeAll()) {
-        return;
-    }
-
-    // go backwards, just like purgeAsNeeded, just to make the code similar.
-    // could iterate either direction and still be correct.
-    Rec* rec = fTail;
-    while (rec) {
-        Rec* prev = rec->fPrev;
-        if (rec->getKey().getNamespace() == nameSpace) {
-            switch (proc(*rec, context)) {
-                case kRetainAndContinue_PurgeVisitorResult:
-                    break;
-                case kPurgeAndContinue_PurgeVisitorResult:
-                    this->remove(rec);
-                    break;
-                case kRetainAndStop_PurgeVisitorResult:
-                    return;
-                case kPurgeAndStop_PurgeVisitorResult:
-                    this->remove(rec);
-                    return;
-            }
-        }
         rec = prev;
     }
 }
@@ -562,17 +532,12 @@ size_t SkResourceCache::GetEffectiveSingleAllocationByteLimit() {
     return get_cache()->getEffectiveSingleAllocationByteLimit();
 }
 
-void SkResourceCache::Purge(const void* nameSpace, PurgeVisitor proc, void* context) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->purge(nameSpace, proc, context);
-}
-
 void SkResourceCache::PurgeAll() {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->purgeAll();
 }
 
-bool SkResourceCache::Find(const Key& key, FindVisitor visitor, void* context) {
+bool SkResourceCache::Find(const Key& key, VisitorProc visitor, void* context) {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->find(key, visitor, context);
 }
