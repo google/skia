@@ -7,11 +7,9 @@
 #
 {
     'sources': [
-        '<(skia_include_path)/pdf/SkPDFDevice.h',
-        '<(skia_include_path)/pdf/SkPDFDocument.h',
-
         '<(skia_src_path)/doc/SkDocument_PDF.cpp',
-
+        '<(skia_src_path)/pdf/SkDeflateWStream.cpp',
+        '<(skia_src_path)/pdf/SkDeflateWStream.h',
         '<(skia_src_path)/pdf/SkPDFBitmap.cpp',
         '<(skia_src_path)/pdf/SkPDFBitmap.h',
         '<(skia_src_path)/pdf/SkPDFCanon.cpp',
@@ -19,9 +17,11 @@
         '<(skia_src_path)/pdf/SkPDFCatalog.cpp',
         '<(skia_src_path)/pdf/SkPDFCatalog.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',
+        '<(skia_src_path)/pdf/SkPDFDevice.h',
         '<(skia_src_path)/pdf/SkPDFDeviceFlattener.cpp',
         '<(skia_src_path)/pdf/SkPDFDeviceFlattener.h',
         '<(skia_src_path)/pdf/SkPDFDocument.cpp',
+        '<(skia_src_path)/pdf/SkPDFDocument.h',
         '<(skia_src_path)/pdf/SkPDFFont.cpp',
         '<(skia_src_path)/pdf/SkPDFFont.h',
         '<(skia_src_path)/pdf/SkPDFFontImpl.h',
@@ -44,7 +44,5 @@
         '<(skia_src_path)/pdf/SkPDFUtils.cpp',
         '<(skia_src_path)/pdf/SkPDFUtils.h',
         '<(skia_src_path)/pdf/SkTSet.h',
-        '<(skia_src_path)/pdf/SkDeflateWStream.cpp',
-        '<(skia_src_path)/pdf/SkDeflateWStream.h',
     ],
 }
