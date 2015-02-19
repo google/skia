@@ -104,6 +104,12 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
         SkAutoTUnref<GrTexture> smallMSAART0(context->createTexture(smallMSAADesc, false));
+#ifdef SK_BUILD_FOR_ANDROID
+        if (!smallMSAART0) {
+            // The nexus player seems to fail to create MSAA textures.
+            return;
+        }
+#endif
         REPORTER_ASSERT(reporter, smallRT0 && smallMSAART0 &&
                                   smallRT0->asRenderTarget() && smallMSAART0->asRenderTarget() &&
                                   smallRT0->asRenderTarget()->getStencilBuffer() !=
