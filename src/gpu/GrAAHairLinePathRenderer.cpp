@@ -184,7 +184,7 @@ int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weight) {
 // returns 0 if quad/conic is degen or close to it
 // in this case approx the path with lines
 // otherwise returns 1
-int is_degen_quad_or_conic(const SkPoint p[3]) {
+int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
     static const SkScalar gDegenerateToLineTol = SK_Scalar1;
     static const SkScalar gDegenerateToLineTolSqd =
         SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
@@ -194,8 +194,8 @@ int is_degen_quad_or_conic(const SkPoint p[3]) {
         return 1;
     }
 
-    SkScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
-    if (dsqd < gDegenerateToLineTolSqd) {
+    *dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
+    if (*dsqd < gDegenerateToLineTolSqd) {
         return 1;
     }
 
@@ -205,24 +205,16 @@ int is_degen_quad_or_conic(const SkPoint p[3]) {
     return 0;
 }
 
+int is_degen_quad_or_conic(const SkPoint p[3]) {
+    SkScalar dsqd;
+    return is_degen_quad_or_conic(p, &dsqd);
+}
+
 // we subdivide the quads to avoid huge overfill
 // if it returns -1 then should be drawn as lines
 int num_quad_subdivs(const SkPoint p[3]) {
-    static const SkScalar gDegenerateToLineTol = SK_Scalar1;
-    static const SkScalar gDegenerateToLineTolSqd =
-        SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
-
-    if (p[0].distanceToSqd(p[1]) < gDegenerateToLineTolSqd ||
-        p[1].distanceToSqd(p[2]) < gDegenerateToLineTolSqd) {
-        return -1;
-    }
-
-    SkScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
-    if (dsqd < gDegenerateToLineTolSqd) {
-        return -1;
-    }
-
-    if (p[2].distanceToLineBetweenSqd(p[1], p[0]) < gDegenerateToLineTolSqd) {
+    SkScalar dsqd;
+    if (is_degen_quad_or_conic(p, &dsqd)) {
         return -1;
     }
 
