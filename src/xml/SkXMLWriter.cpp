@@ -169,7 +169,14 @@ static void write_dom(const SkDOM& dom, const SkDOM::Node* node, SkXMLWriter* w,
 {
     if (!skipRoot)
     {
-        w->startElement(dom.getName(node));
+        const char* elem = dom.getName(node);
+        if (dom.getType(node) == SkDOM::kText_Type) {
+            SkASSERT(dom.countChildren(node) == 0);
+            w->addText(elem, strlen(elem));
+            return;
+        }
+
+        w->startElement(elem);
 
         SkDOM::AttrIter iter(dom, node);
         const char* name;

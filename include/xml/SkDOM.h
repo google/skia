@@ -17,6 +17,9 @@
 struct SkDOMNode;
 struct SkDOMAttr;
 
+class SkDOMParser;
+class SkXMLParser;
+
 class SkDOM {
 public:
     SkDOM();
@@ -31,6 +34,9 @@ public:
     const Node* copy(const SkDOM& dom, const Node* node);
 
     const Node* getRootNode() const;
+
+    SkXMLParser* beginParsing();
+    const Node* finishParsing();
 
     enum Type {
         kElement_Type,
@@ -82,8 +88,10 @@ public:
     SkDEBUGCODE(static void UnitTest();)
 
 private:
-    SkChunkAlloc    fAlloc;
-    Node*           fRoot;
+    SkChunkAlloc               fAlloc;
+    Node*                      fRoot;
+    SkAutoTDelete<SkDOMParser> fParser;
+
     friend class AttrIter;
     friend class SkDOMParser;
 };

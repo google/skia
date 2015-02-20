@@ -523,14 +523,6 @@ void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path) {
 void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     this->addAttribute("font-size", paint.getTextSize());
 
-    SkTypeface::Style style = paint.getTypeface()->style();
-    if (style & SkTypeface::kItalic) {
-        this->addAttribute("font-style", "italic");
-    }
-    if (style & SkTypeface::kBold) {
-        this->addAttribute("font-weight", "bold");
-    }
-
     if (const char* textAlign = svg_text_align(paint.getTextAlign())) {
         this->addAttribute("text-anchor", textAlign);
     }
@@ -538,7 +530,17 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     SkString familyName;
     SkTHashSet<SkString, hash_family_string> familySet;
     SkAutoTUnref<const SkTypeface> tface(paint.getTypeface() ?
-        SkRef(paint.getTypeface()) : SkTypeface::RefDefault(style));
+        SkRef(paint.getTypeface()) : SkTypeface::RefDefault());
+
+    SkASSERT(tface);
+    SkTypeface::Style style = tface->style();
+    if (style & SkTypeface::kItalic) {
+        this->addAttribute("font-style", "italic");
+    }
+    if (style & SkTypeface::kBold) {
+        this->addAttribute("font-weight", "bold");
+    }
+
     SkAutoTUnref<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());
     SkTypeface::LocalizedString familyString;
     while (familyNameIter->next(&familyString)) {
