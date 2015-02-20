@@ -302,6 +302,9 @@
 #    elif defined(__has_extension) && __has_extension(cxx_override_control)
 #      define SK_OVERRIDE override
 #    endif
+   // if GCC >= 4.7
+#  elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+#    define SK_OVERRIDE override
 #  endif
 #  ifndef SK_OVERRIDE
 #    define SK_OVERRIDE
