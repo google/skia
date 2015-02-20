@@ -16,6 +16,7 @@
 #include "SkTypefaceCache.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
+#include "SkUtils.h"
 
 #include <dwrite.h>
 
@@ -298,6 +299,7 @@ private:
     mutable SkTypefaceCache fTFCache;
 
     friend class SkFontStyleSet_DirectWrite;
+    friend class FontFallbackRenderer;
 };
 
 class SkFontStyleSet_DirectWrite : public SkFontStyleSet {
@@ -487,11 +489,204 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyle(const char familyName[],
     return sset->matchStyle(fontstyle);
 }
 
+class FontFallbackRenderer : public IDWriteTextRenderer {
+public:
+    FontFallbackRenderer(const SkFontMgr_DirectWrite* outer, UINT32 character)
+        : fRefCount(1), fOuter(SkSafeRef(outer)), fCharacter(character), fResolvedTypeface(NULL) {
+    }
+
+    virtual ~FontFallbackRenderer() { }
+
+    // IDWriteTextRenderer methods
+    virtual HRESULT STDMETHODCALLTYPE DrawGlyphRun(
+        void* clientDrawingContext,
+        FLOAT baselineOriginX,
+        FLOAT baselineOriginY,
+        DWRITE_MEASURING_MODE measuringMode,
+        DWRITE_GLYPH_RUN const* glyphRun,
+        DWRITE_GLYPH_RUN_DESCRIPTION const* glyphRunDescription,
+        IUnknown* clientDrawingEffect) SK_OVERRIDE
+    {
+        SkTScopedComPtr<IDWriteFont> font;
+        HRM(fOuter->fFontCollection->GetFontFromFontFace(glyphRun->fontFace, &font),
+            "Could not get font from font face.");
+
+        // It is possible that the font passed does not actually have the requested character,
+        // due to no font being found and getting the fallback font.
+        // Check that the font actually contains the requested character.
+        BOOL exists;
+        HRM(font->HasCharacter(fCharacter, &exists), "Could not find character.");
+
+        if (exists) {
+            SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+            HRM(font->GetFontFamily(&fontFamily), "Could not get family.");
+            fResolvedTypeface = fOuter->createTypefaceFromDWriteFont(glyphRun->fontFace,
+                                                                     font.get(),
+                                                                     fontFamily.get());
+        }
+
+        return S_OK;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE DrawUnderline(
+        void* clientDrawingContext,
+        FLOAT baselineOriginX,
+        FLOAT baselineOriginY,
+        DWRITE_UNDERLINE const* underline,
+        IUnknown* clientDrawingEffect) SK_OVERRIDE
+    { return E_NOTIMPL; }
+
+    virtual HRESULT STDMETHODCALLTYPE DrawStrikethrough(
+        void* clientDrawingContext,
+        FLOAT baselineOriginX,
+        FLOAT baselineOriginY,
+        DWRITE_STRIKETHROUGH const* strikethrough,
+        IUnknown* clientDrawingEffect) SK_OVERRIDE
+    { return E_NOTIMPL; }
+
+    virtual HRESULT STDMETHODCALLTYPE DrawInlineObject(
+        void* clientDrawingContext,
+        FLOAT originX,
+        FLOAT originY,
+        IDWriteInlineObject* inlineObject,
+        BOOL isSideways,
+        BOOL isRightToLeft,
+        IUnknown* clientDrawingEffect) SK_OVERRIDE
+    { return E_NOTIMPL; }
+
+    // IDWritePixelSnapping methods
+    virtual HRESULT STDMETHODCALLTYPE IsPixelSnappingDisabled(
+        void* clientDrawingContext,
+        BOOL* isDisabled) SK_OVERRIDE
+    {
+        *isDisabled = FALSE;
+        return S_OK;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE GetCurrentTransform(
+        void* clientDrawingContext,
+        DWRITE_MATRIX* transform) SK_OVERRIDE
+    {
+        const DWRITE_MATRIX ident = { 1.0, 0.0, 0.0, 1.0, 0.0, 0.0 };
+        *transform = ident;
+        return S_OK;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE GetPixelsPerDip(
+        void* clientDrawingContext,
+        FLOAT* pixelsPerDip) SK_OVERRIDE
+    {
+        *pixelsPerDip = 1.0f;
+        return S_OK;
+    }
+
+    // IUnknown methods
+    ULONG STDMETHODCALLTYPE AddRef() SK_OVERRIDE {
+        return InterlockedIncrement(&fRefCount);
+    }
+
+    ULONG STDMETHODCALLTYPE Release() SK_OVERRIDE {
+        ULONG newCount = InterlockedDecrement(&fRefCount);
+        if (0 == newCount) {
+            delete this;
+        }
+        return newCount;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(
+        IID const& riid, void** ppvObject) SK_OVERRIDE
+    {
+        if (__uuidof(IUnknown) == riid ||
+            __uuidof(IDWritePixelSnapping) == riid ||
+            __uuidof(IDWriteTextRenderer) == riid)
+        {
+            *ppvObject = this;
+            this->AddRef();
+            return S_OK;
+        }
+        *ppvObject = NULL;
+        return E_FAIL;
+    }
+
+    SkTypeface* FallbackTypeface() { return fResolvedTypeface; }
+
+protected:
+    ULONG fRefCount;
+    SkAutoTUnref<const SkFontMgr_DirectWrite> fOuter;
+    UINT32 fCharacter;
+    SkTypeface* fResolvedTypeface;
+};
+
+static HRESULT getDefaultFontFamilyName(SkSMallocWCHAR* name) {
+    NONCLIENTMETRICSW metrics;
+    metrics.cbSize = sizeof(metrics);
+    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
+        return E_UNEXPECTED;
+    }
+
+    size_t len = wcsnlen_s(metrics.lfMessageFont.lfFaceName, LF_FACESIZE) + 1;
+    if (0 != wcsncpy_s(name->reset(len), len, metrics.lfMessageFont.lfFaceName, _TRUNCATE)) {
+        return E_UNEXPECTED;
+    }
+
+    return S_OK;
+}
+
 SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char familyName[],
-                                                               const SkFontStyle&,
+                                                               const SkFontStyle& style,
                                                                const char* bcp47[], int bcp47Count,
-                                                               SkUnichar character) const {
-    return NULL;
+                                                               SkUnichar character) const
+{
+    // TODO: use IDWriteFactory2::GetSystemFontFallback when available.
+
+    const DWriteStyle dwStyle(style);
+
+    SkSMallocWCHAR dwFamilyName;
+    if (NULL == familyName) {
+        HRN(getDefaultFontFamilyName(&dwFamilyName));
+    } else {
+        HRN(sk_cstring_to_wchar(familyName, &dwFamilyName));
+    }
+
+    const SkSMallocWCHAR* dwBcp47;
+    SkSMallocWCHAR dwBcp47Local;
+    if (bcp47Count < 1) {
+        dwBcp47 = &fLocaleName;
+    } else {
+        // TODO: support fallback stack.
+        // TODO: DirectWrite supports 'zh-CN' or 'zh-Hans', but 'zh' misses completely
+        // and may produce a Japanese font.
+        HRN(sk_cstring_to_wchar(bcp47[bcp47Count - 1], &dwBcp47Local));
+        dwBcp47 = &dwBcp47Local;
+    }
+
+    SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
+    HRNM(fFactory->CreateTextFormat(dwFamilyName,
+                                    fFontCollection.get(),
+                                    dwStyle.fWeight,
+                                    dwStyle.fSlant,
+                                    dwStyle.fWidth,
+                                    72.0f,
+                                    *dwBcp47,
+                                    &fallbackFormat),
+         "Could not create text format.");
+
+    WCHAR str[16];
+    UINT32 strLen = static_cast<UINT32>(
+        SkUTF16_FromUnichar(character, reinterpret_cast<uint16_t*>(str)));
+    SkTScopedComPtr<IDWriteTextLayout> fallbackLayout;
+    HRNM(fFactory->CreateTextLayout(str, strLen, fallbackFormat.get(),
+                                    200.0f, 200.0f,
+                                    &fallbackLayout),
+         "Could not create text layout.");
+
+    SkTScopedComPtr<FontFallbackRenderer> fontFallbackRenderer(
+        new FontFallbackRenderer(this, character));
+
+    HRNM(fallbackLayout->Draw(NULL, fontFallbackRenderer.get(), 50.0f, 50.0f),
+         "Could not draw layout with renderer.");
+
+    return fontFallbackRenderer->FallbackTypeface();
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onMatchFaceStyle(const SkTypeface* familyMember,

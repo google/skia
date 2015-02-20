@@ -21,27 +21,6 @@
 
 #include <dwrite.h>
 
-struct DWriteStyle {
-    explicit DWriteStyle(const SkFontStyle& pattern) {
-        switch (pattern.slant()) {
-        case SkFontStyle::kUpright_Slant:
-            fSlant = DWRITE_FONT_STYLE_NORMAL;
-            break;
-        case SkFontStyle::kItalic_Slant:
-            fSlant = DWRITE_FONT_STYLE_ITALIC;
-            break;
-        default:
-            SkASSERT(false);
-        }
-
-        fWeight = (DWRITE_FONT_WEIGHT)pattern.weight();
-        fWidth = (DWRITE_FONT_STRETCH)pattern.width();
-    }
-    DWRITE_FONT_STYLE fSlant;
-    DWRITE_FONT_WEIGHT fWeight;
-    DWRITE_FONT_STRETCH fWidth;
-};
-
 class SK_API SkRemotableFontMgr_DirectWrite : public SkRemotableFontMgr {
 private:
     struct DataId {
