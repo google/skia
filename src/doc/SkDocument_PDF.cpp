@@ -6,6 +6,7 @@
  */
 
 #include "SkDocument.h"
+#include "SkPDFCanon.h"
 #include "SkPDFDocument.h"
 #include "SkPDFDevice.h"
 
@@ -16,8 +17,6 @@ public:
                    SkScalar rasterDpi)
         : SkDocument(stream, doneProc)
         , fDoc(SkNEW(SkPDFDocument))
-        , fDevice(NULL)
-        , fCanvas(NULL)
         , fRasterDpi(rasterDpi) {}
 
     virtual ~SkDocument_PDF() {
@@ -28,56 +27,50 @@ public:
 protected:
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
                                   const SkRect& trimBox) SK_OVERRIDE {
-        SkASSERT(NULL == fCanvas);
-        SkASSERT(NULL == fDevice);
+        SkASSERT(!fCanvas.get());
+        SkASSERT(!fDevice.get());
 
-        SkISize mediaBoxSize;
-        mediaBoxSize.set(SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-
-        fDevice = SkNEW_ARGS(SkPDFDevice, (mediaBoxSize, mediaBoxSize, SkMatrix::I()));
-        if (fRasterDpi != 0) {
-            fDevice->setRasterDpi(fRasterDpi);
-        }
-        fCanvas = SkNEW_ARGS(SkCanvas, (fDevice));
+        SkISize pageSize = SkISize::Make(
+                SkScalarRoundToInt(width), SkScalarRoundToInt(height));
+        fDevice.reset(SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
+        fCanvas.reset(SkNEW_ARGS(SkCanvas, (fDevice)));
         fCanvas->clipRect(trimBox);
         fCanvas->translate(trimBox.x(), trimBox.y());
-        return fCanvas;
+        return fCanvas.get();
     }
 
     void onEndPage() SK_OVERRIDE {
-        SkASSERT(fCanvas);
-        SkASSERT(fDevice);
+        SkASSERT(fCanvas.get());
+        SkASSERT(fDevice.get());
 
         fCanvas->flush();
-        fDoc->appendPage(fDevice);
+        fDoc->appendPage(fDevice.get());
 
-        fCanvas->unref();
-        fDevice->unref();
-
-        fCanvas = NULL;
-        fDevice = NULL;
+        fCanvas.reset(NULL);
+        fDevice.reset(NULL);
     }
 
     bool onClose(SkWStream* stream) SK_OVERRIDE {
-        SkASSERT(NULL == fCanvas);
-        SkASSERT(NULL == fDevice);
+        SkASSERT(!fCanvas.get());
+        SkASSERT(!fDevice.get());
 
         bool success = fDoc->emitPDF(stream);
-        SkDELETE(fDoc);
-        fDoc = NULL;
+        fDoc.free();
+        SkDEBUGCODE(fCanon.assertEmpty());
         return success;
     }
 
     void onAbort() SK_OVERRIDE {
-        SkDELETE(fDoc);
-        fDoc = NULL;
+        fDoc.free();
+        SkDEBUGCODE(fCanon.assertEmpty());
     }
 
 private:
-    SkPDFDocument*  fDoc;
-    SkPDFDevice*    fDevice;
-    SkCanvas*       fCanvas;
-    SkScalar        fRasterDpi;
+    SkPDFCanon fCanon;
+    SkAutoTDelete<SkPDFDocument> fDoc;
+    SkAutoTUnref<SkPDFDevice> fDevice;
+    SkAutoTUnref<SkCanvas> fCanvas;
+    SkScalar fRasterDpi;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

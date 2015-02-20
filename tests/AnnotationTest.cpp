@@ -8,6 +8,7 @@
 #include "SkAnnotation.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 #include "Test.h"
@@ -41,10 +42,9 @@ DEF_TEST(Annotation_NoDraw, reporter) {
 
 DEF_TEST(Annotation_PdfLink, reporter) {
     SkISize size = SkISize::Make(612, 792);
-    SkMatrix initialTransform;
-    initialTransform.reset();
-    SkPDFDevice device(size, size, initialTransform);
-    SkCanvas canvas(&device);
+    SkPDFCanon canon;
+    SkAutoTUnref<SkPDFDevice> device(SkPDFDevice::Create(size, 72.0f, &canon));
+    SkCanvas canvas(device.get());
 
     SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72),
                                 SkIntToScalar(288), SkIntToScalar(72));
@@ -52,7 +52,7 @@ DEF_TEST(Annotation_PdfLink, reporter) {
     SkAnnotateRectWithURL(&canvas, r, data.get());
 
     SkPDFDocument doc;
-    doc.appendPage(&device);
+    doc.appendPage(device.get());
     SkDynamicMemoryWStream outStream;
     doc.emitPDF(&outStream);
     SkAutoDataUnref out(outStream.copyToData());
@@ -63,17 +63,16 @@ DEF_TEST(Annotation_PdfLink, reporter) {
 
 DEF_TEST(Annotation_NamedDestination, reporter) {
     SkISize size = SkISize::Make(612, 792);
-    SkMatrix initialTransform;
-    initialTransform.reset();
-    SkPDFDevice device(size, size, initialTransform);
-    SkCanvas canvas(&device);
+    SkPDFCanon canon;
+    SkAutoTUnref<SkPDFDevice> device(SkPDFDevice::Create(size, 72.0f, &canon));
+    SkCanvas canvas(device.get());
 
     SkPoint p = SkPoint::Make(SkIntToScalar(72), SkIntToScalar(72));
     SkAutoDataUnref data(SkData::NewWithCString("example"));
     SkAnnotateNamedDestination(&canvas, p, data.get());
 
     SkPDFDocument doc;
-    doc.appendPage(&device);
+    doc.appendPage(device.get());
     SkDynamicMemoryWStream outStream;
     doc.emitPDF(&outStream);
     SkAutoDataUnref out(outStream.copyToData());

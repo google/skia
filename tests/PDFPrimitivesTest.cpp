@@ -11,6 +11,7 @@
 #include "SkFlate.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix.h"
+#include "SkPDFCanon.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFStream.h"
@@ -215,8 +216,8 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkISize pageSize = SkISize::Make(100, 100);
-    SkAutoTUnref<SkPDFDevice> dev(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
-
+    SkPDFCanon canon;
+    SkAutoTUnref<SkPDFDevice> dev(SkPDFDevice::Create(pageSize, 72.0f, &canon));
     SkCanvas c(dev);
     SkPaint paint;
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
@@ -354,8 +355,10 @@ void DummyImageFilter::toString(SkString* str) const {
 // CPU rasterization.
 DEF_TEST(PDFImageFilter, reporter) {
     SkISize pageSize = SkISize::Make(100, 100);
-    SkAutoTUnref<SkPDFDevice> device(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
-    SkCanvas canvas(device.get());
+    SkPDFCanon canon;
+    SkAutoTUnref<SkPDFDevice> pdfDevice(
+            SkPDFDevice::Create(pageSize, 72.0f, &canon));
+    SkCanvas canvas(pdfDevice.get());
     SkAutoTUnref<DummyImageFilter> filter(new DummyImageFilter());
 
     // Filter just created; should be unvisited.

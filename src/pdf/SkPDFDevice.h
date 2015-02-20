@@ -23,6 +23,7 @@
 #include "SkTemplates.h"
 
 class SkPDFArray;
+class SkPDFCanon;
 class SkPDFDevice;
 class SkPDFDict;
 class SkPDFFont;
@@ -47,28 +48,37 @@ struct NamedDestination;
 */
 class SkPDFDevice : public SkBaseDevice {
 public:
-    /** Create a PDF drawing context with the given width and height.
-     *  72 points/in means letter paper is 612x792.
-     *  @param pageSize Page size in points.
-     *  @param contentSize The content size of the page in points. This will be
-     *         combined with the initial transform to determine the drawing area
-     *         (as reported by the width and height methods). Anything outside
-     *         of the drawing area will be clipped.
-     *  @param initialTransform The initial transform to apply to the page.
-     *         This may be useful to, for example, move the origin in and
-     *         over a bit to account for a margin, scale the canvas,
-     *         or apply a rotation.  Note1: the SkPDFDevice also applies
-     *         a scale+translate transform to move the origin from the
-     *         bottom left (PDF default) to the top left.  Note2: drawDevice
-     *         (used by layer restore) draws the device after this initial
-     *         transform is applied, so the PDF device does an
-     *         inverse scale+translate to accommodate the one that SkPDFDevice
-     *         always does.
+    /** Create a PDF drawing context.  SkPDFDevice applies a
+     *  scale-and-translate transform to move the origin from the
+     *  bottom left (PDF default) to the top left (Skia default).
+     *  @param pageSize Page size in point units.
+     *         1 point == 127/360 mm == 1/72 inch
+     *  @param rasterDpi the DPI at which features without native PDF
+     *         support will be rasterized (e.g. draw image with
+     *         perspective, draw text with perspective, ...).  A
+     *         larger DPI would create a PDF that reflects the
+     *         original intent with better fidelity, but it can make
+     *         for larger PDF files too, which would use more memory
+     *         while rendering, and it would be slower to be processed
+     *         or sent online or to printer.  A good choice is
+     *         SK_ScalarDefaultRasterDPI(72.0f).
+     *  @param SkPDFCanon.  Should be non-null, and shared by all
+     *         devices in a document.
      */
-    // Deprecated, please use SkDocument::CreatePdf() instead.
-    SK_API SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
-                       const SkMatrix& initialTransform);
-    SK_API virtual ~SkPDFDevice();
+    static SkPDFDevice* Create(SkISize pageSize,
+                               SkScalar rasterDpi,
+                               SkPDFCanon* canon) {
+        return SkNEW_ARGS(SkPDFDevice, (pageSize, rasterDpi, canon, true));
+    }
+
+    /** Create a PDF drawing context without fipping the y-axis. */
+    static SkPDFDevice* CreateUnflipped(SkISize pageSize,
+                                        SkScalar rasterDpi,
+                                        SkPDFCanon* canon) {
+        return SkNEW_ARGS(SkPDFDevice, (pageSize, rasterDpi, canon, false));
+    }
+
+    virtual ~SkPDFDevice();
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -173,21 +183,6 @@ public:
         return *(fFontGlyphUsage.get());
     }
 
-
-    /**
-     *  rasterDpi - the DPI at which features without native PDF support
-     *              will be rasterized (e.g. draw image with perspective,
-     *              draw text with perspective, ...)
-     *              A larger DPI would create a PDF that reflects the original
-     *              intent with better fidelity, but it can make for larger
-     *              PDF files too, which would use more memory while rendering,
-     *              and it would be slower to be processed or sent online or
-     *              to printer.
-     */
-    void setRasterDpi(SkScalar rasterDpi) {
-        fRasterDpi = rasterDpi;
-    }
-
 protected:
     const SkBitmap& onAccessBitmap() SK_OVERRIDE {
         return fLegacyBitmap;
@@ -224,8 +219,6 @@ private:
 
     // Accessor and setter functions based on the current DrawingArea.
     SkAutoTDelete<ContentEntry>* getContentEntries();
-    ContentEntry* getLastContentEntry();
-    void setLastContentEntry(ContentEntry* contentEntry);
 
     // Glyph ids used for each font on this device.
     SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
@@ -234,8 +227,16 @@ private:
 
     SkBitmap fLegacyBitmap;
 
-    SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
-                const SkRegion& existingClipRegion);
+    SkPDFCanon* fCanon;  // Owned by SkDocument_PDF
+    ////////////////////////////////////////////////////////////////////////////
+
+    SkPDFDevice(SkISize pageSize,
+                SkScalar rasterDpi,
+                SkPDFCanon* canon,
+                bool flip);
+
+    ContentEntry* getLastContentEntry();
+    void setLastContentEntry(ContentEntry* contentEntry);
 
     // override from SkBaseDevice
     SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;

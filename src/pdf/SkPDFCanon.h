@@ -73,6 +73,15 @@ public:
     void addBitmap(SkPDFBitmap*);
     void removeBitmap(SkPDFBitmap*);
 
+    void assertEmpty() const {
+        SkASSERT(fFontRecords.isEmpty());
+        SkASSERT(fFunctionShaderRecords.isEmpty());
+        SkASSERT(fAlphaShaderRecords.isEmpty());
+        SkASSERT(fImageShaderRecords.isEmpty());
+        SkASSERT(fGraphicStateRecords.isEmpty());
+        SkASSERT(fBitmapRecords.isEmpty());
+    }
+
 private:
     struct FontRec {
         SkPDFFont* fFont;

@@ -49,6 +49,7 @@
 #include "SkDevice.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
+#include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 #include "SkPaint.h"
@@ -558,12 +559,14 @@ static void TestPdfDevice(skiatest::Reporter* reporter,
                           const TestData& d,
                           CanvasTestStep* testStep) {
     SkISize pageSize = SkISize::Make(d.fWidth, d.fHeight);
-    SkPDFDevice device(pageSize, pageSize, SkMatrix::I());
-    SkCanvas canvas(&device);
+    SkPDFCanon canon;
+    SkAutoTUnref<SkPDFDevice> pdfDevice(
+            SkPDFDevice::Create(pageSize, 72.0f, &canon));
+    SkCanvas canvas(pdfDevice.get());
     testStep->setAssertMessageFormat(kPdfAssertMessageFormat);
     testStep->draw(&canvas, d, reporter);
     SkPDFDocument doc;
-    doc.appendPage(&device);
+    doc.appendPage(pdfDevice.get());
     SkDynamicMemoryWStream stream;
     doc.emitPDF(&stream);
 }

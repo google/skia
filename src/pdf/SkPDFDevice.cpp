@@ -575,11 +575,8 @@ SkBaseDevice* SkPDFDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
     if (kImageFilter_Usage == cinfo.fUsage) {
         return SkBitmapDevice::Create(cinfo.fInfo);
     }
-
-    SkMatrix initialTransform;
-    initialTransform.reset();
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
-    return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
+    return SkPDFDevice::Create(size, fRasterDpi, fCanon);
 }
 
 
@@ -695,76 +692,36 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline SkImageInfo make_content_info(const SkISize& contentSize,
-                                            const SkMatrix* initialTransform) {
-    SkImageInfo info;
-    if (initialTransform) {
-        // Compute the size of the drawing area.
-        SkVector drawingSize;
-        SkMatrix inverse;
-        drawingSize.set(SkIntToScalar(contentSize.fWidth),
-                        SkIntToScalar(contentSize.fHeight));
-        if (!initialTransform->invert(&inverse)) {
-            // This shouldn't happen, initial transform should be invertible.
-            SkASSERT(false);
-            inverse.reset();
-        }
-        inverse.mapVectors(&drawingSize, 1);
-        SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
-        info = SkImageInfo::MakeUnknown(abs(size.fWidth), abs(size.fHeight));
-    } else {
-        info = SkImageInfo::MakeUnknown(abs(contentSize.fWidth),
-                                        abs(contentSize.fHeight));
-    }
-    return info;
-}
-
-// TODO(vandebo) change pageSize to SkSize.
-SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
-                         const SkMatrix& initialTransform)
+SkPDFDevice::SkPDFDevice(SkISize pageSize,
+                         SkScalar rasterDpi,
+                         SkPDFCanon* canon,
+                         bool flip)
     : fPageSize(pageSize)
-    , fContentSize(contentSize)
+    , fContentSize(pageSize)
+    , fExistingClipRegion(SkIRect::MakeSize(pageSize))
+    , fAnnotations(NULL)
+    , fResourceDict(NULL)
     , fLastContentEntry(NULL)
     , fLastMarginContentEntry(NULL)
+    , fDrawingArea(kContent_DrawingArea)
     , fClipStack(NULL)
-    , fRasterDpi(72.0f)
-{
-    const SkImageInfo info = make_content_info(contentSize, &initialTransform);
-
-    // Just report that PDF does not supports perspective in the
-    // initial transform.
-    NOT_IMPLEMENTED(initialTransform.hasPerspective(), true);
-
-    // Skia generally uses the top left as the origin but PDF natively has the
-    // origin at the bottom left. This matrix corrects for that.  But that only
-    // needs to be done once, we don't do it when layering.
-    fInitialTransform.setTranslate(0, SkIntToScalar(pageSize.fHeight));
-    fInitialTransform.preScale(SK_Scalar1, -SK_Scalar1);
-    fInitialTransform.preConcat(initialTransform);
-    fLegacyBitmap.setInfo(info);
-
-    SkIRect existingClip = info.bounds();
-    fExistingClipRegion.setRect(existingClip);
-    this->init();
-}
-
-// TODO(vandebo) change layerSize to SkSize.
-SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
-                         const SkClipStack& existingClipStack,
-                         const SkRegion& existingClipRegion)
-    : fPageSize(layerSize)
-    , fContentSize(layerSize)
-    , fExistingClipStack(existingClipStack)
-    , fExistingClipRegion(existingClipRegion)
-    , fLastContentEntry(NULL)
-    , fLastMarginContentEntry(NULL)
-    , fClipStack(NULL)
-    , fRasterDpi(72.0f)
-{
-    fInitialTransform.reset();
-    fLegacyBitmap.setInfo(make_content_info(layerSize, NULL));
-
-    this->init();
+    , fFontGlyphUsage(SkNEW(SkPDFGlyphSetMap))
+    , fRasterDpi(rasterDpi)
+    , fCanon(canon) {
+    SkASSERT(pageSize.width() > 0);
+    SkASSERT(pageSize.height() > 0);
+    fLegacyBitmap.setInfo(
+            SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()));
+    if (flip) {
+        // Skia generally uses the top left as the origin but PDF
+        // natively has the origin at the bottom left. This matrix
+        // corrects for that.  But that only needs to be done once, we
+        // don't do it when layering.
+        fInitialTransform.setTranslate(0, SkIntToScalar(pageSize.fHeight));
+        fInitialTransform.preScale(SK_Scalar1, -SK_Scalar1);
+    } else {
+        fInitialTransform.setIdentity();
+    }
 }
 
 SkPDFDevice::~SkPDFDevice() {

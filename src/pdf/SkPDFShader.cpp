@@ -942,15 +942,11 @@ SkPDFImageShader* SkPDFImageShader::Create(
         deviceBounds.join(bitmapBounds);
     }
 
-    SkMatrix unflip;
-    unflip.setTranslate(0, SkScalarRoundToScalar(deviceBounds.height()));
-    unflip.preScale(SK_Scalar1, -SK_Scalar1);
     SkISize size = SkISize::Make(SkScalarRoundToInt(deviceBounds.width()),
                                  SkScalarRoundToInt(deviceBounds.height()));
-    // TODO(edisonn): should we pass here the DCT encoder of the destination device?
-    // TODO(edisonn): NYI Perspective, use SkPDFDeviceFlattener.
-    SkPDFDevice pattern(size, size, unflip);
-    SkCanvas canvas(&pattern);
+    SkAutoTUnref<SkPDFDevice> patternDevice(
+            SkPDFDevice::CreateUnflipped(size, 72.0f, NULL));
+    SkCanvas canvas(patternDevice.get());
 
     SkRect patternBBox;
     image->getBounds(&patternBBox);
@@ -1108,14 +1104,16 @@ SkPDFImageShader* SkPDFImageShader::Create(
     }
 
     // Put the canvas into the pattern stream (fContent).
-    SkAutoTDelete<SkStream> content(pattern.content());
+    SkAutoTDelete<SkStream> content(patternDevice->content());
 
     SkPDFImageShader* imageShader =
             SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
     imageShader->setData(content.get());
 
-    populate_tiling_pattern_dict(imageShader, patternBBox,
-                                 pattern.getResourceDict(), finalMatrix);
+    populate_tiling_pattern_dict(imageShader, 
+                                 patternBBox,
+                                 patternDevice->getResourceDict(),
+                                 finalMatrix);
 
     imageShader->fShaderState->fImage.unlockPixels();
 
