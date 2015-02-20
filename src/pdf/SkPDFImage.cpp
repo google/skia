@@ -458,7 +458,7 @@ static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
 // static
 SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
                                     const SkIRect& srcRect,
-                                    SkPicture::EncodeBitmap encoder) {
+                                    SkData* (*encoder)(size_t*, const SkBitmap&)) {
     if (bitmap.colorType() == kUnknown_SkColorType) {
         return NULL;
     }
@@ -511,7 +511,7 @@ SkPDFImage::SkPDFImage(SkStream* stream,
                        const SkBitmap& bitmap,
                        bool isAlpha,
                        const SkIRect& srcRect,
-                       SkPicture::EncodeBitmap encoder)
+                       SkData* (*encoder)(size_t*, const SkBitmap&))
     : fIsAlpha(isAlpha),
       fSrcRect(srcRect),
       fEncoder(encoder) {
@@ -720,7 +720,7 @@ static bool is_jfif_jpeg(SkData* data) {
 SkPDFObject* SkPDFCreateImageObject(
         const SkBitmap& bitmap,
         const SkIRect& subset,
-        SkPicture::EncodeBitmap encoder) {
+        SkData* (*encoder)(size_t*, const SkBitmap&)) {
     if (SkPDFObject* pdfBitmap = SkPDFBitmap::Create(bitmap, subset)) {
         return pdfBitmap;
     }

@@ -137,7 +137,7 @@ public:
      *         encoding and decoding might not be worth the space savings,
      *         if any at all.
      */
-    void setDCTEncoder(SkPicture::EncodeBitmap encoder) {
+    void setDCTEncoder(SkData* (*encoder)(size_t*, const SkBitmap&)) {
         fEncoder = encoder;
     }
 
@@ -245,7 +245,7 @@ private:
     // Glyph ids used for each font on this device.
     SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
 
-    SkPicture::EncodeBitmap fEncoder;
+    SkData* (*fEncoder)(size_t*, const SkBitmap&);
     SkScalar fRasterDpi;
 
     SkBitmap fLegacyBitmap;

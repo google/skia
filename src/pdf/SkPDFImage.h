@@ -29,7 +29,7 @@ struct SkIRect;
  *  back on SkPDFImage::CreateImage.
  */
 SkPDFObject* SkPDFCreateImageObject(
-        const SkBitmap&, const SkIRect& subset, SkPicture::EncodeBitmap);
+        const SkBitmap&, const SkIRect& subset, SkData* (*)(size_t*, const SkBitmap&));
 
 /** \class SkPDFImage
 
@@ -50,7 +50,7 @@ public:
      */
     static SkPDFImage* CreateImage(const SkBitmap& bitmap,
                                    const SkIRect& srcRect,
-                                   SkPicture::EncodeBitmap encoder);
+                                   SkData* (*encoder)(size_t*, const SkBitmap&));
 
     virtual ~SkPDFImage();
 
@@ -62,7 +62,7 @@ private:
     SkBitmap fBitmap;
     bool fIsAlpha;
     SkIRect fSrcRect;
-    SkPicture::EncodeBitmap fEncoder;
+    SkData* (*fEncoder)(size_t*, const SkBitmap&);
     bool fStreamValid;
 
     /** Create a PDF image XObject. Entries for the image properties are
@@ -81,7 +81,7 @@ private:
      *                    May be NULL.
      */
     SkPDFImage(SkStream* stream, const SkBitmap& bitmap, bool isAlpha,
-               const SkIRect& srcRect, SkPicture::EncodeBitmap encoder);
+               const SkIRect& srcRect, SkData* (*encoder)(size_t*, const SkBitmap&));
 
     /** Copy constructor, used to generate substitutes.
      *  @param image      The SkPDFImage to copy.

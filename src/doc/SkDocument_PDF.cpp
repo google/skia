@@ -11,16 +11,14 @@
 
 class SkDocument_PDF : public SkDocument {
 public:
-    SkDocument_PDF(SkWStream* stream, void (*doneProc)(SkWStream*,bool),
-                   SkPicture::EncodeBitmap encoder,
+    SkDocument_PDF(SkWStream* stream,
+                   void (*doneProc)(SkWStream*,bool),
                    SkScalar rasterDpi)
-            : SkDocument(stream, doneProc)
-            , fEncoder(encoder)
-            , fRasterDpi(rasterDpi) {
-        fDoc = SkNEW(SkPDFDocument);
-        fCanvas = NULL;
-        fDevice = NULL;
-    }
+        : SkDocument(stream, doneProc)
+        , fDoc(SkNEW(SkPDFDocument))
+        , fDevice(NULL)
+        , fCanvas(NULL)
+        , fRasterDpi(rasterDpi) {}
 
     virtual ~SkDocument_PDF() {
         // subclasses must call close() in their destructors
@@ -37,9 +35,6 @@ protected:
         mediaBoxSize.set(SkScalarRoundToInt(width), SkScalarRoundToInt(height));
 
         fDevice = SkNEW_ARGS(SkPDFDevice, (mediaBoxSize, mediaBoxSize, SkMatrix::I()));
-        if (fEncoder) {
-            fDevice->setDCTEncoder(fEncoder);
-        }
         if (fRasterDpi != 0) {
             fDevice->setRasterDpi(fRasterDpi);
         }
@@ -82,29 +77,24 @@ private:
     SkPDFDocument*  fDoc;
     SkPDFDevice*    fDevice;
     SkCanvas*       fCanvas;
-    SkPicture::EncodeBitmap fEncoder;
     SkScalar        fRasterDpi;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDocument* SkDocument::CreatePDF(SkWStream* stream, void (*done)(SkWStream*,bool),
-                                  SkPicture::EncodeBitmap enc,
-                                  SkScalar dpi) {
-    return stream ? SkNEW_ARGS(SkDocument_PDF, (stream, done, enc, dpi)) : NULL;
+SkDocument* SkDocument::CreatePDF(SkWStream* stream, SkScalar dpi) {
+    return stream ? SkNEW_ARGS(SkDocument_PDF, (stream, NULL, dpi)) : NULL;
 }
 
 static void delete_wstream(SkWStream* stream, bool aborted) {
     SkDELETE(stream);
 }
 
-SkDocument* SkDocument::CreatePDF(const char path[],
-                                  SkPicture::EncodeBitmap enc,
-                                  SkScalar dpi) {
+SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
     SkFILEWStream* stream = SkNEW_ARGS(SkFILEWStream, (path));
     if (!stream->isValid()) {
         SkDELETE(stream);
         return NULL;
     }
-    return SkNEW_ARGS(SkDocument_PDF, (stream, delete_wstream, enc, dpi));
+    return SkNEW_ARGS(SkDocument_PDF, (stream, delete_wstream, dpi));
 }
