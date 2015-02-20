@@ -101,71 +101,6 @@ static SkString svg_transform(const SkMatrix& t) {
     return tstr;
 }
 
-static void append_escaped_unichar(SkUnichar c, SkString* text) {
-    switch(c) {
-    case '&':
-        text->append("&amp;");
-        break;
-    case '"':
-        text->append("&quot;");
-        break;
-    case '\'':
-        text->append("&apos;");
-        break;
-    case '<':
-        text->append("&lt;");
-        break;
-    case '>':
-        text->append("&gt;");
-        break;
-    default:
-        text->appendUnichar(c);
-        break;
-    }
-}
-
-static SkString svg_text(const void* text, size_t byteLen, const SkPaint& paint) {
-    SkString svgText;
-    int count = paint.countText(text, byteLen);
-
-    switch(paint.getTextEncoding()) {
-    case SkPaint::kGlyphID_TextEncoding: {
-        SkASSERT(count * sizeof(uint16_t) == byteLen);
-        SkAutoSTArray<64, SkUnichar> unichars(count);
-        paint.glyphsToUnichars((const uint16_t*)text, count, unichars.get());
-        for (int i = 0; i < count; ++i) {
-            append_escaped_unichar(unichars[i], &svgText);
-        }
-    } break;
-    case SkPaint::kUTF8_TextEncoding: {
-        const char* c8 = reinterpret_cast<const char*>(text);
-        for (int i = 0; i < count; ++i) {
-            append_escaped_unichar(SkUTF8_NextUnichar(&c8), &svgText);
-        }
-        SkASSERT(reinterpret_cast<const char*>(text) + byteLen == c8);
-    } break;
-    case SkPaint::kUTF16_TextEncoding: {
-        const uint16_t* c16 = reinterpret_cast<const uint16_t*>(text);
-        for (int i = 0; i < count; ++i) {
-            append_escaped_unichar(SkUTF16_NextUnichar(&c16), &svgText);
-        }
-        SkASSERT(SkIsAlign2(byteLen));
-        SkASSERT(reinterpret_cast<const uint16_t*>(text) + (byteLen / 2) == c16);
-    } break;
-    case SkPaint::kUTF32_TextEncoding: {
-        SkASSERT(count * sizeof(uint32_t) == byteLen);
-        const uint32_t* c32 = reinterpret_cast<const uint32_t*>(text);
-        for (int i = 0; i < count; ++i) {
-            append_escaped_unichar(c32[i], &svgText);
-        }
-    } break;
-    default:
-        SkFAIL("unknown text encoding");
-    }
-
-    return svgText;
-}
-
 uint32_t hash_family_string(const SkString& family) {
     // This is a lame hash function, but we don't really expect to see more than 1-2
     // family names under normal circumstances.
@@ -178,6 +113,136 @@ struct Resources {
 
     SkString fPaintServer;
     SkString fClip;
+};
+
+class SVGTextBuilder : SkNoncopyable {
+public:
+    SVGTextBuilder(const void* text, size_t byteLen, const SkPaint& paint, const SkPoint& offset,
+                   unsigned scalarsPerPos, const SkScalar pos[] = NULL)
+        : fOffset(offset)
+        , fScalarsPerPos(scalarsPerPos)
+        , fPos(pos)
+        , fLastCharWasWhitespace(true) // start off in whitespace mode to strip all leading space
+    {
+        SkASSERT(scalarsPerPos <= 2);
+        SkASSERT(scalarsPerPos == 0 || SkToBool(pos));
+
+        int count = paint.countText(text, byteLen);
+
+        switch(paint.getTextEncoding()) {
+        case SkPaint::kGlyphID_TextEncoding: {
+            SkASSERT(count * sizeof(uint16_t) == byteLen);
+            SkAutoSTArray<64, SkUnichar> unichars(count);
+            paint.glyphsToUnichars((const uint16_t*)text, count, unichars.get());
+            for (int i = 0; i < count; ++i) {
+                this->appendUnichar(unichars[i]);
+            }
+        } break;
+        case SkPaint::kUTF8_TextEncoding: {
+            const char* c8 = reinterpret_cast<const char*>(text);
+            for (int i = 0; i < count; ++i) {
+                this->appendUnichar(SkUTF8_NextUnichar(&c8));
+            }
+            SkASSERT(reinterpret_cast<const char*>(text) + byteLen == c8);
+        } break;
+        case SkPaint::kUTF16_TextEncoding: {
+            const uint16_t* c16 = reinterpret_cast<const uint16_t*>(text);
+            for (int i = 0; i < count; ++i) {
+                this->appendUnichar(SkUTF16_NextUnichar(&c16));
+            }
+            SkASSERT(SkIsAlign2(byteLen));
+            SkASSERT(reinterpret_cast<const uint16_t*>(text) + (byteLen / 2) == c16);
+        } break;
+        case SkPaint::kUTF32_TextEncoding: {
+            SkASSERT(count * sizeof(uint32_t) == byteLen);
+            const uint32_t* c32 = reinterpret_cast<const uint32_t*>(text);
+            for (int i = 0; i < count; ++i) {
+                this->appendUnichar(c32[i]);
+            }
+        } break;
+        default:
+            SkFAIL("unknown text encoding");
+        }
+
+        if (scalarsPerPos < 2) {
+            SkASSERT(fPosY.isEmpty());
+            fPosY.appendScalar(offset.y()); // DrawText or DrawPosTextH (fixed Y).
+        }
+
+        if (scalarsPerPos < 1) {
+            SkASSERT(fPosX.isEmpty());
+            fPosX.appendScalar(offset.x()); // DrawText (X also fixed).
+        }
+    }
+
+    const SkString& text() const { return fText; }
+    const SkString& posX() const { return fPosX; }
+    const SkString& posY() const { return fPosY; }
+
+private:
+    void appendUnichar(SkUnichar c) {
+        bool discardPos = false;
+        bool isWhitespace = false;
+
+        switch(c) {
+        case ' ':
+        case '\t':
+            // consolidate whitespace to match SVG's xml:space=default munging
+            // (http://www.w3.org/TR/SVG/text.html#WhiteSpace)
+            if (fLastCharWasWhitespace) {
+                discardPos = true;
+            } else {
+                fText.appendUnichar(c);
+            }
+            isWhitespace = true;
+            break;
+        case '\0':
+            // SkPaint::glyphsToUnichars() returns \0 for inconvertible glyphs, but these
+            // are not legal XML characters (http://www.w3.org/TR/REC-xml/#charsets)
+            discardPos = true;
+            isWhitespace = fLastCharWasWhitespace; // preserve whitespace consolidation
+            break;
+        case '&':
+            fText.append("&amp;");
+            break;
+        case '"':
+            fText.append("&quot;");
+            break;
+        case '\'':
+            fText.append("&apos;");
+            break;
+        case '<':
+            fText.append("&lt;");
+            break;
+        case '>':
+            fText.append("&gt;");
+            break;
+        default:
+            fText.appendUnichar(c);
+            break;
+        }
+
+        this->advancePos(discardPos);
+        fLastCharWasWhitespace = isWhitespace;
+    }
+
+    void advancePos(bool discard) {
+        if (!discard && fScalarsPerPos > 0) {
+            fPosX.appendf("%.8g, ", fOffset.x() + fPos[0]);
+            if (fScalarsPerPos > 1) {
+                SkASSERT(fScalarsPerPos == 2);
+                fPosY.appendf("%.8g, ", fOffset.y() + fPos[1]);
+            }
+        }
+        fPos += fScalarsPerPos;
+    }
+
+    const SkPoint&  fOffset;
+    const unsigned  fScalarsPerPos;
+    const SkScalar* fPos;
+
+    SkString fText, fPosX, fPosY;
+    bool     fLastCharWasWhitespace;
 };
 
 }
@@ -585,9 +650,11 @@ void SkSVGDevice::drawText(const SkDraw& draw, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
     AutoElement elem("text", fWriter, fResourceBucket, draw, paint);
     elem.addTextAttributes(paint);
-    elem.addAttribute("x", x);
-    elem.addAttribute("y", y);
-    elem.addText(svg_text(text, len, paint));
+
+    SVGTextBuilder builder(text, len, paint, SkPoint::Make(x, y), 0);
+    elem.addAttribute("x", builder.posX());
+    elem.addAttribute("y", builder.posY());
+    elem.addText(builder.text());
 }
 
 void SkSVGDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
@@ -598,23 +665,10 @@ void SkSVGDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
     AutoElement elem("text", fWriter, fResourceBucket, draw, paint);
     elem.addTextAttributes(paint);
 
-    SkString xStr;
-    SkString yStr;
-    for (int i = 0; i < paint.countText(text, len); ++i) {
-        xStr.appendf("%.8g, ", offset.x() + pos[i * scalarsPerPos]);
-
-        if (scalarsPerPos == 2) {
-            yStr.appendf("%.8g, ", offset.y() + pos[i * scalarsPerPos + 1]);
-        }
-    }
-
-    if (scalarsPerPos != 2) {
-        yStr.appendScalar(offset.y());
-    }
-
-    elem.addAttribute("x", xStr);
-    elem.addAttribute("y", yStr);
-    elem.addText(svg_text(text, len, paint));
+    SVGTextBuilder builder(text, len, paint, offset, scalarsPerPos, pos);
+    elem.addAttribute("x", builder.posX());
+    elem.addAttribute("y", builder.posY());
+    elem.addText(builder.text());
 }
 
 void SkSVGDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath& path,
@@ -648,7 +702,8 @@ void SkSVGDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len, co
                     paint.getTextAlign() == SkPaint::kCenter_Align ? "50%" : "100%");
             }
 
-            textPathElement.addText(svg_text(text, len, paint));
+            SVGTextBuilder builder(text, len, paint, SkPoint::Make(0, 0), 0);
+            textPathElement.addText(builder.text());
         }
     }
 }
