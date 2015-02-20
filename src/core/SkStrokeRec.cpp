@@ -100,6 +100,12 @@ void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
 
 #include "SkStroke.h"
 
+#if defined SK_QUAD_STROKE_APPROXIMATION && defined SK_DEBUG  
+    // enables tweaking these values at runtime from SampleApp
+    bool gDebugStrokerErrorSet = false;
+    SkScalar gDebugStrokerError;
+#endif
+
 bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     if (fWidth <= 0) {  // hairline or fill
         return false;
@@ -111,9 +117,10 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     stroker.setMiterLimit(fMiterLimit);
     stroker.setWidth(fWidth);
     stroker.setDoFill(fStrokeAndFill);
+#if defined SK_QUAD_STROKE_APPROXIMATION && defined SK_DEBUG
+    stroker.setResScale(gDebugStrokerErrorSet ? gDebugStrokerError : fResScale);
+#else
     stroker.setResScale(fResScale);
-#if QUAD_STROKE_APPROXIMATION
-    stroker.setError(1);
 #endif
     stroker.strokePath(src, dst);
     return true;

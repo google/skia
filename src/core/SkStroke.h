@@ -13,15 +13,9 @@
 #include "SkPaint.h"
 #include "SkStrokerPriv.h"
 
-// set to 1 to use experimental outset stroking with quads
-#ifndef QUAD_STROKE_APPROXIMATION
-#define QUAD_STROKE_APPROXIMATION 0
-#endif
-
-#if QUAD_STROKE_APPROXIMATION && defined(SK_DEBUG)
+#if defined SK_QUAD_STROKE_APPROXIMATION && defined SK_DEBUG
 extern bool gDebugStrokerErrorSet;
 extern SkScalar gDebugStrokerError;
-
 extern int gMaxRecursion[];
 #endif
 
@@ -43,9 +37,6 @@ public:
     SkPaint::Join   getJoin() const { return (SkPaint::Join)fJoin; }
     void        setJoin(SkPaint::Join);
 
-#if QUAD_STROKE_APPROXIMATION
-    void    setError(SkScalar);
-#endif
     void    setMiterLimit(SkScalar);
     void    setWidth(SkScalar);
 
@@ -76,9 +67,6 @@ public:
     ////////////////////////////////////////////////////////////////
 
 private:
-#if QUAD_STROKE_APPROXIMATION
-    SkScalar    fError;
-#endif
     SkScalar    fWidth, fMiterLimit;
     SkScalar    fResScale;
     uint8_t     fCap, fJoin;
