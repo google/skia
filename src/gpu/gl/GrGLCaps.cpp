@@ -749,20 +749,13 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
                                    GrGLenum format,
                                    GrGLenum type,
                                    GrGLenum currFboFormat) const {
-
-    ReadPixelsSupportedFormats::Key key = {format, type, currFboFormat};
-
-    ReadPixelsSupportedFormats* cachedValue = fReadPixelsSupportedCache.find(key);
-
-    if (NULL == cachedValue) {
-        bool value = doReadPixelsSupported(intf, format, type);
-        ReadPixelsSupportedFormats newValue(key, value);
-        fReadPixelsSupportedCache.add(newValue);
-
-        return newValue.value();
+    ReadPixelsSupportedFormat key = {format, type, currFboFormat};
+    if (const bool* supported = fReadPixelsSupportedCache.find(key)) {
+        return *supported;
     }
-
-    return cachedValue->value();
+    bool supported = this->doReadPixelsSupported(intf, format, type);
+    fReadPixelsSupportedCache.set(key, supported);
+    return supported;
 }
 
 void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

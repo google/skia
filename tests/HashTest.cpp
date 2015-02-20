@@ -39,6 +39,9 @@ DEF_TEST(HashMap, r) {
     }
 
     REPORTER_ASSERT(r, map.count() == N);
+
+    map.reset();
+    REPORTER_ASSERT(r, map.count() == 0);
 }
 
 namespace { uint32_t hash_string(const SkString& s) { return SkToInt(s.size()); } }
@@ -54,6 +57,9 @@ DEF_TEST(HashSet, r) {
     REPORTER_ASSERT(r, set.contains(SkString("Hello")));
     REPORTER_ASSERT(r, set.contains(SkString("World")));
     REPORTER_ASSERT(r, !set.contains(SkString("Goodbye")));
+
+    set.reset();
+    REPORTER_ASSERT(r, set.count() == 0);
 }
 
 namespace {

@@ -18,6 +18,12 @@ class SkTHashTable : SkNoncopyable {
 public:
     SkTHashTable() : fCount(0), fCapacity(0) {}
 
+    // Clear the table.
+    void reset() {
+        this->~SkTHashTable();
+        SkNEW_PLACEMENT(this, SkTHashTable);
+    }
+
     // How many entries are in the table?
     int count() const { return fCount; }
 
@@ -144,6 +150,9 @@ class SkTHashMap : SkNoncopyable {
 public:
     SkTHashMap() {}
 
+    // Clear the map.
+    void reset() { fTable.reset(); }
+
     // How many key/value pairs are in the table?
     int count() const { return fTable.count(); }
 
@@ -186,6 +195,9 @@ template <typename T, uint32_t(*HashT)(const T&)>
 class SkTHashSet : SkNoncopyable {
 public:
     SkTHashSet() {}
+
+    // Clear the set.
+    void reset() { fTable.reset(); }
 
     // How many items are in the set?
     int count() const { return fTable.count(); }

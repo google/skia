@@ -12,7 +12,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrGLStencilBuffer.h"
 #include "SkChecksum.h"
-#include "SkTHashCache.h"
+#include "SkTHash.h"
 #include "SkTArray.h"
 
 class GrGLContextInfo;
@@ -393,45 +393,23 @@ private:
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
 
-    class ReadPixelsSupportedFormats {
-    public:
-        struct Key {
-            GrGLenum fFormat;
-            GrGLenum fType;
-            GrGLenum fFboFormat;
+    struct ReadPixelsSupportedFormat {
+        GrGLenum fFormat;
+        GrGLenum fType;
+        GrGLenum fFboFormat;
 
-            bool operator==(const Key& rhs) const {
-                return fFormat == rhs.fFormat
-                        && fType == rhs.fType
-                        && fFboFormat == rhs.fFboFormat;
-            }
-
-            uint32_t getHash() const {
-                return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(this), sizeof(*this));
-            }
-        };
-
-        ReadPixelsSupportedFormats(Key key, bool value) : fKey(key), fValue(value) {
+        bool operator==(const ReadPixelsSupportedFormat& rhs) const {
+            return fFormat    == rhs.fFormat
+                && fType      == rhs.fType
+                && fFboFormat == rhs.fFboFormat;
         }
-
-        static const Key& GetKey(const ReadPixelsSupportedFormats& element) {
-            return element.fKey;
+        static uint32_t Hash(const ReadPixelsSupportedFormat& r) {
+            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&r), sizeof(r));
         }
-
-        static uint32_t Hash(const Key& key) {
-            return key.getHash();
-        }
-
-        bool value() const {
-            return fValue;
-        }
-    private:
-        Key fKey;
-        bool fValue;
     };
 
-    mutable SkTHashCache<ReadPixelsSupportedFormats,
-                         ReadPixelsSupportedFormats::Key> fReadPixelsSupportedCache;
+    mutable SkTHashMap<ReadPixelsSupportedFormat, bool, ReadPixelsSupportedFormat::Hash>
+        fReadPixelsSupportedCache;
 
     typedef GrDrawTargetCaps INHERITED;
 };
