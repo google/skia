@@ -23,13 +23,8 @@ struct SkIRect;
 
 /**
  *  Return the mose efficient availible encoding of the given bitmap.
- *
- *  If the bitmap has encoded JPEG data and that data can be embedded
- *  into the PDF output stream directly, use that.  Otherwise, fall
- *  back on SkPDFImage::CreateImage.
  */
-SkPDFObject* SkPDFCreateImageObject(
-        const SkBitmap&, const SkIRect& subset, SkData* (*)(size_t*, const SkBitmap&));
+SkPDFObject* SkPDFCreateImageObject(const SkBitmap&, const SkIRect& subset);
 
 /** \class SkPDFImage
 
@@ -49,8 +44,7 @@ public:
      *           the given parameters.
      */
     static SkPDFImage* CreateImage(const SkBitmap& bitmap,
-                                   const SkIRect& srcRect,
-                                   SkData* (*encoder)(size_t*, const SkBitmap&));
+                                   const SkIRect& srcRect);
 
     virtual ~SkPDFImage();
 
@@ -62,7 +56,6 @@ private:
     SkBitmap fBitmap;
     bool fIsAlpha;
     SkIRect fSrcRect;
-    SkData* (*fEncoder)(size_t*, const SkBitmap&);
     bool fStreamValid;
 
     /** Create a PDF image XObject. Entries for the image properties are
@@ -77,11 +70,9 @@ private:
      *  @param isAlpha    Whether or not this is the alpha of an image.
      *  @param srcRect    The clipping applied to bitmap before generating
      *                    imageData.
-     *  @param encoder    A function used to encode the bitmap for compression.
-     *                    May be NULL.
      */
     SkPDFImage(SkStream* stream, const SkBitmap& bitmap, bool isAlpha,
-               const SkIRect& srcRect, SkData* (*encoder)(size_t*, const SkBitmap&));
+               const SkIRect& srcRect);
 
     /** Copy constructor, used to generate substitutes.
      *  @param image      The SkPDFImage to copy.

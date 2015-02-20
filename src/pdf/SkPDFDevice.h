@@ -126,21 +126,6 @@ public:
      */
     SK_API void setDrawingArea(DrawingArea drawingArea);
 
-    /** Sets the DCTEncoder for images.
-     *  @param encoder The encoder to encode a bitmap as JPEG (DCT).
-     *         Result of encodings are cached, if the encoder changes the
-     *         behaivor dynamically and an image is added to a second catalog,
-     *         we will likely use the result of the first encoding call.
-     *         By returning false from the encoder function, the encoder result
-     *         is not used.
-     *         Callers might not want to encode small images, as the time spent
-     *         encoding and decoding might not be worth the space savings,
-     *         if any at all.
-     */
-    void setDCTEncoder(SkData* (*encoder)(size_t*, const SkBitmap&)) {
-        fEncoder = encoder;
-    }
-
     // PDF specific methods.
 
     /** Returns the resource dictionary for this device.
@@ -245,7 +230,6 @@ private:
     // Glyph ids used for each font on this device.
     SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
 
-    SkData* (*fEncoder)(size_t*, const SkBitmap&);
     SkScalar fRasterDpi;
 
     SkBitmap fLegacyBitmap;

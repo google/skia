@@ -20,8 +20,6 @@
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
 
-static const int kNoColorTransform = 0;
-
 static size_t get_uncompressed_size(const SkBitmap& bitmap,
                                     const SkIRect& srcRect) {
     switch (bitmap.colorType()) {
@@ -457,8 +455,7 @@ static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
 
 // static
 SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
-                                    const SkIRect& srcRect,
-                                    SkData* (*encoder)(size_t*, const SkBitmap&)) {
+                                    const SkIRect& srcRect) {
     if (bitmap.colorType() == kUnknown_SkColorType) {
         return NULL;
     }
@@ -484,22 +481,19 @@ SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
         if (kN32_SkColorType == colorType) {
             image = SkNEW_ARGS(SkPDFImage, (NULL, bitmap, false,
                                             SkIRect::MakeWH(srcRect.width(),
-                                                            srcRect.height()),
-                                            encoder));
+                                                            srcRect.height())));
         } else {
             SkBitmap unpremulBitmap = unpremultiply_bitmap(bitmap, srcRect);
             image = SkNEW_ARGS(SkPDFImage, (NULL, unpremulBitmap, false,
                                             SkIRect::MakeWH(srcRect.width(),
-                                                            srcRect.height()),
-                                            encoder));
+                                                            srcRect.height())));
         }
     } else {
-        image = SkNEW_ARGS(SkPDFImage, (NULL, bitmap, false, srcRect, encoder));
+        image = SkNEW_ARGS(SkPDFImage, (NULL, bitmap, false, srcRect));
     }
     if (alphaData.get() != NULL) {
         SkAutoTUnref<SkPDFImage> mask(
-                SkNEW_ARGS(SkPDFImage, (alphaData.get(), bitmap,
-                                        true, srcRect, NULL)));
+                SkNEW_ARGS(SkPDFImage, (alphaData.get(), bitmap, true, srcRect)));
         image->insert("SMask", new SkPDFObjRef(mask))->unref();
     }
     return image;
@@ -510,11 +504,9 @@ SkPDFImage::~SkPDFImage() {}
 SkPDFImage::SkPDFImage(SkStream* stream,
                        const SkBitmap& bitmap,
                        bool isAlpha,
-                       const SkIRect& srcRect,
-                       SkData* (*encoder)(size_t*, const SkBitmap&))
+                       const SkIRect& srcRect)
     : fIsAlpha(isAlpha),
-      fSrcRect(srcRect),
-      fEncoder(encoder) {
+      fSrcRect(srcRect) {
 
     if (bitmap.isImmutable()) {
         fBitmap = bitmap;
@@ -588,7 +580,6 @@ SkPDFImage::SkPDFImage(SkPDFImage& pdfImage)
       fBitmap(pdfImage.fBitmap),
       fIsAlpha(pdfImage.fIsAlpha),
       fSrcRect(pdfImage.fSrcRect),
-      fEncoder(pdfImage.fEncoder),
       fStreamValid(pdfImage.fStreamValid) {
     // Nothing to do here - the image params are already copied in SkPDFStream's
     // constructor, and the bitmap will be regenerated and encoded in
@@ -598,25 +589,6 @@ SkPDFImage::SkPDFImage(SkPDFImage& pdfImage)
 bool SkPDFImage::populate(SkPDFCatalog* catalog) {
     if (getState() == kUnused_State) {
         // Initializing image data for the first time.
-        if (fEncoder && get_uncompressed_size(fBitmap, fSrcRect) > 1) {
-            SkBitmap subset;
-            // Extract subset
-            if (!fBitmap.extractSubset(&subset, fSrcRect)) {
-                return false;
-            }
-            size_t pixelRefOffset = 0;
-            SkAutoTUnref<SkData> data(fEncoder(&pixelRefOffset, subset));
-            if (data.get() && data->size() < get_uncompressed_size(fBitmap,
-                                                                   fSrcRect)) {
-                this->setData(data.get());
-
-                insertName("Filter", "DCTDecode");
-                insertInt("ColorTransform", kNoColorTransform);
-                insertInt("Length", this->dataSize());
-                setState(kCompressed_State);
-                return true;
-            }
-        }
         // Fallback method
         if (!fStreamValid) {
             SkAutoTDelete<SkStream> stream(
@@ -628,9 +600,6 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
     }
 #ifndef SK_NO_FLATE
     else if (getState() == kNoCompression_State) {
-#else  // SK_NO_FLATE
-    else if (getState() == kNoCompression_State && fEncoder) {
-#endif  // SK_NO_FLATE
         // Compression has not been requested when the stream was first created,
         // but the new catalog wants it compressed.
         if (!getSubstitute()) {
@@ -640,6 +609,7 @@ bool SkPDFImage::populate(SkPDFCatalog* catalog) {
         }
         return false;
     }
+#endif  // SK_NO_FLATE
     return true;
 }
 
@@ -719,8 +689,7 @@ static bool is_jfif_jpeg(SkData* data) {
 
 SkPDFObject* SkPDFCreateImageObject(
         const SkBitmap& bitmap,
-        const SkIRect& subset,
-        SkData* (*encoder)(size_t*, const SkBitmap&)) {
+        const SkIRect& subset) {
     if (SkPDFObject* pdfBitmap = SkPDFBitmap::Create(bitmap, subset)) {
         return pdfBitmap;
     }
@@ -733,5 +702,5 @@ SkPDFObject* SkPDFCreateImageObject(
         }
     }
 #endif
-    return SkPDFImage::CreateImage(bitmap, subset, encoder);
+    return SkPDFImage::CreateImage(bitmap, subset);
 }

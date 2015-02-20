@@ -727,7 +727,6 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
     , fLastContentEntry(NULL)
     , fLastMarginContentEntry(NULL)
     , fClipStack(NULL)
-    , fEncoder(NULL)
     , fRasterDpi(72.0f)
 {
     const SkImageInfo info = make_content_info(contentSize, &initialTransform);
@@ -760,7 +759,6 @@ SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
     , fLastContentEntry(NULL)
     , fLastMarginContentEntry(NULL)
     , fClipStack(NULL)
-    , fEncoder(NULL)
     , fRasterDpi(72.0f)
 {
     fInitialTransform.reset();
@@ -2178,7 +2176,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     }
 
     SkAutoTUnref<SkPDFObject> image(
-            SkPDFCreateImageObject(*bitmap, subset, fEncoder));
+            SkPDFCreateImageObject(*bitmap, subset));
     if (!image) {
         return;
     }
