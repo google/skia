@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkLazyPtr.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFont.h"
@@ -14,31 +13,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SK_DECLARE_STATIC_MUTEX(gSkPDFCanonFontMutex);
-SK_DECLARE_STATIC_MUTEX(gSkPDFCanonShaderMutex);
-SK_DECLARE_STATIC_MUTEX(gSkPDFCanonPaintMutex);
-SK_DECLARE_STATIC_MUTEX(gSkPDFCanonBitmapMutex);
-
-SkBaseMutex& SkPDFCanon::GetFontMutex() { return gSkPDFCanonFontMutex; }
-SkBaseMutex& SkPDFCanon::GetShaderMutex() { return gSkPDFCanonShaderMutex; }
-SkBaseMutex& SkPDFCanon::GetPaintMutex() { return gSkPDFCanonPaintMutex; }
-SkBaseMutex& SkPDFCanon::GetBitmapMutex() { return gSkPDFCanonBitmapMutex; }
-
 SkPDFCanon::SkPDFCanon() {}
 
 SkPDFCanon::~SkPDFCanon() {}
 
-SK_DECLARE_STATIC_LAZY_PTR(SkPDFCanon, singleton);
-
-SkPDFCanon& SkPDFCanon::GetCanon() { return *singleton.get(); }
-
 ////////////////////////////////////////////////////////////////////////////////
-
-static void assert_mutex_held(const SkPDFCanon* canon, SkBaseMutex& mutex) {
-    if (canon == singleton.get()) {
-        mutex.assertHeld();
-    }
-}
 
 template <class T> T* assert_ptr(T* p) { SkASSERT(p); return p; }
 
@@ -68,7 +47,6 @@ T* find_item(const SkTDArray<T*>& ptrArray, const U& object) {
 SkPDFFont* SkPDFCanon::findFont(uint32_t fontID,
                                 uint16_t glyphID,
                                 SkPDFFont** relatedFontPtr) const {
-    assert_mutex_held(this, gSkPDFCanonFontMutex);
     SkASSERT(relatedFontPtr);
 
     SkPDFFont* relatedFont = NULL;
@@ -87,7 +65,6 @@ SkPDFFont* SkPDFCanon::findFont(uint32_t fontID,
 }
 
 void SkPDFCanon::addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID) {
-    assert_mutex_held(this, gSkPDFCanonFontMutex);
     SkPDFCanon::FontRec* rec = fFontRecords.push();
     rec->fFont = font;
     rec->fFontID = fontID;
@@ -95,7 +72,6 @@ void SkPDFCanon::addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID) {
 }
 
 void SkPDFCanon::removeFont(SkPDFFont* pdfFont) {
-    assert_mutex_held(this, gSkPDFCanonFontMutex);
     for (int i = 0; i < fFontRecords.count(); i++) {
         if (fFontRecords[i].fFont == pdfFont) {
             fFontRecords.removeShuffle(i);
@@ -109,15 +85,12 @@ void SkPDFCanon::removeFont(SkPDFFont* pdfFont) {
 
 SkPDFFunctionShader* SkPDFCanon::findFunctionShader(
         const SkPDFShader::State& state) const {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     return find_item(fFunctionShaderRecords, state);
 }
 void SkPDFCanon::addFunctionShader(SkPDFFunctionShader* pdfShader) {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     fFunctionShaderRecords.push(assert_ptr(pdfShader));
 }
 void SkPDFCanon::removeFunctionShader(SkPDFFunctionShader* pdfShader) {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     SkAssertResult(remove_item(&fFunctionShaderRecords, pdfShader));
 }
 
@@ -125,15 +98,12 @@ void SkPDFCanon::removeFunctionShader(SkPDFFunctionShader* pdfShader) {
 
 SkPDFAlphaFunctionShader* SkPDFCanon::findAlphaShader(
         const SkPDFShader::State& state) const {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     return find_item(fAlphaShaderRecords, state);
 }
 void SkPDFCanon::addAlphaShader(SkPDFAlphaFunctionShader* pdfShader) {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     fAlphaShaderRecords.push(assert_ptr(pdfShader));
 }
 void SkPDFCanon::removeAlphaShader(SkPDFAlphaFunctionShader* pdfShader) {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     SkAssertResult(remove_item(&fAlphaShaderRecords, pdfShader));
 }
 
@@ -141,50 +111,41 @@ void SkPDFCanon::removeAlphaShader(SkPDFAlphaFunctionShader* pdfShader) {
 
 SkPDFImageShader* SkPDFCanon::findImageShader(
         const SkPDFShader::State& state) const {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     return find_item(fImageShaderRecords, state);
 }
 
 void SkPDFCanon::addImageShader(SkPDFImageShader* pdfShader) {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     fImageShaderRecords.push(assert_ptr(pdfShader));
 }
 
 void SkPDFCanon::removeImageShader(SkPDFImageShader* pdfShader) {
-    assert_mutex_held(this, gSkPDFCanonShaderMutex);
     SkAssertResult(remove_item(&fImageShaderRecords, pdfShader));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFGraphicState* SkPDFCanon::findGraphicState(const SkPaint& paint) const {
-    assert_mutex_held(this, gSkPDFCanonPaintMutex);
     return find_item(fGraphicStateRecords, paint);
 }
 
 void SkPDFCanon::addGraphicState(SkPDFGraphicState* state) {
-    assert_mutex_held(this, gSkPDFCanonPaintMutex);
     fGraphicStateRecords.push(assert_ptr(state));
 }
 
 void SkPDFCanon::removeGraphicState(SkPDFGraphicState* pdfGraphicState) {
-    assert_mutex_held(this, gSkPDFCanonPaintMutex);
     SkAssertResult(remove_item(&fGraphicStateRecords, pdfGraphicState));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFBitmap* SkPDFCanon::findBitmap(const SkBitmap& bm) const {
-    assert_mutex_held(this, gSkPDFCanonBitmapMutex);
     return find_item(fBitmapRecords, bm);
 }
 
 void SkPDFCanon::addBitmap(SkPDFBitmap* pdfBitmap) {
-    assert_mutex_held(this, gSkPDFCanonBitmapMutex);
     fBitmapRecords.push(assert_ptr(pdfBitmap));
 }
 
 void SkPDFCanon::removeBitmap(SkPDFBitmap* pdfBitmap) {
-    assert_mutex_held(this, gSkPDFCanonBitmapMutex);
     SkAssertResult(remove_item(&fBitmapRecords, pdfBitmap));
 }

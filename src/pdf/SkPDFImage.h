@@ -24,7 +24,9 @@ struct SkIRect;
 /**
  *  Return the mose efficient availible encoding of the given bitmap.
  */
-SkPDFObject* SkPDFCreateImageObject(const SkBitmap&, const SkIRect& subset);
+SkPDFObject* SkPDFCreateImageObject(SkPDFCanon* canon,
+                                    const SkBitmap&,
+                                    const SkIRect& subset);
 
 /** \class SkPDFImage
 

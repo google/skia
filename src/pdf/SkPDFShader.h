@@ -14,6 +14,7 @@
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 
+class SkPDFCanon;
 class SkMatrix;
 class SkShader;
 struct SkIRect;
@@ -42,7 +43,9 @@ public:
      *  @param rasterScale Additional scale to be applied for early
      *                     rasterization.
      */
-    static SkPDFObject* GetPDFShader(const SkShader& shader,
+    static SkPDFObject* GetPDFShader(SkPDFCanon* canon,
+                                     SkScalar dpi,
+                                     const SkShader& shader,
                                      const SkMatrix& matrix,
                                      const SkIRect& surfaceBBox,
                                      SkScalar rasterScale);
@@ -52,14 +55,16 @@ class SkPDFFunctionShader : public SkPDFDict {
     SK_DECLARE_INST_COUNT(SkPDFFunctionShader);
 
 public:
-    static SkPDFFunctionShader* Create(SkAutoTDelete<SkPDFShader::State>*);
+    static SkPDFFunctionShader* Create(SkPDFCanon*,
+                                       SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFFunctionShader();
     bool equals(const SkPDFShader::State&) const;
 
 private:
+    SkPDFCanon* fCanon;
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
     SkTDArray<SkPDFObject*> fResources;
-    explicit SkPDFFunctionShader(SkPDFShader::State* state);
+    SkPDFFunctionShader(SkPDFCanon*, SkPDFShader::State*);
     typedef SkPDFDict INHERITED;
 };
 
@@ -70,27 +75,33 @@ private:
  */
 class SkPDFAlphaFunctionShader : public SkPDFStream {
 public:
-    static SkPDFAlphaFunctionShader* Create(SkAutoTDelete<SkPDFShader::State>*);
+    static SkPDFAlphaFunctionShader* Create(SkPDFCanon*,
+                                            SkScalar dpi,
+                                            SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFAlphaFunctionShader();
     bool equals(const SkPDFShader::State&) const;
 
 private:
+    SkPDFCanon* fCanon;
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
     SkAutoTUnref<SkPDFObject> fColorShader;
     SkAutoTUnref<SkPDFResourceDict> fResourceDict;
-    explicit SkPDFAlphaFunctionShader(SkPDFShader::State* state);
+    SkPDFAlphaFunctionShader(SkPDFCanon*, SkPDFShader::State*);
 };
 
 class SkPDFImageShader : public SkPDFStream {
 public:
-    static SkPDFImageShader* Create(SkAutoTDelete<SkPDFShader::State>*);
+    static SkPDFImageShader* Create(SkPDFCanon*,
+                                    SkScalar dpi,
+                                    SkAutoTDelete<SkPDFShader::State>*);
     virtual ~SkPDFImageShader();
     bool equals(const SkPDFShader::State&) const;
 
 private:
+    SkPDFCanon* fCanon;
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
     SkTSet<SkPDFObject*> fResources;
-    explicit SkPDFImageShader(SkPDFShader::State* state);
+    SkPDFImageShader(SkPDFCanon*, SkPDFShader::State*);
 };
 
 #endif

@@ -47,7 +47,8 @@ public:
      *  other references.
      *  @param paint  The SkPaint to emulate.
      */
-    static SkPDFGraphicState* GetGraphicStateForPaint(const SkPaint& paint);
+    static SkPDFGraphicState* GetGraphicStateForPaint(SkPDFCanon* canon,
+                                                      const SkPaint& paint);
 
     /** Make a graphic state that only sets the passed soft mask. The
      *  reference count of the object is incremented and it is the caller's
@@ -74,12 +75,12 @@ public:
     static SkPDFGraphicState* CreateNoSMaskGraphicState();
 
 private:
+    SkPDFCanon* const fCanon;
     const SkPaint fPaint;
     bool fPopulated;
-    bool fSMask;
 
     SkPDFGraphicState();
-    explicit SkPDFGraphicState(const SkPaint& paint);
+    SkPDFGraphicState(SkPDFCanon* canon, const SkPaint& paint);
 
     void populateDict();
 

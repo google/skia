@@ -18,6 +18,7 @@
 #include "SkTypeface.h"
 
 class SkPaint;
+class SkPDFCanon;
 class SkPDFCatalog;
 class SkPDFFont;
 
@@ -126,7 +127,9 @@ public:
      *  @param typeface  The typeface to find.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static SkPDFFont* GetFontResource(SkTypeface* typeface, uint16_t glyphID);
+    static SkPDFFont* GetFontResource(SkPDFCanon* canon,
+                                      SkTypeface* typeface,
+                                      uint16_t glyphID);
 
     /** Subset the font based on usage set. Returns a SkPDFFont instance with
      *  subset.
@@ -148,8 +151,12 @@ public:
                          uint16_t searchGlyphID);
 
 protected:
+    SkPDFCanon* const fCanon;
+
     // Common constructor to handle common members.
-    SkPDFFont(const SkAdvancedTypefaceMetrics* fontInfo, SkTypeface* typeface,
+    SkPDFFont(SkPDFCanon* canon,
+              const SkAdvancedTypefaceMetrics* fontInfo,
+              SkTypeface* typeface,
               SkPDFDict* relatedFontDescriptor);
 
     // Accessors for subclass.
@@ -176,8 +183,10 @@ protected:
     void populateToUnicodeTable(const SkPDFGlyphSet* subset);
 
     // Create instances of derived types based on fontInfo.
-    static SkPDFFont* Create(const SkAdvancedTypefaceMetrics* fontInfo,
-                             SkTypeface* typeface, uint16_t glyphID,
+    static SkPDFFont* Create(SkPDFCanon* canon,
+                             const SkAdvancedTypefaceMetrics* fontInfo,
+                             SkTypeface* typeface,
+                             uint16_t glyphID,
                              SkPDFDict* relatedFontDescriptor);
 
     static bool Find(uint32_t fontID, uint16_t glyphID, int* index);

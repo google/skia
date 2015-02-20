@@ -13,7 +13,7 @@
 class SkDocument_PDF : public SkDocument {
 public:
     SkDocument_PDF(SkWStream* stream,
-                   void (*doneProc)(SkWStream*,bool),
+                   void (*doneProc)(SkWStream*, bool),
                    SkScalar rasterDpi)
         : SkDocument(stream, doneProc)
         , fDoc(SkNEW(SkPDFDocument))

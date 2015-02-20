@@ -113,9 +113,8 @@ bool SkPDFGraphicState::equals(const SkPaint& paint) const {
 }
 
 SkPDFGraphicState::~SkPDFGraphicState() {
-    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
-    if (!fSMask) {
-        SkPDFCanon::GetCanon().removeGraphicState(this);
+    if (fCanon) {
+        fCanon->removeGraphicState(this);
     }
 }
 
@@ -126,15 +125,14 @@ void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
 
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
-        const SkPaint& paint) {
-    SkAutoMutexAcquire lock(SkPDFCanon::GetPaintMutex());
-    SkPDFGraphicState* pdfGraphicState =
-            SkPDFCanon::GetCanon().findGraphicState(paint);
+        SkPDFCanon* canon, const SkPaint& paint) {
+    SkASSERT(canon);
+    SkPDFGraphicState* pdfGraphicState = canon->findGraphicState(paint);
     if (pdfGraphicState) {
         return SkRef(pdfGraphicState);
     }
-    pdfGraphicState = new SkPDFGraphicState(paint);
-    SkPDFCanon::GetCanon().addGraphicState(pdfGraphicState);
+    pdfGraphicState = new SkPDFGraphicState(canon, paint);
+    canon->addGraphicState(pdfGraphicState);
     return pdfGraphicState;
 }
 
@@ -181,7 +179,6 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
 
     SkPDFGraphicState* result = new SkPDFGraphicState;
     result->fPopulated = true;
-    result->fSMask = true;
     result->insertName("Type", "ExtGState");
     result->insert("SMask", sMaskDict.get());
 
@@ -195,7 +192,6 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
 SkPDFGraphicState* SkPDFGraphicState::CreateNoSMaskGraphicState() {
     SkPDFGraphicState* noSMaskGS = SkNEW(SkPDFGraphicState);
     noSMaskGS->fPopulated = true;
-    noSMaskGS->fSMask = true;
     noSMaskGS->insertName("Type", "ExtGState");
     noSMaskGS->insertName("SMask", "None");
     return noSMaskGS;
@@ -211,15 +207,10 @@ SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
 }
 
 SkPDFGraphicState::SkPDFGraphicState()
-    : fPopulated(false),
-      fSMask(false) {
-}
+    : fCanon(NULL), fPopulated(false) {}
 
-SkPDFGraphicState::SkPDFGraphicState(const SkPaint& paint)
-    : fPaint(paint),
-      fPopulated(false),
-      fSMask(false) {
-}
+SkPDFGraphicState::SkPDFGraphicState(SkPDFCanon* canon, const SkPaint& paint)
+    : fCanon(canon), fPaint(paint), fPopulated(false) {}
 
 // populateDict and operator== have to stay in sync with each other.
 void SkPDFGraphicState::populateDict() {

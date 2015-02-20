@@ -10,6 +10,8 @@
 #include "SkPDFTypes.h"
 #include "SkBitmap.h"
 
+class SkPDFCanon;
+
 /**
  * SkPDFBitmap wraps a SkBitmap and serializes it as an image Xobject.
  * It is designed to use a minimal amout of memory, aside from refing
@@ -24,7 +26,9 @@ public:
     // Returns NULL on unsupported bitmap;
     // TODO(halcanary): support other bitmap colortypes and replace
     // SkPDFImage.
-    static SkPDFBitmap* Create(const SkBitmap&, const SkIRect& subset);
+    static SkPDFBitmap* Create(SkPDFCanon*,
+                               const SkBitmap&,
+                               const SkIRect& subset);
     ~SkPDFBitmap();
     void emitObject(SkWStream*, SkPDFCatalog*) SK_OVERRIDE;
     void addResources(SkTSet<SkPDFObject*>* resourceSet,
@@ -36,9 +40,10 @@ public:
     }
 
 private:
+    SkPDFCanon* const fCanon;
     const SkBitmap fBitmap;
     const SkAutoTUnref<SkPDFObject> fSMask;
-    SkPDFBitmap(const SkBitmap&, SkPDFObject*);
+    SkPDFBitmap(SkPDFCanon*, const SkBitmap&, SkPDFObject*);
     void emitDict(SkWStream*, SkPDFCatalog*, size_t, bool) const;
 };
 

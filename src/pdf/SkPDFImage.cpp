@@ -687,10 +687,10 @@ static bool is_jfif_jpeg(SkData* data) {
 }  // namespace
 #endif
 
-SkPDFObject* SkPDFCreateImageObject(
-        const SkBitmap& bitmap,
-        const SkIRect& subset) {
-    if (SkPDFObject* pdfBitmap = SkPDFBitmap::Create(bitmap, subset)) {
+SkPDFObject* SkPDFCreateImageObject(SkPDFCanon* canon,
+                                    const SkBitmap& bitmap,
+                                    const SkIRect& subset) {
+    if (SkPDFObject* pdfBitmap = SkPDFBitmap::Create(canon, bitmap, subset)) {
         return pdfBitmap;
     }
 #if 0  // reenable when we can figure out the JPEG colorspace

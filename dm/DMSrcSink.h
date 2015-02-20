@@ -42,8 +42,8 @@ struct Sink {
     virtual const char* fileExtension() const  = 0;
 };
 
-enum { kAnyThread_Enclave, kGPU_Enclave, kPDFSink_Enclave };
-static const int kNumEnclaves = kPDFSink_Enclave + 1;
+enum { kAnyThread_Enclave, kGPU_Enclave };
+static const int kNumEnclaves = kGPU_Enclave + 1;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -115,7 +115,7 @@ public:
     PDFSink();
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kPDFSink_Enclave; }
+    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
     const char* fileExtension() const SK_OVERRIDE { return "pdf"; }
 };
 

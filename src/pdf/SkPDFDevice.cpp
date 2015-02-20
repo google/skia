@@ -737,7 +737,7 @@ void SkPDFDevice::init() {
     fLastMarginContentEntry = NULL;
     fDrawingArea = kContent_DrawingArea;
     if (fFontGlyphUsage.get() == NULL) {
-        fFontGlyphUsage.reset(new SkPDFGlyphSetMap());
+        fFontGlyphUsage.reset(SkNEW(SkPDFGlyphSetMap));
     }
 }
 
@@ -1896,8 +1896,10 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         fInitialTransform.mapRect(&boundsTemp);
         boundsTemp.roundOut(&bounds);
 
-        pdfShader.reset(SkPDFShader::GetPDFShader(*shader, transform, bounds,
-                        SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE));
+        SkScalar rasterScale =
+                SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
+        pdfShader.reset(SkPDFShader::GetPDFShader(
+                fCanon, fRasterDpi, *shader, transform, bounds, rasterScale));
 
         if (pdfShader.get()) {
             // pdfShader has been canonicalized so we can directly compare
@@ -1928,12 +1930,12 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     SkAutoTUnref<SkPDFGraphicState> newGraphicState;
     if (color == paint.getColor()) {
         newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(paint));
+                SkPDFGraphicState::GetGraphicStateForPaint(fCanon, paint));
     } else {
         SkPaint newPaint = paint;
         newPaint.setColor(color);
         newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(newPaint));
+                SkPDFGraphicState::GetGraphicStateForPaint(fCanon, newPaint));
     }
     int resourceIndex = addGraphicStateResource(newGraphicState.get());
     entry->fGraphicStateIndex = resourceIndex;
@@ -1989,8 +1991,8 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
-    SkAutoTUnref<SkPDFFont> newFont(SkPDFFont::GetFontResource(typeface,
-                                                               glyphID));
+    SkAutoTUnref<SkPDFFont> newFont(
+            SkPDFFont::GetFontResource(fCanon, typeface, glyphID));
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
         resourceIndex = fFontResources.count();
@@ -2133,7 +2135,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     }
 
     SkAutoTUnref<SkPDFObject> image(
-            SkPDFCreateImageObject(*bitmap, subset));
+            SkPDFCreateImageObject(fCanon, *bitmap, subset));
     if (!image) {
         return;
     }
@@ -2141,4 +2143,3 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(image.get()),
                                 &content.entry()->fContent);
 }
-

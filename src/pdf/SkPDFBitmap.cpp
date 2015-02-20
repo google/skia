@@ -247,13 +247,12 @@ void SkPDFBitmap::emitDict(SkWStream* stream,
     pdfDict.emitObject(stream, catalog);
 }
 
-SkPDFBitmap::SkPDFBitmap(const SkBitmap& bm, SkPDFObject* smask)
-    : fBitmap(bm), fSMask(smask) {}
+SkPDFBitmap::SkPDFBitmap(SkPDFCanon* canon,
+                         const SkBitmap& bm,
+                         SkPDFObject* smask)
+    : fCanon(canon), fBitmap(bm), fSMask(smask) {}
 
-SkPDFBitmap::~SkPDFBitmap() {
-    SkAutoMutexAcquire autoMutexAcquire(SkPDFCanon::GetBitmapMutex());
-    SkPDFCanon::GetCanon().removeBitmap(this);
-}
+SkPDFBitmap::~SkPDFBitmap() { fCanon->removeBitmap(this); }
 
 ////////////////////////////////////////////////////////////////////////////////
 static bool is_transparent(const SkBitmap& bm) {
@@ -275,9 +274,10 @@ static bool is_transparent(const SkBitmap& bm) {
     return true;
 }
 
-// TODO(halcanary): SkPDFBitmap::Create should take a SkPDFCanon* parameter.
-SkPDFBitmap* SkPDFBitmap::Create(const SkBitmap& bitmap,
+SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon,
+                                 const SkBitmap& bitmap,
                                  const SkIRect& subset) {
+    SkASSERT(canon);
     if (kN32_SkColorType != bitmap.colorType()) {
         // TODO(halcanary): support other colortypes.
         return NULL;
@@ -299,9 +299,7 @@ SkPDFBitmap* SkPDFBitmap::Create(const SkBitmap& bitmap,
         bm = copy;
     }
 
-    SkAutoMutexAcquire autoMutexAcquire(SkPDFCanon::GetBitmapMutex());
-    SkPDFCanon& canon = SkPDFCanon::GetCanon();
-    SkPDFBitmap* pdfBitmap = canon.findBitmap(bm);
+    SkPDFBitmap* pdfBitmap = canon->findBitmap(bm);
     if (pdfBitmap) {
         return SkRef(pdfBitmap);
     }
@@ -314,7 +312,7 @@ SkPDFBitmap* SkPDFBitmap::Create(const SkBitmap& bitmap,
         // are refed by the SkPDFBitmap).
         smask = SkNEW_ARGS(PDFAlphaBitmap, (bm));
     }
-    pdfBitmap = SkNEW_ARGS(SkPDFBitmap, (bm, smask));
-    canon.addBitmap(pdfBitmap);
+    pdfBitmap = SkNEW_ARGS(SkPDFBitmap, (canon, bm, smask));
+    canon->addBitmap(pdfBitmap);
     return pdfBitmap;
 }
