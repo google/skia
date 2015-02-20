@@ -18,7 +18,6 @@ SkDiscardablePixelRef::SkDiscardablePixelRef(const SkImageInfo& info,
     , fDMFactory(fact)
     , fRowBytes(rowBytes)
     , fDiscardableMemory(NULL)
-    , fDiscardableMemoryIsLocked(false)
 {
     SkASSERT(fGenerator != NULL);
     SkASSERT(fRowBytes > 0);
@@ -29,9 +28,8 @@ SkDiscardablePixelRef::SkDiscardablePixelRef(const SkImageInfo& info,
 }
 
 SkDiscardablePixelRef::~SkDiscardablePixelRef() {
-    if (fDiscardableMemoryIsLocked) {
+    if (this->isLocked()) {
         fDiscardableMemory->unlock();
-        fDiscardableMemoryIsLocked = false;
     }
     SkDELETE(fDiscardableMemory);
     SkSafeUnref(fDMFactory);
@@ -41,7 +39,6 @@ SkDiscardablePixelRef::~SkDiscardablePixelRef() {
 bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (fDiscardableMemory != NULL) {
         if (fDiscardableMemory->lock()) {
-            fDiscardableMemoryIsLocked = true;
             rec->fPixels = fDiscardableMemory->data();
             rec->fColorTable = fCTable.get();
             rec->fRowBytes = fRowBytes;
@@ -49,20 +46,16 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
         }
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
-        fDiscardableMemoryIsLocked = false;
     }
 
     const size_t size = this->info().getSafeSize(fRowBytes);
 
     if (fDMFactory != NULL) {
         fDiscardableMemory = fDMFactory->create(size);
-        fDiscardableMemoryIsLocked = true;
     } else {
         fDiscardableMemory = SkDiscardableMemory::Create(size);
-        fDiscardableMemoryIsLocked = true;
     }
     if (NULL == fDiscardableMemory) {
-        fDiscardableMemoryIsLocked = false;
         return false;  // Memory allocation failed.
     }
 
@@ -79,7 +72,6 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
             break;
         default:
             fDiscardableMemory->unlock();
-            fDiscardableMemoryIsLocked = false;
             SkDELETE(fDiscardableMemory);
             fDiscardableMemory = NULL;
             return false;
@@ -104,7 +96,6 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
 
 void SkDiscardablePixelRef::onUnlockPixels() {
     fDiscardableMemory->unlock();
-    fDiscardableMemoryIsLocked = false;
 }
 
 bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,

@@ -197,6 +197,14 @@ bool SkPixelRef::onLockPixelsAreWritable() const {
     return true;
 }
 
+bool SkPixelRef::onImplementsDecodeInto() {
+    return false;
+}
+
+bool SkPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
+    return false;
+}
+
 uint32_t SkPixelRef::getGenerationID() const {
     if (0 == fGenerationID) {
         fGenerationID = SkNextPixelRefGenerationID();

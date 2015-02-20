@@ -241,12 +241,43 @@ void SkBitmapProcState::processMediumRequest() {
     }
 }
 
+static bool get_locked_pixels(const SkBitmap& src, int pow2, SkBitmap* dst) {
+    SkPixelRef* pr = src.pixelRef();
+    if (pr && pr->decodeInto(pow2, dst)) {
+        return true;
+    }
+
+    /*
+     *  If decodeInto() fails, it is possibe that we have an old subclass that
+     *  does not, or cannot, implement that. In that case we fall back to the
+     *  older protocol of having the pixelRef handle the caching for us.
+     */
+    *dst = src;
+    dst->lockPixels();
+    return SkToBool(dst->getPixels());
+}
+
 bool SkBitmapProcState::lockBaseBitmap() {
-    // TODO(reed): use bitmap cache here?
-    fScaledBitmap = fOrigBitmap;
-    fScaledBitmap.lockPixels();
-    if (NULL == fScaledBitmap.getPixels()) {
-        return false;
+    SkPixelRef* pr = fOrigBitmap.pixelRef();
+
+    if (pr->isLocked() || !pr->implementsDecodeInto()) {
+        // fast-case, no need to look in our cache
+        fScaledBitmap = fOrigBitmap;
+        fScaledBitmap.lockPixels();
+        if (NULL == fScaledBitmap.getPixels()) {
+            return false;
+        }
+    } else {
+        if (!SkBitmapCache::Find(fOrigBitmap, 1, 1, &fScaledBitmap)) {
+            if (!get_locked_pixels(fOrigBitmap, 0, &fScaledBitmap)) {
+                return false;
+            }
+
+            // TODO: if fScaled comes back at a different width/height than fOrig,
+            // we need to update the matrix we are using to sample from this guy.
+
+            SkBitmapCache::Add(fOrigBitmap, 1, 1, fScaledBitmap);
+        }
     }
     fBitmap = &fScaledBitmap;
     return true;
@@ -356,7 +387,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fShaderProc16 = NULL;
     fSampleProc32 = NULL;
     fSampleProc16 = NULL;
-
+    
     // recompute the triviality of the matrix here because we may have
     // changed it!
 
@@ -530,10 +561,10 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp,
             fShaderProc32 = this->chooseShaderProc32();
         }
     }
-
+    
     // see if our platform has any accelerated overrides
     this->platformProcs();
-
+    
     return true;
 }
 
