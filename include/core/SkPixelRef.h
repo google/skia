@@ -86,11 +86,7 @@ public:
         }
     };
 
-    /**
-     *  Returns true if the lockcount > 0
-     */
-    bool isLocked() const { return fLockCount > 0; }
-
+    SkDEBUGCODE(bool isLocked() const { return fLockCount > 0; })
     SkDEBUGCODE(int getLockCount() const { return fLockCount; })
 
     /**
@@ -197,37 +193,6 @@ public:
         return this->onRefEncodedData();
     }
 
-    /**
-     *  Experimental -- tells the caller if it is worth it to call decodeInto().
-     *  Just an optimization at this point, to avoid checking the cache first.
-     *  We may remove/change this call in the future.
-     */
-    bool implementsDecodeInto() {
-        return this->onImplementsDecodeInto();
-    }
-
-    /**
-     *  Return a decoded instance of this pixelRef in bitmap. If this cannot be
-     *  done, return false and the bitmap parameter is ignored/unchanged.
-     *
-     *  pow2 is the requeste power-of-two downscale that the caller needs. This
-     *  can be ignored, and the "original" size can be returned, but if the
-     *  underlying codec can efficiently return a smaller size, that should be
-     *  done. Some examples:
-     *
-     *  To request the "base" version (original scale), pass 0 for pow2
-     *  To request 1/2 scale version (1/2 width, 1/2 height), pass 1 for pow2
-     *  To request 1/4 scale version (1/4 width, 1/4 height), pass 2 for pow2
-     *  ...
-     *
-     *  If this returns true, then bitmap must be "locked" such that
-     *  bitmap->getPixels() will return the correct address.
-     */
-    bool decodeInto(int pow2, SkBitmap* bitmap) {
-        SkASSERT(pow2 >= 0);
-        return this->onDecodeInto(pow2, bitmap);
-    }
-
     /** Are we really wrapping a texture instead of a bitmap?
      */
     virtual GrTexture* getTexture() { return NULL; }
@@ -302,11 +267,6 @@ protected:
 
     /** Default impl returns true */
     virtual bool onLockPixelsAreWritable() const;
-
-    // returns false;
-    virtual bool onImplementsDecodeInto();
-    // returns false;
-    virtual bool onDecodeInto(int pow2, SkBitmap* bitmap);
 
     /**
      *  For pixelrefs that don't have access to their raw pixels, they may be

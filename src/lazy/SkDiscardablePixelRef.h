@@ -41,6 +41,7 @@ private:
     // PixelRef, since the SkBitmap doesn't expect them to change.
 
     SkDiscardableMemory* fDiscardableMemory;
+    bool                 fDiscardableMemoryIsLocked;
     SkAutoTUnref<SkColorTable> fCTable;
 
     /* Takes ownership of SkImageGenerator. */
