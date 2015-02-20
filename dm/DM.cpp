@@ -11,7 +11,7 @@
 #include "SkInstCnt.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
-#include "SkTDynamicHash.h"
+#include "SkTHash.h"
 #include "SkTaskGroup.h"
 #include "Test.h"
 #include "Timer.h"
@@ -74,6 +74,7 @@ static void done(double ms,
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 struct Gold : public SkString {
+    Gold() : SkString("") {}
     Gold(ImplicitString sink, ImplicitString src, ImplicitString name, ImplicitString md5)
         : SkString("") {
         this->append(sink);
@@ -84,15 +85,14 @@ struct Gold : public SkString {
             this->append("!");  // Pad out if needed so we can pass this to Murmur3.
         }
     }
-    static const Gold& GetKey(const Gold& g) { return g; }
     static uint32_t Hash(const Gold& g) {
         return SkChecksum::Murmur3((const uint32_t*)g.c_str(), g.size());
     }
 };
-static SkTDynamicHash<Gold, Gold> gGold;
+static SkTHashSet<Gold, Gold::Hash> gGold;
 
 static void add_gold(JsonWriter::BitmapResult r) {
-    gGold.add(new Gold(r.config, r.sourceType, r.name, r.md5));  // We'll let these leak. Lazybones.
+    gGold.add(Gold(r.config, r.sourceType, r.name, r.md5));
 }
 
 static void gather_gold() {
@@ -340,7 +340,7 @@ struct Task {
             }
 
             if (!FLAGS_readPath.isEmpty() &&
-                !gGold.find(Gold(task->sink.tag, task->src.tag, name, md5))) {
+                !gGold.contains(Gold(task->sink.tag, task->src.tag, name, md5))) {
                 fail(SkStringPrintf("%s not found for %s %s %s in %s",
                                     md5.c_str(),
                                     task->sink.tag,
