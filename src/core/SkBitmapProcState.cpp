@@ -98,16 +98,14 @@ static bool valid_for_filtering(unsigned dimension) {
     return (dimension & ~0x3FFF) == 0;
 }
 
-static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
-    SkPoint v1, v2;
-
-    v1.fX = mat.getScaleX();
-    v1.fY = mat.getSkewY();
-
-    v2.fX = mat.getSkewX();
-    v2.fY = mat.getScaleY();
-
-    return SkMaxScalar(v1.lengthSqd(), v2.lengthSqd());
+static SkScalar effective_matrix_scale(const SkMatrix& mat) {
+    SkScalar dx = SkVector::Length(mat.getScaleX(), mat.getSkewY());
+    SkScalar dy = SkVector::Length(mat.getSkewX(), mat.getScaleY());
+#ifdef SK_SUPPORT_LEGACY_MIPMAP_EFFECTIVE_SCALE
+    return SkMaxScalar(dx, dy);
+#else
+    return SkScalarSqrt(dx * dy);
+#endif
 }
 
 // Check to see that the size of the bitmap that would be produced by
@@ -210,9 +208,9 @@ void SkBitmapProcState::processMediumRequest() {
     // to a valid bitmap.
     fFilterLevel = SkPaint::kLow_FilterLevel;
 
-    SkScalar invScaleSqd = effective_matrix_scale_sqrd(fInvMatrix);
+    SkScalar invScale = effective_matrix_scale(fInvMatrix);
 
-    if (invScaleSqd > SK_Scalar1) {
+    if (invScale > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
         if (NULL == fCurrMip.get()) {
             fCurrMip.reset(SkMipMapCache::AddAndRef(fOrigBitmap));
@@ -225,7 +223,7 @@ void SkBitmapProcState::processMediumRequest() {
             sk_throw();
         }
 
-        SkScalar levelScale = SkScalarInvert(SkScalarSqrt(invScaleSqd));
+        SkScalar levelScale = SkScalarInvert(invScale);
         SkMipMap::Level level;
         if (fCurrMip->extractLevel(levelScale, &level)) {
             SkScalar invScaleFixup = level.fScale;
