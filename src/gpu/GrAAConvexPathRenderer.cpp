@@ -694,7 +694,6 @@ public:
         GrColor fColor;
         SkMatrix fViewMatrix;
         SkPath fPath;
-        SkDEBUGCODE(SkRect fDevBounds;)
     };
 
     static GrBatch* Create(const Geometry& geometry) {
@@ -730,7 +729,7 @@ public:
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
-        if (!this->viewMatrix().invert(&invert)) {
+        if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
             SkDebugf("Could not invert viewmatrix\n");
             return;
         }
@@ -797,16 +796,6 @@ public:
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
-
-#ifdef SK_DEBUG
-            // Check devBounds
-            SkRect actualBounds;
-            actualBounds.set(verts[0].fPos, verts[1].fPos);
-            for (int i = 2; i < vertexCount; ++i) {
-                actualBounds.growToInclude(verts[i].fPos.fX, verts[i].fPos.fY);
-            }
-            SkASSERT(args.fDevBounds.contains(actualBounds));
-#endif
 
             GrDrawTarget::DrawInfo info;
             info.setVertexBuffer(vertexBuffer);
@@ -886,7 +875,6 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     geometry.fColor = color;
     geometry.fViewMatrix = vm;
     geometry.fPath = path;
-    SkDEBUGCODE(geometry.fDevBounds = devRect;)
 
     SkAutoTUnref<GrBatch> batch(AAConvexPathBatch::Create(geometry));
     target->drawBatch(pipelineBuilder, batch, &devRect);
