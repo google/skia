@@ -39,8 +39,7 @@ public:
 
     virtual ~SkPDFStream();
 
-    // The SkPDFObject interface.  This two method uses a mutex to
-    // allow multiple threads to call at the same time.
+    // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
 
 protected:
@@ -89,9 +88,6 @@ protected:
 private:
     // Indicates what form (or if) the stream has been requested.
     State fState;
-
-    // Mutex guards fState, fDataStream, and fSubstitute in public interface.
-    SkMutex fMutex;
 
     SkAutoTDelete<SkStreamRewindable> fDataStream;
     SkAutoTUnref<SkPDFStream> fSubstitute;

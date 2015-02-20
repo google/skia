@@ -20,7 +20,6 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkThread.h"
 #include "SkTSet.h"
 #include "SkTypes.h"
 
@@ -583,7 +582,6 @@ SkPDFObject* SkPDFShader::GetPDFShader(SkPDFCanon* canon,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox,
                                        SkScalar rasterScale) {
-    // There is only one mutex becasue we don't know which one we'll need.
     SkAutoTDelete<SkPDFShader::State> state(
             SkNEW_ARGS(State, (shader, matrix, surfaceBBox, rasterScale)));
     return get_pdf_shader_by_state(canon, dpi, &state);

@@ -312,15 +312,10 @@ SkPDFDict::~SkPDFDict() {
 }
 
 int SkPDFDict::size() const {
-    SkAutoMutexAcquire lock(fMutex);
     return fValue.count();
 }
 
 void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
-    SkAutoMutexAcquire lock(fMutex); // If another thread triggers a
-                                     // resize while this thread is in
-                                     // the for-loop, we can be left
-                                     // with a bad fValue[i] reference.
     stream->writeText("<<");
     for (int i = 0; i < fValue.count(); i++) {
         SkASSERT(fValue[i].key);
@@ -348,9 +343,6 @@ void SkPDFDict::addResources(SkTSet<SkPDFObject*>* resourceSet,
 SkPDFObject*  SkPDFDict::append(SkPDFName* key, SkPDFObject* value) {
     SkASSERT(key);
     SkASSERT(value);
-    SkAutoMutexAcquire lock(fMutex); // If the SkTDArray resizes while
-                                     // two threads access array, one
-                                     // is left with a bad pointer.
     *(fValue.append()) = Rec(key, value);
     return value;
 }
@@ -376,7 +368,6 @@ void SkPDFDict::insertName(const char key[], const char name[]) {
 }
 
 void SkPDFDict::clear() {
-    SkAutoMutexAcquire lock(fMutex);
     for (int i = 0; i < fValue.count(); i++) {
         SkASSERT(fValue[i].key);
         SkASSERT(fValue[i].value);
@@ -389,7 +380,6 @@ void SkPDFDict::clear() {
 void SkPDFDict::remove(const char key[]) {
     SkASSERT(key);
     SkPDFName name(key);
-    SkAutoMutexAcquire lock(fMutex);
     for (int i = 0; i < fValue.count(); i++) {
         SkASSERT(fValue[i].key);
         if (*(fValue[i].key) == name) {
@@ -403,12 +393,8 @@ void SkPDFDict::remove(const char key[]) {
 }
 
 void SkPDFDict::mergeFrom(const SkPDFDict& other) {
-    SkAutoMutexAcquire lockOther(other.fMutex);
-    SkTDArray<Rec> copy(other.fValue);
-    lockOther.release();  // Do not hold both mutexes at once.
-
-    SkAutoMutexAcquire lock(fMutex);
-    for (int i = 0; i < copy.count(); i++) {
-        *(fValue.append()) = Rec(SkRef(copy[i].key), SkRef(copy[i].value));
+    for (int i = 0; i < other.fValue.count(); i++) {
+        *(fValue.append()) =
+                Rec(SkRef(other.fValue[i].key), SkRef(other.fValue[i].value));
     }
 }

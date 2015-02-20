@@ -41,7 +41,6 @@ SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
 SkPDFStream::~SkPDFStream() {}
 
 void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
-    SkAutoMutexAcquire lock(fMutex);  // multiple threads could be calling emit
     if (!this->populate(catalog)) {
         return fSubstitute->emitObject(stream, catalog);
     }

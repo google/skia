@@ -14,7 +14,6 @@
 #include "SkBitSet.h"
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
-#include "SkThread.h"
 #include "SkTypeface.h"
 
 class SkPaint;

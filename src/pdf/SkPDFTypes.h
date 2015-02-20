@@ -10,7 +10,6 @@
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
 
-#include "SkMutex.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkString.h"
@@ -384,7 +383,6 @@ private:
 
     static const int kMaxLen = 4095;
 
-    mutable SkMutex fMutex;  // protects modifications to fValue
     SkTDArray<struct Rec> fValue;
 
     SkPDFObject* append(SkPDFName* key, SkPDFObject* value);

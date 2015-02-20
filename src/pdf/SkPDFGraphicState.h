@@ -13,7 +13,6 @@
 #include "SkPaint.h"
 #include "SkPDFTypes.h"
 #include "SkTemplates.h"
-#include "SkThread.h"
 
 class SkPDFFormXObject;
 
