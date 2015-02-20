@@ -1861,16 +1861,21 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    SkRect clipBounds;
-    if (!mainCanvas->getClipBounds(&clipBounds)) {
-        return true;
+    const SkLayerInfo *gpuData = static_cast<const SkLayerInfo*>(data);
+    if (0 == gpuData->numBlocks()) {
+        return false;
     }
 
-    SkAutoCanvasMatrixPaint acmp(mainCanvas, matrix, paint, mainPicture->cullRect());
-
-    const SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
-
     SkTDArray<GrHoistedLayer> atlasedNeedRendering, atlasedRecycled;
+
+    SkIRect iBounds;
+    if (!mainCanvas->getClipDeviceBounds(&iBounds)) {
+        return false;
+    }
+
+    SkRect clipBounds = SkRect::Make(iBounds);
+
+    SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
 
     GrLayerHoister::FindLayersToAtlas(fContext, mainPicture,
                                       initialMatrix,
@@ -1881,6 +1886,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::DrawLayersToAtlas(fContext, atlasedNeedRendering);
 
     SkTDArray<GrHoistedLayer> needRendering, recycled;
+
+    SkAutoCanvasMatrixPaint acmp(mainCanvas, matrix, paint, mainPicture->cullRect());
 
     GrLayerHoister::FindLayersToHoist(fContext, mainPicture,
                                       initialMatrix,
