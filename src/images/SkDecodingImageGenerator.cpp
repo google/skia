@@ -42,9 +42,9 @@ protected:
         *info = fInfo;
         return true;
     }
-    virtual Result onGetPixelsEnum(const SkImageInfo& info,
-                              void* pixels, size_t rowBytes,
-                              SkPMColor ctable[], int* ctableCount) SK_OVERRIDE;
+    virtual Result onGetPixels(const SkImageInfo& info,
+                               void* pixels, size_t rowBytes,
+                               SkPMColor ctable[], int* ctableCount) SK_OVERRIDE;
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace) SK_OVERRIDE;
 
@@ -147,7 +147,7 @@ SkData* DecodingImageGenerator::onRefEncodedData() {
     return SkSafeRef(fData);
 }
 
-SkImageGenerator::Result DecodingImageGenerator::onGetPixelsEnum(const SkImageInfo& info,
+SkImageGenerator::Result DecodingImageGenerator::onGetPixels(const SkImageInfo& info,
         void* pixels, size_t rowBytes, SkPMColor ctableEntries[], int* ctableCount) {
     if (fInfo != info) {
         // The caller has specified a different info.  This is an

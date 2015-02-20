@@ -52,7 +52,7 @@ protected:
         return true;
     }
 
-    virtual Result onGetPixelsEnum(const SkImageInfo& info, void* pixels, size_t rowBytes,
+    virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                SkPMColor ctableEntries[], int* ctableCount) SK_OVERRIDE {
         SkMemoryStream stream(fData->data(), fData->size(), false);
         SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,

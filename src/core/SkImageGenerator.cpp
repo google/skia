@@ -40,7 +40,7 @@ SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, vo
         ctable = NULL;
     }
 
-    const Result result = this->onGetPixelsEnum(info, pixels, rowBytes, ctable, ctableCount);
+    const Result result = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
 
     if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
         SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
@@ -119,19 +119,7 @@ bool SkImageGenerator::onGetInfo(SkImageInfo*) {
     return false;
 }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
-bool SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,
+SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,
                                                        SkPMColor*, int*) {
-    return false;
-}
-#endif
-SkImageGenerator::Result SkImageGenerator::onGetPixelsEnum(const SkImageInfo& info, void* pixels,
-                                                           size_t rowBytes, SkPMColor* colors,
-                                                           int* colorCount) {
-#ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
-    if (this->onGetPixels(info, pixels, rowBytes, colors, colorCount)) {
-        return kSuccess;
-    }
-#endif
     return kUnimplemented;
 }

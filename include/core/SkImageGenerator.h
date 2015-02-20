@@ -15,7 +15,11 @@ class SkBitmap;
 class SkData;
 class SkImageGenerator;
 
-//#define SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
+//#define SK_SUPPORT_LEGACY_GET_PIXELS_ENUM
+
+#ifdef SK_SUPPORT_LEGACY_GET_PIXELS_ENUM
+    #define onGetPixelsEnum onGetPixels
+#endif
 
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
@@ -179,15 +183,9 @@ public:
 protected:
     virtual SkData* onRefEncodedData();
     virtual bool onGetInfo(SkImageInfo* info);
-#ifdef SK_SUPPORT_LEGACY_IMAGE_GENERATOR_RETURN
-    virtual bool onGetPixels(const SkImageInfo& info,
-                             void* pixels, size_t rowBytes,
-                             SkPMColor ctable[], int* ctableCount);
-#endif
-    // TODO (scroggo): rename to onGetPixels.
-    virtual Result onGetPixelsEnum(const SkImageInfo& info,
-                                   void* pixels, size_t rowBytes,
-                                   SkPMColor ctable[], int* ctableCount);
+    virtual Result onGetPixels(const SkImageInfo& info,
+                               void* pixels, size_t rowBytes,
+                               SkPMColor ctable[], int* ctableCount);
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
