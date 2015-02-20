@@ -407,6 +407,19 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fUseDrawInsteadOfClear = true;
     }
 
+    if (kGL_GrGLStandard == standard) {
+        // ARB allows mixed size FBO attachments, EXT does not.
+        if (ctxInfo.version() >= GR_GL_VER(3, 0) ||
+            ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
+            fOversizedStencilSupport = true;
+        } else {
+            SkASSERT(ctxInfo.hasExtension("GL_EXT_framebuffer_object"));
+        }
+    } else {
+        // ES 3.0 supports mixed size FBO attachments, 2.0 does not.
+        fOversizedStencilSupport = ctxInfo.version() >= GR_GL_VER(3, 0);
+    }
+
     this->initConfigTexturableTable(ctxInfo, gli);
     this->initConfigRenderableTable(ctxInfo);
 

@@ -82,6 +82,7 @@ public:
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
+    bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
 
@@ -146,23 +147,23 @@ public:
     uint32_t getUniqueID() const { return fUniqueID; }
 
 protected:
-    bool fNPOTTextureTileSupport    : 1;
-    bool fMipMapSupport             : 1;
-    bool fTwoSidedStencilSupport    : 1;
-    bool fStencilWrapOpsSupport     : 1;
-    bool fHWAALineSupport           : 1;
-    bool fShaderDerivativeSupport   : 1;
-    bool fGeometryShaderSupport     : 1;
-    bool fDualSourceBlendingSupport : 1;
-    bool fPathRenderingSupport      : 1;
-    bool fDstReadInShaderSupport    : 1;
-    bool fDiscardRenderTargetSupport: 1;
-    bool fReuseScratchTextures      : 1;
-    bool fGpuTracingSupport         : 1;
-    bool fCompressedTexSubImageSupport : 1;
-
+    bool fNPOTTextureTileSupport        : 1;
+    bool fMipMapSupport                 : 1;
+    bool fTwoSidedStencilSupport        : 1;
+    bool fStencilWrapOpsSupport         : 1;
+    bool fHWAALineSupport               : 1;
+    bool fShaderDerivativeSupport       : 1;
+    bool fGeometryShaderSupport         : 1;
+    bool fDualSourceBlendingSupport     : 1;
+    bool fPathRenderingSupport          : 1;
+    bool fDstReadInShaderSupport        : 1;
+    bool fDiscardRenderTargetSupport    : 1;
+    bool fReuseScratchTextures          : 1;
+    bool fGpuTracingSupport             : 1;
+    bool fCompressedTexSubImageSupport  : 1;
+    bool fOversizedStencilSupport       : 1;
     // Driver workaround
-    bool fUseDrawInsteadOfClear     : 1;
+    bool fUseDrawInsteadOfClear         : 1;
 
     uint32_t fMapBufferFlags;
 

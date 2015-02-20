@@ -1080,6 +1080,7 @@ void GrDrawTargetCaps::reset() {
     fReuseScratchTextures = true;
     fGpuTracingSupport = false;
     fCompressedTexSubImageSupport = false;
+    fOversizedStencilSupport = false;
 
     fUseDrawInsteadOfClear = false;
 
@@ -1110,6 +1111,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fReuseScratchTextures = other.fReuseScratchTextures;
     fGpuTracingSupport = other.fGpuTracingSupport;
     fCompressedTexSubImageSupport = other.fCompressedTexSubImageSupport;
+    fOversizedStencilSupport = other.fOversizedStencilSupport;
 
     fUseDrawInsteadOfClear = other.fUseDrawInsteadOfClear;
 
@@ -1192,7 +1194,7 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
     r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
     r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
-
+    r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
 
     r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
