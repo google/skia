@@ -174,7 +174,6 @@ private:
     SkAutoTUnref<SkDocument> fPDFDocument;
 
     bool fUseClip;
-    bool fNClip;
     bool fAnimating;
     bool fRotate;
     bool fPerspAnim;
