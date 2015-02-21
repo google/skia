@@ -26,6 +26,7 @@
       'sources': [
         '../gm/gm.cpp',
         '../samplecode/GMSampleView.h',
+        '../samplecode/GMSampleView.cpp',
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',
         '../samplecode/OverView.h',
