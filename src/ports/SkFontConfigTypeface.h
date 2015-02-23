@@ -42,8 +42,6 @@ public:
     static SkTypeface* LegacyCreateTypeface(const char familyName[], SkTypeface::Style);
 
 protected:
-    friend class SkFontHost;    // hack until we can make public versions
-
     FontConfigTypeface(const SkFontStyle& style,
                        const SkFontConfigInterface::FontIdentity& fi,
                        const SkString& familyName)

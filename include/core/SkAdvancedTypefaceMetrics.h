@@ -19,8 +19,8 @@
 /** \class SkAdvancedTypefaceMetrics
 
     The SkAdvancedTypefaceMetrics class is used by the PDF backend to correctly
-    embed typefaces.  This class is filled in with information about a given
-    typeface by the SkFontHost class.
+    embed typefaces. This class is created and filled in with information by
+    SkTypeface::getAdvancedTypefaceMetrics.
 */
 
 class SkAdvancedTypefaceMetrics : public SkRefCnt {

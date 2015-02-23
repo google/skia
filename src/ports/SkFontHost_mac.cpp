@@ -17,7 +17,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include "SkFontHost.h"
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
@@ -466,8 +465,6 @@ public:
     AutoCFRelease<CTFontRef> fFontRef;
 
 protected:
-    friend class SkFontHost;    // to access our protected members for deprecated methods
-
     int onGetUPEM() const SK_OVERRIDE;
     SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;

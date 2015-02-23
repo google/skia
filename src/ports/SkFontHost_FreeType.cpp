@@ -11,7 +11,6 @@
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkFDot6.h"
-#include "SkFontHost.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkGlyph.h"
 #include "SkMask.h"

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontHost.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"

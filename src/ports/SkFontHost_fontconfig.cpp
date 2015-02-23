@@ -8,7 +8,6 @@
 #include "SkFontConfigInterface.h"
 #include "SkFontConfigTypeface.h"
 #include "SkFontDescriptor.h"
-#include "SkFontHost.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontStream.h"
 #include "SkStream.h"

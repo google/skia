@@ -386,8 +386,6 @@ private:
 
     friend class SkPaint;
     friend class SkGlyphCache;  // GetDefaultTypeface
-    // just so deprecated fonthost can call protected methods
-    friend class SkFontHost;
 
     typedef SkWeakRefCnt INHERITED;
 };

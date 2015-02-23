@@ -69,7 +69,7 @@ SK_DECLARE_STATIC_MUTEX(gCreateDefaultMutex);
 
 // As a template arguments, these must have external linkage.
 SkTypeface* sk_create_default_typeface(int style) {
-    // If backed by fontconfig, it's not safe to call SkFontHost::CreateTypeface concurrently.
+    // It is not safe to call FontConfigTypeface::LegacyCreateTypeface concurrently.
     // To be safe, we serialize here with a mutex so only one call to
     // CreateTypeface is happening at any given time.
     // TODO(bungeman, mtklein): This is sad.  Make our fontconfig code safe?
