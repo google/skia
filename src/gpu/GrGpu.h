@@ -358,6 +358,7 @@ public:
             fShaderCompilations = 0;
             fTextureCreates = 0;
             fTextureUploads = 0;
+            fStencilBufferCreates = 0;
         }
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
@@ -368,6 +369,7 @@ public:
         void incTextureCreates() { fTextureCreates++; }
         int textureUploads() const { return fTextureUploads; }
         void incTextureUploads() { fTextureUploads++; }
+        void incStencilBufferCreates() { fStencilBufferCreates++; }
         void dump(SkString*);
 
     private:
@@ -375,12 +377,14 @@ public:
         int fShaderCompilations;
         int fTextureCreates;
         int fTextureUploads;
+        int fStencilBufferCreates;
 #else
         void dump(SkString*) {};
         void incRenderTargetBinds() {}
         void incShaderCompilations() {}
         void incTextureCreates() {}
         void incTextureUploads() {}
+        void incStencilBufferCreates() {}
 #endif
     };
 

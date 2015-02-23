@@ -166,9 +166,8 @@ private:
     void setupCache(const SkClipStack& clip,
                     const SkIRect& bounds);
     /**
-     * Called prior to return control back the GrGpu in setupClipping. It
-     * updates the GrGpu with stencil settings that account stencil-based
-     * clipping.
+     * Called prior to return control back the GrGpu in setupClipping. It updates the
+     * GrPipelineBuilder with stencil settings that account for stencil-based clipping.
      */
     void setPipelineBuilderStencil(GrPipelineBuilder*, GrPipelineBuilder::AutoRestoreStencil*);
 

@@ -72,6 +72,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
+    out->appendf("Stencil Buffer Creates: %d\n", fStencilBufferCreates);
 }
 #endif
 
