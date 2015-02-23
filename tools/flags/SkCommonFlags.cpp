@@ -7,7 +7,7 @@
 
 #include "SkCommonFlags.h"
 
-DEFINE_string(config, "565 8888 gpu nonrendering angle nvprmsaa4 ",
+DEFINE_string(config, "565 8888 gpu nonrendering angle nvprmsaa4 hwui ",
               "Options: 565 8888 pdf gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 "
               "gpudft gpunull gpudebug angle mesa (and many more)");
 

@@ -10,7 +10,20 @@
         ],
         'conditions': [
           ['skia_android_framework', {
-              'libraries': [ '-lskia' ],
+              'libraries': [
+                  '-lskia',
+                  '-landroid',
+                  '-lgui',
+                  '-lhwui',
+                  '-lutils',
+              ],
+              'include_dirs': [
+                  '../../../frameworks/base/libs/hwui/',
+                  '../../../frameworks/native/include/',
+              ],
+              'sources': [
+                '../dm/DMSrcSinkAndroid.cpp',
+              ],
           }],
           ['skia_poppler_enabled', {
               'sources':      [ '../src/utils/SkPDFRasterizer.cpp' ],

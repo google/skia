@@ -1,6 +1,7 @@
 #include "CrashHandler.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
+#include "DMSrcSinkAndroid.h"
 #include "OverwriteLine.h"
 #include "ProcStats.h"
 #include "SkBBHFactory.h"
@@ -223,6 +224,10 @@ static Sink* create_sink(const char* tag) {
         SINK("mesa",       GPUSink, Gr::kMESA_GLContextType,   api,  0, false, FLAGS_gpu_threading);
     #endif
     }
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    SINK("hwui",           HWUISink);
+#endif
 
     if (FLAGS_cpu) {
         SINK("565",  RasterSink, kRGB_565_SkColorType);
