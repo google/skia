@@ -64,11 +64,6 @@ public:
         return true;
     }
 
-    bool canApplyCoverage(const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
-        return true;
-    }
-
     bool canTweakAlphaForCoverage() const SK_OVERRIDE {
         return false;
     }

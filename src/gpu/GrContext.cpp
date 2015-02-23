@@ -460,14 +460,6 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              SkScalar strokeWidth,
                              const SkMatrix& combinedMatrix,
                              GrColor color) {
-    if (!pipelineBuilder->canTweakAlphaForCoverage() &&
-        !pipelineBuilder->canUseFracCoveragePrimProc(color, *target->caps())) {
-#ifdef SK_DEBUG
-        //SkDebugf("Turning off AA to correctly apply blend.\n");
-#endif
-        return false;
-    }
-
     if (pipelineBuilder->getRenderTarget()->isMultisampled()) {
         return false;
     }
@@ -869,11 +861,6 @@ static bool is_nested_rects(GrDrawTarget* target,
         return false;
     }
 
-    if (!pipelineBuilder->canTweakAlphaForCoverage() &&
-        !pipelineBuilder->canUseFracCoveragePrimProc(color, *target->caps())) {
-        return false;
-    }
-
     SkPath::Direction dirs[2];
     if (!path.isNestedRects(rects, dirs)) {
         return false;
@@ -1008,8 +995,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     bool useCoverageAA = useAA &&
-        !pipelineBuilder->getRenderTarget()->isMultisampled() &&
-        pipelineBuilder->canUseFracCoveragePrimProc(color, *target->caps());
+        !pipelineBuilder->getRenderTarget()->isMultisampled();
 
 
     GrPathRendererChain::DrawType type =

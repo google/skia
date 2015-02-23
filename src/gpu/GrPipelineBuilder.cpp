@@ -82,23 +82,6 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
     fCoverageCache = GrColor_ILLEGAL;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-bool GrPipelineBuilder::canUseFracCoveragePrimProc(GrColor color,
-                                                   const GrDrawTargetCaps& caps) const {
-    if (caps.dualSourceBlendingSupport()) {
-        return true;
-    }
-
-    this->calcColorInvariantOutput(color);
-
-    // The coverage isn't actually white, its unknown, but this will produce the same effect
-    // TODO we want to cache the result of this call, but we can probably clean up the interface
-    // so we don't have to pass in a seemingly known coverage
-    this->calcCoverageInvariantOutput(GrColor_WHITE);
-    return this->getXPFactory()->canApplyCoverage(fColorProcInfo, fCoverageProcInfo);
-}
-
 //////////////////////////////////////////////////////////////////////////////s
 
 bool GrPipelineBuilder::willXPNeedDstCopy(const GrDrawTargetCaps& caps,

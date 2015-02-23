@@ -20,11 +20,6 @@ public:
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE;
 
-    bool canApplyCoverage(const GrProcOptInfo& /*colorPOI*/,
-                          const GrProcOptInfo& /*coveragePOI*/) const SK_OVERRIDE {
-        return true;
-    }
-
     bool canTweakAlphaForCoverage() const SK_OVERRIDE;
 
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
