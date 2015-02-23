@@ -588,8 +588,8 @@ public:
             return;
         }
 
-        SkAutoTUnref<const GrGeometryProcessor>gp(create_fill_rect_gp(canTweakAlphaForCoverage,
-                                                                      localMatrix));
+        SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
+                                                                       localMatrix));
 
         batchTarget->initDraw(gp, pipeline);
 
