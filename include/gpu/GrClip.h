@@ -148,8 +148,10 @@ public:
                                bool* isIntersectionOfRects = NULL) const;
 
     static const GrClip& WideOpen() {
-        static GrClip clip;
-        return clip;
+        static SkAlignedSStorage<sizeof(GrClip)> g_WideOpenClip_Storage;
+        static GrClip* g_WideOpenClip SkNEW_PLACEMENT(g_WideOpenClip_Storage.get(), GrClip);
+        static SkAutoTDestroy<GrClip> g_WideOpenClip_ad(g_WideOpenClip);
+        return *g_WideOpenClip_ad;
     }
 
     enum ClipType {
