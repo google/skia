@@ -1232,6 +1232,9 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
 
     SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
                                                               ctable.get(), data.get()));
+    if (!pr.get()) {
+        return false;
+    }
     bitmap->setInfo(pr->info());
     bitmap->setPixelRef(pr, 0, 0);
     return true;
