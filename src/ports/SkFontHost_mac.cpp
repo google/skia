@@ -444,21 +444,9 @@ public:
         , fRequestedName(requestedName)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fIsLocalStream(isLocalStream)
-        , fHasSbixTable(false)
+        , fHasColorGlyphs(CTFontGetSymbolicTraits(fFontRef) & kCTFontColorGlyphsTrait)
     {
         SkASSERT(fontRef);
-
-        AutoCFRelease<CFArrayRef> tags(CTFontCopyAvailableTables(fFontRef,kCTFontTableOptionNoOptions));
-        if (tags) {
-            int count = SkToInt(CFArrayGetCount(tags));
-            for (int i = 0; i < count; ++i) {
-                uintptr_t tag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(tags, i));
-                if ('sbix' == tag) {
-                    fHasSbixTable = true;
-                    break;
-                }
-            }
-        }
     }
 
     SkString fRequestedName;
@@ -484,7 +472,7 @@ protected:
 
 private:
     bool fIsLocalStream;
-    bool fHasSbixTable;
+    bool fHasColorGlyphs;
 
     typedef SkTypeface INHERITED;
 };
@@ -1897,7 +1885,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
     // CoreText provides no information as to whether a glyph will be color or not.
     // Fonts may mix outlines and bitmaps, so information is needed on a glyph by glyph basis.
     // If a font contains an 'sbix' table, consider it to be a color font, and disable lcd.
-    if (fHasSbixTable) {
+    if (fHasColorGlyphs) {
         rec->fMaskFormat = SkMask::kARGB32_Format;
     }
 
