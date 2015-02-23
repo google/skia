@@ -92,9 +92,9 @@ public:
         this->validate();
     }
 
-#ifdef SK_DEBUG
+    /** Gets the item at index i in the priority queue (for i < this->count()). at(0) is equivalent
+        to peek(). Otherwise, there is no guarantee about ordering of elements in the queue. */
     T at(int i) const { return fArray[i]; }
-#endif
 
 private:
     static int LeftOf(int x) { SkASSERT(x >= 0); return 2 * x + 1; }
