@@ -117,8 +117,8 @@ void GrResourceCache::dumpStats(SkString* out) const {
     out->appendf("Budget: %d items %d bytes\n", fMaxCount, (int)fMaxBytes);
     out->appendf("\t\tEntry Count: current %d"
                  " (%d budgeted, %d wrapped, %d locked, %d scratch %.2g%% full), high %d\n",
-                 fCount, fBudgetedCount, stats.fWrapped, locked, stats.fScratch, countUtilization,
-                 fHighWaterCount);
+                 this->getResourceCount(), fBudgetedCount, stats.fWrapped, locked, stats.fScratch,
+                 countUtilization, fHighWaterCount);
     out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
                  SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization,
                  SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));
