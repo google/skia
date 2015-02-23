@@ -395,6 +395,7 @@ public:
 
     // copy what has been written to the stream into dst
     void copyTo(void* dst) const;
+    void writeToStream(SkWStream* dst) const;
 
     /**
      *  Return a copy of the data written so far. This call is responsible for

@@ -621,6 +621,12 @@ void SkDynamicMemoryWStream::copyTo(void* dst) const
     }
 }
 
+void SkDynamicMemoryWStream::writeToStream(SkWStream* dst) const {
+    for (Block* block = fHead; block != NULL; block = block->fNext) {
+        dst->write(block->start(), block->written());
+    }
+}
+
 void SkDynamicMemoryWStream::padToAlign4()
 {
     // cast to remove unary-minus warning

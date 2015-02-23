@@ -175,9 +175,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
             case SkPath::kClose_Verb:
                 if (fillState != kSingleLine_SkipFillState) {
                     ClosePath(&currentSegment);
-                    SkData* data = currentSegment.copyToData();
-                    content->write(data->data(), data->size());
-                    data->unref();
+                    currentSegment.writeToStream(content);
                 }
                 currentSegment.reset();
                 break;
@@ -187,9 +185,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         }
     }
     if (currentSegment.bytesWritten() > 0) {
-        SkData* data = currentSegment.copyToData();
-        content->write(data->data(), data->size());
-        data->unref();
+        currentSegment.writeToStream(content);
     }
 }
 

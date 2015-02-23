@@ -1321,8 +1321,7 @@ void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
         gsState.updateMatrix(entry->fState.fMatrix);
         gsState.updateDrawingState(entry->fState);
 
-        SkAutoDataUnref copy(entry->fContent.copyToData());
-        data->write(copy->data(), copy->size());
+        entry->fContent.writeToStream(data);
         entry = entry->fNext.get();
     }
     gsState.drainStack();
