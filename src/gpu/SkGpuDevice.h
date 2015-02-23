@@ -62,6 +62,8 @@ public:
     // set all pixels to 0
     void clearAll();
 
+    void replaceRenderTarget(bool shouldRetainContent);
+
     GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
     SkImageInfo imageInfo() const SK_OVERRIDE {
@@ -198,6 +200,9 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
     static SkPicture::AccelData::Key ComputeAccelDataKey();
+
+    static GrRenderTarget* CreateRenderTarget(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
+                                              int sampleCount);
 
     typedef SkBaseDevice INHERITED;
 };

@@ -7,41 +7,40 @@
 
 #include "SkGpuDevice.h"
 
-#include "effects/GrBicubicEffect.h"
-#include "effects/GrDashingEffect.h"
-#include "effects/GrTextureDomain.h"
-#include "effects/GrSimpleTextureEffect.h"
-
-#include "GrContext.h"
 #include "GrBitmapTextContext.h"
+#include "GrContext.h"
 #include "GrDistanceFieldTextContext.h"
+#include "GrGpu.h"
+#include "GrGpuResourcePriv.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 #include "GrStrokeInfo.h"
 #include "GrTracing.h"
-#include "GrGpu.h"
-
-#include "SkGrTexturePixelRef.h"
-
 #include "SkCanvasPriv.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDrawProcs.h"
+#include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
+#include "SkGrTexturePixelRef.h"
 #include "SkImageFilter.h"
 #include "SkLayerInfo.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
-#include "SkRecord.h"
 #include "SkRRect.h"
+#include "SkRecord.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
+#include "SkSurface_Gpu.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
 #include "SkXfermode.h"
-#include "SkErrorInternals.h"
+#include "effects/GrBicubicEffect.h"
+#include "effects/GrDashingEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
+#include "effects/GrTextureDomain.h"
 
 #if SK_SUPPORT_GPU
 
@@ -164,9 +163,8 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, const SkSurfaceProps* props, unsign
     fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFT);
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
-                                 const SkImageInfo& origInfo, int sampleCount,
-                                 const SkSurfaceProps* props, unsigned flags) {
+GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
+                                                const SkImageInfo& origInfo, int sampleCount) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
         return NULL;
@@ -195,13 +193,24 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgete
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
+    GrTexture* texture = context->createTexture(desc, SkToBool(budgeted), NULL, 0);
+    if (NULL == texture) {
+        return NULL;
+    }
+    SkASSERT(NULL != texture->asRenderTarget());
+    return texture->asRenderTarget();
+}
 
-    SkAutoTUnref<GrTexture> texture(context->createTexture(desc, SkToBool(budgeted), NULL, 0));
-    if (!texture) {
+SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
+                                 const SkImageInfo& info, int sampleCount,
+                                 const SkSurfaceProps* props, unsigned flags) {
+
+    SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info,  sampleCount));
+    if (NULL == rt) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkGpuDevice, (texture->asRenderTarget(), props, flags));
+    return SkNEW_ARGS(SkGpuDevice, (rt, props, flags));
 }
 
 SkGpuDevice::~SkGpuDevice() {
@@ -300,6 +309,38 @@ void SkGpuDevice::clearAll() {
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fContext->clear(&rect, color, true, fRenderTarget);
     fNeedClear = false;
+}
+
+void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
+    // Caller must have accessed the render target, because it knows the rt must be replaced.
+    SkASSERT(!fNeedClear);
+
+    SkSurface::Budgeted budgeted =
+            fRenderTarget->resourcePriv().isBudgeted() ? SkSurface::kYes_Budgeted
+                                                       : SkSurface::kNo_Budgeted;
+
+    SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
+        fRenderTarget->getContext(), budgeted, this->imageInfo(), fRenderTarget->numSamples()));
+
+    if (NULL == newRT) {
+        return;
+    }
+
+    if (shouldRetainContent) {
+        if (fRenderTarget->wasDestroyed()) {
+            return;
+        }
+        this->context()->copySurface(newRT, fRenderTarget);
+    }
+
+    SkASSERT(fRenderTarget != newRT);
+
+    fRenderTarget->unref();
+    fRenderTarget = newRT.detach();
+
+    SkASSERT(fRenderTarget->surfacePriv().info() == fLegacyBitmap.info());
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fRenderTarget->surfacePriv().info(), fRenderTarget));
+    fLegacyBitmap.setPixelRef(pr)->unref();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1306,15 +1306,6 @@ private:
     SkBaseDevice* init(SkBaseDevice*, InitFlags);
 
     /**
-     *  DEPRECATED
-     *
-     *  Specify a device for this canvas to draw into. If it is not null, its
-     *  reference count is incremented. If the canvas was already holding a
-     *  device, its reference count is decremented. The new device is returned.
-     */
-    SkBaseDevice* setRootDevice(SkBaseDevice* device);
-
-    /**
      * Gets the size/origin of the top level layer in global canvas coordinates. We don't want this
      * to be public because it exposes decisions about layer sizes that are internal to the canvas.
      */

@@ -608,59 +608,6 @@ SkBaseDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
     return fMCRec->fTopLayer->fDevice;
 }
 
-SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
-    // return root device
-    SkDeque::F2BIter iter(fMCStack);
-    MCRec*           rec = (MCRec*)iter.next();
-    SkASSERT(rec && rec->fLayer);
-    SkBaseDevice*    rootDevice = rec->fLayer->fDevice;
-
-    if (rootDevice == device) {
-        return device;
-    }
-
-    if (device) {
-        device->onAttachToCanvas(this);
-        device->initForRootLayer(fProps.pixelGeometry());
-    }
-    if (rootDevice) {
-        rootDevice->onDetachFromCanvas();
-    }
-
-    SkRefCnt_SafeAssign(rec->fLayer->fDevice, device);
-    rootDevice = device;
-
-    fDeviceCMDirty = true;
-
-    /*  Now we update our initial region to have the bounds of the new device,
-        and then intersect all of the clips in our stack with these bounds,
-        to ensure that we can't draw outside of the device's bounds (and trash
-                                                                     memory).
-
-    NOTE: this is only a partial-fix, since if the new device is larger than
-        the previous one, we don't know how to "enlarge" the clips in our stack,
-        so drawing may be artificially restricted. Without keeping a history of
-        all calls to canvas->clipRect() and canvas->clipPath(), we can't exactly
-        reconstruct the correct clips, so this approximation will have to do.
-        The caller really needs to restore() back to the base if they want to
-        accurately take advantage of the new device bounds.
-    */
-
-    SkIRect bounds;
-    if (device) {
-        bounds.set(0, 0, device->width(), device->height());
-    } else {
-        bounds.setEmpty();
-    }
-    // now jam our 1st clip to be bounds, and intersect the rest with that
-    rec->fRasterClip.setRect(bounds);
-    while ((rec = (MCRec*)iter.next()) != NULL) {
-        (void)rec->fRasterClip.op(bounds, SkRegion::kIntersect_Op);
-    }
-
-    return device;
-}
-
 bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
     if (kUnknown_SkColorType == bitmap->colorType() || bitmap->getTexture()) {
         return false;
