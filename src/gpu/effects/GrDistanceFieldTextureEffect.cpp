@@ -50,11 +50,11 @@ public:
         vsBuilder->emitAttributes(dfTexEffect);
 
         GrGLVertToFrag st(kVec2f_GrSLType);
-        args.fPB->addVarying("IntTextureCoords", &st);
+        args.fPB->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
         vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
         
         GrGLVertToFrag uv(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &uv);
+        args.fPB->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         // this is only used with text, so our texture bounds always match the glyph atlas
         vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
                                GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
@@ -335,7 +335,7 @@ public:
         vsBuilder->emitAttributes(dfTexEffect);
 
         GrGLVertToFrag v(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &v);
+        args.fPB->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
 
         // setup pass through color
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
@@ -576,11 +576,11 @@ public:
         vsBuilder->emitAttributes(dfTexEffect);
 
         GrGLVertToFrag st(kVec2f_GrSLType);
-        args.fPB->addVarying("IntTextureCoords", &st);
+        args.fPB->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
         vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
         
         GrGLVertToFrag uv(kVec2f_GrSLType);
-        args.fPB->addVarying("TextureCoords", &uv);
+        args.fPB->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         // this is only used with text, so our texture bounds always match the glyph atlas
         vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
                                GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
