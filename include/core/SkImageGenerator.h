@@ -15,12 +15,6 @@ class SkBitmap;
 class SkData;
 class SkImageGenerator;
 
-//#define SK_SUPPORT_LEGACY_GET_PIXELS_ENUM
-
-#ifdef SK_SUPPORT_LEGACY_GET_PIXELS_ENUM
-    #define onGetPixelsEnum onGetPixels
-#endif
-
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
  *  whatever reason, it will return false and immediatetely delete
