@@ -12,10 +12,10 @@
       'utils.gyp:utils',
     ],
     'conditions': [
-      [ 'skia_arch_type == "x86" and skia_os != "android"', {
+      [ '"x86" in skia_arch_type and skia_os != "android"', {
         'component_libs': [
           'opts.gyp:opts_ssse3',
-          'opts.gyp:opts_sse4',
+          'opts.gyp:opts_sse41',
         ],
       }],
       [ 'arm_neon == 1', {

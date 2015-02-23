@@ -40,14 +40,23 @@
 
       # Variables needed by conditions list within the level-2 variables dict.
       'variables': {  # level 3
-        # We use 'skia_os' instead of 'OS' throughout our gyp files, to allow
-        # for cross-compilation (e.g. building for either MacOS or iOS on Mac).
-        # We set it automatically based on 'OS' (the host OS), but allow the
-        # user to override it via GYP_DEFINES if they like.
-        'skia_os%': '<(OS)',
+        'variables': { # level 4
+          # We use 'skia_os' instead of 'OS' throughout our gyp files, to allow
+          # for cross-compilation (e.g. building for either MacOS or iOS on Mac).
+          # We set it automatically based on 'OS' (the host OS), but allow the
+          # user to override it via GYP_DEFINES if they like.
+          'skia_os%': '<(OS)',
+        },
+        'skia_os%': '<(skia_os)',
 
         'skia_android_framework%': 0,
-        'skia_arch_type%': 'x86',
+        'conditions' : [
+          [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"]', {
+            'skia_arch_type%': 'x86_64',
+          }, {
+            'skia_arch_type%': 'x86',
+          }],
+        ],
         'arm_version%': 0,
         'arm_neon%': 0,
         'skia_egl%': 0,
@@ -82,7 +91,7 @@
         }, {
           'skia_poppler_enabled%': 0,
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"] or skia_arch_type == "arm64"', {
+        ['"64" in skia_arch_type', {
           'skia_arch_width%': 64,
         }, {
           'skia_arch_width%': 32,

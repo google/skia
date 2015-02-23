@@ -1,3 +1,4 @@
+#
 {
   'targets': [
     {
@@ -18,10 +19,10 @@
           [ 'skia_arch_type == "arm64"', {
             'android_arch%': "arm64-v8a",
           }],
-          [ 'skia_arch_type == "x86" and skia_arch_width == 32', {
+          [ 'skia_arch_type == "x86"', {
             'android_arch%': "x86",
           }],
-          [ 'skia_arch_type == "x86" and skia_arch_width == 64', {
+          [ 'skia_arch_type == "x86_64"', {
             'android_arch%': "x86_64",
           }],
           [ 'skia_arch_type == "mips" and skia_arch_width == 32', {
