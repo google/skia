@@ -18,6 +18,7 @@
       'include_dirs': [
         '../include/views',
         '../include/views/unix',
+        '../src/gpu',
       ],
       'sources': [
         '../include/views/SkApplication.h',

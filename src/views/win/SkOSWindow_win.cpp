@@ -21,8 +21,8 @@
 #include "SkGraphics.h"
 
 #if SK_ANGLE
+#include "gl/angle/SkANGLEGLContext.h"
 #include "gl/GrGLInterface.h"
-
 #include "GLES2/gl2.h"
 
 #define ANGLE_GL_CALL(IFACE, X)                                 \
@@ -384,6 +384,7 @@ void SkOSWindow::presentGL() {
 }
 
 #if SK_ANGLE
+
 bool create_ANGLE(EGLNativeWindowType hWnd,
                   int msaaSampleCount,
                   EGLDisplay* eglDisplay,
@@ -407,9 +408,11 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         EGL_NONE, EGL_NONE
     };
 
-    EGLDisplay display = eglGetDisplay(GetDC(hWnd));
-    if (display == EGL_NO_DISPLAY ) {
-       return false;
+    EGLDisplay display = SkANGLEGLContext::GetD3DEGLDisplay(GetDC(hWnd));
+
+    if (EGL_NO_DISPLAY == display) {
+        SkDebugf("Could not create ANGLE egl display!\n");
+        return false;
     }
 
     // Initialize EGL

@@ -352,8 +352,8 @@
       '<(skia_src_path)/gpu/gl/angle/GrGLCreateANGLEInterface.cpp',
 
       # Sk files
+      '<(skia_include_path)/gpu/gl/angle/SkANGLEGLContext.h',
       '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.cpp',
-      '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.h',
     ],
     'skgpu_debug_gl_sources': [
       '<(skia_src_path)/gpu/gl/debug/GrGLCreateDebugInterface.cpp',

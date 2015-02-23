@@ -33,6 +33,8 @@ public:
         return ctx;
     }
 
+    static EGLDisplay GetD3DEGLDisplay(EGLNativeDisplayType nativeDisplay);
+
 private:
     SkANGLEGLContext();
     void destroyGLContext();
