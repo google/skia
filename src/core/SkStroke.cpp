@@ -905,9 +905,10 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
         SkPoint* tangent) const {
+    SkPoint oldDxy = *dxy;
     if (!dxy->setLength(fRadius)) {  // consider moving double logic into SkPoint::setLength
-        double xx = dxy->fX;
-        double yy = dxy->fY;
+        double xx = oldDxy.fX;
+        double yy = oldDxy.fY;
         double dscale = fRadius / sqrt(xx * xx + yy * yy);
         dxy->fX = SkDoubleToScalar(xx * dscale);
         dxy->fY = SkDoubleToScalar(yy * dscale);
@@ -1412,14 +1413,16 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
         SkQuadConstruct quadPts;
         this->init(kOuter_StrokeType, &quadPts, lastT, nextT);
         if (!this->cubicStroke(cubic, &quadPts)) {
-            return;
+            break;
         }
         this->init(kInner_StrokeType, &quadPts, lastT, nextT);
         if (!this->cubicStroke(cubic, &quadPts)) {
-            return;
+            break;
         }
         lastT = nextT;
     }
+    // emit the join even if one stroke succeeded but the last one failed
+    // this avoids reversing an inner stroke with a partial path followed by another moveto
     this->setCubicEndNormal(cubic, normalAB, unitAB, &normalCD, &unitCD);
 #else
     bool    degenerateAB = SkPath::IsLineDegenerate(fPrevPt, pt1);
