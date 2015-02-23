@@ -1,7 +1,9 @@
 #include "DMSrcSink.h"
 #include "SamplePipeControllers.h"
 #include "SkCommonFlags.h"
+#include "SkData.h"
 #include "SkDocument.h"
+#include "SkImageGenerator.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
@@ -10,6 +12,11 @@
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkXMLWriter.h"
+
+static bool lazy_decode_bitmap(const void* src, size_t size, SkBitmap* dst) {
+    SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, size));
+    return encoded && SkInstallDiscardablePixelRef(encoded, dst);
+}
 
 namespace DM {
 
@@ -114,7 +121,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream));
+    SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream, &lazy_decode_bitmap));
     if (!pic) {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
@@ -379,7 +386,7 @@ Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream
     SkDynamicMemoryWStream wStream;
     pic->serialize(&wStream);
     SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
-    SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream));
+    SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream, &lazy_decode_bitmap));
 
     // Turn that deserialized picture into a Src, draw it into our Sink to fill bitmap or stream.
     struct ProxySrc : public Src {
