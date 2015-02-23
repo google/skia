@@ -10,6 +10,8 @@
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrResourceKey.h"
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 
@@ -49,17 +51,9 @@ void GrTexture::validateDesc() const {
     if (this->asRenderTarget()) {
         // This texture has a render target
         SkASSERT(0 != (fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
-
-        if (this->asRenderTarget()->getStencilBuffer()) {
-            SkASSERT(0 != (fDesc.fFlags & kNoStencil_GrSurfaceFlag));
-        } else {
-            SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrSurfaceFlag));
-        }
-
         SkASSERT(fDesc.fSampleCnt == this->asRenderTarget()->numSamples());
     } else {
         SkASSERT(0 == (fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
-        SkASSERT(0 == (fDesc.fFlags & kNoStencil_GrSurfaceFlag));
         SkASSERT(0 == fDesc.fSampleCnt);
     }
 }

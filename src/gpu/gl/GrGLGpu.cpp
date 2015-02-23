@@ -11,6 +11,7 @@
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPipeline.h"
+#include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
 #include "GrTexturePriv.h"
@@ -454,7 +455,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
                                             desc.fHeight,
                                             desc.fSampleCnt,
                                             format));
-        tgt->setStencilBuffer(sb);
+        tgt->renderTargetPriv().didAttachStencilBuffer(sb);
         sb->unref();
     }
     return tgt;
@@ -1175,7 +1176,7 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                                                   (this, sbDesc, width, height, samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                rt->setStencilBuffer(sb);
+                rt->renderTargetPriv().didAttachStencilBuffer(sb);
                 return true;
             }
             // Remove the scratch key from this resource so we don't grab it from the cache ever
@@ -1195,7 +1196,7 @@ bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
     GrGLuint fbo = glrt->renderFBOID();
 
     if (NULL == sb) {
-        if (rt->getStencilBuffer()) {
+        if (rt->renderTargetPriv().getStencilBuffer()) {
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_STENCIL_ATTACHMENT,
                                             GR_GL_RENDERBUFFER, 0));
@@ -1570,10 +1571,11 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
 void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
     SkASSERT(target);
 
+    GrStencilBuffer* sb = target->renderTargetPriv().getStencilBuffer();
     // this should only be called internally when we know we have a
     // stencil buffer.
-    SkASSERT(target->getStencilBuffer());
-    GrGLint stencilBitCount =  target->getStencilBuffer()->bits();
+    SkASSERT(sb);
+    GrGLint stencilBitCount =  sb->bits();
 #if 0
     SkASSERT(stencilBitCount > 0);
     GrGLint clipStencilMask  = (1 << (stencilBitCount - 1));
@@ -2560,7 +2562,7 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
         // then we set up for that, otherwise fail.
         if (this->caps()->isConfigRenderable(kBGRA_8888_GrPixelConfig, false)) {
             desc->fOrigin = kDefault_GrSurfaceOrigin;
-            desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+            desc->fFlags = kRenderTarget_GrSurfaceFlag;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
             return true;
         }
@@ -2576,7 +2578,7 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
         // fail.
         if (this->caps()->isConfigRenderable(src->config(), false)) {
             desc->fOrigin = kDefault_GrSurfaceOrigin;
-            desc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+            desc->fFlags = kRenderTarget_GrSurfaceFlag;
             desc->fConfig = src->config();
             return true;
         }

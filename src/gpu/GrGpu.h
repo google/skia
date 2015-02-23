@@ -405,6 +405,9 @@ public:
     void saveActiveTraceMarkers();
     void restoreActiveTraceMarkers();
 
+    // Given a rt, find or create a stencil buffer and attach it
+    bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
+
 protected:
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
@@ -488,9 +491,6 @@ private:
 
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
-
-    // Given a rt, find or create a stencil buffer and attach it
-    bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
     virtual void didAddGpuTraceMarker() = 0;
     virtual void didRemoveGpuTraceMarker() = 0;

@@ -15,6 +15,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrIndexBuffer.h"
 #include "GrResourceCache.h"
+#include "GrRenderTargetPriv.h"
 #include "GrStencilBuffer.h"
 #include "GrVertexBuffer.h"
 
@@ -61,16 +62,6 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
     } else {
         this->handleDirtyContext();
         tex = this->onCreateTexture(desc, budgeted, srcData, rowBytes);
-        if (tex &&
-            (kRenderTarget_GrSurfaceFlag & desc.fFlags) &&
-            !(kNoStencil_GrSurfaceFlag & desc.fFlags)) {
-            SkASSERT(tex->asRenderTarget());
-            // TODO: defer this and attach dynamically
-            if (!this->attachStencilBufferToRenderTarget(tex->asRenderTarget())) {
-                tex->unref();
-                return NULL;
-            }
-        }
     }
     if (!this->caps()->reuseScratchTextures() && !isRT) {
         tex->resourcePriv().removeScratchKey();
@@ -85,7 +76,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
 }
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
-    SkASSERT(NULL == rt->getStencilBuffer());
+    SkASSERT(NULL == rt->renderTargetPriv().getStencilBuffer());
     GrUniqueKey sbKey;
 
     int width = rt->width();
@@ -99,12 +90,11 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     SkAutoTUnref<GrStencilBuffer> sb(static_cast<GrStencilBuffer*>(
         this->getContext()->getResourceCache()->findAndRefUniqueResource(sbKey)));
     if (sb) {
-        rt->setStencilBuffer(sb);
-        bool attached = this->attachStencilBufferToRenderTarget(sb, rt);
-        if (!attached) {
-            rt->setStencilBuffer(NULL);
+        if (this->attachStencilBufferToRenderTarget(sb, rt)) {
+            rt->renderTargetPriv().didAttachStencilBuffer(sb);
+            return true;
         }
-        return attached;
+        return false;
     }
     if (this->createStencilBufferForRenderTarget(rt, width, height)) {
         // Right now we're clearing the stencil buffer here after it is
@@ -116,7 +106,8 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
         // FBO status.
         this->clearStencil(rt);
-        rt->getStencilBuffer()->resourcePriv().setUniqueKey(sbKey);
+        GrStencilBuffer* sb = rt->renderTargetPriv().getStencilBuffer();
+        sb->resourcePriv().setUniqueKey(sbKey);
         return true;
     } else {
         return false;

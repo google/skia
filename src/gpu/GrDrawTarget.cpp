@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
 #include "GrTexture.h"
@@ -607,9 +608,9 @@ void GrDrawTarget::stencilPath(GrPipelineBuilder* pipelineBuilder,
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    this->getPathStencilSettingsForFilltype(fill,
-                                            pipelineBuilder->getRenderTarget()->getStencilBuffer(),
-                                            &stencilSettings);
+    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrStencilBuffer* sb = rt->renderTargetPriv().attachStencilBuffer();
+    this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     this->onStencilPath(*pipelineBuilder, pathProc, path, scissorState, stencilSettings);
 }
@@ -636,9 +637,9 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    this->getPathStencilSettingsForFilltype(fill,
-                                            pipelineBuilder->getRenderTarget()->getStencilBuffer(),
-                                            &stencilSettings);
+    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrStencilBuffer* sb = rt->renderTargetPriv().attachStencilBuffer();
+    this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, pathProc, &devBounds,
                                             this);
@@ -676,9 +677,9 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    this->getPathStencilSettingsForFilltype(fill,
-                                            pipelineBuilder->getRenderTarget()->getStencilBuffer(),
-                                            &stencilSettings);
+    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrStencilBuffer* sb = rt->renderTargetPriv().attachStencilBuffer();
+    this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     // Don't compute a bounding box for dst copy texture, we'll opt
     // instead for it to just copy the entire dst. Realistically this is a moot

@@ -11,6 +11,7 @@
 
 #include "GrContext.h"
 #include "GrGpu.h"
+#include "GrRenderTargetPriv.h"
 #include "GrStencilBuffer.h"
 
 void GrRenderTarget::discard() {
@@ -46,18 +47,30 @@ void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
     }
 }
 
-void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
-    SkRefCnt_SafeAssign(fStencilBuffer, stencilBuffer);
-}
-
 void GrRenderTarget::onRelease() {
-    this->setStencilBuffer(NULL);
+    this->renderTargetPriv().didAttachStencilBuffer(NULL);
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
-    this->setStencilBuffer(NULL);
+    this->renderTargetPriv().didAttachStencilBuffer(NULL);
 
     INHERITED::onAbandon();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrRenderTargetPriv::didAttachStencilBuffer(GrStencilBuffer* stencilBuffer) {
+    SkRefCnt_SafeAssign(fRenderTarget->fStencilBuffer, stencilBuffer);
+}
+
+GrStencilBuffer* GrRenderTargetPriv::attachStencilBuffer() const {
+    if (fRenderTarget->fStencilBuffer) {
+        return fRenderTarget->fStencilBuffer;
+    }
+    if (!fRenderTarget->wasDestroyed() && fRenderTarget->canAttemptStencilAttachment()) {
+        fRenderTarget->getGpu()->attachStencilBufferToRenderTarget(fRenderTarget);
+    }
+    return fRenderTarget->fStencilBuffer;
 }

@@ -181,8 +181,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag |
-                  kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;

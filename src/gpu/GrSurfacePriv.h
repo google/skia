@@ -34,9 +34,9 @@ public:
     bool hasPendingIO() const { return fSurface->hasPendingIO(); }
 
 private:
-    GrSurfacePriv(GrSurface* surface) : fSurface(surface) { }
-    GrSurfacePriv(const GrSurfacePriv& that) : fSurface(that.fSurface) { }
-    GrSurfacePriv& operator=(const GrSurface&); // unimpl
+    explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}
+    GrSurfacePriv(const GrSurfacePriv&); // unimpl
+    GrSurfacePriv& operator=(const GrSurfacePriv&); // unimpl
 
     // No taking addresses of this type.
     const GrSurfacePriv* operator&() const;

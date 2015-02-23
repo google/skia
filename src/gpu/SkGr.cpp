@@ -198,9 +198,7 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
 
     // Either it's a cache miss or the original wasn't cached to begin with.
     GrSurfaceDesc rtDesc = inputTexture->desc();
-    rtDesc.fFlags =  rtDesc.fFlags |
-                     kRenderTarget_GrSurfaceFlag |
-                     kNoStencil_GrSurfaceFlag;
+    rtDesc.fFlags =  rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
     rtDesc.fWidth  = GrNextPow2(rtDesc.fWidth);
     rtDesc.fHeight = GrNextPow2(rtDesc.fHeight);
     rtDesc.fConfig = GrMakePixelConfigUncompressed(rtDesc.fConfig);
@@ -377,9 +375,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     }
 
     GrSurfaceDesc rtDesc = desc;
-    rtDesc.fFlags = rtDesc.fFlags |
-                    kRenderTarget_GrSurfaceFlag |
-                    kNoStencil_GrSurfaceFlag;
+    rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
 
     GrTexture* result = create_texture_for_bmp(ctx, optionalKey, rtDesc, pixelRef, NULL, 0);
     if (!result) {

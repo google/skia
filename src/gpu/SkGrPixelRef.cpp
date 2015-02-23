@@ -77,7 +77,7 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
         desc.fHeight = subset->height();
         srcRect = *subset;
     }
-    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType, dstPT);
 
     GrTexture* dst = context->createTexture(desc, false, NULL, 0);

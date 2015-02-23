@@ -726,7 +726,7 @@ private:
     void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* dstDesc) {
         if (!this->onInitCopySurfaceDstDesc(src, dstDesc)) {
             dstDesc->fOrigin = kDefault_GrSurfaceOrigin;
-            dstDesc->fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+            dstDesc->fFlags = kRenderTarget_GrSurfaceFlag;
             dstDesc->fConfig = src->config();
         }
     }

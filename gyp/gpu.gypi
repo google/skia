@@ -149,6 +149,7 @@
       '<(skia_src_path)/gpu/GrRectanizer_skyline.h',
       '<(skia_src_path)/gpu/GrRedBlackTree.h',
       '<(skia_src_path)/gpu/GrRenderTarget.cpp',
+      '<(skia_src_path)/gpu/GrRenderTargetPriv.h',
       '<(skia_src_path)/gpu/GrReducedClip.cpp',
       '<(skia_src_path)/gpu/GrReducedClip.h',
       '<(skia_src_path)/gpu/GrResourceCache.cpp',

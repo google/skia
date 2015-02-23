@@ -23,6 +23,7 @@
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
+#include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilAndCoverTextContext.h"
@@ -213,9 +214,11 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
                                             const SkDeviceProperties&
                                             leakyProperties,
                                             bool enableDistanceFieldFonts) {
-    if (fGpu->caps()->pathRenderingSupport() && renderTarget->getStencilBuffer() && 
-                                                renderTarget->isMultisampled()) {
-        return GrStencilAndCoverTextContext::Create(this, leakyProperties);
+    if (fGpu->caps()->pathRenderingSupport() && renderTarget->isMultisampled()) {
+        GrStencilBuffer* sb = renderTarget->renderTargetPriv().attachStencilBuffer();
+        if (sb) {
+            return GrStencilAndCoverTextContext::Create(this, leakyProperties);
+        }
     } 
 
     return GrDistanceFieldTextContext::Create(this, leakyProperties, enableDistanceFieldFonts);
@@ -278,14 +281,10 @@ GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMat
 
 GrTexture* GrContext::internalRefScratchTexture(const GrSurfaceDesc& inDesc, uint32_t flags) {
     SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
-    // kNoStencil has no meaning if kRT isn't set.
-    SkASSERT((inDesc.fFlags & kRenderTarget_GrSurfaceFlag) ||
-             !(inDesc.fFlags & kNoStencil_GrSurfaceFlag));
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
     if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
-        GrSurfaceFlags origFlags = desc->fFlags;
         if (!(kExact_ScratchTextureFlag & flags)) {
             // bin by pow2 with a reasonable min
             static const int MIN_SIZE = 16;
@@ -294,44 +293,25 @@ GrTexture* GrContext::internalRefScratchTexture(const GrSurfaceDesc& inDesc, uin
             wdesc->fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc->fHeight));
         }
 
-        do {
-            GrScratchKey key;
-            GrTexturePriv::ComputeScratchKey(*desc, &key);
-            uint32_t scratchFlags = 0;
-            if (kNoPendingIO_ScratchTextureFlag & flags) {
-                scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-            } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
-                // If it is not a render target then it will most likely be populated by
-                // writePixels() which will trigger a flush if the texture has pending IO.
-                scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
+        GrScratchKey key;
+        GrTexturePriv::ComputeScratchKey(*desc, &key);
+        uint32_t scratchFlags = 0;
+        if (kNoPendingIO_ScratchTextureFlag & flags) {
+            scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
+        } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+            // If it is not a render target then it will most likely be populated by
+            // writePixels() which will trigger a flush if the texture has pending IO.
+            scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
+        }
+        GrGpuResource* resource = fResourceCache->findAndRefScratchResource(key, scratchFlags);
+        if (resource) {
+            GrSurface* surface = static_cast<GrSurface*>(resource);
+            GrRenderTarget* rt = surface->asRenderTarget();
+            if (rt && fGpu->caps()->discardRenderTargetSupport()) {
+                rt->discard();
             }
-            GrGpuResource* resource = fResourceCache->findAndRefScratchResource(key, scratchFlags);
-            if (resource) {
-                GrSurface* surface = static_cast<GrSurface*>(resource);
-                GrRenderTarget* rt = surface->asRenderTarget();
-                if (rt && fGpu->caps()->discardRenderTargetSupport()) {
-                    rt->discard();
-                }
-                return surface->asTexture();
-            }
-
-            if (kExact_ScratchTextureFlag & flags) {
-                break;
-            }
-            // We had a cache miss and we are in approx mode, relax the fit of the flags.
-
-            // We no longer try to reuse textures that were previously used as render targets in
-            // situations where no RT is needed; doing otherwise can confuse the video driver and
-            // cause significant performance problems in some cases.
-            if (desc->fFlags & kNoStencil_GrSurfaceFlag) {
-                desc.writable()->fFlags = desc->fFlags & ~kNoStencil_GrSurfaceFlag;
-            } else {
-                break;
-            }
-
-        } while (true);
-
-        desc.writable()->fFlags = origFlags;
+            return surface->asTexture();
+        }
     }
 
     if (!(kNoCreate_ScratchTextureFlag & flags)) {

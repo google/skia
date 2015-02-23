@@ -12,6 +12,8 @@
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrPath.h"
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "SkStrokeRec.h"
 
 /*
@@ -58,7 +60,6 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 bool antiAlias) const {
     return !stroke.isHairlineStyle() &&
            !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
-           pipelineBuilder->getRenderTarget()->getStencilBuffer() &&
            pipelineBuilder->getStencil().isDisabled();
 }
 

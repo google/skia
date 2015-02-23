@@ -657,7 +657,7 @@ bool apply_morphology(const SkBitmap& input,
 
     SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = rect.width();
     desc.fHeight = rect.height();
     desc.fConfig = kSkia8888_GrPixelConfig;

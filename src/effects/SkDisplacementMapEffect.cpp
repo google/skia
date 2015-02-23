@@ -417,7 +417,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     GrContext* context = color->getContext();
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = bounds.width();
     desc.fHeight = bounds.height();
     desc.fConfig = kSkia8888_GrPixelConfig;

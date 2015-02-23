@@ -54,6 +54,9 @@ public:
         }
     }
 
+    /** When we don't own the FBO ID we don't attempt to modify its attachments. */
+    bool canAttemptStencilAttachment() const SK_OVERRIDE { return !fIsWrapped; }
+
 protected:
     // The public constructor registers this object with the cache. However, only the most derived
     // class should register with the cache. This constructor does not do the registration and

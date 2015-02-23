@@ -13,6 +13,7 @@
 #include "GrPaint.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrStencilBuffer.h"
 #include "GrSWMaskHelper.h"
 #include "SkRasterClip.h"
@@ -675,8 +676,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     SkASSERT(rt);
 
-    // TODO: dynamically attach a SB when needed.
-    GrStencilBuffer* stencilBuffer = rt->getStencilBuffer();
+    GrStencilBuffer* stencilBuffer = rt->renderTargetPriv().attachStencilBuffer();
     if (NULL == stencilBuffer) {
         return false;
     }
@@ -905,9 +905,9 @@ void GrClipMaskManager::setPipelineBuilderStencil(GrPipelineBuilder* pipelineBui
         settings = pipelineBuilder->getStencil();
     }
 
-    // TODO: dynamically attach a stencil buffer
     int stencilBits = 0;
-    GrStencilBuffer* stencilBuffer = pipelineBuilder->getRenderTarget()->getStencilBuffer();
+    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrStencilBuffer* stencilBuffer = rt->renderTargetPriv().attachStencilBuffer();
     if (stencilBuffer) {
         stencilBits = stencilBuffer->bits();
     }
@@ -1084,7 +1084,6 @@ void GrClipMaskManager::setClipTarget(GrClipTarget* clipTarget) {
 
 void GrClipMaskManager::adjustPathStencilParams(const GrStencilBuffer* stencilBuffer,
                                                 GrStencilSettings* settings) {
-    // TODO: dynamically attach a stencil buffer
     if (stencilBuffer) {
         int stencilBits = stencilBuffer->bits();
         this->adjustStencilParams(settings, fClipMode, stencilBits);

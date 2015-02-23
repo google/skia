@@ -167,7 +167,7 @@ GrTexture* GaussianBlur(GrContext* context,
              kAlpha_8_GrPixelConfig == srcTexture->config());
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = SkScalarFloorToInt(srcRect.width());
     desc.fHeight = SkScalarFloorToInt(srcRect.height());
     desc.fConfig = srcTexture->config();

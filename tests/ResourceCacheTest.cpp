@@ -12,6 +12,8 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
@@ -73,18 +75,29 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
 
     // Test that two budgeted RTs with the same desc share a stencil buffer.
     SkAutoTUnref<GrTexture> smallRT0(context->createTexture(smallDesc, true));
+    if (smallRT0 && smallRT0->asRenderTarget()) {
+        smallRT0->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+    }
+
     SkAutoTUnref<GrTexture> smallRT1(context->createTexture(smallDesc, true));
+    if (smallRT1 && smallRT1->asRenderTarget()) {
+        smallRT1->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+    }
+
     REPORTER_ASSERT(reporter, smallRT0 && smallRT1 &&
                               smallRT0->asRenderTarget() && smallRT1->asRenderTarget() &&
-                              smallRT0->asRenderTarget()->getStencilBuffer() ==
-                              smallRT1->asRenderTarget()->getStencilBuffer());
+                              smallRT0->asRenderTarget()->renderTargetPriv().getStencilBuffer() ==
+                              smallRT1->asRenderTarget()->renderTargetPriv().getStencilBuffer());
 
     // An unbudgeted RT with the same desc should also share.
     SkAutoTUnref<GrTexture> smallRT2(context->createTexture(smallDesc, false));
+    if (smallRT2 && smallRT2->asRenderTarget()) {
+        smallRT2->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+    }
     REPORTER_ASSERT(reporter, smallRT0 && smallRT2 &&
                               smallRT0->asRenderTarget() && smallRT2->asRenderTarget() &&
-                              smallRT0->asRenderTarget()->getStencilBuffer() ==
-                              smallRT2->asRenderTarget()->getStencilBuffer());
+                              smallRT0->asRenderTarget()->renderTargetPriv().getStencilBuffer() ==
+                              smallRT2->asRenderTarget()->renderTargetPriv().getStencilBuffer());
 
     // An RT with a much larger size should not share.
     GrSurfaceDesc bigDesc;
@@ -94,44 +107,60 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
     SkAutoTUnref<GrTexture> bigRT(context->createTexture(bigDesc, false));
+    if (bigRT && bigRT->asRenderTarget()) {
+        bigRT->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+    }
     REPORTER_ASSERT(reporter, smallRT0 && bigRT &&
                               smallRT0->asRenderTarget() && bigRT->asRenderTarget() &&
-                              smallRT0->asRenderTarget()->getStencilBuffer() !=
-                              bigRT->asRenderTarget()->getStencilBuffer());
+                              smallRT0->asRenderTarget()->renderTargetPriv().getStencilBuffer() !=
+                              bigRT->asRenderTarget()->renderTargetPriv().getStencilBuffer());
 
     if (context->getMaxSampleCount() >= 4) {
         // An RT with a different sample count should not share. 
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
         SkAutoTUnref<GrTexture> smallMSAART0(context->createTexture(smallMSAADesc, false));
+        if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
+            smallMSAART0->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+        }
 #ifdef SK_BUILD_FOR_ANDROID
         if (!smallMSAART0) {
             // The nexus player seems to fail to create MSAA textures.
             return;
         }
 #endif
-        REPORTER_ASSERT(reporter, smallRT0 && smallMSAART0 &&
-                                  smallRT0->asRenderTarget() && smallMSAART0->asRenderTarget() &&
-                                  smallRT0->asRenderTarget()->getStencilBuffer() !=
-                                  smallMSAART0->asRenderTarget()->getStencilBuffer());
+        REPORTER_ASSERT(reporter,
+                        smallRT0 && smallMSAART0 &&
+                        smallRT0->asRenderTarget() && smallMSAART0->asRenderTarget() &&
+                        smallRT0->asRenderTarget()->renderTargetPriv().getStencilBuffer() !=
+                        smallMSAART0->asRenderTarget()->renderTargetPriv().getStencilBuffer());
         // A second MSAA RT should share with the first MSAA RT.
         SkAutoTUnref<GrTexture> smallMSAART1(context->createTexture(smallMSAADesc, false));
-        REPORTER_ASSERT(reporter, smallMSAART0 && smallMSAART1 &&
-                                  smallMSAART0->asRenderTarget() &&
-                                  smallMSAART1->asRenderTarget() &&
-                                  smallMSAART0->asRenderTarget()->getStencilBuffer() ==
-                                  smallMSAART1->asRenderTarget()->getStencilBuffer());
+        if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
+            smallMSAART1->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+        }
+        REPORTER_ASSERT(reporter,
+                        smallMSAART0 && smallMSAART1 &&
+                        smallMSAART0->asRenderTarget() &&
+                        smallMSAART1->asRenderTarget() &&
+                        smallMSAART0->asRenderTarget()->renderTargetPriv().getStencilBuffer() ==
+                        smallMSAART1->asRenderTarget()->renderTargetPriv().getStencilBuffer());
         // But not one with a larger sample count should not. (Also check that the request for 4
         // samples didn't get rounded up to >= 8 or else they could share.).
         if (context->getMaxSampleCount() >= 8 && smallMSAART0 && smallMSAART0->asRenderTarget() &&
             smallMSAART0->asRenderTarget()->numSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
             smallMSAART1.reset(context->createTexture(smallMSAADesc, false));
-            REPORTER_ASSERT(reporter, smallMSAART0 && smallMSAART1 &&
-                                      smallMSAART0->asRenderTarget() &&
-                                      smallMSAART1->asRenderTarget() &&
-                                      smallMSAART0->asRenderTarget()->getStencilBuffer() !=
-                                      smallMSAART1->asRenderTarget()->getStencilBuffer());
+            SkAutoTUnref<GrTexture> smallMSAART1(context->createTexture(smallMSAADesc, false));
+            if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
+                smallMSAART1->asRenderTarget()->renderTargetPriv().attachStencilBuffer();
+            }
+            REPORTER_ASSERT(reporter,
+                            smallMSAART0 && smallMSAART1 &&
+                            smallMSAART0->asRenderTarget() &&
+                            smallMSAART1->asRenderTarget() &&
+                            smallMSAART0->asRenderTarget()->renderTargetPriv().getStencilBuffer() !=
+                            smallMSAART1->asRenderTarget()->renderTargetPriv().getStencilBuffer());
         }
     }
 }

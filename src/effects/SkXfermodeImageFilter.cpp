@@ -145,7 +145,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrFragmentProcessor* xferProcessor = NULL;
 
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag | kNoStencil_GrSurfaceFlag;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = src.width();
     desc.fHeight = src.height();
     desc.fConfig = kSkia8888_GrPixelConfig;

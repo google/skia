@@ -390,10 +390,7 @@ enum GrSurfaceFlags {
      */
     kRenderTarget_GrSurfaceFlag     = 0x1,
     /**
-     * By default all render targets have an associated stencil buffer that
-     * may be required for path filling. This flag overrides stencil buffer
-     * creation.
-     * MAKE THIS PRIVATE?
+     * DEPRECATED. This has no effect.
      */
     kNoStencil_GrSurfaceFlag        = 0x2,
     /**
