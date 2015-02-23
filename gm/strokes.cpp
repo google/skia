@@ -196,7 +196,7 @@ protected:
     }
 
     SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(W, H*2);
+        return SkISize::Make(1500, 1500);
     }
 
     void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -212,7 +212,7 @@ protected:
             make0, make1, make2, make3, make4, make5
         };
 
-        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
+        canvas->translate(SkIntToScalar(20), SkIntToScalar(80));
 
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(50));
         SkScalar dx = bounds.width() * 4/3;
