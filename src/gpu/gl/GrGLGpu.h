@@ -312,6 +312,8 @@ private:
     GrGLuint                    fTempSrcFBOID;
     GrGLuint                    fTempDstFBOID;
 
+    GrGLuint                    fStencilClearFBOID;
+
     // last scissor / viewport scissor state seen by the GL.
     struct {
         TriState    fEnabled;

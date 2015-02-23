@@ -153,6 +153,7 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
+    fStencilClearFBOID = 0;
 
     if (this->glCaps().pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
@@ -173,6 +174,9 @@ GrGLGpu::~GrGLGpu() {
     if (0 != fTempDstFBOID) {
         GL_CALL(DeleteFramebuffers(1, &fTempDstFBOID));
     }
+    if (0 != fStencilClearFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
+    }
 
     delete fProgramCache;
 }
@@ -183,6 +187,7 @@ void GrGLGpu::contextAbandoned() {
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
+    fStencilClearFBOID = 0;
     if (this->glCaps().pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
@@ -1172,11 +1177,44 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
             // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), &format);
-            SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
+            SkAutoTUnref<GrGLStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
                                                   (this, sbDesc, width, height, samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 rt->renderTargetPriv().didAttachStencilBuffer(sb);
+
+                // Clear the stencil buffer. We use a special purpose FBO for this so that the
+                // entire stencil buffer is cleared, even if it is attached to an FBO with a
+                // smaller color target.
+                if (0 == fStencilClearFBOID) {
+                    GL_CALL(GenFramebuffers(1, &fStencilClearFBOID));
+                }
+
+                GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBOID));
+                fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+                fStats.incRenderTargetBinds();
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_STENCIL_ATTACHMENT,
+                                                GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
+                if (sFmt.fPacked) {
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                    GR_GL_DEPTH_ATTACHMENT,
+                                                    GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
+                }
+
+                GL_CALL(ClearStencil(0));
+                GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
+
+                // Unbind the SB from the FBO so that we don't keep it alive.
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_STENCIL_ATTACHMENT,
+                                                GR_GL_RENDERBUFFER, 0));
+                if (sFmt.fPacked) {
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                    GR_GL_DEPTH_ATTACHMENT,
+                                                    GR_GL_RENDERBUFFER, 0));
+                }
+
                 return true;
             }
             // Remove the scratch key from this resource so we don't grab it from the cache ever

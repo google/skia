@@ -97,15 +97,6 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         return false;
     }
     if (this->createStencilBufferForRenderTarget(rt, width, height)) {
-        // Right now we're clearing the stencil buffer here after it is
-        // attached to an RT for the first time. When we start matching
-        // stencil buffers with smaller color targets this will no longer
-        // be correct because it won't be guaranteed to clear the entire
-        // sb.
-        // We used to clear down in the GL subclass using a special purpose
-        // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
-        // FBO status.
-        this->clearStencil(rt);
         GrStencilBuffer* sb = rt->renderTargetPriv().getStencilBuffer();
         sb->resourcePriv().setUniqueKey(sbKey);
         return true;
