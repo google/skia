@@ -152,7 +152,6 @@
     '../tests/PDFInvalidBitmapTest.cpp',
     '../tests/PDFJpegEmbedTest.cpp',
     '../tests/PDFPrimitivesTest.cpp',
-    '../tests/PMFloatTest.cpp',
     '../tests/PackBitsTest.cpp',
     '../tests/PaintTest.cpp',
     '../tests/ParsePathTest.cpp',

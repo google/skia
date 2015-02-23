@@ -74,7 +74,6 @@
     '../bench/MipMapBench.cpp',
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
-    '../bench/PMFloatBench.cpp',
     '../bench/PatchBench.cpp',
     '../bench/PatchGridBench.cpp',
     '../bench/PathBench.cpp',
