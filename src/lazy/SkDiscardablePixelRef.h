@@ -53,6 +53,11 @@ private:
                                  void* planes[3],
                                  size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace) SK_OVERRIDE {
+        // If the image was already decoded with lockPixels(), favor not
+        // re-decoding to YUV8 planes.
+        if (fDiscardableMemory) {
+            return false;
+        }
         return fGenerator->getYUV8Planes(sizes, planes, rowBytes, colorSpace);
     }
 
