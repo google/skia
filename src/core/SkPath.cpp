@@ -1660,6 +1660,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
     // forward before the next move is seen
     const uint8_t* lastMoveVerb = 0;
     const SkPoint* lastMovePt = 0;
+    const SkScalar* lastMoveWeight = NULL;
     SkPoint lastPt = fLastPt;
     while (fVerbs != fVerbStop) {
         unsigned verb = *(fVerbs - 1); // fVerbs is one beyond the current verb
@@ -1668,6 +1669,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 // Keep a record of this most recent move
                 lastMoveVerb = fVerbs;
                 lastMovePt = fPts;
+                lastMoveWeight = fConicWeights;
                 lastPt = fPts[0];
                 fVerbs--;
                 fPts++;
@@ -1688,6 +1690,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                     if (lastMoveVerb) {
                         fVerbs = lastMoveVerb;
                         fPts = lastMovePt;
+                        fConicWeights = lastMoveWeight;
                         return;
                     }
                     return;
@@ -1703,6 +1706,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                     if (lastMoveVerb) {
                         fVerbs = lastMoveVerb;
                         fPts = lastMovePt;
+                        fConicWeights = lastMoveWeight;
                         return;
                     }
                     return;
@@ -1718,6 +1722,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                     if (lastMoveVerb) {
                         fVerbs = lastMoveVerb;
                         fPts = lastMovePt;
+                        fConicWeights = lastMoveWeight;
                         return;
                     }
                     return;
