@@ -23,6 +23,10 @@ class SkString;
 #define SK_HAS_DWRITE_1_H (WINVER_MAXVER >= 0x0602)
 #endif
 
+#ifndef SK_HAS_DWRITE_2_H
+#define SK_HAS_DWRITE_2_H (WINVER_MAXVER >= 0x0603)
+#endif
+
 IDWriteFactory* sk_get_dwrite_factory();
 
 ////////////////////////////////////////////////////////////////////////////////

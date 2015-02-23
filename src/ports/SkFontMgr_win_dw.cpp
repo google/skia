@@ -20,6 +20,10 @@
 
 #include <dwrite.h>
 
+#if SK_HAS_DWRITE_2_H
+#include <dwrite_2.h>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class StreamFontFileLoader : public IDWriteFontFileLoader {
@@ -262,6 +266,13 @@ public:
         , fFontCollection(SkRefComPtr(fontCollection))
         , fLocaleName(localeNameLength)
     {
+#ifdef SK_HAS_DWRITE_2_H
+        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
+            // IUnknown::QueryInterface states that if it fails, punk will be set to NULL.
+            // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
+            SK_ALWAYSBREAK(NULL == fFactory2.get());
+        }
+#endif
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
     }
 
@@ -293,6 +304,9 @@ private:
                                              IDWriteFontFamily* fontFamily) const;
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
+#ifdef SK_HAS_DWRITE_2_H
+    SkTScopedComPtr<IDWriteFactory2> fFactory2;
+#endif
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
     mutable SkMutex fTFCacheMutex;
@@ -593,9 +607,7 @@ public:
         return newCount;
     }
 
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(
-        IID const& riid, void** ppvObject) SK_OVERRIDE
-    {
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(IID const& riid, void** ppvObject) SK_OVERRIDE{
         if (__uuidof(IUnknown) == riid ||
             __uuidof(IDWritePixelSnapping) == riid ||
             __uuidof(IDWriteTextRenderer) == riid)
@@ -632,13 +644,110 @@ static HRESULT getDefaultFontFamilyName(SkSMallocWCHAR* name) {
     return S_OK;
 }
 
+class FontFallbackSource : public IDWriteTextAnalysisSource {
+public:
+    FontFallbackSource(const WCHAR* string, UINT32 length, const WCHAR* locale,
+                       IDWriteNumberSubstitution* numberSubstitution)
+        : fString(string)
+        , fLength(length)
+        , fLocale(locale)
+        , fNumberSubstitution(numberSubstitution)
+    { }
+
+    virtual ~FontFallbackSource() { }
+
+    // IDWriteTextAnalysisSource methods
+    virtual HRESULT STDMETHODCALLTYPE GetTextAtPosition(
+        UINT32 textPosition,
+        WCHAR const** textString,
+        UINT32* textLength) SK_OVERRIDE
+    {
+        if (fLength <= textPosition) {
+            *textString = NULL;
+            *textLength = 0;
+            return S_OK;
+        }
+        *textString = fString + textPosition;
+        *textLength = fLength - textPosition;
+        return S_OK;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE GetTextBeforePosition(
+        UINT32 textPosition,
+        WCHAR const** textString,
+        UINT32* textLength) SK_OVERRIDE
+    {
+        if (textPosition < 1 || fLength <= textPosition) {
+            *textString = NULL;
+            *textLength = 0;
+            return S_OK;
+        }
+        *textString = fString;
+        *textLength = textPosition;
+        return S_OK;
+    }
+
+    virtual DWRITE_READING_DIRECTION STDMETHODCALLTYPE GetParagraphReadingDirection() SK_OVERRIDE {
+        // TODO: this is also interesting.
+        return DWRITE_READING_DIRECTION_LEFT_TO_RIGHT;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE GetLocaleName(
+        UINT32 textPosition,
+        UINT32* textLength,
+        WCHAR const** localeName) SK_OVERRIDE
+    {
+        *localeName = fLocale;
+        return S_OK;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE GetNumberSubstitution(
+        UINT32 textPosition,
+        UINT32* textLength,
+        IDWriteNumberSubstitution** numberSubstitution) SK_OVERRIDE
+    {
+        *numberSubstitution = fNumberSubstitution;
+        return S_OK;
+    }
+
+    // IUnknown methods
+    ULONG STDMETHODCALLTYPE AddRef() SK_OVERRIDE {
+        return InterlockedIncrement(&fRefCount);
+    }
+
+    ULONG STDMETHODCALLTYPE Release() SK_OVERRIDE {
+        ULONG newCount = InterlockedDecrement(&fRefCount);
+        if (0 == newCount) {
+            delete this;
+        }
+        return newCount;
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(IID const& riid, void** ppvObject) SK_OVERRIDE{
+        if (__uuidof(IUnknown) == riid ||
+            __uuidof(IDWriteTextAnalysisSource) == riid)
+        {
+            *ppvObject = this;
+            this->AddRef();
+            return S_OK;
+        }
+        *ppvObject = NULL;
+        return E_FAIL;
+    }
+
+protected:
+    ULONG fRefCount;
+    const WCHAR* fString;
+    UINT32 fLength;
+    const WCHAR* fLocale;
+    IDWriteNumberSubstitution* fNumberSubstitution;
+};
+
 SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char familyName[],
                                                                const SkFontStyle& style,
                                                                const char* bcp47[], int bcp47Count,
                                                                SkUnichar character) const
 {
-    // TODO: use IDWriteFactory2::GetSystemFontFallback when available.
-
     const DWriteStyle dwStyle(style);
 
     SkSMallocWCHAR dwFamilyName;
@@ -647,6 +756,10 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
     } else {
         HRN(sk_cstring_to_wchar(familyName, &dwFamilyName));
     }
+
+    WCHAR str[16];
+    UINT32 strLen = static_cast<UINT32>(
+        SkUTF16_FromUnichar(character, reinterpret_cast<uint16_t*>(str)));
 
     const SkSMallocWCHAR* dwBcp47;
     SkSMallocWCHAR dwBcp47Local;
@@ -660,6 +773,48 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         dwBcp47 = &dwBcp47Local;
     }
 
+#if SK_HAS_DWRITE_2_H
+    if (fFactory2.get()) {
+        SkTScopedComPtr<IDWriteFontFallback> fontFallback;
+        HRNM(fFactory2->GetSystemFontFallback(&fontFallback), "Could not get system fallback.");
+
+        SkTScopedComPtr<IDWriteNumberSubstitution> numberSubstitution;
+        HRNM(fFactory2->CreateNumberSubstitution(DWRITE_NUMBER_SUBSTITUTION_METHOD_NONE, NULL, TRUE,
+                                                 &numberSubstitution),
+             "Could not create number substitution.");
+        SkTScopedComPtr<FontFallbackSource> fontFallbackSource(
+            new FontFallbackSource(str, strLen, *dwBcp47, numberSubstitution.get()));
+
+        UINT32 mappedLength;
+        SkTScopedComPtr<IDWriteFont> font;
+        FLOAT scale;
+        HRNM(fontFallback->MapCharacters(fontFallbackSource.get(),
+                                         0, // textPosition,
+                                         strLen,
+                                         fFontCollection.get(),
+                                         dwFamilyName,
+                                         dwStyle.fWeight,
+                                         dwStyle.fSlant,
+                                         dwStyle.fWidth,
+                                         &mappedLength,
+                                         &font,
+                                         &scale),
+             "Could not map characters");
+        if (!font.get()) {
+            return NULL;
+        }
+
+        SkTScopedComPtr<IDWriteFontFace> fontFace;
+        HRNM(font->CreateFontFace(&fontFace), "Could not get font face from font.");
+
+        SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+        HRNM(font->GetFontFamily(&fontFamily), "Could not get family from font.");
+        return this->createTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
+    }
+#else
+#  pragma message("No dwrite_2.h is available, font fallback may be affected.")
+#endif
+
     SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
     HRNM(fFactory->CreateTextFormat(dwFamilyName,
                                     fFontCollection.get(),
@@ -671,9 +826,6 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
                                     &fallbackFormat),
          "Could not create text format.");
 
-    WCHAR str[16];
-    UINT32 strLen = static_cast<UINT32>(
-        SkUTF16_FromUnichar(character, reinterpret_cast<uint16_t*>(str)));
     SkTScopedComPtr<IDWriteTextLayout> fallbackLayout;
     HRNM(fFactory->CreateTextLayout(str, strLen, fallbackFormat.get(),
                                     200.0f, 200.0f,
