@@ -1028,7 +1028,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     SkIRect devClipBounds;
-    target->getClip()->getConservativeBounds(pipelineBuilder->getRenderTarget(), &devClipBounds);
+    pipelineBuilder->clip().getConservativeBounds(pipelineBuilder->getRenderTarget(),
+                                                  &devClipBounds);
 
     // This outset was determined experimentally by running skps and gms.  It probably could be a
     // bit tighter

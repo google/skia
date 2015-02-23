@@ -354,7 +354,7 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
 
     fStateRestore.set(&fPipelineBuilder);
 
-    fPipelineBuilder.setFromPaint(fPaint, fRenderTarget);
+    fPipelineBuilder.setFromPaint(fPaint, fRenderTarget, fClip);
 
     GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
                                  kZero_StencilOp,

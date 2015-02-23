@@ -32,6 +32,7 @@ GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     fXPFactory.reset(SkRef(that.getXPFactory()));
     fColorStages = that.fColorStages;
     fCoverageStages = that.fCoverageStages;
+    fClip = that.fClip;
 
     fColorProcInfoValid = that.fColorProcInfoValid;
     fCoverageProcInfoValid = that.fCoverageProcInfoValid;
@@ -46,7 +47,7 @@ GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     return *this;
 }
 
-void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
+void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, const GrClip* clip) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
 
     fColorStages.reset();
@@ -69,8 +70,9 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt) {
     fStencilSettings.setDisabled();
     fFlagBits = 0;
 
-    // Enable the clip bit
-    this->enableState(GrPipelineBuilder::kClip_StateBit);
+    if (clip) {
+        fClip = *clip;
+    }
 
     this->setState(GrPipelineBuilder::kDither_StateBit, paint.isDither());
     this->setState(GrPipelineBuilder::kHWAntialias_StateBit, paint.isAntiAlias());

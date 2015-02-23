@@ -10,7 +10,7 @@
 #ifndef GrStencilBuffer_DEFINED
 #define GrStencilBuffer_DEFINED
 
-#include "GrClipData.h"
+#include "GrClip.h"
 #include "GrGpuResource.h"
 
 class GrRenderTarget;

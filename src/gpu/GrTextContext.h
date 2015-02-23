@@ -8,6 +8,7 @@
 #ifndef GrTextContext_DEFINED
 #define GrTextContext_DEFINED
 
+#include "GrClip.h"
 #include "GrGlyph.h"
 #include "GrPaint.h"
 #include "SkDeviceProperties.h"
@@ -33,15 +34,16 @@ public:
                      const SkPoint& offset);
 
 protected:
-    GrTextContext*               fFallbackTextContext;
-    GrContext*                   fContext;
-    SkDeviceProperties           fDeviceProperties;
+    GrTextContext*                 fFallbackTextContext;
+    GrContext*                     fContext;
+    SkDeviceProperties             fDeviceProperties;
 
-    SkAutoTUnref<GrRenderTarget> fRenderTarget;
-    GrDrawTarget*                fDrawTarget;
-    SkIRect                      fClipRect;
-    GrPaint                      fPaint;
-    SkPaint                      fSkPaint;
+    SkAutoTUnref<GrRenderTarget>   fRenderTarget;
+    const GrClip*                  fClip;
+    GrDrawTarget*                  fDrawTarget;
+    SkIRect                        fClipRect;
+    GrPaint                        fPaint;
+    SkPaint                        fSkPaint;
 
     GrTextContext(GrContext*, const SkDeviceProperties&);
 

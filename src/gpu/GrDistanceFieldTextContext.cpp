@@ -668,7 +668,7 @@ void GrDistanceFieldTextContext::flush() {
 
     if (fCurrVertex > 0) {
         GrPipelineBuilder pipelineBuilder;
-        pipelineBuilder.setFromPaint(fPaint, fRenderTarget);
+        pipelineBuilder.setFromPaint(fPaint, fRenderTarget, fClip);
 
         // setup our sampler state for our text texture/atlas
         SkASSERT(SkIsAlign4(fCurrVertex));

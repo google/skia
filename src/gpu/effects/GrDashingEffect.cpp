@@ -513,8 +513,8 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
     }
 
     target->setIndexSourceToBuffer(gpu->getContext()->getQuadIndexBuffer());
-    target->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType,
-                                 totalRectCnt, 4, 6);
+    target->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType, totalRectCnt,
+                                 4, 6);
     target->resetIndexSource();
     return true;
 }

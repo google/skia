@@ -414,7 +414,12 @@ void GrContext::drawPaint(GrRenderTarget* rt,
         }
 
         GR_CREATE_TRACE_MARKER("GrContext::drawPaintWithPerspective", target);
-        target->drawRect(&pipelineBuilder, paint->getColor(), SkMatrix::I(), r, NULL, &localMatrix);
+        target->drawRect(&pipelineBuilder,
+                         paint->getColor(),
+                         SkMatrix::I(),
+                         r,
+                         NULL,
+                         &localMatrix);
     }
 }
 
@@ -524,14 +529,13 @@ void GrContext::drawRect(GrRenderTarget* rt,
         SkRect rtRect;
         pipelineBuilder.getRenderTarget()->getBoundsRect(&rtRect);
         SkRect clipSpaceRTRect = rtRect;
-        bool checkClip = false;
-        if (this->getClip()) {
-            checkClip = true;
-            clipSpaceRTRect.offset(SkIntToScalar(this->getClip()->fOrigin.fX),
-                                   SkIntToScalar(this->getClip()->fOrigin.fY));
+        bool checkClip = fClip && GrClip::kWideOpen_ClipType != fClip->clipType();
+        if (checkClip) {
+            clipSpaceRTRect.offset(SkIntToScalar(this->getClip()->origin().fX),
+                                   SkIntToScalar(this->getClip()->origin().fY));
         }
         // Does the clip contain the entire RT?
-        if (!checkClip || target->getClip()->fClipStack->quickContains(clipSpaceRTRect)) {
+        if (!checkClip || fClip->clipStack()->quickContains(clipSpaceRTRect)) {
             SkMatrix invM;
             if (!viewMatrix.invert(&invM)) {
                 return;
@@ -644,7 +648,11 @@ void GrContext::drawNonAARectToRect(GrRenderTarget* rt,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
 
-    target->drawRect(&pipelineBuilder, paint.getColor(), viewMatrix, rectToDraw, &localRect,
+    target->drawRect(&pipelineBuilder,
+                     paint.getColor(),
+                     viewMatrix,
+                     rectToDraw,
+                     &localRect,
                      localMatrix);
 }
 
@@ -762,8 +770,13 @@ void GrContext::drawRRect(GrRenderTarget*rt,
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
     GrColor color = paint.getColor();
-    if (!fOvalRenderer->drawRRect(target, &pipelineBuilder, color, viewMatrix, paint.isAntiAlias(),
-                                  rrect, strokeRec)) {
+    if (!fOvalRenderer->drawRRect(target,
+                                  &pipelineBuilder,
+                                  color,
+                                  viewMatrix,
+                                  paint.isAntiAlias(),
+                                  rrect,
+                                  strokeRec)) {
         SkPath path;
         path.addRRect(rrect);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
@@ -789,8 +802,13 @@ void GrContext::drawDRRect(GrRenderTarget* rt,
     GR_CREATE_TRACE_MARKER("GrContext::drawDRRect", target);
 
     GrColor color = paint.getColor();
-    if (!fOvalRenderer->drawDRRect(target, &pipelineBuilder, color, viewMatrix, paint.isAntiAlias(),
-                                   outer, inner)) {
+    if (!fOvalRenderer->drawDRRect(target,
+                                   &pipelineBuilder,
+                                   color,
+                                   viewMatrix,
+                                   paint.isAntiAlias(),
+                                   outer,
+                                   inner)) {
         SkPath path;
         path.addRRect(inner);
         path.addRRect(outer);
@@ -832,8 +850,13 @@ void GrContext::drawOval(GrRenderTarget*rt,
     const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
 
     GrColor color = paint.getColor();
-    if (!fOvalRenderer->drawOval(target, &pipelineBuilder, color, viewMatrix, paint.isAntiAlias(),
-                                 oval, strokeRec)) {
+    if (!fOvalRenderer->drawOval(target,
+                                 &pipelineBuilder,
+                                 color,
+                                 viewMatrix,
+                                 paint.isAntiAlias(),
+                                 oval,
+                                 strokeRec)) {
         SkPath path;
         path.addOval(oval);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
@@ -962,7 +985,7 @@ void GrContext::drawPath(GrRenderTarget* rt,
         SkRect rects[2];
 
         if (is_nested_rects(target, &pipelineBuilder, color, viewMatrix, path, strokeRec, rects)) {
-            fAARectRenderer->fillAANestedRects(target, &pipelineBuilder, color, viewMatrix,rects);
+            fAARectRenderer->fillAANestedRects(target, &pipelineBuilder, color, viewMatrix, rects);
             return;
         }
     }
@@ -971,8 +994,13 @@ void GrContext::drawPath(GrRenderTarget* rt,
     bool isOval = path.isOval(&ovalRect);
 
     if (!isOval || path.isInverseFillType() ||
-        !fOvalRenderer->drawOval(target, &pipelineBuilder, color, viewMatrix, paint.isAntiAlias(),
-                                 ovalRect, strokeRec)) {
+        !fOvalRenderer->drawOval(target,
+                                 &pipelineBuilder,
+                                 color,
+                                 viewMatrix,
+                                 paint.isAntiAlias(),
+                                 ovalRect,
+                                 strokeRec)) {
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
                                path, strokeInfo);
     }
@@ -1175,7 +1203,9 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.addColorProcessor(fp);
         pipelineBuilder.setRenderTarget(renderTarget);
-        drawTarget->drawSimpleRect(&pipelineBuilder, GrColor_WHITE, matrix,
+        drawTarget->drawSimpleRect(&pipelineBuilder,
+                                   GrColor_WHITE,
+                                   matrix,
                                    SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)));
     }
 
@@ -1297,7 +1327,9 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 
                     pipelineBuilder.setRenderTarget(tempTexture->asRenderTarget());
                     SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                    fDrawBuffer->drawSimpleRect(&pipelineBuilder, GrColor_WHITE, SkMatrix::I(),
+                    fDrawBuffer->drawSimpleRect(&pipelineBuilder,
+                                                GrColor_WHITE,
+                                                SkMatrix::I(),
                                                 rect);
                     // we want to read back from the scratch's origin
                     left = 0;
@@ -1397,11 +1429,8 @@ GrDrawTarget* GrContext::prepareToDraw(GrPipelineBuilder* pipelineBuilder,
     if (pipelineBuilder) {
         ASSERT_OWNED_RESOURCE(rt);
         SkASSERT(rt && paint && acf);
-        pipelineBuilder->setFromPaint(*paint, rt);
-        pipelineBuilder->setState(GrPipelineBuilder::kClip_StateBit,
-                                  fClip && !fClip->fClipStack->isWideOpen());
+        pipelineBuilder->setFromPaint(*paint, rt, fClip);
     }
-    fDrawBuffer->setClip(fClip);
     return fDrawBuffer;
 }
 

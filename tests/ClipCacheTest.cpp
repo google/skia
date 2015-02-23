@@ -85,8 +85,8 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, isIntersectionOfRects);
 
     // wrap the SkClipStack in a GrClipData
-    GrClipData clipData;
-    clipData.fClipStack.reset(SkRef(&stack));
+    GrClip clipData;
+    clipData.setClipStack(&stack);
 
     SkIRect devGrClipDataBound;
     clipData.getConservativeBounds(texture,

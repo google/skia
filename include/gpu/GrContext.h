@@ -8,7 +8,7 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrClipData.h"
+#include "GrClip.h"
 #include "GrColor.h"
 #include "GrPaint.h"
 #include "GrPathRendererChain.h"
@@ -367,13 +367,13 @@ public:
      * Gets the current clip.
      * @return the current clip.
      */
-    const GrClipData* getClip() const { return fClip; }
+    const GrClip* getClip() const { return fClip; }
 
     /**
      * Sets the clip.
      * @param clipData  the clip to set.
      */
-    void setClip(const GrClipData* clipData) { fClip = clipData; }
+    void setClip(const GrClip* clipData) { fClip = clipData; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Draws
@@ -680,7 +680,7 @@ public:
         AutoClip(GrContext* context, InitialClip SkDEBUGCODE(initialState))
         : fContext(context) {
             SkASSERT(kWideOpen_InitialClip == initialState);
-            fNewClipData.fClipStack.reset(SkRef(&fNewClipStack));
+            fNewClipData.setClipStack(&fNewClipStack);
 
             fOldClip = context->getClip();
             context->setClip(&fNewClipData);
@@ -689,7 +689,7 @@ public:
         AutoClip(GrContext* context, const SkRect& newClipRect)
         : fContext(context)
         , fNewClipStack(newClipRect) {
-            fNewClipData.fClipStack.reset(SkRef(&fNewClipStack));
+            fNewClipData.setClipStack(&fNewClipStack);
 
             fOldClip = fContext->getClip();
             fContext->setClip(&fNewClipData);
@@ -702,10 +702,10 @@ public:
         }
     private:
         GrContext*        fContext;
-        const GrClipData* fOldClip;
+        const GrClip* fOldClip;
 
         SkClipStack       fNewClipStack;
-        GrClipData        fNewClipData;
+        GrClip        fNewClipData;
     };
 
     class AutoWideOpenIdentityDraw {
@@ -761,7 +761,7 @@ public:
 
 private:
     GrGpu*                          fGpu;
-    const GrClipData*               fClip;  // TODO: make this ref counted
+    const GrClip*                   fClip;
 
     GrResourceCache*                fResourceCache;
     GrFontCache*                    fFontCache;

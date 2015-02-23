@@ -133,15 +133,17 @@ protected:
                                           const SkMatrix*, const SkPaint*) SK_OVERRIDE;
 
 private:
-    GrContext*      fContext;
-    GrSkDrawProcs*  fDrawProcs;
-    GrClipData      fClipData;
-    GrTextContext*  fTextContext;
-    SkSurfaceProps  fSurfaceProps;
-    GrRenderTarget* fRenderTarget;
+    GrContext*                      fContext;
+    GrSkDrawProcs*                  fDrawProcs;
+    SkAutoTUnref<const SkClipStack> fClipStack;
+    SkIPoint                        fClipOrigin;
+    GrClip                          fClipData;
+    GrTextContext*                  fTextContext;
+    SkSurfaceProps                  fSurfaceProps;
+    GrRenderTarget*                 fRenderTarget;
     // remove when our clients don't rely on accessBitmap()
-    SkBitmap        fLegacyBitmap;
-    bool            fNeedClear;
+    SkBitmap                        fLegacyBitmap;
+    bool                            fNeedClear;
 
     SkGpuDevice(GrRenderTarget*, const SkSurfaceProps*, unsigned flags);
 

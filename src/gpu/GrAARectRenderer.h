@@ -14,10 +14,11 @@
 #include "SkRefCnt.h"
 #include "SkStrokeRec.h"
 
-class GrGpu;
-class GrPipelineBuilder;
+class GrClip;
 class GrDrawTarget;
+class GrGpu;
 class GrIndexBuffer;
+class GrPipelineBuilder;
 
 /*
  * This class wraps helper functions that draw AA rects (filled & stroked)

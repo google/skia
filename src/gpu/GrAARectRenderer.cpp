@@ -511,8 +511,7 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
-                         devOutside);
+        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);
         return;
     }
 
@@ -877,8 +876,7 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     viewMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
-                         devOutside);
+        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);
         return;
     }
 

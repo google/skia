@@ -18,6 +18,7 @@
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 
+class GrClip;
 class GrContext;
 class GrTexture;
 class SkPath;

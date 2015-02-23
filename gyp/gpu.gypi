@@ -8,7 +8,7 @@
 {
   'variables': {
     'skgpu_sources': [
-      '<(skia_include_path)/gpu/GrClipData.h',
+      '<(skia_include_path)/gpu/GrClip.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
       '<(skia_include_path)/gpu/GrContext.h',
@@ -66,7 +66,7 @@
       '<(skia_src_path)/gpu/GrBlend.h',
       '<(skia_src_path)/gpu/GrBufferAllocPool.cpp',
       '<(skia_src_path)/gpu/GrBufferAllocPool.h',
-      '<(skia_src_path)/gpu/GrClipData.cpp',
+      '<(skia_src_path)/gpu/GrClip.cpp',
       '<(skia_src_path)/gpu/GrClipMaskCache.h',
       '<(skia_src_path)/gpu/GrClipMaskCache.cpp',
       '<(skia_src_path)/gpu/GrClipMaskManager.h',

@@ -10,6 +10,7 @@
 
 #include "GrBatch.h"
 #include "GrBlend.h"
+#include "GrClip.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpuResourceRef.h"
 #include "GrFragmentStage.h"
@@ -44,7 +45,7 @@ public:
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    void setFromPaint(const GrPaint&, GrRenderTarget*);
+    void setFromPaint(const GrPaint&, GrRenderTarget*, const GrClip*);
 
     /// @}
 
@@ -293,15 +294,10 @@ public:
          * the 3D API.
          */
         kHWAntialias_StateBit   = 0x02,
-        /**
-         * Draws will respect the clip, otherwise the clip is ignored.
-         */
-        kClip_StateBit          = 0x04,
 
-        kLast_StateBit = kClip_StateBit,
+        kLast_StateBit = kHWAntialias_StateBit,
     };
 
-    bool isClipState() const { return 0 != (fFlagBits & kClip_StateBit); }
     bool isDither() const { return 0 != (fFlagBits & kDither_StateBit); }
     bool isHWAntialias() const { return 0 != (fFlagBits & kHWAntialias_StateBit); }
 
@@ -389,6 +385,10 @@ public:
         this->calcCoverageInvariantOutput(batch);
         return fCoverageProcInfo;
     }
+
+    void setClip(const GrClip& clip) { fClip = clip; }
+    const GrClip& clip() const { return fClip; }
+
 private:
     // Calculating invariant color / coverage information is expensive, so we partially cache the
     // results.
@@ -436,6 +436,7 @@ private:
     mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
     FragmentStageArray                      fColorStages;
     FragmentStageArray                      fCoverageStages;
+    GrClip                                  fClip;
 
     mutable GrProcOptInfo fColorProcInfo;
     mutable GrProcOptInfo fCoverageProcInfo;

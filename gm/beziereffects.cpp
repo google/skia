@@ -235,8 +235,8 @@ protected:
                     geometry.fColor = gp->color();
                     geometry.fBounds = bounds;
 
-                    SkAutoTUnref<GrBatch> batch(BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs,
-                                                                             klmSigns[c]));
+                    SkAutoTUnref<GrBatch> batch(
+                            BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
 
                     tt.target()->drawBatch(&pipelineBuilder, batch, NULL);
                 }
@@ -379,8 +379,8 @@ protected:
                     geometry.fColor = gp->color();
                     geometry.fBounds = bounds;
 
-                    SkAutoTUnref<GrBatch> batch(BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs,
-                                                                             1.f));
+                    SkAutoTUnref<GrBatch> batch(
+                            BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
 
                     tt.target()->drawBatch(&pipelineBuilder, batch, NULL);
                 }

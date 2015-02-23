@@ -22,11 +22,11 @@ GrTextContext::~GrTextContext() {
 }
 
 void GrTextContext::init(GrRenderTarget* rt, const GrPaint& grPaint, const SkPaint& skPaint) {
-    const GrClipData* clipData = fContext->getClip();
+    fClip = fContext->getClip();
 
     fRenderTarget.reset(SkRef(rt));
 
-    clipData->getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
+    fClip->getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
 
     fDrawTarget = fContext->getTextTarget();
 

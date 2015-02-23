@@ -13,8 +13,9 @@
 #include "GrTypesPriv.h"
 #include "SkPathEffect.h"
 
-class GrGpu;
+class GrClip;
 class GrDrawTarget;
+class GrGpu;
 class GrPaint;
 class GrPipelineBuilder;
 class GrStrokeInfo;

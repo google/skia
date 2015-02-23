@@ -52,7 +52,6 @@ public:
                        GrPipelineBuilder::AutoRestoreEffects*,
                        GrPipelineBuilder::AutoRestoreStencil*,
                        GrScissorState*,
-                       const GrClipData* clipDataIn,
                        const SkRect* devBounds);
 
     /**

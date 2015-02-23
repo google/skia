@@ -50,7 +50,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
         return false;
     }
 
-    target->getClip()->getConservativeBounds(rt, devClipBounds);
+    pipelineBuilder->clip().getConservativeBounds(rt, devClipBounds);
 
     if (devClipBounds->isEmpty()) {
         *devPathBounds = SkIRect::MakeWH(rt->width(), rt->height());
@@ -127,8 +127,8 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     SkIRect devPathBounds, devClipBounds;
-    if (!get_path_and_clip_bounds(target, pipelineBuilder, path, viewMatrix,
-                                  &devPathBounds, &devClipBounds)) {
+    if (!get_path_and_clip_bounds(target, pipelineBuilder, path, viewMatrix, &devPathBounds,
+                                  &devClipBounds)) {
         if (path.isInverseFillType()) {
             draw_around_inv_path(target, pipelineBuilder, color, viewMatrix, devClipBounds,
                                  devPathBounds);

@@ -24,7 +24,6 @@ public:
     GrDrawTarget* target() { return fDrawTarget.get(); }
 
 private:
-    SkTLazy<GrDrawTarget::AutoClipRestore>  fACR;
     SkTLazy<GrDrawTarget::AutoGeometryPush> fAGP;
 
     SkAutoTUnref<GrDrawTarget>              fDrawTarget;

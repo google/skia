@@ -248,9 +248,8 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     stack.clipDevRect(screen, SkRegion::kReplace_Op, false);
 
     // wrap the SkClipStack in a GrClipData
-    GrClipData clipData;
-    clipData.fClipStack.reset(SkRef(&stack));
-    this->setClip(&clipData);
+    GrClip clip;
+    clip.setClipStack(&stack);
 
     SkRandom random;
     static const int NUM_TESTS = 512;
@@ -264,6 +263,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setRenderTarget(rt.get());
+        pipelineBuilder.setClip(clip);
 
         // if path rendering we have to setup a couple of things like the draw type
         bool usePathRendering = gpu->glCaps().pathRenderingSupport() && random.nextBool();

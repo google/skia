@@ -276,22 +276,23 @@ void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 
     // Canvas promises that this ptr is valid until onDetachFromCanvas is called
-    fClipData.fClipStack.reset(SkRef(canvas->getClipStack()));
+    fClipStack.reset(SkRef(canvas->getClipStack()));
 }
 
 void SkGpuDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
-    fClipData.fClipStack.reset(NULL);
+    fClipData.reset();
+    fClipStack.reset(NULL);
 }
 
 // call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareDraw(const SkDraw& draw) {
-    SkASSERT(fClipData.fClipStack);
+    SkASSERT(fClipStack.get());
 
-    SkASSERT(draw.fClipStack && draw.fClipStack == fClipData.fClipStack);
+    SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
 
-    fClipData.fOrigin = this->getOrigin();
+    fClipData.setClipStack(fClipStack, &this->getOrigin());
 
     fContext->setClip(&fClipData);
 
@@ -909,7 +910,7 @@ static void determine_clipped_src_rect(const GrContext* context,
                                        const SkBitmap& bitmap,
                                        const SkRect* srcRectPtr,
                                        SkIRect* clippedSrcIRect) {
-    const GrClipData* clip = context->getClip();
+    const GrClip* clip = context->getClip();
     clip->getConservativeBounds(rt, clippedSrcIRect, NULL);
     SkMatrix inv;
     if (!viewMatrix.invert(&inv)) {

@@ -123,7 +123,9 @@ protected:
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
-                    tt.target()->drawSimpleRect(&pipelineBuilder, GrColor_WHITE, viewMatrix,
+                    tt.target()->drawSimpleRect(&pipelineBuilder,
+                                                GrColor_WHITE,
+                                                viewMatrix,
                                                 renderRect);
                 }
                 x += renderRect.width() + kTestPad;

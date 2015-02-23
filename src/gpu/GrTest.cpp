@@ -19,7 +19,6 @@ void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
     fContext.reset(SkRef(ctx));
     fDrawTarget.reset(SkRef(target));
 
-    SkNEW_IN_TLAZY(&fACR, GrDrawTarget::AutoClipRestore, (target));
     SkNEW_IN_TLAZY(&fAGP, GrDrawTarget::AutoGeometryPush, (target));
 }
 

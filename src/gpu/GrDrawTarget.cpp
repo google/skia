@@ -92,8 +92,7 @@ void GrDrawTarget::DrawInfo::adjustStartIndex(int indexOffset) {
 #define DEBUG_INVAL_START_IDX -1
 
 GrDrawTarget::GrDrawTarget(GrContext* context)
-    : fClip(NULL)
-    , fContext(context)
+    : fContext(context)
     , fGpuTraceMarkerCount(0) {
     SkASSERT(context);
     GeometrySrcState& geoSrc = fGeoSrcStateStack.push_back();
@@ -122,14 +121,6 @@ void GrDrawTarget::releaseGeometry() {
     }
     this->resetVertexSource();
     this->resetIndexSource();
-}
-
-void GrDrawTarget::setClip(const GrClipData* clip) {
-    fClip = clip;
-}
-
-const GrClipData* GrDrawTarget::getClip() const {
-    return fClip;
 }
 
 bool GrDrawTarget::reserveVertexSpace(size_t vertexSize,
@@ -395,9 +386,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
         return true;
     }
     SkIRect copyRect;
-    const GrClipData* clip = this->getClip();
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    clip->getConservativeBounds(rt, &copyRect);
+    pipelineBuilder.clip().getConservativeBounds(rt, &copyRect);
 
     if (drawBounds) {
         SkIRect drawIBounds;
@@ -879,15 +869,6 @@ void GrDrawTarget::AutoReleaseGeometry::reset() {
     fIndices = NULL;
 }
 
-GrDrawTarget::AutoClipRestore::AutoClipRestore(GrDrawTarget* target, const SkIRect& newClip) {
-    fTarget = target;
-    fClip = fTarget->getClip();
-    fStack.init();
-    fStack.get()->clipDevRect(newClip, SkRegion::kReplace_Op);
-    fReplacementClip.fClipStack.reset(SkRef(fStack.get()));
-    target->setClip(&fReplacementClip);
-}
-
 namespace {
 // returns true if the read/written rect intersects the src/dst and false if not.
 bool clip_srcrect_and_dstpoint(const GrSurface* dst,
@@ -1295,6 +1276,5 @@ bool GrClipTarget::setupClip(GrPipelineBuilder* pipelineBuilder,
                                           are,
                                           ars,
                                           scissorState,
-                                          this->getClip(),
                                           devBounds);
 }
