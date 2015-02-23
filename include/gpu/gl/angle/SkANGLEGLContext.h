@@ -12,8 +12,6 @@
 
 #include "gl/SkGLContext.h"
 
-#include <EGL/egl.h>
-
 class SkANGLEGLContext : public SkGLContext {
 public:
     ~SkANGLEGLContext() SK_OVERRIDE;
@@ -32,15 +30,16 @@ public:
         return ctx;
     }
 
-    static EGLDisplay GetD3DEGLDisplay(EGLNativeDisplayType nativeDisplay);
+    // The param is an EGLNativeDisplayType and the return is an EGLDispay.
+    static void* GetD3DEGLDisplay(void* nativeDisplay);
 
 private:
     SkANGLEGLContext();
     void destroyGLContext();
 
-    EGLContext fContext;
-    EGLDisplay fDisplay;
-    EGLSurface fSurface;
+    void* fContext;
+    void* fDisplay;
+    void* fSurface;
 };
 
 #endif

@@ -8,12 +8,14 @@
 
 #include "gl/angle/SkANGLEGLContext.h"
 
+#include <EGL/egl.h>
+
 #define EGL_PLATFORM_ANGLE_ANGLE                0x3201
 #define EGL_PLATFORM_ANGLE_TYPE_ANGLE           0x3202
 #define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE      0x3206
 #define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3207
 
-EGLDisplay SkANGLEGLContext::GetD3DEGLDisplay(EGLNativeDisplayType nativeDisplay) {
+void* SkANGLEGLContext::GetD3DEGLDisplay(void* nativeDisplay) {
 
     typedef EGLDisplay (*EGLGetPlatformDisplayEXT)(EGLenum platform,
                                                    void *native_display,
@@ -23,7 +25,7 @@ EGLDisplay SkANGLEGLContext::GetD3DEGLDisplay(EGLNativeDisplayType nativeDisplay
         (EGLGetPlatformDisplayEXT) eglGetProcAddress("eglGetPlatformDisplayEXT");
 
     if (!eglGetPlatformDisplayEXT) {
-        return eglGetDisplay(nativeDisplay);
+        return eglGetDisplay(static_cast<EGLNativeDisplayType>(nativeDisplay));
     }
 
     // Try for an ANGLE D3D11 context, fall back to D3D9.
