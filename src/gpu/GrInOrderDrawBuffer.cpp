@@ -38,23 +38,6 @@ GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-void get_vertex_bounds(const void* vertices,
-                       size_t vertexSize,
-                       int vertexCount,
-                       SkRect* bounds) {
-    SkASSERT(vertexSize >= sizeof(SkPoint));
-    SkASSERT(vertexCount > 0);
-    const SkPoint* point = static_cast<const SkPoint*>(vertices);
-    bounds->fLeft = bounds->fRight = point->fX;
-    bounds->fTop = bounds->fBottom = point->fY;
-    for (int i = 1; i < vertexCount; ++i) {
-        point = reinterpret_cast<SkPoint*>(reinterpret_cast<intptr_t>(point) + vertexSize);
-        bounds->growToInclude(point->fX, point->fY);
-    }
-}
-}
-
 /** We always use per-vertex colors so that rects can be batched across color changes. Sometimes we
     have explicit local coords and sometimes not. We *could* always provide explicit local coords
     and just duplicate the positions when the caller hasn't provided a local coord rect, but we
@@ -106,6 +89,216 @@ template<typename T> static void reset_data_buffer(SkTDArray<T>* buffer, int min
     }
 }
 
+class RectBatch : public GrBatch {
+public:
+    struct Geometry {
+        GrColor fColor;
+        SkMatrix fViewMatrix;
+        SkRect fRect;
+        bool fHasLocalRect;
+        bool fHasLocalMatrix;
+        SkRect fLocalRect;
+        SkMatrix fLocalMatrix;
+    };
+
+    static GrBatch* Create(const Geometry& geometry) {
+        return SkNEW_ARGS(RectBatch, (geometry));
+    }
+
+    const char* name() const SK_OVERRIDE { return "RectBatch"; }
+
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        // When this is called on a batch, there is only one geometry bundle
+        if (GrColorIsOpaque(fGeoData[0].fColor)) {
+            out->setUnknownOpaqueFourComponents();
+        } else {
+            out->setUnknownFourComponents();
+        }
+    }
+
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
+    }
+
+    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+        // Handle any color overrides
+        if (init.fColorIgnored) {
+            fGeoData[0].fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fGeoData[0].fColor = init.fOverrideColor;
+        }
+
+        // setup batch properties
+        fBatch.fColorIgnored = init.fColorIgnored;
+        fBatch.fColor = fGeoData[0].fColor;
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
+    }
+
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+        // Go to device coords to allow batching across matrix changes
+        SkMatrix invert = SkMatrix::I();
+
+        // if we have a local rect, then we apply the localMatrix directly to the localRect to
+        // generate vertex local coords
+        bool hasExplicitLocalCoords = this->hasLocalRect();
+        if (!hasExplicitLocalCoords) {
+            if (!this->viewMatrix().isIdentity() && !this->viewMatrix().invert(&invert)) {
+                SkDebugf("Could not invert\n");
+                return;
+            }
+
+            if (this->hasLocalMatrix()) {
+                invert.preConcat(this->localMatrix());
+            }
+        }
+
+        SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(hasExplicitLocalCoords,
+                                                                  this->color(),
+                                                                  &invert));
+
+        batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
+
+        size_t vertexStride = gp->getVertexStride();
+
+        SkASSERT(hasExplicitLocalCoords ?
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+
+        int instanceCount = fGeoData.count();
+        int vertexCount = kVertsPerRect * instanceCount;
+
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+
+        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        for (int i = 0; i < instanceCount; i++) {
+            const Geometry& args = fGeoData[i];
+
+            intptr_t offset = GrTCast<intptr_t>(vertices) + kVertsPerRect * i * vertexStride;
+            SkPoint* positions = GrTCast<SkPoint*>(offset);
+
+            positions->setRectFan(args.fRect.fLeft, args.fRect.fTop,
+                                  args.fRect.fRight, args.fRect.fBottom, vertexStride);
+            args.fViewMatrix.mapPointsWithStride(positions, vertexStride, kVertsPerRect);
+
+            if (args.fHasLocalRect) {
+                static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
+                SkPoint* coords = GrTCast<SkPoint*>(offset + kLocalOffset);
+                coords->setRectFan(args.fLocalRect.fLeft, args.fLocalRect.fTop,
+                                   args.fLocalRect.fRight, args.fLocalRect.fBottom,
+                                   vertexStride);
+                if (args.fHasLocalMatrix) {
+                    args.fLocalMatrix.mapPointsWithStride(coords, vertexStride, kVertsPerRect);
+                }
+            }
+
+            static const int kColorOffset = sizeof(SkPoint);
+            GrColor* vertColor = GrTCast<GrColor*>(offset + kColorOffset);
+            for (int j = 0; j < 4; ++j) {
+                *vertColor = args.fColor;
+                vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+            }
+        }
+
+        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerRect);
+        drawInfo.setIndicesPerInstance(kIndicesPerRect);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(quadIndexBuffer);
+
+        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        while (instanceCount) {
+            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            instanceCount -= drawInfo.instanceCount();
+       }
+    }
+
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    RectBatch(const Geometry& geometry) {
+        this->initClassID<RectBatch>();
+        fGeoData.push_back(geometry);
+    }
+
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool colorIgnored() const { return fBatch.fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+    const SkMatrix& localMatrix() const { return fGeoData[0].fLocalMatrix; }
+    bool hasLocalRect() const { return fGeoData[0].fHasLocalRect; }
+    bool hasLocalMatrix() const { return fGeoData[0].fHasLocalMatrix; }
+
+    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+        RectBatch* that = t->cast<RectBatch>();
+
+        if (this->hasLocalRect() != that->hasLocalRect()) {
+            return false;
+        }
+
+        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
+        if (!this->hasLocalRect() && this->usesLocalCoords()) {
+            if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+                return false;
+            }
+
+            if (this->hasLocalMatrix() != that->hasLocalMatrix()) {
+                return false;
+            }
+
+            if (this->hasLocalMatrix() && !this->localMatrix().cheapEqualTo(that->localMatrix())) {
+                return false;
+            }
+        }
+
+        if (this->color() != that->color()) {
+            fBatch.fColor = GrColor_ILLEGAL;
+        }
+        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        return true;
+    }
+
+    struct BatchTracker {
+        GrColor fColor;
+        bool fUsesLocalCoords;
+        bool fColorIgnored;
+        bool fCoverageIgnored;
+    };
+
+    const static int kVertsPerRect = 4;
+    const static int kIndicesPerRect = 6;
+
+    BatchTracker fBatch;
+    SkSTArray<1, Geometry, true> fGeoData;
+};
+
 void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
                                      GrColor color,
                                      const SkMatrix& viewMatrix,
@@ -113,70 +306,30 @@ void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
     GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
-
-    // Go to device coords to allow batching across matrix changes
-    SkMatrix invert = SkMatrix::I();
-
-    // if we have a local rect, then we apply the localMatrix directly to the localRect to generate
-    // vertex local coords
-    bool hasExplicitLocalCoords = SkToBool(localRect);
-    if (!hasExplicitLocalCoords) {
-        if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
-            SkDebugf("Could not invert\n");
-            return;
-        }
-
-        if (localMatrix) {
-            invert.preConcat(*localMatrix);
-        }
-    }
-
-    SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(hasExplicitLocalCoords,
-                                                              color,
-                                                              &invert));
-
-    size_t vstride = gp->getVertexStride();
-    SkASSERT(vstride == sizeof(SkPoint) + sizeof(GrColor) + (SkToBool(localRect) ? sizeof(SkPoint) :
-                                                                                   0));
-    AutoReleaseGeometry geo(this, 4, vstride, 0);
-    if (!geo.succeeded()) {
-        SkDebugf("Failed to get space for vertices!\n");
-        return;
-    }
-
-    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vstride);
-    viewMatrix.mapPointsWithStride(geo.positions(), vstride, 4);
-
-    // When the caller has provided an explicit source rect for a stage then we don't want to
-    // modify that stage's matrix. Otherwise if the effect is generating its source rect from
-    // the vertex positions then we have to account for the view matrix
-    SkRect devBounds;
-
-    // since we already computed the dev verts, set the bounds hint. This will help us avoid
-    // unnecessary clipping in our onDraw().
-    get_vertex_bounds(geo.vertices(), vstride, 4, &devBounds);
+    RectBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fViewMatrix = viewMatrix;
+    geometry.fRect = rect;
 
     if (localRect) {
-        static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
-        SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) + kLocalOffset);
-        coords->setRectFan(localRect->fLeft, localRect->fTop,
-                           localRect->fRight, localRect->fBottom,
-                           vstride);
-        if (localMatrix) {
-            localMatrix->mapPointsWithStride(coords, vstride, 4);
-        }
+        geometry.fHasLocalRect = true;
+        geometry.fLocalRect = *localRect;
+    } else {
+        geometry.fHasLocalRect = false;
     }
 
-    static const int kColorOffset = sizeof(SkPoint);
-    GrColor* vertColor = GrTCast<GrColor*>(GrTCast<intptr_t>(geo.vertices()) + kColorOffset);
-    for (int i = 0; i < 4; ++i) {
-        *vertColor = color;
-        vertColor = (GrColor*) ((intptr_t) vertColor + vstride);
+    if (localMatrix) {
+        geometry.fHasLocalMatrix = true;
+        geometry.fLocalMatrix = *localMatrix;
+    } else {
+        geometry.fHasLocalMatrix = false;
     }
 
-    this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
-    this->drawIndexedInstances(pipelineBuilder, gp, kTriangles_GrPrimitiveType, 1, 4, 6,
-                               &devBounds);
+    SkAutoTUnref<GrBatch> batch(RectBatch::Create(geometry));
+
+    SkRect bounds = rect;
+    viewMatrix.mapRect(&bounds);
+    this->drawBatch(pipelineBuilder, batch, &bounds);
 }
 
 int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
@@ -288,6 +441,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPipelineBuilder& pipelineBuilder
 
     StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath,
                                                (path, pipelineBuilder.getRenderTarget()));
+
     sp->fScissor = scissorState;
     sp->fUseHWAA = pipelineBuilder.isHWAntialias();
     sp->fViewMatrix = pathProc->viewMatrix();
