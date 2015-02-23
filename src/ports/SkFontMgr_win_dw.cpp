@@ -266,7 +266,7 @@ public:
         , fFontCollection(SkRefComPtr(fontCollection))
         , fLocaleName(localeNameLength)
     {
-#ifdef SK_HAS_DWRITE_2_H
+#if SK_HAS_DWRITE_2_H
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             // IUnknown::QueryInterface states that if it fails, punk will be set to NULL.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
@@ -304,7 +304,7 @@ private:
                                              IDWriteFontFamily* fontFamily) const;
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
-#ifdef SK_HAS_DWRITE_2_H
+#if SK_HAS_DWRITE_2_H
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
 #endif
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
