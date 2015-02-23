@@ -14,6 +14,18 @@ import makefile_writer
 import os
 import vars_dict_lib
 
+SKIA_RESOURCES = (
+"""
+# Setup directory to store skia's resources in the directory structure that
+# the Android testing infrastructure expects
+skia_res_dir := $(call intermediates-dir-for,PACKAGING,skia_resources)/DATA
+$(shell mkdir -p $(skia_res_dir))
+$(shell cp -r $(LOCAL_PATH)/../resources/. $(skia_res_dir)/skia_resources)
+LOCAL_PICKUP_FILES := $(skia_res_dir)
+skia_res_dir :=
+
+"""
+)
 
 def write_tool_android_mk(target_dir, var_dict):
   """Write Android.mk for a Skia tool.
@@ -31,9 +43,7 @@ def write_tool_android_mk(target_dir, var_dict):
 
     makefile_writer.write_local_vars(f, var_dict, False, None)
 
-    makefile_writer.write_group(f, 'LOCAL_PICKUP_FILES',
-                                ['$(LOCAL_PATH)/../resources'], False)
-
+    f.write(SKIA_RESOURCES)
     f.write('include $(BUILD_NATIVE_TEST)\n')
 
 
