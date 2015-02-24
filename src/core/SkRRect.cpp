@@ -69,7 +69,7 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
         scale = SkScalarDiv(rect.width(), leftRad + rightRad);
     }
     if (topRad + bottomRad > rect.height()) {
-        scale = SkMinScalar(scale, SkScalarDiv(rect.width(), leftRad + rightRad));
+        scale = SkMinScalar(scale, SkScalarDiv(rect.height(), topRad + bottomRad));
     }
 
     if (scale < SK_Scalar1) {
