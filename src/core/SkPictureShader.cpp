@@ -92,7 +92,7 @@ public:
                                       sizeof(fLocalMatrixStorage);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fPictureID) == keySize);
-        this->init(&gBitmapSkaderKeyNamespaceLabel, keySize);
+        this->init(&gBitmapSkaderKeyNamespaceLabel, 0, keySize);
     }
 
 private:

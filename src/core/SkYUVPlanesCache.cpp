@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkYUVPlanesCache.h"
+#include "SkBitmapCache.h"
 #include "SkResourceCache.h"
+#include "SkYUVPlanesCache.h"
 
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
@@ -23,7 +24,8 @@ struct YUVPlanesKey : public SkResourceCache::Key {
     YUVPlanesKey(uint32_t genID)
         : fGenID(genID)
     {
-        this->init(&gYUVPlanesKeyNamespaceLabel, sizeof(genID));
+        this->init(&gYUVPlanesKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(genID),
+                   sizeof(genID));
     }
 
     uint32_t fGenID;

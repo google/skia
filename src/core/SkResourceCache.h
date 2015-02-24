@@ -9,6 +9,8 @@
 #define SkResourceCache_DEFINED
 
 #include "SkBitmap.h"
+#include "SkMessageBus.h"
+#include "SkTDArray.h"
 
 class SkCachedData;
 class SkDiscardableMemory;
@@ -32,8 +34,12 @@ public:
 
         // must call this after your private data has been written.
         // nameSpace must be unique per Key subclass.
+        // sharedID == 0 means ignore this field : does not support group purging.
         // length must be a multiple of 4
-        void init(void* nameSpace, size_t length);
+        void init(void* nameSpace, uint64_t sharedID, size_t length);
+
+        void* getNamespace() const { return fNamespace; }
+        uint64_t getSharedID() const { return ((uint64_t)fSharedID_hi << 32) | fSharedID_lo; }
 
         // This is only valid after having called init().
         uint32_t hash() const { return fHash; }
@@ -52,6 +58,9 @@ public:
     private:
         int32_t  fCount32;   // local + user contents count32
         uint32_t fHash;
+        // split uint64_t into hi and lo so we don't force ourselves to pad on 32bit machines.
+        uint32_t fSharedID_lo;
+        uint32_t fSharedID_hi;
         void*    fNamespace; // A unique namespace tag. This is hashed.
         /* uint32_t fContents32[] */
 
@@ -80,6 +89,13 @@ public:
         friend class SkResourceCache;
     };
 
+    // Used with SkMessageBus
+    struct PurgeSharedIDMessage {
+        PurgeSharedIDMessage(uint64_t sharedID) : fSharedID(sharedID) {}
+
+        uint64_t    fSharedID;
+    };
+
     typedef const Rec* ID;
 
     /**
@@ -92,7 +108,7 @@ public:
      *  true, then the Rec is considered "valid". If false is returned, the Rec will be considered
      *  "stale" and will be purged from the cache.
      */
-    typedef bool (*VisitorProc)(const Rec&, void* context);
+    typedef bool (*FindVisitor)(const Rec&, void* context);
 
     /**
      *  Returns a locked/pinned SkDiscardableMemory instance for the specified
@@ -109,12 +125,12 @@ public:
      *  Returns true if the visitor was called on a matching Key, and the visitor returned true.
      *
      *  Find() will search the cache for the specified Key. If no match is found, return false and
-     *  do not call the VisitorProc. If a match is found, return whatever the visitor returns.
+     *  do not call the FindVisitor. If a match is found, return whatever the visitor returns.
      *  Its return value is interpreted to mean:
      *      true  : Rec is valid
      *      false : Rec is "stale" -- the cache will purge it.
      */
-    static bool Find(const Key& key, VisitorProc, void* context);
+    static bool Find(const Key& key, FindVisitor, void* context);
     static void Add(Rec*);
 
     static size_t GetTotalBytesUsed();
@@ -139,6 +155,8 @@ public:
     static SkBitmap::Allocator* GetAllocator();
 
     static SkCachedData* NewCachedData(size_t bytes);
+
+    static void PostPurgeSharedID(uint64_t sharedID);
 
     /**
      *  Call SkDebugf() with diagnostic information about the state of the cache
@@ -169,12 +187,12 @@ public:
      *  Returns true if the visitor was called on a matching Key, and the visitor returned true.
      *
      *  find() will search the cache for the specified Key. If no match is found, return false and
-     *  do not call the VisitorProc. If a match is found, return whatever the visitor returns.
+     *  do not call the FindVisitor. If a match is found, return whatever the visitor returns.
      *  Its return value is interpreted to mean:
      *      true  : Rec is valid
      *      false : Rec is "stale" -- the cache will purge it.
      */
-    bool find(const Key&, VisitorProc, void* context);
+    bool find(const Key&, FindVisitor, void* context);
     void add(Rec*);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
@@ -197,6 +215,8 @@ public:
      *  this new limit.
      */
     size_t setTotalByteLimit(size_t newLimit);
+
+    void purgeSharedID(uint64_t sharedID);
 
     void purgeAll() {
         this->purgeAsNeeded(true);
@@ -228,6 +248,9 @@ private:
     size_t  fSingleAllocationByteLimit;
     int     fCount;
 
+    SkMessageBus<PurgeSharedIDMessage>::Inbox fPurgeSharedIDInbox;
+
+    void checkMessages();
     void purgeAsNeeded(bool forcePurge = false);
 
     // linklist management

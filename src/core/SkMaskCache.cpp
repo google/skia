@@ -26,7 +26,7 @@ public:
         , fQuality(quality)
         , fRRect(rrect)
     {
-        this->init(&gRRectBlurKeyNamespaceLabel,
+        this->init(&gRRectBlurKeyNamespaceLabel, 0,
                    sizeof(fSigma) + sizeof(fStyle) + sizeof(fQuality) + sizeof(fRRect));
     }
 
@@ -117,7 +117,7 @@ public:
             fSizes[2] = SkSize::Make(rects[0].x() - rects[1].x(), rects[0].y() - rects[1].y());
         }
 
-        this->init(&gRectsBlurKeyNamespaceLabel,
+        this->init(&gRectsBlurKeyNamespaceLabel, 0,
                    sizeof(fSigma) + sizeof(fStyle) + sizeof(fQuality) + sizeof(fSizes));
     }
 

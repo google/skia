@@ -156,6 +156,14 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
 
     mipmap = SkMipMapCache::AddAndRef(src, cache);
     REPORTER_ASSERT(reporter, mipmap);
+
+    {
+        const SkMipMap* mm = SkMipMapCache::FindAndRef(src, cache);
+        REPORTER_ASSERT(reporter, mm);
+        REPORTER_ASSERT(reporter, mm == mipmap);
+        mm->unref();
+    }
+
     check_data(reporter, mipmap, 2, kInCache, kLocked);
 
     mipmap->unref();
@@ -171,6 +179,60 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     check_data(reporter, mipmap, 1, kNotInCache, kLocked);
 
     mipmap->unref();
+}
+
+static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* cache) {
+    const int N = 3;
+    SkBitmap src[N];
+    for (int i = 0; i < N; ++i) {
+        src[i].allocN32Pixels(5, 5);
+        src[i].setImmutable();
+        SkMipMapCache::AddAndRef(src[i], cache)->unref();
+    }
+
+    for (int i = 0; i < N; ++i) {
+        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(src[i], cache);
+        if (cache) {
+            // if cache is null, we're working on the global cache, and other threads might purge
+            // it, making this check fragile.
+            REPORTER_ASSERT(reporter, mipmap);
+        }
+        SkSafeUnref(mipmap);
+
+        src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
+
+        mipmap = SkMipMapCache::FindAndRef(src[i], cache);
+        REPORTER_ASSERT(reporter, !mipmap);
+    }
+}
+
+static void test_bitmap_notify(skiatest::Reporter* reporter, SkResourceCache* cache) {
+    const SkIRect subset = SkIRect::MakeWH(5, 5);
+    const int N = 3;
+    SkBitmap src[N], dst[N];
+    for (int i = 0; i < N; ++i) {
+        src[i].allocN32Pixels(5, 5);
+        src[i].setImmutable();
+        dst[i].allocN32Pixels(5, 5);
+        dst[i].setImmutable();
+        SkBitmapCache::Add(src[i].getGenerationID(), subset, dst[i], cache);
+    }
+
+    for (int i = 0; i < N; ++i) {
+        const uint32_t genID = src[i].getGenerationID();
+        SkBitmap result;
+        bool found = SkBitmapCache::Find(genID, subset, &result, cache);
+        if (cache) {
+            // if cache is null, we're working on the global cache, and other threads might purge
+            // it, making this check fragile.
+            REPORTER_ASSERT(reporter, found);
+        }
+
+        src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
+
+        found = SkBitmapCache::Find(genID, subset, &result, cache);
+        REPORTER_ASSERT(reporter, !found);
+    }
 }
 
 DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
@@ -219,4 +281,6 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
 
     test_mipmapcache(reporter, cache);
+    test_bitmap_notify(reporter, cache);
+    test_mipmap_notify(reporter, cache);
 }

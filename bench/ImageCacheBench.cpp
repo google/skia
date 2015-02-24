@@ -15,7 +15,7 @@ public:
     intptr_t fValue;
 
     TestKey(intptr_t value) : fValue(value) {
-        this->init(&gGlobalAddress, sizeof(fValue));
+        this->init(&gGlobalAddress, 0, sizeof(fValue));
     }
 };
 struct TestRec : public SkResourceCache::Rec {

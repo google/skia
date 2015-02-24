@@ -14,6 +14,10 @@
 class SkResourceCache;
 class SkMipMap;
 
+uint64_t SkMakeResourceCacheSharedIDForBitmap(uint32_t bitmapGenID);
+
+void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID);
+
 class SkBitmapCache {
 public:
     /**

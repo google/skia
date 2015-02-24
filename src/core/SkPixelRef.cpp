@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapCache.h"
 #include "SkPixelRef.h"
 #include "SkThread.h"
 
@@ -214,12 +215,18 @@ void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
     *fGenIDChangeListeners.append() = listener;
 }
 
+// we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
     if (fUniqueGenerationID) {
         for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
             fGenIDChangeListeners[i]->onChange();
         }
+
+        // If we can flag the pixelref somehow whenever it was actually added to the cache,
+        // perhaps it would be nice to only call this notifier in that case. For now we always
+        // call it, since we don't know if it was cached or not.
+        SkNotifyBitmapGenIDIsStale(fGenerationID);
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
     fGenIDChangeListeners.deleteAll();
