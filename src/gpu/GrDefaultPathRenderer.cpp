@@ -231,7 +231,7 @@ public:
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
-        out->setUnknownSingleComponent();
+        out->setKnownSingleComponent(this->coverage());
     }
 
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
