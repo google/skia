@@ -290,6 +290,11 @@ public:
             isIndexed = isIndexed || contourCount > 1;
         }
 
+        if (maxVertices == 0 || maxVertices > ((int)SK_MaxU16 + 1)) {
+            SkDebugf("Cannot render path (%d)\n", maxVertices);
+            return;
+        }
+
         // determine primitiveType
         int maxIndices = 0;
         GrPrimitiveType primitiveType;
