@@ -22,7 +22,7 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_dm_args(bot):
   args = []
 
-  configs = ['565', '8888', 'gpu', 'nvprmsaa']
+  configs = ['565', '8888', 'gpu', 'nvprmsaa4']
   # Xoom and NP are running out of RAM when we run all these modes.  skia:3255
   if ('Xoom'        not in bot and
       'NexusPlayer' not in bot):
