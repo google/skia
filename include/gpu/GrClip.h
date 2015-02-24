@@ -147,10 +147,7 @@ public:
                                SkIRect* devResult,
                                bool* isIntersectionOfRects = NULL) const;
 
-    static const GrClip& WideOpen() {
-        static GrClip clip;
-        return clip;
-    }
+    static const GrClip& WideOpen();
 
     enum ClipType {
         kClipStack_ClipType,
