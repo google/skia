@@ -23,11 +23,13 @@ if [[ -n $RESOURCE_PATH ]]; then
   adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
 fi
 
+if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -c; fi
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 $ADB ${DEVICE_SERIAL} shell \
     "LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH \
      /data/local/tmp/skia_launcher ${APP_ARGS[*]}; echo \$? > ${STATUS_FILENAME}"
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
+  if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -d; fi
   echo "***********************************************************************"
   echo "The application terminated unexpectedly and did not produce an exit code"
   echo "***********************************************************************"
@@ -39,6 +41,7 @@ $ADB ${DEVICE_SERIAL} shell rm -f ${STATUS_FILENAME}
 
 # check to see if the 'cat' command failed and print errors accordingly
 if [[ ${EXIT_CODE} == *${STATUS_FILENAME}* ]]; then
+  if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -d; fi
   echo "***********************************************************************"
   echo "ADB failed to retrieve the application's exit code"
   echo "***********************************************************************"
@@ -47,6 +50,7 @@ fi
 
 echo "EXIT_CODE is ${EXIT_CODE}"
 if [ $'0\r' != "${EXIT_CODE}" ]; then
+  if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -d; fi
   exit 1
 fi
 exit 0
