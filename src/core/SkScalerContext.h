@@ -14,7 +14,7 @@
 #include "SkPaint.h"
 #include "SkTypeface.h"
 
-struct SkGlyph;
+class SkGlyph;
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;

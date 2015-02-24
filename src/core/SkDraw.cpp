@@ -1534,7 +1534,7 @@ SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter, Sk
     fPaint = &pnt;
 
     if (cache->isSubpixel()) {
-        fHalfSampleX = fHalfSampleY = (SK_FixedHalf >> SkGlyph::kSubBits);
+        fHalfSampleX = fHalfSampleY = SkGlyph::kSubpixelRound;
     } else {
         fHalfSampleX = fHalfSampleY = SK_FixedHalf;
     }

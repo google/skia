@@ -30,7 +30,7 @@ public:
 
     void generatePath(int glyphID, SkPath* out) SK_OVERRIDE {
         SkGlyph skGlyph;
-        skGlyph.init(SkGlyph::MakeID(glyphID));
+        skGlyph.initWithGlyphID(glyphID);
         fScalerContext->getMetrics(&skGlyph);
 
         fScalerContext->getPath(skGlyph, out);

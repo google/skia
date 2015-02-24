@@ -314,7 +314,7 @@ SkGlyph* SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
 
     glyph = (SkGlyph*)fGlyphAlloc.alloc(sizeof(SkGlyph),
                                         SkChunkAlloc::kThrow_AllocFailType);
-    glyph->init(id);
+    glyph->initCommon(id);
     *fGlyphArray.insert(hi) = glyph;
 
     if (kJustAdvance_MetricsType == mtype) {

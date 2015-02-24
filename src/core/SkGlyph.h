@@ -13,6 +13,7 @@
 #include "SkMask.h"
 
 class SkPath;
+class SkGlyphCache;
 
 // needs to be != to any valid SkMask::Format
 #define MASK_FORMAT_UNKNOWN         (0xFF)
@@ -20,12 +21,23 @@ class SkPath;
 
 #define kMaxGlyphWidth (1<<13)
 
-struct SkGlyph {
+class SkGlyph {
+    enum {
+        kSubBits = 2,
+        kSubMask = ((1 << kSubBits) - 1),
+        kSubShift = 24, // must be large enough for glyphs and unichars
+        kCodeMask = ((1 << kSubShift) - 1),
+        // relative offsets for X and Y subpixel bits
+        kSubShiftX = kSubBits,
+        kSubShiftY = 0
+    };
+
+ public:
+    static const SkFixed kSubpixelRound = SK_FixedHalf >> SkGlyph::kSubBits;
     void*       fImage;
     SkPath*     fPath;
     SkFixed     fAdvanceX, fAdvanceY;
 
-    uint32_t    fID;
     uint16_t    fWidth, fHeight;
     int16_t     fTop, fLeft;
 
@@ -33,12 +45,12 @@ struct SkGlyph {
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
     int8_t      fForceBW;
 
-    void init(uint32_t id) {
-        fID             = id;
-        fImage          = NULL;
-        fPath           = NULL;
-        fMaskFormat     = MASK_FORMAT_UNKNOWN;
-        fForceBW        = 0;
+    void initWithGlyphID(uint32_t glyph_id) {
+        this->initCommon(MakeID(glyph_id));
+    }
+
+    void initGlyphIdFrom(const SkGlyph& glyph) {
+        this->initCommon(glyph.fID);
     }
 
     /**
@@ -94,18 +106,22 @@ struct SkGlyph {
      */
     void zeroMetrics();
 
-    enum {
-        kSubBits = 2,
-        kSubMask = ((1 << kSubBits) - 1),
-        kSubShift = 24, // must be large enough for glyphs and unichars
-        kCodeMask = ((1 << kSubShift) - 1),
-        // relative offsets for X and Y subpixel bits
-        kSubShiftX = kSubBits,
-        kSubShiftY = 0
-    };
 
+    void toMask(SkMask* mask) const;
+
+ private:
+    // TODO(herb) remove friend statement after SkGlyphCache cleanup.
+    friend class SkGlyphCache;
+
+    void initCommon(uint32_t id) {
+        fID             = id;
+        fImage          = NULL;
+        fPath           = NULL;
+        fMaskFormat     = MASK_FORMAT_UNKNOWN;
+        fForceBW        = 0;
+    }
     static unsigned ID2Code(uint32_t id) {
-        return id & kCodeMask;
+        return (id & kCodeMask);
     }
 
     static unsigned ID2SubX(uint32_t id) {
@@ -134,11 +150,11 @@ struct SkGlyph {
         x = FixedToSub(x);
         y = FixedToSub(y);
         return (x << (kSubShift + kSubShiftX)) |
-               (y << (kSubShift + kSubShiftY)) |
-               code;
+            (y << (kSubShift + kSubShiftY)) |
+            code;
     }
 
-    void toMask(SkMask* mask) const;
+    uint32_t    fID;
 };
 
 #endif
