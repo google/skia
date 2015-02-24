@@ -50,6 +50,6 @@ void GrClip::getConservativeBounds(int width, int height, SkIRect* devResult,
 }
 
 const GrClip& GrClip::WideOpen() {
-    static GrClip clip;
+    static const GrClip clip;
     return clip;
 }

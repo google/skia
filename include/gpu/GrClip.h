@@ -93,6 +93,7 @@ public:
     }
 
     void setClipStack(const SkClipStack* clipStack, const SkIPoint* origin = NULL) {
+        this->reset();
         if (clipStack->isWideOpen()) {
             fClipType = kWideOpen_ClipType;
             fOrigin.setZero();
