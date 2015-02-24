@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
+#include "SkImageGenerator.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
 #include "SkReadBuffer.h"
@@ -21,6 +22,50 @@
 
 namespace {
 static unsigned gBitmapSkaderKeyNamespaceLabel;
+
+class PictureImageGenerator : public SkImageGenerator {
+public:
+    PictureImageGenerator(const SkPicture* picture,
+                          const SkRect& pictureTile,
+                          const SkISize& tileSize)
+        : fPicture(SkRef(picture))
+        , fPictureTile(pictureTile)
+        , fRasterTileInfo(SkImageInfo::MakeN32Premul(tileSize)) {}
+
+protected:
+    virtual bool onGetInfo(SkImageInfo *info) SK_OVERRIDE {
+        *info = fRasterTileInfo;
+        return true;
+    }
+
+    virtual Result onGetPixels(const SkImageInfo& info, void *pixels, size_t rowBytes,
+                             SkPMColor ctable[], int *ctableCount) SK_OVERRIDE {
+        if (info != fRasterTileInfo || SkToBool(ctable) || SkToBool(ctableCount)) {
+            return kInvalidConversion;
+        }
+
+        SkSize tileScale = SkSize::Make(SkIntToScalar(info.width()) / fPictureTile.width(),
+                                        SkIntToScalar(info.height()) / fPictureTile.height());
+        SkBitmap tileBitmap;
+        if (!tileBitmap.installPixels(info, pixels, rowBytes)) {
+            return kInvalidParameters;
+        }
+        tileBitmap.eraseColor(SK_ColorTRANSPARENT);
+
+        // Always disable LCD text, since we can't assume our image will be opaque.
+        SkCanvas tileCanvas(tileBitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+        tileCanvas.scale(tileScale.width(), tileScale.height());
+        tileCanvas.translate(-fPictureTile.x(), -fPictureTile.y());
+        tileCanvas.drawPicture(fPicture);
+
+        return kSuccess;
+    }
+
+private:
+    SkAutoTUnref<const SkPicture> fPicture;
+    const SkRect                  fPictureTile;
+    const SkImageInfo             fRasterTileInfo;
+};
 
 struct BitmapShaderKey : public SkResourceCache::Key {
 public:
@@ -81,23 +126,11 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
         result->reset(SkRef(rec.fShader.get()));
 
-        SkBitmap tile;
-        rec.fShader.get()->asABitmap(&tile, NULL, NULL);
-        // FIXME: this doesn't protect the pixels from being discarded as soon as we unlock.
-        // Should be handled via a pixel ref generator instead
-        // (https://code.google.com/p/skia/issues/detail?id=3220).
-        SkAutoLockPixels alp(tile, true);
-        return tile.getPixels() != NULL;
+        // The bitmap shader is backed by an image generator, thus it can always re-generate its
+        // pixels if discarded.
+        return true;
     }
 };
-
-static bool cache_try_alloc_pixels(SkBitmap* bitmap) {
-    SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
-
-    return NULL != allocator
-        ? allocator->allocPixelRef(bitmap, NULL)
-        : bitmap->tryAllocPixels();
-}
 
 } // namespace
 
@@ -108,10 +141,6 @@ SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMod
     , fTile(tile ? *tile : picture->cullRect())
     , fTmx(tmx)
     , fTmy(tmy) {
-}
-
-SkPictureShader::~SkPictureShader() {
-    fPicture->unref();
 }
 
 SkPictureShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
@@ -188,18 +217,10 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
         SkBitmap bm;
-        bm.setInfo(SkImageInfo::MakeN32Premul(tileSize));
-        if (!cache_try_alloc_pixels(&bm)) {
+        if (!SkInstallDiscardablePixelRef(SkNEW_ARGS(PictureImageGenerator,
+                                                     (fPicture, fTile, tileSize)), &bm)) {
             return NULL;
         }
-        bm.eraseColor(SK_ColorTRANSPARENT);
-
-        // Always disable LCD text, since we can't assume our image will be opaque.
-        SkCanvas canvas(bm, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
-
-        canvas.scale(tileScale.width(), tileScale.height());
-        canvas.translate(-fTile.x(), -fTile.y());
-        canvas.drawPicture(fPicture);
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
@@ -280,10 +301,10 @@ void SkPictureShader::toString(SkString* str) const {
     };
 
     str->appendf("PictureShader: [%f:%f:%f:%f] ",
-                 fPicture ? fPicture->cullRect().fLeft : 0,
-                 fPicture ? fPicture->cullRect().fTop : 0,
-                 fPicture ? fPicture->cullRect().fRight : 0,
-                 fPicture ? fPicture->cullRect().fBottom : 0);
+                 fPicture->cullRect().fLeft,
+                 fPicture->cullRect().fTop,
+                 fPicture->cullRect().fRight,
+                 fPicture->cullRect().fBottom);
 
     str->appendf("(%s, %s)", gTileModeName[fTmx], gTileModeName[fTmy]);
 
