@@ -228,8 +228,7 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
     SkIRect clipSpaceRTIBounds = SkIRect::MakeWH(rt->width(), rt->height());
     const GrClip& clip = pipelineBuilder->clip();
     // TODO we shouldn't be ignoring the clip mask manager's clip.  This is temporary.
-    bool ignoreClip = clip.isWideOpen(clipSpaceRTIBounds) ||
-                      GrClip::kIRect_ClipType == clip.clipType();
+    bool ignoreClip = clip.isWideOpen(clipSpaceRTIBounds);
     if (!ignoreClip) {
         // The clip mask manager always draws with a single IRect so we special case that logic here
         if (GrClip::kIRect_ClipType == clip.clipType()) {

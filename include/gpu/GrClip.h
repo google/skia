@@ -25,8 +25,11 @@ struct SkIRect;
  */
 class GrClip : SkNoncopyable {
 public:
-    GrClip() : fClipType(kWideOpen_ClipType) {}
+    GrClip() : fClipType(kWideOpen_ClipType) {
+        fOrigin.setZero();
+    }
     GrClip(const SkIRect& rect) : fClipType(kIRect_ClipType) {
+        fOrigin.setZero();
         fClip.fIRect = rect;
     }
     ~GrClip() { this->reset(); }
@@ -38,13 +41,15 @@ public:
             default:
                 SkFAIL("Incomplete Switch\n");
             case kWideOpen_ClipType:
+                fOrigin.setZero();
                 break;
             case kClipStack_ClipType:
-                fClip.fClipStack.fStack = SkRef(other.clipStack());
-                fClip.fClipStack.fOrigin = other.origin();
+                fClip.fStack = SkRef(other.clipStack());
+                fOrigin = other.origin();
                 break;
             case kIRect_ClipType:
                 fClip.fIRect = other.irect();
+                fOrigin.setZero();
                 break;
         }
         return *this;
@@ -84,19 +89,20 @@ public:
 
     const SkClipStack* clipStack() const {
         SkASSERT(kClipStack_ClipType == fClipType);
-        return fClip.fClipStack.fStack;
+        return fClip.fStack;
     }
 
     void setClipStack(const SkClipStack* clipStack, const SkIPoint* origin = NULL) {
         if (clipStack->isWideOpen()) {
             fClipType = kWideOpen_ClipType;
+            fOrigin.setZero();
         } else {
             fClipType = kClipStack_ClipType;
-            fClip.fClipStack.fStack = SkRef(clipStack);
+            fClip.fStack = SkRef(clipStack);
             if (origin) {
-                fClip.fClipStack.fOrigin = *origin;
+                fOrigin = *origin;
             } else {
-                fClip.fClipStack.fOrigin.setZero();
+                fOrigin.setZero();
             }
         }
     }
@@ -108,15 +114,18 @@ public:
 
     void reset() {
         if (kClipStack_ClipType == fClipType) {
-            fClip.fClipStack.fStack->unref();
-            fClip.fClipStack.fStack = NULL;
+            fClip.fStack->unref();
+            fClip.fStack = NULL;
         }
         fClipType = kWideOpen_ClipType;
+        fOrigin.setZero();
     }
 
+    // We support this for all cliptypes to simplify the logic a bit in clip mask manager.
+    // non clipstack clip types MUST have a (0,0) origin
     const SkIPoint& origin() const {
-        SkASSERT(kClipStack_ClipType == fClipType);
-        return fClip.fClipStack.fOrigin;
+        SkASSERT(fClipType == kClipStack_ClipType || (fOrigin.fX == 0 && fOrigin.fY == 0));
+        return fOrigin;
     }
 
     bool isWideOpen(const SkRect& rect) const {
@@ -159,13 +168,11 @@ public:
 
 private:
     union Clip {
-        struct ClipStack {
-            const SkClipStack* fStack;
-            SkIPoint fOrigin;
-        } fClipStack;
+        const SkClipStack* fStack;
         SkIRect fIRect;
     } fClip;
 
+    SkIPoint fOrigin;
     ClipType fClipType;
 };
 
