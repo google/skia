@@ -436,6 +436,14 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
 
 #define WEIGHT_THRESHOLD    ((SkFontStyle::kNormal_Weight + SkFontStyle::kBold_Weight)/2)
 
+// kCTFontColorGlyphsTrait was added in the Mac 10.7 and iPhone 4.3 SDKs.
+// Being an enum value it is not guarded by version macros, but old SDKs must still be supported.
+#if defined(__MAC_10_7) || defined(__IPHONE_4_3)
+static const uint32_t SkCTFontColorGlyphsTrait = kCTFontColorGlyphsTrait;
+#else
+static const uint32_t SkCTFontColorGlyphsTrait = (1 << 13);
+#endif
+
 class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(const SkFontStyle& fs, SkFontID fontID, bool isFixedPitch,
@@ -444,7 +452,7 @@ public:
         , fRequestedName(requestedName)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fIsLocalStream(isLocalStream)
-        , fHasColorGlyphs(CTFontGetSymbolicTraits(fFontRef) & kCTFontColorGlyphsTrait)
+        , fHasColorGlyphs(CTFontGetSymbolicTraits(fFontRef) & SkCTFontColorGlyphsTrait)
     {
         SkASSERT(fontRef);
     }
