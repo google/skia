@@ -192,6 +192,11 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
 };
 
 #include "SkMipMap.h"
+
+static void release_mipmap(void*, void* context) {
+    ((SkMipMap*)context)->unref();
+}
+
 class ShowMipLevels : public skiagm::GM {
 public:
     SkBitmap    fBM;
@@ -224,7 +229,9 @@ protected:
         while (mm->extractLevel(scale, &level)) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(level.fWidth, level.fHeight);
             SkBitmap bm;
-            bm.installPixels(info, level.fPixels, level.fRowBytes);
+            bm.installPixels(info, level.fPixels, level.fRowBytes, NULL,
+                             &release_mipmap, (void*)(SkRef(mm.get())));
+            bm.setImmutable();
             canvas->drawBitmap(bm, x, y, NULL);
             y += bm.height() + 4;
             scale /= 2;
