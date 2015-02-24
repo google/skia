@@ -7,7 +7,6 @@
 
 #include "GrBatchTarget.h"
 
-#include "GrBufferAllocPool.h"
 #include "GrPipeline.h"
 
 /*

@@ -372,6 +372,10 @@ public:
             drawInfo.setIndexCount(0);
         }
         batchTarget->draw(drawInfo);
+
+        // put back reserves
+        batchTarget->putBackIndices((size_t)(maxIndices - indexOffset));
+        batchTarget->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

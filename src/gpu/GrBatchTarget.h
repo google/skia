@@ -8,6 +8,7 @@
 #ifndef GrBatchBuffer_DEFINED
 #define GrBatchBuffer_DEFINED
 
+#include "GrBufferAllocPool.h"
 #include "GrPendingProgramElement.h"
 #include "GrPipeline.h"
 #include "GrGpu.h"
@@ -81,6 +82,13 @@ public:
     GrIndexBufferAllocPool* indexPool() { return fIndexPool; }
 
     const GrIndexBuffer* quadIndexBuffer() const { return fGpu->getQuadIndexBuffer(); }
+
+    // A helper for draws which overallocate and then return data to the pool
+    void putBackIndices(size_t indices) { fIndexPool->putBack(indices * sizeof(uint16_t)); }
+
+    void putBackVertices(size_t vertices, size_t vertexStride) {
+        fVertexPool->putBack(vertices * vertexStride);
+    }
 
 private:
     GrGpu* fGpu;
