@@ -8,13 +8,13 @@
 #ifndef SkPixelRef_DEFINED
 #define SkPixelRef_DEFINED
 
+#include "SkAtomics.h"
 #include "SkBitmap.h"
-#include "SkDynamicAnnotations.h"
+#include "SkImageInfo.h"
 #include "SkMutex.h"
 #include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkImageInfo.h"
 #include "SkSize.h"
+#include "SkString.h"
 #include "SkTDArray.h"
 
 //#define xed
@@ -313,8 +313,8 @@ private:
     LockRec         fRec;
     int             fLockCount;
 
-    mutable SkTRacy<uint32_t> fGenerationID;
-    mutable SkTRacy<bool>     fUniqueGenerationID;
+    mutable SkAtomic<uint32_t> fGenerationID;
+    mutable SkAtomic<bool>     fUniqueGenerationID;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     const uint32_t fStableID;
 #endif

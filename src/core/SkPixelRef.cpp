@@ -122,15 +122,15 @@ SkPixelRef::~SkPixelRef() {
 }
 
 void SkPixelRef::needsNewGenID() {
-    fGenerationID = 0;
-    fUniqueGenerationID = false;
+    fGenerationID.store(0);
+    fUniqueGenerationID.store(false);
 }
 
 void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     // This is subtle.  We must call that.getGenerationID() to make sure its genID isn't 0.
-    this->fGenerationID = that.getGenerationID();
-    this->fUniqueGenerationID = false;
-    that.fUniqueGenerationID = false;
+    this->fGenerationID.store(that.getGenerationID());
+    this->fUniqueGenerationID.store(false);
+    that.fUniqueGenerationID.store(false);
 }
 
 void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
@@ -199,15 +199,17 @@ bool SkPixelRef::onLockPixelsAreWritable() const {
 }
 
 uint32_t SkPixelRef::getGenerationID() const {
-    if (0 == fGenerationID) {
-        fGenerationID = SkNextPixelRefGenerationID();
-        fUniqueGenerationID = true;  // The only time we can be sure of this!
+    uint32_t id = fGenerationID.load();
+    if (0 == id) {
+        id = SkNextPixelRefGenerationID();
+        fGenerationID.store(id);
+        fUniqueGenerationID.store(true);  // The only time we can be sure of this!
     }
-    return fGenerationID;
+    return id;
 }
 
 void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (NULL == listener || !fUniqueGenerationID) {
+    if (NULL == listener || !fUniqueGenerationID.load()) {
         // No point in tracking this if we're not going to call it.
         SkDELETE(listener);
         return;
@@ -218,7 +220,7 @@ void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
 // we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
-    if (fUniqueGenerationID) {
+    if (fUniqueGenerationID.load()) {
         for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
             fGenIDChangeListeners[i]->onChange();
         }
@@ -226,7 +228,7 @@ void SkPixelRef::callGenIDChangeListeners() {
         // If we can flag the pixelref somehow whenever it was actually added to the cache,
         // perhaps it would be nice to only call this notifier in that case. For now we always
         // call it, since we don't know if it was cached or not.
-        SkNotifyBitmapGenIDIsStale(fGenerationID);
+        SkNotifyBitmapGenIDIsStale(this->getGenerationID());
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
     fGenIDChangeListeners.deleteAll();

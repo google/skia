@@ -26,6 +26,26 @@ template <typename T>
 bool sk_atomic_compare_exchange(T*, T* expected, T desired,
                                 sk_memory_order success = sk_memory_order_seq_cst,
                                 sk_memory_order failure = sk_memory_order_seq_cst);
+
+// A little wrapper class for small T (think, builtins: int, float, void*) to
+// ensure they're always used atomically.  This is our stand-in for std::atomic<T>.
+template <typename T>
+class SkAtomic : SkNoncopyable {
+public:
+    SkAtomic() {}
+
+    // It is essential we return by value rather than by const&.  fVal may change at any time.
+    T load(sk_memory_order mo = sk_memory_order_seq_cst) const {
+        return sk_atomic_load(&fVal, mo);
+    }
+
+    void store(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
+        sk_atomic_store(&fVal, val, mo);
+    }
+private:
+    T fVal;
+};
+
 #if defined(_MSC_VER)
     #include "../ports/SkAtomics_std.h"
 #elif !defined(SK_BUILD_FOR_IOS) && defined(__ATOMIC_RELAXED)
