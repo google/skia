@@ -1,0 +1,70 @@
+{
+  "Test-Android-Nexus7-Tegra3-Arm7-Release": [
+    "--undefok", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nvprmsaa4", 
+    "--nopipe", 
+    "--noserialize", 
+    "--noquilt", 
+    "--match", 
+    "~tabl_mozilla_0", 
+    "~desk_yahoonews_0", 
+    "--nocpu"
+  ], 
+  "Test-Android-Xoom-Tegra2-Arm7-Release": [
+    "--undefok", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nvprmsaa4", 
+    "--nopipe", 
+    "--noserialize", 
+    "--noquilt", 
+    "--match", 
+    "~WritePixels", 
+    "~tabl_mozilla_0", 
+    "~desk_yahoonews_0"
+  ], 
+  "Test-ChromeOS-Alex-GMA3150-x86-Debug": [
+    "--undefok", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nvprmsaa4", 
+    "--nopipe", 
+    "--noserialize", 
+    "--noquilt", 
+    "--threads", 
+    "1"
+  ], 
+  "Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind": [
+    "--undefok", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nvprmsaa4", 
+    "--nopipe", 
+    "--noserialize", 
+    "--noquilt", 
+    "--match", 
+    "~Threaded"
+  ], 
+  "Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE": [
+    "--undefok", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nvprmsaa4", 
+    "angle", 
+    "--nopipe", 
+    "--noserialize", 
+    "--noquilt"
+  ]
+}
