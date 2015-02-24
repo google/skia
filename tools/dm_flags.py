@@ -19,7 +19,7 @@ def lineno():
 
 
 cov_start = lineno()+1   # We care about coverage starting just past this def.
-def get_dm_args(bot):
+def get_args(bot):
   args = []
 
   configs = ['565', '8888', 'gpu', 'nvprmsaa4']
@@ -94,7 +94,7 @@ def self_test():
   cov = coverage.coverage()
   cov.start()
   for case in cases:
-    args[case] = get_dm_args(case)
+    args[case] = get_args(case)
   cov.stop()
 
   this_file = os.path.basename(__file__)
@@ -119,4 +119,4 @@ if __name__ == '__main__':
     sys.exit(1)
 
   with open(sys.argv[1], 'w') as out:
-    json.dump(get_dm_args(sys.argv[2]), out)
+    json.dump(get_args(sys.argv[2]), out)

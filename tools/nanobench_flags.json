@@ -1,0 +1,36 @@
+{
+  "Perf-Android-GalaxyS3-Mali400-Arm7-Release": [
+    "--scales", 
+    "1.0", 
+    "1.1", 
+    "--match", 
+    "~blurroundrect", 
+    "~patch_grid", 
+    "~desk_carsvg", 
+    "--nocpu"
+  ], 
+  "Perf-Android-Nexus7-Tegra3-Arm7-Release": [
+    "--scales", 
+    "1.0", 
+    "1.1", 
+    "--match", 
+    "skp"
+  ], 
+  "Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind": [
+    "--scales", 
+    "1.0", 
+    "1.1", 
+    "--loops", 
+    "1", 
+    "--samples", 
+    "1"
+  ], 
+  "Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE": [
+    "--scales", 
+    "1.0", 
+    "1.1", 
+    "--match", 
+    "~gradient", 
+    "~etc1bitmap"
+  ]
+}
