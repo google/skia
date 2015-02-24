@@ -9,7 +9,7 @@
 #include "SkGeometry.h"
 #include "SkPath.h"
 
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
 
     enum {
         kTangent_RecursiveLimit,
@@ -51,7 +51,7 @@
 
 #endif
 
-#ifndef SK_QUAD_STROKE_APPROXIMATION
+#ifdef SK_LEGACY_STROKE_CURVES
 #define kMaxQuadSubdivide   5
 #define kMaxCubicSubdivide  7
 #endif
@@ -60,7 +60,7 @@ static inline bool degenerate_vector(const SkVector& v) {
     return !SkPoint::CanNormalize(v.fX, v.fY);
 }
 
-#ifndef SK_QUAD_STROKE_APPROXIMATION
+#ifdef SK_LEGACY_STROKE_CURVES
 static inline bool normals_too_curvy(const SkVector& norm0, SkVector& norm1) {
     /*  root2/2 is a 45-degree angle
         make this constant bigger for more subdivisions (but not >= 1)
@@ -113,7 +113,7 @@ static bool set_normal_unitnormal(const SkVector& vec,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
 
 struct SkQuadConstruct {    // The state of the quad stroke under construction.
     SkPoint fQuad[3];       // the stroked quad parallel to the original curve
@@ -165,7 +165,7 @@ public:
     void moveTo(const SkPoint&);
     void lineTo(const SkPoint&);
     void quadTo(const SkPoint&, const SkPoint&);
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
     void conicTo(const SkPoint&, const SkPoint&, SkScalar weight);
 #endif
     void cubicTo(const SkPoint&, const SkPoint&, const SkPoint&);
@@ -183,7 +183,7 @@ private:
     SkScalar    fRadius;
     SkScalar    fInvMiterLimit;
     SkScalar    fResScale;
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
     SkScalar    fInvResScale;
     SkScalar    fInvResScaleSquared;
 #endif
@@ -200,7 +200,7 @@ private:
     SkPath  fInner, fOuter; // outer is our working answer, inner is temp
     SkPath  fExtra;         // added as extra complete contours
 
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
         kInner_StrokeType = -1
@@ -277,7 +277,7 @@ private:
                        const SkVector& unitNormal);
 
     void    line_to(const SkPoint& currPt, const SkVector& normal);
-#ifndef SK_QUAD_STROKE_APPROXIMATION
+#ifdef SK_LEGACY_STROKE_CURVES
     void    quad_to(const SkPoint pts[3],
                     const SkVector& normalAB, const SkVector& unitNormalAB,
                     SkVector* normalBC, SkVector* unitNormalBC,
@@ -390,7 +390,7 @@ SkPathStroker::SkPathStroker(const SkPath& src,
     fOuter.setIsVolatile(true);
     fInner.incReserve(src.countPoints());
     fInner.setIsVolatile(true);
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
     // TODO : write a common error function used by stroking and filling
     // The '4' below matches the fill scan converter's error term
     fInvResScale = SkScalarInvert(resScale * 4);
@@ -423,7 +423,7 @@ void SkPathStroker::lineTo(const SkPoint& currPt) {
     this->postJoinTo(currPt, normal, unitNormal);
 }
 
-#ifndef SK_QUAD_STROKE_APPROXIMATION
+#ifdef SK_LEGACY_STROKE_CURVES
 void SkPathStroker::quad_to(const SkPoint pts[3],
                       const SkVector& normalAB, const SkVector& unitNormalAB,
                       SkVector* normalBC, SkVector* unitNormalBC,
@@ -461,7 +461,7 @@ void SkPathStroker::quad_to(const SkPoint pts[3],
 }
 #endif
 
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
 void SkPathStroker::setQuadEndNormal(const SkPoint quad[3], const SkVector& normalAB,
         const SkVector& unitNormalAB, SkVector* normalBC, SkVector* unitNormalBC) {
     if (!set_normal_unitnormal(quad[1], quad[2], fRadius, normalBC, unitNormalBC)) {
@@ -774,7 +774,7 @@ DRAW_LINE:
 }
 #endif
 
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
 void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar weight) {
     const SkConic conic(fPrevPt, pt1, pt2, weight);
     SkPoint reduction;
@@ -812,7 +812,7 @@ void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar wei
 #endif
 
 void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
     const SkPoint quad[3] = { fPrevPt, pt1, pt2 };
     SkPoint reduction;
     ReductionType reductionType = CheckQuadLinear(quad, &reduction);
@@ -900,7 +900,7 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     this->postJoinTo(pt2, normalBC, unitBC);
 }
 
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
 // Given a point on the curve and its derivative, scale the derivative by the radius, and
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
@@ -1376,7 +1376,7 @@ bool SkPathStroker::quadStroke(const SkPoint quad[3], SkQuadConstruct* quadPts) 
 
 void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
                             const SkPoint& pt3) {
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
     const SkPoint cubic[4] = { fPrevPt, pt1, pt2, pt3 };
     SkPoint reduction[3];
     const SkPoint* tangentPt;
@@ -1580,7 +1580,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     }
 
     SkAutoConicToQuads converter;
-#ifndef SK_QUAD_STROKE_APPROXIMATION
+#ifdef SK_LEGACY_STROKE_CURVES
     const SkScalar conicTol = SK_Scalar1 / 4 / fResScale;
 #endif
     SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(), fResScale);
@@ -1602,7 +1602,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 lastSegment = SkPath::kQuad_Verb;
                 break;
             case SkPath::kConic_Verb: {
-#ifdef SK_QUAD_STROKE_APPROXIMATION
+#ifndef SK_LEGACY_STROKE_CURVES
                 stroker.conicTo(pts[1], pts[2], iter.conicWeight());
                 lastSegment = SkPath::kConic_Verb;
                 break;
