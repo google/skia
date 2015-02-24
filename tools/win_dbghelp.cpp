@@ -202,21 +202,21 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
  *  This function expects the .pdb file to be in the same directory.
  */
 void setUpDebuggingFromArgs(const char* vargs0) {
-    int i = strlen(vargs0);
+    size_t i = strlen(vargs0);
 
     if (i >= 4 && _stricmp(vargs0 - 4, ".exe") == 0) {
         // Ignore .exe
         i -= 4;
     }
 
-    int pos_period = i;
+    size_t pos_period = i;
 
     // Find last \ in path - this is Windows!
     while (i >= 0 && vargs0[i] != '\\') {
         i--;
     }
 
-    int pos_last_slash = i;
+    size_t pos_last_slash = i;
 
     char app_name[MAX_PATH];
     strncpy(app_name, vargs0 + pos_last_slash + 1, pos_period - pos_last_slash - 1);
