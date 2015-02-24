@@ -1110,7 +1110,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     }
 
     // Put the canvas into the pattern stream (fContent).
-    SkAutoTDelete<SkStream> content(patternDevice->content());
+    SkAutoTDelete<SkStreamAsset> content(patternDevice->content());
 
     SkPDFImageShader* imageShader =
             SkNEW_ARGS(SkPDFImageShader, (canon, autoState->detach()));

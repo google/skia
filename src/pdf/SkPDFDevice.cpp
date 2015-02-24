@@ -1301,10 +1301,10 @@ SkPDFArray* SkPDFDevice::copyMediaBox() const {
     return mediaBox;
 }
 
-SkStream* SkPDFDevice::content() const {
-    SkMemoryStream* result = new SkMemoryStream;
-    result->setData(this->copyContentToData())->unref();
-    return result;
+SkStreamAsset* SkPDFDevice::content() const {
+    SkDynamicMemoryWStream buffer;
+    this->writeContent(&buffer);
+    return buffer.detachAsStream();
 }
 
 void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
@@ -1327,10 +1327,9 @@ void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
     gsState.drainStack();
 }
 
-SkData* SkPDFDevice::copyContentToData() const {
-    SkDynamicMemoryWStream data;
+void SkPDFDevice::writeContent(SkWStream* out) const {
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
-        SkPDFUtils::AppendTransform(fInitialTransform, &data);
+        SkPDFUtils::AppendTransform(fInitialTransform, out);
     }
 
     // TODO(aayushkumar): Apply clip along the margins.  Currently, webkit
@@ -1338,7 +1337,7 @@ SkData* SkPDFDevice::copyContentToData() const {
     // that currently acts as our clip.
     // Also, think about adding a transform here (or assume that the values
     // sent across account for that)
-    SkPDFDevice::copyContentEntriesToData(fMarginContentEntries.get(), &data);
+    SkPDFDevice::copyContentEntriesToData(fMarginContentEntries.get(), out);
 
     // If the content area is the entire page, then we don't need to clip
     // the content area (PDF area clips to the page size).  Otherwise,
@@ -1347,14 +1346,10 @@ SkData* SkPDFDevice::copyContentToData() const {
     if (fPageSize != fContentSize) {
         SkRect r = SkRect::MakeWH(SkIntToScalar(this->width()),
                                   SkIntToScalar(this->height()));
-        emit_clip(NULL, &r, &data);
+        emit_clip(NULL, &r, out);
     }
 
-    SkPDFDevice::copyContentEntriesToData(fContentEntries.get(), &data);
-
-    // potentially we could cache this SkData, and only rebuild it if we
-    // see that our state has changed.
-    return data.copyToData();
+    SkPDFDevice::copyContentEntriesToData(fContentEntries.get(), out);
 }
 
 #ifdef SK_PDF_USE_PATHOPS

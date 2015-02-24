@@ -162,15 +162,12 @@ public:
     SK_API SkPDFArray* getAnnotations() const { return fAnnotations; }
 
     /** Returns a SkStream with the page contents.  The caller is responsible
-        for a reference to the returned value.
-        DEPRECATED: use copyContentToData()
+        for a deleting the returned value.
      */
-    SK_API SkStream* content() const;
+    SK_API SkStreamAsset* content() const;
 
-    /** Returns a SkStream with the page contents.  The caller is responsible
-     *  for calling data->unref() when it is finished.
-     */
-    SK_API SkData* copyContentToData() const;
+    /** Writes the page contents to the stream. */
+    SK_API void writeContent(SkWStream*) const;
 
     SK_API const SkMatrix& initialTransform() const {
         return fInitialTransform;

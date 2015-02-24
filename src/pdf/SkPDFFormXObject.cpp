@@ -23,8 +23,8 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // resources).
     SkPDFResourceDict* resourceDict = device->getResourceDict();
 
-    SkAutoTDelete<SkStream> content(device->content());
-    setData(content.get());
+    SkAutoTDelete<SkStreamAsset> content(device->content());
+    this->setData(content.get());
 
     SkAutoTUnref<SkPDFArray> bboxArray(device->copyMediaBox());
     init(NULL, resourceDict, bboxArray);

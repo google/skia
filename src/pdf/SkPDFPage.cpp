@@ -32,7 +32,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
             insert("Annots", annots);
         }
 
-        SkAutoTUnref<SkData> content(fDevice->copyContentToData());
+        SkAutoTDelete<SkStreamAsset> content(fDevice->content());
         fContentStream.reset(new SkPDFStream(content.get()));
         insert("Contents", new SkPDFObjRef(fContentStream.get()))->unref();
     }
