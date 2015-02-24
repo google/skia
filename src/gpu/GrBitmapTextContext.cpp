@@ -140,7 +140,7 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrPaint& paint,
     SkFixed fyMask = ~0;
     SkFixed halfSampleX, halfSampleY;
     if (cache->isSubpixel()) {
-        halfSampleX = halfSampleY = SkGlyph::kSubpixelRound;
+        halfSampleX = halfSampleY = (SK_FixedHalf >> SkGlyph::kSubBits);
         SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(viewMatrix);
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;

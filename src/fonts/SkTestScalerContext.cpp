@@ -117,7 +117,7 @@ SkTestTypeface::SkTestTypeface(SkTestFont* testFont, const SkFontStyle& style)
 }
 
 void SkTestTypeface::getAdvance(SkGlyph* glyph) {
-    glyph->fAdvanceX = fTestFont->fWidths[glyph->getGlyphID()];
+    glyph->fAdvanceX = fTestFont->fWidths[SkGlyph::ID2Code(glyph->fID)];
     glyph->fAdvanceY = 0;
 }
 
@@ -126,12 +126,12 @@ void SkTestTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) {
 }
 
 void SkTestTypeface::getMetrics(SkGlyph* glyph) {
-    glyph->fAdvanceX = fTestFont->fWidths[glyph->getGlyphID()];
+    glyph->fAdvanceX = fTestFont->fWidths[SkGlyph::ID2Code(glyph->fID)];
     glyph->fAdvanceY = 0;
 }
 
 void SkTestTypeface::getPath(const SkGlyph& glyph, SkPath* path) {
-    *path = *fTestFont->fPaths[glyph.getGlyphID()];
+    *path = *fTestFont->fPaths[SkGlyph::ID2Code(glyph.fID)];
 }
 
 void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
