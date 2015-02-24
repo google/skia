@@ -195,6 +195,7 @@
     '../tests/SizeTest.cpp',
     '../tests/Sk4xTest.cpp',
     '../tests/SkBase64Test.cpp',
+    '../tests/SkImageTest.cpp',
     '../tests/SkResourceCacheTest.cpp',
     '../tests/SmallAllocatorTest.cpp',
     '../tests/SortTest.cpp',

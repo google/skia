@@ -6,11 +6,12 @@
  */
 
 #include "SkImage_Base.h"
-#include "SkImagePriv.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
+#include "SkImagePriv.h"
+#include "SkPixelRef.h"
 #include "SkSurface.h"
 
 class SkImage_Raster : public SkImage_Base {
@@ -60,7 +61,8 @@ public:
     bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
-    SkImage_Raster(const SkImageInfo&, SkPixelRef*, size_t rowBytes, const SkSurfaceProps*);
+    SkImage_Raster(const SkImageInfo&, SkPixelRef*, const SkIPoint& pixelRefOrigin, size_t rowBytes,
+                   const SkSurfaceProps*);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -102,12 +104,12 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes,
     fBitmap.lockPixels();
 }
 
-SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes,
-                               const SkSurfaceProps* props)
+SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint& pixelRefOrigin,
+                               size_t rowBytes,  const SkSurfaceProps* props)
     : INHERITED(info.width(), info.height(), props)
 {
     fBitmap.setInfo(info, rowBytes);
-    fBitmap.setPixelRef(pr);
+    fBitmap.setPixelRef(pr, pixelRefOrigin);
     fBitmap.lockPixels();
 }
 
@@ -193,12 +195,37 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator) {
     return SkNEW_ARGS(SkImage_Raster, (bitmap, NULL));
 }
 
-SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr, size_t rowBytes,
+SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
+                                const SkIPoint& pixelRefOrigin, size_t rowBytes,
                                 const SkSurfaceProps* props) {
     if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes, props));
+    return SkNEW_ARGS(SkImage_Raster, (info, pr, pixelRefOrigin, rowBytes, props));
+}
+
+SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef,
+                              const SkSurfaceProps* props) {
+    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes())) {
+        return NULL;
+    }
+
+    SkImage* image = NULL;
+    if (canSharePixelRef || bm.isImmutable()) {
+        image = SkNEW_ARGS(SkImage_Raster, (bm, props));
+    } else {
+        bm.lockPixels();
+        if (bm.getPixels()) {
+            image = SkImage::NewRasterCopy(bm.info(), bm.getPixels(), bm.rowBytes());
+        }
+        bm.unlockPixels();
+
+        // we don't expose props to NewRasterCopy (need a private vers) so post-init it here
+        if (image && props) {
+            as_IB(image)->initWithProps(*props);
+        }
+    }
+    return image;
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {

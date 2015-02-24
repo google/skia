@@ -12,7 +12,9 @@
 #include "SkSurface.h"
 
 // Call this if you explicitly want to use/share this pixelRef in the image
-extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*, size_t rowBytes,
+extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
+                                       const SkIPoint& pixelRefOrigin,
+                                       size_t rowBytes,
                                        const SkSurfaceProps*);
 
 /**
