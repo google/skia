@@ -107,6 +107,7 @@ public:
         : fPipeState(SkOSMenu::kOffState)
         , fBGColor(SK_ColorWHITE)
         , fRepeatCount(1)
+        , fHaveCalledOnceBeforeDraw(false)
     {}
 
     void setBGColor(SkColor color) { fBGColor = color; }
@@ -131,6 +132,7 @@ protected:
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
     virtual bool onAnimate(const SkAnimTimer&) { return false; }
+    virtual void onOnceBeforeDraw() {}
 
     // overrides
     virtual bool onEvent(const SkEvent& evt);
@@ -143,7 +145,7 @@ protected:
 
 private:
     int fRepeatCount;
-
+    bool fHaveCalledOnceBeforeDraw;
     typedef SkView INHERITED;
 };
 

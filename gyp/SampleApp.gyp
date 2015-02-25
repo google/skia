@@ -86,6 +86,7 @@
         '../samplecode/SamplePatch.cpp',
         '../samplecode/SamplePath.cpp',
         '../samplecode/SamplePathClip.cpp',
+        '../samplecode/SamplePathFuzz.cpp',
         '../samplecode/SamplePathUtils.cpp',
         '../samplecode/SamplePathEffects.cpp',
         '../samplecode/SamplePicture.cpp',

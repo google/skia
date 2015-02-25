@@ -80,8 +80,8 @@ private:
 
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;
-public:
-    Strokes2GM() {
+protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkRandom rand;
         fPath.moveTo(0, 0);
         for (int i = 0; i < 13; i++) {
@@ -91,7 +91,6 @@ public:
         }
     }
 
-protected:
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("strokes_poly");

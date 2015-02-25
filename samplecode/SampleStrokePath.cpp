@@ -98,8 +98,8 @@ static const struct {
 class StrokePathView : public SampleView {
     SkScalar    fWidth;
     SkPath      fPath;
-public:
-    StrokePathView() {
+protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
 //        test_blur();
         fWidth = SkIntToScalar(120);
 
@@ -122,7 +122,6 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-protected:
     // overrides from SkEventSink
     bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {

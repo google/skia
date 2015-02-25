@@ -27,21 +27,23 @@ public:
     PictureShaderGM(SkScalar tileSize, SkScalar sceneSize)
         : fTileSize(tileSize)
         , fSceneSize(sceneSize) {
+    }
 
-        // Build the picture.
+ protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
+       // Build the picture.
         SkPictureRecorder recorder;
-        SkCanvas* pictureCanvas = recorder.beginRecording(tileSize, tileSize, NULL, 0);
+        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, NULL, 0);
         this->drawTile(pictureCanvas);
         fPicture.reset(recorder.endRecording());
 
         // Build a reference bitmap.
-        fBitmap.allocN32Pixels(SkScalarCeilToInt(tileSize), SkScalarCeilToInt(tileSize));
+        fBitmap.allocN32Pixels(SkScalarCeilToInt(fTileSize), SkScalarCeilToInt(fTileSize));
         fBitmap.eraseColor(SK_ColorTRANSPARENT);
         SkCanvas bitmapCanvas(fBitmap);
         this->drawTile(&bitmapCanvas);
     }
 
-protected:
 
     SkString onShortName() SK_OVERRIDE {
         return SkString("pictureshader");

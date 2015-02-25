@@ -28,14 +28,14 @@ public:
     SkPath fCirclePath;
     SkRect fRect;
 
-    ShadowsGM() {
+protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
         this->setBGColor(0xFFDDDDDD);
         fCirclePath.addCircle(SkIntToScalar(20), SkIntToScalar(20), SkIntToScalar(10) );
         fRect.set(SkIntToScalar(10), SkIntToScalar(10),
                   SkIntToScalar(30), SkIntToScalar(30));
     }
 
-protected:
     virtual SkString onShortName() {
         return SkString("shadows");
     }

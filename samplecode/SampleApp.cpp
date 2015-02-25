@@ -2135,6 +2135,10 @@ void SampleView::draw(SkCanvas* canvas) {
 }
 
 void SampleView::onDraw(SkCanvas* canvas) {
+    if (!fHaveCalledOnceBeforeDraw) {
+        fHaveCalledOnceBeforeDraw = true;
+        this->onOnceBeforeDraw();
+    }
     this->onDrawBackground(canvas);
 
     for (int i = 0; i < fRepeatCount; i++) {

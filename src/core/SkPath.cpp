@@ -863,6 +863,7 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
 
     if (close) {
         ed.growForVerb(kClose_Verb);
+        fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
     }
 
     DIRTY_AFTER_EDIT;

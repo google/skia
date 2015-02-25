@@ -96,6 +96,10 @@ class PathEffectView : public SampleView {
 
 public:
     PathEffectView() : fPhase(0) {
+        }
+
+protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkRandom    rand;
         int         steps = 20;
         SkScalar    dist = SkIntToScalar(400);
@@ -126,7 +130,6 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-protected:
     bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "PathEffects");

@@ -271,7 +271,7 @@ private:
 #endif
 
     void    finishContour(bool close, bool isLine);
-    void    preJoinTo(const SkPoint&, SkVector* normal, SkVector* unitNormal,
+    bool    preJoinTo(const SkPoint&, SkVector* normal, SkVector* unitNormal,
                       bool isLine);
     void    postJoinTo(const SkPoint&, const SkVector& normal,
                        const SkVector& unitNormal);
@@ -291,15 +291,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
+bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
                               SkVector* unitNormal, bool currIsLine) {
     SkASSERT(fSegmentCount >= 0);
 
     SkScalar    prevX = fPrevPt.fX;
     SkScalar    prevY = fPrevPt.fY;
 
-    SkAssertResult(set_normal_unitnormal(fPrevPt, currPt, fRadius, normal,
-                                         unitNormal));
+    if (!set_normal_unitnormal(fPrevPt, currPt, fRadius, normal, unitNormal)) {
+        return false;
+    }
 
     if (fSegmentCount == 0) {
         fFirstNormal = *normal;
@@ -313,6 +314,7 @@ void SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
                 fRadius, fInvMiterLimit, fPrevIsLine, currIsLine);
     }
     fPrevIsLine = currIsLine;
+    return true;
 }
 
 void SkPathStroker::postJoinTo(const SkPoint& currPt, const SkVector& normal,
@@ -418,7 +420,9 @@ void SkPathStroker::lineTo(const SkPoint& currPt) {
     }
     SkVector    normal, unitNormal;
 
-    this->preJoinTo(currPt, &normal, &unitNormal, true);
+    if (!this->preJoinTo(currPt, &normal, &unitNormal, true)) {
+        return;
+    }
     this->line_to(currPt, normal);
     this->postJoinTo(currPt, normal, unitNormal);
 }
@@ -796,16 +800,15 @@ void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar wei
     }
     SkASSERT(kQuad_ReductionType == reductionType);
     SkVector normalAB, unitAB, normalBC, unitBC;
-    this->preJoinTo(pt1, &normalAB, &unitAB, false);
+    if (!this->preJoinTo(pt1, &normalAB, &unitAB, false)) {
+        this->lineTo(pt2);
+        return;
+    }
     SkQuadConstruct quadPts;
     this->init(kOuter_StrokeType, &quadPts, 0, 1);
-    if (!this->conicStroke(conic, &quadPts)) {
-        return;
-    }
+    (void) this->conicStroke(conic, &quadPts);
     this->init(kInner_StrokeType, &quadPts, 0, 1);
-    if (!this->conicStroke(conic, &quadPts)) {
-        return;
-    }
+    (void) this->conicStroke(conic, &quadPts);
     this->setConicEndNormal(conic, normalAB, unitAB, &normalBC, &unitBC);
     this->postJoinTo(pt2, normalBC, unitBC);
 }
@@ -833,16 +836,15 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     }
     SkASSERT(kQuad_ReductionType == reductionType);
     SkVector normalAB, unitAB, normalBC, unitBC;
-    this->preJoinTo(pt1, &normalAB, &unitAB, false);
+    if (!this->preJoinTo(pt1, &normalAB, &unitAB, false)) {
+        this->lineTo(pt2);
+        return;
+    }
     SkQuadConstruct quadPts;
     this->init(kOuter_StrokeType, &quadPts, 0, 1);
-    if (!this->quadStroke(quad, &quadPts)) {
-        return;
-    }
+    (void) this->quadStroke(quad, &quadPts);
     this->init(kInner_StrokeType, &quadPts, 0, 1);
-    if (!this->quadStroke(quad, &quadPts)) {
-        return;
-    }
+    (void) this->quadStroke(quad, &quadPts);
     this->setQuadEndNormal(quad, normalAB, unitAB, &normalBC, &unitBC);
 #else
     bool    degenerateAB = SkPath::IsLineDegenerate(fPrevPt, pt1);
@@ -1404,7 +1406,10 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
     }
     SkASSERT(kQuad_ReductionType == reductionType);
     SkVector normalAB, unitAB, normalCD, unitCD;
-    this->preJoinTo(*tangentPt, &normalAB, &unitAB, false);
+    if (!this->preJoinTo(*tangentPt, &normalAB, &unitAB, false)) {
+        this->lineTo(pt3);
+        return;
+    }
     SkScalar tValues[2];
     int count = SkFindCubicInflections(cubic, tValues);
     SkScalar lastT = 0;
@@ -1412,13 +1417,9 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
         SkScalar nextT = index < count ? tValues[index] : 1;
         SkQuadConstruct quadPts;
         this->init(kOuter_StrokeType, &quadPts, lastT, nextT);
-        if (!this->cubicStroke(cubic, &quadPts)) {
-            break;
-        }
+        (void) this->cubicStroke(cubic, &quadPts);
         this->init(kInner_StrokeType, &quadPts, lastT, nextT);
-        if (!this->cubicStroke(cubic, &quadPts)) {
-            break;
-        }
+        (void) this->cubicStroke(cubic, &quadPts);
         lastT = nextT;
     }
     // emit the join even if one stroke succeeded but the last one failed

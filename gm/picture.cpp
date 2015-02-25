@@ -39,9 +39,15 @@ static SkPicture* make_picture() {
 //
 class PictureGM : public skiagm::GM {
 public:
-    PictureGM() : fPicture(make_picture()) {}
+    PictureGM()
+        : fPicture(NULL)
+    {}
 
 protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
+         fPicture.reset(make_picture());
+    }
+
     SkString onShortName() SK_OVERRIDE {
         return SkString("pictures");
     }

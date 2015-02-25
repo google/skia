@@ -93,7 +93,8 @@ public:
     SkPath      fPath;
     SkScalar    fHOffset;
 
-    TextOnPathView() {
+protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
         SkRect r;
         r.set(SkIntToScalar(100), SkIntToScalar(100),
               SkIntToScalar(300), SkIntToScalar(300));
@@ -103,7 +104,6 @@ public:
         fHOffset = SkIntToScalar(50);
     }
 
-protected:
     // overrides from SkEventSink
     bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {

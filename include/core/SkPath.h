@@ -958,6 +958,7 @@ public:
 #endif
 
     SkDEBUGCODE(void validate() const;)
+    SkDEBUGCODE(void experimentalValidateRef() const { fPathRef->validate(); } )
 
 private:
     enum SerializationOffsets {

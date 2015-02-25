@@ -49,7 +49,10 @@ public:
 
     SimpleClipGM(SkGeomTypes geomType)
     : fGeomType(geomType) {
+    }
 
+protected:
+    void onOnceBeforeDraw() SK_OVERRIDE {
         // offset the rects a bit so we get anti-aliasing in the rect case
         fBase.set(100.65f,
                   100.65f,
@@ -64,7 +67,6 @@ public:
         INHERITED::setBGColor(0xFFDDDDDD);
     }
 
-protected:
     void buildRgn(SkAAClip* clip, SkRegion::Op op) {
         clip->setPath(fBasePath, NULL, true);
 
