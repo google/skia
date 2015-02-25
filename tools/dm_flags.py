@@ -22,15 +22,13 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
-  configs = ['565', '8888', 'gpu', 'nvprmsaa4']
+  configs = ['565', '8888', 'gpu', 'nvprmsaa4', 'angle']
   # Xoom and NP are running out of RAM when we run all these modes.  skia:3255
   if ('Xoom'        not in bot and
       'NexusPlayer' not in bot):
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pipe'])
     configs.append('tiles_rt-gpu')
-  if 'ANGLE' in bot:
-    configs.append('angle')
   args.append('--config')
   args.extend(configs)
 
@@ -88,7 +86,6 @@ def self_test():
     'Test-Android-Xoom-Tegra2-Arm7-Release',
     'Test-ChromeOS-Alex-GMA3150-x86-Debug',
     'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind',
-    'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
   ]
 
   cov = coverage.coverage()
