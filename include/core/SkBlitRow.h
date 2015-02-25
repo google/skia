@@ -37,7 +37,7 @@ public:
 
     static Proc16 Factory16(unsigned flags);
 
-    /** 
+    /**
      *  Function pointer that blends a single src color onto a scaline of dst colors.
      *
      *  The x,y params provide the dithering phase for the start of the scanline
@@ -77,17 +77,6 @@ public:
 
     //! Public entry-point to return a blit function ptr
     static ColorProc ColorProcFactory();
-
-    /** Function pointer that blends a single color onto a 32-bit rectangle.  */
-    typedef void (*ColorRectProc)(SkPMColor dst[], int width, int height,
-                                  size_t rowBytes, SkPMColor color);
-
-    /** Blend a single color into a rectangle of D32 pixels. */
-    static void ColorRect32(SkPMColor dst[], int width, int height,
-                            size_t rowBytes, SkPMColor color);
-
-    //! Public entry-point to return a blit function ptr
-    static ColorRectProc ColorRectProcFactory();
 
     /** These static functions are called by the Factory and Factory32
         functions, and should return either NULL, or a

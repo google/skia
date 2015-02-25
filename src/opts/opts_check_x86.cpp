@@ -261,12 +261,6 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
     }
 }
 
-SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning
-
-SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
-    return NULL;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkColorType dstCT,

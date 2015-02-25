@@ -53,7 +53,6 @@ SkARGB32_Blitter::SkARGB32_Blitter(const SkBitmap& device, const SkPaint& paint)
 
     fPMColor = SkPackARGB32(fSrcA, fSrcR, fSrcG, fSrcB);
     fColor32Proc = SkBlitRow::ColorProcFactory();
-    fColorRect32Proc = SkBlitRow::ColorRectProcFactory();
 }
 
 const SkBitmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
@@ -214,13 +213,9 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
     uint32_t    color = fPMColor;
     size_t      rowBytes = fDevice.rowBytes();
 
-    if (255 == SkGetPackedA32(color)) {
-        fColorRect32Proc(device, width, height, rowBytes, color);
-    } else {
-        while (--height >= 0) {
-            fColor32Proc(device, device, width, color);
-            device = (uint32_t*)((char*)device + rowBytes);
-        }
+    while (--height >= 0) {
+        fColor32Proc(device, device, width, color);
+        device = (uint32_t*)((char*)device + rowBytes);
     }
 }
 

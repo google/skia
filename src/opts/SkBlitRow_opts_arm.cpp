@@ -396,6 +396,3 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
     return SK_ARM_NEON_WRAP(Color32_arm);
 }
 
-SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
-    return NULL;
-}
