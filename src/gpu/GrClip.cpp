@@ -21,8 +21,6 @@
 void GrClip::getConservativeBounds(int width, int height, SkIRect* devResult,
                                    bool* isIntersectionOfRects) const {
     switch (fClipType) {
-        default:
-            SkFAIL("incomplete switch\n");
         case kWideOpen_ClipType: {
             devResult->setLTRB(0, 0, width, height);
             if (isIntersectionOfRects) {
@@ -31,6 +29,15 @@ void GrClip::getConservativeBounds(int width, int height, SkIRect* devResult,
         } break;
         case kIRect_ClipType: {
             *devResult = this->irect();
+            if (isIntersectionOfRects) {
+                *isIntersectionOfRects = true;
+            }
+        } break;
+        case kRect_ClipType: {
+            devResult->setLTRB(SkScalarCeilToInt(this->rect().fLeft),
+                               SkScalarCeilToInt(this->rect().fTop),
+                               SkScalarCeilToInt(this->rect().fRight),
+                               SkScalarCeilToInt(this->rect().fBottom));
             if (isIntersectionOfRects) {
                 *isIntersectionOfRects = true;
             }

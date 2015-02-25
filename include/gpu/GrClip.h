@@ -15,7 +15,7 @@ struct SkIRect;
 
 /**
  * GrClip encapsulates the information required to construct the clip
- * masks. 'A GrClip is either wide open, just an IRect, just a Rect(TODO), or a full clipstack.
+ * masks. 'A GrClip is either wide open, just an IRect, just a Rect, or a full clipstack.
  * If the clip is a clipstack than the origin is used to translate the stack with
  * respect to device coordinates. This allows us to use a clip stack that is
  * specified for a root device with a layer device that is restricted to a subset
@@ -28,18 +28,23 @@ public:
     GrClip() : fClipType(kWideOpen_ClipType) {
         fOrigin.setZero();
     }
+
     GrClip(const SkIRect& rect) : fClipType(kIRect_ClipType) {
         fOrigin.setZero();
         fClip.fIRect = rect;
     }
+
+    GrClip(const SkRect& rect) : fClipType(kRect_ClipType) {
+        fOrigin.setZero();
+        fClip.fRect = rect;
+    }
+
     ~GrClip() { this->reset(); }
 
     const GrClip& operator=(const GrClip& other) {
         this->reset();
         fClipType = other.fClipType;
         switch (other.fClipType) {
-            default:
-                SkFAIL("Incomplete Switch\n");
             case kWideOpen_ClipType:
                 fOrigin.setZero();
                 break;
@@ -49,6 +54,10 @@ public:
                 break;
             case kIRect_ClipType:
                 fClip.fIRect = other.irect();
+                fOrigin.setZero();
+                break;
+            case kRect_ClipType:
+                fClip.fRect = other.rect();
                 fOrigin.setZero();
                 break;
         }
@@ -61,9 +70,6 @@ public:
         }
 
         switch (fClipType) {
-            default:
-                SkFAIL("Incomplete Switch\n");
-                return false;
             case kWideOpen_ClipType:
                 return true;
             case kClipStack_ClipType:
@@ -79,6 +85,9 @@ public:
                 break;
             case kIRect_ClipType:
                 return this->irect() == other.irect();
+                break;
+            case kRect_ClipType:
+                return this->rect() == other.rect();
                 break;
         }
     }
@@ -113,6 +122,11 @@ public:
         return fClip.fIRect;
     }
 
+    const SkRect& rect() const {
+        SkASSERT(kRect_ClipType == fClipType);
+        return fClip.fRect;
+    }
+
     void reset() {
         if (kClipStack_ClipType == fClipType) {
             fClip.fStack->unref();
@@ -132,18 +146,27 @@ public:
     bool isWideOpen(const SkRect& rect) const {
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->isWideOpen()) ||
-               (kIRect_ClipType == fClipType && this->irect().contains(rect));
+               (kIRect_ClipType == fClipType && this->irect().contains(rect)) ||
+               (kRect_ClipType == fClipType && this->rect().contains(rect));
     }
 
     bool isWideOpen(const SkIRect& rect) const {
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->isWideOpen()) ||
-               (kIRect_ClipType == fClipType && this->irect().contains(rect));
+               (kIRect_ClipType == fClipType && this->irect().contains(rect)) ||
+               (kRect_ClipType == fClipType && this->rect().contains(rect));
     }
 
     bool isWideOpen() const {
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->isWideOpen());
+    }
+
+    bool quickContains(const SkRect& rect) const {
+        return (kWideOpen_ClipType == fClipType) ||
+               (kClipStack_ClipType == fClipType && this->clipStack()->quickContains(rect)) ||
+               (kIRect_ClipType == fClipType && this->irect().contains(rect)) ||
+               (kRect_ClipType == fClipType && this->rect().contains(rect));
     }
 
     void getConservativeBounds(const GrSurface* surface,
@@ -163,6 +186,7 @@ public:
         kClipStack_ClipType,
         kWideOpen_ClipType,
         kIRect_ClipType,
+        kRect_ClipType,
     };
 
     ClipType clipType() const { return fClipType; }
@@ -170,6 +194,7 @@ public:
 private:
     union Clip {
         const SkClipStack* fStack;
+        SkRect fRect;
         SkIRect fIRect;
     } fClip;
 

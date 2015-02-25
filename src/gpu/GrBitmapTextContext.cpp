@@ -70,9 +70,9 @@ bool GrBitmapTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatr
     return !SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix);
 }
 
-inline void GrBitmapTextContext::init(GrRenderTarget* rt, const GrPaint& paint,
-                                      const SkPaint& skPaint) {
-    GrTextContext::init(rt, paint, skPaint);
+inline void GrBitmapTextContext::init(GrRenderTarget* rt, const GrClip& clip,
+                                      const GrPaint& paint, const SkPaint& skPaint) {
+    GrTextContext::init(rt, clip, paint, skPaint);
 
     fStrike = NULL;
 
@@ -84,8 +84,8 @@ inline void GrBitmapTextContext::init(GrRenderTarget* rt, const GrPaint& paint,
     fTotalVertexCount = 0;
 }
 
-void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrPaint& paint,
-                                     const SkPaint& skPaint,
+void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
+                                     const GrPaint& paint, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix,
                                      const char text[], size_t byteLength,
                                      SkScalar x, SkScalar y) {
@@ -96,7 +96,7 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrPaint& paint,
         return;
     }
 
-    this->init(rt, paint, skPaint);
+    this->init(rt, clip, paint, skPaint);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -184,8 +184,8 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrPaint& paint,
     this->finish();
 }
 
-void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrPaint& paint,
-                                        const SkPaint& skPaint,
+void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
+                                        const GrPaint& paint, const SkPaint& skPaint,
                                         const SkMatrix& viewMatrix,
                                         const char text[], size_t byteLength,
                                         const SkScalar pos[], int scalarsPerPosition,
@@ -198,7 +198,7 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrPaint& paint
         return;
     }
 
-    this->init(rt, paint, skPaint);
+    this->init(rt, clip, paint, skPaint);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -455,7 +455,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         SkPath tmpPath(*glyph->fPath);
         tmpPath.transform(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(fRenderTarget, fPaint, SkMatrix::I(), tmpPath, strokeInfo);
+        fContext->drawPath(fRenderTarget, fClip, fPaint, SkMatrix::I(), tmpPath, strokeInfo);
 
         // remove this glyph from the vertices we need to allocate
         fTotalVertexCount -= kVerticesPerGlyph;

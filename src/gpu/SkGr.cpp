@@ -243,9 +243,8 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
     SkRect localRect = SkRect::MakeWH(1.f, 1.f);
 
-    GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
-    context->drawNonAARectToRect(stretched->asRenderTarget(), paint, SkMatrix::I(), rect,
-                                 localRect);
+    context->drawNonAARectToRect(stretched->asRenderTarget(), GrClip::WideOpen(), paint,
+                                 SkMatrix::I(), rect, localRect);
 
     return stretched;
 }
@@ -392,8 +391,8 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     paint.addColorProcessor(yuvToRgbProcessor);
     SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
                               SkIntToScalar(yuvInfo.fSize[0].fHeight));
-    GrContext::AutoClip ac(ctx, GrContext::AutoClip::kWideOpen_InitialClip);
-    ctx->drawRect(renderTarget, paint, SkMatrix::I(), r);
+
+    ctx->drawRect(renderTarget, GrClip::WideOpen(), paint, SkMatrix::I(), r);
 
     return result;
 }
@@ -706,8 +705,6 @@ void SkPaint2GrPaintShader(GrContext* context, GrRenderTarget* rt, const SkPaint
     // asFragmentProcessor(). Since these calls get passed back to the client, we don't really
     // want them messing around with the context.
     {
-        GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
-
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
         GrFragmentProcessor* fp = NULL;

@@ -292,7 +292,8 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
 
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());
-                context->drawRect(maskTexture->asRenderTarget(), grPaint, in_matrix, rect);
+                context->drawRect(maskTexture->asRenderTarget(), GrClip::WideOpen(), grPaint,
+                                  in_matrix, rect);
                 iter.next();
             }
         }
