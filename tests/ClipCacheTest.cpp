@@ -84,17 +84,17 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, screen == devStackBounds);
     REPORTER_ASSERT(reporter, isIntersectionOfRects);
 
-    // wrap the SkClipStack in a GrClip
+    // wrap the SkClipStack in a GrClipData
     GrClip clipData;
     clipData.setClipStack(&stack);
 
-    SkIRect devGrClipBound;
+    SkIRect devGrClipDataBound;
     clipData.getConservativeBounds(texture,
-                                   &devGrClipBound,
+                                   &devGrClipDataBound,
                                    &isIntersectionOfRects);
 
-    // make sure that GrClip is behaving itself
-    REPORTER_ASSERT(reporter, intScreen == devGrClipBound);
+    // make sure that GrClipData is behaving itself
+    REPORTER_ASSERT(reporter, intScreen == devGrClipDataBound);
     REPORTER_ASSERT(reporter, isIntersectionOfRects);
 }
 

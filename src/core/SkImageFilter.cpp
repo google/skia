@@ -257,9 +257,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         return false;
     }
 
-    // setup new clip
-    GrClip clip(dstRect);
-
+    GrContext::AutoClip acs(context, dstRect);
     GrFragmentProcessor* fp;
     offset->fX = bounds.left();
     offset->fY = bounds.top();
@@ -270,8 +268,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         SkASSERT(fp);
         GrPaint paint;
         paint.addColorProcessor(fp)->unref();
-        context->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(), dstRect,
-                                     srcRect);
+        context->drawNonAARectToRect(dst->asRenderTarget(), paint, SkMatrix::I(), dstRect, srcRect);
 
         WrapTexture(dst, bounds.width(), bounds.height(), result);
         return true;
@@ -385,7 +382,7 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
     // matrix with no clip and that the matrix, clip, and render target set before this function was
     // called are restored before we return to the caller.
     GrContext* context = src.getTexture()->getContext();
-
+    GrContext::AutoWideOpenIdentityDraw awoid(context);
     if (this->canFilterImageGPU()) {
         return this->filterImageGPU(proxy, src, ctx, result, offset);
     } else {

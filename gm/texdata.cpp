@@ -91,8 +91,7 @@ protected:
                 }
                 SkAutoTUnref<GrTexture> au(texture);
 
-                // setup new clip
-                GrClip clip(SkRect::MakeWH(2*S, 2*S));
+                GrContext::AutoClip acs(ctx, SkRect::MakeWH(2*S, 2*S));
 
                 GrPaint paint;
                 paint.setPorterDuffXPFactory(SkXfermode::kSrcOver_Mode);
@@ -110,7 +109,7 @@ protected:
                 tm.postIDiv(2*S, 2*S);
                 paint.addColorTextureProcessor(texture, tm);
 
-                ctx->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+                ctx->drawRect(target, paint, vm, SkRect::MakeWH(2*S, 2*S));
 
                 // now update the lower right of the texture in first pass
                 // or upper right in second pass
@@ -124,7 +123,7 @@ protected:
                 texture->writePixels(S, (i ? 0 : S), S, S,
                                      texture->config(), gTextureData.get(),
                                      4 * stride);
-                ctx->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+                ctx->drawRect(target, paint, vm, SkRect::MakeWH(2*S, 2*S));
             }
         } else {
             this->drawGpuOnlyMessage(canvas);

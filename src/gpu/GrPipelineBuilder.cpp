@@ -47,7 +47,7 @@ GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     return *this;
 }
 
-void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
+void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, const GrClip* clip) {
     SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
 
     fColorStages.reset();
@@ -70,7 +70,9 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
     fStencilSettings.setDisabled();
     fFlagBits = 0;
 
-    fClip = clip;
+    if (clip) {
+        fClip = *clip;
+    }
 
     this->setState(GrPipelineBuilder::kDither_StateBit, paint.isDither());
     this->setState(GrPipelineBuilder::kHWAntialias_StateBit, paint.isAntiAlias());

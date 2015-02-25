@@ -7,11 +7,10 @@
 
 #include "GrTextContext.h"
 #include "GrContext.h"
-#include "GrDrawTarget.h"
-#include "GrFontScaler.h"
 
 #include "SkAutoKern.h"
 #include "SkGlyphCache.h"
+#include "GrFontScaler.h"
 
 GrTextContext::GrTextContext(GrContext* context, const SkDeviceProperties& properties) :
                             fFallbackTextContext(NULL),
@@ -22,13 +21,12 @@ GrTextContext::~GrTextContext() {
     SkDELETE(fFallbackTextContext);
 }
 
-void GrTextContext::init(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
-                         const SkPaint& skPaint) {
-    fClip = clip;
+void GrTextContext::init(GrRenderTarget* rt, const GrPaint& grPaint, const SkPaint& skPaint) {
+    fClip = fContext->getClip();
 
     fRenderTarget.reset(SkRef(rt));
 
-    fClip.getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
+    fClip->getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
 
     fDrawTarget = fContext->getTextTarget();
 
@@ -36,15 +34,15 @@ void GrTextContext::init(GrRenderTarget* rt, const GrClip& clip, const GrPaint& 
     fSkPaint = skPaint;
 }
 
-bool GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& paint,
-                             const SkPaint& skPaint, const SkMatrix& viewMatrix,
+bool GrTextContext::drawText(GrRenderTarget* rt, const GrPaint& paint, const SkPaint& skPaint,
+                             const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y) {
 
     GrTextContext* textContext = this;
     do {
         if (textContext->canDraw(skPaint, viewMatrix)) {
-            textContext->onDrawText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, x, y);
+            textContext->onDrawText(rt, paint, skPaint, viewMatrix, text, byteLength, x, y);
             return true;
         }
         textContext = textContext->fFallbackTextContext;
@@ -53,8 +51,8 @@ bool GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
     return false;
 }
 
-bool GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& paint,
-                                const SkPaint& skPaint, const SkMatrix& viewMatrix,
+bool GrTextContext::drawPosText(GrRenderTarget* rt, const GrPaint& paint, const SkPaint& skPaint,
+                                const SkMatrix& viewMatrix,
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset) {
@@ -62,7 +60,7 @@ bool GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
     GrTextContext* textContext = this;
     do {
         if (textContext->canDraw(skPaint, viewMatrix)) {
-            textContext->onDrawPosText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, pos,
+            textContext->onDrawPosText(rt, paint, skPaint, viewMatrix, text, byteLength, pos,
                                        scalarsPerPosition, offset);
             return true;
         }

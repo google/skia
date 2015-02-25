@@ -112,9 +112,9 @@ bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint, const SkMatrix& v
     return true;
 }
 
-inline void GrDistanceFieldTextContext::init(GrRenderTarget* rt, const GrClip& clip,
-                                             const GrPaint& paint, const SkPaint& skPaint) {
-    GrTextContext::init(rt, clip, paint, skPaint);
+inline void GrDistanceFieldTextContext::init(GrRenderTarget* rt, const GrPaint& paint,
+                                             const SkPaint& skPaint) {
+    GrTextContext::init(rt, paint, skPaint);
 
     fStrike = NULL;
 
@@ -207,8 +207,7 @@ static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
     }
 }
 
-void GrDistanceFieldTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
-                                            const GrPaint& paint,
+void GrDistanceFieldTextContext::onDrawText(GrRenderTarget* rt, const GrPaint& paint,
                                             const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                             const char text[], size_t byteLength,
                                             SkScalar x, SkScalar y) {
@@ -269,12 +268,11 @@ void GrDistanceFieldTextContext::onDrawText(GrRenderTarget* rt, const GrClip& cl
     y -= alignY;
     SkPoint offset = SkPoint::Make(x, y);
 
-    this->drawPosText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, positions.begin(), 2,
+    this->drawPosText(rt, paint, skPaint, viewMatrix, text, byteLength, positions.begin(), 2,
                       offset);
 }
 
-void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
-                                               const GrPaint& paint,
+void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrPaint& paint,
                                                const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                                const char text[], size_t byteLength,
                                                const SkScalar pos[], int scalarsPerPosition,
@@ -289,7 +287,7 @@ void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip&
     }
 
     fViewMatrix = viewMatrix;
-    this->init(rt, clip, paint, skPaint);
+    this->init(rt, paint, skPaint);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -364,7 +362,7 @@ void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip&
     this->finish();
     
     if (fallbackTxt.count() > 0) {
-        fFallbackTextContext->drawPosText(rt, clip, paint, skPaint, viewMatrix, fallbackTxt.begin(),
+        fFallbackTextContext->drawPosText(rt, paint, skPaint, viewMatrix, fallbackTxt.begin(),
                                           fallbackTxt.count(), fallbackPos.begin(),
                                           scalarsPerPosition, offset);
     }
@@ -573,7 +571,7 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             tmpPath.transform(ctm);
 
             GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-            fContext->drawPath(fRenderTarget, fClip, fPaint, fViewMatrix, tmpPath, strokeInfo);
+            fContext->drawPath(fRenderTarget, fPaint, fViewMatrix, tmpPath, strokeInfo);
 
             // remove this glyph from the vertices we need to allocate
             fTotalVertexCount -= kVerticesPerGlyph;

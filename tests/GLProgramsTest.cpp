@@ -247,7 +247,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     SkClipStack stack;
     stack.clipDevRect(screen, SkRegion::kReplace_Op, false);
 
-    // wrap the SkClipStack in a GrClip
+    // wrap the SkClipStack in a GrClipData
     GrClip clip;
     clip.setClipStack(&stack);
 

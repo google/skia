@@ -362,6 +362,20 @@ public:
      GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 
     ///////////////////////////////////////////////////////////////////////////
+    // Clip state
+    /**
+     * Gets the current clip.
+     * @return the current clip.
+     */
+    const GrClip* getClip() const { return fClip; }
+
+    /**
+     * Sets the clip.
+     * @param clipData  the clip to set.
+     */
+    void setClip(const GrClip* clipData) { fClip = clipData; }
+
+    ///////////////////////////////////////////////////////////////////////////
     // Draws
 
     /**
@@ -377,7 +391,7 @@ public:
     /**
      *  Draw everywhere (respecting the clip) with the paint.
      */
-    void drawPaint(GrRenderTarget*, const GrClip&, const GrPaint&, const SkMatrix& viewMatrix);
+    void drawPaint(GrRenderTarget*, const GrPaint&, const SkMatrix& viewMatrix);
 
     /**
      *  Draw the rect using a paint.
@@ -392,7 +406,6 @@ public:
      *  The rects coords are used to access the paint (through texture matrix)
      */
     void drawRect(GrRenderTarget*,
-                  const GrClip&,
                   const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect&,
@@ -409,7 +422,6 @@ public:
      *                      to rectToDraw
      */
     void drawNonAARectToRect(GrRenderTarget*,
-                             const GrClip&,
                              const GrPaint& paint,
                              const SkMatrix& viewMatrix,
                              const SkRect& rectToDraw,
@@ -420,12 +432,11 @@ public:
      * Draws a non-AA rect with paint and a localMatrix
      */
     void drawNonAARectWithLocalMatrix(GrRenderTarget* rt,
-                                      const GrClip& clip,
                                       const GrPaint& paint,
                                       const SkMatrix& viewMatrix,
                                       const SkRect& rect,
                                       const SkMatrix& localMatrix) {
-        this->drawNonAARectToRect(rt, clip, paint, viewMatrix, rect, rect, &localMatrix);
+        this->drawNonAARectToRect(rt, paint, viewMatrix, rect, rect, &localMatrix);
     }
 
     /**
@@ -438,7 +449,6 @@ public:
      *                      the dash information (intervals, count, phase).
      */
     void drawRRect(GrRenderTarget*,
-                   const GrClip&,
                    const GrPaint&,
                    const SkMatrix& viewMatrix,
                    const SkRRect& rrect,
@@ -455,7 +465,6 @@ public:
      *  @param inner        the inner roundrect
      */
     void drawDRRect(GrRenderTarget*,
-                    const GrClip&,
                     const GrPaint&,
                     const SkMatrix& viewMatrix,
                     const SkRRect& outer,
@@ -472,7 +481,6 @@ public:
      *                      the dash information (intervals, count, phase).
      */
     void drawPath(GrRenderTarget*,
-                  const GrClip&,
                   const GrPaint&,
                   const SkMatrix& viewMatrix,
                   const SkPath&,
@@ -496,7 +504,6 @@ public:
      *                          number of indices.
      */
     void drawVertices(GrRenderTarget*,
-                      const GrClip&,
                       const GrPaint& paint,
                       const SkMatrix& viewMatrix,
                       GrPrimitiveType primitiveType,
@@ -517,7 +524,6 @@ public:
      *                      the dash information (intervals, count, phase).
      */
     void drawOval(GrRenderTarget*,
-                  const GrClip&,
                   const GrPaint& paint,
                   const SkMatrix& viewMatrix,
                   const SkRect& oval,
@@ -660,6 +666,59 @@ public:
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
+    // Helpers
+
+    class AutoClip : public ::SkNoncopyable {
+    public:
+        // This enum exists to require a caller of the constructor to acknowledge that the clip will
+        // initially be wide open. It also could be extended if there are other desirable initial
+        // clip states.
+        enum InitialClip {
+            kWideOpen_InitialClip,
+        };
+
+        AutoClip(GrContext* context, InitialClip SkDEBUGCODE(initialState))
+        : fContext(context) {
+            SkASSERT(kWideOpen_InitialClip == initialState);
+            fNewClipData.setClipStack(&fNewClipStack);
+
+            fOldClip = context->getClip();
+            context->setClip(&fNewClipData);
+        }
+
+        AutoClip(GrContext* context, const SkRect& newClipRect)
+        : fContext(context)
+        , fNewClipStack(newClipRect) {
+            fNewClipData.setClipStack(&fNewClipStack);
+
+            fOldClip = fContext->getClip();
+            fContext->setClip(&fNewClipData);
+        }
+
+        ~AutoClip() {
+            if (fContext) {
+                fContext->setClip(fOldClip);
+            }
+        }
+    private:
+        GrContext*        fContext;
+        const GrClip* fOldClip;
+
+        SkClipStack       fNewClipStack;
+        GrClip        fNewClipData;
+    };
+
+    class AutoWideOpenIdentityDraw {
+    public:
+        AutoWideOpenIdentityDraw(GrContext* ctx)
+            : fAutoClip(ctx, AutoClip::kWideOpen_InitialClip) {
+        }
+
+    private:
+        AutoClip fAutoClip;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
@@ -702,6 +761,7 @@ public:
 
 private:
     GrGpu*                          fGpu;
+    const GrClip*                   fClip;
 
     GrResourceCache*                fResourceCache;
     GrFontCache*                    fFontCache;
@@ -742,15 +802,10 @@ private:
     void setupDrawBuffer();
 
     class AutoCheckFlush;
-    // Sets the paint and returns the target to draw into.
-    GrDrawTarget* prepareToDraw(GrPipelineBuilder*,
-                                GrRenderTarget* rt,
-                                const GrClip&,
-                                const GrPaint* paint,
+    // Sets the paint and returns the target to draw into.  This function is overloaded to either
+    // take a GrDrawState, GrPaint, and AutoCheckFlush, or JUST an AutoCheckFlush
+    GrDrawTarget* prepareToDraw(GrPipelineBuilder*, GrRenderTarget* rt, const GrPaint* paint,
                                 const AutoCheckFlush*);
-
-    // A simpler version of the above which just returns the draw target.  Clip is *NOT* set
-    GrDrawTarget* prepareToDraw();
 
     void internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,

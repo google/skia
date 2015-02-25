@@ -15,7 +15,6 @@
 #include "SkMask.h"
 #include "SkPaint.h"
 
-class GrClip;
 class GrContext;
 class GrPaint;
 class GrRenderTarget;
@@ -101,7 +100,6 @@ public:
     virtual bool directFilterMaskGPU(GrContext* context,
                                      GrRenderTarget* rt,
                                      GrPaint* grp,
-                                     const GrClip&,
                                      const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
                                      const SkPath& path) const;
@@ -112,7 +110,6 @@ public:
     virtual bool directFilterRRectMaskGPU(GrContext* context,
                                           GrRenderTarget* rt,
                                           GrPaint* grp,
-                                          const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
                                           const SkRRect& rrect) const;
