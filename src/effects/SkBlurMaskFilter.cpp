@@ -50,12 +50,14 @@ public:
     virtual bool directFilterMaskGPU(GrContext* context,
                                      GrRenderTarget* rt,
                                      GrPaint* grp,
+                                     const GrClip&,
                                      const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
                                      const SkPath& path) const SK_OVERRIDE;
     virtual bool directFilterRRectMaskGPU(GrContext* context,
                                           GrRenderTarget* rt,
                                           GrPaint* grp,
+                                          const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
                                           const SkRRect& rrect) const SK_OVERRIDE;
@@ -830,6 +832,7 @@ GrFragmentProcessor* GrRectBlurEffect::TestCreate(SkRandom* random,
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
                                                GrRenderTarget* rt,
                                                GrPaint* grp,
+                                               const GrClip& clip,
                                                const SkMatrix& viewMatrix,
                                                const SkStrokeRec& strokeRec,
                                                const SkPath& path) const {
@@ -863,7 +866,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    context->drawNonAARectWithLocalMatrix(rt, *grp, SkMatrix::I(), rect, inverse);
+    context->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), rect, inverse);
     return true;
 }
 
@@ -1120,6 +1123,7 @@ GrGLFragmentProcessor* GrRRectBlurEffect::createGLInstance() const {
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
                                                     GrRenderTarget* rt,
                                                     GrPaint* grp,
+                                                    const GrClip& clip,
                                                     const SkMatrix& viewMatrix,
                                                     const SkStrokeRec& strokeRec,
                                                     const SkRRect& rrect) const {
@@ -1148,7 +1152,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    context->drawNonAARectWithLocalMatrix(rt, *grp, SkMatrix::I(), proxy_rect, inverse);
+    context->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), proxy_rect, inverse);
     return true;
 }
 
@@ -1200,8 +1204,6 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
 
     GrContext* context = src->getContext();
 
-    GrContext::AutoWideOpenIdentityDraw awo(context);
-
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
     SkASSERT(xformedSigma > 0);
 
@@ -1232,7 +1234,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             //             = 0 * src + (1 - src) * dst
             paint.setCoverageSetOpXPFactory(SkRegion::kDifference_Op);
         }
-        context->drawRect((*result)->asRenderTarget(), paint, SkMatrix::I(), clipRect);
+        context->drawRect((*result)->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(),
+                          clipRect);
     }
 
     return true;

@@ -15,6 +15,7 @@
 
 #include "SkPostConfig.h"
 
+class GrClip;
 class GrContext;
 class GrDrawTarget;
 class GrFontScaler;
@@ -26,9 +27,11 @@ class GrTextContext {
 public:
     virtual ~GrTextContext();
 
-    bool drawText(GrRenderTarget* rt, const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
-                  const char text[], size_t byteLength, SkScalar x, SkScalar y);
-    bool drawPosText(GrRenderTarget* rt, const GrPaint&, const SkPaint&, const SkMatrix& viewMatrix,
+    bool drawText(GrRenderTarget* rt, const GrClip&,  const GrPaint&, const SkPaint&,
+                  const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
+                  SkScalar y);
+    bool drawPosText(GrRenderTarget* rt, const GrClip&, const GrPaint&, const SkPaint&,
+                     const SkMatrix& viewMatrix,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset);
@@ -39,7 +42,7 @@ protected:
     SkDeviceProperties             fDeviceProperties;
 
     SkAutoTUnref<GrRenderTarget>   fRenderTarget;
-    const GrClip*                  fClip;
+    GrClip                         fClip;
     GrDrawTarget*                  fDrawTarget;
     SkIRect                        fClipRect;
     GrPaint                        fPaint;
@@ -49,16 +52,16 @@ protected:
 
     virtual bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) = 0;
 
-    virtual void onDrawText(GrRenderTarget*, const GrPaint&, const SkPaint&,
+    virtual void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                             SkScalar x, SkScalar y) = 0;
-    virtual void onDrawPosText(GrRenderTarget*, const GrPaint&, const SkPaint&,
+    virtual void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                                const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset) = 0;
 
-    void init(GrRenderTarget*, const GrPaint&, const SkPaint&);
+    void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&);
     void finish() { fDrawTarget = NULL; }
 
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);

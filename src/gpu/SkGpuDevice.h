@@ -137,7 +137,7 @@ private:
     GrSkDrawProcs*                  fDrawProcs;
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
-    GrClip                          fClipData;
+    GrClip                          fClip;
     GrTextContext*                  fTextContext;
     SkSurfaceProps                  fSurfaceProps;
     GrRenderTarget*                 fRenderTarget;

@@ -784,6 +784,16 @@ public:
     }
 
     /**
+     * Returns true if the specified rectangle r is inside or equal to this rectangle.
+     */
+    bool contains(const SkIRect& r) const {
+        // todo: can we eliminate the this->isEmpty check?
+        return  !r.isEmpty() && !this->isEmpty() &&
+                fLeft <= SkIntToScalar(r.fLeft) && fTop <= SkIntToScalar(r.fTop) &&
+                fRight >= SkIntToScalar(r.fRight) && fBottom >= SkIntToScalar(r.fBottom);
+    }
+
+    /**
      *  Set the dst rectangle by rounding this rectangle's coordinates to their
      *  nearest integer values using SkScalarRoundToInt.
      */

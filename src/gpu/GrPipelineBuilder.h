@@ -45,7 +45,7 @@ public:
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    void setFromPaint(const GrPaint&, GrRenderTarget*, const GrClip*);
+    void setFromPaint(const GrPaint&, GrRenderTarget*, const GrClip&);
 
     /// @}
 

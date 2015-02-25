@@ -172,7 +172,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrPaint paint;
     paint.addColorTextureProcessor(foregroundTex, foregroundMatrix);
     paint.addColorProcessor(xferProcessor)->unref();
-    context->drawRect(dst->asRenderTarget(), paint, SkMatrix::I(), srcRect);
+    context->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), srcRect);
 
     offset->fX = backgroundOffset.fX;
     offset->fY = backgroundOffset.fY;

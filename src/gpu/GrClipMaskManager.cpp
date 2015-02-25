@@ -231,29 +231,47 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
     bool ignoreClip = clip.isWideOpen(clipSpaceRTIBounds);
     if (!ignoreClip) {
         // The clip mask manager always draws with a single IRect so we special case that logic here
-        if (GrClip::kIRect_ClipType == clip.clipType()) {
-            initialState = GrReducedClip::kAllIn_InitialState;
-            clipSpaceIBounds = clip.irect();
-            SkNEW_INSERT_AT_LLIST_HEAD(&elements,
-                                       Element,
-                                       (SkRect::Make(clipSpaceIBounds),
-                                        SkRegion::kIntersect_Op, false));
-        } else {
-            clipSpaceRTIBounds.offset(clip.origin());
-            GrReducedClip::ReduceClipStack(*clip.clipStack(),
-                                           clipSpaceRTIBounds,
-                                           &elements,
-                                           &genID,
-                                           &initialState,
-                                           &clipSpaceIBounds,
-                                           &requiresAA);
-            if (elements.isEmpty()) {
-                if (GrReducedClip::kAllIn_InitialState == initialState) {
-                    ignoreClip = clipSpaceIBounds == clipSpaceRTIBounds;
-                } else {
-                    return false;
+        // Image filters just use a rect, so we also special case that logic
+        switch (clip.clipType()) {
+            case GrClip::kWideOpen_ClipType:
+                // we should have handled this case above
+                SkASSERT(false);
+            case GrClip::kIRect_ClipType: {
+                initialState = GrReducedClip::kAllIn_InitialState;
+                clipSpaceIBounds = clip.irect();
+                SkNEW_INSERT_AT_LLIST_HEAD(&elements,
+                                           Element,
+                                           (SkRect::Make(clipSpaceIBounds),
+                                            SkRegion::kIntersect_Op, false));
+            } break;
+            case GrClip::kRect_ClipType: {
+                initialState = GrReducedClip::kAllIn_InitialState;
+                clipSpaceIBounds.setLTRB(SkScalarCeilToInt(clip.rect().fLeft),
+                                         SkScalarCeilToInt(clip.rect().fTop),
+                                         SkScalarCeilToInt(clip.rect().fRight),
+                                         SkScalarCeilToInt(clip.rect().fBottom));
+                SkNEW_INSERT_AT_LLIST_HEAD(&elements,
+                                           Element,
+                                           (SkRect::Make(clipSpaceIBounds),
+                                            SkRegion::kIntersect_Op, false));
+            } break;
+            case GrClip::kClipStack_ClipType: {
+                clipSpaceRTIBounds.offset(clip.origin());
+                GrReducedClip::ReduceClipStack(*clip.clipStack(),
+                                               clipSpaceRTIBounds,
+                                               &elements,
+                                               &genID,
+                                               &initialState,
+                                               &clipSpaceIBounds,
+                                               &requiresAA);
+                if (elements.isEmpty()) {
+                    if (GrReducedClip::kAllIn_InitialState == initialState) {
+                        ignoreClip = clipSpaceIBounds == clipSpaceRTIBounds;
+                    } else {
+                        return false;
+                    }
                 }
-            }
+            } break;
         }
     }
 
