@@ -10,7 +10,6 @@
 #include "SkBitmapProcState_opts_SSSE3.h"
 #include "SkBitmapScaler.h"
 #include "SkBlitMask.h"
-#include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE4.h"
@@ -265,13 +264,6 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning
 
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
-/* Return NULL for now, since the optimized path in ColorRect32_SSE2 is disabled.
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return ColorRect32_SSE2;
-    } else {
-        return NULL;
-    }
-*/
     return NULL;
 }
 

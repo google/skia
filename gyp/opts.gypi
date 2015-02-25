@@ -65,7 +65,6 @@
         'sse2_sources': [
             '<(skia_src_path)/opts/SkBitmapFilter_opts_SSE2.cpp',
             '<(skia_src_path)/opts/SkBitmapProcState_opts_SSE2.cpp',
-            '<(skia_src_path)/opts/SkBlitRect_opts_SSE2.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE2.cpp',
             '<(skia_src_path)/opts/SkBlurImage_opts_SSE2.cpp',
             '<(skia_src_path)/opts/SkMorphology_opts_SSE2.cpp',
