@@ -1494,6 +1494,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrTexture* texture;
     // draw sprite uses the default texture params
     AutoBitmapTexture abt(fContext, bitmap, NULL, &texture);
+    if (!texture) {
+        return;
+    }
 
     SkImageFilter* filter = paint.getImageFilter();
     // This bitmap will own the filtered result as a texture.
@@ -1882,8 +1885,9 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
         SkSurfaceProps props(fSurfaceProps.flags(), cinfo.fPixelGeometry);
         return SkGpuDevice::Create(texture->asRenderTarget(), &props, flags);
     } else {
-        SkDebugf("---- failed to create compatible device texture [%d %d]\n",
-                 cinfo.fInfo.width(), cinfo.fInfo.height());
+        SkErrorInternals::SetError( kInternalError_SkError,
+                                    "---- failed to create compatible device texture [%d %d]\n",
+                                    cinfo.fInfo.width(), cinfo.fInfo.height());
         return NULL;
     }
 }

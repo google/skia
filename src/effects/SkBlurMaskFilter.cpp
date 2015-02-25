@@ -965,6 +965,9 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
         blurNinePatchTexture = context->createTexture(texDesc, true, blurred_mask.fImage, 0);
+        if (!blurNinePatchTexture) {
+            return NULL;
+        }
         context->addResourceToCache(key, blurNinePatchTexture);
 
         SkMask::FreeImage(blurred_mask.fImage);

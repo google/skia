@@ -280,6 +280,9 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
                                                              true,
                                                              sigma.x(),
                                                              sigma.y()));
+    if (!tex) {
+        return false;
+    }
     WrapTexture(tex, rect.width(), rect.height(), result);
     return true;
 #else

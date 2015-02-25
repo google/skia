@@ -57,7 +57,7 @@ public:
         return static_cast<SkGpuDevice*>(dev);
     }
 
-    GrContext* context() const { return fRenderTarget->getContext(); }
+    GrContext* context() const { return fContext; }
 
     // set all pixels to 0
     void clearAll();

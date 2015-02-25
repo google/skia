@@ -92,6 +92,9 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
     VALIDATE;
     if (0 == fLockedRows) {
         this->lockTexture();
+        if (!fTexture) {
+            return -1;
+        }
     }
 
     int key = data.getGenerationID();
@@ -204,6 +207,9 @@ void GrTextureStripAtlas::lockTexture() {
     fTexture = fDesc.fContext->findAndRefCachedTexture(key);
     if (NULL == fTexture) {
         fTexture = fDesc.fContext->createTexture(texDesc, true, NULL, 0);
+        if (!fTexture) {
+            return;
+        }
         fDesc.fContext->addResourceToCache(key, fTexture);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();

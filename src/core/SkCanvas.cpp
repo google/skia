@@ -13,6 +13,7 @@
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
+#include "SkErrorInternals.h"
 #include "SkImage.h"
 #include "SkMetaData.h"
 #include "SkPathOps.h"
@@ -947,7 +948,8 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     device = device->onCreateCompatibleDevice(SkBaseDevice::CreateInfo(info, usage,
                                                                        fProps.pixelGeometry()));
     if (NULL == device) {
-        SkDebugf("Unable to create device for layer.");
+        SkErrorInternals::SetError( kInternalError_SkError,
+                                    "Unable to create device for layer.");
         return;
     }
 

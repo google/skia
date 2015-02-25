@@ -52,6 +52,9 @@ static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 1 << 11;
 static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
+#define RETURN_IF_ABANDONED if (!fDrawBuffer) { return; }
+#define RETURN_FALSE_IF_ABANDONED if (!fDrawBuffer) { return false; }
+#define RETURN_NULL_IF_ABANDONED if (!fDrawBuffer) { return NULL; }
 
 class GrContext::AutoCheckFlush {
 public:
@@ -240,6 +243,7 @@ bool GrContext::npotTextureTileSupport() const {
 
 GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
                                     size_t rowBytes) {
+    RETURN_NULL_IF_ABANDONED
     if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
         !this->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return NULL;
@@ -263,6 +267,7 @@ GrTexture* GrContext::createTexture(const GrSurfaceDesc& desc, bool budgeted, co
 
 GrTexture* GrContext::refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMatch match,
                                         bool calledDuringFlush) {
+    RETURN_NULL_IF_ABANDONED
     // Currently we don't recycle compressed textures as scratch.
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return NULL;
@@ -344,10 +349,12 @@ int GrContext::getMaxSampleCount() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrContext::wrapBackendTexture(const GrBackendTextureDesc& desc) {
+    RETURN_NULL_IF_ABANDONED
     return fGpu->wrapBackendTexture(desc);
 }
 
 GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
+    RETURN_NULL_IF_ABANDONED
     return fGpu->wrapBackendRenderTarget(desc);
 }
 
@@ -357,6 +364,7 @@ void GrContext::clear(const SkIRect* rect,
                       const GrColor color,
                       bool canIgnoreRect,
                       GrRenderTarget* renderTarget) {
+    RETURN_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(renderTarget);
     SkASSERT(renderTarget);
 
@@ -373,6 +381,7 @@ void GrContext::drawPaint(GrRenderTarget* rt,
                           const GrClip& clip,
                           const GrPaint& origPaint,
                           const SkMatrix& viewMatrix) {
+    RETURN_IF_ABANDONED
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
     SkRect r;
@@ -507,6 +516,7 @@ void GrContext::drawRect(GrRenderTarget* rt,
                          const SkMatrix& viewMatrix,
                          const SkRect& rect,
                          const GrStrokeInfo* strokeInfo) {
+    RETURN_IF_ABANDONED
     if (strokeInfo && strokeInfo->isDashed()) {
         SkPath path;
         path.addRect(rect);
@@ -641,6 +651,7 @@ void GrContext::drawNonAARectToRect(GrRenderTarget* rt,
                                     const SkRect& rectToDraw,
                                     const SkRect& localRect,
                                     const SkMatrix* localMatrix) {
+    RETURN_IF_ABANDONED
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
     GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, clip, &paint, &acf);
@@ -693,6 +704,7 @@ void GrContext::drawVertices(GrRenderTarget* rt,
                              const GrColor colors[],
                              const uint16_t indices[],
                              int indexCount) {
+    RETURN_IF_ABANDONED
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
@@ -751,6 +763,7 @@ void GrContext::drawRRect(GrRenderTarget*rt,
                           const SkMatrix& viewMatrix,
                           const SkRRect& rrect,
                           const GrStrokeInfo& strokeInfo) {
+    RETURN_IF_ABANDONED
     if (rrect.isEmpty()) {
        return;
     }
@@ -796,6 +809,7 @@ void GrContext::drawDRRect(GrRenderTarget* rt,
                            const SkMatrix& viewMatrix,
                            const SkRRect& outer,
                            const SkRRect& inner) {
+    RETURN_IF_ABANDONED
     if (outer.isEmpty()) {
        return;
     }
@@ -833,6 +847,7 @@ void GrContext::drawOval(GrRenderTarget* rt,
                          const SkMatrix& viewMatrix,
                          const SkRect& oval,
                          const GrStrokeInfo& strokeInfo) {
+    RETURN_IF_ABANDONED
     if (oval.isEmpty()) {
        return;
     }
@@ -929,7 +944,7 @@ void GrContext::drawPath(GrRenderTarget* rt,
                          const SkMatrix& viewMatrix,
                          const SkPath& path,
                          const GrStrokeInfo& strokeInfo) {
-
+    RETURN_IF_ABANDONED
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
            this->drawPaint(rt, clip, paint, viewMatrix);
@@ -1020,6 +1035,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
                                  bool useAA,
                                  const SkPath& path,
                                  const GrStrokeInfo& strokeInfo) {
+    RETURN_IF_ABANDONED
     SkASSERT(!path.isEmpty());
 
     GR_CREATE_TRACE_MARKER("GrContext::internalDrawPath", target);
@@ -1110,7 +1126,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
                                    int left, int top, int width, int height,
                                    GrPixelConfig srcConfig, const void* buffer, size_t rowBytes,
                                    uint32_t pixelOpsFlags) {
-
+    RETURN_FALSE_IF_ABANDONED
     {
         GrTexture* texture = NULL;
         if (!(kUnpremul_PixelOpsFlag & pixelOpsFlags) && (texture = surface->asTexture()) &&
@@ -1240,6 +1256,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                                        int left, int top, int width, int height,
                                        GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
                                        uint32_t flags) {
+    RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(target);
     SkASSERT(target);
 
@@ -1378,6 +1395,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 }
 
 void GrContext::prepareSurfaceForExternalRead(GrSurface* surface) {
+    RETURN_IF_ABANDONED
     SkASSERT(surface);
     ASSERT_OWNED_RESOURCE(surface);
     if (surface->surfacePriv().hasPendingIO()) {
@@ -1390,6 +1408,7 @@ void GrContext::prepareSurfaceForExternalRead(GrSurface* surface) {
 }
 
 void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
+    RETURN_IF_ABANDONED
     SkASSERT(renderTarget);
     ASSERT_OWNED_RESOURCE(renderTarget);
     AutoCheckFlush acf(this);
@@ -1402,6 +1421,7 @@ void GrContext::discardRenderTarget(GrRenderTarget* renderTarget) {
 
 void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                             const SkIPoint& dstPoint, uint32_t pixelOpsFlags) {
+    RETURN_IF_ABANDONED
     if (NULL == src || NULL == dst) {
         return;
     }
@@ -1423,6 +1443,7 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
 }
 
 void GrContext::flushSurfaceWrites(GrSurface* surface) {
+    RETURN_IF_ABANDONED
     if (surface->surfacePriv().hasPendingWrite()) {
         this->flush();
     }
@@ -1433,7 +1454,7 @@ GrDrawTarget* GrContext::prepareToDraw(GrPipelineBuilder* pipelineBuilder,
                                        const GrClip& clip,
                                        const GrPaint* paint,
                                        const AutoCheckFlush* acf) {
-    if (NULL == fGpu) {
+    if (NULL == fGpu || NULL == fDrawBuffer) {
         return NULL;
     }
 

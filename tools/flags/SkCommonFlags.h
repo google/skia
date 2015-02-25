@@ -20,6 +20,7 @@ DECLARE_bool(leaks);
 DECLARE_string(match);
 DECLARE_bool(quiet);
 DECLARE_bool(resetGpuContext);
+DECLARE_bool(preAbandonGpuContext);
 DECLARE_bool(abandonGpuContext);
 DECLARE_string(skps);
 DECLARE_int32(threads);

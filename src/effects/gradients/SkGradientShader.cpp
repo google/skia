@@ -1130,6 +1130,9 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
             fTextureAccess.reset(fAtlas->getTexture(), params);
         } else {
             SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(ctx, bitmap, &params));
+            if (!texture) {
+                return;
+            }
             fCoordTransform.reset(kCoordSet, matrix, texture, params.filterMode());
             fTextureAccess.reset(texture, params);
             fYCoord = SK_ScalarHalf;

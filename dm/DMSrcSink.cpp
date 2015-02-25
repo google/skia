@@ -2,6 +2,7 @@
 #include "SamplePipeControllers.h"
 #include "SkCommonFlags.h"
 #include "SkDocument.h"
+#include "SkError.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
@@ -157,6 +158,8 @@ int GPUSink::enclave() const {
     return fThreaded ? kAnyThread_Enclave : kGPU_Enclave;
 }
 
+void PreAbandonGpuContextErrorHandler(SkError, void*) {}
+
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextFactory factory;
     const SkISize size = src.size();
@@ -166,6 +169,10 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
             NewGpuSurface(&factory, fContextType, fGpuAPI, info, fSampleCount, fUseDFText));
     if (!surface) {
         return "Could not create a surface.";
+    }
+    if (FLAGS_preAbandonGpuContext) {
+        SkSetErrorCallback(&PreAbandonGpuContextErrorHandler, NULL);
+        factory.abandonContexts();
     }
     SkCanvas* canvas = surface->getCanvas();
     Error err = src.draw(canvas);
@@ -178,7 +185,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         canvas->getGrContext()->dumpGpuStats(log);
     }
     dst->allocPixels(info);
-    canvas->readPixels(dst, 0,0);
+    canvas->readPixels(dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     }

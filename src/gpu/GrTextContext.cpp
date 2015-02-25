@@ -40,6 +40,9 @@ bool GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
                              const SkPaint& skPaint, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y) {
+    if (!fContext->getTextTarget()) {
+        return false;
+    }
 
     GrTextContext* textContext = this;
     do {
@@ -58,6 +61,9 @@ bool GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset) {
+    if (!fContext->getTextTarget()) {
+        return false;
+    }
 
     GrTextContext* textContext = this;
     do {

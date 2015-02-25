@@ -11,6 +11,7 @@
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkErrorInternals.h"
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
@@ -560,8 +561,9 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         return result;
     }
 
-    SkDebugf("---- failed to create texture for cache [%d %d]\n",
-                bitmap.width(), bitmap.height());
+    SkErrorInternals::SetError( kInternalError_SkError,
+                                "---- failed to create texture for cache [%d %d]\n",
+                                bitmap.width(), bitmap.height());
 
     return NULL;
 }
