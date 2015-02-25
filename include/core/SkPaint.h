@@ -24,7 +24,7 @@ class SkDescriptor;
 struct SkDeviceProperties;
 class SkReadBuffer;
 class SkWriteBuffer;
-struct SkGlyph;
+class SkGlyph;
 struct SkRect;
 class SkGlyphCache;
 class SkImageFilter;

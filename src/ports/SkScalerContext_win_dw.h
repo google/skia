@@ -15,7 +15,7 @@
 
 #include <dwrite.h>
 
-struct SkGlyph;
+class SkGlyph;
 class SkDescriptor;
 
 class SkScalerContext_DW : public SkScalerContext {
