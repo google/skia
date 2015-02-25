@@ -56,15 +56,12 @@ static SkBaseMutex* get_default_mutex() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int32_t SkNextPixelRefGenerationID();
-
-int32_t SkNextPixelRefGenerationID() {
-    static int32_t  gPixelRefGenerationID;
-    // do a loop in case our global wraps around, as we never want to
-    // return a 0
-    int32_t genID;
+static uint32_t next_gen_id() {
+    static uint32_t gNextGenID = 0;
+    uint32_t genID;
+    // Loop in case our global wraps around, as we never want to return a 0.
     do {
-        genID = sk_atomic_inc(&gPixelRefGenerationID) + 1;
+        genID = sk_atomic_fetch_add(&gNextGenID, 2u) + 2;  // Never set the low bit.
     } while (0 == genID);
     return genID;
 }
@@ -90,7 +87,7 @@ static SkImageInfo validate_info(const SkImageInfo& info) {
 SkPixelRef::SkPixelRef(const SkImageInfo& info)
     : fInfo(validate_info(info))
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    , fStableID(SkNextPixelRefGenerationID())
+    , fStableID(next_gen_id())
 #endif
 
 {
@@ -107,7 +104,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
 SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
     : fInfo(validate_info(info))
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    , fStableID(SkNextPixelRefGenerationID())
+    , fStableID(next_gen_id())
 #endif
 {
     this->setMutex(mutex);
@@ -124,15 +121,22 @@ SkPixelRef::~SkPixelRef() {
 }
 
 void SkPixelRef::needsNewGenID() {
-    fGenerationID.store(0);
-    fUniqueGenerationID.store(false);
+    fTaggedGenID.store(0);
+    SkASSERT(!this->genIDIsUnique()); // This method isn't threadsafe, so the assert should be fine.
 }
 
 void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     // This is subtle.  We must call that.getGenerationID() to make sure its genID isn't 0.
-    this->fGenerationID.store(that.getGenerationID());
-    this->fUniqueGenerationID.store(false);
-    that.fUniqueGenerationID.store(false);
+    uint32_t genID = that.getGenerationID();
+
+    // Neither ID is unique any more.
+    // (These & ~1u are actually redundant.  that.getGenerationID() just did it for us.)
+    this->fTaggedGenID.store(genID & ~1u);
+    that. fTaggedGenID.store(genID & ~1u);
+
+    // This method isn't threadsafe, so these asserts should be fine.
+    SkASSERT(!this->genIDIsUnique());
+    SkASSERT(!that. genIDIsUnique());
 }
 
 void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
@@ -201,17 +205,17 @@ bool SkPixelRef::onLockPixelsAreWritable() const {
 }
 
 uint32_t SkPixelRef::getGenerationID() const {
-    uint32_t id = fGenerationID.load();
+    uint32_t id = fTaggedGenID.load();
     if (0 == id) {
-        id = SkNextPixelRefGenerationID();
-        fGenerationID.store(id);
-        fUniqueGenerationID.store(true);  // The only time we can be sure of this!
+        id = next_gen_id();
+        fTaggedGenID.store(id | 1u);  // TODO(mtklein): should become a compare-and-swap
+        SkASSERT(this->genIDIsUnique());
     }
-    return id;
+    return id & ~1u;  // Mask off bottom unique bit.
 }
 
 void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (NULL == listener || !fUniqueGenerationID.load()) {
+    if (NULL == listener || !this->genIDIsUnique()) {
         // No point in tracking this if we're not going to call it.
         SkDELETE(listener);
         return;
@@ -222,7 +226,7 @@ void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
 // we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
-    if (fUniqueGenerationID.load()) {
+    if (this->genIDIsUnique()) {
         for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
             fGenIDChangeListeners[i]->onChange();
         }

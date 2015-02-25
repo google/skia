@@ -319,9 +319,10 @@ private:
     LockRec         fRec;
     int             fLockCount;
 
-    mutable SkAtomic<uint32_t> fGenerationID;
-    mutable SkAtomic<bool>     fUniqueGenerationID;
-    SkAtomic<bool>             fAddedToCache;
+    // Bottom bit indicates the Gen ID is unique.
+    bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }
+    mutable SkAtomic<uint32_t> fTaggedGenID;
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     const uint32_t fStableID;
 #endif
@@ -330,10 +331,12 @@ private:
 
     SkString    fURI;
 
+    // Set true by caches when they cache content that's derived from the current pixels.
+    SkAtomic<bool> fAddedToCache;
     // can go from false to true, but never from true to false
-    bool    fIsImmutable;
+    bool fIsImmutable;
     // only ever set in constructor, const after that
-    bool    fPreLocked;
+    bool fPreLocked;
 
     void needsNewGenID();
     void callGenIDChangeListeners();
