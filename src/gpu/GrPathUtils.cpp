@@ -51,15 +51,20 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[],
         // subdivide x = log4(d/tol) times. x subdivisions creates 2^(x)
         // points.
         // 2^(log4(x)) = sqrt(x);
-        int temp = SkScalarCeilToInt(SkScalarSqrt(SkScalarDiv(d, tol)));
-        int pow2 = GrNextPow2(temp);
-        // Because of NaNs & INFs we can wind up with a degenerate temp
-        // such that pow2 comes out negative. Also, our point generator
-        // will always output at least one pt.
-        if (pow2 < 1) {
-            pow2 = 1;
+        SkScalar divSqrt = SkScalarSqrt(SkScalarDiv(d, tol));
+        if (((SkScalar)SK_MaxS32) <= divSqrt) {
+            return MAX_POINTS_PER_CURVE;
+        } else {
+            int temp = SkScalarCeilToInt(divSqrt);
+            int pow2 = GrNextPow2(temp);
+            // Because of NaNs & INFs we can wind up with a degenerate temp
+            // such that pow2 comes out negative. Also, our point generator
+            // will always output at least one pt.
+            if (pow2 < 1) {
+                pow2 = 1;
+            }
+            return SkTMin(pow2, MAX_POINTS_PER_CURVE);
         }
-        return SkTMin(pow2, MAX_POINTS_PER_CURVE);
     }
 }
 
@@ -102,15 +107,20 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
     if (d <= tol) {
         return 1;
     } else {
-        int temp = SkScalarCeilToInt(SkScalarSqrt(SkScalarDiv(d, tol)));
-        int pow2 = GrNextPow2(temp);
-        // Because of NaNs & INFs we can wind up with a degenerate temp
-        // such that pow2 comes out negative. Also, our point generator
-        // will always output at least one pt.
-        if (pow2 < 1) {
-            pow2 = 1;
+        SkScalar divSqrt = SkScalarSqrt(SkScalarDiv(d, tol));
+        if (((SkScalar)SK_MaxS32) <= divSqrt) {
+            return MAX_POINTS_PER_CURVE;
+        } else {
+            int temp = SkScalarCeilToInt(SkScalarSqrt(SkScalarDiv(d, tol)));
+            int pow2 = GrNextPow2(temp);
+            // Because of NaNs & INFs we can wind up with a degenerate temp
+            // such that pow2 comes out negative. Also, our point generator
+            // will always output at least one pt.
+            if (pow2 < 1) {
+                pow2 = 1;
+            }
+            return SkTMin(pow2, MAX_POINTS_PER_CURVE);
         }
-        return SkTMin(pow2, MAX_POINTS_PER_CURVE);
     }
 }
 

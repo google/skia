@@ -223,7 +223,9 @@ SkScalar SkPoint::distanceToLineBetweenSqd(const SkPoint& a,
                   1 == kRight_Side);
         *side = (Side) SkScalarSignAsInt(det);
     }
-    return SkScalarMulDiv(det, det, uLengthSqd);
+    SkScalar temp = det / uLengthSqd;
+    temp *= det;
+    return temp;
 }
 
 SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a,
@@ -256,6 +258,8 @@ SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a,
         return b.distanceToSqd(*this);
     } else {
         SkScalar det = u.cross(v);
-        return SkScalarMulDiv(det, det, uLengthSqd);
+        SkScalar temp = det / uLengthSqd;
+        temp *= det;
+        return temp;
     }
 }
