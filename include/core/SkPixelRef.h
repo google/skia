@@ -245,6 +245,12 @@ public:
     // Takes ownership of listener.
     void addGenIDChangeListener(GenIDChangeListener* listener);
 
+    // Call when this pixelref is part of the key to a resourcecache entry. This allows the cache
+    // to know automatically those entries can be purged when this pixelref is changed or deleted.
+    void notifyAddedToCache() {
+        fAddedToCache.store(true);
+    }
+
 protected:
     /**
      *  On success, returns true and fills out the LockRec for the pixels. On
@@ -315,6 +321,7 @@ private:
 
     mutable SkAtomic<uint32_t> fGenerationID;
     mutable SkAtomic<bool>     fUniqueGenerationID;
+    SkAtomic<bool>             fAddedToCache;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     const uint32_t fStableID;
 #endif

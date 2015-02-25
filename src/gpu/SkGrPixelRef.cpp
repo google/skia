@@ -189,7 +189,7 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         // If we are here, pixels were read correctly from the surface.
         cachedBitmap.setImmutable();
         //Add to the cache
-        SkBitmapCache::Add(this->getGenerationID(), bounds, cachedBitmap);
+        SkBitmapCache::Add(this, bounds, cachedBitmap);
 
         dst->swap(cachedBitmap);
     }

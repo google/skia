@@ -305,11 +305,22 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
     }
 }
 
+//#define SK_TRACK_PURGE_SHAREDID_HITRATE
+
+#ifdef SK_TRACK_PURGE_SHAREDID_HITRATE
+static int gPurgeCallCounter;
+static int gPurgeHitCounter;
+#endif
+
 void SkResourceCache::purgeSharedID(uint64_t sharedID) {
     if (0 == sharedID) {
         return;
     }
 
+#ifdef SK_TRACK_PURGE_SHAREDID_HITRATE
+    gPurgeCallCounter += 1;
+    bool found = false;
+#endif
     // go backwards, just like purgeAsNeeded, just to make the code similar.
     // could iterate either direction and still be correct.
     Rec* rec = fTail;
@@ -318,9 +329,21 @@ void SkResourceCache::purgeSharedID(uint64_t sharedID) {
         if (rec->getKey().getSharedID() == sharedID) {
 //            SkDebugf("purgeSharedID id=%llx rec=%p\n", sharedID, rec);
             this->remove(rec);
+#ifdef SK_TRACK_PURGE_SHAREDID_HITRATE
+            found = true;
+#endif
         }
         rec = prev;
     }
+
+#ifdef SK_TRACK_PURGE_SHAREDID_HITRATE
+    if (found) {
+        gPurgeHitCounter += 1;
+    }
+
+    SkDebugf("PurgeShared calls=%d hits=%d rate=%g\n", gPurgeCallCounter, gPurgeHitCounter,
+             gPurgeHitCounter * 100.0 / gPurgeCallCounter);
+#endif
 }
 
 size_t SkResourceCache::setTotalByteLimit(size_t newLimit) {

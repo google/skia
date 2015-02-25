@@ -63,8 +63,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
                 return false;
         }
         fLockedBitmap.setImmutable();
-        SkBitmapCache::Add(
-                this->getGenerationID(), info.bounds(), fLockedBitmap);
+        SkBitmapCache::Add(this, info.bounds(), fLockedBitmap);
     }
 
     // Now bitmap should contain a concrete PixelRef of the decoded image.

@@ -8,6 +8,7 @@
 #include "SkBitmapCache.h"
 #include "SkResourceCache.h"
 #include "SkMipMap.h"
+#include "SkPixelRef.h"
 #include "SkRect.h"
 
 /**
@@ -112,6 +113,7 @@ void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invSca
     BitmapRec* rec = SkNEW_ARGS(BitmapRec, (src.getGenerationID(), invScaleX, invScaleY,
                                             get_bounds_from_bitmap(src), result));
     CHECK_LOCAL(localCache, add, Add, rec);
+    src.pixelRef()->notifyAddedToCache();
 }
 
 bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result,
@@ -121,7 +123,7 @@ bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result
     return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Finder, result);
 }
 
-bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& result,
+bool SkBitmapCache::Add(SkPixelRef* pr, const SkIRect& subset, const SkBitmap& result,
                         SkResourceCache* localCache) {
     SkASSERT(result.isImmutable());
 
@@ -132,9 +134,10 @@ bool SkBitmapCache::Add(uint32_t genID, const SkIRect& subset, const SkBitmap& r
         || result.height() != subset.height()) {
         return false;
     } else {
-        BitmapRec* rec = SkNEW_ARGS(BitmapRec, (genID, SK_Scalar1, SK_Scalar1, subset, result));
+        BitmapRec* rec = SkNEW_ARGS(BitmapRec, (pr->getGenerationID(), 1, 1, subset, result));
 
         CHECK_LOCAL(localCache, add, Add, rec);
+        pr->notifyAddedToCache();
         return true;
     }
 }
@@ -211,6 +214,7 @@ const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkResourceCache* l
     if (mipmap) {
         MipMapRec* rec = SkNEW_ARGS(MipMapRec, (src, mipmap));
         CHECK_LOCAL(localCache, add, Add, rec);
+        src.pixelRef()->notifyAddedToCache();
     }
     return mipmap;
 }

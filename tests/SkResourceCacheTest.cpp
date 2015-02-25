@@ -108,20 +108,22 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
 
     SkBitmap bm;
     SkIRect rect = SkIRect::MakeWH(5, 5);
+    uint32_t cachedID = cachedBitmap.getGenerationID();
+    SkPixelRef* cachedPR = cachedBitmap.pixelRef();
 
     // Wrong subset size
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedBitmap.getGenerationID(), SkIRect::MakeWH(4, 6), cachedBitmap, cache));
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedPR, SkIRect::MakeWH(4, 6), cachedBitmap, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache));
     // Wrong offset value
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedBitmap.getGenerationID(), SkIRect::MakeXYWH(-1, 0, 5, 5), cachedBitmap, cache));
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedPR, SkIRect::MakeXYWH(-1, 0, 5, 5), cachedBitmap, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache));
 
     // Should not be in the cache
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache));
 
-    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap, cache));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedPR, rect, cachedBitmap, cache));
     // Should be in the cache, we just added it
-    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedID, rect, &bm, cache));
 }
 
 #include "SkMipMap.h"
@@ -215,7 +217,7 @@ static void test_bitmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
         src[i].setImmutable();
         dst[i].allocN32Pixels(5, 5);
         dst[i].setImmutable();
-        SkBitmapCache::Add(src[i].getGenerationID(), subset, dst[i], cache);
+        SkBitmapCache::Add(src[i].pixelRef(), subset, dst[i], cache);
     }
 
     for (int i = 0; i < N; ++i) {
@@ -255,7 +257,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     SkIRect rect = SkIRect::MakeWH(5, 5);
 
     // Add a bitmap to the cache.
-    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap, cache));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.pixelRef(), rect, cachedBitmap, cache));
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
 
     // Finding more than once works fine.
@@ -277,7 +279,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     cachedBitmap.unlockPixels();
 
     // We can add the bitmap back to the cache and find it again.
-    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.getGenerationID(), rect, cachedBitmap, cache));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.pixelRef(), rect, cachedBitmap, cache));
     REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
 
     test_mipmapcache(reporter, cache);

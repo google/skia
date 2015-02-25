@@ -100,6 +100,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
     this->needsNewGenID();
     fIsImmutable = false;
     fPreLocked = false;
+    fAddedToCache.store(false);
 }
 
 
@@ -115,6 +116,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
     this->needsNewGenID();
     fIsImmutable = false;
     fPreLocked = false;
+    fAddedToCache.store(false);
 }
 
 SkPixelRef::~SkPixelRef() {
@@ -225,10 +227,11 @@ void SkPixelRef::callGenIDChangeListeners() {
             fGenIDChangeListeners[i]->onChange();
         }
 
-        // If we can flag the pixelref somehow whenever it was actually added to the cache,
-        // perhaps it would be nice to only call this notifier in that case. For now we always
-        // call it, since we don't know if it was cached or not.
-        SkNotifyBitmapGenIDIsStale(this->getGenerationID());
+        // TODO: SkAtomic could add "old_value = atomic.xchg(new_value)" to make this clearer.
+        if (fAddedToCache.load()) {
+            SkNotifyBitmapGenIDIsStale(this->getGenerationID());
+            fAddedToCache.store(false);
+        }
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
     fGenIDChangeListeners.deleteAll();
