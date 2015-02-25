@@ -248,7 +248,7 @@ public:
     // Call when this pixelref is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this pixelref is changed or deleted.
     void notifyAddedToCache() {
-        fAddedToCache = true;
+        fAddedToCache.store(true);
     }
 
 protected:
@@ -321,7 +321,7 @@ private:
 
     mutable SkAtomic<uint32_t> fGenerationID;
     mutable SkAtomic<bool>     fUniqueGenerationID;
-    bool fAddedToCache;
+    SkAtomic<bool>             fAddedToCache;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     const uint32_t fStableID;
 #endif

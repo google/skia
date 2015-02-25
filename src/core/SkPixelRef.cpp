@@ -100,7 +100,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
     this->needsNewGenID();
     fIsImmutable = false;
     fPreLocked = false;
-    fAddedToCache = false;
+    fAddedToCache.store(false);
 }
 
 
@@ -116,7 +116,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
     this->needsNewGenID();
     fIsImmutable = false;
     fPreLocked = false;
-    fAddedToCache = false;
+    fAddedToCache.store(false);
 }
 
 SkPixelRef::~SkPixelRef() {
@@ -227,9 +227,10 @@ void SkPixelRef::callGenIDChangeListeners() {
             fGenIDChangeListeners[i]->onChange();
         }
 
-        if (fAddedToCache) {
+        // TODO: SkAtomic could add "old_value = atomic.xchg(new_value)" to make this clearer.
+        if (fAddedToCache.load()) {
             SkNotifyBitmapGenIDIsStale(this->getGenerationID());
-            fAddedToCache = false;
+            fAddedToCache.store(false);
         }
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
