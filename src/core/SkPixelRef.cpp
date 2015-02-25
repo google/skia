@@ -207,9 +207,14 @@ bool SkPixelRef::onLockPixelsAreWritable() const {
 uint32_t SkPixelRef::getGenerationID() const {
     uint32_t id = fTaggedGenID.load();
     if (0 == id) {
-        id = next_gen_id();
-        fTaggedGenID.store(id | 1u);  // TODO(mtklein): should become a compare-and-swap
-        SkASSERT(this->genIDIsUnique());
+        uint32_t next = next_gen_id() | 1u;
+        if (fTaggedGenID.compare_exchange(&id, next)) {
+            id = next;  // There was no race or we won the race.  fTaggedGenID is next now.
+        } else {
+            // We lost a race to set fTaggedGenID. compare_exchange() filled id with the winner.
+        }
+        // We can't quite SkASSERT(this->genIDIsUnique()). It could be non-unique
+        // if we got here via the else path (pretty unlikely, but possible).
     }
     return id & ~1u;  // Mask off bottom unique bit.
 }

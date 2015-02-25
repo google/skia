@@ -42,6 +42,12 @@ public:
     void store(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
         sk_atomic_store(&fVal, val, mo);
     }
+
+    bool compare_exchange(T* expected, const T& desired,
+                          sk_memory_order success = sk_memory_order_seq_cst,
+                          sk_memory_order failure = sk_memory_order_seq_cst) {
+        return sk_atomic_compare_exchange(&fVal, expected, desired, success, failure);
+    }
 private:
     T fVal;
 };
