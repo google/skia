@@ -29,8 +29,8 @@ template <typename T> class SkTSet;
 */
 class SkPDFDocument {
 public:
-    SK_API SkPDFDocument();
-    SK_API ~SkPDFDocument();
+    SkPDFDocument();
+    ~SkPDFDocument();
 
     /** Output the PDF to the passed stream.  It is an error to call this (it
      *  will return false and not modify stream) if no pages have been added
@@ -39,7 +39,7 @@ public:
      *
      *  @param stream    The writable output stream to send the PDF to.
      */
-    SK_API bool emitPDF(SkWStream* stream);
+    bool emitPDF(SkWStream* stream);
 
     /** Sets the specific page to the passed PDF device. If the specified
      *  page is already set, this overrides it. Returns true if successful.
@@ -48,24 +48,24 @@ public:
      *  @param pageNumber The position to add the passed device (1 based).
      *  @param pdfDevice  The page to add to this document.
      */
-    SK_API bool setPage(int pageNumber, SkPDFDevice* pdfDevice);
+    bool setPage(int pageNumber, SkPDFDevice* pdfDevice);
 
     /** Append the passed pdf device to the document as a new page.  Returns
      *  true if successful.  Will fail if the document has already been emitted.
      *
      *  @param pdfDevice The page to add to this document.
      */
-    SK_API bool appendPage(SkPDFDevice* pdfDevice);
+    bool appendPage(SkPDFDevice* pdfDevice);
 
     /** Get the count of unique font types used in the document.
      * DEPRECATED.
      */
-    SK_API void getCountOfFontTypes(
+    void getCountOfFontTypes(
         int counts[SkAdvancedTypefaceMetrics::kOther_Font + 2]) const;
 
     /** Get the count of unique font types used in the document.
      */
-    SK_API void getCountOfFontTypes(
+    void getCountOfFontTypes(
         int counts[SkAdvancedTypefaceMetrics::kOther_Font + 1],
         int* notSubsettableCount,
         int* notEmbedddableCount) const;

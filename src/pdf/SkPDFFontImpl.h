@@ -16,7 +16,7 @@ class SkPDFType0Font : public SkPDFFont {
 public:
     virtual ~SkPDFType0Font();
     virtual bool multiByteGlyphs() const { return true; }
-    SK_API virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
+    virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
 #ifdef SK_DEBUG
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog);
 #endif

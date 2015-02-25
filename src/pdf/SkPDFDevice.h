@@ -134,17 +134,17 @@ public:
      *  clipped. A simple way to avoid the bug is to always draw the margin
      *  content last.
      */
-    SK_API void setDrawingArea(DrawingArea drawingArea);
+    void setDrawingArea(DrawingArea drawingArea);
 
     // PDF specific methods.
 
     /** Returns the resource dictionary for this device.
      */
-    SK_API SkPDFResourceDict* getResourceDict();
+    SkPDFResourceDict* getResourceDict();
 
     /** Get the fonts used on this device.
      */
-    SK_API const SkTDArray<SkPDFFont*>& getFontResources() const;
+    const SkTDArray<SkPDFFont*>& getFontResources() const;
 
     /** Add our named destinations to the supplied dictionary.
      *  @param dict  Dictionary to add destinations to.
@@ -155,21 +155,21 @@ public:
     /** Returns a copy of the media box for this device. The caller is required
      *  to unref() this when it is finished.
      */
-    SK_API SkPDFArray* copyMediaBox() const;
+    SkPDFArray* copyMediaBox() const;
 
     /** Get the annotations from this page, or NULL if there are none.
      */
-    SK_API SkPDFArray* getAnnotations() const { return fAnnotations; }
+    SkPDFArray* getAnnotations() const { return fAnnotations; }
 
     /** Returns a SkStream with the page contents.  The caller is responsible
-        for a deleting the returned value.
+     *  for a deleting the returned value.
      */
-    SK_API SkStreamAsset* content() const;
+    SkStreamAsset* content() const;
 
     /** Writes the page contents to the stream. */
-    SK_API void writeContent(SkWStream*) const;
+    void writeContent(SkWStream*) const;
 
-    SK_API const SkMatrix& initialTransform() const {
+    const SkMatrix& initialTransform() const {
         return fInitialTransform;
     }
 
