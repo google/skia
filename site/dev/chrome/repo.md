@@ -1,5 +1,5 @@
-How to manage a Skia repo inside a Chromium repo
-================================================
+Working in a Chromium repo
+==========================
 
 To work on Skia inside a Chromium checkout, run the following:
 
