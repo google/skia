@@ -83,10 +83,8 @@
         }],
         [ 'skia_os == "win"', {
           'os_posix%': 0,
-          'skia_angle%': 1,
         }, {
           'os_posix%': 1,
-          'skia_angle%': 0,
         }],
         [ 'skia_os in ["linux"]', {
           'skia_poppler_enabled%': 1,
@@ -149,6 +147,7 @@
       'skia_android_path_rendering%': 0,
       'skia_resource_cache_mb_limit%': 0,
       'skia_resource_cache_count_limit%': 0,
+      'skia_angle%': 0,
       'skia_gdi%': 0,
       'skia_gpu%': 1,
       'skia_osx_deployment_target%': '',
