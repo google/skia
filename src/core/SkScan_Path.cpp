@@ -17,10 +17,6 @@
 #include "SkTemplates.h"
 #include "SkTSort.h"
 
-#ifdef SK_USE_LEGACY_AA_COVERAGE
-    #define SK_USE_STD_SORT_FOR_EDGES
-#endif
-
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
 
@@ -368,27 +364,6 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 #pragma warning ( pop )
 #endif
 
-#ifdef SK_USE_STD_SORT_FOR_EDGES
-extern "C" {
-    static int edge_compare(const void* a, const void* b) {
-        const SkEdge* edgea = *(const SkEdge**)a;
-        const SkEdge* edgeb = *(const SkEdge**)b;
-
-        int valuea = edgea->fFirstY;
-        int valueb = edgeb->fFirstY;
-
-        if (valuea == valueb) {
-            valuea = edgea->fX;
-            valueb = edgeb->fX;
-        }
-
-        // this overflows if valuea >>> valueb or vice-versa
-        //     return valuea - valueb;
-        // do perform the slower but safe compares
-        return (valuea < valueb) ? -1 : (valuea > valueb);
-    }
-}
-#else
 static bool operator<(const SkEdge& a, const SkEdge& b) {
     int valuea = a.fFirstY;
     int valueb = b.fFirstY;
@@ -400,14 +375,9 @@ static bool operator<(const SkEdge& a, const SkEdge& b) {
 
     return valuea < valueb;
 }
-#endif
 
 static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
-#ifdef SK_USE_STD_SORT_FOR_EDGES
-    qsort(list, count, sizeof(SkEdge*), edge_compare);
-#else
     SkTQSort(list, list + count - 1);
-#endif
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; i++) {

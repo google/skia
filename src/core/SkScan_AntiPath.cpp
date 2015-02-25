@@ -29,15 +29,10 @@
     - destination coordinates, scale equal to the output - often
         abbreviated with 'i' or 'I' in variable names
     - supersampled coordinates, scale equal to the output * SCALE
-
-    Enabling SK_USE_LEGACY_AA_COVERAGE keeps the aa coverage calculations as
-    they were before the fix that unified the output of the RLE and MASK
-    supersamplers.
  */
 
 //#define FORCE_SUPERMASK
 //#define FORCE_RLE
-//#define SK_USE_LEGACY_AA_COVERAGE
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -190,9 +185,6 @@ void SuperBlitter::flush() {
 */
 static inline int coverage_to_partial_alpha(int aa) {
     aa <<= 8 - 2*SHIFT;
-#ifdef SK_USE_LEGACY_AA_COVERAGE
-    aa -= aa >> (8 - SHIFT - 1);
-#endif
     return aa;
 }
 
