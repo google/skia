@@ -3,10 +3,20 @@
 
 #include "SkTypes.h"
 #include "SkColor.h"
+#include "Sk4x.h"
 
 // A pre-multiplied color in the same order as SkPMColor storing each component as a float.
 struct SK_STRUCT_ALIGN(16) SkPMFloat {
     float fColor[4];
+
+    // Normal POD copies and do-nothing initialization.
+    SkPMFloat()                            = default;
+    SkPMFloat(const SkPMFloat&)            = default;
+    SkPMFloat& operator=(const SkPMFloat&) = default;
+
+    // Freely autoconvert between SkPMFloat and Sk4f.
+    /*implicit*/ SkPMFloat(const Sk4f& fs) { fs.storeAligned(fColor); }
+    /*implicit*/ operator Sk4f() const { return Sk4f::LoadAligned(fColor); }
 
     float a() const { return fColor[SK_A32_SHIFT / 8]; }
     float r() const { return fColor[SK_R32_SHIFT / 8]; }
