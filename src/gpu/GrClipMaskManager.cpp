@@ -218,10 +218,10 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
     }
 
     GrReducedClip::ElementList elements(16);
-    int32_t genID;
-    GrReducedClip::InitialState initialState;
+    int32_t genID = 0;
+    GrReducedClip::InitialState initialState = GrReducedClip::kAllIn_InitialState;
     SkIRect clipSpaceIBounds;
-    bool requiresAA;
+    bool requiresAA = false;
     GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
 
     // GrDrawTarget should have filtered this for us
@@ -239,7 +239,6 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
                 // we should have handled this case above
                 SkASSERT(false);
             case GrClip::kIRect_ClipType: {
-                initialState = GrReducedClip::kAllIn_InitialState;
                 clipSpaceIBounds = clip.irect();
                 SkNEW_INSERT_AT_LLIST_HEAD(&elements,
                                            Element,
@@ -247,7 +246,6 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
                                             SkRegion::kIntersect_Op, false));
             } break;
             case GrClip::kRect_ClipType: {
-                initialState = GrReducedClip::kAllIn_InitialState;
                 clipSpaceIBounds.setLTRB(SkScalarCeilToInt(clip.rect().fLeft),
                                          SkScalarCeilToInt(clip.rect().fTop),
                                          SkScalarCeilToInt(clip.rect().fRight),
