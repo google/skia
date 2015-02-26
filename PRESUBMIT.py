@@ -248,6 +248,10 @@ def PostUploadHook(cl, change, output_api):
   This hook does the following:
   * Adds a link to preview docs changes if there are any docs changes in the CL.
   * Adds 'NOTRY=true' if the CL contains only docs changes.
+  * Adds 'NOTREECHECKS=true' for non master branch changes since they do not
+    need to be gated on the master branch's tree.
+  * Adds 'NOTRY=true' for non master branch changes since trybots do not yet
+    work on them.
   """
 
   results = []
@@ -272,7 +276,7 @@ def PostUploadHook(cl, change, output_api):
     # If the change includes only doc changes then add NOTRY=true in the
     # CL's description if it does not exist yet.
     if all_docs_changes and not re.search(
-        r'^NOTRY=true$', original_description, re.M | re.I):
+        r'^NOTRY=true$', new_description, re.M | re.I):
       new_description += '\nNOTRY=true'
       results.append(
           output_api.PresubmitNotifyResult(
@@ -282,13 +286,35 @@ def PostUploadHook(cl, change, output_api):
     # If there is atleast one docs change then add preview link in the CL's
     # description if it does not already exist there.
     if atleast_one_docs_change and not re.search(
-        r'^DOCS_PREVIEW=.*', original_description, re.M | re.I):
+        r'^DOCS_PREVIEW=.*', new_description, re.M | re.I):
       # Automatically add a link to where the docs can be previewed.
       new_description += '\nDOCS_PREVIEW= %s%s' % (DOCS_PREVIEW_URL, issue)
       results.append(
           output_api.PresubmitNotifyResult(
               'Automatically added a link to preview the docs changes to the '
               'CL\'s description'))
+
+    # If the target ref is not master then add NOTREECHECKS=true and NOTRY=true
+    # to the CL's description if it does not already exist there.
+    target_ref = rietveld_obj.get_issue_properties(issue, False).get(
+        'target_ref', '')
+    if target_ref != 'refs/heads/master':
+      if not re.search(
+          r'^NOTREECHECKS=true$', new_description, re.M | re.I):
+        new_description += "\nNOTREECHECKS=true"
+        results.append(
+            output_api.PresubmitNotifyResult(
+                'Branch changes do not need to rely on the master branch\'s '
+                'tree status. Automatically added \'NOTREECHECKS=true\' to the '
+                'CL\'s description'))
+      if not re.search(
+          r'^NOTRY=true$', new_description, re.M | re.I):
+        new_description += "\nNOTRY=true"
+        results.append(
+            output_api.PresubmitNotifyResult(
+                'Trybots do not yet work for non-master branches. '
+                'Automatically added \'NOTRY=true\' to the CL\'s description'))
+
 
     # If the description has changed update it.
     if new_description != original_description:
