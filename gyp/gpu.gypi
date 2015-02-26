@@ -167,6 +167,8 @@
       '<(skia_src_path)/gpu/GrTraceMarker.cpp',
       '<(skia_src_path)/gpu/GrTraceMarker.h',
       '<(skia_src_path)/gpu/GrTracing.h',
+      '<(skia_src_path)/gpu/GrTessellatingPathRenderer.cpp',
+      '<(skia_src_path)/gpu/GrTessellatingPathRenderer.h',
       '<(skia_src_path)/gpu/GrSWMaskHelper.cpp',
       '<(skia_src_path)/gpu/GrSWMaskHelper.h',
       '<(skia_src_path)/gpu/GrSoftwarePathRenderer.cpp',
