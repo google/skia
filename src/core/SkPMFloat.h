@@ -4,15 +4,8 @@
 #include "SkTypes.h"
 #include "SkColor.h"
 
-// As usual, there are two ways to increase alignment... the MSVC way and the everyone-else way.
-#ifdef _MSC_VER
-    #define ALIGN(N) __declspec(align(N))
-#else
-    #define ALIGN(N) __attribute__((aligned(N)))
-#endif
-
 // A pre-multiplied color in the same order as SkPMColor storing each component as a float.
-struct ALIGN(16) SkPMFloat {
+struct SK_STRUCT_ALIGN(16) SkPMFloat {
     float fColor[4];
 
     float a() const { return fColor[SK_A32_SHIFT / 8]; }
@@ -37,7 +30,6 @@ struct ALIGN(16) SkPMFloat {
             && this->b() >= 0 && this->b() <= this->a();
     }
 };
-#undef ALIGN
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include "../opts/SkPMFloat_SSE2.h"

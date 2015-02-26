@@ -1,5 +1,4 @@
 #include "SkColorPriv.h"
-#include "SkPMFloat.h"
 
 inline void SkPMFloat::set(SkPMColor c) {
     float scale = 1.0f / 255.0f;

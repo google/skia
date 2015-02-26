@@ -21,10 +21,10 @@
 
     // These are all free, zero instructions.
     // MSVC insists we use _mm_castA_B(a) instead of (B)a.
-    static __m128  as_4f(__m128i v) { return _mm_castsi128_ps(v); }
-    static __m128  as_4f(__m128  v) { return                  v ; }
-    static __m128i as_4i(__m128i v) { return                  v ; }
-    static __m128i as_4i(__m128  v) { return _mm_castps_si128(v); }
+    static inline __m128  as_4f(__m128i v) { return _mm_castsi128_ps(v); }
+    static inline __m128  as_4f(__m128  v) { return                  v ; }
+    static inline __m128i as_4i(__m128i v) { return                  v ; }
+    static inline __m128i as_4i(__m128  v) { return _mm_castps_si128(v); }
 
 #elif defined(SK4X_PRIVATE)
     // It'd be slightly faster to call _mm_cmpeq_epi32() on an unintialized register and itself,
@@ -83,11 +83,11 @@ M(Sk4f) LoadAligned(const float fs[4]) { return _mm_load_ps (fs); }
 M(void) store       (float fs[4]) const { _mm_storeu_ps(fs, fVec); }
 M(void) storeAligned(float fs[4]) const { _mm_store_ps (fs, fVec); }
 
-template <> template <>
-Sk4i Sk4f::reinterpret<Sk4i>() const { return as_4i(fVec); }
+template <>
+M(Sk4i) reinterpret<Sk4i>() const { return as_4i(fVec); }
 
-template <> template <>
-Sk4i Sk4f::cast<Sk4i>() const { return _mm_cvtps_epi32(fVec); }
+template <>
+M(Sk4i) cast<Sk4i>() const { return _mm_cvtps_epi32(fVec); }
 
 // We're going to try a little experiment here and skip allTrue(), anyTrue(), and bit-manipulators
 // for Sk4f.  Code that calls them probably does so accidentally.
@@ -120,11 +120,11 @@ M(Sk4i) LoadAligned(const int32_t is[4]) { return _mm_load_si128 ((const __m128i
 M(void) store       (int32_t is[4]) const { _mm_storeu_si128((__m128i*)is, fVec); }
 M(void) storeAligned(int32_t is[4]) const { _mm_store_si128 ((__m128i*)is, fVec); }
 
-template <> template <>
-Sk4f Sk4i::reinterpret<Sk4f>() const { return as_4f(fVec); }
+template <>
+M(Sk4f) reinterpret<Sk4f>() const { return as_4f(fVec); }
 
-template <> template <>
-Sk4f Sk4i::cast<Sk4f>() const { return _mm_cvtepi32_ps(fVec); }
+template <>
+M(Sk4f) cast<Sk4f>() const { return _mm_cvtepi32_ps(fVec); }
 
 M(bool) allTrue() const { return 0xf == _mm_movemask_ps(as_4f(fVec)); }
 M(bool) anyTrue() const { return 0x0 != _mm_movemask_ps(as_4f(fVec)); }

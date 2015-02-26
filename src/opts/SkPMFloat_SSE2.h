@@ -1,5 +1,4 @@
 #include "SkColorPriv.h"
-#include "SkPMFloat.h"
 #include <emmintrin.h>
 
 // For set(), we widen our 8 bit components (fix8) to 8-bit components in 16 bits (fix8_16),
