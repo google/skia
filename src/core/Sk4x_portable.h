@@ -19,6 +19,7 @@
 #define M(...) template <typename T> __VA_ARGS__ Sk4x<T>::
 
 M() Sk4x() {}
+M() Sk4x(T v) { fVec[0] = fVec[1] = fVec[2] = fVec[3] = v; }
 M() Sk4x(T a, T b, T c, T d) { fVec[0] = a; fVec[1] = b; fVec[2] = c; fVec[3] = d; }
 
 M()              Sk4x(const Sk4x<T>& other) { this->set(other.fVec);               }

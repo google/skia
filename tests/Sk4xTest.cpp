@@ -83,6 +83,10 @@ DEF_TEST(Sk4x_Arith, r) {
     ASSERT_EQ(Sk4i(3,8,15,24),   Sk4i(1,2,3,4).multiply(Sk4i(3,4,5,6)));
 }
 
+DEF_TEST(Sk4x_ImplicitPromotion, r) {
+    ASSERT_EQ(Sk4f(2,4,6,8), Sk4f(1,2,3,4).multiply(2.0f));
+}
+
 DEF_TEST(Sk4x_Comparison, r) {
     ASSERT_EQ(Sk4f(1,2,3,4), Sk4f(1,2,3,4));
     ASSERT_NE(Sk4f(4,3,2,1), Sk4f(1,2,3,4));

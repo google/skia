@@ -75,6 +75,7 @@ Sk4x<T> Sk4x<T>::ZWCD(const Sk4x<T>& a, const Sk4x<T>& b) {
 // Now we'll write all Sk4f specific methods.  This M() macro will remove some noise.
 #define M(...) template <> inline __VA_ARGS__ Sk4f::
 
+M() Sk4x(float v) : fVec(_mm_set1_ps(v)) {}
 M() Sk4x(float a, float b, float c, float d) : fVec(_mm_set_ps(d,c,b,a)) {}
 
 M(Sk4f) Load       (const float fs[4]) { return _mm_loadu_ps(fs); }
@@ -112,6 +113,7 @@ M(Sk4f) Max(const Sk4f& a, const Sk4f& b) { return _mm_max_ps(a.fVec, b.fVec); }
 #undef M
 #define M(...) template <> inline __VA_ARGS__ Sk4i::
 
+M() Sk4x(int32_t v) : fVec(_mm_set1_epi32(v)) {}
 M() Sk4x(int32_t a, int32_t b, int32_t c, int32_t d) : fVec(_mm_set_epi32(d,c,b,a)) {}
 
 M(Sk4i) Load       (const int32_t is[4]) { return _mm_loadu_si128((const __m128i*)is); }
