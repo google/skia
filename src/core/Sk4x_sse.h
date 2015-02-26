@@ -99,6 +99,9 @@ M(Sk4f) subtract(const Sk4f& o) const { return _mm_sub_ps(fVec, o.fVec); }
 M(Sk4f) multiply(const Sk4f& o) const { return _mm_mul_ps(fVec, o.fVec); }
 M(Sk4f) divide  (const Sk4f& o) const { return _mm_div_ps(fVec, o.fVec); }
 
+M(Sk4f) rsqrt() const { return _mm_rsqrt_ps(fVec); }
+M(Sk4f)  sqrt() const { return _mm_sqrt_ps( fVec); }
+
 M(Sk4i) equal           (const Sk4f& o) const { return _mm_cmpeq_ps (fVec, o.fVec); }
 M(Sk4i) notEqual        (const Sk4f& o) const { return _mm_cmpneq_ps(fVec, o.fVec); }
 M(Sk4i) lessThan        (const Sk4f& o) const { return _mm_cmplt_ps (fVec, o.fVec); }

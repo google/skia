@@ -87,6 +87,18 @@ DEF_TEST(Sk4x_ImplicitPromotion, r) {
     ASSERT_EQ(Sk4f(2,4,6,8), Sk4f(1,2,3,4).multiply(2.0f));
 }
 
+DEF_TEST(Sk4x_Sqrt, r) {
+    Sk4f squares(4, 16, 25, 121),
+           roots(2,  4,  5,  11);
+    // .sqrt() should be pretty precise.
+    ASSERT_EQ(roots, squares.sqrt());
+
+    // .rsqrt() isn't so precise, but should be pretty close.
+    Sk4f error = roots.subtract(squares.multiply(squares.rsqrt()));
+    REPORTER_ASSERT(r, error.greaterThan(0.0f).allTrue());
+    REPORTER_ASSERT(r, error.lessThan(0.01f).allTrue());
+}
+
 DEF_TEST(Sk4x_Comparison, r) {
     ASSERT_EQ(Sk4f(1,2,3,4), Sk4f(1,2,3,4));
     ASSERT_NE(Sk4f(4,3,2,1), Sk4f(1,2,3,4));

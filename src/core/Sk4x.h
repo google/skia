@@ -50,6 +50,9 @@ public:
     Sk4x multiply(const Sk4x&) const;
     Sk4x   divide(const Sk4x&) const;
 
+    Sk4x rsqrt() const;   // Approximate reciprocal sqrt().
+    Sk4x  sqrt() const;   // this->multiply(this->rsqrt()) may be faster, but less precise.
+
     Sk4i            equal(const Sk4x&) const;
     Sk4i         notEqual(const Sk4x&) const;
     Sk4i         lessThan(const Sk4x&) const;
