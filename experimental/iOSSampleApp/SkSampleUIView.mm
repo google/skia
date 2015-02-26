@@ -53,7 +53,6 @@ public:
                 break;
             // these guys use the native backend
             case SampleWindow::kGPU_DeviceType:
-            case SampleWindow::kNullGPU_DeviceType:
                 fBackend = SkOSWindow::kNativeGL_BackEndType;
                 break;
             default:
@@ -77,9 +76,6 @@ public:
                 break;
             case SampleWindow::kGPU_DeviceType:
                 fCurIntf = GrGLCreateNativeInterface();
-                break;
-            case SampleWindow::kNullGPU_DeviceType:
-                fCurIntf = GrGLCreateNullInterface();
                 break;
             default:
                 SkASSERT(false);
