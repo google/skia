@@ -47,69 +47,23 @@ public:
      */
     void setFromPaint(const GrPaint&, GrRenderTarget*, const GrClip&);
 
-    /// @}
-
-    /**
-     * This function returns true if the render target destination pixel values will be read for
-     * blending during draw.
-     */
-    bool willBlendWithDst(const GrPrimitiveProcessor*) const;
-
     ///////////////////////////////////////////////////////////////////////////
-    /// @name Effect Stages
-    /// Each stage hosts a GrProcessor. The effect produces an output color or coverage in the
-    /// fragment shader. Its inputs are the output from the previous stage as well as some variables
-    /// available to it in the fragment and vertex shader (e.g. the vertex position, the dst color,
-    /// the fragment position, local coordinates).
+    /// @name Fragment Processors
     ///
-    /// The stages are divided into two sets, color-computing and coverage-computing. The final
-    /// color stage produces the final pixel color. The coverage-computing stages function exactly
-    /// as the color-computing but the output of the final coverage stage is treated as a fractional
-    /// pixel coverage rather than as input to the src/dst color blend step.
-    ///
-    /// The input color to the first color-stage is either the constant color or interpolated
-    /// per-vertex colors. The input to the first coverage stage is either a constant coverage
-    /// (usually full-coverage) or interpolated per-vertex coverage.
-    ///
-    /// See the documentation of kCoverageDrawing_StateBit for information about disabling the
-    /// the color / coverage distinction.
+    /// GrFragmentProcessors are used to compute per-pixel color and per-pixel fractional coverage.
+    /// There are two chains of FPs, one for color and one for coverage. The first FP in each
+    /// chain gets the initial color/coverage from the GrPrimitiveProcessor. It computes an output
+    /// color/coverage which is fed to the next FP in the chain. The last color and coverage FPs
+    /// feed their output to the GrXferProcessor which controls blending.
     ////
 
-    int numColorStages() const { return fColorStages.count(); }
-    int numCoverageStages() const { return fCoverageStages.count(); }
-    int numFragmentStages() const { return this->numColorStages() + this->numCoverageStages(); }
+    int numColorFragmentStages() const { return fColorStages.count(); }
+    int numCoverageFragmentStages() const { return fCoverageStages.count(); }
+    int numFragmentStages() const { return this->numColorFragmentStages() +
+                                               this->numCoverageFragmentStages(); }
 
-    const GrXPFactory* getXPFactory() const {
-        if (!fXPFactory) {
-            fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
-        }
-        return fXPFactory.get();
-    }
-
-    const GrFragmentStage& getColorStage(int idx) const { return fColorStages[idx]; }
-    const GrFragmentStage& getCoverageStage(int idx) const { return fCoverageStages[idx]; }
-
-    /**
-     * Checks whether the xp will need a copy of the destination to correctly blend.
-     */
-    bool willXPNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
-                           const GrProcOptInfo& coveragePOI) const;
-
-    /**
-     * The xfer processor factory.
-     */
-    const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory.reset(SkRef(xpFactory));
-        return xpFactory;
-    }
-
-    void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false) {
-        fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
-    }
-
-    void setDisableColorXPFactory() {
-        fXPFactory.reset(GrDisableColorXPFactory::Create());
-    }
+    const GrFragmentStage& getColorFragmentStage(int idx) const { return fColorStages[idx]; }
+    const GrFragmentStage& getCoverageFragmentStage(int idx) const { return fCoverageStages[idx]; }
 
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
@@ -149,29 +103,24 @@ public:
     }
 
     /**
-     * When this object is destroyed it will remove any color/coverage effects from the pipeline
-     * builder that were added after its constructor.
-     *
-     * This class has strange behavior around geometry processor. If there is a GP on the
-     * GrPipelineBuilder it will assert that the GP is not modified until after the destructor of
-     * the ARE. If the GrPipelineBuilder has a NULL GP when the ARE is constructed then it will reset
-     * it to null in the destructor.
+     * When this object is destroyed it will remove any color/coverage FPs from the pipeline builder
+     * that were added after its constructor.
      */
-    class AutoRestoreEffects : public ::SkNoncopyable {
+    class AutoRestoreFragmentProcessors : public ::SkNoncopyable {
     public:
-        AutoRestoreEffects() 
+        AutoRestoreFragmentProcessors() 
             : fPipelineBuilder(NULL)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {}
 
-        AutoRestoreEffects(GrPipelineBuilder* ds)
+        AutoRestoreFragmentProcessors(GrPipelineBuilder* ds)
             : fPipelineBuilder(NULL)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0) {
             this->set(ds);
         }
 
-        ~AutoRestoreEffects() { this->set(NULL); }
+        ~AutoRestoreFragmentProcessors() { this->set(NULL); }
 
         void set(GrPipelineBuilder* ds);
 
@@ -181,36 +130,6 @@ public:
         GrPipelineBuilder*    fPipelineBuilder;
         int             fColorEffectCnt;
         int             fCoverageEffectCnt;
-    };
-
-    /**
-     * AutoRestoreStencil
-     *
-     * This simple struct saves and restores the stencil settings
-     */
-    class AutoRestoreStencil : public ::SkNoncopyable {
-    public:
-        AutoRestoreStencil() : fPipelineBuilder(NULL) {}
-
-        AutoRestoreStencil(GrPipelineBuilder* ds) : fPipelineBuilder(NULL) { this->set(ds); }
-
-        ~AutoRestoreStencil() { this->set(NULL); }
-
-        void set(GrPipelineBuilder* ds) {
-            if (fPipelineBuilder) {
-                fPipelineBuilder->setStencil(fStencilSettings);
-            }
-            fPipelineBuilder = ds;
-            if (ds) {
-                fStencilSettings = ds->getStencil();
-            }
-        }
-
-        bool isSet() const { return SkToBool(fPipelineBuilder); }
-
-    private:
-        GrPipelineBuilder*  fPipelineBuilder;
-        GrStencilSettings   fStencilSettings;
     };
 
     /// @}
@@ -226,10 +145,52 @@ public:
      */
     bool canTweakAlphaForCoverage() const;
 
+    /**
+     * This function returns true if the render target destination pixel values will be read for
+     * blending during draw.
+     */
+    bool willBlendWithDst(const GrPrimitiveProcessor*) const;
+
+    /**
+     * Installs a GrXPFactory. This object controls how src color, fractional pixel coverage,
+     * and the dst color are blended.
+     */
+    const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
+        fXPFactory.reset(SkRef(xpFactory));
+        return xpFactory;
+    }
+
+    /**
+     * Sets a GrXPFactory that will ignore src color and perform a set operation between the draws
+     * output coverage and the destination. This is useful to render coverage masks as CSG.
+     */
+    void setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage = false) {
+        fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
+    }
+
+    /**
+     * Sets a GrXPFactory that disables color writes to the destination. This is useful when
+     * rendering to the stencil buffer.
+     */
+    void setDisableColorXPFactory() {
+        fXPFactory.reset(GrDisableColorXPFactory::Create());
+    }
+
+    const GrXPFactory* getXPFactory() const {
+        if (!fXPFactory) {
+            fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
+        }
+        return fXPFactory.get();
+    }
+
+    /**
+     * Checks whether the xp will need a copy of the destination to correctly blend.
+     */
+    bool willXPNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
+                           const GrProcOptInfo& coveragePOI) const;
+
     /// @}
 
-
-    /// @}
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Render Target
@@ -272,6 +233,37 @@ public:
     void disableStencil() { fStencilSettings.setDisabled(); }
 
     GrStencilSettings* stencil() { return &fStencilSettings; }
+
+    /**
+     * AutoRestoreStencil
+     *
+     * This simple struct saves and restores the stencil settings
+     */
+    class AutoRestoreStencil : public ::SkNoncopyable {
+    public:
+        AutoRestoreStencil() : fPipelineBuilder(NULL) {}
+
+        AutoRestoreStencil(GrPipelineBuilder* ds) : fPipelineBuilder(NULL) { this->set(ds); }
+
+        ~AutoRestoreStencil() { this->set(NULL); }
+
+        void set(GrPipelineBuilder* ds) {
+            if (fPipelineBuilder) {
+                fPipelineBuilder->setStencil(fStencilSettings);
+            }
+            fPipelineBuilder = ds;
+            if (ds) {
+                fStencilSettings = ds->getStencil();
+            }
+        }
+
+        bool isSet() const { return SkToBool(fPipelineBuilder); }
+
+    private:
+        GrPipelineBuilder*  fPipelineBuilder;
+        GrStencilSettings   fStencilSettings;
+    };
+
 
     /// @}
 
@@ -363,7 +355,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    GrPipelineBuilder& operator= (const GrPipelineBuilder& that);
+    GrPipelineBuilder& operator=(const GrPipelineBuilder& that);
 
     // TODO delete when we have Batch
     const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
@@ -413,13 +405,13 @@ private:
 
     /**
      * If fColorProcInfoValid is false, function calculates the invariant output for the color
-     * stages and results are stored in fColorProcInfo.
+     * processors and results are stored in fColorProcInfo.
      */
     void calcColorInvariantOutput(GrColor) const;
 
     /**
      * If fCoverageProcInfoValid is false, function calculates the invariant output for the coverage
-     * stages and results are stored in fCoverageProcInfo.
+     * processors and results are stored in fCoverageProcInfo.
      */
     void calcCoverageInvariantOutput(GrColor) const;
 

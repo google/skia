@@ -37,42 +37,28 @@ public:
                const GrDeviceCoordTexture* dstCopy);
 
     /*
-     * Returns true if it is possible to combine the two GrPipelines and it will update 'this'
-     * to subsume 'that''s draw.
+     * Returns true if these pipelines are equivalent.
      */
     bool isEqual(const GrPipeline& that) const;
 
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name Effect Stages
-    /// Each stage hosts a GrProcessor. The effect produces an output color or coverage in the
-    /// fragment shader. Its inputs are the output from the previous stage as well as some variables
-    /// available to it in the fragment and vertex shader (e.g. the vertex position, the dst color,
-    /// the fragment position, local coordinates).
-    ///
-    /// The stages are divided into two sets, color-computing and coverage-computing. The final
-    /// color stage produces the final pixel color. The coverage-computing stages function exactly
-    /// as the color-computing but the output of the final coverage stage is treated as a fractional
-    /// pixel coverage rather than as input to the src/dst color blend step.
-    ///
-    /// The input color to the first color-stage is either the constant color or interpolated
-    /// per-vertex colors. The input to the first coverage stage is either a constant coverage
-    /// (usually full-coverage) or interpolated per-vertex coverage.
-    ////
+    /// @name GrFragmentProcessors
 
-    int numColorStages() const { return fNumColorStages; }
-    int numCoverageStages() const { return fFragmentStages.count() - fNumColorStages; }
+
+    int numColorFragmentStages() const { return fNumColorStages; }
+    int numCoverageFragmentStages() const { return fFragmentStages.count() - fNumColorStages; }
     int numFragmentStages() const { return fFragmentStages.count(); }
 
     const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
 
     const GrPendingFragmentStage& getColorStage(int idx) const {
-        SkASSERT(idx < this->numColorStages());
+        SkASSERT(idx < this->numColorFragmentStages());
         return fFragmentStages[idx];
     }
     const GrPendingFragmentStage& getCoverageStage(int idx) const {
-        SkASSERT(idx < this->numCoverageStages());
+        SkASSERT(idx < this->numCoverageFragmentStages());
         return fFragmentStages[fNumColorStages + idx];
     }
     const GrPendingFragmentStage& getFragmentStage(int idx) const {
@@ -81,10 +67,6 @@ public:
 
     /// @}
 
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Render Target
-    ////
-
     /**
      * Retrieves the currently set render-target.
      *
@@ -92,33 +74,14 @@ public:
      */
     GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
 
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Stencil
-    ////
-
     const GrStencilSettings& getStencil() const { return fStencilSettings; }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name ScissorState
-    ////
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Boolean Queries
-    ////
-
     bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
+    // Skip any draws that refer to this pipeline (they should be a no-op).
     bool mustSkip() const { return NULL == this->getRenderTarget(); }
-
-    /// @}
 
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,
@@ -127,7 +90,6 @@ public:
      */
     GrPipelineBuilder::DrawFace getDrawFace() const { return fDrawFace; }
 
-    /// @}
 
     ///////////////////////////////////////////////////////////////////////////
 

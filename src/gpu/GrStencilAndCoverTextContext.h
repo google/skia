@@ -51,21 +51,21 @@ private:
         kMaxPerformance_RenderMode,
     };
 
-    GrPipelineBuilder                     fPipelineBuilder;
-    GrPipelineBuilder::AutoRestoreEffects fStateRestore;
-    SkScalar                        fTextRatio;
-    float                           fTextInverseRatio;
-    SkGlyphCache*                   fGlyphCache;
-    GrPathRange*                    fGlyphs;
-    SkStrokeRec                     fStroke;
-    uint16_t                        fGlyphIndices[kGlyphBufferSize];
-    SkPoint                         fGlyphPositions[kGlyphBufferSize];
-    int                             fQueuedGlyphCount;
-    int                             fFallbackGlyphsIdx;
-    SkMatrix                        fContextInitialMatrix;
-    SkMatrix                        fViewMatrix;
-    SkMatrix                        fLocalMatrix;
-    bool                            fUsingDeviceSpaceGlyphs;
+    GrPipelineBuilder                                   fPipelineBuilder;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors    fStateRestore;
+    SkScalar                                            fTextRatio;
+    float                                               fTextInverseRatio;
+    SkGlyphCache*                                       fGlyphCache;
+    GrPathRange*                                        fGlyphs;
+    SkStrokeRec                                         fStroke;
+    uint16_t                                            fGlyphIndices[kGlyphBufferSize];
+    SkPoint                                             fGlyphPositions[kGlyphBufferSize];
+    int                                                 fQueuedGlyphCount;
+    int                                                 fFallbackGlyphsIdx;
+    SkMatrix                                            fContextInitialMatrix;
+    SkMatrix                                            fViewMatrix;
+    SkMatrix                                            fLocalMatrix;
+    bool                                                fUsingDeviceSpaceGlyphs;
 
     GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
 

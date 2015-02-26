@@ -90,13 +90,13 @@ bool GrPipelineBuilder::willXPNeedDstCopy(const GrDrawTargetCaps& caps,
     return this->getXPFactory()->willNeedDstCopy(caps, colorPOI, coveragePOI);
 }
 
-void GrPipelineBuilder::AutoRestoreEffects::set(GrPipelineBuilder* pipelineBuilder) {
+void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(GrPipelineBuilder* pipelineBuilder) {
     if (fPipelineBuilder) {
-        int m = fPipelineBuilder->numColorStages() - fColorEffectCnt;
+        int m = fPipelineBuilder->numColorFragmentStages() - fColorEffectCnt;
         SkASSERT(m >= 0);
         fPipelineBuilder->fColorStages.pop_back_n(m);
 
-        int n = fPipelineBuilder->numCoverageStages() - fCoverageEffectCnt;
+        int n = fPipelineBuilder->numCoverageFragmentStages() - fCoverageEffectCnt;
         SkASSERT(n >= 0);
         fPipelineBuilder->fCoverageStages.pop_back_n(n);
         if (m + n > 0) {
@@ -107,8 +107,8 @@ void GrPipelineBuilder::AutoRestoreEffects::set(GrPipelineBuilder* pipelineBuild
     }
     fPipelineBuilder = pipelineBuilder;
     if (NULL != pipelineBuilder) {
-        fColorEffectCnt = pipelineBuilder->numColorStages();
-        fCoverageEffectCnt = pipelineBuilder->numCoverageStages();
+        fColorEffectCnt = pipelineBuilder->numColorFragmentStages();
+        fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentStages();
         SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)
     }
 }
@@ -139,25 +139,25 @@ bool GrPipelineBuilder::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
 }
 
 void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorStages());
+    fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorFragmentStages());
     fColorProcInfoValid = false;
 
 }
 
 void GrPipelineBuilder::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
     fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageStages.begin(),
-                                               this->numCoverageStages());
+                                               this->numCoverageFragmentStages());
     fCoverageProcInfoValid = false;
 }
 
 void GrPipelineBuilder::calcColorInvariantOutput(const GrBatch* batch) const {
-    fColorProcInfo.calcColorWithBatch(batch, fColorStages.begin(), this->numColorStages());
+    fColorProcInfo.calcColorWithBatch(batch, fColorStages.begin(), this->numColorFragmentStages());
     fColorProcInfoValid = false;
 }
 
 void GrPipelineBuilder::calcCoverageInvariantOutput(const GrBatch* batch) const {
     fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageStages.begin(),
-                                            this->numCoverageStages());
+                                            this->numCoverageFragmentStages());
     fCoverageProcInfoValid = false;
 }
 
@@ -165,8 +165,8 @@ void GrPipelineBuilder::calcCoverageInvariantOutput(const GrBatch* batch) const 
 void GrPipelineBuilder::calcColorInvariantOutput(GrColor color) const {
     if (!fColorProcInfoValid || color != fColorCache) {
         GrColorComponentFlags flags = kRGBA_GrColorComponentFlags;
-        fColorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), color,
-                                             flags, false);
+        fColorProcInfo.calcWithInitialValues(fColorStages.begin(),this->numColorFragmentStages(),
+                                             color, flags, false);
         fColorProcInfoValid = true;
         fColorCache = color;
     }
@@ -176,7 +176,7 @@ void GrPipelineBuilder::calcCoverageInvariantOutput(GrColor coverage) const {
     if (!fCoverageProcInfoValid || coverage != fCoverageCache) {
         GrColorComponentFlags flags = kRGBA_GrColorComponentFlags;
         fCoverageProcInfo.calcWithInitialValues(fCoverageStages.begin(),
-                                                this->numCoverageStages(), coverage, flags,
+                                                this->numCoverageFragmentStages(), coverage, flags,
                                                 true);
         fCoverageProcInfoValid = true;
         fCoverageCache = coverage;

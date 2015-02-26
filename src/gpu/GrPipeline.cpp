@@ -80,7 +80,7 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     bool usesLocalCoords = false;
 
     // Copy Stages from PipelineBuilder to Pipeline
-    for (int i = firstColorStageIdx; i < pipelineBuilder.numColorStages(); ++i) {
+    for (int i = firstColorStageIdx; i < pipelineBuilder.numColorFragmentStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
                                (pipelineBuilder.fColorStages[i]));
@@ -89,7 +89,7 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     }
 
     fNumColorStages = fFragmentStages.count();
-    for (int i = firstCoverageStageIdx; i < pipelineBuilder.numCoverageStages(); ++i) {
+    for (int i = firstCoverageStageIdx; i < pipelineBuilder.numCoverageFragmentStages(); ++i) {
         SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
                                GrPendingFragmentStage,
                                (pipelineBuilder.fCoverageStages[i]));
@@ -116,13 +116,13 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
-        *firstColorStageIdx = pipelineBuilder.numColorStages();
+        *firstColorStageIdx = pipelineBuilder.numColorFragmentStages();
     } else {
         fReadsFragPosition = colorPOI.readsFragPosition();
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
-        *firstCoverageStageIdx = pipelineBuilder.numCoverageStages();
+        *firstCoverageStageIdx = pipelineBuilder.numCoverageFragmentStages();
     } else {
         if (coveragePOI.readsFragPosition()) {
             fReadsFragPosition = true;

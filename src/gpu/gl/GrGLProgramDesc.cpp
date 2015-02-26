@@ -142,8 +142,8 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         header->fFragPosKey = 0;
     }
 
-    header->fColorEffectCnt = pipeline.numColorStages();
-    header->fCoverageEffectCnt = pipeline.numCoverageStages();
+    header->fColorEffectCnt = pipeline.numColorFragmentStages();
+    header->fCoverageEffectCnt = pipeline.numCoverageFragmentStages();
     desc->finalize();
     return true;
 }

@@ -203,8 +203,9 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
     int numProcs = this->pipeline().numFragmentStages();
-    this->emitAndInstallFragProcs(0, this->pipeline().numColorStages(), inputColor);
-    this->emitAndInstallFragProcs(this->pipeline().numColorStages(), numProcs,  inputCoverage);
+    this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentStages(), inputColor);
+    this->emitAndInstallFragProcs(this->pipeline().numColorFragmentStages(), numProcs,
+                                  inputCoverage);
     this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
 }
 

@@ -49,7 +49,7 @@ public:
      * clip. devBounds is optional but can help optimize clipping.
      */
     bool setupClipping(GrPipelineBuilder*,
-                       GrPipelineBuilder::AutoRestoreEffects*,
+                       GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                        GrPipelineBuilder::AutoRestoreStencil*,
                        GrScissorState*,
                        const SkRect* devBounds);
@@ -94,7 +94,7 @@ private:
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
     // whether the element list was successfully converted to effects.
     bool installClipEffects(GrPipelineBuilder*,
-                            GrPipelineBuilder::AutoRestoreEffects*,
+                            GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                             const GrReducedClip::ElementList&,
                             const SkVector& clipOffset,
                             const SkRect* devBounds);

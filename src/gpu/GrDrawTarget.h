@@ -789,9 +789,9 @@ private:
                                            GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
     virtual bool setupClip(GrPipelineBuilder*,
-                           GrPipelineBuilder::AutoRestoreEffects* are,
-                           GrPipelineBuilder::AutoRestoreStencil* ars,
-                           GrScissorState* scissorState,
+                           GrPipelineBuilder::AutoRestoreFragmentProcessors*,
+                           GrPipelineBuilder::AutoRestoreStencil*,
+                           GrScissorState*,
                            const SkRect* devBounds) = 0;
 
     enum {
@@ -848,8 +848,8 @@ private:
     GrClipMaskManager* clipMaskManager() SK_OVERRIDE { return &fClipMaskManager; }
 
     virtual bool setupClip(GrPipelineBuilder*,
-                           GrPipelineBuilder::AutoRestoreEffects* are,
-                           GrPipelineBuilder::AutoRestoreStencil* ars,
+                           GrPipelineBuilder::AutoRestoreFragmentProcessors*,
+                           GrPipelineBuilder::AutoRestoreStencil*,
                            GrScissorState* scissorState,
                            const SkRect* devBounds) SK_OVERRIDE;
 

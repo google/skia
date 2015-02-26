@@ -353,16 +353,16 @@ bool GrDrawTarget::checkDraw(const GrPipelineBuilder& pipelineBuilder,
         }
     }
 
-    for (int s = 0; s < pipelineBuilder.numColorStages(); ++s) {
-        const GrProcessor* effect = pipelineBuilder.getColorStage(s).processor();
+    for (int s = 0; s < pipelineBuilder.numColorFragmentStages(); ++s) {
+        const GrProcessor* effect = pipelineBuilder.getColorFragmentStage(s).processor();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);
             SkASSERT(texture->asRenderTarget() != pipelineBuilder.getRenderTarget());
         }
     }
-    for (int s = 0; s < pipelineBuilder.numCoverageStages(); ++s) {
-        const GrProcessor* effect = pipelineBuilder.getCoverageStage(s).processor();
+    for (int s = 0; s < pipelineBuilder.numCoverageFragmentStages(); ++s) {
+        const GrProcessor* effect = pipelineBuilder.getCoverageFragmentStage(s).processor();
         int numTextures = effect->numTextures();
         for (int t = 0; t < numTextures; ++t) {
             GrTexture* texture = effect->texture(t);
@@ -443,9 +443,9 @@ void GrDrawTarget::drawIndexed(GrPipelineBuilder* pipelineBuilder,
 
         // Setup clip
         GrScissorState scissorState;
-        GrPipelineBuilder::AutoRestoreEffects are;
+        GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
         GrPipelineBuilder::AutoRestoreStencil ars;
-        if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, devBounds)) {
+        if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, devBounds)) {
             return;
         }
 
@@ -488,9 +488,9 @@ void GrDrawTarget::drawNonIndexed(GrPipelineBuilder* pipelineBuilder,
 
         // Setup clip
         GrScissorState scissorState;
-        GrPipelineBuilder::AutoRestoreEffects are;
+        GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
         GrPipelineBuilder::AutoRestoreStencil ars;
-        if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, devBounds)) {
+        if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, devBounds)) {
             return;
         }
 
@@ -530,9 +530,9 @@ void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreEffects are;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, devBounds)) {
+    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, devBounds)) {
         return;
     }
 
@@ -590,9 +590,9 @@ void GrDrawTarget::stencilPath(GrPipelineBuilder* pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreEffects are;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, NULL)) {
+    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, NULL)) {
         return;
     }
 
@@ -619,9 +619,9 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreEffects are;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, &devBounds)) {
+    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, &devBounds)) {
        return;
     }
 
@@ -658,10 +658,10 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreEffects are;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     GrPipelineBuilder::AutoRestoreStencil ars;
 
-    if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, NULL)) {
+    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, NULL)) {
         return;
     }
 
@@ -769,9 +769,9 @@ void GrDrawTarget::drawIndexedInstances(GrPipelineBuilder* pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreEffects are;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &are, &ars, &scissorState, devBounds)) {
+    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, devBounds)) {
         return;
     }
 
@@ -1268,12 +1268,12 @@ uint32_t GrDrawTargetCaps::CreateUniqueID() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool GrClipTarget::setupClip(GrPipelineBuilder* pipelineBuilder,
-                             GrPipelineBuilder::AutoRestoreEffects* are,
+                             GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
                              GrPipelineBuilder::AutoRestoreStencil* ars,
                              GrScissorState* scissorState,
                              const SkRect* devBounds) {
     return fClipMaskManager.setupClipping(pipelineBuilder,
-                                          are,
+                                          arfp,
                                           ars,
                                           scissorState,
                                           devBounds);

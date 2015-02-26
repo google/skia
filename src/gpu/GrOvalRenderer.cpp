@@ -1555,7 +1555,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
                                 const SkRRect& origInner) {
     bool applyAA = useAA &&
                    !pipelineBuilder->getRenderTarget()->isMultisampled();
-    GrPipelineBuilder::AutoRestoreEffects are;
+    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
         if (!viewMatrix.isIdentity()) {
@@ -1571,7 +1571,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
         if (NULL == fp) {
             return false;
         }
-        are.set(pipelineBuilder);
+        arfp.set(pipelineBuilder);
         pipelineBuilder->addCoverageProcessor(fp)->unref();
     }
 
@@ -1593,8 +1593,8 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     if (NULL == effect) {
         return false;
     }
-    if (!are.isSet()) {
-        are.set(pipelineBuilder);
+    if (!arfp.isSet()) {
+        arfp.set(pipelineBuilder);
     }
 
     SkMatrix invert;
