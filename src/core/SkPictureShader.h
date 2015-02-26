@@ -23,6 +23,7 @@ class SkPictureShader : public SkShader {
 public:
     static SkPictureShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix*,
                                    const SkRect*);
+    virtual ~SkPictureShader();
 
     size_t contextSize() const SK_OVERRIDE;
 
@@ -42,9 +43,9 @@ private:
 
     SkShader* refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix) const;
 
-    SkAutoTUnref<const SkPicture> fPicture;
-    SkRect                        fTile;
-    TileMode                      fTmx, fTmy;
+    const SkPicture* fPicture;
+    SkRect           fTile;
+    TileMode         fTmx, fTmy;
 
     class PictureShaderContext : public SkShader::Context {
     public:
