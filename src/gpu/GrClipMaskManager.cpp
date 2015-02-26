@@ -30,10 +30,12 @@ typedef SkClipStack::Element Element;
 namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the
 // stage matrix this also alters the vertex layout
-void setup_drawstate_aaclip(const SkIRect &devBound,
-                            GrPipelineBuilder* pipelineBuilder,
-                            GrTexture* result) {
-    SkASSERT(pipelineBuilder);
+void setup_drawstate_aaclip(GrPipelineBuilder* pipelineBuilder,
+                            GrTexture* result,
+                            GrPipelineBuilder::AutoRestoreEffects* are,
+                            const SkIRect &devBound) {
+    SkASSERT(pipelineBuilder && are);
+    are->set(pipelineBuilder);
 
     SkMatrix mat;
     // We use device coords to compute the texture coordinates. We set our matrix to be a
@@ -169,7 +171,7 @@ bool GrClipMaskManager::installClipEffects(GrPipelineBuilder* pipelineBuilder,
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
                     fp.reset(GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),
-                        &clipToRTOffset));
+                                                        &clipToRTOffset));
                     break;
                 case SkClipStack::Element::kRRect_Type: {
                     SkRRect rrect = iter.get()->getRRect();
@@ -331,11 +333,12 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
         }
 
         if (result) {
+            are->set(pipelineBuilder);
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
-            setup_drawstate_aaclip(rtSpaceMaskBounds, pipelineBuilder, result);
+            setup_drawstate_aaclip(pipelineBuilder, result, are, rtSpaceMaskBounds);
             this->setPipelineBuilderStencil(pipelineBuilder, ars);
             return true;
         }

@@ -306,7 +306,6 @@ public:
                   const SkRect& rect,
                   const SkRect* localRect,
                   const SkMatrix* localMatrix) {
-        AutoGeometryPush agp(this);
         this->onDrawRect(pipelineBuilder, color, viewMatrix, rect, localRect, localMatrix);
     }
 

@@ -55,16 +55,6 @@ private:
                           const SkStrokeRec&,
                           bool stencilOnly);
 
-    bool createGeom(GrDrawTarget*,
-                    GrPipelineBuilder*,
-                    GrPrimitiveType*,
-                    int* vertexCnt,
-                    int* indexCnt,
-                    GrDrawTarget::AutoReleaseGeometry*,
-                    const SkPath&,
-                    const SkStrokeRec&,
-                    SkScalar srcSpaceTol);
-
     bool    fSeparateStencil;
     bool    fStencilWrapOps;
 

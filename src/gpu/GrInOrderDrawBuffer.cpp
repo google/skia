@@ -301,7 +301,6 @@ void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
                                      const SkRect& rect,
                                      const SkRect* localRect,
                                      const SkMatrix* localMatrix) {
-    GrPipelineBuilder::AutoRestoreEffects are(pipelineBuilder);
     RectBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fViewMatrix = viewMatrix;
