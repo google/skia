@@ -14,9 +14,8 @@
 
 #ifndef Sk_NO_FLATE
 
+#include "SkStream.h"
 class SkData;
-class SkWStream;
-class SkStream;
 
 /** \class SkFlate
     A class to provide access to the flate compression algorithm.
@@ -45,6 +44,34 @@ public:
         putting the result into dst.  Returns false if an error occurs.
      */
     static bool Inflate(SkStream* src, SkWStream* dst);
+};
+
+/**
+  * Wrap a stream in this class to compress the information written to
+  * this stream using the Deflate algorithm.  Uses Zlib's
+  * Z_DEFAULT_COMPRESSION level.
+  *
+  * See http://en.wikipedia.org/wiki/DEFLATE
+  */
+class SkDeflateWStream : public SkWStream {
+public:
+    /** Does not take ownership of the stream. */
+    SkDeflateWStream(SkWStream*);
+
+    /** The destructor calls finalize(). */
+    ~SkDeflateWStream();
+
+    /** Write the end of the compressed stream.  All subsequent calls to
+        write() will fail. Subsequent calls to finalize() do nothing. */
+    void finalize();
+
+    // The SkWStream interface:
+    bool write(const void*, size_t) SK_OVERRIDE;
+    size_t bytesWritten() const SK_OVERRIDE;
+
+private:
+    struct Impl;
+    SkAutoTDelete<Impl> fImpl;
 };
 
 #endif  // SK_NO_FLATE

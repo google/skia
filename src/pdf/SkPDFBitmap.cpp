@@ -6,7 +6,7 @@
  */
 
 #include "SkColorPriv.h"
-#include "SkDeflateWStream.h"
+#include "SkFlate.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFCatalog.h"

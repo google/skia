@@ -39,7 +39,6 @@
       {
         'defines': [
           'SK_BUILD_FOR_WIN32',
-          'SK_NO_FLATE',  # Too much of a pain to set up zlib on our bots.
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
         ],

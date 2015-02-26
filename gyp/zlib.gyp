@@ -18,5 +18,14 @@
         }]
       ],
     },
+  },{
+    'target_name': 'miniz',
+    'type': 'none',
+    'direct_dependent_settings': {
+      'include_dirs': [ '../third_party/miniz' ],
+      'defines': [ 'ZLIB_INCLUDE="miniz.c"' ],
+      # Not ideal, but GCC's issuing an otherwise-unstoppable (but innocuous) warning from miniz.c
+      'cflags': [ '-w' ],
+    },
   }],
 }

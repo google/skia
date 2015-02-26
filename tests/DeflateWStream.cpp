@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkDeflateWStream.h"
 #include "SkFlate.h"
 #include "SkRandom.h"
 #include "Test.h"
@@ -17,8 +16,8 @@ DEF_TEST(SkDeflateWStream, r) {
     for (int i = 0; i < 50; ++i) {
         uint32_t size = random.nextULessThan(10000);
         SkAutoTMalloc<uint8_t> buffer(size);
-        for (uint32_t i = 0; i < size; ++i) {
-            buffer[i] = random.nextU() & 0xff;
+        for (uint32_t j = 0; j < size; ++j) {
+            buffer[j] = random.nextU() & 0xff;
         }
 
         SkDynamicMemoryWStream dynamicMemoryWStream;
