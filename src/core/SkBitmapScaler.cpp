@@ -254,69 +254,61 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
   SkRect destSubset = { 0, 0, destWidth, destHeight };
 
   // Ensure that the ResizeMethod enumeration is sound.
-    SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
-        (method <= RESIZE_LAST_QUALITY_METHOD)) ||
-        ((RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
-        (method <= RESIZE_LAST_ALGORITHM_METHOD)));
+  SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
+      (method <= RESIZE_LAST_QUALITY_METHOD)) ||
+      ((RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
+      (method <= RESIZE_LAST_ALGORITHM_METHOD)));
 
-    SkRect dest = { 0, 0, destWidth, destHeight };
-    if (!dest.contains(destSubset)) {
-        SkErrorInternals::SetError( kInvalidArgument_SkError,
-                                    "Sorry, the destination bitmap scale subset "
-                                    "falls outside the full destination bitmap." );
-        return false;
-    }
+  // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
+  // return empty.
+  if (source.width() < 1 || source.height() < 1 ||
+      destWidth < 1 || destHeight < 1) {
+      // todo: seems like we could handle negative dstWidth/Height, since that
+      // is just a negative scale (flip)
+      return false;
+  }
 
-    // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
-    // return empty.
-    if (source.width() < 1 || source.height() < 1 ||
-        destWidth < 1 || destHeight < 1) {
-        // todo: seems like we could handle negative dstWidth/Height, since that
-        // is just a negative scale (flip)
-        return false;
-    }
+  method = ResizeMethodToAlgorithmMethod(method);
 
-    method = ResizeMethodToAlgorithmMethod(method);
+  // Check that we deal with an "algorithm methods" from this point onward.
+  SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
+      (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
 
-    // Check that we deal with an "algorithm methods" from this point onward.
-    SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
-        (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
+  SkAutoLockPixels locker(source);
+  if (!source.readyToDraw() ||
+      source.colorType() != kN32_SkColorType) {
+      return false;
+  }
 
-    SkAutoLockPixels locker(source);
-    if (!source.readyToDraw() ||
-        source.colorType() != kN32_SkColorType) {
-        return false;
-    }
+  SkResizeFilter filter(method, source.width(), source.height(),
+                        destWidth, destHeight, destSubset, convolveProcs);
 
-    SkResizeFilter filter(method, source.width(), source.height(),
-                          destWidth, destHeight, destSubset, convolveProcs);
+  // Get a source bitmap encompassing this touched area. We construct the
+  // offsets and row strides such that it looks like a new bitmap, while
+  // referring to the old data.
+  const unsigned char* sourceSubset =
+      reinterpret_cast<const unsigned char*>(source.getPixels());
 
-    // Get a source bitmap encompassing this touched area. We construct the
-    // offsets and row strides such that it looks like a new bitmap, while
-    // referring to the old data.
-    const unsigned char* sourceSubset =
-        reinterpret_cast<const unsigned char*>(source.getPixels());
+  // Convolve into the result.
+  SkBitmap result;
+  result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
+                                      SkScalarCeilToInt(destSubset.height()),
+                                      source.alphaType()));
+  result.allocPixels(allocator, NULL);
+  if (!result.readyToDraw()) {
+      return false;
+  }
 
-    // Convolve into the result.
-    SkBitmap result;
-    result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
-                                        SkScalarCeilToInt(destSubset.height()),
-                                        source.alphaType()));
-    result.allocPixels(allocator, NULL);
-    if (!result.readyToDraw()) {
-        return false;
-    }
+  BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
+      !source.isOpaque(), filter.xFilter(), filter.yFilter(),
+      static_cast<int>(result.rowBytes()),
+      static_cast<unsigned char*>(result.getPixels()),
+      convolveProcs, true);
 
-    BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
-        !source.isOpaque(), filter.xFilter(), filter.yFilter(),
-        static_cast<int>(result.rowBytes()),
-        static_cast<unsigned char*>(result.getPixels()),
-        convolveProcs, true);
-
-    *resultPtr = result;
-    resultPtr->lockPixels();
-    SkASSERT(resultPtr->getPixels());
-    return true;
+  *resultPtr = result;
+  resultPtr->lockPixels();
+  SkASSERT(resultPtr->getPixels());
+  return true;
 }
 
 // static -- simpler interface to the resizer; returns a default bitmap if scaling
