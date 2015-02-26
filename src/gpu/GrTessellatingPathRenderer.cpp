@@ -1489,14 +1489,14 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
         }
     }
 
-    int stride = gp->getVertexStride();
+    size_t stride = gp->getVertexStride();
     GrDrawTarget::AutoReleaseGeometry arg;
     if (!arg.set(target, count, stride, 0)) {
         return false;
     }
     LOG("emitting %d verts\n", count);
     void* end = polys_to_triangles(polys, fillType, arg.vertices());
-    int actualCount = (static_cast<char*>(end) - static_cast<char*>(arg.vertices())) / stride;
+    int actualCount = static_cast<int>((static_cast<char*>(end) - static_cast<char*>(arg.vertices())) / stride);
     LOG("actual count: %d\n", actualCount);
     SkASSERT(actualCount <= count);
 
