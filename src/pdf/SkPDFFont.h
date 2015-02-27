@@ -150,11 +150,8 @@ public:
                          uint16_t searchGlyphID);
 
 protected:
-    SkPDFCanon* const fCanon;
-
     // Common constructor to handle common members.
-    SkPDFFont(SkPDFCanon* canon,
-              const SkAdvancedTypefaceMetrics* fontInfo,
+    SkPDFFont(const SkAdvancedTypefaceMetrics* fontInfo,
               SkTypeface* typeface,
               SkPDFDict* relatedFontDescriptor);
 

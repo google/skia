@@ -74,12 +74,11 @@ public:
     static SkPDFGraphicState* CreateNoSMaskGraphicState();
 
 private:
-    SkPDFCanon* const fCanon;
     const SkPaint fPaint;
     bool fPopulated;
 
     SkPDFGraphicState();
-    SkPDFGraphicState(SkPDFCanon* canon, const SkPaint& paint);
+    SkPDFGraphicState(const SkPaint& paint);
 
     void populateDict();
 

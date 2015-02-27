@@ -26,14 +26,18 @@ class SkPaint;
  *  The SkDocument_PDF class makes this happen by owning a single
  *  SkPDFCanon.
  *
- *  Note that this class does not create, delete, reference or
- *  dereference the SkPDFObject objects that it indexes.  It is up to
- *  the caller to manage the lifetime of these objects.
+ *  The addFoo() methods will ref the Foo; the canon's destructor will
+ *  call foo->unref() on all of these objects.
+ *
+ *  The findFoo() methods do not change the ref count of the Foo
+ *  objects.
  */
 class SkPDFCanon : SkNoncopyable {
 public:
-    SkPDFCanon();
-    ~SkPDFCanon();
+    ~SkPDFCanon() { this->reset(); }
+
+    // reset to original setting, unrefs all objects.
+    void reset();
 
     // Returns exact match if there is one.  If not, it returns NULL.
     // If there is no exact match, but there is a related font, we
@@ -42,36 +46,21 @@ public:
                         uint16_t glyphID,
                         SkPDFFont** relatedFont) const;
     void addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID);
-    void removeFont(SkPDFFont*);
 
     SkPDFFunctionShader* findFunctionShader(const SkPDFShader::State&) const;
     void addFunctionShader(SkPDFFunctionShader*);
-    void removeFunctionShader(SkPDFFunctionShader*);
 
     SkPDFAlphaFunctionShader* findAlphaShader(const SkPDFShader::State&) const;
     void addAlphaShader(SkPDFAlphaFunctionShader*);
-    void removeAlphaShader(SkPDFAlphaFunctionShader*);
 
     SkPDFImageShader* findImageShader(const SkPDFShader::State&) const;
     void addImageShader(SkPDFImageShader*);
-    void removeImageShader(SkPDFImageShader*);
 
     SkPDFGraphicState* findGraphicState(const SkPaint&) const;
     void addGraphicState(SkPDFGraphicState*);
-    void removeGraphicState(SkPDFGraphicState*);
 
     SkPDFBitmap* findBitmap(const SkBitmap&) const;
     void addBitmap(SkPDFBitmap*);
-    void removeBitmap(SkPDFBitmap*);
-
-    void assertEmpty() const {
-        SkASSERT(fFontRecords.isEmpty());
-        SkASSERT(fFunctionShaderRecords.isEmpty());
-        SkASSERT(fAlphaShaderRecords.isEmpty());
-        SkASSERT(fImageShaderRecords.isEmpty());
-        SkASSERT(fGraphicStateRecords.isEmpty());
-        SkASSERT(fBitmapRecords.isEmpty());
-    }
 
 private:
     struct FontRec {

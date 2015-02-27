@@ -112,11 +112,7 @@ bool SkPDFGraphicState::equals(const SkPaint& paint) const {
     return equivalent(paint, fPaint);
 }
 
-SkPDFGraphicState::~SkPDFGraphicState() {
-    if (fCanon) {
-        fCanon->removeGraphicState(this);
-    }
-}
+SkPDFGraphicState::~SkPDFGraphicState() {}
 
 void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     populateDict();
@@ -131,7 +127,7 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
     if (pdfGraphicState) {
         return SkRef(pdfGraphicState);
     }
-    pdfGraphicState = new SkPDFGraphicState(canon, paint);
+    pdfGraphicState = new SkPDFGraphicState(paint);
     canon->addGraphicState(pdfGraphicState);
     return pdfGraphicState;
 }
@@ -207,10 +203,10 @@ SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
 }
 
 SkPDFGraphicState::SkPDFGraphicState()
-    : fCanon(NULL), fPopulated(false) {}
+    : fPopulated(false) {}
 
-SkPDFGraphicState::SkPDFGraphicState(SkPDFCanon* canon, const SkPaint& paint)
-    : fCanon(canon), fPaint(paint), fPopulated(false) {}
+SkPDFGraphicState::SkPDFGraphicState(const SkPaint& paint)
+    : fPaint(paint), fPopulated(false) {}
 
 // populateDict and operator== have to stay in sync with each other.
 void SkPDFGraphicState::populateDict() {

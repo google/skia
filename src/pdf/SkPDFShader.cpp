@@ -506,12 +506,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFFunctionShader::SkPDFFunctionShader(SkPDFCanon* canon,
-                                         SkPDFShader::State* state)
-    : SkPDFDict("Pattern"), fCanon(canon), fShaderState(state) {}
+SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
+    : SkPDFDict("Pattern"), fShaderState(state) {}
 
 SkPDFFunctionShader::~SkPDFFunctionShader() {
-    fCanon->removeFunctionShader(this);
     fResources.unrefAll();
 }
 
@@ -521,29 +519,25 @@ bool SkPDFFunctionShader::equals(const SkPDFShader::State& state) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFCanon* canon,
-                                                   SkPDFShader::State* state)
-    : fCanon(canon), fShaderState(state) {}
+SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFShader::State* state)
+    : fShaderState(state) {}
 
 bool SkPDFAlphaFunctionShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState;
 }
 
-SkPDFAlphaFunctionShader::~SkPDFAlphaFunctionShader() {
-    fCanon->removeAlphaShader(this);
-}
+SkPDFAlphaFunctionShader::~SkPDFAlphaFunctionShader() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFImageShader::SkPDFImageShader(SkPDFCanon* canon, SkPDFShader::State* state)
-    : fCanon(canon), fShaderState(state) {}
+SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state)
+    : fShaderState(state) {}
 
 bool SkPDFImageShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState;
 }
 
 SkPDFImageShader::~SkPDFImageShader() {
-    fCanon->removeImageShader(this);
     fResources.unrefAll();
 }
 
@@ -691,7 +685,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
             create_smask_graphic_state(canon, dpi, state));
 
     SkPDFAlphaFunctionShader* alphaFunctionShader =
-            SkNEW_ARGS(SkPDFAlphaFunctionShader, (canon, autoState->detach()));
+            SkNEW_ARGS(SkPDFAlphaFunctionShader, (autoState->detach()));
 
     alphaFunctionShader->fColorShader.reset(colorShader);
 
@@ -897,7 +891,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
             SkPDFUtils::MatrixToArray(finalMatrix));
 
     SkPDFFunctionShader* pdfFunctionShader =
-            SkNEW_ARGS(SkPDFFunctionShader, (canon, autoState->detach()));
+            SkNEW_ARGS(SkPDFFunctionShader, (autoState->detach()));
 
     pdfFunctionShader->fResources.push(function);
     // Pass ownership to resource list.
@@ -1113,7 +1107,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     SkAutoTDelete<SkStreamAsset> content(patternDevice->content());
 
     SkPDFImageShader* imageShader =
-            SkNEW_ARGS(SkPDFImageShader, (canon, autoState->detach()));
+            SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
     imageShader->setData(content.get());
 
     populate_tiling_pattern_dict(imageShader, patternBBox,

@@ -56,13 +56,13 @@ protected:
 
         bool success = fDoc->emitPDF(stream);
         fDoc.free();
-        SkDEBUGCODE(fCanon.assertEmpty());
+        fCanon.reset();
         return success;
     }
 
     void onAbort() SK_OVERRIDE {
         fDoc.free();
-        SkDEBUGCODE(fCanon.assertEmpty());
+        fCanon.reset();
     }
 
 private:

@@ -247,12 +247,11 @@ void SkPDFBitmap::emitDict(SkWStream* stream,
     pdfDict.emitObject(stream, catalog);
 }
 
-SkPDFBitmap::SkPDFBitmap(SkPDFCanon* canon,
-                         const SkBitmap& bm,
+SkPDFBitmap::SkPDFBitmap(const SkBitmap& bm,
                          SkPDFObject* smask)
-    : fCanon(canon), fBitmap(bm), fSMask(smask) {}
+    : fBitmap(bm), fSMask(smask) {}
 
-SkPDFBitmap::~SkPDFBitmap() { fCanon->removeBitmap(this); }
+SkPDFBitmap::~SkPDFBitmap() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 static bool is_transparent(const SkBitmap& bm) {
@@ -312,7 +311,7 @@ SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon,
         // are refed by the SkPDFBitmap).
         smask = SkNEW_ARGS(PDFAlphaBitmap, (bm));
     }
-    pdfBitmap = SkNEW_ARGS(SkPDFBitmap, (canon, bm, smask));
+    pdfBitmap = SkNEW_ARGS(SkPDFBitmap, (bm, smask));
     canon->addBitmap(pdfBitmap);
     return pdfBitmap;
 }

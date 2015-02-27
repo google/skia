@@ -40,10 +40,9 @@ public:
     }
 
 private:
-    SkPDFCanon* const fCanon;
     const SkBitmap fBitmap;
     const SkAutoTUnref<SkPDFObject> fSMask;
-    SkPDFBitmap(SkPDFCanon*, const SkBitmap&, SkPDFObject*);
+    SkPDFBitmap(const SkBitmap&, SkPDFObject*);
     void emitDict(SkWStream*, SkPDFCatalog*, size_t, bool) const;
 };
 

@@ -61,10 +61,9 @@ public:
     bool equals(const SkPDFShader::State&) const;
 
 private:
-    SkPDFCanon* fCanon;
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
     SkTDArray<SkPDFObject*> fResources;
-    SkPDFFunctionShader(SkPDFCanon*, SkPDFShader::State*);
+    SkPDFFunctionShader(SkPDFShader::State*);
     typedef SkPDFDict INHERITED;
 };
 
@@ -82,11 +81,10 @@ public:
     bool equals(const SkPDFShader::State&) const;
 
 private:
-    SkPDFCanon* fCanon;
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
     SkAutoTUnref<SkPDFObject> fColorShader;
     SkAutoTUnref<SkPDFResourceDict> fResourceDict;
-    SkPDFAlphaFunctionShader(SkPDFCanon*, SkPDFShader::State*);
+    SkPDFAlphaFunctionShader(SkPDFShader::State*);
 };
 
 class SkPDFImageShader : public SkPDFStream {
@@ -98,10 +96,9 @@ public:
     bool equals(const SkPDFShader::State&) const;
 
 private:
-    SkPDFCanon* fCanon;
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
     SkTSet<SkPDFObject*> fResources;
-    SkPDFImageShader(SkPDFCanon*, SkPDFShader::State*);
+    SkPDFImageShader(SkPDFShader::State*);
 };
 
 #endif
