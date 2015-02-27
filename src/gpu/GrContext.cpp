@@ -9,6 +9,8 @@
 #include "GrContext.h"
 
 #include "GrAARectRenderer.h"
+#include "GrBatch.h"
+#include "GrBatchTarget.h"
 #include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrFontCache.h"
@@ -440,28 +442,6 @@ void GrContext::dumpFontCache() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/*  create a triangle strip that strokes the specified triangle. There are 8
- unique vertices, but we repreat the last 2 to close up. Alternatively we
- could use an indices array, and then only send 8 verts, but not sure that
- would be faster.
- */
-static void setStrokeRectStrip(SkPoint verts[10], SkRect rect,
-                               SkScalar width) {
-    const SkScalar rad = SkScalarHalf(width);
-    rect.sort();
-
-    verts[0].set(rect.fLeft + rad, rect.fTop + rad);
-    verts[1].set(rect.fLeft - rad, rect.fTop - rad);
-    verts[2].set(rect.fRight - rad, rect.fTop + rad);
-    verts[3].set(rect.fRight + rad, rect.fTop - rad);
-    verts[4].set(rect.fRight - rad, rect.fBottom - rad);
-    verts[5].set(rect.fRight + rad, rect.fBottom + rad);
-    verts[6].set(rect.fLeft + rad, rect.fBottom - rad);
-    verts[7].set(rect.fLeft - rad, rect.fBottom + rad);
-    verts[8] = verts[0];
-    verts[9] = verts[1];
-}
-
 static inline bool is_irect(const SkRect& r) {
   return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
          SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
@@ -509,6 +489,178 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
     return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
+
+class StrokeRectBatch : public GrBatch {
+public:
+    struct Geometry {
+        GrColor fColor;
+        SkMatrix fViewMatrix;
+        SkRect fRect;
+        SkScalar fStrokeWidth;
+    };
+
+    static GrBatch* Create(const Geometry& geometry) {
+        return SkNEW_ARGS(StrokeRectBatch, (geometry));
+    }
+
+    const char* name() const SK_OVERRIDE { return "StrokeRectBatch"; }
+
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        // When this is called on a batch, there is only one geometry bundle
+        out->setKnownFourComponents(fGeoData[0].fColor);
+    }
+
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setKnownSingleComponent(0xff);
+    }
+
+    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+        // Handle any color overrides
+        if (init.fColorIgnored) {
+            fGeoData[0].fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fGeoData[0].fColor = init.fOverrideColor;
+        }
+
+        // setup batch properties
+        fBatch.fColorIgnored = init.fColorIgnored;
+        fBatch.fColor = fGeoData[0].fColor;
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
+    }
+
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
+                                                this->color(),
+                                                this->viewMatrix(),
+                                                SkMatrix::I()));
+
+        batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
+
+        size_t vertexStride = gp->getVertexStride();
+
+        SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
+
+        Geometry& args = fGeoData[0];
+
+        int vertexCount = kVertsPerHairlineRect;
+        if (args.fStrokeWidth > 0) {
+            vertexCount = kVertsPerStrokeRect;
+        }
+
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+
+        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        SkPoint* vertex = reinterpret_cast<SkPoint*>(vertices);
+
+        GrPrimitiveType primType;
+
+        if (args.fStrokeWidth > 0) {;
+            primType = kTriangleStrip_GrPrimitiveType;
+            args.fRect.sort();
+            this->setStrokeRectStrip(vertex, args.fRect, args.fStrokeWidth);
+        } else {
+            // hairline
+            primType = kLineStrip_GrPrimitiveType;
+            vertex[0].set(args.fRect.fLeft, args.fRect.fTop);
+            vertex[1].set(args.fRect.fRight, args.fRect.fTop);
+            vertex[2].set(args.fRect.fRight, args.fRect.fBottom);
+            vertex[3].set(args.fRect.fLeft, args.fRect.fBottom);
+            vertex[4].set(args.fRect.fLeft, args.fRect.fTop);
+        }
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(primType);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setStartVertex(firstVertex);
+        drawInfo.setVertexCount(vertexCount);
+        drawInfo.setStartIndex(0);
+        drawInfo.setIndexCount(0);
+        drawInfo.setInstanceCount(0);
+        drawInfo.setVerticesPerInstance(0);
+        drawInfo.setIndicesPerInstance(0);
+        batchTarget->draw(drawInfo);
+    }
+
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    StrokeRectBatch(const Geometry& geometry) {
+        this->initClassID<StrokeRectBatch>();
+
+        fBatch.fHairline = geometry.fStrokeWidth == 0;
+
+        fGeoData.push_back(geometry);
+    }
+
+    /*  create a triangle strip that strokes the specified rect. There are 8
+     unique vertices, but we repeat the last 2 to close up. Alternatively we
+     could use an indices array, and then only send 8 verts, but not sure that
+     would be faster.
+     */
+    void setStrokeRectStrip(SkPoint verts[10], const SkRect& rect, SkScalar width) {
+        const SkScalar rad = SkScalarHalf(width);
+        // TODO we should be able to enable this assert, but we'd have to filter these draws
+        // this is a bug
+        //SkASSERT(rad < rect.width() / 2 && rad < rect.height() / 2);
+
+        verts[0].set(rect.fLeft + rad, rect.fTop + rad);
+        verts[1].set(rect.fLeft - rad, rect.fTop - rad);
+        verts[2].set(rect.fRight - rad, rect.fTop + rad);
+        verts[3].set(rect.fRight + rad, rect.fTop - rad);
+        verts[4].set(rect.fRight - rad, rect.fBottom - rad);
+        verts[5].set(rect.fRight + rad, rect.fBottom + rad);
+        verts[6].set(rect.fLeft + rad, rect.fBottom - rad);
+        verts[7].set(rect.fLeft - rad, rect.fBottom + rad);
+        verts[8] = verts[0];
+        verts[9] = verts[1];
+    }
+
+
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool colorIgnored() const { return fBatch.fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+    bool hairline() const { return fBatch.fHairline; }
+
+    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+        // StrokeRectBatch* that = t->cast<StrokeRectBatch>();
+
+        // NonAA stroke rects cannot batch right now
+        // TODO make these batchable
+        return false;
+    }
+
+    struct BatchTracker {
+        GrColor fColor;
+        bool fUsesLocalCoords;
+        bool fColorIgnored;
+        bool fCoverageIgnored;
+        bool fHairline;
+    };
+
+    const static int kVertsPerHairlineRect = 5;
+    const static int kVertsPerStrokeRect = 10;
+
+    BatchTracker fBatch;
+    SkSTArray<1, Geometry, true> fGeoData;
+};
 
 void GrContext::drawRect(GrRenderTarget* rt,
                          const GrClip& clip,
@@ -597,47 +749,19 @@ void GrContext::drawRect(GrRenderTarget* rt,
     }
 
     if (width >= 0) {
-        // TODO: consider making static vertex buffers for these cases.
-        // Hairline could be done by just adding closing vertex to
-        // unitSquareVertexBuffer()
+        StrokeRectBatch::Geometry geometry;
+        geometry.fViewMatrix = viewMatrix;
+        geometry.fColor = color;
+        geometry.fRect = rect;
+        geometry.fStrokeWidth = width;
 
-        static const int worstCaseVertCount = 10;
-        SkAutoTUnref<const GrGeometryProcessor> gp(
-                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
-                                                color,
-                                                viewMatrix,
-                                                SkMatrix::I()));
-        GrDrawTarget::AutoReleaseGeometry geo(target,
-                                              worstCaseVertCount,
-                                              gp->getVertexStride(),
-                                              0);
-        SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
+        SkAutoTUnref<GrBatch> batch(StrokeRectBatch::Create(geometry));
 
-        if (!geo.succeeded()) {
-            SkDebugf("Failed to get space for vertices!\n");
-            return;
-        }
-
-        GrPrimitiveType primType;
-        int vertCount;
-        SkPoint* vertex = geo.positions();
-
-        if (width > 0) {
-            vertCount = 10;
-            primType = kTriangleStrip_GrPrimitiveType;
-            setStrokeRectStrip(vertex, rect, width);
-        } else {
-            // hairline
-            vertCount = 5;
-            primType = kLineStrip_GrPrimitiveType;
-            vertex[0].set(rect.fLeft, rect.fTop);
-            vertex[1].set(rect.fRight, rect.fTop);
-            vertex[2].set(rect.fRight, rect.fBottom);
-            vertex[3].set(rect.fLeft, rect.fBottom);
-            vertex[4].set(rect.fLeft, rect.fTop);
-        }
-
-        target->drawNonIndexed(&pipelineBuilder, gp, primType, 0, vertCount);
+        SkRect bounds = rect;
+        SkScalar rad = SkScalarHalf(width);
+        bounds.outset(rad, rad);
+        viewMatrix.mapRect(&bounds);
+        target->drawBatch(&pipelineBuilder, batch, &bounds);
     } else {
         // filled BW rect
         target->drawSimpleRect(&pipelineBuilder, color, viewMatrix, rect);
@@ -669,8 +793,8 @@ void GrContext::drawNonAARectToRect(GrRenderTarget* rt,
                      localMatrix);
 }
 
-static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords,
-                                                        const GrColor* colors,
+static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
+                                                        bool hasColors,
                                                         int* colorOffset,
                                                         int* texOffset,
                                                         GrColor color,
@@ -678,20 +802,267 @@ static const GrGeometryProcessor* set_vertex_attributes(const SkPoint* texCoords
     *texOffset = -1;
     *colorOffset = -1;
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
-    if (texCoords && colors) {
+    if (hasLocalCoords && hasColors) {
         *colorOffset = sizeof(SkPoint);
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
         flags |= GrDefaultGeoProcFactory::kColor_GPType |
                  GrDefaultGeoProcFactory::kLocalCoord_GPType;
-    } else if (texCoords) {
+    } else if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint);
         flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
-    } else if (colors) {
+    } else if (hasColors) {
         *colorOffset = sizeof(SkPoint);
         flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
     return GrDefaultGeoProcFactory::Create(flags, color, viewMatrix, SkMatrix::I());
 }
+
+class DrawVerticesBatch : public GrBatch {
+public:
+    struct Geometry {
+        GrColor fColor;
+        SkTDArray<SkPoint> fPositions;
+        SkTDArray<uint16_t> fIndices;
+        SkTDArray<GrColor> fColors;
+        SkTDArray<SkPoint> fLocalCoords;
+    };
+
+    static GrBatch* Create(const Geometry& geometry, GrPrimitiveType primitiveType,
+                           const SkMatrix& viewMatrix,
+                           const SkPoint* positions, int vertexCount,
+                           const uint16_t* indices, int indexCount,
+                           const GrColor* colors, const SkPoint* localCoords) {
+        return SkNEW_ARGS(DrawVerticesBatch, (geometry, primitiveType, viewMatrix, positions,
+                                              vertexCount, indices, indexCount, colors,
+                                              localCoords));
+    }
+
+    const char* name() const SK_OVERRIDE { return "DrawVerticesBatch"; }
+
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        // When this is called on a batch, there is only one geometry bundle
+        if (this->hasColors()) {
+            out->setUnknownFourComponents();
+        } else {
+            out->setKnownFourComponents(fGeoData[0].fColor);
+        }
+    }
+
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
+    }
+
+    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+        // Handle any color overrides
+        if (init.fColorIgnored) {
+            fGeoData[0].fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fGeoData[0].fColor = init.fOverrideColor;
+        }
+
+        // setup batch properties
+        fBatch.fColorIgnored = init.fColorIgnored;
+        fBatch.fColor = fGeoData[0].fColor;
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
+    }
+
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+        int colorOffset = -1, texOffset = -1;
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                set_vertex_attributes(this->hasLocalCoords(), this->hasColors(), &colorOffset,
+                                      &texOffset, this->color(), this->viewMatrix()));
+
+        batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
+
+        size_t vertexStride = gp->getVertexStride();
+
+        SkASSERT(vertexStride == sizeof(SkPoint) + (this->hasLocalCoords() ? sizeof(SkPoint) : 0)
+                                                 + (this->hasColors() ? sizeof(GrColor) : 0));
+
+        int instanceCount = fGeoData.count();
+
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+
+        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              this->vertexCount(),
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        const GrIndexBuffer* indexBuffer;
+        int firstIndex;
+
+        void* indices = NULL;
+        if (this->hasIndices()) {
+            indices = batchTarget->indexPool()->makeSpace(this->indexCount(),
+                                                          &indexBuffer,
+                                                          &firstIndex);
+        }
+
+        int indexOffset = 0;
+        int vertexOffset = 0;
+        for (int i = 0; i < instanceCount; i++) {
+            const Geometry& args = fGeoData[i];
+
+            // TODO we can actually cache this interleaved and then just memcopy
+            if (this->hasIndices()) {
+                for (int j = 0; j < args.fIndices.count(); ++j, ++indexOffset) {
+                    *((uint16_t*)indices + indexOffset) = args.fIndices[j] + vertexOffset;
+                }
+            }
+
+            for (int j = 0; j < args.fPositions.count(); ++j) {
+                *((SkPoint*)vertices) = args.fPositions[j];
+                if (this->hasColors()) {
+                    *(GrColor*)((intptr_t)vertices + colorOffset) = args.fColors[j];
+                }
+                if (this->hasLocalCoords()) {
+                    *(SkPoint*)((intptr_t)vertices + texOffset) = args.fLocalCoords[j];
+                }
+                vertices = (void*)((intptr_t)vertices + vertexStride);
+                vertexOffset++;
+            }
+        }
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(this->primitiveType());
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setStartVertex(firstVertex);
+        drawInfo.setVertexCount(this->vertexCount());
+        if (this->hasIndices()) {
+            drawInfo.setIndexBuffer(indexBuffer);
+            drawInfo.setStartIndex(firstIndex);
+            drawInfo.setIndexCount(this->indexCount());
+        } else {
+            drawInfo.setStartIndex(0);
+            drawInfo.setIndexCount(0);
+        }
+        batchTarget->draw(drawInfo);
+    }
+
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    DrawVerticesBatch(const Geometry& geometry, GrPrimitiveType primitiveType,
+                      const SkMatrix& viewMatrix,
+                      const SkPoint* positions, int vertexCount,
+                      const uint16_t* indices, int indexCount,
+                      const GrColor* colors, const SkPoint* localCoords) {
+        this->initClassID<DrawVerticesBatch>();
+        SkASSERT(positions);
+
+        fBatch.fViewMatrix = viewMatrix;
+        Geometry& installedGeo = fGeoData.push_back(geometry);
+
+        installedGeo.fPositions.append(vertexCount, positions);
+        if (indices) {
+            installedGeo.fIndices.append(indexCount, indices);
+            fBatch.fHasIndices = true;
+        } else {
+            fBatch.fHasIndices = false;
+        }
+
+        if (colors) {
+            installedGeo.fColors.append(vertexCount, colors);
+            fBatch.fHasColors = true;
+        } else {
+            fBatch.fHasColors = false;
+        }
+
+        if (localCoords) {
+            installedGeo.fLocalCoords.append(vertexCount, localCoords);
+            fBatch.fHasLocalCoords = true;
+        } else {
+            fBatch.fHasLocalCoords = false;
+        }
+        fBatch.fVertexCount = vertexCount;
+        fBatch.fIndexCount = indexCount;
+        fBatch.fPrimitiveType = primitiveType;
+    }
+
+    GrPrimitiveType primitiveType() const { return fBatch.fPrimitiveType; }
+    bool batchablePrimitiveType() const {
+        return kTriangles_GrPrimitiveType == fBatch.fPrimitiveType ||
+               kLines_GrPrimitiveType == fBatch.fPrimitiveType ||
+               kPoints_GrPrimitiveType == fBatch.fPrimitiveType;
+    }
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool colorIgnored() const { return fBatch.fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
+    bool hasColors() const { return fBatch.fHasColors; }
+    bool hasIndices() const { return fBatch.fHasIndices; }
+    bool hasLocalCoords() const { return fBatch.fHasLocalCoords; }
+    int vertexCount() const { return fBatch.fVertexCount; }
+    int indexCount() const { return fBatch.fIndexCount; }
+
+    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+        DrawVerticesBatch* that = t->cast<DrawVerticesBatch>();
+
+        if (!this->batchablePrimitiveType() || this->primitiveType() != that->primitiveType()) {
+            return false;
+        }
+
+        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
+
+        // We currently use a uniform viewmatrix for this batch
+        if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+            return false;
+        }
+
+        if (this->hasColors() != that->hasColors()) {
+            return false;
+        }
+
+        if (this->hasIndices() != that->hasIndices()) {
+            return false;
+        }
+
+        if (this->hasLocalCoords() != that->hasLocalCoords()) {
+            return false;
+        }
+
+        if (!this->hasColors() && this->color() != that->color()) {
+            return false;
+        }
+
+        if (this->color() != that->color()) {
+            fBatch.fColor = GrColor_ILLEGAL;
+        }
+        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fBatch.fVertexCount += that->vertexCount();
+        fBatch.fIndexCount += that->indexCount();
+        return true;
+    }
+
+    struct BatchTracker {
+        GrPrimitiveType fPrimitiveType;
+        SkMatrix fViewMatrix;
+        GrColor fColor;
+        bool fUsesLocalCoords;
+        bool fColorIgnored;
+        bool fCoverageIgnored;
+        bool fHasColors;
+        bool fHasIndices;
+        bool fHasLocalCoords;
+        int fVertexCount;
+        int fIndexCount;
+    };
+
+    BatchTracker fBatch;
+    SkSTArray<1, Geometry, true> fGeoData;
+};
 
 void GrContext::drawVertices(GrRenderTarget* rt,
                              const GrClip& clip,
@@ -716,43 +1087,15 @@ void GrContext::drawVertices(GrRenderTarget* rt,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
 
-    int colorOffset = -1, texOffset = -1;
-    SkAutoTUnref<const GrGeometryProcessor> gp(
-            set_vertex_attributes(texCoords, colors, &colorOffset, &texOffset,
-                                  paint.getColor(), viewMatrix));
+    DrawVerticesBatch::Geometry geometry;
+    geometry.fColor = paint.getColor();
 
-    size_t vertexStride = gp->getVertexStride();
-    SkASSERT(vertexStride == sizeof(SkPoint) + (SkToBool(texCoords) ? sizeof(SkPoint) : 0)
-                                             + (SkToBool(colors) ? sizeof(GrColor) : 0));
-    if (!geo.set(target, vertexCount, vertexStride, indexCount)) {
-        SkDebugf("Failed to get space for vertices!\n");
-        return;
-    }
-    void* curVertex = geo.vertices();
+    SkAutoTUnref<GrBatch> batch(DrawVerticesBatch::Create(geometry, primitiveType, viewMatrix,
+                                                          positions, vertexCount, indices,
+                                                          indexCount,colors, texCoords));
 
-    for (int i = 0; i < vertexCount; ++i) {
-        *((SkPoint*)curVertex) = positions[i];
-
-        if (texOffset >= 0) {
-            *(SkPoint*)((intptr_t)curVertex + texOffset) = texCoords[i];
-        }
-        if (colorOffset >= 0) {
-            *(GrColor*)((intptr_t)curVertex + colorOffset) = colors[i];
-        }
-        curVertex = (void*)((intptr_t)curVertex + vertexStride);
-    }
-
-    // we don't currently apply offscreen AA to this path. Need improved
-    // management of GrDrawTarget's geometry to avoid copying points per-tile.
-    if (indices) {
-        uint16_t* curIndex = (uint16_t*)geo.indices();
-        for (int i = 0; i < indexCount; ++i) {
-            curIndex[i] = indices[i];
-        }
-        target->drawIndexed(&pipelineBuilder, gp, primitiveType, 0, 0, vertexCount, indexCount);
-    } else {
-        target->drawNonIndexed(&pipelineBuilder, gp, primitiveType, 0, vertexCount);
-    }
+    // TODO figure out bounds
+    target->drawBatch(&pipelineBuilder, batch, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
