@@ -53,6 +53,10 @@ class SkGlyph {
         this->initCommon(glyph.fID);
     }
 
+    void initGlyphFromCombinedID(uint32_t combined_id) {
+      this->initCommon(combined_id);
+    }
+
     /**
      *  Compute the rowbytes for the specified width and mask-format.
      */
@@ -106,7 +110,6 @@ class SkGlyph {
      */
     void zeroMetrics();
 
-
     void toMask(SkMask* mask) const;
 
  private:
@@ -120,8 +123,9 @@ class SkGlyph {
         fMaskFormat     = MASK_FORMAT_UNKNOWN;
         fForceBW        = 0;
     }
+
     static unsigned ID2Code(uint32_t id) {
-        return (id & kCodeMask);
+        return id & kCodeMask;
     }
 
     static unsigned ID2SubX(uint32_t id) {
@@ -142,6 +146,7 @@ class SkGlyph {
     }
 
     static uint32_t MakeID(unsigned code) {
+        SkASSERT(code <= kCodeMask);
         return code;
     }
 
@@ -150,8 +155,8 @@ class SkGlyph {
         x = FixedToSub(x);
         y = FixedToSub(y);
         return (x << (kSubShift + kSubShiftX)) |
-            (y << (kSubShift + kSubShiftY)) |
-            code;
+               (y << (kSubShift + kSubShiftY)) |
+               code;
     }
 
   // FIXME - This is needed because the Android frame work directly
