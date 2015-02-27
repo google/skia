@@ -23,6 +23,18 @@ struct SkChunkAlloc::Block {
     char*   fFreePtr;
     // data[] follows
 
+    size_t blockSize() { 
+        char* start = this->startOfData();
+        size_t bytes = fFreePtr - start;
+        return fFreeSize + bytes;
+    }
+
+    void reset() {
+        fNext = NULL;
+        fFreeSize = this->blockSize();
+        fFreePtr = this->startOfData();
+    }
+
     char* startOfData() {
         return reinterpret_cast<char*>(this + 1);
     }
@@ -53,7 +65,8 @@ SkChunkAlloc::SkChunkAlloc(size_t minSize) {
     fChunkSize = fMinSize;
     fTotalCapacity = 0;
     fTotalUsed = 0;
-    fBlockCount = 0;
+    SkDEBUGCODE(fTotalLost = 0;)
+    SkDEBUGCODE(fBlockCount = 0;)
 }
 
 SkChunkAlloc::~SkChunkAlloc() {
@@ -66,7 +79,40 @@ void SkChunkAlloc::reset() {
     fChunkSize = fMinSize;  // reset to our initial minSize
     fTotalCapacity = 0;
     fTotalUsed = 0;
-    fBlockCount = 0;
+    SkDEBUGCODE(fTotalLost = 0;)
+    SkDEBUGCODE(fBlockCount = 0;)
+}
+
+void SkChunkAlloc::rewind() {
+    SkDEBUGCODE(this->validate();)
+
+    Block* largest = fBlock;
+
+    if (largest) {
+        Block* next;
+        for (Block* cur = largest->fNext; cur; cur = next) {
+            next = cur->fNext;
+            if (cur->blockSize() > largest->blockSize()) {
+                sk_free(largest);
+                largest = cur;
+            } else {
+                sk_free(cur);
+            }
+        }
+
+        largest->reset();
+        fTotalCapacity = largest->blockSize();
+        SkDEBUGCODE(fBlockCount = 1;)
+    } else {
+        fTotalCapacity = 0;
+        SkDEBUGCODE(fBlockCount = 0;)
+    }
+
+    fBlock = largest;
+    fChunkSize = fMinSize;  // reset to our initial minSize
+    fTotalUsed = 0;
+    SkDEBUGCODE(fTotalLost = 0;)
+    SkDEBUGCODE(this->validate();)
 }
 
 SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
@@ -79,43 +125,60 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
                         ftype == kThrow_AllocFailType ? SK_MALLOC_THROW : 0);
 
     if (block) {
-        //    block->fNext = fBlock;
         block->fFreeSize = size;
         block->fFreePtr = block->startOfData();
 
         fTotalCapacity += size;
-        fBlockCount += 1;
+        SkDEBUGCODE(fBlockCount += 1;)
 
         fChunkSize = increase_next_size(fChunkSize);
     }
     return block;
 }
 
-void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
-    fTotalUsed += bytes;
+SkChunkAlloc::Block* SkChunkAlloc::addBlockIfNecessary(size_t bytes, AllocFailType ftype) {
+    SkASSERT(SkIsAlign4(bytes));
 
-    bytes = SkAlign4(bytes);
-
-    Block* block = fBlock;
-
-    if (block == NULL || bytes > block->fFreeSize) {
-        block = this->newBlock(bytes, ftype);
-        if (NULL == block) {
+    if (!fBlock || bytes > fBlock->fFreeSize) {
+        Block* block = this->newBlock(bytes, ftype);
+        if (!block) {
             return NULL;
         }
+#ifdef SK_DEBUG
+        if (fBlock) {
+            fTotalLost += fBlock->fFreeSize;
+        }
+#endif
         block->fNext = fBlock;
         fBlock = block;
     }
 
-    SkASSERT(block && bytes <= block->fFreeSize);
+    SkASSERT(fBlock && bytes <= fBlock->fFreeSize);
+    return fBlock;
+}
+
+void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
+    SkDEBUGCODE(this->validate();)
+
+    bytes = SkAlign4(bytes);
+
+    Block* block = this->addBlockIfNecessary(bytes, ftype);
+    if (!block) {
+        return NULL;
+    }
+
     char* ptr = block->fFreePtr;
 
+    fTotalUsed += bytes;
     block->fFreeSize -= bytes;
     block->fFreePtr = ptr + bytes;
+    SkDEBUGCODE(this->validate();)
     return ptr;
 }
 
 size_t SkChunkAlloc::unalloc(void* ptr) {
+    SkDEBUGCODE(this->validate();)
+
     size_t bytes = 0;
     Block* block = fBlock;
     if (block) {
@@ -123,10 +186,12 @@ size_t SkChunkAlloc::unalloc(void* ptr) {
         char* start = block->startOfData();
         if (start <= cPtr && cPtr < block->fFreePtr) {
             bytes = block->fFreePtr - cPtr;
+            fTotalUsed -= bytes;
             block->fFreeSize += bytes;
             block->fFreePtr = cPtr;
         }
     }
+    SkDEBUGCODE(this->validate();)
     return bytes;
 }
 
@@ -140,3 +205,31 @@ bool SkChunkAlloc::contains(const void* addr) const {
     }
     return false;
 }
+
+#ifdef SK_DEBUG
+void SkChunkAlloc::validate() {
+    int numBlocks = 0;
+    size_t totCapacity = 0;
+    size_t totUsed = 0;
+    size_t totLost = 0;
+    size_t totAvailable = 0;
+
+    for (Block* temp = fBlock; temp; temp = temp->fNext) {
+        ++numBlocks;
+        totCapacity += temp->blockSize();
+        totUsed += temp->fFreePtr - temp->startOfData();
+        if (temp == fBlock) {
+            totAvailable += temp->fFreeSize;
+        } else {
+            totLost += temp->fFreeSize;
+        }
+    }
+
+    SkASSERT(fBlockCount == numBlocks);
+    SkASSERT(fTotalCapacity == totCapacity);
+    SkASSERT(fTotalUsed == totUsed);
+    SkASSERT(fTotalLost == totLost);
+    SkASSERT(totCapacity == totUsed + totLost + totAvailable);
+}
+#endif
+

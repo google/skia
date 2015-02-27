@@ -9,32 +9,73 @@
 #include "SkUtils.h"
 #include "Test.h"
 
-static void test_chunkalloc(skiatest::Reporter* reporter) {
-    size_t min = 256;
-    SkChunkAlloc alloc(min);
+static void check_alloc(skiatest::Reporter* reporter, const SkChunkAlloc& alloc,
+                        size_t capacity, size_t used, int numBlocks) {
+    REPORTER_ASSERT(reporter, alloc.totalCapacity() >= capacity);
+    REPORTER_ASSERT(reporter, alloc.totalUsed() == used);
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, alloc.blockCount() == numBlocks);)
+}
 
-    REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
-    REPORTER_ASSERT(reporter, 0 == alloc.totalUsed());
-    REPORTER_ASSERT(reporter, 0 == alloc.blockCount());
+static void* simple_alloc(skiatest::Reporter* reporter, SkChunkAlloc* alloc, size_t size) {
+    void* ptr = alloc->allocThrow(size);
+    check_alloc(reporter, *alloc, size, size, 1);
+    REPORTER_ASSERT(reporter, alloc->contains(ptr));
+    return ptr;
+}
+                        
+static void test_chunkalloc(skiatest::Reporter* reporter) {
+    static const size_t kMin = 1024;
+    SkChunkAlloc alloc(kMin);
+
+    //------------------------------------------------------------------------
+    // check empty
+    check_alloc(reporter, alloc, 0, 0, 0);
     REPORTER_ASSERT(reporter, !alloc.contains(NULL));
     REPORTER_ASSERT(reporter, !alloc.contains(reporter));
 
+    // reset on empty allocator
     alloc.reset();
-    REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
-    REPORTER_ASSERT(reporter, 0 == alloc.totalUsed());
-    REPORTER_ASSERT(reporter, 0 == alloc.blockCount());
+    check_alloc(reporter, alloc, 0, 0, 0);
 
-    size_t size = min >> 1;
-    void* ptr = alloc.allocThrow(size);
-    REPORTER_ASSERT(reporter, alloc.totalCapacity() >= size);
-    REPORTER_ASSERT(reporter, alloc.totalUsed() == size);
-    REPORTER_ASSERT(reporter, alloc.blockCount() > 0);
+    // rewind on empty allocator
+    alloc.rewind();
+    check_alloc(reporter, alloc, 0, 0, 0);
+
+    //------------------------------------------------------------------------
+    // test reset when something is allocated
+    size_t size = kMin >> 1;
+    void* ptr = simple_alloc(reporter, &alloc, size);
+
+    alloc.reset();
+    check_alloc(reporter, alloc, 0, 0, 0);
+    REPORTER_ASSERT(reporter, !alloc.contains(ptr));
+
+    //------------------------------------------------------------------------
+    // test rewind when something is allocated
+    ptr = simple_alloc(reporter, &alloc, size);
+
+    alloc.rewind();
+    check_alloc(reporter, alloc, size, 0, 1);
+    REPORTER_ASSERT(reporter, !alloc.contains(ptr));
+
+    // use the available block
+    ptr = simple_alloc(reporter, &alloc, size);
+    alloc.reset();
+
+    //------------------------------------------------------------------------
+    // test out allocating a second block
+    ptr = simple_alloc(reporter, &alloc, size);
+
+    ptr = alloc.allocThrow(kMin);
+    check_alloc(reporter, alloc, 2*kMin, size+kMin, 2);
     REPORTER_ASSERT(reporter, alloc.contains(ptr));
 
-    alloc.reset();
+    //------------------------------------------------------------------------
+    // test out unalloc
+    size_t freed = alloc.unalloc(ptr);
+    REPORTER_ASSERT(reporter, freed == kMin);
+    check_alloc(reporter, alloc, 2*kMin, size, 2);
     REPORTER_ASSERT(reporter, !alloc.contains(ptr));
-    REPORTER_ASSERT(reporter, 0 == alloc.totalCapacity());
-    REPORTER_ASSERT(reporter, 0 == alloc.totalUsed());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

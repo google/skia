@@ -68,7 +68,7 @@ public:
     void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
     void notifyWritten(size_t bytes) SK_OVERRIDE;
     void playback(bool silent);
-    bool hasPendingCommands() const { return fAllocator.blockCount() != 0; }
+    bool hasPendingCommands() const { return fAllocator.totalUsed() != 0; }
     size_t storageAllocatedForRecording() const { return fAllocator.totalCapacity(); }
 private:
     enum {
