@@ -12,6 +12,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "SkChunkAlloc.h"
 #include "GrPipeline.h"
 #include "GrPath.h"
 #include "GrTRecorder.h"
@@ -78,7 +79,7 @@ private:
         Cmd(uint8_t type) : fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrInOrderDrawBuffer*, const SetState*) = 0;
+        virtual void execute(GrGpu*, const SetState*) = 0;
 
         uint8_t type() const { return fType & kCmdMask; }
 
@@ -95,7 +96,7 @@ private:
     struct Draw : public Cmd {
         Draw(const DrawInfo& info) : Cmd(kDraw_Cmd), fInfo(info) {}
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         DrawInfo     fInfo;
     };
@@ -108,7 +109,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         SkMatrix                                                fViewMatrix;
         bool                                                    fUseHWAA;
@@ -124,7 +125,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         GrStencilSettings       fStencilSettings;
 
@@ -137,11 +138,11 @@ private:
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
-        int                     fIndicesLocation;
+        char*                   fIndices;
         PathIndexType           fIndexType;
-        int                     fTransformsLocation;
+        float*                  fTransforms;
         PathTransformType       fTransformType;
         int                     fCount;
         GrStencilSettings       fStencilSettings;
@@ -156,7 +157,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         SkIRect fRect;
         GrColor fColor;
@@ -172,7 +173,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -187,7 +188,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -214,7 +215,7 @@ private:
             return reinterpret_cast<const GrPipeline*>(fPipeline.get());
         }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
         ProgramPrimitiveProcessor               fPrimitiveProcessor;
@@ -224,14 +225,20 @@ private:
     };
 
     struct DrawBatch : public Cmd {
-        DrawBatch(GrBatch* batch) : Cmd(kDrawBatch_Cmd), fBatch(SkRef(batch)) {
+        DrawBatch(GrBatch* batch, GrBatchTarget* batchTarget) 
+            : Cmd(kDrawBatch_Cmd)
+            , fBatch(SkRef(batch))
+            , fBatchTarget(batchTarget) {
             SkASSERT(!batch->isUsed());
         }
 
-        void execute(GrInOrderDrawBuffer*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
         // TODO it wouldn't be too hard to let batches allocate in the cmd buffer
         SkAutoTUnref<GrBatch>  fBatch;
+
+    private:
+        GrBatchTarget*         fBatchTarget;
     };
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
@@ -308,8 +315,8 @@ private:
     CmdBuffer                           fCmdBuffer;
     SetState*                           fPrevState;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
-    SkTDArray<char>                     fPathIndexBuffer;
-    SkTDArray<float>                    fPathTransformBuffer;
+    SkChunkAlloc                        fPathIndexBuffer;
+    SkChunkAlloc                        fPathTransformBuffer;
     uint32_t                            fDrawID;
     GrBatchTarget                       fBatchTarget;
     // TODO hack until batch is everywhere
@@ -320,7 +327,7 @@ private:
     void closeBatch() {
         if (fDrawBatch) {
             fBatchTarget.resetNumberOfDraws();
-            fDrawBatch->execute(this, fPrevState);
+            fDrawBatch->execute(this->getGpu(), fPrevState);
             fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
             fDrawBatch = NULL;
         }

@@ -21,15 +21,14 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     : INHERITED(gpu, vertexPool, indexPool)
     , fCmdBuffer(kCmdBufferInitialSizeInBytes)
     , fPrevState(NULL)
+    , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
+    , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fDrawID(0)
     , fBatchTarget(gpu, vertexPool, indexPool)
     , fDrawBatch(NULL) {
 
     SkASSERT(vertexPool);
     SkASSERT(indexPool);
-
-    fPathIndexBuffer.setReserve(kPathIdxBufferMinReserve);
-    fPathTransformBuffer.setReserve(kPathXformBufferMinReserve);
 }
 
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
@@ -74,19 +73,6 @@ static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettin
         SkASSERT(!pathStencilSettings.isTwoSided());
     }
     return isWinding;
-}
-
-template<typename T> static void reset_data_buffer(SkTDArray<T>* buffer, int minReserve) {
-    // Assume the next time this buffer fills up it will use approximately the same amount
-    // of space as last time. Only resize if we're using less than a third of the
-    // allocated space, and leave enough for 50% growth over last time.
-    if (3 * buffer->count() < buffer->reserved() && buffer->reserved() > minReserve) {
-        int reserve = SkTMax(minReserve, buffer->count() * 3 / 2);
-        buffer->reset();
-        buffer->setReserve(reserve);
-    } else {
-        buffer->rewind();
-    }
 }
 
 class RectBatch : public GrBatch {
@@ -413,7 +399,7 @@ void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
 
     // Check if there is a Batch Draw we can batch with
     if (Cmd::kDrawBatch_Cmd != fCmdBuffer.back().type()) {
-        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
+        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
         return;
     }
 
@@ -422,7 +408,7 @@ void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
         return;
     } else {
         this->closeBatch();
-        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch));
+        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
     }
     this->recordTraceMarkersIfNecessary();
 }
@@ -478,16 +464,20 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
     }
 
     int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
-    if (int misalign = fPathIndexBuffer.count() % indexBytes) {
-        // Add padding to the index buffer so the indices are aligned properly.
-        fPathIndexBuffer.append(indexBytes - misalign);
-    }
+    char* savedIndices = (char*) fPathIndexBuffer.alloc(count * indexBytes,
+                                                        SkChunkAlloc::kThrow_AllocFailType);
+    SkASSERT(SkIsAlign4((uintptr_t)savedIndices));
+    memcpy(savedIndices, reinterpret_cast<const char*>(indices), count * indexBytes);
 
-    char* savedIndices = fPathIndexBuffer.append(count * indexBytes,
-                                                 reinterpret_cast<const char*>(indices));
-    float* savedTransforms = fPathTransformBuffer.append(
-                                 count * GrPathRendering::PathTransformSize(transformType),
-                                 transformValues);
+    const int xformSize = GrPathRendering::PathTransformSize(transformType);
+    const int xformBytes = xformSize * sizeof(float);
+    float* savedTransforms = NULL;
+    if (0 != xformBytes) {
+        savedTransforms = (float*) fPathTransformBuffer.alloc(count * xformBytes,
+                                                              SkChunkAlloc::kThrow_AllocFailType);
+        SkASSERT(SkIsAlign4((uintptr_t)savedTransforms));
+        memcpy(savedTransforms, transformValues, count * xformBytes);
+    }
 
     if (Cmd::kDrawPaths_Cmd == fCmdBuffer.back().type()) {
         // The previous command was also DrawPaths. Try to collapse this call into the one
@@ -504,16 +494,20 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
             !pipelineInfo.willBlendWithDst(pathProc)) {
-            // Fold this DrawPaths call into the one previous.
-            previous->fCount += count;
-            return;
+            if (&previous->fIndices[previous->fCount*indexBytes] == savedIndices &&
+                (0 == xformBytes ||
+                 &previous->fTransforms[previous->fCount*xformSize] == savedTransforms)) {
+                // Fold this DrawPaths call into the one previous.
+                previous->fCount += count;
+                return;
+            }
         }
     }
 
     DrawPaths* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPaths, (pathRange));
-    dp->fIndicesLocation = SkToU32(savedIndices - fPathIndexBuffer.begin());
+    dp->fIndices = savedIndices;
     dp->fIndexType = indexType;
-    dp->fTransformsLocation = SkToU32(savedTransforms - fPathTransformBuffer.begin());
+    dp->fTransforms = savedTransforms;
     dp->fTransformType = transformType;
     dp->fCount = count;
     dp->fStencilSettings = stencilSettings;
@@ -569,8 +563,8 @@ void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
 void GrInOrderDrawBuffer::onReset() {
     fCmdBuffer.reset();
     fPrevState = NULL;
-    reset_data_buffer(&fPathIndexBuffer, kPathIdxBufferMinReserve);
-    reset_data_buffer(&fPathTransformBuffer, kPathXformBufferMinReserve);
+    fPathIndexBuffer.rewind();
+    fPathTransformBuffer.rewind();
     fGpuCmdMarkers.reset();
     fDrawBatch = NULL;
 }
@@ -626,7 +620,7 @@ void GrInOrderDrawBuffer::onFlush() {
             }
             currentState = ss;
         } else {
-            iter->execute(this, currentState);
+            iter->execute(this->getGpu(), currentState);
         }
 
         if (iter->isTraced()) {
@@ -641,14 +635,14 @@ void GrInOrderDrawBuffer::onFlush() {
     ++fDrawID;
 }
 
-void GrInOrderDrawBuffer::Draw::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+void GrInOrderDrawBuffer::Draw::execute(GrGpu* gpu, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), state->getPipeline(), &state->fDesc,
                   &state->fBatchTracker);
-    buf->getGpu()->draw(args, fInfo);
+    gpu->draw(args, fInfo);
 }
 
-void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const SetState*) {
+void GrInOrderDrawBuffer::StencilPath::execute(GrGpu* gpu, const SetState*) {
     GrGpu::StencilPathState state;
     state.fRenderTarget = fRenderTarget.get();
     state.fScissor = &fScissor;
@@ -656,47 +650,47 @@ void GrInOrderDrawBuffer::StencilPath::execute(GrInOrderDrawBuffer* buf, const S
     state.fUseHWAA = fUseHWAA;
     state.fViewMatrix = &fViewMatrix;
 
-    buf->getGpu()->stencilPath(this->path(), state);
+    gpu->stencilPath(this->path(), state);
 }
 
-void GrInOrderDrawBuffer::DrawPath::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+void GrInOrderDrawBuffer::DrawPath::execute(GrGpu* gpu, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), state->getPipeline(), &state->fDesc,
                   &state->fBatchTracker);
-    buf->getGpu()->drawPath(args, this->path(), fStencilSettings);
+    gpu->drawPath(args, this->path(), fStencilSettings);
 }
 
-void GrInOrderDrawBuffer::DrawPaths::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+void GrInOrderDrawBuffer::DrawPaths::execute(GrGpu* gpu, const SetState* state) {
     SkASSERT(state);
     DrawArgs args(state->fPrimitiveProcessor.get(), state->getPipeline(), &state->fDesc,
                   &state->fBatchTracker);
-    buf->getGpu()->drawPaths(args, this->pathRange(),
-                            &buf->fPathIndexBuffer[fIndicesLocation], fIndexType,
-                            &buf->fPathTransformBuffer[fTransformsLocation], fTransformType,
-                            fCount, fStencilSettings);
+    gpu->drawPaths(args, this->pathRange(),
+                   fIndices, fIndexType,
+                   fTransforms, fTransformType,
+                   fCount, fStencilSettings);
 }
 
-void GrInOrderDrawBuffer::DrawBatch::execute(GrInOrderDrawBuffer* buf, const SetState* state) {
+void GrInOrderDrawBuffer::DrawBatch::execute(GrGpu* gpu, const SetState* state) {
     SkASSERT(state);
-    fBatch->generateGeometry(buf->getBatchTarget(), state->getPipeline());
+    fBatch->generateGeometry(fBatchTarget, state->getPipeline());
 }
 
-void GrInOrderDrawBuffer::SetState::execute(GrInOrderDrawBuffer*, const SetState*) {}
+void GrInOrderDrawBuffer::SetState::execute(GrGpu* gpu, const SetState*) {}
 
-void GrInOrderDrawBuffer::Clear::execute(GrInOrderDrawBuffer* buf, const SetState*) {
+void GrInOrderDrawBuffer::Clear::execute(GrGpu* gpu, const SetState*) {
     if (GrColor_ILLEGAL == fColor) {
-        buf->getGpu()->discard(this->renderTarget());
+        gpu->discard(this->renderTarget());
     } else {
-        buf->getGpu()->clear(&fRect, fColor, fCanIgnoreRect, this->renderTarget());
+        gpu->clear(&fRect, fColor, fCanIgnoreRect, this->renderTarget());
     }
 }
 
-void GrInOrderDrawBuffer::ClearStencilClip::execute(GrInOrderDrawBuffer* buf, const SetState*) {
-    buf->getGpu()->clearStencilClip(fRect, fInsideClip, this->renderTarget());
+void GrInOrderDrawBuffer::ClearStencilClip::execute(GrGpu* gpu, const SetState*) {
+    gpu->clearStencilClip(fRect, fInsideClip, this->renderTarget());
 }
 
-void GrInOrderDrawBuffer::CopySurface::execute(GrInOrderDrawBuffer* buf, const SetState*) {
-    buf->getGpu()->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
+void GrInOrderDrawBuffer::CopySurface::execute(GrGpu* gpu, const SetState*) {
+    gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
 bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
