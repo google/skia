@@ -25,7 +25,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
     // TODO: can we stop supporting kUnknown in SkBitmkapDevice?
     if (kUnknown_SkColorType == info.colorType()) {
         if (newAlphaType) {
-            *newAlphaType = kUnknown_SkAlphaType;
+            *newAlphaType = kIgnore_SkAlphaType;
         }
         return true;
     }

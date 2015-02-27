@@ -12,9 +12,8 @@
 static CGBitmapInfo ComputeCGAlphaInfo_RGBA(SkAlphaType at) {
     CGBitmapInfo info = kCGBitmapByteOrder32Big;
     switch (at) {
-        case kUnknown_SkAlphaType:
-            break;
         case kOpaque_SkAlphaType:
+        case kIgnore_SkAlphaType:
             info |= kCGImageAlphaNoneSkipLast;
             break;
         case kPremul_SkAlphaType:
@@ -30,9 +29,8 @@ static CGBitmapInfo ComputeCGAlphaInfo_RGBA(SkAlphaType at) {
 static CGBitmapInfo ComputeCGAlphaInfo_BGRA(SkAlphaType at) {
     CGBitmapInfo info = kCGBitmapByteOrder32Little;
     switch (at) {
-        case kUnknown_SkAlphaType:
-            break;
         case kOpaque_SkAlphaType:
+        case kIgnore_SkAlphaType:
             info |= kCGImageAlphaNoneSkipFirst;
             break;
         case kPremul_SkAlphaType:

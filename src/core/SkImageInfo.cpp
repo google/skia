@@ -50,7 +50,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
                                   SkAlphaType* canonical) {
     switch (colorType) {
         case kUnknown_SkColorType:
-            alphaType = kUnknown_SkAlphaType;
+            alphaType = kIgnore_SkAlphaType;
             break;
         case kAlpha_8_SkColorType:
             if (kUnpremul_SkAlphaType == alphaType) {
@@ -61,7 +61,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            if (kUnknown_SkAlphaType == alphaType) {
+            if (kIgnore_SkAlphaType == alphaType) {
                 return false;
             }
             break;

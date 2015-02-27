@@ -54,8 +54,8 @@ static bool is_32bit_colortype(SkColorType ct) {
 }
 
 static AlphaVerb compute_AlphaVerb(SkAlphaType src, SkAlphaType dst) {
-    SkASSERT(kUnknown_SkAlphaType != src);
-    SkASSERT(kUnknown_SkAlphaType != dst);
+    SkASSERT(kIgnore_SkAlphaType != src);
+    SkASSERT(kIgnore_SkAlphaType != dst);
 
     if (kOpaque_SkAlphaType == src || kOpaque_SkAlphaType == dst || src == dst) {
         return kNothing_AlphaVerb;

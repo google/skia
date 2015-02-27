@@ -182,8 +182,8 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
             SkASSERT(fInfo.height() <= prInfo.height());
             SkASSERT(fInfo.colorType() == prInfo.colorType());
             switch (prInfo.alphaType()) {
-                case kUnknown_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kUnknown_SkAlphaType);
+                case kIgnore_SkAlphaType:
+                    SkASSERT(fInfo.alphaType() == kIgnore_SkAlphaType);
                     break;
                 case kOpaque_SkAlphaType:
                 case kPremul_SkAlphaType:
