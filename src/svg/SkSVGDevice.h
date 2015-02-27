@@ -61,6 +61,8 @@ private:
     SkSVGDevice(const SkISize& size, SkXMLWriter* writer);
     virtual ~SkSVGDevice();
 
+    void drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm, const SkPaint& paint);
+
     class AutoElement;
     class ResourceBucket;
 
