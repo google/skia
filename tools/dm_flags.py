@@ -22,7 +22,16 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
-  configs = ['565', '8888', 'gpu', 'nvprmsaa4']
+  configs = ['565', '8888', 'gpu']
+  # The S4 crashes and the NP produces a long error stream when we run with
+  # MSAA.
+  if ('GalaxyS4'    not in bot and
+      'NexusPlayer' not in bot):
+    if 'Android' in bot:
+      configs.extend(['msaa4', 'nvprmsaa4'])
+    else:
+      configs.extend(['msaa16', 'nvprmsaa16'])
+
   # Xoom and NP are running out of RAM when we run all these modes.  skia:3255
   if ('Xoom'        not in bot and
       'NexusPlayer' not in bot):
