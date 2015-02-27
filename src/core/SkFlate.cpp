@@ -24,12 +24,19 @@ namespace {
 // static
 const size_t kBufferSize = 1024;
 
+static void* skia_alloc_func(void*, size_t items, size_t size) {
+    return sk_calloc_throw(items * size);
+}
+
+static void skia_free_func(void*, void* address) { sk_free(address); }
+
 bool doFlate(bool compress, SkStream* src, SkWStream* dst) {
     uint8_t inputBuffer[kBufferSize];
     uint8_t outputBuffer[kBufferSize];
     z_stream flateData;
-    flateData.zalloc = NULL;
-    flateData.zfree = NULL;
+    flateData.zalloc = &skia_alloc_func;
+    flateData.zfree = &skia_free_func;
+    flateData.opaque = NULL;
     flateData.next_in = NULL;
     flateData.avail_in = 0;
     flateData.next_out = outputBuffer;
@@ -170,9 +177,9 @@ SkDeflateWStream::SkDeflateWStream(SkWStream* out)
     if (!fImpl->fOut) {
         return;
     }
-    fImpl->fZStream.zalloc = Z_NULL;
-    fImpl->fZStream.zfree = Z_NULL;
-    fImpl->fZStream.opaque = Z_NULL;
+    fImpl->fZStream.zalloc = &skia_alloc_func;
+    fImpl->fZStream.zfree = &skia_free_func;
+    fImpl->fZStream.opaque = NULL;
     SkDEBUGCODE(int r =) deflateInit(&fImpl->fZStream, Z_DEFAULT_COMPRESSION);
     SkASSERT(Z_OK == r);
 }
