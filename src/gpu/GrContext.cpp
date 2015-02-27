@@ -849,7 +849,7 @@ public:
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
-        out->setUnknownSingleComponent();
+        out->setKnownSingleComponent(0xff);
     }
 
     void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
