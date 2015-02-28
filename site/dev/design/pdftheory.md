@@ -56,8 +56,9 @@ longer document with a bunch of other pages.
 
 <!--?prettify lang=cc?-->
 
+    SkPDFCanon canon;
     SkAutoUnref<SkPDFDevice> pdfDevice(
-        new SkPDFDevice(width, height, initial_transform));
+        SkPDFDevice::Create(SkISize::Make(width, height), 72.0f, &canon));
 
     SkCanvas canvas(pdfDevice);
     draw_content(&canvas);
