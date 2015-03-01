@@ -12,9 +12,7 @@
 
 #include <sys/types.h>
 
-#include "SkPDFDocument.h"
 #include "SkPDFTypes.h"
-#include "SkRefCnt.h"
 #include "SkTDArray.h"
 
 /** \class SkPDFCatalog

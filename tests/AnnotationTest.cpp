@@ -8,9 +8,8 @@
 #include "SkAnnotation.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkPDFCanon.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
+#include "SkDocument.h"
+#include "SkStream.h"
 #include "Test.h"
 
 /** Returns true if data (may contain null characters) contains needle (null
@@ -41,20 +40,17 @@ DEF_TEST(Annotation_NoDraw, reporter) {
 }
 
 DEF_TEST(Annotation_PdfLink, reporter) {
-    SkISize size = SkISize::Make(612, 792);
-    SkPDFCanon canon;
-    SkAutoTUnref<SkPDFDevice> device(SkPDFDevice::Create(size, 72.0f, &canon));
-    SkCanvas canvas(device.get());
+    SkDynamicMemoryWStream outStream;
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
+    REPORTER_ASSERT(reporter, canvas);
 
     SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72),
                                 SkIntToScalar(288), SkIntToScalar(72));
     SkAutoDataUnref data(SkData::NewWithCString("http://www.gooogle.com"));
-    SkAnnotateRectWithURL(&canvas, r, data.get());
+    SkAnnotateRectWithURL(canvas, r, data.get());
 
-    SkPDFDocument doc;
-    doc.appendPage(device.get());
-    SkDynamicMemoryWStream outStream;
-    doc.emitPDF(&outStream);
+    REPORTER_ASSERT(reporter, doc->close());
     SkAutoDataUnref out(outStream.copyToData());
     const char* rawOutput = (const char*)out->data();
 
@@ -62,19 +58,16 @@ DEF_TEST(Annotation_PdfLink, reporter) {
 }
 
 DEF_TEST(Annotation_NamedDestination, reporter) {
-    SkISize size = SkISize::Make(612, 792);
-    SkPDFCanon canon;
-    SkAutoTUnref<SkPDFDevice> device(SkPDFDevice::Create(size, 72.0f, &canon));
-    SkCanvas canvas(device.get());
+    SkDynamicMemoryWStream outStream;
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
+    REPORTER_ASSERT(reporter, canvas);
 
     SkPoint p = SkPoint::Make(SkIntToScalar(72), SkIntToScalar(72));
     SkAutoDataUnref data(SkData::NewWithCString("example"));
-    SkAnnotateNamedDestination(&canvas, p, data.get());
+    SkAnnotateNamedDestination(canvas, p, data.get());
 
-    SkPDFDocument doc;
-    doc.appendPage(device.get());
-    SkDynamicMemoryWStream outStream;
-    doc.emitPDF(&outStream);
+    REPORTER_ASSERT(reporter, doc->close());
     SkAutoDataUnref out(outStream.copyToData());
     const char* rawOutput = (const char*)out->data();
 

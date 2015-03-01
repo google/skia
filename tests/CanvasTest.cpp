@@ -47,11 +47,9 @@
 #include "SkCanvas.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
+#include "SkDocument.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
-#include "SkPDFCanon.h"
-#include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -558,17 +556,15 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
 static void TestPdfDevice(skiatest::Reporter* reporter,
                           const TestData& d,
                           CanvasTestStep* testStep) {
-    SkISize pageSize = SkISize::Make(d.fWidth, d.fHeight);
-    SkPDFCanon canon;
-    SkAutoTUnref<SkPDFDevice> pdfDevice(
-            SkPDFDevice::Create(pageSize, 72.0f, &canon));
-    SkCanvas canvas(pdfDevice.get());
+    SkDynamicMemoryWStream outStream;
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    SkCanvas* canvas = doc->beginPage(SkIntToScalar(d.fWidth),
+                                      SkIntToScalar(d.fHeight));
+    REPORTER_ASSERT(reporter, canvas);
     testStep->setAssertMessageFormat(kPdfAssertMessageFormat);
-    testStep->draw(&canvas, d, reporter);
-    SkPDFDocument doc;
-    doc.appendPage(pdfDevice.get());
-    SkDynamicMemoryWStream stream;
-    doc.emitPDF(&stream);
+    testStep->draw(canvas, d, reporter);
+
+    REPORTER_ASSERT(reporter, doc->close());
 }
 
 // The following class groups static functions that need to access

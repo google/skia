@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDocument.h"
 #include "SkFlate.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix.h"
@@ -215,21 +216,16 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 // SKP files might have invalid glyph ids. This test ensures they are ignored,
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
-    SkISize pageSize = SkISize::Make(100, 100);
-    SkPDFCanon canon;
-    SkAutoTUnref<SkPDFDevice> dev(SkPDFDevice::Create(pageSize, 72.0f, &canon));
-    SkCanvas c(dev);
+    SkDynamicMemoryWStream outStream;
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
+    SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
     SkPaint paint;
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     uint16_t glyphID = 65000;
-    c.drawText(&glyphID, 2, 0, 0, paint);
+    canvas->drawText(&glyphID, 2, 0, 0, paint);
 
-    SkPDFDocument doc;
-    doc.appendPage(dev);
-
-    SkDynamicMemoryWStream stream;
-    doc.emitPDF(&stream);
+    doc->close();
 }
 
 DEF_TEST(PDFPrimitives, reporter) {
@@ -354,18 +350,18 @@ void DummyImageFilter::toString(SkString* str) const {
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.
 DEF_TEST(PDFImageFilter, reporter) {
-    SkISize pageSize = SkISize::Make(100, 100);
-    SkPDFCanon canon;
-    SkAutoTUnref<SkPDFDevice> pdfDevice(
-            SkPDFDevice::Create(pageSize, 72.0f, &canon));
-    SkCanvas canvas(pdfDevice.get());
+    SkDynamicMemoryWStream stream;
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
+
     SkAutoTUnref<DummyImageFilter> filter(new DummyImageFilter());
 
     // Filter just created; should be unvisited.
     REPORTER_ASSERT(reporter, !filter->visited());
     SkPaint paint;
     paint.setImageFilter(filter.get());
-    canvas.drawRect(SkRect::MakeWH(100, 100), paint);
+    canvas->drawRect(SkRect::MakeWH(100, 100), paint);
+    doc->close();
 
     // Filter was used in rendering; should be visited.
     REPORTER_ASSERT(reporter, filter->visited());

@@ -10,7 +10,6 @@
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFCatalog.h"
-#include "SkPDFDocument.h"
 #include "SkStream.h"
 #include "SkUnPreMultiply.h"
 
