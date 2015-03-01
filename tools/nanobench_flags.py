@@ -24,6 +24,18 @@ def get_args(bot):
 
   args.extend(['--scales', '1.0', '1.1'])
 
+  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui']
+  # The S4 crashes and the NP produces a long error stream when we run with
+  # MSAA.
+  if ('GalaxyS4'    not in bot and
+      'NexusPlayer' not in bot):
+    if 'Android' in bot:
+      config.extend(['msaa4', 'nvprmsaa4'])
+    else:
+      config.extend(['msaa16', 'nvprmsaa16'])
+  args.append('--config')
+  args.extend(config)
+
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
@@ -42,6 +54,7 @@ def get_args(bot):
   if match:
     args.append('--match')
     args.extend(match)
+  
 
   if ('GalaxyS3' in bot or
       'GalaxyS4' in bot):
