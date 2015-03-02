@@ -6,12 +6,9 @@
  */
 
 #include "SkColorFilter.h"
-
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkShader.h"
-#include "SkUnPreMultiply.h"
 #include "SkString.h"
+#include "SkWriteBuffer.h"
 
 bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) const {
     return false;
@@ -43,3 +40,76 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 GrFragmentProcessor* SkColorFilter::asFragmentProcessor(GrContext*) const {
     return NULL;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkComposeColorFilter : public SkColorFilter {
+public:
+    SkComposeColorFilter(SkColorFilter* outer, SkColorFilter* inner)
+        : fOuter(SkRef(outer))
+        , fInner(SkRef(inner))
+    {}
+    
+    uint32_t getFlags() const SK_OVERRIDE {
+        // Can only claim alphaunchanged and 16bit support if both our proxys do.
+        return fOuter->getFlags() & fInner->getFlags();
+    }
+    
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const SK_OVERRIDE {
+        fInner->filterSpan(shader, count, result);
+        fOuter->filterSpan(result, count, result);
+    }
+    
+    void filterSpan16(const uint16_t shader[], int count, uint16_t result[]) const SK_OVERRIDE {
+        SkASSERT(this->getFlags() & kHasFilter16_Flag);
+        fInner->filterSpan16(shader, count, result);
+        fOuter->filterSpan16(result, count, result);
+    }
+    
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const SK_OVERRIDE {
+        SkString outerS, innerS;
+        fOuter->toString(&outerS);
+        fInner->toString(&innerS);
+        str->appendf("SkComposeColorFilter: outer(%s) inner(%s)", outerS.c_str(), innerS.c_str());
+    }
+#endif
+
+#if 0   // TODO: should we support composing the fragments?
+#if SK_SUPPORT_GPU
+    GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
+#endif
+#endif
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeColorFilter)
+    
+protected:
+    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+        buffer.writeFlattenable(fOuter);
+        buffer.writeFlattenable(fInner);
+    }
+    
+private:
+    SkAutoTUnref<SkColorFilter> fOuter;
+    SkAutoTUnref<SkColorFilter> fInner;
+    
+    typedef SkColorFilter INHERITED;
+};
+
+SkFlattenable* SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
+    SkAutoTUnref<SkColorFilter> outer(buffer.readColorFilter());
+    SkAutoTUnref<SkColorFilter> inner(buffer.readColorFilter());
+    return CreateComposeFilter(outer, inner);
+}
+
+SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner) {
+    if (!outer) {
+        return SkSafeRef(inner);
+    }
+    if (!inner) {
+        return SkSafeRef(outer);
+    }
+    return SkNEW_ARGS(SkComposeColorFilter, (outer, inner));
+}
+
+
