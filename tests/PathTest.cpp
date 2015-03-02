@@ -38,6 +38,14 @@ static void test_add_rrect(skiatest::Reporter* reporter, const SkRect& bounds,
     REPORTER_ASSERT(reporter, bounds == path.getBounds());
 }
 
+static void test_skbug_3469(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(20, 20);
+    path.quadTo(20, 50, 80, 50);
+    path.quadTo(20, 50, 20, 80);
+    REPORTER_ASSERT(reporter, !path.isConvex());
+}
+
 static void test_skbug_3239(skiatest::Reporter* reporter) {
     const float min = SkBits2Float(0xcb7f16c8); /* -16717512.000000 */
     const float max = SkBits2Float(0x4b7f1c1d); /*  16718877.000000 */
@@ -3732,5 +3740,6 @@ DEF_TEST(Paths, reporter) {
     PathRefTest_Private::TestPathRef(reporter);
     test_dump(reporter);
     test_path_crbugskia2820(reporter);
+    test_skbug_3469(reporter);
     test_skbug_3239(reporter);
 }

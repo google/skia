@@ -2129,7 +2129,8 @@ struct Convexicator {
     : fPtCount(0)
     , fConvexity(SkPath::kConvex_Convexity)
     , fDirection(SkPath::kUnknown_Direction)
-    , fIsFinite(true) {
+    , fIsFinite(true)
+    , fIsCurve(false) {
         fExpectedDir = kInvalid_DirChange;
         // warnings
         fLastPt.set(0, 0);
@@ -2193,6 +2194,10 @@ struct Convexicator {
         return fIsFinite;
     }
 
+    void setCurve(bool isCurve) {
+        fIsCurve = isCurve;
+    }
+
 private:
     void addVec(const SkVector& vec) {
         SkASSERT(vec.fX || vec.fY);
@@ -2213,6 +2218,10 @@ private:
             case kStraight_DirChange:
                 break;
             case kBackwards_DirChange:
+                if (fIsCurve) {
+                    fConvexity = SkPath::kConcave_Convexity;
+                    fDirection = SkPath::kUnknown_Direction;
+                }
                 fLastVec = vec;
                 break;
             case kInvalid_DirChange:
@@ -2232,6 +2241,7 @@ private:
     SkPath::Direction   fDirection;
     int                 fDx, fDy, fSx, fSy;
     bool                fIsFinite;
+    bool                fIsCurve;
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
@@ -2255,13 +2265,23 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
                     return kConcave_Convexity;
                 }
                 pts[1] = pts[0];
+                // fall through
+            case kLine_Verb:
                 count = 1;
+                state.setCurve(false);
                 break;
-            case kLine_Verb: count = 1; break;
-            case kQuad_Verb: count = 2; break;
-            case kConic_Verb: count = 2; break;
-            case kCubic_Verb: count = 3; break;
+            case kQuad_Verb:
+                // fall through
+            case kConic_Verb:
+                // fall through
+            case kCubic_Verb:
+                count = 2 + (kCubic_Verb == verb);
+                // As an additional enhancement, this could set curve true only
+                // if the curve is nonlinear
+                state.setCurve(true);
+                break;
             case kClose_Verb:
+                state.setCurve(false);
                 state.close();
                 count = 0;
                 break;
