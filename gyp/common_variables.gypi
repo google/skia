@@ -121,16 +121,6 @@
             'skia_freetype_static%': '0',
           }
         ],
-        [ 'skia_os in ["mac", "ios", "win"]', {
-            # skia_libpng_static - instead of linking libpng with '-lpng' and
-            #     including the headers from '/usr/include/png.h', compile and
-            #     statically link the version of libpng in
-            #     third_party/externals/libpng.
-            'skia_libpng_static%': '1',
-          }, {
-            'skia_libpng_static%': '0',
-          }
-        ],
       ],
 
       # skia_giflib_static - on OS variants that normally would link giflib
@@ -139,6 +129,11 @@
       #     giflib in third_party/externals/giflib.
       'skia_giflib_static%': '0',
 
+      # skia_libpng_static - on OS variants that normally would link libpng
+      #     with '-lpng' and include the headers from '/usr/include/png.h',
+      #     don't do that; instead compile and staticlly link the version of
+      #     libpng in third_party/externals/libpng.
+      'skia_libpng_static%': '0',
 
       # skia_no_fontconfig - On POSIX systems that would normally use the
       #     SkFontHost_fontconfig interface; use the SkFontHost_linux

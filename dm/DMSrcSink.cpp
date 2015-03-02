@@ -1,7 +1,6 @@
 #include "DMSrcSink.h"
 #include "SamplePipeControllers.h"
 #include "SkCommonFlags.h"
-#include "SkCodec.h"
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkMultiPictureDraw.h"
@@ -12,8 +11,6 @@
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkXMLWriter.h"
-
-DEFINE_bool(codec, false, "Use SkCodec instead of SkImageDecoder");
 
 namespace DM {
 
@@ -49,35 +46,9 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
     if (fDivisor == 0) {
         // Decode the full image.
         SkBitmap bitmap;
-        if (FLAGS_codec) {
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-            if (!codec) {
-                return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
-            }
-            SkImageInfo info;
-            if (!codec->getInfo(&info)) {
-                return SkStringPrintf("Couldn't getInfo %s.", fPath.c_str());
-            }
-            info = info.makeColorType(dstColorType);
-            if (info.alphaType() == kUnpremul_SkAlphaType) {
-                // FIXME: Currently we cannot draw unpremultiplied sources.
-                info = info.makeAlphaType(kPremul_SkAlphaType);
-            }
-            if (!bitmap.tryAllocPixels(info)) {
-                return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
-                                      info.width(), info.height());
-            }
-            SkAutoLockPixels alp(bitmap);
-            const SkImageGenerator::Result result = codec->getPixels(info, bitmap.getPixels(),
-                                                                     bitmap.rowBytes());
-            if (result != SkImageGenerator::kSuccess) {
-                return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
-            }
-        } else {
-            if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
-                                              dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
-                return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
-            }
+        if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
+                                          dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
+            return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
         }
         encoded.reset((SkData*)NULL);  // Might as well drop this when we're done with it.
         canvas->drawBitmap(bitmap, 0,0);

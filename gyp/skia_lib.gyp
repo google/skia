@@ -4,7 +4,6 @@
   'variables': {
     'component_libs': [
       'core.gyp:core',
-      'codec.gyp:codec',
       'effects.gyp:effects',
       'images.gyp:images',
       'opts.gyp:opts',
