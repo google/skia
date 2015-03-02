@@ -123,12 +123,6 @@ public:
     */
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
 
-    /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
-     *  the outer filter to the result of the inner's.
-     *  The reference counts for outer and inner are incremented.
-     */
-    static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner);
-
     /** A subclass may implement this factory function to work with the GPU backend. If the return
         is non-NULL then the caller owns a ref on the returned object.
      */

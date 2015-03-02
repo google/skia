@@ -11,15 +11,6 @@
 #include "SkGradientShader.h"
 #include "SkTableColorFilter.h"
 
-static SkShader* make_shader0(int w, int h) {
-    SkPoint pts[] = { {0, 0}, {SkIntToScalar(w), SkIntToScalar(h)} };
-    SkColor colors[] = {
-        SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
-        SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
-    };
-    return SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
-                                          SkShader::kClamp_TileMode);
-}
 static void make_bm0(SkBitmap* bm) {
     int W = 120;
     int H = 120;
@@ -28,29 +19,34 @@ static void make_bm0(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
     SkPaint paint;
-    paint.setShader(make_shader0(W, H))->unref();
-    canvas.drawPaint(paint);
-}
-static SkShader* make_shader1(int w, int h) {
-    SkScalar cx = SkIntToScalar(w)/2;
-    SkScalar cy = SkIntToScalar(h)/2;
+    SkPoint pts[] = { {0, 0}, {SkIntToScalar(W), SkIntToScalar(H)} };
     SkColor colors[] = {
-        SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
+        SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
+        SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
     };
-    return SkGradientShader::CreateRadial(SkPoint::Make(cx, cy), cx, colors, NULL,
-                                          SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode);
+    paint.setShader(s)->unref();
+    canvas.drawPaint(paint);
 }
 static void make_bm1(SkBitmap* bm) {
     int W = 120;
     int H = 120;
-    SkScalar cx = SkIntToScalar(W)/2;
-    SkScalar cy = SkIntToScalar(H)/2;
     bm->allocN32Pixels(W, H);
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(*bm);
     SkPaint paint;
-    paint.setShader(make_shader1(W, H))->unref();
+    SkScalar cx = SkIntToScalar(W)/2;
+    SkScalar cy = SkIntToScalar(H)/2;
+    SkColor colors[] = {
+        SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
+    };
+    SkShader* s = SkGradientShader::CreateRadial(SkPoint::Make(SkIntToScalar(W)/2,
+                                                               SkIntToScalar(H)/2),
+                                                 SkIntToScalar(W)/2, colors, NULL, SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode);
+    paint.setShader(s)->unref();
     paint.setAntiAlias(true);
     canvas.drawCircle(cx, cy, cx, paint);
 }
@@ -188,69 +184,8 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new TableColorFilterGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ComposeColorFilterGM : public skiagm::GM {
-public:
-    ComposeColorFilterGM() {}
-    
-protected:
-    virtual SkString onShortName() {
-        return SkString("composecolorfilter");
-    }
-    
-    virtual SkISize onISize() {
-        return SkISize::Make(730, 730);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        SkBitmap bm;
-        make_bm1(&bm);
-
-        canvas->drawColor(0xFFDDDDDD);
-
-        SkColor colors[] = { SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW };
-        SkXfermode::Mode modes[] = {
-            SkXfermode::kOverlay_Mode,
-            SkXfermode::kDarken_Mode,
-            SkXfermode::kColorBurn_Mode,
-            SkXfermode::kExclusion_Mode,
-        };
-
-        const int MODES = SK_ARRAY_COUNT(modes) * SK_ARRAY_COUNT(colors);
-        SkAutoTUnref<SkColorFilter> filters[MODES];
-        int index = 0;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
-            for (size_t j = 0; j < SK_ARRAY_COUNT(colors); ++j) {
-                filters[index++].reset(SkColorFilter::CreateModeFilter(colors[j], modes[i]));
-            }
-        }
-
-        SkPaint paint;
-        paint.setShader(make_shader1(50, 50))->unref();
-        SkRect r = SkRect::MakeWH(50, 50);
-        const SkScalar spacer = 10;
-
-        canvas->translate(spacer, spacer);
-
-        for (size_t y = 0; y < MODES; ++y) {
-            canvas->save();
-            for (size_t x = 0; x < MODES; ++x) {
-                SkAutoTUnref<SkColorFilter> compose(SkColorFilter::CreateComposeFilter(filters[y],
-                                                                                       filters[x]));
-                paint.setColorFilter(compose);
-                canvas->drawRect(r, paint);
-                canvas->translate(r.width() + spacer, 0);
-            }
-            canvas->restore();
-            canvas->translate(0, r.height() + spacer);
-        }
-    }
-    
-private:
-    typedef GM INHERITED;
-};
-DEF_GM( return new ComposeColorFilterGM; )
-
+static skiagm::GM* MyFactory(void*) { return new TableColorFilterGM; }
+static skiagm::GMRegistry reg(MyFactory);
