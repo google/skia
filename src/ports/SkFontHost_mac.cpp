@@ -675,6 +675,7 @@ private:
 
     Offscreen fOffscreen;
     AutoCFRelease<CTFontRef> fCTFont;
+    CGAffineTransform fTransform;
     CGAffineTransform fInvTransform;
 
     /** Unrotated variant of fCTFont.
@@ -724,12 +725,12 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     SkMatrix skTransform;
     fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale, &scale, &skTransform,
                          NULL, NULL, &fFUnitMatrix);
-    CGAffineTransform transform = MatrixToCGAffineTransform(skTransform);
-    fInvTransform = CGAffineTransformInvert(transform);
+    fTransform = MatrixToCGAffineTransform(skTransform);
+    fInvTransform = CGAffineTransformInvert(fTransform);
 
     AutoCFRelease<CTFontDescriptorRef> ctFontDesc;
     if (fVertical) {
-        // Setting the vertical orientation here affects the character to glyph mapping.
+        // Setting the vertical orientation here is required for vertical metrics on some versions.
         AutoCFRelease<CFMutableDictionaryRef> cfAttributes(CFDictionaryCreateMutable(
                 kCFAllocatorDefault, 0,
                 &kCFTypeDictionaryKeyCallBacks,
@@ -747,7 +748,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     // Some properties, like 'trak', are based on the text size (before applying the matrix).
     CGFloat textSize = ScalarToCG(scale.y());
 
-    fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &transform, ctFontDesc));
+    fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &fTransform, ctFontDesc));
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont, NULL));
     fCTUnrotatedFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize,
                                                           &CGAffineTransformIdentity, NULL));
@@ -859,8 +860,8 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
             // Our 'fake' one does not, so set up the CGContext here.
             CGContextSetFont(fCG, context.fCGFont);
             CGContextSetFontSize(fCG, CTFontGetSize(context.fCTFont));
-            CGContextSetTextMatrix(fCG, CTFontGetMatrix(context.fCTFont));
         }
+        CGContextSetTextMatrix(fCG, context.fTransform);
     }
 
     if (fDoAA != doAA) {
@@ -895,14 +896,16 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     }
 
     CGPoint point = CGPointMake(-glyph.fLeft + subX, glyph.fTop + glyph.fHeight - subY);
-    if (darwinVersion() < 14) {
-        // Prior to 10.10, CTFontDrawGlyphs acted like CGContextShowGlyphsAtPositions and took
-        // 'positions' which are in text space. The glyph location (in device space) must be
-        // mapped into text space, so that CG can convert it back into device space.
-        // In 10.10 and later, this is handled directly in CTFontDrawGlyphs.
-        point = CGPointApplyAffineTransform(point, context.fInvTransform);
-    }
-    ctFontDrawGlyphs(context.fCTFont, &glyphID, &point, 1, fCG);
+    // Prior to 10.10, CTFontDrawGlyphs acted like CGContextShowGlyphsAtPositions and took
+    // 'positions' which are in text space. The glyph location (in device space) must be
+    // mapped into text space, so that CG can convert it back into device space.
+    // In 10.10.1, this is handled directly in CTFontDrawGlyphs.
+
+    // However, in 10.10.2 color glyphs no longer rotate based on the font transform.
+    // So always make the font transform identity and place the transform on the context.
+    point = CGPointApplyAffineTransform(point, context.fInvTransform);
+
+    ctFontDrawGlyphs(context.fCTUnrotatedFont, &glyphID, &point, 1, fCG);
 
     SkASSERT(rowBytesPtr);
     *rowBytesPtr = rowBytes;
