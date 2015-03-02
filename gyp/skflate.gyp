@@ -4,13 +4,9 @@
     {
       'target_name': 'skflate',
       'type': 'static_library',
-      'dependencies': [ 'skia_lib.gyp:skia_lib' ],
-      'conditions': [
-        [ 'skia_android_framework', {
-            'dependencies': [ 'zlib.gyp:zlib' ]
-        },{
-            'dependencies': [ 'zlib.gyp:miniz' ]   # Our bots.
-        }],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'zlib.gyp:zlib',
       ],
       'sources': [ '../src/core/SkFlate.cpp' ],
     },

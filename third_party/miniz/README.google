@@ -1,7 +1,0 @@
-URL: https://code.google.com/p/miniz
-Version: v115_r4
-License: Unlicense
-License File: LICENSE
-Description: Single-file zlib-compatible compression library.
-Local Modifications: Created LICENSE file for compliance purposes. Not included in original
-                     distribution.
