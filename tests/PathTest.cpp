@@ -1076,6 +1076,34 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
     REPORTER_ASSERT(reporter, c == expected);
 }
 
+static void test_path_crbug389050(skiatest::Reporter* reporter) {
+    SkPath  tinyConvexPolygon;
+    tinyConvexPolygon.moveTo(600.131559f, 800.112512f);
+    tinyConvexPolygon.lineTo(600.161735f, 800.118627f);
+    tinyConvexPolygon.lineTo(600.148962f, 800.142338f);
+    tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
+    tinyConvexPolygon.close();
+    tinyConvexPolygon.getConvexity();
+    check_convexity(reporter, tinyConvexPolygon, SkPath::kConvex_Convexity);
+    check_direction(reporter, tinyConvexPolygon, SkPath::kCW_Direction);
+
+    SkPath  platTriangle;
+    platTriangle.moveTo(0, 0);
+    platTriangle.lineTo(200, 0);
+    platTriangle.lineTo(100, 0.04f);
+    platTriangle.close();
+    platTriangle.getConvexity();
+    check_direction(reporter, platTriangle, SkPath::kCW_Direction);
+
+    platTriangle.reset();
+    platTriangle.moveTo(0, 0);
+    platTriangle.lineTo(200, 0);
+    platTriangle.lineTo(100, 0.03f);
+    platTriangle.close();
+    platTriangle.getConvexity();
+    check_direction(reporter, platTriangle, SkPath::kCW_Direction);
+}
+
 static void test_convexity2(skiatest::Reporter* reporter) {
     SkPath pt;
     pt.moveTo(0, 0);
@@ -3739,6 +3767,7 @@ DEF_TEST(Paths, reporter) {
     PathTest_Private::TestPathTo(reporter);
     PathRefTest_Private::TestPathRef(reporter);
     test_dump(reporter);
+    test_path_crbug389050(reporter);
     test_path_crbugskia2820(reporter);
     test_skbug_3469(reporter);
     test_skbug_3239(reporter);
