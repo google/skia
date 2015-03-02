@@ -59,6 +59,41 @@ protected:
                                         size_t vertexStride,
                                         int indexCount);
 
+    void appendIndicesAndTransforms(const void* indexValues, PathIndexType indexType, 
+                                    const float* transformValues, PathTransformType transformType,
+                                    int count, char** indicesLocation, float** xformsLocation) {
+        int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
+        *indicesLocation = (char*) fPathIndexBuffer.alloc(count * indexBytes,
+                                                          SkChunkAlloc::kThrow_AllocFailType);
+        SkASSERT(SkIsAlign4((uintptr_t)*indicesLocation));
+        memcpy(*indicesLocation, reinterpret_cast<const char*>(indexValues), count * indexBytes);
+
+        const int xformBytes = GrPathRendering::PathTransformSize(transformType) * sizeof(float);
+        *xformsLocation = NULL;
+
+        if (0 != xformBytes) {
+            *xformsLocation = (float*) fPathTransformBuffer.alloc(count * xformBytes,
+                                                               SkChunkAlloc::kThrow_AllocFailType);
+            SkASSERT(SkIsAlign4((uintptr_t)*xformsLocation));
+            memcpy(*xformsLocation, transformValues, count * xformBytes);
+        }
+    }
+
+    bool canConcatToIndexBuffer(const GrIndexBuffer** ib) {
+        const GrDrawTarget::GeometrySrcState& geomSrc = this->getGeomSrc();
+
+        // we only attempt to concat when reserved verts are used with a client-specified
+        // index buffer. To make this work with client-specified VBs we'd need to know if the VB
+        // was updated between draws.
+        if (kReserved_GeometrySrcType != geomSrc.fVertexSrc ||
+            kBuffer_GeometrySrcType != geomSrc.fIndexSrc) {
+            return false;
+        }
+
+        *ib = geomSrc.fIndexBuffer;
+        return true;
+    }
+
 private:
     typedef GrGpu::DrawArgs DrawArgs;
 

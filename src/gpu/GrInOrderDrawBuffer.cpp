@@ -326,15 +326,11 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     SkASSERT(!fCmdBuffer.empty());
     SkASSERT(info.isInstanced());
 
-    const GeometrySrcState& geomSrc = this->getGeomSrc();
-
-    // we only attempt to concat the case when reserved verts are used with a client-specified index
-    // buffer. To make this work with client-specified VBs we'd need to know if the VB was updated
-    // between draws.
-    if (kReserved_GeometrySrcType != geomSrc.fVertexSrc ||
-        kBuffer_GeometrySrcType != geomSrc.fIndexSrc) {
+    const GrIndexBuffer* ib;
+    if (!this->canConcatToIndexBuffer(&ib)) {
         return 0;
     }
+
     // Check if there is a draw info that is compatible that uses the same VB from the pool and
     // the same IB
     if (Cmd::kDraw_Cmd != fCmdBuffer.back().type()) {
@@ -348,7 +344,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
         draw->fInfo.verticesPerInstance() != info.verticesPerInstance() ||
         draw->fInfo.indicesPerInstance() != info.indicesPerInstance() ||
         draw->fInfo.vertexBuffer() != info.vertexBuffer() ||
-        draw->fInfo.indexBuffer() != geomSrc.fIndexBuffer) {
+        draw->fInfo.indexBuffer() != ib) {
         return 0;
     }
     if (draw->fInfo.startVertex() + draw->fInfo.vertexCount() != info.startVertex()) {
@@ -463,21 +459,12 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
         return;
     }
 
-    int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
-    char* savedIndices = (char*) fPathIndexBuffer.alloc(count * indexBytes,
-                                                        SkChunkAlloc::kThrow_AllocFailType);
-    SkASSERT(SkIsAlign4((uintptr_t)savedIndices));
-    memcpy(savedIndices, reinterpret_cast<const char*>(indices), count * indexBytes);
+    char* savedIndices;
+    float* savedTransforms;
 
-    const int xformSize = GrPathRendering::PathTransformSize(transformType);
-    const int xformBytes = xformSize * sizeof(float);
-    float* savedTransforms = NULL;
-    if (0 != xformBytes) {
-        savedTransforms = (float*) fPathTransformBuffer.alloc(count * xformBytes,
-                                                              SkChunkAlloc::kThrow_AllocFailType);
-        SkASSERT(SkIsAlign4((uintptr_t)savedTransforms));
-        memcpy(savedTransforms, transformValues, count * xformBytes);
-    }
+    this->appendIndicesAndTransforms(indices, indexType,
+                                     transformValues, transformType,
+                                     count, &savedIndices, &savedTransforms);
 
     if (Cmd::kDrawPaths_Cmd == fCmdBuffer.back().type()) {
         // The previous command was also DrawPaths. Try to collapse this call into the one
@@ -494,8 +481,10 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
             !pipelineInfo.willBlendWithDst(pathProc)) {
+            const int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
+            const int xformSize = GrPathRendering::PathTransformSize(transformType);
             if (&previous->fIndices[previous->fCount*indexBytes] == savedIndices &&
-                (0 == xformBytes ||
+                (0 == xformSize ||
                  &previous->fTransforms[previous->fCount*xformSize] == savedTransforms)) {
                 // Fold this DrawPaths call into the one previous.
                 previous->fCount += count;
