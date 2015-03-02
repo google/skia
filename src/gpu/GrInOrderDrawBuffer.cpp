@@ -395,7 +395,7 @@ void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
     }
 
     // Check if there is a Batch Draw we can batch with
-    if (Cmd::kDrawBatch_Cmd != fCmdBuffer.back().type()) {
+    if (Cmd::kDrawBatch_Cmd != fCmdBuffer.back().type() || !fDrawBatch) {
         fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
         this->recordTraceMarkersIfNecessary(fDrawBatch);
         return;
