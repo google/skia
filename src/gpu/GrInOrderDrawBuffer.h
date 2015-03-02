@@ -298,9 +298,12 @@ private:
 
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();
-    // Records any trace markers for a command after adding it to the buffer.
-    void recordTraceMarkersIfNecessary();
-
+    // Records any trace markers for a command
+    void recordTraceMarkersIfNecessary(Cmd*);
+    SkString getCmdString(int index) const {
+        SkASSERT(index < fGpuCmdMarkers.count());
+        return fGpuCmdMarkers[index].toString();
+    }
     bool isIssued(uint32_t drawID) SK_OVERRIDE { return drawID != fDrawID; }
 
     GrBatchTarget* getBatchTarget() { return &fBatchTarget; }
@@ -324,14 +327,7 @@ private:
 
     // This will go away when everything uses batch.  However, in the short term anything which
     // might be put into the GrInOrderDrawBuffer needs to make sure it closes the last batch
-    void closeBatch() {
-        if (fDrawBatch) {
-            fBatchTarget.resetNumberOfDraws();
-            fDrawBatch->execute(this->getGpu(), fPrevState);
-            fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
-            fDrawBatch = NULL;
-        }
-    }
+    inline void closeBatch();
 
     typedef GrFlushToGpuDrawTarget INHERITED;
 };

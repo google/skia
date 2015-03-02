@@ -35,6 +35,15 @@ GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     this->reset();
 }
 
+void GrInOrderDrawBuffer::closeBatch() {
+    if (fDrawBatch) {
+        fBatchTarget.resetNumberOfDraws();
+        fDrawBatch->execute(this->getGpu(), fPrevState);
+        fDrawBatch->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
+        fDrawBatch = NULL;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /** We always use per-vertex colors so that rects can be batched across color changes. Sometimes we
@@ -354,15 +363,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     draw->fInfo.adjustInstanceCount(instancesToConcat);
 
     // update last fGpuCmdMarkers to include any additional trace markers that have been added
-    if (this->getActiveTraceMarkers().count() > 0) {
-        if (draw->isTraced()) {
-            fGpuCmdMarkers.back().addSet(this->getActiveTraceMarkers());
-        } else {
-            fGpuCmdMarkers.push_back(this->getActiveTraceMarkers());
-            draw->makeTraced();
-        }
-    }
-
+    this->recordTraceMarkersIfNecessary(draw);
     return instancesToConcat;
 }
 
@@ -388,7 +389,7 @@ void GrInOrderDrawBuffer::onDraw(const GrGeometryProcessor* gp,
     } else {
         draw = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Draw, (info));
     }
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(draw);
 }
 
 void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
@@ -400,17 +401,16 @@ void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
     // Check if there is a Batch Draw we can batch with
     if (Cmd::kDrawBatch_Cmd != fCmdBuffer.back().type()) {
         fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
+        this->recordTraceMarkersIfNecessary(fDrawBatch);
         return;
     }
 
-    DrawBatch* draw = static_cast<DrawBatch*>(&fCmdBuffer.back());
-    if (draw->fBatch->combineIfPossible(batch)) {
-        return;
-    } else {
+    SkASSERT(&fCmdBuffer.back() == fDrawBatch);
+    if (!fDrawBatch->fBatch->combineIfPossible(batch)) {
         this->closeBatch();
         fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
     }
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(fDrawBatch);
 }
 
 void GrInOrderDrawBuffer::onStencilPath(const GrPipelineBuilder& pipelineBuilder,
@@ -427,7 +427,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPipelineBuilder& pipelineBuilder
     sp->fUseHWAA = pipelineBuilder.isHWAntialias();
     sp->fViewMatrix = pathProc->viewMatrix();
     sp->fStencil = stencilSettings;
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(sp);
 }
 
 void GrInOrderDrawBuffer::onDrawPath(const GrPathProcessor* pathProc,
@@ -442,7 +442,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPathProcessor* pathProc,
     }
     DrawPath* dp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawPath, (path));
     dp->fStencilSettings = stencilSettings;
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(dp);
 }
 
 void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
@@ -512,7 +512,7 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
     dp->fCount = count;
     dp->fStencilSettings = stencilSettings;
 
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(dp);
 }
 
 void GrInOrderDrawBuffer::onClear(const SkIRect* rect, GrColor color,
@@ -533,7 +533,7 @@ void GrInOrderDrawBuffer::onClear(const SkIRect* rect, GrColor color,
     clr->fColor = color;
     clr->fRect = *rect;
     clr->fCanIgnoreRect = canIgnoreRect;
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(clr);
 }
 
 void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
@@ -545,7 +545,7 @@ void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
     ClearStencilClip* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, ClearStencilClip, (renderTarget));
     clr->fRect = rect;
     clr->fInsideClip = insideClip;
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(clr);
 }
 
 void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
@@ -557,7 +557,7 @@ void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
     }
     Clear* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Clear, (renderTarget));
     clr->fColor = GrColor_ILLEGAL;
-    this->recordTraceMarkersIfNecessary();
+    this->recordTraceMarkersIfNecessary(clr);
 }
 
 void GrInOrderDrawBuffer::onReset() {
@@ -595,7 +595,7 @@ void GrInOrderDrawBuffer::onFlush() {
         GrGpuTraceMarker newMarker("", -1);
         SkString traceString;
         if (iter->isTraced()) {
-            traceString = fGpuCmdMarkers[currCmdMarker].toString();
+            traceString = this->getCmdString(currCmdMarker);
             newMarker.fMarker = traceString.c_str();
             this->getGpu()->addGpuTraceMarker(&newMarker);
             ++currCmdMarker;
@@ -702,7 +702,7 @@ bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
         CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
         cs->fSrcRect = srcRect;
         cs->fDstPoint = dstPoint;
-        this->recordTraceMarkersIfNecessary();
+        this->recordTraceMarkersIfNecessary(cs);
         return true;
     }
     return false;
@@ -729,7 +729,7 @@ bool GrInOrderDrawBuffer::setupPipelineAndShouldDraw(const GrPrimitiveProcessor*
         fCmdBuffer.pop_back();
     } else {
         fPrevState = ss;
-        this->recordTraceMarkersIfNecessary();
+        this->recordTraceMarkersIfNecessary(ss);
     }
     return true;
 }
@@ -752,18 +752,23 @@ bool GrInOrderDrawBuffer::setupPipelineAndShouldDraw(GrBatch* batch,
     } else {
         this->closeBatch();
         fPrevState = ss;
-        this->recordTraceMarkersIfNecessary();
+        this->recordTraceMarkersIfNecessary(ss);
     }
     return true;
 }
 
-void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary() {
-    SkASSERT(!fCmdBuffer.empty());
-    SkASSERT(!fCmdBuffer.back().isTraced());
+void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(Cmd* cmd) {
+    if (!cmd) {
+        return;
+    }
     const GrTraceMarkerSet& activeTraceMarkers = this->getActiveTraceMarkers();
     if (activeTraceMarkers.count() > 0) {
-        fCmdBuffer.back().makeTraced();
-        fGpuCmdMarkers.push_back(activeTraceMarkers);
+        if (cmd->isTraced()) {
+            fGpuCmdMarkers.back().addSet(activeTraceMarkers);
+        } else {
+            cmd->makeTraced();
+            fGpuCmdMarkers.push_back(activeTraceMarkers);
+        }
     }
 }
 
