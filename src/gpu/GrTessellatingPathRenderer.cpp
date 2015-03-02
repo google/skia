@@ -958,13 +958,19 @@ void split_edge(Edge* edge, Vertex* v, Edge** activeEdges, SkChunkAlloc& alloc) 
     LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
         edge->fTop->fID, edge->fBottom->fID,
         v->fID, v->fPoint.fX, v->fPoint.fY);
-    Edge* newEdge = ALLOC_NEW(Edge, (v, edge->fBottom, edge->fWinding), alloc);
-    insert_edge_below(newEdge, v);
-    insert_edge_above(newEdge, edge->fBottom);
-    set_bottom(edge, v, activeEdges);
-    cleanup_active_edges(edge, activeEdges, alloc);
-    fix_active_state(newEdge, activeEdges);
-    merge_collinear_edges(newEdge, activeEdges);
+    if (sweep_lt(v->fPoint, edge->fTop->fPoint)) {
+        set_top(edge, v, activeEdges);
+    } else if (sweep_gt(v->fPoint, edge->fBottom->fPoint)) {
+        set_bottom(edge, v, activeEdges);
+    } else {
+        Edge* newEdge = ALLOC_NEW(Edge, (v, edge->fBottom, edge->fWinding), alloc);
+        insert_edge_below(newEdge, v);
+        insert_edge_above(newEdge, edge->fBottom);
+        set_bottom(edge, v, activeEdges);
+        cleanup_active_edges(edge, activeEdges, alloc);
+        fix_active_state(newEdge, activeEdges);
+        merge_collinear_edges(newEdge, activeEdges);
+    }
 }
 
 void merge_vertices(Vertex* src, Vertex* dst, Vertex** head, SkChunkAlloc& alloc) {

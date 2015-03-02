@@ -220,6 +220,16 @@ static SkPath create_path_14() {
     return path;
 }
 
+static SkPath create_path_15() {
+    SkPath path;
+    path.moveTo(    0.0f,   0.0f);
+    path.lineTo(10000.0f,   0.0f);
+    path.lineTo(    0.0f,  -1.0f);
+    path.lineTo(10000.0f,   0.000001f);
+    path.lineTo(    0.0f, -30.0f);
+    return path;
+}
+
 static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, const SkPath& path) {
     GrTessellatingPathRenderer tess;
     GrPipelineBuilder pipelineBuilder;
@@ -259,5 +269,6 @@ DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
     test_path(dt, rt, create_path_12());
     test_path(dt, rt, create_path_13());
     test_path(dt, rt, create_path_14());
+    test_path(dt, rt, create_path_15());
 }
 #endif
