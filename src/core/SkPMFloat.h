@@ -5,10 +5,9 @@
 #include "SkColor.h"
 #include "Sk4x.h"
 
-// A pre-multiplied color in the same order as SkPMColor storing each component as a float.
-struct SK_STRUCT_ALIGN(16) SkPMFloat {
-    float fColor[4];
-
+// A pre-multiplied color storing each component as a float.
+class SK_STRUCT_ALIGN(16) SkPMFloat {
+public:
     // Normal POD copies and do-nothing initialization.
     SkPMFloat()                            = default;
     SkPMFloat(const SkPMFloat&)            = default;
@@ -30,7 +29,7 @@ struct SK_STRUCT_ALIGN(16) SkPMFloat {
 
     void set(SkPMColor);
 
-    SkPMColor     get() const;  // May SkASSERT(this->isValid()).
+    SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
     SkPMColor clamped() const;  // Will clamp all values to [0,1], then SkASSERT(this->isValid()).
 
     bool isValid() const {
@@ -39,6 +38,10 @@ struct SK_STRUCT_ALIGN(16) SkPMFloat {
             && this->g() >= 0 && this->g() <= this->a()
             && this->b() >= 0 && this->b() <= this->a();
     }
+
+private:
+    // We mirror SkPMColor order only to make set()/get()/clamped() as fast as possible.
+    float fColor[4];
 };
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
