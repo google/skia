@@ -22,7 +22,7 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
-  configs = ['565', '8888', 'pdf', 'gpu']
+  configs = ['565', '8888', 'gpu']
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
   if ('GalaxyS4'    not in bot and
