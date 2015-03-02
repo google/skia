@@ -32,10 +32,35 @@
               '-w',
               '-fvisibility=hidden',
             ],
+            'conditions': [
+              ['not arm_neon', {
+                'defines': [
+                    # FIXME: Why is this needed? Without it, pngpriv.h sets it
+                    # to 2 if __ARM_NEON is defined, but shouldn't __ARM_NEON
+                    # not be defined since arm_neon is 0?
+                    'PNG_ARM_NEON_OPT=0',
+                ],
+              }],
+            ],
+            'actions': [
+              {
+                'action_name': 'generate_pngconf',
+                'variables' : {
+                  'prebuilt': '../third_party/externals/libpng/scripts/pnglibconf.h.prebuilt',
+                  'generated': '../third_party/externals/libpng/pnglibconf.h',
+                },
+                'inputs': [
+                  '<(prebuilt)',
+                ],
+                'outputs': [
+                  '<(generated)',
+                ],
+                'action': ['python', 'copy_file.py', '<(prebuilt)', '<(generated)'],
+              },
+            ],
             'sources': [
               '../third_party/externals/libpng/png.c',
               '../third_party/externals/libpng/pngerror.c',
-              '../third_party/externals/libpng/pnggccrd.c',
               '../third_party/externals/libpng/pngget.c',
               '../third_party/externals/libpng/pngmem.c',
               '../third_party/externals/libpng/pngpread.c',
@@ -45,7 +70,6 @@
               '../third_party/externals/libpng/pngrutil.c',
               '../third_party/externals/libpng/pngset.c',
               '../third_party/externals/libpng/pngtrans.c',
-              '../third_party/externals/libpng/pngvcrd.c',
               '../third_party/externals/libpng/pngwio.c',
               '../third_party/externals/libpng/pngwrite.c',
               '../third_party/externals/libpng/pngwtran.c',
