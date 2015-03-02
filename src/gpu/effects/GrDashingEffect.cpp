@@ -340,6 +340,7 @@ public:
         SkSTArray<128, DashDraw, true> draws;
 
         int totalRectCount = 0;
+        int rectOffset = 0;
         for (int i = 0; i < instanceCount; i++) {
             Geometry& args = fGeoData[i];
 
@@ -366,9 +367,12 @@ public:
 
             // Too simplify the algorithm, we always push back rects for start and end rect.
             // Otherwise we'd have to track start / end rects for each individual geometry
-            SkRect& bounds = rects.push_back();
-            SkRect& startRect = rects.push_back();
-            SkRect& endRect = rects.push_back();
+            rects.push_back();
+            rects.push_back();
+            rects.push_back();
+            SkRect& bounds = rects[rectOffset++];
+            SkRect& startRect = rects[rectOffset++];
+            SkRect& endRect = rects[rectOffset++];
 
             bool hasStartRect = false;
             // If we are using AA, check to see if we are drawing a partial dash at the start. If so
