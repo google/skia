@@ -1740,6 +1740,7 @@ SkStreamAsset* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
         ++entry;
     }
 
+    *ttcIndex = 0;
     return stream;
 }
 
