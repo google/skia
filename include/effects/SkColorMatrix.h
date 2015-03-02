@@ -59,6 +59,9 @@ public:
     }
 
     bool operator!=(const SkColorMatrix& other) const { return !((*this) == other); }
+
+    static bool NeedsClamping(const SkScalar[20]);
+    static void SetConcat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]);
 };
 
 #endif

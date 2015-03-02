@@ -104,6 +104,8 @@ SkFlattenable* SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
     return CreateComposeFilter(outer, inner);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner) {
     if (!outer) {
         return SkSafeRef(inner);
@@ -111,7 +113,13 @@ SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorF
     if (!inner) {
         return SkSafeRef(outer);
     }
-    return SkNEW_ARGS(SkComposeColorFilter, (outer, inner));
+
+    // Give the subclass a shot at a more optimal composition...
+    SkColorFilter* composition = outer->newComposed(inner);
+    if (NULL == composition) {
+        composition = SkNEW_ARGS(SkComposeColorFilter, (outer, inner));
+    }
+    return composition;
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)

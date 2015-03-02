@@ -322,6 +322,16 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
     return true;
 }
 
+SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter) const {
+    SkScalar innerMatrix[20];
+    if (innerFilter->asColorMatrix(innerMatrix) && !SkColorMatrix::NeedsClamping(innerMatrix)) {
+        SkScalar concat[20];
+        SkColorMatrix::SetConcat(concat, fMatrix.fMat, innerMatrix);
+        return SkColorMatrixFilter::Create(concat);
+    }
+    return NULL;
+}
+
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"

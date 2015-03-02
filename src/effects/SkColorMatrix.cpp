@@ -6,6 +6,68 @@
  */
 #include "SkColorMatrix.h"
 
+// To detect if we need to apply clamping after applying a matrix, we check if
+// any output component might go outside of [0, 255] for any combination of
+// input components in [0..255].
+// Each output component is an affine transformation of the input component, so
+// the minimum and maximum values are for any combination of minimum or maximum
+// values of input components (i.e. 0 or 255).
+// E.g. if R' = x*R + y*G + z*B + w*A + t
+// Then the maximum value will be for R=255 if x>0 or R=0 if x<0, and the
+// minimum value will be for R=0 if x>0 or R=255 if x<0.
+// Same goes for all components.
+static bool component_needs_clamping(const SkScalar row[5]) {
+    SkScalar maxValue = row[4] / 255;
+    SkScalar minValue = row[4] / 255;
+    for (int i = 0; i < 4; ++i) {
+        if (row[i] > 0)
+            maxValue += row[i];
+        else
+            minValue += row[i];
+    }
+    return (maxValue > 1) || (minValue < 0);
+}
+
+bool SkColorMatrix::NeedsClamping(const SkScalar matrix[20]) {
+    return component_needs_clamping(matrix)
+        || component_needs_clamping(matrix+5)
+        || component_needs_clamping(matrix+10)
+        || component_needs_clamping(matrix+15);
+}
+
+void SkColorMatrix::SetConcat(SkScalar result[20],
+                              const SkScalar outer[20], const SkScalar inner[20]) {
+    SkScalar    tmp[20];
+    SkScalar*   target;
+
+    if (outer == result || inner == result) {
+        target = tmp;   // will memcpy answer when we're done into result
+    } else {
+        target = result;
+    }
+
+    int index = 0;
+    for (int j = 0; j < 20; j += 5) {
+        for (int i = 0; i < 4; i++) {
+            target[index++] =   outer[j + 0] * inner[i + 0] +
+                                outer[j + 1] * inner[i + 5] +
+                                outer[j + 2] * inner[i + 10] +
+                                outer[j + 3] * inner[i + 15];
+        }
+        target[index++] =   outer[j + 0] * inner[4] +
+                            outer[j + 1] * inner[9] +
+                            outer[j + 2] * inner[14] +
+                            outer[j + 3] * inner[19] +
+                            outer[j + 4];
+    }
+
+    if (target != result) {
+        memcpy(result, target, 20 * sizeof(SkScalar));
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkColorMatrix::setIdentity() {
     memset(fMat, 0, sizeof(fMat));
     fMat[kR_Scale] = fMat[kG_Scale] = fMat[kB_Scale] = fMat[kA_Scale] = 1;
@@ -67,38 +129,8 @@ void SkColorMatrix::postRotate(Axis axis, SkScalar degrees) {
     this->postConcat(tmp);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-void SkColorMatrix::setConcat(const SkColorMatrix& matA,
-                              const SkColorMatrix& matB) {
-    SkScalar    tmp[20];
-    SkScalar*   result = fMat;
-
-    if (&matA == this || &matB == this) {
-        result = tmp;
-    }
-
-    const SkScalar* a = matA.fMat;
-    const SkScalar* b = matB.fMat;
-
-    int index = 0;
-    for (int j = 0; j < 20; j += 5) {
-        for (int i = 0; i < 4; i++) {
-            result[index++] =   SkScalarMul(a[j + 0], b[i + 0]) +
-                                SkScalarMul(a[j + 1], b[i + 5]) +
-                                SkScalarMul(a[j + 2], b[i + 10]) +
-                                SkScalarMul(a[j + 3], b[i + 15]);
-        }
-        result[index++] =   SkScalarMul(a[j + 0], b[4]) +
-                            SkScalarMul(a[j + 1], b[9]) +
-                            SkScalarMul(a[j + 2], b[14]) +
-                            SkScalarMul(a[j + 3], b[19]) +
-                            a[j + 4];
-    }
-
-    if (fMat != result) {
-        memcpy(fMat, result, sizeof(fMat));
-    }
+void SkColorMatrix::setConcat(const SkColorMatrix& matA, const SkColorMatrix& matB) {
+    SetConcat(fMat, matA.fMat, matB.fMat);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,3 +192,4 @@ void SkColorMatrix::setYUV2RGB() {
     setrow(fMat + 10, 1, kU2B, 0);
     fMat[kA_Scale] = 1;
 }
+

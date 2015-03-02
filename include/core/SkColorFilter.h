@@ -98,6 +98,15 @@ public:
     virtual uint32_t getFlags() const { return 0; }
 
     /**
+     *  If this subclass can optimally createa composition with the inner filter, return it as
+     *  a new filter (which the caller must unref() when it is done). If no such optimization
+     *  is known, return NULL.
+     *
+     *  e.g. result(color) == this_filter(inner(color))
+     */
+    virtual SkColorFilter* newComposed(const SkColorFilter* /*inner*/) const { return NULL; }
+
+    /**
      *  Apply this colorfilter to the specified SkColor. This routine handles
      *  converting to SkPMColor, calling the filter, and then converting back
      *  to SkColor. This method is not virtual, but will call filterSpan()

@@ -25,6 +25,8 @@ public:
     void filterSpan16(const uint16_t src[], int count, uint16_t[]) const SK_OVERRIDE;
     uint32_t getFlags() const SK_OVERRIDE;
     bool asColorMatrix(SkScalar matrix[20]) const SK_OVERRIDE;
+    SkColorFilter* newComposed(const SkColorFilter*) const SK_OVERRIDE;
+
 #if SK_SUPPORT_GPU
     GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
 #endif

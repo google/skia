@@ -41,13 +41,13 @@ public:
     }
 
     bool asComponentTable(SkBitmap* table) const SK_OVERRIDE;
+    SkColorFilter* newComposed(const SkColorFilter* inner) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
     GrFragmentProcessor* asFragmentProcessor(GrContext* context) const SK_OVERRIDE;
 #endif
 
-    virtual void filterSpan(const SkPMColor src[], int count,
-                            SkPMColor dst[]) const SK_OVERRIDE;
+    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -109,8 +109,7 @@ static const uint8_t gIdentityTable[] = {
     0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
 
-void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count,
-                                     SkPMColor dst[]) const {
+void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     const uint8_t* table = fStorage;
     const uint8_t* tableA = gIdentityTable;
     const uint8_t* tableR = gIdentityTable;
@@ -272,6 +271,56 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
         *table = *fBitmap;
     }
     return true;
+}
+
+// Combines the two lookup tables so that making a lookup using res[] has
+// the same effect as making a lookup through inner[] then outer[].
+static void combine_tables(uint8_t res[256], const uint8_t outer[256], const uint8_t inner[256]) {
+    for (int i = 0; i < 256; i++) {
+        res[i] = outer[inner[i]];
+    }
+}
+
+SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter) const {
+    SkBitmap innerBM;
+    if (!innerFilter->asComponentTable(&innerBM)) {
+        return NULL;
+    }
+
+    innerBM.lockPixels();
+    if (NULL == innerBM.getPixels()) {
+        return NULL;
+    }
+
+    const uint8_t* table = fStorage;
+    const uint8_t* tableA = gIdentityTable;
+    const uint8_t* tableR = gIdentityTable;
+    const uint8_t* tableG = gIdentityTable;
+    const uint8_t* tableB = gIdentityTable;
+    if (fFlags & kA_Flag) {
+        tableA = table; table += 256;
+    }
+    if (fFlags & kR_Flag) {
+        tableR = table; table += 256;
+    }
+    if (fFlags & kG_Flag) {
+        tableG = table; table += 256;
+    }
+    if (fFlags & kB_Flag) {
+        tableB = table;
+    }
+
+    uint8_t concatA[256];
+    uint8_t concatR[256];
+    uint8_t concatG[256];
+    uint8_t concatB[256];
+
+    combine_tables(concatA, tableA, innerBM.getAddr8(0, 0));
+    combine_tables(concatR, tableR, innerBM.getAddr8(0, 1));
+    combine_tables(concatG, tableG, innerBM.getAddr8(0, 2));
+    combine_tables(concatB, tableB, innerBM.getAddr8(0, 3));
+
+    return SkTableColorFilter::CreateARGB(concatA, concatR, concatG, concatB);
 }
 
 #if SK_SUPPORT_GPU
