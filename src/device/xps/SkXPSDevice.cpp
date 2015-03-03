@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 #ifndef UNICODE
 #define UNICODE
 #endif
 #ifndef _UNICODE
 #define _UNICODE
 #endif
-#include "SkTypes.h"
 #include <ObjBase.h>
 #include <XpsObjectModel.h>
 #include <T2EmbApi.h>
@@ -23,6 +24,7 @@
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkEndian.h"
+#include "SkGeometry.h"
 #include "SkGlyphCache.h"
 #include "SkHRESULT.h"
 #include "SkImageEncoder.h"
@@ -1363,6 +1365,21 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                 segmentData.push(SkScalarToFLOAT(points[3].fX));
                 segmentData.push(SkScalarToFLOAT(points[3].fY));
                 break;
+            case SkPath::kConic_Verb: {
+                const SkScalar tol = SK_Scalar1 / 4;
+                SkAutoConicToQuads converter;
+                const SkPoint* quads =
+                    converter.computeQuads(points, iter.conicWeight(), tol);
+                for (int i = 0; i < converter.countQuads(); ++i) {
+                    segmentTypes.push(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
+                    segmentStrokes.push(stroke);
+                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 1].fX));
+                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 1].fY));
+                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 2].fX));
+                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 2].fY));
+                }
+                break;
+            }
             case SkPath::kClose_Verb:
                 // we ignore these, and just get the whole segment from
                 // the corresponding line/quad/cubic verbs
@@ -2205,13 +2222,6 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
                   XPS_STYLE_SIMULATION_NONE,
                   *d.fMatrix,
                   paint));
-}
-
-void SkXPSDevice::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
-                                 const SkPath& path, const SkMatrix* matrix,
-                                 const SkPaint& paint) {
-    //This will call back into the device to do the drawing.
-     d.drawTextOnPath((const char*)text, len, path, matrix, paint);
 }
 
 void SkXPSDevice::drawDevice(const SkDraw& d, SkBaseDevice* dev,

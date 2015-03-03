@@ -236,6 +236,7 @@ static Sink* create_sink(const char* tag) {
         SINK("skp",  SKPSink);
         SINK("svg",  SVGSink);
         SINK("null", NullSink);
+        SINK("xps",  XPSSink);
     }
 #undef SINK
     return NULL;

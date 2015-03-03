@@ -119,6 +119,15 @@ public:
     const char* fileExtension() const SK_OVERRIDE { return "pdf"; }
 };
 
+class XPSSink : public Sink {
+public:
+    XPSSink();
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
+    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
+    const char* fileExtension() const SK_OVERRIDE { return "xps"; }
+};
+
 class RasterSink : public Sink {
 public:
     explicit RasterSink(SkColorType);

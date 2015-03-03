@@ -223,12 +223,9 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-PDFSink::PDFSink() {}
-
-Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    // Print the given DM:Src to a PDF, breaking on 8.5x11 pages.
-    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
-
+static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
+    // Print the given DM:Src to a document, breaking on 8.5x11 pages.
+    SkASSERT(doc);
     int width  = src.size().width(),
         height = src.size().height();
 
@@ -260,6 +257,27 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     return "";
 }
 
+PDFSink::PDFSink() {}
+
+Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
+    if (!doc) {
+        return "SkDocument::CreatePDF() returned NULL";
+    }
+    return draw_skdocument(src, doc.get(), dst);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+XPSSink::XPSSink() {}
+
+Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreateXPS(dst));
+    if (!doc) {
+        return "SkDocument::CreateXPS() returned NULL";
+    }
+    return draw_skdocument(src, doc.get(), dst);
+}
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 SKPSink::SKPSink() {}

@@ -24,6 +24,7 @@
     'tools.gyp:sk_tool_utils',
     'tools.gyp:timer',
     'xml.gyp:xml',
+    'xps.gyp:xps',
   ],
   'includes': [
     'gmslides.gypi',
