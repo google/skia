@@ -76,16 +76,10 @@
           'skia_os%': 'android',
           'skia_chrome_utils%': 0,
           'skia_use_system_json%': 1,
-          # skia_libpng_static - instead of linking libpng with '-lpng' and
-          #     including the headers from '/usr/include/png.h', compile and
-          #     statically link the version of libpng in
-          #     third_party/externals/libpng.
-          'skia_libpng_static%': '0',
         }, {
           'skia_os%': '<(skia_os)',
           'skia_chrome_utils%': 1,
           'skia_use_system_json%': 0,
-          'skia_libpng_static%': '1',
         }],
         [ 'skia_os == "win"', {
           'os_posix%': 0,
@@ -181,6 +175,15 @@
       }, {
         'skia_release_optimization_level%': '<(skia_default_gcc_optimization_level)',
       }],
+      [ 'skia_os == "android"', {
+          # skia_libpng_static - instead of linking libpng with '-lpng' and
+          #     including the headers from '/usr/include/png.h', compile and
+          #     statically link the version of libpng in
+          #     third_party/externals/libpng.
+          'skia_libpng_static%': '0',
+      }, {
+          'skia_libpng_static%': '0',
+      }],
       [ 'skia_sanitizer', {
         'skia_clang_build': 1,
         'skia_keep_frame_pointer': 1,
@@ -208,7 +211,6 @@
 
     'skia_freetype_static%': '<(skia_freetype_static)',
     'skia_giflib_static%': '<(skia_giflib_static)',
-    'skia_libpng_static%': '<(skia_libpng_static)',
     'skia_no_fontconfig%': '<(skia_no_fontconfig)',
     'skia_sanitizer%': '<(skia_sanitizer)',
     'skia_scalar%': '<(skia_scalar)',
