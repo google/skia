@@ -8,6 +8,7 @@
         'includes': [
           'dm.gypi',
         ],
+        'dependencies': ['xps.gyp:xps',],
         'conditions': [
           ['skia_android_framework', {
               'libraries': [

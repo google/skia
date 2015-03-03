@@ -64,6 +64,19 @@ public:
                                  SkScalar dpi = SK_ScalarDefaultRasterDPI);
 
     /**
+     *  Create a XPS-backed document, writing the results into the stream.
+     *  Returns NULL if XPS is not supported.
+     */
+    static SkDocument* CreateXPS(SkWStream* stream,
+                                 SkScalar dpi = SK_ScalarDefaultRasterDPI);
+
+    /**
+     *  Create a XPS-backed document, writing the results into a file.
+     *  Returns NULL if XPS is not supported.
+     */
+    static SkDocument* CreateXPS(const char path[],
+                                 SkScalar dpi = SK_ScalarDefaultRasterDPI);
+    /**
      *  Begin a new page for the document, returning the canvas that will draw
      *  into the page. The document owns this canvas, and it will go out of
      *  scope when endPage() or close() is called, or the document is deleted.
