@@ -37,10 +37,6 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
     return SkUnPreMultiply::PMColorToColor(dst);
 }
 
-GrFragmentProcessor* SkColorFilter::asFragmentProcessor(GrContext*) const {
-    return NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkComposeColorFilter : public SkColorFilter {
@@ -75,10 +71,13 @@ public:
     }
 #endif
 
-#if 0   // TODO: should we support composing the fragments?
 #if SK_SUPPORT_GPU
-    GrFragmentProcessor* asFragmentProcessor(GrContext*) const SK_OVERRIDE;
-#endif
+    bool asFragmentProcessors(GrContext* context,
+                              SkTDArray<GrFragmentProcessor*>* array) const SK_OVERRIDE {
+        bool hasFrags = fInner->asFragmentProcessors(context, array);
+        hasFrags |= fOuter->asFragmentProcessors(context, array);
+        return hasFrags;
+    }
 #endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeColorFilter)

@@ -967,7 +967,11 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
         }
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(
                                                 clearColor, SkXfermode::kSrc_Mode));
-        *fp = cf->asFragmentProcessor(context);
+        SkTDArray<GrFragmentProcessor*> array;
+        if (cf->asFragmentProcessors(context, &array)) {
+            SkASSERT(1 == array.count());   // modecolorfilter only returns one
+            *fp = array[0];                 // transfer ownership to fp
+        }
         return true;
     }
 

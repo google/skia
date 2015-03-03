@@ -193,16 +193,29 @@ DEF_GM( return new TableColorFilterGM; )
 //////////////////////////////////////////////////////////////////////////////
 
 class ComposeColorFilterGM : public skiagm::GM {
+    enum {
+        COLOR_COUNT = 3,
+        MODE_COUNT = 4,
+    };
+    const SkColor*          fColors;
+    const SkXfermode::Mode* fModes;
+    SkString                fName;
+
 public:
-    ComposeColorFilterGM() {}
+    ComposeColorFilterGM(const SkColor colors[], const SkXfermode::Mode modes[],
+                         const char suffix[])
+        : fColors(colors), fModes(modes)
+    {
+        fName.printf("colorcomposefilter_%s", suffix);
+    }
     
 protected:
     virtual SkString onShortName() {
-        return SkString("composecolorfilter");
+        return fName;
     }
     
     virtual SkISize onISize() {
-        return SkISize::Make(730, 730);
+        return SkISize::Make(790, 790);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -211,20 +224,12 @@ protected:
 
         canvas->drawColor(0xFFDDDDDD);
 
-        SkColor colors[] = { SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW };
-        SkXfermode::Mode modes[] = {
-            SkXfermode::kOverlay_Mode,
-            SkXfermode::kDarken_Mode,
-            SkXfermode::kColorBurn_Mode,
-            SkXfermode::kExclusion_Mode,
-        };
-
-        const int MODES = SK_ARRAY_COUNT(modes) * SK_ARRAY_COUNT(colors);
+        const int MODES = MODE_COUNT * COLOR_COUNT;
         SkAutoTUnref<SkColorFilter> filters[MODES];
         int index = 0;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
-            for (size_t j = 0; j < SK_ARRAY_COUNT(colors); ++j) {
-                filters[index++].reset(SkColorFilter::CreateModeFilter(colors[j], modes[i]));
+        for (int i = 0; i < MODE_COUNT; ++i) {
+            for (int j = 0; j < COLOR_COUNT; ++j) {
+                filters[index++].reset(SkColorFilter::CreateModeFilter(fColors[j], fModes[i]));
             }
         }
 
@@ -235,9 +240,27 @@ protected:
 
         canvas->translate(spacer, spacer);
 
-        for (size_t y = 0; y < MODES; ++y) {
+        canvas->drawRect(r, paint); // orig
+
+        for (int i = 0; i < MODES; ++i) {
+            paint.setColorFilter(filters[i]);
+
             canvas->save();
-            for (size_t x = 0; x < MODES; ++x) {
+            canvas->translate((i + 1) * (r.width() + spacer), 0);
+            canvas->drawRect(r, paint);
+            canvas->restore();
+
+            canvas->save();
+            canvas->translate(0, (i + 1) * (r.width() + spacer));
+            canvas->drawRect(r, paint);
+            canvas->restore();
+        }
+
+        canvas->translate(r.width() + spacer, r.width() + spacer);
+
+        for (int y = 0; y < MODES; ++y) {
+            canvas->save();
+            for (int x = 0; x < MODES; ++x) {
                 SkAutoTUnref<SkColorFilter> compose(SkColorFilter::CreateComposeFilter(filters[y],
                                                                                        filters[x]));
                 paint.setColorFilter(compose);
@@ -252,5 +275,21 @@ protected:
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new ComposeColorFilterGM; )
 
+const SkColor gColors0[] = { SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW };
+const SkXfermode::Mode gModes0[] = {
+    SkXfermode::kOverlay_Mode,
+    SkXfermode::kDarken_Mode,
+    SkXfermode::kColorBurn_Mode,
+    SkXfermode::kExclusion_Mode,
+};
+DEF_GM( return new ComposeColorFilterGM(gColors0, gModes0, "wacky"); )
+
+const SkColor gColors1[] = { 0x80FF0000, 0x8000FF00, 0x800000FF };
+const SkXfermode::Mode gModes1[] = {
+    SkXfermode::kSrcOver_Mode,
+    SkXfermode::kXor_Mode,
+    SkXfermode::kDstOut_Mode,
+    SkXfermode::kSrcATop_Mode,
+};
+DEF_GM( return new ComposeColorFilterGM(gColors1, gModes1, "alpha"); )

@@ -494,8 +494,16 @@ GrFragmentProcessor* ColorMatrixEffect::TestCreate(SkRandom* random,
     return ColorMatrixEffect::Create(colorMatrix);
 }
 
-GrFragmentProcessor* SkColorMatrixFilter::asFragmentProcessor(GrContext*) const {
-    return ColorMatrixEffect::Create(fMatrix);
+bool SkColorMatrixFilter::asFragmentProcessors(GrContext*,
+                                               SkTDArray<GrFragmentProcessor*>* array) const {
+    GrFragmentProcessor* frag = ColorMatrixEffect::Create(fMatrix);
+    if (frag) {
+        if (array) {
+            *array->append() = frag;
+        }
+        return true;
+    }
+    return false;
 }
 
 #endif

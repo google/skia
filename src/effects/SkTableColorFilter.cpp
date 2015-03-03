@@ -44,7 +44,7 @@ public:
     SkColorFilter* newComposed(const SkColorFilter* inner) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    GrFragmentProcessor* asFragmentProcessor(GrContext* context) const SK_OVERRIDE;
+    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const SK_OVERRIDE;
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const SK_OVERRIDE;
@@ -567,14 +567,28 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(SkRandom* random,
         (flags & (1 << 2)) ? luts[2] : NULL,
         (flags & (1 << 3)) ? luts[3] : NULL
     ));
-    return filter->asFragmentProcessor(context);
+
+    SkTDArray<GrFragmentProcessor*> array;
+    if (filter->asFragmentProcessors(context, &array)) {
+        SkASSERT(1 == array.count());   // TableColorFilter only returns 1
+        return array[0];
+    }
+    return NULL;
 }
 
-GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* context) const {
+bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
+                                               SkTDArray<GrFragmentProcessor*>* array) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 
-    return ColorTableEffect::Create(context, bitmap, fFlags);
+    GrFragmentProcessor* frag = ColorTableEffect::Create(context, bitmap, fFlags);
+    if (frag) {
+        if (array) {
+            *array->append() = frag;
+        }
+        return true;
+    }
+    return false;
 }
 
 #endif // SK_SUPPORT_GPU

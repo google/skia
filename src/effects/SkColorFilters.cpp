@@ -366,11 +366,18 @@ GrFragmentProcessor* ModeColorFilterEffect::TestCreate(SkRandom* rand,
     return ModeColorFilterEffect::Create(color, mode);
 }
 
-GrFragmentProcessor* SkModeColorFilter::asFragmentProcessor(GrContext*) const {
+bool SkModeColorFilter::asFragmentProcessors(GrContext*,
+                                             SkTDArray<GrFragmentProcessor*>* array) const {
     if (SkXfermode::kDst_Mode != fMode) {
-        return ModeColorFilterEffect::Create(SkColor2GrColor(fColor), fMode);
+        GrFragmentProcessor* frag = ModeColorFilterEffect::Create(SkColor2GrColor(fColor), fMode);
+        if (frag) {
+            if (array) {
+                *array->append() = frag;
+            }
+            return true;
+        }
     }
-    return NULL;
+    return false;
 }
 
 #endif

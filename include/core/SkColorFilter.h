@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkColorFilter_DEFINED
 #define SkColorFilter_DEFINED
 
 #include "SkColor.h"
 #include "SkFlattenable.h"
+#include "SkTDArray.h"
 #include "SkXfermode.h"
 
 class SkBitmap;
@@ -138,10 +137,18 @@ public:
      */
     static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner);
 
-    /** A subclass may implement this factory function to work with the GPU backend. If the return
-        is non-NULL then the caller owns a ref on the returned object.
+    /**
+     *  A subclass may implement this factory function to work with the GPU backend.
+     *  If it returns true, then 1 or more fragment processors will have been appended to the
+     *  array, each of which has been ref'd, so that the caller is responsible for calling unref()
+     *  on them when they are finished. If more than one processor is appended, they will be
+     *  applied in FIFO order.
+     *
+     *  If the subclass returns false, then it should not modify the array at all.
      */
-    virtual GrFragmentProcessor* asFragmentProcessor(GrContext*) const;
+    virtual bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const {
+        return false;
+    }
 
     SK_TO_STRING_PUREVIRT()
 

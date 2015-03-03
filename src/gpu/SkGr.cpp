@@ -662,9 +662,12 @@ void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrFragmentProcessor> fp(colorFilter->asFragmentProcessor(context));
-            if (fp.get()) {
-                grPaint->addColorProcessor(fp);
+            SkTDArray<GrFragmentProcessor*> array;
+            if (colorFilter->asFragmentProcessors(context, &array)) {
+                for (int i = 0; i < array.count(); ++i) {
+                    grPaint->addColorProcessor(array[i]);
+                    array[i]->unref();
+                }
             }
         }
     }
