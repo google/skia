@@ -23,7 +23,7 @@ inline SkPMColor SkPMFloat::get() const {
 }
 
 inline SkPMColor SkPMFloat::clamped() const {
-    __m128i fix8_32 = _mm_cvtps_epi32(_mm_load_ps(fColor)),
+    __m128i fix8_32 = _mm_cvtps_epi32(_mm_load_ps(fColor)),  // _mm_cvtps_epi32 rounds for us!
             fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
             fix8    = _mm_packus_epi16(fix8_16, fix8_16);
     SkPMColor c = _mm_cvtsi128_si32(fix8);

@@ -19,18 +19,20 @@ inline void SkPMFloat::set(SkPMColor c) {
 
 inline SkPMColor SkPMFloat::get() const {
     SkASSERT(this->isValid());
-    uint32x4_t  fix8_32 = vcvtq_u32_f32(vld1q_f32(fColor));
-    uint16x4_t  fix8_16 = vmovn_u32(fix8_32);
-    uint8x8_t   fix8    = vmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
+    float32x4_t add_half = vaddq_f32(vld1q_f32(fColor), vdupq_n_f32(0.5f));
+    uint32x4_t  fix8_32  = vcvtq_u32_f32(add_half);  // vcvtq_u32_f32 truncates, so round manually
+    uint16x4_t  fix8_16  = vmovn_u32(fix8_32);
+    uint8x8_t   fix8     = vmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
     SkPMColor c = vget_lane_u32((uint32x2_t)fix8, 0);
     SkPMColorAssert(c);
     return c;
 }
 
 inline SkPMColor SkPMFloat::clamped() const {
-    uint32x4_t  fix8_32 = vcvtq_u32_f32(vld1q_f32(fColor));
-    uint16x4_t  fix8_16 = vqmovn_u32(fix8_32);
-    uint8x8_t   fix8    = vqmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
+    float32x4_t add_half = vaddq_f32(vld1q_f32(fColor), vdupq_n_f32(0.5f));
+    uint32x4_t  fix8_32  = vcvtq_u32_f32(add_half);  // vcvtq_u32_f32 truncates, so round manually
+    uint16x4_t  fix8_16  = vqmovn_u32(fix8_32);
+    uint8x8_t   fix8     = vqmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
     SkPMColor c = vget_lane_u32((uint32x2_t)fix8, 0);
     SkPMColorAssert(c);
     return c;

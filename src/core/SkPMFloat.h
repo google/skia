@@ -29,6 +29,7 @@ public:
 
     void set(SkPMColor);
 
+    // get() and clamped() round component values to the nearest integer.
     SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
     SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
 
