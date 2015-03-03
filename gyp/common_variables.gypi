@@ -182,7 +182,7 @@
           #     third_party/externals/libpng.
           'skia_libpng_static%': '0',
       }, {
-          'skia_libpng_static%': '0',
+          'skia_libpng_static%': '1',
       }],
       [ 'skia_sanitizer', {
         'skia_clang_build': 1,
