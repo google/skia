@@ -5,3 +5,4 @@ CC_LIST: reviews@skia.org
 BUG_PREFIX: skia:
 TRYSERVER_SVN_URL: https://skia-try.googlecode.com/svn
 PROJECT: skia
+RUN_POST_UPLOAD_HOOK: True
