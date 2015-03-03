@@ -163,6 +163,8 @@
       '<(skia_src_path)/gpu/GrStencilBuffer.cpp',
       '<(skia_src_path)/gpu/GrStencilBuffer.h',
       '<(skia_src_path)/gpu/GrStrokeInfo.h',
+      '<(skia_src_path)/gpu/GrTargetCommands.cpp',
+      '<(skia_src_path)/gpu/GrTargetCommands.h',
       '<(skia_src_path)/gpu/GrTBSearch.h',
       '<(skia_src_path)/gpu/GrTraceMarker.cpp',
       '<(skia_src_path)/gpu/GrTraceMarker.h',
