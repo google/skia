@@ -5,7 +5,7 @@
 #include "SkColor.h"
 #include "Sk4x.h"
 
-// A pre-multiplied color storing each component as a float.
+// A pre-multiplied color storing each component as a float in the range [0, 255].
 class SK_STRUCT_ALIGN(16) SkPMFloat {
 public:
     // Normal POD copies and do-nothing initialization.
@@ -30,10 +30,10 @@ public:
     void set(SkPMColor);
 
     SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
-    SkPMColor clamped() const;  // Will clamp all values to [0,1], then SkASSERT(this->isValid()).
+    SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
 
     bool isValid() const {
-        return this->a() >= 0 && this->a() <= 1
+        return this->a() >= 0 && this->a() <= 255
             && this->r() >= 0 && this->r() <= this->a()
             && this->g() >= 0 && this->g() <= this->a()
             && this->b() >= 0 && this->b() <= this->a();
