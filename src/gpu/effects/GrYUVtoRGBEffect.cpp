@@ -33,7 +33,15 @@ public:
         yuvMatrix[1].preScale(w[1] / w[0], h[1] / h[0]);
         yuvMatrix[2] = yuvMatrix[0];
         yuvMatrix[2].preScale(w[2] / w[0], h[2] / h[0]);
-        return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, yuvMatrix, colorSpace));
+        GrTextureParams::FilterMode uvFilterMode =
+            ((sizes[1].fWidth  != sizes[0].fWidth) ||
+             (sizes[1].fHeight != sizes[0].fHeight) ||
+             (sizes[2].fWidth  != sizes[0].fWidth) ||
+             (sizes[2].fHeight != sizes[0].fHeight)) ?
+            GrTextureParams::kBilerp_FilterMode :
+            GrTextureParams::kNone_FilterMode;
+        return SkNEW_ARGS(YUVtoRGBEffect, (yTexture, uTexture, vTexture, yuvMatrix,
+                                           uvFilterMode, colorSpace));
     }
 
     const char* name() const SK_OVERRIDE { return "YUV to RGB"; }
@@ -103,13 +111,14 @@ public:
 
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                   SkMatrix yuvMatrix[3], SkYUVColorSpace colorSpace)
+                   SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
+                   SkYUVColorSpace colorSpace)
     : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
     , fYAccess(yTexture)
-    , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, GrTextureParams::kNone_FilterMode)
-    , fUAccess(uTexture)
-    , fVTransform(kLocal_GrCoordSet, yuvMatrix[2], vTexture, GrTextureParams::kNone_FilterMode)
-    , fVAccess(vTexture)
+    , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, uvFilterMode)
+    , fUAccess(uTexture, uvFilterMode)
+    , fVTransform(kLocal_GrCoordSet, yuvMatrix[2], vTexture, uvFilterMode)
+    , fVAccess(vTexture, uvFilterMode)
     , fColorSpace(colorSpace) {
         this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
