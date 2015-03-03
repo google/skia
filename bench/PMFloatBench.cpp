@@ -1,6 +1,16 @@
 #include "Benchmark.h"
 #include "SkPMFloat.h"
-#include "SkRandom.h"
+
+// Used to prevent the compiler from optimizing away the whole loop.
+volatile uint32_t blackhole = 0;
+
+// Not a great random number generator, but it's very fast.
+// The code we're measuring is quite fast, so low overhead is essential.
+static uint32_t lcg_rand(uint32_t* seed) {
+    *seed *= 1664525;
+    *seed += 1013904223;
+    return *seed;
+}
 
 struct PMFloatBench : public Benchmark {
     explicit PMFloatBench(bool clamp) : fClamp(clamp) {}
@@ -9,14 +19,23 @@ struct PMFloatBench : public Benchmark {
     bool isSuitableFor(Backend backend) SK_OVERRIDE { return backend == kNonRendering_Backend; }
 
     void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        SkRandom rand;
+        // Unlike blackhole, junk can and probably will be a register.
+        uint32_t junk = 0;
+        uint32_t seed = 0;
         for (int i = 0; i < loops; i++) {
-            SkPMColor c = SkPreMultiplyColor(rand.nextU());
+        #ifdef SK_DEBUG
+            // Our SkASSERTs will remind us that it's technically required that we premultiply.
+            SkPMColor c = SkPreMultiplyColor(lcg_rand(&seed));
+        #else
+            // But it's a lot faster not to, and this code won't really mind the non-PM colors.
+            SkPMColor c = lcg_rand(&seed);
+        #endif
             SkPMFloat pmf;
             pmf.set(c);
             SkPMColor back = fClamp ? pmf.clamped() : pmf.get();
-            if (c != back) { SkFAIL("no joy"); }  // This conditional makes this not compile away.
+            junk ^= back;
         }
+        blackhole ^= junk;
     }
 
     bool fClamp;
