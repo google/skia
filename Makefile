@@ -86,7 +86,7 @@ endif
 # Run gyp no matter what.
 .PHONY: gyp
 gyp:
-	$(CWD)/gyp_skia
+	$(CWD)/gyp_skia --no-parallel -G config=$(BUILDTYPE)
 
 # For all specific targets: run gyp if necessary, and then pass control to
 # the gyp-generated buildfiles.
