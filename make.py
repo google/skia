@@ -61,11 +61,8 @@ def CheckWindowsEnvironment():
     it displays an error message and exits.
     """
     # If we already have the proper environment variables, nothing to do here.
-    try:
-        env_DevEnvDir = os.environ['DevEnvDir']
-        return  # found it, so we are done
-    except KeyError:
-        pass # go on and run the rest of this function
+    if os.environ.get('DevEnvDir'):
+      return
 
     print ('\nCould not find Visual Studio environment variables.'
            '\nPerhaps you have not yet run vcvars32.bat as described at'
@@ -98,7 +95,7 @@ def MakeWindows(targets):
 
     # Run gyp_skia to prepare Visual Studio projects.
     cd(SCRIPT_DIR)
-    runcommand('python gyp_skia')
+    runcommand('python gyp_skia --no-parallel -G config=%s' % BUILDTYPE)
 
     # We already built the gypfiles...
     while TARGET_GYP in targets:
@@ -125,9 +122,11 @@ def Make(args):
 
     targets = []
     for arg in args:
-        # If user requests "make all", chain to our explicitly-declared "everything"
-        # target. See https://code.google.com/p/skia/issues/detail?id=932 ("gyp
-        # automatically creates "all" target on some build flavors but not others")
+        # If user requests "make all", chain to our explicitly-declared
+        # "everything" target. See
+        # https://code.google.com/p/skia/issues/detail?id=932 ("gyp
+        # automatically creates "all" target on some build flavors but not
+        # others")
         if arg == TARGET_ALL:
             targets.append('everything')
         elif arg == TARGET_CLEAN:
@@ -149,16 +148,16 @@ def Make(args):
         sys.exit(0)
     elif os.name == 'posix':
         if sys.platform == 'darwin':
-            print 'Mac developers should not run this script; see ' \
-                'https://skia.org/user/quick/macos'
+            print ('Mac developers should not run this script; see '
+                   'https://skia.org/user/quick/macos')
             sys.exit(1)
         elif sys.platform == 'cygwin':
-            print 'Windows development on Cygwin is not currently supported; see ' \
-                'https://skia.org/user/quick/windows'
+            print ('Windows development on Cygwin is not currently supported; '
+                   'see https://skia.org/user/quick/windows')
             sys.exit(1)
         else:
-            print 'Unix developers should not run this script; see ' \
-                'https://skia.org/user/quick/linux'
+            print ('Unix developers should not run this script; see '
+                   'https://skia.org/user/quick/linux')
             sys.exit(1)
     else:
         print 'unknown platform (os.name=%s, sys.platform=%s); see %s' % (
