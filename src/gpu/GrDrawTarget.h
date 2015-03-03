@@ -573,6 +573,8 @@ public:
     bool programUnitTest(int maxStages);
 
 protected:
+    friend class GrTargetCommands; // for PipelineInfo
+
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
         kReserved_GeometrySrcType, //<! src was set using reserve*Space
