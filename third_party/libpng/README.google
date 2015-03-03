@@ -1,0 +1,16 @@
+URL: http://www.libpng.org/pub/png/libpng.html
+Version: 1.6.16
+License: libpng license
+License File: LICENSE, pulled out of png.h
+Description: png compression/decompression library
+Local Modifications: Created pnglibconf.h from pnglibconf.h.prebuilt (just a
+    rename). Pulled LICENSE into its own file.
+
+FAQ:
+Q: Why does this directory exist?
+A: libpng is pulled in through DEPS, but in order to build it using ninja, we
+   need to create pnglibconf.h. In https://codereview.chromium.org/930283002/,
+   we originally tried creating the file as an action, but this apparently led
+   to a race condition on Windows, where some builds failed to create the file
+   in time for other files to include it. By checking pnglibconf.h directly
+   into Skia, we eliminate the race condition.

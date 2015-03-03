@@ -1,0 +1,172 @@
+/*
+ * COPYRIGHT NOTICE, DISCLAIMER, and LICENSE:
+ *
+ * If you modify libpng you may insert additional notices immediately following
+ * this sentence.
+ *
+ * This code is released under the libpng license.
+ *
+ * libpng versions 1.2.6, August 15, 2004, through 1.6.16, December 22, 2014, are
+ * Copyright (c) 2004, 2006-2014 Glenn Randers-Pehrson, and are
+ * distributed according to the same disclaimer and license as libpng-1.2.5
+ * with the following individual added to the list of Contributing Authors:
+ *
+ *    Cosmin Truta
+ *
+ * libpng versions 1.0.7, July 1, 2000, through 1.2.5, October 3, 2002, are
+ * Copyright (c) 2000-2002 Glenn Randers-Pehrson, and are
+ * distributed according to the same disclaimer and license as libpng-1.0.6
+ * with the following individuals added to the list of Contributing Authors:
+ *
+ *    Simon-Pierre Cadieux
+ *    Eric S. Raymond
+ *    Gilles Vollant
+ *
+ * and with the following additions to the disclaimer:
+ *
+ *    There is no warranty against interference with your enjoyment of the
+ *    library or against infringement.  There is no warranty that our
+ *    efforts or the library will fulfill any of your particular purposes
+ *    or needs.  This library is provided with all faults, and the entire
+ *    risk of satisfactory quality, performance, accuracy, and effort is with
+ *    the user.
+ *
+ * libpng versions 0.97, January 1998, through 1.0.6, March 20, 2000, are
+ * Copyright (c) 1998, 1999, 2000 Glenn Randers-Pehrson, and are
+ * distributed according to the same disclaimer and license as libpng-0.96,
+ * with the following individuals added to the list of Contributing Authors:
+ *
+ *    Tom Lane
+ *    Glenn Randers-Pehrson
+ *    Willem van Schaik
+ *
+ * libpng versions 0.89, June 1996, through 0.96, May 1997, are
+ * Copyright (c) 1996, 1997 Andreas Dilger
+ * Distributed according to the same disclaimer and license as libpng-0.88,
+ * with the following individuals added to the list of Contributing Authors:
+ *
+ *    John Bowler
+ *    Kevin Bracey
+ *    Sam Bushell
+ *    Magnus Holmgren
+ *    Greg Roelofs
+ *    Tom Tanner
+ *
+ * libpng versions 0.5, May 1995, through 0.88, January 1996, are
+ * Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.
+ *
+ * For the purposes of this copyright and license, "Contributing Authors"
+ * is defined as the following set of individuals:
+ *
+ *    Andreas Dilger
+ *    Dave Martindale
+ *    Guy Eric Schalnat
+ *    Paul Schmidt
+ *    Tim Wegner
+ *
+ * The PNG Reference Library is supplied "AS IS".  The Contributing Authors
+ * and Group 42, Inc. disclaim all warranties, expressed or implied,
+ * including, without limitation, the warranties of merchantability and of
+ * fitness for any purpose.  The Contributing Authors and Group 42, Inc.
+ * assume no liability for direct, indirect, incidental, special, exemplary,
+ * or consequential damages, which may result from the use of the PNG
+ * Reference Library, even if advised of the possibility of such damage.
+ *
+ * Permission is hereby granted to use, copy, modify, and distribute this
+ * source code, or portions hereof, for any purpose, without fee, subject
+ * to the following restrictions:
+ *
+ *   1. The origin of this source code must not be misrepresented.
+ *
+ *   2. Altered versions must be plainly marked as such and must not
+ *      be misrepresented as being the original source.
+ *
+ *   3. This Copyright notice may not be removed or altered from
+ *      any source or altered source distribution.
+ *
+ * The Contributing Authors and Group 42, Inc. specifically permit, without
+ * fee, and encourage the use of this source code as a component to
+ * supporting the PNG file format in commercial products.  If you use this
+ * source code in a product, acknowledgment is not required but would be
+ * appreciated.
+ */
+
+/*
+ * A "png_get_copyright" function is available, for convenient use in "about"
+ * boxes and the like:
+ *
+ *     printf("%s", png_get_copyright(NULL));
+ *
+ * Also, the PNG logo (in PNG format, of course) is supplied in the
+ * files "pngbar.png" and "pngbar.jpg (88x31) and "pngnow.png" (98x31).
+ */
+
+/*
+ * Libpng is OSI Certified Open Source Software.  OSI Certified is a
+ * certification mark of the Open Source Initiative.
+ */
+
+/*
+ * The contributing authors would like to thank all those who helped
+ * with testing, bug fixes, and patience.  This wouldn't have been
+ * possible without all of you.
+ *
+ * Thanks to Frank J. T. Wojcik for helping with the documentation.
+ */
+
+/*
+ * Y2K compliance in libpng:
+ * =========================
+ *
+ *    December 22, 2014
+ *
+ *    Since the PNG Development group is an ad-hoc body, we can't make
+ *    an official declaration.
+ *
+ *    This is your unofficial assurance that libpng from version 0.71 and
+ *    upward through 1.6.16 are Y2K compliant.  It is my belief that
+ *    earlier versions were also Y2K compliant.
+ *
+ *    Libpng only has two year fields.  One is a 2-byte unsigned integer
+ *    that will hold years up to 65535.  The other, which is deprecated,
+ *    holds the date in text format, and will hold years up to 9999.
+ *
+ *    The integer is
+ *        "png_uint_16 year" in png_time_struct.
+ *
+ *    The string is
+ *        "char time_buffer[29]" in png_struct.  This is no longer used
+ *    in libpng-1.6.x and will be removed from libpng-1.7.0.
+ *
+ *    There are seven time-related functions:
+ *        png.c: png_convert_to_rfc_1123_buffer() in png.c
+ *          (formerly png_convert_to_rfc_1123() prior to libpng-1.5.x and
+ *          png_convert_to_rfc_1152() in error prior to libpng-0.98)
+ *        png_convert_from_struct_tm() in pngwrite.c, called in pngwrite.c
+ *        png_convert_from_time_t() in pngwrite.c
+ *        png_get_tIME() in pngget.c
+ *        png_handle_tIME() in pngrutil.c, called in pngread.c
+ *        png_set_tIME() in pngset.c
+ *        png_write_tIME() in pngwutil.c, called in pngwrite.c
+ *
+ *    All handle dates properly in a Y2K environment.  The
+ *    png_convert_from_time_t() function calls gmtime() to convert from system
+ *    clock time, which returns (year - 1900), which we properly convert to
+ *    the full 4-digit year.  There is a possibility that libpng applications
+ *    are not passing 4-digit years into the png_convert_to_rfc_1123_buffer()
+ *    function, or that they are incorrectly passing only a 2-digit year
+ *    instead of "year - 1900" into the png_convert_from_struct_tm() function,
+ *    but this is not under our control.  The libpng documentation has always
+ *    stated that it works with 4-digit years, and the APIs have been
+ *    documented as such.
+ *
+ *    The tIME chunk itself is also Y2K compliant.  It uses a 2-byte unsigned
+ *    integer to hold the year, and can hold years as large as 65535.
+ *
+ *    zlib, upon which libpng depends, is also Y2K compliant.  It contains
+ *    no date-related code.
+ *
+ *       Glenn Randers-Pehrson
+ *       libpng maintainer
+ *       PNG Development Group
+ */
