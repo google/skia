@@ -25,6 +25,7 @@ GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
     , fQuadIndexBuffer(NULL)
+    , fGpuTraceMarkerCount(0)
     , fContext(context) {
 }
 
