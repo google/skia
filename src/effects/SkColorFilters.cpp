@@ -135,7 +135,7 @@ public:
         // conversion here.
         SkXfermode::Coeff srcCoeff, dstCoeff;
         if (!SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff)) {
-            SkDebugf("Failing to create color filter for mode %d\n", mode);
+//            SkDebugf("Failing to create color filter for mode %d\n", mode);
             return NULL;
         }
         return SkNEW_ARGS(ModeColorFilterEffect, (c, mode));
