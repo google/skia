@@ -8,6 +8,7 @@
 #include "SkDevice.h"
 #include "SkDeviceProperties.h"
 #include "SkDraw.h"
+#include "SkDrawFilter.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
@@ -121,17 +122,24 @@ void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const
 }
 
 void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                const SkPaint &paint) {
+                                const SkPaint &paint, SkDrawFilter* drawFilter) {
 
     SkPaint runPaint = paint;
 
     SkTextBlob::RunIterator it(blob);
-    while (!it.done()) {
+    for (;!it.done(); it.next()) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
         // applyFontToPaint() always overwrites the exact same attributes,
-        // so it is safe to not re-seed the paint.
+        // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
+
+        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
+            // A false return from filter() means we should abort the current draw.
+            runPaint = paint;
+            continue;
+        }
+
         runPaint.setFlags(this->filterTextFlags(runPaint));
 
         switch (it.positioning()) {
@@ -150,7 +158,10 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
             SkFAIL("unhandled positioning mode");
         }
 
-        it.next();
+        if (drawFilter) {
+            // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
+            runPaint = paint;
+        }
     }
 }
 

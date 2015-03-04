@@ -2161,14 +2161,21 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         }
     }
 
+    // We cannot filter in the looper as we normally do, because the paint is
+    // incomplete at this point (text-related attributes are embedded within blob run paints).
+    SkDrawFilter* drawFilter = fMCRec->fFilter;
+    fMCRec->fFilter = NULL;
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawTextBlob(iter, blob, x, y, dfp.paint());
+        iter.fDevice->drawTextBlob(iter, blob, x, y, dfp.paint(), drawFilter);
     }
 
     LOOPER_END
+
+    fMCRec->fFilter = drawFilter;
 }
 
 // These will become non-virtual, so they always call the (virtual) onDraw... method
