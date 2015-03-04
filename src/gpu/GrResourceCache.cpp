@@ -9,6 +9,7 @@
 
 #include "GrResourceCache.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrTracing.h"
 #include "SkChecksum.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -108,6 +109,8 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     if (resource->resourcePriv().isBudgeted()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
+        TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
+                       fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
 #if GR_CACHE_STATS
         fBudgetedHighWaterCount = SkTMax(fBudgetedCount, fBudgetedHighWaterCount);
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
@@ -137,6 +140,8 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     if (resource->resourcePriv().isBudgeted()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
+        TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
+                       fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
     }
 
     if (resource->resourcePriv().getScratchKey().isValid()) {
@@ -351,6 +356,8 @@ void GrResourceCache::didChangeGpuMemorySize(const GrGpuResource* resource, size
 #endif
     if (resource->resourcePriv().isBudgeted()) {
         fBudgetedBytes += delta;
+        TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
+                       fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
 #if GR_CACHE_STATS
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
 #endif
@@ -378,6 +385,8 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
     }
+    TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
+                   fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
 
     this->validate();
 }
