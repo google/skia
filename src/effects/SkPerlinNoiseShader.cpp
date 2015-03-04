@@ -961,16 +961,12 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
     matrix.preConcat(localMatrix);
 
     if (0 == fNumOctaves) {
-        SkColor clearColor = 0;
         if (kFractalNoise_Type == fType) {
-            clearColor = SkColorSetARGB(paint.getAlpha() / 2, 127, 127, 127);
-        }
-        SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(
-                                                clearColor, SkXfermode::kSrc_Mode));
-        SkTDArray<GrFragmentProcessor*> array;
-        if (cf->asFragmentProcessors(context, &array)) {
-            SkASSERT(1 == array.count());   // modecolorfilter only returns one
-            *fp = array[0];                 // transfer ownership to fp
+            uint32_t alpha = paint.getAlpha() >> 1;
+            uint32_t rgb = alpha >> 1;
+            *paintColor = GrColorPackRGBA(rgb, rgb, rgb, alpha);
+        } else {
+            *paintColor = 0;
         }
         return true;
     }
