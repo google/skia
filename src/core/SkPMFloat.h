@@ -5,13 +5,31 @@
 #include "SkColor.h"
 #include "Sk4x.h"
 
-// A pre-multiplied color storing each component as a float in the range [0, 255].
+// A pre-multiplied color storing each component in the same order as SkPMColor,
+// but as a float in the range [0, 255].
 class SK_STRUCT_ALIGN(16) SkPMFloat {
 public:
-    // Normal POD copies and do-nothing initialization.
-    SkPMFloat()                            = default;
-    SkPMFloat(const SkPMFloat&)            = default;
-    SkPMFloat& operator=(const SkPMFloat&) = default;
+    static SkPMFloat FromPMColor(SkPMColor c) { return SkPMFloat(c); }
+    static SkPMFloat FromARGB(float a, float r, float g, float b) { return SkPMFloat(a,r,g,b); }
+
+    explicit SkPMFloat(SkPMColor);
+    SkPMFloat(float a, float r, float g, float b) {
+        // TODO: faster when specialized?
+        fColor[SK_A32_SHIFT / 8] = a;
+        fColor[SK_R32_SHIFT / 8] = r;
+        fColor[SK_G32_SHIFT / 8] = g;
+        fColor[SK_B32_SHIFT / 8] = b;
+    }
+
+    // Uninitialized.
+    SkPMFloat() {}
+
+    // Copy and assign are fastest if we remind the compiler we work best as Sk4f.
+    SkPMFloat(const SkPMFloat& that) { Sk4f(that).storeAligned(fColor); }
+    SkPMFloat& operator=(const SkPMFloat& that) {
+        Sk4f(that).storeAligned(fColor);
+        return *this;
+    }
 
     // Freely autoconvert between SkPMFloat and Sk4f.
     /*implicit*/ SkPMFloat(const Sk4f& fs) { fs.storeAligned(fColor); }
@@ -21,13 +39,6 @@ public:
     float r() const { return fColor[SK_R32_SHIFT / 8]; }
     float g() const { return fColor[SK_G32_SHIFT / 8]; }
     float b() const { return fColor[SK_B32_SHIFT / 8]; }
-
-    void setA(float val) { fColor[SK_A32_SHIFT / 8] = val; }
-    void setR(float val) { fColor[SK_R32_SHIFT / 8] = val; }
-    void setG(float val) { fColor[SK_G32_SHIFT / 8] = val; }
-    void setB(float val) { fColor[SK_B32_SHIFT / 8] = val; }
-
-    void set(SkPMColor);
 
     // get() and clamped() round component values to the nearest integer.
     SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
@@ -41,7 +52,6 @@ public:
     }
 
 private:
-    // We mirror SkPMColor order only to make set()/get()/clamped() as fast as possible.
     float fColor[4];
 };
 

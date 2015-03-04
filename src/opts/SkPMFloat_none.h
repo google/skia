@@ -1,10 +1,10 @@
 #include "SkColorPriv.h"
 
-inline void SkPMFloat::set(SkPMColor c) {
-    this->setA(SkGetPackedA32(c));
-    this->setR(SkGetPackedR32(c));
-    this->setG(SkGetPackedG32(c));
-    this->setB(SkGetPackedB32(c));
+inline SkPMFloat::SkPMFloat(SkPMColor c) {
+    *this = SkPMFloat::FromARGB(SkGetPackedA32(c),
+                                SkGetPackedR32(c),
+                                SkGetPackedG32(c),
+                                SkGetPackedB32(c));
     SkASSERT(this->isValid());
 }
 

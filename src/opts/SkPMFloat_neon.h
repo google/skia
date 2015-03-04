@@ -1,14 +1,14 @@
 #include "SkColorPriv.h"
 #include <arm_neon.h>
 
-// For set(), we widen our 8 bit components (fix8) to 8-bit components in 16 bits (fix8_16),
-// then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
+// For SkPMFloat(SkPMFColor), we widen our 8 bit components (fix8) to 8-bit components in 16 bits
+// (fix8_16), then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
 
 // get() and clamped() do the opposite, working from floats to 8-bit-in-32-bit,
 // to 8-bit-in-16-bit, back down to 8-bit components.
 // clamped() uses vqmovn to clamp while narrowing instead of just narrowing with vmovn.
 
-inline void SkPMFloat::set(SkPMColor c) {
+inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkPMColorAssert(c);
     uint8x8_t   fix8    = (uint8x8_t)vdup_n_u32(c);
     uint16x8_t  fix8_16 = vmovl_u8(fix8);

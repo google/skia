@@ -30,8 +30,7 @@ struct PMFloatBench : public Benchmark {
             // But it's a lot faster not to, and this code won't really mind the non-PM colors.
             SkPMColor c = lcg_rand(&seed);
         #endif
-            SkPMFloat pmf;
-            pmf.set(c);
+            SkPMFloat pmf = SkPMFloat::FromPMColor(c);
             SkPMColor back = fClamp ? pmf.clamped() : pmf.get();
             junk ^= back;
         }

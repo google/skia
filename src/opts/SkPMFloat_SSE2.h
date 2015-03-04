@@ -1,14 +1,14 @@
 #include "SkColorPriv.h"
 #include <emmintrin.h>
 
-// For set(), we widen our 8 bit components (fix8) to 8-bit components in 16 bits (fix8_16),
-// then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
+// For SkPMFloat(SkPMColor), we widen our 8 bit components (fix8) to 8-bit components in 16 bits
+// (fix8_16), then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
 
 // get() and clamped() do the opposite, working from floats to 8-bit-in-32-bit,
 // to 8-bit-in-16-bit, back down to 8-bit components.
 // _mm_packus_epi16() gives us clamping for free while narrowing.
 
-inline void SkPMFloat::set(SkPMColor c) {
+inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkPMColorAssert(c);
     __m128i fix8    = _mm_set_epi32(0,0,0,c),
             fix8_16 = _mm_unpacklo_epi8 (fix8,    _mm_setzero_si128()),
