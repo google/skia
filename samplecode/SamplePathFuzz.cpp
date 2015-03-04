@@ -131,11 +131,12 @@ const char* gRandomSetMatrixNames[] = {
 
 class FuzzPath {
 public:
-    FuzzPath() 
+    FuzzPath()
         : fFloatMin(0)
         , fFloatMax(800)
         , fAddCount(0)
         , fPrintName(false)
+        , fStrokeOnly(false)
         , fValidate(false)
     {
         fTab = "                                                                                  ";
@@ -170,6 +171,14 @@ public:
 
     const SkPath& getPath() const {
         return fPath;
+    }
+
+    void setSeed(int seed) {
+        fRand.setSeed(seed);
+    }
+
+    void setStrokeOnly() {
+        fStrokeOnly = true;
     }
 
 private:
@@ -265,14 +274,14 @@ SkPaint makePaint() {
     SkPaint paint;
     bool antiAlias = fRand.nextBool();
     paint.setAntiAlias(antiAlias);
-    SkPaint::Style style = (SkPaint::Style) fRand.nextRangeU(SkPaint::kFill_Style,
-        SkPaint::kStrokeAndFill_Style);
+    SkPaint::Style style = fStrokeOnly ? SkPaint::kStroke_Style :
+        (SkPaint::Style) fRand.nextRangeU(SkPaint::kFill_Style, SkPaint::kStrokeAndFill_Style);
     paint.setStyle(style);
     SkColor color = (SkColor) fRand.nextU();
     paint.setColor(color);
-    SkScalar width = fRand.nextF();
+    SkScalar width = fRand.nextRangeF(0, 10);
     paint.setStrokeWidth(width);
-    SkScalar miter = fRand.nextF();
+    SkScalar miter = makeScalar();
     paint.setStrokeMiter(miter);
     SkPaint::Cap cap = (SkPaint::Cap) fRand.nextRangeU(SkPaint::kButt_Cap, SkPaint::kSquare_Cap);
     paint.setStrokeCap(cap);
@@ -408,7 +417,7 @@ SkPath makePath() {
                         path.addPath(src, dx, dy, mode);
                         --fPathDepth;
                         validate(path);
-                    } 
+                    }
                     break;
                 case kAddPath2:
                     if (fPathDepth < fPathDepthLimit) {
@@ -581,11 +590,11 @@ int fPathDepthLimit;
 uint32_t fPathSegmentLimit;
 int fAddCount;
 bool fPrintName;
+bool fStrokeOnly;
 bool fValidate;
 const char* fTab;
 };
 
-//////////////////////////////////////////////////////////////////////////////
 static bool contains_only_moveTo(const SkPath& path) {
     int verbCount = path.countVerbs();
     if (verbCount == 0) {
@@ -603,10 +612,54 @@ static bool contains_only_moveTo(const SkPath& path) {
     return true;
 }
 
+#include "SkGraphics.h"
+#include "SkSurface.h"
+#include "SkTaskGroup.h"
+#include "SkTDArray.h"
+
+struct ThreadState {
+    int fSeed;
+    const SkBitmap* fBitmap;
+};
+
+static void test_fuzz(ThreadState* data) {
+    FuzzPath fuzzPath;
+    fuzzPath.setStrokeOnly();
+    fuzzPath.setSeed(data->fSeed);
+    fuzzPath.randomize();
+    const SkPath& path = fuzzPath.getPath();
+    const SkPaint& paint = fuzzPath.getPaint();
+    const SkImageInfo& info = data->fBitmap->info();
+    SkCanvas* canvas(SkCanvas::NewRasterDirect(info, data->fBitmap->getPixels(),
+            data->fBitmap->rowBytes()));
+    int w = info.width() / 4;
+    int h = info.height() / 4;
+    int x = data->fSeed / 4 % 4;
+    int y = data->fSeed % 4;
+    SkRect clipBounds = SkRect::MakeXYWH(SkIntToScalar(x) * w, SkIntToScalar(y) * h, 
+        SkIntToScalar(w), SkIntToScalar(h));
+    canvas->save();
+        canvas->clipRect(clipBounds);
+        canvas->translate(SkIntToScalar(x) * w, SkIntToScalar(y) * h);
+        canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
+static void path_fuzz_stroker(SkBitmap* bitmap, int seed) {
+    ThreadState states[100];
+    for (size_t i = 0; i < SK_ARRAY_COUNT(states); i++) {
+        states[i].fSeed   = seed + i;
+        states[i].fBitmap = bitmap;
+    }
+    SkTaskGroup tg;
+    tg.batch(test_fuzz, states, SK_ARRAY_COUNT(states));
+}
+
 class PathFuzzView : public SampleView {
 public:
-    PathFuzzView() {
-        fDots = 0;
+    PathFuzzView()
+        : fOneDraw(false)
+    {
     }
 protected:
     // overrides from SkEventSink
@@ -618,34 +671,42 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
+    void onOnceBeforeDraw() SK_OVERRIDE {
+        fIndex = 0;
+        SkImageInfo info(SkImageInfo::MakeN32Premul(SkScalarRoundToInt(width()), 
+                SkScalarRoundToInt(height())));
+        offscreen.allocPixels(info);
+        path_fuzz_stroker(&offscreen, fIndex);
+    }
+
     virtual void onDrawContent(SkCanvas* canvas) {
-        fuzzPath.randomize();
-        const SkPath& path = fuzzPath.getPath();
-        const SkPaint& paint = fuzzPath.getPaint();
-        const SkPath& clip = fuzzPath.getClip();
-        const SkMatrix& matrix = fuzzPath.getMatrix();
-        if (!contains_only_moveTo(clip)) {
-            canvas->clipPath(clip);
+        if (fOneDraw) {
+            fuzzPath.randomize();
+            const SkPath& path = fuzzPath.getPath();
+            const SkPaint& paint = fuzzPath.getPaint();
+            const SkPath& clip = fuzzPath.getClip();
+            const SkMatrix& matrix = fuzzPath.getMatrix();
+            if (!contains_only_moveTo(clip)) {
+                canvas->clipPath(clip);
+            }
+            canvas->setMatrix(matrix);
+            canvas->drawPath(path, paint);
+        } else {
+            path_fuzz_stroker(&offscreen, fIndex += 100);
+            canvas->drawBitmap(offscreen, 0, 0);
         }
-        canvas->setMatrix(matrix);
-        canvas->drawPath(path, paint);
         this->inval(NULL);
-        if (++fDots == 8000) {
-            SkDebugf("\n");
-            fDots = 0;
-        }
-        if ((fDots % 100) == 99) {
-            SkDebugf(".");
-        }
     }
 
 private:
+    int fIndex;
+    SkBitmap offscreen;
     FuzzPath fuzzPath;
-    int fDots;
+    bool fOneDraw;
     typedef SkView INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
 static SkView* MyFactory() { return new PathFuzzView; }
 static SkViewRegister reg(MyFactory);
+
+
