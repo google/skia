@@ -2153,10 +2153,13 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
 
+    SkRect storage;
+    const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
-        SkRect storage;
+        storage = blob->bounds().makeOffset(x, y);
+        bounds = &paint.computeFastBounds(storage, &storage);
 
-        if (this->quickReject(paint.computeFastBounds(blob->bounds().makeOffset(x, y), &storage))) {
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
@@ -2166,7 +2169,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     SkDrawFilter* drawFilter = fMCRec->fFilter;
     fMCRec->fFilter = NULL;
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, bounds)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
