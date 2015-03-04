@@ -45,7 +45,9 @@ private:
     float fColor[4];
 };
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    #include "../opts/SkPMFloat_SSSE3.h"
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include "../opts/SkPMFloat_SSE2.h"
 #elif defined(__ARM_NEON__)
     #include "../opts/SkPMFloat_neon.h"
