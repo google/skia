@@ -31,8 +31,8 @@ def get_args(bot):
       configs.extend(['msaa4', 'nvprmsaa4'])
     else:
       configs.extend(['msaa16', 'nvprmsaa16'])
-  # Runs out of memory on Android bots.
-  if 'Android' not in bot:
+  # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
+  if 'Android' not in bot and 'Daisy' not in bot:
     configs.append('pdf')
 
   # Xoom and NP are running out of RAM when we run all these modes.  skia:3255
