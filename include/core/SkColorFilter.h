@@ -144,6 +144,9 @@ public:
      *  on them when they are finished. If more than one processor is appended, they will be
      *  applied in FIFO order.
      *
+     *  The fragment processor(s) must each return their color as a premul normalized value
+     *  e.g. each component between [0..1] and each color component <= alpha.
+     *
      *  If the subclass returns false, then it should not modify the array at all.
      */
     virtual bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const {
