@@ -21,12 +21,10 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         return NULL;
     }
 
-    SkColorFilter* inputCF;
-    if (input && input->asColorFilter(&inputCF)) {
-        // This is an optimization, as it collapses the hierarchy by just combining the two
-        // colorfilters into a single one, which the new imagefilter will wrap.
-        SkAutoUnref autoUnref(inputCF);
-        SkAutoTUnref<SkColorFilter> newCF(SkColorFilter::CreateComposeFilter(cf, inputCF));
+    SkColorFilter* inputColorFilter;
+    if (input && input->asColorFilter(&inputColorFilter)) {
+        SkAutoUnref autoUnref(inputColorFilter);
+        SkAutoTUnref<SkColorFilter> newCF(cf->newComposed(inputColorFilter));
         if (newCF) {
             return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect, 0));
         }
@@ -88,13 +86,10 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
 }
 
 bool SkColorFilterImageFilter::asColorFilter(SkColorFilter** filter) const {
-    if (!this->cropRectIsSet()) {
-        SkASSERT(1 == this->countInputs());
-        // Since our factory has already performed the collapse optimization, we can assert that
-        // if we have an input, it is *not* also a colorfilter.
-        SkASSERT(!this->getInput(0) || !this->getInput(0)->asColorFilter(NULL));
+    if (!cropRectIsSet()) {
         if (filter) {
-            *filter = SkRef(fColorFilter);
+            *filter = fColorFilter;
+            fColorFilter->ref();
         }
         return true;
     }
