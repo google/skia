@@ -387,12 +387,8 @@ private:
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
-    Bounds bounds(const DrawSprite& op) const {  // Ignores the matrix, but respects the clip.
-        SkRect rect = Bounds::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height());
-        if (!rect.intersect(fCurrentClipBounds)) {
-            return Bounds::MakeEmpty();
-        }
-        return rect;
+    Bounds bounds(const DrawSprite& op) const {  // Ignores the matrix.
+        return Bounds::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height());
     }
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }

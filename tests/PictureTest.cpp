@@ -1248,9 +1248,8 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
 
 struct CountingBBH : public SkBBoxHierarchy {
     mutable int searchCalls;
-    SkRect rootBound;
 
-    CountingBBH(const SkRect& bound) : searchCalls(0), rootBound(bound) {}
+    CountingBBH() : searchCalls(0) {}
 
     void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {
         this->searchCalls++;
@@ -1258,7 +1257,6 @@ struct CountingBBH : public SkBBoxHierarchy {
 
     void insert(const SkRect[], int) SK_OVERRIDE {}
     virtual size_t bytesUsed() const SK_OVERRIDE { return 0; }
-    SkRect getRootBound() const SK_OVERRIDE { return rootBound; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {
@@ -1273,12 +1271,11 @@ private:
 
 // When the canvas clip covers the full picture, we don't need to call the BBH.
 DEF_TEST(Picture_SkipBBH, r) {
-    SkRect bound = SkRect::MakeWH(320, 240);
-    CountingBBH bbh(bound);
+    CountingBBH bbh;
     SpoonFedBBHFactory factory(&bbh);
 
     SkPictureRecorder recorder;
-    recorder.beginRecording(bound, &factory);
+    recorder.beginRecording(320, 240, &factory);
     SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
 
     SkCanvas big(640, 480), small(300, 200);

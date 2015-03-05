@@ -60,10 +60,6 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
         } else {
             SkRecordFillBounds(fCullRect, *fRecord, fBBH.get());
         }
-        SkRect bbhBound = fBBH->getRootBound();
-        SkASSERT((bbhBound.isEmpty() || fCullRect.contains(bbhBound))
-            || (bbhBound.isEmpty() && fCullRect.isEmpty()));
-        fCullRect = bbhBound;
     }
 
     SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullRect, fRecord, pictList, fBBH));
