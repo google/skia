@@ -35,10 +35,11 @@ public:
         kOval_Type,
         kPath_Type,
         kText_Type,
+        kImage_Type,
     };
 
     enum {
-        kTypeCount = kText_Type + 1
+        kTypeCount = kImage_Type + 1
     };
 
     /**

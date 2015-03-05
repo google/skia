@@ -1848,15 +1848,64 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+void SkCanvas::onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy,
+                           const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImage()");
-    image->draw(this, dx, dy, paint);
+
+    SkRect bounds = SkRect::MakeXYWH(dx, dy, image->width(), image->height());
+    if (NULL == paint || paint->canComputeFastBounds()) {
+        if (NULL != paint) {
+            paint->computeFastBounds(bounds, &bounds);
+        }
+        if (this->quickReject(bounds)) {
+            return;
+        }
+    }
+
+    SkLazyPaint lazy;
+    if (NULL == paint) {
+        paint = lazy.init();
+    }
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kImage_Type, &bounds)
+
+    while (iter.next()) {
+        SkPaint p = looper.paint();
+        p.setLooper(NULL);
+        image->draw(this, dx, dy, &p);
+    }
+
+    LOOPER_END
 }
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
-    image->drawRect(this, src, dst, paint);
+    SkRect storage;
+    const SkRect* bounds = &dst;
+    if (NULL == paint || paint->canComputeFastBounds()) {
+        if (NULL != paint) {
+            bounds = &paint->computeFastBounds(dst, &storage);
+        }
+        if (this->quickReject(*bounds)) {
+            return;
+        }
+    }
+
+    SkLazyPaint lazy;
+    if (NULL == paint) {
+        paint = lazy.init();
+    }
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kImage_Type, bounds)
+
+    while (iter.next()) {
+        SkPaint p = looper.paint();
+        p.setLooper(NULL);
+        image->drawRect(this, src, dst, &p);
+    }
+
+    LOOPER_END
 }
 
 void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint* paint) {

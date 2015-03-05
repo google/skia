@@ -75,13 +75,18 @@ static char const * const gFilterTypes[] = {
     "line",
     "bitmap",
     "rect",
+    "rrect",
     "oval",
     "path",
     "text",
+    "image",
     "all",
 };
 
 static const size_t kFilterTypesCount = sizeof(gFilterTypes) / sizeof(gFilterTypes[0]);
+
+SK_COMPILE_ASSERT(kFilterTypesCount - 1u == SkDrawFilter::kTypeCount,
+                  filter_types_list_is_not_exact);
 
 static char const * const gFilterFlags[] = {
     "antiAlias",
