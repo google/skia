@@ -106,6 +106,7 @@
     "gpu", 
     "msaa16", 
     "nvprmsaa16", 
+    "pdf", 
     "serialize-8888", 
     "tiles_rt-8888", 
     "pipe-8888", 
@@ -117,6 +118,9 @@
     "msaa", 
     "_", 
     "PANO_20121023_214540.jpg", 
+    "pdf", 
+    "_", 
+    ".webp", 
     "--match", 
     "~Threaded"
   ], 

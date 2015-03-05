@@ -32,8 +32,7 @@ def get_args(bot):
     else:
       configs.extend(['msaa16', 'nvprmsaa16'])
   # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
-  # Valgrind: PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
-  if 'Android' not in bot and 'Daisy' not in bot and 'Valgrind' not in bot:
+  if 'Android' not in bot and 'Daisy' not in bot:
     configs.append('pdf')
 
   # Xoom and NP are running out of RAM when we run all these modes.  skia:3255
@@ -58,6 +57,10 @@ def get_args(bot):
   if 'Android' in bot:  # skia:3255
     blacklist.extend('gpu skp _ gpu image _ gpu subset _'.split(' '))
     blacklist.extend('msaa skp _ msaa image _ gpu subset _'.split(' '))
+
+  # PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
+  if 'Valgrind' in bot:
+    blacklist.extend('pdf _ .webp'.split(' '))
 
   if blacklist:
     args.append('--blacklist')
