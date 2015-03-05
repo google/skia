@@ -134,6 +134,9 @@ public:
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's.
      *  The reference counts for outer and inner are incremented.
+     *
+     *  Due to internal limits, it is possible that this will return NULL, so the caller must
+     *  always check.
      */
     static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner);
 
@@ -162,6 +165,16 @@ protected:
     SkColorFilter() {}
 
 private:
+    /*
+     *  Returns 1 if this is a single filter (not a composition of other filters), otherwise it
+     *  reutrns the number of leaf-node filters in a composition. This should be the same value
+     *  as the number of GrFragmentProcessors returned by asFragmentProcessors's array parameter.
+     *
+     *  e.g. compose(filter, compose(compose(filter, filter), filter)) --> 4
+     */
+    virtual int privateComposedFilterCount() const { return 1; }
+    friend class SkComposeColorFilter;
+
     typedef SkFlattenable INHERITED;
 };
 

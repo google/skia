@@ -30,6 +30,26 @@ static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkColorFilter* make_filter() {
+    // pick a filter that cannot compose with itself via newComposed()
+    return SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kColorBurn_Mode);
+}
+
+static void test_composecolorfilter_limit(skiatest::Reporter* reporter) {
+    // Test that CreateComposeFilter() has some finite limit (i.e. that the factory can return null)
+    const int way_too_many = 100;
+    SkAutoTUnref<SkColorFilter> parent(make_filter());
+    for (int i = 2; i < way_too_many; ++i) {
+        SkAutoTUnref<SkColorFilter> filter(make_filter());
+        parent.reset(SkColorFilter::CreateComposeFilter(parent, filter));
+        if (NULL == parent) {
+            REPORTER_ASSERT(reporter, i > 2); // we need to have succeeded at least once!
+            return;
+        }
+    }
+    REPORTER_ASSERT(reporter, false); // we never saw a NULL :(
+}
+
 #define ILLEGAL_MODE    ((SkXfermode::Mode)-1)
 
 DEF_TEST(ColorFilter, reporter) {
@@ -89,6 +109,8 @@ DEF_TEST(ColorFilter, reporter) {
             REPORTER_ASSERT(reporter, m2 == expectedMode);
         }
     }
+
+    test_composecolorfilter_limit(reporter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

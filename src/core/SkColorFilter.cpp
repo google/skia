@@ -39,13 +39,18 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ *  Since colorfilters may be used on the GPU backend, and in that case we may string together
+ *  many GrFragmentProcessors, we might exceed some internal instruction/resource limit.
+ *
+ *  Since we don't yet know *what* those limits might be when we construct the final shader,
+ *  we just set an arbitrary limit during construction. If later we find smarter ways to know what
+ *  the limnits are, we can change this constant (or remove it).
+ */
+#define SK_MAX_COMPOSE_COLORFILTER_COUNT    4
+
 class SkComposeColorFilter : public SkColorFilter {
 public:
-    SkComposeColorFilter(SkColorFilter* outer, SkColorFilter* inner)
-        : fOuter(SkRef(outer))
-        , fInner(SkRef(inner))
-    {}
-    
     uint32_t getFlags() const SK_OVERRIDE {
         // Can only claim alphaunchanged and 16bit support if both our proxys do.
         return fOuter->getFlags() & fInner->getFlags();
@@ -89,8 +94,22 @@ protected:
     }
     
 private:
+    SkComposeColorFilter(SkColorFilter* outer, SkColorFilter* inner, int composedFilterCount)
+        : fOuter(SkRef(outer))
+        , fInner(SkRef(inner))
+        , fComposedFilterCount(composedFilterCount)
+    {
+        SkASSERT(composedFilterCount >= 2);
+        SkASSERT(composedFilterCount <= SK_MAX_COMPOSE_COLORFILTER_COUNT);
+    }
+
+    int privateComposedFilterCount() const SK_OVERRIDE {
+        return fComposedFilterCount;
+    }
+
     SkAutoTUnref<SkColorFilter> fOuter;
     SkAutoTUnref<SkColorFilter> fInner;
+    const int                   fComposedFilterCount;
 
     friend class SkColorFilter;
 
@@ -115,10 +134,15 @@ SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorF
 
     // Give the subclass a shot at a more optimal composition...
     SkColorFilter* composition = outer->newComposed(inner);
-    if (NULL == composition) {
-        composition = SkNEW_ARGS(SkComposeColorFilter, (outer, inner));
+    if (composition) {
+        return composition;
     }
-    return composition;
+
+    int count = inner->privateComposedFilterCount() + outer->privateComposedFilterCount();
+    if (count > SK_MAX_COMPOSE_COLORFILTER_COUNT) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkComposeColorFilter, (outer, inner, count));
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
