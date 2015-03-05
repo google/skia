@@ -12,6 +12,12 @@ public:
     static SkPMFloat FromPMColor(SkPMColor c) { return SkPMFloat(c); }
     static SkPMFloat FromARGB(float a, float r, float g, float b) { return SkPMFloat(a,r,g,b); }
 
+    // May be more efficient than one at a time.  No special alignment assumed for SkPMColors.
+    static void From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
+        // TODO: specialize
+        for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
+    }
+
     explicit SkPMFloat(SkPMColor);
     SkPMFloat(float a, float r, float g, float b) {
         // TODO: faster when specialized?
@@ -43,6 +49,16 @@ public:
     // get() and clamped() round component values to the nearest integer.
     SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
     SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
+
+    // 4-at-a-time versions of get() and clamped().  Like From4PMColors(), no alignment assumed.
+    static void To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+        // TODO: specialize
+        for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
+    }
+    static void ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+        // TODO: specialize
+        for (int i = 0; i < 4; i++) { colors[i] = floats[i].clamped(); }
+    }
 
     bool isValid() const {
         return this->a() >= 0 && this->a() <= 255

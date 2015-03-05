@@ -29,4 +29,20 @@ DEF_TEST(SkPMFloat, r) {
     REPORTER_ASSERT(r, SkScalarNearlyEqual(38.25f, scaled.r()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual( 0.25f, scaled.g()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual( 0.00f, scaled.b()));
+
+    // Test 4-at-a-time conversions.
+    SkPMColor colors[4] = { 0xFF000000, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF };
+    SkPMFloat floats[4];
+    SkPMFloat::From4PMColors(floats, colors);
+
+    SkPMColor back[4];
+    SkPMFloat::To4PMColors(back, floats);
+    for (int i = 0; i < 4; i++) {
+        REPORTER_ASSERT(r, back[i] == colors[i]);
+    }
+
+    SkPMFloat::ClampTo4PMColors(back, floats);
+    for (int i = 0; i < 4; i++) {
+        REPORTER_ASSERT(r, back[i] == colors[i]);
+    }
 }
