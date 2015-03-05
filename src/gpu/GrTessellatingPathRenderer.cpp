@@ -7,6 +7,8 @@
 
 #include "GrTessellatingPathRenderer.h"
 
+#include "GrBatch.h"
+#include "GrBatchTarget.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "SkChunkAlloc.h"
@@ -1436,6 +1438,128 @@ bool GrTessellatingPathRenderer::canDrawPath(const GrDrawTarget* target,
     return stroke.isFillStyle() && !antiAlias && !path.isConvex();
 }
 
+class TessellatingPathBatch : public GrBatch {
+public:
+
+    static GrBatch* Create(const GrColor& color,
+                           const SkPath& path,
+                           const SkMatrix& viewMatrix,
+                           SkRect clipBounds) {
+        return SkNEW_ARGS(TessellatingPathBatch, (color, path, viewMatrix, clipBounds));
+    }
+
+    const char* name() const SK_OVERRIDE { return "TessellatingPathBatch"; }
+
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setKnownFourComponents(fColor);
+    }
+
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+        out->setUnknownSingleComponent();
+    }
+
+    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+        // Handle any color overrides
+        if (init.fColorIgnored) {
+            fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fColor = init.fOverrideColor;
+        }
+        fPipelineInfo = init;
+    }
+
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(SK_Scalar1, fViewMatrix, fPath.getBounds());
+        int contourCnt;
+        int maxPts = GrPathUtils::worstCasePointCount(fPath, &contourCnt, tol);
+        if (maxPts <= 0) {
+            return;
+        }
+        if (maxPts > ((int)SK_MaxU16 + 1)) {
+            SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
+            return;
+        }
+        SkPath::FillType fillType = fPath.getFillType();
+        if (SkPath::IsInverseFillType(fillType)) {
+            contourCnt++;
+        }
+
+        LOG("got %d pts, %d contours\n", maxPts, contourCnt);
+        uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+            GrDefaultGeoProcFactory::Create(flags, fColor, fViewMatrix, SkMatrix::I()));
+        batchTarget->initDraw(gp, pipeline);
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), fPipelineInfo);
+
+        SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
+
+        // For the initial size of the chunk allocator, estimate based on the point count:
+        // one vertex per point for the initial passes, plus two for the vertices in the
+        // resulting Polys, since the same point may end up in two Polys.  Assume minimal
+        // connectivity of one Edge per Vertex (will grow for intersections).
+        SkChunkAlloc alloc(maxPts * (3 * sizeof(Vertex) + sizeof(Edge)));
+        path_to_contours(fPath, tol, fClipBounds, contours.get(), alloc);
+        Poly* polys;
+        polys = contours_to_polys(contours.get(), contourCnt, alloc);
+        int count = 0;
+        for (Poly* poly = polys; poly; poly = poly->fNext) {
+            if (apply_fill_type(fillType, poly->fWinding) && poly->fCount >= 3) {
+                count += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
+            }
+        }
+
+        size_t stride = gp->getVertexStride();
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+        void* vertices = batchTarget->vertexPool()->makeSpace(stride,
+                                                              count,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+        LOG("emitting %d verts\n", count);
+        void* end = polys_to_triangles(polys, fillType, vertices);
+        int actualCount = static_cast<int>(
+            (static_cast<char*>(end) - static_cast<char*>(vertices)) / stride);
+        LOG("actual count: %d\n", actualCount);
+        SkASSERT(actualCount <= count);
+
+        GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
+                                                  : kTriangles_GrPrimitiveType;
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(primitiveType);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setStartVertex(firstVertex);
+        drawInfo.setVertexCount(actualCount);
+        drawInfo.setStartIndex(0);
+        drawInfo.setIndexCount(0);
+        batchTarget->draw(drawInfo);
+
+        batchTarget->putBackVertices((size_t)(count - actualCount), stride);
+        return;
+    }
+
+    bool onCombineIfPossible(GrBatch*) SK_OVERRIDE {
+        return false;
+    }
+
+private:
+    TessellatingPathBatch(const GrColor& color,
+                          const SkPath& path,
+                          const SkMatrix& viewMatrix,
+                          const SkRect& clipBounds)
+      : fColor(color)
+      , fPath(path)
+      , fViewMatrix(viewMatrix)
+      , fClipBounds(clipBounds) {
+        this->initClassID<TessellatingPathBatch>();
+    }
+
+    GrColor        fColor;
+    SkPath         fPath;
+    SkMatrix       fViewMatrix;
+    SkRect         fClipBounds; // in source space
+    GrPipelineInfo fPipelineInfo;
+};
+
 bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
                                             GrPipelineBuilder* pipelineBuilder,
                                             GrColor color,
@@ -1449,31 +1573,6 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
         return false;
     }
 
-    SkScalar tol = GrPathUtils::scaleToleranceToSrc(SK_Scalar1, viewM, path.getBounds());
-
-    int contourCnt;
-    int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt, tol);
-    if (maxPts <= 0) {
-        return false;
-    }
-    if (maxPts > ((int)SK_MaxU16 + 1)) {
-        SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
-        return false;
-    }
-    SkPath::FillType fillType = path.getFillType();
-    if (SkPath::IsInverseFillType(fillType)) {
-        contourCnt++;
-    }
-
-    LOG("got %d pts, %d contours\n", maxPts, contourCnt);
-
-    SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
-
-    // For the initial size of the chunk allocator, estimate based on the point count:
-    // one vertex per point for the initial passes, plus two for the vertices in the
-    // resulting Polys, since the same point may end up in two Polys.  Assume minimal
-    // connectivity of one Edge per Vertex (will grow for intersections).
-    SkChunkAlloc alloc(maxPts * (3 * sizeof(Vertex) + sizeof(Edge)));
     SkIRect clipBoundsI;
     pipelineBuilder->clip().getConservativeBounds(rt, &clipBoundsI);
     SkRect clipBounds = SkRect::Make(clipBoundsI);
@@ -1482,33 +1581,8 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
         return false;
     }
     vmi.mapRect(&clipBounds);
-    path_to_contours(path, tol, clipBounds, contours.get(), alloc);
-    Poly* polys;
-    uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
-    polys = contours_to_polys(contours.get(), contourCnt, alloc);
-    SkAutoTUnref<const GrGeometryProcessor> gp(
-        GrDefaultGeoProcFactory::Create(flags, color, viewM, SkMatrix::I()));
-    int count = 0;
-    for (Poly* poly = polys; poly; poly = poly->fNext) {
-        if (apply_fill_type(fillType, poly->fWinding) && poly->fCount >= 3) {
-            count += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
-        }
-    }
-
-    size_t stride = gp->getVertexStride();
-    GrDrawTarget::AutoReleaseGeometry arg;
-    if (!arg.set(target, count, stride, 0)) {
-        return false;
-    }
-    LOG("emitting %d verts\n", count);
-    void* end = polys_to_triangles(polys, fillType, arg.vertices());
-    int actualCount = static_cast<int>((static_cast<char*>(end) - static_cast<char*>(arg.vertices())) / stride);
-    LOG("actual count: %d\n", actualCount);
-    SkASSERT(actualCount <= count);
-
-    GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
-                                              : kTriangles_GrPrimitiveType;
-    target->drawNonIndexed(pipelineBuilder, gp, primitiveType, 0, actualCount);
+    SkAutoTUnref<GrBatch> batch(TessellatingPathBatch::Create(color, path, viewM, clipBounds));
+    target->drawBatch(pipelineBuilder, batch);
 
     return true;
 }
