@@ -319,6 +319,10 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         if (Cmd::kDrawBatch_Cmd == iter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(iter.get());
             fBatchTarget.flushNext(db->fBatch->numberOfDraws());
+
+            if (iter->isTraced()) {
+                gpu->removeGpuTraceMarker(&newMarker);
+            }
             continue;
         }
 
