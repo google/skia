@@ -34,6 +34,9 @@ public:
 
     virtual size_t bytesUsed() const = 0;
 
+    // Get the root bound.
+    virtual SkRect getRootBound() const = 0;
+
     SK_DECLARE_INST_COUNT(SkBBoxHierarchy)
 private:
     typedef SkRefCnt INHERITED;

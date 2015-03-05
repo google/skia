@@ -52,6 +52,9 @@ public:
     // Insertion count (not overall node count, which may be greater).
     int getCount() const { return fCount; }
 
+    // Get the root bound.
+    SkRect getRootBound() const SK_OVERRIDE;
+
     // These values were empirically determined to produce reasonable performance in most cases.
     static const int kMinChildren = 6,
                      kMaxChildren = 11;
