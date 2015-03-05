@@ -85,6 +85,11 @@ private:
     INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),name,   \
                        "id", name_counter, ##__VA_ARGS__);                        
 
+#if GR_FORCE_GPU_TRACE_DEBUGGING
+#define GR_CREATE_GPU_TRACE_MARKER(name, name_counter, target)                     \
+    GrGpuTraceMarkerGenerator SK_MACRO_APPEND_LINE(TMG)(target);                   \
+    SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);
+#else
 #define GR_CREATE_GPU_TRACE_MARKER(name, name_counter, target)                     \
     GrGpuTraceMarkerGenerator SK_MACRO_APPEND_LINE(TMG)(target);                   \
     bool SK_MACRO_APPEND_LINE(gpuTracingEnabled);                                  \
@@ -93,7 +98,7 @@ private:
     if (SK_MACRO_APPEND_LINE(gpuTracingEnabled)) {                                 \
         SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                 \
     }                                                                             
-
+#endif
 
 #define GR_CREATE_TRACE_MARKER_CONTEXT(name, context)                             \
     INTERNAL_GR_CREATE_TRACE_MARKER_SCOPED_C(name, context)                       
@@ -114,6 +119,11 @@ private:
     INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),name,   \
                                     "id", name_counter, ##__VA_ARGS__);                        
 
+#if GR_FORCE_GPU_TRACE_DEBUGGING
+#define GR_CREATE_GPU_TRACE_MARKER_C(name, name_counter, context)                  \
+    GrGpuTraceMarkerGeneratorContext SK_MACRO_APPEND_LINE(TMG)(context);           \
+    SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);
+#else
 #define GR_CREATE_GPU_TRACE_MARKER_C(name, name_counter, context)                  \
     GrGpuTraceMarkerGeneratorContext SK_MACRO_APPEND_LINE(TMG)(context);           \
     bool SK_MACRO_APPEND_LINE(gpuTracingEnabled);                                  \
@@ -122,5 +132,6 @@ private:
     if (SK_MACRO_APPEND_LINE(gpuTracingEnabled)) {                                 \
         SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                 \
     }                                                                             
+#endif
 
 #endif
