@@ -18,9 +18,32 @@ struct ImplicitString : public SkString {
     template <typename T>
     ImplicitString(const T& s) : SkString(s) {}
 };
-typedef ImplicitString Error;
 typedef ImplicitString Name;
 typedef ImplicitString Path;
+
+class Error {
+public:
+    Error(const SkString& s) : fMsg(s), fFatal(!this->isEmpty()) {}
+    Error(const char* s)     : fMsg(s), fFatal(!this->isEmpty()) {}
+
+    Error(const Error&)            = default;
+    Error& operator=(const Error&) = default;
+
+    static Error Nonfatal(const SkString& s) { return Nonfatal(s.c_str()); }
+    static Error Nonfatal(const char* s) {
+        Error e(s);
+        e.fFatal = false;
+        return e;
+    }
+
+    const char* c_str() const { return fMsg.c_str(); }
+    bool isEmpty() const { return fMsg.isEmpty(); }
+    bool isFatal() const { return fFatal; }
+
+private:
+    SkString fMsg;
+    bool     fFatal;
+};
 
 struct Src {
     // All Srcs must be thread safe.

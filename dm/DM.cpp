@@ -186,7 +186,7 @@ static void push_sink(const char* tag, Sink* s) {
     SkDynamicMemoryWStream stream;
     SkString log;
     Error err = sink->draw(noop, &bitmap, &stream, &log);
-    if (!err.isEmpty()) {
+    if (err.isFatal()) {
         SkDebugf("Skipping %s: %s\n", tag, err.c_str());
         return;
     }
@@ -326,11 +326,18 @@ struct Task {
             SkDynamicMemoryWStream stream;
             Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
-                fail(SkStringPrintf("%s %s %s: %s",
-                                    task->sink.tag,
-                                    task->src.tag,
-                                    name.c_str(),
-                                    err.c_str()));
+                timer.end();
+                if (err.isFatal()) {
+                    fail(SkStringPrintf("%s %s %s: %s",
+                                        task->sink.tag,
+                                        task->src.tag,
+                                        name.c_str(),
+                                        err.c_str()));
+                } else {
+                    name.appendf(" (skipped: %s)", err.c_str());
+                }
+                done(timer.fWall, task->sink.tag, task->src.tag, name, log);
+                return;
             }
             SkAutoTDelete<SkStreamAsset> data(stream.detachAsStream());
 

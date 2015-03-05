@@ -92,7 +92,7 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
     stream->rewind();
     int w,h;
     if (!decoder->buildTileIndex(stream.detach(), &w, &h) || w*h == 1) {
-        return "";  // Not an error.  Subset decoding is not always supported.
+        return Error::Nonfatal("Subset decoding not supported.");
     }
 
     // Divide the image into subsets that cover the entire image.
