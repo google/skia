@@ -12,6 +12,11 @@
 #include "DisplayListRenderer.h"
 #include "IContextFactory.h"
 #include "RenderNode.h"
+#include "SkDrawFilter.h"
+#include "SkiaCanvasProxy.h"
+#include "SkMaskFilter.h"
+#include "SkPictureRecorder.h"
+#include "SkStream.h"
 #include "android/rect.h"
 #include "android/native_window.h"
 #include "gui/BufferQueue.h"
@@ -22,10 +27,81 @@
 #include "renderthread/RenderProxy.h"
 #include "renderthread/TimeLord.h"
 
-namespace DM {
-
 /* These functions are only compiled in the Android Framework. */
 
+namespace {
+
+/** Discard SkShaders not exposed by the Android Java API. */
+
+void CheckShader(SkPaint* paint) {
+    SkShader* shader = paint->getShader();
+    if (!shader) {
+        return;
+    }
+
+    if (shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType) {
+        return;
+    }
+    if (shader->asACompose(NULL)) {
+        return;
+    }
+    SkShader::GradientType gtype = shader->asAGradient(NULL);
+    if (gtype == SkShader::kLinear_GradientType ||
+        gtype == SkShader::kRadial_GradientType ||
+        gtype == SkShader::kSweep_GradientType) {
+        return;
+    }
+    paint->setShader(NULL);
+}
+
+/**
+ * An SkDrawFilter implementation which removes all flags and features
+ * not exposed by the Android SDK.
+ */
+class ViaAndroidSDKFilter : public SkDrawFilter {
+
+    bool filter(SkPaint* paint, Type drawType) SK_OVERRIDE {
+
+        uint32_t flags = paint->getFlags();
+        flags &= ~SkPaint::kLCDRenderText_Flag;
+        paint->setFlags(flags);
+
+        // Force bilinear scaling or none
+        if (paint->getFilterQuality() != kNone_SkFilterQuality) {
+            paint->setFilterQuality(kLow_SkFilterQuality);
+        }
+
+        CheckShader(paint);
+
+        // Android SDK only supports mode & matrix color filters
+        SkColorFilter* cf = paint->getColorFilter();
+        if (cf) {
+            SkColor color;
+            SkXfermode::Mode mode;
+            SkScalar srcColorMatrix[20];
+            if (!cf->asColorMode(&color, &mode) && !cf->asColorMatrix(srcColorMatrix)) {
+                paint->setColorFilter(NULL);
+            }
+        }
+
+        SkPathEffect* pe = paint->getPathEffect();
+        if (pe && !pe->exposedInAndroidJavaAPI()) {
+            paint->setPathEffect(NULL);
+        }
+
+        // TODO: Android doesn't support all the flags that can be passed to
+        // blur filters; we need plumbing to get them out.
+
+        paint->setImageFilter(NULL);
+        paint->setLooper(NULL);
+
+        return true;
+    };
+};
+
+/**
+ * Helper class for setting up android::uirenderer::renderthread::RenderProxy.
+ */
 class ContextFactory : public android::uirenderer::IContextFactory {
 public:
     android::uirenderer::AnimationContext* createAnimationContext
@@ -33,6 +109,10 @@ public:
         return new android::uirenderer::AnimationContext(clock);
     }
 };
+
+}  // namespace
+
+namespace DM {
 
 Error HWUISink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     // Do all setup in this function because we don't know the size
@@ -153,6 +233,40 @@ Error HWUISink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const
 
     cpuConsumer->unlockBuffer(nativeBuffer);
     return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ViaAndroidSDK::ViaAndroidSDK(Sink* sink) : fSink(sink) { }
+
+Error ViaAndroidSDK::draw(const Src& src,
+                          SkBitmap* bitmap,
+                          SkWStream* stream,
+                          SkString* log) const {
+    struct ProxySrc : public Src {
+        const Src& fSrc;
+        ProxySrc(const Src& src)
+            : fSrc(src) {}
+
+        Error draw(SkCanvas* canvas) const SK_OVERRIDE {
+            // Route through HWUI's upper layers to get operational transforms
+            SkAutoTDelete<android::Canvas> ac (android::Canvas::create_canvas(canvas));
+            SkAutoTUnref<android::uirenderer::SkiaCanvasProxy> scProxy
+                (new android::uirenderer::SkiaCanvasProxy(ac));
+            ViaAndroidSDKFilter filter;
+
+            // Route through a draw filter to get paint transforms
+            scProxy->setDrawFilter(&filter);
+
+            fSrc.draw(scProxy);
+
+            return "";
+        }
+        SkISize size() const SK_OVERRIDE { return fSrc.size(); }
+        Name name() const SK_OVERRIDE { sk_throw(); return ""; }
+    } proxy(src);
+
+    return fSink->draw(proxy, bitmap, stream, log);
 }
 
 }  // namespace DM

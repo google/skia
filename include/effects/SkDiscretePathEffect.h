@@ -42,6 +42,10 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiscretePathEffect)
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    bool exposedInAndroidJavaAPI() const SK_OVERRIDE { return true; }
+#endif
+
 protected:
     SkDiscretePathEffect(SkScalar segLength,
                          SkScalar deviation,

@@ -16,6 +16,8 @@ namespace DM {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+// Draws to the Android Framework's HWUI API.
+
 class HWUISink : public Sink {
 public:
     HWUISink() { }
@@ -27,6 +29,22 @@ public:
 private:
     const float kDensity = 1.0f;
     inline float dp(int x) const { return x * kDensity; }
+};
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+// Trims draw commands to only include those supported by the Android Framework's HWUI API.
+
+class ViaAndroidSDK : public Sink {
+public:
+    explicit ViaAndroidSDK(Sink*);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
+    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
+    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+
+private:
+    SkAutoTDelete<Sink> fSink;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

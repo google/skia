@@ -259,6 +259,11 @@ static Sink* create_via(const char* tag, Sink* wrapped) {
         VIA("matrix",  ViaMatrix,  m, wrapped);
         VIA("upright", ViaUpright, m, wrapped);
     }
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    VIA("androidsdk", ViaAndroidSDK, wrapped);
+#endif
+
 #undef VIA
     return NULL;
 }

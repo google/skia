@@ -31,6 +31,10 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCornerPathEffect)
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    bool exposedInAndroidJavaAPI() const SK_OVERRIDE { return true; }
+#endif
+
 protected:
     explicit SkCornerPathEffect(SkScalar radius);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
