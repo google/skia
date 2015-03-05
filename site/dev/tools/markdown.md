@@ -34,6 +34,26 @@ the --port flag:
 
     docserver --preview --port=:8002
 
+METADATA
+--------
+
+By default all files and directories that appear in the same level are sorted
+alphabetically by file name in the navigation menu, with files appearing
+before directories. You can override this default behavior by adding a
+METADATA file to a directory. A METADATA file is a JSON file of the following
+format:
+
+~~~~
+   {
+     "dirOrder": ["sample", "quick", "special"],
+     "fileOrder": ["download", "api"]
+   }
+~~~~
+
+If a file or directory doesn't appear in `dirOrder` or `fileOrder` then it is sorted
+to appear after the members of `dirOrder` or `fileOrder` respectively. All
+files and directories that aren't controlled by a METADATA file are sorted in
+alphabetical order by their filename.
 
 Some Example MarkDown
 ---------------------
