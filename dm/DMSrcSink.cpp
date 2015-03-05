@@ -70,13 +70,26 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
             SkAutoLockPixels alp(bitmap);
             const SkImageGenerator::Result result = codec->getPixels(info, bitmap.getPixels(),
                                                                      bitmap.rowBytes());
-            if (result != SkImageGenerator::kSuccess) {
-                return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+            switch (result) {
+                case SkImageGenerator::kSuccess:
+                // We consider incomplete to be valid, since we should still decode what is
+                // available.
+                case SkImageGenerator::kIncompleteInput:
+                    break;
+                case SkImageGenerator::kInvalidConversion:
+                    return Error::Nonfatal("Incompatible colortype conversion");
+                default:
+                    // Everything else is considered a failure.
+                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
         } else {
             if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
                                               dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
                 return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
+            }
+            if (kRGB_565_SkColorType == dstColorType && !bitmap.isOpaque()) {
+                // Do not draw a bitmap with alpha to a destination without alpha.
+                return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
             }
         }
         encoded.reset((SkData*)NULL);  // Might as well drop this when we're done with it.
@@ -109,6 +122,15 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
             if (!decoder->decodeSubset(&subset, rect, dstColorType)) {
                 return SkStringPrintf("Could not decode subset (%d, %d, %d, %d).",
                                       x, y, x+subsetWidth, y+subsetHeight);
+            }
+            if (kRGB_565_SkColorType == dstColorType && !subset.isOpaque()) {
+                // Do not draw a bitmap with alpha to a destination without alpha.
+                // This is not an error, but there is nothing interesting to show.
+
+                // This should only happen on the first iteration through the loop.
+                SkASSERT(0 == x && 0 == y);
+
+                return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
             }
             canvas->drawBitmap(subset, SkIntToScalar(x), SkIntToScalar(y));
         }
