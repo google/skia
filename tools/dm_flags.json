@@ -106,7 +106,6 @@
     "gpu", 
     "msaa16", 
     "nvprmsaa16", 
-    "pdf", 
     "serialize-8888", 
     "tiles_rt-8888", 
     "pipe-8888", 
