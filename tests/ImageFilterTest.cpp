@@ -133,7 +133,7 @@ static SkImageFilter* make_scale(float amount, SkImageFilter* input = NULL) {
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
-static SkImageFilter* make_grayscale(SkImageFilter* input = NULL, const SkImageFilter::CropRect* cropRect = NULL) {
+static SkImageFilter* make_grayscale(SkImageFilter* input, const SkImageFilter::CropRect* cropRect) {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
@@ -144,28 +144,51 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = NULL, const SkImageF
     return SkColorFilterImageFilter::Create(filter, input, cropRect);
 }
 
+static SkImageFilter* make_blue(SkImageFilter* input, const SkImageFilter::CropRect* cropRect) {
+    SkAutoTUnref<SkColorFilter> filter(SkColorFilter::CreateModeFilter(SK_ColorBLUE,
+                                                                       SkXfermode::kSrcIn_Mode));
+    return SkColorFilterImageFilter::Create(filter, input, cropRect);
+}
+
 DEF_TEST(ImageFilter, reporter) {
     {
-        // Check that two non-clipping color matrices concatenate into a single filter.
+        // Check that two non-clipping color-matrice-filters concatenate into a single filter.
         SkAutoTUnref<SkImageFilter> halfBrightness(make_scale(0.5f));
         SkAutoTUnref<SkImageFilter> quarterBrightness(make_scale(0.5f, halfBrightness));
         REPORTER_ASSERT(reporter, NULL == quarterBrightness->getInput(0));
+        SkColorFilter* cf;
+        REPORTER_ASSERT(reporter, quarterBrightness->asColorFilter(&cf));
+        REPORTER_ASSERT(reporter, cf->asColorMatrix(NULL));
+        cf->unref();
     }
 
     {
-        // Check that a clipping color matrix followed by a grayscale does not concatenate into a single filter.
+        // Check that a clipping color-matrice-filter followed by a color-matrice-filters
+        // concatenates into a single filter, but not a matrixfilter (due to clamping).
         SkAutoTUnref<SkImageFilter> doubleBrightness(make_scale(2.0f));
         SkAutoTUnref<SkImageFilter> halfBrightness(make_scale(0.5f, doubleBrightness));
-        REPORTER_ASSERT(reporter, halfBrightness->getInput(0));
+        REPORTER_ASSERT(reporter, NULL == halfBrightness->getInput(0));
+        SkColorFilter* cf;
+        REPORTER_ASSERT(reporter, halfBrightness->asColorFilter(&cf));
+        REPORTER_ASSERT(reporter, !cf->asColorMatrix(NULL));
+        cf->unref();
     }
 
     {
         // Check that a color filter image filter without a crop rect can be
         // expressed as a color filter.
-        SkAutoTUnref<SkImageFilter> gray(make_grayscale());
+        SkAutoTUnref<SkImageFilter> gray(make_grayscale(NULL, NULL));
         REPORTER_ASSERT(reporter, true == gray->asColorFilter(NULL));
     }
-
+    
+    {
+        // Check that a colorfilterimage filter without a crop rect but with an input
+        // that is another colorfilterimage can be expressed as a colorfilter (composed).
+        SkAutoTUnref<SkImageFilter> mode(make_blue(NULL, NULL));
+        SkAutoTUnref<SkImageFilter> gray(make_grayscale(mode, NULL));
+        REPORTER_ASSERT(reporter, true == gray->asColorFilter(NULL));
+    }
+    
     {
         // Check that a color filter image filter with a crop rect cannot
         // be expressed as a color filter.
