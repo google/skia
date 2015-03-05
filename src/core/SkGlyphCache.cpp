@@ -66,11 +66,11 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkSca
 
     fDesc = desc->copy();
     fScalerContext->getFontMetrics(&fFontMetrics);
-            
+
     // Create the sentinel SkGlyph.
-    SkGlyph* sentinel = fGlyphArray.insert(kSentinelGlyphIndex);
-    sentinel->initGlyphFromCombinedID(kSentinelGlyphID);
-            
+    SkGlyph* sentinel = fGlyphArray.insert(0);
+    sentinel->initGlyphFromCombinedID(SkGlyph::kImpossibleID);
+
     // Initialize all index to zero which points to the sentinel SkGlyph.
     memset(fGlyphHash, 0x00, sizeof(fGlyphHash));
 
@@ -128,11 +128,14 @@ SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(uint32_t id) {
     if (NULL == fCharToGlyphHash.get()) {
         // Allocate the array.
         fCharToGlyphHash.reset(kHashCount);
-        // Initialize entries of fCharToGlyphHash to index the sentinel glyph.
-        memset(fCharToGlyphHash.get(), 0x00,
-               sizeof(CharGlyphRec) * kHashCount);
+        // Initialize entries of fCharToGlyphHash to index the sentinel glyph and
+        // an fID value that will not match any id.
+        for (int i = 0; i <kHashCount; ++i) {
+            fCharToGlyphHash[i].fID = SkGlyph::kImpossibleID;
+            fCharToGlyphHash[i].fGlyphIndex = 0;
+        }
     }
-    
+
     return &fCharToGlyphHash[ID2HashIndex(id)];
 }
 
@@ -222,7 +225,7 @@ SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixe
     CharGlyphRec* rec = this->getCharGlyphRec(id);
     SkGlyph* glyph;
     if (rec->fID != id) {
-        RecordHashCollisionIf(glyph_index != kSentinelGlyphIndex);
+        RecordHashCollisionIf(glyph_index != SkGlyph::kImpossibleID);
         // this ID is based on the UniChar
         rec->fID = id;
         // this ID is based on the glyph index
@@ -243,9 +246,9 @@ SkGlyph* SkGlyphCache::lookupByCombinedID(uint32_t id, MetricsType type) {
     uint32_t hash_index = ID2HashIndex(id);
     uint16_t glyph_index = fGlyphHash[hash_index];
     SkGlyph* glyph = &fGlyphArray[glyph_index];
-    
+
     if (glyph->fID != id) {
-        RecordHashCollisionIf(glyph_index != kSentinelGlyphIndex);
+        RecordHashCollisionIf(glyph_index != SkGlyph::kImpossibleID);
         glyph_index = this->lookupMetrics(id, type);
         fGlyphHash[hash_index] = glyph_index;
         glyph = &fGlyphArray[glyph_index];
@@ -259,6 +262,7 @@ SkGlyph* SkGlyphCache::lookupByCombinedID(uint32_t id, MetricsType type) {
 }
 
 uint16_t SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
+    SkASSERT(id != SkGlyph::kImpossibleID);
     // Count is always greater than 0 because of the sentinel.
     // The fGlyphArray cache is in descending order, so that the sentinel with a value of ~0 is
     // always at index 0.
@@ -280,7 +284,7 @@ uint16_t SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
         if (kFull_MetricsType == mtype && glyph->isJustAdvance()) {
             fScalerContext->getMetrics(glyph);
         }
-        SkASSERT(glyph_index != kSentinelGlyphIndex);
+        SkASSERT(glyph->fID != SkGlyph::kImpossibleID);
         return glyph_index;
     }
 
@@ -288,10 +292,10 @@ uint16_t SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
     if (glyph->fID > id) {
         glyph_index += 1;
     }
-  
+
     // Not found, but hi contains the index of the insertion point of the new glyph.
     fMemoryUsed += sizeof(SkGlyph);
-  
+
     this->adjustCaches(glyph_index);
 
     glyph = fGlyphArray.insert(glyph_index);
@@ -304,7 +308,7 @@ uint16_t SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
         fScalerContext->getMetrics(glyph);
     }
 
-    SkASSERT(glyph_index != kSentinelGlyphIndex);
+    SkASSERT(glyph->fID != SkGlyph::kImpossibleID);
     return glyph_index;
 }
 

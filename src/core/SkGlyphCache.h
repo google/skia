@@ -207,13 +207,15 @@ private:
     enum {
         kHashBits           = 8,
         kHashCount          = 1 << kHashBits,
-        kHashMask           = kHashCount - 1,
-        kSentinelGlyphIndex = 0,
-        kSentinelGlyphID    = ~0
+        kHashMask           = kHashCount - 1
     };
-    
+
     // A quick lookup to avoid the binary search looking for glyphs in fGlyphArray.
     uint16_t             fGlyphHash[kHashCount];
+    // Contains the SkGlyphs that are used by fGlyphHash and fCharToGlyphHash. The zero element
+    // is reserved for a sentinel SkGlyph that reduces the logic to check for collisions in the
+    // hash arrays. The zero element has an fID of SkGlyph::kImpossibleID which never matches
+    // any combined id generated for a char or a glyph.
     SkTDArray<SkGlyph>   fGlyphArray;
     SkChunkAlloc         fGlyphAlloc;
 

@@ -52,6 +52,9 @@ protected:
         paint.setTypeface(fTypefaces[0]);
         paint.setTextSize(192);
 
+        // Make sure the nul character does not cause problems.
+        paint.measureText("\0", 1);
+
         SkScalar x = 20;
         SkScalar y = 128;
         SkString text("ABCDEFGHIJ");
