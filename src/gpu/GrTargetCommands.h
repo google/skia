@@ -35,33 +35,34 @@ public:
         , fDrawBatch(NULL) {
     }
 
-    struct Cmd : ::SkNoncopyable {
-        enum {
-            kDraw_Cmd              = 1,
-            kStencilPath_Cmd       = 2,
-            kSetState_Cmd          = 3,
-            kClear_Cmd             = 4,
-            kCopySurface_Cmd       = 5,
-            kDrawPath_Cmd          = 6,
-            kDrawPaths_Cmd         = 7,
-            kDrawBatch_Cmd         = 8,
+    class Cmd : ::SkNoncopyable {
+    public:
+        enum CmdType {
+            kDraw_CmdType              = 1,
+            kStencilPath_CmdType       = 2,
+            kSetState_CmdType          = 3,
+            kClear_CmdType             = 4,
+            kCopySurface_CmdType       = 5,
+            kDrawPath_CmdType          = 6,
+            kDrawPaths_CmdType         = 7,
+            kDrawBatch_CmdType         = 8,
         };
 
-        Cmd(uint8_t type) : fType(type) {}
+        Cmd(CmdType type) : fMarkerID(-1), fType(type) {}
         virtual ~Cmd() {}
 
         virtual void execute(GrGpu*, const SetState*) = 0;
 
-        uint8_t type() const { return fType & kCmdMask; }
+        CmdType type() const { return fType; }
 
-        bool isTraced() const { return SkToBool(fType & kTraceCmdBit); }
-        void makeTraced() { fType |= kTraceCmdBit; }
+        // trace markers
+        bool isTraced() const { return -1 != fMarkerID; }
+        void setMarkerID(int markerID) { SkASSERT(-1 == fMarkerID); fMarkerID = markerID; }
+        int markerID() const { return fMarkerID; }
 
     private:
-        static const int kCmdMask = 0x7F;
-        static const int kTraceCmdBit = 0x80;
-
-        uint8_t fType;
+        int              fMarkerID;
+        CmdType          fType;
     };
 
     void reset();
@@ -142,7 +143,7 @@ private:
                                                           const GrDrawTarget::PipelineInfo&);
 
     struct Draw : public Cmd {
-        Draw(const GrDrawTarget::DrawInfo& info) : Cmd(kDraw_Cmd), fInfo(info) {}
+        Draw(const GrDrawTarget::DrawInfo& info) : Cmd(kDraw_CmdType), fInfo(info) {}
 
         void execute(GrGpu*, const SetState*) SK_OVERRIDE;
 
@@ -151,7 +152,7 @@ private:
 
     struct StencilPath : public Cmd {
         StencilPath(const GrPath* path, GrRenderTarget* rt)
-            : Cmd(kStencilPath_Cmd)
+            : Cmd(kStencilPath_CmdType)
             , fRenderTarget(rt)
             , fPath(path) {}
 
@@ -169,7 +170,7 @@ private:
     };
 
     struct DrawPath : public Cmd {
-        DrawPath(const GrPath* path) : Cmd(kDrawPath_Cmd), fPath(path) {}
+        DrawPath(const GrPath* path) : Cmd(kDrawPath_CmdType), fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
 
@@ -182,7 +183,7 @@ private:
     };
 
     struct DrawPaths : public Cmd {
-        DrawPaths(const GrPathRange* pathRange) : Cmd(kDrawPaths_Cmd), fPathRange(pathRange) {}
+        DrawPaths(const GrPathRange* pathRange) : Cmd(kDrawPaths_CmdType), fPathRange(pathRange) {}
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
@@ -201,7 +202,7 @@ private:
 
     // This is also used to record a discard by setting the color to GrColor_ILLEGAL
     struct Clear : public Cmd {
-        Clear(GrRenderTarget* rt) : Cmd(kClear_Cmd), fRenderTarget(rt) {}
+        Clear(GrRenderTarget* rt) : Cmd(kClear_CmdType), fRenderTarget(rt) {}
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
@@ -217,7 +218,7 @@ private:
 
     // This command is ONLY used by the clip mask manager to clear the stencil clip bits
     struct ClearStencilClip : public Cmd {
-        ClearStencilClip(GrRenderTarget* rt) : Cmd(kClear_Cmd), fRenderTarget(rt) {}
+        ClearStencilClip(GrRenderTarget* rt) : Cmd(kClear_CmdType), fRenderTarget(rt) {}
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
@@ -231,7 +232,11 @@ private:
     };
 
     struct CopySurface : public Cmd {
-        CopySurface(GrSurface* dst, GrSurface* src) : Cmd(kCopySurface_Cmd), fDst(dst), fSrc(src) {}
+        CopySurface(GrSurface* dst, GrSurface* src)
+            : Cmd(kCopySurface_CmdType)
+            , fDst(dst)
+            , fSrc(src) {
+        }
 
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
@@ -250,7 +255,7 @@ private:
     struct SetState : public Cmd {
         // TODO get rid of the prim proc parameter when we use batch everywhere
         SetState(const GrPrimitiveProcessor* primProc = NULL)
-        : Cmd(kSetState_Cmd)
+        : Cmd(kSetState_CmdType)
         , fPrimitiveProcessor(primProc) {}
 
         ~SetState() { reinterpret_cast<GrPipeline*>(fPipeline.get())->~GrPipeline(); }
@@ -274,7 +279,7 @@ private:
 
     struct DrawBatch : public Cmd {
         DrawBatch(GrBatch* batch, GrBatchTarget* batchTarget) 
-            : Cmd(kDrawBatch_Cmd)
+            : Cmd(kDrawBatch_CmdType)
             , fBatch(SkRef(batch))
             , fBatchTarget(batchTarget) {
             SkASSERT(!batch->isUsed());

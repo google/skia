@@ -47,7 +47,7 @@ int GrTargetCommands::concatInstancedDraw(GrInOrderDrawBuffer* iodb,
 
     // Check if there is a draw info that is compatible that uses the same VB from the pool and
     // the same IB
-    if (Cmd::kDraw_Cmd != fCmdBuffer.back().type()) {
+    if (Cmd::kDraw_CmdType != fCmdBuffer.back().type()) {
         return 0;
     }
 
@@ -114,7 +114,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDrawBatch(
     }
 
     // Check if there is a Batch Draw we can batch with
-    if (Cmd::kDrawBatch_Cmd != fCmdBuffer.back().type() || !fDrawBatch) {
+    if (Cmd::kDrawBatch_CmdType != fCmdBuffer.back().type() || !fDrawBatch) {
         fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
         return fDrawBatch;
     }
@@ -191,7 +191,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDrawPaths(
                                      transformValues, transformType,
                                      count, &savedIndices, &savedTransforms);
 
-    if (Cmd::kDrawPaths_Cmd == fCmdBuffer.back().type()) {
+    if (Cmd::kDrawPaths_CmdType == fCmdBuffer.back().type()) {
         // The previous command was also DrawPaths. Try to collapse this call into the one
         // before. Note that stenciling all the paths at once, then covering, may not be
         // equivalent to two separate draw calls if there is overlap. Blending won't work,
@@ -286,37 +286,31 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         return;
     }
 
-    // Updated every time we find a set state cmd to reflect the current state in the playback
-    // stream.
-    SetState* currentState = NULL;
-
     // TODO this is temporary while batch is being rolled out
     this->closeBatch();
     iodb->getVertexAllocPool()->unmap();
     iodb->getIndexAllocPool()->unmap();
     fBatchTarget.preFlush();
 
-    currentState = NULL;
-    CmdBuffer::Iter iter(fCmdBuffer);
+    // Updated every time we find a set state cmd to reflect the current state in the playback
+    // stream.
+    SetState* currentState = NULL;
 
-    int currCmdMarker = 0;
+    CmdBuffer::Iter iter(fCmdBuffer);
 
     GrGpu* gpu = iodb->getGpu();
 
-    int i = 0;
     while (iter.next()) {
-        i++;
         GrGpuTraceMarker newMarker("", -1);
         SkString traceString;
         if (iter->isTraced()) {
-            traceString = iodb->getCmdString(currCmdMarker);
+            traceString = iodb->getCmdString(iter->markerID());
             newMarker.fMarker = traceString.c_str();
             gpu->addGpuTraceMarker(&newMarker);
-            ++currCmdMarker;
         }
 
         // TODO temporary hack
-        if (Cmd::kDrawBatch_Cmd == iter->type()) {
+        if (Cmd::kDrawBatch_CmdType == iter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(iter.get());
             fBatchTarget.flushNext(db->fBatch->numberOfDraws());
 
@@ -326,16 +320,10 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
             continue;
         }
 
-        if (Cmd::kSetState_Cmd == iter->type()) {
+        if (Cmd::kSetState_CmdType == iter->type()) {
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
-            // TODO sometimes we have a prim proc, othertimes we have a GrBatch.  Eventually we
-            // will only have GrBatch and we can delete this
-            if (ss->fPrimitiveProcessor) {
-                gpu->buildProgramDesc(&ss->fDesc, *ss->fPrimitiveProcessor,
-                                      *ss->getPipeline(),
-                                      ss->fBatchTracker);
-            }
+            ss->execute(gpu, currentState);
             currentState = ss;
         } else {
             iter->execute(gpu, currentState);
@@ -390,7 +378,13 @@ void GrTargetCommands::DrawBatch::execute(GrGpu*, const SetState* state) {
     fBatch->generateGeometry(fBatchTarget, state->getPipeline());
 }
 
-void GrTargetCommands::SetState::execute(GrGpu*, const SetState*) {}
+void GrTargetCommands::SetState::execute(GrGpu* gpu, const SetState*) {
+    // TODO sometimes we have a prim proc, othertimes we have a GrBatch.  Eventually we
+    // will only have GrBatch and we can delete this
+    if (fPrimitiveProcessor) {
+        gpu->buildProgramDesc(&fDesc, *fPrimitiveProcessor, *getPipeline(), fBatchTracker);
+    }
+}
 
 void GrTargetCommands::Clear::execute(GrGpu* gpu, const SetState*) {
     if (GrColor_ILLEGAL == fColor) {

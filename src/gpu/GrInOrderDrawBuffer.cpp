@@ -395,9 +395,9 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* c
     const GrTraceMarkerSet& activeTraceMarkers = this->getActiveTraceMarkers();
     if (activeTraceMarkers.count() > 0) {
         if (cmd->isTraced()) {
-            fGpuCmdMarkers.back().addSet(activeTraceMarkers);
+            fGpuCmdMarkers[cmd->markerID()].addSet(activeTraceMarkers);
         } else {
-            cmd->makeTraced();
+            cmd->setMarkerID(fGpuCmdMarkers.count());
             fGpuCmdMarkers.push_back(activeTraceMarkers);
         }
     }
