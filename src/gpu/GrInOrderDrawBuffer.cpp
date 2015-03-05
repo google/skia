@@ -147,6 +147,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
+            SkDebugf("Could not allocate buffers\n");
+            return;
+        }
+
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
 

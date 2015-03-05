@@ -323,6 +323,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         const GrIndexBuffer* indexBuffer;
         int firstIndex;
 
@@ -331,6 +336,11 @@ public:
             indices = batchTarget->indexPool()->makeSpace(maxIndices,
                                                           &indexBuffer,
                                                           &firstIndex);
+
+            if (!indices) {
+                SkDebugf("Could not allocate indices\n");
+                return;
+            }
         }
 
         // fill buffers

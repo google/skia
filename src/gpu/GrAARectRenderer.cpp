@@ -134,6 +134,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
             this->generateAAFillRectGeometry(vertices,
@@ -445,11 +450,16 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
                                           const SkMatrix& viewMatrix,
                                           const SkRect& rect,
                                           const SkRect& devRect) {
-    if (NULL == fAAFillRectIndexBuffer) {
+    if (!fAAFillRectIndexBuffer) {
         fAAFillRectIndexBuffer = fGpu->createInstancedIndexBuffer(gFillAARectIdx,
                                                                   kIndicesPerAAFillRect,
                                                                   kNumAAFillRectsInIndexBuffer,
                                                                   kVertsPerAAFillRect);
+    }
+
+    if (!fAAFillRectIndexBuffer) {
+        SkDebugf("Unable to create index buffer\n");
+        return;
     }
 
     AAFillRectBatch::Geometry geometry;
@@ -622,6 +632,11 @@ public:
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
+
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
 
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
@@ -846,7 +861,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             const SkRect& devInside,
                                             bool miterStroke) {
     GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer(miterStroke);
-    if (NULL == indexBuffer) {
+    if (!indexBuffer) {
         SkDebugf("Failed to create index buffer!\n");
         return;
     }

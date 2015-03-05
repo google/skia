@@ -762,6 +762,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
+            SkDebugf("Could not allocate buffers\n");
+            return;
+        }
+
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(vertices);
 
         for (int i = 0; i < instanceCount; i++) {
@@ -1011,6 +1016,11 @@ public:
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
+
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
+            SkDebugf("Could not allocate buffers\n");
+            return;
+        }
 
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(vertices);
 
@@ -1302,6 +1312,11 @@ public:
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
+
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
+            SkDebugf("Could not allocate buffers\n");
+            return;
+        }
 
         DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(vertices);
 
@@ -1692,6 +1707,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         CircleVertex* verts = reinterpret_cast<CircleVertex*>(vertices);
 
         for (int i = 0; i < instanceCount; i++) {
@@ -1895,6 +1915,11 @@ public:
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
+
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
 
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(vertices);
 

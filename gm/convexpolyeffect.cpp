@@ -62,6 +62,11 @@ private:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
+            SkDebugf("Could not allocate buffers\n");
+            return;
+        }
+
         SkASSERT(vertexStride == sizeof(SkPoint));
         SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
 

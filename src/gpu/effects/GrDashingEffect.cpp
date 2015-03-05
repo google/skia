@@ -536,6 +536,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
+            SkDebugf("Could not allocate buffers\n");
+            return;
+        }
+
         int curVIdx = 0;
         int rectIndex = 0;
         for (int i = 0; i < instanceCount; i++) {

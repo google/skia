@@ -784,12 +784,22 @@ public:
                                                                   &vertexBuffer,
                                                                   &firstVertex);
 
+            if (!vertices) {
+                SkDebugf("Could not allocate vertices\n");
+                return;
+            }
+
             const GrIndexBuffer* indexBuffer;
             int firstIndex;
 
             void *indices = batchTarget->indexPool()->makeSpace(indexCount,
                                                                 &indexBuffer,
                                                                 &firstIndex);
+
+            if (!indices) {
+                SkDebugf("Could not allocate indices\n");
+                return;
+            }
 
             QuadVertex* verts = reinterpret_cast<QuadVertex*>(vertices);
             uint16_t* idxs = reinterpret_cast<uint16_t*>(indices);

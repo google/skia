@@ -1515,6 +1515,12 @@ public:
                                                               count,
                                                               &vertexBuffer,
                                                               &firstVertex);
+
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         LOG("emitting %d verts\n", count);
         void* end = polys_to_triangles(polys, fillType, vertices);
         int actualCount = static_cast<int>(

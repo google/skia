@@ -567,6 +567,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         SkPoint* vertex = reinterpret_cast<SkPoint*>(vertices);
 
         GrPrimitiveType primType;
@@ -900,6 +905,11 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         const GrIndexBuffer* indexBuffer;
         int firstIndex;
 
@@ -908,6 +918,11 @@ public:
             indices = batchTarget->indexPool()->makeSpace(this->indexCount(),
                                                           &indexBuffer,
                                                           &firstIndex);
+
+            if (!indices) {
+                SkDebugf("Could not allocate indices\n");
+                return;
+            }
         }
 
         int indexOffset = 0;

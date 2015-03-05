@@ -895,6 +895,11 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
                                                               &vertexBuffer,
                                                               &firstVertex);
 
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
         SkASSERT(lineGP->getVertexStride() == sizeof(LineVertex));
 
         LineVertex* verts = reinterpret_cast<LineVertex*>(vertices);
@@ -933,6 +938,11 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
+
+        if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
 
         // Setup vertices
         BezierVertex* verts = reinterpret_cast<BezierVertex*>(vertices);
@@ -1021,6 +1031,11 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                           const SkPath& path,
                                           const SkStrokeRec& stroke,
                                           bool) {
+    if (!fLinesIndexBuffer || !fQuadsIndexBuffer) {
+        SkDebugf("unable to allocate indices\n");
+        return false;
+    }
+
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
     if (IsStrokeHairlineOrEquivalent(stroke, viewMatrix, &hairlineCoverage)) {
