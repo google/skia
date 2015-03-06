@@ -33,15 +33,6 @@ void GrClip::getConservativeBounds(int width, int height, SkIRect* devResult,
                 *isIntersectionOfRects = true;
             }
         } break;
-        case kRect_ClipType: {
-            devResult->setLTRB(SkScalarCeilToInt(this->rect().fLeft),
-                               SkScalarCeilToInt(this->rect().fTop),
-                               SkScalarCeilToInt(this->rect().fRight),
-                               SkScalarCeilToInt(this->rect().fBottom));
-            if (isIntersectionOfRects) {
-                *isIntersectionOfRects = true;
-            }
-        } break;
         case kClipStack_ClipType: {
             SkRect devBounds;
             this->clipStack()->getConservativeBounds(-this->origin().fX,

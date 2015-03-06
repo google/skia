@@ -34,9 +34,12 @@ public:
         fClip.fIRect = rect;
     }
 
-    GrClip(const SkRect& rect) : fClipType(kRect_ClipType) {
+    GrClip(const SkRect& rect) : fClipType(kIRect_ClipType) {
         fOrigin.setZero();
-        fClip.fRect = rect;
+        fClip.fIRect.fLeft   = SkScalarRoundToInt(rect.fLeft);
+        fClip.fIRect.fTop    = SkScalarRoundToInt(rect.fTop);
+        fClip.fIRect.fRight  = SkScalarRoundToInt(rect.fRight);
+        fClip.fIRect.fBottom = SkScalarRoundToInt(rect.fBottom);
     }
 
     ~GrClip() { this->reset(); }
@@ -54,10 +57,6 @@ public:
                 break;
             case kIRect_ClipType:
                 fClip.fIRect = other.irect();
-                fOrigin.setZero();
-                break;
-            case kRect_ClipType:
-                fClip.fRect = other.rect();
                 fOrigin.setZero();
                 break;
         }
@@ -85,9 +84,6 @@ public:
                 break;
             case kIRect_ClipType:
                 return this->irect() == other.irect();
-                break;
-            case kRect_ClipType:
-                return this->rect() == other.rect();
                 break;
         }
     }
@@ -122,11 +118,6 @@ public:
         return fClip.fIRect;
     }
 
-    const SkRect& rect() const {
-        SkASSERT(kRect_ClipType == fClipType);
-        return fClip.fRect;
-    }
-
     void reset() {
         if (kClipStack_ClipType == fClipType) {
             fClip.fStack->unref();
@@ -146,15 +137,13 @@ public:
     bool isWideOpen(const SkRect& rect) const {
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->isWideOpen()) ||
-               (kIRect_ClipType == fClipType && this->irect().contains(rect)) ||
-               (kRect_ClipType == fClipType && this->rect().contains(rect));
+               (kIRect_ClipType == fClipType && this->irect().contains(rect));
     }
 
     bool isWideOpen(const SkIRect& rect) const {
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->isWideOpen()) ||
-               (kIRect_ClipType == fClipType && this->irect().contains(rect)) ||
-               (kRect_ClipType == fClipType && this->rect().contains(rect));
+               (kIRect_ClipType == fClipType && this->irect().contains(rect));
     }
 
     bool isWideOpen() const {
@@ -165,8 +154,7 @@ public:
     bool quickContains(const SkRect& rect) const {
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->quickContains(rect)) ||
-               (kIRect_ClipType == fClipType && this->irect().contains(rect)) ||
-               (kRect_ClipType == fClipType && this->rect().contains(rect));
+               (kIRect_ClipType == fClipType && this->irect().contains(rect));
     }
 
     void getConservativeBounds(const GrSurface* surface,
@@ -186,7 +174,6 @@ public:
         kClipStack_ClipType,
         kWideOpen_ClipType,
         kIRect_ClipType,
-        kRect_ClipType,
     };
 
     ClipType clipType() const { return fClipType; }
@@ -194,7 +181,6 @@ public:
 private:
     union Clip {
         const SkClipStack* fStack;
-        SkRect fRect;
         SkIRect fIRect;
     } fClip;
 

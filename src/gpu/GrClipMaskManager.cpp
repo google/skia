@@ -244,16 +244,6 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
             scissorState->set(clip.irect());
             this->setPipelineBuilderStencil(pipelineBuilder, ars);
             return true;
-        case GrClip::kRect_ClipType: {
-            const SkRect& rect = clip.rect();
-            SkIRect scissor;
-            scissor.fLeft   = SkScalarRoundToInt(rect.fLeft);
-            scissor.fTop    = SkScalarRoundToInt(rect.fTop);
-            scissor.fRight  = SkScalarRoundToInt(rect.fRight);
-            scissor.fBottom = SkScalarRoundToInt(rect.fBottom);
-            scissorState->set(scissor);
-            this->setPipelineBuilderStencil(pipelineBuilder, ars);
-        } return true;
         case GrClip::kClipStack_ClipType: {
             clipSpaceRTIBounds.offset(clip.origin());
             GrReducedClip::ReduceClipStack(*clip.clipStack(),
