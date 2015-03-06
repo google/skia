@@ -2475,6 +2475,20 @@ static void test_iter(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPath::kDone_Verb == iter.next(pts, true));
 
     // The GM degeneratesegments.cpp test is more extensive
+
+    // Test out mixed degenerate and non-degenerate geometry with Conics
+    const SkVector radii[4] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 100, 100 } };
+    SkRect r = SkRect::MakeWH(100, 100);
+    SkRRect rr;
+    rr.setRectRadii(r, radii);
+    p.reset();
+    p.addRRect(rr);
+    iter.setPath(p, false);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == iter.next(pts));
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == iter.next(pts));
+    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == iter.next(pts));
+    REPORTER_ASSERT(reporter, SkPath::kConic_Verb == iter.next(pts));
+    REPORTER_ASSERT(reporter, SK_ScalarRoot2Over2 == iter.conicWeight());
 }
 
 static void test_raw_iter(skiatest::Reporter* reporter) {
