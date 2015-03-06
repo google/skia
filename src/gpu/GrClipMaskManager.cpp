@@ -165,7 +165,7 @@ bool GrClipMaskManager::installClipEffects(GrPipelineBuilder* pipelineBuilder,
                         invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
             } else {
                 edgeType =
-                        invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
+invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
             }
             SkAutoTUnref<GrFragmentProcessor> fp;
             switch (iter.get()->getType()) {
@@ -229,55 +229,51 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
 
     SkIRect clipSpaceRTIBounds = SkIRect::MakeWH(rt->width(), rt->height());
     const GrClip& clip = pipelineBuilder->clip();
-    // TODO we shouldn't be ignoring the clip mask manager's clip.  This is temporary.
-    bool ignoreClip = clip.isWideOpen(clipSpaceRTIBounds);
-    if (!ignoreClip) {
-        // The clip mask manager always draws with a single IRect so we special case that logic here
-        // Image filters just use a rect, so we also special case that logic
-        switch (clip.clipType()) {
-            case GrClip::kWideOpen_ClipType:
-                // we should have handled this case above
-                SkASSERT(false);
-            case GrClip::kIRect_ClipType: {
-                clipSpaceIBounds = clip.irect();
-                SkNEW_INSERT_AT_LLIST_HEAD(&elements,
-                                           Element,
-                                           (SkRect::Make(clipSpaceIBounds),
-                                            SkRegion::kIntersect_Op, false));
-            } break;
-            case GrClip::kRect_ClipType: {
-                clipSpaceIBounds.setLTRB(SkScalarCeilToInt(clip.rect().fLeft),
-                                         SkScalarCeilToInt(clip.rect().fTop),
-                                         SkScalarCeilToInt(clip.rect().fRight),
-                                         SkScalarCeilToInt(clip.rect().fBottom));
-                SkNEW_INSERT_AT_LLIST_HEAD(&elements,
-                                           Element,
-                                           (SkRect::Make(clipSpaceIBounds),
-                                            SkRegion::kIntersect_Op, false));
-            } break;
-            case GrClip::kClipStack_ClipType: {
-                clipSpaceRTIBounds.offset(clip.origin());
-                GrReducedClip::ReduceClipStack(*clip.clipStack(),
-                                               clipSpaceRTIBounds,
-                                               &elements,
-                                               &genID,
-                                               &initialState,
-                                               &clipSpaceIBounds,
-                                               &requiresAA);
-                if (elements.isEmpty()) {
-                    if (GrReducedClip::kAllIn_InitialState == initialState) {
-                        ignoreClip = clipSpaceIBounds == clipSpaceRTIBounds;
-                    } else {
-                        return false;
-                    }
-                }
-            } break;
-        }
-    }
-
-    if (ignoreClip) {
+    if (clip.isWideOpen(clipSpaceRTIBounds)) {
         this->setPipelineBuilderStencil(pipelineBuilder, ars);
         return true;
+    }
+
+    // The clip mask manager always draws with a single IRect so we special case that logic here
+    // Image filters just use a rect, so we also special case that logic
+    switch (clip.clipType()) {
+        case GrClip::kWideOpen_ClipType:
+            SkFAIL("Should have caught this with clip.isWideOpen()");
+            return true;
+        case GrClip::kIRect_ClipType:
+            scissorState->set(clip.irect());
+            this->setPipelineBuilderStencil(pipelineBuilder, ars);
+            return true;
+        case GrClip::kRect_ClipType: {
+            const SkRect& rect = clip.rect();
+            SkIRect scissor;
+            scissor.fLeft   = SkScalarRoundToInt(rect.fLeft);
+            scissor.fTop    = SkScalarRoundToInt(rect.fTop);
+            scissor.fRight  = SkScalarRoundToInt(rect.fRight);
+            scissor.fBottom = SkScalarRoundToInt(rect.fBottom);
+            scissorState->set(scissor);
+            this->setPipelineBuilderStencil(pipelineBuilder, ars);
+        } return true;
+        case GrClip::kClipStack_ClipType: {
+            clipSpaceRTIBounds.offset(clip.origin());
+            GrReducedClip::ReduceClipStack(*clip.clipStack(),
+                                            clipSpaceRTIBounds,
+                                            &elements,
+                                            &genID,
+                                            &initialState,
+                                            &clipSpaceIBounds,
+                                            &requiresAA);
+            if (elements.isEmpty()) {
+                if (GrReducedClip::kAllIn_InitialState == initialState) {
+                    if (clipSpaceIBounds == clipSpaceRTIBounds) {
+                        this->setPipelineBuilderStencil(pipelineBuilder, ars);
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } break;
     }
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
