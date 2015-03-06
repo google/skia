@@ -37,3 +37,16 @@ inline SkPMColor SkPMFloat::clamped() const {
     SkPMColorAssert(c);
     return c;
 }
+
+// TODO: we should be able to beat these loops on all three methods.
+inline void SkPMFloat::From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
+    for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
+}
+
+inline void SkPMFloat::To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+    for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
+}
+
+inline void SkPMFloat::ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+    for (int i = 0; i < 4; i++) { colors[i] = floats[i].clamped(); }
+}

@@ -13,10 +13,7 @@ public:
     static SkPMFloat FromARGB(float a, float r, float g, float b) { return SkPMFloat(a,r,g,b); }
 
     // May be more efficient than one at a time.  No special alignment assumed for SkPMColors.
-    static void From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
-        // TODO: specialize
-        for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
-    }
+    static void From4PMColors(SkPMFloat[4], const SkPMColor[4]);
 
     explicit SkPMFloat(SkPMColor);
     SkPMFloat(float a, float r, float g, float b) {
@@ -51,14 +48,8 @@ public:
     SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
 
     // 4-at-a-time versions of get() and clamped().  Like From4PMColors(), no alignment assumed.
-    static void To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
-        // TODO: specialize
-        for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
-    }
-    static void ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
-        // TODO: specialize
-        for (int i = 0; i < 4; i++) { colors[i] = floats[i].clamped(); }
-    }
+    static void To4PMColors(SkPMColor[4], const SkPMFloat[4]);
+    static void ClampTo4PMColors(SkPMColor[4], const SkPMFloat[4]);
 
     bool isValid() const {
         return this->a() >= 0 && this->a() <= 255

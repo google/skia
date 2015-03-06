@@ -36,3 +36,28 @@ inline SkPMColor SkPMFloat::clamped() const {
     SkPMColorAssert(c);
     return c;
 }
+
+inline void SkPMFloat::From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
+    // Haven't beaten this yet.
+    for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
+}
+
+inline void SkPMFloat::To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+    // Haven't beaten this yet.  Still faster than ClampTo4PMColors too.
+    for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
+}
+
+inline void SkPMFloat::ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+    // Same as _SSE2.h's.  We use 3 _mm_packus_epi16() where the naive loop uses 8.
+    __m128i c0 = _mm_cvtps_epi32(_mm_load_ps(floats[0].fColor)),  // _mm_cvtps_epi32 rounds for us!
+            c1 = _mm_cvtps_epi32(_mm_load_ps(floats[1].fColor)),
+            c2 = _mm_cvtps_epi32(_mm_load_ps(floats[2].fColor)),
+            c3 = _mm_cvtps_epi32(_mm_load_ps(floats[3].fColor));
+    __m128i c3210 = _mm_packus_epi16(_mm_packus_epi16(c0, c1),
+                                     _mm_packus_epi16(c2, c3));
+    _mm_storeu_si128((__m128i*)colors, c3210);
+    SkPMColorAssert(colors[0]);
+    SkPMColorAssert(colors[1]);
+    SkPMColorAssert(colors[2]);
+    SkPMColorAssert(colors[3]);
+}

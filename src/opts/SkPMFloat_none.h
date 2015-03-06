@@ -24,3 +24,15 @@ inline SkPMColor SkPMFloat::clamped() const {
     b = b < 0 ? 0 : (b > 255 ? 255 : b);
     return SkPackARGB32(a+0.5f, r+0.5f, g+0.5f, b+0.5f);
 }
+
+inline void SkPMFloat::From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
+    for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
+}
+
+inline void SkPMFloat::To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+    for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
+}
+
+inline void SkPMFloat::ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+    for (int i = 0; i < 4; i++) { colors[i] = floats[i].clamped(); }
+}
