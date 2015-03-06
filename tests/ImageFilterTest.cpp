@@ -1010,7 +1010,7 @@ static void test_xfermode_cropped_input(SkBaseDevice* device, skiatest::Reporter
     canvas.drawSprite(bitmap, 0, 0, &paint);
 
     uint32_t pixel;
-    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
     canvas.readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
@@ -1059,7 +1059,7 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setColor(SK_ColorRED);
 
-    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
     uint32_t pixel;
     canvas.readPixels(info, &pixel, 4, 25, 25);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
