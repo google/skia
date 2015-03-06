@@ -240,10 +240,15 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
         case GrClip::kWideOpen_ClipType:
             SkFAIL("Should have caught this with clip.isWideOpen()");
             return true;
-        case GrClip::kIRect_ClipType:
-            scissorState->set(clip.irect());
-            this->setPipelineBuilderStencil(pipelineBuilder, ars);
-            return true;
+        case GrClip::kIRect_ClipType: {
+            SkIRect scissor = clip.irect();
+            if (scissor.intersect(clipSpaceRTIBounds)) {
+                scissorState->set(scissor);
+                this->setPipelineBuilderStencil(pipelineBuilder, ars);
+                return true;
+            }
+            return false;
+        }
         case GrClip::kClipStack_ClipType: {
             clipSpaceRTIBounds.offset(clip.origin());
             GrReducedClip::ReduceClipStack(*clip.clipStack(),
