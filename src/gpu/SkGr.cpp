@@ -365,8 +365,12 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     for (int i = 0; i < 3; ++i) {
         yuvDesc.fWidth  = yuvInfo.fSize[i].fWidth;
         yuvDesc.fHeight = yuvInfo.fSize[i].fHeight;
-        yuvTextures[i].reset(
-            ctx->refScratchTexture(yuvDesc, GrContext::kApprox_ScratchTexMatch));
+        bool needsExactTexture =
+            (yuvDesc.fWidth  != yuvInfo.fSize[0].fWidth) ||
+            (yuvDesc.fHeight != yuvInfo.fSize[0].fHeight);
+        yuvTextures[i].reset(ctx->refScratchTexture(yuvDesc,
+            needsExactTexture ? GrContext::kExact_ScratchTexMatch :
+                                GrContext::kApprox_ScratchTexMatch));
         if (!yuvTextures[i] ||
             !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
                                          yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {
