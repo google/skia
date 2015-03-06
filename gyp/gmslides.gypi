@@ -77,6 +77,7 @@
         '../gm/displacement.cpp',
         '../gm/downsamplebitmap.cpp',
         '../gm/drawbitmaprect.cpp',
+        '../gm/drawfilter.cpp',
         '../gm/drawlooper.cpp',
         '../gm/dropshadowimagefilter.cpp',
         '../gm/drrect.cpp',
