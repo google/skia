@@ -662,14 +662,10 @@ void SkGlyphCache::validate() const {
 #ifdef SK_DEBUG_GLYPH_CACHE
     int count = fGlyphArray.count();
     for (int i = 0; i < count; i++) {
-        const SkGlyph* glyph = fGlyphArray[i];
+        const SkGlyph* glyph = &fGlyphArray[i];
         SkASSERT(glyph);
-        SkASSERT(fGlyphAlloc.contains(glyph));
         if (glyph->fImage) {
             SkASSERT(fGlyphAlloc.contains(glyph->fImage));
-        }
-        if (glyph->fDistanceField) {
-            SkASSERT(fGlyphAlloc.contains(glyph->fDistanceField));
         }
     }
 #endif
