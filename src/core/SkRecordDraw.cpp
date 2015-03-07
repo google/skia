@@ -248,7 +248,11 @@ private:
         Bounds clip = SkRect::Make(devBounds);
         // We don't call adjustAndMap() because as its last step it would intersect the adjusted
         // clip bounds with the previous clip, exactly what we can't do when the clip grows.
-        fCurrentClipBounds = this->adjustForSaveLayerPaints(&clip) ? clip : fCullRect;
+        if (this->adjustForSaveLayerPaints(&clip)) {
+            fCurrentClipBounds = clip.intersect(fCullRect) ? clip : Bounds::MakeEmpty();
+        } else {
+            fCurrentClipBounds = fCullRect;
+        }
     }
 
     // Restore holds the devBounds for the clip after the {save,saveLayer}/restore block completes.
@@ -259,8 +263,11 @@ private:
         // so they are not affected by the saveLayer's paint.
         const int kSavesToIgnore = 1;
         Bounds clip = SkRect::Make(op.devBounds);
-        fCurrentClipBounds =
-            this->adjustForSaveLayerPaints(&clip, kSavesToIgnore) ? clip : fCullRect;
+        if (this->adjustForSaveLayerPaints(&clip, kSavesToIgnore)) {
+            fCurrentClipBounds = clip.intersect(fCullRect) ? clip : Bounds::MakeEmpty();
+        } else {
+            fCurrentClipBounds = fCullRect;
+        }
     }
 
     // We also take advantage of SaveLayer bounds when present to further cut the clip down.
@@ -387,8 +394,12 @@ private:
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
-    Bounds bounds(const DrawSprite& op) const {  // Ignores the matrix.
-        return Bounds::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height());
+    Bounds bounds(const DrawSprite& op) const {  // Ignores the matrix, but respects the clip.
+        SkRect rect = Bounds::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height());
+        if (!rect.intersect(fCurrentClipBounds)) {
+            return Bounds::MakeEmpty();
+        }
+        return rect;
     }
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }

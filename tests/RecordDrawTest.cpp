@@ -133,6 +133,7 @@ struct TestBBH : public SkBBoxHierarchy {
 
     void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {}
     size_t bytesUsed() const SK_OVERRIDE { return 0; }
+    SkRect getRootBound() const SK_OVERRIDE { return SkRect::MakeEmpty(); }
 
     struct Entry {
         unsigned opIndex;
