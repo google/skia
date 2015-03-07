@@ -4,47 +4,45 @@
 # found in the LICENSE file.
 
 {
-  'variables': {
-    'skia_warnings_as_errors': 0,
-  },
   'targets': [
   {
+    # Only used by win, down below.
     'target_name' : 'zlib_x86_simd',
     'type': 'static_library',
     'cflags' : ['-msse4.2', '-mpclmul'],
-    'xcode_settings': {
-        'OTHER_CFLAGS': ['-msse4.2', '-mpclmul'],
-    },
     'sources' : [
-      '../third_party/externals/zlib/x86.h',
-      '../third_party/externals/zlib/x86.c',
       '../third_party/externals/zlib/crc_folding.c',
       '../third_party/externals/zlib/fill_window_sse.c',
     ],
-    'conditions': [
-      ['skia_clang_build==1', {
-        'msvs_settings': {
-          'VCCLCompilerTool': {
-            'AdditionalOptions': [ '-msse4.2', '-mpclmul' ],
+      'conditions': [
+        ['skia_clang_build==1', {
+          'msvs_settings': {
+            'VCCLCompilerTool': {
+              'AdditionalOptions': [ '-msse4.2', '-mpclmul' ],
+            },
           },
-        },
-      }],
-      ['skia_os in ["linux", "chromeos"]', {
-        'all_dependent_settings': {
-          'libraries': [ '-lpthread' ],
-        },
-      }],
-    ],
+        }],
+      ],
   },
   {
       'target_name': 'zlib',
+      'direct_dependent_settings': {
+        'conditions': [
+          [ 'skia_android_framework', { 'include_dirs': [ 'external/zlib' ] }],
+          [ 'skia_os == "mac" or skia_os == "ios"', {
+              # XCode needs and explicit file path, not a logical name like -lz.
+              'link_settings': { 'libraries': [ '$(SDKROOT)/usr/lib/libz.dylib' ] },
+          }],
+          [ 'skia_os not in ["mac", "ios", "win"]',{
+              'link_settings': { 'libraries': [ '-lz' ] },
+          }]
+        ],
+      },
       'conditions': [
-        [ 'skia_android_framework', {
-            'type': 'none',
-            'direct_dependent-settings': {
-                'include_dirs': [ 'external/zlib' ]
-            },
-        },{
+        [ 'skia_os != "win"', {
+          'type': 'none',
+        }, {
+          # win
           'type': 'static_library',
           'sources': [
             '../third_party/externals/zlib/adler32.c',
@@ -70,6 +68,8 @@
             '../third_party/externals/zlib/trees.c',
             '../third_party/externals/zlib/trees.h',
             '../third_party/externals/zlib/uncompr.c',
+            '../third_party/externals/zlib/x86.h',
+            '../third_party/externals/zlib/x86.c',
             '../third_party/externals/zlib/zconf.h',
             '../third_party/externals/zlib/zlib.h',
             '../third_party/externals/zlib/zutil.c',
@@ -83,12 +83,8 @@
               '../third_party/externals/zlib',
             ],
           },
-          'conditions': [
-            [ '"x86" in skia_arch_type', {
-              'dependencies': [ 'zlib_x86_simd' ],
-            },{
-              'sources': ['../third_party/externals/zlib/simd_stub.c'],
-            }]
+          'dependencies': [
+            'zlib_x86_simd',
           ],
           'defines': [
             '_CRT_NONSTDC_NO_DEPRECATE',
