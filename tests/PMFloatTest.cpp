@@ -24,7 +24,7 @@ DEF_TEST(SkPMFloat, r) {
 
     // Test SkPMFloat <-> Sk4f conversion.
     Sk4f fs = clamped;
-    SkPMFloat scaled = fs.multiply(0.25f);
+    SkPMFloat scaled = fs.multiply(Sk4f(0.25f));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(63.75f, scaled.a()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(38.25f, scaled.r()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual( 0.25f, scaled.g()));

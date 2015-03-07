@@ -25,7 +25,7 @@ typedef Sk4x<int32_t> Sk4i;
 template <typename T> class Sk4x {
 public:
     Sk4x();  // Uninitialized; use Sk4x(0) for zero.
-    /*implicit*/ Sk4x(T);  // Same as Sk4x(T,T,T,T);
+    explicit Sk4x(T);  // Same as Sk4x(T,T,T,T);
     Sk4x(T, T, T, T);
 
     Sk4x(const Sk4x&);
