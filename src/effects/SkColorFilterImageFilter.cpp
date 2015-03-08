@@ -21,10 +21,12 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         return NULL;
     }
 
-    SkColorFilter* inputColorFilter;
-    if (input && input->asColorFilter(&inputColorFilter)) {
-        SkAutoUnref autoUnref(inputColorFilter);
-        SkAutoTUnref<SkColorFilter> newCF(cf->newComposed(inputColorFilter));
+    SkColorFilter* inputCF;
+    if (input && input->isColorFilterNode(&inputCF)) {
+        // This is an optimization, as it collapses the hierarchy by just combining the two
+        // colorfilters into a single one, which the new imagefilter will wrap.
+        SkAutoUnref autoUnref(inputCF);
+        SkAutoTUnref<SkColorFilter> newCF(SkColorFilter::CreateComposeFilter(cf, inputCF));
         if (newCF) {
             return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect, 0));
         }
@@ -85,11 +87,11 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
     return true;
 }
 
-bool SkColorFilterImageFilter::asColorFilter(SkColorFilter** filter) const {
-    if (!cropRectIsSet()) {
+bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->cropRectIsSet()) {
         if (filter) {
-            *filter = fColorFilter;
-            fColorFilter->ref();
+            *filter = SkRef(fColorFilter);
         }
         return true;
     }

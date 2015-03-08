@@ -142,7 +142,25 @@ public:
      *  If this returns true, then if filterPtr is not null, it must be set to a ref'd colorfitler
      *  (i.e. it may not be set to NULL).
      */
-    virtual bool asColorFilter(SkColorFilter** filterPtr) const;
+    bool isColorFilterNode(SkColorFilter** filterPtr) const {
+        return this->onIsColorFilterNode(filterPtr);
+    }
+
+    // DEPRECATED : use isColorFilterNode() instead
+    bool asColorFilter(SkColorFilter** filterPtr) const {
+        return this->isColorFilterNode(filterPtr);
+    }
+
+    /**
+     *  Returns true (and optionally returns a ref'd filter) if this imagefilter can be completely
+     *  replaced by the returned colorfilter. i.e. the two effects will affect drawing in the
+     *  same way.
+     */
+    bool asAColorFilter(SkColorFilter** filterPtr) const {
+        return this->countInputs() > 0 &&
+               NULL == this->getInput(0) &&
+               this->isColorFilterNode(filterPtr);
+    }
 
     /**
      *  Returns the number of inputs this filter will accept (some inputs can
@@ -270,6 +288,14 @@ protected:
     // implementation recursively unions all input bounds, or returns false if
     // no inputs.
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
+
+    /**
+     *  Return true (and return a ref'd colorfilter) if this node in the DAG is just a
+     *  colorfilter w/o CropRect constraints.
+     */
+    virtual bool onIsColorFilterNode(SkColorFilter** /*filterPtr*/) const {
+        return false;
+    }
 
     /** Computes source bounds as the src bitmap bounds offset by srcOffset.
      *  Apply the transformed crop rect to the bounds if any of the

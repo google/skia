@@ -29,7 +29,7 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
-    bool asColorFilter(SkColorFilter**) const SK_OVERRIDE;
+    bool onIsColorFilterNode(SkColorFilter**) const SK_OVERRIDE;
 
 private:
     SkColorFilterImageFilter(SkColorFilter* cf,

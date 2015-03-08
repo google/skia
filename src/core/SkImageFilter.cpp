@@ -366,10 +366,6 @@ bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const
     return false;
 }
 
-bool SkImageFilter::asColorFilter(SkColorFilter**) const {
-    return false;
-}
-
 #if SK_SUPPORT_GPU
 
 void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
