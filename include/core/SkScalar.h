@@ -169,11 +169,15 @@ static inline int SkDScalarRoundToInt(SkScalar x) {
 }
 
 static inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
-    return x < 0 ? 0 : x > max ? max : x;
+    x = SkTMin(x, max);
+    x = SkTMax<SkScalar>(x, 0);
+    return x;
 }
 
 static inline SkScalar SkScalarPin(SkScalar x, SkScalar min, SkScalar max) {
-    return x < min ? min : x > max ? max : x;
+    x = SkTMin(x, max);
+    x = SkTMax(x, min);
+    return x;
 }
 
 SkScalar SkScalarSinCos(SkScalar radians, SkScalar* cosValue);
