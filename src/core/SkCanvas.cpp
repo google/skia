@@ -8,7 +8,6 @@
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
-#include "SkColorFilter.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
@@ -284,36 +283,6 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
-static SkPaint* set_if_needed(SkLazyPaint* lazy, const SkPaint& orig) {
-    return lazy->isValid() ? lazy->get() : lazy->set(orig);
-}
-
-/**
- *  If the paint has an imagefilter, but it can be simplified to just a colorfilter, return that
- *  colorfilter, else return NULL.
- */
-static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
-    SkImageFilter* imgf = paint.getImageFilter();
-    if (!imgf) {
-        return NULL;
-    }
-
-    SkColorFilter* imgCF;
-    if (!imgf->asAColorFilter(&imgCF)) {
-        return NULL;
-    }
-
-    SkColorFilter* paintCF = paint.getColorFilter();
-    if (NULL == paintCF) {
-        // there is no existing paint colorfilter, so we can just return the imagefilter's
-        return imgCF;
-    }
-
-    // The paint has both a colorfilter and an imagefilter.
-    SkAutoTUnref<SkColorFilter> autoImgCF(imgCF);
-    return SkColorFilter::CreateComposeFilter(imgCF, paintCF);
-}
-
 class AutoDrawLooper {
 public:
     AutoDrawLooper(SkCanvas* canvas, const SkSurfaceProps& props, const SkPaint& paint,
@@ -326,17 +295,9 @@ public:
         fDoClearImageFilter = false;
         fDone = false;
 
-        SkColorFilter* simplifiedCF = image_to_color_filter(fOrigPaint);
-        if (simplifiedCF) {
-            SkPaint* paint = set_if_needed(&fLazyPaintInit, fOrigPaint);
-            paint->setColorFilter(simplifiedCF)->unref();
-            paint->setImageFilter(NULL);
-            fPaint = paint;
-        }
-        
-        if (!skipLayerForImageFilter && fPaint->getImageFilter()) {
+        if (!skipLayerForImageFilter && fOrigPaint.getImageFilter()) {
             SkPaint tmp;
-            tmp.setImageFilter(fPaint->getImageFilter());
+            tmp.setImageFilter(fOrigPaint.getImageFilter());
             (void)canvas->internalSaveLayer(bounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
                                             true, SkCanvas::kFullLayer_SaveLayerStrategy);
             // we'll clear the imageFilter for the actual draws in next(), so
@@ -358,7 +319,7 @@ public:
         uint32_t oldFlags = paint.getFlags();
         fNewPaintFlags = filter_paint_flags(props, oldFlags);
         if (fIsSimple && (fNewPaintFlags != oldFlags)) {
-            SkPaint* paint = set_if_needed(&fLazyPaintInit, fOrigPaint);
+            SkPaint* paint = fLazyPaint.set(fOrigPaint);
             paint->setFlags(fNewPaintFlags);
             fPaint = paint;
             // if we're not simple, doNext() will take care of calling setFlags()
@@ -389,7 +350,7 @@ public:
     }
 
 private:
-    SkLazyPaint     fLazyPaintInit, fLazyPaintPerNext;
+    SkLazyPaint     fLazyPaint;
     SkCanvas*       fCanvas;
     const SkPaint&  fOrigPaint;
     SkDrawFilter*   fFilter;
@@ -410,8 +371,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     SkASSERT(!fIsSimple);
     SkASSERT(fLooperContext || fFilter || fDoClearImageFilter);
 
-    SkPaint* paint = fLazyPaintPerNext.set(fLazyPaintInit.isValid() ?
-                                           *fLazyPaintInit.get() : fOrigPaint);
+    SkPaint* paint = fLazyPaint.set(fOrigPaint);
     paint->setFlags(fNewPaintFlags);
 
     if (fDoClearImageFilter) {
