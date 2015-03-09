@@ -108,6 +108,11 @@
         'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
       'conditions': [
+        [ 'skia_gpu_extra_dependency_path', {
+          'dependencies' : [
+              '<(skia_gpu_extra_dependency_path):*',
+          ]
+        }],
         [ 'skia_stroke_path_rendering', {
           'sources': [
             '../experimental/StrokePathRenderer/GrStrokePathRenderer.h',
