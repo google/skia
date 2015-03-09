@@ -34,7 +34,7 @@
     "--match", 
     "skp"
   ], 
-  "Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind": [
+  "Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_CPU": [
     "--scales", 
     "1.0", 
     "1.1", 
@@ -50,7 +50,27 @@
     "--loops", 
     "1", 
     "--samples", 
-    "1"
+    "1", 
+    "--nogpu"
+  ], 
+  "Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU": [
+    "--scales", 
+    "1.0", 
+    "1.1", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nonrendering", 
+    "angle", 
+    "hwui", 
+    "msaa16", 
+    "nvprmsaa16", 
+    "--loops", 
+    "1", 
+    "--samples", 
+    "1", 
+    "--nocpu"
   ], 
   "Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE": [
     "--scales", 

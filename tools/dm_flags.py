@@ -61,6 +61,10 @@ def get_args(bot):
   # PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
   if 'Valgrind' in bot:
     blacklist.extend('pdf _ .webp'.split(' '))
+    if 'GPU' in bot:
+      args.append('--nocpu')
+    elif 'CPU' in bot:
+      args.append('--nogpu')
 
   if blacklist:
     args.append('--blacklist')
@@ -103,7 +107,8 @@ def self_test():
     'Test-Android-Nexus7-Tegra3-Arm7-Release',
     'Test-Android-Xoom-Tegra2-Arm7-Release',
     'Test-ChromeOS-Alex-GMA3150-x86-Debug',
-    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind',
+    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_CPU',
+    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU',
     'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
   ]
 

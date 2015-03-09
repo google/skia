@@ -40,6 +40,10 @@ def get_args(bot):
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
     args.extend(['--samples', '1'])
+    if 'GPU' in bot:
+      args.append('--nocpu')
+    elif 'CPU' in bot:
+      args.append('--nogpu')
 
   match = []
   if 'Android' in bot:
@@ -69,7 +73,8 @@ def self_test():
   cases = [
     'Perf-Android-GalaxyS3-Mali400-Arm7-Release',
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
-    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind',
+    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_CPU',
+    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU',
     'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
   ]
 
