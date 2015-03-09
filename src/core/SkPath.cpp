@@ -1074,50 +1074,6 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
 
     SkAutoPathBoundsUpdate apbu(this, oval);
 
-#ifdef SK_SUPPORT_LEGACY_ADDOVAL
-    SkScalar    cx = oval.centerX();
-    SkScalar    cy = oval.centerY();
-    SkScalar    rx = SkScalarHalf(oval.width());
-    SkScalar    ry = SkScalarHalf(oval.height());
-
-    SkScalar    sx = SkScalarMul(rx, SK_ScalarTanPIOver8);
-    SkScalar    sy = SkScalarMul(ry, SK_ScalarTanPIOver8);
-    SkScalar    mx = SkScalarMul(rx, SK_ScalarRoot2Over2);
-    SkScalar    my = SkScalarMul(ry, SK_ScalarRoot2Over2);
-
-    /*
-     To handle imprecision in computing the center and radii, we revert to
-     the provided bounds when we can (i.e. use oval.fLeft instead of cx-rx)
-     to ensure that we don't exceed the oval's bounds *ever*, since we want
-     to use oval for our fast-bounds, rather than have to recompute it.
-     */
-    const SkScalar L = oval.fLeft;      // cx - rx
-    const SkScalar T = oval.fTop;       // cy - ry
-    const SkScalar R = oval.fRight;     // cx + rx
-    const SkScalar B = oval.fBottom;    // cy + ry
-
-    this->incReserve(17);   // 8 quads + close
-    this->moveTo(R, cy);
-    if (dir == kCCW_Direction) {
-        this->quadTo(      R, cy - sy, cx + mx, cy - my);
-        this->quadTo(cx + sx,       T, cx     ,       T);
-        this->quadTo(cx - sx,       T, cx - mx, cy - my);
-        this->quadTo(      L, cy - sy,       L, cy     );
-        this->quadTo(      L, cy + sy, cx - mx, cy + my);
-        this->quadTo(cx - sx,       B, cx     ,       B);
-        this->quadTo(cx + sx,       B, cx + mx, cy + my);
-        this->quadTo(      R, cy + sy,       R, cy     );
-    } else {
-        this->quadTo(      R, cy + sy, cx + mx, cy + my);
-        this->quadTo(cx + sx,       B, cx     ,       B);
-        this->quadTo(cx - sx,       B, cx - mx, cy + my);
-        this->quadTo(      L, cy + sy,       L, cy     );
-        this->quadTo(      L, cy - sy, cx - mx, cy - my);
-        this->quadTo(cx - sx,       T, cx     ,       T);
-        this->quadTo(cx + sx,       T, cx + mx, cy - my);
-        this->quadTo(      R, cy - sy,       R, cy     );
-    }
-#else
     const SkScalar L = oval.fLeft;
     const SkScalar T = oval.fTop;
     const SkScalar R = oval.fRight;
@@ -1139,7 +1095,6 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
         this->conicTo(L, T, cx, T, weight);
         this->conicTo(R, T, R, cy, weight);
     }
-#endif
     this->close();
 
     SkPathRef::Editor ed(&fPathRef);
