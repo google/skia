@@ -56,7 +56,7 @@ private:
 
  //////////////////////////////////////////////////////////////////////////////
 
-static const int kDefaultMaxCount = 2 * (1 << 10);
+static const int kDefaultMaxCount = 2 * (1 << 12);
 static const size_t kDefaultMaxSize = 96 * (1 << 20);
 
 GrResourceCache::GrResourceCache()
