@@ -85,6 +85,9 @@ def get_args(bot):
     match.append('~tabl_mozilla_0')
     match.append('~desk_yahoonews_0')
 
+  if 'NexusPlayer' in bot:
+    match.append('~ResourceCache')
+
   if match:
     args.append('--match')
     args.extend(match)
@@ -105,10 +108,11 @@ def self_test():
   args = {}
   cases = [
     'Test-Android-Nexus7-Tegra3-Arm7-Release',
+    'Test-Android-NexusPlayer-PowerVR-x86-Release',
     'Test-Android-Xoom-Tegra2-Arm7-Release',
     'Test-ChromeOS-Alex-GMA3150-x86-Debug',
-    'Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU',
     'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU',
+    'Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU',
     'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
   ]
 
