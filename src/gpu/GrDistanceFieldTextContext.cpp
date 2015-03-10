@@ -10,6 +10,7 @@
 #include "GrBitmapTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
+#include "GrFontAtlasSizes.h"
 #include "GrFontCache.h"
 #include "GrFontScaler.h"
 #include "GrGpu.h"
@@ -33,9 +34,10 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
 
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
-static const int kMediumDFFontSize = 78;
-static const int kMediumDFFontLimit = 78;
-static const int kLargeDFFontSize = 192;
+static const int kMediumDFFontSize = 70;
+static const int kMediumDFFontLimit = 70;
+static const int kLargeDFFontSize = 156;
+SK_COMPILE_ASSERT(GR_SDF_MAX_SIZE >= kLargeDFFontSize, sdf_too_big);
 
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;
@@ -400,7 +402,7 @@ static void* alloc_vertices(GrDrawTarget* drawTarget,
 }
 
 void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColor) {
-    GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
+    GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
     GrTextureParams gammaParams(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     
     uint32_t textureUniqueID = fCurrTexture->getUniqueID();

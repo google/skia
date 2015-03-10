@@ -586,7 +586,7 @@ void GrBitmapTextContext::flush() {
                 SkFAIL("Unexpected mask format.");
         }
 
-        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
+        GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
         uint32_t textureUniqueID = fCurrTexture->getUniqueID();
         if (textureUniqueID != fEffectTextureUniqueID ||
             fCachedGeometryProcessor->color() != color ||
