@@ -114,7 +114,7 @@ struct DeviceCM {
     const SkMatrix*     fMatrix;
     SkPaint*            fPaint; // may be null (in the future)
 
-    DeviceCM(SkBaseDevice* device, int x, int y, const SkPaint* paint, SkCanvas* canvas,
+    DeviceCM(SkBaseDevice* device, const SkPaint* paint, SkCanvas* canvas,
              bool conservativeRasterClip)
         : fNext(NULL)
         , fClip(conservativeRasterClip)
@@ -438,7 +438,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
 
-    fMCRec->fLayer = SkNEW_ARGS(DeviceCM, (NULL, 0, 0, NULL, NULL, fConservativeRasterClip));
+    fMCRec->fLayer = SkNEW_ARGS(DeviceCM, (NULL, NULL, NULL, fConservativeRasterClip));
     fMCRec->fTopLayer = fMCRec->fLayer;
 
     fSurfaceBase = NULL;
@@ -838,8 +838,10 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         return false;
     }
 
+    const SkMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
+
     if (imageFilter) {
-        imageFilter->filterBounds(clipBounds, fMCRec->fMatrix, &clipBounds);
+        imageFilter->filterBounds(clipBounds, ctm, &clipBounds);
         // Filters may grow the bounds beyond the device bounds.
         op = SkRegion::kReplace_Op;
     }
@@ -847,7 +849,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     if (bounds) {
         SkRect r;
 
-        this->getTotalMatrix().mapRect(&r, *bounds);
+        ctm.mapRect(&r, *bounds);
         r.roundOut(&ir);
         // early exit if the layer's bounds are clipped out
         if (!ir.intersect(clipBounds)) {
@@ -954,8 +956,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     }
 
     device->setOrigin(ir.fLeft, ir.fTop);
-    DeviceCM* layer = SkNEW_ARGS(DeviceCM,
-                                 (device, ir.fLeft, ir.fTop, paint, this, fConservativeRasterClip));
+    DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, paint, this, fConservativeRasterClip));
     device->unref();
 
     layer->fNext = fMCRec->fTopLayer;
