@@ -120,7 +120,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     }
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
-    const int dy  = SkEdge_Compute_DY(top, y0);
+    const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
 
     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
     fDX         = slope;

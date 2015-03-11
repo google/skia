@@ -71,7 +71,7 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
     }
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
-    const int dy  = SkEdge_Compute_DY(top, y0);
+    const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
 
     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
     fDX         = slope;
@@ -112,7 +112,7 @@ int SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1)
     x1 >>= 10;
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
-    const int dy  = SkEdge_Compute_DY(top, y0);
+    const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
 
     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
     fDX         = slope;
