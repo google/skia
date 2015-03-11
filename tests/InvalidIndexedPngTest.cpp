@@ -5,11 +5,6 @@
  * found in the LICENSE file.
  */
 
-// The PNG decoder is not available on all platforms.
-#if !defined(SK_BUILD_FOR_MAC) && \
-    !defined(SK_BUILD_FOR_WIN) && \
-    !defined(SK_BUILD_FOR_IOS)
-
 #include "SkBitmap.h"
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
@@ -32,15 +27,12 @@ unsigned char gPngData[] = {
 // Attempt to decode an invalid PNG that has a palette. Mostly we're looking to
 // make sure we don't leak memory since libpng uses setjmp for error handling so
 // it's very easy to accidentally skip destructors when a failure happens.
+// As a result, we do not have any REPORTER_ASSERT statements
 DEF_TEST(InvalidIndexedPng, reporter) {
-  SkBitmap image;
-  SkForceLinking(false);
-  // Make our PNG invalid by changing a byte.
-  gPngData[sizeof(gPngData) - 1] = 1;
-  bool success = SkImageDecoder::DecodeMemory(
-      gPngData, sizeof(gPngData), &image, SkColorType::kUnknown_SkColorType,
-      SkImageDecoder::kDecodePixels_Mode);
-  REPORTER_ASSERT(reporter, !success);
-}
+    SkBitmap image;
+    SkForceLinking(false);
+    // Make our PNG invalid by changing a byte.
+    gPngData[sizeof(gPngData) - 1] = 1;
 
-#endif  // !(SK_BUILD_FOR_MAC||SK_BUILD_FOR_WIN||SK_BUILD_FOR_IOS)
+    SkImageDecoder::DecodeMemory(gPngData, sizeof(gPngData), &image);
+}
