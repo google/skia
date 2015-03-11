@@ -56,7 +56,7 @@ public:
         GrGLVertToFrag uv(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         // this is only used with text, so our texture bounds always match the glyph atlas
-        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
+        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_A8_RECIP_WIDTH ", "
                                GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
                                dfTexEffect.inTextureCoords()->fName);
 
@@ -582,7 +582,7 @@ public:
         GrGLVertToFrag uv(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         // this is only used with text, so our texture bounds always match the glyph atlas
-        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
+        vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_A8_RECIP_WIDTH ", "
                                GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
                                dfTexEffect.inTextureCoords()->fName);
         
