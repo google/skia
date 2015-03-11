@@ -333,7 +333,7 @@ struct Task {
                                         task->src.tag,
                                         name.c_str(),
                                         err.c_str()));
-                } else {
+                } else if (FLAGS_verbose) {
                     name.appendf(" (skipped: %s)", err.c_str());
                 }
                 done(timer.fWall, task->sink.tag, task->src.tag, name, log);
@@ -378,7 +378,7 @@ struct Task {
             }
         }
         timer.end();
-        if (!whyBlacklisted.isEmpty()) {
+        if (FLAGS_verbose && !whyBlacklisted.isEmpty()) {
             name.appendf(" (--blacklist, %s)", whyBlacklisted.c_str());
         }
         done(timer.fWall, task->sink.tag, task->src.tag, name, log);
