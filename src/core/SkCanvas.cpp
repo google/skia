@@ -831,7 +831,7 @@ static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
-                               SkIRect* intersection, const SkImageFilter* imageFilter) {
+                              SkIRect* intersection, const SkImageFilter* imageFilter) {
     SkIRect clipBounds;
     SkRegion::Op op = SkRegion::kIntersect_Op;
     if (!this->getClipDeviceBounds(&clipBounds)) {
@@ -854,6 +854,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         // early exit if the layer's bounds are clipped out
         if (!ir.intersect(clipBounds)) {
             if (bounds_affects_clip(flags)) {
+                fCachedLocalClipBoundsDirty = true;
                 fMCRec->fRasterClip.setEmpty();
             }
             return false;
@@ -863,6 +864,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     }
 
     if (bounds_affects_clip(flags)) {
+        fCachedLocalClipBoundsDirty = true;
         fClipStack->clipDevRect(ir, op);
         // early exit if the clip is now empty
         if (!fMCRec->fRasterClip.op(ir, op)) {

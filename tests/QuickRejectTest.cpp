@@ -87,6 +87,23 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == *dst.getAddr32(5, 5));
 }
 
+static void test_layers(skiatest::Reporter* reporter) {
+    SkCanvas canvas(100, 100);
+
+    SkRect r = SkRect::MakeWH(10, 10);
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(r));
+
+    r.offset(300, 300);
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(r));
+
+    // Test that saveLayer updates quickReject
+    SkRect bounds = SkRect::MakeLTRB(50, 50, 70, 70);
+    canvas.saveLayer(&bounds, NULL);
+    REPORTER_ASSERT(reporter, true == canvas.quickReject(SkRect::MakeWH(10, 10)));
+    REPORTER_ASSERT(reporter, false == canvas.quickReject(SkRect::MakeWH(60, 60)));
+}
+
 DEF_TEST(QuickReject, reporter) {
     test_drawBitmap(reporter);
+    test_layers(reporter);
 }
