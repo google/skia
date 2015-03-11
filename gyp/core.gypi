@@ -151,7 +151,6 @@
         '<(skia_src_path)/core/SkPictureShader.h',
         '<(skia_src_path)/core/SkPixelRef.cpp',
         '<(skia_src_path)/core/SkPoint.cpp',
-        '<(skia_src_path)/core/SkProcSpriteBlitter.cpp',
         '<(skia_src_path)/core/SkPtrRecorder.cpp',
         '<(skia_src_path)/core/SkQuadClipper.cpp',
         '<(skia_src_path)/core/SkQuadClipper.h',
