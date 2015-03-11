@@ -150,4 +150,19 @@ typedef int64_t SkFixed3232;   // 32.32
 
 #define SkScalarToFixed3232(x)    SkFloatToFixed3232(x)
 
+///////////////////////////////////////////////////////////////////////////////
+
+// 64bits wide, with a 16bit bias. Useful when accumulating lots of 16.16 so
+// we don't overflow along the way
+typedef int64_t Sk48Dot16;
+
+#define Sk48Dot16FloorToInt(x)    static_cast<int>((x) >> 16)
+
+static inline float Sk48Dot16ToScalar(Sk48Dot16 x) {
+    return static_cast<float>(x * 1.5258789e-5);  // x * (1.0f / (1 << 16))
+}
+#define SkFloatTo48Dot16(x)       (static_cast<Sk48Dot16>((x) * (1 << 16)))
+
+#define SkScalarTo48Dot16(x)      SkFloatTo48Dot16(x)
+
 #endif

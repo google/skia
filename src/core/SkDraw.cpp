@@ -1443,9 +1443,9 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
 
 //////////////////////////////////////////////////////////////////////////////
 
-static void D1G_RectClip(const SkDraw1Glyph& state, SkFixed fx, SkFixed fy, const SkGlyph& glyph) {
-    int left = SkFixedFloorToInt(fx);
-    int top = SkFixedFloorToInt(fy);
+static void D1G_RectClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, const SkGlyph& glyph) {
+    int left = Sk48Dot16FloorToInt(fx);
+    int top = Sk48Dot16FloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
     SkASSERT((NULL == state.fClip && state.fAAClip) ||
              (state.fClip && NULL == state.fAAClip && state.fClip->isRect()));
@@ -1484,9 +1484,9 @@ static void D1G_RectClip(const SkDraw1Glyph& state, SkFixed fx, SkFixed fy, cons
     state.blitMask(mask, *bounds);
 }
 
-static void D1G_RgnClip(const SkDraw1Glyph& state, SkFixed fx, SkFixed fy, const SkGlyph& glyph) {
-    int left = SkFixedFloorToInt(fx);
-    int top = SkFixedFloorToInt(fy);
+static void D1G_RgnClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, const SkGlyph& glyph) {
+    int left = Sk48Dot16FloorToInt(fx);
+    int top = Sk48Dot16FloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
     SkASSERT(!state.fClip->isRect());
 
@@ -1534,9 +1534,9 @@ SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter, Sk
     fPaint = &pnt;
 
     if (cache->isSubpixel()) {
-        fHalfSampleX = fHalfSampleY = SkGlyph::kSubpixelRound;
+        fHalfSampleX = fHalfSampleY = SkFixedToScalar(SkGlyph::kSubpixelRound);
     } else {
-        fHalfSampleX = fHalfSampleY = SK_FixedHalf;
+        fHalfSampleX = fHalfSampleY = SK_ScalarHalf;
     }
 
     if (hasCustomD1GProc(*draw)) {
@@ -1647,15 +1647,15 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(*fMatrix);
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
-            d1g.fHalfSampleY = SK_FixedHalf;
+            d1g.fHalfSampleY = SK_ScalarHalf;
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
-            d1g.fHalfSampleX = SK_FixedHalf;
+            d1g.fHalfSampleX = SK_ScalarHalf;
         }
     }
 
-    SkFixed fx = SkScalarToFixed(x) + d1g.fHalfSampleX;
-    SkFixed fy = SkScalarToFixed(y) + d1g.fHalfSampleY;
+    Sk48Dot16 fx = SkScalarTo48Dot16(x + d1g.fHalfSampleX);
+    Sk48Dot16 fy = SkScalarTo48Dot16(y + d1g.fHalfSampleY);
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
@@ -1692,7 +1692,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     SkGlyphCache*       cache = autoCache.getCache();
 
     const char*        stop = text + byteLength;
-    SkTextAlignProcScalar alignProc(paint.getTextAlign());
+    SkTextAlignProc    alignProc(paint.getTextAlign());
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
@@ -1770,21 +1770,21 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
         SkFixed fyMask = ~0;
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
-            d1g.fHalfSampleY = SK_FixedHalf;
+            d1g.fHalfSampleY = SK_ScalarHalf;
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
-            d1g.fHalfSampleX = SK_FixedHalf;
+            d1g.fHalfSampleX = SK_ScalarHalf;
         }
 
         if (SkPaint::kLeft_Align == paint.getTextAlign()) {
             while (text < stop) {
                 SkPoint tmsLoc;
                 tmsProc(pos, &tmsLoc);
-                SkFixed fx = SkScalarToFixed(tmsLoc.fX) + d1g.fHalfSampleX;
-                SkFixed fy = SkScalarToFixed(tmsLoc.fY) + d1g.fHalfSampleY;
 
-                const SkGlyph& glyph = glyphCacheProc(cache, &text,
-                                                      fx & fxMask, fy & fyMask);
+                Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + d1g.fHalfSampleX);
+                Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + d1g.fHalfSampleY);
+
+                const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
 
                 if (glyph.fWidth) {
                     proc(d1g, fx, fy, glyph);
@@ -1801,11 +1801,12 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                     SkDEBUGCODE(SkFixed prevAdvY = metricGlyph.fAdvanceY;)
                     SkPoint tmsLoc;
                     tmsProc(pos, &tmsLoc);
-                    SkIPoint fixedLoc;
-                    alignProc(tmsLoc, metricGlyph, &fixedLoc);
 
-                    SkFixed fx = fixedLoc.fX + d1g.fHalfSampleX;
-                    SkFixed fy = fixedLoc.fY + d1g.fHalfSampleY;
+                    SkPoint alignLoc;
+                    alignProc(tmsLoc, metricGlyph, &alignLoc);
+
+                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + d1g.fHalfSampleX);
+                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + d1g.fHalfSampleY);
 
                     // have to call again, now that we've been "aligned"
                     const SkGlyph& glyph = glyphCacheProc(cache, &currentText,
@@ -1831,8 +1832,8 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                     tmsProc(pos, &tmsLoc);
 
                     proc(d1g,
-                         SkScalarToFixed(tmsLoc.fX) + SK_FixedHalf, //d1g.fHalfSampleX,
-                         SkScalarToFixed(tmsLoc.fY) + SK_FixedHalf, //d1g.fHalfSampleY,
+                         SkScalarTo48Dot16(tmsLoc.fX + SK_ScalarHalf), //d1g.fHalfSampleX,
+                         SkScalarTo48Dot16(tmsLoc.fY + SK_ScalarHalf), //d1g.fHalfSampleY,
                          glyph);
                 }
                 pos += scalarsPerPosition;
@@ -1846,12 +1847,12 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                     SkPoint tmsLoc;
                     tmsProc(pos, &tmsLoc);
 
-                    SkIPoint fixedLoc;
-                    alignProc(tmsLoc, glyph, &fixedLoc);
+                    SkPoint alignLoc;
+                    alignProc(tmsLoc, glyph, &alignLoc);
 
                     proc(d1g,
-                         fixedLoc.fX + SK_FixedHalf, //d1g.fHalfSampleX,
-                         fixedLoc.fY + SK_FixedHalf, //d1g.fHalfSampleY,
+                         SkScalarTo48Dot16(alignLoc.fX + SK_ScalarHalf), //d1g.fHalfSampleX,
+                         SkScalarTo48Dot16(alignLoc.fY + SK_ScalarHalf), //d1g.fHalfSampleY,
                          glyph);
                 }
                 pos += scalarsPerPosition;

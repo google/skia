@@ -138,23 +138,23 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
 
     SkFixed fxMask = ~0;
     SkFixed fyMask = ~0;
-    SkFixed halfSampleX, halfSampleY;
+    SkScalar halfSampleX, halfSampleY;
     if (cache->isSubpixel()) {
-        halfSampleX = halfSampleY = SkGlyph::kSubpixelRound;
+        halfSampleX = halfSampleY = SkFixedToScalar(SkGlyph::kSubpixelRound);
         SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(viewMatrix);
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
-            halfSampleY = SK_FixedHalf;
+            halfSampleY = SK_ScalarHalf;
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
-            halfSampleX = SK_FixedHalf;
+            halfSampleX = SK_ScalarHalf;
         }
     } else {
-        halfSampleX = halfSampleY = SK_FixedHalf;
+        halfSampleX = halfSampleY = SK_ScalarHalf;
     }
 
-    SkFixed fx = SkScalarToFixed(x) + halfSampleX;
-    SkFixed fy = SkScalarToFixed(y) + halfSampleY;
+    Sk48Dot16 fx = SkScalarTo48Dot16(x + halfSampleX);
+    Sk48Dot16 fy = SkScalarTo48Dot16(y + halfSampleY);
 
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix, but for
     // performance reasons we just invert here instead
@@ -172,8 +172,8 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
             this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                             glyph.getSubXFixed(),
                                             glyph.getSubYFixed()),
-                              SkFixedFloorToFixed(fx),
-                              SkFixedFloorToFixed(fy),
+                              Sk48Dot16FloorToInt(fx),
+                              Sk48Dot16FloorToInt(fy),
                               fontScaler);
         }
 
@@ -219,7 +219,7 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(fSkPaint.getTextAlign());
     SkTextMapStateProc tmsProc(viewMatrix, offset, scalarsPerPosition);
-    SkFixed halfSampleX = 0, halfSampleY = 0;
+    SkScalar halfSampleX = 0, halfSampleY = 0;
 
     if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set
@@ -229,18 +229,18 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
         SkFixed fyMask = ~0;
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
-            halfSampleY = SK_FixedHalf;
+            halfSampleY = SK_ScalarHalf;
         } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
-            halfSampleX = SK_FixedHalf;
+            halfSampleX = SK_ScalarHalf;
         }
 
         if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {
             while (text < stop) {
                 SkPoint tmsLoc;
                 tmsProc(pos, &tmsLoc);
-                SkFixed fx = SkScalarToFixed(tmsLoc.fX) + halfSampleX;
-                SkFixed fy = SkScalarToFixed(tmsLoc.fY) + halfSampleY;
+                Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + halfSampleX);
+                Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + halfSampleY);
 
                 const SkGlyph& glyph = glyphCacheProc(cache, &text,
                                                       fx & fxMask, fy & fyMask);
@@ -249,8 +249,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
-                                      SkFixedFloorToFixed(fx),
-                                      SkFixedFloorToFixed(fy),
+                                      Sk48Dot16FloorToInt(fx),
+                                      Sk48Dot16FloorToInt(fy),
                                       fontScaler);
                 }
                 pos += scalarsPerPosition;
@@ -265,11 +265,11 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     SkDEBUGCODE(SkFixed prevAdvY = metricGlyph.fAdvanceY;)
                     SkPoint tmsLoc;
                     tmsProc(pos, &tmsLoc);
-                    SkIPoint fixedLoc;
-                    alignProc(tmsLoc, metricGlyph, &fixedLoc);
+                    SkPoint alignLoc;
+                    alignProc(tmsLoc, metricGlyph, &alignLoc);
 
-                    SkFixed fx = fixedLoc.fX + halfSampleX;
-                    SkFixed fy = fixedLoc.fY + halfSampleY;
+                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + halfSampleX);
+                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + halfSampleY);
 
                     // have to call again, now that we've been "aligned"
                     const SkGlyph& glyph = glyphCacheProc(cache, &currentText,
@@ -282,8 +282,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
-                                      SkFixedFloorToFixed(fx),
-                                      SkFixedFloorToFixed(fy),
+                                      Sk48Dot16FloorToInt(fx),
+                                      Sk48Dot16FloorToInt(fy),
                                       fontScaler);
                 }
                 pos += scalarsPerPosition;
@@ -300,13 +300,13 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     SkPoint tmsLoc;
                     tmsProc(pos, &tmsLoc);
 
-                    SkFixed fx = SkScalarToFixed(tmsLoc.fX) + SK_FixedHalf; //halfSampleX;
-                    SkFixed fy = SkScalarToFixed(tmsLoc.fY) + SK_FixedHalf; //halfSampleY;
+                    Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + SK_ScalarHalf); //halfSampleX;
+                    Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + SK_ScalarHalf); //halfSampleY;
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
-                                      SkFixedFloorToFixed(fx),
-                                      SkFixedFloorToFixed(fy),
+                                      Sk48Dot16FloorToInt(fx),
+                                      Sk48Dot16FloorToInt(fy),
                                       fontScaler);
                 }
                 pos += scalarsPerPosition;
@@ -320,16 +320,16 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     SkPoint tmsLoc;
                     tmsProc(pos, &tmsLoc);
 
-                    SkIPoint fixedLoc;
-                    alignProc(tmsLoc, glyph, &fixedLoc);
+                    SkPoint alignLoc;
+                    alignProc(tmsLoc, glyph, &alignLoc);
 
-                    SkFixed fx = fixedLoc.fX + SK_FixedHalf; //halfSampleX;
-                    SkFixed fy = fixedLoc.fY + SK_FixedHalf; //halfSampleY;
+                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + SK_ScalarHalf); //halfSampleX;
+                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + SK_ScalarHalf); //halfSampleY;
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
-                                      SkFixedFloorToFixed(fx),
-                                      SkFixedFloorToFixed(fy),
+                                      Sk48Dot16FloorToInt(fx),
+                                      Sk48Dot16FloorToInt(fy),
                                       fontScaler);
                 }
                 pos += scalarsPerPosition;
@@ -405,7 +405,7 @@ inline bool GrBitmapTextContext::uploadGlyph(GrGlyph* glyph, GrFontScaler* scale
 }
 
 void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
-                                      SkFixed vx, SkFixed vy,
+                                      int vx, int vy,
                                       GrFontScaler* scaler) {
     if (NULL == fDrawTarget) {
         return;
@@ -420,16 +420,14 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         return;
     }
 
-    vx += SkIntToFixed(glyph->fBounds.fLeft);
-    vy += SkIntToFixed(glyph->fBounds.fTop);
+    int x = vx + glyph->fBounds.fLeft;
+    int y = vy + glyph->fBounds.fTop;
 
     // keep them as ints until we've done the clip-test
     int width = glyph->fBounds.width();
     int height = glyph->fBounds.height();
 
     // check if we clipped out
-    int x = vx >> 16;
-    int y = vy >> 16;
     if (fClipRect.quickReject(x, y, x + width, y + height)) {
         return;
     }
@@ -450,8 +448,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
         this->flush();
 
         SkMatrix translate;
-        translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),
-                               SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
+        translate.setTranslate(SkIntToScalar(vx), SkIntToScalar(vy));
         SkPath tmpPath(*glyph->fPath);
         tmpPath.transform(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
@@ -484,13 +481,13 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     }
 
     SkRect r;
-    r.fLeft = SkFixedToFloat(vx);
-    r.fTop = SkFixedToFloat(vy);
-    r.fRight = r.fLeft + width;
-    r.fBottom = r.fTop + height;
+    r.fLeft = SkIntToScalar(x);
+    r.fTop = SkIntToScalar(y);
+    r.fRight = r.fLeft + SkIntToScalar(width);
+    r.fBottom = r.fTop + SkIntToScalar(height);
 
     fVertexBounds.joinNonEmptyArg(r);
-    
+
     int u0 = glyph->fAtlasLocation.fX;
     int v0 = glyph->fAtlasLocation.fY;
     int u1 = u0 + width;
@@ -510,7 +507,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
                                                               sizeof(SkIPoint16));
     textureCoords->set(u0, v0);
     vertex += vertSize;
-    
+
     // V1
     position = reinterpret_cast<SkPoint*>(vertex);
     position->set(r.fLeft, r.fBottom);
@@ -521,7 +518,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
     textureCoords->set(u0, v1);
     vertex += vertSize;
-    
+
     // V2
     position = reinterpret_cast<SkPoint*>(vertex);
     position->set(r.fRight, r.fBottom);
@@ -532,7 +529,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     textureCoords = reinterpret_cast<SkIPoint16*>(vertex + vertSize  - sizeof(SkIPoint16));
     textureCoords->set(u1, v1);
     vertex += vertSize;
-    
+
     // V3
     position = reinterpret_cast<SkPoint*>(vertex);
     position->set(r.fRight, r.fTop);

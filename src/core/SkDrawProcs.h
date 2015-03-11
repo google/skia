@@ -24,9 +24,9 @@ struct SkDraw1Glyph {
     const SkPaint* fPaint;
     SkIRect fClipBounds;
     /** Half the sampling frequency of the rasterized glyph in x. */
-    SkFixed fHalfSampleX;
+    SkScalar fHalfSampleX;
     /** Half the sampling frequency of the rasterized glyph in y. */
-    SkFixed fHalfSampleY;
+    SkScalar fHalfSampleY;
 
     /** Draws one glyph.
      *
@@ -35,7 +35,7 @@ struct SkDraw1Glyph {
      *  e.g. 1/2 or 1/(2^(SkGlyph::kSubBits+1)) has already been added.
      *  This added bias can be found in fHalfSampleX,Y.
      */
-    typedef void (*Proc)(const SkDraw1Glyph&, SkFixed x, SkFixed y, const SkGlyph&);
+    typedef void (*Proc)(const SkDraw1Glyph&, Sk48Dot16 x, Sk48Dot16 y, const SkGlyph&);
 
     Proc init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache,
               const SkPaint&);
@@ -90,31 +90,6 @@ inline bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
 class SkTextAlignProc {
 public:
     SkTextAlignProc(SkPaint::Align align)
-        : fAlign(align) {
-    }
-
-    // Returns the position of the glyph in fixed point, which may be rounded or not
-    //         by the caller e.g. subpixel doesn't round.
-    // @param point interpreted as SkFixed [x, y].
-    void operator()(const SkPoint& loc, const SkGlyph& glyph, SkIPoint* dst) {
-        if (SkPaint::kLeft_Align == fAlign) {
-            dst->set(SkScalarToFixed(loc.fX), SkScalarToFixed(loc.fY));
-        } else if (SkPaint::kCenter_Align == fAlign) {
-            dst->set(SkScalarToFixed(loc.fX) - (glyph.fAdvanceX >> 1),
-                     SkScalarToFixed(loc.fY) - (glyph.fAdvanceY >> 1));
-        } else {
-            SkASSERT(SkPaint::kRight_Align == fAlign);
-            dst->set(SkScalarToFixed(loc.fX) - glyph.fAdvanceX,
-                     SkScalarToFixed(loc.fY) - glyph.fAdvanceY);
-        }
-    }
-private:
-    const SkPaint::Align fAlign;
-};
-
-class SkTextAlignProcScalar {
-public:
-    SkTextAlignProcScalar(SkPaint::Align align)
         : fAlign(align) {
     }
 

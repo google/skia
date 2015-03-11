@@ -804,14 +804,6 @@ static void set_bounds(const SkGlyph& g, SkRect* bounds) {
                 SkIntToScalar(g.fTop + g.fHeight));
 }
 
-// 64bits wide, with a 16bit bias. Useful when accumulating lots of 16.16 so
-// we don't overflow along the way
-typedef int64_t Sk48Dot16;
-
-static inline float Sk48Dot16ToScalar(Sk48Dot16 x) {
-    return (float) (x * 1.5258789e-5);   // x * (1 / 65536.0f)
-}
-
 static void join_bounds_x(const SkGlyph& g, SkRect* bounds, Sk48Dot16 dx) {
     SkScalar sx = Sk48Dot16ToScalar(dx);
     bounds->join(SkIntToScalar(g.fLeft) + sx,

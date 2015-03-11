@@ -188,7 +188,7 @@ void GrStencilAndCoverTextContext::onDrawPosText(GrRenderTarget* rt,
     const char* stop = text + byteLength;
 
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
-    SkTextAlignProcScalar alignProc(fSkPaint.getTextAlign());
+    SkTextAlignProc alignProc(fSkPaint.getTextAlign());
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
         if (glyph.fWidth) {

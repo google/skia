@@ -2057,15 +2057,15 @@ public:
 };
 
 static void xps_draw_1_glyph(const SkDraw1Glyph& state,
-                             SkFixed x, SkFixed y,
+                             Sk48Dot16 fx, Sk48Dot16 fy,
                              const SkGlyph& skGlyph) {
     SkASSERT(skGlyph.fWidth > 0 && skGlyph.fHeight > 0);
 
     SkXPSDrawProcs* procs = static_cast<SkXPSDrawProcs*>(state.fDraw->fProcs);
 
     //Draw pre-adds half the sampling frequency for floor rounding.
-    x -= state.fHalfSampleX;
-    y -= state.fHalfSampleY;
+    SkScalar x = Sk48Dot16ToScalar(fx) - state.fHalfSampleX;
+    SkScalar y = Sk48Dot16ToScalar(fy) - state.fHalfSampleY;
 
     XPS_GLYPH_INDEX* xpsGlyph = procs->xpsGlyphs.append();
     uint16_t glyphID = skGlyph.getGlyphID();
@@ -2073,14 +2073,14 @@ static void xps_draw_1_glyph(const SkDraw1Glyph& state,
     xpsGlyph->index = glyphID;
     if (1 == procs->xpsGlyphs.count()) {
         xpsGlyph->advanceWidth = 0.0f;
-        xpsGlyph->horizontalOffset = SkFixedToFloat(x) * procs->centemPerUnit;
-        xpsGlyph->verticalOffset = SkFixedToFloat(y) * -procs->centemPerUnit;
+        xpsGlyph->horizontalOffset = SkScalarToFloat(x) * procs->centemPerUnit;
+        xpsGlyph->verticalOffset = SkScalarToFloat(y) * -procs->centemPerUnit;
     } else {
         const XPS_GLYPH_INDEX& first = procs->xpsGlyphs[0];
         xpsGlyph->advanceWidth = 0.0f;
-        xpsGlyph->horizontalOffset = (SkFixedToFloat(x) * procs->centemPerUnit)
+        xpsGlyph->horizontalOffset = (SkScalarToFloat(x) * procs->centemPerUnit)
                                      - first.horizontalOffset;
-        xpsGlyph->verticalOffset = (SkFixedToFloat(y) * -procs->centemPerUnit)
+        xpsGlyph->verticalOffset = (SkScalarToFloat(y) * -procs->centemPerUnit)
                                    - first.verticalOffset;
     }
 }
