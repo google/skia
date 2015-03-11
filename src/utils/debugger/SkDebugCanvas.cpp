@@ -105,14 +105,22 @@ public:
             SkPackARGB32(0xFF, 255,  50, 0),
             SkPackARGB32(0xFF, 255,  0, 0)
         };
+ 
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gTable)-1; ++i) {
-            if (gTable[i] == dst) {
-                return gTable[i+1];
-            }
+        int idx;
+        if (SkColorGetR(dst) < 64) { // 0
+            idx = 0;
+        } else if (SkColorGetG(dst) < 25) { // 10
+            idx = 9;  // cap at 9 for upcoming increment
+        } else if ((SkColorGetB(dst)+21)/42 > 0) { // 1-6
+            idx = 7 - (SkColorGetB(dst)+21)/42;
+        } else { // 7-9
+            idx = 10 - (SkColorGetG(dst)+22)/45;
         }
+        ++idx;
+        SkASSERT(idx < (int)SK_ARRAY_COUNT(gTable));
 
-        return gTable[SK_ARRAY_COUNT(gTable)-1];
+        return gTable[idx];
     }
 
     Factory getFactory() const SK_OVERRIDE { return NULL; }
@@ -133,6 +141,7 @@ public:
 
     bool filter(SkPaint* p, Type) SK_OVERRIDE {
         p->setXfermode(fXferMode);
+        p->setAntiAlias(false);
         return true;
     }
 
