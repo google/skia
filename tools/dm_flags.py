@@ -77,7 +77,7 @@ def get_args(bot):
     args.extend(['--threads', '1'])
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
-  if 'Xoom' in bot:  # skia:1699
+  if 'Xoom' in bot or 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
 
   # skia:3249: these images flakily don't decode on Android.
@@ -107,6 +107,7 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
+    'Test-Android-GalaxyS3-Mali400-Arm7-Debug',
     'Test-Android-Nexus7-Tegra3-Arm7-Release',
     'Test-Android-NexusPlayer-PowerVR-x86-Release',
     'Test-Android-Xoom-Tegra2-Arm7-Release',
