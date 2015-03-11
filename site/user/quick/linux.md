@@ -33,8 +33,6 @@ Make sure the following have been installed:
   * mesa-common-dev
   * GL
     * such as freeglut3-dev
-  * Poppler PDF rendering library C++ development files
-    * suggested Ubuntu package: libpoppler-cpp-dev
 
 Check out the source code
 -------------------------

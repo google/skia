@@ -81,8 +81,7 @@
         'libpng.gyp:libpng',
       ],
       'includes': [
-        # common freetype sources needed for both the base Skia build and the
-        # libpoppler build for testing only
+        # TODO: merge this back in here?
         'freetype.gypi',
       ],
       'include_dirs': [
@@ -107,31 +106,6 @@
             '-O2',
           ],
         }],
-      ],
-    },
-    {
-      'target_name': 'freetype_poppler',
-      'type': 'static_library',
-      'standalone_static_library': 1,
-      'includes': [
-        'freetype.gypi',
-      ],
-      'sources': [
-        # additional components used by poppler
-        '../third_party/externals/freetype/src/base/ftbdf.c',
-        '../third_party/externals/freetype/src/base/ftpfr.c',
-
-        '../third_party/externals/freetype/src/bdf/bdf.c',
-        '../third_party/externals/freetype/src/cid/type1cid.c',
-        '../third_party/externals/freetype/src/pcf/pcf.c',
-        '../third_party/externals/freetype/src/pfr/pfr.c',
-        '../third_party/externals/freetype/src/psaux/psaux.c',
-        '../third_party/externals/freetype/src/type1/type1.c',
-        '../third_party/externals/freetype/src/type42/type42.c',
-        '../third_party/externals/freetype/src/winfonts/winfnt.c',
-
-        '../third_party/externals/freetype/src/gzip/ftgzip.c',
-        '../third_party/externals/freetype/src/lzw/ftlzw.c',
       ],
     },
   ],

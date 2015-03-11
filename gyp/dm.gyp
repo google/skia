@@ -25,11 +25,6 @@
                 '../dm/DMSrcSinkAndroid.cpp',
               ],
           }],
-          ['skia_poppler_enabled', {
-              'sources':      [ '../src/utils/SkPDFRasterizer.cpp' ],
-              'defines':      [ 'SK_BUILD_POPPLER' ],
-              'dependencies': [ 'poppler.gyp:*' ],
-          }],
         ],
     }]
 }

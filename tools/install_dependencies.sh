@@ -15,7 +15,6 @@ if command -v lsb_release > /dev/null ; then
         Ubuntu)
             sudo apt-get install \
                 build-essential \
-		libpoppler-cpp-dev \
 		libfreetype6-dev \
 		libfontconfig-dev \
 		libpng12-dev \
