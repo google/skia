@@ -42,7 +42,7 @@ enum GrCoordSet {
  */
 class GrCoordTransform : SkNoncopyable {
 public:
-    GrCoordTransform() { SkDEBUGCODE(fInProcessor = false); }
+    GrCoordTransform() : fSourceCoords(kLocal_GrCoordSet) { SkDEBUGCODE(fInProcessor = false); }
 
     /**
      * Create a transformation that maps [0, 1] to a texture's boundaries. The precision is inferred

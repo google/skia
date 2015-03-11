@@ -927,9 +927,9 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
     builder[1] = cornerRadius;
     builder.finish();
 
-    GrTexture *blurNinePatchTexture = context->findAndRefCachedTexture(key);
+    SkAutoTUnref<GrTexture> blurNinePatchTexture(context->findAndRefCachedTexture(key));
 
-    if (NULL == blurNinePatchTexture) {
+    if (!blurNinePatchTexture) {
         SkMask mask;
 
         unsigned int smallRectSide = 2*(blurRadius + cornerRadius) + 1;
@@ -954,8 +954,8 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         SkDraw::DrawToMask(path, &mask.fBounds, NULL, NULL, &mask,
                            SkMask::kJustRenderImage_CreateMode, SkPaint::kFill_Style);
 
-        SkMask blurred_mask;
-        SkBlurMask::BoxBlur(&blurred_mask, mask, sigma, kNormal_SkBlurStyle, kHigh_SkBlurQuality,
+        SkMask blurredMask;
+        SkBlurMask::BoxBlur(&blurredMask, mask, sigma, kNormal_SkBlurStyle, kHigh_SkBlurQuality,
                             NULL, true );
 
         unsigned int texSide = smallRectSide + 2*blurRadius;
@@ -964,20 +964,13 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrContext* context, float sigma,
         texDesc.fHeight = texSide;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-        blurNinePatchTexture = context->createTexture(texDesc, true, blurred_mask.fImage, 0);
+        blurNinePatchTexture.reset(context->createTexture(texDesc, true, blurredMask.fImage, 0));
+        SkMask::FreeImage(blurredMask.fImage);
         if (!blurNinePatchTexture) {
             return NULL;
         }
         context->addResourceToCache(key, blurNinePatchTexture);
-
-        SkMask::FreeImage(blurred_mask.fImage);
     }
-
-    SkAutoTUnref<GrTexture> blurunref(blurNinePatchTexture);
-    if (NULL == blurNinePatchTexture) {
-        return NULL;
-    }
-
     return SkNEW_ARGS(GrRRectBlurEffect, (sigma, rrect, blurNinePatchTexture));
 }
 
