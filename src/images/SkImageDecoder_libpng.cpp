@@ -362,6 +362,12 @@ SkImageDecoder::Result SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
 
     SkAutoLockPixels alp(*decodedBitmap);
 
+    // Repeat setjmp, otherwise variables declared since the last call (e.g. alp
+    // and aur) won't get their destructors called in case of a failure.
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        return kFailure;
+    }
+
     /* Turn on interlace handling.  REQUIRED if you are not using
     *  png_read_image().  To see how to handle interlacing passes,
     *  see the png_read_row() method below:
