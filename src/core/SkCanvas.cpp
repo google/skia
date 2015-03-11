@@ -833,6 +833,7 @@ static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
                                SkIRect* intersection, const SkImageFilter* imageFilter) {
     SkIRect clipBounds;
+    SkRegion::Op op = SkRegion::kIntersect_Op;
     if (!this->getClipDeviceBounds(&clipBounds)) {
         return false;
     }
@@ -841,6 +842,8 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
 
     if (imageFilter) {
         imageFilter->filterBounds(clipBounds, ctm, &clipBounds);
+        // Filters may grow the bounds beyond the device bounds.
+        op = SkRegion::kReplace_Op;
     }
     SkIRect ir;
     if (bounds) {
@@ -860,10 +863,9 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     }
 
     if (bounds_affects_clip(flags)) {
-        // Simplify the current clips since they will be applied properly during restore()
-        fClipStack->clipDevRect(ir, SkRegion::kReplace_Op);
+        fClipStack->clipDevRect(ir, op);
         // early exit if the clip is now empty
-        if (!fMCRec->fRasterClip.op(ir, SkRegion::kReplace_Op)) {
+        if (!fMCRec->fRasterClip.op(ir, op)) {
             return false;
         }
     }
