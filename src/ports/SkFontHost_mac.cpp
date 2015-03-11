@@ -6,6 +6,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"  // Keep this before any #ifdef ...
+
 #ifdef SK_BUILD_FOR_MAC
 #import <ApplicationServices/ApplicationServices.h>
 #endif
