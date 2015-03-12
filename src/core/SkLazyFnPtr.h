@@ -31,8 +31,7 @@
 
 // Everything below here is private implementation details.  Don't touch, don't even look.
 
-#include "SkDynamicAnnotations.h"
-#include "SkThreadPriv.h"
+#include "SkAtomics.h"
 
 namespace Private {
 
@@ -42,7 +41,7 @@ class SkLazyFnPtr {
 public:
     F get() {
         // First, try reading to see if it's already set.
-        F fn = (F)SK_ANNOTATE_UNPROTECTED_READ(fPtr);
+        F fn = (F)sk_atomic_load(&fPtr, sk_memory_order_relaxed);
         if (fn != NULL) {
             return fn;
         }

@@ -27,9 +27,7 @@
 // No matter how many times you call EnsureRegistered(), register_my_stuff will be called just once.
 // OnceTest.cpp also should serve as a few other simple examples.
 
-#include "SkDynamicAnnotations.h"
-#include "SkThread.h"
-#include "SkTypes.h"
+#include "SkAtomics.h"
 
 // This must be used in a global scope, not in fuction scope or as a class member.
 #define SK_DECLARE_STATIC_ONCE(name) namespace {} static SkOnceFlag name
@@ -85,7 +83,7 @@ private:
 template <typename Lock, typename Arg>
 static void sk_once_slow(bool* done, Lock* lock, void (*f)(Arg), Arg arg) {
     lock->acquire();
-    if (!*done) {
+    if (!sk_atomic_load(done, sk_memory_order_relaxed)) {
         f(arg);
         // Also known as a store-store/load-store barrier, this makes sure that the writes
         // done before here---in particular, those done by calling f(arg)---are observable
@@ -104,20 +102,28 @@ static void sk_once_slow(bool* done, Lock* lock, void (*f)(Arg), Arg arg) {
 // This is our fast path, called all the time.  We do really want it to be inlined.
 template <typename Lock, typename Arg>
 inline void SkOnce(bool* done, Lock* lock, void (*f)(Arg), Arg arg) {
-    if (!SK_ANNOTATE_UNPROTECTED_READ(*done)) {
+    // When *done == true:
+    //   Also known as a load-load/load-store barrier, this acquire barrier makes
+    //   sure that anything we read from memory---in particular, memory written by
+    //   calling f(arg)---is at least as current as the value we read from done.
+    //
+    //   In version control terms, this is a lot like saying "sync up to the
+    //   commit where we wrote done = true".
+    //
+    //   The release barrier in sk_once_slow guaranteed that done = true
+    //   happens after f(arg), so by syncing to done = true here we're
+    //   forcing ourselves to also wait until the effects of f(arg) are readble.
+    //
+    // When *done == false:
+    //   We'll try to call f(arg) in sk_once_slow.
+    //   If we get the lock, great, we call f(arg), release true into done, and drop the lock.
+    //   If we race and don't get the lock first, we'll wait for the first guy to finish.
+    //   Then lock acquire() will give us at least an acquire memory barrier to get the same
+    //   effect as the acquire load in the *done == true fast case.  We'll see *done is true,
+    //   then just drop the lock and return.
+    if (!sk_atomic_load(done, sk_memory_order_acquire)) {
         sk_once_slow(done, lock, f, arg);
     }
-    // Also known as a load-load/load-store barrier, this acquire barrier makes
-    // sure that anything we read from memory---in particular, memory written by
-    // calling f(arg)---is at least as current as the value we read from done.
-    //
-    // In version control terms, this is a lot like saying "sync up to the
-    // commit where we wrote done = true".
-    //
-    // The release barrier in sk_once_slow guaranteed that done = true
-    // happens after f(arg), so by syncing to done = true here we're
-    // forcing ourselves to also wait until the effects of f(arg) are readble.
-    SkAssertResult(sk_acquire_load(done));
 }
 
 template <typename Arg>

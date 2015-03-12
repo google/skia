@@ -477,7 +477,7 @@
             ],
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
-                'defines': [ 'DYNAMIC_ANNOTATIONS_ENABLED=1' ],
+                'defines': [ 'THREAD_SANITIZER' ],
               }],
               [ 'skia_sanitizer == "undefined"', {
                 'cflags_cc!': ['-fno-rtti'],

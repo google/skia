@@ -103,7 +103,7 @@ template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
 
 template <typename T>
 T consume_load(T* ptr) {
-#if DYNAMIC_ANNOTATIONS_ENABLED
+#if defined(THREAD_SANITIZER)
     // TSAN gets anxious if we don't tell it what we're actually doing, a consume load.
     return sk_atomic_load(ptr, sk_memory_order_consume);
 #else
