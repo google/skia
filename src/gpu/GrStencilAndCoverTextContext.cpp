@@ -143,13 +143,13 @@ void GrStencilAndCoverTextContext::onDrawText(GrRenderTarget* rt,
     SkFixed fy = SkScalarToFixed(y);
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(fGlyphCache, &text, 0, 0);
-        fx += SkFixedMul_portable(autokern.adjust(glyph), fixedSizeRatio);
+        fx += SkFixedMul(autokern.adjust(glyph), fixedSizeRatio);
         if (glyph.fWidth) {
             this->appendGlyph(glyph, SkPoint::Make(SkFixedToScalar(fx), SkFixedToScalar(fy)));
         }
 
-        fx += SkFixedMul_portable(glyph.fAdvanceX, fixedSizeRatio);
-        fy += SkFixedMul_portable(glyph.fAdvanceY, fixedSizeRatio);
+        fx += SkFixedMul(glyph.fAdvanceX, fixedSizeRatio);
+        fy += SkFixedMul(glyph.fAdvanceY, fixedSizeRatio);
     }
 
     this->finish();
