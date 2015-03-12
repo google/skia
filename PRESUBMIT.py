@@ -143,6 +143,8 @@ def CheckChangeOnUpload(input_api, output_api):
   """
   results = []
   results.extend(_CommonChecks(input_api, output_api))
+  # TODO(rmistry): Remove the below it is only for testing!!!
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   return results
 
 
@@ -252,6 +254,11 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
         issue=int(issue), messages=True)
     if re.match(REVERT_CL_SUBJECT_PREFIX, issue_properties['subject'], re.I):
       # It is a revert CL, ignore the public api owners check.
+      return results
+
+    if re.search(r'^COMMIT=false$', issue_properties['description'], re.M):
+      # Ignore public api owners check for COMMIT=false CLs since they are not
+      # going to be committed.
       return results
 
     match = re.search(r'^TBR=(.*)$', issue_properties['description'], re.M)
