@@ -476,7 +476,7 @@ public:
         if (FLAGS_mpd) {
             fUseMPDs.push_back() = true;
         }
-        
+
         // Prepare the images for decoding
         for (int i = 0; i < FLAGS_images.count(); i++) {
             const char* flag = FLAGS_images[i];
@@ -492,7 +492,7 @@ public:
                 fImages.push_back() = flag;
             }
         }
-        
+
         // Choose the candidate color types for image decoding
         const SkColorType colorTypes[] =
             { kN32_SkColorType, kRGB_565_SkColorType, kAlpha_8_SkColorType };
@@ -842,7 +842,7 @@ int nanobench_main() {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
                 SkDebugf("%4dM\t%s\t%s\n"
-                         , sk_tools::getMaxResidentSetSizeMB()
+                         , sk_tools::getBestResidentSetSizeMB()
                          , bench->getUniqueName()
                          , config);
             } else if (FLAGS_verbose) {
@@ -858,7 +858,7 @@ int nanobench_main() {
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
                 SkDebugf("%4dM\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
-                        , sk_tools::getMaxResidentSetSizeMB()
+                        , sk_tools::getBestResidentSetSizeMB()
                         , loops
                         , HUMANIZE(stats.min)
                         , HUMANIZE(stats.median)
