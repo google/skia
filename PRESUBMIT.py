@@ -254,6 +254,11 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
       # It is a revert CL, ignore the public api owners check.
       return results
 
+    if re.search(r'^COMMIT=false$', issue_properties['description'], re.M):
+      # Ignore public api owners check for COMMIT=false CLs since they are not
+      # going to be committed.
+      return results
+
     match = re.search(r'^TBR=(.*)$', issue_properties['description'], re.M)
     if match:
       tbr_entries = match.group(1).strip().split(',')
