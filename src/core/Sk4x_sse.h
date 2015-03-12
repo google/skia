@@ -4,6 +4,8 @@
 // Useful reading:
 //   https://software.intel.com/sites/landingpage/IntrinsicsGuide/
 
+#include "SkTypes.h"  // Keep this before any #ifdef for skbug.com/3362
+
 #if defined(SK4X_PREAMBLE)
     // Code in this file may assume SSE and SSE2.
     #include <emmintrin.h>

@@ -1,6 +1,8 @@
 // It is important _not_ to put header guards here.
 // This file will be intentionally included three times.
 
+#include "SkTypes.h"  // Keep this before any #ifdef for skbug.com/3362
+
 #if defined(SK4X_PREAMBLE)
     #include "SkFloatingPoint.h"
     #include <math.h>
