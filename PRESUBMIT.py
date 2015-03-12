@@ -77,6 +77,47 @@ def _PythonChecks(input_api, output_api):
       white_list=affected_python_files)
 
 
+def _IfDefChecks(input_api, output_api):
+  """Ensures if/ifdef are not before includes. See skbug/3362 for details."""
+  comment_block_start_pattern = re.compile('^\s*\/\*.*$')
+  comment_block_middle_pattern = re.compile('^\s+\*.*')
+  comment_block_end_pattern = re.compile('^\s+\*\/.*$')
+  single_line_comment_pattern = re.compile('^\s*//.*$')
+  def is_comment(line):
+    return (comment_block_start_pattern.match(line) or
+            comment_block_middle_pattern.match(line) or
+            comment_block_end_pattern.match(line) or
+            single_line_comment_pattern.match(line))
+
+  empty_line_pattern = re.compile('^\s*$')
+  def is_empty_line(line):
+    return empty_line_pattern.match(line)
+
+  failing_files = []
+  for affected_file in input_api.AffectedSourceFiles(None):
+    affected_file_path = affected_file.LocalPath()
+    if affected_file_path.endswith('.cpp') or affected_file_path.endswith('.h'):
+      f = open(affected_file_path)
+      for line in f.xreadlines():
+        if is_comment(line) or is_empty_line(line):
+          continue
+        # The below will be the first real line after comments and newlines.
+        if line.startswith('#if 0 '):
+          pass
+        elif line.startswith('#if ') or line.startswith('#ifdef '):
+          failing_files.append(affected_file_path)
+        break
+
+  results = []
+  if failing_files:
+    results.append(
+        output_api.PresubmitError(
+            'The following files have #if or #ifdef before includes:\n%s\n\n'
+            'See skbug.com/3362 for why this should be fixed.' %
+                '\n'.join(failing_files)))
+  return results
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -90,6 +131,7 @@ def _CommonChecks(input_api, output_api):
       _CheckChangeHasEol(
           input_api, output_api, source_file_filter=sources))
   results.extend(_PythonChecks(input_api, output_api))
+  results.extend(_IfDefChecks(input_api, output_api))
   return results
 
 
