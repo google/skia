@@ -25,10 +25,6 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
     int enclave() const SK_OVERRIDE { return kGPU_Enclave; }
     const char* fileExtension() const SK_OVERRIDE { return "png"; }
-
-private:
-    const float kDensity = 1.0f;
-    inline float dp(int x) const { return x * kDensity; }
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
