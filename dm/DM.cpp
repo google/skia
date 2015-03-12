@@ -14,6 +14,7 @@
 #include "SkOSFile.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
+#include "SkThreadUtils.h"
 #include "Test.h"
 #include "Timer.h"
 
@@ -515,6 +516,20 @@ static void run_enclave_and_gpu_tests(SkTArray<Task>* tasks) {
     }
 }
 
+// Some runs (mostly, Valgrind) are so slow that the bot framework thinks we've hung.
+// This prints something every once in a while so that it knows we're still working.
+static void keep_alive(void*) {
+    for (;;) {
+        static const int kSec = 300;
+#if defined(SK_BUILD_FOR_WIN)
+        Sleep(kSec * 1000);
+#else
+        sleep(kSec);
+#endif
+        SkDebugf("\nStill alive: doing science, reticulating splines...\n");
+    }
+}
+
 int dm_main();
 int dm_main() {
     SetupCrashHandler();
@@ -523,6 +538,9 @@ int dm_main() {
     if (FLAGS_leaks) {
         SkInstCountPrintLeaksOnExit();
     }
+
+    SkThread keepAlive(keep_alive);  // This thread will just be killed by processes shutdown.
+    keepAlive.start();
 
     gather_gold();
 
