@@ -7,6 +7,7 @@
 
 #include "GrPipelineBuilder.h"
 
+#include "GrBatch.h"
 #include "GrBlend.h"
 #include "GrPaint.h"
 #include "GrPipeline.h"

@@ -10,6 +10,7 @@
 
 #include <new>
 // TODO remove this header when we move entirely to batch
+#include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
 #include "SkRefCnt.h"
 #include "SkThread.h"
@@ -42,7 +43,7 @@ struct GrInitInvariantOutput;
 class GrBatch : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrBatch)
-    GrBatch() : fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
+    GrBatch() : fClassID(kIllegalBatchClassID), fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
     virtual ~GrBatch() {}
 
     virtual const char* name() const = 0;

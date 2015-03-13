@@ -8,7 +8,6 @@
 #ifndef GrPipelineBuilder_DEFINED
 #define GrPipelineBuilder_DEFINED
 
-#include "GrBatch.h"
 #include "GrBlend.h"
 #include "GrClip.h"
 #include "GrDrawTargetCaps.h"
@@ -24,6 +23,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
+class GrBatch;
 class GrDrawTargetCaps;
 class GrPaint;
 class GrTexture;

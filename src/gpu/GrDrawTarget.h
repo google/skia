@@ -31,6 +31,7 @@
 class GrBatch;
 class GrClip;
 class GrDrawTargetCaps;
+class GrGeometryProcessor;
 class GrPath;
 class GrPathRange;
 class GrPipeline;

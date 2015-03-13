@@ -9,6 +9,7 @@
 #define GrGLVertexShader_DEFINED
 
 #include "GrGLShaderBuilder.h"
+#include "GrGeometryProcessor.h"
 
 class GrGLVarying;
 

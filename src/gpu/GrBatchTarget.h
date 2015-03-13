@@ -8,6 +8,7 @@
 #ifndef GrBatchBuffer_DEFINED
 #define GrBatchBuffer_DEFINED
 
+#include "GrBatchAtlas.h"
 #include "GrBufferAllocPool.h"
 #include "GrPendingProgramElement.h"
 #include "GrPipeline.h"
@@ -24,51 +25,90 @@ class GrVertexBufferAllocPool;
 
 class GrBatchTarget : public SkNoncopyable {
 public:
+    typedef GrBatchAtlas::BatchToken BatchToken;
     GrBatchTarget(GrGpu* gpu,
                   GrVertexBufferAllocPool* vpool,
-                  GrIndexBufferAllocPool* ipool)
-        : fGpu(gpu)
-        , fVertexPool(vpool)
-        , fIndexPool(ipool)
-        , fFlushBuffer(kFlushBufferInitialSizeInBytes)
-        , fIter(fFlushBuffer)
-        , fNumberOfDraws(0) {}
+                  GrIndexBufferAllocPool* ipool);
 
     typedef GrDrawTarget::DrawInfo DrawInfo;
     void initDraw(const GrPrimitiveProcessor* primProc, const GrPipeline* pipeline) {
         GrNEW_APPEND_TO_RECORDER(fFlushBuffer, BufferedFlush, (primProc, pipeline));
         fNumberOfDraws++;
+        fCurrentToken++;
+    }
+
+    class TextureUploader {
+    public:
+        TextureUploader(GrGpu* gpu) : fGpu(gpu) { SkASSERT(gpu); }
+
+        /**
+         * Updates the pixels in a rectangle of a texture.
+         *
+         * @param left          left edge of the rectangle to write (inclusive)
+         * @param top           top edge of the rectangle to write (inclusive)
+         * @param width         width of rectangle to write in pixels.
+         * @param height        height of rectangle to write in pixels.
+         * @param config        the pixel config of the source buffer
+         * @param buffer        memory to read pixels from
+         * @param rowBytes      number of bytes between consecutive rows. Zero
+         *                      means rows are tightly packed.
+         */
+        bool writeTexturePixels(GrTexture* texture,
+                                int left, int top, int width, int height,
+                                GrPixelConfig config, const void* buffer,
+                                size_t rowBytes) {
+            return fGpu->writeTexturePixels(texture, left, top, width, height, config, buffer,
+                                            rowBytes);
+        }
+
+    private:
+        GrGpu* fGpu;
+    };
+
+    class Uploader : public SkRefCnt {
+    public:
+        Uploader(BatchToken lastUploadToken) : fLastUploadToken(lastUploadToken) {}
+        BatchToken lastUploadToken() const { return fLastUploadToken; }
+        virtual void upload(TextureUploader)=0;
+
+    private:
+        BatchToken fLastUploadToken;
+    };
+
+    void upload(Uploader* upload) {
+        if (this->asapToken() == upload->lastUploadToken()) {
+            fAsapUploads.push_back().reset(SkRef(upload));
+        } else {
+            fInlineUploads.push_back().reset(SkRef(upload));
+        }
     }
 
     void draw(const GrDrawTarget::DrawInfo& draw) {
         fFlushBuffer.back().fDraws.push_back(draw);
     }
 
-    // TODO this is temporary until batch is everywhere
-    //void flush();
+    bool isIssued(BatchToken token) const { return fLastFlushedToken >= token; }
+    BatchToken currentToken() const { return fCurrentToken; }
+    BatchToken asapToken() const { return fLastFlushedToken + 1; }
+
+    // TODO much of this complexity goes away when batch is everywhere
     void resetNumberOfDraws() { fNumberOfDraws = 0; }
     int numberOfDraws() const { return fNumberOfDraws; }
-    void preFlush() { fIter = FlushBuffer::Iter(fFlushBuffer); }
-    void flushNext(int n) {
-        for (; n > 0; n--) {
-            SkDEBUGCODE(bool verify =) fIter.next();
-            SkASSERT(verify);
-            GrProgramDesc desc;
-            BufferedFlush* bf = fIter.get();
-            const GrPipeline* pipeline = bf->fPipeline;
-            const GrPrimitiveProcessor* primProc = bf->fPrimitiveProcessor.get();
-            fGpu->buildProgramDesc(&desc, *primProc, *pipeline, bf->fBatchTracker);
-
-            GrGpu::DrawArgs args(primProc, pipeline, &desc, &bf->fBatchTracker);
-
-            int drawCount = bf->fDraws.count();
-            const SkSTArray<1, DrawInfo, true>& draws = bf->fDraws;
-            for (int i = 0; i < drawCount; i++) {
-                fGpu->draw(args, draws[i]);
-            }
+    void preFlush() {
+        int updateCount = fAsapUploads.count();
+        for (int i = 0; i < updateCount; i++) {
+            fAsapUploads[i]->upload(TextureUploader(fGpu));
         }
+        fInlineUpdatesIndex = 0;
+        fIter = FlushBuffer::Iter(fFlushBuffer);
     }
-    void postFlush() { SkASSERT(!fIter.next()); fFlushBuffer.reset(); }
+    void flushNext(int n);
+    void postFlush() {
+        SkASSERT(!fIter.next());
+        fFlushBuffer.reset();
+        fAsapUploads.reset();
+        fInlineUploads.reset();
+    }
 
     // TODO This goes away when everything uses batch
     GrBatchTracker* currentBatchTracker() {
@@ -81,6 +121,8 @@ public:
     GrVertexBufferAllocPool* vertexPool() { return fVertexPool; }
     GrIndexBufferAllocPool* indexPool() { return fIndexPool; }
 
+    const static int kVertsPerRect = 4;
+    const static int kIndicesPerRect = 6;
     const GrIndexBuffer* quadIndexBuffer() const { return fGpu->getQuadIndexBuffer(); }
 
     // A helper for draws which overallocate and then return data to the pool
@@ -118,6 +160,11 @@ private:
     // TODO this is temporary
     FlushBuffer::Iter fIter;
     int fNumberOfDraws;
+    BatchToken fCurrentToken;
+    BatchToken fLastFlushedToken; // The next token to be flushed
+    SkTArray<SkAutoTUnref<Uploader>, true> fAsapUploads;
+    SkTArray<SkAutoTUnref<Uploader>, true> fInlineUploads;
+    int fInlineUpdatesIndex;
 };
 
 #endif

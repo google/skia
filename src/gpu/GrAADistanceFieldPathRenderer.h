@@ -9,7 +9,7 @@
 #ifndef GrAADistanceFieldPathRenderer_DEFINED
 #define GrAADistanceFieldPathRenderer_DEFINED
 
-#include "GrAtlas.h"
+#include "GrBatchAtlas.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"
 
@@ -17,7 +17,6 @@
 #include "SkTDynamicHash.h"
 
 class GrContext;
-class GrPlot;
 
 class GrAADistanceFieldPathRenderer : public GrPathRenderer {
 public:
@@ -55,11 +54,11 @@ private:
                 return other.fGenID == fGenID && other.fDimension == fDimension;
             }
         };
-        Key        fKey;
-        SkScalar   fScale;
-        GrPlot*    fPlot;
-        SkRect     fBounds;
-        SkIPoint16 fAtlasLocation;
+        Key                   fKey;
+        SkScalar              fScale;
+        GrBatchAtlas::AtlasID fID;
+        SkRect                fBounds;
+        SkIPoint16            fAtlasLocation;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(PathData);
         
         static inline const Key& GetKey(const PathData& data) {
@@ -70,26 +69,19 @@ private:
             return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(key));
         }
     };
+
+    static void HandleEviction(GrBatchAtlas::AtlasID, void*);
+
     typedef SkTInternalLList<PathData> PathDataList;
     
     GrContext*                         fContext;
-    GrAtlas*                           fAtlas;
-    SkAutoTUnref<GrGeometryProcessor>  fCachedGeometryProcessor;
-    // current set of flags used to create the cached geometry processor
-    uint32_t                           fEffectFlags;
-    GrAtlas::ClientPlotUsage           fPlotUsage;
+    GrBatchAtlas*                      fAtlas;
     SkTDynamicHash<PathData, PathData::Key> fPathCache;
     PathDataList                       fPathList;
     
-    bool internalDrawPath(GrDrawTarget*, GrPipelineBuilder*, GrColor, const SkMatrix& viewMatrix,
-                          const SkPath& path, const PathData* pathData);
-    inline bool uploadPath(GrPlot** plot, SkIPoint16* atlasLocation, int width, int height,
-                           void* dfStorage);
-    PathData* addPathToAtlas(const SkPath& path, const SkStrokeRec& stroke, bool antiAlias,
-                             uint32_t dimension, SkScalar scale);
-    bool freeUnusedPlot();
-    
     typedef GrPathRenderer INHERITED;
+
+    friend class AADistanceFieldPathBatch;
 };
 
 #endif

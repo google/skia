@@ -10,7 +10,8 @@
 
 #include "GrTextContext.h"
 
-class GrGeometryProcessor;
+#include "GrGeometryProcessor.h"
+
 class GrTextStrike;
 
 /*

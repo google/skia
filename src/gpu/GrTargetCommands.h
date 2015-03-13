@@ -8,6 +8,7 @@
 #ifndef GrTargetCommands_DEFINED
 #define GrTargetCommands_DEFINED
 
+#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
