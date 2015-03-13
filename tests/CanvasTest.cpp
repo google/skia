@@ -747,3 +747,19 @@ DEF_TEST(Canvas_SaveState, reporter) {
     canvas.restore();
     REPORTER_ASSERT(reporter, 1 == canvas.getSaveCount());
 }
+
+DEF_TEST(Canvas_ClipEmptyPath, reporter) {
+    SkCanvas canvas(10, 10);
+    canvas.save();
+    SkPath path;
+    canvas.clipPath(path);
+    canvas.restore();
+    canvas.save();
+    path.moveTo(5, 5);
+    canvas.clipPath(path);
+    canvas.restore();
+    canvas.save();
+    path.moveTo(7, 7);
+    canvas.clipPath(path);  // should not assert here
+    canvas.restore();
+}

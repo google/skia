@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "Test.h"
@@ -91,6 +92,13 @@ static void test_empties(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !empty.contains(empty2));
     REPORTER_ASSERT(reporter, !valid.contains(empty));
     REPORTER_ASSERT(reporter, !empty.contains(valid));
+
+    SkPath emptyPath;
+    emptyPath.moveTo(1, 5);
+    emptyPath.close();
+    SkRegion openClip;
+    openClip.setRect(-16000, -16000, 16000, 16000);
+    empty.setPath(emptyPath, openClip);  // should not assert
 }
 
 enum {

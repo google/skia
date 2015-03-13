@@ -268,7 +268,7 @@ static unsigned verb_to_max_edges(unsigned verb) {
     return gPathVerbToMaxEdges[verb];
 }
 
-
+// If returns 0, ignore itop and ibot
 static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
@@ -298,11 +298,22 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
             }
         }
     }
-    SkASSERT(top <= bot);
+    if (0 == maxEdges) {
+        return 0;   // we have only moves+closes
+    }
 
+    SkASSERT(top <= bot);
     *itop = SkScalarRoundToInt(top);
     *ibot = SkScalarRoundToInt(bot);
     return maxEdges;
+}
+
+static bool check_inverse_on_empty_return(SkRegion* dst, const SkPath& path, const SkRegion& clip) {
+    if (path.isInverseFillType()) {
+        return dst->set(clip);
+    } else {
+        return dst->setEmpty();
+    }
 }
 
 bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
@@ -313,26 +324,24 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     }
 
     if (path.isEmpty()) {
-        if (path.isInverseFillType()) {
-            return this->set(clip);
-        } else {
-            return this->setEmpty();
-        }
+        return check_inverse_on_empty_return(this, path, clip);
     }
 
     //  compute worst-case rgn-size for the path
     int pathTop, pathBot;
     int pathTransitions = count_path_runtype_values(path, &pathTop, &pathBot);
-    int clipTop, clipBot;
-    int clipTransitions;
+    if (0 == pathTransitions) {
+        return check_inverse_on_empty_return(this, path, clip);
+    }
 
-    clipTransitions = clip.count_runtype_values(&clipTop, &clipBot);
+    int clipTop, clipBot;
+    int clipTransitions = clip.count_runtype_values(&clipTop, &clipBot);
 
     int top = SkMax32(pathTop, clipTop);
     int bot = SkMin32(pathBot, clipBot);
-
-    if (top >= bot)
-        return this->setEmpty();
+    if (top >= bot) {
+        return check_inverse_on_empty_return(this, path, clip);
+    }
 
     SkRgnBuilder builder;
 
