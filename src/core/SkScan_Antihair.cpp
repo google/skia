@@ -625,7 +625,7 @@ void SkScan::AntiHairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
             since the 1/2 pixel boundary is important to the antihair blitter,
             we don't want to risk numerical fate by chopping on that edge.
          */
-        clipBounds.inset(-SK_Scalar1, -SK_Scalar1);
+        clipBounds.outset(SK_Scalar1, SK_Scalar1);
 
         if (!SkLineClipper::IntersectLine(pts, clipBounds, pts)) {
             return;

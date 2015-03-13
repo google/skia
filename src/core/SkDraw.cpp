@@ -2181,11 +2181,7 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
     }
 
     //  init our bounds from the path
-    {
-        SkRect pathBounds = devPath.getBounds();
-        pathBounds.inset(-SK_ScalarHalf, -SK_ScalarHalf);
-        pathBounds.roundOut(bounds);
-    }
+    *bounds = devPath.getBounds().makeOutset(SK_ScalarHalf, SK_ScalarHalf).roundOut();
 
     SkIPoint margin = SkIPoint::Make(0, 0);
     if (filter) {
@@ -2204,7 +2200,6 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
     // (possibly) trim the bounds to reflect the clip
     // (plus whatever slop the filter needs)
     if (clipBounds) {
-        SkIRect tmp = *clipBounds;
         // Ugh. Guard against gigantic margins from wacky filters. Without this
         // check we can request arbitrary amounts of slop beyond our visible
         // clip, and bring down the renderer (at least on finite RAM machines
@@ -2212,9 +2207,8 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         // quality of large filters like blurs, and the corresponding memory
         // requests.
         static const int MAX_MARGIN = 128;
-        tmp.inset(-SkMin32(margin.fX, MAX_MARGIN),
-                  -SkMin32(margin.fY, MAX_MARGIN));
-        if (!bounds->intersect(tmp)) {
+        if (!bounds->intersect(clipBounds->makeOutset(SkMin32(margin.fX, MAX_MARGIN),
+                                                      SkMin32(margin.fY, MAX_MARGIN)))) {
             return false;
         }
     }

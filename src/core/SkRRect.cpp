@@ -453,9 +453,8 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
-    SkRect r = fRect;
+    const SkRect r = fRect.makeInset(dx, dy);
 
-    r.inset(dx, dy);
     if (r.isEmpty()) {
         dst->setEmpty();
         return;

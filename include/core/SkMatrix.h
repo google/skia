@@ -457,6 +457,12 @@ public:
         this->getMapXYProc()(*this, x, y, result);
     }
 
+    SkPoint mapXY(SkScalar x, SkScalar y) const {
+        SkPoint result;
+        this->getMapXYProc()(*this, x, y, &result);
+        return result;
+    }
+
     /** Apply this matrix to the array of vectors specified by src, and write
         the transformed vectors into the array of vectors specified by dst.
         This is similar to mapPoints, but ignores any translation in the matrix.
@@ -478,6 +484,17 @@ public:
     */
     void mapVectors(SkVector vecs[], int count) const {
         this->mapVectors(vecs, vecs, count);
+    }
+
+    void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const {
+        SkVector vec = { dx, dy };
+        this->mapVectors(result, &vec, 1);
+    }
+
+    SkVector mapVector(SkScalar dx, SkScalar dy) const {
+        SkVector vec = { dx, dy };
+        this->mapVectors(&vec, &vec, 1);
+        return vec;
     }
 
     /** Apply this matrix to the src rectangle, and write the transformed

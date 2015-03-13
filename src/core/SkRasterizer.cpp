@@ -27,8 +27,7 @@ bool SkRasterizer::rasterize(const SkPath& fillPath, const SkMatrix& matrix,
         if (!filter->filterMask(&dstM, srcM, matrix, &margin)) {
             return false;
         }
-        storage = *clipBounds;
-        storage.inset(-margin.fX, -margin.fY);
+        storage = clipBounds->makeOutset(margin.fX, margin.fY);
         clipBounds = &storage;
     }
 

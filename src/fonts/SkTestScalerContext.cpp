@@ -214,9 +214,8 @@ protected:
     void generateAdvance(SkGlyph* glyph) SK_OVERRIDE {
         fFace->getAdvance(glyph);
 
-        SkVector advance;
-        fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                      SkFixedToScalar(glyph->fAdvanceY), &advance);
+        const SkVector advance = fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
+                                               SkFixedToScalar(glyph->fAdvanceY));
         glyph->fAdvanceX = SkScalarToFixed(advance.fX);
         glyph->fAdvanceY = SkScalarToFixed(advance.fY);
     }
@@ -224,9 +223,8 @@ protected:
     void generateMetrics(SkGlyph* glyph) SK_OVERRIDE {
         fFace->getMetrics(glyph);
 
-        SkVector advance;
-        fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                      SkFixedToScalar(glyph->fAdvanceY), &advance);
+        const SkVector advance = fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
+                                               SkFixedToScalar(glyph->fAdvanceY));
         glyph->fAdvanceX = SkScalarToFixed(advance.fX);
         glyph->fAdvanceY = SkScalarToFixed(advance.fY);
 

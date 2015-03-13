@@ -78,16 +78,14 @@ struct SkPerlinNoiseShader::PaintingData {
                  SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                  const SkMatrix& matrix)
     {
-        SkVector wavelength = SkVector::Make(SkScalarInvert(baseFrequencyX),
-                                             SkScalarInvert(baseFrequencyY));
-        matrix.mapVectors(&wavelength, 1);
-        fBaseFrequency.fX = SkScalarInvert(wavelength.fX);
-        fBaseFrequency.fY = SkScalarInvert(wavelength.fY);
-        SkVector sizeVec = SkVector::Make(SkIntToScalar(tileSize.fWidth),
-                                          SkIntToScalar(tileSize.fHeight));
-        matrix.mapVectors(&sizeVec, 1);
-        fTileSize.fWidth = SkScalarRoundToInt(sizeVec.fX);
-        fTileSize.fHeight = SkScalarRoundToInt(sizeVec.fY);
+        SkVector vec[2] = {
+            { SkScalarInvert(baseFrequencyX),   SkScalarInvert(baseFrequencyY)  },
+            { SkIntToScalar(tileSize.fWidth),   SkIntToScalar(tileSize.fHeight) },
+        };
+        matrix.mapVectors(vec, 2);
+
+        fBaseFrequency.set(SkScalarInvert(vec[0].fX), SkScalarInvert(vec[0].fY));
+        fTileSize.set(SkScalarRoundToInt(vec[1].fX), SkScalarRoundToInt(vec[1].fY));
         this->init(seed);
         if (!fTileSize.isEmpty()) {
             this->stitch();

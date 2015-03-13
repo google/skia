@@ -125,7 +125,7 @@ public:
     static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
         SkASSERT(texture);
         SkMatrix mat;
-        mat.setIDiv(texture->width(), texture->height());
+        (void)mat.setIDiv(texture->width(), texture->height());
         return mat;
     }
 
