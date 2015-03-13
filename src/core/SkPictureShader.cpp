@@ -160,8 +160,8 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     SkSize scaledSize = SkSize::Make(SkScalarAbs(scale.x() * fTile.width()),
                                      SkScalarAbs(scale.y() * fTile.height()));
 
-    // Clamp the tile size to about 16M pixels
-    static const SkScalar kMaxTileArea = 4096 * 4096;
+    // Clamp the tile size to about 4M pixels
+    static const SkScalar kMaxTileArea = 2048 * 2048;
     SkScalar tileArea = SkScalarMul(scaledSize.width(), scaledSize.height());
     if (tileArea > kMaxTileArea) {
         SkScalar clampScale = SkScalarSqrt(SkScalarDiv(kMaxTileArea, tileArea));
