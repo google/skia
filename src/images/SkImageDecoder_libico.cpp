@@ -76,7 +76,8 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
 {
     SkAutoMalloc autoMal;
     const size_t length = SkCopyStreamToStorage(&autoMal, stream);
-    if (0 == length) {
+    // Check that the buffer is large enough to read the directory header
+    if (length < 6) {
         return kFailure;
     }
 
@@ -91,8 +92,15 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     }
 
     int count = read2Bytes(buf, 4);
+    // Check that there are directory entries
+    if (count < 1) {
+        return kFailure;
+    }
 
-    //need to at least have enough space to hold the initial table of info
+    // Check that buffer is large enough to read directory entries.
+    // We are guaranteed that count is at least 1.  We might as well assume
+    // count is 1 because this deprecated decoder only looks at the first
+    // directory entry.
     if (length < (size_t)(6 + count*16)) {
         return kFailure;
     }
@@ -102,6 +110,7 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     //otherwise, they could be used for error checking
     int w = readByte(buf, 6);
     int h = readByte(buf, 7);
+    SkASSERT(w >= 0 && h >= 0);
     int colorCount = readByte(buf, 8);
     //int reservedToo = readByte(buf, 9 + choice*16);   //0
     //int planes = read2Bytes(buf, 10 + choice*16);       //1 - but often 0
@@ -109,6 +118,7 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     const size_t size = read4Bytes(buf, 14);           //matters?
     const size_t offset = read4Bytes(buf, 18);
     // promote the sum to 64-bits to avoid overflow
+    // Check that buffer is large enough to read image data
     if (offset > length || size > length || ((uint64_t)offset + size) > length) {
         return kFailure;
     }
@@ -139,6 +149,20 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     //int width = read4Bytes(buf, offset+4);              //should == w
     //int height = read4Bytes(buf, offset+8);             //should == 2*h
     //int planesToo = read2Bytes(buf, offset+12);         //should == 1 (does it?)
+    
+    // For ico images, only a byte is used to store each dimension
+    // 0 is used to represent 256
+    if (w == 0) {
+        w = 256;
+    }
+    if (h == 0) {
+        h = 256;
+    }
+
+    // Check that buffer is large enough to read the bit depth
+    if (length < offset + 16) {
+        return kFailure;
+    }
     int bitCount = read2Bytes(buf, offset+14);
 
     void (*placePixel)(const int pixelNo, const unsigned char* buf,
@@ -180,6 +204,12 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
     //int colorsImportant = read4Bytes(buf, offset+36);   //0
 
     int begin = SkToInt(offset + 40);
+    // Check that the buffer is large enough to read the color table
+    // For bmp-in-icos, there should be 4 bytes per color
+    if (length < (size_t) (begin + 4*colorCount)) {
+        return kFailure;
+    }
+
     //this array represents the colortable
     //if i allow other types of bitmaps, it may actually be used as a part of the bitmap
     SkPMColor* colors = NULL;
@@ -227,6 +257,45 @@ SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* b
         delete[] colors;
         return kFailure;
     }
+
+    // The AND mask is a 1-bit alpha mask for each pixel that comes after the
+    // XOR mask in the bmp.  If we check that the largest AND offset is safe,
+    // it should mean all other buffer accesses will be at smaller indices and
+    // will therefore be safe.
+    size_t maxAndOffset = andOffset + ((andLineWidth*(h-1)+(w-1)) >> 3);
+    if (length <= maxAndOffset) {
+        return kFailure;
+    }
+
+    // Here we assert that all reads from the buffer using the XOR offset are
+    // less than the AND offset.  This should be guaranteed based on the above
+    // calculations.
+#ifdef SK_DEBUG
+    int maxPixelNum = lineWidth*(h-1)+w-1;
+    int maxByte;
+    switch (bitCount) {
+        case 1:
+            maxByte = maxPixelNum >> 3;
+            break;
+        case 4:
+            maxByte = maxPixelNum >> 1;
+            break;
+        case 8:
+            maxByte = maxPixelNum;
+            break;
+        case 24:
+            maxByte = maxPixelNum * 3 + 2;
+            break;
+        case 32:
+            maxByte = maxPixelNum * 4 + 3;
+            break;
+        default:
+            SkASSERT(false);
+            return kFailure;
+    }
+    int maxXOROffset = xorOffset + maxByte;
+    SkASSERT(maxXOROffset < andOffset);
+#endif
 
     SkAutoLockPixels alp(*bm);
 

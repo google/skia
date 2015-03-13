@@ -16,6 +16,9 @@ DEF_TEST(BadIco, reporter) {
         "sigabort_favicon.ico",
         "sigsegv_favicon.ico",
         "sigsegv_favicon_2.ico",
+        "ico_leak01.ico",
+        "ico_fuzz0.ico",
+        "ico_fuzz1.ico"
     };
 
     const char* badIcoFolder = "invalid_images";
