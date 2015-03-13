@@ -9,12 +9,29 @@
 #include "SkRRect.h"
 #include "Test.h"
 
-static void test_tricky_radii_crbug_458522(skiatest::Reporter* reporter) {
-    SkRRect rr;
-    const SkRect bounds = { 3709, 3709, 3709 + 7402, 3709 + 29825 };
-    const SkScalar rad = 12814;
-    const SkVector vec[] = { { rad, rad }, { 0, rad }, { rad, rad }, { 0, rad } };
-    rr.setRectRadii(bounds, vec);
+static void test_tricky_radii(skiatest::Reporter* reporter) {
+    {
+        // crbug.com/458522
+        SkRRect rr;
+        const SkRect bounds = { 3709, 3709, 3709 + 7402, 3709 + 29825 };
+        const SkScalar rad = 12814;
+        const SkVector vec[] = { { rad, rad }, { 0, rad }, { rad, rad }, { 0, rad } };
+        rr.setRectRadii(bounds, vec);
+    }
+
+    {
+        // crbug.com//463920
+        SkRect r = SkRect::MakeLTRB(0, 0, 1009, 33554432.0);
+        SkVector radii[4] = {
+            { 13.0f, 8.0f }, { 170.0f, 2.0 }, { 256.0f, 33554432.0 }, { 110.0f, 5.0f }
+        };
+        SkRRect rr;
+        rr.setRectRadii(r, radii);
+
+        REPORTER_ASSERT(reporter, (double) rr.radii(SkRRect::kUpperRight_Corner).fY +
+                                  (double) rr.radii(SkRRect::kLowerRight_Corner).fY <=
+                                  rr.height());
+    }
 }
 
 static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
@@ -660,6 +677,6 @@ DEF_TEST(RoundRect, reporter) {
     test_round_rect_contains_rect(reporter);
     test_round_rect_transform(reporter);
     test_issue_2696(reporter);
-    test_tricky_radii_crbug_458522(reporter);
+    test_tricky_radii(reporter);
     test_empty_crbug_458524(reporter);
 }

@@ -128,6 +128,16 @@ static SkScalar clamp_radius_check_predicates(SkScalar rad, SkScalar min, SkScal
     return rad;
 }
 
+// These parameters intentionally double. Apropos crbug.com/463920, if one of the
+// radii is huge while the other is small, single precision math can completely
+// miss the fact that a scale is required.
+static double compute_min_scale(double rad1, double rad2, double limit, double curMin) {
+    if ((rad1 + rad2) > limit) {
+        return SkTMin(curMin, limit / (rad1 + rad2));
+    }
+    return curMin;
+}
+
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     if (rect.isEmpty() || !rect.isFinite()) {
         this->setEmpty();
@@ -173,26 +183,14 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     //   and Ltop = Lbottom = the width of the box,
     //   and Lleft = Lright = the height of the box.
     // If f < 1, then all corner radii are reduced by multiplying them by f."
-    SkScalar scale = SK_Scalar1;
+    double scale = 1.0;
 
-    if (fRadii[0].fX + fRadii[1].fX > rect.width()) {
-        scale = SkMinScalar(scale,
-                            SkScalarDiv(rect.width(), fRadii[0].fX + fRadii[1].fX));
-    }
-    if (fRadii[1].fY + fRadii[2].fY > rect.height()) {
-        scale = SkMinScalar(scale,
-                            SkScalarDiv(rect.height(), fRadii[1].fY + fRadii[2].fY));
-    }
-    if (fRadii[2].fX + fRadii[3].fX > rect.width()) {
-        scale = SkMinScalar(scale,
-                            SkScalarDiv(rect.width(), fRadii[2].fX + fRadii[3].fX));
-    }
-    if (fRadii[3].fY + fRadii[0].fY > rect.height()) {
-        scale = SkMinScalar(scale,
-                            SkScalarDiv(rect.height(), fRadii[3].fY + fRadii[0].fY));
-    }
+    scale = compute_min_scale(fRadii[0].fX, fRadii[1].fX, rect.width(),  scale);
+    scale = compute_min_scale(fRadii[1].fY, fRadii[2].fY, rect.height(), scale);
+    scale = compute_min_scale(fRadii[2].fX, fRadii[3].fX, rect.width(),  scale);
+    scale = compute_min_scale(fRadii[3].fY, fRadii[0].fY, rect.height(), scale);
 
-    if (scale < SK_Scalar1) {
+    if (scale < 1.0) {
         for (int i = 0; i < 4; ++i) {
             fRadii[i].fX *= scale;
             fRadii[i].fY *= scale;
