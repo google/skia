@@ -299,7 +299,7 @@ public:
             SkPaint tmp;
             tmp.setImageFilter(fOrigPaint.getImageFilter());
             (void)canvas->internalSaveLayer(bounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
-                                            SkCanvas::kFullLayer_SaveLayerStrategy);
+                                            true, SkCanvas::kFullLayer_SaveLayerStrategy);
             // we'll clear the imageFilter for the actual draws in next(), so
             // it will only be applied during the restore().
             fDoClearImageFilter = true;
@@ -880,7 +880,7 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     }
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag);
     fSaveCount += 1;
-    this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, strategy);
+    this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, false, strategy);
     return this->getSaveCount() - 1;
 }
 
@@ -890,12 +890,12 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags fl
     }
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
     fSaveCount += 1;
-    this->internalSaveLayer(bounds, paint, flags, strategy);
+    this->internalSaveLayer(bounds, paint, flags, false, strategy);
     return this->getSaveCount() - 1;
 }
 
 void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
-                                 SaveLayerStrategy strategy) {
+                                bool justForImageFilter, SaveLayerStrategy strategy) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     flags |= kClipToLayer_SaveFlag;
 #endif
@@ -917,13 +917,21 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         return;
     }
 
-    bool isOpaque = !SkToBool(flags & kHasAlphaLayer_SaveFlag);
-    if (isOpaque && paint) {
-        // TODO: perhaps add a query to filters so we might preserve opaqueness...
-        if (paint->getImageFilter() || paint->getColorFilter()) {
-            isOpaque = false;
+    // Kill the imagefilter if our device doesn't allow it
+    SkLazyPaint lazyP;
+    if (paint && paint->getImageFilter()) {
+        if (!this->getTopDevice()->allowImageFilter(paint->getImageFilter())) {
+            if (justForImageFilter) {
+                // early exit if the layer was just for the imageFilter
+                return;
+            }
+            SkPaint* p = lazyP.set(*paint);
+            p->setImageFilter(NULL);
+            paint = p;
         }
     }
+
+    bool isOpaque = !SkToBool(flags & kHasAlphaLayer_SaveFlag);
     SkImageInfo info = SkImageInfo::MakeN32(ir.width(), ir.height(),
                         isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 
@@ -933,17 +941,12 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         return;
     }
 
-    SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-#if 1
-    // this seems needed for current GMs, but makes us draw slower on the GPU
-    // Related to https://code.google.com/p/skia/issues/detail?id=3519 ?
-    //
+    SkBaseDevice::Usage usage = SkBaseDevice::kSaveLayer_Usage;
     if (paint && paint->getImageFilter()) {
-        usage = SkBaseDevice::kPossible_TileUsage;
+        usage = SkBaseDevice::kImageFilter_Usage;
     }
-#endif
-    device = device->onCreateDevice(SkBaseDevice::CreateInfo(info, usage, fProps.pixelGeometry()),
-                                    paint);
+    device = device->onCreateCompatibleDevice(SkBaseDevice::CreateInfo(info, usage,
+                                                                       fProps.pixelGeometry()));
     if (NULL == device) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "Unable to create device for layer.");
