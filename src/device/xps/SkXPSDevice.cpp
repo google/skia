@@ -2251,7 +2251,7 @@ void SkXPSDevice::drawDevice(const SkDraw& d, SkBaseDevice* dev,
          "Could not add layer to current visuals.");
 }
 
-SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*) {
+SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(const CreateInfo& info) {
 //Conditional for bug compatibility with PDF device.
 #if 0
     if (SkBaseDevice::kGeneral_Usage == info.fUsage) {
@@ -2282,3 +2282,6 @@ SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
          "Could not create canvas for layer.");
 }
 
+bool SkXPSDevice::allowImageFilter(const SkImageFilter*) {
+    return false;
+}

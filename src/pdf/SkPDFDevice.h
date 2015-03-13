@@ -235,7 +235,8 @@ private:
     ContentEntry* getLastContentEntry();
     void setLastContentEntry(ContentEntry* contentEntry);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    // override from SkBaseDevice
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     void init();
     void cleanUp(bool clearFontUsage);

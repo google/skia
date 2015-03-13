@@ -98,7 +98,11 @@ protected:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) SK_OVERRIDE;
+    /** The SkBaseDevice passed will be an SkBaseDevice which was returned by a call to
+        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
+     */
+    virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
+                            const SkPaint&) SK_OVERRIDE;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +145,7 @@ private:
     // any clip information.
     void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE;
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
     const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;
