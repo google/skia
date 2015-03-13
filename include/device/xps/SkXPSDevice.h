@@ -135,8 +135,6 @@ protected:
         int x, int y,
         const SkPaint& paint) SK_OVERRIDE;
 
-    bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE;
-
 private:
     class TypefaceUse : ::SkNoncopyable {
     public:
@@ -311,7 +309,7 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);
