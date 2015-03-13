@@ -566,13 +566,19 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     }
 }
 
-SkBaseDevice* SkPDFDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
+static bool not_supported_for_layers(const SkPaint& layerPaint) {
     // PDF does not support image filters, so render them on CPU.
     // Note that this rendering is done at "screen" resolution (100dpi), not
     // printer resolution.
     // FIXME: It may be possible to express some filters natively using PDF
     // to improve quality and file size (http://skbug.com/3043)
-    if (kImageFilter_Usage == cinfo.fUsage) {
+
+    // TODO: should we return true if there is a colorfilter?
+    return layerPaint.getImageFilter() != NULL;
+}
+
+SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+    if (layerPaint && not_supported_for_layers(*layerPaint)) {
         return SkBitmapDevice::Create(cinfo.fInfo);
     }
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());

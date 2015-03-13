@@ -1862,7 +1862,7 @@ void SkGpuDevice::flush() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
+SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     GrSurfaceDesc desc;
     desc.fConfig = fRenderTarget->config();
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -1876,7 +1876,7 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
 
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
-    const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == cinfo.fUsage) ?
+    const GrContext::ScratchTexMatch match = (kNever_TileUsage == cinfo.fTileUsage) ?
                                                 GrContext::kApprox_ScratchTexMatch :
                                                 GrContext::kExact_ScratchTexMatch;
     texture.reset(fContext->refScratchTexture(desc, match));

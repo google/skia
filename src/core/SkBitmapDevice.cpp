@@ -110,7 +110,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     fBitmap.lockPixels();
 }
 
-SkBaseDevice* SkBitmapDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
+SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     SkDeviceProperties leaky(cinfo.fPixelGeometry);
     return SkBitmapDevice::Create(cinfo.fInfo, &leaky);
 }

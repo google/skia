@@ -18,15 +18,15 @@ public:
         : fDevice(device)
         , fProps(props.flags(),
                  SkBaseDevice::CreateInfo::AdjustGeometry(SkImageInfo(),
-                                                          SkBaseDevice::kImageFilter_Usage,
+                                                          SkBaseDevice::kPossible_TileUsage,
                                                           props.pixelGeometry()))
     {}
 
     SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
         SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
-                                       SkBaseDevice::kImageFilter_Usage,
+                                       SkBaseDevice::kPossible_TileUsage,
                                        kUnknown_SkPixelGeometry);
-        return fDevice->onCreateCompatibleDevice(cinfo);
+        return fDevice->onCreateDevice(cinfo, NULL);
     }
     bool canHandleImageFilter(const SkImageFilter* filter) SK_OVERRIDE {
         return fDevice->canHandleImageFilter(filter);
