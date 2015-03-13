@@ -20,6 +20,7 @@
 class SkAnnotation;
 class SkAutoGlyphCache;
 class SkColorFilter;
+class SkData;
 class SkDescriptor;
 struct SkDeviceProperties;
 class SkReadBuffer;
@@ -1079,6 +1080,13 @@ private:
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
+
+    /*
+     * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
+     * SkData.  Caller is responsible for managing the lifetime of this object.
+     */
+    const SkData* getScalerContextDescriptor(const SkDeviceProperties* deviceProperties,
+                                             const SkMatrix*, bool ignoreGamma) const;
 
     SkGlyphCache* detachCache(const SkDeviceProperties* deviceProperties, const SkMatrix*,
                               bool ignoreGamma) const;
