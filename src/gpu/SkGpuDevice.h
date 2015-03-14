@@ -51,9 +51,9 @@ public:
     virtual ~SkGpuDevice();
 
     SkGpuDevice* cloneDevice(const SkSurfaceProps& props) {
-        SkBaseDevice* dev = this->onCreateCompatibleDevice(CreateInfo(this->imageInfo(),
-                                                                      kGeneral_Usage,
-                                                                      props.pixelGeometry()));
+        SkBaseDevice* dev = this->onCreateDevice(CreateInfo(this->imageInfo(), kPossible_TileUsage,
+                                                            props.pixelGeometry()),
+                                                 NULL);
         return static_cast<SkGpuDevice*>(dev);
     }
 
@@ -147,7 +147,7 @@ private:
 
     SkGpuDevice(GrRenderTarget*, const SkSurfaceProps*, unsigned flags);
 
-    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
+    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
 
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 

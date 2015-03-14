@@ -64,18 +64,15 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
 }
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
-                                                         Usage usage,
+                                                         TileUsage tileUsage,
                                                          SkPixelGeometry geo) {
-    switch (usage) {
-        case kGeneral_Usage:
+    switch (tileUsage) {
+        case kPossible_TileUsage:
             break;
-        case kSaveLayer_Usage:
+        case kNever_TileUsage:
             if (info.alphaType() != kOpaque_SkAlphaType) {
                 geo = kUnknown_SkPixelGeometry;
             }
-            break;
-        case kImageFilter_Usage:
-            geo = kUnknown_SkPixelGeometry;
             break;
     }
     return geo;
@@ -86,7 +83,7 @@ void SkBaseDevice::initForRootLayer(SkPixelGeometry geo) {
     // anyway to document logically what is going on.
     //
     fLeakyProperties->setPixelGeometry(CreateInfo::AdjustGeometry(this->imageInfo(),
-                                                                  kGeneral_Usage,
+                                                                  kPossible_TileUsage,
                                                                   geo));
 }
 

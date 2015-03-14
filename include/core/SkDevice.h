@@ -125,10 +125,9 @@ public:
     };
 
 protected:
-    enum Usage {
-       kGeneral_Usage,
-       kSaveLayer_Usage,  // <! internal use only
-       kImageFilter_Usage // <! internal use only
+    enum TileUsage {
+        kPossible_TileUsage,    //!< the created device may be drawn tiled
+        kNever_TileUsage,       //!< the created device will never be drawn tiled
     };
 
     struct TextFlags {
@@ -231,7 +230,7 @@ protected:
     virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
     /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
+        onCreateDevice on this device with kNeverTile_TileExpectation.
      */
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
@@ -253,14 +252,6 @@ protected:
     */
     virtual void lockPixels() {}
     virtual void unlockPixels() {}
-
-    /**
-     *  Returns true if the device allows processing of this imagefilter. If
-     *  false is returned, then the filter is ignored. This may happen for
-     *  some subclasses that do not support pixel manipulations after drawing
-     *  has occurred (e.g. printing). The default implementation returns true.
-     */
-    virtual bool allowImageFilter(const SkImageFilter*) { return true; }
 
     /**
      *  Override and return true for filters that the device can handle
@@ -336,23 +327,38 @@ protected:
                                           const SkPaint*);
 
     struct CreateInfo {
-        static SkPixelGeometry AdjustGeometry(const SkImageInfo&, Usage, SkPixelGeometry geo);
+        static SkPixelGeometry AdjustGeometry(const SkImageInfo&, TileUsage, SkPixelGeometry);
 
-        // The construct may change the pixel geometry based on usage as needed.
-        CreateInfo(const SkImageInfo& info, Usage usage, SkPixelGeometry geo)
+        // The constructor may change the pixel geometry based on other parameters.
+        CreateInfo(const SkImageInfo& info, TileUsage tileUsage, SkPixelGeometry geo)
             : fInfo(info)
-            , fUsage(usage)
-            , fPixelGeometry(AdjustGeometry(info, usage, geo))
+            , fTileUsage(tileUsage)
+            , fPixelGeometry(AdjustGeometry(info, tileUsage, geo))
         {}
 
-        const SkImageInfo     fInfo;
-        const Usage           fUsage;
-        const SkPixelGeometry fPixelGeometry;
+        const SkImageInfo       fInfo;
+        const TileUsage         fTileUsage;
+        const SkPixelGeometry   fPixelGeometry;
     };
 
+#ifdef SK_SUPPORT_LEGACY_ONCREATECOMPATIBLEDEVICE
+    // legacy method name -- please override onCreateDevice instead
     virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) {
         return NULL;
     }
+
+    virtual SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+        return this->onCreateCompatibleDevice(cinfo);
+    }
+#else
+    /**
+     *  Create a new device based on CreateInfo. If the paint is not null, then it represents a
+     *  preview of how the new device will be composed with its creator device (this).
+     */
+    virtual SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
+        return NULL;
+    }
+#endif
 
     virtual void initForRootLayer(SkPixelGeometry geo);
 
