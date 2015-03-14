@@ -162,7 +162,7 @@ public:
 
     GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) SK_OVERRIDE;
 
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
 
@@ -231,6 +231,9 @@ protected:
     void lockPixels() SK_OVERRIDE {}
     void unlockPixels() SK_OVERRIDE {}
 
+    bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE {
+        return false;
+    }
     bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE {
         return false;
     }
@@ -458,13 +461,16 @@ const SkBitmap& SkDeferredDevice::onAccessBitmap() {
     return immediateDevice()->accessBitmap(false);
 }
 
-SkBaseDevice* SkDeferredDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+SkBaseDevice* SkDeferredDevice::onCreateCompatibleDevice(const CreateInfo& cinfo) {
+    // Save layer usage not supported, and not required by SkDeferredCanvas.
+    SkASSERT(cinfo.fUsage != kSaveLayer_Usage);
+
     // Create a compatible non-deferred device.
     // We do not create a deferred device because we know the new device
     // will not be used with a deferred canvas (there is no API for that).
     // And connecting a SkDeferredDevice to non-deferred canvas can result
     // in unpredictable behavior.
-    return immediateDevice()->onCreateDevice(cinfo, layerPaint);
+    return immediateDevice()->onCreateCompatibleDevice(cinfo);
 }
 
 SkSurface* SkDeferredDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
