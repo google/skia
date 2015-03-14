@@ -354,6 +354,11 @@ protected:
         return NULL;
     }
 
+    // Will replace onCreateCompatibleDevice
+    virtual SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
+        return NULL;
+    }
+
     virtual void initForRootLayer(SkPixelGeometry geo);
 
 private:
