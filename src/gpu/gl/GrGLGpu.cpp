@@ -1210,26 +1210,7 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                 }
 
                 GL_CALL(ClearStencil(0));
-                // At least some versions of the SGX 54x driver can't handle clearing a stencil
-                // buffer without a color buffer and will crash.
-                GrGLuint tempRB = 0;
-                if (kPowerVR54x_GrGLRenderer == this->ctxInfo().renderer()) {
-                    GL_CALL(GenRenderbuffers(1, &tempRB));
-                    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
-                    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
-                    GL_CALL(FramebufferRenderbuffer(fboTarget,
-                                                    GR_GL_COLOR_ATTACHMENT0,
-                                                    GR_GL_RENDERBUFFER, tempRB));
-                }
-
                 GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-
-                if (tempRB) {
-                    GL_CALL(FramebufferRenderbuffer(fboTarget,
-                                                    GR_GL_COLOR_ATTACHMENT0,
-                                                    GR_GL_RENDERBUFFER, 0));
-                    GL_CALL(DeleteRenderbuffers(1, &tempRB));
-                }
 
                 // Unbind the SB from the FBO so that we don't keep it alive.
                 GL_CALL(FramebufferRenderbuffer(fboTarget,
