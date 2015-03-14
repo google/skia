@@ -382,8 +382,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
                                                              GrGLenum renderbuffertarget,
                                                              GrGLuint renderBufferID) {
 
-    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target || GR_GL_READ_FRAMEBUFFER == target ||
-                   GR_GL_DRAW_FRAMEBUFFER == target);
+     GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
      GrAlwaysAssert(GR_GL_COLOR_ATTACHMENT0 == attachment ||
                     GR_GL_DEPTH_ATTACHMENT == attachment ||
                     GR_GL_STENCIL_ATTACHMENT == attachment);
@@ -423,8 +422,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
                                                           GrGLuint textureID,
                                                           GrGLint level) {
 
-    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target || GR_GL_READ_FRAMEBUFFER == target ||
-                   GR_GL_DRAW_FRAMEBUFFER == target);
+     GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
      GrAlwaysAssert(GR_GL_COLOR_ATTACHMENT0 == attachment ||
                     GR_GL_DEPTH_ATTACHMENT == attachment ||
                     GR_GL_STENCIL_ATTACHMENT == attachment);

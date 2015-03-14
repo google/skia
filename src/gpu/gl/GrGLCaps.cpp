@@ -52,8 +52,6 @@ void GrGLCaps::reset() {
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
-    fBindFBOToReadAndDrawForAddingAttachments = false;
-    
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
 
@@ -101,7 +99,6 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
     fFBFetchColorName = caps.fFBFetchColorName;
     fFBFetchExtensionString = caps.fFBFetchExtensionString;
-    fBindFBOToReadAndDrawForAddingAttachments = caps.fBindFBOToReadAndDrawForAddingAttachments;
 
     return *this;
 }
@@ -281,12 +278,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
-
-#ifdef SK_BUILD_FOR_MAC
-    // This relies on the fact that initFSAASupport() was already called.
-    fBindFBOToReadAndDrawForAddingAttachments = ctxInfo.isChromium() &&
-                                                this->usesMSAARenderBuffers();
-#endif
 
     /**************************************************************************
      * GrDrawTargetCaps fields
