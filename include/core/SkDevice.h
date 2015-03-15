@@ -341,13 +341,6 @@ protected:
         const SkPixelGeometry   fPixelGeometry;
     };
 
-#ifdef SK_SUPPORT_LEGACY_ONCREATECOMPATIBLEDEVICE
-    // legacy method name -- please override onCreateDevice instead
-    virtual SkBaseDevice* onCreateCompatibleDevice(const CreateInfo&) {
-        return NULL;
-    }
-#endif
-
     /**
      *  Create a new device based on CreateInfo. If the paint is not null, then it represents a
      *  preview of how the new device will be composed with its creator device (this).
