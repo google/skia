@@ -12,6 +12,7 @@ for more details about the presubmit API built into gcl.
 import fnmatch
 import os
 import re
+import subprocess
 import sys
 import traceback
 
@@ -31,6 +32,8 @@ PUBLIC_API_OWNERS = (
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
+
+DOCS_PREVIEW_URL = 'https://skia.org/?cl='
 
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
@@ -237,6 +240,87 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
             'Since the CL is editing public API, you must have an LGTM from '
             'one of: %s' % str(PUBLIC_API_OWNERS)))
   return results
+
+
+def PostUploadHook(cl, change, output_api):
+  """git cl upload will call this hook after the issue is created/modified.
+
+  This hook does the following:
+  * Adds a link to preview docs changes if there are any docs changes in the CL.
+  * Adds 'NOTRY=true' if the CL contains only docs changes.
+  * Adds 'NOTREECHECKS=true' for non master branch changes since they do not
+    need to be gated on the master branch's tree.
+  * Adds 'NOTRY=true' for non master branch changes since trybots do not yet
+    work on them.
+  """
+
+  results = []
+  atleast_one_docs_change = False
+  all_docs_changes = True
+  for affected_file in change.AffectedFiles():
+    affected_file_path = affected_file.LocalPath()
+    file_path, _ = os.path.splitext(affected_file_path)
+    if 'site' == file_path.split(os.path.sep)[0]:
+      atleast_one_docs_change = True
+    else:
+      all_docs_changes = False
+    if atleast_one_docs_change and not all_docs_changes:
+      break
+
+  issue = cl.issue
+  rietveld_obj = cl.RpcServer()
+  if issue and rietveld_obj:
+    original_description = rietveld_obj.get_description(issue)
+    new_description = original_description
+
+    # If the change includes only doc changes then add NOTRY=true in the
+    # CL's description if it does not exist yet.
+    if all_docs_changes and not re.search(
+        r'^NOTRY=true$', new_description, re.M | re.I):
+      new_description += '\nNOTRY=true'
+      results.append(
+          output_api.PresubmitNotifyResult(
+              'This change has only doc changes. Automatically added '
+              '\'NOTRY=true\' to the CL\'s description'))
+
+    # If there is atleast one docs change then add preview link in the CL's
+    # description if it does not already exist there.
+    if atleast_one_docs_change and not re.search(
+        r'^DOCS_PREVIEW=.*', new_description, re.M | re.I):
+      # Automatically add a link to where the docs can be previewed.
+      new_description += '\nDOCS_PREVIEW= %s%s' % (DOCS_PREVIEW_URL, issue)
+      results.append(
+          output_api.PresubmitNotifyResult(
+              'Automatically added a link to preview the docs changes to the '
+              'CL\'s description'))
+
+    # If the target ref is not master then add NOTREECHECKS=true and NOTRY=true
+    # to the CL's description if it does not already exist there.
+    target_ref = rietveld_obj.get_issue_properties(issue, False).get(
+        'target_ref', '')
+    if target_ref != 'refs/heads/master':
+      if not re.search(
+          r'^NOTREECHECKS=true$', new_description, re.M | re.I):
+        new_description += "\nNOTREECHECKS=true"
+        results.append(
+            output_api.PresubmitNotifyResult(
+                'Branch changes do not need to rely on the master branch\'s '
+                'tree status. Automatically added \'NOTREECHECKS=true\' to the '
+                'CL\'s description'))
+      if not re.search(
+          r'^NOTRY=true$', new_description, re.M | re.I):
+        new_description += "\nNOTRY=true"
+        results.append(
+            output_api.PresubmitNotifyResult(
+                'Trybots do not yet work for non-master branches. '
+                'Automatically added \'NOTRY=true\' to the CL\'s description'))
+
+
+    # If the description has changed update it.
+    if new_description != original_description:
+      rietveld_obj.update_description(issue, new_description)
+
+    return results
 
 
 def CheckChangeOnCommit(input_api, output_api):
