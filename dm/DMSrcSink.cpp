@@ -7,6 +7,7 @@
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
+#include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkSVGCanvas.h"
@@ -189,8 +190,19 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize SKPSrc::size() const {
-    // This may be unnecessarily large.
-    return kSKPViewport.roundOut().size();
+    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fPath.c_str()));
+    if (!stream) {
+        return SkISize::Make(0,0);
+    }
+    SkPictInfo info;
+    if (!SkPicture::InternalOnly_StreamIsSKP(stream, &info)) {
+        return SkISize::Make(0,0);
+    }
+    SkRect viewport = kSKPViewport;
+    if (!viewport.intersect(info.fCullRect)) {
+        return SkISize::Make(0,0);
+    }
+    return viewport.roundOut().size();
 }
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
