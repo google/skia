@@ -17,9 +17,6 @@
       'sources': [
         '../src/codec/SkCodec.cpp',
         '../src/codec/SkCodec_libpng.cpp',
-        '../src/codec/SkCodec_libbmp.cpp',
-        '../src/codec/SkMaskSwizzler.cpp',
-        '../src/codec/SkMasks.cpp',
         '../src/codec/SkSwizzler.cpp',
       ],
       'direct_dependent_settings': {

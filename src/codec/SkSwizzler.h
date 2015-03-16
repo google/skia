@@ -18,97 +18,30 @@ public:
      *  Enum describing the config of the source data.
      */
     enum SrcConfig {
-        kGray,
-        kIndex1,
-        kIndex2,
-        kIndex4,
-        kIndex,
-        kRGB,
-        kBGR,
-        kRGBX,
-        kBGRX,
-        kRGBA,
-        kBGRA,
-        kRGB_565,
+        kGray,  // 1 byte per pixel
+        kIndex, // 1 byte per pixel
+        kRGB,   // 3 bytes per pixel
+        kRGBX,  // 4 byes per pixel (ignore 4th)
+        kRGBA,  // 4 bytes per pixel
+        kRGB_565 // 2 bytes per pixel
     };
 
-    /*
-     *
-     * Result code for the alpha components of a row.
-     *
-     */
-    typedef uint16_t ResultAlpha;
-    static const ResultAlpha kOpaque_ResultAlpha = 0xFFFF;
-    static const ResultAlpha kTransparent_ResultAlpha = 0x0000;
-
-    /*
-     *
-     * Checks if the result of decoding a row indicates that the row was
-     * transparent.
-     *
-     */
-    static bool IsTransparent(ResultAlpha r) {
-        return kTransparent_ResultAlpha == r;
-    }
-
-    /*
-     *
-     * Checks if the result of decoding a row indicates that the row was
-     * opaque.
-     *
-     */
-    static bool IsOpaque(ResultAlpha r) {
-        return kOpaque_ResultAlpha == r;
-    }
-    
-    /*
-     *
-     * Constructs the proper result code based on accumulated alpha masks
-     *
-     */
-    static ResultAlpha GetResult(uint8_t zeroAlpha, uint8_t maxAlpha);
-
-    /*
-     *
-     * Returns bits per pixel for source config
-     *
-     */
-    static int BitsPerPixel(SrcConfig sc) {
+    static int BytesPerPixel(SrcConfig sc) {
         switch (sc) {
-            case kIndex1:
-                return 1;
-            case kIndex2:
-                return 2;
-            case kIndex4:
-                return 4;
             case kGray:
             case kIndex:
-                return 8;
-            case kRGB_565:
-                return 16;
+                return 1;
             case kRGB:
-            case kBGR:
-                return 24;
+                return 3;
             case kRGBX:
             case kRGBA:
-            case kBGRX:
-            case kBGRA:
-                return 32;
+                return 4;
+            case kRGB_565:
+                return 2;
             default:
-                SkASSERT(false);
-                return 0;
+                SkDebugf("invalid source config passed to BytesPerPixel\n");
+                return -1;
         }
-    }
-
-    /*
-     *
-     * Returns bytes per pixel for source config
-     * Raises an error if each pixel is not stored in an even number of bytes
-     *
-     */
-    static int BytesPerPixel(SrcConfig sc) {
-        SkASSERT(SkIsAlign8(BitsPerPixel(sc)));
-        return BitsPerPixel(sc) >> 3;
     }
 
     /**
@@ -125,68 +58,36 @@ public:
     static SkSwizzler* CreateSwizzler(SrcConfig sc, const SkPMColor* ctable,
                                       const SkImageInfo& info, void* dst,
                                       size_t dstRowBytes, bool skipZeroes);
-
     /**
      *  Swizzle the next line. Call height times, once for each row of source.
      *  @param src The next row of the source data.
-     *  @return A result code describing if the row was fully opaque, fully
-     *          transparent, or neither
+     *  @return Whether the row had non-opaque alpha.
      */
-    ResultAlpha next(const uint8_t* SK_RESTRICT src);
-
-    /**
-     *
-     * Alternate version of next that allows the caller to specify the row.
-     * It is very important to only use one version of next.  Since the other
-     * version modifies the dst pointer, it will change the behavior of this
-     * function.  We will check this in Debug mode.
-     *
-     */
-    ResultAlpha next(const uint8_t* SK_RESTRICT src, int y);
+    bool next(const uint8_t* SK_RESTRICT src);
 private:
-
-#ifdef SK_DEBUG
-    /*
-     *
-     * Keep track of which version of next the caller is using
-     *
-     */
-    enum NextMode {
-        kUninitialized_NextMode,
-        kConsecutive_NextMode,
-        kDesignateRow_NextMode,
-    };
-
-    NextMode fNextMode;
-#endif
-
     /**
      *  Method for converting raw data to Skia pixels.
      *  @param dstRow Row in which to write the resulting pixels.
      *  @param src Row of src data, in format specified by SrcConfig
      *  @param width Width in pixels
-     *  @param deltaSrc if bitsPerPixel % 8 == 0, deltaSrc is bytesPerPixel
-     *                  else, deltaSrc is bitsPerPixel
+     *  @param bpp bytes per pixel of the source.
      *  @param y Line of source.
      *  @param ctable Colors (used for kIndex source).
      */
-    typedef ResultAlpha (*RowProc)(void* SK_RESTRICT dstRow,
-                                   const uint8_t* SK_RESTRICT src,
-                                   int width, int deltaSrc, int y,
-                                   const SkPMColor ctable[]);
+    typedef bool (*RowProc)(void* SK_RESTRICT dstRow,
+                            const uint8_t* SK_RESTRICT src,
+                            int width, int bpp, int y,
+                            const SkPMColor ctable[]);
 
     const RowProc       fRowProc;
-    const SkPMColor*    fColorTable;      // Unowned pointer
-    const int           fDeltaSrc;        // if bitsPerPixel % 8 == 0
-                                          //     deltaSrc is bytesPerPixel
-                                          // else
-                                          //     deltaSrc is bitsPerPixel
+    const SkPMColor*    fColorTable;    // Unowned pointer
+    const int           fSrcPixelSize;
     const SkImageInfo   fDstInfo;
     void*               fDstRow;
     const size_t        fDstRowBytes;
     int                 fCurrY;
 
-    SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc,
+    SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcBpp,
                const SkImageInfo& info, void* dst, size_t rowBytes);
 
 };

@@ -6,7 +6,6 @@
  */
 
 #include "SkCodec_libpng.h"
-#include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
 #include "SkBitmap.h"
@@ -347,6 +346,10 @@ SkPngCodec::~SkPngCodec() {
 // Getting the pixels
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool premul_and_unpremul(SkAlphaType A, SkAlphaType B) {
+    return kPremul_SkAlphaType == A && kUnpremul_SkAlphaType == B;
+}
+
 static bool conversion_possible(const SkImageInfo& A, const SkImageInfo& B) {
     // TODO: Support other conversions
     if (A.colorType() != B.colorType()) {
@@ -463,7 +466,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         // Now swizzle it.
         uint8_t* row = base;
         for (int y = 0; y < height; y++) {
-            reallyHasAlpha |= !SkSwizzler::IsOpaque(swizzler->next(row));
+            reallyHasAlpha |= swizzler->next(row);
             row += rowBytes;
         }
     } else {
@@ -471,7 +474,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         uint8_t* srcRow = static_cast<uint8_t*>(storage.get());
         for (int y = 0; y < requestedInfo.height(); y++) {
             png_read_rows(fPng_ptr, &srcRow, png_bytepp_NULL, 1);
-            reallyHasAlpha |= !SkSwizzler::IsOpaque(swizzler->next(srcRow));
+            reallyHasAlpha |= swizzler->next(srcRow);
         }
     }
 
