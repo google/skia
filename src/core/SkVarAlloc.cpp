@@ -47,7 +47,7 @@ void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
 
 #if defined(SK_BUILD_FOR_MAC)
     SkASSERT(alloc == malloc_good_size(alloc));
-#elif defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_UNIX) && !defined(__UCLIBC__)
     // TODO(mtklein): tune so we can assert something like this
     //SkASSERT(alloc == malloc_usable_size(fBlock));
 #endif
@@ -56,7 +56,7 @@ void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
 static size_t heap_size(void* p) {
 #if defined(SK_BUILD_FOR_MAC)
     return malloc_size(p);
-#elif defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_UNIX) && !defined(__UCLIBC__)
     return malloc_usable_size(p);
 #elif defined(SK_BUILD_FOR_WIN32)
     return _msize(p);
