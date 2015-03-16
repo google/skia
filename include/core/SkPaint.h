@@ -338,23 +338,6 @@ public:
      */
     void setFilterQuality(SkFilterQuality quality);
 
-    /**
-     *  If the predicate is true, set the filterLevel to Low, else set it to
-     *  None.
-     */
-    SK_ATTR_DEPRECATED("use setFilterLevel")
-    void setFilterBitmap(bool doFilter) {
-        this->setFilterLevel(doFilter ? kLow_FilterLevel : kNone_FilterLevel);
-    }
-
-    /**
-     *  Returns true if getFilterLevel() returns anything other than None.
-     */
-    SK_ATTR_DEPRECATED("use getFilterLevel")
-    bool isFilterBitmap() const {
-        return kNone_FilterLevel != this->getFilterLevel();
-    }
-
     /** Styles apply to rect, oval, path, and text.
         Bitmaps are always drawn in "fill", and lines are always drawn in
         "stroke".
