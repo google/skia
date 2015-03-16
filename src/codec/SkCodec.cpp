@@ -25,8 +25,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     if (!stream) {
         return NULL;
     }
-    for (uint32_t i = 0; i < SK_ARRAY_COUNT(gDecoderProcs); i++) {
-        DecoderProc proc = gDecoderProcs[i];
+    for (DecoderProc proc : gDecoderProcs) {
         const bool correctFormat = proc.IsFormat(stream);
         if (!stream->rewind()) {
             return NULL;
