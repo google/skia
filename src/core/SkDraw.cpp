@@ -33,7 +33,6 @@
 #include "SkDrawProcs.h"
 #include "SkMatrixUtils.h"
 
-
 //#define TRACE_BITMAP_DRAWS
 
 
@@ -1444,6 +1443,15 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
 //////////////////////////////////////////////////////////////////////////////
 
 static void D1G_RectClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, const SkGlyph& glyph) {
+    // Prevent glyphs from being drawn outside of or straddling the edge of device space.
+    if ((fx >> 16) > INT_MAX - (INT16_MAX + UINT16_MAX) ||
+        (fx >> 16) < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/) ||
+        (fy >> 16) > INT_MAX - (INT16_MAX + UINT16_MAX) ||
+        (fy >> 16) < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/))
+    {
+        return;
+    }
+
     int left = Sk48Dot16FloorToInt(fx);
     int top = Sk48Dot16FloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
