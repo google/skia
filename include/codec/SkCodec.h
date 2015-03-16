@@ -84,6 +84,15 @@ protected:
      */
     bool SK_WARN_UNUSED_RESULT rewindIfNeeded();
 
+    /*
+     *
+     * Get method for the input stream
+     *
+     */
+    SkStream* stream() {
+        return fStream.get();
+    }
+
 private:
     const SkImageInfo fInfo;
     SkAutoTDelete<SkStream> fStream;

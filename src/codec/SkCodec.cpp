@@ -7,24 +7,33 @@
 
 #include "SkCodec.h"
 #include "SkData.h"
+#include "SkCodec_libbmp.h"
 #include "SkCodec_libpng.h"
 #include "SkStream.h"
+
+struct DecoderProc {
+    bool (*IsFormat)(SkStream*);
+    SkCodec* (*NewFromStream)(SkStream*);
+};
+
+static const DecoderProc gDecoderProcs[] = {
+    { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
+    { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream }
+};
 
 SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     if (!stream) {
         return NULL;
     }
-    SkAutoTDelete<SkStream> streamDeleter(stream);
-    const bool isPng = SkPngCodec::IsPng(stream);
-    // TODO: Avoid rewinding.
-    if (!stream->rewind()) {
-        return NULL;
+    for (DecoderProc proc : gDecoderProcs) {
+        const bool correctFormat = proc.IsFormat(stream);
+        if (!stream->rewind()) {
+            return NULL;
+        }
+        if (correctFormat) {
+            return proc.NewFromStream(stream);
+        }
     }
-    if (isPng) {
-        streamDeleter.detach();
-        return SkPngCodec::NewFromStream(stream);
-    }
-    // TODO: Check other image types.
     return NULL;
 }
 
