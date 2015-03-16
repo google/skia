@@ -273,7 +273,7 @@ private:
 #include <locale.h>
 #endif
 
-#if defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #include <xlocale.h>
 #endif
 
