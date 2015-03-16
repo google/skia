@@ -111,9 +111,9 @@ public:
         }
     }
 
-    void setTexFilterOverride(bool texFilterOverride, SkPaint::FilterLevel level) {
+    void setTexFilterOverride(bool texFilterOverride, SkFilterQuality quality) {
         if (fDebugCanvas) {
-            fDebugCanvas->overrideTexFiltering(texFilterOverride, level);
+            fDebugCanvas->overrideTexFiltering(texFilterOverride, quality);
         }
     }
 

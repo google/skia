@@ -292,9 +292,9 @@ void SkDebuggerGUI::actionVisualizationsChanged() {
 }
 
 void SkDebuggerGUI::actionTextureFilter() {
-    SkPaint::FilterLevel level;
-    bool enabled = fSettingsWidget.getFilterOverride(&level);
-    fDebugger.setTexFilterOverride(enabled, level);
+    SkFilterQuality quality;
+    bool enabled = fSettingsWidget.getFilterOverride(&quality);
+    fDebugger.setTexFilterOverride(enabled, quality);
     fCanvasWidget.update();
 }
 

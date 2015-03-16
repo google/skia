@@ -51,9 +51,9 @@ public:
 
 #endif
 
-    bool getFilterOverride(SkPaint::FilterLevel* filterLevel) const {
+    bool getFilterOverride(SkFilterQuality* filterQuality) const {
         int index = fFilterCombo.currentIndex();
-        *filterLevel = (SkPaint::FilterLevel)fFilterCombo.itemData(index).toUInt();
+        *filterQuality = (SkFilterQuality)fFilterCombo.itemData(index).toUInt();
 
         return index > 0;
     }
