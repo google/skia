@@ -141,15 +141,27 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
 
 SkISize ImageSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkBitmap bitmap;
-    if (!encoded || !SkImageDecoder::DecodeMemory(encoded->data(),
-                                                  encoded->size(),
-                                                  &bitmap,
-                                                  kUnknown_SkColorType,
-                                                  SkImageDecoder::kDecodeBounds_Mode)) {
-        return SkISize::Make(0,0);
+    if (FLAGS_codec) {
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+        if (!codec) {
+            return SkISize::Make(0,0);
+        }
+        SkImageInfo info;
+        if (!codec->getInfo(&info)) {
+            return SkISize::Make(0,0);
+        }
+        return info.dimensions();
+    } else {
+        SkBitmap bitmap;
+        if (!encoded || !SkImageDecoder::DecodeMemory(encoded->data(),
+                                                      encoded->size(),
+                                                      &bitmap,
+                                                      kUnknown_SkColorType,
+                                                      SkImageDecoder::kDecodeBounds_Mode)) {
+            return SkISize::Make(0,0);
+        }
+        return bitmap.dimensions();
     }
-    return bitmap.dimensions();
 }
 
 Name ImageSrc::name() const {

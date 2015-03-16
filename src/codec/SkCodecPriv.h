@@ -1,0 +1,117 @@
+/*
+ * Copyright 2015 The Android Open Source Project
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkCodecPriv_DEFINED
+#define SkCodecPriv_DEFINED
+
+#include "SkImageInfo.h"
+#include "SkSwizzler.h"
+#include "SkTypes.h"
+
+/*
+ *
+ * Helper routine for alpha result codes
+ *
+ */
+#define INIT_RESULT_ALPHA                       \
+    uint8_t zeroAlpha = 0;                      \
+    uint8_t maxAlpha = 0xFF;
+
+#define UPDATE_RESULT_ALPHA(alpha)              \
+    zeroAlpha |= (alpha);                       \
+    maxAlpha  &= (alpha);
+
+#define COMPUTE_RESULT_ALPHA                    \
+    SkSwizzler::GetResult(zeroAlpha, maxAlpha);
+
+/*
+ *
+ * Compute row bytes for an image using pixels per byte
+ *
+ */
+static inline size_t compute_row_bytes_ppb(int width, uint32_t pixelsPerByte) {
+    return (width + pixelsPerByte - 1) / pixelsPerByte;
+}
+
+/*
+ *
+ * Compute row bytes for an image using bytes per pixel
+ *
+ */
+static inline size_t compute_row_bytes_bpp(int width, uint32_t bytesPerPixel) {
+    return width * bytesPerPixel;
+}
+
+/*
+ *
+ * Compute row bytes for an image
+ *
+ */
+static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
+    if (bitsPerPixel < 16) {
+        SkASSERT(0 == 8 % bitsPerPixel);
+        const uint32_t pixelsPerByte = 8 / bitsPerPixel;
+        return compute_row_bytes_ppb(width, pixelsPerByte);
+    } else {
+        SkASSERT(0 == bitsPerPixel % 8);
+        const uint32_t bytesPerPixel = bitsPerPixel / 8;
+        return compute_row_bytes_bpp(width, bytesPerPixel);
+    }
+}
+
+/*
+ *
+ * Checks if alpha types are premul and unpremul
+ *
+ */
+static inline bool premul_and_unpremul(SkAlphaType dst, SkAlphaType src) {
+    return kPremul_SkAlphaType == dst && kUnpremul_SkAlphaType == src;
+}
+
+/*
+ *
+ * Get a byte from a buffer
+ * This method is unsafe, the caller is responsible for performing a check
+ *
+ */
+static inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
+    return buffer[i];
+}
+
+/*
+ *
+ * Get a short from a buffer
+ * This method is unsafe, the caller is responsible for performing a check
+ *
+ */
+static inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
+    uint16_t result;
+    memcpy(&result, &(buffer[i]), 2);
+#ifdef SK_CPU_BENDIAN
+    return SkEndianSwap16(result);
+#else
+    return result;
+#endif
+}
+
+/*
+ *
+ * Get an int from a buffer
+ * This method is unsafe, the caller is responsible for performing a check
+ *
+ */
+static inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
+    uint32_t result;
+    memcpy(&result, &(buffer[i]), 4);
+#ifdef SK_CPU_BENDIAN
+    return SkEndianSwap32(result);
+#else
+    return result;
+#endif
+}
+
+#endif // SkCodecPriv_DEFINED
