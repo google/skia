@@ -196,6 +196,22 @@ protected:
             y += paint.getFontMetrics(NULL);
         }
 
+        // check skew
+        {
+            paint.setLCDRenderText(false);
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->skew(0.0f, 0.151515f);
+            paint.setTextSize(32);
+            canvas->drawText(text, textLen, 745, 70, paint);
+        }
+        {
+            paint.setLCDRenderText(true);
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->skew(0.5f, 0.0f);
+            paint.setTextSize(32);
+            canvas->drawText(text, textLen, 580, 230, paint);
+        }
+
         // check color emoji
         paint.setTypeface(fTypeface);
         canvas->drawText(text, textLen, 670, 100, paint);

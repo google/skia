@@ -84,39 +84,42 @@ public:
         fsBuilder->codeAppend("\tfloat distance = "
                        SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        // we adjust for the effect of the transformation on the distance by using
-        // the length of the gradient of the texture coordinates. We use st coordinates
-        // to ensure we're mapping 1:1 from texel space to pixel space.
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
-        fsBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
-        fsBuilder->codeAppend("\tfloat afwidth;\n");
+        fsBuilder->codeAppendf("vec2 st = %s;", st.fsIn());
+        fsBuilder->codeAppend("float afwidth;");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
-            // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("\tafwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(st.x));\n");
-        } else {
-            fsBuilder->codeAppend("\tvec2 Jdx = dFdx(st);\n");
-            fsBuilder->codeAppend("\tvec2 Jdy = dFdy(st);\n");
+            // For uniform scale, we adjust for the effect of the transformation on the distance
+            // by using the length of the gradient of the texture coordinates. We use st coordinates
+            // to ensure we're mapping 1:1 from texel space to pixel space.
 
-            fsBuilder->codeAppend("\tvec2 uv_grad;\n");
+            // this gives us a smooth step across approximately one fragment
+            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(st.x));");
+        } else {
+            // For general transforms, to determine the amount of correction we multiply a unit
+            // vector pointing along the SDF gradient direction by the Jacobian of the st coords
+            // (which is the inverse transform for this fragment) and take the length of the result.
+            fsBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance), dFdy(distance));");
             if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
                 // this is to compensate for the Adreno, which likes to drop tiles on division by 0
-                fsBuilder->codeAppend("\tfloat uv_len2 = dot(uv, uv);\n");
-                fsBuilder->codeAppend("\tif (uv_len2 < 0.0001) {\n");
-                fsBuilder->codeAppend("\t\tuv_grad = vec2(0.7071, 0.7071);\n");
-                fsBuilder->codeAppend("\t} else {\n");
-                fsBuilder->codeAppend("\t\tuv_grad = uv*inversesqrt(uv_len2);\n");
-                fsBuilder->codeAppend("\t}\n");
+                fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+                fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
+                fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+                fsBuilder->codeAppend("} else {");
+                fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
+                fsBuilder->codeAppend("}");
             } else {
-                fsBuilder->codeAppend("\tuv_grad = normalize(uv);\n");
+                fsBuilder->codeAppend("dist_grad = normalize(dist_grad);\n");
             }
-            fsBuilder->codeAppend("\tvec2 grad = vec2(uv_grad.x*Jdx.x + uv_grad.y*Jdy.x,\n");
-            fsBuilder->codeAppend("\t                 uv_grad.x*Jdx.y + uv_grad.y*Jdy.y);\n");
+            fsBuilder->codeAppend("vec2 Jdx = dFdx(st);");
+            fsBuilder->codeAppend("vec2 Jdy = dFdy(st);");
+            fsBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fsBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("\tafwidth = " SK_DistanceFieldAAFactor "*length(grad);\n");
+            fsBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
         }
-        fsBuilder->codeAppend("\tfloat val = smoothstep(-afwidth, afwidth, distance);\n");
+        fsBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
 
 #ifdef SK_GAMMA_APPLY_TO_A8
         // adjust based on gamma
@@ -368,34 +371,37 @@ public:
         fsBuilder->codeAppend("float distance = "
             SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        // we adjust for the effect of the transformation on the distance by using
-        // the length of the gradient of the texture coordinates. We use st coordinates
-        // to ensure we're mapping 1:1 from texel space to pixel space.
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
         fsBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
         fsBuilder->codeAppend("float afwidth;");
         if (dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag) {
+            // For uniform scale, we adjust for the effect of the transformation on the distance
+            // by using the length of the gradient of the texture coordinates. We use st coordinates
+            // to ensure we're mapping 1:1 from texel space to pixel space.
+
             // this gives us a smooth step across approximately one fragment
             fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(st.x));");
         } else {
-            fsBuilder->codeAppend("vec2 Jdx = dFdx(st);");
-            fsBuilder->codeAppend("vec2 Jdy = dFdy(st);");
-
-            fsBuilder->codeAppend("vec2 uv_grad;");
+            // For general transforms, to determine the amount of correction we multiply a unit
+            // vector pointing along the SDF gradient direction by the Jacobian of the st coords
+            // (which is the inverse transform for this fragment) and take the length of the result.
+            fsBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance), dFdy(distance));");
             if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
                 // this is to compensate for the Adreno, which likes to drop tiles on division by 0
-                fsBuilder->codeAppend("float uv_len2 = dot(uv, uv);");
-                fsBuilder->codeAppend("if (uv_len2 < 0.0001) {");
-                fsBuilder->codeAppend("uv_grad = vec2(0.7071, 0.7071);");
+                fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+                fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
+                fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
                 fsBuilder->codeAppend("} else {");
-                fsBuilder->codeAppend("uv_grad = uv*inversesqrt(uv_len2);");
+                fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
                 fsBuilder->codeAppend("}");
             } else {
-                fsBuilder->codeAppend("uv_grad = normalize(uv);");
+                fsBuilder->codeAppend("dist_grad = normalize(dist_grad);");
             }
-            fsBuilder->codeAppend("vec2 grad = vec2(uv_grad.x*Jdx.x + uv_grad.y*Jdy.x,");
-            fsBuilder->codeAppend("                 uv_grad.x*Jdx.y + uv_grad.y*Jdy.y);");
+            fsBuilder->codeAppend("vec2 Jdx = dFdx(st);");
+            fsBuilder->codeAppend("vec2 Jdy = dFdy(st);");
+            fsBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fsBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
             fsBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
@@ -648,39 +654,42 @@ public:
         fsBuilder->codeAppend("\tdistance = "
            "vec3(" SK_DistanceFieldMultiplier ")*(distance - vec3(" SK_DistanceFieldThreshold"));");
 
-        // we adjust for the effect of the transformation on the distance by using
-        // the length of the gradient of the texture coordinates. We use st coordinates
-        // to ensure we're mapping 1:1 from texel space to pixel space.
-
         // To be strictly correct, we should compute the anti-aliasing factor separately
         // for each color component. However, this is only important when using perspective
         // transformations, and even then using a single factor seems like a reasonable
         // trade-off between quality and speed.
-        fsBuilder->codeAppend("\tfloat afwidth;\n");
+        fsBuilder->codeAppend("float afwidth;");
         if (isUniformScale) {
+            // For uniform scale, we adjust for the effect of the transformation on the distance
+            // by using the length of the gradient of the texture coordinates. We use st coordinates
+            // to ensure we're mapping 1:1 from texel space to pixel space.
+
             // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("\tafwidth = abs(" SK_DistanceFieldAAFactor "*dx);\n");
+            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dx);");
         } else {
-            fsBuilder->codeAppend("\tvec2 uv_grad;\n");
+            // For general transforms, to determine the amount of correction we multiply a unit
+            // vector pointing along the SDF gradient direction by the Jacobian of the st coords
+            // (which is the inverse transform for this fragment) and take the length of the result.
+            fsBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance.r), dFdy(distance.r));");
             if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
                 // this is to compensate for the Adreno, which likes to drop tiles on division by 0
-                fsBuilder->codeAppend("\tfloat uv_len2 = dot(uv, uv);\n");
-                fsBuilder->codeAppend("\tif (uv_len2 < 0.0001) {\n");
-                fsBuilder->codeAppend("\t\tuv_grad = vec2(0.7071, 0.7071);\n");
-                fsBuilder->codeAppend("\t} else {\n");
-                fsBuilder->codeAppend("\t\tuv_grad = uv*inversesqrt(uv_len2);\n");
-                fsBuilder->codeAppend("\t}\n");
+                fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+                fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
+                fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+                fsBuilder->codeAppend("} else {");
+                fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
+                fsBuilder->codeAppend("}");
             } else {
-                fsBuilder->codeAppend("\tuv_grad = normalize(uv);\n");
+                fsBuilder->codeAppend("dist_grad = normalize(dist_grad);\n");
             }
-            fsBuilder->codeAppend("\tvec2 grad = vec2(uv_grad.x*Jdx.x + uv_grad.y*Jdy.x,\n");
-            fsBuilder->codeAppend("\t                 uv_grad.x*Jdx.y + uv_grad.y*Jdy.y);\n");
+            fsBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fsBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("\tafwidth = " SK_DistanceFieldAAFactor "*length(grad);\n");
+            fsBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
         }
 
-        fsBuilder->codeAppend("\tvec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);\n");
+        fsBuilder->codeAppend("vec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);");
 
         // adjust based on gamma
         const char* textColorUniName = NULL;
