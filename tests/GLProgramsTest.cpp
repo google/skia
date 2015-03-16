@@ -337,6 +337,14 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
 }
 
 DEF_GPUTEST(GLPrograms, reporter, factory) {
+    // Set a locale that would cause shader compilation to fail because of , as decimal separator.
+    // skbug 3330
+#ifdef SK_BUILD_FOR_WIN
+    GrAutoLocaleSetter als("sv-SE");
+#else
+    GrAutoLocaleSetter als("sv_SE.UTF-8");
+#endif
+
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
         if (context) {

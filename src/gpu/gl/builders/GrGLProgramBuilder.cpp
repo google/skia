@@ -53,6 +53,8 @@ private:
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gpu) {
+    GrAutoLocaleSetter als("C");
+
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(args, gpu));
