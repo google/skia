@@ -83,7 +83,7 @@ protected:
 
             paint.setAntiAlias(true);
             paint.setShader(fShaders[fShaderIndex]);
-            paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+            paint.setFilterQuality(kLow_SkFilterQuality);
             SkRect r = { -150, -150, 150, 150 };
             canvas->drawRoundRect(r, 30, 30, paint);
         }

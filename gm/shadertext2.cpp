@@ -92,7 +92,7 @@ protected:
         fillPaint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&fillPaint);
         fillPaint.setTextSize(SkIntToScalar(kPointSize));
-        fillPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        fillPaint.setFilterQuality(kLow_SkFilterQuality);
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);

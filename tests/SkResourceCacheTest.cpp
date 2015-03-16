@@ -39,7 +39,7 @@ static bool test_scaled_image_cache_usage() {
     SkScalar yScaledSize = SkIntToScalar(kBitmapSize) * yScale;
     canvas->clipRect(SkRect::MakeLTRB(0, 0, xScaledSize, yScaledSize));
     SkPaint paint;
-    paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+    paint.setFilterQuality(kHigh_SkFilterQuality);
 
     canvas->drawBitmapRect(bitmap,
                            SkRect::MakeLTRB(0, 0, xScaledSize, yScaledSize),

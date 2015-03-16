@@ -257,13 +257,13 @@ protected:
         if (fFlags & kBicubic_Flag) {
             index |= 2;
         }
-        static const SkPaint::FilterLevel gLevels[] = {
-            SkPaint::kNone_FilterLevel,
-            SkPaint::kLow_FilterLevel,
-            SkPaint::kMedium_FilterLevel,
-            SkPaint::kHigh_FilterLevel
+        static const SkFilterQuality gQualitys[] = {
+            kNone_SkFilterQuality,
+            kLow_SkFilterQuality,
+            kMedium_SkFilterQuality,
+            kHigh_SkFilterQuality
         };
-        paint->setFilterLevel(gLevels[index]);
+        paint->setFilterQuality(gQualitys[index]);
 }
 
 private:

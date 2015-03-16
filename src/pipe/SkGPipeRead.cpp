@@ -682,7 +682,7 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
             case kReset_PaintOp: p->reset(); break;
             case kFlags_PaintOp: p->setFlags(data); break;
             case kColor_PaintOp: p->setColor(reader->readU32()); break;
-            case kFilterLevel_PaintOp: p->setFilterLevel((SkPaint::FilterLevel)data); break;
+            case kFilterLevel_PaintOp: p->setFilterQuality((SkFilterQuality)data); break;
             case kStyle_PaintOp: p->setStyle((SkPaint::Style)data); break;
             case kJoin_PaintOp: p->setStrokeJoin((SkPaint::Join)data); break;
             case kCap_PaintOp: p->setStrokeCap((SkPaint::Cap)data); break;

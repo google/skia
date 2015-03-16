@@ -39,20 +39,20 @@ public:
     SkBitmap    fBM;
     SkString    fName;
     bool        fBitmapMade;
-    SkPaint::FilterLevel fFilterLevel;
+    SkFilterQuality fFilterQuality;
 
-    DownsampleBitmapGM(SkPaint::FilterLevel filterLevel)
-        : fFilterLevel(filterLevel)
+    DownsampleBitmapGM(SkFilterQuality filterQuality)
+        : fFilterQuality(filterQuality)
     {
         this->setBGColor(0xFFDDDDDD);
         fBitmapMade = false;
     }
 
-    const char* filterLevelToString() {
-        static const char *filterLevelNames[] = {
+    const char* filterQualityToString() {
+        static const char *filterQualityNames[] = {
             "none", "low", "medium", "high"
         };
-        return filterLevelNames[fFilterLevel];
+        return filterQualityNames[fFilterQuality];
     }
 
 protected:
@@ -87,7 +87,7 @@ protected:
             matrix.setScale( curScale, curScale );
 
             SkPaint paint;
-            paint.setFilterLevel(fFilterLevel);
+            paint.setFilterQuality(fFilterQuality);
 
             canvas->save();
             canvas->translate(0, (SkScalar)curY);
@@ -107,10 +107,10 @@ private:
 
 class DownsampleBitmapTextGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapTextGM(float textSize, SkPaint::FilterLevel filterLevel)
-      : INHERITED(filterLevel), fTextSize(textSize)
+      DownsampleBitmapTextGM(float textSize, SkFilterQuality filterQuality)
+      : INHERITED(filterQuality), fTextSize(textSize)
         {
-            fName.printf("downsamplebitmap_text_%s_%.2fpt", this->filterLevelToString(), fTextSize);
+            fName.printf("downsamplebitmap_text_%s_%.2fpt", this->filterQualityToString(), fTextSize);
         }
 
   protected:
@@ -141,10 +141,10 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
 
 class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapCheckerboardGM(int size, int numChecks, SkPaint::FilterLevel filterLevel)
-      : INHERITED(filterLevel), fSize(size), fNumChecks(numChecks)
+      DownsampleBitmapCheckerboardGM(int size, int numChecks, SkFilterQuality filterQuality)
+      : INHERITED(filterQuality), fSize(size), fNumChecks(numChecks)
         {
-            fName.printf("downsamplebitmap_checkerboard_%s_%d_%d", this->filterLevelToString(), fSize, fNumChecks);
+            fName.printf("downsamplebitmap_checkerboard_%s_%d_%d", this->filterQualityToString(), fSize, fNumChecks);
         }
 
   protected:
@@ -160,10 +160,10 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
 
 class DownsampleBitmapImageGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapImageGM(const char filename[], SkPaint::FilterLevel filterLevel)
-      : INHERITED(filterLevel), fFilename(filename)
+      DownsampleBitmapImageGM(const char filename[], SkFilterQuality filterQuality)
+      : INHERITED(filterQuality), fFilename(filename)
         {
-            fName.printf("downsamplebitmap_image_%s_%s", this->filterLevelToString(), filename);
+            fName.printf("downsamplebitmap_image_%s_%s", this->filterQualityToString(), filename);
         }
 
   protected:
@@ -248,26 +248,26 @@ DEF_GM( return new ShowMipLevels; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kHigh_FilterLevel); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kHigh_FilterLevel); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kHigh_FilterLevel); )
+DEF_GM( return new DownsampleBitmapTextGM(72, kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                            SkPaint::kHigh_FilterLevel); )
+                                            kHigh_SkFilterQuality); )
 
-DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kMedium_FilterLevel); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kMedium_FilterLevel); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kMedium_FilterLevel); )
+DEF_GM( return new DownsampleBitmapTextGM(72, kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                           SkPaint::kMedium_FilterLevel); )
+                                           kMedium_SkFilterQuality); )
 
-DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kLow_FilterLevel); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kLow_FilterLevel); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kLow_FilterLevel); )
+DEF_GM( return new DownsampleBitmapTextGM(72, kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                           SkPaint::kLow_FilterLevel); )
+                                           kLow_SkFilterQuality); )
 
-DEF_GM( return new DownsampleBitmapTextGM(72, SkPaint::kNone_FilterLevel); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, SkPaint::kNone_FilterLevel); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", SkPaint::kNone_FilterLevel); )
+DEF_GM( return new DownsampleBitmapTextGM(72, kNone_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kNone_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kNone_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_132x132_12x12.astc",
-                                           SkPaint::kNone_FilterLevel); )
+                                           kNone_SkFilterQuality); )

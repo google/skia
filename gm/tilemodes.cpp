@@ -38,7 +38,7 @@ static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
                   SkShader::TileMode tmx, SkShader::TileMode tmy) {
     SkShader* shader = SkShader::CreateBitmapShader(bm, tmx, tmy);
     paint->setShader(shader)->unref();
-    paint->setFilterLevel(filter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+    paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
 static const SkColorType gColorTypes[] = {

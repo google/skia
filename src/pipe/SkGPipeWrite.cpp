@@ -1136,9 +1136,9 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
         *ptr++ = paint.getColor();
         base.setColor(paint.getColor());
     }
-    if (base.getFilterLevel() != paint.getFilterLevel()) {
-        *ptr++ = PaintOp_packOpData(kFilterLevel_PaintOp, paint.getFilterLevel());
-        base.setFilterLevel(paint.getFilterLevel());
+    if (base.getFilterQuality() != paint.getFilterQuality()) {
+        *ptr++ = PaintOp_packOpData(kFilterLevel_PaintOp, paint.getFilterQuality());
+        base.setFilterQuality(paint.getFilterQuality());
     }
     if (base.getStyle() != paint.getStyle()) {
         *ptr++ = PaintOp_packOpData(kStyle_PaintOp, paint.getStyle());

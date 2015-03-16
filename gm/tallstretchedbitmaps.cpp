@@ -87,7 +87,7 @@ protected:
                                                bmp.width(), bmp.height());
             SkRect dstRect = SkRect::MakeWH(SkIntToScalar(bmp.width()), 10.f * itemHeight);
             SkPaint paint;
-            paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+            paint.setFilterQuality(kLow_SkFilterQuality);
             canvas->drawBitmapRect(bmp, &subRect, dstRect, &paint);
             canvas->translate(SkIntToScalar(bmp.width() + 10), 0);
         }

@@ -156,20 +156,20 @@ private:
 // texture filtering mode
 class SkTexOverrideFilter : public SkDrawFilter {
 public:
-    SkTexOverrideFilter() : fFilterLevel(SkPaint::kNone_FilterLevel) {
+    SkTexOverrideFilter() : fFilterQuality(kNone_SkFilterQuality) {
     }
 
-    void setFilterLevel(SkPaint::FilterLevel filterLevel) {
-        fFilterLevel = filterLevel;
+    void setFilterQuality(SkFilterQuality filterQuality) {
+        fFilterQuality = filterQuality;
     }
 
     bool filter(SkPaint* p, Type) SK_OVERRIDE {
-        p->setFilterLevel(fFilterLevel);
+        p->setFilterQuality(fFilterQuality);
         return true;
     }
 
 protected:
-    SkPaint::FilterLevel fFilterLevel;
+    SkFilterQuality fFilterQuality;
 
 private:
     typedef SkDrawFilter INHERITED;
@@ -379,13 +379,13 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
     return fCommandVector;
 }
 
-void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level) {
+void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality quality) {
     if (NULL == fTexOverrideFilter) {
         fTexOverrideFilter = new SkTexOverrideFilter;
     }
 
     fOverrideTexFiltering = overrideTexFiltering;
-    fTexOverrideFilter->setFilterLevel(level);
+    fTexOverrideFilter->setFilterQuality(quality);
 }
 
 void SkDebugCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

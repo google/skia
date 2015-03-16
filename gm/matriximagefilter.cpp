@@ -23,9 +23,9 @@ protected:
     }
 
     void draw(SkCanvas* canvas, const SkRect& rect, const SkBitmap& bitmap,
-              const SkMatrix& matrix, SkPaint::FilterLevel filterLevel) {
+              const SkMatrix& matrix, SkFilterQuality filter) {
         SkAutoTUnref<SkImageFilter> imageFilter(
-            SkMatrixImageFilter::Create(matrix, filterLevel));
+            SkMatrixImageFilter::Create(matrix, filter));
         SkPaint paint;
         paint.setImageFilter(imageFilter.get());
         canvas->saveLayer(&rect, &paint);
@@ -68,18 +68,18 @@ protected:
         SkRect srcRect = SkRect::MakeWH(96, 96);
 
         canvas->translate(margin, margin);
-        draw(canvas, srcRect, checkerboard, matrix, SkPaint::kNone_FilterLevel);
+        draw(canvas, srcRect, checkerboard, matrix, kNone_SkFilterQuality);
 
         canvas->translate(srcRect.width() + margin, 0);
-        draw(canvas, srcRect, checkerboard, matrix, SkPaint::kLow_FilterLevel);
+        draw(canvas, srcRect, checkerboard, matrix, kLow_SkFilterQuality);
 
 #if 0
         // This may be causing Mac 10.6 to barf.
         canvas->translate(srcRect.width() + margin, 0);
-        draw(canvas, srcRect, checkerboard, matrix, SkPaint::kMedium_FilterLevel);
+        draw(canvas, srcRect, checkerboard, matrix, kMedium_SkFilterQuality);
 
         canvas->translate(srcRect.width() + margin, 0);
-        draw(canvas, srcRect, checkerboard, matrix, SkPaint::kHigh_FilterLevel);
+        draw(canvas, srcRect, checkerboard, matrix, kHigh_SkFilterQuality);
 #endif
     }
 

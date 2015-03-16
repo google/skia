@@ -65,10 +65,10 @@ protected:
                 SkPictureImageFilter::Create(fPicture, emptyRect));
             SkAutoTUnref<SkPictureImageFilter> pictureSourceResampled(
                 SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
-                    SkPaint::kLow_FilterLevel));
+                    kLow_SkFilterQuality));
             SkAutoTUnref<SkPictureImageFilter> pictureSourcePixelated(
                 SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
-                    SkPaint::kNone_FilterLevel));
+                    kNone_SkFilterQuality));
 
             canvas->save();
             // Draw the picture unscaled.

@@ -130,7 +130,7 @@ protected:
         canvas->drawRect(srcR, paint);
 
         for (int i = 0; i < 2; ++i) {
-            paint.setFilterLevel(1 == i ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+            paint.setFilterQuality(1 == i ? kLow_SkFilterQuality : kNone_SkFilterQuality);
             canvas->drawBitmapRectToRect(bitmap, &srcR, fDstR[i], &paint);
             canvas->drawRect(fDstR[i], paint);
         }
@@ -224,7 +224,7 @@ protected:
         paint.setColor(SK_ColorYELLOW);
 
         for (int i = 0; i < 2; ++i) {
-            paint.setFilterLevel(1 == i ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+            paint.setFilterQuality(1 == i ? kLow_SkFilterQuality : kNone_SkFilterQuality);
             canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR[i], &paint);
             canvas->drawRect(fDstR[i], paint);
         }

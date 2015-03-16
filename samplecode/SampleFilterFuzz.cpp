@@ -311,7 +311,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case MATRIX:
         filter = SkMatrixImageFilter::Create(make_matrix(),
-                                             (SkPaint::FilterLevel)R(4),
+                                             (SkFilterQuality)R(4),
                                              make_image_filter());
         break;
     case MATRIX_CONVOLUTION:

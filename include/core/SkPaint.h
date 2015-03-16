@@ -14,9 +14,6 @@
 #include "SkMatrix.h"
 #include "SkXfermode.h"
 
-// TODO: clean up Skia internals so we can remove this and only keep it for clients
-#define SK_SUPPORT_LEGACY_FILTERLEVEL_ENUM
-
 class SkAnnotation;
 class SkAutoGlyphCache;
 class SkColorFilter;

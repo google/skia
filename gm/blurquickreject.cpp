@@ -55,7 +55,7 @@ protected:
         hairlinePaint.setStrokeWidth(0);
 
         SkPaint blurPaint;
-        blurPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        blurPaint.setFilterQuality(kLow_SkFilterQuality);
         SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                                     SkBlurMask::ConvertRadiusToSigma(kBlurRadius));
         blurPaint.setMaskFilter(mf)->unref();

@@ -397,14 +397,14 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
     // are provided by the caller.
     bool useBicubic = false;
     GrTextureParams::FilterMode textureFilterMode;
-    switch(paint.getFilterLevel()) {
-        case SkPaint::kNone_FilterLevel:
+    switch(paint.getFilterQuality()) {
+        case kNone_SkFilterQuality:
             textureFilterMode = GrTextureParams::kNone_FilterMode;
             break;
-        case SkPaint::kLow_FilterLevel:
+        case kLow_SkFilterQuality:
             textureFilterMode = GrTextureParams::kBilerp_FilterMode;
             break;
-        case SkPaint::kMedium_FilterLevel: {
+        case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, this->getLocalMatrix());
             if (matrix.getMinScale() < SK_Scalar1) {
@@ -415,7 +415,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
             }
             break;
         }
-        case SkPaint::kHigh_FilterLevel: {
+        case kHigh_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, this->getLocalMatrix());
             useBicubic = GrBicubicEffect::ShouldUseBicubic(matrix, &textureFilterMode);

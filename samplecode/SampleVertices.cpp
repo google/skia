@@ -90,7 +90,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setDither(true);
-        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        paint.setFilterQuality(kLow_SkFilterQuality);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
             canvas->save();

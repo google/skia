@@ -116,27 +116,25 @@ DEF_TEST(Paint_cmap, reporter) {
 }
 
 // temparary api for bicubic, just be sure we can set/clear it
-DEF_TEST(Paint_filterlevel, reporter) {
+DEF_TEST(Paint_filterQuality, reporter) {
     SkPaint p0, p1;
 
-    REPORTER_ASSERT(reporter,
-                    SkPaint::kNone_FilterLevel == p0.getFilterLevel());
+    REPORTER_ASSERT(reporter, kNone_SkFilterQuality == p0.getFilterQuality());
 
-    static const SkPaint::FilterLevel gLevels[] = {
-        SkPaint::kNone_FilterLevel,
-        SkPaint::kLow_FilterLevel,
-        SkPaint::kMedium_FilterLevel,
-        SkPaint::kHigh_FilterLevel
+    static const SkFilterQuality gQualitys[] = {
+        kNone_SkFilterQuality,
+        kLow_SkFilterQuality,
+        kMedium_SkFilterQuality,
+        kHigh_SkFilterQuality
     };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gLevels); ++i) {
-        p0.setFilterLevel(gLevels[i]);
-        REPORTER_ASSERT(reporter, gLevels[i] == p0.getFilterLevel());
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
+        p0.setFilterQuality(gQualitys[i]);
+        REPORTER_ASSERT(reporter, gQualitys[i] == p0.getFilterQuality());
         p1 = p0;
-        REPORTER_ASSERT(reporter, gLevels[i] == p1.getFilterLevel());
+        REPORTER_ASSERT(reporter, gQualitys[i] == p1.getFilterQuality());
 
         p0.reset();
-        REPORTER_ASSERT(reporter,
-                        SkPaint::kNone_FilterLevel == p0.getFilterLevel());
+        REPORTER_ASSERT(reporter, kNone_SkFilterQuality == p0.getFilterQuality());
     }
 }
 
@@ -205,11 +203,11 @@ DEF_TEST(Paint_regression_cubic, reporter) {
 }
 
 DEF_TEST(Paint_flattening, reporter) {
-    const SkPaint::FilterLevel levels[] = {
-        SkPaint::kNone_FilterLevel,
-        SkPaint::kLow_FilterLevel,
-        SkPaint::kMedium_FilterLevel,
-        SkPaint::kHigh_FilterLevel,
+    const SkFilterQuality levels[] = {
+        kNone_SkFilterQuality,
+        kLow_SkFilterQuality,
+        kMedium_SkFilterQuality,
+        kHigh_SkFilterQuality,
     };
     const SkPaint::Hinting hinting[] = {
         SkPaint::kNo_Hinting,
@@ -251,7 +249,7 @@ DEF_TEST(Paint_flattening, reporter) {
     SkPaint paint;
     paint.setFlags(0x1234);
 
-    FOR_SETUP(i, levels, setFilterLevel)
+    FOR_SETUP(i, levels, setFilterQuality)
     FOR_SETUP(j, hinting, setHinting)
     FOR_SETUP(k, align, setTextAlign)
     FOR_SETUP(l, caps, setStrokeCap)

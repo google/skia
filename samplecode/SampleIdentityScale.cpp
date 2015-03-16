@@ -57,7 +57,7 @@ protected:
 
         paint.setAntiAlias(true);
         paint.setTextSize(48);
-        paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+        paint.setFilterQuality(kHigh_SkFilterQuality);
 
         SkTime::DateTime time;
         SkTime::GetDateTime(&time);

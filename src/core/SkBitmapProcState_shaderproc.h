@@ -21,7 +21,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
+    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
     const unsigned maxX = s.fBitmap->width() - 1;

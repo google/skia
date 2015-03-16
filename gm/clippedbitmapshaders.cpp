@@ -89,7 +89,7 @@ protected:
         paint.setShader(shader)->unref();
 
         if (fHQ) {
-            paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+            paint.setFilterQuality(kHigh_SkFilterQuality);
         }
 
         SkScalar margin = (SLIDE_SIZE / 3 - RECT_SIZE) / 2;

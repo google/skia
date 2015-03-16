@@ -393,7 +393,7 @@ protected:
         canvas->save();
         canvas->translate(SkIntToScalar(0), SkIntToScalar(5));
         paint.setAntiAlias(true);
-        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        paint.setFilterQuality(kLow_SkFilterQuality);
         // !!! draw through a clip
         paint.setColor(SK_ColorLTGRAY);
         paint.setStyle(SkPaint::kFill_Style);

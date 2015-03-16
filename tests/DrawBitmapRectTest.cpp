@@ -46,17 +46,17 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(200, 200));
     SkCanvas* canvas = surface->getCanvas();
 
-    const SkPaint::FilterLevel levels[] = {
-        SkPaint::kNone_FilterLevel,
-        SkPaint::kLow_FilterLevel,
-        SkPaint::kMedium_FilterLevel,
-        SkPaint::kHigh_FilterLevel,
+    const SkFilterQuality levels[] = {
+        kNone_SkFilterQuality,
+        kLow_SkFilterQuality,
+        kMedium_SkFilterQuality,
+        kHigh_SkFilterQuality,
     };
 
     SkPaint paint;
     canvas->scale(2, 2);    // need a scale, otherwise we may ignore filtering
     for (size_t i = 0; i < SK_ARRAY_COUNT(levels); ++i) {
-        paint.setFilterLevel(levels[i]);
+        paint.setFilterQuality(levels[i]);
         canvas->drawBitmap(bm, 0, 0, &paint);
     }
 }

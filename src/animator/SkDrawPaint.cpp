@@ -218,7 +218,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (fakeBold != -1)
         paint->setFakeBoldText(SkToBool(fakeBold));
     if (filterBitmap != -1)
-        paint->setFilterLevel(filterBitmap ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        paint->setFilterQuality(filterBitmap ? kLow_SkFilterQuality : kNone_SkFilterQuality);
     //  stroke is legacy; style setting if present overrides stroke
     if (stroke != -1)
         paint->setStyle(SkToBool(stroke) ? SkPaint::kStroke_Style : SkPaint::kFill_Style);

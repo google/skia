@@ -69,9 +69,9 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     // FIXME: this probably shouldn't be necessary, but drawBitmapRectToRect asserts
     // None filtering when it's translate-only
-    paint.setFilterLevel(
+    paint.setFilterQuality(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
-        SkPaint::kNone_FilterLevel : SkPaint::kHigh_FilterLevel);
+               kNone_SkFilterQuality : kHigh_SkFilterQuality);
     canvas.drawBitmapRectToRect(fBitmap, &fSrcRect, dstRect, &paint);
 
     *result = device.get()->accessBitmap(false);

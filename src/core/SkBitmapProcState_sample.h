@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkUtils.h"
 
 #if DSTSIZE==32
@@ -42,7 +42,7 @@ void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
                               const uint32_t* SK_RESTRICT xy,
                               int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(SkPaint::kNone_FilterLevel == s.fFilterLevel);
+    SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE
@@ -85,7 +85,7 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-    SkASSERT(SkPaint::kNone_FilterLevel == s.fFilterLevel);
+    SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE
@@ -139,7 +139,7 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
                           const uint32_t* SK_RESTRICT xy,
                            int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
+    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE
@@ -185,7 +185,7 @@ void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
                             int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
-    SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
+    SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
 #ifdef PREAMBLE

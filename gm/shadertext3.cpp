@@ -67,7 +67,7 @@ protected:
 
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
-        bmpPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        bmpPaint.setFilterQuality(kLow_SkFilterQuality);
         bmpPaint.setAlpha(0x80);
         canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
@@ -109,7 +109,7 @@ protected:
                 fillPaint.setAntiAlias(true);
                 sk_tool_utils::set_portable_typeface(&fillPaint);
                 fillPaint.setTextSize(SkIntToScalar(kPointSize));
-                fillPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
+                fillPaint.setFilterQuality(kLow_SkFilterQuality);
                 fillPaint.setShader(shader);
 
                 canvas->drawText(kText, kTextLen, 0, 0, fillPaint);

@@ -74,7 +74,7 @@ protected:
         canvas->scale(SK_Scalar1, scale);
 
         for (int k = 0; k < 2; k++) {
-            paint.setFilterLevel(k == 1 ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+            paint.setFilterQuality(k == 1 ? kLow_SkFilterQuality : kNone_SkFilterQuality);
             for (int j = 0; j < 2; j++) {
                 paint.setDither(j == 1);
                 for (int i = 0; i < fBitmapCount; i++) {
@@ -91,7 +91,7 @@ protected:
                         SkString s("dither=");
                         s.appendS32(paint.isDither());
                         s.append(" filter=");
-                        s.appendS32(paint.getFilterLevel() != SkPaint::kNone_FilterLevel);
+                        s.appendS32(paint.getFilterQuality() != kNone_SkFilterQuality);
                         canvas->drawText(s.c_str(), s.size(), x + W/2,
                                          y - p.getTextSize(), p);
                     }

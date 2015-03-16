@@ -47,7 +47,7 @@ static SkScalar draw_bm(SkCanvas* canvas, const SkBitmap& bm,
 
 static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x, SkPaint* p) {
     x += draw_bm(c, bm, x, 0, p);
-    p->setFilterLevel(SkPaint::kLow_FilterLevel);
+    p->setFilterQuality(kLow_SkFilterQuality);
     x += draw_bm(c, bm, x, 0, p);
     p->setDither(true);
     return x + draw_bm(c, bm, x, 0, p);

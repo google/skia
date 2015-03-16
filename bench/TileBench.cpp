@@ -83,8 +83,8 @@ protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
-        paint.setFilterLevel(fDoFilter ? SkPaint::kLow_FilterLevel
-                                       : SkPaint::kNone_FilterLevel);
+        paint.setFilterQuality(fDoFilter ? kLow_SkFilterQuality
+                                         : kNone_SkFilterQuality);
         if (fDoTrans) {
             paint.setColor(SkColorSetARGBMacro(0x80, 0xFF, 0xFF, 0xFF));
         }

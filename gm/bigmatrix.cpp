@@ -77,7 +77,7 @@ protected:
                                             &s);
         paint.setShader(shader)->unref();
         paint.setAntiAlias(false);
-        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        paint.setFilterQuality(kLow_SkFilterQuality);
         rect.setLTRB(pt.fX - small, pt.fY - small,
                      pt.fX + small, pt.fY + small);
         canvas->drawRect(rect, paint);

@@ -36,7 +36,7 @@ protected:
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
         SkAutoTUnref<SkImageFilter> imageFilter(
-            SkMatrixImageFilter::Create(matrix, SkPaint::kNone_FilterLevel));
+            SkMatrixImageFilter::Create(matrix, kNone_SkFilterQuality));
         paint.setImageFilter(imageFilter.get());
         const SkScalar tile_size = SkIntToScalar(100);
         SkRect bounds;

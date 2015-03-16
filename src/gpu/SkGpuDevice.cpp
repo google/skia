@@ -1220,19 +1220,19 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     viewM.preConcat(m);
 
     GrTextureParams params;
-    SkPaint::FilterLevel paintFilterLevel = paint.getFilterLevel();
+    SkFilterQuality paintFilterQuality = paint.getFilterQuality();
     GrTextureParams::FilterMode textureFilterMode;
 
     bool doBicubic = false;
 
-    switch(paintFilterLevel) {
-        case SkPaint::kNone_FilterLevel:
+    switch(paintFilterQuality) {
+        case kNone_SkFilterQuality:
             textureFilterMode = GrTextureParams::kNone_FilterMode;
             break;
-        case SkPaint::kLow_FilterLevel:
+        case kLow_SkFilterQuality:
             textureFilterMode = GrTextureParams::kBilerp_FilterMode;
             break;
-        case SkPaint::kMedium_FilterLevel:
+        case kMedium_SkFilterQuality:
             if (viewM.getMinScale() < SK_Scalar1) {
                 textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             } else {
@@ -1240,7 +1240,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                 textureFilterMode = GrTextureParams::kBilerp_FilterMode;
             }
             break;
-        case SkPaint::kHigh_FilterLevel:
+        case kHigh_SkFilterQuality:
             // Minification can look bad with the bicubic effect.
             doBicubic =
                 GrBicubicEffect::ShouldUseBicubic(viewM, &textureFilterMode);

@@ -109,7 +109,7 @@ protected:
         SkShader* s = SkShader::CreateBitmapShader(getBitmap(), fMode, fMode, &m);
 
         paint.setShader(s)->unref();
-        paint.setFilterLevel(fDoFilter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        paint.setFilterQuality(fDoFilter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
 

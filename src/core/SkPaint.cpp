@@ -1896,7 +1896,7 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     paint->setFlags(packed >> 16);
     paint->setHinting((SkPaint::Hinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
     paint->setTextAlign((SkPaint::Align)((packed >> 12) & BPF_Mask(kAlign_BPF)));
-    paint->setFilterLevel((SkPaint::FilterLevel)((packed >> 10) & BPF_Mask(kFilter_BPF)));
+    paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
 }
 
@@ -1937,7 +1937,7 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     *ptr++ = this->getColor();
 
     *ptr++ = pack_paint_flags(this->getFlags(), this->getHinting(), this->getTextAlign(),
-                              this->getFilterLevel(), flatFlags);
+                              this->getFilterQuality(), flatFlags);
     *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
                     this->getStyle(), this->getTextEncoding());
 
@@ -2257,8 +2257,8 @@ void SkPaint::toString(SkString* str) const {
     str->append(")</dd>");
 
     str->append("<dt>FilterLevel:</dt><dd>");
-    static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
-    str->append(gFilterLevelStrings[this->getFilterLevel()]);
+    static const char* gFilterQualityStrings[] = { "None", "Low", "Medium", "High" };
+    str->append(gFilterQualityStrings[this->getFilterQuality()]);
     str->append("</dd>");
 
     str->append("<dt>TextAlign:</dt><dd>");

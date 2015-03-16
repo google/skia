@@ -477,7 +477,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
 //    test_int_tileprocs();
     // check for our special case when there is no scale/affine/perspective
-    if (trivial_matrix && SkPaint::kNone_FilterLevel == fFilterLevel) {
+    if (trivial_matrix && kNone_SkFilterQuality == fFilterLevel) {
         fIntTileProcY = choose_int_tile_proc(fTileModeY);
         switch (fTileModeX) {
             case SkShader::kClamp_TileMode:
@@ -490,7 +490,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_m
     }
 
     int index = 0;
-    if (fFilterLevel != SkPaint::kNone_FilterLevel) {
+    if (fFilterLevel != kNone_SkFilterQuality) {
         index = 1;
     }
     if (fInvType & SkMatrix::kPerspective_Mask) {

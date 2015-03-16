@@ -58,7 +58,7 @@ protected:
         SkPaint paint;
 
         paint.setAntiAlias(true);
-        paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+        paint.setFilterQuality(kHigh_SkFilterQuality);
 
         SkMatrix mat;
         mat.setScale(121.f/360.f, 93.f/288.f);

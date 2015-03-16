@@ -16,33 +16,33 @@
 #include "SkRect.h"
 
 SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
-                                         SkPaint::FilterLevel filterLevel,
+                                         SkFilterQuality filterQuality,
                                          SkImageFilter* input,
                                          uint32_t uniqueID)
   : INHERITED(1, &input, NULL, uniqueID),
     fTransform(transform),
-    fFilterLevel(filterLevel) {
+    fFilterQuality(filterQuality) {
 }
 
 SkMatrixImageFilter* SkMatrixImageFilter::Create(const SkMatrix& transform,
-                                                 SkPaint::FilterLevel filterLevel,
+                                                 SkFilterQuality filterQuality,
                                                  SkImageFilter* input,
                                                  uint32_t uniqueID) {
-    return SkNEW_ARGS(SkMatrixImageFilter, (transform, filterLevel, input, uniqueID));
+    return SkNEW_ARGS(SkMatrixImageFilter, (transform, filterQuality, input, uniqueID));
 }
 
 SkFlattenable* SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    SkPaint::FilterLevel level = static_cast<SkPaint::FilterLevel>(buffer.readInt());
-    return Create(matrix, level, common.getInput(0), common.uniqueID());
+    SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());
+    return Create(matrix, quality, common.getInput(0), common.uniqueID());
 }
 
 void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeMatrix(fTransform);
-    buffer.writeInt(fFilterLevel);
+    buffer.writeInt(fFilterQuality);
 }
 
 SkMatrixImageFilter::~SkMatrixImageFilter() {
@@ -84,7 +84,7 @@ bool SkMatrixImageFilter::onFilterImage(Proxy* proxy,
     SkPaint paint;
 
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    paint.setFilterLevel(fFilterLevel);
+    paint.setFilterQuality(fFilterQuality);
     canvas.drawBitmap(src, srcRect.x(), srcRect.y(), &paint);
 
     *result = device.get()->accessBitmap(false);
@@ -142,7 +142,7 @@ void SkMatrixImageFilter::toString(SkString* str) const {
 
     str->append("<dt>FilterLevel:</dt><dd>");
     static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
-    str->append(gFilterLevelStrings[fFilterLevel]);    
+    str->append(gFilterLevelStrings[fFilterQuality]);
     str->append("</dd>");
 
     str->appendf(")");

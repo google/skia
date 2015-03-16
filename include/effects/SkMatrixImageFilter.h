@@ -29,9 +29,17 @@ public:
      */
 
     static SkMatrixImageFilter* Create(const SkMatrix& transform,
-                                       SkPaint::FilterLevel,
+                                       SkFilterQuality,
                                        SkImageFilter* input = NULL,
                                        uint32_t uniqueID = 0);
+#ifdef SK_SUPPORT_LEGACY_FILTERLEVEL_ENUM
+    static SkMatrixImageFilter* Create(const SkMatrix& transform,
+                                       SkPaint::FilterLevel level,
+                                       SkImageFilter* input = NULL,
+                                       uint32_t uniqueID = 0) {
+        return Create(transform, SkFilterQuality(level), input, uniqueID);
+    }
+#endif
     virtual ~SkMatrixImageFilter();
 
     void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
@@ -41,7 +49,7 @@ public:
 
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
-                        SkPaint::FilterLevel,
+                        SkFilterQuality,
                         SkImageFilter* input,
                         uint32_t uniqueID);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
@@ -53,7 +61,7 @@ protected:
 
 private:
     SkMatrix              fTransform;
-    SkPaint::FilterLevel  fFilterLevel;
+    SkFilterQuality       fFilterQuality;
     typedef SkImageFilter INHERITED;
 };
 

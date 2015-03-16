@@ -276,7 +276,7 @@ protected:
 
         SkPaint paint;
         paint.setDither(true);
-        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        paint.setFilterQuality(kLow_SkFilterQuality);
 
         canvas->translate(DX, DY);
 

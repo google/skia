@@ -927,15 +927,15 @@ static int lpaint_getHinting(lua_State* L) {
     return 1;
 }
 
-static int lpaint_getFilterLevel(lua_State* L) {
-    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getFilterLevel());
+static int lpaint_getFilterQuality(lua_State* L) {
+    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getFilterQuality());
     return 1;
 }
 
-static int lpaint_setFilterLevel(lua_State* L) {
+static int lpaint_setFilterQuality(lua_State* L) {
     int level = lua2int_def(L, 2, -1);
     if (level >= 0 && level <= 3) {
-        get_obj<SkPaint>(L, 1)->setFilterLevel((SkPaint::FilterLevel)level);
+        get_obj<SkPaint>(L, 1)->setFilterQuality((SkFilterQuality)level);
     }
     return 0;
 }
@@ -1131,8 +1131,8 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setAntiAlias", lpaint_setAntiAlias },
     { "isDither", lpaint_isDither },
     { "setDither", lpaint_setDither },
-    { "getFilterLevel", lpaint_getFilterLevel },
-    { "setFilterLevel", lpaint_setFilterLevel },
+    { "getFilterQuality", lpaint_getFilterQuality },
+    { "setFilterQuality", lpaint_setFilterQuality },
     { "isUnderlineText", lpaint_isUnderlineText },
     { "isStrikeThruText", lpaint_isStrikeThruText },
     { "isFakeBoldText", lpaint_isFakeBoldText },

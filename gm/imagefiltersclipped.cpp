@@ -91,7 +91,7 @@ protected:
             SkDilateImageFilter::Create(2, 2, checkerboard.get()),
             SkErodeImageFilter::Create(2, 2, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(-16), SkIntToScalar(32)),
-            SkMatrixImageFilter::Create(resizeMatrix, SkPaint::kNone_FilterLevel),
+            SkMatrixImageFilter::Create(resizeMatrix, kNone_SkFilterQuality),
             SkRectShaderImageFilter::Create(noise),
         };
 

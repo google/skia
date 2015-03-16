@@ -175,11 +175,11 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawTheImage(SkCanvas* canvas, const SkISize& size, SkPaint::FilterLevel filter,
+    void drawTheImage(SkCanvas* canvas, const SkISize& size, SkFilterQuality filter,
                       SkScalar dx, SkScalar dy) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setFilterLevel(filter);
+        paint.setFilterQuality(filter);
 
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -197,7 +197,7 @@ protected:
         }
     }
 
-    void drawHere(SkCanvas* canvas, SkPaint::FilterLevel filter, SkScalar dx, SkScalar dy) {
+    void drawHere(SkCanvas* canvas, SkFilterQuality filter, SkScalar dx, SkScalar dy) {
         SkCanvas* origCanvas = canvas;
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -253,7 +253,7 @@ protected:
                 SkRect r = SkRect::MakeWH(fCell.width(), fCell.height());
                 r.inset(4, 4);
                 canvas->clipRect(r);
-                this->drawHere(canvas, SkPaint::FilterLevel(index), trans[0], trans[1]);
+                this->drawHere(canvas, SkFilterQuality(index), trans[0], trans[1]);
             }
         }
 

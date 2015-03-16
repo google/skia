@@ -64,11 +64,11 @@ SkSettingsWidget::SkSettingsWidget() : QFrame()
     fVerticalLayout.addRow(&fGLGroup);
 #endif
 
-    fFilterCombo.addItem("As encoded", QVariant(SkPaint::kNone_FilterLevel));
-    fFilterCombo.addItem("None", QVariant(SkPaint::kNone_FilterLevel));
-    fFilterCombo.addItem("Low", QVariant(SkPaint::kLow_FilterLevel));
-    fFilterCombo.addItem("Medium", QVariant(SkPaint::kMedium_FilterLevel));
-    fFilterCombo.addItem("High", QVariant(SkPaint::kHigh_FilterLevel));
+    fFilterCombo.addItem("As encoded", QVariant(kNone_SkFilterQuality));
+    fFilterCombo.addItem("None", QVariant(kNone_SkFilterQuality));
+    fFilterCombo.addItem("Low", QVariant(kLow_SkFilterQuality));
+    fFilterCombo.addItem("Medium", QVariant(kMedium_SkFilterQuality));
+    fFilterCombo.addItem("High", QVariant(kHigh_SkFilterQuality));
     connect(&fFilterCombo, SIGNAL(activated(int)), this, SIGNAL(texFilterSettingsChanged()));
 
     fVerticalLayout.addRow("Filtering", &fFilterCombo);

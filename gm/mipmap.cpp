@@ -41,7 +41,7 @@ static void test_mip(SkCanvas* canvas) {
 
     canvas->translate(20, 20);
     for (int i = 0; i < 4; ++i) {
-        paint.setFilterLevel(SkPaint::FilterLevel(i));
+        paint.setFilterQuality(SkFilterQuality(i));
         canvas->drawImageRect(img, NULL, dst, &paint);
         canvas->translate(0, 20);
     }

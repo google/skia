@@ -18,17 +18,17 @@ SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, uint32_t un
     , fPicture(SkSafeRef(picture))
     , fCropRect(picture ? picture->cullRect() : SkRect::MakeEmpty())
     , fPictureResolution(kDeviceSpace_PictureResolution) 
-    , fFilterLevel(SkPaint::kLow_FilterLevel) {
+    , fFilterQuality(kLow_SkFilterQuality) {
 }
 
 SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect,
                                            uint32_t uniqueID, PictureResolution pictureResolution,
-                                           SkPaint::FilterLevel filterLevel)
+                                           SkFilterQuality filterQuality)
     : INHERITED(0, 0, NULL, uniqueID)
     , fPicture(SkSafeRef(picture))
     , fCropRect(cropRect)
     , fPictureResolution(pictureResolution)
-    , fFilterLevel(filterLevel) {
+    , fFilterQuality(filterQuality) {
 }
 
 SkPictureImageFilter::~SkPictureImageFilter() {
@@ -59,13 +59,13 @@ SkFlattenable* SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
 
     if (kLocalSpace_PictureResolution == pictureResolution) {
         //filterLevel is only serialized if pictureResolution is LocalSpace
-        SkPaint::FilterLevel filterLevel;
+        SkFilterQuality filterQuality;
         if (buffer.isVersionLT(SkReadBuffer::kPictureImageFilterLevel_Version)) {
-            filterLevel = SkPaint::kLow_FilterLevel;
+            filterQuality = kLow_SkFilterQuality;
         } else {
-            filterLevel = (SkPaint::FilterLevel)buffer.readInt();
+            filterQuality = (SkFilterQuality)buffer.readInt();
         }
-        return CreateForLocalSpace(picture, cropRect, filterLevel);    
+        return CreateForLocalSpace(picture, cropRect, filterQuality);
     }
     return Create(picture, cropRect);
 }
@@ -86,7 +86,7 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fCropRect);
     buffer.writeInt(fPictureResolution);
     if (kLocalSpace_PictureResolution == fPictureResolution) {
-        buffer.writeInt(fFilterLevel);
+        buffer.writeInt(fFilterQuality);
     }
 }
 
@@ -168,7 +168,7 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(Proxy* proxy, SkBaseDevi
     canvas.translate(-SkIntToScalar(deviceBounds.fLeft), -SkIntToScalar(deviceBounds.fTop));
     canvas.concat(ctx.ctm());
     SkPaint paint;
-    paint.setFilterLevel(fFilterLevel);
+    paint.setFilterQuality(fFilterQuality);
     canvas.drawBitmap(localDevice.get()->accessBitmap(false), SkIntToScalar(localIBounds.fLeft),
                       SkIntToScalar(localIBounds.fTop), &paint);
     //canvas.drawPicture(fPicture);
