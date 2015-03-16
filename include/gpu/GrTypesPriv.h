@@ -296,7 +296,7 @@ public:
         setlocale(LC_ALL, fOldLocale);
         _configthreadlocale(fOldPerThreadLocale);
 #elif !defined(SK_BUILD_FOR_ANDROID)
-        SkASSERT(uselocale(fOldLocale) == fLocale);
+        uselocale(fOldLocale);
         freelocale(fLocale);
 #endif
     }
