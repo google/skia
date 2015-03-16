@@ -53,6 +53,7 @@
       '<(skia_src_path)/gpu/GrAARectRenderer.cpp',
       '<(skia_src_path)/gpu/GrAARectRenderer.h',
       '<(skia_src_path)/gpu/GrAddPathRenderers_default.cpp',
+      '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',
       '<(skia_src_path)/gpu/GrAtlas.cpp',
       '<(skia_src_path)/gpu/GrAtlas.h',

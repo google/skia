@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
+#include "GrAutoLocaleSetter.h"
 #include "GrContextFactory.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"

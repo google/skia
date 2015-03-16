@@ -14,6 +14,7 @@
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLUniformHandle.h"
 #include "gl/GrGLXferProcessor.h"
+#include "GrAutoLocaleSetter.h"
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
 #include "GrTexture.h"
