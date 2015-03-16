@@ -201,19 +201,24 @@ protected:
             paint.setLCDRenderText(false);
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.0f, 0.151515f);
-            paint.setTextSize(32);
+            paint.setTextSize(SkIntToScalar(32));
             canvas->drawText(text, textLen, 745, 70, paint);
         }
         {
             paint.setLCDRenderText(true);
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.5f, 0.0f);
-            paint.setTextSize(32);
+            paint.setTextSize(SkIntToScalar(32));
             canvas->drawText(text, textLen, 580, 230, paint);
         }
 
         // check color emoji
         paint.setTypeface(fTypeface);
+#ifdef SK_BUILD_FOR_ANDROID
+        paint.setTextSize(SkIntToScalar(19));
+#else
+        paint.setTextSize(SkIntToScalar(22));
+#endif
         canvas->drawText(text, textLen, 670, 100, paint);
 
 #if SK_SUPPORT_GPU

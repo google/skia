@@ -100,17 +100,15 @@ public:
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
             fsBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance), dFdy(distance));");
-            if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
-                // this is to compensate for the Adreno, which likes to drop tiles on division by 0
-                fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
-                fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-                fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
-                fsBuilder->codeAppend("} else {");
-                fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
-                fsBuilder->codeAppend("}");
-            } else {
-                fsBuilder->codeAppend("dist_grad = normalize(dist_grad);\n");
-            }
+            // the length of the gradient may be 0, so we need to check for this
+            // this also compensates for the Adreno, which likes to drop tiles on division by 0
+            fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+            fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
+            fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+            fsBuilder->codeAppend("} else {");
+            fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
+            fsBuilder->codeAppend("}");
+
             fsBuilder->codeAppend("vec2 Jdx = dFdx(st);");
             fsBuilder->codeAppend("vec2 Jdy = dFdy(st);");
             fsBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
@@ -387,17 +385,15 @@ public:
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
             fsBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance), dFdy(distance));");
-            if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
-                // this is to compensate for the Adreno, which likes to drop tiles on division by 0
-                fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
-                fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-                fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
-                fsBuilder->codeAppend("} else {");
-                fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
-                fsBuilder->codeAppend("}");
-            } else {
-                fsBuilder->codeAppend("dist_grad = normalize(dist_grad);");
-            }
+            // the length of the gradient may be 0, so we need to check for this
+            // this also compensates for the Adreno, which likes to drop tiles on division by 0
+            fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+            fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
+            fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+            fsBuilder->codeAppend("} else {");
+            fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
+            fsBuilder->codeAppend("}");
+
             fsBuilder->codeAppend("vec2 Jdx = dFdx(st);");
             fsBuilder->codeAppend("vec2 Jdy = dFdy(st);");
             fsBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
@@ -671,17 +667,14 @@ public:
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
             fsBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance.r), dFdy(distance.r));");
-            if (args.fPB->ctxInfo().caps()->dropsTileOnZeroDivide()) {
-                // this is to compensate for the Adreno, which likes to drop tiles on division by 0
-                fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
-                fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-                fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
-                fsBuilder->codeAppend("} else {");
-                fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
-                fsBuilder->codeAppend("}");
-            } else {
-                fsBuilder->codeAppend("dist_grad = normalize(dist_grad);\n");
-            }
+            // the length of the gradient may be 0, so we need to check for this
+            // this also compensates for the Adreno, which likes to drop tiles on division by 0
+            fsBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+            fsBuilder->codeAppend("if (dg_len2 < 0.0001) {");
+            fsBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+            fsBuilder->codeAppend("} else {");
+            fsBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
+            fsBuilder->codeAppend("}");
             fsBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
             fsBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
