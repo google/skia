@@ -222,7 +222,9 @@ bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm, SkColorType pre
     SkAutoTDelete<SkStreamRewindable> stream(SkStream::NewFromFile(file));
     if (stream.get()) {
         if (SkImageDecoder::DecodeStream(stream, bm, pref, mode, format)) {
-            bm->pixelRef()->setURI(file);
+            if (SkPixelRef* pr = bm->pixelRef()) {
+                pr->setURI(file);
+            }
             return true;
         }
     }
