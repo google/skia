@@ -166,9 +166,7 @@ private:
     void setTextureUnit(int unitIdx);
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
-    // TODO we only have need to know if this is a line draw for flushing AA state on some buggy
-    // hardware.  Evaluate if this is really necessary anymore
-    bool flushGLState(const DrawArgs&, bool isLineDraw);
+    bool flushGLState(const DrawArgs&);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start
@@ -251,7 +249,7 @@ private:
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(const GrStencilSettings&);
-    void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool isLineDraw);
+    void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,

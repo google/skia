@@ -74,7 +74,8 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
     fClip = clip;
 
     this->setState(GrPipelineBuilder::kDither_StateBit, paint.isDither());
-    this->setState(GrPipelineBuilder::kHWAntialias_StateBit, paint.isAntiAlias());
+    this->setState(GrPipelineBuilder::kHWAntialias_StateBit,
+                   rt->isMultisampled() && paint.isAntiAlias());
 
     fColorProcInfoValid = false;
     fCoverageProcInfoValid = false;

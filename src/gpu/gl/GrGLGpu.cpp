@@ -1387,7 +1387,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
     this->disableScissor();
 }
 
-bool GrGLGpu::flushGLState(const DrawArgs& args, bool isLineDraw) {
+bool GrGLGpu::flushGLState(const DrawArgs& args) {
     GrXferProcessor::BlendInfo blendInfo;
     const GrPipeline& pipeline = *args.fPipeline;
     args.fPipeline->getXferProcessor()->getBlendInfo(&blendInfo);
@@ -1419,7 +1419,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args, bool isLineDraw) {
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), isLineDraw);
+    this->flushHWAAState(glRT, pipeline.isHWAntialiasState());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -1873,7 +1873,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
 #endif
 
 void GrGLGpu::onDraw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
-    if (!this->flushGLState(args, GrIsPrimTypeLines(info.primitiveType()))) {
+    if (!this->flushGLState(args)) {
         return;
     }
 
@@ -1918,7 +1918,7 @@ void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
     SkISize size = SkISize::Make(rt->width(), rt->height());
     this->glPathRendering()->setProjectionMatrix(*state.fViewMatrix, size, rt->origin());
     this->flushScissor(*state.fScissor, rt->getViewport(), rt->origin());
-    this->flushHWAAState(rt, state.fUseHWAA, false);
+    this->flushHWAAState(rt, state.fUseHWAA);
     this->flushRenderTarget(rt, NULL);
 
     fPathRendering->stencilPath(path, *state.fStencil);
@@ -1926,7 +1926,7 @@ void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
 
 void GrGLGpu::onDrawPath(const DrawArgs& args, const GrPath* path,
                          const GrStencilSettings& stencil) {
-    if (!this->flushGLState(args, false)) {
+    if (!this->flushGLState(args)) {
         return;
     }
     fPathRendering->drawPath(path, stencil);
@@ -1940,7 +1940,7 @@ void GrGLGpu::onDrawPaths(const DrawArgs& args,
                           GrDrawTarget::PathTransformType transformType,
                            int count,
                            const GrStencilSettings& stencil) {
-    if (!this->flushGLState(args, false)) {
+    if (!this->flushGLState(args)) {
         return;
     }
     fPathRendering->drawPaths(pathRange, indices, indexType, transformValues,
@@ -2075,28 +2075,19 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
     }
 }
 
-void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool isLineDraw) {
-// At least some ATI linux drivers will render GL_LINES incorrectly when MSAA state is enabled but
-// the target is not multisampled. Single pixel wide lines are rendered thicker than 1 pixel wide.
-#if 0
-    // Replace RT_HAS_MSAA with this definition once this driver bug is no longer a relevant concern
-    #define RT_HAS_MSAA rt->isMultisampled()
-#else
-    #define RT_HAS_MSAA (rt->isMultisampled() || isLineDraw)
-#endif
+void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
+    SkASSERT(!useHWAA || rt->isMultisampled());
 
     if (kGL_GrGLStandard == this->glStandard()) {
-        if (RT_HAS_MSAA) {
-            if (useHWAA) {
-                if (kYes_TriState != fMSAAEnabled) {
-                    GL_CALL(Enable(GR_GL_MULTISAMPLE));
-                    fMSAAEnabled = kYes_TriState;
-                }
-            } else {
-                if (kNo_TriState != fMSAAEnabled) {
-                    GL_CALL(Disable(GR_GL_MULTISAMPLE));
-                    fMSAAEnabled = kNo_TriState;
-                }
+        if (useHWAA) {
+            if (kYes_TriState != fMSAAEnabled) {
+                GL_CALL(Enable(GR_GL_MULTISAMPLE));
+                fMSAAEnabled = kYes_TriState;
+            }
+        } else {
+            if (kNo_TriState != fMSAAEnabled) {
+                GL_CALL(Disable(GR_GL_MULTISAMPLE));
+                fMSAAEnabled = kNo_TriState;
             }
         }
     }
