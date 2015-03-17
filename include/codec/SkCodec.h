@@ -94,8 +94,8 @@ protected:
     }
 
 private:
-    const SkImageInfo fInfo;
+    const SkImageInfo       fInfo;
     SkAutoTDelete<SkStream> fStream;
-    bool fNeedsRewind;
+    bool                    fNeedsRewind;
 };
 #endif // SkCodec_DEFINED

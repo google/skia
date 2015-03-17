@@ -14,6 +14,7 @@
     #
     'skia_for_chromium_defines': [
       'SK_LEGACY_DRAWPICTURECALLBACK',
+      'SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS',
     ],
   },
 }

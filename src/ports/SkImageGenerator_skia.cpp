@@ -53,6 +53,7 @@ protected:
     }
 
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                               const Options&,
                                SkPMColor ctableEntries[], int* ctableCount) SK_OVERRIDE {
         SkMemoryStream stream(fData->data(), fData->size(), false);
         SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,

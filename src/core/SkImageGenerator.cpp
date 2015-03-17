@@ -16,8 +16,8 @@ bool SkImageGenerator::getInfo(SkImageInfo* info) {
 }
 
 SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
-                                                     size_t rowBytes, SkPMColor ctable[],
-                                                     int* ctableCount) {
+                                                     size_t rowBytes, const Options* options,
+                                                     SkPMColor ctable[], int* ctableCount) {
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
@@ -40,7 +40,12 @@ SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, vo
         ctable = NULL;
     }
 
-    const Result result = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
+    // Default options.
+    Options optsStorage;
+    if (NULL == options) {
+        options = &optsStorage;
+    }
+    const Result result = this->onGetPixels(info, pixels, rowBytes, *options, ctable, ctableCount);
 
     if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
         SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
@@ -54,7 +59,7 @@ SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, vo
     if (kIndex_8_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
-    return this->getPixels(info, pixels, rowBytes, NULL, NULL);
+    return this->getPixels(info, pixels, rowBytes, NULL, NULL, NULL);
 }
 
 bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
@@ -119,7 +124,19 @@ bool SkImageGenerator::onGetInfo(SkImageInfo*) {
     return false;
 }
 
+#ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
 SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,
                                                        SkPMColor*, int*) {
     return kUnimplemented;
+}
+#endif
+
+SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst,
+                                                       size_t rb, const Options& options,
+                                                       SkPMColor* colors, int* colorCount) {
+#ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
+    return this->onGetPixels(info, dst, rb, colors, colorCount);
+#else
+    return kUnimplemented;
+#endif
 }

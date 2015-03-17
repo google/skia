@@ -8,7 +8,7 @@
 #ifndef SkSwizzler_DEFINED
 #define SkSwizzler_DEFINED
 
-#include "SkTypes.h"
+#include "SkCodec.h"
 #include "SkColor.h"
 #include "SkImageInfo.h"
 
@@ -113,19 +113,20 @@ public:
 
     /**
      *  Create a new SkSwizzler.
-     *  @param sc SrcConfig
-     *  @param info dimensions() describe both the src and the dst.
+     *  @param SrcConfig Description of the format of the source.
+     *  @param SkImageInfo dimensions() describe both the src and the dst.
      *              Other fields describe the dst.
      *  @param dst Destination to write pixels. Must match info and dstRowBytes
      *  @param dstRowBytes rowBytes for dst.
-     *  @param skipZeroes Whether to skip writing zeroes. Useful if dst is
-     *              zero-initialized. The implementation may or may not respect this.
+     *  @param ZeroInitialized Whether dst is zero-initialized. The
+                               implementation may choose to skip writing zeroes
+     *                         if set to kYes_ZeroInitialized.
      *  @return A new SkSwizzler or NULL on failure.
      */
-    static SkSwizzler* CreateSwizzler(SrcConfig sc, const SkPMColor* ctable,
-                                      const SkImageInfo& info, void* dst,
-                                      size_t dstRowBytes, bool skipZeroes);
-
+    static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
+                                      const SkImageInfo&, void* dst,
+                                      size_t dstRowBytes,
+                                      SkImageGenerator::ZeroInitialized);
     /**
      *  Swizzle the next line. Call height times, once for each row of source.
      *  @param src The next row of the source data.

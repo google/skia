@@ -56,7 +56,7 @@ protected:
      *
      */
     virtual Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                               size_t dstRowBytes, SkPMColor*,
+                               size_t dstRowBytes, const Options&, SkPMColor*,
                                int*) SK_OVERRIDE;
 
 private:

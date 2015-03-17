@@ -28,7 +28,7 @@ protected:
         *info = SkImageInfo::MakeN32Premul(100, 100);
         return true;
     }
-    // default onGetPixels() returns false, which is what we want.
+    // default onGetPixels() returns kUnimplemented, which is what we want.
 };
 
 // crbug.com/295895

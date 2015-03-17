@@ -199,7 +199,8 @@ static bool swizzle_rgba_to_n32_unpremul_skipZ(void* SK_RESTRICT dstRow,
 SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
                                        const SkImageInfo& info, void* dst,
-                                       size_t dstRowBytes, bool skipZeroes) {
+                                       size_t dstRowBytes,
+                                       SkImageGenerator::ZeroInitialized zeroInit) {
     if (kUnknown_SkColorType == info.colorType()) {
         return NULL;
     }
@@ -226,7 +227,8 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         case kIndex:
             switch (info.colorType()) {
                 case kN32_SkColorType:
-                    if (skipZeroes) {
+                    // We assume the color premultiplied ctable (or not) as desired.
+                    if (SkImageGenerator::kYes_ZeroInitialized == zeroInit) {
                         proc = &swizzle_index_to_n32_skipZ;
                     } else {
                         proc = &swizzle_index_to_n32;
@@ -269,10 +271,10 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (info.colorType()) {
                 case kN32_SkColorType:
                     if (info.alphaType() == kUnpremul_SkAlphaType) {
-                        // Respect skipZeroes?
+                        // Respect zeroInit?
                         proc = &swizzle_rgba_to_n32_unpremul;
                     } else {
-                        if (skipZeroes) {
+                        if (SkImageGenerator::kYes_ZeroInitialized == zeroInit) {
                             proc = &swizzle_rgba_to_n32_premul_skipZ;
                         } else {
                             proc = &swizzle_rgba_to_n32_premul;

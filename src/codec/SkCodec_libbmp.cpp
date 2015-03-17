@@ -502,6 +502,7 @@ SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
  */
 SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
+                                        const Options&,
                                         SkPMColor*, int*) {
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
@@ -844,7 +845,7 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
 
     // Create swizzler
     SkSwizzler* swizzler = SkSwizzler::CreateSwizzler(config, fColorTable.get(),
-            dstInfo, dst, dstRowBytes, false);
+            dstInfo, dst, dstRowBytes, SkImageGenerator::kNo_ZeroInitialized);
 
     // Allocate space for a row buffer and a source for the swizzler
     SkAutoTDeleteArray<uint8_t> srcBuffer(SkNEW_ARRAY(uint8_t, rowBytes));

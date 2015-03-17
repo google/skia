@@ -190,6 +190,7 @@ protected:
     }
 
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                               const Options&,
                                SkPMColor ctable[], int* ctableCount) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, pixels != NULL);
         REPORTER_ASSERT(fReporter, rowBytes >= info.minRowBytes());

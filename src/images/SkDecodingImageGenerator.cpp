@@ -43,7 +43,7 @@ protected:
         return true;
     }
     virtual Result onGetPixels(const SkImageInfo& info,
-                               void* pixels, size_t rowBytes,
+                               void* pixels, size_t rowBytes, const Options&,
                                SkPMColor ctable[], int* ctableCount) SK_OVERRIDE;
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace) SK_OVERRIDE;
@@ -148,7 +148,8 @@ SkData* DecodingImageGenerator::onRefEncodedData() {
 }
 
 SkImageGenerator::Result DecodingImageGenerator::onGetPixels(const SkImageInfo& info,
-        void* pixels, size_t rowBytes, SkPMColor ctableEntries[], int* ctableCount) {
+        void* pixels, size_t rowBytes, const Options& options, SkPMColor ctableEntries[],
+        int* ctableCount) {
     if (fInfo != info) {
         // The caller has specified a different info.  This is an
         // error for this kind of SkImageGenerator.  Use the Options

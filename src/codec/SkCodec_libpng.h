@@ -22,7 +22,8 @@ public:
     static SkCodec* NewFromStream(SkStream*);
     static bool IsPng(SkStream*);
 protected:
-    Result onGetPixels(const SkImageInfo&, void*, size_t, SkPMColor*, int*) SK_OVERRIDE;
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
+            SK_OVERRIDE;
 private:
     png_structp             fPng_ptr;
     png_infop               fInfo_ptr;

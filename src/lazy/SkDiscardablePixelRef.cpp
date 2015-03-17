@@ -71,7 +71,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     SkPMColor colors[256];
     int colorCount = 0;
 
-    const SkImageGenerator::Result result = fGenerator->getPixels(info, pixels, fRowBytes,
+    const SkImageGenerator::Result result = fGenerator->getPixels(info, pixels, fRowBytes, NULL,
                                                                   colors, &colorCount);
     switch (result) {
         case SkImageGenerator::kSuccess:

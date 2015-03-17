@@ -363,8 +363,8 @@ static bool conversion_possible(const SkImageInfo& A, const SkImageInfo& B) {
 }
 
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
-                                        size_t rowBytes, SkPMColor ctable[],
-                                        int* ctableCount) {
+                                        size_t rowBytes, const Options& options,
+                                        SkPMColor ctable[], int* ctableCount) {
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
@@ -430,9 +430,9 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         sc = SkSwizzler::kRGBA;
     }
     const SkPMColor* colors = colorTable ? colorTable->readColors() : NULL;
-    // TODO: Support skipZeroes.
     swizzler.reset(SkSwizzler::CreateSwizzler(sc, colors, requestedInfo,
-                                              dst, rowBytes, false));
+                                              dst, rowBytes,
+                                              options.fZeroInitialized));
     if (!swizzler) {
         // FIXME: CreateSwizzler could fail for another reason.
         return kUnimplemented;
