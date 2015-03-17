@@ -16,10 +16,7 @@ class SkDeviceImageFilterProxy : public SkImageFilter::Proxy {
 public:
     SkDeviceImageFilterProxy(SkBaseDevice* device, const SkSurfaceProps& props)
         : fDevice(device)
-        , fProps(props.flags(),
-                 SkBaseDevice::CreateInfo::AdjustGeometry(SkImageInfo(),
-                                                          SkBaseDevice::kPossible_TileUsage,
-                                                          props.pixelGeometry()))
+        , fProps(props.flags(), kUnknown_SkPixelGeometry)
     {}
 
     SkBaseDevice* createDevice(int w, int h) SK_OVERRIDE {
