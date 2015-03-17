@@ -808,7 +808,7 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
             SkFAIL("Shouldn't be here if we don't support multisampled renderbuffers.");
             break;
     }
-    return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));;
+    return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
 }
 
 bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted, GrGLuint texID,
@@ -1208,7 +1208,11 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                 GrGLuint tempRB;
                 GL_CALL(GenRenderbuffers(1, &tempRB));
                 GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
-                GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
+                if (samples > 0) {
+                    renderbuffer_storage_msaa(fGLContext, samples, GR_GL_RGBA8, width, height);
+                } else {
+                    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
+                }
                 GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 GR_GL_RENDERBUFFER, tempRB));
