@@ -51,6 +51,11 @@ def get_args(bot):
   blacklist.extend('gpu _ PANO_20121023_214540.jpg'.split(' '))
   blacklist.extend('msaa _ PANO_20121023_214540.jpg'.split(' '))
 
+  # Leon doesn't care about this, so why run it?
+  if 'Win' in bot:
+    blacklist.extend('_ image _'.split(' '))
+    blacklist.extend('_ subset _'.split(' '))
+
   # Drawing SKPs or images into GPU canvases is a New Thing.
   # It seems like we're running out of RAM on some Android bots, so start off
   # with a very wide blacklist disabling all these tests on all Android bots.
