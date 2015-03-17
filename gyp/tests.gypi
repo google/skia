@@ -126,7 +126,6 @@
     '../tests/ImageGeneratorTest.cpp',
     '../tests/ImageIsOpaqueTest.cpp',
     '../tests/ImageNewShaderTest.cpp',
-    '../tests/IndexedPngOverflowTest.cpp',
     '../tests/InfRectTest.cpp',
     '../tests/InterpolatorTest.cpp',
     '../tests/InvalidIndexedPngTest.cpp',
