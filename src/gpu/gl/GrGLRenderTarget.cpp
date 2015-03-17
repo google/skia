@@ -9,8 +9,20 @@
 
 #include "GrGLGpu.h"
 
-#define GPUGL static_cast<GrGLGpu*>(this->getGpu())
-#define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
+void GrGLFBO::release(const GrGLInterface* gl) {
+    SkASSERT(gl);
+    if (this->isValid()) {
+        GR_GL_CALL(gl, DeleteFramebuffers(1, &fID));
+        fIsValid = false;
+    }
+}
+
+void GrGLFBO::abandon() { fIsValid = false; }
+
+//////////////////////////////////////////////////////////////////////////////
+
+#define GLGPU static_cast<GrGLGpu*>(this->getGpu())
+#define GL_CALL(X) GR_GL_CALL(GLGPU->glInterface(), X)
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
@@ -28,8 +40,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, cons
 }
 
 void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
-    fRTFBOID                = idDesc.fRTFBOID;
-    fTexFBOID               = idDesc.fTexFBOID;
+    fRenderFBO.reset(SkRef(idDesc.fRenderFBO.get()));
+    fTextureFBO.reset(SkSafeRef(idDesc.fTextureFBO.get()));
+    SkASSERT(fRenderFBO->isValid());
+    SkASSERT(!fTextureFBO || fTextureFBO->isValid());
     fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
     fIsWrapped              = kWrapped_LifeCycle == idDesc.fLifeCycle;
 
@@ -40,7 +54,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
 
     // We own one color value for each MSAA sample.
     fColorValuesPerPixel = SkTMax(1, fDesc.fSampleCnt);
-    if (fTexFBOID != fRTFBOID) {
+    if (fTextureFBO && fTextureFBO != fRenderFBO) {
         // If we own the resolve buffer then that is one more sample per pixel.
         fColorValuesPerPixel += 1;
     } 
@@ -56,27 +70,42 @@ size_t GrGLRenderTarget::onGpuMemorySize() const {
 
 void GrGLRenderTarget::onRelease() {
     if (!fIsWrapped) {
-        if (fTexFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fTexFBOID));
+        const GrGLInterface* gl = GLGPU->glInterface();
+        if (fRenderFBO) {
+            fRenderFBO->release(gl);
+            fRenderFBO.reset(NULL);
         }
-        if (fRTFBOID && fRTFBOID != fTexFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fRTFBOID));
+        if (fTextureFBO) {
+            fTextureFBO->release(gl);
+            fTextureFBO.reset(NULL);
         }
         if (fMSColorRenderbufferID) {
             GL_CALL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
+            fMSColorRenderbufferID = 0;
         }
+    } else {
+        if (fRenderFBO) {
+            fRenderFBO->abandon();
+            fRenderFBO.reset(NULL);
+        }
+        if (fTextureFBO) {
+            fTextureFBO->abandon();
+            fTextureFBO.reset(NULL);
+        }
+        fMSColorRenderbufferID  = 0;
     }
-    fRTFBOID                = 0;
-    fTexFBOID               = 0;
-    fMSColorRenderbufferID  = 0;
-    fIsWrapped              = false;
     INHERITED::onRelease();
 }
 
 void GrGLRenderTarget::onAbandon() {
-    fRTFBOID                = 0;
-    fTexFBOID               = 0;
+    if (fRenderFBO) {
+        fRenderFBO->abandon();
+        fRenderFBO.reset(NULL);
+    }
+    if (fTextureFBO) {
+        fTextureFBO->abandon();
+        fTextureFBO.reset(NULL);
+    }
     fMSColorRenderbufferID  = 0;
-    fIsWrapped              = false;
     INHERITED::onAbandon();
 }

@@ -440,7 +440,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBindFragDataLocationIndexed(GrGLuint program,
 
 GrGLenum GR_GL_FUNCTION_TYPE noOpGLCheckFramebufferStatus(GrGLenum target) {
 
-    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
+    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target || GR_GL_READ_FRAMEBUFFER == target ||
+                   GR_GL_DRAW_FRAMEBUFFER == target);
 
     return GR_GL_FRAMEBUFFER_COMPLETE;
 }

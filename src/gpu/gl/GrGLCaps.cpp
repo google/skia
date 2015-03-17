@@ -52,6 +52,8 @@ void GrGLCaps::reset() {
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
+    fPreferBindingToReadAndDrawFramebuffer = false;
+
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
 
@@ -99,6 +101,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
     fFBFetchColorName = caps.fFBFetchColorName;
     fFBFetchExtensionString = caps.fFBFetchExtensionString;
+    fPreferBindingToReadAndDrawFramebuffer = caps.fPreferBindingToReadAndDrawFramebuffer;
 
     return *this;
 }
@@ -278,6 +281,12 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
+
+    // Workaround for Mac/Chromium issue.
+#ifdef SK_BUILD_FOR_MAC
+    // This relies on the fact that initFSAASupport() was already called.
+    fPreferBindingToReadAndDrawFramebuffer = ctxInfo.isChromium() && this->usesMSAARenderBuffers();
+#endif
 
     /**************************************************************************
      * GrDrawTargetCaps fields
