@@ -267,10 +267,6 @@ public:
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
-    
-    bool preferBindingToReadAndDrawFramebuffer() const {
-        return fPreferBindingToReadAndDrawFramebuffer;
-    }
 
     /**
      * Returns a string containing the caps info.
@@ -393,7 +389,6 @@ private:
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
-    bool fPreferBindingToReadAndDrawFramebuffer : 1;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

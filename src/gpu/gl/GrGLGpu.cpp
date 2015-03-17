@@ -151,6 +151,9 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
 
     fLastSuccessfulStencilFmtIdx = 0;
     fHWProgramID = 0;
+    fTempSrcFBOID = 0;
+    fTempDstFBOID = 0;
+    fStencilClearFBOID = 0;
 
     if (this->glCaps().pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
@@ -165,17 +168,14 @@ GrGLGpu::~GrGLGpu() {
         GL_CALL(UseProgram(0));
     }
 
-    if (fTempSrcFBO) {
-        fTempSrcFBO->release(this->glInterface());
-        fTempSrcFBO.reset(NULL);
+    if (0 != fTempSrcFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &fTempSrcFBOID));
     }
-    if (fTempDstFBO) {
-        fTempDstFBO->release(this->glInterface());
-        fTempDstFBO.reset(NULL);
+    if (0 != fTempDstFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &fTempDstFBOID));
     }
-    if (fStencilClearFBO) {
-        fStencilClearFBO->release(this->glInterface());
-        fStencilClearFBO.reset(NULL);
+    if (0 != fStencilClearFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
     }
 
     delete fProgramCache;
@@ -185,19 +185,9 @@ void GrGLGpu::contextAbandoned() {
     INHERITED::contextAbandoned();
     fProgramCache->abandon();
     fHWProgramID = 0;
-    if (fTempSrcFBO) {
-        fTempSrcFBO->abandon();
-        fTempSrcFBO.reset(NULL);
-    }
-    if (fTempDstFBO) {
-        fTempDstFBO->abandon();
-        fTempDstFBO.reset(NULL);
-    }
-    if (fStencilClearFBO) {
-        fStencilClearFBO->abandon();
-        fStencilClearFBO.reset(NULL);
-    }
-
+    fTempSrcFBOID = 0;
+    fTempDstFBOID = 0;
+    fStencilClearFBOID = 0;
     if (this->glCaps().pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
@@ -341,9 +331,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fHWFBOBinding); ++i) {
-            fHWFBOBinding[i].invalidate();
-        }
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
     }
 
     if (resetBits & kPathRendering_GrGLBackendState) {
@@ -444,9 +432,9 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
 
 GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc) {
     GrGLRenderTarget::IDDesc idDesc;
-    GrGLuint fboID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
-    idDesc.fRenderFBO.reset(SkNEW_ARGS(GrGLFBO, (fboID)));
+    idDesc.fRTFBOID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
     idDesc.fMSColorRenderbufferID = 0;
+    idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     idDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
 
     GrSurfaceDesc desc;
@@ -826,34 +814,34 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
 bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted, GrGLuint texID,
                                         GrGLRenderTarget::IDDesc* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
+    idDesc->fRTFBOID = 0;
+    idDesc->fTexFBOID = 0;
     idDesc->fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
                                     GrGpuResource::kUncached_LifeCycle;
 
     GrGLenum status;
 
     GrGLenum msColorFormat = 0; // suppress warning
-    GrGLenum fboTarget = 0; // suppress warning
 
     if (desc.fSampleCnt > 0 && GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
         goto FAILED;
     }
 
-    idDesc->fTextureFBO.reset(SkNEW_ARGS(GrGLFBO, (this->glInterface())));
-    if (!idDesc->fTextureFBO->isValid()) {
+    GL_CALL(GenFramebuffers(1, &idDesc->fTexFBOID));
+    if (!idDesc->fTexFBOID) {
         goto FAILED;
     }
+
 
     // If we are using multisampling we will create two FBOS. We render to one and then resolve to
     // the texture bound to the other. The exception is the IMG multisample extension. With this
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
     if (desc.fSampleCnt > 0 && this->glCaps().usesMSAARenderBuffers()) {
-        idDesc->fRenderFBO.reset(SkNEW_ARGS(GrGLFBO, (this->glInterface())));
-        if (!idDesc->fRenderFBO->isValid()) {
-            goto FAILED;
-        }
+        GL_CALL(GenFramebuffers(1, &idDesc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &idDesc->fMSColorRenderbufferID));
-        if (!idDesc->fMSColorRenderbufferID ||
+        if (!idDesc->fRTFBOID ||
+            !idDesc->fMSColorRenderbufferID ||
             !this->configToGLFormats(desc.fConfig,
                                      // ES2 and ES3 require sized internal formats for rb storage.
                                      kGLES_GrGLStandard == this->glStandard(),
@@ -863,10 +851,12 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted
             goto FAILED;
         }
     } else {
-        idDesc->fRenderFBO.reset(SkRef(idDesc->fTextureFBO.get()));
+        idDesc->fRTFBOID = idDesc->fTexFBOID;
     }
 
-    if (idDesc->fRenderFBO != idDesc->fTextureFBO) {
+    // below here we may bind the FBO
+    fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    if (idDesc->fRTFBOID != idDesc->fTexFBOID) {
         SkASSERT(desc.fSampleCnt > 0);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, idDesc->fMSColorRenderbufferID));
         if (!renderbuffer_storage_msaa(fGLContext,
@@ -875,11 +865,12 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted
                                        desc.fWidth, desc.fHeight)) {
             goto FAILED;
         }
-        fboTarget = this->bindFBO(kChangeAttachments_FBOBinding, idDesc->fRenderFBO);
-        GL_CALL(FramebufferRenderbuffer(fboTarget,
-                                        GR_GL_COLOR_ATTACHMENT0,
-                                        GR_GL_RENDERBUFFER,
-                                        idDesc->fMSColorRenderbufferID));
+        fStats.incRenderTargetBinds();
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fRTFBOID));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                      GR_GL_COLOR_ATTACHMENT0,
+                                      GR_GL_RENDERBUFFER,
+                                      idDesc->fMSColorRenderbufferID));
         if ((desc.fFlags & kCheckAllocation_GrSurfaceFlag) ||
             !this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
@@ -889,22 +880,23 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted
             fGLContext.caps()->markConfigAsValidColorAttachment(desc.fConfig);
         }
     }
-    fboTarget = this->bindFBO(kChangeAttachments_FBOBinding, idDesc->fTextureFBO);
+    fStats.incRenderTargetBinds();
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fTexFBOID));
 
     if (this->glCaps().usesImplicitMSAAResolve() && desc.fSampleCnt > 0) {
-        GL_CALL(FramebufferTexture2DMultisample(fboTarget,
+        GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 GR_GL_TEXTURE_2D,
                                                 texID, 0, desc.fSampleCnt));
     } else {
-        GL_CALL(FramebufferTexture2D(fboTarget,
+        GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                      GR_GL_COLOR_ATTACHMENT0,
                                      GR_GL_TEXTURE_2D,
                                      texID, 0));
     }
     if ((desc.fFlags & kCheckAllocation_GrSurfaceFlag) ||
         !this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
-        GL_CALL_RET(status, CheckFramebufferStatus(fboTarget));
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
         }
@@ -917,11 +909,11 @@ FAILED:
     if (idDesc->fMSColorRenderbufferID) {
         GL_CALL(DeleteRenderbuffers(1, &idDesc->fMSColorRenderbufferID));
     }
-    if (idDesc->fRenderFBO) {
-        idDesc->fRenderFBO->release(this->glInterface());
+    if (idDesc->fRTFBOID != idDesc->fTexFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &idDesc->fRTFBOID));
     }
-    if (idDesc->fTextureFBO) {
-        idDesc->fTextureFBO->release(this->glInterface());
+    if (idDesc->fTexFBOID) {
+        GL_CALL(DeleteFramebuffers(1, &idDesc->fTexFBOID));
     }
     return false;
 }
@@ -1194,17 +1186,18 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                 // Clear the stencil buffer. We use a special purpose FBO for this so that the
                 // entire stencil buffer is cleared, even if it is attached to an FBO with a
                 // smaller color target.
-                if (!fStencilClearFBO) {
-                    fStencilClearFBO.reset(SkNEW_ARGS(GrGLFBO, (this->glInterface())));
+                if (0 == fStencilClearFBOID) {
+                    GL_CALL(GenFramebuffers(1, &fStencilClearFBOID));
                 }
-                SkASSERT(fStencilClearFBO->isValid());
-                GrGLenum fboTarget = this->bindFBO(kClear_FBOBinding, fStencilClearFBO);
 
-                GL_CALL(FramebufferRenderbuffer(fboTarget,
+                GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBOID));
+                fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+                fStats.incRenderTargetBinds();
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                 GR_GL_STENCIL_ATTACHMENT,
                                                 GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
                 if (sFmt.fPacked) {
-                    GL_CALL(FramebufferRenderbuffer(fboTarget,
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                     GR_GL_DEPTH_ATTACHMENT,
                                                     GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
                 }
@@ -1216,23 +1209,23 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                 GL_CALL(GenRenderbuffers(1, &tempRB));
                 GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
                 GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
-                GL_CALL(FramebufferRenderbuffer(fboTarget,
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 GR_GL_RENDERBUFFER, tempRB));
 
                 GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
 
-                GL_CALL(FramebufferRenderbuffer(fboTarget,
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 GR_GL_RENDERBUFFER, 0));
                 GL_CALL(DeleteRenderbuffers(1, &tempRB));
 
                 // Unbind the SB from the FBO so that we don't keep it alive.
-                GL_CALL(FramebufferRenderbuffer(fboTarget,
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                 GR_GL_STENCIL_ATTACHMENT,
                                                 GR_GL_RENDERBUFFER, 0));
                 if (sFmt.fPacked) {
-                    GL_CALL(FramebufferRenderbuffer(fboTarget,
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                     GR_GL_DEPTH_ATTACHMENT,
                                                     GR_GL_RENDERBUFFER, 0));
                 }
@@ -1252,6 +1245,9 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
 
 bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTarget* rt) {
     GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
+
+    GrGLuint fbo = glrt->renderFBOID();
+
     if (NULL == sb) {
         if (rt->renderTargetPriv().getStencilBuffer()) {
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
@@ -1270,17 +1266,19 @@ bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
     } else {
         GrGLStencilBuffer* glsb = static_cast<GrGLStencilBuffer*>(sb);
         GrGLuint rb = glsb->renderbufferID();
-        GrGLenum fboTarget = this->bindFBO(kChangeAttachments_FBOBinding, glrt->renderFBO());
 
-        GL_CALL(FramebufferRenderbuffer(fboTarget,
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+        fStats.incRenderTargetBinds();
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                         GR_GL_STENCIL_ATTACHMENT,
                                         GR_GL_RENDERBUFFER, rb));
         if (glsb->format().fPacked) {
-            GL_CALL(FramebufferRenderbuffer(fboTarget,
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_DEPTH_ATTACHMENT,
                                             GR_GL_RENDERBUFFER, rb));
         } else {
-            GL_CALL(FramebufferRenderbuffer(fboTarget,
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_DEPTH_ATTACHMENT,
                                             GR_GL_RENDERBUFFER, 0));
         }
@@ -1289,13 +1287,13 @@ bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
         if (!this->glCaps().isColorConfigAndStencilFormatVerified(rt->config(), glsb->format())) {
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                GL_CALL(FramebufferRenderbuffer(fboTarget,
-                                                GR_GL_STENCIL_ATTACHMENT,
-                                                GR_GL_RENDERBUFFER, 0));
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                              GR_GL_STENCIL_ATTACHMENT,
+                                              GR_GL_RENDERBUFFER, 0));
                 if (glsb->format().fPacked) {
-                    GL_CALL(FramebufferRenderbuffer(fboTarget,
-                                                    GR_GL_DEPTH_ATTACHMENT,
-                                                    GR_GL_RENDERBUFFER, 0));
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                  GR_GL_DEPTH_ATTACHMENT,
+                                                  GR_GL_RENDERBUFFER, 0));
                 }
                 return false;
             } else {
@@ -1427,23 +1425,20 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
         fHWProgramID = programID;
     }
 
+    if (blendInfo.fWriteColor) {
+        this->flushBlend(blendInfo);
+    }
 
     fCurrentProgram->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
-
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState());
 
     // This must come after textures are flushed because a texture may need
-    // to be msaa-resolved (which will modify bound FBO and scissor state).
-    this->bindFBO(kDraw_FBOBinding, glRT->renderFBO());
-    this->setViewport(glRT->getViewport());
-    if (blendInfo.fWriteColor) {
-        this->flushBlend(blendInfo);
-        this->markSurfaceContentsDirty(glRT, NULL);
-    }
+    // to be msaa-resolved (which will modify bound FBO state).
+    this->flushRenderTarget(glRT, NULL);
 
     return true;
 }
@@ -1540,8 +1535,7 @@ void GrGLGpu::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color
         }
     }
 
-    this->bindFBO(kClear_FBOBinding, glRT->renderFBO());
-    this->markSurfaceContentsDirty(glRT, rect);
+    this->flushRenderTarget(glRT, rect);
     GrScissorState scissorState;
     if (rect) {
         scissorState.set(*rect);
@@ -1569,36 +1563,40 @@ void GrGLGpu::discard(GrRenderTarget* renderTarget) {
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
-    GrGLenum fboTarget = this->bindFBO(kDiscard_FBOBinding, glRT->renderFBO());
+    if (renderTarget->getUniqueID() != fHWBoundRenderTargetUniqueID) {
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+        fStats.incRenderTargetBinds();
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRT->renderFBOID()));
+    }
     switch (this->glCaps().invalidateFBType()) {
         case GrGLCaps::kNone_InvalidateFBType:
             SkFAIL("Should never get here.");
             break;
         case GrGLCaps::kInvalidate_InvalidateFBType:
-            if (glRT->renderFBO()->isDefaultFramebuffer()) {
+            if (0 == glRT->renderFBOID()) {
                 //  When rendering to the default framebuffer the legal values for attachments
                 //  are GL_COLOR, GL_DEPTH, GL_STENCIL, ... rather than the various FBO attachment
                 //  types.
                 static const GrGLenum attachments[] = { GR_GL_COLOR };
-                GL_CALL(InvalidateFramebuffer(fboTarget, SK_ARRAY_COUNT(attachments),
+                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
                         attachments));
             } else {
                 static const GrGLenum attachments[] = { GR_GL_COLOR_ATTACHMENT0 };
-                GL_CALL(InvalidateFramebuffer(fboTarget, SK_ARRAY_COUNT(attachments),
+                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
                         attachments));
             }
             break;
         case GrGLCaps::kDiscard_InvalidateFBType: {
-            if (glRT->renderFBO()->isDefaultFramebuffer()) {
+            if (0 == glRT->renderFBOID()) {
                 //  When rendering to the default framebuffer the legal values for attachments
                 //  are GL_COLOR, GL_DEPTH, GL_STENCIL, ... rather than the various FBO attachment
                 //  types. See glDiscardFramebuffer() spec.
                 static const GrGLenum attachments[] = { GR_GL_COLOR };
-                GL_CALL(DiscardFramebuffer(fboTarget, SK_ARRAY_COUNT(attachments),
+                GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
                         attachments));
             } else {
                 static const GrGLenum attachments[] = { GR_GL_COLOR_ATTACHMENT0 };
-                GL_CALL(DiscardFramebuffer(fboTarget, SK_ARRAY_COUNT(attachments),
+                GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
                         attachments));
             }
             break;
@@ -1613,7 +1611,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
         return;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->bindFBO(kClear_FBOBinding, glRT->renderFBO());
+    this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
     this->disableScissor();
 
@@ -1649,7 +1647,7 @@ void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
         value = 0;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->bindFBO(kClear_FBOBinding, glRT->renderFBO());
+    this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
     GrScissorState scissorState;
     scissorState.set(rect);
@@ -1719,13 +1717,22 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
 
     // resolve the render target if necessary
     GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
-    if (tgt->getResolveType() == GrGLRenderTarget::kCantResolve_ResolveType) {
-        return false;
+    switch (tgt->getResolveType()) {
+        case GrGLRenderTarget::kCantResolve_ResolveType:
+            return false;
+        case GrGLRenderTarget::kAutoResolves_ResolveType:
+            this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target), &SkIRect::EmptyIRect());
+            break;
+        case GrGLRenderTarget::kCanResolve_ResolveType:
+            this->onResolveRenderTarget(tgt);
+            // we don't track the state of the READ FBO ID.
+            fStats.incRenderTargetBinds();
+            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER,
+                                    tgt->textureFBOID()));
+            break;
+        default:
+            SkFAIL("Unknown resolve type");
     }
-    if (tgt->getResolveType() == GrGLRenderTarget::kCanResolve_ResolveType) {
-        this->onResolveRenderTarget(tgt);
-    }
-    this->bindFBO(kReadPixels_FBOBinding, tgt->textureFBO());
 
     const GrGLIRect& glvp = tgt->getViewport();
 
@@ -1790,8 +1797,7 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
             }
         }
     } else {
-        SkASSERT(readDst != buffer);
-        SkASSERT(rowBytes != tightRowBytes);
+        SkASSERT(readDst != buffer);        SkASSERT(rowBytes != tightRowBytes);
         // copy from readDst to buffer while flipping y
         // const int halfY = height >> 1;
         const char* src = reinterpret_cast<const char*>(readDst);
@@ -1812,68 +1818,41 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
     return true;
 }
 
-GrGLenum GrGLGpu::bindFBO(FBOBinding binding, const GrGLFBO* fbo) {
-    SkASSERT(fbo);
-    SkASSERT(fbo->isValid());
-    
-    enum {
-        kDraw = 0,
-        kRead = 1
-    };
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
 
-    bool useGLFramebuffer = !this->glCaps().usesMSAARenderBuffers() ||
-        (this->glCaps().preferBindingToReadAndDrawFramebuffer() &&
-         kBlitSrc_FBOBinding != binding && kBlitDst_FBOBinding != binding);
+    SkASSERT(target);
 
-    if (useGLFramebuffer) {
-        SkASSERT(kBlitSrc_FBOBinding != binding);
+    uint32_t rtID = target->getUniqueID();
+    if (fHWBoundRenderTargetUniqueID != rtID) {
         fStats.incRenderTargetBinds();
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo->fboID()));
-        fHWFBOBinding[kDraw].fFBO.reset(SkRef(fbo));
-        fHWFBOBinding[kRead].fFBO.reset(SkRef(fbo));
-        return GR_GL_FRAMEBUFFER;
-    }
-    GrGLenum target = 0;
-    HWFBOBinding* hwFBOBinding = NULL;
-    switch (binding) {
-        case kDraw_FBOBinding:
-        case kClear_FBOBinding:
-        case kDiscard_FBOBinding:
-        case kChangeAttachments_FBOBinding:
-        case kBlitDst_FBOBinding:
-            target = GR_GL_DRAW_FRAMEBUFFER;
-            hwFBOBinding = &fHWFBOBinding[kDraw];
-            break;
-
-        case kReadPixels_FBOBinding:
-        case kBlitSrc_FBOBinding:
-            target = GR_GL_READ_FRAMEBUFFER;
-            hwFBOBinding = &fHWFBOBinding[kRead];
-            break;
-    }
-    fStats.incRenderTargetBinds();
-    GL_CALL(BindFramebuffer(target, fbo->fboID()));
-    hwFBOBinding->fFBO.reset(SkRef(fbo));
-    return target;
-}
-
-void GrGLGpu::setViewport(const GrGLIRect& viewport) {
-    if (viewport != fHWViewport) {
-        viewport.pushToGLViewport(this->glInterface());
-        fHWViewport = viewport;
-    }
-}
-
-void GrGLGpu::markSurfaceContentsDirty(GrSurface* surface, const SkIRect* bounds) {
-    if (NULL == bounds || !bounds->isEmpty()) {
-        GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-        if (rt) {
-            rt->flagAsNeedingResolve(bounds);
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
+#ifdef SK_DEBUG
+        // don't do this check in Chromium -- this is causing
+        // lots of repeated command buffer flushes when the compositor is
+        // rendering with Ganesh, which is really slow; even too slow for
+        // Debug mode.
+        if (!this->glContext().isChromium()) {
+            GrGLenum status;
+            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+            if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+                SkDebugf("GrGLGpu::flushRenderTarget glCheckFramebufferStatus %x\n", status);
+            }
         }
-        GrGLTexture* texture = static_cast<GrGLTexture*>(surface->asTexture());
-        if (texture) {
-            texture->texturePriv().dirtyMipMaps(true);
+#endif
+        fHWBoundRenderTargetUniqueID = rtID;
+        const GrGLIRect& vp = target->getViewport();
+        if (fHWViewport != vp) {
+            vp.pushToGLViewport(this->glInterface());
+            fHWViewport = vp;
         }
+    }
+    if (NULL == bound || !bound->isEmpty()) {
+        target->flagAsNeedingResolve(bound);
+    }
+
+    GrTexture *texture = target->asTexture();
+    if (texture) {
+        texture->texturePriv().dirtyMipMaps(true);
     }
 }
 
@@ -1955,8 +1934,8 @@ void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
     this->glPathRendering()->setProjectionMatrix(*state.fViewMatrix, size, rt->origin());
     this->flushScissor(*state.fScissor, rt->getViewport(), rt->origin());
     this->flushHWAAState(rt, state.fUseHWAA);
-    this->bindFBO(kDraw_FBOBinding, rt->renderFBO());
-    this->setViewport(rt->getViewport());
+    this->flushRenderTarget(rt, NULL);
+
     fPathRendering->stencilPath(path, *state.fStencil);
 }
 
@@ -1988,9 +1967,14 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
     if (rt->needsResolve()) {
         // Some extensions automatically resolves the texture when it is read.
         if (this->glCaps().usesMSAARenderBuffers()) {
-            SkASSERT(rt->textureFBO() != rt->renderFBO());
-            this->bindFBO(kBlitSrc_FBOBinding, rt->renderFBO());
-            this->bindFBO(kBlitDst_FBOBinding, rt->textureFBO());
+            SkASSERT(rt->textureFBOID() != rt->renderFBOID());
+            fStats.incRenderTargetBinds();
+            fStats.incRenderTargetBinds();
+            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID()));
+            GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID()));
+            // make sure we go through flushRenderTarget() since we've modified
+            // the bound DRAW FBO ID.
+            fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
             const GrGLIRect& vp = rt->getViewport();
             const SkIRect dirtyRect = rt->getResolveRect();
 
@@ -2544,13 +2528,13 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     const GrGLRenderTarget* dstRT = static_cast<const GrGLRenderTarget*>(dst->asRenderTarget());
     // If dst is multisampled (and uses an extension where there is a separate MSAA renderbuffer)
     // then we don't want to copy to the texture but to the MSAA buffer.
-    if (dstRT && dstRT->renderFBO() != dstRT->textureFBO()) {
+    if (dstRT && dstRT->renderFBOID() != dstRT->textureFBOID()) {
         return false;
     }
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
     // If the src is multisampled (and uses an extension where there is a separate MSAA
     // renderbuffer) then it is an invalid operation to call CopyTexSubImage
-    if (srcRT && srcRT->renderFBO() != srcRT->textureFBO()) {
+    if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         return false;
     }
     if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
@@ -2567,31 +2551,22 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
 
 // If a temporary FBO was created, its non-zero ID is returned. The viewport that the copy rect is
 // relative to is output.
-GrGLGpu::FBOBinding GrGLGpu::bindSurfaceAsFBOForCopy(GrSurface* surface, FBOBinding binding,
-                                                     GrGLIRect* viewport) {
+GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
+                                   TempFBOTarget tempFBOTarget) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (NULL == rt) {
         SkASSERT(surface->asTexture());
         GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
-        GrGLFBO* tempFBO;
+        GrGLuint* tempFBOID;
+        tempFBOID = kSrc_TempFBOTarget == tempFBOTarget ? &fTempSrcFBOID : &fTempDstFBOID;
 
-        if (kBlitSrc_FBOBinding == binding) {
-            if (!fTempSrcFBO) {
-                fTempSrcFBO.reset(SkNEW_ARGS(GrGLFBO, (this->glInterface())));
-                SkASSERT(fTempSrcFBO->isValid());
-            }
-            tempFBO = fTempSrcFBO;
-        } else {
-            SkASSERT(kBlitDst_FBOBinding == binding);
-            if (!fTempDstFBO) {
-                fTempDstFBO.reset(SkNEW_ARGS(GrGLFBO, (this->glInterface())));
-                SkASSERT(fTempDstFBO->isValid());
-            }
-            tempFBO = fTempDstFBO;
+        if (0 == *tempFBOID) {
+            GR_GL_CALL(this->glInterface(), GenFramebuffers(1, tempFBOID));
         }
 
-        GrGLenum target = this->bindFBO(binding, tempFBO);
-        GR_GL_CALL(this->glInterface(), FramebufferTexture2D(target,
+        fStats.incRenderTargetBinds();
+        GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, *tempFBOID));
+        GR_GL_CALL(this->glInterface(), FramebufferTexture2D(fboTarget,
                                                              GR_GL_COLOR_ATTACHMENT0,
                                                              GR_GL_TEXTURE_2D,
                                                              texID,
@@ -2600,21 +2575,18 @@ GrGLGpu::FBOBinding GrGLGpu::bindSurfaceAsFBOForCopy(GrSurface* surface, FBOBind
         viewport->fBottom = 0;
         viewport->fWidth = surface->width();
         viewport->fHeight = surface->height();
-        return binding;
+        return *tempFBOID;
     } else {
-        this->bindFBO(binding, rt->renderFBO());
+        GrGLuint tempFBOID = 0;
+        fStats.incRenderTargetBinds();
+        GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, rt->renderFBOID()));
         *viewport = rt->getViewport();
-        return kInvalidFBOBinding;
+        return tempFBOID;
     }
 }
 
-void GrGLGpu::unbindSurfaceAsFBOForCopy(FBOBinding binding) {
-    if (kInvalidFBOBinding == binding) {
-        return;
-    }
-    GrGLFBO* tempFBO = kBlitDst_FBOBinding == binding ? fTempSrcFBO : fTempDstFBO;
-    GrGLenum target = this->bindFBO(binding, tempFBO);
-    GR_GL_CALL(this->glInterface(), FramebufferTexture2D(target,
+void GrGLGpu::unbindTextureFromFBO(GrGLenum fboTarget) {
+    GR_GL_CALL(this->glInterface(), FramebufferTexture2D(fboTarget,
                                                          GR_GL_COLOR_ATTACHMENT0,
                                                          GR_GL_TEXTURE_2D,
                                                          0,
@@ -2645,7 +2617,7 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
     }
 
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
-    if (srcRT && srcRT->renderFBO() != srcRT->textureFBO()) {
+    if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
         // fail.
         if (this->caps()->isConfigRenderable(src->config(), false)) {
@@ -2669,13 +2641,14 @@ bool GrGLGpu::copySurface(GrSurface* dst,
                           const SkIRect& srcRect,
                           const SkIPoint& dstPoint) {
     bool copied = false;
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
-                                        srcRect.width(), srcRect.height());
     if (can_copy_texsubimage(dst, src, this)) {
+        GrGLuint srcFBO;
         GrGLIRect srcVP;
-        FBOBinding srcFBOBinding = this->bindSurfaceAsFBOForCopy(src, kBlitSrc_FBOBinding, &srcVP);
+        srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
         GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
         SkASSERT(dstTex);
+        // We modified the bound FBO
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
         GrGLIRect srcGLRect;
         srcGLRect.setRelativeTo(srcVP,
                                 srcRect.fLeft,
@@ -2697,21 +2670,28 @@ bool GrGLGpu::copySurface(GrSurface* dst,
                                   srcGLRect.fLeft, srcGLRect.fBottom,
                                   srcGLRect.fWidth, srcGLRect.fHeight));
         copied = true;
-        this->unbindSurfaceAsFBOForCopy(srcFBOBinding);
+        if (srcFBO) {
+            this->unbindTextureFromFBO(GR_GL_FRAMEBUFFER);
+        }
     } else if (can_blit_framebuffer(dst, src, this)) {
+        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                            srcRect.width(), srcRect.height());
         bool selfOverlap = false;
         if (dst == src) {
             selfOverlap = SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
         }
 
         if (!selfOverlap) {
+            GrGLuint dstFBO;
+            GrGLuint srcFBO;
             GrGLIRect dstVP;
             GrGLIRect srcVP;
-            FBOBinding dstFBOBinding = this->bindSurfaceAsFBOForCopy(dst, kBlitDst_FBOBinding,
-                                                                     &dstVP);
-            FBOBinding srcFBOBinding = this->bindSurfaceAsFBOForCopy(src, kBlitSrc_FBOBinding,
-                                                                     &srcVP);
-
+            dstFBO = this->bindSurfaceAsFBO(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP,
+                                            kDst_TempFBOTarget);
+            srcFBO = this->bindSurfaceAsFBO(src, GR_GL_READ_FRAMEBUFFER, &srcVP,
+                                            kSrc_TempFBOTarget);
+            // We modified the bound FBO
+            fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
             GrGLIRect srcGLRect;
             GrGLIRect dstGLRect;
             srcGLRect.setRelativeTo(srcVP,
@@ -2749,13 +2729,14 @@ bool GrGLGpu::copySurface(GrSurface* dst,
                                     dstGLRect.fLeft + dstGLRect.fWidth,
                                     dstGLRect.fBottom + dstGLRect.fHeight,
                                     GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
-            this->unbindSurfaceAsFBOForCopy(dstFBOBinding);
-            this->unbindSurfaceAsFBOForCopy(srcFBOBinding);
+            if (dstFBO) {
+                this->unbindTextureFromFBO(GR_GL_DRAW_FRAMEBUFFER);
+            }
+            if (srcFBO) {
+                this->unbindTextureFromFBO(GR_GL_READ_FRAMEBUFFER);
+            }
             copied = true;
         }
-    }
-    if (copied) {
-        this->markSurfaceContentsDirty(dst, &dstRect);
     }
     return copied;
 }

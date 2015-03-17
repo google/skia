@@ -244,28 +244,11 @@ private:
     // ensures that such operations don't negatively interact with tracking bound textures.
     void setScratchTextureUnit();
 
-    // Enumerates the reasons for binding an FBO.
-    enum FBOBinding {
-        kDraw_FBOBinding,
-        kClear_FBOBinding,
-        kDiscard_FBOBinding,
-        kChangeAttachments_FBOBinding,
-        kReadPixels_FBOBinding,
-        kBlitSrc_FBOBinding,
-        kBlitDst_FBOBinding,
-    };
-
-    // binds the FBO and returns the GL enum of the framebuffer target it was bound to.
-    GrGLenum bindFBO(FBOBinding, const GrGLFBO*);
-
-    // Tracks dirty area for resolve, and tracks whether mip maps need rebuilding. bounds is the
-    // region that may be modified. NULL means whole surface. Can be an empty rect.
-    void markSurfaceContentsDirty(GrSurface*, const SkIRect* bounds);
-
-    void setViewport(const GrGLIRect& viewport);
+    // bounds is region that may be modified and therefore has to be resolved.
+    // NULL means whole target. Can be an empty rect.
+    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(const GrStencilSettings&);
-
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
     bool configToGLFormats(GrPixelConfig config,
@@ -296,14 +279,15 @@ private:
     bool createRenderTargetObjects(const GrSurfaceDesc&, bool budgeted, GrGLuint texID, 
                                    GrGLRenderTarget::IDDesc*);
 
-    static const FBOBinding kInvalidFBOBinding = static_cast<FBOBinding>(-1);
+    enum TempFBOTarget {
+        kSrc_TempFBOTarget,
+        kDst_TempFBOTarget
+    };
 
-    // Binds a surface as an FBO. A temporary FBO ID may be used if the surface is not already
-    // a render target. Afterwards unbindSurfaceAsFBOForCopy must be called with the value returned.
-    FBOBinding bindSurfaceAsFBOForCopy(GrSurface*, FBOBinding, GrGLIRect* viewport);
+    GrGLuint bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
+                              TempFBOTarget tempFBOTarget);
 
-    // Must be matched with bindSurfaceAsFBOForCopy.
-    void unbindSurfaceAsFBOForCopy(FBOBinding);
+    void unbindTextureFromFBO(GrGLenum fboTarget);
 
     GrGLContext fGLContext;
 
@@ -323,9 +307,10 @@ private:
         kUnknown_TriState
     };
 
-    SkAutoTUnref<GrGLFBO> fTempSrcFBO;
-    SkAutoTUnref<GrGLFBO> fTempDstFBO;
-    SkAutoTUnref<GrGLFBO> fStencilClearFBO;
+    GrGLuint                    fTempSrcFBOID;
+    GrGLuint                    fTempDstFBOID;
+
+    GrGLuint                    fStencilClearFBOID;
 
     // last scissor / viewport scissor state seen by the GL.
     struct {
@@ -471,13 +456,8 @@ private:
     GrPipelineBuilder::DrawFace fHWDrawFace;
     TriState                    fHWWriteToColor;
     TriState                    fHWDitherEnabled;
+    uint32_t                    fHWBoundRenderTargetUniqueID;
     SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
-
-    // Track fbo binding state for GL_DRAW_FRAMEBUFFER and GL_READ_FRAMEBUFFER
-    struct HWFBOBinding {
-        SkAutoTUnref<const GrGLFBO> fFBO;
-        void invalidate() { fFBO.reset(NULL); }
-    } fHWFBOBinding[2];
 
     ///@}
 
