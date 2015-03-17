@@ -1203,7 +1203,22 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                 }
 
                 GL_CALL(ClearStencil(0));
+                // Many GL implementations seem to have trouble with clearing an FBO with only
+                // a stencil buffer.
+                GrGLuint tempRB;
+                GL_CALL(GenRenderbuffers(1, &tempRB));
+                GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
+                GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_COLOR_ATTACHMENT0,
+                                                GR_GL_RENDERBUFFER, tempRB));
+
                 GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
+
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_COLOR_ATTACHMENT0,
+                                                GR_GL_RENDERBUFFER, 0));
+                GL_CALL(DeleteRenderbuffers(1, &tempRB));
 
                 // Unbind the SB from the FBO so that we don't keep it alive.
                 GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
