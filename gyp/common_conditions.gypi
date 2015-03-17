@@ -407,7 +407,6 @@
         # Optimizations for chromium (m30)
         'GR_GL_CUSTOM_SETUP_HEADER "gl/GrGLConfig_chrome.h"',
         'IGNORE_ROT_AA_RECT_OPT',
-        'SkLONGLONG int64_t',
         'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
         'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
         'SK_IGNORE_ETC1_SUPPORT',

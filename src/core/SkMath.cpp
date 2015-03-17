@@ -43,27 +43,6 @@ int SkCLZ_portable(uint32_t x) {
     return zeros;
 }
 
-SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
-#if defined(SkLONGLONG)
-    return static_cast<SkFixed>((int64_t)a * b >> 16);
-#else
-    int sa = SkExtractSign(a);
-    int sb = SkExtractSign(b);
-    // now make them positive
-    a = SkApplySign(a, sa);
-    b = SkApplySign(b, sb);
-
-    uint32_t    ah = a >> 16;
-    uint32_t    al = a & 0xFFFF;
-    uint32_t bh = b >> 16;
-    uint32_t bl = b & 0xFFFF;
-
-    uint32_t R = ah * b + al * bh + (al * bl >> 16);
-
-    return SkApplySign(R, sa ^ sb);
-#endif
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define DIVBITS_ITER(n)                                 \

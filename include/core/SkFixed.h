@@ -78,20 +78,16 @@ typedef int32_t             SkFixed;
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
 
-SkFixed SkFixedMul_portable(SkFixed, SkFixed);
-
 #define SkFixedDiv(numer, denom)    SkDivBits(numer, denom, 16)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Now look for ASM overrides for our portable versions (should consider putting this in its own file)
 
-#ifdef SkLONGLONG
-    inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b)
-    {
-        return (SkFixed)((int64_t)a * b >> 16);
-    }
-    #define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
-#endif
+inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
+    return (SkFixed)((int64_t)a * b >> 16);
+}
+#define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
+
 
 #if defined(SK_CPU_ARM32)
     /* This guy does not handle NaN or other obscurities, but is faster than
@@ -132,10 +128,6 @@ SkFixed SkFixedMul_portable(SkFixed, SkFixed);
 
     #undef SkFloatToFixed
     #define SkFloatToFixed(x)  SkFloatToFixed_arm(x)
-#endif
-
-#ifndef SkFixedMul
-    #define SkFixedMul(x, y)    SkFixedMul_portable(x, y)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

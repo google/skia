@@ -246,10 +246,10 @@ void GrDistanceFieldTextContext::onDrawText(GrRenderTarget* rt, const GrClip& cl
         const SkGlyph& glyph = glyphCacheProc(cache, &textPtr, 0, 0);
 
         SkFixed width = glyph.fAdvanceX + autokern.adjust(glyph);
-        positions.push_back(SkFixedToScalar(stopX + SkFixedMul_portable(origin, width)));
+        positions.push_back(SkFixedToScalar(stopX + SkFixedMul(origin, width)));
 
         SkFixed height = glyph.fAdvanceY;
-        positions.push_back(SkFixedToScalar(stopY + SkFixedMul_portable(origin, height)));
+        positions.push_back(SkFixedToScalar(stopY + SkFixedMul(origin, height)));
 
         stopX += width;
         stopY += height;
