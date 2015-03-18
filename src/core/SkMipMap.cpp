@@ -135,6 +135,39 @@ static void downsample4444(void* dst, int x, int y, const void* srcPtr, const Sk
    *((uint16_t*)dst) = (uint16_t)collaps4444(c >> 2);
 }
 
+static void downsample8_nocheck(void* dst, int, int, const void* srcPtr, const SkBitmap& srcBM) {
+    const size_t rb = srcBM.rowBytes();
+    const uint8_t* p = static_cast<const uint8_t*>(srcPtr);
+    *(uint8_t*)dst = (p[0] + p[1] + p[rb] + p[rb + 1]) >> 2;
+}
+
+static void downsample8_check(void* dst, int x, int y, const void* srcPtr, const SkBitmap& srcBM) {
+    const uint8_t* p = static_cast<const uint8_t*>(srcPtr);
+    const uint8_t* baseP = p;
+
+    x <<= 1;
+    y <<= 1;
+    SkASSERT(srcBM.getAddr8(x, y) == p);
+
+    unsigned c = *p;
+    if (x < srcBM.width() - 1) {
+        p += 1;
+    }
+    c += *p;
+
+    p = baseP;
+    if (y < srcBM.height() - 1) {
+        p += srcBM.rowBytes();
+    }
+    c += *p;
+    if (x < srcBM.width() - 1) {
+        p += 1;
+    }
+    c += *p;
+
+    *(uint8_t*)dst = c >> 2;
+}
+
 size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     if (levelCount < 0) {
         return 0;
@@ -166,6 +199,11 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         case kARGB_4444_SkColorType:
             proc_check = downsample4444;
             proc_nocheck = proc_check;
+            break;
+        case kAlpha_8_SkColorType:
+        case kGray_8_SkColorType:
+            proc_check = downsample8_check;
+            proc_nocheck = downsample8_nocheck;
             break;
         default:
             return NULL; // don't build mipmaps for any other colortypes (yet)

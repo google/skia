@@ -72,8 +72,9 @@ enum SkColorType {
     kRGBA_8888_SkColorType,
     kBGRA_8888_SkColorType,
     kIndex_8_SkColorType,
+    kGray_8_SkColorType,
 
-    kLastEnum_SkColorType = kIndex_8_SkColorType,
+    kLastEnum_SkColorType = kGray_8_SkColorType,
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType = kBGRA_8888_SkColorType,
@@ -93,6 +94,7 @@ static int SkColorTypeBytesPerPixel(SkColorType ct) {
         4,  // RGBA_8888
         4,  // BGRA_8888
         1,  // kIndex_8
+        1,  // kGray_8
     };
     SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
                       size_mismatch_with_SkColorType_enum);

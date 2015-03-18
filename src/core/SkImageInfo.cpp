@@ -66,6 +66,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
             }
             break;
         case kRGB_565_SkColorType:
+        case kGray_8_SkColorType:
             alphaType = kOpaque_SkAlphaType;
             break;
         default:

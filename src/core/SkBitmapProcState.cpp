@@ -431,6 +431,10 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp,
                 index |= 32;
                 fPaintPMColor = SkPreMultiplyColor(paint.getColor());
                 break;
+            case kGray_8_SkColorType:
+                index |= 40;
+                fPaintPMColor = SkPreMultiplyColor(paint.getColor());
+                break;
             default:
                 // TODO(dominikg): Should we ever get here? SkASSERT(false) instead?
                 return false;
@@ -473,7 +477,7 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp,
             S4444_alpha_D32_filter_DXDY,
             S4444_opaque_D32_filter_DX,
             S4444_alpha_D32_filter_DX,
-
+            
             // A8 treats alpha/opaque the same (equally efficient)
             SA8_alpha_D32_nofilter_DXDY,
             SA8_alpha_D32_nofilter_DXDY,
@@ -482,7 +486,17 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp,
             SA8_alpha_D32_filter_DXDY,
             SA8_alpha_D32_filter_DXDY,
             SA8_alpha_D32_filter_DX,
-            SA8_alpha_D32_filter_DX
+            SA8_alpha_D32_filter_DX,
+            
+            // todo: possibly specialize on opaqueness
+            SG8_alpha_D32_nofilter_DXDY,
+            SG8_alpha_D32_nofilter_DXDY,
+            SG8_alpha_D32_nofilter_DX,
+            SG8_alpha_D32_nofilter_DX,
+            SG8_alpha_D32_filter_DXDY,
+            SG8_alpha_D32_filter_DXDY,
+            SG8_alpha_D32_filter_DX,
+            SG8_alpha_D32_filter_DX
         };
 
         static const SampleProc16 gSkBitmapProcStateSample16[] = {
@@ -504,6 +518,8 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp,
             // Don't support 4444 -> 565
             NULL, NULL, NULL, NULL,
             // Don't support A8 -> 565
+            NULL, NULL, NULL, NULL,
+            // Don't support G8 -> 565 (but we could)
             NULL, NULL, NULL, NULL
         };
 #endif

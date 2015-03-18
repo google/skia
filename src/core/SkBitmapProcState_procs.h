@@ -224,6 +224,25 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
 #define SRC_TO_FILTER(src)      src
 #include "SkBitmapProcState_sample.h"
 
+// SRC == Gray8
+
+#undef FILTER_PROC
+#define FILTER_PROC(x, y, a, b, c, d, dst) \
+    do {                                                        \
+        unsigned tmp = Filter_8(x, y, a, b, c, d);              \
+        SkPMColor color = SkPackARGB32(0xFF, tmp, tmp, tmp);    \
+        *(dst) = SkAlphaMulQ(color, alphaScale);                \
+    } while (0)
+
+#define MAKENAME(suffix)        NAME_WRAP(SG8_alpha_D32 ## suffix)
+#define DSTSIZE                 32
+#define SRCTYPE                 uint8_t
+#define CHECKSTATE(state)       SkASSERT(kGray_8_SkColorType == state.fBitmap->colorType());
+#define PREAMBLE(state)         unsigned alphaScale = state.fAlphaScale
+#define RETURNDST(src)          SkAlphaMulQ(SkPackARGB32(0xFF, src, src, src), alphaScale)
+#define SRC_TO_FILTER(src)      src
+#include "SkBitmapProcState_sample.h"
+
 /*****************************************************************************
  *
  *  D16 functions

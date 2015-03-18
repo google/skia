@@ -138,12 +138,13 @@ class FilterBitmapTextGM: public FilterBitmapGM {
 };
 
 class FilterBitmapCheckerboardGM: public FilterBitmapGM {
-  public:
-      FilterBitmapCheckerboardGM(int size, int num_checks)
-      : fSize(size), fNumChecks(num_checks)
-        {
-            fName.printf("filterbitmap_checkerboard_%d_%d", fSize, fNumChecks);
-        }
+public:
+    FilterBitmapCheckerboardGM(int size, int num_checks, bool convertToG8 = false)
+        : fSize(size), fNumChecks(num_checks), fConvertToG8(convertToG8)
+    {
+        fName.printf("filterbitmap_checkerboard_%d_%d%s",
+                     fSize, fNumChecks, convertToG8 ? "_g8" : "");
+    }
 
   protected:
       int fSize;
@@ -167,20 +168,26 @@ class FilterBitmapCheckerboardGM: public FilterBitmapGM {
                   }
               }
           }
+          if (fConvertToG8) {
+              SkBitmap tmp;
+              fBM.copyTo(&tmp, kGray_8_SkColorType);
+              fBM = tmp;
+          }
       }
-  private:
-      typedef FilterBitmapGM INHERITED;
+private:
+    const bool fConvertToG8;
+    typedef FilterBitmapGM INHERITED;
 };
 
 class FilterBitmapImageGM: public FilterBitmapGM {
-  public:
-      FilterBitmapImageGM(const char filename[])
-      : fFilename(filename)
-        {
-            fName.printf("filterbitmap_image_%s", filename);
-        }
+public:
+    FilterBitmapImageGM(const char filename[], bool convertToG8 = false)
+        : fFilename(filename), fConvertToG8(convertToG8)
+    {
+        fName.printf("filterbitmap_image_%s%s", filename, convertToG8 ? "_g8" : "");
+    }
 
-  protected:
+protected:
       SkString fFilename;
       int fSize;
 
@@ -204,9 +211,15 @@ class FilterBitmapImageGM: public FilterBitmapGM {
               *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
           }
           fSize = fBM.height();
+          if (fConvertToG8) {
+              SkBitmap tmp;
+              fBM.copyTo(&tmp, kGray_8_SkColorType);
+              fBM = tmp;
+          }
       }
-  private:
-      typedef FilterBitmapGM INHERITED;
+private:
+    const bool fConvertToG8;
+    typedef FilterBitmapGM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -216,12 +229,14 @@ DEF_GM( return new FilterBitmapTextGM(7); )
 DEF_GM( return new FilterBitmapTextGM(10); )
 DEF_GM( return new FilterBitmapCheckerboardGM(4,4); )
 DEF_GM( return new FilterBitmapCheckerboardGM(32,32); )
+DEF_GM( return new FilterBitmapCheckerboardGM(32,32, true); )
 DEF_GM( return new FilterBitmapCheckerboardGM(32,8); )
 DEF_GM( return new FilterBitmapCheckerboardGM(32,2); )
 DEF_GM( return new FilterBitmapCheckerboardGM(192,192); )
 DEF_GM( return new FilterBitmapImageGM("mandrill_16.png"); )
 DEF_GM( return new FilterBitmapImageGM("mandrill_32.png"); )
 DEF_GM( return new FilterBitmapImageGM("mandrill_64.png"); )
+DEF_GM( return new FilterBitmapImageGM("mandrill_64.png", true); )
 DEF_GM( return new FilterBitmapImageGM("mandrill_128.png"); )
 DEF_GM( return new FilterBitmapImageGM("mandrill_256.png"); )
 DEF_GM( return new FilterBitmapImageGM("mandrill_512.png"); )

@@ -31,6 +31,7 @@ static size_t get_uncompressed_size(const SkBitmap& bitmap,
             return srcRect.width() * 3 * srcRect.height();
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+        case kGray_8_SkColorType:
             return srcRect.width() * 3 * srcRect.height();
         case kAlpha_8_SkColorType:
             return 1;
@@ -113,7 +114,7 @@ static SkStream* extract_rgb565_image(const SkBitmap& bitmap,
                                       const SkIRect& srcRect) {
     SkStream* stream = SkNEW_ARGS(SkMemoryStream,
                                   (get_uncompressed_size(bitmap,
-                                                     srcRect)));
+                                                         srcRect)));
     uint8_t* dst = (uint8_t*)stream->getMemoryBase();
     for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
         uint16_t* src = bitmap.getAddr16(0, y);
@@ -121,6 +122,20 @@ static SkStream* extract_rgb565_image(const SkBitmap& bitmap,
             dst[0] = SkGetPackedR16(src[x]);
             dst[1] = SkGetPackedG16(src[x]);
             dst[2] = SkGetPackedB16(src[x]);
+            dst += 3;
+        }
+    }
+    return stream;
+}
+
+static SkStream* extract_gray8_image(const SkBitmap& bitmap, const SkIRect& srcRect) {
+    SkStream* stream = SkNEW_ARGS(SkMemoryStream,
+                                  (get_uncompressed_size(bitmap, srcRect)));
+    uint8_t* dst = (uint8_t*)stream->getMemoryBase();
+    for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
+        uint8_t* src = bitmap.getAddr8(0, y);
+        for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
+            dst[0] = dst[1] = dst[2] = src[x];
             dst += 3;
         }
     }
@@ -227,7 +242,8 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
                                     bool extractAlpha, bool* isTransparent) {
     SkColorType colorType = bitmap.colorType();
     if (extractAlpha && (kIndex_8_SkColorType == colorType ||
-                         kRGB_565_SkColorType == colorType)) {
+                         kRGB_565_SkColorType == colorType ||
+                         kGray_8_SkColorType  == colorType)) {
         if (isTransparent != NULL) {
             *isTransparent = false;
         }
@@ -256,6 +272,11 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
         case kRGB_565_SkColorType:
             if (!extractAlpha) {
                 stream.reset(extract_rgb565_image(bitmap, srcRect));
+            }
+            break;
+        case kGray_8_SkColorType:
+            if (!extractAlpha) {
+                stream.reset(extract_gray8_image(bitmap, srcRect));
             }
             break;
         case kN32_SkColorType:

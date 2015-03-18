@@ -516,6 +516,7 @@ void* SkBitmap::getAddr(int x, int y) const {
                 break;
             case kAlpha_8_SkColorType:
             case kIndex_8_SkColorType:
+            case kGray_8_SkColorType:
                 base += x;
                 break;
             default:
@@ -532,6 +533,10 @@ SkColor SkBitmap::getColor(int x, int y) const {
     SkASSERT((unsigned)y < (unsigned)this->height());
 
     switch (this->colorType()) {
+        case kGray_8_SkColorType: {
+            uint8_t* addr = this->getAddr8(x, y);
+            return SkColorSetRGB(*addr, *addr, *addr);
+        }
         case kAlpha_8_SkColorType: {
             uint8_t* addr = this->getAddr8(x, y);
             return SkColorSetA(0, addr[0]);
@@ -597,6 +602,7 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             return 0xFF == SkGetPackedA32(c);
         } break;
         case kRGB_565_SkColorType:
+        case kGray_8_SkColorType:
             return true;
             break;
         case kARGB_4444_SkColorType: {
@@ -674,6 +680,20 @@ void SkBitmap::internalErase(const SkIRect& area,
     const int rowBytes = fRowBytes;
 
     switch (this->colorType()) {
+        case kGray_8_SkColorType: {
+            if (255 != a) {
+                r = SkMulDiv255Round(r, a);
+                g = SkMulDiv255Round(g, a);
+                b = SkMulDiv255Round(b, a);
+            }
+            int gray = SkComputeLuminance(r, g, b);
+            uint8_t* p = this->getAddr8(area.fLeft, area.fTop);
+            while (--height >= 0) {
+                memset(p, gray, width);
+                p += rowBytes;
+            }
+            break;
+        }
         case kAlpha_8_SkColorType: {
             uint8_t* p = this->getAddr8(area.fLeft, area.fTop);
             while (--height >= 0) {
@@ -828,6 +848,16 @@ bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
             break;
         case kARGB_4444_SkColorType:
             return sameConfigs || kN32_SkColorType == srcCT || kIndex_8_SkColorType == srcCT;
+        case kGray_8_SkColorType:
+            switch (srcCT) {
+                case kGray_8_SkColorType:
+                case kRGBA_8888_SkColorType:
+                case kBGRA_8888_SkColorType:
+                    return true;
+                default:
+                    break;
+            }
+            return false;
         default:
             return false;
     }
