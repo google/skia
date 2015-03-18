@@ -570,7 +570,9 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Set the color table and return true on success
-    fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
+    if (maxColors > 0) {
+        fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
+    }
     return true;
 }
 
