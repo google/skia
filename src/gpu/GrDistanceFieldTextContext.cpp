@@ -319,8 +319,7 @@ void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip&
 
                 if (!this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                      glyph.getSubXFixed(),
-                                                     glyph.getSubYFixed(),
-                                                     GrGlyph::kDistance_MaskStyle),
+                                                     glyph.getSubYFixed()),
                                        x, y, fontScaler)) {
                     // couldn't append, send to fallback
                     fallbackTxt.push_back_n(SkToInt(text-lastText), lastText);
@@ -349,8 +348,7 @@ void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip&
 
                 if (!this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                      glyph.getSubXFixed(),
-                                                     glyph.getSubYFixed(),
-                                                     GrGlyph::kDistance_MaskStyle),
+                                                     glyph.getSubYFixed()),
                                        x - advanceX, y - advanceY, fontScaler)) {
                     // couldn't append, send to fallback
                     fallbackTxt.push_back_n(SkToInt(text-lastText), lastText);
@@ -511,7 +509,7 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
     }
 
     if (NULL == fStrike) {
-        fStrike = fContext->getFontCache()->getStrike(scaler);
+        fStrike = fContext->getFontCache()->getStrike(scaler, true);
     }
 
     GrGlyph* glyph = fStrike->getGlyph(packed, scaler);

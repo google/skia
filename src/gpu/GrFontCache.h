@@ -72,6 +72,7 @@ private:
     SkVarAlloc fPool;
 
     GrFontCache*    fFontCache;
+    bool            fUseDistanceField;
 
     GrAtlas::ClientPlotUsage fPlotUsage;
 
@@ -85,7 +86,7 @@ public:
     GrFontCache(GrGpu*);
     ~GrFontCache();
 
-    inline GrTextStrike* getStrike(GrFontScaler* scaler) {
+    inline GrTextStrike* getStrike(GrFontScaler* scaler, bool useDistanceField) {
         this->validate();
         
         GrTextStrike* strike = fCache.find(*(scaler->getKey()));
@@ -101,6 +102,7 @@ public:
             strike->fPrev = NULL;
             fHead = strike;
         }
+        strike->fUseDistanceField = useDistanceField;
         this->validate();
         return strike;
     }
