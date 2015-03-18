@@ -18,18 +18,23 @@
  */
 static bool conversion_possible(const SkImageInfo& dst,
                                 const SkImageInfo& src) {
-    // All of the swizzles convert to kN32
-    // TODO: Update this when more swizzles are supported
-    if (kN32_SkColorType != dst.colorType()) {
+    // Ensure that the profile type is unchanged
+    if (dst.profileType() != src.profileType()) {
         return false;
     }
-    // Support the swizzle if the requested alpha type is the same as our guess
-    // for the input alpha type
-    if (src.alphaType() == dst.alphaType()) {
-        return true;
+
+    // Check for supported color and alpha types
+    switch (dst.colorType()) {
+        case kN32_SkColorType:
+            return src.alphaType() == dst.alphaType() ||
+                    (kPremul_SkAlphaType == dst.alphaType() &&
+                    kUnpremul_SkAlphaType == src.alphaType());
+        case kRGB_565_SkColorType:
+            return src.alphaType() == dst.alphaType() &&
+                    kOpaque_SkAlphaType == dst.alphaType();
+        default:
+            return false;
     }
-    // TODO: Support more swizzles, especially premul
-    return false;
 }
 
 /*
@@ -247,7 +252,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream) {
 
     // Create mask struct
     SkMasks::InputMasks inputMasks;
-    memset(&inputMasks, 0, 4*sizeof(uint32_t));
+    memset(&inputMasks, 0, sizeof(SkMasks::InputMasks));
 
     // Determine the input compression format and set bit masks if necessary
     uint32_t maskBytes = 0;
@@ -392,87 +397,30 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream) {
         return NULL;
     }
 
-    // Process the color table
-    uint32_t colorBytes = 0;
-    SkPMColor* colorTable = NULL;
-    if (bitsPerPixel < 16) {
-        // Verify the number of colors for the color table
-        const uint32_t maxColors = 1 << bitsPerPixel;
-        // Zero is a default for maxColors
-        // Also set numColors to maxColors when input is too large
-        if (numColors <= 0 || numColors > maxColors) {
-            numColors = maxColors;
-        }
-        colorTable = SkNEW_ARRAY(SkPMColor, maxColors);
-
-        // Construct the color table
-        colorBytes = numColors * bytesPerColor;
-        SkAutoTDeleteArray<uint8_t> cBuffer(SkNEW_ARRAY(uint8_t, colorBytes));
-        if (stream->read(cBuffer.get(), colorBytes) != colorBytes) {
-            SkDebugf("Error: unable to read color table.\n");
-            return NULL;
-        }
-
-        // Fill in the color table (colors are stored unpremultiplied)
-        uint32_t i = 0;
-        for (; i < numColors; i++) {
-            uint8_t blue = get_byte(cBuffer.get(), i*bytesPerColor);
-            uint8_t green = get_byte(cBuffer.get(), i*bytesPerColor + 1);
-            uint8_t red = get_byte(cBuffer.get(), i*bytesPerColor + 2);
-            uint8_t alpha = 0xFF;
-            if (kOpaque_SkAlphaType != alphaType) {
-                alpha = (inputMasks.alpha >> 24) &
-                        get_byte(cBuffer.get(), i*bytesPerColor + 3);
-            }
-            // Store the unpremultiplied color
-            colorTable[i] = SkPackARGB32NoCheck(alpha, red, green, blue);
-        }
-
-        // To avoid segmentation faults on bad pixel data, fill the end of the
-        // color table with black.  This is the same the behavior as the
-        // chromium decoder.
-        for (; i < maxColors; i++) {
-            colorTable[i] = SkPackARGB32NoCheck(0xFF, 0, 0, 0);
-        }
-    }
-
-    // Ensure that the stream now points to the start of the pixel array
-    uint32_t bytesRead = kBmpHeaderBytes + infoBytes + maskBytes + colorBytes;
-
-    // Check that we have not read past the pixel array offset
-    if(bytesRead > offset) {
-        // This may occur on OS 2.1 and other old versions where the color
-        // table defaults to max size, and the bmp tries to use a smaller color
-        // table.  This is invalid, and our decision is to indicate an error,
-        // rather than try to guess the intended size of the color table and
-        // rewind the stream to display the image.
-        SkDebugf("Error: pixel data offset less than header size.\n");
-        return NULL;
-    }
-
-    // Skip to the start of the pixel array
-    if (stream->skip(offset - bytesRead) != offset - bytesRead) {
-        SkDebugf("Error: unable to skip to image data.\n");
-        return NULL;
-    }
-
-    // Remaining bytes is only used for RLE
-    const int remainingBytes = totalBytes - offset;
-    if (remainingBytes <= 0 && kRLE_BitmapInputFormat == inputFormat) {
+    // Check for a valid number of total bytes when in RLE mode
+    if (totalBytes <= offset && kRLE_BitmapInputFormat == inputFormat) {
         SkDebugf("Error: RLE requires valid input size.\n");
+        return NULL;
+    }
+    const size_t RLEBytes = totalBytes - offset;
+
+    // Calculate the number of bytes read so far
+    const uint32_t bytesRead = kBmpHeaderBytes + infoBytes + maskBytes;
+    if (offset < bytesRead) {
+        SkDebugf("Error: pixel data offset less than header size.\n");
         return NULL;
     }
 
     // Return the codec
     // We will use ImageInfo to store width, height, and alpha type.  We will
-    // choose kN32_SkColorType as the input color type because that is the
-    // expected choice for a destination color type.  In reality, the input
-    // color type has many possible formats.
+    // set color type to kN32_SkColorType because that should be the default
+    // output.
     const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
             kN32_SkColorType, alphaType);
     return SkNEW_ARGS(SkBmpCodec, (imageInfo, stream, bitsPerPixel,
-                                   inputFormat, masks.detach(), colorTable,
-                                   rowOrder, remainingBytes));
+                                   inputFormat, masks.detach(), numColors,
+                                   bytesPerColor, offset - bytesRead,
+                                   rowOrder, RLEBytes));
 }
 
 /*
@@ -483,16 +431,19 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream) {
  */
 SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
                        uint16_t bitsPerPixel, BitmapInputFormat inputFormat,
-                       SkMasks* masks, SkPMColor* colorTable,
-                       RowOrder rowOrder,
-                       const uint32_t remainingBytes)
+                       SkMasks* masks, uint32_t numColors,
+                       uint32_t bytesPerColor, uint32_t offset,
+                       RowOrder rowOrder, size_t RLEBytes)
     : INHERITED(info, stream)
     , fBitsPerPixel(bitsPerPixel)
     , fInputFormat(inputFormat)
     , fMasks(masks)
-    , fColorTable(colorTable)
+    , fColorTable(NULL)
+    , fNumColors(numColors)
+    , fBytesPerColor(bytesPerColor)
+    , fOffset(offset)
     , fRowOrder(rowOrder)
-    , fRemainingBytes(remainingBytes)
+    , fRLEBytes(RLEBytes)
 {}
 
 /*
@@ -504,6 +455,7 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
                                         const Options&,
                                         SkPMColor*, int*) {
+    // Check for proper input and output formats
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
@@ -516,6 +468,13 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidConversion;
     }
 
+    // Create the color table if necessary and prepare the stream for decode
+    if (!createColorTable(dstInfo.alphaType())) {
+        SkDebugf("Error: could not create color table.\n");
+        return kInvalidInput;
+    }
+
+    // Perform the decode
     switch (fInputFormat) {
         case kBitMask_BitmapInputFormat:
             return decodeMask(dstInfo, dst, dstRowBytes);
@@ -531,6 +490,92 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 /*
  *
+ * Process the color table for the bmp input
+ *
+ */
+ bool SkBmpCodec::createColorTable(SkAlphaType alphaType) {
+    // Allocate memory for color table
+    uint32_t colorBytes = 0;
+    uint32_t maxColors = 0;
+    SkPMColor colorTable[256];
+    if (fBitsPerPixel <= 8) {
+        // Zero is a default for maxColors
+        // Also set fNumColors to maxColors when it is too large
+        maxColors = 1 << fBitsPerPixel;
+        if (fNumColors == 0 || fNumColors >= maxColors) {
+            fNumColors = maxColors;
+        }
+
+        // Read the color table from the stream
+        colorBytes = fNumColors * fBytesPerColor;
+        SkAutoTDeleteArray<uint8_t> cBuffer(SkNEW_ARRAY(uint8_t, colorBytes));
+        if (stream()->read(cBuffer.get(), colorBytes) != colorBytes) {
+            SkDebugf("Error: unable to read color table.\n");
+            return false;
+        }
+
+        // Choose the proper packing function
+        SkPMColor (*packARGB) (uint32_t, uint32_t, uint32_t, uint32_t);
+        switch (alphaType) {
+            case kOpaque_SkAlphaType:
+            case kUnpremul_SkAlphaType:
+                packARGB = &SkPackARGB32NoCheck;
+                break;
+            case kPremul_SkAlphaType:
+                packARGB = &SkPreMultiplyARGB;
+                break;
+            default:
+                // This should not be reached because conversion possible
+                // should fail if the alpha type is not one of the above
+                // values.
+                SkASSERT(false);
+                packARGB = NULL;
+                break;
+        }
+
+        // Fill in the color table
+        uint32_t i = 0;
+        for (; i < fNumColors; i++) {
+            uint8_t blue = get_byte(cBuffer.get(), i*fBytesPerColor);
+            uint8_t green = get_byte(cBuffer.get(), i*fBytesPerColor + 1);
+            uint8_t red = get_byte(cBuffer.get(), i*fBytesPerColor + 2);
+            uint8_t alpha = kOpaque_SkAlphaType == alphaType ? 0xFF :
+                    (fMasks->getAlphaMask() >> 24) &
+                    get_byte(cBuffer.get(), i*fBytesPerColor + 3);
+            colorTable[i] = packARGB(alpha, red, green, blue);
+        }
+
+        // To avoid segmentation faults on bad pixel data, fill the end of the
+        // color table with black.  This is the same the behavior as the
+        // chromium decoder.
+        for (; i < maxColors; i++) {
+            colorTable[i] = SkPackARGB32NoCheck(0xFF, 0, 0, 0);
+        }
+    }
+
+    // Check that we have not read past the pixel array offset
+    if(fOffset < colorBytes) {
+        // This may occur on OS 2.1 and other old versions where the color
+        // table defaults to max size, and the bmp tries to use a smaller color
+        // table.  This is invalid, and our decision is to indicate an error,
+        // rather than try to guess the intended size of the color table.
+        SkDebugf("Error: pixel data offset less than color table size.\n");
+        return false;
+    }
+
+    // After reading the color table, skip to the start of the pixel array
+    if (stream()->skip(fOffset - colorBytes) != fOffset - colorBytes) {
+        SkDebugf("Error: unable to skip to image data.\n");
+        return false;
+    }
+
+    // Set the color table and return true on success
+    fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
+    return true;
+}
+
+/*
+ *
  * Performs the bitmap decoding for bit masks input format
  *
  */
@@ -541,50 +586,50 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
     const int height = dstInfo.height();
     const size_t rowBytes = SkAlign4(compute_row_bytes(width, fBitsPerPixel));
 
-    // Allocate space for a row buffer and a source for the swizzler
-    SkAutoTDeleteArray<uint8_t> srcBuffer(SkNEW_ARRAY(uint8_t, rowBytes));
-
-    // Get the destination start row and delta
-    SkPMColor* dstRow;
-    int delta;
-    if (kTopDown_RowOrder == fRowOrder) {
-        dstRow = (SkPMColor*) dst;
-        delta = (int) dstRowBytes;
-    } else {
-        dstRow = (SkPMColor*) SkTAddOffset<void>(dst, (height-1) * dstRowBytes);
-        delta = -((int) dstRowBytes);
-    }
+    // Allocate a buffer large enough to hold the full image
+    SkAutoTDeleteArray<uint8_t>
+        srcBuffer(SkNEW_ARRAY(uint8_t, height*rowBytes));
+    uint8_t* srcRow = srcBuffer.get();
 
     // Create the swizzler
-    SkMaskSwizzler* swizzler = SkMaskSwizzler::CreateMaskSwizzler(
-            dstInfo, fMasks, fBitsPerPixel);
+    SkAutoTDelete<SkMaskSwizzler> maskSwizzler(
+            SkMaskSwizzler::CreateMaskSwizzler(dstInfo, dst, dstRowBytes,
+            fMasks, fBitsPerPixel));
 
     // Iterate over rows of the image
     bool transparent = true;
     for (int y = 0; y < height; y++) {
         // Read a row of the input
-        if (stream()->read(srcBuffer.get(), rowBytes) != rowBytes) {
+        if (stream()->read(srcRow, rowBytes) != rowBytes) {
             SkDebugf("Warning: incomplete input stream.\n");
             return kIncompleteInput;
         }
 
         // Decode the row in destination format
-        SkSwizzler::ResultAlpha r = swizzler->next(dstRow, srcBuffer.get());
+        int row = kBottomUp_RowOrder == fRowOrder ? height - 1 - y : y;
+        SkSwizzler::ResultAlpha r = maskSwizzler->next(srcRow, row);
         transparent &= SkSwizzler::IsTransparent(r);
 
         // Move to the next row
-        dstRow = SkTAddOffset<SkPMColor>(dstRow, delta);
+        srcRow = SkTAddOffset<uint8_t>(srcRow, rowBytes);
     }
 
     // Some fully transparent bmp images are intended to be opaque.  Here, we
     // correct for this possibility.
-    dstRow = (SkPMColor*) dst;
     if (transparent) {
+        const SkImageInfo& opaqueInfo =
+                dstInfo.makeAlphaType(kOpaque_SkAlphaType);
+        SkAutoTDelete<SkMaskSwizzler> opaqueSwizzler(
+                SkMaskSwizzler::CreateMaskSwizzler(opaqueInfo, dst, dstRowBytes,
+                                                   fMasks, fBitsPerPixel));
+        srcRow = srcBuffer.get();
         for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                dstRow[x] |= 0xFF000000;
-            }
-            dstRow = SkTAddOffset<SkPMColor>(dstRow, dstRowBytes);
+            // Decode the row in opaque format
+            int row = kBottomUp_RowOrder == fRowOrder ? height - 1 - y : y;
+            opaqueSwizzler->next(srcRow, row);
+
+            // Move to the next row
+            srcRow = SkTAddOffset<uint8_t>(srcRow, rowBytes);
         }
     }
 
@@ -597,13 +642,78 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
  * Set an RLE pixel using the color table
  *
  */
-void SkBmpCodec::setRLEPixel(SkPMColor* dst, size_t dstRowBytes, int height,
-                             uint32_t x, uint32_t y, uint8_t index) {
+void SkBmpCodec::setRLEPixel(SkPMColor* dst, size_t dstRowBytes,
+                             const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
+                             uint8_t index) {
+    // Set the row
+    int height = dstInfo.height();
+    int row;
     if (kBottomUp_RowOrder == fRowOrder) {
-        y = height - y - 1;
+        row = height - y - 1;
+    } else {
+        row = y;
     }
-    SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, y * dstRowBytes);
-    dstRow[x] = fColorTable.get()[index];
+
+    // Set the pixel based on destination color type
+    switch (dstInfo.colorType()) {
+        case kN32_SkColorType: {
+            SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst,
+                    row * (int) dstRowBytes);
+            dstRow[x] = fColorTable->operator[](index);
+            break;
+        }
+        case kRGB_565_SkColorType: {
+            uint16_t* dstRow = SkTAddOffset<uint16_t>(dst,
+                    row * (int) dstRowBytes);
+            dstRow[x] = SkPixel32ToPixel16(fColorTable->operator[](index));
+            break;
+        }
+        default:
+            // This case should not be reached.  We should catch an invalid
+            // color type when we check that the conversion is possible.
+            SkASSERT(false);
+            break;
+    }
+}
+
+/*
+ *
+ * Set an RLE pixel from R, G, B values
+ *
+ */
+void SkBmpCodec::setRLE24Pixel(SkPMColor* dst, size_t dstRowBytes,
+                               const SkImageInfo& dstInfo, uint32_t x,
+                               uint32_t y, uint8_t red, uint8_t green,
+                               uint8_t blue) {
+    // Set the row
+    int height = dstInfo.height();
+    int row;
+    if (kBottomUp_RowOrder == fRowOrder) {
+        row = height - y - 1;
+    } else {
+        row = y;
+    }
+
+    // Set the pixel based on destination color type
+    switch (dstInfo.colorType()) {
+        case kN32_SkColorType: {
+            SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst,
+                    row * (int) dstRowBytes);
+            dstRow[x] = SkPackARGB32NoCheck(0xFF, red, green, blue);
+            break;
+        }
+        case kRGB_565_SkColorType: {
+            uint16_t* dstRow = SkTAddOffset<uint16_t>(dst,
+                    row * (int) dstRowBytes);
+            dstRow[x] = SkPack888ToRGB16(red, green, blue);
+            break;
+        }
+        default:
+            // This case should not be reached.  We should catch an invalid
+            // color type when we check that the conversion is possible.
+            SkASSERT(false);
+            break;
+    }
 }
 
 /*
@@ -626,9 +736,9 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
 
     // Input buffer parameters
     uint32_t currByte = 0;
-    SkAutoTDeleteArray<uint8_t> buffer(SkNEW_ARRAY(uint8_t, fRemainingBytes));
-    size_t totalBytes = stream()->read(buffer.get(), fRemainingBytes);
-    if ((uint32_t) totalBytes < fRemainingBytes) {
+    SkAutoTDeleteArray<uint8_t> buffer(SkNEW_ARRAY(uint8_t, fRLEBytes));
+    size_t totalBytes = stream()->read(buffer.get(), fRLEBytes);
+    if (totalBytes < fRLEBytes) {
         SkDebugf("Warning: incomplete RLE file.\n");
     } else if (totalBytes <= 0) {
         SkDebugf("Error: could not read RLE image data.\n");
@@ -707,18 +817,16 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                         return kIncompleteInput;
                     }
                     // Set numPixels number of pixels
-                    SkPMColor* dstRow = SkTAddOffset<SkPMColor>(
-                            dstPtr, y * dstRowBytes);
                     while (numPixels > 0) {
                         switch(fBitsPerPixel) {
                             case 4: {
                                 SkASSERT(currByte < totalBytes);
                                 uint8_t val = buffer.get()[currByte++];
-                                setRLEPixel(dstPtr, dstRowBytes, height, x++, y,
-                                        val >> 4);
+                                setRLEPixel(dstPtr, dstRowBytes, dstInfo, x++,
+                                        y, val >> 4);
                                 numPixels--;
                                 if (numPixels != 0) {
-                                    setRLEPixel(dstPtr, dstRowBytes, height,
+                                    setRLEPixel(dstPtr, dstRowBytes, dstInfo,
                                             x++, y, val & 0xF);
                                     numPixels--;
                                 }
@@ -726,8 +834,8 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                             }
                             case 8:
                                 SkASSERT(currByte < totalBytes);
-                                setRLEPixel(dstPtr, dstRowBytes, height, x++, y,
-                                        buffer.get()[currByte++]);
+                                setRLEPixel(dstPtr, dstRowBytes, dstInfo, x++,
+                                        y, buffer.get()[currByte++]);
                                 numPixels--;
                                 break;
                             case 24: {
@@ -735,9 +843,8 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                                 uint8_t blue = buffer.get()[currByte++];
                                 uint8_t green = buffer.get()[currByte++];
                                 uint8_t red = buffer.get()[currByte++];
-                                SkPMColor color = SkPackARGB32NoCheck(
-                                        0xFF, red, green, blue);
-                                dstRow[x++] = color;
+                                setRLE24Pixel(dstPtr, dstRowBytes, dstInfo,
+                                            x++, y, red, green, blue);
                                 numPixels--;
                             }
                             default:
@@ -771,11 +878,9 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                 uint8_t blue = task;
                 uint8_t green = buffer.get()[currByte++];
                 uint8_t red = buffer.get()[currByte++];
-                SkPMColor color = SkPackARGB32NoCheck(0xFF, red, green, blue);
-                SkPMColor* dstRow =
-                        SkTAddOffset<SkPMColor>(dstPtr, y * dstRowBytes);
                 while (x < endX) {
-                    dstRow[x++] = color;
+                    setRLE24Pixel(dstPtr, dstRowBytes, dstInfo, x++, y, red,
+                            green, blue);
                 }
             } else {
                 // In RLE8 or RLE4, the second byte read gives the index in the
@@ -791,7 +896,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
 
                 // Set the indicated number of pixels
                 for (int which = 0; x < endX; x++) {
-                    setRLEPixel(dstPtr, dstRowBytes, height, x, y,
+                    setRLEPixel(dstPtr, dstRowBytes, dstInfo, x, y,
                             indices[which]);
                     which = !which;
                 }
@@ -811,7 +916,6 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
     const int width = dstInfo.width();
     const int height = dstInfo.height();
     const size_t rowBytes = SkAlign4(compute_row_bytes(width, fBitsPerPixel));
-    const uint32_t alphaMask = fMasks->getAlphaMask();
 
     // Get swizzler configuration
     SkSwizzler::SrcConfig config;
@@ -832,7 +936,7 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
             config = SkSwizzler::kBGR;
             break;
         case 32:
-            if (0 == alphaMask) {
+            if (kOpaque_SkAlphaType == dstInfo.alphaType()) {
                 config = SkSwizzler::kBGRX;
             } else {
                 config = SkSwizzler::kBGRA;
@@ -844,8 +948,9 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
     }
 
     // Create swizzler
-    SkSwizzler* swizzler = SkSwizzler::CreateSwizzler(config, fColorTable.get(),
-            dstInfo, dst, dstRowBytes, SkImageGenerator::kNo_ZeroInitialized);
+    SkAutoTDelete<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(config,
+            fColorTable->readColors(), dstInfo, dst, dstRowBytes,
+            SkImageGenerator::kNo_ZeroInitialized));
 
     // Allocate space for a row buffer and a source for the swizzler
     SkAutoTDeleteArray<uint8_t> srcBuffer(SkNEW_ARRAY(uint8_t, rowBytes));

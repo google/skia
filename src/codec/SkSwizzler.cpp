@@ -44,6 +44,28 @@ static SkSwizzler::ResultAlpha swizzle_small_index_to_n32(
     return COMPUTE_RESULT_ALPHA;
 }
 
+static SkSwizzler::ResultAlpha swizzle_small_index_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bitsPerPixel, int y, const SkPMColor ctable[]) {
+
+    uint16_t* SK_RESTRICT dst = (uint16_t*) dstRow;
+    const uint32_t pixelsPerByte = 8 / bitsPerPixel;
+    const size_t rowBytes = compute_row_bytes_ppb(width, pixelsPerByte);
+    const uint8_t mask = (1 << bitsPerPixel) - 1;
+    int x = 0;
+    for (uint32_t byte = 0; byte < rowBytes; byte++) {
+        uint8_t pixelData = src[byte];
+        for (uint32_t p = 0; p < pixelsPerByte && x < width; p++) {
+            uint8_t index = (pixelData >> (8 - bitsPerPixel)) & mask;
+            uint16_t c = SkPixel32ToPixel16(ctable[index]);
+            dst[x] = c;
+            pixelData <<= bitsPerPixel;
+            x++;
+        }
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
 // kIndex
 
 static SkSwizzler::ResultAlpha swizzle_index_to_n32(
@@ -78,6 +100,19 @@ static SkSwizzler::ResultAlpha swizzle_index_to_n32_skipZ(
     return COMPUTE_RESULT_ALPHA;
 }
 
+static SkSwizzler::ResultAlpha swizzle_index_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < width; x++) {
+        uint16_t c = SkPixel32ToPixel16(ctable[*src]);
+        dst[x] = c;
+        src++;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
 #undef A32_MASK_IN_PLACE
 
 static SkSwizzler::ResultAlpha swizzle_bgrx_to_n32(
@@ -92,9 +127,21 @@ static SkSwizzler::ResultAlpha swizzle_bgrx_to_n32(
     return SkSwizzler::kOpaque_ResultAlpha;
 }
 
+static SkSwizzler::ResultAlpha swizzle_bgrx_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPack888ToRGB16(src[2], src[1], src[0]);
+        src += bytesPerPixel;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
 // kBGRA
 
-static SkSwizzler::ResultAlpha swizzle_bgra_to_n32(
+static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_unpremul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
         int bytesPerPixel, int y, const SkPMColor ctable[]) {
 
@@ -104,6 +151,21 @@ static SkSwizzler::ResultAlpha swizzle_bgra_to_n32(
         uint8_t alpha = src[3];
         UPDATE_RESULT_ALPHA(alpha);
         dst[x] = SkPackARGB32NoCheck(alpha, src[2], src[1], src[0]);
+        src += bytesPerPixel;
+    }
+    return COMPUTE_RESULT_ALPHA;
+}
+
+static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_premul(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+
+    SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
+    INIT_RESULT_ALPHA;
+    for (int x = 0; x < width; x++) {
+        uint8_t alpha = src[3];
+        UPDATE_RESULT_ALPHA(alpha);
+        dst[x] = SkPreMultiplyARGB(alpha, src[2], src[1], src[0]);
         src += bytesPerPixel;
     }
     return COMPUTE_RESULT_ALPHA;
@@ -220,6 +282,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                 case kN32_SkColorType:
                     proc = &swizzle_small_index_to_n32;
                     break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_small_index_to_565;
+                    break;
                 default:
                     break;
             }
@@ -230,9 +295,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                     // We assume the color premultiplied ctable (or not) as desired.
                     if (SkImageGenerator::kYes_ZeroInitialized == zeroInit) {
                         proc = &swizzle_index_to_n32_skipZ;
+                        break;
                     } else {
                         proc = &swizzle_index_to_n32;
+                        break;
                     }
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_index_to_565;
                     break;
                 default:
                     break;
@@ -244,6 +314,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                 case kN32_SkColorType:
                     proc = &swizzle_bgrx_to_n32;
                     break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_bgrx_to_565;
+                    break;
                 default:
                     break;
             }
@@ -251,7 +324,16 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         case kBGRA:
             switch (info.colorType()) {
                 case kN32_SkColorType:
-                    proc = &swizzle_bgra_to_n32;
+                    switch (info.alphaType()) {
+                        case kUnpremul_SkAlphaType:
+                            proc = &swizzle_bgra_to_n32_unpremul;
+                            break;
+                        case kPremul_SkAlphaType:
+                            proc = &swizzle_bgra_to_n32_premul;
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     break;

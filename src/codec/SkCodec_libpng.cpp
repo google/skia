@@ -347,19 +347,19 @@ SkPngCodec::~SkPngCodec() {
 // Getting the pixels
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool conversion_possible(const SkImageInfo& A, const SkImageInfo& B) {
+static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
     // TODO: Support other conversions
-    if (A.colorType() != B.colorType()) {
+    if (dst.colorType() != src.colorType()) {
         return false;
     }
-    if (A.profileType() != B.profileType()) {
+    if (dst.profileType() != src.profileType()) {
         return false;
     }
-    if (A.alphaType() == B.alphaType()) {
+    if (dst.alphaType() == src.alphaType()) {
         return true;
     }
-    return premul_and_unpremul(A.alphaType(), B.alphaType())
-            || premul_and_unpremul(B.alphaType(), A.alphaType());
+    return kPremul_SkAlphaType == dst.alphaType() &&
+            kUnpremul_SkAlphaType == src.alphaType();
 }
 
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,

@@ -6,6 +6,7 @@
  */
 
 #include "SkCodec.h"
+#include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
 #include "SkStream.h"
@@ -75,6 +76,13 @@ private:
 
     /*
      *
+     * Creates the color table
+     *
+     */
+     bool createColorTable(SkAlphaType alphaType);
+
+    /*
+     *
      * Performs the bitmap decoding for bit masks input format
      *
      */
@@ -86,8 +94,17 @@ private:
      * Set an RLE pixel using the color table
      *
      */
-    void setRLEPixel(SkPMColor* dst, size_t dstRowBytes, int height,
-                     uint32_t x, uint32_t y, uint8_t index);
+    void setRLEPixel(SkPMColor* dst, size_t dstRowBytes,
+                     const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
+                     uint8_t index);
+    /*
+     *
+     * Set an RLE24 pixel from R, G, B values
+     *
+     */
+    void setRLE24Pixel(SkPMColor* dst, size_t dstRowBytes,
+                       const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
+                       uint8_t red, uint8_t green, uint8_t blue);
 
     /*
      *
@@ -115,11 +132,13 @@ private:
      * @param format the format of the bmp file
      * @param masks optional color masks for certain bmp formats, passes
                     ownership to SkBmpCodec
-     * @param colorTable array representing the color table for index-based bmp
-     *                   formats, colors are unpremultiplied, passes ownership
-     *                   to SkBmpCodec
+     * @param numColors the number of colors in the color table
+     * @param bytesPerColor the number of bytes in the stream used to represent
+                            each color in the color table
+     * @param offset the offset of the image pixel data from the end of the
+     *               headers
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
-     * @param remainingBytes used only for RLE decodes, as we must decode all
+     * @param RLEBytes used only for RLE decodes, as we must decode all
      *                  of the data at once rather than row by row
      *                  it indicates the amount of data left in the stream
      *                  after decoding the headers
@@ -127,16 +146,19 @@ private:
      */
     SkBmpCodec(const SkImageInfo& srcInfo, SkStream* stream,
                uint16_t bitsPerPixel, BitmapInputFormat format,
-               SkMasks* masks, SkPMColor* colorTable,
-               RowOrder rowOrder, uint32_t remainingBytes);
+               SkMasks* masks, uint32_t numColors, uint32_t bytesPerColor,
+               uint32_t offset, RowOrder rowOrder, size_t RLEByes);
 
     // Fields
     const uint16_t                      fBitsPerPixel;
     const BitmapInputFormat             fInputFormat;
     SkAutoTDelete<SkMasks>              fMasks;          // owned
-    const SkAutoTDeleteArray<SkPMColor> fColorTable;     // owned, unpremul
+    SkAutoTDelete<SkColorTable>         fColorTable;     // owned
+    uint32_t                            fNumColors;
+    const uint32_t                      fBytesPerColor;
+    const uint32_t                      fOffset;
     const RowOrder                      fRowOrder;
-    const uint32_t                      fRemainingBytes;
+    const size_t                        fRLEBytes;
 
     typedef SkCodec INHERITED;
 };

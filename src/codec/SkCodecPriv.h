@@ -65,15 +65,6 @@ static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
 
 /*
  *
- * Checks if alpha types are premul and unpremul
- *
- */
-static inline bool premul_and_unpremul(SkAlphaType dst, SkAlphaType src) {
-    return kPremul_SkAlphaType == dst && kUnpremul_SkAlphaType == src;
-}
-
-/*
- *
  * Get a byte from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  *
