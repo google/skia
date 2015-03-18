@@ -85,6 +85,9 @@ def get_args(bot):
     args.extend(['--threads', '1'])
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
+  if 'TSAN' in bot: # skia:3562
+    match.append('~Math')
+
   if 'Xoom' in bot or 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
 
@@ -121,6 +124,7 @@ def self_test():
     'Test-Android-Xoom-Tegra2-Arm7-Release',
     'Test-ChromeOS-Alex-GMA3150-x86-Debug',
     'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU',
+    'Test-Ubuntu13.10-GCE-NoGPU-x86_64-Release-TSAN',
     'Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU',
     'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
   ]

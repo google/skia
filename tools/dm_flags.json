@@ -208,6 +208,28 @@
     "--match", 
     "~Threaded"
   ], 
+  "Test-Ubuntu13.10-GCE-NoGPU-x86_64-Release-TSAN": [
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "msaa16", 
+    "nvprmsaa16", 
+    "pdf", 
+    "serialize-8888", 
+    "tiles_rt-8888", 
+    "pipe-8888", 
+    "tiles_rt-gpu", 
+    "--blacklist", 
+    "gpu", 
+    "_", 
+    "PANO_20121023_214540.jpg", 
+    "msaa", 
+    "_", 
+    "PANO_20121023_214540.jpg", 
+    "--match", 
+    "~Math"
+  ], 
   "Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU": [
     "--config", 
     "565", 
