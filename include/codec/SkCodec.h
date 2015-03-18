@@ -11,11 +11,11 @@
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
+#include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
 class SkData;
-class SkStream;
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -46,7 +46,9 @@ public:
      *
      *  FIXME: Move to SkImageGenerator?
      */
-    SkISize getScaledDimensions(float desiredScale) const;
+    SkISize getScaledDimensions(float desiredScale) const {
+        return this->onGetScaledDimensions(desiredScale);
+    }
 
 protected:
     SkCodec(const SkImageInfo&, SkStream*);
