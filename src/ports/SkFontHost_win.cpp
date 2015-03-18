@@ -616,8 +616,8 @@ SkScalerContext_GDI::SkScalerContext_GDI(SkTypeface* rawTypeface,
     SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
 
-    // When GDI hinting, remove the entire Y scale to prevent 'subpixel' metrics.
-    // When not hinting, remove only the gdiTextSize scale which will be applied by GDI.
+    // When GDI hinting, remove the entire Y scale from sA and GsA. (Prevents 'linear' metrics.)
+    // When not hinting, remove only the integer Y scale from sA and GsA. (Applied by GDI.)
     SkScalerContextRec::PreMatrixScale scaleConstraints =
         (fRec.getHinting() == SkPaint::kNo_Hinting || fRec.getHinting() == SkPaint::kSlight_Hinting)
                    ? SkScalerContextRec::kVerticalInteger_PreMatrixScale
@@ -633,7 +633,19 @@ SkScalerContext_GDI::SkScalerContext_GDI(SkTypeface* rawTypeface,
     fGsA.eM21 = SkScalarToFIXED(-GsA.get(SkMatrix::kMSkewX));
     fGsA.eM22 = SkScalarToFIXED(GsA.get(SkMatrix::kMScaleY));
 
-    SkScalar gdiTextSize = scale.fY;
+    // When not hinting, scale was computed with kVerticalInteger, so is already an integer.
+    // The sA and GsA transforms will be used to create 'linear' metrics.
+
+    // When hinting, scale was computed with kVertical, stating that our port can handle
+    // non-integer scales. This is done so that sA and GsA are computed without any 'residual'
+    // scale in them, preventing 'linear' metrics. However, GDI cannot actually handle non-integer
+    // scales so we need to round in this case. This is fine, since all of the scale has been
+    // removed from sA and GsA, so GDI will be handling the scale completely.
+    SkScalar gdiTextSize = SkScalarRoundToScalar(scale.fY);
+
+    // GDI will not accept a size of zero, so round the range [0, 1] to 1.
+    // If the size was non-zero, the scale factors will also be non-zero and 1px tall text is drawn.
+    // If the size actually was zero, the scale factors will also be zero, so GDI will draw nothing.
     if (gdiTextSize == 0) {
         gdiTextSize = SK_Scalar1;
     }
