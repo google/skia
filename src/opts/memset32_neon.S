@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  ***************************************************************************/
 
+	.syntax unified
 	.code 32
 	.fpu neon
 	.align 4
