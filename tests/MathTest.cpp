@@ -537,6 +537,9 @@ DEF_TEST(Math, reporter) {
         } else if (check < -SK_MaxS32) {
             check = SK_MinS32;
         }
+        if (result != (int32_t)check) {
+            ERRORF(reporter, "\nFixed Divide: %8x / %8x -> %8x %8x\n", numer, denom, result, check);
+        }
         REPORTER_ASSERT(reporter, result == (int32_t)check);
     }
 
