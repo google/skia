@@ -66,7 +66,17 @@ const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[] = {
     SA8_alpha_D32_filter_DXDY_neon,
     SA8_alpha_D32_filter_DXDY_neon,
     SA8_alpha_D32_filter_DX_neon,
-    SA8_alpha_D32_filter_DX_neon
+    SA8_alpha_D32_filter_DX_neon,
+
+    // todo: possibly specialize on opaqueness
+    SG8_alpha_D32_nofilter_DXDY_neon,
+    SG8_alpha_D32_nofilter_DXDY_neon,
+    SG8_alpha_D32_nofilter_DX_neon,
+    SG8_alpha_D32_nofilter_DX_neon,
+    SG8_alpha_D32_filter_DXDY_neon,
+    SG8_alpha_D32_filter_DXDY_neon,
+    SG8_alpha_D32_filter_DX_neon,
+    SG8_alpha_D32_filter_DX_neon,
 };
 
 const SkBitmapProcState::SampleProc16 gSkBitmapProcStateSample16_neon[] = {
@@ -88,7 +98,9 @@ const SkBitmapProcState::SampleProc16 gSkBitmapProcStateSample16_neon[] = {
     // Don't support 4444 -> 565
     NULL, NULL, NULL, NULL,
     // Don't support A8 -> 565
-    NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL,
+    // Don't support G8 -> 565 (but we could)
+    NULL, NULL, NULL, NULL,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
