@@ -1182,7 +1182,8 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 rt->renderTargetPriv().didAttachStencilBuffer(sb);
-
+// This work around is currently breaking on windows 7 hd2000 bot when we bind a color buffer
+#if 0
                 // Clear the stencil buffer. We use a special purpose FBO for this so that the
                 // entire stencil buffer is cleared, even if it is attached to an FBO with a
                 // smaller color target.
@@ -1233,7 +1234,7 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
                                                     GR_GL_DEPTH_ATTACHMENT,
                                                     GR_GL_RENDERBUFFER, 0));
                 }
-
+#endif
                 return true;
             }
             // Remove the scratch key from this resource so we don't grab it from the cache ever
