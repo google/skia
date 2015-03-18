@@ -380,7 +380,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     case DROP_SHADOW:
         filter = SkDropShadowImageFilter::Create(make_scalar(), make_scalar(), make_scalar(true),
                     make_scalar(true), make_color(), make_shadow_mode(), make_image_filter(),
-                    NULL, 0);
+                    NULL);
         break;
     case MORPHOLOGY:
         if (R(2) == 1) {

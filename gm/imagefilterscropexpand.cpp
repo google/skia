@@ -143,7 +143,7 @@ protected:
             draw(canvas, checkerboard, rect, SkDropShadowImageFilter::Create(
                 SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(3), SkIntToScalar(3),
                 SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-                noop_cropped.get(), &big_rect, 0));
+                noop_cropped.get(), &big_rect));
 
             draw(canvas, checkerboard, rect, SkDisplacementMapEffect::Create(
                 SkDisplacementMapEffect::kR_ChannelSelectorType,

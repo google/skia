@@ -100,18 +100,20 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
     uint32_t flags = buffer.readUInt();
     fCropRect = CropRect(rect, flags);
-    fUniqueID = buffer.readUInt();
+    // FIXME: this is now unused; and should be made conditional on the next SkPicture version bump.
+    // See skbug.com/3559.
+    (void) buffer.readUInt();
     return buffer.isValid();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect, uint32_t uniqueID)
+SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),
     fUsesSrcInput(false),
     fCropRect(cropRect ? *cropRect : CropRect(SkRect(), 0x0)),
-    fUniqueID(uniqueID ? uniqueID : next_image_filter_unique_id()) {
+    fUniqueID(next_image_filter_unique_id()) {
     for (int i = 0; i < inputCount; ++i) {
         if (NULL == inputs[i] || inputs[i]->usesSrcInput()) {
             fUsesSrcInput = true;
@@ -129,7 +131,8 @@ SkImageFilter::~SkImageFilter() {
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
-  : fUsesSrcInput(false) {
+  : fUsesSrcInput(false)
+  , fUniqueID(next_image_filter_unique_id()) {
     Common common;
     if (common.unflatten(buffer, inputCount)) {
         fCropRect = common.cropRect();
@@ -141,7 +144,6 @@ SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
                 fUsesSrcInput = true;
             }
         }
-        fUniqueID = buffer.isCrossProcess() ? next_image_filter_unique_id() : common.uniqueID();
     } else {
         fInputCount = 0;
         fInputs = NULL;
@@ -159,7 +161,9 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     }
     buffer.writeRect(fCropRect.rect());
     buffer.writeUInt(fCropRect.flags());
-    buffer.writeUInt(fUniqueID);
+    // FIXME: this is now unused; and should be removed on the next SkPicture version bump.
+    // See skbug.com/3559.
+    buffer.writeUInt(0);
 }
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,

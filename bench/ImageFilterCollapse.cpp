@@ -33,7 +33,7 @@ protected:
         fImageFilter = NULL;
         for(int i = nFilters; i --> 0;) {
             SkAutoTUnref<SkImageFilter> filter(
-                        SkColorFilterImageFilter::Create(colorFilters[i], fImageFilter, NULL, 0)
+                        SkColorFilterImageFilter::Create(colorFilters[i], fImageFilter, NULL)
             );
             SkRefCnt_SafeAssign(fImageFilter, filter.get());
         }

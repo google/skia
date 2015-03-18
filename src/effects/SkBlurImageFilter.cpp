@@ -34,16 +34,15 @@ static SkVector mapSigma(const SkSize& localSigma, const SkMatrix& ctm) {
 SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
                                      SkScalar sigmaY,
                                      SkImageFilter* input,
-                                     const CropRect* cropRect,
-                                     uint32_t uniqueID)
-    : INHERITED(1, &input, cropRect, uniqueID), fSigma(SkSize::Make(sigmaX, sigmaY)) {
+                                     const CropRect* cropRect)
+    : INHERITED(1, &input, cropRect), fSigma(SkSize::Make(sigmaX, sigmaY)) {
 }
 
 SkFlattenable* SkBlurImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    return Create(sigmaX, sigmaY, common.getInput(0), &common.cropRect(), common.uniqueID());
+    return Create(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
 }
 
 void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {

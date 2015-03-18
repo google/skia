@@ -25,10 +25,9 @@ public:
 
     static SkXfermodeImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
                                          SkImageFilter* foreground = NULL,
-                                         const CropRect* cropRect = NULL,
-                                         uint32_t uniqueID = 0) {
+                                         const CropRect* cropRect = NULL) {
         SkImageFilter* inputs[2] = { background, foreground };
-        return SkNEW_ARGS(SkXfermodeImageFilter, (mode, inputs, cropRect, uniqueID));
+        return SkNEW_ARGS(SkXfermodeImageFilter, (mode, inputs, cropRect));
     }
 
     SK_TO_STRING_OVERRIDE()
@@ -47,7 +46,7 @@ public:
 
 protected:
     SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* inputs[2],
-                          const CropRect* cropRect, uint32_t uniqueID);
+                          const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

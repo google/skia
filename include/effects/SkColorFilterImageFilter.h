@@ -16,8 +16,7 @@ class SK_API SkColorFilterImageFilter : public SkImageFilter {
 public:
     static SkColorFilterImageFilter* Create(SkColorFilter* cf,
                                             SkImageFilter* input = NULL,
-                                            const CropRect* cropRect = NULL,
-                                            uint32_t uniqueID = 0);
+                                            const CropRect* cropRect = NULL);
     virtual ~SkColorFilterImageFilter();
 
     SK_TO_STRING_OVERRIDE()
@@ -34,8 +33,7 @@ protected:
 private:
     SkColorFilterImageFilter(SkColorFilter* cf,
                              SkImageFilter* input,
-                             const CropRect* cropRect,
-                             uint32_t uniqueID);
+                             const CropRect* cropRect);
     SkColorFilter*  fColorFilter;
 
     typedef SkImageFilter INHERITED;

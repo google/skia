@@ -18,17 +18,15 @@ public:
 
     static SkMergeImageFilter* Create(SkImageFilter* first, SkImageFilter* second,
                                       SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode,
-                                      const CropRect* cropRect = NULL,
-                                      uint32_t uniqueID = 0) {
+                                      const CropRect* cropRect = NULL) {
         SkImageFilter* inputs[2] = { first, second };
         SkXfermode::Mode modes[2] = { mode, mode };
-        return SkNEW_ARGS(SkMergeImageFilter, (inputs, 2, modes, cropRect, uniqueID));
+        return SkNEW_ARGS(SkMergeImageFilter, (inputs, 2, modes, cropRect));
     }
     static SkMergeImageFilter* Create(SkImageFilter* filters[], int count,
                                       const SkXfermode::Mode modes[] = NULL,
-                                      const CropRect* cropRect = NULL,
-                                      uint32_t uniqueID = 0) {
-        return SkNEW_ARGS(SkMergeImageFilter, (filters, count, modes, cropRect, uniqueID));
+                                      const CropRect* cropRect = NULL) {
+        return SkNEW_ARGS(SkMergeImageFilter, (filters, count, modes, cropRect));
     }
 
     SK_TO_STRING_OVERRIDE()
@@ -37,8 +35,7 @@ public:
 protected:
     SkMergeImageFilter(SkImageFilter* filters[], int count,
                        const SkXfermode::Mode modes[],
-                       const CropRect* cropRect,
-                       uint32_t uniqueID);
+                       const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

@@ -60,8 +60,7 @@ public:
                                                   TileMode tileMode,
                                                   bool convolveAlpha,
                                                   SkImageFilter* input = NULL,
-                                                  const CropRect* cropRect = NULL,
-                                                  uint32_t uniqueID = 0);
+                                                  const CropRect* cropRect = NULL);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
@@ -75,8 +74,7 @@ protected:
                                    TileMode tileMode,
                                    bool convolveAlpha,
                                    SkImageFilter* input,
-                                   const CropRect* cropRect,
-                                   uint32_t uniqueID);
+                                   const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

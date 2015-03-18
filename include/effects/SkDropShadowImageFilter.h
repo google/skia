@@ -24,11 +24,10 @@ public:
     static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                            SkImageFilter* input = NULL,
-                                           const CropRect* cropRect = NULL,
-                                           uint32_t uniqueID = 0) {
+                                           const CropRect* cropRect = NULL) {
         return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
                                                     kDrawShadowAndForeground_ShadowMode,
-                                                    input, cropRect, uniqueID));
+                                                    input, cropRect));
     }
 
     static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
@@ -36,16 +35,16 @@ public:
                                            ShadowMode shadowMode,
                                            SkImageFilter* input,
                                            const CropRect* cropRect,
-                                           uint32_t uniqueID) {
+                                           uint32_t = 0) {
         return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
-                                                    shadowMode, input, cropRect, uniqueID));
+                                                    shadowMode, input, cropRect));
     }
 
     static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                            ShadowMode shadowMode) {
         return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
-                                                    shadowMode, NULL, NULL, 0));
+                                                    shadowMode, NULL, NULL));
     }
 
     void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
@@ -54,8 +53,7 @@ public:
 
 protected:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
-                            ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect,
-                            uint32_t uniqueID);
+                            ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,

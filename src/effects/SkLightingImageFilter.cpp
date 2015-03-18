@@ -280,7 +280,7 @@ void writePoint3(const SkPoint3& point, SkWriteBuffer& buffer) {
 class SkDiffuseLightingImageFilter : public SkLightingImageFilter {
 public:
     static SkImageFilter* Create(SkLight* light, SkScalar surfaceScale, SkScalar kd, SkImageFilter*,
-                                 const CropRect*, uint32_t uniqueID = 0);
+                                 const CropRect*);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
@@ -288,8 +288,7 @@ public:
 
 protected:
     SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale,
-                                 SkScalar kd, SkImageFilter* input, const CropRect* cropRect,
-                                 uint32_t uniqueID);
+                                 SkScalar kd, SkImageFilter* input, const CropRect* cropRect);
     void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
@@ -307,8 +306,7 @@ private:
 class SkSpecularLightingImageFilter : public SkLightingImageFilter {
 public:
     static SkImageFilter* Create(SkLight* light, SkScalar surfaceScale,
-                                 SkScalar ks, SkScalar shininess, SkImageFilter*, const CropRect*,
-                                 uint32_t uniqueID = 0);
+                                 SkScalar ks, SkScalar shininess, SkImageFilter*, const CropRect*);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
@@ -318,8 +316,7 @@ public:
 
 protected:
     SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks,
-                                  SkScalar shininess, SkImageFilter* input, const CropRect*,
-                                  uint32_t uniqueID);
+                                  SkScalar shininess, SkImageFilter* input, const CropRect*);
     void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
@@ -860,9 +857,8 @@ void SkLight::flattenLight(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale,
-                                             SkImageFilter* input, const CropRect* cropRect,
-                                             uint32_t uniqueID)
-  : INHERITED(1, &input, cropRect, uniqueID)
+                                             SkImageFilter* input, const CropRect* cropRect)
+  : INHERITED(1, &input, cropRect)
   , fLight(SkRef(light))
   , fSurfaceScale(surfaceScale / 255)
 {}
@@ -949,7 +945,7 @@ void SkLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImageFilter* SkDiffuseLightingImageFilter::Create(SkLight* light, SkScalar surfaceScale,
-                                    SkScalar kd, SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID) {
+                                    SkScalar kd, SkImageFilter* input, const CropRect* cropRect) {
     if (NULL == light) {
         return NULL;
     }
@@ -961,11 +957,11 @@ SkImageFilter* SkDiffuseLightingImageFilter::Create(SkLight* light, SkScalar sur
     if (kd < 0) {
         return NULL;
     }
-    return SkNEW_ARGS(SkDiffuseLightingImageFilter, (light, surfaceScale, kd, input, cropRect, uniqueID));
+    return SkNEW_ARGS(SkDiffuseLightingImageFilter, (light, surfaceScale, kd, input, cropRect));
 }
 
-SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd, SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID)
-  : SkLightingImageFilter(light, surfaceScale, input, cropRect, uniqueID),
+SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd, SkImageFilter* input, const CropRect* cropRect)
+  : SkLightingImageFilter(light, surfaceScale, input, cropRect),
     fKD(kd)
 {
 }
@@ -975,7 +971,7 @@ SkFlattenable* SkDiffuseLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkLight> light(SkLight::UnflattenLight(buffer));
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar kd = buffer.readScalar();
-    return Create(light, surfaceScale, kd, common.getInput(0), &common.cropRect(), common.uniqueID());
+    return Create(light, surfaceScale, kd, common.getInput(0), &common.cropRect());
 }
 
 void SkDiffuseLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -1061,7 +1057,7 @@ bool SkDiffuseLightingImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImageFilter* SkSpecularLightingImageFilter::Create(SkLight* light, SkScalar surfaceScale,
-                SkScalar ks, SkScalar shininess, SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID) {
+                SkScalar ks, SkScalar shininess, SkImageFilter* input, const CropRect* cropRect) {
     if (NULL == light) {
         return NULL;
     }
@@ -1074,11 +1070,11 @@ SkImageFilter* SkSpecularLightingImageFilter::Create(SkLight* light, SkScalar su
         return NULL;
     }
     return SkNEW_ARGS(SkSpecularLightingImageFilter,
-                      (light, surfaceScale, ks, shininess, input, cropRect, uniqueID));
+                      (light, surfaceScale, ks, shininess, input, cropRect));
 }
 
-SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID)
-  : SkLightingImageFilter(light, surfaceScale, input, cropRect, uniqueID),
+SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input, const CropRect* cropRect)
+  : SkLightingImageFilter(light, surfaceScale, input, cropRect),
     fKS(ks),
     fShininess(shininess)
 {
@@ -1090,7 +1086,7 @@ SkFlattenable* SkSpecularLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar ks = buffer.readScalar();
     SkScalar shine = buffer.readScalar();
-    return Create(light, surfaceScale, ks, shine, common.getInput(0), &common.cropRect(), common.uniqueID());
+    return Create(light, surfaceScale, ks, shine, common.getInput(0), &common.cropRect());
 }
 
 void SkSpecularLightingImageFilter::flatten(SkWriteBuffer& buffer) const {

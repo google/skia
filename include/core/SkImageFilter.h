@@ -228,7 +228,6 @@ protected:
         const CropRect& cropRect() const { return fCropRect; }
         int             inputCount() const { return fInputs.count(); }
         SkImageFilter** inputs() const { return fInputs.get(); }
-        uint32_t        uniqueID() const { return fUniqueID; }
 
         SkImageFilter*  getInput(int index) const { return fInputs[index]; }
 
@@ -242,12 +241,11 @@ protected:
         CropRect fCropRect;
         // most filters accept at most 2 input-filters
         SkAutoSTArray<2, SkImageFilter*> fInputs;
-        uint32_t fUniqueID;
 
         void allocInputs(int count);
     };
 
-    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL, uint32_t uniqueID = 0);
+    SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
 
     virtual ~SkImageFilter();
 

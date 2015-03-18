@@ -13,8 +13,8 @@
 #include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
-SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, uint32_t uniqueID)
-    : INHERITED(0, 0, NULL, uniqueID)
+SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture)
+    : INHERITED(0, 0, NULL)
     , fPicture(SkSafeRef(picture))
     , fCropRect(picture ? picture->cullRect() : SkRect::MakeEmpty())
     , fPictureResolution(kDeviceSpace_PictureResolution) 
@@ -22,9 +22,9 @@ SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, uint32_t un
 }
 
 SkPictureImageFilter::SkPictureImageFilter(const SkPicture* picture, const SkRect& cropRect,
-                                           uint32_t uniqueID, PictureResolution pictureResolution,
+                                           PictureResolution pictureResolution,
                                            SkFilterQuality filterQuality)
-    : INHERITED(0, 0, NULL, uniqueID)
+    : INHERITED(0, 0, NULL)
     , fPicture(SkSafeRef(picture))
     , fCropRect(cropRect)
     , fPictureResolution(pictureResolution)

@@ -16,19 +16,18 @@ class SK_API SkOffsetImageFilter : public SkImageFilter {
 
 public:
     static SkOffsetImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input = NULL,
-                                       const CropRect* cropRect = NULL,
-                                       uint32_t uniqueID = 0) {
+                                       const CropRect* cropRect = NULL) {
         if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
             return NULL;
         }
-        return SkNEW_ARGS(SkOffsetImageFilter, (dx, dy, input, cropRect, uniqueID));
+        return SkNEW_ARGS(SkOffsetImageFilter, (dx, dy, input, cropRect));
     }
     void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
 
 protected:
-    SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID);
+    SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input, const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

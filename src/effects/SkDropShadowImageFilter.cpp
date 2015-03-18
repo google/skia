@@ -18,8 +18,8 @@
 SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
                                                  SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                                  ShadowMode shadowMode, SkImageFilter* input,
-                                                 const CropRect* cropRect, uint32_t uniqueID)
-    : INHERITED(1, &input, cropRect, uniqueID)
+                                                 const CropRect* cropRect)
+    : INHERITED(1, &input, cropRect)
     , fDx(dx)
     , fDy(dy)
     , fSigmaX(sigmaX)
@@ -40,7 +40,7 @@ SkFlattenable* SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
                             kDrawShadowAndForeground_ShadowMode :
                             static_cast<ShadowMode>(buffer.readInt());
     return Create(dx, dy, sigmaX, sigmaY, color, shadowMode, common.getInput(0),
-                  &common.cropRect(), common.uniqueID());
+                  &common.cropRect());
 }
 
 void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const {

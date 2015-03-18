@@ -30,14 +30,12 @@ public:
 
     static SkMatrixImageFilter* Create(const SkMatrix& transform,
                                        SkFilterQuality,
-                                       SkImageFilter* input = NULL,
-                                       uint32_t uniqueID = 0);
+                                       SkImageFilter* input = NULL);
 #ifdef SK_SUPPORT_LEGACY_FILTERLEVEL_ENUM
     static SkMatrixImageFilter* Create(const SkMatrix& transform,
                                        SkPaint::FilterLevel level,
-                                       SkImageFilter* input = NULL,
-                                       uint32_t uniqueID = 0) {
-        return Create(transform, SkFilterQuality(level), input, uniqueID);
+                                       SkImageFilter* input = NULL) {
+        return Create(transform, SkFilterQuality(level), input);
     }
 #endif
     virtual ~SkMatrixImageFilter();
@@ -50,8 +48,7 @@ public:
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
                         SkFilterQuality,
-                        SkImageFilter* input,
-                        uint32_t uniqueID);
+                        SkImageFilter* input);
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

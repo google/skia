@@ -16,7 +16,7 @@
 #include "SkWriteBuffer.h"
 
 SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
-        SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID) {
+        SkImageFilter* input, const CropRect* cropRect) {
     if (NULL == cf) {
         return NULL;
     }
@@ -28,22 +28,22 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         SkAutoUnref autoUnref(inputCF);
         SkAutoTUnref<SkColorFilter> newCF(SkColorFilter::CreateComposeFilter(cf, inputCF));
         if (newCF) {
-            return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect, 0));
+            return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect));
         }
     }
 
-    return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input, cropRect, uniqueID));
+    return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input, cropRect));
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
-        SkImageFilter* input, const CropRect* cropRect, uint32_t uniqueID)
-    : INHERITED(1, &input, cropRect, uniqueID), fColorFilter(SkRef(cf)) {
+        SkImageFilter* input, const CropRect* cropRect)
+    : INHERITED(1, &input, cropRect), fColorFilter(SkRef(cf)) {
 }
 
 SkFlattenable* SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkAutoTUnref<SkColorFilter> cf(buffer.readColorFilter());
-    return Create(cf, common.getInput(0), &common.cropRect(), common.uniqueID());
+    return Create(cf, common.getInput(0), &common.cropRect());
 }
 
 void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {

@@ -298,7 +298,7 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
         SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
         SkDropShadowImageFilter::Create(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1,
             SK_ColorGREEN, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-            input.get(), &cropRect, 0),
+            input.get(), &cropRect),
         SkLightingImageFilter::CreatePointLitDiffuse(location, SK_ColorGREEN, 0, 0, input.get(), &cropRect),
         SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0, input.get(), &cropRect),
         SkMatrixConvolutionImageFilter::Create(kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1), SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input.get(), &cropRect),
@@ -585,7 +585,7 @@ static SkImageFilter* makeDropShadow(SkImageFilter* input = NULL) {
         SkIntToScalar(100), SkIntToScalar(100),
         SkIntToScalar(10), SkIntToScalar(10),
         SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
-        input, NULL, 0);
+        input, NULL);
 }
 
 DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {

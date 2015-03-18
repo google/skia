@@ -164,7 +164,7 @@ protected:
             for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
                 SkAutoTUnref<SkColorFilter> colorFilter1(gColorFilterMakers[i]());
                 SkAutoTUnref<SkImageFilter> imageFilter1(SkColorFilterImageFilter::Create(
-                            colorFilter1, NULL, NULL, 0));
+                            colorFilter1, NULL, NULL));
 
                 // Move down to the next line and draw it
                 // each draw being at xOffset of the previous one
@@ -173,7 +173,7 @@ protected:
                 for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
                     SkAutoTUnref<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
                     SkAutoTUnref<SkImageFilter> imageFilter2(SkColorFilterImageFilter::Create(
-                                colorFilter2, imageFilter1, NULL, 0));
+                                colorFilter2, imageFilter1, NULL));
                     paint.setImageFilter(imageFilter2);
                     canvas->drawBitmap(bm, x, y, &paint);
                     x += xOffset;

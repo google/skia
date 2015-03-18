@@ -17,11 +17,11 @@
 #include "SkValidationUtils.h"
 
 SkTileImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect& dstRect,
-                                             SkImageFilter* input, uint32_t uniqueID) {
+                                             SkImageFilter* input) {
     if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkTileImageFilter, (srcRect, dstRect, input, uniqueID));
+    return SkNEW_ARGS(SkTileImageFilter, (srcRect, dstRect, input));
 }
 
 bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
@@ -98,7 +98,7 @@ SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
-    return Create(src, dst, common.getInput(0), common.uniqueID());
+    return Create(src, dst, common.getInput(0));
 }
 
 void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
