@@ -1,4 +1,7 @@
-#include "SkColorPriv.h"
+inline SkPMFloat& SkPMFloat::operator=(const SkPMFloat& that) {
+    for (int i = 0; i < 4; i++) { fColor[i] = that.fColor[i]; }
+    return *this;
+}
 
 inline SkPMFloat::SkPMFloat(SkPMColor c) {
     *this = SkPMFloat::FromARGB(SkGetPackedA32(c),

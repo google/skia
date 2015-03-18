@@ -3,7 +3,14 @@
 
 #include "SkTypes.h"
 #include "SkColor.h"
+#include "SkColorPriv.h"
 #include "Sk4x.h"
+
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #include <immintrin.h>
+#elif defined(__ARM_NEON__)
+    #include <arm_neon.h>
+#endif
 
 // A pre-multiplied color storing each component in the same order as SkPMColor,
 // but as a float in the range [0, 255].
@@ -27,16 +34,12 @@ public:
     // Uninitialized.
     SkPMFloat() {}
 
-    // Copy and assign are fastest if we remind the compiler we work best as Sk4f.
-    SkPMFloat(const SkPMFloat& that) { Sk4f(that).storeAligned(fColor); }
-    SkPMFloat& operator=(const SkPMFloat& that) {
-        Sk4f(that).storeAligned(fColor);
-        return *this;
-    }
+    SkPMFloat(const SkPMFloat& that) { *this = that; }
+    SkPMFloat& operator=(const SkPMFloat& that);
 
-    // Freely autoconvert between SkPMFloat and Sk4f.
-    /*implicit*/ SkPMFloat(const Sk4f& fs) { fs.storeAligned(fColor); }
-    /*implicit*/ operator Sk4f() const { return Sk4f::LoadAligned(fColor); }
+    // Freely autoconvert between SkPMFloat and Sk4f.  They're always byte-for-byte identical.
+    /*implicit*/ SkPMFloat(const Sk4f& fs) { *(Sk4f*)this = fs; }
+    /*implicit*/ operator Sk4f() const     { return *(const Sk4f*)this;    }
 
     float a() const { return fColor[SK_A32_SHIFT / 8]; }
     float r() const { return fColor[SK_R32_SHIFT / 8]; }
@@ -59,7 +62,14 @@ public:
     }
 
 private:
-    float fColor[4];
+    union {
+        float fColor[4];
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+        __m128 fColors;
+#elif defined(__ARM_NEON__)
+        float32x4_t fColors;
+#endif
+    };
 };
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
