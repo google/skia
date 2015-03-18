@@ -171,7 +171,8 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
         if (glyph.fWidth) {
             this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                             glyph.getSubXFixed(),
-                                            glyph.getSubYFixed()),
+                                            glyph.getSubYFixed(),
+                                            GrGlyph::kCoverage_MaskStyle),
                               Sk48Dot16FloorToInt(fx),
                               Sk48Dot16FloorToInt(fy),
                               fontScaler);
@@ -248,7 +249,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                 if (glyph.fWidth) {
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
-                                                    glyph.getSubYFixed()),
+                                                    glyph.getSubYFixed(),
+                                                    GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
                                       fontScaler);
@@ -281,7 +283,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
 
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
-                                                    glyph.getSubYFixed()),
+                                                    glyph.getSubYFixed(),
+                                                    GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
                                       fontScaler);
@@ -304,7 +307,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + SK_ScalarHalf); //halfSampleY;
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
-                                                    glyph.getSubYFixed()),
+                                                    glyph.getSubYFixed(),
+                                                    GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
                                       fontScaler);
@@ -327,7 +331,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + SK_ScalarHalf); //halfSampleY;
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
-                                                    glyph.getSubYFixed()),
+                                                    glyph.getSubYFixed(),
+                                                    GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
                                       fontScaler);
@@ -412,7 +417,7 @@ void GrBitmapTextContext::appendGlyph(GrGlyph::PackedID packed,
     }
 
     if (NULL == fStrike) {
-        fStrike = fContext->getFontCache()->getStrike(scaler, false);
+        fStrike = fContext->getFontCache()->getStrike(scaler);
     }
 
     GrGlyph* glyph = fStrike->getGlyph(packed, scaler);

@@ -258,7 +258,7 @@ GrTextStrike::~GrTextStrike() {
 GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
                                      GrFontScaler* scaler) {
     SkIRect bounds;
-    if (fUseDistanceField) {
+    if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(packed)) {
         if (!scaler->getPackedGlyphDFBounds(packed, &bounds)) {
             return NULL;
         }
@@ -290,7 +290,9 @@ void GrTextStrike::removePlot(const GrPlot* plot) {
 bool GrTextStrike::glyphTooLargeForAtlas(GrGlyph* glyph) {
     int width = glyph->fBounds.width();
     int height = glyph->fBounds.height();
-    int pad = fUseDistanceField ? 2 * SK_DistanceFieldPad : 0;
+    bool useDistanceField =
+                       (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID));
+    int pad = useDistanceField ? 2 * SK_DistanceFieldPad : 0;
     int plotWidth = (kA8_GrMaskFormat == glyph->fMaskFormat) ? GR_FONT_ATLAS_A8_PLOT_WIDTH
                                                              : GR_FONT_ATLAS_PLOT_WIDTH;
     if (width + pad > plotWidth) {
@@ -321,7 +323,7 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     size_t size = glyph->fBounds.area() * bytesPerPixel;
     GrAutoMalloc<1024> storage(size);
 
-    if (fUseDistanceField) {
+    if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID)) {
         if (!scaler->getPackedGlyphDFImage(glyph->fPackedID, glyph->width(),
                                            glyph->height(),
                                            storage.get())) {
