@@ -42,6 +42,15 @@ DEF_TEST(Sk4x_LoadStore, r) {
                        fs[2] == 6 &&
                        fs[3] == 7 &&
                        fs[4] == 8);
+
+    // Load2 and store2().
+    float two[2] = { 1.0f, 2.0f };
+    Sk4f twoIn4f = Sk4f::Load2(two);
+    twoIn4f = twoIn4f.multiply(Sk4f(2.0f));
+    twoIn4f.store2(two);
+
+    REPORTER_ASSERT(r, two[0] == 2.0f);
+    REPORTER_ASSERT(r, two[1] == 4.0f);
 }
 
 DEF_TEST(Sk4x_Conversions, r) {
