@@ -49,28 +49,49 @@ static void fail(ImplicitString err) {
     gFailures.push_back(err);
 }
 
-static int32_t gPending = 0;  // Atomic.
+static int32_t gPending = 0;  // Atomic.  Total number of running and queued tasks.
+
+SK_DECLARE_STATIC_MUTEX(gRunningMutex);
+static SkTArray<SkString> gRunning;
 
 static void done(double ms,
                  ImplicitString config, ImplicitString src, ImplicitString name,
-                 ImplicitString log) {
+                 ImplicitString note, ImplicitString log) {
+    SkString id = SkStringPrintf("%s %s %s", config.c_str(), src.c_str(), name.c_str());
+    {
+        SkAutoMutexAcquire lock(gRunningMutex);
+        for (int i = 0; i < gRunning.count(); i++) {
+            if (gRunning[i] == id) {
+                gRunning.removeShuffle(i);
+                break;
+            }
+        }
+    }
+    if (!FLAGS_verbose) {
+        note = "";
+    }
     if (!log.isEmpty()) {
         log.prepend("\n");
     }
     auto pending = sk_atomic_dec(&gPending)-1;
-    SkDebugf("%s(%4dMB %5d) %s\t%s %s %s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
-                                           , sk_tools::getBestResidentSetSizeMB()
-                                           , pending
-                                           , HumanizeMs(ms).c_str()
-                                           , config.c_str()
-                                           , src.c_str()
-                                           , name.c_str()
-                                           , log.c_str());
+    SkDebugf("%s(%4dMB %5d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
+                                       , sk_tools::getBestResidentSetSizeMB()
+                                       , pending
+                                       , HumanizeMs(ms).c_str()
+                                       , id.c_str()
+                                       , note.c_str()
+                                       , log.c_str());
     // We write our dm.json file every once in a while in case we crash.
     // Notice this also handles the final dm.json when pending == 0.
     if (pending % 500 == 0) {
         JsonWriter::DumpJson();
     }
+}
+
+static void start(ImplicitString config, ImplicitString src, ImplicitString name) {
+    SkString id = SkStringPrintf("%s %s %s", config.c_str(), src.c_str(), name.c_str());
+    SkAutoMutexAcquire lock(gRunningMutex);
+    gRunning.push_back(id);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -318,13 +339,18 @@ struct Task {
 
     static void Run(Task* task) {
         SkString name = task->src->name();
+        SkString note;
         SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag, name.c_str());
+        if (!whyBlacklisted.isEmpty()) {
+            note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
+        }
         SkString log;
         WallTimer timer;
         timer.start();
         if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
+            start(task->sink.tag, task->src.tag, name.c_str());
             Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
                 timer.end();
@@ -334,10 +360,10 @@ struct Task {
                                         task->src.tag,
                                         name.c_str(),
                                         err.c_str()));
-                } else if (FLAGS_verbose) {
-                    name.appendf(" (skipped: %s)", err.c_str());
+                } else {
+                    note.appendf(" (skipped: %s)", err.c_str());
                 }
-                done(timer.fWall, task->sink.tag, task->src.tag, name, log);
+                done(timer.fWall, task->sink.tag, task->src.tag, name, note, log);
                 return;
             }
             SkAutoTDelete<SkStreamAsset> data(stream.detachAsStream());
@@ -379,10 +405,7 @@ struct Task {
             }
         }
         timer.end();
-        if (FLAGS_verbose && !whyBlacklisted.isEmpty()) {
-            name.appendf(" (--blacklist, %s)", whyBlacklisted.c_str());
-        }
-        done(timer.fWall, task->sink.tag, task->src.tag, name, log);
+        done(timer.fWall, task->sink.tag, task->src.tag, name, note, log);
     }
 
     static void WriteToDisk(const Task& task,
@@ -499,11 +522,12 @@ static void run_test(skiatest::Test* test) {
     WallTimer timer;
     timer.start();
     if (!FLAGS_dryRun) {
+        start("unit", "test", test->name);
         GrContextFactory factory;
         test->proc(&reporter, &factory);
     }
     timer.end();
-    done(timer.fWall, "unit", "test", test->name, "");
+    done(timer.fWall, "unit", "test", test->name, "", "");
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -528,7 +552,14 @@ static void start_keepalive() {
             #else
                 sleep(kSec);
             #endif
-                SkDebugf("\nStill alive: doing science, reticulating splines...\n");
+                SkString running;
+                {
+                    SkAutoMutexAcquire lock(gRunningMutex);
+                    for (int i = 0; i < gRunning.count(); i++) {
+                        running.appendf("\n\t%s", gRunning[i].c_str());
+                    }
+                }
+                SkDebugf("\nCurrently running:%s\n", running.c_str());
             }
         }
     };
