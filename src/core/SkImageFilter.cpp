@@ -100,9 +100,10 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
     uint32_t flags = buffer.readUInt();
     fCropRect = CropRect(rect, flags);
-    // FIXME: this is now unused; and should be made conditional on the next SkPicture version bump.
-    // See skbug.com/3559.
-    (void) buffer.readUInt();
+    if (buffer.isVersionLT(SkReadBuffer::kImageFilterNoUniqueID_Version)) {
+
+        (void) buffer.readUInt();
+    }
     return buffer.isValid();
 }
 
@@ -161,9 +162,6 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     }
     buffer.writeRect(fCropRect.rect());
     buffer.writeUInt(fCropRect.flags());
-    // FIXME: this is now unused; and should be removed on the next SkPicture version bump.
-    // See skbug.com/3559.
-    buffer.writeUInt(0);
 }
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,

@@ -55,6 +55,7 @@ public:
         kDropShadowMode_Version            = 37,
         kPictureImageFilterResolution_Version = 38,
         kPictureImageFilterLevel_Version   = 39,
+        kImageFilterNoUniqueID_Version     = 40,
     };
 
     /**
