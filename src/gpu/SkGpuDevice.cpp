@@ -639,18 +639,22 @@ bool draw_mask(GrContext* context,
     return true;
 }
 
+static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& rect) {
+    return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);
+}
+
 bool draw_with_mask_filter(GrContext* context,
                            GrRenderTarget* rt,
                            const GrClip& clipData,
                            const SkMatrix& viewMatrix,
                            const SkPath& devPath,
                            SkMaskFilter* filter,
-                           const SkRegion& clip,
+                           const SkIRect& clipBounds,
                            GrPaint* grp,
                            SkPaint::Style style) {
     SkMask  srcM, dstM;
 
-    if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), filter, &viewMatrix, &srcM,
+    if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode, style)) {
         return false;
     }
@@ -662,7 +666,7 @@ bool draw_with_mask_filter(GrContext* context,
     // this will free-up dstM when we're done (allocated in filterMask())
     SkAutoMaskFreeImage autoDst(dstM.fImage);
 
-    if (clip.quickReject(dstM.fBounds)) {
+    if (clip_bounds_quick_reject(clipBounds, dstM.fBounds)) {
         return false;
     }
 
@@ -747,6 +751,13 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPath", fContext);
 
+    return this->internalDrawPath(origSrcPath, paint, *draw.fMatrix, prePathMatrix,
+                                  draw.fClip->getBounds(), pathIsMutable);
+}
+
+void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& paint,
+                                   const SkMatrix& origViewMatrix, const SkMatrix* prePathMatrix,
+                                   const SkIRect& clipBounds, bool pathIsMutable) {
     SkASSERT(!pathIsMutable || origSrcPath.isVolatile());
 
     GrStrokeInfo strokeInfo(paint);
@@ -759,7 +770,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkTLazy<SkPath> effectPath;
     SkPathEffect* pathEffect = paint.getPathEffect();
 
-    SkMatrix viewMatrix = *draw.fMatrix;
+    SkMatrix viewMatrix = origViewMatrix;
 
     if (prePathMatrix) {
         // stroking and path effects are supposed to be applied *after* the prePathMatrix.
@@ -819,12 +830,12 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         SkRect maskRect;
         if (paint.getMaskFilter()->canFilterMaskGPU(devPathPtr->getBounds(),
-                                                    draw.fClip->getBounds(),
+                                                    clipBounds,
                                                     viewMatrix,
                                                     &maskRect)) {
             SkIRect finalIRect;
             maskRect.roundOut(&finalIRect);
-            if (draw.fClip->quickReject(finalIRect)) {
+            if (clip_bounds_quick_reject(clipBounds, finalIRect)) {
                 // clipped out
                 return;
             }
@@ -874,7 +885,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
                                                           SkPaint::kFill_Style;
         draw_with_mask_filter(fContext, fRenderTarget, fClip, viewMatrix, *devPathPtr,
-                              paint.getMaskFilter(), *draw.fClip, &grPaint, style);
+                              paint.getMaskFilter(), clipBounds, &grPaint, style);
         return;
     }
 
