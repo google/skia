@@ -37,18 +37,6 @@ public:
     void store       (T[4]) const;
     void storeAligned(T[4]) const;
 
-    // Experimental!
-    static Sk4x Load2(const T src[2]) {
-        const T padded[4] = { src[0], src[1], 0, 0 };
-        return Load(padded);
-    }
-    void store2(T dst[2]) const {
-        T padded[4];
-        this->store(padded);
-        dst[0] = padded[0];
-        dst[1] = padded[1];
-    }
-
     template <typename Dst> Dst reinterpret() const;
     template <typename Dst> Dst        cast() const;
 

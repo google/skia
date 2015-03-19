@@ -117,7 +117,7 @@ static SkScalar eval_quad_derivative(const SkScalar src[], SkScalar t) {
 void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-    
+
     if (pt) {
         pt->set(eval_quad(&src[0].fX, t), eval_quad(&src[0].fY, t));
     }
@@ -127,24 +127,24 @@ void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tange
     }
 }
 
-#include "Sk4x.h"
+#include "Sk2x.h"
 
 SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    const Sk4f t2(t);
-    const Sk4f two(2);
-    
-    Sk4f P0 = Sk4f::Load2(&src[0].fX);
-    Sk4f P1 = Sk4f::Load2(&src[1].fX);
-    Sk4f P2 = Sk4f::Load2(&src[2].fX);
-    
-    Sk4f A = P2.subtract(P1.multiply(two)).add(P0);
-    Sk4f B = P1.subtract(P0).multiply(two);
-    
+    const Sk2f t2(t);
+
+    Sk2f P0 = Sk2f::Load(&src[0].fX);
+    Sk2f P1 = Sk2f::Load(&src[1].fX);
+    Sk2f P2 = Sk2f::Load(&src[2].fX);
+
+    Sk2f A = P2.subtract(P1.add(P1)).add(P0);
+    Sk2f B = P1.subtract(P0);
+    B = B.add(B);
+
     SkPoint result;
-    A.multiply(t2).add(B).multiply(t2).add(P0).store2(&result.fX);
+    A.multiply(t2).add(B).multiply(t2).add(P0).store(&result.fX);
     return result;
 }
 
@@ -1389,7 +1389,7 @@ SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
     }
 
     SkP3D src[3], dst[3];
-    
+
     ratquad_mapTo3D(pts, w, src);
 
     matrix.mapHomogeneousPoints(&dst[0].fX, &src[0].fX, 3);
