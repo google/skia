@@ -42,7 +42,7 @@ void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
 
 void SkEdgeBuilder::addCubic(const SkPoint pts[]) {
     SkCubicEdge* edge = typedAllocThrow<SkCubicEdge>(fAlloc);
-    if (edge->setCubic(pts, NULL, fShiftUp)) {
+    if (edge->setCubic(pts, fShiftUp)) {
         fList.push(edge);
     } else {
         // TODO: unallocate edge from storage...
