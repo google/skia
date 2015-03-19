@@ -5,11 +5,11 @@
 
 #define SK4X_PREAMBLE 1
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-        #include "Sk4x_sse.h"
+        #include "../opts/Sk4x_sse.h"
     #elif defined(SK_ARM_HAS_NEON)
-        #include "Sk4x_neon.h"
+        #include "../opts/Sk4x_neon.h"
     #else
-        #include "Sk4x_portable.h"
+        #include "../opts/Sk4x_none.h"
     #endif
 #undef SK4X_PREAMBLE
 
@@ -94,21 +94,21 @@ private:
 
 #define SK4X_PRIVATE 1
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-        #include "Sk4x_sse.h"
+        #include "../opts/Sk4x_sse.h"
     #elif defined(SK_ARM_HAS_NEON)
-        #include "Sk4x_neon.h"
+        #include "../opts/Sk4x_neon.h"
     #else
-        #include "Sk4x_portable.h"
+        #include "../opts/Sk4x_none.h"
     #endif
 #undef SK4X_PRIVATE
 };
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include "Sk4x_sse.h"
+    #include "../opts/Sk4x_sse.h"
 #elif defined(SK_ARM_HAS_NEON)
-    #include "Sk4x_neon.h"
+    #include "../opts/Sk4x_neon.h"
 #else
-    #include "Sk4x_portable.h"
+    #include "../opts/Sk4x_none.h"
 #endif
 
 #endif//Sk4x_DEFINED
