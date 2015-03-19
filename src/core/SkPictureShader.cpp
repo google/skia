@@ -152,6 +152,9 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
     // Use a rotation-invariant scale
     SkPoint scale;
+    //
+    // TODO: replace this with decomposeScale() -- but beware LayoutTest rebaselines!
+    //
     if (!SkDecomposeUpper2x2(m, NULL, &scale, NULL)) {
         // Decomposition failed, use an approximation.
         scale.set(SkScalarSqrt(m.getScaleX() * m.getScaleX() + m.getSkewX() * m.getSkewX()),

@@ -1603,6 +1603,28 @@ const SkMatrix& SkMatrix::InvalidMatrix() {
     return invalid.asSkMatrix();
 }
 
+bool SkMatrix::decomposeScale(SkSize* scale, SkMatrix* remaining) const {
+    if (this->hasPerspective()) {
+        return false;
+    }
+
+    const SkScalar sx = SkVector::Length(this->getScaleX(), this->getSkewY());
+    const SkScalar sy = SkVector::Length(this->getSkewX(), this->getScaleY());
+    if (!SkScalarIsFinite(sx) || !SkScalarIsFinite(sy) ||
+        SkScalarNearlyZero(sx) || SkScalarNearlyZero(sy)) {
+        return false;
+    }
+
+    if (scale) {
+        scale->set(sx, sy);
+    }
+    if (remaining) {
+        *remaining = *this;
+        remaining->postScale(SkScalarInvert(sx), SkScalarInvert(sy));
+    }
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 size_t SkMatrix::writeToMemory(void* buffer) const {

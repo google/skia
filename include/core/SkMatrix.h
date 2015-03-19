@@ -624,6 +624,19 @@ public:
     bool getMinMaxScales(SkScalar scaleFactors[2]) const;
 
     /**
+     *  Attempt to decompose this matrix into a scale-only component and whatever remains, where
+     *  the scale component is to be applied first.
+     *
+     *  M -> Remaining * Scale
+     *
+     *  On success, return true and assign the scale and remaining components (assuming their
+     *  respective parameters are not null). On failure return false and ignore the parameters.
+     *
+     *  Possible reasons to fail: perspective, one or more scale factors are zero.
+     */
+    bool decomposeScale(SkSize* scale, SkMatrix* remaining = NULL) const;
+
+    /**
      *  Return a reference to a const identity matrix
      */
     static const SkMatrix& I();

@@ -98,12 +98,6 @@ static bool valid_for_filtering(unsigned dimension) {
     return (dimension & ~0x3FFF) == 0;
 }
 
-static SkScalar effective_matrix_scale(const SkMatrix& mat) {
-    SkScalar dx = SkVector::Length(mat.getScaleX(), mat.getSkewY());
-    SkScalar dy = SkVector::Length(mat.getSkewX(), mat.getScaleY());
-    return SkScalarSqrt(dx * dy);
-}
-
 // Check to see that the size of the bitmap that would be produced by
 // scaling by the given inverted matrix is less than the maximum allowed.
 static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
@@ -116,22 +110,6 @@ static inline bool cache_size_okay(const SkBitmap& bm, const SkMatrix& invMat) {
     // Skip the division step:
     return bm.info().getSafeSize(bm.info().minRowBytes())
         < (maximumAllocation * invMat.getScaleX() * invMat.getScaleY());
-}
-
-/*
- *  Extract the "best" scale factors from a matrix.
- */
-static bool extract_scale(const SkMatrix& matrix, SkVector* scale) {
-    SkASSERT(!matrix.hasPerspective());
-    SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
-    SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
-    if (!SkScalarIsFinite(sx) || !SkScalarIsFinite(sy) ||
-        SkScalarNearlyZero(sx) || SkScalarNearlyZero(sy))
-    {
-        return false;
-    }
-    scale->set(sx, sy);
-    return true;
 }
 
 /*
@@ -154,12 +132,12 @@ void SkBitmapProcState::processHQRequest() {
     SkScalar invScaleX = fInvMatrix.getScaleX();
     SkScalar invScaleY = fInvMatrix.getScaleY();
     if (fInvMatrix.getType() & SkMatrix::kAffine_Mask) {
-        SkVector scale;
-        if (!extract_scale(fInvMatrix, &scale)) {
-            return; // can't find suitable scale factors
+        SkSize scale;
+        if (!fInvMatrix.decomposeScale(&scale)) {
+            return;
         }
-        invScaleX = scale.x();
-        invScaleY = scale.y();
+        invScaleX = scale.width();
+        invScaleY = scale.height();
     }
     if (SkScalarNearlyEqual(invScaleX, 1) && SkScalarNearlyEqual(invScaleY, 1)) {
         return; // no need for HQ
@@ -204,7 +182,11 @@ void SkBitmapProcState::processMediumRequest() {
     // to a valid bitmap.
     fFilterLevel = kLow_SkFilterQuality;
 
-    SkScalar invScale = effective_matrix_scale(fInvMatrix);
+    SkSize invScaleSize;
+    if (!fInvMatrix.decomposeScale(&invScaleSize, NULL)) {
+        return;
+    }
+    SkScalar invScale = SkScalarSqrt(invScaleSize.width() * invScaleSize.height());
 
     if (invScale > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(fOrigBitmap));
