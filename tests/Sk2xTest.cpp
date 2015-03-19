@@ -45,11 +45,21 @@ static void test(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, eq(a.subtract(d), 2,  -1));
     REPORTER_ASSERT(r, eq(a.multiply(d), 8,  20));
 
+    REPORTER_ASSERT(r, eq(a + d, 6,   9));
+    REPORTER_ASSERT(r, eq(a - d, 2,  -1));
+    REPORTER_ASSERT(r, eq(a * d, 8,  20));
+
     REPORTER_ASSERT(r, nearly_eq(0.001, a.rsqrt(), 0.5, 0.5));
     REPORTER_ASSERT(r, eq(a.sqrt(), 2, 2));
 
     REPORTER_ASSERT(r, eq(Sk2x<T>::Min(a, d), 2, 4));
     REPORTER_ASSERT(r, eq(Sk2x<T>::Max(a, d), 4, 5));
+
+    // A bit of both.
+    a += d;
+    a *= d;
+    a -= d;
+    REPORTER_ASSERT(r, eq(a, 10,40));
 }
 
 DEF_TEST(Sk2f, r) { test< float>(r); }

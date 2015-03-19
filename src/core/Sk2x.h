@@ -49,6 +49,14 @@ public:
     Sk2x subtract(const Sk2x&) const;
     Sk2x multiply(const Sk2x&) const;
 
+    Sk2x operator +(const Sk2x& o) const { return this->add(o); }
+    Sk2x operator -(const Sk2x& o) const { return this->subtract(o); }
+    Sk2x operator *(const Sk2x& o) const { return this->multiply(o); }
+
+    Sk2x& operator +=(const Sk2x& o) { return (*this = *this + o); }
+    Sk2x& operator -=(const Sk2x& o) { return (*this = *this - o); }
+    Sk2x& operator *=(const Sk2x& o) { return (*this = *this * o); }
+
     Sk2x rsqrt() const;   // Approximate 1/this->sqrt().
     Sk2x  sqrt() const;   // this->multiply(this->rsqrt()) may be faster, but less precise.
 

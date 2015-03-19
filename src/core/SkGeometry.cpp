@@ -139,12 +139,11 @@ SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
     Sk2f P1 = Sk2f::Load(&src[1].fX);
     Sk2f P2 = Sk2f::Load(&src[2].fX);
 
-    Sk2f A = P2.subtract(P1.add(P1)).add(P0);
-    Sk2f B = P1.subtract(P0);
-    B = B.add(B);
+    Sk2f B = P1 - P0;
+    Sk2f A = P2 - P1 - B;
 
     SkPoint result;
-    A.multiply(t2).add(B).multiply(t2).add(P0).store(&result.fX);
+    ((A * t2 + B+B) * t2 + P0).store(&result.fX);
     return result;
 }
 
