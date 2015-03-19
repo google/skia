@@ -33,18 +33,10 @@ public:
     static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                            ShadowMode shadowMode,
-                                           SkImageFilter* input,
-                                           const CropRect* cropRect,
-                                           uint32_t = 0) {
+                                           SkImageFilter* input = NULL,
+                                           const CropRect* cropRect = NULL) {
         return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
                                                     shadowMode, input, cropRect));
-    }
-
-    static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
-                                           SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-                                           ShadowMode shadowMode) {
-        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
-                                                    shadowMode, NULL, NULL));
     }
 
     void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
