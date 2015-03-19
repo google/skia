@@ -14,8 +14,6 @@
 #include "SkStream.h"
 #include "SkXMLWriter.h"
 
-DEFINE_bool(codec, false, "Use SkCodec instead of SkImageDecoder");
-
 namespace DM {
 
 GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
@@ -39,59 +37,99 @@ Name GMSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageSrc::ImageSrc(Path path, int divisor) : fPath(path), fDivisor(divisor) {}
+CodecSrc::CodecSrc(Path path) : fPath(path) {}
 
-Error ImageSrc::draw(SkCanvas* canvas) const {
+Error CodecSrc::draw(SkCanvas* canvas) const {
+    SkImageInfo canvasInfo;
+    if (NULL == canvas->peekPixels(&canvasInfo, NULL)) {
+        // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
+        // let the GPU handle it.
+        return Error::Nonfatal("No need to test decoding to non-raster backend.");
+    }
+
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    const SkColorType dstColorType = canvas->imageInfo().colorType();
+
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    if (!codec) {
+        return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
+    }
+
+    SkImageInfo decodeInfo;
+    if (!codec->getInfo(&decodeInfo)) {
+        return SkStringPrintf("Couldn't getInfo %s.", fPath.c_str());
+    }
+
+    decodeInfo = decodeInfo.makeColorType(canvasInfo.colorType());
+    if (decodeInfo.alphaType() == kUnpremul_SkAlphaType) {
+        // FIXME: Currently we cannot draw unpremultiplied sources.
+        decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(decodeInfo)) {
+        return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+                              decodeInfo.width(), decodeInfo.height());
+    }
+
+    SkAutoLockPixels alp(bitmap);
+    switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
+        case SkImageGenerator::kSuccess:
+        // We consider incomplete to be valid, since we should still decode what is
+        // available.
+        case SkImageGenerator::kIncompleteInput:
+            canvas->drawBitmap(bitmap, 0, 0);
+            return "";
+        case SkImageGenerator::kInvalidConversion:
+            return Error::Nonfatal("Incompatible colortype conversion");
+        default:
+            // Everything else is considered a failure.
+            return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+    }
+}
+
+SkISize CodecSrc::size() const {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    SkImageInfo info;
+    if (codec && codec->getInfo(&info)) {
+        return info.dimensions();
+    }
+    return SkISize::Make(0,0);
+}
+
+Name CodecSrc::name() const {
+    return SkOSPath::Basename(fPath.c_str());
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ImageSrc::ImageSrc(Path path, int divisor) : fPath(path), fDivisor(divisor) {}
+
+Error ImageSrc::draw(SkCanvas* canvas) const {
+    SkImageInfo canvasInfo;
+    if (NULL == canvas->peekPixels(&canvasInfo, NULL)) {
+        // TODO: Instead, use lazy decoding to allow the GPU to handle cases like YUV.
+        return Error::Nonfatal("No need to test decoding to non-raster backend.");
+    }
+
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    if (!encoded) {
+        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+    }
+    const SkColorType dstColorType = canvasInfo.colorType();
     if (fDivisor == 0) {
         // Decode the full image.
         SkBitmap bitmap;
-        if (FLAGS_codec) {
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-            if (!codec) {
-                return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
-            }
-            SkImageInfo info;
-            if (!codec->getInfo(&info)) {
-                return SkStringPrintf("Couldn't getInfo %s.", fPath.c_str());
-            }
-            info = info.makeColorType(dstColorType);
-            if (info.alphaType() == kUnpremul_SkAlphaType) {
-                // FIXME: Currently we cannot draw unpremultiplied sources.
-                info = info.makeAlphaType(kPremul_SkAlphaType);
-            }
-            if (!bitmap.tryAllocPixels(info)) {
-                return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
-                                      info.width(), info.height());
-            }
-            SkAutoLockPixels alp(bitmap);
-            const SkImageGenerator::Result result = codec->getPixels(info, bitmap.getPixels(),
-                                                                     bitmap.rowBytes());
-            switch (result) {
-                case SkImageGenerator::kSuccess:
-                // We consider incomplete to be valid, since we should still decode what is
-                // available.
-                case SkImageGenerator::kIncompleteInput:
-                    break;
-                case SkImageGenerator::kInvalidConversion:
-                    return Error::Nonfatal("Incompatible colortype conversion");
-                default:
-                    // Everything else is considered a failure.
-                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
-            }
-        } else {
-            if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
-                                              dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
-                return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
-            }
-            if (kRGB_565_SkColorType == dstColorType && !bitmap.isOpaque()) {
-                // Do not draw a bitmap with alpha to a destination without alpha.
-                return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
-            }
+        if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
+                                          dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
+            return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
+        }
+        if (kRGB_565_SkColorType == dstColorType && !bitmap.isOpaque()) {
+            // Do not draw a bitmap with alpha to a destination without alpha.
+            return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
         }
         encoded.reset((SkData*)NULL);  // Might as well drop this when we're done with it.
         canvas->drawBitmap(bitmap, 0,0);
@@ -141,27 +179,15 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
 
 SkISize ImageSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    if (FLAGS_codec) {
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-        if (!codec) {
-            return SkISize::Make(0,0);
-        }
-        SkImageInfo info;
-        if (!codec->getInfo(&info)) {
-            return SkISize::Make(0,0);
-        }
-        return info.dimensions();
-    } else {
-        SkBitmap bitmap;
-        if (!encoded || !SkImageDecoder::DecodeMemory(encoded->data(),
-                                                      encoded->size(),
-                                                      &bitmap,
-                                                      kUnknown_SkColorType,
-                                                      SkImageDecoder::kDecodeBounds_Mode)) {
-            return SkISize::Make(0,0);
-        }
-        return bitmap.dimensions();
+    SkBitmap bitmap;
+    if (!encoded || !SkImageDecoder::DecodeMemory(encoded->data(),
+                                                  encoded->size(),
+                                                  &bitmap,
+                                                  kUnknown_SkColorType,
+                                                  SkImageDecoder::kDecodeBounds_Mode)) {
+        return SkISize::Make(0,0);
     }
+    return bitmap.dimensions();
 }
 
 Name ImageSrc::name() const {

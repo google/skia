@@ -81,6 +81,18 @@ private:
     skiagm::GMRegistry::Factory fFactory;
 };
 
+class CodecSrc : public Src {
+public:
+    explicit CodecSrc(Path path);
+
+    Error draw(SkCanvas*) const SK_OVERRIDE;
+    SkISize size() const SK_OVERRIDE;
+    Name name() const SK_OVERRIDE;
+private:
+    Path fPath;
+};
+
+
 class ImageSrc : public Src {
 public:
     // divisor == 0 means decode the whole image

@@ -18,7 +18,7 @@
 #include "Test.h"
 #include "Timer.h"
 
-DEFINE_string(src, "tests gm skp image subset", "Source types to test.");
+DEFINE_string(src, "tests gm skp image subset codec", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
@@ -148,6 +148,12 @@ static void push_src(const char* tag, Src* s) {
     }
 }
 
+static bool codec_supported(const char* ext) {
+    // FIXME: Once other versions of SkCodec are available, we can add them to this
+    // list (and eventually we can remove this check once they are all supported).
+    return strcmp(ext, "png") == 0 || strcmp(ext, "PNG") == 0;
+}
+
 static void gather_srcs() {
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         push_src("gm", new GMSrc(r->factory()));
@@ -176,12 +182,16 @@ static void gather_srcs() {
                     SkString path = SkOSPath::Join(flag, file.c_str());
                     push_src("image", new ImageSrc(path));     // Decode entire image.
                     push_src("subset", new ImageSrc(path, 2)); // Decode into 2 x 2 subsets
+                    if (codec_supported(exts[j])) {
+                        push_src("codec", new CodecSrc(path));     // Decode with SkCodec.
+                    }
                 }
             }
         } else if (sk_exists(flag)) {
             // assume that FLAGS_images[i] is a valid image if it is a file.
             push_src("image", new ImageSrc(flag));     // Decode entire image.
             push_src("subset", new ImageSrc(flag, 2)); // Decode into 2 x 2 subsets
+            push_src("codec", new CodecSrc(flag));     // Decode with SkCodec.
         }
     }
 }
