@@ -114,17 +114,10 @@ static SkScalar eval_quad_derivative(const SkScalar src[], SkScalar t) {
     return 2 * SkScalarMulAdd(A, t, B);
 }
 
-static SkScalar eval_quad_derivative_at_half(const SkScalar src[]) {
-    SkScalar A = src[4] - 2 * src[2] + src[0];
-    SkScalar B = src[2] - src[0];
-    return A + 2 * B;
-}
-
-void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt,
-                  SkVector* tangent) {
+void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-
+    
     if (pt) {
         pt->set(eval_quad(&src[0].fX, t), eval_quad(&src[0].fY, t));
     }
@@ -134,20 +127,25 @@ void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt,
     }
 }
 
-void SkEvalQuadAtHalf(const SkPoint src[3], SkPoint* pt, SkVector* tangent) {
-    SkASSERT(src);
+#include "Sk4x.h"
 
-    if (pt) {
-        SkScalar x01 = SkScalarAve(src[0].fX, src[1].fX);
-        SkScalar y01 = SkScalarAve(src[0].fY, src[1].fY);
-        SkScalar x12 = SkScalarAve(src[1].fX, src[2].fX);
-        SkScalar y12 = SkScalarAve(src[1].fY, src[2].fY);
-        pt->set(SkScalarAve(x01, x12), SkScalarAve(y01, y12));
-    }
-    if (tangent) {
-        tangent->set(eval_quad_derivative_at_half(&src[0].fX),
-                     eval_quad_derivative_at_half(&src[0].fY));
-    }
+SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
+    SkASSERT(src);
+    SkASSERT(t >= 0 && t <= SK_Scalar1);
+
+    const Sk4f t2(t);
+    const Sk4f two(2);
+    
+    Sk4f P0 = Sk4f::Load2(&src[0].fX);
+    Sk4f P1 = Sk4f::Load2(&src[1].fX);
+    Sk4f P2 = Sk4f::Load2(&src[2].fX);
+    
+    Sk4f A = P2.subtract(P1.multiply(two)).add(P0);
+    Sk4f B = P1.subtract(P0).multiply(two);
+    
+    SkPoint result;
+    A.multiply(t2).add(B).multiply(t2).add(P0).store2(&result.fX);
+    return result;
 }
 
 static void interp_quad_coords(const SkScalar* src, SkScalar* dst, SkScalar t) {

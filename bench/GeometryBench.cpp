@@ -129,3 +129,49 @@ DEF_BENCH( return new GeoRectBench_intersect_rect; )
 DEF_BENCH( return new GeoRectBench_Intersects; )
 
 DEF_BENCH( return new GeoRectBench_sort; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class EvalQuadAt0 : public GeometryBench {
+    SkPoint fPts[3];
+public:
+    EvalQuadAt0() : GeometryBench("evalquadat0") {
+        SkRandom rand;
+        for (int i = 0; i < 3; ++i) {
+            fPts[i].set(rand.nextUScalar1(), rand.nextUScalar1());
+        }
+    }
+    
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint result;
+        for (int outer = 0; outer < loops; ++outer) {
+            for (int i = 0; i < 10000; ++i) {
+                SkEvalQuadAt(fPts, 0.5f, &result);
+            }
+        }
+    }
+};
+DEF_BENCH( return new EvalQuadAt0; )
+
+class EvalQuadAt1 : public GeometryBench {
+    SkPoint fPts[3];
+public:
+    EvalQuadAt1() : GeometryBench("evalquadat1") {
+        SkRandom rand;
+        for (int i = 0; i < 3; ++i) {
+            fPts[i].set(rand.nextUScalar1(), rand.nextUScalar1());
+        }
+    }
+    
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        for (int outer = 0; outer < loops; ++outer) {
+            for (int i = 0; i < 10000; ++i) {
+                SkEvalQuadAt(fPts, 0.5f);
+            }
+        }
+    }
+};
+DEF_BENCH( return new EvalQuadAt1; )
+
