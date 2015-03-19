@@ -287,6 +287,12 @@
     "_", 
     "_", 
     "subset", 
-    "_"
+    "_", 
+    "msaa16", 
+    "gm", 
+    "colorwheelnative", 
+    "pdf", 
+    "gm", 
+    "fontmgr_iter_factory"
   ]
 }

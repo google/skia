@@ -56,6 +56,12 @@ def get_args(bot):
     blacklist.extend('_ image _'.split(' '))
     blacklist.extend('_ subset _'.split(' '))
 
+  # Certain gm's on win7 gpu and pdf are never finishing and keeping the test
+  # running forever
+  if 'Win7' in bot:
+    blacklist.extend('msaa16 gm colorwheelnative'.split(' '))
+    blacklist.extend('pdf gm fontmgr_iter_factory'.split(' '))
+
   # Drawing SKPs or images into GPU canvases is a New Thing.
   # It seems like we're running out of RAM on some Android bots, so start off
   # with a very wide blacklist disabling all these tests on all Android bots.
