@@ -38,10 +38,12 @@ public:
 
 protected:
     SkData* onRefEncodedData() SK_OVERRIDE;
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = fInfo;
         return true;
     }
+#endif
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
                                SkPMColor ctable[], int* ctableCount) SK_OVERRIDE;
@@ -116,7 +118,8 @@ DecodingImageGenerator::DecodingImageGenerator(
         const SkImageInfo& info,
         int sampleSize,
         bool ditherImage)
-    : fData(data)
+    : INHERITED(info)
+    , fData(data)
     , fStream(stream)
     , fInfo(info)
     , fSampleSize(sampleSize)

@@ -7,13 +7,15 @@
 
 #include "SkImageGenerator.h"
 
-bool SkImageGenerator::getInfo(SkImageInfo* info) {
-    SkImageInfo dummy;
-    if (NULL == info) {
-        info = &dummy;
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
+SkImageInfo SkImageGenerator::getInfo() {
+    SkImageInfo info;
+    if (!this->onGetInfo(&info)) {
+        info = SkImageInfo::MakeUnknown(0, 0);
     }
-    return this->onGetInfo(info);
+    return info;
 }
+#endif
 
 SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
                                                      size_t rowBytes, const Options* options,
@@ -120,9 +122,11 @@ SkData* SkImageGenerator::onRefEncodedData() {
     return NULL;
 }
 
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
 bool SkImageGenerator::onGetInfo(SkImageInfo*) {
     return false;
 }
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
 SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,

@@ -8,8 +8,13 @@
 #include "SkImageGenerator.h"
 #include "Test.h"
 
+class MyImageGenerator : public SkImageGenerator {
+public:
+    MyImageGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(0, 0)) {}
+};
+
 DEF_TEST(ImageGenerator, reporter) {
-    SkImageGenerator ig;
+    MyImageGenerator ig;
     SkISize sizes[3];
     sizes[0] = SkISize::Make(200, 200);
     sizes[1] = SkISize::Make(100, 100);

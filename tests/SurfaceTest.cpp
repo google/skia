@@ -67,11 +67,8 @@ enum ImageType {
 #include "SkImageGenerator.h"
 
 class EmptyGenerator : public SkImageGenerator {
-protected:
-    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
-        *info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
-        return true;
-    }
+public:
+    EmptyGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(0, 0)) {}
 };
 
 static void test_empty_image(skiatest::Reporter* reporter) {

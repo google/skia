@@ -39,7 +39,7 @@ class SkImageDecoderGenerator : public SkImageGenerator {
 
 public:
     SkImageDecoderGenerator(const SkImageInfo& info, SkImageDecoder* decoder, SkData* data)
-        : fInfo(info), fDecoder(decoder), fData(SkRef(data))
+        : INHERITED(info), fInfo(info), fDecoder(decoder), fData(SkRef(data))
     {}
 
 protected:
@@ -47,10 +47,12 @@ protected:
         return SkRef(fData.get());
     }
 
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = fInfo;
         return true;
     }
+#endif
 
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                const Options&,
@@ -92,7 +94,9 @@ protected:
         SkMemoryStream stream(fData->data(), fData->size(), false);
         return fDecoder->decodeYUV8Planes(&stream, sizes, planes, rowBytes, colorSpace);
     }
-    
+
+private:
+    typedef SkImageGenerator INHERITED;
 };
 
 SkImageGenerator* SkImageGenerator::NewFromData(SkData* data) {

@@ -11,11 +11,12 @@
 
 bool SkCachingPixelRef::Install(SkImageGenerator* generator,
                                 SkBitmap* dst) {
-    SkImageInfo info;
     SkASSERT(dst != NULL);
-    if ((NULL == generator)
-        || !(generator->getInfo(&info))
-        || !dst->setInfo(info)) {
+    if (NULL == generator) {
+        return false;
+    }
+    const SkImageInfo info = generator->getInfo();
+    if (!dst->setInfo(info)) {
         SkDELETE(generator);
         return false;
     }

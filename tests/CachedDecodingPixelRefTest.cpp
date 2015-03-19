@@ -163,7 +163,6 @@ DEF_TEST(DecodingImageGenerator, reporter) {
 class TestImageGenerator : public SkImageGenerator {
 public:
     enum TestType {
-        kFailGetInfo_TestType,
         kFailGetPixels_TestType,
         kSucceedGetPixels_TestType,
         kLast_TestType = kSucceedGetPixels_TestType
@@ -172,22 +171,24 @@ public:
     static int Height() { return 10; }
     static uint32_t Color() { return 0xff123456; }
     TestImageGenerator(TestType type, skiatest::Reporter* reporter)
-        : fType(type), fReporter(reporter) {
+    : INHERITED(GetMyInfo()), fType(type), fReporter(reporter) {
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
     }
     virtual ~TestImageGenerator() { }
 
 protected:
+    static SkImageInfo GetMyInfo() {
+        return SkImageInfo::MakeN32(TestImageGenerator::Width(), TestImageGenerator::Height(),
+                                    kOpaque_SkAlphaType);
+    }
+
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, info);
-        if ((NULL == info) || (kFailGetInfo_TestType == fType)) {
-            return false;
-        }
-        *info = SkImageInfo::MakeN32(TestImageGenerator::Width(),
-                                     TestImageGenerator::Height(),
-                                     kOpaque_SkAlphaType);
+        *info = GetMyInfo();
         return true;
     }
+#endif
 
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                const Options&,
@@ -212,6 +213,8 @@ protected:
 private:
     const TestType fType;
     skiatest::Reporter* const fReporter;
+
+    typedef SkImageGenerator INHERITED;
 };
 
 static void check_test_image_generator_bitmap(skiatest::Reporter* reporter,
@@ -256,8 +259,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
     } else {
         success = SkInstallDiscardablePixelRef(gen.detach(), &lazy, factory);
     }
-    REPORTER_ASSERT(reporter, success
-                    == (TestImageGenerator::kFailGetInfo_TestType != type));
+    REPORTER_ASSERT(reporter, success);
     if (TestImageGenerator::kSucceedGetPixels_TestType == type) {
         check_test_image_generator_bitmap(reporter, lazy);
     } else if (TestImageGenerator::kFailGetPixels_TestType == type) {
@@ -283,15 +285,11 @@ static void test_newlockdelete(skiatest::Reporter* reporter) {
 DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
     test_newlockdelete(reporter);
 
-    check_pixelref(TestImageGenerator::kFailGetInfo_TestType,
-                   reporter, kSkCaching_PixelRefType, NULL);
     check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
                    reporter, kSkCaching_PixelRefType, NULL);
     check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
                    reporter, kSkCaching_PixelRefType, NULL);
 
-    check_pixelref(TestImageGenerator::kFailGetInfo_TestType,
-                   reporter, kSkDiscardable_PixelRefType, NULL);
     check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
                    reporter, kSkDiscardable_PixelRefType, NULL);
     check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
@@ -321,7 +319,6 @@ DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
 
 DEF_TEST(Image_NewFromGenerator, r) {
     TestImageGenerator::TestType testTypes[] = {
-        TestImageGenerator::kFailGetInfo_TestType,
         TestImageGenerator::kFailGetPixels_TestType,
         TestImageGenerator::kSucceedGetPixels_TestType,
     };
@@ -329,10 +326,6 @@ DEF_TEST(Image_NewFromGenerator, r) {
         TestImageGenerator::TestType test = testTypes[i];
         SkImageGenerator* gen = SkNEW_ARGS(TestImageGenerator, (test, r));
         SkAutoTUnref<SkImage> image(SkImage::NewFromGenerator(gen));
-        if (TestImageGenerator::kFailGetInfo_TestType == test) {
-            REPORTER_ASSERT(r, NULL == image.get());
-            continue;
-        }
         if (NULL == image.get()) {
             ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["
                    SK_SIZE_T_SPECIFIER "]", i);

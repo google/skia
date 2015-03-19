@@ -46,7 +46,8 @@ SkCodec* SkCodec::NewFromData(SkData* data) {
 }
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
-    : fInfo(info)
+    : INHERITED(info)
+    , fInfo(info)
     , fStream(stream)
     , fNeedsRewind(false)
 {}

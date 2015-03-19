@@ -20,14 +20,14 @@
 // A BitmapFactory that always fails when asked to return pixels.
 class FailureImageGenerator : public SkImageGenerator {
 public:
-    FailureImageGenerator() { }
-    virtual ~FailureImageGenerator() { }
-
+    FailureImageGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(100, 100)) {}
 protected:
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = SkImageInfo::MakeN32Premul(100, 100);
         return true;
     }
+#endif
     // default onGetPixels() returns kUnimplemented, which is what we want.
 };
 

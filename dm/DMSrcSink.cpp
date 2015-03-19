@@ -57,12 +57,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo;
-    if (!codec->getInfo(&decodeInfo)) {
-        return SkStringPrintf("Couldn't getInfo %s.", fPath.c_str());
-    }
-
-    decodeInfo = decodeInfo.makeColorType(canvasInfo.colorType());
+    SkImageInfo decodeInfo = codec->getInfo().makeColorType(canvasInfo.colorType());
     if (decodeInfo.alphaType() == kUnpremul_SkAlphaType) {
         // FIXME: Currently we cannot draw unpremultiplied sources.
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
@@ -93,11 +88,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-    SkImageInfo info;
-    if (codec && codec->getInfo(&info)) {
-        return info.dimensions();
-    }
-    return SkISize::Make(0,0);
+    return codec->getInfo().dimensions();
 }
 
 Name CodecSrc::name() const {

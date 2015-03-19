@@ -65,15 +65,19 @@ public:
     SkData* refEncodedData() { return this->onRefEncodedData(); }
 
     /**
-     *  Return some information about the image, allowing the owner of
-     *  this object to allocate pixels.
-     *
-     *  Repeated calls to this function should give the same results,
-     *  allowing the PixelRef to be immutable.
-     *
-     *  @return false if anything goes wrong.
+     *  Return the ImageInfo associated with this generator.
      */
-    bool getInfo(SkImageInfo* info);
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
+    SkImageInfo getInfo();
+    bool getInfo(SkImageInfo* info) {
+        if (info) {
+            *info = this->getInfo();
+        }
+        return true;
+    }
+#else
+    const SkImageInfo& getInfo() const { return fInfo; }
+#endif
 
     /**
      *  Used to describe the result of a call to getPixels().
@@ -206,8 +210,14 @@ public:
     static SkImageGenerator* NewFromData(SkData*);
 
 protected:
-    virtual SkData* onRefEncodedData();
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
+    SkImageGenerator() : fInfo(SkImageInfo::MakeUnknown(0, 0) ) {}
     virtual bool onGetInfo(SkImageInfo* info);
+#endif
+    SkImageGenerator(const SkImageInfo& info) : fInfo(info) {}
+
+    virtual SkData* onRefEncodedData();
+
 #ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes,
@@ -219,6 +229,9 @@ protected:
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
+
+private:
+    const SkImageInfo fInfo;
 };
 
 #endif  // SkImageGenerator_DEFINED

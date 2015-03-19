@@ -109,12 +109,12 @@ void SkDiscardablePixelRef::onUnlockPixels() {
 
 bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
                                   SkDiscardableMemory::Factory* factory) {
-    SkImageInfo info;
     SkAutoTDelete<SkImageGenerator> autoGenerator(generator);
-    if ((NULL == autoGenerator.get())
-        || (!autoGenerator->getInfo(&info))
-        || info.isEmpty()
-        || (!dst->setInfo(info))) {
+    if (NULL == autoGenerator.get()) {
+        return false;
+    }
+    SkImageInfo info = autoGenerator->getInfo();
+    if (info.isEmpty() || !dst->setInfo(info)) {
         return false;
     }
     // Since dst->setInfo() may have changed/fixed-up info, we copy it back from that bitmap

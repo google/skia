@@ -58,10 +58,12 @@ protected:
      *  initially returns a non-opaque answer, but completing the decode
      *  reveals that the image is actually opaque.
      */
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         *info = fInfo;
         return true;
     }
+#endif
 
     // Helper for subclasses.
     const SkImageInfo& getOriginalInfo() { return fInfo; }
@@ -99,5 +101,7 @@ private:
     const SkImageInfo       fInfo;
     SkAutoTDelete<SkStream> fStream;
     bool                    fNeedsRewind;
+
+    typedef SkImageGenerator INHERITED;
 };
 #endif // SkCodec_DEFINED
