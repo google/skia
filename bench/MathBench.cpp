@@ -545,50 +545,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class DivBitsBench : public Benchmark {
-protected:
-    enum {
-        N = 1000
-    };
-    volatile int32_t fSrc[N], fDst[N];
-public:
-    DivBitsBench() {
-        SkRandom rand;
-        for (int i = 0; i < N; ++i) {
-            fSrc[i] = rand.nextU();
-        }
-    }
-protected:
-    virtual void onDraw(const int loops, SkCanvas*) {
-        for (int j = 0; j < loops; ++j) {
-            for (int i = 0; i < N - 4; ++i) {
-                fDst[i] = SkDivBits(fSrc[i], fSrc[i] >> 3, 16);
-            }
-        }
-    }
-    virtual const char* onGetName() {
-        return "divbits";
-    }
-};
-DEF_BENCH( return new DivBitsBench; )
-
-class FixedDivBench : public DivBitsBench {
-protected:
-    virtual void onDraw(const int loops, SkCanvas*) {
-        for (int j = 0; j < loops; ++j) {
-            for (int i = 0; i < N - 4; ++i) {
-                fDst[i] = SkFixedDiv(fSrc[i], fSrc[i] >> 3);
-            }
-        }
-    }
-    virtual const char* onGetName() {
-        return "fixeddiv";
-    }
-};
-DEF_BENCH( return new FixedDivBench; )
-
-///////////////////////////////////////////////////////////////////////////////
-
 template <typename T>
 class DivModBench : public Benchmark {
     SkString fName;

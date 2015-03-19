@@ -78,10 +78,7 @@ typedef int32_t             SkFixed;
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
 
-static inline int32_t SkFixedDiv(int32_t numer, int32_t denom) {
-    int64_t tmp = ((int64_t)numer << 16) / denom;
-    return (int32_t)tmp;
-}
+#define SkFixedDiv(numer, denom)    SkDivBits(numer, denom, 16)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Now look for ASM overrides for our portable versions (should consider putting this in its own file)
