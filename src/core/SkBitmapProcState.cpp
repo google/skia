@@ -101,11 +101,7 @@ static bool valid_for_filtering(unsigned dimension) {
 static SkScalar effective_matrix_scale(const SkMatrix& mat) {
     SkScalar dx = SkVector::Length(mat.getScaleX(), mat.getSkewY());
     SkScalar dy = SkVector::Length(mat.getSkewX(), mat.getScaleY());
-#ifdef SK_SUPPORT_LEGACY_MIPMAP_EFFECTIVE_SCALE
-    return SkMaxScalar(dx, dy);
-#else
     return SkScalarSqrt(dx * dy);
-#endif
 }
 
 // Check to see that the size of the bitmap that would be produced by
