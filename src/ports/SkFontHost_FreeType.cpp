@@ -1315,9 +1315,20 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     SkScalar ascent, descent, leading, xmin, xmax, ymin, ymax;
     SkScalar underlineThickness, underlinePosition;
     if (face->face_flags & FT_FACE_FLAG_SCALABLE) { // scalable outline font
-        ascent = -SkIntToScalar(face->ascender) / upem;
-        descent = -SkIntToScalar(face->descender) / upem;
-        leading = SkIntToScalar(face->height + (face->descender - face->ascender)) / upem;
+        // FreeType will always use HHEA metrics if they're not zero.
+        // It completely ignores the OS/2 fsSelection::UseTypoMetrics bit.
+        // It also ignores the VDMX tables, which are also of interest here
+        // (and override everything else when they apply).
+        static const int kUseTypoMetricsMask = (1 << 7);
+        if (os2 && os2->version != 0xFFFF && (os2->fsSelection & kUseTypoMetricsMask)) {
+            ascent = -SkIntToScalar(os2->sTypoAscender) / upem;
+            descent = -SkIntToScalar(os2->sTypoDescender) / upem;
+            leading = SkIntToScalar(os2->sTypoLineGap) / upem;
+        } else {
+            ascent = -SkIntToScalar(face->ascender) / upem;
+            descent = -SkIntToScalar(face->descender) / upem;
+            leading = SkIntToScalar(face->height + (face->descender - face->ascender)) / upem;
+        }
         xmin = SkIntToScalar(face->bbox.xMin) / upem;
         xmax = SkIntToScalar(face->bbox.xMax) / upem;
         ymin = -SkIntToScalar(face->bbox.yMin) / upem;
