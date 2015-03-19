@@ -591,7 +591,7 @@ static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, cons
     }
 }
 
-template<bool APPLY_PREBLEND>
+template<bool APPLY_PREBLEND, bool RGB>
 static void rgb_to_lcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
                          const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
@@ -600,9 +600,16 @@ static void rgb_to_lcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
 
     for (U16CPU y = 0; y < glyph.fHeight; y++) {
         for (U16CPU i = 0; i < width; i++) {
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableB);
+            U8CPU r, g, b;
+            if (RGB) {
+                r = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableR);
+                g = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableG);
+                b = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableB);
+            } else {
+                b = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableB);
+                g = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableG);
+                r = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableR);
+            }
             dst[i] = SkPack888ToRGB16(r, g, b);
         }
         dst = (uint16_t*)((char*)dst + dstRB);
@@ -699,9 +706,17 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     } else {
         SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
         if (fPreBlend.isApplicable()) {
-            rgb_to_lcd16<true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            if (fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag) {
+                rgb_to_lcd16<true, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            } else {
+                rgb_to_lcd16<true, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            }
         } else {
-            rgb_to_lcd16<false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            if (fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag) {
+                rgb_to_lcd16<false, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            } else {
+                rgb_to_lcd16<false, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            }
         }
     }
 }

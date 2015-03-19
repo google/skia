@@ -243,9 +243,7 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* d
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
-    if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
-        rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
-    {
+    if (rec->fFlags & SkScalerContext::kLCD_Vertical_Flag) {
         rec->fMaskFormat = SkMask::kA8_Format;
     }
 
@@ -253,7 +251,6 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
                                   SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kForceAutohinting_Flag |
                                   SkScalerContext::kEmbolden_Flag |
-                                  SkScalerContext::kLCD_BGROrder_Flag |
                                   SkScalerContext::kLCD_Vertical_Flag;
     rec->fFlags &= ~flagsWeDontSupport;
 
