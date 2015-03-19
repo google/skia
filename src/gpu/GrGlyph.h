@@ -23,6 +23,11 @@ class GrPlot;
     - failed to get metrics
  */
 struct GrGlyph {
+    enum MaskStyle {
+        kCoverage_MaskStyle,
+        kDistance_MaskStyle
+    };
+    
     typedef uint32_t PackedID;
 
     GrPlot*      fPlot;
@@ -60,10 +65,11 @@ struct GrGlyph {
         return (pos >> 14) & 3;
     }
 
-    static inline PackedID Pack(uint16_t glyphID, SkFixed x, SkFixed y) {
+    static inline PackedID Pack(uint16_t glyphID, SkFixed x, SkFixed y, MaskStyle ms) {
         x = ExtractSubPixelBitsFromFixed(x);
         y = ExtractSubPixelBitsFromFixed(y);
-        return (x << 18) | (y << 16) | glyphID;
+        int dfFlag = (ms == kDistance_MaskStyle) ? 0x1 : 0x0;
+        return (dfFlag << 20) | (x << 18) | (y << 16) | glyphID;
     }
 
     static inline SkFixed UnpackFixedX(PackedID packed) {
@@ -74,6 +80,10 @@ struct GrGlyph {
         return ((packed >> 16) & 3) << 14;
     }
 
+    static inline MaskStyle UnpackMaskStyle(PackedID packed) {
+        return ((packed >> 20) & 1) ? kDistance_MaskStyle : kCoverage_MaskStyle;
+    }
+    
     static inline uint16_t UnpackID(PackedID packed) {
         return (uint16_t)packed;
     }
