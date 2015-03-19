@@ -32,10 +32,11 @@
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-static const int kSmallDFFontSize = 32;
-static const int kSmallDFFontLimit = 32;
-static const int kMediumDFFontSize = 72;
-static const int kMediumDFFontLimit = 72;
+static const int kMinDFFontSize = 18;
+static const int kSmallDFFontSize = 40;
+static const int kSmallDFFontLimit = 40;
+static const int kMediumDFFontSize = 81;
+static const int kMediumDFFontLimit = 81;
 static const int kLargeDFFontSize = 162;
 
 static const int kVerticesPerGlyph = 4;
@@ -88,8 +89,9 @@ bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint, const SkMatrix& v
 
     SkScalar maxScale = viewMatrix.getMaxScale();
     SkScalar scaledTextSize = maxScale*paint.getTextSize();
+    // Hinted text looks far better at small resolutions
     // Scaling up beyond 2x yields undesireable artifacts
-    if (scaledTextSize > 2*kLargeDFFontSize) {
+    if (scaledTextSize < kMinDFFontSize || scaledTextSize > 2*kLargeDFFontSize) {
         return false;
     }
 
@@ -142,22 +144,22 @@ inline void GrDistanceFieldTextContext::init(GrRenderTarget* rt, const GrClip& c
         fTextRatio = textSize / kSmallDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kSmallDFFontSize));
 #if DEBUG_TEXT_SIZE
-        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
-        fPaint.setColor(GrColorPackRGBA(0x00, 0x00, 0xFF, 0xFF));
+        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0x7F));
+        fPaint.setColor(GrColorPackRGBA(0x00, 0x00, 0x7F, 0xFF));
 #endif
     } else if (scaledTextSize <= kMediumDFFontLimit) {
         fTextRatio = textSize / kMediumDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kMediumDFFontSize));
 #if DEBUG_TEXT_SIZE
-        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00));
-        fPaint.setColor(GrColorPackRGBA(0x00, 0xFF, 0x00, 0xFF));
+        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x00, 0x3F, 0x00));
+        fPaint.setColor(GrColorPackRGBA(0x00, 0x3F, 0x00, 0xFF));
 #endif
     } else {
         fTextRatio = textSize / kLargeDFFontSize;
         fSkPaint.setTextSize(SkIntToScalar(kLargeDFFontSize));
 #if DEBUG_TEXT_SIZE
-        fSkPaint.setColor(SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00));
-        fPaint.setColor(GrColorPackRGBA(0xFF, 0x00, 0x00, 0xFF));
+        fSkPaint.setColor(SkColorSetARGB(0xFF, 0x7F, 0x00, 0x00));
+        fPaint.setColor(GrColorPackRGBA(0x7F, 0x00, 0x00, 0xFF));
 #endif
     }
 

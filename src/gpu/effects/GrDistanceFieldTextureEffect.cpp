@@ -17,7 +17,7 @@
 #include "gl/builders/GrGLProgramBuilder.h"
 
 // Assuming a radius of the diagonal of the fragment, hence a factor of sqrt(2)/2
-#define SK_DistanceFieldAAFactor     "0.7071"
+#define SK_DistanceFieldAAFactor     "0.65"
 
 struct DistanceFieldBatchTracker {
     GrGPInput fInputColorType;
