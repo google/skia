@@ -66,24 +66,24 @@ DEF_TEST(Sk4x_Bits, r) {
 
     Sk4i a(2,3,4,5),
          b(1,3,5,7);
-    ASSERT_EQ(Sk4i(0,3,4,5), a.bitAnd(b));
-    ASSERT_EQ(Sk4i(3,3,5,7), a.bitOr(b));
+    ASSERT_EQ(Sk4i(0,3,4,5), a & b);
+    ASSERT_EQ(Sk4i(3,3,5,7), a | b);
 }
 
 DEF_TEST(Sk4x_Arith, r) {
-    ASSERT_EQ(Sk4f(4,6,8,10),    Sk4f(1,2,3,4).add(Sk4f(3,4,5,6)));
-    ASSERT_EQ(Sk4f(-2,-2,-2,-2), Sk4f(1,2,3,4).subtract(Sk4f(3,4,5,6)));
-    ASSERT_EQ(Sk4f(3,8,15,24),   Sk4f(1,2,3,4).multiply(Sk4f(3,4,5,6)));
+    ASSERT_EQ(Sk4f(4,6,8,10),    Sk4f(1,2,3,4) + Sk4f(3,4,5,6));
+    ASSERT_EQ(Sk4f(-2,-2,-2,-2), Sk4f(1,2,3,4) - Sk4f(3,4,5,6));
+    ASSERT_EQ(Sk4f(3,8,15,24),   Sk4f(1,2,3,4) * Sk4f(3,4,5,6));
 
     float third = 1.0f/3.0f;
-    ASSERT_EQ(Sk4f(1*third, 0.5f, 0.6f, 2*third), Sk4f(1,2,3,4).divide(Sk4f(3,4,5,6)));
-    ASSERT_EQ(Sk4i(4,6,8,10),    Sk4i(1,2,3,4).add(Sk4i(3,4,5,6)));
-    ASSERT_EQ(Sk4i(-2,-2,-2,-2), Sk4i(1,2,3,4).subtract(Sk4i(3,4,5,6)));
-    ASSERT_EQ(Sk4i(3,8,15,24),   Sk4i(1,2,3,4).multiply(Sk4i(3,4,5,6)));
+    ASSERT_EQ(Sk4f(1*third, 0.5f, 0.6f, 2*third), Sk4f(1,2,3,4) / Sk4f(3,4,5,6));
+    ASSERT_EQ(Sk4i(4,6,8,10),    Sk4i(1,2,3,4) + Sk4i(3,4,5,6));
+    ASSERT_EQ(Sk4i(-2,-2,-2,-2), Sk4i(1,2,3,4) - Sk4i(3,4,5,6));
+    ASSERT_EQ(Sk4i(3,8,15,24),   Sk4i(1,2,3,4) * Sk4i(3,4,5,6));
 }
 
-DEF_TEST(Sk4x_ImplicitPromotion, r) {
-    ASSERT_EQ(Sk4f(2,4,6,8), Sk4f(1,2,3,4).multiply(Sk4f(2.0f)));
+DEF_TEST(Sk4x_ExplicitPromotion, r) {
+    ASSERT_EQ(Sk4f(2,4,6,8), Sk4f(1,2,3,4) * Sk4f(2.0f));
 }
 
 DEF_TEST(Sk4x_Sqrt, r) {
@@ -104,22 +104,22 @@ DEF_TEST(Sk4x_Comparison, r) {
     ASSERT_EQ(Sk4f(1,2,3,4), Sk4f(1,2,3,4));
     ASSERT_NE(Sk4f(4,3,2,1), Sk4f(1,2,3,4));
 
-    ASSERT_EQ(Sk4i(-1,-1,0,-1), Sk4f(1,2,5,4).equal(Sk4f(1,2,3,4)));
+    ASSERT_EQ(Sk4i(-1,-1,0,-1), Sk4f(1,2,5,4) == Sk4f(1,2,3,4));
 
-    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4f(1,2,3,4).lessThan(Sk4f(2,3,4,5)));
-    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4f(1,2,3,4).lessThanEqual(Sk4f(2,3,4,5)));
-    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4f(1,2,3,4).greaterThan(Sk4f(2,3,4,5)));
-    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4f(1,2,3,4).greaterThanEqual(Sk4f(2,3,4,5)));
+    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4f(1,2,3,4) <  Sk4f(2,3,4,5));
+    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4f(1,2,3,4) <= Sk4f(2,3,4,5));
+    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4f(1,2,3,4) >  Sk4f(2,3,4,5));
+    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4f(1,2,3,4) >= Sk4f(2,3,4,5));
 
     ASSERT_EQ(Sk4i(1,2,3,4), Sk4i(1,2,3,4));
     ASSERT_NE(Sk4i(4,3,2,1), Sk4i(1,2,3,4));
 
-    ASSERT_EQ(Sk4i(-1,-1,0,-1), Sk4i(1,2,5,4).equal(Sk4i(1,2,3,4)));
+    ASSERT_EQ(Sk4i(-1,-1,0,-1), Sk4i(1,2,5,4) == Sk4i(1,2,3,4));
 
-    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4i(1,2,3,4).lessThan(Sk4i(2,3,4,5)));
-    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4i(1,2,3,4).lessThanEqual(Sk4i(2,3,4,5)));
-    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4i(1,2,3,4).greaterThan(Sk4i(2,3,4,5)));
-    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4i(1,2,3,4).greaterThanEqual(Sk4i(2,3,4,5)));
+    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4i(1,2,3,4) <  Sk4i(2,3,4,5));
+    ASSERT_EQ(Sk4i(-1,-1,-1,-1), Sk4i(1,2,3,4) <= Sk4i(2,3,4,5));
+    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4i(1,2,3,4) >  Sk4i(2,3,4,5));
+    ASSERT_EQ(Sk4i(0,0,0,0),     Sk4i(1,2,3,4) >= Sk4i(2,3,4,5));
 }
 
 DEF_TEST(Sk4x_MinMax, r) {

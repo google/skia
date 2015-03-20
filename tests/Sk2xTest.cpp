@@ -41,10 +41,6 @@ static void test(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, vals[0] == 4 && vals[1] == 4);
 
     // Math
-    REPORTER_ASSERT(r, eq(a.add(d),      6,   9));
-    REPORTER_ASSERT(r, eq(a.subtract(d), 2,  -1));
-    REPORTER_ASSERT(r, eq(a.multiply(d), 8,  20));
-
     REPORTER_ASSERT(r, eq(a + d, 6,   9));
     REPORTER_ASSERT(r, eq(a - d, 2,  -1));
     REPORTER_ASSERT(r, eq(a * d, 8,  20));
@@ -59,7 +55,7 @@ static void test(skiatest::Reporter* r) {
     a += d;
     a *= d;
     a -= d;
-    REPORTER_ASSERT(r, eq(a, 10,40));
+    REPORTER_ASSERT(r, eq(a, 10, 40));
 }
 
 DEF_TEST(Sk2f, r) { test< float>(r); }

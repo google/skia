@@ -52,6 +52,22 @@ public:
     Sk4x multiply(const Sk4x&) const;
     Sk4x   divide(const Sk4x&) const;
 
+    // TODO: why doesn't MSVC like operator~() ?
+    //Sk4x operator ~()              const { return this->bitNot(); }
+    Sk4x operator &(const Sk4x& o) const { return this->bitAnd(o); }
+    Sk4x operator |(const Sk4x& o) const { return this->bitOr (o); }
+    Sk4x operator +(const Sk4x& o) const { return this->add(o); }
+    Sk4x operator -(const Sk4x& o) const { return this->subtract(o); }
+    Sk4x operator *(const Sk4x& o) const { return this->multiply(o); }
+    Sk4x operator /(const Sk4x& o) const { return this->divide(o); }
+
+    Sk4x& operator &=(const Sk4x& o) { return (*this = *this & o); }
+    Sk4x& operator |=(const Sk4x& o) { return (*this = *this | o); }
+    Sk4x& operator +=(const Sk4x& o) { return (*this = *this + o); }
+    Sk4x& operator -=(const Sk4x& o) { return (*this = *this - o); }
+    Sk4x& operator *=(const Sk4x& o) { return (*this = *this * o); }
+    Sk4x& operator /=(const Sk4x& o) { return (*this = *this / o); }
+
     Sk4x rsqrt() const;   // Approximate reciprocal sqrt().
     Sk4x  sqrt() const;   // this->multiply(this->rsqrt()) may be faster, but less precise.
 
@@ -61,6 +77,13 @@ public:
     Sk4i      greaterThan(const Sk4x&) const;
     Sk4i    lessThanEqual(const Sk4x&) const;
     Sk4i greaterThanEqual(const Sk4x&) const;
+
+    Sk4i operator ==(const Sk4x& o) const { return this->equal(o); }
+    Sk4i operator !=(const Sk4x& o) const { return this->notEqual(o); }
+    Sk4i operator  <(const Sk4x& o) const { return this->lessThan(o); }
+    Sk4i operator  >(const Sk4x& o) const { return this->greaterThan(o); }
+    Sk4i operator <=(const Sk4x& o) const { return this->lessThanEqual(o); }
+    Sk4i operator >=(const Sk4x& o) const { return this->greaterThanEqual(o); }
 
     static Sk4x Min(const Sk4x& a, const Sk4x& b);
     static Sk4x Max(const Sk4x& a, const Sk4x& b);
