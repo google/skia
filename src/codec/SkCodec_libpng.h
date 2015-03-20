@@ -6,6 +6,7 @@
  */
 
 #include "SkCodec.h"
+#include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 
 extern "C" {
@@ -24,6 +25,7 @@ public:
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
             SK_OVERRIDE;
+    SkEncodedFormat onGetEncodedFormat() const SK_OVERRIDE { return kPNG_SkEncodedFormat; }
 private:
     png_structp             fPng_ptr;
     png_infop               fInfo_ptr;

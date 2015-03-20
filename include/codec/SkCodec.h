@@ -8,6 +8,7 @@
 #ifndef SkCodec_DEFINED
 #define SkCodec_DEFINED
 
+#include "SkEncodedFormat.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
@@ -50,6 +51,11 @@ public:
         return this->onGetScaledDimensions(desiredScale);
     }
 
+    /**
+     *  Format of the encoded data.
+     */
+    SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
+
 protected:
     SkCodec(const SkImageInfo&, SkStream*);
 
@@ -72,6 +78,8 @@ protected:
         // By default, scaling is not supported.
         return fInfo.dimensions();
     }
+
+    virtual SkEncodedFormat onGetEncodedFormat() const = 0;
 
     /**
      *  If the stream was previously read, attempt to rewind.

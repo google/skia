@@ -17,6 +17,7 @@ class SkWStream;
 
 class SkImageEncoder {
 public:
+    // TODO (scroggo): Merge with SkEncodedFormat.
     enum Type {
         kUnknown_Type,
         kBMP_Type,

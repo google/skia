@@ -26,6 +26,7 @@ class SkImageDecoder : SkNoncopyable {
 public:
     virtual ~SkImageDecoder();
 
+    // TODO (scroggo): Merge with SkEncodedFormat
     enum Format {
         kUnknown_Format,
         kBMP_Format,

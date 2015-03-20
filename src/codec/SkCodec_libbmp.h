@@ -7,6 +7,7 @@
 
 #include "SkCodec.h"
 #include "SkColorTable.h"
+#include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
 #include "SkStream.h"
@@ -60,6 +61,7 @@ protected:
                                size_t dstRowBytes, const Options&, SkPMColor*,
                                int*) SK_OVERRIDE;
 
+    SkEncodedFormat onGetEncodedFormat() const SK_OVERRIDE { return kBMP_SkEncodedFormat; }
 private:
 
     /*
