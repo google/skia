@@ -9,6 +9,33 @@
 #include "SkMatrix.h"
 #include "Sk2x.h"
 
+static Sk2s from_point(const SkPoint& point) {
+    return Sk2s::Load(&point.fX);
+}
+
+static SkPoint to_point(const Sk2s& x) {
+    SkPoint point;
+    x.store(&point.fX);
+    return point;
+}
+
+static SkVector to_vector(const Sk2s& x) {
+    SkVector vector;
+    x.store(&vector.fX);
+    return vector;
+}
+
+#if 0
+static Sk2s divide(const Sk2s& numer, const Sk2s& denom) {
+    SkScalar numerStorage[2], denomStorage[2];
+    numer.store(numerStorage);
+    denom.store(denomStorage);
+    numerStorage[0] /= denomStorage[0];
+    numerStorage[1] /= denomStorage[1];
+    return Sk2s::Load(numerStorage);
+}
+#endif
+
 /** If defined, this makes eval_quad and eval_cubic do more setup (sometimes
     involving integer multiplies by 2 or 3, but fewer calls to SkScalarMul.
     May also introduce overflow of fixed when we compute our setup.
@@ -92,6 +119,10 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+static Sk2s quad_poly_eval(const Sk2s& A, const Sk2s& B, const Sk2s& C, const Sk2s& t) {
+    return (A * t + B) * t + C;
+}
+
 static SkScalar eval_quad(const SkScalar src[], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
@@ -132,35 +163,31 @@ SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    const Sk2f t2(t);
+    const Sk2s t2(t);
 
-    Sk2f P0 = Sk2f::Load(&src[0].fX);
-    Sk2f P1 = Sk2f::Load(&src[1].fX);
-    Sk2f P2 = Sk2f::Load(&src[2].fX);
+    Sk2s P0 = from_point(src[0]);
+    Sk2s P1 = from_point(src[1]);
+    Sk2s P2 = from_point(src[2]);
 
-    Sk2f B = P1 - P0;
-    Sk2f A = P2 - P1 - B;
+    Sk2s B = P1 - P0;
+    Sk2s A = P2 - P1 - B;
 
-    SkPoint result;
-    ((A * t2 + B+B) * t2 + P0).store(&result.fX);
-    return result;
+    return to_point((A * t2 + B+B) * t2 + P0);
 }
 
 SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    Sk2f P0 = Sk2f::Load(&src[0].fX);
-    Sk2f P1 = Sk2f::Load(&src[1].fX);
-    Sk2f P2 = Sk2f::Load(&src[2].fX);
+    Sk2s P0 = from_point(src[0]);
+    Sk2s P1 = from_point(src[1]);
+    Sk2s P2 = from_point(src[2]);
 
-    Sk2f B = P1 - P0;
-    Sk2f A = P2 - P1 - B;
-    Sk2f T = A * Sk2f(t) + B;
+    Sk2s B = P1 - P0;
+    Sk2s A = P2 - P1 - B;
+    Sk2s T = A * Sk2s(t) + B;
 
-    SkVector result;
-    (T + T).store(&result.fX);
-    return result;
+    return to_vector(T + T);
 }
 
 static void interp_quad_coords(const SkScalar* src, SkScalar* dst, SkScalar t) {
@@ -188,19 +215,19 @@ static inline Sk2s interp(const Sk2s& v0, const Sk2s& v1, const Sk2s& t) {
 void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     SkASSERT(t > 0 && t < SK_Scalar1);
 
-    Sk2s p0 = Sk2f::Load(&src[0].fX);
-    Sk2s p1 = Sk2f::Load(&src[1].fX);
-    Sk2s p2 = Sk2f::Load(&src[2].fX);
+    Sk2s p0 = from_point(src[0]);
+    Sk2s p1 = from_point(src[1]);
+    Sk2s p2 = from_point(src[2]);
     Sk2s tt = Sk2s(t);
     
     Sk2s p01 = interp(p0, p1, tt);
     Sk2s p12 = interp(p1, p2, tt);
 
-    p0.store(&dst[0].fX);
-    p01.store(&dst[1].fX);
-    interp(p01, p12, tt).store(&dst[2].fX);
-    p12.store(&dst[3].fX);
-    p2.store(&dst[4].fX);
+    dst[0] = to_point(p0);
+    dst[1] = to_point(p01);
+    dst[2] = to_point(interp(p01, p12, tt));
+    dst[3] = to_point(p12);
+    dst[4] = to_point(p2);
 }
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
@@ -1251,6 +1278,65 @@ void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     dst[1].fW = tmp2[2].fZ / root;
 }
 
+static Sk2s times_2(const Sk2s& value) {
+    return value + value;
+}
+
+SkPoint SkConic::evalAt(SkScalar t) const {
+    Sk2s p0 = from_point(fPts[0]);
+    Sk2s p1 = from_point(fPts[1]);
+    Sk2s p2 = from_point(fPts[2]);
+    Sk2s tt = Sk2s(t);
+    Sk2s ww = Sk2s(fW);
+    Sk2s one = Sk2s(1);
+
+    Sk2s p1w = p1 * ww;
+    Sk2s C = p0;
+    Sk2s A = p2 - times_2(p1w) + p0;
+    Sk2s B = times_2(p1w - C);
+    Sk2s numer = quad_poly_eval(A, B, C, tt);
+
+    B = times_2(ww - one);
+    A = -B;
+    Sk2s denom = quad_poly_eval(A, B, one, tt);
+
+    return to_point(numer / denom);
+}
+
+SkVector SkConic::evalTangentAt(SkScalar t) const {
+    Sk2s p0 = from_point(fPts[0]);
+    Sk2s p1 = from_point(fPts[1]);
+    Sk2s p2 = from_point(fPts[2]);
+    Sk2s ww = Sk2s(fW);
+
+    Sk2s p20 = p2 - p0;
+    Sk2s p10 = p1 - p0;
+
+    Sk2s C = ww * p10;
+    Sk2s A = ww * p20 - p20;
+    Sk2s B = p20 - C - C;
+
+    return to_vector(quad_poly_eval(A, B, C, Sk2s(t)));
+#if 0
+    static void conic_deriv_coeff(const SkScalar src[],
+                                  SkScalar w,
+                                  SkScalar coeff[3]) {
+        const SkScalar P20 = src[4] - src[0];
+        const SkScalar P10 = src[2] - src[0];
+        const SkScalar wP10 = w * P10;
+        coeff[0] = w * P20 - P20;
+        coeff[1] = P20 - 2 * wP10;
+        coeff[2] = wP10;
+    }
+
+    static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
+        SkScalar coeff[3];
+        conic_deriv_coeff(coord, w, coeff);
+        return t * (t * coeff[0] + coeff[1]) + coeff[2];
+    }
+#endif
+}
+
 static SkScalar subdivide_w_value(SkScalar w) {
     return SkScalarSqrt(SK_ScalarHalf + w * SK_ScalarHalf);
 }
@@ -1273,6 +1359,29 @@ void SkConic::chop(SkConic dst[2]) const {
     dst[1].fPts[2] = fPts[2];
 
     dst[0].fW = dst[1].fW = subdivide_w_value(fW);
+}
+
+void SkConic::chop2(SkConic * SK_RESTRICT dst) const {
+    Sk2s scale(SkScalarInvert(SK_Scalar1 + fW));
+//    Sk2s scale = Sk2s(SK_Scalar1 + fW).invert();
+    SkScalar newW = subdivide_w_value(fW);
+
+    Sk2s p0 = from_point(fPts[0]);
+    Sk2s p1 = from_point(fPts[1]);
+    Sk2s p2 = from_point(fPts[2]);
+    Sk2s ww = Sk2s(fW);
+    Sk2s half = Sk2s(0.5f);
+
+    Sk2s wp1 = ww * p1;
+    Sk2s m = ((p0 + wp1 + wp1 + p2) * half) * scale;
+
+    dst[0].fPts[0] = fPts[0];
+    dst[0].fPts[1] = to_point((p0 + wp1) * scale);
+    dst[0].fPts[2] = dst[1].fPts[0] = to_point(m);
+    dst[1].fPts[1] = to_point((wp1 + p2) * scale);
+    dst[1].fPts[2] = fPts[2];
+
+    dst[0].fW = dst[1].fW = newW;
 }
 
 /*

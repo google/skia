@@ -77,6 +77,58 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_conic_eval_pos(skiatest::Reporter* reporter, const SkConic& conic, SkScalar t) {
+    SkPoint p0, p1;
+    conic.evalAt(t, &p0, NULL);
+    p1 = conic.evalAt(t);
+    check_pairs(reporter, 0, t, "conic-pos", p0.fX, p0.fY, p1.fX, p1.fY);
+}
+
+static void test_conic_eval_tan(skiatest::Reporter* reporter, const SkConic& conic, SkScalar t) {
+    SkVector v0, v1;
+    conic.evalAt(t, NULL, &v0);
+    v1 = conic.evalTangentAt(t);
+    check_pairs(reporter, 0, t, "conic-tan", v0.fX, v0.fY, v1.fX, v1.fY);
+}
+
+static void test_conic_chop_half(skiatest::Reporter* reporter, const SkConic& conic) {
+    SkConic dst0[2], dst1[2];
+    conic.chop(dst0);
+    conic.chop2(dst1);
+
+    for (int i = 0; i < 2; ++i) {
+        REPORTER_ASSERT(reporter, dst0[i].fW == dst1[i].fW);
+        for (int j = 0; j < 3; ++j) {
+            check_pairs(reporter, j, 0.5f, "conic-chop",
+                        dst0[i].fPts[j].fX, dst0[i].fPts[j].fY,
+                        dst0[i].fPts[j].fX, dst1[i].fPts[j].fY);
+        }
+    }
+}
+
+static void test_conic(skiatest::Reporter* reporter) {
+    SkRandom rand;
+    for (int i = 0; i < 1000; ++i) {
+        SkPoint pts[3];
+        for (int j = 0; j < 3; ++j) {
+            pts[j].set(rand.nextSScalar1() * 100, rand.nextSScalar1() * 100);
+        }
+        for (int k = 0; k < 10; ++k) {
+            SkScalar w = rand.nextUScalar1() * 2;
+            SkConic conic(pts, w);
+            test_conic_chop_half(reporter, conic);
+
+            const SkScalar dt = SK_Scalar1 / 128;
+            SkScalar t = dt;
+            for (int j = 1; j < 128; ++j) {
+                test_conic_eval_pos(reporter, conic, t);
+                test_conic_eval_tan(reporter, conic, t);
+                t += dt;
+            }
+        }
+    }
+}
+
 DEF_TEST(Geometry, reporter) {
     SkPoint pts[3], dst[5];
 
@@ -103,4 +155,5 @@ DEF_TEST(Geometry, reporter) {
 
     testChopCubic(reporter);
     test_evalquadat(reporter);
+    test_conic(reporter);
 }

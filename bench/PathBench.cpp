@@ -832,29 +832,91 @@ private:
 };
 
 class ConicBench_ChopHalf : public Benchmark {
-    SkConic fRQ;
+protected:
+    SkConic fRQ, fDst[2];
+    SkString fName;
+    const bool fUseV2;
 public:
-    ConicBench_ChopHalf()  {
+    ConicBench_ChopHalf(bool useV2) : fUseV2(useV2) {
         fRQ.fPts[0].set(0, 0);
         fRQ.fPts[1].set(100, 0);
         fRQ.fPts[2].set(100, 100);
         fRQ.fW = SkScalarCos(SK_ScalarPI/4);
+
+        fName.printf("conic-chop-half%d", useV2);
+    }
+
+    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 private:
-    const char* onGetName() SK_OVERRIDE {
-        return "ratquad-chop-half";
-    }
+    const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
 
     void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
-        SkConic dst[2];
-        for (int i = 0; i < loops; ++i) {
-            fRQ.chop(dst);
+        if (fUseV2) {
+            for (int i = 0; i < loops; ++i) {
+                fRQ.chop2(fDst);
+            }
+        } else {
+            for (int i = 0; i < loops; ++i) {
+                fRQ.chop(fDst);
+            }
         }
     }
 
     typedef Benchmark INHERITED;
 };
+DEF_BENCH( return new ConicBench_ChopHalf(false); )
+DEF_BENCH( return new ConicBench_ChopHalf(true); )
+
+class ConicBench_EvalPos : public ConicBench_ChopHalf {
+public:
+    ConicBench_EvalPos(bool useV2) : ConicBench_ChopHalf(useV2) {
+        fName.printf("conic-eval-pos%d", useV2);
+    }
+    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        if (fUseV2) {
+            for (int i = 0; i < loops; ++i) {
+                for (int j = 0; j < 1000; ++j) {
+                    fDst[0].fPts[0] = fRQ.evalAt(0.4f);
+                }
+            }
+        } else {
+            for (int i = 0; i < loops; ++i) {
+                for (int j = 0; j < 1000; ++j) {
+                    fRQ.evalAt(0.4f, &fDst[0].fPts[0], NULL);
+                }
+            }
+        }
+    }
+};
+DEF_BENCH( return new ConicBench_EvalPos(false); )
+DEF_BENCH( return new ConicBench_EvalPos(true); )
+
+class ConicBench_EvalTan : public ConicBench_ChopHalf {
+public:
+    ConicBench_EvalTan(bool useV2) : ConicBench_ChopHalf(useV2) {
+        fName.printf("conic-eval-tan%d", useV2);
+    }
+    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        if (fUseV2) {
+            for (int i = 0; i < loops; ++i) {
+                for (int j = 0; j < 1000; ++j) {
+                    fDst[0].fPts[0] = fRQ.evalTangentAt(0.4f);
+                }
+            }
+        } else {
+            for (int i = 0; i < loops; ++i) {
+                for (int j = 0; j < 1000; ++j) {
+                    fRQ.evalAt(0.4f, NULL, &fDst[0].fPts[0]);
+                }
+            }
+        }
+    }
+};
+DEF_BENCH( return new ConicBench_EvalTan(false); )
+DEF_BENCH( return new ConicBench_EvalTan(true); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1012,10 +1074,10 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
 
+
 // These seem to be optimized away, which is troublesome for timing.
 /*
 DEF_BENCH( return new ConicBench_Chop5() )
-DEF_BENCH( return new ConicBench_ChopHalf() )
 DEF_BENCH( return new ConicBench_ComputeError() )
 DEF_BENCH( return new ConicBench_asQuadTol() )
 DEF_BENCH( return new ConicBench_quadPow2() )

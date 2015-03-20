@@ -219,6 +219,10 @@ struct SkConic {
     void chopAt(SkScalar t, SkConic dst[2]) const;
     void chop(SkConic dst[2]) const;
 
+    SkPoint evalAt(SkScalar t) const;
+    SkVector evalTangentAt(SkScalar t) const;
+    void chop2(SkConic dst[2]) const;
+
     void computeAsQuadError(SkVector* err) const;
     bool asQuadTol(SkScalar tol) const;
 
