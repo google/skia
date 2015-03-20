@@ -8,6 +8,7 @@
       'target_name': 'libskia',
       'type': 'shared_library',
       'dependencies': [
+        'codec.gyp:codec',
         'core.gyp:core',
         'effects.gyp:effects',
         'images.gyp:images',
