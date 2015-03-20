@@ -918,10 +918,12 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     }
 
     bool isOpaque = !SkToBool(flags & kHasAlphaLayer_SaveFlag);
-    if (isOpaque && paint) {
+    SkPixelGeometry geo = fProps.pixelGeometry();
+    if (paint) {
         // TODO: perhaps add a query to filters so we might preserve opaqueness...
         if (paint->getImageFilter() || paint->getColorFilter()) {
             isOpaque = false;
+            geo = kUnknown_SkPixelGeometry;
         }
     }
     SkImageInfo info = SkImageInfo::MakeN32(ir.width(), ir.height(),
@@ -942,8 +944,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         usage = SkBaseDevice::kPossible_TileUsage;
     }
 #endif
-    device = device->onCreateDevice(SkBaseDevice::CreateInfo(info, usage, fProps.pixelGeometry()),
-                                    paint);
+    device = device->onCreateDevice(SkBaseDevice::CreateInfo(info, usage, geo), paint);
     if (NULL == device) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "Unable to create device for layer.");

@@ -68,6 +68,9 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
                                                          SkPixelGeometry geo) {
     switch (tileUsage) {
         case kPossible_TileUsage:
+            // (we think) for compatibility with old clients, we assume this layer can support LCD
+            // even though they may not have marked it as opaque... seems like we should update
+            // our callers (reed/robertphilips).
             break;
         case kNever_TileUsage:
             if (info.alphaType() != kOpaque_SkAlphaType) {

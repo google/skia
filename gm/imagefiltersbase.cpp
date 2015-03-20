@@ -36,8 +36,8 @@ public:
 protected:
     FailImageFilter() : INHERITED(0, NULL) {}
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
+    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
+                       SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         return false;
     }
 
@@ -78,8 +78,8 @@ public:
 protected:
     IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
+    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
+                       SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         *result = src;
         offset->set(0, 0);
         return true;
@@ -194,11 +194,11 @@ public:
     ImageFiltersBaseGM () {}
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         return SkString("imagefiltersbase");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(700, 500); }
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 500); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -207,7 +207,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
@@ -254,8 +254,96 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM( return new ImageFiltersBaseGM; )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new ImageFiltersBaseGM; }
-static skiagm::GMRegistry reg(MyFactory);
+/*
+ *  Want to test combos of filter and LCD text, to be sure we disable LCD in the presence of
+ *  a filter.
+ */
+class ImageFiltersTextBaseGM : public skiagm::GM {
+    SkString fSuffix;
+public:
+    ImageFiltersTextBaseGM(const char suffix[]) : fSuffix(suffix) {}
+
+protected:
+    SkString onShortName() SK_OVERRIDE {
+        SkString name;
+        name.printf("%s_%s", "textfilter", fSuffix.c_str());
+        return name;
+    }
+
+    SkISize onISize() SK_OVERRIDE { return SkISize::Make(512, 342); }
+
+    void drawWaterfall(SkCanvas* canvas, const SkPaint& origPaint) {
+        const uint32_t flags[] = {
+            0,
+            SkPaint::kAntiAlias_Flag,
+            SkPaint::kAntiAlias_Flag | SkPaint::kLCDRenderText_Flag,
+        };
+        SkPaint paint(origPaint);
+        paint.setTextSize(30);
+
+        SkAutoCanvasRestore acr(canvas, true);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(flags); ++i) {
+            paint.setFlags(flags[i]);
+            canvas->drawText("Hamburgefons", 11, 0, 0, paint);
+            canvas->translate(0, 40);
+        }
+    }
+
+    virtual void installFilter(SkPaint* paint) = 0;
+
+    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+
+        canvas->translate(20, 40);
+
+        for (int doSaveLayer = 0; doSaveLayer <= 1; ++doSaveLayer) {
+            SkAutoCanvasRestore acr(canvas, true);
+            for (int useFilter = 0; useFilter <= 1; ++useFilter) {
+                SkAutoCanvasRestore acr2(canvas, true);
+
+                SkPaint paint;
+                if (useFilter) {
+                    this->installFilter(&paint);
+                }
+                if (doSaveLayer) {
+                    canvas->saveLayer(NULL, &paint);
+                    paint.setImageFilter(NULL);
+                }
+                this->drawWaterfall(canvas, paint);
+
+                acr2.restore();
+                canvas->translate(250, 0);
+            }
+            acr.restore();
+            canvas->translate(0, 200);
+        }
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+
+class ImageFiltersText_IF : public ImageFiltersTextBaseGM {
+public:
+    ImageFiltersText_IF() : ImageFiltersTextBaseGM("image") {}
+
+    void installFilter(SkPaint* paint) SK_OVERRIDE {
+        paint->setImageFilter(SkBlurImageFilter::Create(1.5f, 1.5f))->unref();
+    }
+};
+DEF_GM( return new ImageFiltersText_IF; )
+
+class ImageFiltersText_CF : public ImageFiltersTextBaseGM {
+public:
+    ImageFiltersText_CF() : ImageFiltersTextBaseGM("color") {}
+
+    void installFilter(SkPaint* paint) SK_OVERRIDE {
+        paint->setColorFilter(SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode))->unref();
+    }
+};
+DEF_GM( return new ImageFiltersText_CF; )
+
