@@ -37,20 +37,7 @@ template <typename T> Sk4x<T>& Sk4x<T>::operator=(const Sk4x<T>& other) {
 #define M(...) template <> inline __VA_ARGS__ Sk4f::
 
 M() Sk4x(float v) : fVec(vdupq_n_f32(v)) {}
-M() Sk4x(float a, float b, float c, float d) {
-    // NEON lacks an intrinsic to make this easy.  It is recommended to avoid
-    // this constructor unless it is absolutely necessary.
-
-    // I am choosing to use the set lane intrinsics.  Particularly, in the case
-    // of floating point, it is likely that the values are already in the right
-    // register file, so this may be the best approach.  However, I am not
-    // certain that this is the fastest approach and experimentation might be
-    // useful.
-    fVec = vsetq_lane_f32(a, fVec, 0);
-    fVec = vsetq_lane_f32(b, fVec, 1);
-    fVec = vsetq_lane_f32(c, fVec, 2);
-    fVec = vsetq_lane_f32(d, fVec, 3);
-}
+M() Sk4x(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
 
 // As far as I can tell, it's not possible to provide an alignment hint to
 // NEON using intrinsics.  However, I think it is possible at the assembly
@@ -130,28 +117,7 @@ M(Sk4f) ZWCD(const Sk4f& xyzw, const Sk4f& abcd) {
 #define M(...) template <> inline __VA_ARGS__ Sk4i::
 
 M() Sk4x(int32_t v) : fVec(vdupq_n_s32(v)) {}
-M() Sk4x(int32_t a, int32_t b, int32_t c, int32_t d) {
-    // NEON lacks an intrinsic to make this easy.  It is recommended to avoid
-    // this constructor unless it is absolutely necessary.
-
-    // There are a few different implementation strategies.
-
-    // uint64_t ab_i = ((uint32_t) a) | (((uint64_t) b) << 32);
-    // uint64_t cd_i = ((uint32_t) c) | (((uint64_t) d) << 32);
-    // int32x2_t ab = vcreate_s32(ab_i);
-    // int32x2_t cd = vcreate_s32(cd_i);
-    // fVec = vcombine_s32(ab, cd);
-    // This might not be a bad idea for the integer case.  Either way I think,
-    // we will need to move values from general registers to NEON registers.
-
-    // I am choosing to use the set lane intrinsics.  I am not certain that
-    // this is the fastest approach.  It may be useful to try the above code
-    // for integers.
-    fVec = vsetq_lane_s32(a, fVec, 0);
-    fVec = vsetq_lane_s32(b, fVec, 1);
-    fVec = vsetq_lane_s32(c, fVec, 2);
-    fVec = vsetq_lane_s32(d, fVec, 3);
-}
+M() Sk4x(int32_t a, int32_t b, int32_t c, int32_t d) { fVec = (int32x4_t) { a, b, c, d }; }
 
 // As far as I can tell, it's not possible to provide an alignment hint to
 // NEON using intrinsics.  However, I think it is possible at the assembly

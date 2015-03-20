@@ -8,7 +8,7 @@
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <immintrin.h>
-#elif defined(__ARM_NEON__)
+#elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
 #endif
 
@@ -66,7 +66,7 @@ private:
         float fColor[4];
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
         __m128 fColors;
-#elif defined(__ARM_NEON__)
+#elif defined(SK_ARM_HAS_NEON)
         float32x4_t fColors;
 #endif
     };
@@ -76,7 +76,7 @@ private:
     #include "../opts/SkPMFloat_SSSE3.h"
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include "../opts/SkPMFloat_SSE2.h"
-#elif defined(__ARM_NEON__)
+#elif defined(SK_ARM_HAS_NEON)
     #include "../opts/SkPMFloat_neon.h"
 #else
     #include "../opts/SkPMFloat_none.h"
