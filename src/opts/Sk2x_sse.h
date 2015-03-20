@@ -38,6 +38,7 @@ M(void) store(float vals[2]) const { _mm_storel_pi((__m64*)vals, fVec); }
 M(Sk2f)      add(const Sk2f& o) const { return _mm_add_ps(fVec, o.fVec); }
 M(Sk2f) subtract(const Sk2f& o) const { return _mm_sub_ps(fVec, o.fVec); }
 M(Sk2f) multiply(const Sk2f& o) const { return _mm_mul_ps(fVec, o.fVec); }
+M(Sk2f)   divide(const Sk2f& o) const { return _mm_div_ps(fVec, o.fVec); }
 
 M(Sk2f) Min(const Sk2f& a, const Sk2f& b) { return _mm_min_ps(a.fVec, b.fVec); }
 M(Sk2f) Max(const Sk2f& a, const Sk2f& b) { return _mm_max_ps(a.fVec, b.fVec); }
@@ -60,6 +61,7 @@ M(void) store(double vals[2]) const { _mm_storeu_pd(vals, fVec); }
 M(Sk2d)      add(const Sk2d& o) const { return _mm_add_pd(fVec, o.fVec); }
 M(Sk2d) subtract(const Sk2d& o) const { return _mm_sub_pd(fVec, o.fVec); }
 M(Sk2d) multiply(const Sk2d& o) const { return _mm_mul_pd(fVec, o.fVec); }
+M(Sk2d)   divide(const Sk2d& o) const { return _mm_div_pd(fVec, o.fVec); }
 
 M(Sk2d) Min(const Sk2d& a, const Sk2d& b) { return _mm_min_pd(a.fVec, b.fVec); }
 M(Sk2d) Max(const Sk2d& a, const Sk2d& b) { return _mm_max_pd(a.fVec, b.fVec); }

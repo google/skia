@@ -49,14 +49,17 @@ public:
     Sk2x      add(const Sk2x&) const;
     Sk2x subtract(const Sk2x&) const;
     Sk2x multiply(const Sk2x&) const;
+    Sk2x   divide(const Sk2x&) const;
 
     Sk2x operator +(const Sk2x& o) const { return this->add(o); }
     Sk2x operator -(const Sk2x& o) const { return this->subtract(o); }
     Sk2x operator *(const Sk2x& o) const { return this->multiply(o); }
+    Sk2x operator /(const Sk2x& o) const { return this->divide(o); }
 
     Sk2x& operator +=(const Sk2x& o) { return (*this = *this + o); }
     Sk2x& operator -=(const Sk2x& o) { return (*this = *this - o); }
     Sk2x& operator *=(const Sk2x& o) { return (*this = *this * o); }
+    Sk2x& operator /=(const Sk2x& o) { return (*this = *this / o); }
 
     Sk2x negate() const { return Sk2x((T)0) - *this; }
     Sk2x operator -() const { return this->negate(); }

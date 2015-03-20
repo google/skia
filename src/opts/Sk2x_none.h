@@ -43,6 +43,9 @@ M(Sk2x<T>) subtract(const Sk2x<T>& o) const {
 M(Sk2x<T>) multiply(const Sk2x<T>& o) const {
     return Sk2x<T>(fVec[0] * o.fVec[0], fVec[1] * o.fVec[1]);
 }
+M(Sk2x<T>) divide(const Sk2x<T>& o) const {
+    return Sk2x<T>(fVec[0] / o.fVec[0], fVec[1] / o.fVec[1]);
+}
 
 M(Sk2x<T>) Min(const Sk2x<T>& a, const Sk2x<T>& b) {
     return Sk2x<T>(SkTMin(a.fVec[0], b.fVec[0]), SkTMin(a.fVec[1], b.fVec[1]));

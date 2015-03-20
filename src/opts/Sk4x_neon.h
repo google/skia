@@ -62,10 +62,14 @@ M(Sk4f) subtract(const Sk4f& o) const { return vsubq_f32(fVec, o.fVec); }
 M(Sk4f) multiply(const Sk4f& o) const { return vmulq_f32(fVec, o.fVec); }
 
 M(Sk4f) divide  (const Sk4f& o) const {
-    float32x4_t est0 = vrecpeq_f32(o.fVec);
-    float32x4_t est1 = vmulq_f32(vrecpsq_f32(est0, o.fVec), est0);
-    float32x4_t est2 = vmulq_f32(vrecpsq_f32(est1, o.fVec), est1);
+#if defined(SK_CPU_ARM64)
+    return vdivq_f32(fVec, o.fVec);
+#else
+    float32x4_t est0 = vrecpeq_f32(o.fVec),
+                est1 = vmulq_f32(vrecpsq_f32(est0, o.fVec), est0),
+                est2 = vmulq_f32(vrecpsq_f32(est1, o.fVec), est1);
     return vmulq_f32(est2, fVec);
+#endif
 }
 
 M(Sk4f) rsqrt() const {
@@ -75,10 +79,14 @@ M(Sk4f) rsqrt() const {
 }
 
 M(Sk4f)  sqrt() const {
+#if defined(SK_CPU_ARM64)
+    return vsqrtq_f32(fVec);
+#else
     float32x4_t est1 = this->rsqrt().fVec,
     // An extra step of Newton's method to refine the estimate of 1/sqrt(this).
                 est2 = vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est1, est1)), est1);
     return vmulq_f32(fVec, est2);
+#endif
 }
 
 M(Sk4i) equal           (const Sk4f& o) const { return vreinterpretq_s32_u32(vceqq_f32(fVec, o.fVec)); }

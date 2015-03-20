@@ -41,6 +41,16 @@ M(void) store(float vals[2]) const { vst1_f32(vals, fVec); }
 M(Sk2f)      add(const Sk2f& o) const { return vadd_f32(fVec, o.fVec); }
 M(Sk2f) subtract(const Sk2f& o) const { return vsub_f32(fVec, o.fVec); }
 M(Sk2f) multiply(const Sk2f& o) const { return vmul_f32(fVec, o.fVec); }
+M(Sk2f)   divide(const Sk2f& o) const {
+#if defined(SK_CPU_ARM64)
+    return vdiv_f32(fVec, o.fVec);
+#else
+    float32x2_t est0 = vrecpe_f32(o.fVec),
+                est1 = vmul_f32(vrecps_f32(est0, o.fVec), est0),
+                est2 = vmul_f32(vrecps_f32(est1, o.fVec), est1);
+    return vmul_f32(est2, fVec);
+#endif
+}
 
 M(Sk2f) Min(const Sk2f& a, const Sk2f& b) { return vmin_f32(a.fVec, b.fVec); }
 M(Sk2f) Max(const Sk2f& a, const Sk2f& b) { return vmax_f32(a.fVec, b.fVec); }
@@ -51,10 +61,14 @@ M(Sk2f) rsqrt() const {
     return est1;
 }
 M(Sk2f)  sqrt() const {
+#if defined(SK_CPU_ARM64)
+    return vsqrt_f32(fVec);
+#else
     float32x2_t est1 = this->rsqrt().fVec,
     // An extra step of Newton's method to refine the estimate of 1/sqrt(this).
                 est2 = vmul_f32(vrsqrts_f32(fVec, vmul_f32(est1, est1)), est1);
     return vmul_f32(fVec, est2);
+#endif
 }
 
 #undef M
@@ -73,6 +87,7 @@ M(Sk2f)  sqrt() const {
     M(Sk2d)      add(const Sk2d& o) const { return vaddq_f64(fVec, o.fVec); }
     M(Sk2d) subtract(const Sk2d& o) const { return vsubq_f64(fVec, o.fVec); }
     M(Sk2d) multiply(const Sk2d& o) const { return vmulq_f64(fVec, o.fVec); }
+    M(Sk2d)   divide(const Sk2d& o) const { return vdivq_f64(fVec, o.fVec); }
 
     M(Sk2d) Min(const Sk2d& a, const Sk2d& b) { return vminq_f64(a.fVec, b.fVec); }
     M(Sk2d) Max(const Sk2d& a, const Sk2d& b) { return vmaxq_f64(a.fVec, b.fVec); }
@@ -82,13 +97,7 @@ M(Sk2f)  sqrt() const {
                     est1 = vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est0, est0)), est0);
         return est1;
     }
-    M(Sk2d)  sqrt() const {
-        float64x2_t est1 = this->rsqrt().fVec,
-        // Two extra steps of Newton's method to refine the estimate of 1/sqrt(this).
-                    est2 = vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est1, est1)), est1),
-                    est3 = vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est2, est2)), est2);
-        return vmulq_f64(fVec, est3);
-    }
+    M(Sk2d)  sqrt() const { return vsqrtq_f64(fVec); }
 
 #else  // Scalar implementation for 32-bit chips, which don't have float64x2_t.
     M() Sk2x() {}
@@ -106,6 +115,7 @@ M(Sk2f)  sqrt() const {
     M(Sk2d)      add(const Sk2d& o) const { return Sk2d(fVec[0] + o.fVec[0], fVec[1] + o.fVec[1]); }
     M(Sk2d) subtract(const Sk2d& o) const { return Sk2d(fVec[0] - o.fVec[0], fVec[1] - o.fVec[1]); }
     M(Sk2d) multiply(const Sk2d& o) const { return Sk2d(fVec[0] * o.fVec[0], fVec[1] * o.fVec[1]); }
+    M(Sk2d)   divide(const Sk2d& o) const { return Sk2d(fVec[0] / o.fVec[0], fVec[1] / o.fVec[1]); }
 
     M(Sk2d) Min(const Sk2d& a, const Sk2d& b) {
         return Sk2d(SkTMin(a.fVec[0], b.fVec[0]), SkTMin(a.fVec[1], b.fVec[1]));

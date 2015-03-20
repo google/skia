@@ -44,6 +44,7 @@ static void test(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, eq(a + d, 6,   9));
     REPORTER_ASSERT(r, eq(a - d, 2,  -1));
     REPORTER_ASSERT(r, eq(a * d, 8,  20));
+    REPORTER_ASSERT(r, eq(a / d, 2, 0.8));
 
     REPORTER_ASSERT(r, nearly_eq(0.001, a.rsqrt(), 0.5, 0.5));
     REPORTER_ASSERT(r, eq(a.sqrt(), 2, 2));
