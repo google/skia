@@ -45,6 +45,10 @@ def get_args(bot):
     elif 'Valgrind_CPU' in bot:
       args.append('--nogpu')
 
+  if 'HD2000' in bot:
+    args.extend(['--benchTileW', '256'])
+    args.extend(['--benchTileH', '256'])
+
   match = []
   if 'Android' in bot:
     # Segfaults when run as GPU bench. Very large texture?

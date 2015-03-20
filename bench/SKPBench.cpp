@@ -10,8 +10,8 @@
 #include "SkMultiPictureDraw.h"
 #include "SkSurface.h"
 
-DEFINE_int32(benchTileW, 256, "Tile width  used for SKP playback.");
-DEFINE_int32(benchTileH, 256, "Tile height used for SKP playback.");
+DEFINE_int32(benchTileW, 1600, "Tile width  used for SKP playback.");
+DEFINE_int32(benchTileH, 512, "Tile height used for SKP playback.");
 
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale,
                    bool useMultiPictureDraw)

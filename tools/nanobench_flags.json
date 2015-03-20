@@ -85,6 +85,10 @@
     "hwui", 
     "msaa16", 
     "nvprmsaa16", 
+    "--benchTileW", 
+    "256", 
+    "--benchTileH", 
+    "256", 
     "--match", 
     "~gradient", 
     "~etc1bitmap"
