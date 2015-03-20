@@ -33,10 +33,10 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
 static const int kMinDFFontSize = 18;
-static const int kSmallDFFontSize = 40;
-static const int kSmallDFFontLimit = 40;
-static const int kMediumDFFontSize = 81;
-static const int kMediumDFFontLimit = 81;
+static const int kSmallDFFontSize = 32;
+static const int kSmallDFFontLimit = 32;
+static const int kMediumDFFontSize = 72;
+static const int kMediumDFFontLimit = 72;
 static const int kLargeDFFontSize = 162;
 
 static const int kVerticesPerGlyph = 4;
