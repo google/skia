@@ -17,10 +17,10 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkPDFBitmap.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
-#include "SkPDFImage.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFShader.h"
 #include "SkPDFStream.h"
@@ -2126,7 +2126,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     if (content.needShape()) {
         SkPath shape;
         shape.addRect(SkRect::MakeWH(SkIntToScalar(subset.width()),
-                                     SkIntToScalar( subset.height())));
+                                     SkIntToScalar(subset.height())));
         shape.transform(matrix);
         content.setShape(shape);
     }
@@ -2134,8 +2134,12 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         return;
     }
 
-    SkAutoTUnref<SkPDFObject> image(
-            SkPDFCreateImageObject(fCanon, *bitmap, subset));
+    SkBitmap subsetBitmap;
+    // Should extractSubset be done by the SkPDFDevice?
+    if (!bitmap->extractSubset(&subsetBitmap, subset)) {
+        return;
+    }
+    SkAutoTUnref<SkPDFObject> image(SkPDFBitmap::Create(fCanon, subsetBitmap));
     if (!image) {
         return;
     }
