@@ -25,17 +25,6 @@ static SkVector to_vector(const Sk2s& x) {
     return vector;
 }
 
-#if 0
-static Sk2s divide(const Sk2s& numer, const Sk2s& denom) {
-    SkScalar numerStorage[2], denomStorage[2];
-    numer.store(numerStorage);
-    denom.store(denomStorage);
-    numerStorage[0] /= denomStorage[0];
-    numerStorage[1] /= denomStorage[1];
-    return Sk2s::Load(numerStorage);
-}
-#endif
-
 /** If defined, this makes eval_quad and eval_cubic do more setup (sometimes
     involving integer multiplies by 2 or 3, but fewer calls to SkScalarMul.
     May also introduce overflow of fixed when we compute our setup.
@@ -218,7 +207,7 @@ void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     Sk2s p0 = from_point(src[0]);
     Sk2s p1 = from_point(src[1]);
     Sk2s p2 = from_point(src[2]);
-    Sk2s tt = Sk2s(t);
+    Sk2s tt(t);
     
     Sk2s p01 = interp(p0, p1, tt);
     Sk2s p12 = interp(p1, p2, tt);
@@ -1286,9 +1275,9 @@ SkPoint SkConic::evalAt(SkScalar t) const {
     Sk2s p0 = from_point(fPts[0]);
     Sk2s p1 = from_point(fPts[1]);
     Sk2s p2 = from_point(fPts[2]);
-    Sk2s tt = Sk2s(t);
-    Sk2s ww = Sk2s(fW);
-    Sk2s one = Sk2s(1);
+    Sk2s tt(t);
+    Sk2s ww(fW);
+    Sk2s one(1);
 
     Sk2s p1w = p1 * ww;
     Sk2s C = p0;
@@ -1307,7 +1296,7 @@ SkVector SkConic::evalTangentAt(SkScalar t) const {
     Sk2s p0 = from_point(fPts[0]);
     Sk2s p1 = from_point(fPts[1]);
     Sk2s p2 = from_point(fPts[2]);
-    Sk2s ww = Sk2s(fW);
+    Sk2s ww(fW);
 
     Sk2s p20 = p2 - p0;
     Sk2s p10 = p1 - p0;
@@ -1362,15 +1351,14 @@ void SkConic::chop(SkConic dst[2]) const {
 }
 
 void SkConic::chop2(SkConic * SK_RESTRICT dst) const {
-    Sk2s scale(SkScalarInvert(SK_Scalar1 + fW));
-//    Sk2s scale = Sk2s(SK_Scalar1 + fW).invert();
+    Sk2s scale = Sk2s(SK_Scalar1 + fW).invert();    // approxInvert is wicked faster!!!
     SkScalar newW = subdivide_w_value(fW);
 
     Sk2s p0 = from_point(fPts[0]);
     Sk2s p1 = from_point(fPts[1]);
     Sk2s p2 = from_point(fPts[2]);
-    Sk2s ww = Sk2s(fW);
-    Sk2s half = Sk2s(0.5f);
+    Sk2s ww(fW);
+    Sk2s half(0.5f);
 
     Sk2s wp1 = ww * p1;
     Sk2s m = ((p0 + wp1 + wp1 + p2) * half) * scale;
