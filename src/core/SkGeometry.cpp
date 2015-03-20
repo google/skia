@@ -7,6 +7,7 @@
 
 #include "SkGeometry.h"
 #include "SkMatrix.h"
+#include "Sk2x.h"
 
 /** If defined, this makes eval_quad and eval_cubic do more setup (sometimes
     involving integer multiplies by 2 or 3, but fewer calls to SkScalarMul.
@@ -127,8 +128,6 @@ void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tange
     }
 }
 
-#include "Sk2x.h"
-
 SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
@@ -144,6 +143,23 @@ SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
 
     SkPoint result;
     ((A * t2 + B+B) * t2 + P0).store(&result.fX);
+    return result;
+}
+
+SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
+    SkASSERT(src);
+    SkASSERT(t >= 0 && t <= SK_Scalar1);
+
+    Sk2f P0 = Sk2f::Load(&src[0].fX);
+    Sk2f P1 = Sk2f::Load(&src[1].fX);
+    Sk2f P2 = Sk2f::Load(&src[2].fX);
+
+    Sk2f B = P1 - P0;
+    Sk2f A = P2 - P1 - B;
+    Sk2f T = A * Sk2f(t) + B;
+
+    SkVector result;
+    (T + T).store(&result.fX);
     return result;
 }
 
@@ -163,6 +179,28 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
 
     interp_quad_coords(&src[0].fX, &dst[0].fX, t);
     interp_quad_coords(&src[0].fY, &dst[0].fY, t);
+}
+
+static inline Sk2s interp(const Sk2s& v0, const Sk2s& v1, const Sk2s& t) {
+    return v0 + (v1 - v0) * t;
+}
+
+void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
+    SkASSERT(t > 0 && t < SK_Scalar1);
+
+    Sk2s p0 = Sk2f::Load(&src[0].fX);
+    Sk2s p1 = Sk2f::Load(&src[1].fX);
+    Sk2s p2 = Sk2f::Load(&src[2].fX);
+    Sk2s tt = Sk2s(t);
+    
+    Sk2s p01 = interp(p0, p1, tt);
+    Sk2s p12 = interp(p1, p2, tt);
+
+    p0.store(&dst[0].fX);
+    p01.store(&dst[1].fX);
+    interp(p01, p12, tt).store(&dst[2].fX);
+    p12.store(&dst[3].fX);
+    p2.store(&dst[4].fX);
 }
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {

@@ -17,11 +17,14 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]);
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t);
+SkPoint SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t);
+void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t);
+
 /** Set pt to the point on the src quadratic specified by t. t must be
     0 <= t <= 1.0
 */
 void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent = NULL);
-SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t);
 
 /** Given a src quadratic bezier, chop it at the specified t value,
     where 0 < t < 1, and return the two new quadratics in dst:

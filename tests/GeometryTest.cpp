@@ -34,6 +34,16 @@ static void testChopCubic(skiatest::Reporter* reporter) {
     }
 }
 
+static void check_pairs(skiatest::Reporter* reporter, int index, SkScalar t, const char name[],
+                        SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1) {
+    bool eq = SkScalarNearlyEqual(x0, x1) && SkScalarNearlyEqual(y0, y1);
+    if (!eq) {
+        SkDebugf("%s [%d %g] p0 [%10.8f %10.8f] p1 [%10.8f %10.8f]\n",
+                 name, index, t, x0, y0, x1, y1);
+        REPORTER_ASSERT(reporter, eq);
+    }
+}
+
 static void test_evalquadat(skiatest::Reporter* reporter) {
     SkRandom rand;
     for (int i = 0; i < 1000; ++i) {
@@ -41,17 +51,27 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
         for (int j = 0; j < 3; ++j) {
             pts[j].set(rand.nextSScalar1() * 100, rand.nextSScalar1() * 100);
         }
-        SkScalar t = 0;
         const SkScalar dt = SK_Scalar1 / 128;
-        for (int j = 0; j < 128; ++j) {
+        SkScalar t = dt;
+        for (int j = 1; j < 128; ++j) {
             SkPoint r0;
             SkEvalQuadAt(pts, t, &r0);
             SkPoint r1 = SkEvalQuadAt(pts, t);
-            bool eq = SkScalarNearlyEqual(r0.fX, r1.fX) && SkScalarNearlyEqual(r0.fY, r1.fY);
-            if (!eq) {
-                SkDebugf("[%d %g] p0 [%10.8f %10.8f] p1 [%10.8f %10.8f]\n", i, t, r0.fX, r0.fY, r1.fX, r1.fY);
-                REPORTER_ASSERT(reporter, eq);
+            check_pairs(reporter, i, t, "quad-pos", r0.fX, r0.fY, r1.fX, r1.fY);
+
+            SkVector v0;
+            SkEvalQuadAt(pts, t, NULL, &v0);
+            SkVector v1 = SkEvalQuadTangentAt(pts, t);
+            check_pairs(reporter, i, t, "quad-tan", v0.fX, v0.fY, v1.fX, v1.fY);
+
+            SkPoint dst0[5], dst1[5];
+            SkChopQuadAt(pts,  dst0, t);
+            SkChopQuadAt2(pts, dst1, t);
+            for (int k = 0; k < 5; ++k) {
+                check_pairs(reporter, i, t, "chop-quad",
+                            dst0[k].fX, dst0[k].fY, dst1[k].fX, dst1[k].fY);
             }
+
             t += dt;
         }
     }

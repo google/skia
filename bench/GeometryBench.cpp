@@ -132,46 +132,115 @@ DEF_BENCH( return new GeoRectBench_sort; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class EvalQuadAt0 : public GeometryBench {
+class QuadBenchBase : public GeometryBench {
+protected:
     SkPoint fPts[3];
 public:
-    EvalQuadAt0() : GeometryBench("evalquadat0") {
+    QuadBenchBase(const char name[]) : GeometryBench(name) {
         SkRandom rand;
         for (int i = 0; i < 3; ++i) {
             fPts[i].set(rand.nextUScalar1(), rand.nextUScalar1());
         }
     }
-    
+};
+
+class EvalQuadAt0 : public QuadBenchBase {
+public:
+    EvalQuadAt0() : QuadBenchBase("evalquadat0") {}
 protected:
     void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPoint result;
         for (int outer = 0; outer < loops; ++outer) {
-            for (int i = 0; i < 10000; ++i) {
-                SkEvalQuadAt(fPts, 0.5f, &result);
-            }
+            SkEvalQuadAt(fPts, 0.5f, &result);
+            SkEvalQuadAt(fPts, 0.5f, &result);
+            SkEvalQuadAt(fPts, 0.5f, &result);
+            SkEvalQuadAt(fPts, 0.5f, &result);
         }
     }
 };
 DEF_BENCH( return new EvalQuadAt0; )
 
-class EvalQuadAt1 : public GeometryBench {
-    SkPoint fPts[3];
+class EvalQuadAt1 : public QuadBenchBase {
 public:
-    EvalQuadAt1() : GeometryBench("evalquadat1") {
-        SkRandom rand;
-        for (int i = 0; i < 3; ++i) {
-            fPts[i].set(rand.nextUScalar1(), rand.nextUScalar1());
-        }
-    }
-    
+    EvalQuadAt1() : QuadBenchBase("evalquadat1") {}
 protected:
     void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint result;
         for (int outer = 0; outer < loops; ++outer) {
-            for (int i = 0; i < 10000; ++i) {
-                SkEvalQuadAt(fPts, 0.5f);
-            }
+            result = SkEvalQuadAt(fPts, 0.5f);
+            result = SkEvalQuadAt(fPts, 0.5f);
+            result = SkEvalQuadAt(fPts, 0.5f);
+            result = SkEvalQuadAt(fPts, 0.5f);
         }
     }
 };
 DEF_BENCH( return new EvalQuadAt1; )
+
+////////
+
+class EvalQuadTangentAt0 : public QuadBenchBase {
+public:
+    EvalQuadTangentAt0() : QuadBenchBase("evalquadtangentat0") {}
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint result;
+        for (int outer = 0; outer < loops; ++outer) {
+            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
+            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
+            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
+            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
+        }
+    }
+};
+DEF_BENCH( return new EvalQuadTangentAt0; )
+
+class EvalQuadTangentAt1 : public QuadBenchBase {
+public:
+    EvalQuadTangentAt1() : QuadBenchBase("evalquadtangentat1") {}
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint result;
+        for (int outer = 0; outer < loops; ++outer) {
+            result = SkEvalQuadTangentAt(fPts, 0.5f);
+            result = SkEvalQuadTangentAt(fPts, 0.5f);
+            result = SkEvalQuadTangentAt(fPts, 0.5f);
+            result = SkEvalQuadTangentAt(fPts, 0.5f);
+        }
+    }
+};
+DEF_BENCH( return new EvalQuadTangentAt1; )
+
+////////
+
+class ChopQuadAt0 : public QuadBenchBase {
+public:
+    ChopQuadAt0() : QuadBenchBase("chopquadat0") {}
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint dst[5];
+        for (int outer = 0; outer < loops; ++outer) {
+            SkChopQuadAt(fPts, dst, 0.5f);
+            SkChopQuadAt(fPts, dst, 0.5f);
+            SkChopQuadAt(fPts, dst, 0.5f);
+            SkChopQuadAt(fPts, dst, 0.5f);
+        }
+    }
+};
+DEF_BENCH( return new ChopQuadAt0; )
+
+class ChopQuadAt1 : public QuadBenchBase {
+public:
+    ChopQuadAt1() : QuadBenchBase("chopquadat1") {}
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint dst[5];
+        for (int outer = 0; outer < loops; ++outer) {
+            SkChopQuadAt2(fPts, dst, 0.5f);
+            SkChopQuadAt2(fPts, dst, 0.5f);
+            SkChopQuadAt2(fPts, dst, 0.5f);
+            SkChopQuadAt2(fPts, dst, 0.5f);
+        }
+    }
+};
+DEF_BENCH( return new ChopQuadAt1; )
 
