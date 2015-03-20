@@ -2,11 +2,12 @@
 #define Sk4x_DEFINED
 
 #include "SkTypes.h"
+#include "SkNx.h"
 
 #define SK4X_PREAMBLE 1
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk4x_sse.h"
-    #elif defined(SK_ARM_HAS_NEON)
+    #elif defined(SK_ARM_HAS_NEON)                && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk4x_neon.h"
     #else
         #include "../opts/Sk4x_none.h"
@@ -104,9 +105,9 @@ private:
     template <typename S> friend class Sk4x;
 
 #define SK4X_PRIVATE 1
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk4x_sse.h"
-    #elif defined(SK_ARM_HAS_NEON)
+    #elif defined(SK_ARM_HAS_NEON)                && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk4x_neon.h"
     #else
         #include "../opts/Sk4x_none.h"
@@ -114,9 +115,9 @@ private:
 #undef SK4X_PRIVATE
 };
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && !defined(SKNX_NO_SIMD)
     #include "../opts/Sk4x_sse.h"
-#elif defined(SK_ARM_HAS_NEON)
+#elif defined(SK_ARM_HAS_NEON)                && !defined(SKNX_NO_SIMD)
     #include "../opts/Sk4x_neon.h"
 #else
     #include "../opts/Sk4x_none.h"
