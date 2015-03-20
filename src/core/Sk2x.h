@@ -14,7 +14,7 @@
 #define SK2X_PREAMBLE 1
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk2x_sse.h"
-    #elif defined(__ARM_NEON__)                   && !defined(SKNX_NO_SIMD)
+    #elif defined(SK_ARM_HAS_NEON)                && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk2x_neon.h"
     #else
         #include "../opts/Sk2x_none.h"
@@ -71,7 +71,7 @@ private:
 #define SK2X_PRIVATE 1
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk2x_sse.h"
-    #elif defined(__ARM_NEON__)                   && !defined(SKNX_NO_SIMD)
+    #elif defined(SK_ARM_HAS_NEON)                && !defined(SKNX_NO_SIMD)
         #include "../opts/Sk2x_neon.h"
     #else
         #include "../opts/Sk2x_none.h"
@@ -81,7 +81,7 @@ private:
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && !defined(SKNX_NO_SIMD)
     #include "../opts/Sk2x_sse.h"
-#elif defined(__ARM_NEON__)                   && !defined(SKNX_NO_SIMD)
+#elif defined(SK_ARM_HAS_NEON)                && !defined(SKNX_NO_SIMD)
     #include "../opts/Sk2x_neon.h"
 #else
     #include "../opts/Sk2x_none.h"
