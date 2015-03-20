@@ -93,13 +93,13 @@ DEF_TEST(Sk4x_Sqrt, r) {
            roots(2,  4,  5,  11);
     // .sqrt() should be pretty precise.
     Sk4f error = roots.subtract(squares.sqrt());
-    REPORTER_ASSERT(r, error.greaterThanEqual(Sk4f(0.0f)).allTrue());
-    REPORTER_ASSERT(r, error.lessThan(Sk4f(0.000001f)).allTrue());
+    REPORTER_ASSERT(r, (error > Sk4f(-0.000001f)).allTrue());
+    REPORTER_ASSERT(r, (error < Sk4f(+0.000001f)).allTrue());
 
     // .rsqrt() isn't so precise (for SSE), but should be pretty close.
     error = roots.subtract(squares.multiply(squares.rsqrt()));
-    REPORTER_ASSERT(r, error.greaterThanEqual(Sk4f(0.0f)).allTrue());
-    REPORTER_ASSERT(r, error.lessThan(Sk4f(0.01f)).allTrue());
+    REPORTER_ASSERT(r, (error > Sk4f(-0.01f)).allTrue());
+    REPORTER_ASSERT(r, (error < Sk4f(+0.01f)).allTrue());
 }
 
 DEF_TEST(Sk4x_Comparison, r) {
