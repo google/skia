@@ -753,8 +753,6 @@ private:
     void freePixels();
     void updatePixelsFromRef() const;
 
-    void legacyUnflatten(SkReadBuffer&);
-
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 

@@ -1275,53 +1275,6 @@ enum {
     SERIALIZE_PIXELTYPE_REF_DATA
 };
 
-void SkBitmap::legacyUnflatten(SkReadBuffer& buffer) {
-#ifdef SK_SUPPORT_LEGACY_PIXELREF_UNFLATTENABLE
-    this->reset();
-
-    SkImageInfo info;
-    info.unflatten(buffer);
-    size_t rowBytes = buffer.readInt();
-    if (!buffer.validate((info.width() >= 0) && (info.height() >= 0) &&
-                         SkColorTypeIsValid(info.fColorType) &&
-                         SkAlphaTypeIsValid(info.fAlphaType) &&
-                         SkColorTypeValidateAlphaType(info.fColorType, info.fAlphaType) &&
-                         info.validRowBytes(rowBytes))) {
-        return;
-    }
-
-    bool configIsValid = this->setInfo(info, rowBytes);
-    buffer.validate(configIsValid);
-
-    int reftype = buffer.readInt();
-    if (buffer.validate((SERIALIZE_PIXELTYPE_REF_DATA == reftype) ||
-                        (SERIALIZE_PIXELTYPE_NONE == reftype))) {
-        switch (reftype) {
-            case SERIALIZE_PIXELTYPE_REF_DATA: {
-                SkIPoint origin;
-                origin.fX = buffer.readInt();
-                origin.fY = buffer.readInt();
-                size_t offset = origin.fY * rowBytes + origin.fX * info.bytesPerPixel();
-                SkPixelRef* pr = buffer.readFlattenable<SkPixelRef>();
-                if (!buffer.validate((NULL == pr) ||
-                       (pr->getAllocatedSizeInBytes() >= (offset + this->getSafeSize())))) {
-                    origin.setZero();
-                }
-                SkSafeUnref(this->setPixelRef(pr, origin));
-                break;
-            }
-            case SERIALIZE_PIXELTYPE_NONE:
-                break;
-            default:
-                SkDEBUGFAIL("unrecognized pixeltype in serialized data");
-                sk_throw();
-        }
-    }
-#else
-    sk_throw();
-#endif
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBitmap::RLEPixels::RLEPixels(int width, int height) {
