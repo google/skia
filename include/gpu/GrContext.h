@@ -41,6 +41,7 @@ class GrVertexBuffer;
 class GrVertexBufferAllocPool;
 class GrStrokeInfo;
 class GrSoftwarePathRenderer;
+class SkGpuDevice;
 class SkStrokeRec;
 
 class SK_API GrContext : public SkRefCnt {
@@ -200,16 +201,6 @@ public:
      * the resource for deletion.
      */
     bool isResourceInCache(const GrUniqueKey& key) const;
-
-    /**
-     * Creates a new text rendering context that is optimal for the
-     * render target and the context. Caller assumes the ownership
-     * of the returned object. The returned object must be deleted
-     * before the context is destroyed.
-     */
-    GrTextContext* createTextContext(GrRenderTarget*,
-                                     const SkDeviceProperties&,
-                                     bool enableDistanceFieldFonts);
 
     ///////////////////////////////////////////////////////////////////////////
     // Textures
@@ -763,6 +754,20 @@ private:
     GrTexture* internalRefScratchTexture(const GrSurfaceDesc&, uint32_t flags);
 
     /**
+     * Creates a new text rendering context that is optimal for the
+     * render target and the context. Caller assumes the ownership
+     * of the returned object. The returned object must be deleted
+     * before the context is destroyed.
+     * TODO we can possibly bury this behind context, but we need to be able to use the
+     * drawText_asPaths logic on SkGpuDevice
+     */
+    GrTextContext* createTextContext(GrRenderTarget*,
+                                     SkGpuDevice*,
+                                     const SkDeviceProperties&,
+                                     bool enableDistanceFieldFonts);
+
+
+    /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL.
@@ -775,6 +780,9 @@ private:
      *  when the cache is still over budget after a purge.
      */
     static void OverBudgetCB(void* data);
+
+    // TODO see note on createTextContext
+    friend class SkGpuDevice;
 
     typedef SkRefCnt INHERITED;
 };

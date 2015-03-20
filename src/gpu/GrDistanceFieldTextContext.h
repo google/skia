@@ -18,7 +18,8 @@ class GrTextStrike;
  */
 class GrDistanceFieldTextContext : public GrTextContext {
 public:
-    static GrDistanceFieldTextContext* Create(GrContext*, const SkDeviceProperties&, bool enable);
+    static GrDistanceFieldTextContext* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&,
+                                              bool enable);
 
     virtual ~GrDistanceFieldTextContext();
 
@@ -48,21 +49,22 @@ private:
     SkRect                             fVertexBounds;
     SkMatrix                           fViewMatrix;
 
-    GrDistanceFieldTextContext(GrContext*, const SkDeviceProperties&, bool enable);
+    GrDistanceFieldTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&, bool enable);
 
     bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) SK_OVERRIDE;
 
     virtual void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y) SK_OVERRIDE;
+                            SkScalar x, SkScalar y, const SkIRect& regionClipBounds) SK_OVERRIDE;
     virtual void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                                const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
-                               const SkPoint& offset) SK_OVERRIDE;
+                               const SkPoint& offset, const SkIRect& regionClipBounds) SK_OVERRIDE;
 
-    void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&);
+    void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+              const SkIRect& regionClipBounds);
     bool appendGlyph(GrGlyph::PackedID, SkScalar left, SkScalar top, GrFontScaler*);
     bool uploadGlyph(GrGlyph*, GrFontScaler*);
     void setupCoverageEffect(const SkColor& filteredColor);

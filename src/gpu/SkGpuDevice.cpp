@@ -160,7 +160,8 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, const SkSurfaceProps* props, unsign
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
-    fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFT);
+    fTextContext = fContext->createTextContext(fRenderTarget, this, this->getLeakyProperties(),
+                                               useDFT);
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -1824,11 +1825,8 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
     SkDEBUGCODE(this->validate();)
 
-    if (!fTextContext->drawText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
-                                (const char *)text, byteLength, x, y)) {
-        // this will just call our drawPath()
-        draw.drawText_asPaths((const char*)text, byteLength, x, y, paint);
-    }
+    fTextContext->drawText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
+                           (const char *)text, byteLength, x, y, draw.fClip->getBounds());
 }
 
 void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteLength,
@@ -1842,11 +1840,9 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     SkDEBUGCODE(this->validate();)
 
-    if (!fTextContext->drawPosText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
-                                   (const char *)text, byteLength, pos, scalarsPerPos, offset)) {
-        // this will just call our drawPath()
-        draw.drawPosText_asPaths((const char*)text, byteLength, pos, scalarsPerPos, offset, paint);
-    }
+    fTextContext->drawPosText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
+                              (const char *)text, byteLength, pos, scalarsPerPos, offset,
+                              draw.fClip->getBounds());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

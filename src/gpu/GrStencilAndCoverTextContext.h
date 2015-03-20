@@ -23,7 +23,8 @@ class GrPathRange;
  */
 class GrStencilAndCoverTextContext : public GrTextContext {
 public:
-    static GrStencilAndCoverTextContext* Create(GrContext*, const SkDeviceProperties&);
+    static GrStencilAndCoverTextContext* Create(GrContext*, SkGpuDevice*,
+                                                const SkDeviceProperties&);
 
     virtual ~GrStencilAndCoverTextContext();
 
@@ -67,22 +68,23 @@ private:
     SkMatrix                                            fLocalMatrix;
     bool                                                fUsingDeviceSpaceGlyphs;
 
-    GrStencilAndCoverTextContext(GrContext*, const SkDeviceProperties&);
+    GrStencilAndCoverTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
 
     bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) SK_OVERRIDE;
 
     virtual void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y) SK_OVERRIDE;
+                            SkScalar x, SkScalar y, const SkIRect& regionClipBounds) SK_OVERRIDE;
     virtual void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                                const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
-                               const SkPoint& offset) SK_OVERRIDE;
+                               const SkPoint& offset, const SkIRect& regionClipBounds) SK_OVERRIDE;
 
     void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
-              size_t textByteLength, RenderMode, const SkMatrix& viewMatrix);
+              size_t textByteLength, RenderMode, const SkMatrix& viewMatrix,
+              const SkIRect& regionClipBounds);
     bool mapToFallbackContext(SkMatrix* inverse);
     void appendGlyph(const SkGlyph&, const SkPoint&);
     void flush();

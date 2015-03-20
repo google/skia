@@ -215,17 +215,19 @@ void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes)
 }
 
 GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
+                                            SkGpuDevice* gpuDevice,
                                             const SkDeviceProperties&
                                             leakyProperties,
                                             bool enableDistanceFieldFonts) {
     if (fGpu->caps()->pathRenderingSupport() && renderTarget->isMultisampled()) {
         GrStencilBuffer* sb = renderTarget->renderTargetPriv().attachStencilBuffer();
         if (sb) {
-            return GrStencilAndCoverTextContext::Create(this, leakyProperties);
+            return GrStencilAndCoverTextContext::Create(this, gpuDevice, leakyProperties);
         }
     } 
 
-    return GrDistanceFieldTextContext::Create(this, leakyProperties, enableDistanceFieldFonts);
+    return GrDistanceFieldTextContext::Create(this, gpuDevice, leakyProperties,
+                                              enableDistanceFieldFonts);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

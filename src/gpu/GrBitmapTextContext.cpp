@@ -46,8 +46,9 @@ static const int kIndicesPerGlyph = 6;
 };
 
 GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
+                                         SkGpuDevice* gpuDevice,
                                          const SkDeviceProperties& properties)
-                                       : GrTextContext(context, properties) {
+    : GrTextContext(context, gpuDevice, properties) {
     fStrike = NULL;
 
     fCurrTexture = NULL;
@@ -62,8 +63,9 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
 }
 
 GrBitmapTextContext* GrBitmapTextContext::Create(GrContext* context,
+                                                 SkGpuDevice* gpuDevice,
                                                  const SkDeviceProperties& props) {
-    return SkNEW_ARGS(GrBitmapTextContext, (context, props));
+    return SkNEW_ARGS(GrBitmapTextContext, (context, gpuDevice, props));
 }
 
 bool GrBitmapTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) {
@@ -71,8 +73,9 @@ bool GrBitmapTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatr
 }
 
 inline void GrBitmapTextContext::init(GrRenderTarget* rt, const GrClip& clip,
-                                      const GrPaint& paint, const SkPaint& skPaint) {
-    GrTextContext::init(rt, clip, paint, skPaint);
+                                      const GrPaint& paint, const SkPaint& skPaint,
+                                      const SkIRect& regionClipBounds) {
+    GrTextContext::init(rt, clip, paint, skPaint, regionClipBounds);
 
     fStrike = NULL;
 
@@ -88,7 +91,7 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
                                      const GrPaint& paint, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix,
                                      const char text[], size_t byteLength,
-                                     SkScalar x, SkScalar y) {
+                                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
     SkASSERT(byteLength == 0 || text != NULL);
 
     // nothing to draw
@@ -96,7 +99,7 @@ void GrBitmapTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
         return;
     }
 
-    this->init(rt, clip, paint, skPaint);
+    this->init(rt, clip, paint, skPaint, regionClipBounds);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -190,7 +193,7 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                         const SkMatrix& viewMatrix,
                                         const char text[], size_t byteLength,
                                         const SkScalar pos[], int scalarsPerPosition,
-                                        const SkPoint& offset) {
+                                        const SkPoint& offset, const SkIRect& regionClipBounds) {
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -199,7 +202,7 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
         return;
     }
 
-    this->init(rt, clip, paint, skPaint);
+    this->init(rt, clip, paint, skPaint, regionClipBounds);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
