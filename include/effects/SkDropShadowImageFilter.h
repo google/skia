@@ -20,16 +20,6 @@ public:
 
     static const int kShadowModeCount = kLast_ShadowMode+1;
 
-    /** @deprecated use another Create function below instead */
-    static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
-                                           SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-                                           SkImageFilter* input = NULL,
-                                           const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
-                                                    kDrawShadowAndForeground_ShadowMode,
-                                                    input, cropRect));
-    }
-
     static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY, SkColor color,
                                            ShadowMode shadowMode,
