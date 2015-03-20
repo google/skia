@@ -216,8 +216,7 @@ static void Color32A_D565(uint16_t dst[], SkPMColor src, int count, int x, int y
     uint32_t src_expand = pmcolor_to_expand16(src);
     unsigned scale = SkAlpha255To256(0xFF - SkGetPackedA32(src)) >> 3;
     do {
-        uint32_t dst_expand = SkExpand_rgb_16(*dst) * scale;
-        *dst = SkCompact_rgb_16((src_expand + dst_expand) >> 5);
+        *dst = SkBlend32_RGB16(src_expand, *dst, scale);
         dst += 1;
     } while (--count != 0);
 }
@@ -269,7 +268,7 @@ SkBlitRow::ColorProc16 SkBlitRow::ColorFactory16(unsigned flags) {
     // just so we don't crash
     flags &= kFlags16_Mask;
     // we ignore both kGlobalAlpha_Flag and kSrcPixelAlpha_Flag, so shift down
-    // since this factory is only used for transparent source alphas
+    // no need for the additional code specializing on opaque alpha at this time
     flags >>= 2;
 
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_ColorProcs));

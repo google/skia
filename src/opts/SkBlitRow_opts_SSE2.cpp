@@ -289,6 +289,75 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
     }
 }
 
+void Color32A_D565_SSE2(uint16_t dst[], SkPMColor src, int count, int x, int y) {
+    SkASSERT(count > 0);
+
+    uint32_t src_expand = (SkGetPackedG32(src) << 24) |
+                          (SkGetPackedR32(src) << 13) |
+                          (SkGetPackedB32(src) << 2);
+    unsigned scale = SkAlpha255To256(0xFF - SkGetPackedA32(src)) >> 3;
+
+    // Check if we have enough pixels to run SIMD
+    if (count >= (int)(8 + (((16 - (size_t)dst) & 0x0F) >> 1))) {
+        __m128i* dst_wide;
+        const __m128i src_R_wide = _mm_set1_epi16(SkGetPackedR32(src) << 2);
+        const __m128i src_G_wide = _mm_set1_epi16(SkGetPackedG32(src) << 3);
+        const __m128i src_B_wide = _mm_set1_epi16(SkGetPackedB32(src) << 2);
+        const __m128i scale_wide = _mm_set1_epi16(scale);
+        const __m128i mask_blue  = _mm_set1_epi16(SK_B16_MASK);
+        const __m128i mask_green = _mm_set1_epi16(SK_G16_MASK << SK_G16_SHIFT);
+
+        // Align dst to an even 16 byte address (0-7 pixels)
+        while (((((size_t)dst) & 0x0F) != 0) && (count > 0)) {
+            *dst = SkBlend32_RGB16(src_expand, *dst, scale);
+            dst += 1;
+            count--;
+        }
+
+        dst_wide = reinterpret_cast<__m128i*>(dst);
+        do {
+            // Load eight RGB565 pixels
+            __m128i pixels = _mm_load_si128(dst_wide);
+
+            // Mask out sub-pixels
+            __m128i pixel_R = _mm_srli_epi16(pixels, SK_R16_SHIFT);
+            __m128i pixel_G = _mm_slli_epi16(pixels, SK_R16_BITS);
+            pixel_G = _mm_srli_epi16(pixel_G, SK_R16_BITS + SK_B16_BITS);
+            __m128i pixel_B = _mm_and_si128(pixels, mask_blue);
+
+            // Scale with alpha
+            pixel_R = _mm_mullo_epi16(pixel_R, scale_wide);
+            pixel_G = _mm_mullo_epi16(pixel_G, scale_wide);
+            pixel_B = _mm_mullo_epi16(pixel_B, scale_wide);
+
+            // Add src_X_wide and shift down again
+            pixel_R = _mm_add_epi16(pixel_R, src_R_wide);
+            pixel_R = _mm_srli_epi16(pixel_R, 5);
+            pixel_G = _mm_add_epi16(pixel_G, src_G_wide);
+            pixel_B = _mm_add_epi16(pixel_B, src_B_wide);
+            pixel_B = _mm_srli_epi16(pixel_B, 5);
+
+            // Combine into RGB565 and store
+            pixel_R = _mm_slli_epi16(pixel_R, SK_R16_SHIFT);
+            pixel_G = _mm_and_si128(pixel_G, mask_green);
+            pixels = _mm_or_si128(pixel_R, pixel_G);
+            pixels = _mm_or_si128(pixels, pixel_B);
+            _mm_store_si128(dst_wide, pixels);
+            count -= 8;
+            dst_wide++;
+        } while (count >= 8);
+
+        dst = reinterpret_cast<uint16_t*>(dst_wide);
+    }
+
+    // Small loop to handle remaining pixels.
+    while (count > 0) {
+        *dst = SkBlend32_RGB16(src_expand, *dst, scale);
+        dst += 1;
+        count--;
+    }
+}
+
 void SkARGB32_A8_BlitMask_SSE2(void* device, size_t dstRB, const void* maskPtr,
                                size_t maskRB, SkColor origColor,
                                int width, int height) {

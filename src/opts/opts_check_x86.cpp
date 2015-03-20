@@ -215,14 +215,19 @@ SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
     }
 }
 
-static const SkBlitRow::ColorProc16 platform_565_colorprocs_SSE4[] = {
-    Color32A_D565_SSE4,                 // Color32A_D565,
+static const SkBlitRow::ColorProc16 platform_565_colorprocs_SSE2[] = {
+    Color32A_D565_SSE2,                 // Color32A_D565,
     NULL,                               // Color32A_D565_Dither
 };
 
 SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE41)) {
-        return platform_565_colorprocs_SSE4[flags];
+/* If you're thinking about writing an SSE4 version of this, do check it's
+ * actually faster on Atom. Our original SSE4 version was slower than this
+ * SSE2 version on Silvermont, and only marginally faster on a Core i7,
+ * mainly due to the MULLD timings.
+ */
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+        return platform_565_colorprocs_SSE2[flags];
     } else {
         return NULL;
     }

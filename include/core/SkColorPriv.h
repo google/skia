@@ -281,6 +281,16 @@ static inline U16CPU SkAlphaMulRGB16(U16CPU c, unsigned scale) {
 // this helper explicitly returns a clean 16bit value (but slower)
 #define SkAlphaMulRGB16_ToU16(c, s)  (uint16_t)SkAlphaMulRGB16(c, s)
 
+/** Blend pre-expanded RGB32 with 16bit color value by the 0..32 scale parameter.
+    The computation yields only 16bits of valid data, but we claim to return
+    32bits, so that the compiler won't generate extra instructions to "clean"
+    the top 16bits.
+*/
+static inline U16CPU SkBlend32_RGB16(uint32_t src_expand, uint16_t dst, unsigned scale) {
+    uint32_t dst_expand = SkExpand_rgb_16(dst) * scale;
+    return SkCompact_rgb_16((src_expand + dst_expand) >> 5);
+}
+
 /** Blend src and dst 16bit colors by the 0..256 scale parameter.
     The computation yields only 16bits of valid data, but we claim
     to return 32bits, so that the compiler won't generate extra instructions to

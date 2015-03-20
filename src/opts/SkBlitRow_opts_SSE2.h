@@ -21,6 +21,12 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
                                const SkPMColor* SK_RESTRICT src,
                                int count, U8CPU alpha);
+
+void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
+                  SkPMColor color);
+void Color32A_D565_SSE2(uint16_t dst[], SkPMColor src, int count, int x,
+                        int y);
+
 void SkARGB32_A8_BlitMask_SSE2(void* device, size_t dstRB, const void* mask,
                                size_t maskRB, SkColor color,
                                int width, int height);
@@ -42,5 +48,4 @@ void S32_D565_Opaque_Dither_SSE2(uint16_t* SK_RESTRICT dst,
 void S32A_D565_Opaque_Dither_SSE2(uint16_t* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src,
                                   int count, U8CPU alpha, int x, int y);
-
 #endif
