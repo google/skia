@@ -403,13 +403,8 @@ private:
                 && fType      == rhs.fType
                 && fFboFormat == rhs.fFboFormat;
         }
-        static uint32_t Hash(const ReadPixelsSupportedFormat& r) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&r), sizeof(r));
-        }
     };
-
-    mutable SkTHashMap<ReadPixelsSupportedFormat, bool, ReadPixelsSupportedFormat::Hash>
-        fReadPixelsSupportedCache;
+    mutable SkTHashMap<ReadPixelsSupportedFormat, bool> fReadPixelsSupportedCache;
 
     typedef GrDrawTargetCaps INHERITED;
 };

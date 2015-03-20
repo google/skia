@@ -65,12 +65,21 @@ public:
     }
 
     // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
-    template <typename Arg>
-    void foreach(void(*fn)(T*, Arg), Arg arg) {
+    template <typename Fn>  // f(T*)
+    void foreach(Fn&& fn) {
         for (int i = 0; i < fCapacity; i++) {
-            Slot& s = fSlots[i];
-            if (!s.empty()) {
-                fn(&s.val, arg);
+            if (!fSlots[i].empty()) {
+                fn(&fSlots[i].val);
+            }
+        }
+    }
+
+    // Call fn on every entry in the table.  You may not mutate anything.
+    template <typename Fn>  // f(T) or f(const T&)
+    void foreach(Fn&& fn) const {
+        for (int i = 0; i < fCapacity; i++) {
+            if (!fSlots[i].empty()) {
+                fn(fSlots[i].val);
             }
         }
     }
@@ -145,7 +154,7 @@ private:
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
-template <typename K, typename V, uint32_t(*HashK)(const K&)>
+template <typename K, typename V, uint32_t(*HashK)(const K&) = &SkGoodHash>
 class SkTHashMap : SkNoncopyable {
 public:
     SkTHashMap() {}
@@ -176,7 +185,16 @@ public:
     }
 
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
-    void foreach(void(*fn)(K, V*)) { fTable.foreach(ForEach, fn); }
+    template <typename Fn>  // f(K, V*) or f(const K&, V*)
+    void foreach(Fn&& fn) {
+        fTable.foreach([&fn](Pair* p){ fn(p->key, &p->val); });
+    }
+
+    // Call fn on every key/value pair in the table.  You may not mutate anything.
+    template <typename Fn>  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
+    void foreach(Fn&& fn) const {
+        fTable.foreach([&fn](const Pair& p){ fn(p.key, p.val); });
+    }
 
 private:
     struct Pair {
@@ -185,13 +203,12 @@ private:
         static const K& GetKey(const Pair& p) { return p.key; }
         static uint32_t Hash(const K& key) { return HashK(key); }
     };
-    static void ForEach(Pair* p, void (*fn)(K, V*)) { fn(p->key, &p->val); }
 
     SkTHashTable<Pair, K> fTable;
 };
 
 // A set of T.  T is treated as an ordiary copyable C++ type.
-template <typename T, uint32_t(*HashT)(const T&)>
+template <typename T, uint32_t(*HashT)(const T&) = &SkGoodHash>
 class SkTHashSet : SkNoncopyable {
 public:
     SkTHashSet() {}

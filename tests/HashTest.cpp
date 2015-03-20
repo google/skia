@@ -3,12 +3,15 @@
 #include "SkTHash.h"
 #include "Test.h"
 
-namespace { uint32_t hash_int(const int& k) { return SkChecksum::Mix(k); } }
-
-static void set_negative_key(int key, double* d) { *d = -key; }
+// Tests use of const foreach().  map.count() is of course the better way to do this.
+static int count(const SkTHashMap<int, double>& map) {
+    int n = 0;
+    map.foreach([&n](int, double) { n++; });
+    return n;
+}
 
 DEF_TEST(HashMap, r) {
-    SkTHashMap<int, double, hash_int> map;
+    SkTHashMap<int, double> map;
 
     map.set(3, 4.0);
     REPORTER_ASSERT(r, map.count() == 1);
@@ -17,7 +20,9 @@ DEF_TEST(HashMap, r) {
     REPORTER_ASSERT(r, found);
     REPORTER_ASSERT(r, *found == 4.0);
 
-    map.foreach(set_negative_key);
+    map.foreach([](int key, double* d){ *d = -key; });
+    REPORTER_ASSERT(r, count(map) == 1);
+
     found = map.find(3);
     REPORTER_ASSERT(r, found);
     REPORTER_ASSERT(r, *found == -3.0);
@@ -44,10 +49,8 @@ DEF_TEST(HashMap, r) {
     REPORTER_ASSERT(r, map.count() == 0);
 }
 
-namespace { uint32_t hash_string(const SkString& s) { return SkToInt(s.size()); } }
-
 DEF_TEST(HashSet, r) {
-    SkTHashSet<SkString, hash_string> set;
+    SkTHashSet<SkString> set;
 
     set.add(SkString("Hello"));
     set.add(SkString("World"));

@@ -104,13 +104,8 @@ struct Gold : public SkString {
         this->append(src);
         this->append(name);
         this->append(md5);
-        while (this->size() % 4) {
-            this->append("!");  // Pad out if needed so we can pass this to Murmur3.
-        }
     }
-    static uint32_t Hash(const Gold& g) {
-        return SkChecksum::Murmur3((const uint32_t*)g.c_str(), g.size());
-    }
+    static uint32_t Hash(const Gold& g) { return SkGoodHash((const SkString&)g); }
 };
 static SkTHashSet<Gold, Gold::Hash> gGold;
 

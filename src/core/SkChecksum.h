@@ -8,6 +8,8 @@
 #ifndef SkChecksum_DEFINED
 #define SkChecksum_DEFINED
 
+#include "SkString.h"
+#include "SkTLogic.h"
 #include "SkTypes.h"
 
 /**
@@ -69,21 +71,20 @@ public:
      * This should take 2-3x longer than SkChecksum::Compute, but is a considerably better hash.
      * See en.wikipedia.org/wiki/MurmurHash.
      *
-     *  @param data Memory address of the data block to be processed. Must be 32-bit aligned.
-     *  @param size Size of the data block in bytes. Must be a multiple of 4.
+     *  @param data Memory address of the data block to be processed.
+     *  @param size Size of the data block in bytes.
      *  @param seed Initial hash seed. (optional)
      *  @return hash result
      */
-    static uint32_t Murmur3(const uint32_t* data, size_t bytes, uint32_t seed=0) {
+    static uint32_t Murmur3(const void* data, size_t bytes, uint32_t seed=0) {
         // Use may_alias to remind the compiler we're intentionally violating strict aliasing,
         // and so not to apply strict-aliasing-based optimizations.
         typedef uint32_t SK_ATTRIBUTE(may_alias) aliased_uint32_t;
+        typedef uint8_t SK_ATTRIBUTE(may_alias) aliased_uint8_t;
+
+        // Handle 4 bytes at a time while possible.
         const aliased_uint32_t* safe_data = (const aliased_uint32_t*)data;
-
-        SkASSERTF(SkIsAlign4(bytes), "Expected 4-byte multiple, got %zu", bytes);
         const size_t words = bytes/4;
-
-
         uint32_t hash = seed;
         for (size_t i = 0; i < words; i++) {
             uint32_t k = safe_data[i];
@@ -96,6 +97,20 @@ public:
             hash *= 5;
             hash += 0xe6546b64;
         }
+
+        // Handle last 0-3 bytes.
+        const aliased_uint8_t* safe_tail = (const uint8_t*)(safe_data + words);
+        uint32_t k = 0;
+        switch (bytes & 3) {
+            case 3: k ^= safe_tail[2] << 16;
+            case 2: k ^= safe_tail[1] <<  8;
+            case 1: k ^= safe_tail[0] <<  0;
+                    k *= 0xcc9e2d51;
+                    k = (k << 15) | (k >> 17);
+                    k *= 0x1b873593;
+                    hash ^= k;
+        }
+
         hash ^= bytes;
         return Mix(hash);
     }
@@ -164,5 +179,20 @@ public:
         return static_cast<uint32_t>(result);
     }
 };
+
+// SkGoodHash should usually be your first choice in hashing data.
+// It should be both reasonably fast and high quality.
+
+template <typename K>
+uint32_t SkGoodHash(const K& k) {
+    if (sizeof(K) == 4) {
+        return SkChecksum::Mix(*(const uint32_t*)&k);
+    }
+    return SkChecksum::Murmur3(&k, sizeof(K));
+}
+
+inline uint32_t SkGoodHash(const SkString& k) {
+    return SkChecksum::Murmur3(k.c_str(), k.size());
+}
 
 #endif

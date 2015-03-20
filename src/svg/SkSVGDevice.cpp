@@ -103,12 +103,6 @@ static SkString svg_transform(const SkMatrix& t) {
     return tstr;
 }
 
-uint32_t hash_family_string(const SkString& family) {
-    // This is a lame hash function, but we don't really expect to see more than 1-2
-    // family names under normal circumstances.
-    return SkChecksum::Mix(SkToU32(family.size()));
-}
-
 struct Resources {
     Resources(const SkPaint& paint)
         : fPaintServer(svg_color(paint.getColor())) {}
@@ -538,7 +532,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     }
 
     SkString familyName;
-    SkTHashSet<SkString, hash_family_string> familySet;
+    SkTHashSet<SkString> familySet;
     SkAutoTUnref<const SkTypeface> tface(paint.getTypeface() ?
         SkRef(paint.getTypeface()) : SkTypeface::RefDefault());
 

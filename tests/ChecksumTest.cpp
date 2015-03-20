@@ -50,3 +50,16 @@ DEF_TEST(Checksum, r) {
         }
     }
 }
+
+DEF_TEST(GoodHash, r) {
+    ASSERT(SkGoodHash(( int32_t)4) ==  614249093);  // 4 bytes.  Hits SkChecksum::Mix fast path.
+    ASSERT(SkGoodHash((uint32_t)4) ==  614249093);  // (Ditto)
+
+    // None of these are 4 byte sized, so they use SkChecksum::Murmur3, not SkChecksum::Mix.
+    ASSERT(SkGoodHash((uint64_t)4) == 3491892518);
+    ASSERT(SkGoodHash((uint16_t)4) ==  899251846);
+    ASSERT(SkGoodHash( (uint8_t)4) ==  962700458);
+
+    // Tests SkString is correctly specialized.
+    ASSERT(SkGoodHash(SkString("Hi")) == 55667557);
+}
