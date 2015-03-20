@@ -25,6 +25,8 @@
         '<(skia_src_path)/pdf/SkPDFFormXObject.h',
         '<(skia_src_path)/pdf/SkPDFGraphicState.cpp',
         '<(skia_src_path)/pdf/SkPDFGraphicState.h',
+        '<(skia_src_path)/pdf/SkPDFImage.cpp',
+        '<(skia_src_path)/pdf/SkPDFImage.h',
         '<(skia_src_path)/pdf/SkPDFPage.cpp',
         '<(skia_src_path)/pdf/SkPDFPage.h',
         '<(skia_src_path)/pdf/SkPDFResourceDict.cpp',

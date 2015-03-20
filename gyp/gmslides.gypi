@@ -16,7 +16,6 @@
         '../gm/aaclip.cpp',
         '../gm/aarectmodes.cpp',
         '../gm/addarc.cpp',
-        '../gm/all_bitmap_configs.cpp',
         '../gm/alphagradients.cpp',
         '../gm/arcofzorro.cpp',
         '../gm/arithmode.cpp',
