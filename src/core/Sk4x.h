@@ -69,7 +69,7 @@ public:
     Sk4x& operator *=(const Sk4x& o) { return (*this = *this * o); }
     Sk4x& operator /=(const Sk4x& o) { return (*this = *this / o); }
 
-    Sk4x negate() const { return Sk4x(0) - *this; }
+    Sk4x negate() const { return Sk4x((T)0) - *this; }
     Sk4x operator -() const { return this->negate(); }
 
     Sk4x rsqrt() const;   // Approximate reciprocal sqrt().
