@@ -8,6 +8,7 @@
 #ifndef SkImageFilter_DEFINED
 #define SkImageFilter_DEFINED
 
+#include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -191,6 +192,13 @@ public:
 
     // Default impl returns union of all input bounds.
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
+
+    /**
+     * Create an SkMatrixImageFilter, which transforms its input by the given matrix.
+     */
+    static SkImageFilter* CreateMatrixFilter(const SkMatrix& matrix,
+                                             SkFilterQuality,
+                                             SkImageFilter* input = NULL);
 
 #if SK_SUPPORT_GPU
     /**

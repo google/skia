@@ -12,7 +12,6 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkGradientShader.h"
-#include "SkMatrixImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
@@ -91,7 +90,7 @@ protected:
             SkDilateImageFilter::Create(2, 2, checkerboard.get()),
             SkErodeImageFilter::Create(2, 2, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(-16), SkIntToScalar(32)),
-            SkMatrixImageFilter::Create(resizeMatrix, kNone_SkFilterQuality),
+            SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
             SkRectShaderImageFilter::Create(noise),
         };
 

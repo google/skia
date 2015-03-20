@@ -20,7 +20,6 @@
 #include "SkGradientShader.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
-#include "SkMatrixImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
@@ -470,7 +469,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         { "erode", SkErodeImageFilter::Create(2, 3) },
         { "tile", SkTileImageFilter::Create(SkRect::MakeXYWH(0, 0, 50, 50),
                                             SkRect::MakeXYWH(0, 0, 100, 100), NULL) },
-        { "matrix", SkMatrixImageFilter::Create(matrix, kLow_SkFilterQuality) },
+        { "matrix", SkImageFilter::CreateMatrixFilter(matrix, kLow_SkFilterQuality) },
         { "blur and offset", SkOffsetImageFilter::Create(five, five, blur.get()) },
         { "picture and blur", SkBlurImageFilter::Create(five, five, pictureFilter.get()) },
         { "rect shader and blur", SkBlurImageFilter::Create(five, five, rectShaderFilter.get()) },
@@ -533,7 +532,7 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
 
     SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorWHITE, SkXfermode::kSrc_Mode));
     SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf.get()));
-    SkAutoTUnref<SkImageFilter> imageFilter(SkMatrixImageFilter::Create(matrix, kNone_SkFilterQuality, cfif.get()));
+    SkAutoTUnref<SkImageFilter> imageFilter(SkImageFilter::CreateMatrixFilter(matrix, kNone_SkFilterQuality, cfif.get()));
 
     SkPaint paint;
     paint.setImageFilter(imageFilter.get());
@@ -1076,7 +1075,7 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     matrix.setScale(SkIntToScalar(2), SkIntToScalar(2));
     matrix.postTranslate(SkIntToScalar(-20), SkIntToScalar(-20));
     SkAutoTUnref<SkImageFilter> matrixFilter(
-        SkMatrixImageFilter::Create(matrix, kLow_SkFilterQuality));
+        SkImageFilter::CreateMatrixFilter(matrix, kLow_SkFilterQuality));
 
     // Test that saveLayer() with a filter nested inside another saveLayer() applies the
     // correct offset to the filter matrix.

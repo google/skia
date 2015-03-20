@@ -11,6 +11,7 @@
 #include "SkChecksum.h"
 #include "SkDevice.h"
 #include "SkLazyPtr.h"
+#include "SkMatrixImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
@@ -366,6 +367,12 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
                                         const SkIRect&) const {
     return false;
+}
+
+SkImageFilter* SkImageFilter::CreateMatrixFilter(const SkMatrix& matrix,
+                                                 SkFilterQuality filterQuality,
+                                                 SkImageFilter* input) {
+    return SkMatrixImageFilter::Create(matrix, filterQuality, input);
 }
 
 #if SK_SUPPORT_GPU

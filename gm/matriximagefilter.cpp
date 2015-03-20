@@ -7,7 +7,7 @@
 
 #include "gm.h"
 #include "SkColor.h"
-#include "SkMatrixImageFilter.h"
+#include "SkImageFilter.h"
 
 namespace skiagm {
 
@@ -25,7 +25,7 @@ protected:
     void draw(SkCanvas* canvas, const SkRect& rect, const SkBitmap& bitmap,
               const SkMatrix& matrix, SkFilterQuality filter) {
         SkAutoTUnref<SkImageFilter> imageFilter(
-            SkMatrixImageFilter::Create(matrix, filter));
+            SkImageFilter::CreateMatrixFilter(matrix, filter));
         SkPaint paint;
         paint.setImageFilter(imageFilter.get());
         canvas->saveLayer(&rect, &paint);

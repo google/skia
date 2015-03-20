@@ -13,7 +13,6 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkGradientShader.h"
 #include "SkLightingImageFilter.h"
-#include "SkMatrixImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
@@ -100,7 +99,7 @@ protected:
             SkDilateImageFilter::Create(1, 1, checkerboard.get()),
             SkErodeImageFilter::Create(1, 1, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(32), 0),
-            SkMatrixImageFilter::Create(resizeMatrix, kNone_SkFilterQuality),
+            SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
             SkRectShaderImageFilter::Create(noise),
             SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, white, surfaceScale, kd),
             SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation, spotTarget, spotExponent,

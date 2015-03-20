@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkMatrixImageFilter.h"
+#include "SkImageFilter.h"
 #include "SkRandom.h"
 
 #define WIDTH 640
@@ -36,7 +36,7 @@ protected:
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
         SkAutoTUnref<SkImageFilter> imageFilter(
-            SkMatrixImageFilter::Create(matrix, kNone_SkFilterQuality));
+            SkImageFilter::CreateMatrixFilter(matrix, kNone_SkFilterQuality));
         paint.setImageFilter(imageFilter.get());
         const SkScalar tile_size = SkIntToScalar(100);
         SkRect bounds;

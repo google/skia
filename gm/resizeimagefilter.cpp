@@ -9,7 +9,6 @@
 #include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkColor.h"
-#include "SkMatrixImageFilter.h"
 #include "SkRefCnt.h"
 
 namespace skiagm {
@@ -42,7 +41,7 @@ protected:
         matrix.setScale(SkScalarInvert(deviceScaleX),
                         SkScalarInvert(deviceScaleY));
         SkAutoTUnref<SkImageFilter> imageFilter(
-            SkMatrixImageFilter::Create(matrix, filterQuality, input));
+            SkImageFilter::CreateMatrixFilter(matrix, filterQuality, input));
         SkPaint filteredPaint;
         filteredPaint.setImageFilter(imageFilter.get());
         canvas->saveLayer(&rect, &filteredPaint);

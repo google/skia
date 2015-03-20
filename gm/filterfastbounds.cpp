@@ -9,7 +9,6 @@
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkDropShadowImageFilter.h"
-#include "SkMatrixImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
@@ -93,8 +92,8 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
         SkMatrix scale;
         scale.setScale(2.0f, 2.0f);
 
-        SkAutoTUnref<SkMatrixImageFilter> scaleMIF(
-            SkMatrixImageFilter::Create(scale, kLow_SkFilterQuality, source));
+        SkAutoTUnref<SkImageFilter> scaleMIF(
+            SkImageFilter::CreateMatrixFilter(scale, kLow_SkFilterQuality, source));
 
         add_paint(scaleMIF, paints);
     }
@@ -103,8 +102,8 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
         SkMatrix rot;
         rot.setRotate(-33.3f);
 
-        SkAutoTUnref<SkMatrixImageFilter> rotMIF(
-            SkMatrixImageFilter::Create(rot, kLow_SkFilterQuality, source));
+        SkAutoTUnref<SkImageFilter> rotMIF(
+            SkImageFilter::CreateMatrixFilter(rot, kLow_SkFilterQuality, source));
 
         add_paint(rotMIF, paints);
     }
