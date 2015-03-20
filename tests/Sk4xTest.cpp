@@ -75,6 +75,8 @@ DEF_TEST(Sk4x_Arith, r) {
     ASSERT_EQ(Sk4f(-2,-2,-2,-2), Sk4f(1,2,3,4) - Sk4f(3,4,5,6));
     ASSERT_EQ(Sk4f(3,8,15,24),   Sk4f(1,2,3,4) * Sk4f(3,4,5,6));
 
+    ASSERT_EQ(Sk4f(-1,-2,-3,-4), -Sk4f(1,2,3,4));
+
     float third = 1.0f/3.0f;
     ASSERT_EQ(Sk4f(1*third, 0.5f, 0.6f, 2*third), Sk4f(1,2,3,4) / Sk4f(3,4,5,6));
     ASSERT_EQ(Sk4i(4,6,8,10),    Sk4i(1,2,3,4) + Sk4i(3,4,5,6));

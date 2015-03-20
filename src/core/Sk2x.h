@@ -58,6 +58,9 @@ public:
     Sk2x& operator -=(const Sk2x& o) { return (*this = *this - o); }
     Sk2x& operator *=(const Sk2x& o) { return (*this = *this * o); }
 
+    Sk2x negate() const { return Sk2x(0) - *this; }
+    Sk2x operator -() const { return this->negate(); }
+
     Sk2x rsqrt() const;   // Approximate 1/this->sqrt().
     Sk2x  sqrt() const;   // this->multiply(this->rsqrt()) may be faster, but less precise.
 
