@@ -123,8 +123,11 @@ SkData* SkImageGenerator::onRefEncodedData() {
 }
 
 #ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-bool SkImageGenerator::onGetInfo(SkImageInfo*) {
-    return false;
+bool SkImageGenerator::onGetInfo(SkImageInfo* info) {
+    if (info) {
+        *info = fInfo;
+    }
+    return true;
 }
 #endif
 
