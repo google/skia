@@ -82,10 +82,12 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
 
     int width = rt->width();
     int height = rt->height();
+#if 0
     if (this->caps()->oversizedStencilSupport()) {
         width  = SkNextPow2(width);
         height = SkNextPow2(height);
     }
+#endif
 
     GrStencilBuffer::ComputeSharedStencilBufferKey(width, height, rt->numSamples(), &sbKey);
     SkAutoTUnref<GrStencilBuffer> sb(static_cast<GrStencilBuffer*>(
