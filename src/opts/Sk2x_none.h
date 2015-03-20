@@ -54,6 +54,9 @@ M(Sk2x<T>) Max(const Sk2x<T>& a, const Sk2x<T>& b) {
     return Sk2x<T>(SkTMax(a.fVec[0], b.fVec[0]), SkTMax(a.fVec[1], b.fVec[1]));
 }
 
+M(Sk2x<T>)       invert() const { return Sk2x<T>((T)1.0 / fVec[0], (T)1.0 / fVec[1]); }
+M(Sk2x<T>) approxInvert() const { return this->invert(); }
+
 #undef M
 
 #define M template <> inline

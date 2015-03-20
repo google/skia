@@ -67,6 +67,9 @@ public:
     Sk2x rsqrt() const;   // Approximate 1/this->sqrt().
     Sk2x  sqrt() const;   // this->multiply(this->rsqrt()) may be faster, but less precise.
 
+    Sk2x       invert() const;  // 1/this.
+    Sk2x approxInvert() const;  // Approximate 1/this, usually faster but less precise.
+
     static Sk2x Min(const Sk2x&, const Sk2x&);
     static Sk2x Max(const Sk2x&, const Sk2x&);
 

@@ -38,6 +38,18 @@ M(Sk2f&) operator=(const Sk2f& o) { fVec = o.fVec; return *this; }
 M(Sk2f) Load(const float vals[2]) { return vld1_f32(vals); }
 M(void) store(float vals[2]) const { vst1_f32(vals, fVec); }
 
+M(Sk2f) approxInvert() const {
+    float32x2_t est0 = vrecpe_f32(fVec),
+                est1 = vmul_f32(vrecps_f32(est0, fVec), est0);
+    return est1;
+}
+
+M(Sk2f) invert() const {
+    float32x2_t est1 = this->approxInvert().fVec,
+                est2 = vmul_f32(vrecps_f32(est1, fVec), est1);
+    return est2;
+}
+
 M(Sk2f)      add(const Sk2f& o) const { return vadd_f32(fVec, o.fVec); }
 M(Sk2f) subtract(const Sk2f& o) const { return vsub_f32(fVec, o.fVec); }
 M(Sk2f) multiply(const Sk2f& o) const { return vmul_f32(fVec, o.fVec); }
@@ -45,10 +57,7 @@ M(Sk2f)   divide(const Sk2f& o) const {
 #if defined(SK_CPU_ARM64)
     return vdiv_f32(fVec, o.fVec);
 #else
-    float32x2_t est0 = vrecpe_f32(o.fVec),
-                est1 = vmul_f32(vrecps_f32(est0, o.fVec), est0),
-                est2 = vmul_f32(vrecps_f32(est1, o.fVec), est1);
-    return vmul_f32(est2, fVec);
+    return vmul_f32(fVec, o.invert().fVec);
 #endif
 }
 
@@ -99,6 +108,19 @@ M(Sk2f)  sqrt() const {
     }
     M(Sk2d)  sqrt() const { return vsqrtq_f64(fVec); }
 
+    M(Sk2d) approxInvert() const {
+        float64x2_t est0 = vrecpeq_f64(fVec),
+                    est1 = vmulq_f64(vrecpsq_f64(est0, fVec), est0);
+        return est1;
+    }
+
+    M(Sk2d) invert() const {
+        float64x2_t est1 = this->approxInvert().fVec,
+                    est2 = vmulq_f64(vrecpsq_f64(est1, fVec), est1),
+                    est3 = vmulq_f64(vrecpsq_f64(est2, fVec), est2);
+        return est3;
+    }
+
 #else  // Scalar implementation for 32-bit chips, which don't have float64x2_t.
     M() Sk2x() {}
     M() Sk2x(double val)         { fVec[0] = fVec[1] = val; }
@@ -126,6 +148,9 @@ M(Sk2f)  sqrt() const {
 
     M(Sk2d) rsqrt() const { return Sk2d(1.0/::sqrt(fVec[0]), 1.0/::sqrt(fVec[1])); }
     M(Sk2d)  sqrt() const { return Sk2d(    ::sqrt(fVec[0]),     ::sqrt(fVec[1])); }
+
+    M(Sk2d)       invert() const { return Sk2d(1.0 / fVec[0], 1.0 / fVec[1]); }
+    M(Sk2d) approxInvert() const { return this->invert(); }
 #endif
 
 #undef M

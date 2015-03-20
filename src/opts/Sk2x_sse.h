@@ -46,6 +46,9 @@ M(Sk2f) Max(const Sk2f& a, const Sk2f& b) { return _mm_max_ps(a.fVec, b.fVec); }
 M(Sk2f) rsqrt() const { return _mm_rsqrt_ps(fVec); }
 M(Sk2f)  sqrt() const { return _mm_sqrt_ps (fVec); }
 
+M(Sk2f)       invert() const { return Sk2f(1.0f) / *this; }
+M(Sk2f) approxInvert() const { return _mm_rcp_ps(fVec); }
+
 #undef M
 
 #define M(...) template <> inline __VA_ARGS__ Sk2x<double>::
@@ -69,6 +72,10 @@ M(Sk2d) Max(const Sk2d& a, const Sk2d& b) { return _mm_max_pd(a.fVec, b.fVec); }
 // There is no _mm_rsqrt_pd, so we do Sk2d::rsqrt() in floats.
 M(Sk2d) rsqrt() const { return _mm_cvtps_pd(_mm_rsqrt_ps(_mm_cvtpd_ps(fVec))); }
 M(Sk2d)  sqrt() const { return _mm_sqrt_pd(fVec); }
+
+// No _mm_rcp_pd, so do Sk2d::approxInvert() in floats.
+M(Sk2d)       invert() const { return Sk2d(1.0) / *this; }
+M(Sk2d) approxInvert() const { return _mm_cvtps_pd(_mm_rcp_ps(_mm_cvtpd_ps(fVec))); }
 
 #undef M
 

@@ -49,6 +49,9 @@ static void test(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, nearly_eq(0.001, a.rsqrt(), 0.5, 0.5));
     REPORTER_ASSERT(r, eq(a.sqrt(), 2, 2));
 
+    REPORTER_ASSERT(r, nearly_eq(0.001, d.approxInvert(), 0.5, 0.2));
+    REPORTER_ASSERT(r, eq(d.invert(), 0.5, 0.2));
+
     REPORTER_ASSERT(r, eq(Sk2x<T>::Min(a, d), 2, 4));
     REPORTER_ASSERT(r, eq(Sk2x<T>::Max(a, d), 4, 5));
 
