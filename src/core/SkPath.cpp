@@ -924,17 +924,6 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
     *dir = sweepAngle > 0 ? kCW_SkRotationDirection : kCCW_SkRotationDirection;
 }
 
-#ifdef SK_SUPPORT_LEGACY_ARCTO_QUADS
-static int build_arc_points(const SkRect& oval, const SkVector& start, const SkVector& stop,
-                            SkRotationDirection dir, SkPoint pts[kSkBuildQuadArcStorage]) {
-    SkMatrix    matrix;
-
-    matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
-    matrix.postTranslate(oval.centerX(), oval.centerY());
-
-    return SkBuildQuadArc(start, stop, dir, &matrix, pts);
-}
-#else
 /**
  *  If this returns 0, then the caller should just line-to the singlePt, else it should
  *  ignore singlePt and append the specified number of conics.
@@ -953,7 +942,6 @@ static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkV
     }
     return count;
 }
-#endif
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
                           Direction dir) {
@@ -1130,17 +1118,6 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     SkRotationDirection dir;
     angles_to_unit_vectors(startAngle, sweepAngle, &startV, &stopV, &dir);
 
-#ifdef SK_SUPPORT_LEGACY_ARCTO_QUADS
-    SkPoint pts[kSkBuildQuadArcStorage];
-    int count = build_arc_points(oval, startV, stopV, dir, pts);
-    SkASSERT((count & 1) == 1);
-
-    this->incReserve(count);
-    forceMoveTo ? this->moveTo(pts[0]) : this->lineTo(pts[0]);
-    for (int i = 1; i < count; i += 2) {
-        this->quadTo(pts[i], pts[i+1]);
-    }
-#else
     SkPoint singlePt;
     SkConic conics[SkConic::kMaxConicsForArc];
     int count = build_arc_conics(oval, startV, stopV, dir, conics, &singlePt);
@@ -1154,7 +1131,6 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     } else {
         forceMoveTo ? this->moveTo(singlePt) : this->lineTo(singlePt);
     }
-#endif
 }
 
 void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle) {
