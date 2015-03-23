@@ -12,6 +12,7 @@
 #include "SkPictureRecord.h"
 #include <QListWidgetItem>
 #include <QtGui>
+#include "sk_tool_utils.h"
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include "SysTimer_windows.h"
@@ -359,7 +360,8 @@ void SkDebuggerGUI::saveToFile(const SkString& filename) {
     SkFILEWStream file(filename.c_str());
     SkAutoTUnref<SkPicture> copy(fDebugger.copyPicture());
 
-    copy->serialize(&file);
+    sk_tool_utils::PngPixelSerializer serializer;
+    copy->serialize(&file, &serializer);
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {

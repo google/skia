@@ -37,6 +37,7 @@
 #include "SkTDArray.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
+#include "sk_tool_utils.h"
 
 static inline SkScalar scalar_log2(SkScalar x) {
     static const SkScalar log2_conversion_factor = SkScalarDiv(1, SkScalarLog(2));
@@ -358,19 +359,6 @@ SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
     return NULL;
 }
 
-// Encodes to PNG, unless there is already encoded data, in which case that gets
-// used.
-// FIXME: Share with PictureTest.cpp?
-
-class PngPixelSerializer : public SkPixelSerializer {
-public:
-    bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
-    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
-                           size_t rowBytes) SK_OVERRIDE {
-        return SkImageEncoder::EncodeData(info, pixels, rowBytes, SkImageEncoder::kPNG_Type, 100);
-    }
-};
-
 bool RecordPictureRenderer::render(SkBitmap** out) {
     SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
     SkPictureRecorder recorder;
@@ -385,7 +373,7 @@ bool RecordPictureRenderer::render(SkBitmap** out) {
         // Record the new picture as a new SKP with PNG encoded bitmaps.
         SkString skpPath = SkOSPath::Join(fWritePath.c_str(), fInputFilename.c_str());
         SkFILEWStream stream(skpPath.c_str());
-        PngPixelSerializer serializer;
+        sk_tool_utils::PngPixelSerializer serializer;
         picture->serialize(&stream, &serializer);
         return true;
     }

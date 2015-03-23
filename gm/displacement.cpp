@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SkBitmapSource.h"
 #include "SkDisplacementMapEffect.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 namespace skiagm {
 

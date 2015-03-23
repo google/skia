@@ -28,6 +28,7 @@
 #include "SkRecord.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 #include "SkSurface.h"
@@ -830,18 +831,6 @@ static void test_bad_bitmap() {
 }
 #endif
 
-// Encodes to PNG, unless there is already encoded data, in which case that gets
-// used.
-// FIXME: Share with PictureRenderer.cpp?
-class PngPixelSerializer : public SkPixelSerializer {
-public:
-    bool onUseEncodedData(const void*, size_t) SK_OVERRIDE { return true; }
-    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
-                           size_t rowBytes) SK_OVERRIDE {
-        return SkImageEncoder::EncodeData(info, pixels, rowBytes, SkImageEncoder::kPNG_Type, 100);
-    }
-};
-
 static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(bitmap.width()),
@@ -850,7 +839,7 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     SkDynamicMemoryWStream wStream;
-    PngPixelSerializer serializer;
+    sk_tool_utils::PngPixelSerializer serializer;
     picture->serialize(&wStream, &serializer);
     return wStream.copyToData();
 }
