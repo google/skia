@@ -83,8 +83,8 @@ protected:
         paint.setXfermodeMode(fMode);
         SkColor color = start_color(fColorType);
 
-        int w = canvas->getBaseLayerSize().width();
-        int h = canvas->getBaseLayerSize().height();
+        int w = this->getSize().x();
+        int h = this->getSize().y();
 
         static const SkScalar kRectW = 25.1f;
         static const SkScalar kRectH = 25.9f;
