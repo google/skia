@@ -1845,6 +1845,17 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
                               draw.fClip->getBounds());
 }
 
+void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
+                               const SkPaint& paint, SkDrawFilter* drawFilter) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawTextBlob", fContext);
+    CHECK_SHOULD_DRAW(draw);
+
+    SkDEBUGCODE(this->validate();)
+
+    fTextContext->drawTextBlob(fRenderTarget, fClip, paint, *draw.fMatrix, blob, x, y, drawFilter,
+                               draw.fClip->getBounds());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {

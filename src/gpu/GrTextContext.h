@@ -19,7 +19,9 @@ class GrClip;
 class GrContext;
 class GrDrawTarget;
 class GrFontScaler;
+class SkDrawFilter;
 class SkGpuDevice;
+class SkTextBlob;
 
 /*
  * This class wraps the state for a single text render
@@ -36,6 +38,9 @@ public:
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds);
+    void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
+                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
+                      SkDrawFilter*, const SkIRect& clipBounds);
 
 protected:
     GrTextContext*                 fFallbackTextContext;
@@ -67,6 +72,9 @@ protected:
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset, const SkIRect& clipBounds) = 0;
+    virtual void onDrawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
+                                const SkMatrix& viewMatrix, const SkTextBlob*,
+                                SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
     void drawTextAsPath(const SkPaint& origPaint, const SkMatrix& viewMatrix,
                         const char text[], size_t byteLength, SkScalar x, SkScalar y,
