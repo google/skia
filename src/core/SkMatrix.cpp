@@ -1020,6 +1020,90 @@ void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
     this->getMapPtsProc()(*this, dst, src, count);
 }
 
+#include "Sk4x.h"
+
+void SkMatrix::mapPts(SkPoint dst[], const SkPoint src[], int count) const {
+    if (count <= 0) {
+        return;
+    }
+
+    unsigned mask = this->getType() & 0xF;
+    
+    if (SkMatrix::kIdentity_Mask == mask) {
+        if (src != dst) {
+            memcpy(dst, src, count * sizeof(SkPoint));
+        }
+        return;
+    }
+    if (SkMatrix::kTranslate_Mask == mask) {
+        SkScalar tx = this->getTranslateX();
+        SkScalar ty = this->getTranslateY();
+        if (count & 1) {
+            dst->fX = src->fX + tx;
+            dst->fY = src->fY + ty;
+            src += 1;
+            dst += 1;
+        }
+        Sk4f trans4(tx, ty, tx, ty);
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            (Sk4f::Load(&src->fX) + trans4).store(&dst->fX);
+            src += 2;
+            dst += 2;
+        }
+        return;
+    }
+    if (mask <= SkMatrix::kScale_Mask + SkMatrix::kTranslate_Mask) {
+        SkScalar tx = this->getTranslateX();
+        SkScalar ty = this->getTranslateY();
+        SkScalar sx = this->getScaleX();
+        SkScalar sy = this->getScaleY();
+        if (count & 1) {
+            dst->fX = src->fX * sx + tx;
+            dst->fY = src->fY * sy + ty;
+            src += 1;
+            dst += 1;
+        }
+        Sk4f trans4(tx, ty, tx, ty);
+        Sk4f scale4(sx, sy, sx, sy);
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            (Sk4f::Load(&src->fX) * scale4 + trans4).store(&dst->fX);
+            src += 2;
+            dst += 2;
+        }
+        return;
+    }
+    if (mask < SkMatrix::kPerspective_Mask) {   // affine
+        SkScalar tx = this->getTranslateX();
+        SkScalar ty = this->getTranslateY();
+        SkScalar sx = this->getScaleX();
+        SkScalar sy = this->getScaleY();
+        SkScalar kx = this->getSkewX();
+        SkScalar ky = this->getSkewY();
+        if (count & 1) {
+            dst->set(src->fX * sx + src->fY * kx + tx,
+                     src->fX * ky + src->fY * sy + ty);
+            src += 1;
+            dst += 1;
+        }
+        Sk4f trans4(tx, ty, tx, ty);
+        Sk4f scale4(sx, sy, sx, sy);
+        Sk4f  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            Sk4f src4 = Sk4f::Load(&src->fX);
+            Sk4f swz4(src[0].fY, src[0].fX, src[1].fY, src[1].fX);  // need ABCD -> BADC
+            (src4 * scale4 + swz4 * skew4 + trans4).store(&dst->fX);
+            src += 2;
+            dst += 2;
+        }
+        return;
+    }
+    // fall through for perspective
+    this->mapPoints(dst, src, count);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const {

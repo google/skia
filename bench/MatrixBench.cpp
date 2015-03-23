@@ -94,125 +94,6 @@ template <typename T> void init9(T array[9]) {
     }
 }
 
-// Test the performance of setConcat() non-perspective case:
-// using floating point precision only.
-class FloatConcatMatrixBench : public MatrixBench {
-public:
-    FloatConcatMatrixBench() : INHERITED("concat_floatfloat") {
-        init9(mya);
-        init9(myb);
-        init9(myr);
-    }
-protected:
-    virtual int mulLoopCount() const { return 4; }
-
-    static inline void muladdmul(float a, float b, float c, float d,
-                                   float* result) {
-      *result = a * b + c * d;
-    }
-    virtual void performTest() {
-        const float* a = mya;
-        const float* b = myb;
-        float* r = myr;
-        muladdmul(a[0], b[0], a[1], b[3], &r[0]);
-        muladdmul(a[0], b[1], a[1], b[4], &r[1]);
-        muladdmul(a[0], b[2], a[1], b[5], &r[2]);
-        r[2] += a[2];
-        muladdmul(a[3], b[0], a[4], b[3], &r[3]);
-        muladdmul(a[3], b[1], a[4], b[4], &r[4]);
-        muladdmul(a[3], b[2], a[4], b[5], &r[5]);
-        r[5] += a[5];
-        r[6] = r[7] = 0.0f;
-        r[8] = 1.0f;
-    }
-private:
-    float mya [9];
-    float myb [9];
-    float myr [9];
-    typedef MatrixBench INHERITED;
-};
-
-static inline float SkDoubleToFloat(double x) {
-    return static_cast<float>(x);
-}
-
-// Test the performance of setConcat() non-perspective case:
-// using floating point precision but casting up to float for
-// intermediate results during computations.
-class FloatDoubleConcatMatrixBench : public MatrixBench {
-public:
-    FloatDoubleConcatMatrixBench() : INHERITED("concat_floatdouble") {
-        init9(mya);
-        init9(myb);
-        init9(myr);
-    }
-protected:
-    virtual int mulLoopCount() const { return 4; }
-
-    static inline void muladdmul(float a, float b, float c, float d,
-                                   float* result) {
-      *result = SkDoubleToFloat((double)a * b + (double)c * d);
-    }
-    virtual void performTest() {
-        const float* a = mya;
-        const float* b = myb;
-        float* r = myr;
-        muladdmul(a[0], b[0], a[1], b[3], &r[0]);
-        muladdmul(a[0], b[1], a[1], b[4], &r[1]);
-        muladdmul(a[0], b[2], a[1], b[5], &r[2]);
-        r[2] += a[2];
-        muladdmul(a[3], b[0], a[4], b[3], &r[3]);
-        muladdmul(a[3], b[1], a[4], b[4], &r[4]);
-        muladdmul(a[3], b[2], a[4], b[5], &r[5]);
-        r[5] += a[5];
-        r[6] = r[7] = 0.0f;
-        r[8] = 1.0f;
-    }
-private:
-    float mya [9];
-    float myb [9];
-    float myr [9];
-    typedef MatrixBench INHERITED;
-};
-
-// Test the performance of setConcat() non-perspective case:
-// using double precision only.
-class DoubleConcatMatrixBench : public MatrixBench {
-public:
-    DoubleConcatMatrixBench() : INHERITED("concat_double") {
-        init9(mya);
-        init9(myb);
-        init9(myr);
-    }
-protected:
-    virtual int mulLoopCount() const { return 4; }
-
-    static inline void muladdmul(double a, double b, double c, double d,
-                                   double* result) {
-      *result = a * b + c * d;
-    }
-    virtual void performTest() {
-        const double* a = mya;
-        const double* b = myb;
-        double* r = myr;
-        muladdmul(a[0], b[0], a[1], b[3], &r[0]);
-        muladdmul(a[0], b[1], a[1], b[4], &r[1]);
-        muladdmul(a[0], b[2], a[1], b[5], &r[2]);
-        r[2] += a[2];
-        muladdmul(a[3], b[0], a[4], b[3], &r[3]);
-        muladdmul(a[3], b[1], a[4], b[4], &r[4]);
-        muladdmul(a[3], b[2], a[4], b[5], &r[5]);
-        r[5] += a[5];
-        r[6] = r[7] = 0.0;
-        r[8] = 1.0;
-    }
-private:
-    double mya [9];
-    double myb [9];
-    double myr [9];
-    typedef MatrixBench INHERITED;
-};
-
 class GetTypeMatrixBench : public MatrixBench {
 public:
     GetTypeMatrixBench()
@@ -257,87 +138,6 @@ private:
     SkMatrix fMatrix;
     float fArray[9];
     SkRandom fRnd;
-    typedef MatrixBench INHERITED;
-};
-
-class ScaleTransMixedMatrixBench : public MatrixBench {
- public:
-    ScaleTransMixedMatrixBench() : INHERITED("scaletrans_mixed") {
-        fMatrix.setAll(fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
-                       fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1(),
-                       fRandom.nextSScalar1(), fRandom.nextSScalar1(), fRandom.nextSScalar1());
-        int i;
-        for (i = 0; i < kCount; i++) {
-            fSrc[i].fX = fRandom.nextSScalar1();
-            fSrc[i].fY = fRandom.nextSScalar1();
-            fDst[i].fX = fRandom.nextSScalar1();
-            fDst[i].fY = fRandom.nextSScalar1();
-        }
-    }
- protected:
-    virtual void performTest() {
-        SkPoint* dst = fDst;
-        const SkPoint* src = fSrc;
-        int count = kCount;
-        float mx = fMatrix[SkMatrix::kMScaleX];
-        float my = fMatrix[SkMatrix::kMScaleY];
-        float tx = fMatrix[SkMatrix::kMTransX];
-        float ty = fMatrix[SkMatrix::kMTransY];
-        do {
-            dst->fY = SkScalarMulAdd(src->fY, my, ty);
-            dst->fX = SkScalarMulAdd(src->fX, mx, tx);
-            src += 1;
-            dst += 1;
-        } while (--count);
-    }
- private:
-    enum {
-        kCount = 16
-    };
-    SkMatrix fMatrix;
-    SkPoint fSrc [kCount];
-    SkPoint fDst [kCount];
-    SkRandom fRandom;
-    typedef MatrixBench INHERITED;
-};
-
-class ScaleTransDoubleMatrixBench : public MatrixBench {
- public:
-    ScaleTransDoubleMatrixBench() : INHERITED("scaletrans_double") {
-        init9(fMatrix);
-        int i;
-        for (i = 0; i < kCount; i++) {
-            fSrc[i].fX = fRandom.nextSScalar1();
-            fSrc[i].fY = fRandom.nextSScalar1();
-            fDst[i].fX = fRandom.nextSScalar1();
-            fDst[i].fY = fRandom.nextSScalar1();
-        }
-    }
- protected:
-    virtual void performTest() {
-        SkPoint* dst = fDst;
-        const SkPoint* src = fSrc;
-        int count = kCount;
-        // As doubles, on Z600 Linux systems this is 2.5x as expensive as mixed mode
-        float mx = (float) fMatrix[SkMatrix::kMScaleX];
-        float my = (float) fMatrix[SkMatrix::kMScaleY];
-        float tx = (float) fMatrix[SkMatrix::kMTransX];
-        float ty = (float) fMatrix[SkMatrix::kMTransY];
-        do {
-            dst->fY = src->fY * my + ty;
-            dst->fX = src->fX * mx + tx;
-            src += 1;
-            dst += 1;
-        } while (--count);
-    }
- private:
-    enum {
-        kCount = 16
-    };
-    double fMatrix [9];
-    SkPoint fSrc [kCount];
-    SkPoint fDst [kCount];
-    SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
 
@@ -428,9 +228,6 @@ private:
 
 DEF_BENCH( return new EqualsMatrixBench(); )
 DEF_BENCH( return new ScaleMatrixBench(); )
-DEF_BENCH( return new FloatConcatMatrixBench(); )
-DEF_BENCH( return new FloatDoubleConcatMatrixBench(); )
-DEF_BENCH( return new DoubleConcatMatrixBench(); )
 DEF_BENCH( return new GetTypeMatrixBench(); )
 DEF_BENCH( return new DecomposeMatrixBench(); )
 
@@ -468,5 +265,49 @@ DEF_BENCH( return new InvertMapRectMatrixBench(
                            InvertMapRectMatrixBench::kRotate_Flag |
                            InvertMapRectMatrixBench::kTranslate_Flag); )
 
-DEF_BENCH( return new ScaleTransMixedMatrixBench(); )
-DEF_BENCH( return new ScaleTransDoubleMatrixBench(); )
+///////////////////////////////////////////////////////////////////////////////
+
+static SkMatrix make_ident() { SkMatrix m; m.reset(); return m; }
+static SkMatrix make_trans() { SkMatrix m; m.setTranslate(2, 3); return m; }
+static SkMatrix make_scale() { SkMatrix m(make_trans()); m.postScale(1.5f, 0.5f); return m; }
+static SkMatrix make_afine() { SkMatrix m(make_trans()); m.postRotate(15); return m; }
+
+class MapPointsMatrixBench : public MatrixBench {
+protected:
+    SkMatrix fM;
+    enum {
+        N = 32
+    };
+    SkPoint fSrc[N], fDst[N];
+    const bool fNewWay;
+public:
+    MapPointsMatrixBench(const char name[], const SkMatrix& m, bool newWay)
+        : MatrixBench(name), fM(m), fNewWay(newWay)
+    {
+        SkRandom rand;
+        for (int i = 0; i < N; ++i) {
+            fSrc[i].set(rand.nextSScalar1(), rand.nextSScalar1());
+        }
+    }
+
+    void performTest() SK_OVERRIDE {
+        if (fNewWay) {
+            for (int i = 0; i < 1000000; ++i) {
+                fM.mapPts(fDst, fSrc, N);
+            }
+        } else {
+            for (int i = 0; i < 1000000; ++i) {
+                fM.mapPoints(fDst, fSrc, N);
+            }
+        }
+    }
+};
+DEF_BENCH( return new MapPointsMatrixBench("mappts_ident0", make_ident(), false); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_ident1", make_ident(), true); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_trans0", make_trans(), false); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_trans1", make_trans(), true); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_scale0", make_scale(), false); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_scale1", make_scale(), true); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_afine0", make_afine(), false); )
+DEF_BENCH( return new MapPointsMatrixBench("mappts_afine1", make_afine(), true); )
+

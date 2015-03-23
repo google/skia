@@ -414,6 +414,8 @@ public:
         this->mapPoints(pts, pts, count);
     }
 
+    void mapPts(SkPoint dst[], const SkPoint src[], int count) const;
+
     /** Like mapPoints but with custom byte stride between the points. Stride
      *  should be a multiple of sizeof(SkScalar).
      */
