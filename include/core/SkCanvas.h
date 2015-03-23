@@ -130,7 +130,7 @@ public:
      * origin of the base layer is always (0,0). The current drawable area may be
      * smaller (due to clipping or saveLayer).
      */
-    SkISize getBaseLayerSize() const;
+    virtual SkISize getBaseLayerSize() const;
 
     /**
      *  DEPRECATED: call getBaseLayerSize
