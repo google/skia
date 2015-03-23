@@ -159,6 +159,10 @@ static void font_element_handler(FamilyData* self, FontFileInfo* file, const cha
             if (!parse_non_negative_integer(value, &file->fWeight)) {
                 SkDebugf("---- Font weight %s (INVALID)", value);
             }
+        } else if (MEMEQ("index", name, nameLen)) {
+            if (!parse_non_negative_integer(value, &file->fIndex)) {
+                SkDebugf("---- Font index %s (INVALID)", value);
+            }
         }
     }
     XML_SetCharacterDataHandler(self->fParser, font_file_name_handler);
