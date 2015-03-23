@@ -11,8 +11,8 @@ DEF_TEST(SkPMFloat, r) {
     REPORTER_ASSERT(r, SkScalarNearlyEqual( 51.0f, pmf.b()));
     REPORTER_ASSERT(r, c == pmf.get());
 
-    // Test rounding.  (Don't bother testing .5... we don't care which way it goes.)
-    pmf = SkPMFloat(254.6f, 204.3f, 153.1f, 50.8f);
+    // Test rounding.
+    pmf = SkPMFloat(254.5f, 203.5f, 153.1f, 50.8f);
     REPORTER_ASSERT(r, c == pmf.get());
 
     // Test clamping.

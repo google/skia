@@ -86,11 +86,10 @@ M(Sk4f) LoadAligned(const float fs[4]) { return _mm_load_ps (fs); }
 M(void) store       (float fs[4]) const { _mm_storeu_ps(fs, fVec); }
 M(void) storeAligned(float fs[4]) const { _mm_store_ps (fs, fVec); }
 
-template <>
-M(Sk4i) reinterpret<Sk4i>() const { return as_4i(fVec); }
+template <> M(Sk4i) reinterpret<Sk4i>() const { return as_4i(fVec); }
 
-template <>
-M(Sk4i) cast<Sk4i>() const { return _mm_cvtps_epi32(fVec); }
+// cvttps truncates, same as (int) when positive.
+template <> M(Sk4i) cast<Sk4i>() const { return _mm_cvttps_epi32(fVec); }
 
 // We're going to try a little experiment here and skip allTrue(), anyTrue(), and bit-manipulators
 // for Sk4f.  Code that calls them probably does so accidentally.

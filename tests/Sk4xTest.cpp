@@ -59,6 +59,9 @@ DEF_TEST(Sk4x_Conversions, r) {
     ASSERT_NE(twoi, twof.reinterpret<Sk4i>());
     ASSERT_EQ(twof, twoi.cast<Sk4f>());
     ASSERT_NE(twof, twoi.reinterpret<Sk4f>());
+
+    ASSERT_EQ(Sk4i(0,0,0,0), Sk4f(0.5f, 0.49f, 0.51f, 0.99f).cast<Sk4i>());
+    ASSERT_EQ(Sk4i(1,1,1,1), Sk4f(1.5f, 1.49f, 1.51f, 1.99f).cast<Sk4i>());
 }
 
 DEF_TEST(Sk4x_Bits, r) {
