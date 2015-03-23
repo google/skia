@@ -99,26 +99,7 @@ M(Sk4i) greaterThanEqual(const Sk4f& o) const { return vreinterpretq_s32_u32(vcg
 M(Sk4f) Min(const Sk4f& a, const Sk4f& b) { return vminq_f32(a.fVec, b.fVec); }
 M(Sk4f) Max(const Sk4f& a, const Sk4f& b) { return vmaxq_f32(a.fVec, b.fVec); }
 
-// These shuffle operations are implemented more efficiently with SSE.
-// NEON has efficient zip, unzip, and transpose, but it is more costly to
-// exploit zip and unzip in order to shuffle.
-M(Sk4f) zwxy() const {
-    float32x4x2_t zip = vzipq_f32(fVec, vdupq_n_f32(0.0));
-    return vuzpq_f32(zip.val[1], zip.val[0]).val[0];
-}
-// Note that XYAB and ZWCD share code.  If both are needed, they could be
-// implemented more efficiently together.  Also, ABXY and CDZW are available
-// as well.
-M(Sk4f) XYAB(const Sk4f& xyzw, const Sk4f& abcd) {
-    float32x4x2_t xayb_zcwd = vzipq_f32(xyzw.fVec, abcd.fVec);
-    float32x4x2_t axby_czdw = vzipq_f32(abcd.fVec, xyzw.fVec);
-    return vuzpq_f32(xayb_zcwd.val[0], axby_czdw.val[0]).val[0];
-}
-M(Sk4f) ZWCD(const Sk4f& xyzw, const Sk4f& abcd) {
-    float32x4x2_t xayb_zcwd = vzipq_f32(xyzw.fVec, abcd.fVec);
-    float32x4x2_t axby_czdw = vzipq_f32(abcd.fVec, xyzw.fVec);
-    return vuzpq_f32(xayb_zcwd.val[1], axby_czdw.val[1]).val[0];
-}
+M(Sk4f) badc() const { return vrev64q_f32(fVec); }
 
 // Sk4i Methods
 #undef M
@@ -174,26 +155,7 @@ M(Sk4i) multiply(const Sk4i& o) const { return vmulq_s32(fVec, o.fVec); }
 M(Sk4i) Min(const Sk4i& a, const Sk4i& b) { return vminq_s32(a.fVec, b.fVec); }
 M(Sk4i) Max(const Sk4i& a, const Sk4i& b) { return vmaxq_s32(a.fVec, b.fVec); }
 
-// These shuffle operations are implemented more efficiently with SSE.
-// NEON has efficient zip, unzip, and transpose, but it is more costly to
-// exploit zip and unzip in order to shuffle.
-M(Sk4i) zwxy() const {
-    int32x4x2_t zip = vzipq_s32(fVec, vdupq_n_s32(0.0));
-    return vuzpq_s32(zip.val[1], zip.val[0]).val[0];
-}
-// Note that XYAB and ZWCD share code.  If both are needed, they could be
-// implemented more efficiently together.  Also, ABXY and CDZW are available
-// as well.
-M(Sk4i) XYAB(const Sk4i& xyzw, const Sk4i& abcd) {
-    int32x4x2_t xayb_zcwd = vzipq_s32(xyzw.fVec, abcd.fVec);
-    int32x4x2_t axby_czdw = vzipq_s32(abcd.fVec, xyzw.fVec);
-    return vuzpq_s32(xayb_zcwd.val[0], axby_czdw.val[0]).val[0];
-}
-M(Sk4i) ZWCD(const Sk4i& xyzw, const Sk4i& abcd) {
-    int32x4x2_t xayb_zcwd = vzipq_s32(xyzw.fVec, abcd.fVec);
-    int32x4x2_t axby_czdw = vzipq_s32(abcd.fVec, xyzw.fVec);
-    return vuzpq_s32(xayb_zcwd.val[1], axby_czdw.val[1]).val[0];
-}
+M(Sk4i) badc() const { return vrev64q_s32(fVec); }
 
 #undef M
 

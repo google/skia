@@ -111,9 +111,7 @@ M(template <int m, int a, int s, int k> Sk4x<T>) Shuffle(const Sk4x<T>& x, const
                 k < 4 ? x.fVec[k] : y.fVec[k-4]);
 }
 
-M(Sk4x<T>) zwxy() const                             { return Shuffle<2,3,0,1>(*this, *this); }
-M(Sk4x<T>) XYAB(const Sk4x& xyzw, const Sk4x& abcd) { return Shuffle<0,1,4,5>( xyzw,  abcd); }
-M(Sk4x<T>) ZWCD(const Sk4x& xyzw, const Sk4x& abcd) { return Shuffle<2,3,6,7>( xyzw,  abcd); }
+M(Sk4x<T>) badc() const { return Shuffle<1,0,3,2>(*this, *this); }
 
 #undef M
 

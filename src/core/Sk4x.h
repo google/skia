@@ -92,16 +92,8 @@ public:
     static Sk4x Min(const Sk4x& a, const Sk4x& b);
     static Sk4x Max(const Sk4x& a, const Sk4x& b);
 
-    // Swizzles follow OpenCL xyzw convention.
-    Sk4x zwxy() const;
-
-    // When there's a second argument, it's abcd.
-    static Sk4x XYAB(const Sk4x& xyzw, const Sk4x& abcd);
-    static Sk4x ZWCD(const Sk4x& xyzw, const Sk4x& abcd);
-
-    // TODO: these are particularly efficient in SSE.  Useful?  Also efficient in NEON?
-    // static Sk4x XAYB(const Sk4x& xyzw, const Sk4x& abcd);
-    // static Sk4x ZCWD(const Sk4x& xyzw, const Sk4x& abcd);
+    // Swizzles, where this == abcd.
+    Sk4x badc() const;
 
 private:
     // It's handy to have Sk4f and Sk4i be mutual friends.

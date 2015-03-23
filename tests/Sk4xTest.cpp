@@ -135,10 +135,7 @@ DEF_TEST(Sk4x_MinMax, r) {
 }
 
 DEF_TEST(Sk4x_Swizzle, r) {
-    ASSERT_EQ(Sk4f(3,4,1,2), Sk4f(1,2,3,4).zwxy());
-    ASSERT_EQ(Sk4f(1,2,5,6), Sk4f::XYAB(Sk4f(1,2,3,4), Sk4f(5,6,7,8)));
-    ASSERT_EQ(Sk4f(3,4,7,8), Sk4f::ZWCD(Sk4f(1,2,3,4), Sk4f(5,6,7,8)));
-    ASSERT_EQ(Sk4i(3,4,1,2), Sk4i(1,2,3,4).zwxy());
-    ASSERT_EQ(Sk4i(1,2,5,6), Sk4i::XYAB(Sk4i(1,2,3,4), Sk4i(5,6,7,8)));
-    ASSERT_EQ(Sk4i(3,4,7,8), Sk4i::ZWCD(Sk4i(1,2,3,4), Sk4i(5,6,7,8)));
+    ASSERT_EQ(Sk4f(1,2,3,4).badc(), Sk4f(2,1,4,3));
+
+    ASSERT_EQ(Sk4i(1,2,3,4).badc(), Sk4i(2,1,4,3));
 }

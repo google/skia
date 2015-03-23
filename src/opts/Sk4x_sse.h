@@ -62,17 +62,7 @@ template <typename T> Sk4x<T>& Sk4x<T>::operator=(const Sk4x<T>& other) {
 // They're all bit-preserving operations so it shouldn't matter.
 
 template <typename T>
-Sk4x<T> Sk4x<T>::zwxy() const { return _mm_shuffle_epi32(as_4i(fVec), _MM_SHUFFLE(1,0,3,2)); }
-
-template <typename T>
-Sk4x<T> Sk4x<T>::XYAB(const Sk4x<T>& a, const Sk4x<T>& b) {
-    return _mm_movelh_ps(as_4f(a.fVec), as_4f(b.fVec));
-}
-
-template <typename T>
-Sk4x<T> Sk4x<T>::ZWCD(const Sk4x<T>& a, const Sk4x<T>& b) {
-    return _mm_movehl_ps(as_4f(b.fVec), as_4f(a.fVec));
-}
+Sk4x<T> Sk4x<T>::badc() const { return _mm_shuffle_epi32(as_4i(fVec), _MM_SHUFFLE(2,3,0,1)); }
 
 // Now we'll write all Sk4f specific methods.  This M() macro will remove some noise.
 #define M(...) template <> inline __VA_ARGS__ Sk4f::
