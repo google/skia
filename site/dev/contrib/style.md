@@ -376,7 +376,7 @@ Method calls within method calls should be prefixed with dereference of the
 <!--?prettify?-->
 ~~~~
 this->method();
-Memory Managemt
+Memory Management
 ~~~~
 
 All memory allocation should be routed through SkNEW and its variants. These are
@@ -456,7 +456,7 @@ checking for NULL pointers (as documentation):
 
 <!--?prettify?-->
 ~~~~
-if (NULL == x) {  // slightly preferred over if (x)
+if (NULL == x) {  // slightly preferred over if (!x)
    ...
 }
 ~~~~
