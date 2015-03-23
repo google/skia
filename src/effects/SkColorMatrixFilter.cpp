@@ -1,17 +1,37 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkColorMatrixFilter.h"
 #include "SkColorMatrix.h"
 #include "SkColorPriv.h"
+#include "SkPMFloat.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
+
+#define SK_PMORDER_INDEX_A  (SK_A32_SHIFT / 8)
+#define SK_PMORDER_INDEX_R  (SK_R32_SHIFT / 8)
+#define SK_PMORDER_INDEX_G  (SK_G32_SHIFT / 8)
+#define SK_PMORDER_INDEX_B  (SK_B32_SHIFT / 8)
+
+static void transpose_to_pmorder(float dst[20], const float src[20]) {
+    const float* srcR = src + 0;
+    const float* srcG = src + 5;
+    const float* srcB = src + 10;
+    const float* srcA = src + 15;
+
+    for (int i = 0; i < 20; i += 4) {
+        dst[i + SK_PMORDER_INDEX_A] = *srcA++;
+        dst[i + SK_PMORDER_INDEX_R] = *srcR++;
+        dst[i + SK_PMORDER_INDEX_G] = *srcG++;
+        dst[i + SK_PMORDER_INDEX_B] = *srcB++;
+    }
+}
 
 static int32_t rowmul4(const int32_t array[], unsigned r, unsigned g,
                           unsigned b, unsigned a) {
@@ -123,6 +143,8 @@ static void Add16(const SkColorMatrixFilter::State& state,
 // src is [20] but some compilers won't accept __restrict__ on anything
 // but an raw pointer or reference
 void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
+    transpose_to_pmorder(fTranspose, src);
+
     int32_t* array = fState.fArray;
     SkFixed max = 0;
     for (int i = 0; i < 20; i++) {
@@ -220,12 +242,41 @@ uint32_t SkColorMatrixFilter::getFlags() const {
     return this->INHERITED::getFlags() | fFlags;
 }
 
-void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
-                                     SkPMColor dst[]) const {
-    Proc proc = fProc;
-    const State& state = fState;
-    int32_t result[4];
+/**
+ *  Need inv255 = 1 / 255 as a constant, so when we premul a SkPMFloat, we can do this
+ *
+ *      new_red = old_red * alpha * inv255
+ *
+ *  instead of (much slower)
+ *
+ *      new_red = old_red * alpha / 255
+ *
+ *  However, 1.0f/255 comes to (in hex) 0x3B808081, which is slightly bigger than the "actual"
+ *  value of 0x3B808080(repeat 80)... This slightly too-big value can cause us to compute
+ *  new_red > alpha, which is a problem (for valid premul). To fix this, we use a
+ *  hand-computed value of 0x3B808080, 1 ULP smaller. This keeps our colors valid.
+ */
+static const float gInv255 = 0.0039215683f; //  (1.0f / 255) - ULP == SkBits2Float(0x3B808080)
 
+static Sk4f premul(const Sk4f& x) {
+    float scale = SkPMFloat(x).a() * gInv255;
+    Sk4f pm = x * Sk4f(scale, scale, scale, 1);
+
+#ifdef SK_DEBUG
+    SkPMFloat pmf(pm);
+    SkASSERT(pmf.isValid());
+#endif
+
+    return pm;
+}
+
+static Sk4f unpremul(const SkPMFloat& pm) {
+    float scale = 255 / pm.a(); // candidate for fast/approx invert?
+    return Sk4f(pm) * Sk4f(scale, scale, scale, 1);
+}
+
+void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
+    Proc proc = fProc;
     if (NULL == proc) {
         if (src != dst) {
             memcpy(dst, src, count * sizeof(SkPMColor));
@@ -233,36 +284,82 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
         return;
     }
 
-    const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
+#ifdef SK_SUPPORT_LEGACY_INT_COLORMATRIX
+    const bool use_floats = false;
+#else
+    const bool use_floats = true;
+#endif
 
-    for (int i = 0; i < count; i++) {
-        SkPMColor c = src[i];
+    if (use_floats) {
+        const Sk4f c0 = Sk4f::Load(fTranspose + 0);
+        const Sk4f c1 = Sk4f::Load(fTranspose + 4);
+        const Sk4f c2 = Sk4f::Load(fTranspose + 8);
+        const Sk4f c3 = Sk4f::Load(fTranspose + 12);
+        const Sk4f c4 = Sk4f::Load(fTranspose + 16);  // translates
 
-        unsigned r = SkGetPackedR32(c);
-        unsigned g = SkGetPackedG32(c);
-        unsigned b = SkGetPackedB32(c);
-        unsigned a = SkGetPackedA32(c);
+        SkPMColor matrix_translate_pmcolor = SkPMFloat(premul(c4)).clamped();
 
-        // need our components to be un-premultiplied
-        if (255 != a) {
-            SkUnPreMultiply::Scale scale = table[a];
-            r = SkUnPreMultiply::ApplyScale(scale, r);
-            g = SkUnPreMultiply::ApplyScale(scale, g);
-            b = SkUnPreMultiply::ApplyScale(scale, b);
+        for (int i = 0; i < count; i++) {
+            const SkPMColor src_c = src[i];
+            if (0 == src_c) {
+                dst[i] = matrix_translate_pmcolor;
+                continue;
+            }
 
-            SkASSERT(r <= 255);
-            SkASSERT(g <= 255);
-            SkASSERT(b <= 255);
+            SkPMFloat srcf(src_c);
+
+            if (0xFF != SkGetPackedA32(src_c)) {
+                srcf = unpremul(srcf);
+            }
+
+            Sk4f r4 = Sk4f(srcf.r());
+            Sk4f g4 = Sk4f(srcf.g());
+            Sk4f b4 = Sk4f(srcf.b());
+            Sk4f a4 = Sk4f(srcf.a());
+
+            // apply matrix
+            Sk4f dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
+
+            // pin before re-premul (convention for color-matrix???)
+            dst4 = Sk4f::Max(Sk4f(0), Sk4f::Min(Sk4f(255), dst4));
+
+            // re-premul and write
+            dst[i] = SkPMFloat(premul(dst4)).get();
         }
+    } else {
+        const State& state = fState;
+        int32_t result[4];
+        const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
 
-        proc(state, r, g, b, a, result);
+        for (int i = 0; i < count; i++) {
+            SkPMColor c = src[i];
 
-        r = pin(result[0], SK_R32_MASK);
-        g = pin(result[1], SK_G32_MASK);
-        b = pin(result[2], SK_B32_MASK);
-        a = pin(result[3], SK_A32_MASK);
-        // re-prepremultiply if needed
-        dst[i] = SkPremultiplyARGBInline(a, r, g, b);
+            unsigned r = SkGetPackedR32(c);
+            unsigned g = SkGetPackedG32(c);
+            unsigned b = SkGetPackedB32(c);
+            unsigned a = SkGetPackedA32(c);
+
+            // need our components to be un-premultiplied
+            if (255 != a) {
+                SkUnPreMultiply::Scale scale = table[a];
+                r = SkUnPreMultiply::ApplyScale(scale, r);
+                g = SkUnPreMultiply::ApplyScale(scale, g);
+                b = SkUnPreMultiply::ApplyScale(scale, b);
+
+                SkASSERT(r <= 255);
+                SkASSERT(g <= 255);
+                SkASSERT(b <= 255);
+            }
+
+            proc(state, r, g, b, a, result);
+
+            r = pin(result[0], SK_R32_MASK);
+            g = pin(result[1], SK_G32_MASK);
+            b = pin(result[2], SK_B32_MASK);
+            a = pin(result[3], SK_A32_MASK);
+            // re-prepremultiply if needed
+            dst[i] = SkPremultiplyARGBInline(a, r, g, b);
+        }
     }
 }
 
