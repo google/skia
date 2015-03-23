@@ -442,11 +442,11 @@ bool SkDeferredDevice::onWritePixels(const SkImageInfo& info, const void* pixels
     SkASSERT(x + info.width() <= width());
     SkASSERT(y + info.height() <= height());
 
-    this->flushPendingCommands(kNormal_PlaybackMode);
-
     const SkImageInfo deviceInfo = this->imageInfo();
     if (info.width() == deviceInfo.width() && info.height() == deviceInfo.height()) {
         this->skipPendingCommands();
+    } else {
+        this->flushPendingCommands(kNormal_PlaybackMode);
     }
 
     this->prepareForImmediatePixelWrite();

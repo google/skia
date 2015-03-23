@@ -70,18 +70,25 @@ public:
 
     void onCopyOnWrite(ContentChangeMode mode) SK_OVERRIDE {
         if (mode == SkSurface::kDiscard_ContentChangeMode) {
-            fDiscardCount++;
+            fCOWDiscardCount++;
         } else {
-            fRetainCount++;
+            fCOWRetainCount++;
         }
     }
 
-    void clearCounts() {
-        fDiscardCount = 0;
-        fRetainCount = 0;
+    void onDiscard() SK_OVERRIDE {
+        fDiscardCount++;
     }
 
-    int fDiscardCount, fRetainCount;
+    void clearCounts() {
+        fCOWDiscardCount = 0;
+        fCOWRetainCount = 0;
+        fDiscardCount = 0;
+    }
+
+    int fCOWDiscardCount;
+    int fCOWRetainCount;
+    int fDiscardCount;
     SkBitmap fBitmap;
 };
 
@@ -95,146 +102,173 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     // Tests below depend on this bitmap being recognized as opaque
 
     // Preliminary sanity check: no copy on write if no active snapshot
+    // Discard notification happens on SkSurface::onDiscard, since no
+    // active snapshot.
     surface->clearCounts();
     canvas->clear(SK_ColorWHITE);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->flush();
-    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
 
     // Case 1: Discard notification happens upon flushing
     // with an Image attached.
     surface->clearCounts();
     SkAutoTUnref<SkImage> image1(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->clear(SK_ColorWHITE);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->flush();
-    REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
 
     // Case 2: Opaque writePixels
     surface->clearCounts();
     SkAutoTUnref<SkImage> image2(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     // Case 3: writePixels that partially covers the canvas
     surface->clearCounts();
     SkAutoTUnref<SkImage> image3(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     // Case 4: unpremultiplied opaque writePixels that entirely
     // covers the canvas
     surface->clearCounts();
     SkAutoTUnref<SkImage> image4(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->writePixels(srcBitmap, 0, 0);
-    REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
 
     surface->clearCounts();
     canvas->flush();
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     // Case 5: unpremultiplied opaque writePixels that partially
     // covers the canvas
     surface->clearCounts();
     SkAutoTUnref<SkImage> image5(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->writePixels(srcBitmap, 5, 0);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 1 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->flush();
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     // Case 6: unpremultiplied opaque writePixels that entirely
     // covers the canvas, preceded by clear
     surface->clearCounts();
     SkAutoTUnref<SkImage> image6(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->clear(SK_ColorWHITE);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->writePixels(srcBitmap, 0, 0);
-    REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
 
     surface->clearCounts();
     canvas->flush();
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     // Case 7: unpremultiplied opaque writePixels that partially
     // covers the canvas, preceeded by a clear
     surface->clearCounts();
     SkAutoTUnref<SkImage> image7(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->clear(SK_ColorWHITE);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->writePixels(srcBitmap, 5, 0);
-    REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount); // because of the clear
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fCOWDiscardCount); // because of the clear
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
 
     surface->clearCounts();
     canvas->flush();
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     // Case 8: unpremultiplied opaque writePixels that partially
     // covers the canvas, preceeded by a drawREct that partially
     // covers the canvas
     surface->clearCounts();
     SkAutoTUnref<SkImage> image8(canvas->newImageSnapshot());
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     SkPaint paint;
     canvas->drawRect(SkRect::MakeLTRB(0, 0, 5, 5), paint);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->writePixels(srcBitmap, 5, 0);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 1 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 1 == surface->fRetainCount);
 
     surface->clearCounts();
     canvas->flush();
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWDiscardCount);
+    REPORTER_ASSERT(reporter, 0 == surface->fCOWRetainCount);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 }
 
 static void TestDeferredCanvasFlush(skiatest::Reporter* reporter) {
