@@ -9,7 +9,7 @@
       'dependencies': [
         'core.gyp:*',
         'images.gyp:*',
-        'utils.gyp:*',
+        'utils.gyp:utils',
       ],
       'includes': [
         'effects.gypi',

@@ -85,7 +85,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'utils.gyp:*',
+        'utils.gyp:utils',
         'etc1.gyp:libetc1',
         'ktx.gyp:libSkKTX',
       ],

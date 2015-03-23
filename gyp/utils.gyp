@@ -124,5 +124,23 @@
         ],
       },
     },
+    {
+      'target_name': 'android_utils',
+      'product_name': 'skia_android_utils',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [
+        'core.gyp:*',
+      ],
+      'sources': [
+        '../src/utils/android/SkAndroidSDKCanvas.h',
+        '../src/utils/android/SkAndroidSDKCanvas.cpp',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../src/utils/android',
+        ],
+      },
+    },
   ],
 }
