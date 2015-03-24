@@ -27,7 +27,18 @@ bool SkModeColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) cons
 }
 
 uint32_t SkModeColorFilter::getFlags() const {
-    return fProc16 ? (kAlphaUnchanged_Flag | kHasFilter16_Flag) : 0;
+    uint32_t flags = 0;
+    switch (fMode) {
+        case SkXfermode::kDst_Mode:      //!< [Da, Dc]
+        case SkXfermode::kSrcATop_Mode:  //!< [Da, Sc * Da + (1 - Sa) * Dc]
+            flags |= kAlphaUnchanged_Flag;
+        default:
+            break;
+    }
+    if (fProc16) {
+        flags |= kHasFilter16_Flag;
+    }
+    return flags;
 }
 
 void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
@@ -390,7 +401,7 @@ public:
 
     uint32_t getFlags() const SK_OVERRIDE {
         if (SkGetPackedA32(this->getPMColor()) == 0xFF) {
-            return kAlphaUnchanged_Flag | kHasFilter16_Flag;
+            return kHasFilter16_Flag;
         } else {
             return 0;
         }
@@ -420,7 +431,7 @@ public:
 
     uint32_t getFlags() const SK_OVERRIDE {
         if (SkGetPackedA32(this->getPMColor()) == 0xFF) {
-            return kAlphaUnchanged_Flag | kHasFilter16_Flag;
+            return kHasFilter16_Flag;
         } else {
             return 0;
         }
