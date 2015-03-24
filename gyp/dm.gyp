@@ -24,6 +24,9 @@
               'sources': [
                 '../dm/DMSrcSinkAndroid.cpp',
               ],
+              'dependencies': [
+                'utils.gyp:android_utils',
+              ],
           }],
         ],
     }]

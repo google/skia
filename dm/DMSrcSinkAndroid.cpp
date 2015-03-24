@@ -12,6 +12,7 @@
 #include "DisplayListRenderer.h"
 #include "IContextFactory.h"
 #include "RenderNode.h"
+#include "SkAndroidSDKCanvas.h"
 #include "SkCanvas.h"
 #include "SkiaCanvasProxy.h"
 #include "SkTLazy.h"
@@ -31,204 +32,6 @@
 /* These functions are only compiled in the Android Framework. */
 
 namespace {
-
-/** Discard SkShaders not exposed by the Android Java API. */
-
-void CheckShader(SkPaint* paint) {
-    SkShader* shader = paint->getShader();
-    if (!shader) {
-        return;
-    }
-
-    if (shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType) {
-        return;
-    }
-    if (shader->asACompose(NULL)) {
-        return;
-    }
-    SkShader::GradientType gtype = shader->asAGradient(NULL);
-    if (gtype == SkShader::kLinear_GradientType ||
-        gtype == SkShader::kRadial_GradientType ||
-        gtype == SkShader::kSweep_GradientType) {
-        return;
-    }
-    paint->setShader(NULL);
-}
-
-/** Simplify a paint.  */
-
-void Filter(SkPaint* paint) {
-
-    uint32_t flags = paint->getFlags();
-    flags &= ~SkPaint::kLCDRenderText_Flag;
-    paint->setFlags(flags);
-
-    // Android doesn't support Xfermodes above kLighten_Mode
-    SkXfermode::Mode mode;
-    SkXfermode::AsMode(paint->getXfermode(), &mode);
-    if (mode > SkXfermode::kLighten_Mode) {
-        paint->setXfermode(NULL);
-    }
-
-    // Force bilinear scaling or none
-    if (paint->getFilterQuality() != kNone_SkFilterQuality) {
-        paint->setFilterQuality(kLow_SkFilterQuality);
-    }
-
-    CheckShader(paint);
-
-    // Android SDK only supports mode & matrix color filters
-    // (and, again, no modes above kLighten_Mode).
-    SkColorFilter* cf = paint->getColorFilter();
-    if (cf) {
-        SkColor color;
-        SkXfermode::Mode mode;
-        SkScalar srcColorMatrix[20];
-        bool isMode = cf->asColorMode(&color, &mode);
-        if (isMode && mode > SkXfermode::kLighten_Mode) {
-            paint->setColorFilter(
-                SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcOver_Mode));
-        } else if (!isMode && !cf->asColorMatrix(srcColorMatrix)) {
-            paint->setColorFilter(NULL);
-        }
-    }
-
-    SkPathEffect* pe = paint->getPathEffect();
-    if (pe && !pe->exposedInAndroidJavaAPI()) {
-        paint->setPathEffect(NULL);
-    }
-
-    // TODO: Android doesn't support all the flags that can be passed to
-    // blur filters; we need plumbing to get them out.
-
-    paint->setImageFilter(NULL);
-    paint->setLooper(NULL);
-};
-
-/** SkDrawFilter is likely to be deprecated; this is a proxy
-    canvas that does the same thing: alter SkPaint fields.
-
-    onDraw*() functions may have their SkPaint modified, and are then
-    passed on to the same function on proxyTarget.
-
-    This still suffers one of the same architectural flaws as SkDrawFilter:
-    TextBlob paints are incomplete when filter is called.
-*/
-
-#define FILTER(p)             \
-    SkPaint filteredPaint(p); \
-    Filter(&filteredPaint);
-
-#define FILTER_PTR(p)                          \
-    SkTLazy<SkPaint> lazyPaint;                \
-    SkPaint* filteredPaint = (SkPaint*) p;     \
-    if (p) {                                   \
-        filteredPaint = lazyPaint.set(*p);     \
-        Filter(filteredPaint);                 \
-    }
-
-
-class FilteringCanvas : public SkCanvas {
-public:
-    FilteringCanvas(SkCanvas* proxyTarget) : fProxyTarget(proxyTarget) { }
-
-protected:
-    void onDrawPaint(const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawPaint(filteredPaint);
-    }
-    void onDrawPoints(PointMode pMode, size_t count, const SkPoint pts[],
-                      const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawPoints(pMode, count, pts, filteredPaint);
-    }
-    void onDrawOval(const SkRect& r, const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawOval(r, filteredPaint);
-    }
-    void onDrawRect(const SkRect& r, const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawRect(r, filteredPaint);
-    }
-    void onDrawRRect(const SkRRect& r, const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawRRect(r, filteredPaint);
-    }
-    void onDrawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawPath(path, filteredPaint);
-    }
-    void onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                      const SkPaint* paint) SK_OVERRIDE {
-        FILTER_PTR(paint);
-        fProxyTarget->drawBitmap(bitmap, left, top, filteredPaint);
-    }
-    void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                          const SkPaint* paint, DrawBitmapRectFlags flags) SK_OVERRIDE {
-        FILTER_PTR(paint);
-        fProxyTarget->drawBitmapRectToRect(bitmap, src, dst, filteredPaint, flags);
-    }
-    void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                          const SkRect& dst, const SkPaint* paint) SK_OVERRIDE {
-        FILTER_PTR(paint);
-        fProxyTarget->drawBitmapNine(bitmap, center, dst, filteredPaint);
-    }
-    void onDrawSprite(const SkBitmap& bitmap, int left, int top,
-                      const SkPaint* paint) SK_OVERRIDE {
-        FILTER_PTR(paint);
-        fProxyTarget->drawSprite(bitmap, left, top, filteredPaint);
-    }
-    void onDrawVertices(VertexMode vMode, int vertexCount, const SkPoint vertices[],
-                        const SkPoint texs[], const SkColor colors[], SkXfermode* xMode,
-                        const uint16_t indices[], int indexCount,
-                        const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawVertices(vMode, vertexCount, vertices, texs, colors,
-                                   xMode, indices, indexCount, filteredPaint);
-    }
-
-    void onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
-                      const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawDRRect(outer, inner, filteredPaint);
-    }
-
-    void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                    const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawText(text, byteLength, x, y, filteredPaint);
-    }
-    void onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                       const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawPosText(text, byteLength, pos, filteredPaint);
-    }
-    void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                        SkScalar constY, const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawPosTextH(text, byteLength, xpos, constY, filteredPaint);
-    }
-    void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                          const SkMatrix* matrix, const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawTextOnPath(text, byteLength, path, matrix, filteredPaint);
-    }
-    void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                        const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawTextBlob(blob, x, y, filteredPaint);
-    }
-
-    void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                     const SkPoint texCoords[4], SkXfermode* xmode,
-                     const SkPaint& paint) SK_OVERRIDE {
-        FILTER(paint);
-        fProxyTarget->drawPatch(cubics, colors, texCoords, xmode, filteredPaint);
-    }
-
-protected:
-    SkCanvas* fProxyTarget;
-};
 
 /**
  * Helper class for setting up android::uirenderer::renderthread::RenderProxy.
@@ -385,7 +188,8 @@ Error ViaAndroidSDK::draw(const Src& src,
                 (new android::uirenderer::SkiaCanvasProxy(ac));
 
             // Pass through another proxy to get paint transforms
-            FilteringCanvas fc(scProxy);
+            SkAndroidSDKCanvas fc;
+            fc.reset(scProxy);
 
             fSrc.draw(&fc);
 
