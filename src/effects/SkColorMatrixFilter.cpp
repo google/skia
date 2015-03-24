@@ -14,8 +14,6 @@
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
 
-#define SK_SUPPORT_LEGACY_INT_COLORMATRIX
-
 #define SK_PMORDER_INDEX_A  (SK_A32_SHIFT / 8)
 #define SK_PMORDER_INDEX_R  (SK_R32_SHIFT / 8)
 #define SK_PMORDER_INDEX_G  (SK_G32_SHIFT / 8)
