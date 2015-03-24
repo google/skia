@@ -38,8 +38,8 @@ public:
     SkPMFloat& operator=(const SkPMFloat& that);
 
     // Freely autoconvert between SkPMFloat and Sk4f.  They're always byte-for-byte identical.
-    /*implicit*/ SkPMFloat(const Sk4f& fs) { *(Sk4f*)this = fs; }
-    /*implicit*/ operator Sk4f() const     { return *(const Sk4f*)this;    }
+    /*implicit*/ SkPMFloat(const Sk4f& fs) { fs.storeAligned(fColor); }
+    /*implicit*/ operator Sk4f() const { return Sk4f::LoadAligned(fColor); }
 
     float a() const { return fColor[SK_A32_SHIFT / 8]; }
     float r() const { return fColor[SK_R32_SHIFT / 8]; }
