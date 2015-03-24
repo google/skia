@@ -683,3 +683,72 @@ DEF_TEST(PathOpsCubicIntersection, reporter) {
     if (false) CubicIntersection_IntersectionFinder();
     if (false) CubicIntersection_RandTest(reporter);
 }
+
+static void binaryTest(const SkDCubic& cubic1, const SkDCubic& cubic2,
+        skiatest::Reporter* reporter) {
+    SkASSERT(ValidCubic(cubic1));
+    SkASSERT(ValidCubic(cubic2));
+    SkIntersections intersections;
+    SkReduceOrder reduce1, reduce2;
+    int order1 = reduce1.reduce(cubic1, SkReduceOrder::kNo_Quadratics);
+    int order2 = reduce2.reduce(cubic2, SkReduceOrder::kNo_Quadratics);
+    if (order1 == 4 && order2 == 4) {
+        intersections.intersect(cubic1, cubic2);
+    } else {
+        intersections.reset();
+    }
+    SkIntersections intersections2;
+    (void) intersections2.intersect(cubic1, cubic2);
+    REPORTER_ASSERT(reporter, intersections.used() <= intersections2.used()
+            || intersections[0][0] + 0.01 > intersections[0][1]);
+    for (int index = 0; index < intersections2.used(); ++index) {
+//            SkASSERT(intersections.pt(index).approximatelyEqual(intersections2.pt(index)));
+        double tt1 = intersections2[0][index];
+        SkDPoint xy1 = cubic1.ptAtT(tt1);
+        double tt2 = intersections2[1][index];
+        SkDPoint xy2 = cubic2.ptAtT(tt2);
+        REPORTER_ASSERT(reporter, xy1.approximatelyEqual(xy2));
+    }
+}
+
+DEF_TEST(PathOpsCubicBinaryTest, reporter) {
+    int outer = 0;
+    int inner = outer + 1;
+    do {
+        const SkDCubic& cubic1 = testSet[outer];
+        const SkDCubic& cubic2 = testSet[inner];
+        binaryTest(cubic1, cubic2, reporter);
+        inner += 2;
+        outer += 2;
+    } while (outer < (int) testSetCount);
+}
+
+DEF_TEST(PathOpsCubicBinaryNew, reporter) {
+    int outer = 62;
+    int inner = outer + 1;
+    do {
+        const SkDCubic& cubic1 = newTestSet[outer];
+        const SkDCubic& cubic2 = newTestSet[inner];
+        binaryTest(cubic1, cubic2, reporter);
+        inner += 2;
+        outer += 2;
+    } while (outer < (int) newTestSetCount);
+}
+
+DEF_TEST(PathOpsCubicBinaryStd, reporter) {
+    const int firstTest = 0;
+    for (size_t index = firstTest; index < tests_count; ++index) {
+        const SkDCubic& cubic1 = tests[index][0];
+        const SkDCubic& cubic2 = tests[index][1];
+        binaryTest(cubic1, cubic2, reporter);
+    }
+}
+
+DEF_TEST(PathOpsCubicBinaryCoin, reporter) {
+    int firstFail = 0;
+    for (int index = firstFail; index < coinSetCount; index += 2) {
+        const SkDCubic& cubic1 = coinSet[index];
+        const SkDCubic& cubic2 = coinSet[index + 1];
+        binaryTest(cubic1, cubic2, reporter);
+    }
+}
