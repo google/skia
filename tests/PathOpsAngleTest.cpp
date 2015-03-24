@@ -233,10 +233,10 @@ static CircleData circleDataSet[] = {
 static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 
 DEF_TEST(PathOpsAngleCircle, reporter) {
-    SkChunkAlloc allocator(4096);
     SkOpContour contour;
     SkOpGlobalState state(NULL  PATH_OPS_DEBUG_PARAMS(&contour));
     contour.init(&state, false, false);
+    SkChunkAlloc allocator(4096);
     for (int index = 0; index < circleDataSetSize; ++index) {
         CircleData& data = circleDataSet[index];
         for (int idx2 = 0; idx2 < data.fPtCount; ++idx2) {

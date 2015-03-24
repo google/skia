@@ -20,12 +20,6 @@ public:
         reset();
     }
 
-    ~SkOpContour() {
-        if (fNext) {
-            fNext->~SkOpContour();
-        }
-    }
-
     bool operator<(const SkOpContour& rh) const {
         return fBounds.fTop == rh.fBounds.fTop
                 ? fBounds.fLeft < rh.fBounds.fLeft
@@ -67,7 +61,7 @@ public:
 
     SkOpContour* appendContour(SkChunkAlloc* allocator) {
         SkOpContour* contour = SkOpTAllocator<SkOpContour>::New(allocator);
-        contour->setNext(NULL);
+        
         SkOpContour* prev = this;
         SkOpContour* next;
         while ((next = prev->next())) {
@@ -279,7 +273,7 @@ public:
     }
 
     void setNext(SkOpContour* contour) {
-//        SkASSERT(!fNext == !!contour);
+        SkASSERT(!fNext == !!contour);
         fNext = contour;
     }
 

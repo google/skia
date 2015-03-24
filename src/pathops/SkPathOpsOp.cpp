@@ -261,7 +261,6 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 #endif
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
-    SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
     SkOpContour contour;
     SkOpCoincidence coincidence;
     SkOpGlobalState globalState(&coincidence  PATH_OPS_DEBUG_PARAMS(&contour));
@@ -289,6 +288,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
     // turn path into list of segments
+    SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
     SkOpEdgeBuilder builder(*minuend, &contour, &allocator, &globalState);
     if (builder.unparseable()) {
         return false;
