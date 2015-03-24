@@ -117,9 +117,6 @@ static void Add16(const SkColorMatrixFilter::State& state,
     result[3] = a;
 }
 
-#define kNO_ALPHA_FLAGS (SkColorFilter::kAlphaUnchanged_Flag |  \
-                         SkColorFilter::kHasFilter16_Flag)
-
 // src is [20] but some compilers won't accept __restrict__ on anything
 // but an raw pointer or reference
 void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
@@ -159,7 +156,7 @@ void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
         fProc = shiftIs16 ? General16 : General;
         fFlags = changesAlpha ? 0 : SkColorFilter::kAlphaUnchanged_Flag;
     } else {
-        fFlags = kNO_ALPHA_FLAGS;
+        fFlags = SkColorFilter::kAlphaUnchanged_Flag;
 
         int32_t needsScale = (array[SkColorMatrix::kR_Scale] - one) |
                              (array[SkColorMatrix::kG_Scale] - one) |
@@ -263,40 +260,6 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
         a = pin(result[3], SK_A32_MASK);
         // re-prepremultiply if needed
         dst[i] = SkPremultiplyARGBInline(a, r, g, b);
-    }
-}
-
-void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
-                                       uint16_t dst[]) const {
-    SkASSERT(fFlags & SkColorFilter::kHasFilter16_Flag);
-
-    Proc   proc = fProc;
-    const State& state = fState;
-    int32_t result[4];
-
-    if (NULL == proc) {
-        if (src != dst) {
-            memcpy(dst, src, count * sizeof(uint16_t));
-        }
-        return;
-    }
-
-    for (int i = 0; i < count; i++) {
-        uint16_t c = src[i];
-
-        // expand to 8bit components (since our matrix translate is 8bit biased
-        unsigned r = SkPacked16ToR32(c);
-        unsigned g = SkPacked16ToG32(c);
-        unsigned b = SkPacked16ToB32(c);
-
-        proc(state, r, g, b, 0, result);
-
-        r = pin(result[0], SK_R32_MASK);
-        g = pin(result[1], SK_G32_MASK);
-        b = pin(result[2], SK_B32_MASK);
-
-        // now packed it back down to 16bits (hmmm, could dither...)
-        dst[i] = SkPack888ToRGB16(r, g, b);
     }
 }
 

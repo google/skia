@@ -46,13 +46,12 @@ uint32_t SkFilterShader::FilterShaderContext::getFlags() const {
     uint32_t shaderF = fShaderContext->getFlags();
     uint32_t filterF = filterShader.fFilter->getFlags();
 
-    // if the filter doesn't support 16bit, clear the matching bit in the shader
-    if (!(filterF & SkColorFilter::kHasFilter16_Flag)) {
-        shaderF &= ~SkShader::kHasSpan16_Flag;
-    }
+    // filters don't support 16bit, so clear the matching bit in the shader
+    shaderF &= ~SkShader::kHasSpan16_Flag;
+
     // if the filter might change alpha, clear the opaque flag in the shader
     if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
-        shaderF &= ~(SkShader::kOpaqueAlpha_Flag | SkShader::kHasSpan16_Flag);
+        shaderF &= ~SkShader::kOpaqueAlpha_Flag;
     }
     return shaderF;
 }
@@ -85,16 +84,6 @@ void SkFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor resu
 
     fShaderContext->shadeSpan(x, y, result, count);
     filterShader.fFilter->filterSpan(result, count, result);
-}
-
-void SkFilterShader::FilterShaderContext::shadeSpan16(int x, int y, uint16_t result[], int count) {
-    const SkFilterShader& filterShader = static_cast<const SkFilterShader&>(fShader);
-
-    SkASSERT(fShaderContext->getFlags() & SkShader::kHasSpan16_Flag);
-    SkASSERT(filterShader.fFilter->getFlags() & SkColorFilter::kHasFilter16_Flag);
-
-    fShaderContext->shadeSpan16(x, y, result, count);
-    filterShader.fFilter->filterSpan16(result, count, result);
 }
 
 #ifndef SK_IGNORE_TO_STRING

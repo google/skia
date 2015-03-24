@@ -28,7 +28,6 @@ public:
         uint32_t getFlags() const SK_OVERRIDE;
 
         void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
-        void shadeSpan16(int x, int y, uint16_t[], int count) SK_OVERRIDE;
 
         void set3DMask(const SkMask* mask) SK_OVERRIDE {
             // forward to our proxy

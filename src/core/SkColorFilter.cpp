@@ -22,15 +22,6 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
 
-void SkColorFilter::filterSpan16(const uint16_t s[], int count, uint16_t d[]) const {
-    SkASSERT(this->getFlags() & SkColorFilter::kHasFilter16_Flag);
-    SkDEBUGFAIL("missing implementation of SkColorFilter::filterSpan16");
-
-    if (d != s) {
-        memcpy(d, s, count * sizeof(uint16_t));
-    }
-}
-
 SkColor SkColorFilter::filterColor(SkColor c) const {
     SkPMColor dst, src = SkPreMultiplyColor(c);
     this->filterSpan(&src, 1, &dst);
@@ -59,12 +50,6 @@ public:
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const SK_OVERRIDE {
         fInner->filterSpan(shader, count, result);
         fOuter->filterSpan(result, count, result);
-    }
-    
-    void filterSpan16(const uint16_t shader[], int count, uint16_t result[]) const SK_OVERRIDE {
-        SkASSERT(this->getFlags() & kHasFilter16_Flag);
-        fInner->filterSpan16(shader, count, result);
-        fOuter->filterSpan16(result, count, result);
     }
     
 #ifndef SK_IGNORE_TO_STRING
