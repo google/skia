@@ -28,7 +28,6 @@ public:
     bool asColorMode(SkColor*, SkXfermode::Mode*) const SK_OVERRIDE;
     uint32_t getFlags() const SK_OVERRIDE;
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const SK_OVERRIDE;
-    void filterSpan16(const uint16_t shader[], int count, uint16_t result[]) const SK_OVERRIDE;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const SK_OVERRIDE {
@@ -53,7 +52,6 @@ private:
     // cache
     SkPMColor           fPMColor;
     SkXfermodeProc      fProc;
-    SkXfermodeProc16    fProc16;
 
     void updateCache();
 
