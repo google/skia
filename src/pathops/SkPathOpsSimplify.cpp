@@ -177,6 +177,7 @@ static bool bridgeXor(SkTDArray<SkOpContour* >& contourList, SkPathWriter* simpl
 
 // FIXME : add this as a member of SkPath
 bool Simplify(const SkPath& path, SkPath* result) {
+    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
             : SkPath::kEvenOdd_FillType;
@@ -194,7 +195,6 @@ bool Simplify(const SkPath& path, SkPath* result) {
 #if DEBUG_SORT || DEBUG_SWAP_TOP
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
-    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
     if (!builder.finish(&allocator)) {
         return false;

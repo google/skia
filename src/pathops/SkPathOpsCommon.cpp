@@ -440,12 +440,12 @@ public:
         reassemble contour pieces into new path
     */
 void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
+    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContour contour;
     SkOpGlobalState globalState(NULL  PATH_OPS_DEBUG_PARAMS(&contour));
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("%s\n", __FUNCTION__);
 #endif
-    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
     builder.finish(&allocator);
     SkTDArray<const SkOpContour* > runs;  // indices of partial contours
