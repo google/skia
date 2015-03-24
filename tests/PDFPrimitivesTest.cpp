@@ -23,24 +23,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-class SkPDFTestDict : public SkPDFDict {
-public:
-  virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                            SkTSet<SkPDFObject*>* newResourceObjects) {
-        for (int i = 0; i < fResources.count(); i++) {
-            newResourceObjects->add(fResources[i]);
-            fResources[i]->ref();
-        }
-    }
-
-    void addResource(SkPDFObject* object) {
-        fResources.append(1, &object);
-    }
-
-private:
-    SkTDArray<SkPDFObject*> fResources;
-};
-
 #define DUMMY_TEXT "DCT compessed stream."
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
@@ -197,8 +179,8 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
 }
 
 static void TestSubstitute(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFTestDict> proxy(new SkPDFTestDict());
-    SkAutoTUnref<SkPDFTestDict> stub(new SkPDFTestDict());
+    SkAutoTUnref<SkPDFDict> proxy(new SkPDFDict());
+    SkAutoTUnref<SkPDFDict> stub(new SkPDFDict());
 
     proxy->insert("Value", new SkPDFInt(33))->unref();
     stub->insert("Value", new SkPDFInt(44))->unref();
