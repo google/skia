@@ -78,8 +78,6 @@ private:
     SkPDFObject* insertResource(SkPDFResourceType type, int key,
                                 SkPDFObject* value);
 
-    SkTSet<SkPDFObject*> fResources;
-
     SkTDArray<SkPDFDict*> fTypes;
     typedef SkPDFDict INHERITED;
 };

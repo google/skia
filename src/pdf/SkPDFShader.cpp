@@ -20,7 +20,6 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkTSet.h"
 #include "SkTypes.h"
 
 static bool inverse_transform_bbox(const SkMatrix& matrix, SkRect* bbox) {
@@ -509,9 +508,7 @@ private:
 SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     : SkPDFDict("Pattern"), fShaderState(state) {}
 
-SkPDFFunctionShader::~SkPDFFunctionShader() {
-    fResources.unrefAll();
-}
+SkPDFFunctionShader::~SkPDFFunctionShader() {}
 
 bool SkPDFFunctionShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState;
@@ -537,9 +534,7 @@ bool SkPDFImageShader::equals(const SkPDFShader::State& state) const {
     return state == *fShaderState;
 }
 
-SkPDFImageShader::~SkPDFImageShader() {
-    fResources.unrefAll();
-}
+SkPDFImageShader::~SkPDFImageShader() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -599,8 +594,9 @@ static SkPDFResourceDict* get_gradient_resource_dict(
 }
 
 static void populate_tiling_pattern_dict(SkPDFDict* pattern,
-                                      SkRect& bbox, SkPDFDict* resources,
-                                      const SkMatrix& matrix) {
+                                         SkRect& bbox,
+                                         SkPDFDict* resources,
+                                         const SkMatrix& matrix) {
     const int kTiling_PatternType = 1;
     const int kColoredTilingPattern_PaintType = 1;
     const int kConstantSpacing_TilingType = 1;
@@ -673,8 +669,8 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
 
     SkAutoTDelete<SkPDFShader::State> opaqueState(state.CreateOpaqueState());
 
-    SkPDFObject* colorShader =
-            get_pdf_shader_by_state(canon, dpi, &opaqueState);
+    SkAutoTUnref<SkPDFObject> colorShader(
+            get_pdf_shader_by_state(canon, dpi, &opaqueState));
     if (!colorShader) {
         return NULL;
     }
@@ -687,17 +683,14 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     SkPDFAlphaFunctionShader* alphaFunctionShader =
             SkNEW_ARGS(SkPDFAlphaFunctionShader, (autoState->detach()));
 
-    alphaFunctionShader->fColorShader.reset(colorShader);
-
-    alphaFunctionShader->fResourceDict.reset(get_gradient_resource_dict(
-            alphaFunctionShader->fColorShader.get(), alphaGs.get()));
+    SkAutoTUnref<SkPDFResourceDict> resourceDict(
+            get_gradient_resource_dict(colorShader.get(), alphaGs.get()));
 
     SkAutoTDelete<SkStream> colorStream(
             create_pattern_fill_content(0, bbox));
     alphaFunctionShader->setData(colorStream.get());
 
-    populate_tiling_pattern_dict(alphaFunctionShader, bbox,
-                                 alphaFunctionShader->fResourceDict.get(),
+    populate_tiling_pattern_dict(alphaFunctionShader, bbox, resourceDict.get(),
                                  SkMatrix::I());
     canon->addAlphaShader(alphaFunctionShader);
     return alphaFunctionShader;
@@ -892,9 +885,6 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
 
     SkPDFFunctionShader* pdfFunctionShader =
             SkNEW_ARGS(SkPDFFunctionShader, (autoState->detach()));
-
-    pdfFunctionShader->fResources.push(function);
-    // Pass ownership to resource list.
 
     pdfFunctionShader->insertInt("PatternType", 2);
     pdfFunctionShader->insert("Matrix", matrixArray.get());

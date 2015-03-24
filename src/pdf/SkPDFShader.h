@@ -62,7 +62,6 @@ public:
 
 private:
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
-    SkTDArray<SkPDFObject*> fResources;
     SkPDFFunctionShader(SkPDFShader::State*);
     typedef SkPDFDict INHERITED;
 };
@@ -82,9 +81,8 @@ public:
 
 private:
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
-    SkAutoTUnref<SkPDFObject> fColorShader;
-    SkAutoTUnref<SkPDFResourceDict> fResourceDict;
     SkPDFAlphaFunctionShader(SkPDFShader::State*);
+    typedef SkPDFStream INHERITED;
 };
 
 class SkPDFImageShader : public SkPDFStream {
@@ -97,8 +95,8 @@ public:
 
 private:
     SkAutoTDelete<const SkPDFShader::State> fShaderState;
-    SkTSet<SkPDFObject*> fResources;
     SkPDFImageShader(SkPDFShader::State*);
+    typedef SkPDFStream INHERITED;
 };
 
 #endif

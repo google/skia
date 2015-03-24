@@ -33,7 +33,6 @@
 #include "SkTextFormatParams.h"
 #include "SkTemplates.h"
 #include "SkTypefacePriv.h"
-#include "SkTSet.h"
 
 #define DPI_FOR_RASTER_SCALE_ONE 72
 

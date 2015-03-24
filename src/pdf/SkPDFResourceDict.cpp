@@ -72,7 +72,6 @@ SkPDFObject* SkPDFResourceDict::insertResourceAsReference(
         SkPDFResourceType type, int key, SkPDFObject* value) {
     SkAutoTUnref<SkPDFObjRef> ref(SkNEW_ARGS(SkPDFObjRef, (value)));
     insertResource(type, key, ref);
-    fResources.add(value);
 
     return value;
 }

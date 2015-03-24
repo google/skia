@@ -14,7 +14,6 @@
 #include "SkPDFPage.h"
 #include "SkPDFTypes.h"
 #include "SkStream.h"
-#include "SkTSet.h"
 
 static void addResourcesToCatalog(bool firstPage,
                                   SkTSet<SkPDFObject*>* resourceSet,
