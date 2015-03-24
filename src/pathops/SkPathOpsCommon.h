@@ -8,28 +8,24 @@
 #define SkPathOpsCommon_DEFINED
 
 #include "SkOpAngle.h"
+#include "SkOpContour.h"
 #include "SkTDArray.h"
 
-class SkOpCoincidence;
-class SkOpContour;
 class SkPathWriter;
 
 void Assemble(const SkPathWriter& path, SkPathWriter* simple);
-SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
-                       SkOpSpanBase** endPtr);
-SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& , bool firstPass,
-                              SkOpAngle::IncludeType , bool* firstContour, SkOpSpanBase** index,
-                              SkOpSpanBase** endIndex, SkPoint* topLeft, bool* unsortable,
-                              bool* done, bool* onlyVertical, SkChunkAlloc* );
-SkOpSegment* FindUndone(SkTDArray<SkOpContour*>& contourList, SkOpSpanBase** startPtr,
-                         SkOpSpanBase** endPtr);
-void MakeContourList(SkOpContour* , SkTDArray<SkOpContour*>& list,
+// FIXME: find chase uses insert, so it can't be converted to SkTArray yet
+SkOpSegment* FindChase(SkTDArray<SkOpSpan*>* chase, int* tIndex, int* endIndex);
+SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& , SkOpAngle::IncludeType ,
+                             bool* firstContour, int* index, int* endIndex, SkPoint* topLeft,
+                             bool* unsortable, bool* done, bool* onlyVertical, bool firstPass);
+SkOpSegment* FindUndone(SkTArray<SkOpContour*, true>& contourList, int* start, int* end);
+void MakeContourList(SkTArray<SkOpContour>& contours, SkTArray<SkOpContour*, true>& list,
                      bool evenOdd, bool oppEvenOdd);
-bool HandleCoincidence(SkTDArray<SkOpContour*>* , SkOpCoincidence* , SkChunkAlloc* ,
-                       SkOpGlobalState* );
+bool HandleCoincidence(SkTArray<SkOpContour*, true>* , int );
 
-#if DEBUG_ACTIVE_SPANS
-void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList);
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
+void DebugShowActiveSpans(SkTArray<SkOpContour*, true>& contourList);
 #endif
 
 #endif

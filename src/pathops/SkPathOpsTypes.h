@@ -22,111 +22,6 @@ enum SkPathOpsMask {
     kEvenOdd_PathOpsMask = 1
 };
 
-class SkOpCoincidence;
-class SkOpContour;
-
-class SkOpGlobalState {
-public:
-    SkOpGlobalState(SkOpCoincidence* coincidence  PATH_OPS_DEBUG_PARAMS(SkOpContour* head))
-        : fCoincidence(coincidence)
-        , fWindingFailed(false)
-        , fAngleCoincidence(false)
-#if DEBUG_VALIDATE
-        , fPhase(kIntersecting)
-#endif
-        PATH_OPS_DEBUG_PARAMS(fHead(head))
-        PATH_OPS_DEBUG_PARAMS(fAngleID(0))
-        PATH_OPS_DEBUG_PARAMS(fContourID(0))
-        PATH_OPS_DEBUG_PARAMS(fPtTID(0))
-        PATH_OPS_DEBUG_PARAMS(fSegmentID(0))
-        PATH_OPS_DEBUG_PARAMS(fSpanID(0)) {
-    }
-
-#if DEBUG_VALIDATE
-    enum Phase {
-        kIntersecting,
-        kWalking
-    };
-#endif
-
-    bool angleCoincidence() {
-        return fAngleCoincidence;
-    }
-
-    SkOpCoincidence* coincidence() {
-        return fCoincidence;
-    }
-
-#ifdef SK_DEBUG
-    const struct SkOpAngle* debugAngle(int id) const;
-    SkOpContour* debugContour(int id);
-    const class SkOpPtT* debugPtT(int id) const;
-    const class SkOpSegment* debugSegment(int id) const;
-    const class SkOpSpanBase* debugSpan(int id) const;
-
-    int nextAngleID() {
-        return ++fAngleID;
-    }
-
-    int nextContourID() {
-        return ++fContourID;
-    }
-    int nextPtTID() {
-        return ++fPtTID;
-    }
-
-    int nextSegmentID() {
-        return ++fSegmentID;
-    }
-
-    int nextSpanID() {
-        return ++fSpanID;
-    }
-#endif
-
-#if DEBUG_VALIDATE
-    Phase phase() const {
-        return fPhase;
-    }
-#endif
-
-    void setAngleCoincidence() {
-        fAngleCoincidence = true;
-    }
-    
-#if DEBUG_VALIDATE
-    void setPhase(Phase phase) {
-        SkASSERT(fPhase != phase);
-        fPhase = phase;
-    }
-#endif
-
-    // called in very rare cases where angles are sorted incorrectly -- signfies op will fail
-    void setWindingFailed() {
-        fWindingFailed = true;
-    }
-
-    bool windingFailed() const {
-        return fWindingFailed;
-    }
-
-private:
-    SkOpCoincidence* fCoincidence;
-    bool fWindingFailed;
-    bool fAngleCoincidence;
-#if DEBUG_VALIDATE
-    Phase fPhase;
-#endif
-#ifdef SK_DEBUG
-    SkOpContour* fHead;
-    int fAngleID;
-    int fContourID;
-    int fPtTID;
-    int fSegmentID;
-    int fSpanID;
-#endif
-};
-
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 bool AlmostEqualUlps(float a, float b);
 inline bool AlmostEqualUlps(double a, double b) {
@@ -197,7 +92,6 @@ const double DBL_EPSILON_SUBDIVIDE_ERR = DBL_EPSILON * 16;
 const double ROUGH_EPSILON = FLT_EPSILON * 64;
 const double MORE_ROUGH_EPSILON = FLT_EPSILON * 256;
 const double WAY_ROUGH_EPSILON = FLT_EPSILON * 2048;
-const double BUMP_EPSILON = FLT_EPSILON * 4096;
 
 inline bool zero_or_one(double x) {
     return x == 0 || x == 1;
@@ -247,6 +141,12 @@ inline bool roughly_zero(double x) {
     return fabs(x) < ROUGH_EPSILON;
 }
 
+#if 0  // unused for now
+inline bool way_roughly_zero(double x) {
+    return fabs(x) < WAY_ROUGH_EPSILON;
+}
+#endif
+
 inline bool approximately_zero_inverse(double x) {
     return fabs(x) > FLT_EPSILON_INVERSE;
 }
@@ -254,10 +154,6 @@ inline bool approximately_zero_inverse(double x) {
 // OPTIMIZATION: if called multiple times with the same denom, we want to pass 1/y instead
 inline bool approximately_zero_when_compared_to(double x, double y) {
     return x == 0 || fabs(x) < fabs(y * FLT_EPSILON);
-}
-
-inline bool precisely_zero_when_compared_to(double x, double y) {
-    return x == 0 || fabs(x) < fabs(y * DBL_EPSILON);
 }
 
 // Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use
@@ -408,22 +304,12 @@ inline bool precisely_between(double a, double b, double c) {
 
 // returns true if (a <= b <= c) || (a >= b >= c)
 inline bool between(double a, double b, double c) {
-    SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0)
-            || (precisely_zero(a) && precisely_zero(b) && precisely_zero(c)));
+    SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0));
     return (a - b) * (c - b) <= 0;
 }
 
 inline bool roughly_equal(double x, double y) {
     return fabs(x - y) < ROUGH_EPSILON;
-}
-
-inline bool roughly_negative(double x) {
-    return x < ROUGH_EPSILON;
-}
-
-inline bool roughly_between(double a, double b, double c) {
-    return a <= c ? roughly_negative(a - b) && roughly_negative(b - c)
-            : roughly_negative(b - a) && roughly_negative(c - b);
 }
 
 inline bool more_roughly_equal(double x, double y) {
@@ -438,6 +324,7 @@ struct SkDPoint;
 struct SkDVector;
 struct SkDLine;
 struct SkDQuad;
+struct SkDTriangle;
 struct SkDCubic;
 struct SkDRect;
 

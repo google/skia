@@ -17,8 +17,8 @@ SkOpContour* SkOpPtT::contour() const {
     return segment()->contour();
 }
 
-SkOpGlobalState* SkOpPtT::globalState() const {
-    return PATH_OPS_DEBUG_RELEASE(contour()->globalState(), NULL); 
+SkOpDebugState* SkOpPtT::debugState() const {
+    return PATH_OPS_DEBUG_RELEASE(contour()->debugState(), NULL); 
 }
 
 void SkOpPtT::init(SkOpSpanBase* span, double t, const SkPoint& pt, bool duplicate) {
@@ -28,7 +28,7 @@ void SkOpPtT::init(SkOpSpanBase* span, double t, const SkPoint& pt, bool duplica
     fNext = this;
     fDuplicatePt = duplicate;
     fDeleted = false;
-    PATH_OPS_DEBUG_CODE(fID = ++span->globalState()->fPtTID);
+    PATH_OPS_DEBUG_CODE(fID = ++span->debugState()->fPtTID);
 }
 
 bool SkOpPtT::onEnd() const {
@@ -45,7 +45,7 @@ SkOpPtT* SkOpPtT::remove() {
     do {
         SkOpPtT* next = prev->fNext;
         if (next == this) {
-            prev->removeNext(this);
+            prev->removeNext();
             fDeleted = true;
             return prev;
         }
@@ -55,14 +55,14 @@ SkOpPtT* SkOpPtT::remove() {
     return NULL;
 }
 
-void SkOpPtT::removeNext(SkOpPtT* kept) {
+void SkOpPtT::removeNext() {
     SkASSERT(this->fNext);
     SkOpPtT* next = this->fNext;
     this->fNext = next->fNext;
     SkOpSpanBase* span = next->span();
     next->setDeleted();
     if (span->ptT() == next) {
-        span->upCast()->detach(kept);
+        span->upCast()->detach();
     }
 }
 
@@ -199,7 +199,7 @@ void SkOpSpanBase::alignInner() {
                 // omit aliases that alignment makes redundant
                 if ((!ptT->alias() || test->alias()) && (ptT->onEnd() || !test->onEnd())) {
                     SkASSERT(test->alias());
-                    prev->removeNext(ptT);
+                    prev->removeNext();
                     test = prev;
                 } else {
                     SkASSERT(ptT->alias());
@@ -239,8 +239,8 @@ SkOpContour* SkOpSpanBase::contour() const {
     return segment()->contour();
 }
 
-SkOpGlobalState* SkOpSpanBase::globalState() const {
-    return PATH_OPS_DEBUG_RELEASE(contour()->globalState(), NULL); 
+SkOpDebugState* SkOpSpanBase::debugState() const {
+    return PATH_OPS_DEBUG_RELEASE(contour()->debugState(), NULL); 
 }
 
 void SkOpSpanBase::initBase(SkOpSegment* segment, SkOpSpan* prev, double t, const SkPoint& pt) {
@@ -252,7 +252,7 @@ void SkOpSpanBase::initBase(SkOpSegment* segment, SkOpSpan* prev, double t, cons
     fAligned = true;
     fChased = false;
     PATH_OPS_DEBUG_CODE(fCount = 1);
-    PATH_OPS_DEBUG_CODE(fID = ++globalState()->fSpanID);
+    PATH_OPS_DEBUG_CODE(fID = ++debugState()->fSpanID);
 }
 
 // this pair of spans share a common t value or point; merge them and eliminate duplicates
@@ -261,7 +261,7 @@ void SkOpSpanBase::merge(SkOpSpan* span) {
     SkOpPtT* spanPtT = span->ptT();
     SkASSERT(this->t() != spanPtT->fT);
     SkASSERT(!zero_or_one(spanPtT->fT));
-    span->detach(this->ptT());
+    span->detach();
     SkOpPtT* remainder = spanPtT->next();
     ptT()->insert(spanPtT);
     while (remainder != spanPtT) {
@@ -304,7 +304,7 @@ bool SkOpSpan::containsCoincidence(const SkOpSegment* segment) const {
     return false;
 }
 
-void SkOpSpan::detach(SkOpPtT* kept) {
+void SkOpSpan::detach() {
     SkASSERT(!final());
     SkOpSpan* prev = this->prev();
     SkASSERT(prev);
@@ -313,9 +313,6 @@ void SkOpSpan::detach(SkOpPtT* kept) {
     prev->setNext(next);
     next->setPrev(prev);
     this->segment()->detach(this);
-    if (this->coincident()) {
-        this->globalState()->fCoincidence->fixUp(this->ptT(), kept);
-    }
     this->ptT()->setDeleted();
 }
 

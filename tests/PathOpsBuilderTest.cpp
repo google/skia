@@ -4,10 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
-#include "SkBitmap.h"
 #include "Test.h"
 
 DEF_TEST(PathOpsBuilder, reporter) {
@@ -25,7 +22,6 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, result.isEmpty());
 
     SkPath rectPath;
-    rectPath.setFillType(SkPath::kEvenOdd_FillType);
     rectPath.addRect(0, 1, 2, 3, SkPath::kCW_Direction);
     builder.add(rectPath, kUnion_PathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
@@ -37,14 +33,13 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, rectPath == result);
 
     rectPath.reset();
-    rectPath.setFillType(SkPath::kEvenOdd_FillType);
     rectPath.addRect(0, 1, 2, 3, SkPath::kCCW_Direction);
     builder.add(rectPath, kUnion_PathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
-     REPORTER_ASSERT(reporter, rectPath == result);
+    REPORTER_ASSERT(reporter, rectPath == result);
 
     builder.add(rectPath, kDifference_PathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
@@ -74,7 +69,5 @@ DEF_TEST(PathOpsBuilder, reporter) {
     builder.add(circle2, kUnion_PathOp);
     builder.add(circle3, kDifference_PathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
-    SkBitmap bitmap;
-    int pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, result, bitmap);
-    REPORTER_ASSERT(reporter, pixelDiff == 0);
+    REPORTER_ASSERT(reporter, opCompare == result);
 }

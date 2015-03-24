@@ -9,6 +9,11 @@
 #include "SkPathOpsQuad.h"
 #include "SkPathOpsRect.h"
 
+void SkDRect::setBounds(const SkDLine& line) {
+    set(line[0]);
+    add(line[1]);
+}
+
 void SkDRect::setBounds(const SkDQuad& quad) {
     set(quad[0]);
     add(quad[2]);
@@ -22,6 +27,13 @@ void SkDRect::setBounds(const SkDQuad& quad) {
     }
     for (int x = 0; x < roots; ++x) {
         add(quad.ptAtT(tValues[x]));
+    }
+}
+
+void SkDRect::setRawBounds(const SkDQuad& quad) {
+    set(quad[0]);
+    for (int x = 1; x < 3; ++x) {
+        add(quad[x]);
     }
 }
 
@@ -42,5 +54,12 @@ void SkDRect::setBounds(const SkDCubic& c) {
     }
     for (int x = 0; x < roots; ++x) {
         add(c.ptAtT(tValues[x]));
+    }
+}
+
+void SkDRect::setRawBounds(const SkDCubic& cubic) {
+    set(cubic[0]);
+    for (int x = 1; x < 4; ++x) {
+        add(cubic[x]);
     }
 }

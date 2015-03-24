@@ -11,9 +11,6 @@
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident
 static const SkDLine tests[][2] = {
-{{{{0.00010360032320022583, 1.0172703415155411}, {0.00014114845544099808, 1.0200891587883234}}},
- {{{0.00010259449481964111, 1.017270140349865}, {0.00018215179443359375, 1.022890567779541}}}},
-
 #if 0
     // these do intersect at a pair of points, but not close enough for check results liking
     {{{{365.848175,5081.15186}, {368,5103}}}, {{{367.967712,5102.61084}, {368.278717,5105.71045}}}},
@@ -85,13 +82,10 @@ static const SkDLine coincidentTests[][2] = {
 static const size_t coincidentTests_count = SK_ARRAY_COUNT(coincidentTests);
 
 static void check_results(skiatest::Reporter* reporter, const SkDLine& line1, const SkDLine& line2,
-                          const SkIntersections& ts, bool nearAllowed) {
+                          const SkIntersections& ts) {
     for (int i = 0; i < ts.used(); ++i) {
         SkDPoint result1 = line1.ptAtT(ts[0][i]);
         SkDPoint result2 = line2.ptAtT(ts[1][i]);
-        if (nearAllowed && result1.roughlyEqual(result2)) {
-            continue;
-        }
         if (!result1.approximatelyEqual(result2) && !ts.nearlySame(i)) {
             REPORTER_ASSERT(reporter, ts.used() != 1);
             result2 = line2.ptAtT(ts[1][i ^ 1]);
@@ -104,16 +98,14 @@ static void check_results(skiatest::Reporter* reporter, const SkDLine& line1, co
     }
 }
 
-static void testOne(skiatest::Reporter* reporter, const SkDLine& line1, const SkDLine& line2,
-        bool nearAllowed) {
+static void testOne(skiatest::Reporter* reporter, const SkDLine& line1, const SkDLine& line2) {
     SkASSERT(ValidLine(line1));
     SkASSERT(ValidLine(line2));
     SkIntersections i;
-    i.allowNear(nearAllowed);
     int pts = i.intersect(line1, line2);
     REPORTER_ASSERT(reporter, pts);
     REPORTER_ASSERT(reporter, pts == i.used());
-    check_results(reporter, line1, line2, i, nearAllowed);
+    check_results(reporter, line1, line2, i);
     if (line1[0] == line1[1] || line2[0] == line2[1]) {
         return;
     }
@@ -122,28 +114,28 @@ static void testOne(skiatest::Reporter* reporter, const SkDLine& line1, const Sk
         double right = SkTMax(line1[0].fX, line1[1].fX);
         SkIntersections ts;
         ts.horizontal(line2, left, right, line1[0].fY, line1[0].fX != left);
-        check_results(reporter, line2, line1, ts, nearAllowed);
+        check_results(reporter, line2, line1, ts);
     }
     if (line2[0].fY == line2[1].fY) {
         double left = SkTMin(line2[0].fX, line2[1].fX);
         double right = SkTMax(line2[0].fX, line2[1].fX);
         SkIntersections ts;
         ts.horizontal(line1, left, right, line2[0].fY, line2[0].fX != left);
-        check_results(reporter, line1, line2, ts, nearAllowed);
+        check_results(reporter, line1, line2, ts);
     }
     if (line1[0].fX == line1[1].fX) {
         double top = SkTMin(line1[0].fY, line1[1].fY);
         double bottom = SkTMax(line1[0].fY, line1[1].fY);
         SkIntersections ts;
         ts.vertical(line2, top, bottom, line1[0].fX, line1[0].fY != top);
-        check_results(reporter, line2, line1, ts, nearAllowed);
+        check_results(reporter, line2, line1, ts);
     }
     if (line2[0].fX == line2[1].fX) {
         double top = SkTMin(line2[0].fY, line2[1].fY);
         double bottom = SkTMax(line2[0].fY, line2[1].fY);
         SkIntersections ts;
         ts.vertical(line1, top, bottom, line2[0].fX, line2[0].fY != top);
-        check_results(reporter, line1, line2, ts, nearAllowed);
+        check_results(reporter, line1, line2, ts);
     }
     reporter->bumpTestCount();
 }
@@ -156,7 +148,7 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
     int pts = ts.intersect(line1, line2);
     REPORTER_ASSERT(reporter, pts == 2);
     REPORTER_ASSERT(reporter, pts == ts.used());
-    check_results(reporter, line1, line2, ts, false);
+    check_results(reporter, line1, line2, ts);
     if (line1[0] == line1[1] || line2[0] == line2[1]) {
         return;
     }
@@ -167,7 +159,7 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
         ts.horizontal(line2, left, right, line1[0].fY, line1[0].fX != left);
         REPORTER_ASSERT(reporter, pts == 2);
         REPORTER_ASSERT(reporter, pts == ts.used());
-        check_results(reporter, line2, line1, ts, false);
+        check_results(reporter, line2, line1, ts);
     }
     if (line2[0].fY == line2[1].fY) {
         double left = SkTMin(line2[0].fX, line2[1].fX);
@@ -176,7 +168,7 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
         ts.horizontal(line1, left, right, line2[0].fY, line2[0].fX != left);
         REPORTER_ASSERT(reporter, pts == 2);
         REPORTER_ASSERT(reporter, pts == ts.used());
-        check_results(reporter, line1, line2, ts, false);
+        check_results(reporter, line1, line2, ts);
     }
     if (line1[0].fX == line1[1].fX) {
         double top = SkTMin(line1[0].fY, line1[1].fY);
@@ -185,7 +177,7 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
         ts.vertical(line2, top, bottom, line1[0].fX, line1[0].fY != top);
         REPORTER_ASSERT(reporter, pts == 2);
         REPORTER_ASSERT(reporter, pts == ts.used());
-        check_results(reporter, line2, line1, ts, false);
+        check_results(reporter, line2, line1, ts);
     }
     if (line2[0].fX == line2[1].fX) {
         double top = SkTMin(line2[0].fY, line2[1].fY);
@@ -194,7 +186,7 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
         ts.vertical(line1, top, bottom, line2[0].fX, line2[0].fY != top);
         REPORTER_ASSERT(reporter, pts == 2);
         REPORTER_ASSERT(reporter, pts == ts.used());
-        check_results(reporter, line1, line2, ts, false);
+        check_results(reporter, line1, line2, ts);
     }
     reporter->bumpTestCount();
 }
@@ -209,7 +201,7 @@ DEF_TEST(PathOpsLineIntersection, reporter) {
     for (index = 0; index < tests_count; ++index) {
         const SkDLine& line1 = tests[index][0];
         const SkDLine& line2 = tests[index][1];
-        testOne(reporter, line1, line2, true);
+        testOne(reporter, line1, line2);
     }
     for (index = 0; index < noIntersect_count; ++index) {
         const SkDLine& line1 = noIntersect[index][0];
@@ -225,13 +217,8 @@ DEF_TEST(PathOpsLineIntersection, reporter) {
 DEF_TEST(PathOpsLineIntersectionOneOff, reporter) {
     int index = 0;
     SkASSERT(index < (int) tests_count);
-    testOne(reporter, tests[index][0], tests[index][1], true);
-}
-
-DEF_TEST(PathOpsLineIntersectionExactOneOff, reporter) {
-    int index = 0;
-    SkASSERT(index < (int) tests_count);
-    testOne(reporter, tests[index][0], tests[index][1], false);
+    testOne(reporter, tests[index][0], tests[index][1]);
+    testOne(reporter, tests[1][0], tests[1][1]);
 }
 
 DEF_TEST(PathOpsLineIntersectionOneCoincident, reporter) {

@@ -105,29 +105,6 @@ public:
         fAllowNear = allow;
     }
 
-    void checkCoincident() {
-        int last = fIntersections->used() - 1;
-        for (int index = 0; index < last; ) {
-            double quadMidT = ((*fIntersections)[0][index] + (*fIntersections)[0][index + 1]) / 2;
-            SkDPoint quadMidPt = fQuad.ptAtT(quadMidT);
-            double t = fLine.nearPoint(quadMidPt, NULL);
-            if (t < 0) {
-                ++index;
-                continue;
-            }
-            if (fIntersections->isCoincident(index)) {
-                fIntersections->removeOne(index);
-                --last;
-            } else if (fIntersections->isCoincident(index + 1)) {
-                fIntersections->removeOne(index + 1);
-                --last;
-            } else {
-                fIntersections->setCoincident(index++);
-            }
-            fIntersections->setCoincident(index);
-        }
-    }
-
     int intersectRay(double roots[2]) {
     /*
         solve by rotating line+quad so line is horizontal, then finding the roots
@@ -163,17 +140,20 @@ public:
         if (fAllowNear) {
             addNearEndPoints();
         }
-        double rootVals[2];
-        int roots = intersectRay(rootVals);
-        for (int index = 0; index < roots; ++index) {
-            double quadT = rootVals[index];
-            double lineT = findLineT(quadT);
-            SkDPoint pt;
-            if (pinTs(&quadT, &lineT, &pt, kPointUninitialized) && uniqueAnswer(quadT, pt)) {
-                fIntersections->insert(quadT, lineT, pt);
+        if (fIntersections->used() == 2) {
+            // FIXME : need sharable code that turns spans into coincident if middle point is on
+        } else {
+            double rootVals[2];
+            int roots = intersectRay(rootVals);
+            for (int index = 0; index < roots; ++index) {
+                double quadT = rootVals[index];
+                double lineT = findLineT(quadT);
+                SkDPoint pt;
+                if (pinTs(&quadT, &lineT, &pt, kPointUninitialized)) {
+                    fIntersections->insert(quadT, lineT, pt);
+                }
             }
         }
-        checkCoincident();
         return fIntersections->used();
     }
 
@@ -198,39 +178,14 @@ public:
             double quadT = rootVals[index];
             SkDPoint pt = fQuad.ptAtT(quadT);
             double lineT = (pt.fX - left) / (right - left);
-            if (pinTs(&quadT, &lineT, &pt, kPointInitialized) && uniqueAnswer(quadT, pt)) {
+            if (pinTs(&quadT, &lineT, &pt, kPointInitialized)) {
                 fIntersections->insert(quadT, lineT, pt);
             }
         }
         if (flipped) {
             fIntersections->flip();
         }
-        checkCoincident();
         return fIntersections->used();
-    }
-
-    bool uniqueAnswer(double quadT, const SkDPoint& pt) {
-        for (int inner = 0; inner < fIntersections->used(); ++inner) {
-            if (fIntersections->pt(inner) != pt) {
-                continue;
-            }
-            double existingQuadT = (*fIntersections)[0][inner];
-            if (quadT == existingQuadT) {
-                return false;
-            }
-            // check if midway on quad is also same point. If so, discard this
-            double quadMidT = (existingQuadT + quadT) / 2;
-            SkDPoint quadMidPt = fQuad.ptAtT(quadMidT);
-            if (quadMidPt.approximatelyEqual(pt)) {
-                return false;
-            }
-        }
-#if ONE_OFF_DEBUG
-        SkDPoint qPt = fQuad.ptAtT(quadT);
-        SkDebugf("%s pt=(%1.9g,%1.9g) cPt=(%1.9g,%1.9g)\n", __FUNCTION__, pt.fX, pt.fY,
-                qPt.fX, qPt.fY);
-#endif
-        return true;
     }
 
     int verticalIntersect(double axisIntercept, double roots[2]) {
@@ -254,14 +209,13 @@ public:
             double quadT = rootVals[index];
             SkDPoint pt = fQuad.ptAtT(quadT);
             double lineT = (pt.fY - top) / (bottom - top);
-            if (pinTs(&quadT, &lineT, &pt, kPointInitialized) && uniqueAnswer(quadT, pt)) {
+            if (pinTs(&quadT, &lineT, &pt, kPointInitialized)) {
                 fIntersections->insert(quadT, lineT, pt);
             }
         }
         if (flipped) {
             fIntersections->flip();
         }
-        checkCoincident();
         return fIntersections->used();
     }
 

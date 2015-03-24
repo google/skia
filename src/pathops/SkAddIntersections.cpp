@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "SkAddIntersections.h"
-#include "SkOpCoincidence.h"
 #include "SkPathOpsBounds.h"
 
 #if DEBUG_ADD_INTERSECTING_TS
@@ -131,6 +130,20 @@ static void debugShowCubicIntersection(int pts, const SkIntersectionHelper& wt,
     SkDebugf("\n");
 }
 
+static void debugShowCubicIntersection(int pts, const SkIntersectionHelper& wt,
+        const SkIntersections& i) {
+    SkASSERT(i.used() == pts);
+    if (!pts) {
+        SkDebugf("%s no self intersect " CUBIC_DEBUG_STR "\n", __FUNCTION__,
+                CUBIC_DEBUG_DATA(wt.pts()));
+        return;
+    }
+    SkDebugf("%s " T_DEBUG_STR(wtTs, 0) " " CUBIC_DEBUG_STR " " PT_DEBUG_STR, __FUNCTION__,
+            i[0][0], CUBIC_DEBUG_DATA(wt.pts()), PT_DEBUG_DATA(i, 0));
+    SkDebugf(" " T_DEBUG_STR(wtTs, 1), i[1][0]);
+    SkDebugf("\n");
+}
+
 #else
 static void debugShowLineIntersection(int , const SkIntersectionHelper& ,
         const SkIntersectionHelper& , const SkIntersections& ) {
@@ -155,10 +168,13 @@ static void debugShowCubicQuadIntersection(int , const SkIntersectionHelper& ,
 static void debugShowCubicIntersection(int , const SkIntersectionHelper& ,
         const SkIntersectionHelper& , const SkIntersections& ) {
 }
+
+static void debugShowCubicIntersection(int , const SkIntersectionHelper& ,
+        const SkIntersections& ) {
+}
 #endif
 
-bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coincidence,
-        SkChunkAlloc* allocator) {
+bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
     if (test != next) {
         if (AlmostLessUlps(test->bounds().fBottom, next->bounds().fTop)) {
             return false;
@@ -170,11 +186,10 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
     }
     SkIntersectionHelper wt;
     wt.init(test);
+    bool foundCommonContour = test == next;
     do {
         SkIntersectionHelper wn;
         wn.init(next);
-        test->debugValidate();
-        next->debugValidate();
         if (test == next && !wn.startAfter(wt)) {
             continue;
         }
@@ -291,22 +306,14 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                             break;
                         }
                         case SkIntersectionHelper::kQuad_Segment: {
-                            SkDQuad quad1;
-                            quad1.set(wt.pts());
-                            SkDQuad quad2;
-                            quad2.set(wn.pts());
-                            pts = ts.intersect(quad1, quad2);
+                            pts = ts.quadQuad(wt.pts(), wn.pts());
+                            ts.alignQuadPts(wt.pts(), wn.pts());
                             debugShowQuadIntersection(pts, wt, wn, ts);
                             break;
                         }
                         case SkIntersectionHelper::kCubic_Segment: {
                             swap = true;
-                            SkDQuad quad1;
-                            quad1.set(wt.pts());
-                            SkDCubic cubic1 = quad1.toCubic();
-                            SkDCubic cubic2;
-                            cubic2.set(wn.pts());
-                            pts = ts.intersect(cubic2, cubic1);
+                            pts = ts.cubicQuad(wn.pts(), wt.pts());
                             debugShowCubicQuadIntersection(pts, wn, wt, ts);
                             break;
                         }
@@ -332,21 +339,12 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                             break;
                         }
                         case SkIntersectionHelper::kQuad_Segment: {
-                            SkDCubic cubic1;
-                            cubic1.set(wt.pts());
-                            SkDQuad quad2;
-                            quad2.set(wn.pts());
-                            SkDCubic cubic2 = quad2.toCubic();
-                            pts = ts.intersect(cubic1, cubic2);
+                            pts = ts.cubicQuad(wt.pts(), wn.pts());
                             debugShowCubicQuadIntersection(pts, wt, wn, ts);
                             break;
                         }
                         case SkIntersectionHelper::kCubic_Segment: {
-                            SkDCubic cubic1;
-                            cubic1.set(wt.pts());
-                            SkDCubic cubic2;
-                            cubic2.set(wn.pts());
-                            pts = ts.intersect(cubic1, cubic2);
+                            pts = ts.cubicCubic(wt.pts(), wn.pts());
                             debugShowCubicIntersection(pts, wt, wn, ts);
                             break;
                         }
@@ -357,53 +355,102 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 default:
                     SkASSERT(0);
             }
-            int coinIndex = -1;
-            SkOpPtT* coinPtT[2];
+            if (!foundCommonContour && pts > 0) {
+                test->addCross(next);
+                next->addCross(test);
+                foundCommonContour = true;
+            }
+            // in addition to recording T values, record matching segment
+            if (pts == 2) {
+                if (wn.segmentType() <= SkIntersectionHelper::kLine_Segment
+                        && wt.segmentType() <= SkIntersectionHelper::kLine_Segment) {
+                    if (wt.addCoincident(wn, ts, swap)) {
+                        continue;
+                    }
+                    pts = ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
+                } else if (wn.segmentType() >= SkIntersectionHelper::kQuad_Segment
+                        && wt.segmentType() >= SkIntersectionHelper::kQuad_Segment
+                        && ts.isCoincident(0)) {
+                    SkASSERT(ts.coincidentUsed() == 2);
+                    if (wt.addCoincident(wn, ts, swap)) {
+                        continue;
+                    }
+                    pts = ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
+                }
+            }
+            if (pts >= 2) {
+                for (int pt = 0; pt < pts - 1; ++pt) {
+                    const SkDPoint& point = ts.pt(pt);
+                    const SkDPoint& next = ts.pt(pt + 1);
+                    if (wt.isPartial(ts[swap][pt], ts[swap][pt + 1], point, next)
+                            && wn.isPartial(ts[!swap][pt], ts[!swap][pt + 1], point, next)) {
+                        if (!wt.addPartialCoincident(wn, ts, pt, swap)) {
+                            // remove extra point if two map to same float values
+                            pts = ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)
+                        }
+                    }
+                }
+            }
             for (int pt = 0; pt < pts; ++pt) {
                 SkASSERT(ts[0][pt] >= 0 && ts[0][pt] <= 1);
                 SkASSERT(ts[1][pt] >= 0 && ts[1][pt] <= 1);
-                wt.segment()->debugValidate();
-                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], SkOpSegment::kAllowAlias,
-                        allocator);
-                wn.segment()->debugValidate();
-                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], SkOpSegment::kAllowAlias,
-                        allocator);
-                testTAt->addOpp(nextTAt);
-                if (testTAt->fPt != nextTAt->fPt) {
-                    testTAt->span()->unaligned();
-                    nextTAt->span()->unaligned();
-                }
-                wt.segment()->debugValidate();
-                wn.segment()->debugValidate();
-                if (!ts.isCoincident(pt)) {
-                    continue;
-                }
-                if (coinIndex < 0) {
-                    coinPtT[0] = testTAt;
-                    coinPtT[1] = nextTAt;
-                    coinIndex = pt;
-                    continue;
-                }
-                if (coinPtT[0]->span() == testTAt->span()) {
-                    coinIndex = -1;
-                    continue;
-                }
-                if (coinPtT[1]->span() == nextTAt->span()) {
-                    coinIndex = -1;  // coincidence span collapsed
-                    continue;
-                }
-                if (swap) {
-                    SkTSwap(coinPtT[0], coinPtT[1]);
-                    SkTSwap(testTAt, nextTAt);
-                }
-                SkASSERT(coinPtT[0]->span()->t() < testTAt->span()->t());
-                coincidence->add(coinPtT[0], testTAt, coinPtT[1], nextTAt, allocator);
-                wt.segment()->debugValidate();
-                wn.segment()->debugValidate();
-                coinIndex = -1;
+                SkPoint point = ts.pt(pt).asSkPoint();
+                wt.alignTPt(wn, swap, pt, &ts, &point);
+                int testTAt = wt.addT(wn, point, ts[swap][pt]);
+                int nextTAt = wn.addT(wt, point, ts[!swap][pt]);
+                wt.addOtherT(testTAt, ts[!swap][pt], nextTAt);
+                wn.addOtherT(nextTAt, ts[swap][pt], testTAt);
             }
-            SkASSERT(coinIndex < 0);  // expect coincidence to be paired
         } while (wn.advance());
     } while (wt.advance());
+    return true;
+}
+
+void AddSelfIntersectTs(SkOpContour* test) {
+    SkIntersectionHelper wt;
+    wt.init(test);
+    do {
+        if (wt.segmentType() != SkIntersectionHelper::kCubic_Segment) {
+            continue;
+        }
+        SkIntersections ts;
+        int pts = ts.cubic(wt.pts());
+        debugShowCubicIntersection(pts, wt, ts);
+        if (!pts) {
+            continue;
+        }
+        SkASSERT(pts == 1);
+        SkASSERT(ts[0][0] >= 0 && ts[0][0] <= 1);
+        SkASSERT(ts[1][0] >= 0 && ts[1][0] <= 1);
+        SkPoint point = ts.pt(0).asSkPoint();
+        int testTAt = wt.addSelfT(point, ts[0][0]);
+        int nextTAt = wt.addSelfT(point, ts[1][0]);
+        wt.addOtherT(testTAt, ts[1][0], nextTAt);
+        wt.addOtherT(nextTAt, ts[0][0], testTAt);
+    } while (wt.advance());
+}
+
+// resolve any coincident pairs found while intersecting, and
+// see if coincidence is formed by clipping non-concident segments
+bool CoincidenceCheck(SkTArray<SkOpContour*, true>* contourList, int total) {
+    int contourCount = (*contourList).count();
+    for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
+        SkOpContour* contour = (*contourList)[cIndex];
+        contour->resolveNearCoincidence();
+    }
+    for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
+        SkOpContour* contour = (*contourList)[cIndex];
+        contour->addCoincidentPoints();
+    }
+    for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
+        SkOpContour* contour = (*contourList)[cIndex];
+        if (!contour->calcCoincidentWinding()) {
+            return false;
+        }
+    }
+    for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
+        SkOpContour* contour = (*contourList)[cIndex];
+        contour->calcPartialCoincidentWinding();
+    }
     return true;
 }

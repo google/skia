@@ -7,24 +7,6 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 
-static int add_point(char* str, SkScalar x, SkScalar y) {
-    int result;
-    int asInt = SkScalarRoundToInt(x);
-    if (SkIntToScalar(asInt) == x) {
-        result = sprintf(str, "%d", asInt);
-    } else {
-        result = sprintf(str, "%1.9gf", x);
-    }
-    result += sprintf(str + result, ",");
-    asInt = SkScalarRoundToInt(y);
-    if (SkIntToScalar(asInt) == y) {
-        result += sprintf(str + result, "%d", asInt);
-    } else {
-        result += sprintf(str + result, "%1.9gf", y);
-    }
-    return result;
-}
-
 static void testOpLoopsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
@@ -53,27 +35,14 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
         SkPath pathA, pathB;
         if (progress) {
             char* str = pathStr;
-            const int loopNo = 7;
-            str += sprintf(str, "static void loop%d(skiatest::Reporter* reporter,"
-                    " const char* filename) {\n", loopNo);
-            str += sprintf(str, "    SkPath path, pathB;\n");
             str += sprintf(str, "    path.moveTo(%d,%d);\n", a, b);
-            str += sprintf(str, "    path.cubicTo(%d,%d, ", c, d);
-            str += add_point(str, endC.fX, endC.fY);
-            str += sprintf(str, ", ");
-            str += add_point(str, endD.fX, endD.fY);
-            str += sprintf(str, ");\n");
+            str += sprintf(str, "    path.cubicTo(%d,%d, %1.9gf,%1.9gf, %1.9gf,%1.9gf);\n",
+                    c, d, endC.fX, endC.fY, endD.fX, endD.fY);
             str += sprintf(str, "    path.close();\n");
             str += sprintf(str, "    pathB.moveTo(%d,%d);\n", c, d);
-            str += sprintf(str, "    pathB.cubicTo(");
-            str += add_point(str, endC.fX, endC.fY);
-            str += sprintf(str, ", ");
-            str += add_point(str, endD.fX, endD.fY);
-            str += sprintf(str, ", %d,%d);\n", a, b);
+            str += sprintf(str, "    pathB.cubicTo(%1.9gf,%1.9gf, %1.9gf,%1.9gf, %d,%d);\n",
+                    endC.fX, endC.fY, endD.fX, endD.fY, a, b);
             str += sprintf(str, "    pathB.close();\n");
-            str += sprintf(str, "    testPathOp(reporter, path, pathB, kIntersect_PathOp,"
-                    " filename);\n");
-            str += sprintf(str, "}\n");
         }
         pathA.moveTo(SkIntToScalar(a), SkIntToScalar(b));
         pathA.cubicTo(SkIntToScalar(c), SkIntToScalar(d), endC.fX, endC.fY, endD.fX, endD.fY);
@@ -93,6 +62,9 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
 }
 
 DEF_TEST(PathOpsOpLoopsThreaded, reporter) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     initializeTests(reporter, "cubicOp");
     PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 6; ++a) {  // outermost
@@ -112,6 +84,9 @@ finish:
 }
 
 DEF_TEST(PathOpsOpLoops, reporter) {
+    if (!FLAGS_runFail) {
+        return;
+    }
     initializeTests(reporter, "cubicOp");
     PathOpsThreadState state;
     state.fReporter = reporter;

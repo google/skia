@@ -21,6 +21,7 @@ bool ValidLine(const SkDLine& line);
 bool ValidPoint(const SkDPoint& pt);
 bool ValidPoints(const SkPoint* pts, int count);
 bool ValidQuad(const SkDQuad& quad);
+bool ValidTriangle(const SkDTriangle& triangle);
 bool ValidVector(const SkDVector& v);
 
 #endif

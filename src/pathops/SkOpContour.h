@@ -8,16 +8,31 @@
 #define SkOpContour_DEFINED
 
 #include "SkOpSegment.h"
-#include "SkTDArray.h"
-#include "SkTSort.h"
+#include "SkTArray.h"
 
-class SkChunkAlloc;
+#if defined(SK_DEBUG) || !FORCE_RELEASE
+#include "SkThread.h"
+#endif
+
+class SkIntersections;
+class SkOpContour;
 class SkPathWriter;
+
+struct SkCoincidence {
+    SkOpContour* fOther;
+    int fSegments[2];
+    double fTs[2][2];
+    SkPoint fPts[2][2];
+    int fNearly[2];
+};
 
 class SkOpContour {
 public:
     SkOpContour() {
         reset();
+#if defined(SK_DEBUG) || !FORCE_RELEASE
+        fID = sk_atomic_inc(&SkPathOpsDebug::gContourID);
+#endif
     }
 
     bool operator<(const SkOpContour& rh) const {
@@ -26,255 +41,211 @@ public:
                 : fBounds.fTop < rh.fBounds.fTop;
     }
 
-    void addCubic(SkPoint pts[4], SkChunkAlloc* allocator) {
-        appendSegment(allocator).addCubic(pts, this);
-    }
+    bool addCoincident(int index, SkOpContour* other, int otherIndex,
+                       const SkIntersections& ts, bool swap);
+    void addCoincidentPoints();
 
-    void addCurve(SkPath::Verb verb, const SkPoint pts[4], SkChunkAlloc* allocator);
-
-    void addLine(SkPoint pts[2], SkChunkAlloc* allocator) {
-        appendSegment(allocator).addLine(pts, this);
-    }
-
-    void addQuad(SkPoint pts[3], SkChunkAlloc* allocator) {
-        appendSegment(allocator).addQuad(pts, this);
-    }
-
-    void align() {
-        SkASSERT(fCount > 0);
-        SkOpSegment* segment = &fHead;
-        do {
-            segment->align();
-        } while ((segment = segment->next()));
-    }
-
-    SkOpSegment& appendSegment(SkChunkAlloc* allocator) {
-        SkOpSegment* result = fCount++
-                ? SkOpTAllocator<SkOpSegment>::Allocate(allocator) : &fHead;
-        result->setPrev(fTail);
-        if (fTail) {
-            fTail->setNext(result);
+    void addCross(const SkOpContour* crosser) {
+#ifdef DEBUG_CROSS
+        for (int index = 0; index < fCrosses.count(); ++index) {
+            SkASSERT(fCrosses[index] != crosser);
         }
-        fTail = result;
-        return *result;
+#endif
+        fCrosses.push_back(crosser);
     }
 
-    SkOpContour* appendContour(SkChunkAlloc* allocator) {
-        SkOpContour* contour = SkOpTAllocator<SkOpContour>::New(allocator);
-        
-        SkOpContour* prev = this;
-        SkOpContour* next;
-        while ((next = prev->next())) {
-            prev = next;
-        }
-        prev->setNext(contour);
-        return contour;
+    void addCubic(const SkPoint pts[4]) {
+        fSegments.push_back().addCubic(pts, fOperand, fXor);
+        fContainsCurves = fContainsCubics = true;
     }
-    
+
+    int addLine(const SkPoint pts[2]) {
+        fSegments.push_back().addLine(pts, fOperand, fXor);
+        return fSegments.count();
+    }
+
+    void addOtherT(int segIndex, int tIndex, double otherT, int otherIndex) {
+        fSegments[segIndex].addOtherT(tIndex, otherT, otherIndex);
+    }
+
+    bool addPartialCoincident(int index, SkOpContour* other, int otherIndex,
+                       const SkIntersections& ts, int ptIndex, bool swap);
+
+    int addQuad(const SkPoint pts[3]) {
+        fSegments.push_back().addQuad(pts, fOperand, fXor);
+        fContainsCurves = true;
+        return fSegments.count();
+    }
+
+    int addT(int segIndex, SkOpContour* other, int otherIndex, const SkPoint& pt, double newT) {
+        setContainsIntercepts();
+        return fSegments[segIndex].addT(&other->fSegments[otherIndex], pt, newT);
+    }
+
+    int addSelfT(int segIndex, const SkPoint& pt, double newT) {
+        setContainsIntercepts();
+        return fSegments[segIndex].addSelfT(pt, newT);
+    }
+
+    void align(const SkOpSegment::AlignedSpan& aligned, bool swap, SkCoincidence* coincidence);
+    void alignCoincidence(const SkOpSegment::AlignedSpan& aligned,
+            SkTArray<SkCoincidence, true>* coincidences);
+
+    void alignCoincidence(const SkOpSegment::AlignedSpan& aligned) {
+        alignCoincidence(aligned, &fCoincidences);
+        alignCoincidence(aligned, &fPartialCoincidences);
+    }
+
+    void alignMultiples(SkTDArray<SkOpSegment::AlignedSpan>* aligned) {
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment& segment = fSegments[sIndex];
+            if (segment.hasMultiples()) {
+                segment.alignMultiples(aligned);
+            }
+        }
+    }
+
+    void alignTPt(int segmentIndex, const SkOpContour* other, int otherIndex,
+                  bool swap, int tIndex, SkIntersections* ts, SkPoint* point) const;
+
     const SkPathOpsBounds& bounds() const {
         return fBounds;
     }
 
-    void calcAngles(SkChunkAlloc* allocator) {
-        SkASSERT(fCount > 0);
-        SkOpSegment* segment = &fHead;
-        do {
-            segment->calcAngles(allocator);
-        } while ((segment = segment->next()));
+    bool calcAngles();
+    bool calcCoincidentWinding();
+    void calcPartialCoincidentWinding();
+
+    void checkDuplicates() {
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment& segment = fSegments[sIndex];
+            if (segment.count() > 2) {
+                segment.checkDuplicates();
+            }
+        }
+    }
+
+    bool checkEnds() {
+        if (!fContainsCurves) {
+            return true;
+        }
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment* segment = &fSegments[sIndex];
+            if (segment->verb() == SkPath::kLine_Verb) {
+                continue;
+            }
+            if (segment->done()) {
+                continue;   // likely coincident, nothing to do
+            }
+            if (!segment->checkEnds()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void checkMultiples() {
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment& segment = fSegments[sIndex];
+            if (segment.count() > 2) {
+                segment.checkMultiples();
+                fMultiples |= segment.hasMultiples();
+            }
+        }
+    }
+
+    void checkSmall() {
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment& segment = fSegments[sIndex];
+            // OPTIMIZATION : skip segments that are done?
+            if (segment.hasSmall()) {
+                segment.checkSmall();
+            }
+        }
+    }
+
+    // if same point has different T values, choose a common T
+    void checkTiny() {
+        int segmentCount = fSegments.count();
+        if (segmentCount <= 2) {
+            return;
+        }
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            SkOpSegment& segment = fSegments[sIndex];
+            if (segment.hasTiny()) {
+                segment.checkTiny();
+            }
+        }
     }
 
     void complete() {
         setBounds();
+        fContainsIntercepts = false;
     }
 
-    int count() const {
-        return fCount;
+    bool containsCubics() const {
+        return fContainsCubics;
     }
 
-    int debugID() const {
-        return PATH_OPS_DEBUG_RELEASE(fID, -1);
-    }
-
-    int debugIndent() const {
-        return PATH_OPS_DEBUG_RELEASE(fIndent, 0);
-    }
-
-#if DEBUG_ACTIVE_SPANS
-    void debugShowActiveSpans() {
-        SkOpSegment* segment = &fHead;
-        do {
-            segment->debugShowActiveSpans();
-        } while ((segment = segment->next()));
-    }
-#endif
-
-    const SkOpAngle* debugAngle(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugAngle(id), NULL);
-    }
-
-    SkOpContour* debugContour(int id) {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugContour(id), NULL);
-    }
-
-    const SkOpPtT* debugPtT(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugPtT(id), NULL);
-    }
-
-    const SkOpSegment* debugSegment(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugSegment(id), NULL);
-    }
-
-    const SkOpSpanBase* debugSpan(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugSpan(id), NULL);
-    }
-
-    SkOpGlobalState* globalState() const {
-        return fState; 
-    }
-
-    void debugValidate() const {
-#if DEBUG_VALIDATE
-        const SkOpSegment* segment = &fHead;
-        const SkOpSegment* prior = NULL;
-        do {
-            segment->debugValidate();
-            SkASSERT(segment->prev() == prior);
-            prior = segment;
-        } while ((segment = segment->next()));
-        SkASSERT(prior == fTail);
-#endif
+    bool crosses(const SkOpContour* crosser) const {
+        for (int index = 0; index < fCrosses.count(); ++index) {
+            if (fCrosses[index] == crosser) {
+                return true;
+            }
+        }
+        return false;
     }
 
     bool done() const {
         return fDone;
     }
 
-    void dump();
-    void dumpAll();
-    void dumpAngles() const;
-    void dumpPt(int ) const;
-    void dumpPts() const;
-    void dumpPtsX() const;
-    void dumpSegment(int ) const;
-    void dumpSegments(SkPathOp op) const;
-    void dumpSpan(int ) const;
-    void dumpSpans() const;
-
     const SkPoint& end() const {
-        return fTail->pts()[SkPathOpsVerbToPoints(fTail->verb())];
+        const SkOpSegment& segment = fSegments.back();
+        return segment.pts()[SkPathOpsVerbToPoints(segment.verb())];
     }
 
-    SkOpSegment* first() {
-        SkASSERT(fCount > 0);
-        return &fHead;
+    void fixOtherTIndex() {
+        int segmentCount = fSegments.count();
+        for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
+            fSegments[sIndex].fixOtherTIndex();
+        }
     }
 
-    const SkOpSegment* first() const {
-        SkASSERT(fCount > 0);
-        return &fHead;
+    bool hasMultiples() const {
+        return fMultiples;
     }
 
-    void indentDump() {
-        PATH_OPS_DEBUG_CODE(fIndent += 2);
+    void joinCoincidence() {
+        joinCoincidence(fCoincidences, false);
+        joinCoincidence(fPartialCoincidences, true);
     }
 
-    void init(SkOpGlobalState* globalState, bool operand, bool isXor) {
-        fState = globalState;
-        fOperand = operand;
-        fXor = isXor;
-    }
-
-    bool isXor() const {
-        return fXor;
-    }
-
-    void missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
-        SkASSERT(fCount > 0);
-        SkOpSegment* segment = &fHead;
-        do {
-            if (fState->angleCoincidence()) {
-                segment->checkAngleCoin(coincidences, allocator);
-            } else {
-                segment->missingCoincidence(coincidences, allocator);
-            }
-        } while ((segment = segment->next()));
-    }
-
-    bool moveNearby() {
-        SkASSERT(fCount > 0);
-        SkOpSegment* segment = &fHead;
-        do {
-            if (!segment->moveNearby()) {
-                return false;
-            }
-        } while ((segment = segment->next()));
-        return true;
-    }
-
-    SkOpContour* next() {
-        return fNext;
-    }
-
-    const SkOpContour* next() const {
-        return fNext;
-    }
-
-    SkOpSegment* nonVerticalSegment(SkOpSpanBase** start, SkOpSpanBase** end);
+    SkOpSegment* nonVerticalSegment(int* start, int* end);
 
     bool operand() const {
         return fOperand;
     }
 
-    bool oppXor() const {
-        return fOppXor;
-    }
-
-    void outdentDump() {
-        PATH_OPS_DEBUG_CODE(fIndent -= 2);
-    }
-
-    void remove(SkOpContour* contour) {
-        if (contour == this) {
-            SkASSERT(fCount == 0);
-            return;
-        }
-        SkASSERT(contour->fNext == NULL);
-        SkOpContour* prev = this;
-        SkOpContour* next;
-        while ((next = prev->next()) != contour) {
-            SkASSERT(next);
-            prev = next;
-        }
-        SkASSERT(prev);
-        prev->setNext(NULL);
-    }
-
     void reset() {
-        fTail = NULL;
-        fNext = NULL;
-        fCount = 0;
-        fDone = false;
-        SkDEBUGCODE(fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
-        SkDEBUGCODE(fFirstSorted = -1);
-        PATH_OPS_DEBUG_CODE(fIndent = 0);
+        fSegments.reset();
+        fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
+        fContainsCurves = fContainsCubics = fContainsIntercepts = fDone = fMultiples = false;
     }
 
-    void setBounds() {
-        SkASSERT(fCount > 0);
-        const SkOpSegment* segment = &fHead;
-        fBounds = segment->bounds();
-        while ((segment = segment->next())) {
-            fBounds.add(segment->bounds());
-        }
+    void resolveNearCoincidence();
+
+    SkTArray<SkOpSegment>& segments() {
+        return fSegments;
     }
 
-    void setGlobalState(SkOpGlobalState* state) {
-        fState = state;
-    }
-
-    void setNext(SkOpContour* contour) {
-        SkASSERT(!fNext == !!contour);
-        fNext = contour;
+    void setContainsIntercepts() {
+        fContainsIntercepts = true;
     }
 
     void setOperand(bool isOp) {
@@ -283,68 +254,107 @@ public:
 
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
+        int segmentCount = fSegments.count();
+        for (int test = 0; test < segmentCount; ++test) {
+            fSegments[test].setOppXor(isOppXor);
+        }
     }
 
     void setXor(bool isXor) {
         fXor = isXor;
     }
 
-    SkPath::Verb simplifyCubic(SkPoint pts[4]);
-
-    void sortAngles() {
-        SkASSERT(fCount > 0);
-        SkOpSegment* segment = &fHead;
-        do {
-            segment->sortAngles();
-        } while ((segment = segment->next()));
-    }
-
-    void sortSegments() {
-        SkOpSegment* segment = &fHead;
-        do {
-            *fSortedSegments.append() = segment;
-        } while ((segment = segment->next()));
-        SkTQSort<SkOpSegment>(fSortedSegments.begin(), fSortedSegments.end() - 1);
-        fFirstSorted = 0;
-    }
+    void sortAngles();
+    void sortSegments();
 
     const SkPoint& start() const {
-        return fHead.pts()[0];
-    }
-
-    void toPartialBackward(SkPathWriter* path) const {
-        const SkOpSegment* segment = fTail;
-        do {
-            segment->addCurveTo(segment->tail(), segment->head(), path, true);
-        } while ((segment = segment->prev()));
-    }
-
-    void toPartialForward(SkPathWriter* path) const {
-        const SkOpSegment* segment = &fHead;
-        do {
-            segment->addCurveTo(segment->head(), segment->tail(), path, true);
-        } while ((segment = segment->next()));
+        return fSegments.front().pts()[0];
     }
 
     void toPath(SkPathWriter* path) const;
+
+    void toPartialBackward(SkPathWriter* path) const {
+        int segmentCount = fSegments.count();
+        for (int test = segmentCount - 1; test >= 0; --test) {
+            fSegments[test].addCurveTo(1, 0, path, true);
+        }
+    }
+
+    void toPartialForward(SkPathWriter* path) const {
+        int segmentCount = fSegments.count();
+        for (int test = 0; test < segmentCount; ++test) {
+            fSegments[test].addCurveTo(0, 1, path, true);
+        }
+    }
+
     void topSortableSegment(const SkPoint& topLeft, SkPoint* bestXY, SkOpSegment** topStart);
-    SkOpSegment* undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr);
+    SkOpSegment* undoneSegment(int* start, int* end);
+
+    int updateSegment(int index, const SkPoint* pts) {
+        SkOpSegment& segment = fSegments[index];
+        segment.updatePts(pts);
+        return SkPathOpsVerbToPoints(segment.verb()) + 1;
+    }
+
+#if DEBUG_TEST
+    SkTArray<SkOpSegment>& debugSegments() {
+        return fSegments;
+    }
+#endif
+
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
+    void debugShowActiveSpans() {
+        for (int index = 0; index < fSegments.count(); ++index) {
+            fSegments[index].debugShowActiveSpans();
+        }
+    }
+#endif
+
+#if DEBUG_SHOW_WINDING
+    int debugShowWindingValues(int totalSegments, int ofInterest);
+    static void debugShowWindingValues(const SkTArray<SkOpContour*, true>& contourList);
+#endif
+
+    // available to test routines only
+    void dump() const;
+    void dumpAngles() const;
+    void dumpCoincidence(const SkCoincidence& ) const;
+    void dumpCoincidences() const;
+    void dumpPt(int ) const;
+    void dumpPts() const;
+    void dumpSpan(int ) const;
+    void dumpSpans() const;
 
 private:
-    SkOpGlobalState* fState;
-    SkOpSegment fHead;
-    SkOpSegment* fTail;
-    SkOpContour* fNext;
-    SkTDArray<SkOpSegment*> fSortedSegments;  // set by find top segment
-    SkPathOpsBounds fBounds;
-    int fCount;
+    void alignPt(int index, SkPoint* point, int zeroPt) const;
+    int alignT(bool swap, int tIndex, SkIntersections* ts) const;
+    bool calcCommonCoincidentWinding(const SkCoincidence& );
+    void checkCoincidentPair(const SkCoincidence& oneCoin, int oneIdx,
+                             const SkCoincidence& twoCoin, int twoIdx, bool partial);
+    void joinCoincidence(const SkTArray<SkCoincidence, true>& , bool partial);
+    void setBounds();
+
+    SkTArray<SkOpSegment> fSegments;
+    SkTArray<SkOpSegment*, true> fSortedSegments;
     int fFirstSorted;
-    bool fDone;  // set by find top segment
+    SkTArray<SkCoincidence, true> fCoincidences;
+    SkTArray<SkCoincidence, true> fPartialCoincidences;
+    SkTArray<const SkOpContour*, true> fCrosses;
+    SkPathOpsBounds fBounds;
+    bool fContainsIntercepts;  // FIXME: is this used by anybody?
+    bool fContainsCubics;
+    bool fContainsCurves;
+    bool fDone;
+    bool fMultiples;  // set if some segment has multiple identical intersections with other curves
     bool fOperand;  // true for the second argument to a binary operator
-    bool fXor;  // set if original path had even-odd fill
-    bool fOppXor;  // set if opposite path had even-odd fill
-    PATH_OPS_DEBUG_CODE(int fID);
-    PATH_OPS_DEBUG_CODE(int fIndent);
+    bool fXor;
+    bool fOppXor;
+#if defined(SK_DEBUG) || !FORCE_RELEASE
+    int debugID() const { return fID; }
+    int fID;
+#else
+    int debugID() const { return -1; }
+#endif
 };
 
 #endif

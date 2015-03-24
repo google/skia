@@ -27,10 +27,6 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
         SkPath pathA, pathB;
         if (progress) {
             char* str = pathStr;
-            const int loopNo = 129;
-            str += sprintf(str, "static void cubicOp%d(skiatest::Reporter* reporter,"
-                    " const char* filename) {\n", loopNo);
-            str += sprintf(str, "    SkPath path, pathB;\n");
             str += sprintf(str, "    path.setFillType(SkPath::k%s_FillType);\n",
                     e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
                     ? "EvenOdd" : "?UNDEFINED");
@@ -45,9 +41,6 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
             str += sprintf(str, "    pathB.cubicTo(%d,%d, %d,%d, %d,%d);\n", c, d,
                     state.fB, state.fA, state.fD, state.fC);
             str += sprintf(str, "    pathB.close();\n");
-            str += sprintf(str, "    testPathOp(reporter, path, pathB, kDifference_PathOp,"
-                    " filename);\n");
-            str += sprintf(str, "}\n");
         }
         pathA.setFillType((SkPath::FillType) e);
         pathA.moveTo(SkIntToScalar(state.fA), SkIntToScalar(state.fB));

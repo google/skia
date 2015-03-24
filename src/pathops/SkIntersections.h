@@ -16,6 +16,7 @@ class SkIntersections {
 public:
     SkIntersections()
         : fSwap(0)
+        , fFlatMeasure(false)
 #ifdef SK_DEBUG
         , fDepth(0)
 #endif
@@ -23,6 +24,7 @@ public:
         sk_bzero(fPt, sizeof(fPt));
         sk_bzero(fPt2, sizeof(fPt2));
         sk_bzero(fT, sizeof(fT));
+        sk_bzero(fIsCoincident, sizeof(fIsCoincident));
         sk_bzero(fNearlySame, sizeof(fNearlySame));
         reset();
         fMax = 0;  // require that the caller set the max
@@ -30,7 +32,7 @@ public:
 
     class TArray {
     public:
-        explicit TArray(const double ts[10]) : fTArray(ts) {}
+        explicit TArray(const double ts[9]) : fTArray(ts) {}
         double operator[](int n) const {
             return fTArray[n];
         }
@@ -38,15 +40,28 @@ public:
     };
     TArray operator[](int n) const { return TArray(fT[n]); }
 
+    void allowFlatMeasure(bool flatAllowed) {
+        fFlatMeasure = flatAllowed;
+    }
+
     void allowNear(bool nearAllowed) {
         fAllowNear = nearAllowed;
     }
 
-    void clearCoincidence(int index) {
-        SkASSERT(index >= 0);
-        int bit = 1 << index;
-        fIsCoincident[0] &= ~bit;
-        fIsCoincident[1] &= ~bit;
+    int cubic(const SkPoint a[4]) {
+        SkDCubic cubic;
+        cubic.set(a);
+        fMax = 1;  // self intersect
+        return intersect(cubic);
+    }
+
+    int cubicCubic(const SkPoint a[4], const SkPoint b[4]) {
+        SkDCubic aCubic;
+        aCubic.set(a);
+        SkDCubic bCubic;
+        bCubic.set(b);
+        fMax = 9;
+        return intersect(aCubic, bCubic);
     }
 
     int cubicHorizontal(const SkPoint a[4], SkScalar left, SkScalar right, SkScalar y,
@@ -71,6 +86,19 @@ public:
         line.set(b);
         fMax = 3;
         return intersect(cubic, line);
+    }
+
+    int cubicQuad(const SkPoint a[4], const SkPoint b[3]) {
+        SkDCubic cubic;
+        cubic.set(a);
+        SkDQuad quad;
+        quad.set(b);
+        fMax = 7;
+        return intersect(cubic, quad);
+    }
+
+    bool flatMeasure() const {
+        return fFlatMeasure;
     }
 
     bool hasT(double t) const {
@@ -150,11 +178,19 @@ public:
         return intersect(quad, line);
     }
 
+    int quadQuad(const SkPoint a[3], const SkPoint b[3]) {
+        SkDQuad aQuad;
+        aQuad.set(a);
+        SkDQuad bQuad;
+        bQuad.set(b);
+        fMax = 4;
+        return intersect(aQuad, bQuad);
+    }
+
     // leaves swap, max alone
     void reset() {
         fAllowNear = true;
         fUsed = 0;
-        sk_bzero(fIsCoincident, sizeof(fIsCoincident));
     }
 
     void set(bool swap, int tIndex, double t) {
@@ -169,6 +205,8 @@ public:
         fSwap ^= true;
     }
 
+    void swapPts();
+
     bool swapped() const {
         return fSwap;
     }
@@ -181,27 +219,19 @@ public:
         SkASSERT(--fDepth >= 0);
     }
 
-    bool unBumpT(int index) {
-        SkASSERT(fUsed == 1);
-        fT[0][index] = fT[0][index] * (1 + BUMP_EPSILON * 2) - BUMP_EPSILON;
-        if (!between(0, fT[0][index], 1)) {
-            fUsed = 0;
-            return false;
-        }
-        return true;
-    }
-
     void upDepth() {
         SkASSERT(++fDepth < 16);
     }
 
     void alignQuadPts(const SkPoint a[3], const SkPoint b[3]);
+    void append(const SkIntersections& );
     int cleanUpCoincidence();
-    int closestTo(double rangeStart, double rangeEnd, const SkDPoint& testPt, double* dist) const;
     int coincidentUsed() const;
     void cubicInsert(double one, double two, const SkDPoint& pt, const SkDCubic& c1,
                      const SkDCubic& c2);
+    int cubicRay(const SkPoint pts[4], const SkDLine& line);
     void flip();
+    int horizontal(const SkDLine&, double y);
     int horizontal(const SkDLine&, double left, double right, double y, bool flipped);
     int horizontal(const SkDQuad&, double left, double right, double y, bool flipped);
     int horizontal(const SkDQuad&, double left, double right, double y, double tRange[2]);
@@ -212,20 +242,25 @@ public:
     int insert(double one, double two, const SkDPoint& pt);
     void insertNear(double one, double two, const SkDPoint& pt1, const SkDPoint& pt2);
     // start if index == 0 : end if index == 1
-    int insertCoincident(double one, double two, const SkDPoint& pt);
+    void insertCoincident(double one, double two, const SkDPoint& pt);
     int intersect(const SkDLine&, const SkDLine&);
     int intersect(const SkDQuad&, const SkDLine&);
     int intersect(const SkDQuad&, const SkDQuad&);
+    int intersect(const SkDCubic&);  // return true if cubic self-intersects
     int intersect(const SkDCubic&, const SkDLine&);
+    int intersect(const SkDCubic&, const SkDQuad&);
     int intersect(const SkDCubic&, const SkDCubic&);
     int intersectRay(const SkDLine&, const SkDLine&);
     int intersectRay(const SkDQuad&, const SkDLine&);
     int intersectRay(const SkDCubic&, const SkDLine&);
-    void merge(const SkIntersections& , int , const SkIntersections& , int );
-    int mostOutside(double rangeStart, double rangeEnd, const SkDPoint& origin) const;
+    static SkDPoint Line(const SkDLine&, const SkDLine&);
+    int lineRay(const SkPoint pts[2], const SkDLine& line);
+    void offset(int base, double start, double end);
     void quickRemoveOne(int index, int replace);
+    int quadRay(const SkPoint pts[3], const SkDLine& line);
     void removeOne(int index);
-    void setCoincident(int index);
+    static bool Test(const SkDLine& , const SkDLine&);
+    int vertical(const SkDLine&, double x);
     int vertical(const SkDLine&, double top, double bottom, double x, bool flipped);
     int vertical(const SkDQuad&, double top, double bottom, double x, bool flipped);
     int vertical(const SkDCubic&, double top, double bottom, double x, bool flipped);
@@ -241,8 +276,6 @@ public:
 #endif
     }
 
-    void dump() const;  // implemented for testing only
-
 private:
     bool cubicCheckCoincidence(const SkDCubic& c1, const SkDCubic& c2);
     bool cubicExactEnd(const SkDCubic& cubic1, bool start, const SkDCubic& cubic2);
@@ -250,20 +283,22 @@ private:
     void cleanUpParallelLines(bool parallel);
     void computePoints(const SkDLine& line, int used);
 
-    SkDPoint fPt[10];  // FIXME: since scans store points as SkPoint, this should also
-    SkDPoint fPt2[2];  // used by nearly same to store alternate intersection point
-    double fT[2][10];
+    SkDPoint fPt[9];  // FIXME: since scans store points as SkPoint, this should also
+    SkDPoint fPt2[9];  // used by nearly same to store alternate intersection point
+    double fT[2][9];
     uint16_t fIsCoincident[2];  // bit set for each curve's coincident T
     bool fNearlySame[2];  // true if end points nearly match
     unsigned char fUsed;
     unsigned char fMax;
     bool fAllowNear;
     bool fSwap;
+    bool fFlatMeasure;  // backwards-compatibility when cubics uses quad intersection
 #ifdef SK_DEBUG
     int fDepth;
 #endif
 };
 
+extern int (SkIntersections::* const CurveRay[])(const SkPoint[], const SkDLine& );
 extern int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar top, SkScalar bottom,
             SkScalar x, bool flipped);
 

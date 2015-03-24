@@ -3649,7 +3649,7 @@ static void testTriangles2(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
-// A test for this case:
+// A test this for this case:
 // contourA has two segments that are coincident
 // contourB has two segments that are coincident in the same place
 // each ends up with +2/0 pairs for winding count
@@ -4506,6 +4506,8 @@ static void testQuads47(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+// this fails because there is a short unorderable segment and the unordered state isn't handled
+// correctly later on.
 static void testQuads46x(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -4677,9 +4679,7 @@ static void testRect3(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = testCubic2;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
     TEST(testRect3),
@@ -4738,7 +4738,7 @@ static TestDesc tests[] = {
     TEST(testQuadralateral3),
     TEST(testDegenerate5),
     TEST(testQuad12),
-    TEST(testQuadratic51),
+    TEST(testQuadratic51),  // has unorderable angles
     TEST(testQuad8),
     TEST(testQuad11),
     TEST(testQuad10),
@@ -5111,13 +5111,14 @@ static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = 0;
 static bool runSubTests = false;
 static bool runSubTestsFirst = false;
 static bool runReverse = false;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 DEF_TEST(PathOpsSimplify, reporter) {
     if (runSubTests && runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, NULL, stopTest, runReverse);
+        RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
     }
-    RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
+    RunTestSet(reporter, tests, testCount, firstTest, stopTest, runReverse);
     if (runSubTests && !runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, NULL, stopTest, runReverse);
+        RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
     }
 }

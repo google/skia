@@ -8,6 +8,7 @@
 #include "PathOpsThreadedCommon.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"
+#include "SkTArray.h"
 #include "SkTSort.h"
 #include "Test.h"
 

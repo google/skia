@@ -6,8 +6,8 @@
  */
 #include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
-#include "SkOpContour.h"
 #include "SkOpSegment.h"
+#include "SkPathOpsTriangle.h"
 #include "SkRandom.h"
 #include "SkTArray.h"
 #include "SkTSort.h"
@@ -18,12 +18,12 @@ static bool gPathOpsAngleIdeasEnableBruteCheck = false;
 
 class PathOpsAngleTester {
 public:
-    static int ConvexHullOverlaps(SkOpAngle& lh, SkOpAngle& rh) {
-        return lh.convexHullOverlaps(&rh);
+    static int ConvexHullOverlaps(const SkOpAngle& lh, const SkOpAngle& rh) {
+        return lh.convexHullOverlaps(rh);
     }
 
-    static int EndsIntersect(SkOpAngle& lh, SkOpAngle& rh) {
-        return lh.endsIntersect(&rh);
+    static int EndsIntersect(const SkOpAngle& lh, const SkOpAngle& rh) {
+        return lh.endsIntersect(rh);
     }
 };
 
@@ -406,29 +406,28 @@ static bool bruteForceCheck(skiatest::Reporter* reporter, const SkDQuad& quad1,
     return ccw == upperRange.ccw;
 }
 
-static void makeSegment(SkOpContour* contour, const SkDQuad& quad, SkPoint shortQuad[3],
-        SkChunkAlloc* allocator) {
+class PathOpsSegmentTester {
+public:
+    static void ConstructQuad(SkOpSegment* segment, SkPoint shortQuad[3]) {
+        segment->debugConstructQuad(shortQuad);
+    }
+};
+
+static void makeSegment(const SkDQuad& quad, SkPoint shortQuad[3], SkOpSegment* result) {
     shortQuad[0] = quad[0].asSkPoint();
     shortQuad[1] = quad[1].asSkPoint();
     shortQuad[2] = quad[2].asSkPoint();
-    contour->addQuad(shortQuad, allocator);
+    PathOpsSegmentTester::ConstructQuad(result, shortQuad);
 }
 
 static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, const SkDQuad& quad2,
-        int testNo, SkChunkAlloc* allocator) {
+        int testNo) {
     SkPoint shortQuads[2][3];
-
-    SkOpContour contour;
-    SkOpGlobalState state(NULL  PATH_OPS_DEBUG_PARAMS(&contour));
-    contour.init(&state, false, false);
-    makeSegment(&contour, quad1, shortQuads[0], allocator);
-    makeSegment(&contour, quad1, shortQuads[1], allocator);
-    SkOpSegment* seg1 = contour.first();
-    seg1->debugAddAngle(0, 1, allocator);
-    SkOpSegment* seg2 = seg1->next();
-    seg2->debugAddAngle(0, 1, allocator);
-    int realOverlap = PathOpsAngleTester::ConvexHullOverlaps(*seg1->debugLastAngle(),
-            *seg2->debugLastAngle());
+    SkOpSegment seg[2];
+    makeSegment(quad1, shortQuads[0], &seg[0]);
+    makeSegment(quad2, shortQuads[1], &seg[1]);
+    int realOverlap = PathOpsAngleTester::ConvexHullOverlaps(*seg[0].debugLastAngle(),
+            *seg[1].debugLastAngle());
     const SkDPoint& origin = quad1[0];
     REPORTER_ASSERT(reporter, origin == quad2[0]);
     double a1s = atan2(origin.fY - quad1[1].fY, quad1[1].fX - origin.fX);
@@ -546,27 +545,25 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     }
     if (overlap < 0) {
         SkDEBUGCODE(int realEnds =)
-                PathOpsAngleTester::EndsIntersect(*seg1->debugLastAngle(),
-                *seg2->debugLastAngle());
+                PathOpsAngleTester::EndsIntersect(*seg[0].debugLastAngle(),
+                *seg[1].debugLastAngle());
         SkASSERT(realEnds == (firstInside ? 1 : 0));
     }
     bruteForce(reporter, quad1, quad2, firstInside);
 }
 
 DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
-    SkChunkAlloc allocator(4096);
 //    gPathOpsAngleIdeasVerbose = true;
     const SkDQuad quads[] = {
 {{{939.4808349609375, 914.355224609375}, {-357.7921142578125, 590.842529296875}, {736.8936767578125, -350.717529296875}}},
 {{{939.4808349609375, 914.355224609375}, {-182.85418701171875, 634.4552001953125}, {-509.62615966796875, 576.1182861328125}}}
     };
     for (int index = 0; index < (int) SK_ARRAY_COUNT(quads); index += 2) {
-        testQuadAngles(reporter, quads[index], quads[index + 1], 0, &allocator);
+        testQuadAngles(reporter, quads[index], quads[index + 1], 0);
     }
 }
 
 DEF_TEST(PathOpsAngleOverlapHulls, reporter) {
-    SkChunkAlloc allocator(4096);
     if (!gPathOpsAngleIdeasVerbose) {  // takes a while to run -- so exclude it by default
         return;
     }
@@ -590,7 +587,7 @@ DEF_TEST(PathOpsAngleOverlapHulls, reporter) {
         if (i.used() > 1) {
             continue;
         }
-        testQuadAngles(reporter, quad1, quad2, index, &allocator);
+        testQuadAngles(reporter, quad1, quad2, index);
     }
 }
 

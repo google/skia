@@ -13,10 +13,18 @@ struct SkDRect {
     double fLeft, fTop, fRight, fBottom;
 
     void add(const SkDPoint& pt) {
-        fLeft = SkTMin(fLeft, pt.fX);
-        fTop = SkTMin(fTop, pt.fY);
-        fRight = SkTMax(fRight, pt.fX);
-        fBottom = SkTMax(fBottom, pt.fY);
+        if (fLeft > pt.fX) {
+            fLeft = pt.fX;
+        }
+        if (fTop > pt.fY) {
+            fTop = pt.fY;
+        }
+        if (fRight < pt.fX) {
+            fRight = pt.fX;
+        }
+        if (fBottom < pt.fY) {
+            fBottom = pt.fY;
+        }
     }
 
     bool contains(const SkDPoint& pt) const {
@@ -24,15 +32,12 @@ struct SkDRect {
                 && approximately_between(fTop, pt.fY, fBottom);
     }
 
-    bool intersects(const SkDRect& r) const {
-        if (fLeft > fRight) {
-            SkDebugf("!");
-        }
+    bool intersects(SkDRect* r) const {
         SkASSERT(fLeft <= fRight);
         SkASSERT(fTop <= fBottom);
-        SkASSERT(r.fLeft <= r.fRight);
-        SkASSERT(r.fTop <= r.fBottom);
-        return r.fLeft <= fRight && fLeft <= r.fRight && r.fTop <= fBottom && fTop <= r.fBottom;
+        SkASSERT(r->fLeft <= r->fRight);
+        SkASSERT(r->fTop <= r->fBottom);
+        return r->fLeft <= fRight && fLeft <= r->fRight && r->fTop <= fBottom && fTop <= r->fBottom;
     }
 
     void set(const SkDPoint& pt) {
@@ -48,8 +53,11 @@ struct SkDRect {
         return fBottom - fTop;
     }
 
+    void setBounds(const SkDLine&);
     void setBounds(const SkDCubic&);
     void setBounds(const SkDQuad&);
+    void setRawBounds(const SkDCubic&);
+    void setRawBounds(const SkDQuad&);
 };
 
 #endif

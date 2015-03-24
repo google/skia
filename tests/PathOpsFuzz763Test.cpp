@@ -121,6 +121,11 @@ path.close();
 }
 
 static void fuzz763_378(skiatest::Reporter* reporter, const char* filename) {
+#ifdef SK_BUILD_FOR_ANDROID
+	if (!FLAGS_runFail) {
+		return;  // fails on nexus 9 in release, possibly related to fused multiply-add
+	}
+#endif
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x41013776), SkBits2Float(0xc25007a8));
@@ -214,6 +219,11 @@ path.close();
 }
 
 static void fuzz763_378b(skiatest::Reporter* reporter, const char* filename) {
+#ifdef SK_BUILD_FOR_ANDROID
+	if (!FLAGS_runFail) {
+		return;  // fails on nexus 9 in release, possibly related to fused multiply-add
+	}
+#endif
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(-47.1494f, 4.35143f);
@@ -233,7 +243,7 @@ path.quadTo(SkBits2Float(0xc21f39d4), SkBits2Float(0x41979b1c), SkBits2Float(0xc
 path.quadTo(SkBits2Float(0xc238d4f6), SkBits2Float(0x41a554c0), SkBits2Float(0xc2444fb0), SkBits2Float(0x419813d4));
 path.close();
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_378c(skiatest::Reporter* reporter, const char* filename) {
@@ -254,7 +264,7 @@ static void fuzz763_378c(skiatest::Reporter* reporter, const char* filename) {
     path.quadTo(-39.8065f, 18.9507f, -43.0072f, 19.8086f);
     path.close();
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_378d(skiatest::Reporter* reporter, const char* filename) {
@@ -495,7 +505,7 @@ path.quadTo(SkBits2Float(0xc2382594), SkBits2Float(0x41a85c76), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_8712(skiatest::Reporter* reporter, const char* filename) {
@@ -585,7 +595,7 @@ path.quadTo(SkBits2Float(0xc236ec77), SkBits2Float(0x41ad9cd6), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_8712a(skiatest::Reporter* reporter, const char* filename) {
@@ -620,7 +630,7 @@ path.quadTo(SkBits2Float(0xc236ec77), SkBits2Float(0x41ad9cd6), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_4014(skiatest::Reporter* reporter, const char* filename) {
@@ -709,7 +719,7 @@ path.quadTo(SkBits2Float(0xc23c5ebc), SkBits2Float(0x41948044), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_4014a(skiatest::Reporter* reporter, const char* filename) {
@@ -932,7 +942,7 @@ path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x41ed7d86), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_24588(skiatest::Reporter* reporter, const char* filename) {
@@ -1131,6 +1141,7 @@ path.close();
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
+//SkOpSegment.cpp:3475: failed assertion "firstAngle"
 static void fuzz763_17370(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
@@ -1436,7 +1447,7 @@ path.quadTo(SkBits2Float(0x421fbff7), SkBits2Float(0x41f8ceed), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_1597464(skiatest::Reporter* reporter, const char* filename) {
@@ -1531,10 +1542,10 @@ path.close();
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
+// SkOpSegment.cpp:4010: failed assertion "span->fOppSum == -0x7FFFFFFF || span->fOppSum == oppWinding
 static void fuzz763_34974(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
-#if 00
 path.moveTo(SkBits2Float(0x41015326), SkBits2Float(0xc2500694));
 path.quadTo(SkBits2Float(0x412f3e30), SkBits2Float(0xc256a6fa), SkBits2Float(0x41627462), SkBits2Float(0xc253387e));
 path.quadTo(SkBits2Float(0x418ad549), SkBits2Float(0xc24fca02), SkBits2Float(0x41981613), SkBits2Float(0xc2444f40));
@@ -1545,8 +1556,6 @@ path.quadTo(SkBits2Float(0x40d9eeca), SkBits2Float(0xc218d592), SkBits2Float(0x4
 path.quadTo(SkBits2Float(0x405fd0f0), SkBits2Float(0xc22fcb17), SkBits2Float(0x408b5c58), SkBits2Float(0xc23c98a3));
 path.quadTo(SkBits2Float(0x40a6d038), SkBits2Float(0xc249662f), SkBits2Float(0x41015326), SkBits2Float(0xc2500694));
 path.close();
-#endif
-#if 000
 path.moveTo(SkBits2Float(0xc21a9c18), SkBits2Float(0xc21aa524));
 path.quadTo(SkBits2Float(0xc2113c71), SkBits2Float(0xc2240440), SkBits2Float(0xc203fb34), SkBits2Float(0xc22403dc));
 path.quadTo(SkBits2Float(0xc1ed73ee), SkBits2Float(0xc2240379), SkBits2Float(0xc1dab5b7), SkBits2Float(0xc21aa3d1));
@@ -1557,8 +1566,6 @@ path.quadTo(SkBits2Float(0xc2113e50), SkBits2Float(0xc1c8087f), SkBits2Float(0xc
 path.quadTo(SkBits2Float(0xc223fc87), SkBits2Float(0xc1ed871e), SkBits2Float(0xc223fc24), SkBits2Float(0xc20404cc));
 path.quadTo(SkBits2Float(0xc223fbc0), SkBits2Float(0xc2114609), SkBits2Float(0xc21a9c18), SkBits2Float(0xc21aa524));
 path.close();
-#endif
-#if 00
 path.moveTo(SkBits2Float(0xc19e6455), SkBits2Float(0xc19e6455));
 path.quadTo(SkBits2Float(0xc1399153), SkBits2Float(0xc1e00000), SkBits2Float(0x00000000), SkBits2Float(0xc1e00000));
 path.quadTo(SkBits2Float(0x41399153), SkBits2Float(0xc1e00000), SkBits2Float(0x419e6455), SkBits2Float(0xc19e6455));
@@ -1575,15 +1582,11 @@ path.quadTo(SkBits2Float(0xc15b75ce), SkBits2Float(0x41cf0dc3), SkBits2Float(0xc
 path.quadTo(SkBits2Float(0xc1e00000), SkBits2Float(0x41399153), SkBits2Float(0xc1e00000), SkBits2Float(0x00000000));
 path.quadTo(SkBits2Float(0xc1e00000), SkBits2Float(0xc1399153), SkBits2Float(0xc19e6455), SkBits2Float(0xc19e6455));
 path.close();
-#endif
-#if 01
 path.moveTo(SkBits2Float(0xc2533a24), SkBits2Float(0x41625bba));
 path.lineTo(SkBits2Float(0xc2533ab2), SkBits2Float(0x4162536e));
 path.lineTo(SkBits2Float(0xc2533af7), SkBits2Float(0x41624f68));
 path.quadTo(SkBits2Float(0xc2533a8e), SkBits2Float(0x41625591), SkBits2Float(0xc2533a24), SkBits2Float(0x41625bba));
 path.close();
-#endif
-#if 0
 path.moveTo(SkBits2Float(0x41dac664), SkBits2Float(0x41dab723));
 path.quadTo(SkBits2Float(0x41ed82ea), SkBits2Float(0x41c80000), SkBits2Float(0x42040000), SkBits2Float(0x41c80000));
 path.quadTo(SkBits2Float(0x4211413d), SkBits2Float(0x41c80000), SkBits2Float(0x421aa09e), SkBits2Float(0x41dabec3));
@@ -1599,8 +1602,6 @@ path.quadTo(SkBits2Float(0x41dab5bf), SkBits2Float(0x41dac7c8), SkBits2Float(0x4
 path.lineTo(SkBits2Float(0x41dabec3), SkBits2Float(0x41dabec3));
 path.quadTo(SkBits2Float(0x41dac293), SkBits2Float(0x41dabaf3), SkBits2Float(0x41dac664), SkBits2Float(0x41dab723));
 path.close();
-#endif
-#if 00001
 path.moveTo(SkBits2Float(0xc23c9951), SkBits2Float(0x408b2180));
 path.quadTo(SkBits2Float(0xc22fcba2), SkBits2Float(0x405f6340), SkBits2Float(0xc2245122), SkBits2Float(0x40a4b85c));
 path.quadTo(SkBits2Float(0xc218dd36), SkBits2Float(0x40d9a0b8), SkBits2Float(0xc2156c96), SkBits2Float(0x411fdb9a));
@@ -1621,12 +1622,10 @@ path.lineTo(SkBits2Float(0xc2533b22), SkBits2Float(0x41624cea));
 path.quadTo(SkBits2Float(0xc256a842), SkBits2Float(0x412f19c8), SkBits2Float(0xc25007d7), SkBits2Float(0x410132b2));
 path.quadTo(SkBits2Float(0xc24966ff), SkBits2Float(0x40a69160), SkBits2Float(0xc23c9951), SkBits2Float(0x408b2180));
 path.close();
-#endif
 
     SkPath path1(path);
     path.reset();
     path.setFillType((SkPath::FillType) 0);
-#if 01
 path.moveTo(SkBits2Float(0xc2445236), SkBits2Float(0x419806c2));
 path.quadTo(SkBits2Float(0xc24fccb6), SkBits2Float(0x418ac513), SkBits2Float(0xc2533ab2), SkBits2Float(0x4162536e));
 path.quadTo(SkBits2Float(0xc256a8ae), SkBits2Float(0x412f1cb2), SkBits2Float(0xc25007d7), SkBits2Float(0x410132b2));
@@ -1637,9 +1636,9 @@ path.quadTo(SkBits2Float(0xc211faaa), SkBits2Float(0x41534d02), SkBits2Float(0xc
 path.quadTo(SkBits2Float(0xc21f3c59), SkBits2Float(0x41979082), SkBits2Float(0xc22c0a07), SkBits2Float(0x419e6c7a));
 path.quadTo(SkBits2Float(0xc238d7b6), SkBits2Float(0x41a54872), SkBits2Float(0xc2445236), SkBits2Float(0x419806c2));
 path.close();
-#endif
+
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_2211264(skiatest::Reporter* reporter, const char* filename) {
@@ -2198,10 +2197,13 @@ path.quadTo(SkBits2Float(0x424a2ff8), SkBits2Float(0xc02cd470), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_2674194(skiatest::Reporter* reporter, const char* filename) {
+    if (!FLAGS_runFail) { // FIXME: asserts in alignSpanState
+        return;
+    }
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0xbfb16e10), SkBits2Float(0xc252733b));
@@ -2394,7 +2396,6 @@ path.close();
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = fuzz763_2674194;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
@@ -2439,5 +2440,5 @@ DEF_TEST(PathOpsFuzz763, reporter) {
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif
-    RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
+    RunTestSet(reporter, tests, testCount, firstTest, stopTest, runReverse);
 }

@@ -272,11 +272,6 @@ SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkPoint* reducePts) {
 }
 
 SkPath::Verb SkReduceOrder::Cubic(const SkPoint a[4], SkPoint* reducePts) {
-    if (SkDPoint::ApproximatelyEqual(a[0], a[1]) && SkDPoint::ApproximatelyEqual(a[0], a[2])
-            && SkDPoint::ApproximatelyEqual(a[0], a[3])) {
-        reducePts[0] = a[0];
-        return SkPath::kMove_Verb;
-    }
     SkDCubic cubic;
     cubic.set(a);
     SkReduceOrder reducer;

@@ -8,61 +8,7 @@
 #include "SkLineParameters.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsQuad.h"
-
-/* started with at_most_end_pts_in_common from SkDQuadIntersection.cpp */
-// Do a quick reject by rotating all points relative to a line formed by
-// a pair of one quad's points. If the 2nd quad's points
-// are on the line or on the opposite side from the 1st quad's 'odd man', the
-// curves at most intersect at the endpoints.
-/* if returning true, check contains true if quad's hull collapsed, making the cubic linear
-   if returning false, check contains true if the the quad pair have only the end point in common
-*/
-bool SkDQuad::hullIntersects(const SkDQuad& q2, bool* isLinear) const {
-    bool linear = true;
-    for (int oddMan = 0; oddMan < kPointCount; ++oddMan) {
-        const SkDPoint* endPt[2];
-        this->otherPts(oddMan, endPt);
-        double origX = endPt[0]->fX;
-        double origY = endPt[0]->fY;
-        double adj = endPt[1]->fX - origX;
-        double opp = endPt[1]->fY - origY;
-        double sign = (fPts[oddMan].fY - origY) * adj - (fPts[oddMan].fX - origX) * opp;
-        if (approximately_zero(sign)) {
-            continue;
-        }
-        linear = false;
-        bool foundOutlier = false;
-        for (int n = 0; n < kPointCount; ++n) {
-            double test = (q2[n].fY - origY) * adj - (q2[n].fX - origX) * opp;
-            if (test * sign > 0 && !precisely_zero(test)) {
-                foundOutlier = true;
-                break;
-            }
-        }
-        if (!foundOutlier) {
-            return false;
-        }
-    }
-    *isLinear = linear;
-    return true;
-}
-
-/* bit twiddling for finding the off curve index (x&~m is the pair in [0,1,2] excluding oddMan)
-oddMan    opp   x=oddMan^opp  x=x-oddMan  m=x>>2   x&~m
-    0       1         1            1         0       1
-            2         2            2         0       2
-    1       1         0           -1        -1       0
-            2         3            2         0       2
-    2       1         3            1         0       1
-            2         0           -2        -1       0
-*/
-void SkDQuad::otherPts(int oddMan, const SkDPoint* endPt[2]) const {
-    for (int opp = 1; opp < kPointCount; ++opp) {
-        int end = (oddMan ^ opp) - oddMan;  // choose a value not equal to oddMan
-        end &= ~(end >> 2);  // if the value went negative, set it to zero
-        endPt[opp - 1] = &fPts[end];
-    }
-}
+#include "SkPathOpsTriangle.h"
 
 // from http://blog.gludion.com/2009/08/distance-to-quadratic-bezier-curve.html
 // (currently only used by testing)
@@ -95,6 +41,10 @@ double SkDQuad::nearestT(const SkDPoint& pt) const {
         return ts[bestIndex];
     }
     return d0 < d2 ? 0 : 1;
+}
+
+bool SkDQuad::pointInHull(const SkDPoint& pt) const {
+    return ((const SkDTriangle&) fPts).contains(pt);
 }
 
 SkDPoint SkDQuad::top(double startT, double endT) const {
@@ -190,12 +140,7 @@ bool SkDQuad::isLinear(int startIndex, int endIndex) const {
     // FIXME: maybe it's possible to avoid this and compare non-normalized
     lineParameters.normalize();
     double distance = lineParameters.controlPtDistance(*this);
-    double tiniest = SkTMin(SkTMin(SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY),
-            fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY);
-    double largest = SkTMax(SkTMax(SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY),
-            fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY);
-    largest = SkTMax(largest, -tiniest);
-    return approximately_zero_when_compared_to(distance, largest);
+    return approximately_zero(distance);
 }
 
 SkDCubic SkDQuad::toCubic() const {
@@ -295,6 +240,13 @@ void SkDQuad::align(int endIndex, SkDPoint* dstPt) const {
 SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, double t2) const {
     SkASSERT(t1 != t2);
     SkDPoint b;
+#if 0
+    // this approach assumes that the control point computed directly is accurate enough
+    double dx = interp_quad_coords(&fPts[0].fX, (t1 + t2) / 2);
+    double dy = interp_quad_coords(&fPts[0].fY, (t1 + t2) / 2);
+    b.fX = 2 * dx - (a.fX + c.fX) / 2;
+    b.fY = 2 * dy - (a.fY + c.fY) / 2;
+#else
     SkDQuad sub = subDivide(t1, t2);
     SkDLine b0 = {{a, sub[1] + (a - sub[0])}};
     SkDLine b1 = {{c, sub[1] + (c - sub[2])}};
@@ -306,6 +258,7 @@ SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, dou
         SkASSERT(i.used() <= 2);
         b = SkDPoint::Mid(b0[1], b1[1]);
     }
+#endif
     if (t1 == 0 || t2 == 0) {
         align(0, &b);
     }

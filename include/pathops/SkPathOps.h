@@ -8,8 +8,6 @@
 #define SkPathOps_DEFINED
 
 #include "SkPreConfig.h"
-#include "SkTArray.h"
-#include "SkTDArray.h"
 
 class SkPath;
 struct SkRect;
@@ -37,10 +35,9 @@ enum SkPathOp {
 
     @param one The first operand (for difference, the minuend)
     @param two The second operand (for difference, the subtrahend)
-    @param op The operator to apply.
     @param result The product of the operands. The result may be one of the
                   inputs.
-    @return True if the operation succeeded.
+    @return True if operation succeeded.
   */
 bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
 
@@ -65,32 +62,5 @@ bool SK_API Simplify(const SkPath& path, SkPath* result);
     @return True if the bounds could be computed.
   */
 bool SK_API TightBounds(const SkPath& path, SkRect* result);
-
-/** Perform a series of path operations, optimized for unioning many paths together.
-  */
-class SK_API SkOpBuilder {
-public:
-    /** Add one or more paths and their operand. The builder is empty before the first
-        path is added, so the result of a single add is (emptyPath OP path).
-
-        @param path The second operand.
-        @param op The operator to apply to the existing and supplied paths.
-     */ 
-    void add(const SkPath& path, SkPathOp op);
-
-    /** Computes the sum of all paths and operands, and resets the builder to its
-        initial state.
- 
-        @param result The product of the operands.
-        @return True if the operation succeeded.
-      */
-    bool resolve(SkPath* result);
-
-private:
-    SkTArray<SkPath> fPathRefs;
-    SkTDArray<SkPathOp> fOps;
-
-    void reset();
-};
 
 #endif

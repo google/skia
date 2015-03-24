@@ -19,12 +19,6 @@ public:
         return record;
     }
 
-    static T* AllocateArray(SkChunkAlloc* allocator, int count) {
-        void* ptr = allocator->allocThrow(sizeof(T) * count);
-        T* record = (T*) ptr;
-        return record;
-    }
-
     static T* New(SkChunkAlloc* allocator) {
         return new (Allocate(allocator)) T();
     }

@@ -5,29 +5,27 @@
  * found in the LICENSE file.
  */
 #include "SkAddIntersections.h"
-#include "SkOpCoincidence.h"
 #include "SkOpEdgeBuilder.h"
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
 
-static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** startPtr,
-        SkOpSpanBase** endPtr) {
+static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int* tIndex, int* endIndex) {
     while (chase.count()) {
-        SkOpSpanBase* span;
+        SkOpSpan* span;
         chase.pop(&span);
-        // OPTIMIZE: prev makes this compatible with old code -- but is it necessary?
-        *startPtr = span->ptT()->prev()->span();
-        SkOpSegment* segment = (*startPtr)->segment();
+        const SkOpSpan& backPtr = span->fOther->span(span->fOtherIndex);
+        SkOpSegment* segment = backPtr.fOther;
+        *tIndex = backPtr.fOtherIndex;
         bool sortable = true;
         bool done = true;
-        *endPtr = NULL;
-        if (SkOpAngle* last = segment->activeAngle(*startPtr, startPtr, endPtr, &done,
+        *endIndex = -1;
+        if (const SkOpAngle* last = segment->activeAngle(*tIndex, tIndex, endIndex, &done,
                 &sortable)) {
             if (last->unorderable()) {
                 continue;
             }
-            *startPtr = last->start();
-            *endPtr = last->end();
+            *tIndex = last->start();
+            *endIndex = last->end();
    #if TRY_ROTATE
             *chase.insert(0) = span;
    #else
@@ -42,7 +40,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
             continue;
         }
         // find first angle, initialize winding to computed fWindSum
-        const SkOpAngle* angle = segment->spanToAngle(*startPtr, *endPtr);
+        const SkOpAngle* angle = segment->spanToAngle(*tIndex, *endIndex);
         if (!angle) {
             continue;
         }
@@ -67,24 +65,32 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
             SkTSwap<int>(sumMiWinding, sumSuWinding);
         }
         SkOpSegment* first = NULL;
-        firstAngle = angle;
-        while ((angle = angle->next()) != firstAngle) {
+        bool badData = false;
+        while ((angle = angle->next()) != firstAngle && !badData) {
             segment = angle->segment();
-            SkOpSpanBase* start = angle->start();
-            SkOpSpanBase* end = angle->end();
+            int start = angle->start();
+            int end = angle->end();
             int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
             segment->setUpWindings(start, end, &sumMiWinding, &sumSuWinding,
                     &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
             if (!segment->done(angle)) {
                 if (!first) {
                     first = segment;
-                    *startPtr = start;
-                    *endPtr = end;
+                    *tIndex = start;
+                    *endIndex = end;
+                }
+                if (segment->inconsistentAngle(maxWinding, sumWinding, oppMaxWinding,
+                        oppSumWinding, angle)) {
+                    badData = true;
+                    break;
                 }
                 // OPTIMIZATION: should this also add to the chase?
                 (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
                     oppSumWinding, angle);
             }
+        }
+        if (badData) {
+            continue;
         }
         if (first) {
        #if TRY_ROTATE
@@ -98,8 +104,36 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
     return NULL;
 }
 
-static bool bridgeOp(SkTDArray<SkOpContour* >& contourList, const SkPathOp op,
-        const int xorMask, const int xorOpMask, SkPathWriter* simple, SkChunkAlloc* allocator) {
+/*
+static bool windingIsActive(int winding, int oppWinding, int spanWinding, int oppSpanWinding,
+        bool windingIsOp, PathOp op) {
+    bool active = windingIsActive(winding, spanWinding);
+    if (!active) {
+        return false;
+    }
+    if (oppSpanWinding && windingIsActive(oppWinding, oppSpanWinding)) {
+        switch (op) {
+            case kIntersect_Op:
+            case kUnion_Op:
+                return true;
+            case kDifference_Op: {
+                int absSpan = abs(spanWinding);
+                int absOpp = abs(oppSpanWinding);
+                return windingIsOp ? absSpan < absOpp : absSpan > absOpp;
+            }
+            case kXor_Op:
+                return spanWinding != oppSpanWinding;
+            default:
+                SkASSERT(0);
+        }
+    }
+    bool opActive = oppWinding != 0;
+    return gOpLookup[op][opActive][windingIsOp];
+}
+*/
+
+static bool bridgeOp(SkTArray<SkOpContour*, true>& contourList, const SkPathOp op,
+        const int xorMask, const int xorOpMask, SkPathWriter* simple) {
     bool firstContour = true;
     bool unsortable = false;
     bool topUnsortable = false;
@@ -107,14 +141,12 @@ static bool bridgeOp(SkTDArray<SkOpContour* >& contourList, const SkPathOp op,
     SkPoint lastTopLeft;
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
-        SkOpSpanBase* start;
-        SkOpSpanBase* end;
+        int index, endIndex;
         bool topDone;
         bool onlyVertical = false;
         lastTopLeft = topLeft;
-        SkOpSegment* current = FindSortableTop(contourList, firstPass, SkOpAngle::kBinarySingle,
-                &firstContour, &start, &end, &topLeft, &topUnsortable, &topDone, &onlyVertical,
-                allocator);
+        SkOpSegment* current = FindSortableTop(contourList, SkOpAngle::kBinarySingle, &firstContour,
+                &index, &endIndex, &topLeft, &topUnsortable, &topDone, &onlyVertical, firstPass);
         if (!current) {
             if ((!topUnsortable || firstPass) && !topDone) {
                 SkASSERT(topLeft.fX != SK_ScalarMin && topLeft.fY != SK_ScalarMin);
@@ -133,65 +165,69 @@ static bool bridgeOp(SkTDArray<SkOpContour* >& contourList, const SkPathOp op,
             break;
         }
         firstPass = !topUnsortable || lastTopLeft != topLeft;
-        SkTDArray<SkOpSpanBase*> chase;
+        SkTDArray<SkOpSpan*> chase;
         do {
-            if (current->activeOp(start, end, xorMask, xorOpMask, op)) {
+            if (current->activeOp(index, endIndex, xorMask, xorOpMask, op)) {
                 do {
                     if (!unsortable && current->done()) {
                         break;
                     }
                     SkASSERT(unsortable || !current->done());
-                    SkOpSpanBase* nextStart = start;
-                    SkOpSpanBase* nextEnd = end;
+                    int nextStart = index;
+                    int nextEnd = endIndex;
                     SkOpSegment* next = current->findNextOp(&chase, &nextStart, &nextEnd,
                             &unsortable, op, xorMask, xorOpMask);
                     if (!next) {
                         if (!unsortable && simple->hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple->isClosed()) {
-                            current->addCurveTo(start, end, simple, true);
+                            current->addCurveTo(index, endIndex, simple, true);
                     #if DEBUG_ACTIVE_SPANS
                             if (!simple->isClosed()) {
                                 DebugShowActiveSpans(contourList);
                             }
                     #endif
+//                            SkASSERT(simple->isClosed());
                         }
                         break;
                     }
         #if DEBUG_FLOW
-                    SkDebugf("%s current id=%d from=(%1.9g,%1.9g) to=(%1.9g,%1.9g)\n", __FUNCTION__,
-                            current->debugID(), start->pt().fX, start->pt().fY,
-                            end->pt().fX, end->pt().fY);
+            SkDebugf("%s current id=%d from=(%1.9g,%1.9g) to=(%1.9g,%1.9g)\n", __FUNCTION__,
+                    current->debugID(), current->xyAtT(index).fX, current->xyAtT(index).fY,
+                    current->xyAtT(endIndex).fX, current->xyAtT(endIndex).fY);
         #endif
-                    current->addCurveTo(start, end, simple, true);
+                    current->addCurveTo(index, endIndex, simple, true);
                     current = next;
-                    start = nextStart;
-                    end = nextEnd;
-                } while (!simple->isClosed() && (!unsortable || !start->starter(end)->done()));
-                if (current->activeWinding(start, end) && !simple->isClosed()) {
-                    SkOpSpan* spanStart = start->starter(end);
-                    if (!spanStart->done()) {
-                        current->addCurveTo(start, end, simple, true);
-                        current->markDone(spanStart);
+                    index = nextStart;
+                    endIndex = nextEnd;
+                } while (!simple->isClosed() && (!unsortable
+                        || !current->done(SkMin32(index, endIndex))));
+                if (current->activeWinding(index, endIndex) && !simple->isClosed()) {
+                    // FIXME : add to simplify, xor cpaths
+                    int min = SkMin32(index, endIndex);
+                    if (!unsortable && !simple->isEmpty()) {
+                        unsortable = current->checkSmall(min);
+                    }
+                    if (!current->done(min)) {
+                        current->addCurveTo(index, endIndex, simple, true);
+                        current->markDoneBinary(min);
                     }
                 }
                 simple->close();
             } else {
-                SkOpSpanBase* last = current->markAndChaseDone(start, end);
-                if (last && !last->chased()) {
-                    last->setChased(true);
+                SkOpSpan* last = current->markAndChaseDoneBinary(index, endIndex);
+                if (last && !last->fChased && !last->fLoop) {
+                    last->fChased = true;
                     SkASSERT(!SkPathOpsDebug::ChaseContains(chase, last));
                     *chase.append() = last;
 #if DEBUG_WINDING
-                    SkDebugf("%s chase.append id=%d", __FUNCTION__, last->segment()->debugID());
-                    if (!last->final()) {
-                         SkDebugf(" windSum=%d", last->upCast()->windSum());
-                    }
-                    SkDebugf("\n");
+                    SkDebugf("%s chase.append id=%d windSum=%d small=%d\n", __FUNCTION__,
+                            last->fOther->span(last->fOtherIndex).fOther->debugID(), last->fWindSum,
+                            last->fSmall);
 #endif
                 }
             }
-            current = findChaseOp(chase, &start, &end);
+            current = findChaseOp(chase, &index, &endIndex);
         #if DEBUG_ACTIVE_SPANS
             DebugShowActiveSpans(contourList);
         #endif
@@ -255,19 +291,16 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
     dump_path(file, two, false, true);
     fprintf(file, "    SkPath path2(path);\n");
     fprintf(file, "    testPathOp(reporter, path1, path2, (SkPathOp) %d, filename);\n", op);
-    fprintf(file, "}\n");    
+    fprintf(file, "}\n");	
     fclose(file);
 }
 #endif
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
-    SkOpContour contour;
-    SkOpCoincidence coincidence;
-    SkOpGlobalState globalState(&coincidence  PATH_OPS_DEBUG_PARAMS(&contour));
 #if DEBUGGING_PATHOPS_FROM_HOST
     dump_op(one, two, op);
-#endif    
-#if 0 && DEBUG_SHOW_TEST_NAME
+#endif	
+#if DEBUG_SHOW_TEST_NAME
     char* debugName = DEBUG_FILENAME_STRING;
     if (debugName && debugName[0]) {
         SkPathOpsDebug::BumpTestName(debugName);
@@ -288,32 +321,25 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
     // turn path into list of segments
-    SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
-    SkOpEdgeBuilder builder(*minuend, &contour, &allocator, &globalState);
+    SkTArray<SkOpContour> contours;
+    // FIXME: add self-intersecting cubics' T values to segment
+    SkOpEdgeBuilder builder(*minuend, contours);
     if (builder.unparseable()) {
         return false;
     }
     const int xorMask = builder.xorMask();
     builder.addOperand(*subtrahend);
-    if (!builder.finish(&allocator)) {
+    if (!builder.finish()) {
         return false;
     }
-#if !FORCE_RELEASE
-    contour.dumpSegments(op);
-#endif
-
     result->reset();
     result->setFillType(fillType);
     const int xorOpMask = builder.xorMask();
-    SkTDArray<SkOpContour* > contourList;
-    MakeContourList(&contour, contourList, xorMask == kEvenOdd_PathOpsMask,
+    SkTArray<SkOpContour*, true> contourList;
+    MakeContourList(contours, contourList, xorMask == kEvenOdd_PathOpsMask,
             xorOpMask == kEvenOdd_PathOpsMask);
     SkOpContour** currentPtr = contourList.begin();
     if (!currentPtr) {
-        return true;
-    }
-    if ((*currentPtr)->count() == 0) {
-        SkASSERT((*currentPtr)->next() == NULL);
         return true;
     }
     SkOpContour** listEnd = contourList.end();
@@ -321,21 +347,27 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     do {
         SkOpContour** nextPtr = currentPtr;
         SkOpContour* current = *currentPtr++;
+        if (current->containsCubics()) {
+            AddSelfIntersectTs(current);
+        }
         SkOpContour* next;
         do {
             next = *nextPtr++;
-        } while (AddIntersectTs(current, next, &coincidence, &allocator) && nextPtr != listEnd);
+        } while (AddIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
-#if DEBUG_VALIDATE
-    globalState.setPhase(SkOpGlobalState::kWalking);
-#endif
     // eat through coincident edges
-    if (!HandleCoincidence(&contourList, &coincidence, &allocator, &globalState)) {
+
+    int total = 0;
+    int index;
+    for (index = 0; index < contourList.count(); ++index) {
+        total += contourList[index]->segments().count();
+    }
+    if (!HandleCoincidence(&contourList, total)) {
         return false;
     }
     // construct closed contours
     SkPathWriter wrapper(*result);
-    bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper, &allocator);
+    bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper);
     {  // if some edges could not be resolved, assemble remaining fragments
         SkPath temp;
         temp.setFillType(fillType);
