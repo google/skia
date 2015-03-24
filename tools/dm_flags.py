@@ -51,6 +51,26 @@ def get_args(bot):
   blacklist.extend('gpu _ PANO_20121023_214540.jpg'.split(' '))
   blacklist.extend('msaa _ PANO_20121023_214540.jpg'.split(' '))
 
+  # Several of the newest version bmps fail on SkImageDecoder
+  blacklist.extend('_ image pal8os2v2.bmp'.split(' '))
+  blacklist.extend('_ image pal8v4.bmp'.split(' '))
+  blacklist.extend('_ image pal8v5.bmp'.split(' '))
+  blacklist.extend('_ image rgb16-565.bmp'.split(' '))
+  blacklist.extend('_ image rgb16-565pal.bmp'.split(' '))
+  blacklist.extend('_ image rgb32-111110.bmp'.split(' '))
+  blacklist.extend('_ image rgb32bf.bmp'.split(' '))
+  blacklist.extend('_ image rgba32.bmp'.split(' '))
+  blacklist.extend('_ image rgba32abf.bmp'.split(' '))
+  blacklist.extend('_ image rgb24largepal.bmp'.split(' '))
+  blacklist.extend('_ image pal8os2v2-16.bmp'.split(' '))
+  blacklist.extend('_ image pal8oversizepal.bmp'.split(' '))
+  blacklist.extend('_ subset rgb24largepal.bmp'.split(' '))
+  blacklist.extend('_ subset pal8os2v2-16.bmp'.split(' '))
+  blacklist.extend('_ subset pal8oversizepal.bmp'.split(' '))
+
+  # New ico files that fail on SkImageDecoder
+  blacklist.extend('_ image Hopstarter-Mac-Folders-Apple.ico'.split(' '))
+
   # Leon doesn't care about this, so why run it?
   if 'Win' in bot:
     blacklist.extend('_ image _'.split(' '))
