@@ -103,7 +103,6 @@ protected:
         const SkBitmap bmps[] = { fSolidBitmap, fTransparentBitmap };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(bmps); ++i) {
-
             matrix.setIdentity();
             setColorMatrix(&paint, matrix);
             canvas->drawBitmap(bmps[i], 0, 0, &paint);

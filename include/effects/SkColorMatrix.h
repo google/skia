@@ -12,7 +12,10 @@
 
 class SK_API SkColorMatrix {
 public:
-    SkScalar    fMat[20];
+    enum {
+        kCount = 20
+    };
+    SkScalar    fMat[kCount];
 
     enum Elem {
         kR_Scale    = 0,
