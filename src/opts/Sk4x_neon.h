@@ -99,6 +99,8 @@ M(Sk4i) greaterThanEqual(const Sk4f& o) const { return vreinterpretq_s32_u32(vcg
 M(Sk4f) Min(const Sk4f& a, const Sk4f& b) { return vminq_f32(a.fVec, b.fVec); }
 M(Sk4f) Max(const Sk4f& a, const Sk4f& b) { return vmaxq_f32(a.fVec, b.fVec); }
 
+M(Sk4f) aacc() const { return vtrnq_f32(fVec, fVec).val[0]; }
+M(Sk4f) bbdd() const { return vtrnq_f32(fVec, fVec).val[1]; }
 M(Sk4f) badc() const { return vrev64q_f32(fVec); }
 
 // Sk4i Methods
@@ -155,6 +157,8 @@ M(Sk4i) multiply(const Sk4i& o) const { return vmulq_s32(fVec, o.fVec); }
 M(Sk4i) Min(const Sk4i& a, const Sk4i& b) { return vminq_s32(a.fVec, b.fVec); }
 M(Sk4i) Max(const Sk4i& a, const Sk4i& b) { return vmaxq_s32(a.fVec, b.fVec); }
 
+M(Sk4i) aacc() const { return vtrnq_s32(fVec, fVec).val[0]; }
+M(Sk4i) bbdd() const { return vtrnq_s32(fVec, fVec).val[1]; }
 M(Sk4i) badc() const { return vrev64q_s32(fVec); }
 
 #undef M

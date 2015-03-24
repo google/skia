@@ -93,6 +93,8 @@ public:
     static Sk4x Max(const Sk4x& a, const Sk4x& b);
 
     // Swizzles, where this == abcd.
+    Sk4x aacc() const;
+    Sk4x bbdd() const;
     Sk4x badc() const;
 
 private:

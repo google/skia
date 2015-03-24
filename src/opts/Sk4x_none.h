@@ -111,6 +111,8 @@ M(template <int m, int a, int s, int k> Sk4x<T>) Shuffle(const Sk4x<T>& x, const
                 k < 4 ? x.fVec[k] : y.fVec[k-4]);
 }
 
+M(Sk4x<T>) aacc() const { return Shuffle<0,0,2,2>(*this, *this); }
+M(Sk4x<T>) bbdd() const { return Shuffle<1,1,3,3>(*this, *this); }
 M(Sk4x<T>) badc() const { return Shuffle<1,0,3,2>(*this, *this); }
 
 #undef M

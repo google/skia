@@ -62,6 +62,10 @@ template <typename T> Sk4x<T>& Sk4x<T>::operator=(const Sk4x<T>& other) {
 // They're all bit-preserving operations so it shouldn't matter.
 
 template <typename T>
+Sk4x<T> Sk4x<T>::aacc() const { return _mm_shuffle_epi32(as_4i(fVec), _MM_SHUFFLE(2,2,0,0)); }
+template <typename T>
+Sk4x<T> Sk4x<T>::bbdd() const { return _mm_shuffle_epi32(as_4i(fVec), _MM_SHUFFLE(3,3,1,1)); }
+template <typename T>
 Sk4x<T> Sk4x<T>::badc() const { return _mm_shuffle_epi32(as_4i(fVec), _MM_SHUFFLE(2,3,0,1)); }
 
 // Now we'll write all Sk4f specific methods.  This M() macro will remove some noise.

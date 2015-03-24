@@ -136,6 +136,10 @@ DEF_TEST(Sk4x_MinMax, r) {
 
 DEF_TEST(Sk4x_Swizzle, r) {
     ASSERT_EQ(Sk4f(1,2,3,4).badc(), Sk4f(2,1,4,3));
+    ASSERT_EQ(Sk4f(1,2,3,4).aacc(), Sk4f(1,1,3,3));
+    ASSERT_EQ(Sk4f(1,2,3,4).bbdd(), Sk4f(2,2,4,4));
 
     ASSERT_EQ(Sk4i(1,2,3,4).badc(), Sk4i(2,1,4,3));
+    ASSERT_EQ(Sk4i(1,2,3,4).aacc(), Sk4i(1,1,3,3));
+    ASSERT_EQ(Sk4i(1,2,3,4).bbdd(), Sk4i(2,2,4,4));
 }
