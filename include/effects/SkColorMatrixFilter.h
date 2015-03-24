@@ -46,8 +46,7 @@ protected:
     void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
-    SkColorMatrix   fMatrix;
-    float           fTranspose[SkColorMatrix::kCount]; // for Sk4f
+    SkColorMatrix fMatrix;
 
     typedef void (*Proc)(const State&, unsigned r, unsigned g, unsigned b,
                          unsigned a, int32_t result[4]);
