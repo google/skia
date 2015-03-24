@@ -20,7 +20,9 @@ public:
         return SkNEW_ARGS(SkColorMatrixFilter, (array));
     }
 
+    // overrides from SkColorFilter
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
+    void filterSpan16(const uint16_t src[], int count, uint16_t[]) const SK_OVERRIDE;
     uint32_t getFlags() const SK_OVERRIDE;
     bool asColorMatrix(SkScalar matrix[20]) const SK_OVERRIDE;
     SkColorFilter* newComposed(const SkColorFilter*) const SK_OVERRIDE;
