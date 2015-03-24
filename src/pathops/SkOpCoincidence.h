@@ -19,6 +19,8 @@ struct SkCoincidentSpans {
     SkOpPtT* fOppPtTStart;
     SkOpPtT* fOppPtTEnd;
     bool fFlipped;
+
+    void dump() const;
 };
 
 class SkOpCoincidence {
@@ -28,12 +30,26 @@ public:
     }
 
     void add(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
-             SkOpPtT* oppPtTEnd, bool flipped, SkChunkAlloc* allocator);
-    void apply();
+             SkOpPtT* oppPtTEnd, SkChunkAlloc* allocator);
+    bool addMissing(SkChunkAlloc* allocator);
+    bool apply();
     bool contains(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
                   SkOpPtT* oppPtTEnd, bool flipped);
+    void detach(SkCoincidentSpans* );
     void dump() const;
+    void expand();
+    void fixUp(SkOpPtT* deleted, SkOpPtT* kept);
     void mark();
+
+private:
+    bool addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
+                      const SkOpPtT* over2s, const SkOpPtT* over2e, double tStart, double tEnd,
+                      SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
+                      SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd,
+                      SkChunkAlloc* allocator);
+    bool overlap(const SkOpPtT* coinStart1, const SkOpPtT* coinEnd1,
+                 const SkOpPtT* coinStart2, const SkOpPtT* coinEnd2,
+                 double* overS, double* overE) const;
 
     SkCoincidentSpans* fHead;
 };

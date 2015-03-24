@@ -6,14 +6,6 @@
  */
 #include "SkPathOpsLine.h"
 
-SkDLine SkDLine::subDivide(double t1, double t2) const {
-    SkDVector delta = tangent();
-    SkDLine dst = {{{
-            fPts[0].fX - t1 * delta.fX, fPts[0].fY - t1 * delta.fY}, {
-            fPts[0].fX - t2 * delta.fX, fPts[0].fY - t2 * delta.fY}}};
-    return dst;
-}
-
 // may have this below somewhere else already:
 // copying here because I thought it was clever
 
@@ -28,6 +20,7 @@ SkDLine SkDLine::subDivide(double t1, double t2) const {
 //    Point with coordinates {float x, y;}
 //===================================================================
 
+// (only used by testing)
 // isLeft(): tests if a point is Left|On|Right of an infinite line.
 //    Input:  three points P0, P1, and P2
 //    Return: >0 for P2 left of the line through P0 and P1
@@ -108,19 +101,6 @@ bool SkDLine::nearRay(const SkDPoint& xy) const {
     double largest = SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
     largest = SkTMax(largest, -tiniest);
     return RoughlyEqualUlps(largest, largest + dist); // is the dist within ULPS tolerance?
-}
-
-// Returns true if a ray from (0,0) to (x1,y1) is coincident with a ray (0,0) to (x2,y2)
-// OPTIMIZE: a specialty routine could speed this up -- may not be called very often though
-bool SkDLine::NearRay(double x1, double y1, double x2, double y2) {
-    double denom1 = x1 * x1 + y1 * y1;
-    double denom2 = x2 * x2 + y2 * y2;
-    SkDLine line = {{{0, 0}, {x1, y1}}};
-    SkDPoint pt = {x2, y2};
-    if (denom2 > denom1) {
-        SkTSwap(line[1], pt);
-    }
-    return line.nearRay(pt);
 }
 
 double SkDLine::ExactPointH(const SkDPoint& xy, double left, double right, double y) {

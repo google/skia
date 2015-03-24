@@ -43,10 +43,6 @@ DEF_TEST(PathOpsLineUtilities, reporter) {
             SkDebugf("%s [%d] expected left\n", __FUNCTION__, index);
             REPORTER_ASSERT(reporter, 0);
         }
-        line2 = line.subDivide(1, 0);
-        REPORTER_ASSERT(reporter, line[0] == line2[1] && line[1] == line2[0]);
-        line2 = SkDLine::SubDivide(pts, 1, 0);
-        REPORTER_ASSERT(reporter, line[0] == line2[1] && line[1] == line2[0]);
         SkDPoint mid = line.ptAtT(.5);
         REPORTER_ASSERT(reporter, approximately_equal((line[0].fX + line[1].fX) / 2, mid.fX));
         REPORTER_ASSERT(reporter, approximately_equal((line[0].fY + line[1].fY) / 2, mid.fY));
