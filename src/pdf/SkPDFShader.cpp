@@ -877,7 +877,8 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     pdfShader->insertName("ColorSpace", "DeviceRGB");
     pdfShader->insert("Domain", domain.get());
 
-    SkPDFStream* function = make_ps_function(functionCode, domain.get());
+    SkAutoTUnref<SkPDFStream> function(
+            make_ps_function(functionCode, domain.get()));
     pdfShader->insert("Function", new SkPDFObjRef(function))->unref();
 
     SkAutoTUnref<SkPDFArray> matrixArray(
