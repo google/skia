@@ -88,11 +88,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-    if (NULL != codec) {
-        return codec->getInfo().dimensions();
-    } else {
-        return SkISize::Make(0, 0);
-    }
+    return codec->getInfo().dimensions();
 }
 
 Name CodecSrc::name() const {

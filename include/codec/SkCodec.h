@@ -71,6 +71,9 @@ protected:
     }
 #endif
 
+    // Helper for subclasses.
+    const SkImageInfo& getOriginalInfo() { return fInfo; }
+
     virtual SkISize onGetScaledDimensions(float /* desiredScale */) const {
         // By default, scaling is not supported.
         return fInfo.dimensions();

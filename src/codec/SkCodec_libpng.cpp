@@ -368,10 +368,10 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
-    if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
+    if (requestedInfo.dimensions() != this->getOriginalInfo().dimensions()) {
         return kInvalidScale;
     }
-    if (!conversion_possible(requestedInfo, this->getInfo())) {
+    if (!conversion_possible(requestedInfo, this->getOriginalInfo())) {
         return kInvalidConversion;
     }
 
@@ -424,7 +424,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         // told png to upscale.
         SkASSERT(PNG_COLOR_TYPE_GRAY == pngColorType);
         sc = SkSwizzler::kGray;
-    } else if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
+    } else if (this->getOriginalInfo().alphaType() == kOpaque_SkAlphaType) {
         sc = SkSwizzler::kRGBX;
     } else {
         sc = SkSwizzler::kRGBA;

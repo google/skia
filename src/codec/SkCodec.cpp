@@ -8,7 +8,6 @@
 #include "SkCodec.h"
 #include "SkData.h"
 #include "SkCodec_libbmp.h"
-#include "SkCodec_libico.h"
 #include "SkCodec_libpng.h"
 #include "SkStream.h"
 
@@ -19,7 +18,6 @@ struct DecoderProc {
 
 static const DecoderProc gDecoderProcs[] = {
     { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
-    { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
     { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream }
 };
 
