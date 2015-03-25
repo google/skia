@@ -479,6 +479,9 @@ void GrClipMaskManager::mergeMask(GrPipelineBuilder* pipelineBuilder,
                                       GrTextureDomain::MakeTexelDomain(srcMask, srcBound),
                                       GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode))->unref();
+    // We need this AGP until everything is in GrBatch
+    GrDrawTarget::AutoGeometryPush agp(fClipTarget);
+
     // The color passed in here does not matter since the coverageSetOpXP won't read it.
     fClipTarget->drawSimpleRect(pipelineBuilder,
                                 GrColor_WHITE,
@@ -670,6 +673,9 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                              0x0000,
                                              0xffff);
                 backgroundPipelineBuilder.setStencil(kDrawOutsideElement);
+
+                // We need this AGP until everything is in GrBatch
+                GrDrawTarget::AutoGeometryPush agp(fClipTarget);
                 // The color passed in here does not matter since the coverageSetOpXP won't read it.
                 fClipTarget->drawSimpleRect(&backgroundPipelineBuilder, GrColor_WHITE, translate,
                                             clipSpaceIBounds);
@@ -806,6 +812,9 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                              0xffff);
                 if (Element::kRect_Type == element->getType()) {
                     *pipelineBuilder.stencil() = gDrawToStencil;
+
+                    // We need this AGP until everything is in GrBatch
+                    GrDrawTarget::AutoGeometryPush agp(fClipTarget);
                     fClipTarget->drawSimpleRect(&pipelineBuilder,
                                                 GrColor_WHITE,
                                                 viewMatrix,
@@ -834,6 +843,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
                 if (canDrawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
+                        // We need this AGP until everything is in GrBatch
+                        GrDrawTarget::AutoGeometryPush agp(fClipTarget);
                         fClipTarget->drawSimpleRect(&pipelineBuilderCopy,
                                                     GrColor_WHITE,
                                                     viewMatrix,
@@ -844,6 +855,9 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                      viewMatrix, clipPath, stroke, false);
                     }
                 } else {
+                    // We need this AGP until everything is in GrBatch
+                    GrDrawTarget::AutoGeometryPush agp(fClipTarget);
+
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
                     fClipTarget->drawSimpleRect(&pipelineBuilderCopy,
