@@ -41,27 +41,15 @@ public:
      */
     bool emitPDF(SkWStream* stream);
 
-    /** Sets the specific page to the passed PDF device. If the specified
-     *  page is already set, this overrides it. Returns true if successful.
-     *  Will fail if the document has already been emitted.
-     *
-     *  @param pageNumber The position to add the passed device (1 based).
-     *  @param pdfDevice  The page to add to this document.
-     */
-    bool setPage(int pageNumber, SkPDFDevice* pdfDevice);
-
     /** Append the passed pdf device to the document as a new page.  Returns
      *  true if successful.  Will fail if the document has already been emitted.
      *
      *  @param pdfDevice The page to add to this document.
      */
-    bool appendPage(SkPDFDevice* pdfDevice);
-
-    /** Get the count of unique font types used in the document.
-     * DEPRECATED.
-     */
-    void getCountOfFontTypes(
-        int counts[SkAdvancedTypefaceMetrics::kOther_Font + 2]) const;
+    bool appendPage(SkPDFDevice* pdfDevice) {
+        fPageDevices.push(SkRef(pdfDevice));
+        return true;
+    }
 
     /** Get the count of unique font types used in the document.
      */
@@ -71,32 +59,7 @@ public:
         int* notEmbedddableCount) const;
 
 private:
-    SkAutoTDelete<SkPDFCatalog> fCatalog;
-    int64_t fXRefFileOffset;
-
-    SkTDArray<SkPDFPage*> fPages;
-    SkTDArray<SkPDFDict*> fPageTree;
-    SkPDFDict* fDocCatalog;
-    SkTSet<SkPDFObject*>* fFirstPageResources;
-    SkTSet<SkPDFObject*>* fOtherPageResources;
-    SkTDArray<SkPDFObject*> fSubstitutes;
-
-    SkPDFDict* fTrailerDict;
-
-    /** Output the PDF header to the passed stream.
-     *  @param stream    The writable output stream to send the header to.
-     */
-    void emitHeader(SkWStream* stream);
-
-    /** Get the size of the header.
-     */
-    size_t headerSize();
-
-    /** Output the PDF footer to the passed stream.
-     *  @param stream    The writable output stream to send the footer to.
-     *  @param objCount  The number of objects in the PDF.
-     */
-    void emitFooter(SkWStream* stream, int64_t objCount);
+    SkTDArray<SkPDFDevice*> fPageDevices;
 };
 
 #endif

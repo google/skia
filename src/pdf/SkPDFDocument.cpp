@@ -15,13 +15,6 @@
 #include "SkPDFTypes.h"
 #include "SkStream.h"
 
-static void addResourcesToCatalog(bool firstPage,
-                                  SkTSet<SkPDFObject*>* resourceSet,
-                                  SkPDFCatalog* catalog) {
-    for (int i = 0; i < resourceSet->count(); i++) {
-        catalog->addObject((*resourceSet)[i], firstPage);
-    }
-}
 
 static void perform_font_subsetting(SkPDFCatalog* catalog,
                                     const SkTDArray<SkPDFPage*>& pages,
@@ -46,198 +39,158 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
     }
 }
 
-SkPDFDocument::SkPDFDocument()
-        : fXRefFileOffset(0),
-          fTrailerDict(NULL) {
-    fCatalog.reset(SkNEW(SkPDFCatalog));
-    fDocCatalog = SkNEW_ARGS(SkPDFDict, ("Catalog"));
-    fCatalog->addObject(fDocCatalog, true);
-    fFirstPageResources = NULL;
-    fOtherPageResources = NULL;
+SkPDFDocument::SkPDFDocument() {}
+
+SkPDFDocument::~SkPDFDocument() { fPageDevices.unrefAll(); }
+
+static void emit_pdf_header(SkWStream* stream) {
+    stream->writeText("%PDF-1.4\n%");
+    // The PDF spec recommends including a comment with four bytes, all
+    // with their high bits set.  This is "Skia" with the high bits set.
+    stream->write32(0xD3EBE9E1);
+    stream->writeText("\n");
 }
 
-SkPDFDocument::~SkPDFDocument() {
-    fPages.safeUnrefAll();
+static void emit_pdf_footer(SkWStream* stream,
+                            SkPDFCatalog* catalog,
+                            SkPDFObject* docCatalog,
+                            int64_t objCount,
+                            int32_t xRefFileOffset) {
+    SkPDFDict trailerDict;
+    // TODO(vandebo): Linearized format will take a Prev entry too.
+    // TODO(vandebo): PDF/A requires an ID entry.
+    trailerDict.insertInt("Size", int(objCount));
+    trailerDict.insert("Root", new SkPDFObjRef(docCatalog))->unref();
 
-    // The page tree has both child and parent pointers, so it creates a
-    // reference cycle.  We must clear that cycle to properly reclaim memory.
-    for (int i = 0; i < fPageTree.count(); i++) {
-        fPageTree[i]->clear();
-    }
-    fPageTree.safeUnrefAll();
-
-    if (fFirstPageResources) {
-        fFirstPageResources->safeUnrefAll();
-    }
-    if (fOtherPageResources) {
-        fOtherPageResources->safeUnrefAll();
-    }
-
-    fSubstitutes.safeUnrefAll();
-
-    fDocCatalog->unref();
-    SkSafeUnref(fTrailerDict);
-    SkDELETE(fFirstPageResources);
-    SkDELETE(fOtherPageResources);
+    stream->writeText("trailer\n");
+    trailerDict.emitObject(stream, catalog);
+    stream->writeText("\nstartxref\n");
+    stream->writeBigDecAsText(xRefFileOffset);
+    stream->writeText("\n%%EOF");
 }
 
 bool SkPDFDocument::emitPDF(SkWStream* stream) {
-    if (fPages.isEmpty()) {
+    // SkTDArray<SkPDFDevice*> fPageDevices;
+    if (fPageDevices.isEmpty()) {
         return false;
     }
-    for (int i = 0; i < fPages.count(); i++) {
-        if (fPages[i] == NULL) {
-            return false;
-        }
+    SkTDArray<SkPDFPage*> pages;
+    for (int i = 0; i < fPageDevices.count(); i++) {
+        // Reference from new passed to pages.
+        pages.push(SkNEW_ARGS(SkPDFPage, (fPageDevices[i])));
     }
+    SkPDFCatalog catalog;
 
-    fFirstPageResources = SkNEW(SkTSet<SkPDFObject*>);
-    fOtherPageResources = SkNEW(SkTSet<SkPDFObject*>);
+    SkTDArray<SkPDFDict*> pageTree;
+    SkAutoTUnref<SkPDFDict> docCatalog(SkNEW_ARGS(SkPDFDict, ("Catalog")));
+    SkTSet<SkPDFObject*> firstPageResources;
+    SkTSet<SkPDFObject*> otherPageResources;
+    SkTDArray<SkPDFObject*> substitutes;
+    catalog.addObject(docCatalog.get(), true);
 
-    // We haven't emitted the document before if fPageTree is empty.
-    if (fPageTree.isEmpty()) {
-        SkPDFDict* pageTreeRoot;
-        SkPDFPage::GeneratePageTree(fPages, fCatalog.get(), &fPageTree,
-                                    &pageTreeRoot);
-        fDocCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
+    SkPDFDict* pageTreeRoot;
+    SkPDFPage::GeneratePageTree(pages, &catalog, &pageTree, &pageTreeRoot);
+    docCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
-        /* TODO(vandebo): output intent
-        SkAutoTUnref<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
-        outputIntent->insert("S", new SkPDFName("GTS_PDFA1"))->unref();
-        outputIntent->insert("OutputConditionIdentifier",
-                             new SkPDFString("sRGB"))->unref();
-        SkAutoTUnref<SkPDFArray> intentArray = new SkPDFArray;
-        intentArray->append(outputIntent.get());
-        fDocCatalog->insert("OutputIntent", intentArray.get());
-        */
+    /* TODO(vandebo): output intent
+    SkAutoTUnref<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
+    outputIntent->insert("S", new SkPDFName("GTS_PDFA1"))->unref();
+    outputIntent->insert("OutputConditionIdentifier",
+                         new SkPDFString("sRGB"))->unref();
+    SkAutoTUnref<SkPDFArray> intentArray = new SkPDFArray;
+    intentArray->append(outputIntent.get());
+    docCatalog->insert("OutputIntent", intentArray.get());
+    */
 
-        SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
+    SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
 
-        bool firstPage = true;
-        /* The references returned in newResources are transfered to
-         * fFirstPageResources or fOtherPageResources depending on firstPage and
-         * knownResources doesn't have a reference but just relies on the other
-         * two sets to maintain a reference.
-         */
-        SkTSet<SkPDFObject*> knownResources;
+    bool firstPage = true;
+    /* The references returned in newResources are transfered to
+     * firstPageResources or otherPageResources depending on firstPage and
+     * knownResources doesn't have a reference but just relies on the other
+     * two sets to maintain a reference.
+     */
+    SkTSet<SkPDFObject*> knownResources;
 
-        // mergeInto returns the number of duplicates.
-        // If there are duplicates, there is a bug and we mess ref counting.
-        SkDEBUGCODE(int duplicates =) knownResources.mergeInto(*fFirstPageResources);
+    // mergeInto returns the number of duplicates.
+    // If there are duplicates, there is a bug and we mess ref counting.
+    SkDEBUGCODE(int duplicates = ) knownResources.mergeInto(firstPageResources);
+    SkASSERT(duplicates == 0);
+
+    for (int i = 0; i < pages.count(); i++) {
+        if (i == 1) {
+            firstPage = false;
+            SkDEBUGCODE(duplicates = )
+                    knownResources.mergeInto(otherPageResources);
+        }
+        SkTSet<SkPDFObject*> newResources;
+        pages[i]->finalizePage(&catalog, firstPage, knownResources,
+                               &newResources);
+        for (int j = 0; j < newResources.count(); j++) {
+            catalog.addObject(newResources[i], firstPage);
+        }
+        if (firstPage) {
+            SkDEBUGCODE(duplicates = )
+                    firstPageResources.mergeInto(newResources);
+        } else {
+            SkDEBUGCODE(duplicates = )
+                    otherPageResources.mergeInto(newResources);
+        }
         SkASSERT(duplicates == 0);
 
-        for (int i = 0; i < fPages.count(); i++) {
-            if (i == 1) {
-                firstPage = false;
-                SkDEBUGCODE(duplicates =) knownResources.mergeInto(*fOtherPageResources);
-            }
-            SkTSet<SkPDFObject*> newResources;
-            fPages[i]->finalizePage(
-                fCatalog.get(), firstPage, knownResources, &newResources);
-            addResourcesToCatalog(firstPage, &newResources, fCatalog.get());
-            if (firstPage) {
-                SkDEBUGCODE(duplicates =) fFirstPageResources->mergeInto(newResources);
-            } else {
-                SkDEBUGCODE(duplicates =) fOtherPageResources->mergeInto(newResources);
-            }
-            SkASSERT(duplicates == 0);
+        SkDEBUGCODE(duplicates = ) knownResources.mergeInto(newResources);
+        SkASSERT(duplicates == 0);
 
-            SkDEBUGCODE(duplicates =) knownResources.mergeInto(newResources);
-            SkASSERT(duplicates == 0);
-
-            fPages[i]->appendDestinations(dests);
-        }
-
-        if (dests->size() > 0) {
-            SkPDFDict* raw_dests = dests.get();
-            fFirstPageResources->add(dests.detach());  // Transfer ownership.
-            fCatalog->addObject(raw_dests, true /* onFirstPage */);
-            fDocCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (raw_dests)))->unref();
-        }
-
-        // Build font subsetting info before proceeding.
-        perform_font_subsetting(fCatalog.get(), fPages, &fSubstitutes);
+        pages[i]->appendDestinations(dests);
     }
+
+    if (dests->size() > 0) {
+        SkPDFDict* raw_dests = dests.get();
+        firstPageResources.add(dests.detach());  // Transfer ownership.
+        catalog.addObject(raw_dests, true /* onFirstPage */);
+        docCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (raw_dests)))
+                ->unref();
+    }
+
+    // Build font subsetting info before proceeding.
+    perform_font_subsetting(&catalog, pages, &substitutes);
 
     SkTSet<SkPDFObject*> resourceSet;
-    if (resourceSet.add(fDocCatalog)) {
-        fDocCatalog->addResources(&resourceSet, fCatalog);
+    if (resourceSet.add(docCatalog.get())) {
+        docCatalog->addResources(&resourceSet, &catalog);
     }
-    off_t baseOffset = SkToOffT(stream->bytesWritten());
-    emitHeader(stream);
+    size_t baseOffset = SkToOffT(stream->bytesWritten());
+    emit_pdf_header(stream);
     for (int i = 0; i < resourceSet.count(); ++i) {
         SkPDFObject* object = resourceSet[i];
-        fCatalog->setFileOffset(object,
-                                SkToOffT(stream->bytesWritten()) - baseOffset);
-        SkASSERT(object == fCatalog->getSubstituteObject(object));
-        stream->writeDecAsText(fCatalog->getObjectNumber(object));
+        catalog.setFileOffset(object,
+                              SkToOffT(stream->bytesWritten() - baseOffset));
+        SkASSERT(object == catalog.getSubstituteObject(object));
+        stream->writeDecAsText(catalog.getObjectNumber(object));
         stream->writeText(" 0 obj\n");  // Generation number is always 0.
-        object->emitObject(stream, fCatalog);
+        object->emitObject(stream, &catalog);
         stream->writeText("\nendobj\n");
     }
-    fXRefFileOffset = SkToOffT(stream->bytesWritten()) - baseOffset;
-    int64_t objCount = fCatalog->emitXrefTable(stream, fPages.count() > 1);
-    emitFooter(stream, objCount);
+    int32_t xRefFileOffset = SkToS32(stream->bytesWritten() - baseOffset);
+    int64_t objCount = catalog.emitXrefTable(stream, pages.count() > 1);
+
+    emit_pdf_footer(stream, &catalog, docCatalog.get(), objCount,
+                    xRefFileOffset);
+
+    // The page tree has both child and parent pointers, so it creates a
+    // reference cycle.  We must clear that cycle to properly reclaim memory.
+    for (int i = 0; i < pageTree.count(); i++) {
+        pageTree[i]->clear();
+    }
+    pageTree.safeUnrefAll();
+    pages.unrefAll();
+
+    firstPageResources.safeUnrefAll();
+    otherPageResources.safeUnrefAll();
+
+    substitutes.unrefAll();
+    docCatalog.reset(NULL);
     return true;
-}
-
-// TODO(halcanary): remove this method, since it is unused.
-bool SkPDFDocument::setPage(int pageNumber, SkPDFDevice* pdfDevice) {
-    if (!fPageTree.isEmpty()) {
-        return false;
-    }
-
-    pageNumber--;
-    SkASSERT(pageNumber >= 0);
-
-    if (pageNumber >= fPages.count()) {
-        int oldSize = fPages.count();
-        fPages.setCount(pageNumber + 1);
-        for (int i = oldSize; i <= pageNumber; i++) {
-            fPages[i] = NULL;
-        }
-    }
-
-    SkPDFPage* page = new SkPDFPage(pdfDevice);
-    SkSafeUnref(fPages[pageNumber]);
-    fPages[pageNumber] = page;  // Reference from new passed to fPages.
-    return true;
-}
-
-bool SkPDFDocument::appendPage(SkPDFDevice* pdfDevice) {
-    if (!fPageTree.isEmpty()) {
-        return false;
-    }
-
-    SkPDFPage* page = new SkPDFPage(pdfDevice);
-    fPages.push(page);  // Reference from new passed to fPages.
-    return true;
-}
-
-// Deprecated.
-// TODO(halcanary): remove
-void SkPDFDocument::getCountOfFontTypes(
-        int counts[SkAdvancedTypefaceMetrics::kOther_Font + 2]) const {
-    sk_bzero(counts, sizeof(int) *
-                     (SkAdvancedTypefaceMetrics::kOther_Font + 2));
-    SkTDArray<SkFontID> seenFonts;
-    int notEmbeddable = 0;
-
-    for (int pageNumber = 0; pageNumber < fPages.count(); pageNumber++) {
-        const SkTDArray<SkPDFFont*>& fontResources =
-                fPages[pageNumber]->getFontResources();
-        for (int font = 0; font < fontResources.count(); font++) {
-            SkFontID fontID = fontResources[font]->typeface()->uniqueID();
-            if (seenFonts.find(fontID) == -1) {
-                counts[fontResources[font]->getType()]++;
-                seenFonts.push(fontID);
-                if (!fontResources[font]->canEmbed()) {
-                    notEmbeddable++;
-                }
-            }
-        }
-    }
-    counts[SkAdvancedTypefaceMetrics::kOther_Font + 1] = notEmbeddable;
 }
 
 // TODO(halcanary): expose notEmbeddableCount in SkDocument
@@ -251,9 +204,9 @@ void SkPDFDocument::getCountOfFontTypes(
     int notSubsettable = 0;
     int notEmbeddable = 0;
 
-    for (int pageNumber = 0; pageNumber < fPages.count(); pageNumber++) {
+    for (int pageNumber = 0; pageNumber < fPageDevices.count(); pageNumber++) {
         const SkTDArray<SkPDFFont*>& fontResources =
-                fPages[pageNumber]->getFontResources();
+                fPageDevices[pageNumber]->getFontResources();
         for (int font = 0; font < fontResources.count(); font++) {
             SkFontID fontID = fontResources[font]->typeface()->uniqueID();
             if (seenFonts.find(fontID) == -1) {
@@ -275,36 +228,4 @@ void SkPDFDocument::getCountOfFontTypes(
     if (notEmbeddableCount) {
         *notEmbeddableCount = notEmbeddable;
     }
-}
-
-void SkPDFDocument::emitHeader(SkWStream* stream) {
-    stream->writeText("%PDF-1.4\n%");
-    // The PDF spec recommends including a comment with four bytes, all
-    // with their high bits set.  This is "Skia" with the high bits set.
-    stream->write32(0xD3EBE9E1);
-    stream->writeText("\n");
-}
-
-//TODO(halcanary): remove this function
-size_t SkPDFDocument::headerSize() {
-    SkDynamicMemoryWStream buffer;
-    emitHeader(&buffer);
-    return buffer.getOffset();
-}
-
-void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
-    if (NULL == fTrailerDict) {
-        fTrailerDict = SkNEW(SkPDFDict);
-
-        // TODO(vandebo): Linearized format will take a Prev entry too.
-        // TODO(vandebo): PDF/A requires an ID entry.
-        fTrailerDict->insertInt("Size", int(objCount));
-        fTrailerDict->insert("Root", new SkPDFObjRef(fDocCatalog))->unref();
-    }
-
-    stream->writeText("trailer\n");
-    fTrailerDict->emitObject(stream, fCatalog.get());
-    stream->writeText("\nstartxref\n");
-    stream->writeBigDecAsText(fXRefFileOffset);
-    stream->writeText("\n%%EOF");
 }
