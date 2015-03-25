@@ -19,6 +19,7 @@
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
+#include "SkScanlineDecoder.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkXMLWriter.h"
@@ -51,7 +52,7 @@ Name GMSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-CodecSrc::CodecSrc(Path path) : fPath(path) {}
+CodecSrc::CodecSrc(Path path, Mode mode) : fPath(path), fMode(mode) {}
 
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo canvasInfo;
@@ -83,20 +84,43 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                               decodeInfo.width(), decodeInfo.height());
     }
 
-    SkAutoLockPixels alp(bitmap);
-    switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
-        case SkImageGenerator::kSuccess:
-        // We consider incomplete to be valid, since we should still decode what is
-        // available.
-        case SkImageGenerator::kIncompleteInput:
-            canvas->drawBitmap(bitmap, 0, 0);
-            return "";
-        case SkImageGenerator::kInvalidConversion:
-            return Error::Nonfatal("Incompatible colortype conversion");
-        default:
-            // Everything else is considered a failure.
-            return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+    switch (fMode) {
+        case kNormal_Mode:
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
+                case SkImageGenerator::kSuccess:
+                    // We consider incomplete to be valid, since we should still decode what is
+                    // available.
+                case SkImageGenerator::kIncompleteInput:
+                    break;
+                case SkImageGenerator::kInvalidConversion:
+                    return Error::Nonfatal("Incompatible colortype conversion");
+                default:
+                    // Everything else is considered a failure.
+                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+            }
+            break;
+        case kScanline_Mode: {
+            SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(decodeInfo);
+            if (NULL == scanlineDecoder) {
+                return Error::Nonfatal("Cannot use scanline decoder for all images");
+            }
+            for (int y = 0; y < decodeInfo.height(); ++y) {
+                const SkImageGenerator::Result result = scanlineDecoder->getScanlines(
+                        bitmap.getAddr(0, y), 1, 0);
+                switch (result) {
+                    case SkImageGenerator::kSuccess:
+                    case SkImageGenerator::kIncompleteInput:
+                        break;
+                    default:
+                        return SkStringPrintf("%s failed after %d scanlines with error message %d",
+                                              fPath.c_str(), y-1, (int) result);
+                }
+            }
+            break;
+        }
     }
+    canvas->drawBitmap(bitmap, 0, 0);
+    return "";
 }
 
 SkISize CodecSrc::size() const {

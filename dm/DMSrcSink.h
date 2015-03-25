@@ -90,13 +90,18 @@ private:
 
 class CodecSrc : public Src {
 public:
-    explicit CodecSrc(Path path);
+    enum Mode {
+        kNormal_Mode,
+        kScanline_Mode,
+    };
+    CodecSrc(Path, Mode);
 
     Error draw(SkCanvas*) const SK_OVERRIDE;
     SkISize size() const SK_OVERRIDE;
     Name name() const SK_OVERRIDE;
 private:
     Path fPath;
+    Mode fMode;
 };
 
 

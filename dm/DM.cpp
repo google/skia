@@ -25,7 +25,7 @@
 #include "Test.h"
 #include "Timer.h"
 
-DEFINE_string(src, "tests gm skp image subset codec", "Source types to test.");
+DEFINE_string(src, "tests gm skp image subset codec scanline", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<name>.png");
@@ -187,7 +187,8 @@ static void gather_srcs() {
                     push_src("image", new ImageSrc(path));     // Decode entire image.
                     push_src("subset", new ImageSrc(path, 2)); // Decode into 2 x 2 subsets
                     if (codec_supported(exts[j])) {
-                        push_src("codec", new CodecSrc(path));     // Decode with SkCodec.
+                        push_src("codec", new CodecSrc(path, CodecSrc::kNormal_Mode));
+                        push_src("scanline", new CodecSrc(path, CodecSrc::kScanline_Mode));
                     }
                 }
             }
@@ -195,7 +196,8 @@ static void gather_srcs() {
             // assume that FLAGS_images[i] is a valid image if it is a file.
             push_src("image", new ImageSrc(flag));     // Decode entire image.
             push_src("subset", new ImageSrc(flag, 2)); // Decode into 2 x 2 subsets
-            push_src("codec", new CodecSrc(flag));     // Decode with SkCodec.
+            push_src("codec", new CodecSrc(flag, CodecSrc::kNormal_Mode));
+            push_src("scanline", new CodecSrc(flag, CodecSrc::kScanline_Mode));
         }
     }
 }
