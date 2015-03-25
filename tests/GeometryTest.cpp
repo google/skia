@@ -58,12 +58,12 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
             SkEvalQuadAt(pts, t, &r0);
             SkPoint r1 = SkEvalQuadAt(pts, t);
             check_pairs(reporter, i, t, "quad-pos", r0.fX, r0.fY, r1.fX, r1.fY);
-
+            
             SkVector v0;
             SkEvalQuadAt(pts, t, NULL, &v0);
             SkVector v1 = SkEvalQuadTangentAt(pts, t);
             check_pairs(reporter, i, t, "quad-tan", v0.fX, v0.fY, v1.fX, v1.fY);
-
+            
             SkPoint dst0[5], dst1[5];
             SkChopQuadAt(pts,  dst0, t);
             SkChopQuadAt2(pts, dst1, t);
@@ -71,7 +71,30 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
                 check_pairs(reporter, i, t, "chop-quad",
                             dst0[k].fX, dst0[k].fY, dst1[k].fX, dst1[k].fY);
             }
+            
+            t += dt;
+        }
+    }
+}
 
+static void test_cubicat(skiatest::Reporter* reporter) {
+    SkRandom rand;
+    for (int i = 0; i < 1000; ++i) {
+        SkPoint pts[4];
+        for (int j = 0; j < 4; ++j) {
+            pts[j].set(rand.nextSScalar1() * 100, rand.nextSScalar1() * 100);
+        }
+        const SkScalar dt = SK_Scalar1 / 128;
+        SkScalar t = dt;
+        for (int j = 1; j < 128; ++j) {
+            SkPoint dst0[7], dst1[7];
+            SkChopCubicAt(pts,  dst0, t);
+            SkChopCubicAt2(pts, dst1, t);
+            for (int k = 0; k < 7; ++k) {
+                check_pairs(reporter, i, t, "chop-cubic",
+                            dst0[k].fX, dst0[k].fY, dst1[k].fX, dst1[k].fY);
+            }
+            
             t += dt;
         }
     }
@@ -156,4 +179,5 @@ DEF_TEST(Geometry, reporter) {
     testChopCubic(reporter);
     test_evalquadat(reporter);
     test_conic(reporter);
+    test_cubicat(reporter);
 }

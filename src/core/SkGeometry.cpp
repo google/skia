@@ -479,6 +479,31 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     interp_cubic_coords(&src[0].fY, &dst[0].fY, t);
 }
 
+void SkChopCubicAt2(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
+    SkASSERT(t > 0 && t < SK_Scalar1);
+
+    Sk2s    p0 = from_point(src[0]);
+    Sk2s    p1 = from_point(src[1]);
+    Sk2s    p2 = from_point(src[2]);
+    Sk2s    p3 = from_point(src[3]);
+    Sk2s    tt(t);
+
+    Sk2s    ab = interp(p0, p1, tt);
+    Sk2s    bc = interp(p1, p2, tt);
+    Sk2s    cd = interp(p2, p3, tt);
+    Sk2s    abc = interp(ab, bc, tt);
+    Sk2s    bcd = interp(bc, cd, tt);
+    Sk2s    abcd = interp(abc, bcd, tt);
+    
+    dst[0] = src[0];
+    dst[1] = to_point(ab);
+    dst[2] = to_point(abc);
+    dst[3] = to_point(abcd);
+    dst[4] = to_point(bcd);
+    dst[5] = to_point(cd);
+    dst[6] = src[3];
+}
+
 /*  http://code.google.com/p/skia/issues/detail?id=32
 
     This test code would fail when we didn't check the return result of

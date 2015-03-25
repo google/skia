@@ -95,6 +95,8 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* locOrNull,
     dst[0..3] and dst[3..6]
 */
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t);
+void SkChopCubicAt2(const SkPoint src[4], SkPoint dst[7], SkScalar t);
+
 /** Given a src cubic bezier, chop it at the specified t values,
     where 0 < t < 1, and return the new cubics in dst:
     dst[0..3],dst[3..6],...,dst[3*t_count..3*(t_count+1)]

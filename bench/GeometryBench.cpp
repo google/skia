@@ -134,11 +134,11 @@ DEF_BENCH( return new GeoRectBench_sort; )
 
 class QuadBenchBase : public GeometryBench {
 protected:
-    SkPoint fPts[3];
+    SkPoint fPts[4];
 public:
     QuadBenchBase(const char name[]) : GeometryBench(name) {
         SkRandom rand;
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 4; ++i) {
             fPts[i].set(rand.nextUScalar1(), rand.nextUScalar1());
         }
     }
@@ -243,4 +243,36 @@ protected:
     }
 };
 DEF_BENCH( return new ChopQuadAt1; )
+
+class ChopCubicAt0 : public QuadBenchBase {
+public:
+    ChopCubicAt0() : QuadBenchBase("chopcubicat0") {}
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint dst[7];
+        for (int outer = 0; outer < loops; ++outer) {
+            SkChopCubicAt(fPts, dst, 0.5f);
+            SkChopCubicAt(fPts, dst, 0.5f);
+            SkChopCubicAt(fPts, dst, 0.5f);
+            SkChopCubicAt(fPts, dst, 0.5f);
+        }
+    }
+};
+DEF_BENCH( return new ChopCubicAt0; )
+
+class ChopCubicAt1 : public QuadBenchBase {
+public:
+    ChopCubicAt1() : QuadBenchBase("chopcubicat1") {}
+protected:
+    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        SkPoint dst[7];
+        for (int outer = 0; outer < loops; ++outer) {
+            SkChopCubicAt2(fPts, dst, 0.5f);
+            SkChopCubicAt2(fPts, dst, 0.5f);
+            SkChopCubicAt2(fPts, dst, 0.5f);
+            SkChopCubicAt2(fPts, dst, 0.5f);
+        }
+    }
+};
+DEF_BENCH( return new ChopCubicAt1; )
 
