@@ -1,3 +1,7 @@
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 # Build ALMOST everything provided by Skia; this should be the default target.
 #
 # This omits the following targets that many developers won't want to build:

@@ -1,3 +1,7 @@
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 # Views is the Skia windowing toolkit.
 # It provides:
 #  * A portable means of creating native windows.

@@ -1,3 +1,7 @@
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 # Include this gypi to include all 'utils' files
 # The parent gyp/gypi file must define
 #       'skia_src_path'     e.g. skia/trunk/src

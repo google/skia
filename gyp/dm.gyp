@@ -1,3 +1,7 @@
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 # GYP for "dm" (Diamond Master, a.k.a Dungeon master, a.k.a GM 2).
 {
     'includes': [ 'apptype_console.gypi' ],

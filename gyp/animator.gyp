@@ -1,3 +1,7 @@
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 #Animator is basically Skia's (much saner) version of Flash.
 #On top of Views it provides a declarative UI model which can be updated
 #based on events which trigger changes or scripts.
