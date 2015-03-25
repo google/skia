@@ -118,6 +118,24 @@ def _IfDefChecks(input_api, output_api):
   return results
 
 
+def _CopyrightChecks(input_api, output_api, source_file_filter=None):
+  results = []
+  year_pattern = r'\d{4}'
+  year_range_pattern = r'%s(-%s)?' % (year_pattern, year_pattern)
+  years_pattern = r'%s(,%s)*,?' % (year_range_pattern, year_range_pattern)
+  copyright_pattern = (
+      r'Copyright (\([cC]\) )?%s \w+' % years_pattern)
+
+  for affected_file in input_api.AffectedSourceFiles(source_file_filter):
+    if 'third_party' in affected_file.LocalPath():
+      continue
+    contents = input_api.ReadFile(affected_file, 'rb')
+    if not re.search(copyright_pattern, contents):
+      results.append(output_api.PresubmitError(
+          '%s is missing a correct copyright header.' % affected_file))
+  return results
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -132,6 +150,8 @@ def _CommonChecks(input_api, output_api):
           input_api, output_api, source_file_filter=sources))
   results.extend(_PythonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
+  results.extend(_CopyrightChecks(input_api, output_api,
+                                  source_file_filter=sources))
   return results
 
 
