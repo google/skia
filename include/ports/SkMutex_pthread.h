@@ -73,9 +73,9 @@ private:
     SkMutex& operator=(const SkMutex&);
 };
 
-#if defined(SK_DEBUG) && defined(PTHREAD_ERRORCHECK_MUTEX_INITIALIZER)
+#if defined(SK_DEBUG) && defined(PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP)
     // When possible we want to use error-check mutexes in Debug builds.  See the note at the top.
-    #define SK_BASE_MUTEX_INIT { PTHREAD_ERRORCHECK_MUTEX_INITIALIZER, kNoOwner }
+    #define SK_BASE_MUTEX_INIT { PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP, kNoOwner }
 #elif defined(SK_DEBUG)
     // Macs don't support PTHREAD_ERRORCHECK_MUTEX_INITIALIZER when targeting <10.7. We target 10.6.
     #define SK_BASE_MUTEX_INIT { PTHREAD_MUTEX_INITIALIZER, kNoOwner }
