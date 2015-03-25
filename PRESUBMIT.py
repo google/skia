@@ -9,6 +9,7 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
 for more details about the presubmit API built into gcl.
 """
 
+import csv
 import fnmatch
 import os
 import re
@@ -20,6 +21,9 @@ import traceback
 REVERT_CL_SUBJECT_PREFIX = 'Revert '
 
 SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
+
+CQ_KEYWORDS_THAT_NEED_APPENDING = ('CQ_INCLUDE_TRYBOTS', 'CQ_EXTRA_TRYBOTS',
+                                   'CQ_EXCLUDE_TRYBOTS', 'CQ_TRYBOTS')
 
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
@@ -387,12 +391,64 @@ def PostUploadHook(cl, change, output_api):
                 'Trybots do not yet work for non-master branches. '
                 'Automatically added \'NOTRY=true\' to the CL\'s description'))
 
+    # Read and process the HASHTAGS file.
+    with open('HASHTAGS', 'rb') as hashtags_csv:
+      hashtags_reader = csv.reader(hashtags_csv, delimiter=',')
+      for row in hashtags_reader:
+        if not row or row[0].startswith('#'):
+          # Ignore empty lines and comments
+          continue
+        hashtag = row[0]
+        # Search for the hashtag in the description.
+        if re.search('#%s' % hashtag, new_description, re.M | re.I):
+          for mapped_text in row[1:]:
+            # Special case handling for CQ_KEYWORDS_THAT_NEED_APPENDING.
+            appended_description = _HandleAppendingCQKeywords(
+                hashtag, mapped_text, new_description, results, output_api)
+            if appended_description:
+              new_description = appended_description
+              continue
+
+            # Add the mapped text if it does not already exist in the
+            # CL's description.
+            if not re.search(
+                r'^%s$' % mapped_text, new_description, re.M | re.I):
+              new_description += '\n%s' % mapped_text
+              results.append(
+                  output_api.PresubmitNotifyResult(
+                      'Found \'#%s\', automatically added \'%s\' to the CL\'s '
+                      'description' % (hashtag, mapped_text)))
 
     # If the description has changed update it.
     if new_description != original_description:
       rietveld_obj.update_description(issue, new_description)
 
     return results
+
+
+def _HandleAppendingCQKeywords(hashtag, keyword_and_value, description,
+                               results, output_api):
+  """Handles the CQ keywords that need appending if specified in hashtags."""
+  keyword = keyword_and_value.split('=')[0]
+  if keyword in CQ_KEYWORDS_THAT_NEED_APPENDING:
+    # If the keyword is already in the description then append to it.
+    match = re.search(
+        r'^%s=(.*)$' % keyword, description, re.M | re.I)
+    if match:
+      old_values = match.group(1).split(';')
+      new_value = keyword_and_value.split('=')[1]
+      if new_value in old_values:
+        # Do not need to do anything here.
+        return description
+      # Update the description with the new values.
+      new_description = description.replace(
+          match.group(0), "%s;%s" % (match.group(0), new_value))
+      results.append(
+          output_api.PresubmitNotifyResult(
+          'Found \'#%s\', automatically appended \'%s\' to %s in '
+          'the CL\'s description' % (hashtag, new_value, keyword)))
+      return new_description
+  return None
 
 
 def CheckChangeOnCommit(input_api, output_api):
