@@ -14,7 +14,6 @@
           'defines': [ 'SK_XPS_USE_DETERMINISTIC_IDS', ],
           'dependencies': [
             'skia_lib.gyp:skia_lib',
-            'sfnt.gyp:sfnt',
           ],
           'include_dirs': [
             '../include/device/xps',
