@@ -286,11 +286,10 @@ void PDFAlphaBitmap::emitDict(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SkPDFBitmap::addResources(SkTSet<SkPDFObject*>* resourceSet,
-                               SkPDFCatalog* catalog) const {
+void SkPDFBitmap::addResources(SkPDFCatalog* catalog) const {
     if (fSMask.get()) {
-        if (resourceSet->add(fSMask.get())) {
-            fSMask->addResources(resourceSet, catalog);
+        if (catalog->addObject(fSMask.get())) {
+            fSMask->addResources(catalog);
         }
     }
 }

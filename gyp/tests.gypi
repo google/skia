@@ -218,7 +218,6 @@
     '../tests/TDPQueueTest.cpp',
     '../tests/Time.cpp',
     '../tests/TLSTest.cpp',
-    '../tests/TSetTest.cpp',
     '../tests/TextBlobTest.cpp',
     '../tests/TextureCompressionTest.cpp',
     '../tests/ToUnicodeTest.cpp',

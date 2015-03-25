@@ -14,7 +14,6 @@
 #include "SkScalar.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-#include "SkTSet.h"
 #include "SkTypes.h"
 
 class SkPDFCatalog;
@@ -41,13 +40,11 @@ public:
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) = 0;
 
     /**
-     *  Adds all transitive dependencies of this object to resourceSet.
-     *
-     *  @param catalog Implementations should respect the catalog's
-     *                 object substitution map.
+     *  Adds all transitive dependencies of this object to the
+     *  catalog.  Implementations should respect the catalog's object
+     *  substitution map.
      */
-    virtual void addResources(SkTSet<SkPDFObject*>* resourceSet,
-                              SkPDFCatalog* catalog) const {}
+    virtual void addResources(SkPDFCatalog* catalog) const {}
 
 private:
     typedef SkRefCnt INHERITED;
@@ -69,7 +66,7 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual void addResources(SkTSet<SkPDFObject*>*, SkPDFCatalog*) const SK_OVERRIDE;
+    virtual void addResources(SkPDFCatalog*) const SK_OVERRIDE;
 
 private:
     SkAutoTUnref<SkPDFObject> fObj;
@@ -233,7 +230,7 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual void addResources(SkTSet<SkPDFObject*>*, SkPDFCatalog*) const SK_OVERRIDE;
+    virtual void addResources(SkPDFCatalog*) const SK_OVERRIDE;
 
     /** The size of the array.
      */
@@ -305,7 +302,7 @@ public:
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual void addResources(SkTSet<SkPDFObject*>*, SkPDFCatalog*) const SK_OVERRIDE;
+    virtual void addResources(SkPDFCatalog*) const SK_OVERRIDE;
 
     /** The size of the dictionary.
      */

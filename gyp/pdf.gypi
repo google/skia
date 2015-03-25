@@ -37,6 +37,5 @@
         '<(skia_src_path)/pdf/SkPDFTypes.h',
         '<(skia_src_path)/pdf/SkPDFUtils.cpp',
         '<(skia_src_path)/pdf/SkPDFUtils.h',
-        '<(skia_src_path)/pdf/SkTSet.h',
     ],
 }

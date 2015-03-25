@@ -45,7 +45,10 @@ public:
      */
     SkPDFObject* getSubstituteObject(SkPDFObject* object) const;
 
+    const SkTDArray<SkPDFObject*>& objects() const { return fObjects; }
+
 private:
+    SkTDArray<SkPDFObject*> fObjects;
     SkTHashMap<SkPDFObject*, int32_t> fObjectNumbers;
     SkTHashMap<SkPDFObject*, SkPDFObject*> fSubstituteMap;
 };

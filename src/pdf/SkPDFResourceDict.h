@@ -10,7 +10,6 @@
 
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
-#include "SkTSet.h"
 #include "SkTypes.h"
 
 /** \class SkPDFResourceDict

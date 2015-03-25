@@ -28,8 +28,7 @@ public:
     static SkPDFBitmap* Create(SkPDFCanon*, const SkBitmap&);
     ~SkPDFBitmap();
     void emitObject(SkWStream*, SkPDFCatalog*) SK_OVERRIDE;
-    void addResources(SkTSet<SkPDFObject*>* resourceSet,
-                      SkPDFCatalog* catalog) const SK_OVERRIDE;
+    void addResources(SkPDFCatalog*) const SK_OVERRIDE;
     bool equals(const SkBitmap& other) const {
         return fBitmap.getGenerationID() == other.getGenerationID() &&
                fBitmap.pixelRefOrigin() == other.pixelRefOrigin() &&

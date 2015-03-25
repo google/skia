@@ -211,19 +211,14 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     // Build font subsetting info before proceeding.
     perform_font_subsetting(pageDevices, &catalog);
 
-    SkTSet<SkPDFObject*> resourceSet;
-    if (resourceSet.add(docCatalog.get())) {
-        docCatalog->addResources(&resourceSet, &catalog);
+    if (catalog.addObject(docCatalog.get())) {
+        docCatalog->addResources(&catalog);
     }
-    for (int i = 0; i < resourceSet.count(); ++i) {
-        SkAssertResult(catalog.addObject(resourceSet[i]));
-    }
-
     size_t baseOffset = SkToOffT(stream->bytesWritten());
     emit_pdf_header(stream);
     SkTDArray<int32_t> offsets;
-    for (int i = 0; i < resourceSet.count(); ++i) {
-        SkPDFObject* object = resourceSet[i];
+    for (int i = 0; i < catalog.objects().count(); ++i) {
+        SkPDFObject* object = catalog.objects()[i];
         offsets.push(SkToS32(stream->bytesWritten() - baseOffset));
         SkASSERT(object == catalog.getSubstituteObject(object));
         SkASSERT(catalog.getObjectNumber(object) == i + 1);

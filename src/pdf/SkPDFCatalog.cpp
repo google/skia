@@ -21,6 +21,7 @@ bool SkPDFCatalog::addObject(SkPDFObject* obj) {
         return false;
     }
     fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
+    fObjects.push(obj);
     return true;
 }
 

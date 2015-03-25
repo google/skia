@@ -31,12 +31,11 @@ void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText(" 0 R");  // Generation number is always 0.
 }
 
-void SkPDFObjRef::addResources(SkTSet<SkPDFObject*>* resourceSet,
-                               SkPDFCatalog* catalog) const {
+void SkPDFObjRef::addResources(SkPDFCatalog* catalog) const {
     SkPDFObject* obj = catalog->getSubstituteObject(fObj);
     SkASSERT(obj);
-    if (resourceSet->add(obj)) {
-        obj->addResources(resourceSet, catalog);
+    if (catalog->addObject(obj)) {
+        obj->addResources(catalog);
     }
 }
 
@@ -257,11 +256,9 @@ void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText("]");
 }
 
-void SkPDFArray::addResources(SkTSet<SkPDFObject*>* resourceSet,
-                              SkPDFCatalog* catalog) const {
+void SkPDFArray::addResources(SkPDFCatalog* catalog) const {
     for (int i = 0; i < fValue.count(); i++) {
-        catalog->getSubstituteObject(fValue[i])
-                ->addResources(resourceSet, catalog);
+        catalog->getSubstituteObject(fValue[i])->addResources(catalog);
     }
 }
 
@@ -330,14 +327,12 @@ void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText(">>");
 }
 
-void SkPDFDict::addResources(SkTSet<SkPDFObject*>* resourceSet,
-                             SkPDFCatalog* catalog) const {
+void SkPDFDict::addResources(SkPDFCatalog* catalog) const {
     for (int i = 0; i < fValue.count(); i++) {
         SkASSERT(fValue[i].key);
         SkASSERT(fValue[i].value);
-        fValue[i].key->addResources(resourceSet, catalog);
-        catalog->getSubstituteObject(fValue[i].value)
-                ->addResources(resourceSet, catalog);
+        fValue[i].key->addResources(catalog);
+        catalog->getSubstituteObject(fValue[i].value)->addResources(catalog);
     }
 }
 
