@@ -26,7 +26,8 @@ SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {
 SkPDFObjRef::~SkPDFObjRef() {}
 
 void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
-    stream->writeDecAsText(catalog->getObjectNumber(fObj.get()));
+    SkPDFObject* obj = catalog->getSubstituteObject(fObj);
+    stream->writeDecAsText(catalog->getObjectNumber(obj));
     stream->writeText(" 0 R");  // Generation number is always 0.
 }
 

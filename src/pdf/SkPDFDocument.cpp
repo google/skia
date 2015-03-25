@@ -17,10 +17,8 @@
 
 
 static void perform_font_subsetting(SkPDFCatalog* catalog,
-                                    const SkTDArray<SkPDFPage*>& pages,
-                                    SkTDArray<SkPDFObject*>* substitutes) {
+                                    const SkTDArray<SkPDFPage*>& pages) {
     SkASSERT(catalog);
-    SkASSERT(substitutes);
 
     SkPDFGlyphSetMap usage;
     for (int i = 0; i < pages.count(); ++i) {
@@ -29,11 +27,10 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
     SkPDFGlyphSetMap::F2BIter iterator(usage);
     const SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
     while (entry) {
-        SkPDFFont* subsetFont =
-            entry->fFont->getFontSubset(entry->fGlyphSet);
+        SkAutoTUnref<SkPDFFont> subsetFont(
+                entry->fFont->getFontSubset(entry->fGlyphSet));
         if (subsetFont) {
-            catalog->setSubstitute(entry->fFont, subsetFont);
-            substitutes->push(subsetFont);  // Transfer ownership to substitutes
+            catalog->setSubstitute(entry->fFont, subsetFont.get());
         }
         entry = iterator.next();
     }
@@ -72,24 +69,26 @@ bool SkPDFDocument::EmitPDF(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     SkTDArray<SkPDFPage*> pages;
+    SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
+
     for (int i = 0; i < pageDevices.count(); i++) {
         SkASSERT(pageDevices[i]);
         SkASSERT(i == 0 ||
                  pageDevices[i - 1]->getCanon() == pageDevices[i]->getCanon());
         // Reference from new passed to pages.
-        pages.push(SkNEW_ARGS(SkPDFPage, (pageDevices[i])));
+        SkAutoTUnref<SkPDFPage> page(SkNEW_ARGS(SkPDFPage, (pageDevices[i])));
+        page->finalizePage();
+        page->appendDestinations(dests);
+        pages.push(page.detach());
     }
     SkPDFCatalog catalog;
 
     SkTDArray<SkPDFDict*> pageTree;
     SkAutoTUnref<SkPDFDict> docCatalog(SkNEW_ARGS(SkPDFDict, ("Catalog")));
-    SkTSet<SkPDFObject*> firstPageResources;
-    SkTSet<SkPDFObject*> otherPageResources;
-    SkTDArray<SkPDFObject*> substitutes;
-    catalog.addObject(docCatalog.get(), true);
 
     SkPDFDict* pageTreeRoot;
-    SkPDFPage::GeneratePageTree(pages, &catalog, &pageTree, &pageTreeRoot);
+    SkPDFPage::GeneratePageTree(pages, &pageTree, &pageTreeRoot);
+
     docCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
     /* TODO(vandebo): output intent
@@ -102,78 +101,47 @@ bool SkPDFDocument::EmitPDF(const SkTDArray<const SkPDFDevice*>& pageDevices,
     docCatalog->insert("OutputIntent", intentArray.get());
     */
 
-    SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
-
-    bool firstPage = true;
-    /* The references returned in newResources are transfered to
-     * firstPageResources or otherPageResources depending on firstPage and
-     * knownResources doesn't have a reference but just relies on the other
-     * two sets to maintain a reference.
-     */
-    SkTSet<SkPDFObject*> knownResources;
-
-    // mergeInto returns the number of duplicates.
-    // If there are duplicates, there is a bug and we mess ref counting.
-    SkDEBUGCODE(int duplicates = ) knownResources.mergeInto(firstPageResources);
-    SkASSERT(duplicates == 0);
-
-    for (int i = 0; i < pages.count(); i++) {
-        if (i == 1) {
-            firstPage = false;
-            SkDEBUGCODE(duplicates = )
-                    knownResources.mergeInto(otherPageResources);
-        }
-        SkTSet<SkPDFObject*> newResources;
-        pages[i]->finalizePage(&catalog, firstPage, knownResources,
-                               &newResources);
-        for (int j = 0; j < newResources.count(); j++) {
-            catalog.addObject(newResources[i], firstPage);
-        }
-        if (firstPage) {
-            SkDEBUGCODE(duplicates = )
-                    firstPageResources.mergeInto(newResources);
-        } else {
-            SkDEBUGCODE(duplicates = )
-                    otherPageResources.mergeInto(newResources);
-        }
-        SkASSERT(duplicates == 0);
-
-        SkDEBUGCODE(duplicates = ) knownResources.mergeInto(newResources);
-        SkASSERT(duplicates == 0);
-
-        pages[i]->appendDestinations(dests);
-    }
-
     if (dests->size() > 0) {
-        SkPDFDict* raw_dests = dests.get();
-        firstPageResources.add(dests.detach());  // Transfer ownership.
-        catalog.addObject(raw_dests, true /* onFirstPage */);
-        docCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (raw_dests)))
+        docCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (dests.get())))
                 ->unref();
     }
 
     // Build font subsetting info before proceeding.
-    perform_font_subsetting(&catalog, pages, &substitutes);
+    perform_font_subsetting(&catalog, pages);
 
     SkTSet<SkPDFObject*> resourceSet;
     if (resourceSet.add(docCatalog.get())) {
         docCatalog->addResources(&resourceSet, &catalog);
     }
+    for (int i = 0; i < resourceSet.count(); ++i) {
+        SkAssertResult(catalog.addObject(resourceSet[i]));
+    }
+
     size_t baseOffset = SkToOffT(stream->bytesWritten());
     emit_pdf_header(stream);
+    SkTDArray<int32_t> offsets;
     for (int i = 0; i < resourceSet.count(); ++i) {
         SkPDFObject* object = resourceSet[i];
-        catalog.setFileOffset(object,
-                              SkToOffT(stream->bytesWritten() - baseOffset));
+        offsets.push(SkToS32(stream->bytesWritten() - baseOffset));
         SkASSERT(object == catalog.getSubstituteObject(object));
-        stream->writeDecAsText(catalog.getObjectNumber(object));
+        SkASSERT(catalog.getObjectNumber(object) == i + 1);
+        stream->writeDecAsText(i + 1);
         stream->writeText(" 0 obj\n");  // Generation number is always 0.
         object->emitObject(stream, &catalog);
         stream->writeText("\nendobj\n");
     }
     int32_t xRefFileOffset = SkToS32(stream->bytesWritten() - baseOffset);
-    int64_t objCount = catalog.emitXrefTable(stream, pages.count() > 1);
 
+    int32_t objCount = SkToS32(offsets.count() + 1);
+
+    stream->writeText("xref\n0 ");
+    stream->writeDecAsText(objCount + 1);
+    stream->writeText("\n0000000000 65535 f \n");
+    for (int i = 0; i < offsets.count(); i++) {
+        SkASSERT(offsets[i] > 0);
+        stream->writeBigDecAsText(offsets[i], 10);
+        stream->writeText(" 00000 n \n");
+    }
     emit_pdf_footer(stream, &catalog, docCatalog.get(), objCount,
                     xRefFileOffset);
 
@@ -184,12 +152,6 @@ bool SkPDFDocument::EmitPDF(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
     pageTree.safeUnrefAll();
     pages.unrefAll();
-
-    firstPageResources.safeUnrefAll();
-    otherPageResources.safeUnrefAll();
-
-    substitutes.unrefAll();
-    docCatalog.reset(NULL);
     return true;
 }
 

@@ -36,20 +36,9 @@ public:
 
     /** Before a page and its contents can be sized and emitted, it must
      *  be finalized.  No changes to the PDFDevice will be honored after
-     *  finalizePage has been called.  This function adds the page content
-     *  to the passed catalog, so it must be called for each document
-     *  that the page is part of.
-     *  @param catalog         The catalog to add page content objects to.
-     *  @param firstPage       Indicate if this is the first page of a document.
-     *  @param newResourceObjects All the resource objects (recursively) used on
-     *                         the page are added to this array.  This gives
-     *                         the caller a chance to deduplicate resources
-     *                         across pages.
-     *  @param knownResourceObjects  The set of resources to be ignored.
+     *  finalizePage has been called.
      */
-    void finalizePage(SkPDFCatalog* catalog, bool firstPage,
-                      const SkTSet<SkPDFObject*>& knownResourceObjects,
-                      SkTSet<SkPDFObject*>* newResourceObjects);
+    void finalizePage();
 
     /** Add destinations for this page to the supplied dictionary.
      *  @param dict       Dictionary to add destinations to.
@@ -63,13 +52,11 @@ public:
      *  it must be torn down explicitly.  The first page is not added to
      *  the pageTree dictionary array so the caller can handle it specially.
      *  @param pages      The ordered vector of page objects.
-     *  @param catalog    The catalog to add new objects into.
      *  @param pageTree   An output vector with all of the internal and leaf
      *                    nodes of the pageTree.
      *  @param rootNode   An output parameter set to the root node.
      */
     static void GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
-                                 SkPDFCatalog* catalog,
                                  SkTDArray<SkPDFDict*>* pageTree,
                                  SkPDFDict** rootNode);
 

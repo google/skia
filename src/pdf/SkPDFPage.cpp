@@ -21,9 +21,7 @@ SkPDFPage::SkPDFPage(const SkPDFDevice* content)
 
 SkPDFPage::~SkPDFPage() {}
 
-void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
-                             const SkTSet<SkPDFObject*>& knownResourceObjects,
-                             SkTSet<SkPDFObject*>* newResourceObjects) {
+void SkPDFPage::finalizePage() {
     if (fContentStream.get() == NULL) {
         SkAutoTUnref<SkPDFResourceDict> deviceResourceDict(
                 fDevice->createResourceDict());
@@ -38,12 +36,10 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
         fContentStream.reset(new SkPDFStream(content.get()));
         insert("Contents", new SkPDFObjRef(fContentStream.get()))->unref();
     }
-    catalog->addObject(fContentStream.get(), firstPage);
 }
 
 // static
 void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
-                                 SkPDFCatalog* catalog,
                                  SkTDArray<SkPDFDict*>* pageTree,
                                  SkPDFDict** rootNode) {
     // PDF wants a tree describing all the pages in the document.  We arbitrary
@@ -94,10 +90,8 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                 // Probably doesn't matter because they are so small.
                 if (curNodes[i] != pages[0]) {
                     pageTree->push(curNodes[i]);  // Transfer reference.
-                    catalog->addObject(curNodes[i], false);
                 } else {
                     SkSafeUnref(curNodes[i]);
-                    catalog->addObject(curNodes[i], true);
                 }
             }
 
@@ -123,7 +117,6 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
     } while (curNodes.count() > 1);
 
     pageTree->push(curNodes[0]);  // Transfer reference.
-    catalog->addObject(curNodes[0], false);
     if (rootNode) {
         *rootNode = curNodes[0];
     }

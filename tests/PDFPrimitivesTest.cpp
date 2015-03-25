@@ -77,7 +77,7 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
         static char footer[] = "\nendobj\n";
         static size_t footerLen = strlen(footer);
 
-        catalog.addObject(obj, false);
+        catalog.addObject(obj);
 
         size_t indirectSize = get_output_size(obj, &catalog, true);
         REPORTER_ASSERT(reporter,
@@ -149,9 +149,9 @@ static void TestCatalog(skiatest::Reporter* reporter) {
     int1.get()->ref();
     SkAutoTUnref<SkPDFInt> int1Again(int1.get());
 
-    catalog.addObject(int1.get(), false);
-    catalog.addObject(int2.get(), false);
-    catalog.addObject(int3.get(), false);
+    catalog.addObject(int1.get());
+    catalog.addObject(int2.get());
+    catalog.addObject(int3.get());
 
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1.get()) == 1);
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(int2.get()) == 2);
@@ -165,8 +165,8 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPDFObjRef> int2ref(new SkPDFObjRef(int2.get()));
 
     SkPDFCatalog catalog;
-    catalog.addObject(int1.get(), false);
-    catalog.addObject(int2.get(), false);
+    catalog.addObject(int1.get());
+    catalog.addObject(int2.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1.get()) == 1);
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(int2.get()) == 2);
 
@@ -186,7 +186,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     stub->insert("Value", new SkPDFInt(44))->unref();
 
     SkPDFCatalog catalog;
-    catalog.addObject(proxy.get(), false);
+    catalog.addObject(proxy.get());
     catalog.setSubstitute(proxy.get(), stub.get());
 
     REPORTER_ASSERT(reporter, stub.get() == catalog.getSubstituteObject(proxy));
