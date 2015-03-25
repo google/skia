@@ -19,6 +19,11 @@
         'core.gyp:*',
         'libpng.gyp:libpng',
       ],
+      'cflags':[
+        # FIXME: This gets around a longjmp warning. See
+        # http://build.chromium.org/p/client.skia.compile/builders/Build-Ubuntu-GCC-x86_64-Release-Trybot/builds/113/steps/build%20most/logs/stdio
+        '-Wno-clobbered',
+      ],
       'include_dirs': [
         '../include/codec',
         '../src/codec',

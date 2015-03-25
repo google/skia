@@ -18,6 +18,7 @@ public:
      *  Enum describing the config of the source data.
      */
     enum SrcConfig {
+        kUnknown,  // Invalid type.
         kGray,
         kIndex1,
         kIndex2,
@@ -144,6 +145,17 @@ public:
      *
      */
     ResultAlpha next(const uint8_t* SK_RESTRICT src, int y);
+
+    /**
+     *  Update the destination row.
+     *
+     *  Typically this is done by next, but for a client that wants to manually
+     *  modify the destination row (for example, for decoding scanline one at a
+     *  time) they can call this before each call to next.
+     *  TODO: Maybe replace this with a version of next which allows supplying the
+     *  destination?
+     */
+    void setDstRow(void* dst) { fDstRow = dst; }
 private:
 
 #ifdef SK_DEBUG

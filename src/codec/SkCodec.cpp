@@ -61,3 +61,12 @@ bool SkCodec::rewindIfNeeded() {
     fNeedsRewind = true;
     return !neededRewind || fStream->rewind();
 }
+
+SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {
+    fScanlineDecoder.reset(NULL);
+    if (!rewindIfNeeded()) {
+        return NULL;
+    }
+    fScanlineDecoder.reset(this->onGetScanlineDecoder(dstInfo));
+    return fScanlineDecoder.get();
+}

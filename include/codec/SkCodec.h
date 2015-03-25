@@ -11,6 +11,7 @@
 #include "SkEncodedFormat.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
+#include "SkScanlineDecoder.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -56,6 +57,41 @@ public:
      */
     SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
 
+    /**
+     *  Return an object which can be used to decode individual scanlines.
+     *
+     *  This object is owned by the SkCodec, which will handle its lifetime. The
+     *  returned object is only valid until the SkCodec is deleted or the next
+     *  call to getScanlineDecoder, whichever comes first.
+     *
+     *  Calling a second time will rewind and replace the existing one with a
+     *  new one. If the stream cannot be rewound, this will delete the existing
+     *  one and return NULL.
+     *
+     *  @param dstInfo Info of the destination. If the dimensions do not match
+     *      those of getInfo, this implies a scale.
+     *  @return New SkScanlineDecoder, or NULL on failure.
+     *
+     *  NOTE: If any rows were previously decoded, this requires rewinding the
+     *  SkStream.
+     *
+     *  NOTE: The scanline decoder is owned by the SkCodec and will delete it
+     *  when the SkCodec is deleted.
+     */
+    SkScanlineDecoder* getScanlineDecoder(const SkImageInfo& dstInfo);
+
+    /**
+     *  Some images may initially report that they have alpha due to the format
+     *  of the encoded data, but then never use any colors which have alpha
+     *  less than 100%. This function can be called *after* decoding to
+     *  determine if such an image truly had alpha. Calling it before decoding
+     *  is undefined.
+     *  FIXME: see skbug.com/3582.
+     */
+    bool reallyHasAlpha() const {
+        return this->onReallyHasAlpha();
+    }
+
 protected:
     SkCodec(const SkImageInfo&, SkStream*);
 
@@ -77,6 +113,23 @@ protected:
     }
 
     virtual SkEncodedFormat onGetEncodedFormat() const = 0;
+
+    /**
+     *  Override if your codec supports scanline decoding.
+     *
+     *  No need to call rewindIfNeeded(), which will have already been called
+     *  by the base class.
+     *
+     *  @param dstInfo Info of the destination. If the dimensions do not match
+     *      those of getInfo, this implies a scale.
+     *  @return New SkScanlineDecoder on success, NULL otherwise. The SkCodec
+     *      will take ownership of the returned scanline decoder.
+     */
+    virtual SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo) {
+        return NULL;
+    }
+
+    virtual bool onReallyHasAlpha() const { return false; }
 
     /**
      *  If the stream was previously read, attempt to rewind.
@@ -103,9 +156,10 @@ protected:
     }
 
 private:
-    const SkImageInfo       fInfo;
-    SkAutoTDelete<SkStream> fStream;
-    bool                    fNeedsRewind;
+    const SkImageInfo                   fInfo;
+    SkAutoTDelete<SkStream>             fStream;
+    bool                                fNeedsRewind;
+    SkAutoTDelete<SkScanlineDecoder>    fScanlineDecoder;
 
     typedef SkImageGenerator INHERITED;
 };

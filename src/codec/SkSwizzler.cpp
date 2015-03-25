@@ -263,7 +263,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkImageInfo& info, void* dst,
                                        size_t dstRowBytes,
                                        SkImageGenerator::ZeroInitialized zeroInit) {
-    if (kUnknown_SkColorType == info.colorType()) {
+    if (info.colorType() == kUnknown_SkColorType || kUnknown == sc) {
         return NULL;
     }
     if (info.minRowBytes() > dstRowBytes) {
@@ -406,6 +406,7 @@ SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable,
 
 SkSwizzler::ResultAlpha SkSwizzler::next(const uint8_t* SK_RESTRICT src) {
     SkASSERT(0 <= fCurrY && fCurrY < fDstInfo.height());
+    SkASSERT(fDstRow != NULL);
     SkASSERT(kDesignateRow_NextMode != fNextMode);
     SkDEBUGCODE(fNextMode = kConsecutive_NextMode);
 
@@ -414,6 +415,7 @@ SkSwizzler::ResultAlpha SkSwizzler::next(const uint8_t* SK_RESTRICT src) {
             fDeltaSrc, fCurrY, fColorTable);
 
     // Move to the next row and return the result
+    fCurrY++;
     fDstRow = SkTAddOffset<void>(fDstRow, fDstRowBytes);
     return result;
 }

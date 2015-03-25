@@ -11,6 +11,7 @@
 #include "SkColorTable.h"
 #include "SkBitmap.h"
 #include "SkMath.h"
+#include "SkScanlineDecoder.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
@@ -114,15 +115,13 @@ typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily
 // the case here.
-SkColorTable* decode_palette(png_structp png_ptr, png_infop info_ptr,
-                             bool premultiply, SkAlphaType* outAlphaType) {
-    SkASSERT(outAlphaType != NULL);
+bool SkPngCodec::decodePalette(bool premultiply) {
     int numPalette;
     png_colorp palette;
     png_bytep trans;
 
-    if (!png_get_PLTE(png_ptr, info_ptr, &palette, &numPalette)) {
-        return NULL;
+    if (!png_get_PLTE(fPng_ptr, fInfo_ptr, &palette, &numPalette)) {
+        return false;
     }
 
     /*  BUGGY IMAGE WORKAROUND
@@ -137,8 +136,8 @@ SkColorTable* decode_palette(png_structp png_ptr, png_infop info_ptr,
     SkPMColor* colorPtr = colorStorage;
 
     int numTrans;
-    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-        png_get_tRNS(png_ptr, info_ptr, &trans, &numTrans, NULL);
+    if (png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS)) {
+        png_get_tRNS(fPng_ptr, fInfo_ptr, &trans, &numTrans, NULL);
     } else {
         numTrans = 0;
     }
@@ -165,11 +164,7 @@ SkColorTable* decode_palette(png_structp png_ptr, png_infop info_ptr,
         palette++;
     }
 
-    if (transLessThanFF < 0) {
-        *outAlphaType = premultiply ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
-    } else {
-        *outAlphaType = kOpaque_SkAlphaType;
-    }
+    fReallyHasAlpha = transLessThanFF < 0;
 
     for (; index < numPalette; index++) {
         *colorPtr++ = SkPackARGB32(0xFF, palette->red, palette->green, palette->blue);
@@ -181,7 +176,8 @@ SkColorTable* decode_palette(png_structp png_ptr, png_infop info_ptr,
         *colorPtr = colorPtr[-1];
     }
 
-    return SkNEW_ARGS(SkColorTable, (colorStorage, colorCount));
+    fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorStorage, colorCount)));
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -333,11 +329,16 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     return codec;
 }
 
+#define INVALID_NUMBER_PASSES -1
 SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream,
                        png_structp png_ptr, png_infop info_ptr)
     : INHERITED(info, stream)
     , fPng_ptr(png_ptr)
-    , fInfo_ptr(info_ptr) {}
+    , fInfo_ptr(info_ptr)
+    , fSrcConfig(SkSwizzler::kUnknown)
+    , fNumberPasses(INVALID_NUMBER_PASSES)
+    , fReallyHasAlpha(false)
+{}
 
 SkPngCodec::~SkPngCodec() {
     png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, png_infopp_NULL);
@@ -362,29 +363,9 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
             kUnpremul_SkAlphaType == src.alphaType();
 }
 
-SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
-                                        size_t rowBytes, const Options& options,
-                                        SkPMColor ctable[], int* ctableCount) {
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
-    if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
-        return kInvalidScale;
-    }
-    if (!conversion_possible(requestedInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-
-    SkBitmap decodedBitmap;
-    // If installPixels would have failed, getPixels should have failed before
-    // calling onGetPixels.
-    SkAssertResult(decodedBitmap.installPixels(requestedInfo, dst, rowBytes));
-
-    // Initialize all non-trivial objects before setjmp.
-    SkAutoTUnref<SkColorTable> colorTable;
-    SkAutoTDelete<SkSwizzler> swizzler;
-    SkAutoMalloc storage;                   // Scratch memory for pre-swizzled rows.
-
+SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
+                                               void* dst, size_t rowBytes,
+                                               const Options& options) {
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
     if (setjmp(png_jmpbuf(fPng_ptr))) {
@@ -398,42 +379,30 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     png_get_IHDR(fPng_ptr, fInfo_ptr, &origWidth, &origHeight, &bitDepth,
                  &pngColorType, &interlaceType, int_p_NULL, int_p_NULL);
 
-    const int numberPasses = (interlaceType != PNG_INTERLACE_NONE) ?
+    fNumberPasses = (interlaceType != PNG_INTERLACE_NONE) ?
             png_set_interlace_handling(fPng_ptr) : 1;
 
-    SkSwizzler::SrcConfig sc;
-    bool reallyHasAlpha = false;
+    // Set to the default before calling decodePalette, which may change it.
+    fReallyHasAlpha = false;
     if (PNG_COLOR_TYPE_PALETTE == pngColorType) {
-        sc = SkSwizzler::kIndex;
-        SkAlphaType at = requestedInfo.alphaType();
-        colorTable.reset(decode_palette(fPng_ptr, fInfo_ptr,
-                                        kPremul_SkAlphaType == at,
-                                        &at));
-        if (!colorTable) {
+        fSrcConfig = SkSwizzler::kIndex;
+        if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType())) {
             return kInvalidInput;
-        }
-
-        reallyHasAlpha = (at != kOpaque_SkAlphaType);
-
-        if (at != requestedInfo.alphaType()) {
-            // It turns out the image is opaque.
-            SkASSERT(kOpaque_SkAlphaType == at);
         }
     } else if (kAlpha_8_SkColorType == requestedInfo.colorType()) {
         // Note: we check the destination, since otherwise we would have
         // told png to upscale.
         SkASSERT(PNG_COLOR_TYPE_GRAY == pngColorType);
-        sc = SkSwizzler::kGray;
+        fSrcConfig = SkSwizzler::kGray;
     } else if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
-        sc = SkSwizzler::kRGBX;
+        fSrcConfig = SkSwizzler::kRGBX;
     } else {
-        sc = SkSwizzler::kRGBA;
+        fSrcConfig = SkSwizzler::kRGBA;
     }
-    const SkPMColor* colors = colorTable ? colorTable->readColors() : NULL;
-    swizzler.reset(SkSwizzler::CreateSwizzler(sc, colors, requestedInfo,
-                                              dst, rowBytes,
-                                              options.fZeroInitialized));
-    if (!swizzler) {
+    const SkPMColor* colors = fColorTable ? fColorTable->readColors() : NULL;
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
+            dst, rowBytes, options.fZeroInitialized));
+    if (!fSwizzler) {
         // FIXME: CreateSwizzler could fail for another reason.
         return kUnimplemented;
     }
@@ -442,16 +411,47 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     // made in the factory.
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    if (numberPasses > 1) {
+    return kSuccess;
+}
+
+SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
+                                        size_t rowBytes, const Options& options,
+                                        SkPMColor ctable[], int* ctableCount) {
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
+    }
+    if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
+        return kInvalidScale;
+    }
+    if (!conversion_possible(requestedInfo, this->getInfo())) {
+        return kInvalidConversion;
+    }
+
+    const Result result = this->initializeSwizzler(requestedInfo, dst, rowBytes,
+                                                   options);
+    if (result != kSuccess) {
+        return result;
+    }
+
+    // FIXME: Could we use the return value of setjmp to specify the type of
+    // error?
+    if (setjmp(png_jmpbuf(fPng_ptr))) {
+        SkDebugf("setjmp long jump!\n");
+        return kInvalidInput;
+    }
+
+    SkASSERT(fNumberPasses != INVALID_NUMBER_PASSES);
+    SkAutoMalloc storage;
+    if (fNumberPasses > 1) {
         const int width = requestedInfo.width();
         const int height = requestedInfo.height();
-        const int bpp = SkSwizzler::BytesPerPixel(sc);
+        const int bpp = SkSwizzler::BytesPerPixel(fSrcConfig);
         const size_t rowBytes = width * bpp;
 
         storage.reset(width * height * bpp);
         uint8_t* const base = static_cast<uint8_t*>(storage.get());
 
-        for (int i = 0; i < numberPasses; i++) {
+        for (int i = 0; i < fNumberPasses; i++) {
             uint8_t* row = base;
             for (int y = 0; y < height; y++) {
                 uint8_t* bmRow = row;
@@ -463,27 +463,116 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         // Now swizzle it.
         uint8_t* row = base;
         for (int y = 0; y < height; y++) {
-            reallyHasAlpha |= !SkSwizzler::IsOpaque(swizzler->next(row));
+            fReallyHasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->next(row));
             row += rowBytes;
         }
     } else {
-        storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(sc));
+        storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(fSrcConfig));
         uint8_t* srcRow = static_cast<uint8_t*>(storage.get());
         for (int y = 0; y < requestedInfo.height(); y++) {
             png_read_rows(fPng_ptr, &srcRow, png_bytepp_NULL, 1);
-            reallyHasAlpha |= !SkSwizzler::IsOpaque(swizzler->next(srcRow));
+            fReallyHasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->next(srcRow));
         }
     }
 
-    /* read rest of file, and get additional chunks in info_ptr - REQUIRED */
-    png_read_end(fPng_ptr, fInfo_ptr);
+    // FIXME: do we need substituteTranspColor? Note that we cannot do it for
+    // scanline decoding, but we could do it here. Alternatively, we could do
+    // it as we go, instead of in post-processing like SkPNGImageDecoder.
 
-    // FIXME: do we need substituteTranspColor?
-
-    if (reallyHasAlpha && requestedInfo.alphaType() != kOpaque_SkAlphaType) {
-        // FIXME: We want to alert the caller. Is this the right way?
-        SkImageInfo* modInfo = const_cast<SkImageInfo*>(&requestedInfo);
-        *modInfo = requestedInfo.makeAlphaType(kOpaque_SkAlphaType);
-    }
+    this->finish();
     return kSuccess;
 }
+
+void SkPngCodec::finish() {
+    if (setjmp(png_jmpbuf(fPng_ptr))) {
+        // We've already read all the scanlines. This is a success.
+        return;
+    }
+    /* read rest of file, and get additional chunks in info_ptr - REQUIRED */
+    png_read_end(fPng_ptr, fInfo_ptr);
+}
+
+class SkPngScanlineDecoder : public SkScanlineDecoder {
+public:
+    SkPngScanlineDecoder(const SkImageInfo& dstInfo, SkPngCodec* codec)
+        : INHERITED(dstInfo)
+        , fCodec(codec)
+        , fHasAlpha(false)
+    {
+        fStorage.reset(dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig));
+        fSrcRow = static_cast<uint8_t*>(fStorage.get());
+    }
+
+    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t rowBytes) SK_OVERRIDE {
+        if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
+            SkDebugf("setjmp long jump!\n");
+            return SkImageGenerator::kInvalidInput;
+        }
+
+        for (int i = 0; i < count; i++) {
+            png_read_rows(fCodec->fPng_ptr, &fSrcRow, png_bytepp_NULL, 1);
+            fCodec->fSwizzler->setDstRow(dst);
+            fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->next(fSrcRow));
+            dst = SkTAddOffset<void>(dst, rowBytes);
+        }
+        return SkImageGenerator::kSuccess;
+    }
+
+    SkImageGenerator::Result onSkipScanlines(int count) SK_OVERRIDE {
+        // FIXME: Could we use the return value of setjmp to specify the type of
+        // error?
+        if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
+            SkDebugf("setjmp long jump!\n");
+            return SkImageGenerator::kInvalidInput;
+        }
+
+        png_read_rows(fCodec->fPng_ptr, png_bytepp_NULL, png_bytepp_NULL, count);
+        return SkImageGenerator::kSuccess;
+    }
+
+    void onFinish() SK_OVERRIDE {
+        fCodec->finish();
+    }
+
+    bool onReallyHasAlpha() const SK_OVERRIDE { return fHasAlpha; }
+
+private:
+    SkPngCodec*         fCodec;     // Unowned.
+    bool                fHasAlpha;
+    SkAutoMalloc        fStorage;
+    uint8_t*            fSrcRow;
+
+    typedef SkScanlineDecoder INHERITED;
+};
+
+SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) {
+    // Check to see if scaling was requested.
+    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+        return NULL;
+    }
+
+    if (!conversion_possible(dstInfo, this->getInfo())) {
+        SkDebugf("no conversion possible\n");
+        return NULL;
+    }
+
+    // Note: We set dst to NULL since we do not know it yet. rowBytes is not needed,
+    // since we'll be manually updating the dstRow, but the SkSwizzler requires it to
+    // be at least dstInfo.minRowBytes.
+    Options opts;
+    // FIXME: Pass this in to getScanlineDecoder?
+    opts.fZeroInitialized = kNo_ZeroInitialized;
+    if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), opts) != kSuccess) {
+        SkDebugf("failed to initialize the swizzler.\n");
+        return NULL;
+    }
+
+    SkASSERT(fNumberPasses != INVALID_NUMBER_PASSES);
+    if (fNumberPasses > 1) {
+        // We cannot efficiently do scanline decoding.
+        return NULL;
+    }
+
+    return SkNEW_ARGS(SkPngScanlineDecoder, (dstInfo, this));
+}
+
