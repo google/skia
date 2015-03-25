@@ -144,6 +144,11 @@ def _CommonChecks(input_api, output_api):
                        x.LocalPath().endswith('.gyp') or
                        x.LocalPath().endswith('.py') or
                        x.LocalPath().endswith('.sh') or
+                       x.LocalPath().endswith('.m') or
+                       x.LocalPath().endswith('.mm') or
+                       x.LocalPath().endswith('.go') or
+                       x.LocalPath().endswith('.c') or
+                       x.LocalPath().endswith('.cc') or
                        x.LocalPath().endswith('.cpp'))
   results.extend(
       _CheckChangeHasEol(
