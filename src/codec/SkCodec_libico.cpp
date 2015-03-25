@@ -33,6 +33,9 @@ bool SkIcoCodec::IsIco(SkStream* stream) {
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
+    // Ensure that we do not leak the input stream
+    SkAutoTDelete<SkStream> inputStream(stream);
+
     // Header size constants
     static const uint32_t kIcoDirectoryBytes = 6;
     static const uint32_t kIcoDirEntryBytes = 16;
@@ -40,7 +43,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     // Read the directory header
     SkAutoTDeleteArray<uint8_t> dirBuffer(
             SkNEW_ARRAY(uint8_t, kIcoDirectoryBytes));
-    if (stream->read(dirBuffer.get(), kIcoDirectoryBytes) !=
+    if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
         SkDebugf("Error: unable to read ico directory header.\n");
         return NULL;
@@ -56,7 +59,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     // Ensure that we can read all of indicated directory entries
     SkAutoTDeleteArray<uint8_t> entryBuffer(
             SkNEW_ARRAY(uint8_t, numImages*kIcoDirEntryBytes));
-    if (stream->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
+    if (inputStream.get()->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
             numImages*kIcoDirEntryBytes) {
         SkDebugf("Error: unable to read ico directory entries.\n");
         return NULL;
@@ -121,14 +124,15 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
         // If we cannot skip, assume we have reached the end of the stream and
         // stop trying to make codecs
-        if (stream->skip(offset - bytesRead) != offset - bytesRead) {
+        if (inputStream.get()->skip(offset - bytesRead) != offset - bytesRead) {
             SkDebugf("Warning: could not skip to ico offset.\n");
             break;
         }
         bytesRead = offset;
 
         // Create a new stream for the embedded codec
-        SkAutoTUnref<SkData> data(SkData::NewFromStream(stream, size));
+        SkAutoTUnref<SkData> data(
+                SkData::NewFromStream(inputStream.get(), size));
         if (NULL == data.get()) {
             SkDebugf("Warning: could not create embedded stream.\n");
             break;
