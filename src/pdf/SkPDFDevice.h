@@ -180,6 +180,10 @@ public:
         return *(fFontGlyphUsage.get());
     }
 
+#ifdef SK_DEBUG
+    SkPDFCanon* getCanon() const { return fCanon; }
+#endif  // SK_DEBUG
+
 protected:
     const SkBitmap& onAccessBitmap() SK_OVERRIDE {
         return fLegacyBitmap;

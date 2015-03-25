@@ -26,7 +26,6 @@ namespace SkPDFDocument {
  *
  *  @param pageDevices An array of pages, in order.  All pages
  *                     should be created using the same SkPDFCanon.
- *                     TODO(halcanary): ASSERT this condition.
  *  @param SkWStream   The writable output stream to send the PDF to.
  */
 bool EmitPDF(const SkTDArray<SkPDFDevice*>& pageDevices, SkWStream*);

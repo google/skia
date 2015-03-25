@@ -70,9 +70,12 @@ bool SkPDFDocument::EmitPDF(const SkTDArray<SkPDFDevice*>& pageDevices,
     if (pageDevices.isEmpty()) {
         return false;
     }
+
     SkTDArray<SkPDFPage*> pages;
     for (int i = 0; i < pageDevices.count(); i++) {
         SkASSERT(pageDevices[i]);
+        SkASSERT(i == 0 ||
+                 pageDevices[i - 1]->getCanon() == pageDevices[i]->getCanon());
         // Reference from new passed to pages.
         pages.push(SkNEW_ARGS(SkPDFPage, (pageDevices[i])));
     }
