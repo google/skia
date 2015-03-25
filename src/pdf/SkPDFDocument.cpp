@@ -39,10 +39,6 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
     }
 }
 
-SkPDFDocument::SkPDFDocument() {}
-
-SkPDFDocument::~SkPDFDocument() { fPageDevices.unrefAll(); }
-
 static void emit_pdf_header(SkWStream* stream) {
     stream->writeText("%PDF-1.4\n%");
     // The PDF spec recommends including a comment with four bytes, all
@@ -69,15 +65,16 @@ static void emit_pdf_footer(SkWStream* stream,
     stream->writeText("\n%%EOF");
 }
 
-bool SkPDFDocument::emitPDF(SkWStream* stream) {
-    // SkTDArray<SkPDFDevice*> fPageDevices;
-    if (fPageDevices.isEmpty()) {
+bool SkPDFDocument::EmitPDF(const SkTDArray<SkPDFDevice*>& pageDevices,
+                            SkWStream* stream) {
+    if (pageDevices.isEmpty()) {
         return false;
     }
     SkTDArray<SkPDFPage*> pages;
-    for (int i = 0; i < fPageDevices.count(); i++) {
+    for (int i = 0; i < pageDevices.count(); i++) {
+        SkASSERT(pageDevices[i]);
         // Reference from new passed to pages.
-        pages.push(SkNEW_ARGS(SkPDFPage, (fPageDevices[i])));
+        pages.push(SkNEW_ARGS(SkPDFPage, (pageDevices[i])));
     }
     SkPDFCatalog catalog;
 
@@ -194,19 +191,20 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
 }
 
 // TODO(halcanary): expose notEmbeddableCount in SkDocument
-void SkPDFDocument::getCountOfFontTypes(
+void SkPDFDocument::GetCountOfFontTypes(
+        const SkTDArray<SkPDFDevice*>& pageDevices,
         int counts[SkAdvancedTypefaceMetrics::kOther_Font + 1],
         int* notSubsettableCount,
-        int* notEmbeddableCount) const {
+        int* notEmbeddableCount) {
     sk_bzero(counts, sizeof(int) *
                      (SkAdvancedTypefaceMetrics::kOther_Font + 1));
     SkTDArray<SkFontID> seenFonts;
     int notSubsettable = 0;
     int notEmbeddable = 0;
 
-    for (int pageNumber = 0; pageNumber < fPageDevices.count(); pageNumber++) {
+    for (int pageNumber = 0; pageNumber < pageDevices.count(); pageNumber++) {
         const SkTDArray<SkPDFFont*>& fontResources =
-                fPageDevices[pageNumber]->getFontResources();
+                pageDevices[pageNumber]->getFontResources();
         for (int font = 0; font < fontResources.count(); font++) {
             SkFontID fontID = fontResources[font]->typeface()->uniqueID();
             if (seenFonts.find(fontID) == -1) {
