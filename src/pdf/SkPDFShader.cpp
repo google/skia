@@ -1101,8 +1101,10 @@ SkPDFImageShader* SkPDFImageShader::Create(
             SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
     imageShader->setData(content.get());
 
+    SkAutoTUnref<SkPDFResourceDict> resourceDict(
+            patternDevice->createResourceDict());
     populate_tiling_pattern_dict(imageShader, patternBBox,
-                                 patternDevice->getResourceDict(), finalMatrix);
+                                 resourceDict.get(), finalMatrix);
 
     imageShader->fShaderState->fImage.unlockPixels();
 

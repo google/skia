@@ -31,7 +31,7 @@ public:
      *  have content on it yet.
      *  @param content    The page content.
      */
-    explicit SkPDFPage(SkPDFDevice* content);
+    explicit SkPDFPage(const SkPDFDevice* content);
     ~SkPDFPage();
 
     /** Before a page and its contents can be sized and emitted, it must
@@ -86,7 +86,7 @@ public:
 
 private:
     // Multiple pages may reference the content.
-    SkAutoTUnref<SkPDFDevice> fDevice;
+    SkAutoTUnref<const SkPDFDevice> fDevice;
 
     // Once the content is finalized, put it into a stream for output.
     SkAutoTUnref<SkPDFStream> fContentStream;

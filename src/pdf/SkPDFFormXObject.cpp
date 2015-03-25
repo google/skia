@@ -21,13 +21,13 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // We don't want to keep around device because we'd have two copies
     // of content, so reference or copy everything we need (content and
     // resources).
-    SkPDFResourceDict* resourceDict = device->getResourceDict();
+    SkAutoTUnref<SkPDFResourceDict> resourceDict(device->createResourceDict());
 
     SkAutoTDelete<SkStreamAsset> content(device->content());
     this->setData(content.get());
 
     SkAutoTUnref<SkPDFArray> bboxArray(device->copyMediaBox());
-    init(NULL, resourceDict, bboxArray);
+    this->init(NULL, resourceDict.get(), bboxArray);
 
     // We invert the initial transform and apply that to the xobject so that
     // it doesn't get applied twice. We can't just undo it because it's

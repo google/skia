@@ -35,7 +35,6 @@ class SkPDFResourceDict;
 class SkPDFShader;
 class SkPDFStream;
 class SkRRect;
-template <typename T> class SkTSet;
 
 // Private classes.
 struct ContentEntry;
@@ -138,9 +137,9 @@ public:
 
     // PDF specific methods.
 
-    /** Returns the resource dictionary for this device.
+    /** Create the resource dictionary for this device.
      */
-    SkPDFResourceDict* getResourceDict();
+    SkPDFResourceDict* createResourceDict() const;
 
     /** Get the fonts used on this device.
      */
@@ -150,7 +149,7 @@ public:
      *  @param dict  Dictionary to add destinations to.
      *  @param page  The PDF object representing the page for this device.
      */
-    void appendDestinations(SkPDFDict* dict, SkPDFObject* page);
+    void appendDestinations(SkPDFDict* dict, SkPDFObject* page) const;
 
     /** Returns a copy of the media box for this device. The caller is required
      *  to unref() this when it is finished.
@@ -202,7 +201,6 @@ private:
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;
     SkPDFArray* fAnnotations;
-    SkPDFResourceDict* fResourceDict;
     SkTDArray<NamedDestination*> fNamedDestinations;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;

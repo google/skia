@@ -28,7 +28,7 @@ namespace SkPDFDocument {
  *                     should be created using the same SkPDFCanon.
  *  @param SkWStream   The writable output stream to send the PDF to.
  */
-bool EmitPDF(const SkTDArray<SkPDFDevice*>& pageDevices, SkWStream*);
+bool EmitPDF(const SkTDArray<const SkPDFDevice*>& pageDevices, SkWStream*);
 
 /** Get the count of unique font types used in the given pages.
  */

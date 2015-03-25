@@ -62,7 +62,7 @@ protected:
 
 private:
     SkPDFCanon fCanon;
-    SkTDArray<SkPDFDevice*> fPageDevices;
+    SkTDArray<const SkPDFDevice*> fPageDevices;
     SkAutoTUnref<SkCanvas> fCanvas;
     SkScalar fRasterDpi;
 };

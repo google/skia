@@ -13,7 +13,7 @@
 #include "SkPDFPage.h"
 #include "SkPDFResourceDict.h"
 
-SkPDFPage::SkPDFPage(SkPDFDevice* content)
+SkPDFPage::SkPDFPage(const SkPDFDevice* content)
     : SkPDFDict("Page"),
       fDevice(content) {
   SkSafeRef(content);
@@ -25,7 +25,9 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
                              const SkTSet<SkPDFObject*>& knownResourceObjects,
                              SkTSet<SkPDFObject*>* newResourceObjects) {
     if (fContentStream.get() == NULL) {
-        this->insert("Resources", fDevice->getResourceDict());
+        SkAutoTUnref<SkPDFResourceDict> deviceResourceDict(
+                fDevice->createResourceDict());
+        this->insert("Resources", deviceResourceDict.get());
         SkSafeUnref(this->insert("MediaBox", fDevice->copyMediaBox()));
         SkPDFArray* annots = fDevice->getAnnotations();
         if (annots && annots->size() > 0) {

@@ -705,7 +705,6 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize,
     , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
     , fAnnotations(NULL)
-    , fResourceDict(NULL)
     , fLastContentEntry(NULL)
     , fLastMarginContentEntry(NULL)
     , fDrawingArea(kContent_DrawingArea)
@@ -735,7 +734,6 @@ SkPDFDevice::~SkPDFDevice() {
 
 void SkPDFDevice::init() {
     fAnnotations = NULL;
-    fResourceDict = NULL;
     fContentEntries.free();
     fLastContentEntry = NULL;
     fMarginContentEntries.free();
@@ -752,7 +750,6 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
     fFontResources.unrefAll();
     fShaderResources.unrefAll();
     SkSafeUnref(fAnnotations);
-    SkSafeUnref(fResourceDict);
     fNamedDestinations.deleteAll();
 
     if (clearFontUsage) {
@@ -1249,44 +1246,41 @@ void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
     fDrawingArea = drawingArea;
 }
 
-SkPDFResourceDict* SkPDFDevice::getResourceDict() {
-    if (NULL == fResourceDict) {
-        fResourceDict = SkNEW(SkPDFResourceDict);
-
-        if (fGraphicStateResources.count()) {
-            for (int i = 0; i < fGraphicStateResources.count(); i++) {
-                fResourceDict->insertResourceAsReference(
-                        SkPDFResourceDict::kExtGState_ResourceType,
-                        i, fGraphicStateResources[i]);
-            }
-        }
-
-        if (fXObjectResources.count()) {
-            for (int i = 0; i < fXObjectResources.count(); i++) {
-                fResourceDict->insertResourceAsReference(
-                        SkPDFResourceDict::kXObject_ResourceType,
-                        i, fXObjectResources[i]);
-            }
-        }
-
-        if (fFontResources.count()) {
-            for (int i = 0; i < fFontResources.count(); i++) {
-                fResourceDict->insertResourceAsReference(
-                        SkPDFResourceDict::kFont_ResourceType,
-                        i, fFontResources[i]);
-            }
-        }
-
-        if (fShaderResources.count()) {
-            SkAutoTUnref<SkPDFDict> patterns(new SkPDFDict());
-            for (int i = 0; i < fShaderResources.count(); i++) {
-                fResourceDict->insertResourceAsReference(
-                        SkPDFResourceDict::kPattern_ResourceType,
-                        i, fShaderResources[i]);
-            }
+SkPDFResourceDict* SkPDFDevice::createResourceDict() const {
+    SkAutoTUnref<SkPDFResourceDict> resourceDict(SkNEW(SkPDFResourceDict));
+    if (fGraphicStateResources.count()) {
+        for (int i = 0; i < fGraphicStateResources.count(); i++) {
+            resourceDict->insertResourceAsReference(
+                    SkPDFResourceDict::kExtGState_ResourceType,
+                    i, fGraphicStateResources[i]);
         }
     }
-    return fResourceDict;
+
+    if (fXObjectResources.count()) {
+        for (int i = 0; i < fXObjectResources.count(); i++) {
+            resourceDict->insertResourceAsReference(
+                    SkPDFResourceDict::kXObject_ResourceType,
+                    i, fXObjectResources[i]);
+        }
+    }
+
+    if (fFontResources.count()) {
+        for (int i = 0; i < fFontResources.count(); i++) {
+            resourceDict->insertResourceAsReference(
+                    SkPDFResourceDict::kFont_ResourceType,
+                    i, fFontResources[i]);
+        }
+    }
+
+    if (fShaderResources.count()) {
+        SkAutoTUnref<SkPDFDict> patterns(new SkPDFDict());
+        for (int i = 0; i < fShaderResources.count(); i++) {
+            resourceDict->insertResourceAsReference(
+                    SkPDFResourceDict::kPattern_ResourceType,
+                    i, fShaderResources[i]);
+        }
+    }
+    return resourceDict.detach();
 }
 
 const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
@@ -1539,7 +1533,7 @@ void SkPDFDevice::defineNamedDestination(SkData* nameData, const SkPoint& point,
         SkNEW_ARGS(NamedDestination, (nameData, translatedPoint)));
 }
 
-void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) {
+void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     int nDest = fNamedDestinations.count();
     for (int i = 0; i < nDest; i++) {
         NamedDestination* dest = fNamedDestinations[i];

@@ -65,7 +65,7 @@ static void emit_pdf_footer(SkWStream* stream,
     stream->writeText("\n%%EOF");
 }
 
-bool SkPDFDocument::EmitPDF(const SkTDArray<SkPDFDevice*>& pageDevices,
+bool SkPDFDocument::EmitPDF(const SkTDArray<const SkPDFDevice*>& pageDevices,
                             SkWStream* stream) {
     if (pageDevices.isEmpty()) {
         return false;
