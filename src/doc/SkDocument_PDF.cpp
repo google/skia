@@ -10,7 +10,8 @@
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
-#include "SkPDFPage.h"
+#include "SkPDFResourceDict.h"
+#include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkStream.h"
 
@@ -40,13 +41,14 @@ static void emit_pdf_footer(SkWStream* stream,
     stream->writeText("\n%%EOF");
 }
 
-static void perform_font_subsetting(SkPDFCatalog* catalog,
-                                    const SkTDArray<SkPDFPage*>& pages) {
+static void perform_font_subsetting(
+        const SkTDArray<const SkPDFDevice*>& pageDevices,
+        SkPDFCatalog* catalog) {
     SkASSERT(catalog);
 
     SkPDFGlyphSetMap usage;
-    for (int i = 0; i < pages.count(); ++i) {
-        usage.merge(pages[i]->getFontGlyphUsage());
+    for (int i = 0; i < pageDevices.count(); ++i) {
+        usage.merge(pageDevices[i]->getFontGlyphUsage());
     }
     SkPDFGlyphSetMap::F2BIter iterator(usage);
     const SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
@@ -60,23 +62,125 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
     }
 }
 
+static SkPDFDict* create_pdf_page(const SkPDFDevice* pageDevice) {
+    SkAutoTUnref<SkPDFDict> page(SkNEW_ARGS(SkPDFDict, ("Page")));
+    SkAutoTUnref<SkPDFResourceDict> deviceResourceDict(
+            pageDevice->createResourceDict());
+    page->insert("Resources", deviceResourceDict.get());
+
+    SkAutoTUnref<SkPDFArray> mediaBox(pageDevice->copyMediaBox());
+    page->insert("MediaBox", mediaBox.get());
+
+    SkPDFArray* annots = pageDevice->getAnnotations();
+    if (annots && annots->size() > 0) {
+        page->insert("Annots", annots);
+    }
+
+    SkAutoTDelete<SkStreamAsset> content(pageDevice->content());
+    SkAutoTUnref<SkPDFStream> contentStream(
+            SkNEW_ARGS(SkPDFStream, (content.get())));
+    page->insert("Contents", new SkPDFObjRef(contentStream.get()))->unref();
+    return page.detach();
+}
+
+static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
+                               SkTDArray<SkPDFDict*>* pageTree,
+                               SkPDFDict** rootNode) {
+    // PDF wants a tree describing all the pages in the document.  We arbitrary
+    // choose 8 (kNodeSize) as the number of allowed children.  The internal
+    // nodes have type "Pages" with an array of children, a parent pointer, and
+    // the number of leaves below the node as "Count."  The leaves are passed
+    // into the method, have type "Page" and need a parent pointer. This method
+    // builds the tree bottom up, skipping internal nodes that would have only
+    // one child.
+    static const int kNodeSize = 8;
+
+    SkAutoTUnref<SkPDFName> kidsName(new SkPDFName("Kids"));
+    SkAutoTUnref<SkPDFName> countName(new SkPDFName("Count"));
+    SkAutoTUnref<SkPDFName> parentName(new SkPDFName("Parent"));
+
+    // curNodes takes a reference to its items, which it passes to pageTree.
+    SkTDArray<SkPDFDict*> curNodes;
+    curNodes.setReserve(pages.count());
+    for (int i = 0; i < pages.count(); i++) {
+        SkSafeRef(pages[i]);
+        curNodes.push(pages[i]);
+    }
+
+    // nextRoundNodes passes its references to nodes on to curNodes.
+    SkTDArray<SkPDFDict*> nextRoundNodes;
+    nextRoundNodes.setReserve((pages.count() + kNodeSize - 1)/kNodeSize);
+
+    int treeCapacity = kNodeSize;
+    do {
+        for (int i = 0; i < curNodes.count(); ) {
+            if (i > 0 && i + 1 == curNodes.count()) {
+                nextRoundNodes.push(curNodes[i]);
+                break;
+            }
+
+            SkPDFDict* newNode = new SkPDFDict("Pages");
+            SkAutoTUnref<SkPDFObjRef> newNodeRef(new SkPDFObjRef(newNode));
+
+            SkAutoTUnref<SkPDFArray> kids(new SkPDFArray);
+            kids->reserve(kNodeSize);
+
+            int count = 0;
+            for (; i < curNodes.count() && count < kNodeSize; i++, count++) {
+                curNodes[i]->insert(parentName.get(), newNodeRef.get());
+                kids->append(new SkPDFObjRef(curNodes[i]))->unref();
+
+                // TODO(vandebo): put the objects in strict access order.
+                // Probably doesn't matter because they are so small.
+                if (curNodes[i] != pages[0]) {
+                    pageTree->push(curNodes[i]);  // Transfer reference.
+                } else {
+                    SkSafeUnref(curNodes[i]);
+                }
+            }
+
+            // treeCapacity is the number of leaf nodes possible for the
+            // current set of subtrees being generated. (i.e. 8, 64, 512, ...).
+            // It is hard to count the number of leaf nodes in the current
+            // subtree. However, by construction, we know that unless it's the
+            // last subtree for the current depth, the leaf count will be
+            // treeCapacity, otherwise it's what ever is left over after
+            // consuming treeCapacity chunks.
+            int pageCount = treeCapacity;
+            if (i == curNodes.count()) {
+                pageCount = ((pages.count() - 1) % treeCapacity) + 1;
+            }
+            newNode->insert(countName.get(), new SkPDFInt(pageCount))->unref();
+            newNode->insert(kidsName.get(), kids.get());
+            nextRoundNodes.push(newNode);  // Transfer reference.
+        }
+
+        curNodes = nextRoundNodes;
+        nextRoundNodes.rewind();
+        treeCapacity *= kNodeSize;
+    } while (curNodes.count() > 1);
+
+    pageTree->push(curNodes[0]);  // Transfer reference.
+    if (rootNode) {
+        *rootNode = curNodes[0];
+    }
+}
+
 static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
                               SkWStream* stream) {
     if (pageDevices.isEmpty()) {
         return false;
     }
 
-    SkTDArray<SkPDFPage*> pages;
+    SkTDArray<SkPDFDict*> pages;
     SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
 
     for (int i = 0; i < pageDevices.count(); i++) {
         SkASSERT(pageDevices[i]);
         SkASSERT(i == 0 ||
                  pageDevices[i - 1]->getCanon() == pageDevices[i]->getCanon());
-        // Reference from new passed to pages.
-        SkAutoTUnref<SkPDFPage> page(SkNEW_ARGS(SkPDFPage, (pageDevices[i])));
-        page->finalizePage();
-        page->appendDestinations(dests);
+        SkAutoTUnref<SkPDFDict> page(create_pdf_page(pageDevices[i]));
+        pageDevices[i]->appendDestinations(dests, page.get());
         pages.push(page.detach());
     }
     SkPDFCatalog catalog;
@@ -85,7 +189,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     SkAutoTUnref<SkPDFDict> docCatalog(SkNEW_ARGS(SkPDFDict, ("Catalog")));
 
     SkPDFDict* pageTreeRoot;
-    SkPDFPage::GeneratePageTree(pages, &pageTree, &pageTreeRoot);
+    generate_page_tree(pages, &pageTree, &pageTreeRoot);
 
     docCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
@@ -105,7 +209,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     // Build font subsetting info before proceeding.
-    perform_font_subsetting(&catalog, pages);
+    perform_font_subsetting(pageDevices, &catalog);
 
     SkTSet<SkPDFObject*> resourceSet;
     if (resourceSet.add(docCatalog.get())) {
