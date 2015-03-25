@@ -12,5 +12,8 @@
 dummyproject,BUG=skia:2139,BUG=skia:2812
 notry,NOTRY=true
 nocommit,COMMIT=false
-try_android_test_n7_d,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus7-Tegra3-Arm7-Debug
-try_android_test_n7_r,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus7-Tegra3-Arm7-Release
+
+floats,BUG=skia:3592
+n7,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus7-Tegra3-Arm7-Debug-Trybot
+n9,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus9-TegraK1-Arm64-Release-Trybot
+
