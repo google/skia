@@ -20,8 +20,6 @@
         '<(skia_src_path)/pdf/SkPDFCatalog.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',
         '<(skia_src_path)/pdf/SkPDFDevice.h',
-        '<(skia_src_path)/pdf/SkPDFDocument.cpp',
-        '<(skia_src_path)/pdf/SkPDFDocument.h',
         '<(skia_src_path)/pdf/SkPDFFont.cpp',
         '<(skia_src_path)/pdf/SkPDFFont.h',
         '<(skia_src_path)/pdf/SkPDFFontImpl.h',
