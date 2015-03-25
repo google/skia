@@ -45,6 +45,14 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     quad[3].set(fLeft, fBottom);
 }
 
+//#include "Sk2x.h"
+#include "Sk4x.h"
+
+static inline bool is_finite(const Sk4f& value) {
+    Sk4i finite = value * Sk4f(0) == Sk4f(0);
+    return finite.allTrue();
+}
+
 bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
 
@@ -53,6 +61,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     if (count <= 0) {
         sk_bzero(this, sizeof(SkRect));
     } else {
+#if 0
         SkScalar    l, t, r, b;
 
         l = r = pts[0].fX;
@@ -79,11 +88,53 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
         }
 
         SkASSERT(!accum || !SkScalarIsFinite(accum));
+        accum = 0;
         if (accum) {
             l = t = r = b = 0;
             isFinite = false;
         }
         this->set(l, t, r, b);
+#else
+        Sk4f min, max, accum;
+
+        if (count & 1) {
+            min = Sk4f(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
+            pts += 1;
+            count -= 1;
+        } else {
+            min = Sk4f::Load(&pts[0].fX);
+            pts += 2;
+            count -= 2;
+        }
+        accum = max = min;
+        accum *= Sk4f(0);
+
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            Sk4f xy = Sk4f::Load(&pts->fX);
+            accum *= xy;
+            min = Sk4f::Min(min, xy);
+            max = Sk4f::Max(max, xy);
+            pts += 2;
+        }
+
+        /**
+         *  With some trickery, we may be able to use Min/Max to also propogate non-finites,
+         *  in which case we could eliminate accum entirely, and just check min and max for
+         *  "is_finite".
+         */
+        if (is_finite(accum)) {
+            float minArray[4], maxArray[4];
+            min.store(minArray);
+            max.store(maxArray);
+            this->set(SkTMin(minArray[0], minArray[2]), SkTMin(minArray[1], minArray[3]),
+                      SkTMax(maxArray[0], maxArray[2]), SkTMax(maxArray[1], maxArray[3]));
+        } else {
+            // we hit a non-finite value, so zero everything and return false
+            this->setEmpty();
+            isFinite = false;
+        }
+#endif
     }
 
     return isFinite;

@@ -152,7 +152,9 @@ protected:
     void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r;
         for (int i = 0; i < loops; ++i) {
-            r.set(fPts, PTS);
+            for (int i = 0; i < 1000; ++i) {
+                r.set(fPts, PTS);
+            }
         }
     }
 
