@@ -7,7 +7,6 @@
 
 #include "SkCodec.h"
 #include "SkColorTable.h"
-#include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
 #include "SkStream.h"
@@ -36,7 +35,7 @@ public:
 
     /*
      *
-     * Checks the start of the stream to see if the image is a bitmap
+     * Checks the start of the stream to see if the image is a bmp
      *
      */
     static bool IsBmp(SkStream*);
@@ -44,17 +43,25 @@ public:
     /*
      *
      * Assumes IsBmp was called and returned true
-     * Creates a bitmap decoder
+     * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      *
      */
     static SkCodec* NewFromStream(SkStream*);
 
+    /*
+     *
+     * Creates a bmp decoder for a bmp embedded in ico
+     * Reads enough of the stream to determine the image format
+     *
+     */
+    static SkCodec* NewFromIco(SkStream*);
+
 protected:
 
     /*
      *
-     * Initiates the bitmap decode
+     * Initiates the bmp decode
      *
      */
     virtual Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
@@ -62,11 +69,12 @@ protected:
                                int*) SK_OVERRIDE;
 
     SkEncodedFormat onGetEncodedFormat() const SK_OVERRIDE { return kBMP_SkEncodedFormat; }
+
 private:
 
     /*
      *
-     * Used to define the input format of the bitmap
+     * Used to define the input format of the bmp
      *
      */
     enum BitmapInputFormat {
@@ -82,6 +90,14 @@ private:
      *
      */
      bool createColorTable(SkAlphaType alphaType);
+
+    /*
+     *
+     * Creates a bmp decoder
+     * Reads enough of the stream to determine the image format
+     *
+     */
+    static SkCodec* NewFromStream(SkStream*, bool isIco);
 
     /*
      *
@@ -149,7 +165,8 @@ private:
     SkBmpCodec(const SkImageInfo& srcInfo, SkStream* stream,
                uint16_t bitsPerPixel, BitmapInputFormat format,
                SkMasks* masks, uint32_t numColors, uint32_t bytesPerColor,
-               uint32_t offset, RowOrder rowOrder, size_t RLEByes);
+               uint32_t offset, RowOrder rowOrder, size_t RLEBytes,
+               bool isIco);
 
     // Fields
     const uint16_t                      fBitsPerPixel;
@@ -161,6 +178,7 @@ private:
     const uint32_t                      fOffset;
     const RowOrder                      fRowOrder;
     const size_t                        fRLEBytes;
+    const bool                          fIsIco;
 
     typedef SkCodec INHERITED;
 };
