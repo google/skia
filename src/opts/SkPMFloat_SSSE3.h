@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 inline SkPMFloat& SkPMFloat::operator=(const SkPMFloat& that) {
     fColors = that.fColors;
     return *this;
@@ -41,23 +48,34 @@ inline SkPMColor SkPMFloat::clamped() const {
     return c;
 }
 
-inline void SkPMFloat::From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
+inline void SkPMFloat::From4PMColors(const SkPMColor colors[4],
+                                     SkPMFloat* a, SkPMFloat* b, SkPMFloat* c, SkPMFloat* d) {
     // Haven't beaten this yet.
-    for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
+    *a = FromPMColor(colors[0]);
+    *b = FromPMColor(colors[1]);
+    *c = FromPMColor(colors[2]);
+    *d = FromPMColor(colors[3]);
 }
 
-inline void SkPMFloat::To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
-    // Haven't beaten this yet.  Still faster than ClampTo4PMColors too.
-    for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
+inline void SkPMFloat::To4PMColors(
+        const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
+        SkPMColor colors[4]) {
+    // Haven't beaten this yet.  Still faster than ClampTo4PMColors?
+    colors[0] = a.get();
+    colors[1] = b.get();
+    colors[2] = c.get();
+    colors[3] = d.get();
 }
 
-inline void SkPMFloat::ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
+inline void SkPMFloat::ClampTo4PMColors(
+        const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
+        SkPMColor colors[4]) {
     // Same as _SSE2.h's.  We use 3 _mm_packus_epi16() where the naive loop uses 8.
     // We don't use _mm_cvtps_epi32, because we want precise control over how 0.5 rounds (up).
-    __m128i c0 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), floats[0].fColors)),
-            c1 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), floats[1].fColors)),
-            c2 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), floats[2].fColors)),
-            c3 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), floats[3].fColors));
+    __m128i c0 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), a.fColors)),
+            c1 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), b.fColors)),
+            c2 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), c.fColors)),
+            c3 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), d.fColors));
     __m128i c3210 = _mm_packus_epi16(_mm_packus_epi16(c0, c1),
                                      _mm_packus_epi16(c2, c3));
     _mm_storeu_si128((__m128i*)colors, c3210);

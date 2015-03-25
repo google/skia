@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkPM_DEFINED
 #define SkPM_DEFINED
 
@@ -20,7 +27,7 @@ public:
     static SkPMFloat FromARGB(float a, float r, float g, float b) { return SkPMFloat(a,r,g,b); }
 
     // May be more efficient than one at a time.  No special alignment assumed for SkPMColors.
-    static void From4PMColors(SkPMFloat[4], const SkPMColor[4]);
+    static void From4PMColors(const SkPMColor[4], SkPMFloat*, SkPMFloat*, SkPMFloat*, SkPMFloat*);
 
     explicit SkPMFloat(SkPMColor);
     SkPMFloat(float a, float r, float g, float b) {
@@ -51,8 +58,10 @@ public:
     SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
 
     // 4-at-a-time versions of get() and clamped().  Like From4PMColors(), no alignment assumed.
-    static void To4PMColors(SkPMColor[4], const SkPMFloat[4]);
-    static void ClampTo4PMColors(SkPMColor[4], const SkPMFloat[4]);
+    static void To4PMColors(
+            const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, SkPMColor[4]);
+    static void ClampTo4PMColors(
+            const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, SkPMColor[4]);
 
     bool isValid() const {
         return this->a() >= 0 && this->a() <= 255

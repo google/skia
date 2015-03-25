@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "Benchmark.h"
 #include "SkPMFloat.h"
 
@@ -49,21 +56,32 @@ struct PMFloatBench : public Benchmark {
             colors[3] = seed + 3;
         #endif
 
-            SkPMFloat floats[4];
+            SkPMFloat fa,fb,fc,fd;
             if (kWide) {
-                SkPMFloat::From4PMColors(floats, colors);
+                SkPMFloat::From4PMColors(colors, &fa, &fb, &fc, &fd);
             } else {
-                for (int i = 0; i < 4; i++) {
-                    floats[i] = SkPMFloat::FromPMColor(colors[i]);
-                }
+                fa = SkPMFloat::FromPMColor(colors[0]);
+                fb = SkPMFloat::FromPMColor(colors[1]);
+                fc = SkPMFloat::FromPMColor(colors[2]);
+                fd = SkPMFloat::FromPMColor(colors[3]);
             }
 
             SkPMColor back[4];
             switch (kClamp << 1 | kWide) {
-                case 0: for (int i = 0; i < 4; i++) { back[i] = floats[i].get(); }     break;
-                case 1: SkPMFloat::To4PMColors(back, floats);                          break;
-                case 2: for (int i = 0; i < 4; i++) { back[i] = floats[i].clamped(); } break;
-                case 3: SkPMFloat::ClampTo4PMColors(back, floats);                     break;
+                case 0: {
+                    back[0] = fa.get();
+                    back[1] = fb.get();
+                    back[2] = fc.get();
+                    back[3] = fd.get();
+                } break;
+                case 1: SkPMFloat::To4PMColors(fa, fb, fc, fd, back); break;
+                case 2: {
+                    back[0] = fa.clamped();
+                    back[1] = fb.clamped();
+                    back[2] = fc.clamped();
+                    back[3] = fd.clamped();
+                } break;
+                case 3: SkPMFloat::ClampTo4PMColors(fa, fb, fc, fd, back); break;
             }
             for (int i = 0; i < 4; i++) {
                 junk ^= back[i];

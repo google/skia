@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 inline SkPMFloat& SkPMFloat::operator=(const SkPMFloat& that) {
     fColors = that.fColors;
     return *this;
@@ -41,14 +48,28 @@ inline SkPMColor SkPMFloat::clamped() const {
 }
 
 // TODO: we should be able to beat these loops on all three methods.
-inline void SkPMFloat::From4PMColors(SkPMFloat floats[4], const SkPMColor colors[4]) {
-    for (int i = 0; i < 4; i++) { floats[i] = FromPMColor(colors[i]); }
+inline void SkPMFloat::From4PMColors(const SkPMColor colors[4],
+                                     SkPMFloat* a, SkPMFloat* b, SkPMFloat* c, SkPMFloat* d) {
+    *a = FromPMColor(colors[0]);
+    *b = FromPMColor(colors[1]);
+    *c = FromPMColor(colors[2]);
+    *d = FromPMColor(colors[3]);
 }
 
-inline void SkPMFloat::To4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
-    for (int i = 0; i < 4; i++) { colors[i] = floats[i].get(); }
+inline void SkPMFloat::To4PMColors(
+        const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
+        SkPMColor colors[4]) {
+    colors[0] = a.get();
+    colors[1] = b.get();
+    colors[2] = c.get();
+    colors[3] = d.get();
 }
 
-inline void SkPMFloat::ClampTo4PMColors(SkPMColor colors[4], const SkPMFloat floats[4]) {
-    for (int i = 0; i < 4; i++) { colors[i] = floats[i].clamped(); }
+inline void SkPMFloat::ClampTo4PMColors(
+        const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
+        SkPMColor colors[4]) {
+    colors[0] = a.clamped();
+    colors[1] = b.clamped();
+    colors[2] = c.clamped();
+    colors[3] = d.clamped();
 }

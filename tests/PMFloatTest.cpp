@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkPMFloat.h"
 #include "Test.h"
 
@@ -33,15 +40,15 @@ DEF_TEST(SkPMFloat, r) {
     // Test 4-at-a-time conversions.
     SkPMColor colors[4] = { 0xFF000000, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF };
     SkPMFloat floats[4];
-    SkPMFloat::From4PMColors(floats, colors);
+    SkPMFloat::From4PMColors(colors, floats+0, floats+1, floats+2, floats+3);
 
     SkPMColor back[4];
-    SkPMFloat::To4PMColors(back, floats);
+    SkPMFloat::To4PMColors(floats[0], floats[1], floats[2], floats[3], back);
     for (int i = 0; i < 4; i++) {
         REPORTER_ASSERT(r, back[i] == colors[i]);
     }
 
-    SkPMFloat::ClampTo4PMColors(back, floats);
+    SkPMFloat::ClampTo4PMColors(floats[0], floats[1], floats[2], floats[3], back);
     for (int i = 0; i < 4; i++) {
         REPORTER_ASSERT(r, back[i] == colors[i]);
     }
