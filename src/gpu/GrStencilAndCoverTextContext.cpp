@@ -42,27 +42,31 @@ GrStencilAndCoverTextContext::Create(GrContext* context, SkGpuDevice* gpuDevice,
 GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
 }
 
-bool GrStencilAndCoverTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) {
-    if (paint.getRasterizer()) {
+bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
+                                           const GrClip& clip,
+                                           const GrPaint& paint,
+                                           const SkPaint& skPaint,
+                                           const SkMatrix& viewMatrix) {
+    if (skPaint.getRasterizer()) {
         return false;
     }
-    if (paint.getMaskFilter()) {
+    if (skPaint.getMaskFilter()) {
         return false;
     }
-    if (paint.getPathEffect()) {
+    if (skPaint.getPathEffect()) {
         return false;
     }
 
     // No hairlines unless we can map the 1 px width to the object space.
-    if (paint.getStyle() == SkPaint::kStroke_Style
-        && paint.getStrokeWidth() == 0
+    if (skPaint.getStyle() == SkPaint::kStroke_Style
+        && skPaint.getStrokeWidth() == 0
         && viewMatrix.hasPerspective()) {
         return false;
     }
 
     // No color bitmap fonts.
     SkScalerContext::Rec    rec;
-    SkScalerContext::MakeRec(paint, &fDeviceProperties, NULL, &rec);
+    SkScalerContext::MakeRec(skPaint, &fDeviceProperties, NULL, &rec);
     return rec.getFormat() != SkMask::kARGB32_Format;
 }
 

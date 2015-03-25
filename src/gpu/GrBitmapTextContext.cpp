@@ -68,8 +68,12 @@ GrBitmapTextContext* GrBitmapTextContext::Create(GrContext* context,
     return SkNEW_ARGS(GrBitmapTextContext, (context, gpuDevice, props));
 }
 
-bool GrBitmapTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) {
-    return !SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix);
+bool GrBitmapTextContext::canDraw(const GrRenderTarget* rt,
+                                  const GrClip& clip,
+                                  const GrPaint& paint,
+                                  const SkPaint& skPaint,
+                                  const SkMatrix& viewMatrix) {
+    return !SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix);
 }
 
 inline void GrBitmapTextContext::init(GrRenderTarget* rt, const GrClip& clip,

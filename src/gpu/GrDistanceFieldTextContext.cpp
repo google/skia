@@ -83,34 +83,38 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
     SkSafeSetNull(fGammaTexture);
 }
 
-bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) {
+bool GrDistanceFieldTextContext::canDraw(const GrRenderTarget* rt,
+                                         const GrClip& clip,
+                                         const GrPaint& paint,
+                                         const SkPaint& skPaint,
+                                         const SkMatrix& viewMatrix) {
     // TODO: support perspective (need getMaxScale replacement)
     if (viewMatrix.hasPerspective()) {
         return false;
     }
 
     SkScalar maxScale = viewMatrix.getMaxScale();
-    SkScalar scaledTextSize = maxScale*paint.getTextSize();
+    SkScalar scaledTextSize = maxScale*skPaint.getTextSize();
     // Hinted text looks far better at small resolutions
     // Scaling up beyond 2x yields undesireable artifacts
     if (scaledTextSize < kMinDFFontSize || scaledTextSize > 2*kLargeDFFontSize) {
         return false;
     }
 
-    if (!fEnableDFRendering && !paint.isDistanceFieldTextTEMP() &&
+    if (!fEnableDFRendering && !skPaint.isDistanceFieldTextTEMP() &&
         scaledTextSize < kLargeDFFontSize) {
         return false;
     }
 
     // rasterizers and mask filters modify alpha, which doesn't
     // translate well to distance
-    if (paint.getRasterizer() || paint.getMaskFilter() ||
+    if (skPaint.getRasterizer() || skPaint.getMaskFilter() ||
         !fContext->getTextTarget()->caps()->shaderDerivativeSupport()) {
         return false;
     }
 
     // TODO: add some stroking support
-    if (paint.getStyle() != SkPaint::kFill_Style) {
+    if (skPaint.getStyle() != SkPaint::kFill_Style) {
         return false;
     }
 

@@ -62,7 +62,8 @@ protected:
 
     GrTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
 
-    virtual bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix) = 0;
+    virtual bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
+                         const SkPaint&, const SkMatrix& viewMatrix) = 0;
 
     virtual void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
@@ -72,9 +73,6 @@ protected:
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset, const SkIRect& clipBounds) = 0;
-    virtual void onDrawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
-                                const SkMatrix& viewMatrix, const SkTextBlob*,
-                                SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
     void drawTextAsPath(const SkPaint& origPaint, const SkMatrix& viewMatrix,
                         const char text[], size_t byteLength, SkScalar x, SkScalar y,

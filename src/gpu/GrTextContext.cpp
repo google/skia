@@ -57,7 +57,7 @@ void GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
 
     GrTextContext* textContext = this;
     do {
-        if (textContext->canDraw(skPaint, viewMatrix)) {
+        if (textContext->canDraw(rt, clip, paint, skPaint, viewMatrix)) {
             textContext->onDrawText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, x, y,
                                     clipBounds);
             return;
@@ -80,7 +80,7 @@ void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
 
     GrTextContext* textContext = this;
     do {
-        if (textContext->canDraw(skPaint, viewMatrix)) {
+        if (textContext->canDraw(rt, clip, paint, skPaint, viewMatrix)) {
             textContext->onDrawPosText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, pos,
                                        scalarsPerPosition, offset, clipBounds);
             return;
@@ -97,19 +97,49 @@ void GrTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
-    if (!fContext->getTextTarget()) {
-        return;
-    }
+    SkPaint runPaint = skPaint;
 
-    GrTextContext* textContext = this;
-    do {
-        if (textContext->canDraw(skPaint, viewMatrix)) {
-            textContext->onDrawTextBlob(rt, clip, skPaint, viewMatrix, blob, x, y, drawFilter,
-                                        clipBounds);
-            return;
+    SkTextBlob::RunIterator it(blob);
+    for (;!it.done(); it.next()) {
+        size_t textLen = it.glyphCount() * sizeof(uint16_t);
+        const SkPoint& offset = it.offset();
+        // applyFontToPaint() always overwrites the exact same attributes,
+        // so it is safe to not re-seed the paint for this reason.
+        it.applyFontToPaint(&runPaint);
+
+        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
+            // A false return from filter() means we should abort the current draw.
+            runPaint = skPaint;
+            continue;
         }
-        textContext = textContext->fFallbackTextContext;
-    } while (textContext);
+
+        runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
+
+        GrPaint grPaint;
+        SkPaint2GrPaintShader(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint);
+
+        switch (it.positioning()) {
+        case SkTextBlob::kDefault_Positioning:
+            this->drawText(rt, clip, grPaint, runPaint, viewMatrix, (const char *)it.glyphs(),
+                           textLen, x + offset.x(), y + offset.y(), clipBounds);
+            break;
+        case SkTextBlob::kHorizontal_Positioning:
+            this->drawPosText(rt, clip, grPaint, runPaint, viewMatrix, (const char*)it.glyphs(),
+                              textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()), clipBounds);
+            break;
+        case SkTextBlob::kFull_Positioning:
+            this->drawPosText(rt, clip, grPaint, runPaint, viewMatrix, (const char*)it.glyphs(),
+                              textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
+            break;
+        default:
+            SkFAIL("unhandled positioning mode");
+        }
+
+        if (drawFilter) {
+            // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
+            runPaint = skPaint;
+        }
+    }
 }
 
 void GrTextContext::drawTextAsPath(const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -177,55 +207,6 @@ void GrTextContext::drawPosTextAsPath(const SkPaint& origPaint, const SkMatrix& 
             }
         }
         pos += scalarsPerPosition;
-    }
-}
-
-void GrTextContext::onDrawTextBlob(GrRenderTarget* rt, const GrClip& clip,
-                                   const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                   const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                   SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
-    SkPaint runPaint = skPaint;
-
-    SkTextBlob::RunIterator it(blob);
-    for (;!it.done(); it.next()) {
-        size_t textLen = it.glyphCount() * sizeof(uint16_t);
-        const SkPoint& offset = it.offset();
-        // applyFontToPaint() always overwrites the exact same attributes,
-        // so it is safe to not re-seed the paint for this reason.
-        it.applyFontToPaint(&runPaint);
-
-        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
-            // A false return from filter() means we should abort the current draw.
-            runPaint = skPaint;
-            continue;
-        }
-
-        runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
-
-        GrPaint grPaint;
-        SkPaint2GrPaintShader(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint);
-
-        switch (it.positioning()) {
-        case SkTextBlob::kDefault_Positioning:
-            this->drawText(rt, clip, grPaint, runPaint, viewMatrix, (const char *)it.glyphs(),
-                           textLen, x + offset.x(), y + offset.y(), clipBounds);
-            break;
-        case SkTextBlob::kHorizontal_Positioning:
-            this->drawPosText(rt, clip, grPaint, runPaint, viewMatrix, (const char*)it.glyphs(),
-                              textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()), clipBounds);
-            break;
-        case SkTextBlob::kFull_Positioning:
-            this->drawPosText(rt, clip, grPaint, runPaint, viewMatrix, (const char*)it.glyphs(),
-                              textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
-            break;
-        default:
-            SkFAIL("unhandled positioning mode");
-        }
-
-        if (drawFilter) {
-            // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
-            runPaint = skPaint;
-        }
     }
 }
 
