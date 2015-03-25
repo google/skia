@@ -10,13 +10,13 @@
 #include "SkPDFDocument.h"
 #include "SkPDFDevice.h"
 
+namespace {
 class SkDocument_PDF : public SkDocument {
 public:
     SkDocument_PDF(SkWStream* stream,
                    void (*doneProc)(SkWStream*, bool),
                    SkScalar rasterDpi)
         : SkDocument(stream, doneProc)
-        , fDoc(SkNEW(SkPDFDocument))
         , fRasterDpi(rasterDpi) {}
 
     virtual ~SkDocument_PDF() {
@@ -28,12 +28,13 @@ protected:
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
                                   const SkRect& trimBox) SK_OVERRIDE {
         SkASSERT(!fCanvas.get());
-        SkASSERT(!fDevice.get());
 
         SkISize pageSize = SkISize::Make(
                 SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-        fDevice.reset(SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
-        fCanvas.reset(SkNEW_ARGS(SkCanvas, (fDevice)));
+        SkAutoTUnref<SkPDFDevice> device(
+                SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
+        fCanvas.reset(SkNEW_ARGS(SkCanvas, (device.get())));
+        fPageDevices.push(device.detach());
         fCanvas->clipRect(trimBox);
         fCanvas->translate(trimBox.x(), trimBox.y());
         return fCanvas.get();
@@ -41,38 +42,31 @@ protected:
 
     void onEndPage() SK_OVERRIDE {
         SkASSERT(fCanvas.get());
-        SkASSERT(fDevice.get());
-
         fCanvas->flush();
-        fDoc->appendPage(fDevice.get());
-
         fCanvas.reset(NULL);
-        fDevice.reset(NULL);
     }
 
     bool onClose(SkWStream* stream) SK_OVERRIDE {
         SkASSERT(!fCanvas.get());
-        SkASSERT(!fDevice.get());
 
-        bool success = fDoc->emitPDF(stream);
-        fDoc.free();
+        bool success = SkPDFDocument::EmitPDF(fPageDevices, stream);
+        fPageDevices.unrefAll();
         fCanon.reset();
         return success;
     }
 
     void onAbort() SK_OVERRIDE {
-        fDoc.free();
+        fPageDevices.unrefAll();
         fCanon.reset();
     }
 
 private:
     SkPDFCanon fCanon;
-    SkAutoTDelete<SkPDFDocument> fDoc;
-    SkAutoTUnref<SkPDFDevice> fDevice;
+    SkTDArray<SkPDFDevice*> fPageDevices;
     SkAutoTUnref<SkCanvas> fCanvas;
     SkScalar fRasterDpi;
 };
-
+}  // namespace
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDocument* SkDocument::CreatePDF(SkWStream* stream, SkScalar dpi) {
