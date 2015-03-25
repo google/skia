@@ -30,7 +30,7 @@ public:
     /**
      *  Return a non-zero, unique value representing the text blob.
      */
-    uint32_t uniqueID() const;
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /**
      *  Serialize to a buffer.
@@ -98,7 +98,7 @@ private:
 
     const int        fRunCount;
     const SkRect     fBounds;
-    mutable uint32_t fUniqueID;
+    const uint32_t fUniqueID;
 
     SkDEBUGCODE(size_t fStorageSize;)
 

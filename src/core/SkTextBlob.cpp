@@ -108,9 +108,19 @@ private:
     SkDEBUGCODE(unsigned fMagic;)
 };
 
+static int32_t gNextID = 1;
+static int32_t next_id() {
+    int32_t id;
+    do {
+        id = sk_atomic_inc(&gNextID);
+    } while (id == SK_InvalidGenID);
+    return id;
+}
+
 SkTextBlob::SkTextBlob(int runCount, const SkRect& bounds)
     : fRunCount(runCount)
-    , fBounds(bounds) {
+    , fBounds(bounds)
+    , fUniqueID(next_id()) {
 }
 
 SkTextBlob::~SkTextBlob() {
@@ -121,17 +131,6 @@ SkTextBlob::~SkTextBlob() {
         run->~RunRecord();
         run = nextRun;
     }
-}
-
-uint32_t SkTextBlob::uniqueID() const {
-    static int32_t  gTextBlobGenerationID; // = 0;
-
-    // loop in case our global wraps around, as we never want to return SK_InvalidGenID
-    while (SK_InvalidGenID == fUniqueID) {
-        fUniqueID = sk_atomic_inc(&gTextBlobGenerationID) + 1;
-    }
-
-    return fUniqueID;
 }
 
 void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
