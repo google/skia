@@ -25,9 +25,15 @@ fi
 
 if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -c; fi
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
-$ADB ${DEVICE_SERIAL} shell \
-    "LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH \
-     /data/local/tmp/skia_launcher ${APP_ARGS[*]}; echo \$? > ${STATUS_FILENAME}"
+CMD_FILENAME=".skia_cmd_tmp_$(date +%s%N)"
+echo "LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH \
+     /data/local/tmp/skia_launcher ${APP_ARGS[*]}; \
+     echo \$? > ${STATUS_FILENAME}" > ${CMD_FILENAME}
+chmod +x ${CMD_FILENAME}
+$ADB ${DEVICE_SERIAL} push ${CMD_FILENAME} /data/local/tmp
+rm ${CMD_FILENAME}
+$ADB ${DEVICE_SERIAL} shell sh /data/local/tmp/${CMD_FILENAME}
+    
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
   if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -d; fi
   echo "***********************************************************************"
@@ -37,7 +43,7 @@ if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exis
 fi
 
 EXIT_CODE=`$ADB ${DEVICE_SERIAL} shell cat ${STATUS_FILENAME}`
-$ADB ${DEVICE_SERIAL} shell rm -f ${STATUS_FILENAME}
+$ADB ${DEVICE_SERIAL} shell rm -f ${STATUS_FILENAME} ${CMD_FILENAME}
 
 # check to see if the 'cat' command failed and print errors accordingly
 if [[ ${EXIT_CODE} == *${STATUS_FILENAME}* ]]; then
