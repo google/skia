@@ -255,15 +255,6 @@ private:
      */
     void applyUserTransform(SkCanvas* canvas);
 
-    size_t getOpID() const {
-#if 0
-        if (fPicture) {
-            return fPicture->EXPERIMENTAL_curOpID();
-        }
-#endif
-        return 0;
-    }
-
     void resetClipStackData() { fClipStackData.reset(); fCalledAddStackData = false; }
 
     void addClipStackData(const SkPath& devPath, const SkPath& operand, SkRegion::Op elementOp);

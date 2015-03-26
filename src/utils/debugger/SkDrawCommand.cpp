@@ -16,7 +16,6 @@
 
 SkDrawCommand::SkDrawCommand(OpType type)
     : fOpType(type)
-    , fOffset(0)
     , fVisible(true) {
 }
 

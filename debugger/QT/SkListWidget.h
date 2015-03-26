@@ -19,16 +19,11 @@
  */
 class SkListWidget : public QAbstractItemDelegate {
 public:
-    enum IndexStyle {
-        kIndex_IndexStyle,
-        kOffset_IndexStyle,
-    };
-
     /**
         Constructs the list widget with the specified parent for layout purposes.
         @param parent  The parent container of this widget
      */
-    SkListWidget(QObject* parent = NULL) : fIndexStyle(kIndex_IndexStyle) {}
+    SkListWidget(QObject* parent = NULL) {}
 
     virtual ~SkListWidget() {}
 
@@ -43,14 +38,6 @@ public:
      */
     QSize sizeHint(const QStyleOptionViewItem& option,
                    const QModelIndex& index) const;
-
-
-    void setIndexStyle(IndexStyle indexStyle) {
-        fIndexStyle = indexStyle;
-    }
-
-protected:
-    IndexStyle fIndexStyle;
 };
 
 #endif

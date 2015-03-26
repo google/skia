@@ -59,9 +59,6 @@ public:
 
     virtual SkString toString() const;
 
-    void setOffset(size_t offset) { fOffset = offset; }
-    size_t offset() const { return fOffset; }
-
     virtual const char* toCString() const {
         return GetCommandString(fOpType);
     }
@@ -106,7 +103,6 @@ protected:
 
 private:
     OpType fOpType;
-    size_t fOffset;
     bool   fVisible;
 };
 

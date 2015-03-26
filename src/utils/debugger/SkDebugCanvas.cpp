@@ -128,7 +128,6 @@ SkDebugCanvas::~SkDebugCanvas() {
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
-    command->setOffset(this->getOpID());
     fCommandVector.push(command);
 }
 

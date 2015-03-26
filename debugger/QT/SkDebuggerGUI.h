@@ -78,11 +78,6 @@ private slots:
     void actionBreakpoints();
 
     /**
-        Toggles between count and offset style of command indexing in GUI
-     */
-    void actionToggleIndexStyle();
-
-    /**
         Profile the commands
      */
     void actionProfile();
@@ -243,7 +238,6 @@ private:
 
     QAction fActionOpen;
     QAction fActionBreakpoint;
-    QAction fActionToggleIndexStyle;
     QAction fActionProfile;
     QAction fActionCancel;
     QAction fActionClearBreakpoints;

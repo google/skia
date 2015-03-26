@@ -32,7 +32,6 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fToolBar(this)
     , fActionOpen(this)
     , fActionBreakpoint(this)
-    , fActionToggleIndexStyle(this)
     , fActionProfile(this)
     , fActionCancel(this)
     , fActionClearBreakpoints(this)
@@ -79,7 +78,6 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionStepBack, SIGNAL(triggered()), this, SLOT(actionStepBack()));
     connect(&fActionStepForward, SIGNAL(triggered()), this, SLOT(actionStepForward()));
     connect(&fActionBreakpoint, SIGNAL(triggered()), this, SLOT(actionBreakpoints()));
-    connect(&fActionToggleIndexStyle, SIGNAL(triggered()), this, SLOT(actionToggleIndexStyle()));
     connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionInspector()));
     connect(&fActionSettings, SIGNAL(triggered()), this, SLOT(actionSettings()));
     connect(&fFilter, SIGNAL(activated(QString)), this, SLOT(toggleFilter(QString)));
@@ -124,14 +122,6 @@ void SkDebuggerGUI::actionBreakpoints() {
         QListWidgetItem *item = fListWidget.item(row);
         item->setHidden(item->checkState() == Qt::Unchecked && breakpointsActivated);
     }
-}
-
-void SkDebuggerGUI::actionToggleIndexStyle() {
-    bool indexStyleToggle = fActionToggleIndexStyle.isChecked();
-    SkListWidget* list = (SkListWidget*) fListWidget.itemDelegate();
-    list->setIndexStyle(indexStyleToggle ? SkListWidget::kOffset_IndexStyle
-                                         : SkListWidget::kIndex_IndexStyle);
-    fListWidget.update();
 }
 
 void SkDebuggerGUI::showDeletes() {
@@ -483,10 +473,6 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionBreakpoint.setText("Breakpoints");
     fActionBreakpoint.setCheckable(true);
 
-    fActionToggleIndexStyle.setShortcut(QKeySequence(tr("Ctrl+T")));
-    fActionToggleIndexStyle.setText("Toggle Index Style");
-    fActionToggleIndexStyle.setCheckable(true);
-
     QIcon cancel;
     cancel.addFile(QString::fromUtf8(":/reload.png"), QSize(),
             QIcon::Normal, QIcon::Off);
@@ -704,7 +690,6 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMenuView.setTitle("View");
     fMenuView.addAction(&fActionBreakpoint);
     fMenuView.addAction(&fActionShowDeletes);
-    fMenuView.addAction(&fActionToggleIndexStyle);
     fMenuView.addAction(&fActionZoomIn);
     fMenuView.addAction(&fActionZoomOut);
 
@@ -787,6 +772,19 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 }
 
 void SkDebuggerGUI::setupListWidget() {
+
+    SkASSERT(!strcmp("Save",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kSave_OpType)));
+    SkASSERT(!strcmp("SaveLayer",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kSaveLayer_OpType)));
+    SkASSERT(!strcmp("Restore",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kRestore_OpType)));
+    SkASSERT(!strcmp("BeginCommentGroup",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kBeginCommentGroup_OpType)));
+    SkASSERT(!strcmp("EndCommentGroup",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kEndCommentGroup_OpType)));
+
+
     fListWidget.clear();
     int counter = 0;
     int indent = 0;
@@ -805,13 +803,12 @@ void SkDebuggerGUI::setupListWidget() {
         item->setData(Qt::UserRole + 3, indent);
 
         if (0 == strcmp("Save", commandString.c_str()) ||
-            0 == strcmp("Save Layer", commandString.c_str()) ||
+            0 == strcmp("SaveLayer", commandString.c_str()) ||
             0 == strcmp("BeginCommentGroup", commandString.c_str())) {
             indent += 10;
         }
 
         item->setData(Qt::UserRole + 4, -1);
-        item->setData(Qt::UserRole + 5, (int) command->offset());
 
         fListWidget.addItem(item);
     }

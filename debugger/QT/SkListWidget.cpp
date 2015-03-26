@@ -61,11 +61,7 @@ void SkListWidget::paint (QPainter *painter,
 
     QString drawCommandText = index.data(Qt::DisplayRole).toString();
     QString drawCommandNumber;
-    if (kIndex_IndexStyle == fIndexStyle) {
-        drawCommandNumber = index.data(Qt::UserRole + 1).toString();
-    } else {
-        drawCommandNumber = index.data(Qt::UserRole + 5).toString();
-    }
+    drawCommandNumber = index.data(Qt::UserRole + 1).toString();
     float time = index.data(Qt::UserRole + 4).toFloat();
     QString drawTime;
     drawTime.setNum(time, 'f', 2);
