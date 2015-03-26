@@ -188,9 +188,9 @@ SkDiscardableMemory* DiscardableMemoryPool::create(size_t bytes) {
 }
 
 void DiscardableMemoryPool::free(PoolDiscardableMemory* dm) {
+    SkAutoMutexAcquire autoMutexAcquire(fMutex);
     // This is called by dm's destructor.
     if (dm->fPointer != NULL) {
-        SkAutoMutexAcquire autoMutexAcquire(fMutex);
         sk_free(dm->fPointer);
         dm->fPointer = NULL;
         SkASSERT(fUsed >= dm->fBytes);
