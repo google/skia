@@ -229,10 +229,11 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
     int32_t xRefFileOffset = SkToS32(stream->bytesWritten() - baseOffset);
 
+    // Include the zeroth object in the count.
     int32_t objCount = SkToS32(offsets.count() + 1);
 
     stream->writeText("xref\n0 ");
-    stream->writeDecAsText(objCount + 1);
+    stream->writeDecAsText(objCount);
     stream->writeText("\n0000000000 65535 f \n");
     for (int i = 0; i < offsets.count(); i++) {
         SkASSERT(offsets[i] > 0);
