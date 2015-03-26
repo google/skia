@@ -1022,7 +1022,7 @@ SkTSpan<TCurve>* SkTSect<TCurve>::extractCoincident(SkTSect* sect2, SkTSpan<TCur
     }
     // march outwards to find limit of coincidence from here to previous and next spans
     double startT = first->fStartT;
-    double oppStartT;
+    double oppStartT SK_INIT_TO_AVOID_WARNING;
     double oppEndT SK_INIT_TO_AVOID_WARNING;
     SkTSpan<TCurve>* prev = first->fPrev;
     SkASSERT(first->fCoinStart.isCoincident());
