@@ -99,9 +99,10 @@ def get_args(bot):
   if 'Valgrind' in bot:
     # PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
     blacklist.extend('pdf _ .webp'.split(' '))
-    # These both take 18+ hours to run.
+    # These take 18+ hours to run.
     blacklist.extend('pdf gm fontmgr_iter'.split(' '))
     blacklist.extend('pdf _ PANO_20121023_214540.jpg'.split(' '))
+    blacklist.extend('pdf skp tabl_worldjournal.skp'.split(' '))
     if 'Valgrind_GPU' in bot:
       args.append('--nocpu')
     elif 'Valgrind_CPU' in bot:

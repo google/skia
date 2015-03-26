@@ -493,6 +493,9 @@
     "pdf", 
     "_", 
     "PANO_20121023_214540.jpg", 
+    "pdf", 
+    "skp", 
+    "tabl_worldjournal.skp", 
     "--match", 
     "~Threaded"
   ], 
@@ -643,6 +646,9 @@
     "pdf", 
     "_", 
     "PANO_20121023_214540.jpg", 
+    "pdf", 
+    "skp", 
+    "tabl_worldjournal.skp", 
     "--match", 
     "~Threaded"
   ], 
