@@ -49,7 +49,9 @@ SkCodec* SkCodec::NewFromData(SkData* data) {
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
     : INHERITED(info)
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     , fInfo(info)
+#endif
     , fStream(stream)
     , fNeedsRewind(false)
 {}

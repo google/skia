@@ -109,7 +109,11 @@ protected:
 
     virtual SkISize onGetScaledDimensions(float /* desiredScale */) const {
         // By default, scaling is not supported.
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
         return fInfo.dimensions();
+#else
+        return this->getInfo().dimensions();
+#endif
     }
 
     virtual SkEncodedFormat onGetEncodedFormat() const = 0;
@@ -156,7 +160,9 @@ protected:
     }
 
 private:
+#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     const SkImageInfo                   fInfo;
+#endif  //  SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     SkAutoTDelete<SkStream>             fStream;
     bool                                fNeedsRewind;
     SkAutoTDelete<SkScanlineDecoder>    fScanlineDecoder;
