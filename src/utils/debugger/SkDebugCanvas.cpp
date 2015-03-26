@@ -10,9 +10,89 @@
 #include "SkColorPriv.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
-#include "SkDrawFilter.h"
 #include "SkDevice.h"
+#include "SkPaintFilterCanvas.h"
 #include "SkXfermode.h"
+
+namespace {
+
+class OverdrawXfermode : public SkXfermode {
+public:
+    SkPMColor xferColor(SkPMColor src, SkPMColor dst) const override {
+        // This table encodes the color progression of the overdraw visualization
+        static const SkPMColor gTable[] = {
+            SkPackARGB32(0x00, 0x00, 0x00, 0x00),
+            SkPackARGB32(0xFF, 128, 158, 255),
+            SkPackARGB32(0xFF, 170, 185, 212),
+            SkPackARGB32(0xFF, 213, 195, 170),
+            SkPackARGB32(0xFF, 255, 192, 127),
+            SkPackARGB32(0xFF, 255, 185, 85),
+            SkPackARGB32(0xFF, 255, 165, 42),
+            SkPackARGB32(0xFF, 255, 135, 0),
+            SkPackARGB32(0xFF, 255,  95, 0),
+            SkPackARGB32(0xFF, 255,  50, 0),
+            SkPackARGB32(0xFF, 255,  0, 0)
+        };
+
+
+        int idx;
+        if (SkColorGetR(dst) < 64) { // 0
+            idx = 0;
+        } else if (SkColorGetG(dst) < 25) { // 10
+            idx = 9;  // cap at 9 for upcoming increment
+        } else if ((SkColorGetB(dst)+21)/42 > 0) { // 1-6
+            idx = 7 - (SkColorGetB(dst)+21)/42;
+        } else { // 7-9
+            idx = 10 - (SkColorGetG(dst)+22)/45;
+        }
+        ++idx;
+        SkASSERT(idx < (int)SK_ARRAY_COUNT(gTable));
+
+        return gTable[idx];
+    }
+
+    Factory getFactory() const override { return NULL; }
+#ifndef SK_IGNORE_TO_STRING
+    virtual void toString(SkString* str) const override { str->set("OverdrawXfermode"); }
+#endif
+};
+
+class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
+public:
+    DebugPaintFilterCanvas(int width, int height, bool overdrawViz, bool overrideFilterQuality,
+                           SkFilterQuality quality)
+        : INHERITED(width, height)
+        , fOverdrawXfermode(overdrawViz ? SkNEW(OverdrawXfermode) : NULL)
+        , fOverrideFilterQuality(overrideFilterQuality)
+        , fFilterQuality(quality) { }
+
+protected:
+    void onFilterPaint(SkPaint* paint, Type) const override {
+        if (NULL != fOverdrawXfermode.get()) {
+            paint->setAntiAlias(false);
+            paint->setXfermode(fOverdrawXfermode.get());
+        }
+
+        if (fOverrideFilterQuality) {
+            paint->setFilterQuality(fFilterQuality);
+        }
+    }
+
+    void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
+        // We need to replay the picture onto this canvas in order to filter its internal paints.
+        this->SkCanvas::onDrawPicture(picture, matrix, paint);
+    }
+
+private:
+    SkAutoTUnref<SkXfermode> fOverdrawXfermode;
+
+    bool fOverrideFilterQuality;
+    SkFilterQuality fFilterQuality;
+
+    typedef SkPaintFilterCanvas INHERITED;
+};
+
+}
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
         : INHERITED(width, height)
@@ -20,9 +100,8 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
         , fFilter(false)
         , fMegaVizMode(false)
         , fOverdrawViz(false)
-        , fOverdrawFilter(NULL)
-        , fOverrideTexFiltering(false)
-        , fTexOverrideFilter(NULL) {
+        , fOverrideFilterQuality(false)
+        , fFilterQuality(kNone_SkFilterQuality) {
     fUserMatrix.reset();
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
@@ -46,8 +125,6 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
 
 SkDebugCanvas::~SkDebugCanvas() {
     fCommandVector.deleteAll();
-    SkSafeUnref(fOverdrawFilter);
-    SkSafeUnref(fTexOverrideFilter);
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
@@ -87,93 +164,6 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     }
     return layer;
 }
-
-class OverdrawXfermode : public SkXfermode {
-public:
-    SkPMColor xferColor(SkPMColor src, SkPMColor dst) const override {
-        // This table encodes the color progression of the overdraw visualization
-        static const SkPMColor gTable[] = {
-            SkPackARGB32(0x00, 0x00, 0x00, 0x00),
-            SkPackARGB32(0xFF, 128, 158, 255),
-            SkPackARGB32(0xFF, 170, 185, 212),
-            SkPackARGB32(0xFF, 213, 195, 170),
-            SkPackARGB32(0xFF, 255, 192, 127),
-            SkPackARGB32(0xFF, 255, 185, 85),
-            SkPackARGB32(0xFF, 255, 165, 42),
-            SkPackARGB32(0xFF, 255, 135, 0),
-            SkPackARGB32(0xFF, 255,  95, 0),
-            SkPackARGB32(0xFF, 255,  50, 0),
-            SkPackARGB32(0xFF, 255,  0, 0)
-        };
- 
-
-        int idx;
-        if (SkColorGetR(dst) < 64) { // 0
-            idx = 0;
-        } else if (SkColorGetG(dst) < 25) { // 10
-            idx = 9;  // cap at 9 for upcoming increment
-        } else if ((SkColorGetB(dst)+21)/42 > 0) { // 1-6
-            idx = 7 - (SkColorGetB(dst)+21)/42;
-        } else { // 7-9
-            idx = 10 - (SkColorGetG(dst)+22)/45;
-        }
-        ++idx;
-        SkASSERT(idx < (int)SK_ARRAY_COUNT(gTable));
-
-        return gTable[idx];
-    }
-
-    Factory getFactory() const override { return NULL; }
-#ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const override { str->set("OverdrawXfermode"); }
-#endif
-};
-
-class SkOverdrawFilter : public SkDrawFilter {
-public:
-    SkOverdrawFilter() {
-        fXferMode = SkNEW(OverdrawXfermode);
-    }
-
-    virtual ~SkOverdrawFilter() {
-        delete fXferMode;
-    }
-
-    bool filter(SkPaint* p, Type) override {
-        p->setXfermode(fXferMode);
-        p->setAntiAlias(false);
-        return true;
-    }
-
-protected:
-    SkXfermode* fXferMode;
-
-private:
-    typedef SkDrawFilter INHERITED;
-};
-
-// SkTexOverrideFilter modifies every paint to use the specified
-// texture filtering mode
-class SkTexOverrideFilter : public SkDrawFilter {
-public:
-    SkTexOverrideFilter() : fFilterQuality(kNone_SkFilterQuality) {
-    }
-
-    void setFilterQuality(SkFilterQuality filterQuality) {
-        fFilterQuality = filterQuality;
-    }
-
-    bool filter(SkPaint* p, Type) override {
-        p->setFilterQuality(fFilterQuality);
-        return true;
-    }
-
-protected:
-    SkFilterQuality fFilterQuality;
-
-private:
-    typedef SkDrawFilter INHERITED;
-};
 
 class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
@@ -250,28 +240,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     }
     this->applyUserTransform(canvas);
 
-    // The setting of the draw filter has to go here (rather than in
-    // SkRasterWidget) due to the canvas restores this class performs.
-    // Since the draw filter is stored in the layer stack if we
-    // call setDrawFilter on anything but the root layer odd things happen.
-    if (fOverdrawViz) {
-        if (NULL == fOverdrawFilter) {
-            fOverdrawFilter = new SkOverdrawFilter;
-        }
-
-        if (fOverdrawFilter != canvas->getDrawFilter()) {
-            canvas->setDrawFilter(fOverdrawFilter);
-        }
-    } else if (fOverrideTexFiltering) {
-        if (NULL == fTexOverrideFilter) {
-            fTexOverrideFilter = new SkTexOverrideFilter;
-        }
-
-        if (fTexOverrideFilter != canvas->getDrawFilter()) {
-            canvas->setDrawFilter(fTexOverrideFilter);
-        }
-    } else {
-        canvas->setDrawFilter(NULL);
+    if (fPaintFilterCanvas) {
+        fPaintFilterCanvas->addCanvas(canvas);
+        canvas = fPaintFilterCanvas.get();
     }
 
     if (fMegaVizMode) {
@@ -342,6 +313,10 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     }
 
     canvas->restoreToCount(saveCount);
+
+    if (fPaintFilterCanvas) {
+        fPaintFilterCanvas->removeAll();
+    }
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {
@@ -379,13 +354,37 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
     return fCommandVector;
 }
 
-void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality quality) {
-    if (NULL == fTexOverrideFilter) {
-        fTexOverrideFilter = new SkTexOverrideFilter;
+void SkDebugCanvas::updatePaintFilterCanvas() {
+    if (!fOverdrawViz && !fOverrideFilterQuality) {
+        fPaintFilterCanvas.reset(NULL);
+        return;
     }
 
-    fOverrideTexFiltering = overrideTexFiltering;
-    fTexOverrideFilter->setFilterQuality(quality);
+    const SkImageInfo info = this->imageInfo();
+    fPaintFilterCanvas.reset(SkNEW_ARGS(DebugPaintFilterCanvas, (info.width(),
+                                                                 info.height(),
+                                                                 fOverdrawViz,
+                                                                 fOverrideFilterQuality,
+                                                                 fFilterQuality)));
+}
+
+void SkDebugCanvas::setOverdrawViz(bool overdrawViz) {
+    if (fOverdrawViz == overdrawViz) {
+        return;
+    }
+
+    fOverdrawViz = overdrawViz;
+    this->updatePaintFilterCanvas();
+}
+
+void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality quality) {
+    if (fOverrideFilterQuality == overrideTexFiltering && fFilterQuality == quality) {
+        return;
+    }
+
+    fOverrideFilterQuality = overrideTexFiltering;
+    fFilterQuality = quality;
+    this->updatePaintFilterCanvas();
 }
 
 void SkDebugCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

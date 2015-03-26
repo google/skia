@@ -17,7 +17,7 @@
 #include "SkTArray.h"
 #include "SkString.h"
 
-class SkTexOverrideFilter;
+class SkNWayCanvas;
 
 class SK_API SkDebugCanvas : public SkCanvas {
 public:
@@ -32,7 +32,7 @@ public:
     /**
      * Enable or disable overdraw visualization
      */
-    void setOverdrawViz(bool overdrawViz) { fOverdrawViz = overdrawViz; }
+    void setOverdrawViz(bool overdrawViz);
     bool getOverdrawViz() const { return fOverdrawViz; }
 
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
@@ -232,10 +232,10 @@ private:
     SkPath fSaveDevPath;
 
     bool fOverdrawViz;
-    SkDrawFilter* fOverdrawFilter;
+    bool fOverrideFilterQuality;
+    SkFilterQuality fFilterQuality;
 
-    bool fOverrideTexFiltering;
-    SkTexOverrideFilter* fTexOverrideFilter;
+    SkAutoTUnref<SkNWayCanvas> fPaintFilterCanvas;
 
     /**
         The active saveLayer commands at a given point in the renderering.
@@ -273,6 +273,8 @@ private:
     void outputPoints(const SkPoint* pts, int count);
     void outputPointsCommon(const SkPoint* pts, int count);
     void outputScalar(SkScalar num);
+
+    void updatePaintFilterCanvas();
 
     typedef SkCanvas INHERITED;
 };
