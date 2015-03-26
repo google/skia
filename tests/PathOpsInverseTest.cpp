@@ -8,7 +8,7 @@
 
 DEF_TEST(PathOpsInverse, reporter) {
     SkPath one, two;
-    for (int op = kDifference_PathOp; op <= kReverseDifference_PathOp; ++op) {
+    for (int op = kDifference_SkPathOp; op <= kReverseDifference_SkPathOp; ++op) {
         for (int oneFill = SkPath::kWinding_FillType; oneFill <= SkPath::kInverseEvenOdd_FillType;
                     ++oneFill) {
             for (int oneDir = SkPath::kCW_Direction; oneDir != SkPath::kCCW_Direction; ++oneDir) {

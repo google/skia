@@ -4,7 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
+#include "SkBitmap.h"
 #include "Test.h"
 
 DEF_TEST(PathOpsBuilder, reporter) {
@@ -13,17 +16,18 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isEmpty());
 
-    builder.add(result, kDifference_PathOp);
+    builder.add(result, kDifference_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isEmpty());
 
-    builder.add(result, kUnion_PathOp);
+    builder.add(result, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isEmpty());
 
     SkPath rectPath;
+    rectPath.setFillType(SkPath::kEvenOdd_FillType);
     rectPath.addRect(0, 1, 2, 3, SkPath::kCW_Direction);
-    builder.add(rectPath, kUnion_PathOp);
+    builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     bool closed;
     SkPath::Direction dir;
@@ -33,24 +37,25 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, rectPath == result);
 
     rectPath.reset();
+    rectPath.setFillType(SkPath::kEvenOdd_FillType);
     rectPath.addRect(0, 1, 2, 3, SkPath::kCCW_Direction);
-    builder.add(rectPath, kUnion_PathOp);
+    builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
-    REPORTER_ASSERT(reporter, rectPath == result);
+     REPORTER_ASSERT(reporter, rectPath == result);
 
-    builder.add(rectPath, kDifference_PathOp);
+    builder.add(rectPath, kDifference_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isEmpty());
 
     SkPath rect2, rect3;
     rect2.addRect(2, 1, 4, 3, SkPath::kCW_Direction);
     rect3.addRect(4, 1, 5, 3, SkPath::kCCW_Direction);
-    builder.add(rectPath, kUnion_PathOp);
-    builder.add(rect2, kUnion_PathOp);
-    builder.add(rect3, kUnion_PathOp);
+    builder.add(rectPath, kUnion_SkPathOp);
+    builder.add(rect2, kUnion_SkPathOp);
+    builder.add(rect3, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
@@ -63,11 +68,13 @@ DEF_TEST(PathOpsBuilder, reporter) {
     circle2.addCircle(7, 4, 8, SkPath::kCCW_Direction);
     circle3.addCircle(6, 5, 6, SkPath::kCW_Direction);
     SkPath opCompare;
-    Op(circle1, circle2, kUnion_PathOp, &opCompare);
-    Op(opCompare, circle3, kDifference_PathOp, &opCompare);
-    builder.add(circle1, kUnion_PathOp);
-    builder.add(circle2, kUnion_PathOp);
-    builder.add(circle3, kDifference_PathOp);
+    Op(circle1, circle2, kUnion_SkPathOp, &opCompare);
+    Op(opCompare, circle3, kDifference_SkPathOp, &opCompare);
+    builder.add(circle1, kUnion_SkPathOp);
+    builder.add(circle2, kUnion_SkPathOp);
+    builder.add(circle3, kDifference_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, opCompare == result);
+    SkBitmap bitmap;
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, result, bitmap);
+    REPORTER_ASSERT(reporter, pixelDiff == 0);
 }

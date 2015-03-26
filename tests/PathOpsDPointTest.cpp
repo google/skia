@@ -38,7 +38,6 @@ DEF_TEST(PathOpsDPoint, reporter) {
         REPORTER_ASSERT(reporter, p == pt);
         REPORTER_ASSERT(reporter, p.approximatelyEqual(sPt));
         REPORTER_ASSERT(reporter, p.roughlyEqual(pt));
-        REPORTER_ASSERT(reporter, p.moreRoughlyEqual(pt));
         p.fX = p.fY = 0;
         REPORTER_ASSERT(reporter, p.fX == 0 && p.fY == 0);
         REPORTER_ASSERT(reporter, p.approximatelyZero());

@@ -59,7 +59,7 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
         pathB.addRect(SkIntToScalar(c), SkIntToScalar(c), SkIntToScalar(d),
                 SkIntToScalar(d), SkPath::kCW_Direction);
         pathB.close();
-        for (int op = 0 ; op <= kXOR_PathOp; ++op)    {
+        for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
             if (progress) {
                 outputProgress(state.fPathStr, pathStr, (SkPathOp) op);
             }

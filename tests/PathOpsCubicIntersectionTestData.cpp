@@ -46,8 +46,8 @@ const SkDCubic pointDegenerates[] = {
 const size_t pointDegenerates_count = SK_ARRAY_COUNT(pointDegenerates);
 
 const SkDCubic notPointDegenerates[] = {
-    {{{1 + FLT_EPSILON * 2, 1}, {1, FLT_EPSILON * 2}, {1, 1}, {1, 1}}},
-    {{{1 + FLT_EPSILON * 2, 1}, {1 - FLT_EPSILON * 2, 1}, {1, 1}, {1, 1}}}
+    {{{1 + FLT_EPSILON * 8, 1}, {1, FLT_EPSILON * 8}, {1, 1}, {1, 1}}},
+    {{{1 + FLT_EPSILON * 8, 1}, {1 - FLT_EPSILON * 8, 1}, {1, 1}, {1, 1}}}
 };
 
 const size_t notPointDegenerates_count =
@@ -156,8 +156,8 @@ const SkDCubic notLines[] = {
 
 const size_t notLines_count = SK_ARRAY_COUNT(notLines);
 
-static const double E = FLT_EPSILON * 2;
-static const double F = FLT_EPSILON * 3;
+static const double E = FLT_EPSILON * 8;
+static const double F = FLT_EPSILON * 8;
 
 const SkDCubic modEpsilonLines[] = {
     {{{0, E}, {0, 0}, {0, 0}, {1, 0}}},  // horizontal
@@ -187,8 +187,8 @@ const SkDCubic modEpsilonLines[] = {
     {{{1, 1}, {2, 2}, {2, 2+E}, {1, 1}}},
     {{{1, 1}, {1, 1+E}, {3, 3}, {3, 3}}},  // first-middle middle-last coincident
     {{{1, 1}, {2+E, 2}, {3, 3}, {4, 4}}},  // no coincident
-    {{{1, 1}, {3, 3}, {2, 2}, {4, 4+F}}},  // INVESTIGATE: why the epsilon is bigger
-    {{{1, 1+F}, {2, 2}, {4, 4}, {3, 3}}},  // INVESTIGATE: why the epsilon is bigger
+    {{{1, 1}, {3, 3}, {2, 2}, {4, 4+F+F}}},  // INVESTIGATE: why the epsilon is bigger
+    {{{1, 1+F+F}, {2, 2}, {4, 4}, {3, 3}}},  // INVESTIGATE: why the epsilon is bigger
     {{{1, 1}, {3, 3}, {4, 4+E}, {2, 2}}},
     {{{1, 1}, {4, 4}, {2, 2}, {3, 3+E}}},
     {{{1, 1}, {4, 4}, {3, 3}, {2+E, 2}}},

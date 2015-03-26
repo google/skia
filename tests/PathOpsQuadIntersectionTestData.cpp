@@ -44,10 +44,10 @@ const SkDQuad quadraticLines[] = {
 
 const size_t quadraticLines_count = SK_ARRAY_COUNT(quadraticLines);
 
-static const double F = FLT_EPSILON * 3;
-static const double H = FLT_EPSILON * 4;
-static const double J = FLT_EPSILON * 5;
-static const double K = FLT_EPSILON * 8;  // INVESTIGATE: why are larger multiples necessary?
+static const double F = FLT_EPSILON * 32;
+static const double H = FLT_EPSILON * 32;
+static const double J = FLT_EPSILON * 32;
+static const double K = FLT_EPSILON * 32;  // INVESTIGATE: why are larger multiples necessary?
 
 const SkDQuad quadraticModEpsilonLines[] = {
     {{{0, F}, {0, 0}, {1, 0}}},
@@ -64,7 +64,7 @@ const SkDQuad quadraticModEpsilonLines[] = {
     {{{1, 1+J}, {2, 2}, {3, 3}}},
     {{{1, 1}, {3, 3}, {3+F, 3}}},
     {{{1, 1}, {1+F, 1}, {2, 2}}},
-    {{{1, 1}, {2, 2}, {1, 1+F}}},
+    {{{1, 1}, {2, 2}, {1, 1+K}}},
     {{{1, 1}, {1, 1+F}, {3, 3}}},
     {{{1+H, 1}, {2, 2}, {4, 4}}},  // no coincident
     {{{1, 1+K}, {3, 3}, {4, 4}}},

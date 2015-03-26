@@ -8,14 +8,16 @@
 #include "SkPathOpsCommon.h"
 
 bool TightBounds(const SkPath& path, SkRect* result) {
+    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
+    SkOpContour contour;
+    SkOpGlobalState globalState( NULL  PATH_OPS_DEBUG_PARAMS(&contour));
     // turn path into list of segments
-    SkTArray<SkOpContour> contours;
-    SkOpEdgeBuilder builder(path, contours);
-    if (!builder.finish()) {
+    SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
+    if (!builder.finish(&allocator)) {
         return false;
     }
-    SkTArray<SkOpContour*, true> contourList;
-    MakeContourList(contours, contourList, false, false);
+    SkTDArray<SkOpContour* > contourList;
+    MakeContourList(&contour, contourList, false, false);
     SkOpContour** currentPtr = contourList.begin();
     result->setEmpty();
     if (!currentPtr) {

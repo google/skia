@@ -10,9 +10,9 @@
 #include "SkPathOps.h"
 
 void SkOpBuilder::add(const SkPath& path, SkPathOp op) {
-    if (0 == fOps.count() && op != kUnion_PathOp) {
+    if (0 == fOps.count() && op != kUnion_SkPathOp) {
         fPathRefs.push_back() = SkPath();
-        *fOps.append() = kUnion_PathOp;
+        *fOps.append() = kUnion_SkPathOp;
     }
     fPathRefs.push_back() = path;
     *fOps.append() = op;
@@ -32,7 +32,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
     SkPath::Direction firstDir;
     for (int index = 0; index < count; ++index) {
         SkPath* test = &fPathRefs[index];
-        if (kUnion_PathOp != fOps[index] || test->isInverseFillType()) {
+        if (kUnion_SkPathOp != fOps[index] || test->isInverseFillType()) {
             allUnion = false;
             break;
         }

@@ -49,14 +49,16 @@ static void testSetTest(skiatest::Reporter* reporter, int index) {
             const Curve& iTest = testSet.tests[inner];
             SkIntersections* i = combos.append();
             sk_bzero(i, sizeof(SkIntersections));
+            SkDLine oLine = {{ oTest.curve[0], oTest.curve[1] }};
+            SkDLine iLine = {{ iTest.curve[0], iTest.curve[1] }};
             if (oTest.ptCount == 1 && iTest.ptCount == 1) {
-                i->intersect(*(const SkDLine*) &oTest.curve, *(const SkDLine*) &iTest.curve);
+                i->intersect(oLine, iLine);
             } else if (oTest.ptCount == 1 && iTest.ptCount == 4) {
-                i->intersect(iTest.curve, *(const SkDLine*) &oTest.curve);
+                i->intersect(iTest.curve, oLine);
             } else if (oTest.ptCount == 4 && iTest.ptCount == 1) {
-                i->intersect(oTest.curve, *(const SkDLine*) &oTest.curve);
+                i->intersect(oTest.curve, iLine);
             } else if (oTest.ptCount == 4 && iTest.ptCount == 4) {
-                i->intersectB(oTest.curve, iTest.curve);
+                i->intersect(oTest.curve, iTest.curve);
             } else {
                 SkASSERT(0);
             }

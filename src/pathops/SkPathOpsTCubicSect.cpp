@@ -7,9 +7,9 @@
 
 #include "SkPathOpsTSect.h"
 
-int SkIntersections::intersectB(const SkDCubic& cubic1, const SkDCubic& cubic2) {
-    SkTSect<SkDCubic> sect1(cubic1 PATH_OPS_DEBUG_PARAMS(1));
-    SkTSect<SkDCubic> sect2(cubic2 PATH_OPS_DEBUG_PARAMS(2));
+int SkIntersections::intersect(const SkDCubic& cubic1, const SkDCubic& cubic2) {
+    SkTSect<SkDCubic> sect1(cubic1 PATH_OPS_DEBUG_T_SECT_PARAMS(1));
+    SkTSect<SkDCubic> sect2(cubic2 PATH_OPS_DEBUG_T_SECT_PARAMS(2));
     SkTSect<SkDCubic>::BinarySearch(&sect1, &sect2, this);
     return used();
 }

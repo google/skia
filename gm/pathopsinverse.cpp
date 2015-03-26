@@ -25,11 +25,11 @@ protected:
         SkColor blendColor = blend(oneColor, twoColor);
         makePaint(&fOnePaint, oneColor);
         makePaint(&fTwoPaint, twoColor);
-        makePaint(&fOpPaint[kDifference_PathOp], oneColor);
-        makePaint(&fOpPaint[kIntersect_PathOp], blendColor);
-        makePaint(&fOpPaint[kUnion_PathOp], 0xFFc0FFc0);
-        makePaint(&fOpPaint[kReverseDifference_PathOp], twoColor);
-        makePaint(&fOpPaint[kXOR_PathOp], 0xFFa0FFe0);
+        makePaint(&fOpPaint[kDifference_SkPathOp], oneColor);
+        makePaint(&fOpPaint[kIntersect_SkPathOp], blendColor);
+        makePaint(&fOpPaint[kUnion_SkPathOp], 0xFFc0FFc0);
+        makePaint(&fOpPaint[kReverseDifference_SkPathOp], twoColor);
+        makePaint(&fOpPaint[kXOR_SkPathOp], 0xFFa0FFe0);
         makePaint(&fOutlinePaint, 0xFF000000);
         fOutlinePaint.setStyle(SkPaint::kStroke_Style);
     }
@@ -82,7 +82,7 @@ protected:
                 canvas->drawPath(two, fOutlinePaint);
                 canvas->restore();
                 int xPos = 150;
-                for (int op = kDifference_PathOp; op <= kReverseDifference_PathOp; ++op) {
+                for (int op = kDifference_SkPathOp; op <= kReverseDifference_SkPathOp; ++op) {
                     SkPath result;
                     Op(one, two, (SkPathOp) op, &result);
                     canvas->save();
@@ -102,7 +102,7 @@ private:
     SkPaint fOnePaint;
     SkPaint fTwoPaint;
     SkPaint fOutlinePaint;
-    SkPaint fOpPaint[kReverseDifference_PathOp - kDifference_PathOp + 1];
+    SkPaint fOpPaint[kReverseDifference_SkPathOp - kDifference_SkPathOp + 1];
     typedef GM INHERITED;
 };
 

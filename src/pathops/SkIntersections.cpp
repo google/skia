@@ -7,26 +7,25 @@
 
 #include "SkIntersections.h"
 
-void SkIntersections::append(const SkIntersections& i) {
-    for (int index = 0; index < i.fUsed; ++index) {
-        insert(i[0][index], i[1][index], i.pt(index));
+int SkIntersections::closestTo(double rangeStart, double rangeEnd, const SkDPoint& testPt,
+        double* closestDist) const {
+    int closest = -1;
+    *closestDist = SK_ScalarMax;
+    for (int index = 0; index < fUsed; ++index) {
+        if (!between(rangeStart, fT[0][index], rangeEnd)) {
+            continue;
+        }
+        const SkDPoint& iPt = fPt[index];
+        double dist = testPt.distanceSquared(iPt);
+        if (*closestDist > dist) {
+            *closestDist = dist;
+            closest = index;
+        }
     }
+    return closest;
 }
 
-int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkScalar, bool) = {
-    NULL,
-    &SkIntersections::verticalLine,
-    &SkIntersections::verticalQuad,
-    &SkIntersections::verticalCubic
-};
-
-int ( SkIntersections::* const CurveRay[])(const SkPoint[], const SkDLine&) = {
-    NULL,
-    &SkIntersections::lineRay,
-    &SkIntersections::quadRay,
-    &SkIntersections::cubicRay
-};
-
+// called only by test code
 int SkIntersections::coincidentUsed() const {
     if (!fIsCoincident[0]) {
         SkASSERT(!fIsCoincident[1]);
@@ -48,12 +47,12 @@ int SkIntersections::coincidentUsed() const {
     return count;
 }
 
-int SkIntersections::cubicRay(const SkPoint pts[4], const SkDLine& line) {
-    SkDCubic cubic;
-    cubic.set(pts);
-    fMax = 3;
-    return intersectRay(cubic, line);
-}
+int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkScalar, bool) = {
+    NULL,
+    &SkIntersections::verticalLine,
+    &SkIntersections::verticalQuad,
+    &SkIntersections::verticalCubic
+};
 
 void SkIntersections::flip() {
     for (int index = 0; index < fUsed; ++index) {
@@ -105,7 +104,6 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
     int remaining = fUsed - index;
     if (remaining > 0) {
         memmove(&fPt[index + 1], &fPt[index], sizeof(fPt[0]) * remaining);
-        memmove(&fPt2[index + 1], &fPt2[index], sizeof(fPt2[0]) * remaining);
         memmove(&fT[0][index + 1], &fT[0][index], sizeof(fT[0][0]) * remaining);
         memmove(&fT[1][index + 1], &fT[1][index], sizeof(fT[1][0]) * remaining);
         int clearMask = ~((1 << index) - 1);
@@ -125,39 +123,53 @@ void SkIntersections::insertNear(double one, double two, const SkDPoint& pt1, co
     SkASSERT(one == 0 || one == 1);
     SkASSERT(two == 0 || two == 1);
     SkASSERT(pt1 != pt2);
-    SkASSERT(fNearlySame[(int) one]);
+    fNearlySame[one ? 1 : 0] = true;
     (void) insert(one, two, pt1);
-    fPt2[one ? fUsed - 1 : 0] = pt2;
+    fPt2[one ? 1 : 0] = pt2;
 }
 
-void SkIntersections::insertCoincident(double one, double two, const SkDPoint& pt) {
+int SkIntersections::insertCoincident(double one, double two, const SkDPoint& pt) {
     int index = insertSwap(one, two, pt);
+    if (index >= 0) {
+        setCoincident(index);
+    }
+    return index;
+}
+
+void SkIntersections::setCoincident(int index) {
+    SkASSERT(index >= 0);
     int bit = 1 << index;
     fIsCoincident[0] |= bit;
     fIsCoincident[1] |= bit;
 }
 
-int SkIntersections::lineRay(const SkPoint pts[2], const SkDLine& line) {
-    SkDLine l;
-    l.set(pts);
-    fMax = 2;
-    return intersectRay(l, line);
+void SkIntersections::merge(const SkIntersections& a, int aIndex, const SkIntersections& b,
+        int bIndex) {
+    this->reset();
+    fT[0][0] = a.fT[0][aIndex];
+    fT[1][0] = b.fT[0][bIndex];
+    fPt[0] = a.fPt[aIndex];
+    fPt2[0] = b.fPt[bIndex];
+    fUsed = 1;
 }
 
-void SkIntersections::offset(int base, double start, double end) {
-    for (int index = base; index < fUsed; ++index) {
-        double val = fT[fSwap][index];
-        val *= end - start;
-        val += start;
-        fT[fSwap][index] = val;
+int SkIntersections::mostOutside(double rangeStart, double rangeEnd, const SkDPoint& origin) const {
+    int result = -1;
+    for (int index = 0; index < fUsed; ++index) {
+        if (!between(rangeStart, fT[0][index], rangeEnd)) {
+            continue;
+        }
+        if (result < 0) {
+            result = index;
+            continue;
+        }
+        SkDVector best = fPt[result] - origin;
+        SkDVector test = fPt[index] - origin;
+        if (test.crossCheck(best) < 0) {
+            result = index;
+        }
     }
-}
-
-int SkIntersections::quadRay(const SkPoint pts[3], const SkDLine& line) {
-    SkDQuad quad;
-    quad.set(pts);
-    fMax = 2;
-    return intersectRay(quad, line);
+    return result;
 }
 
 void SkIntersections::quickRemoveOne(int index, int replace) {
@@ -172,7 +184,6 @@ void SkIntersections::removeOne(int index) {
         return;
     }
     memmove(&fPt[index], &fPt[index + 1], sizeof(fPt[0]) * remaining);
-    memmove(&fPt2[index], &fPt2[index + 1], sizeof(fPt2[0]) * remaining);
     memmove(&fT[0][index], &fT[0][index + 1], sizeof(fT[0][0]) * remaining);
     memmove(&fT[1][index], &fT[1][index + 1], sizeof(fT[1][0]) * remaining);
 //    SkASSERT(fIsCoincident[0] == 0);
@@ -180,13 +191,6 @@ void SkIntersections::removeOne(int index) {
     fIsCoincident[0] -= ((fIsCoincident[0] >> 1) & ~((1 << index) - 1)) + coBit;
     SkASSERT(!(coBit ^ (fIsCoincident[1] & (1 << index))));
     fIsCoincident[1] -= ((fIsCoincident[1] >> 1) & ~((1 << index) - 1)) + coBit;
-}
-
-void SkIntersections::swapPts() {
-    int index;
-    for (index = 0; index < fUsed; ++index) {
-        SkTSwap(fT[0][index], fT[1][index]);
-    }
 }
 
 int SkIntersections::verticalLine(const SkPoint a[2], SkScalar top, SkScalar bottom,
