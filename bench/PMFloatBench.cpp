@@ -21,8 +21,8 @@ static uint32_t lcg_rand(uint32_t* seed) {
 
 // I'm having better luck getting these to constant-propagate away as template parameters.
 template <bool kClamp, bool kWide>
-struct PMFloatBench : public Benchmark {
-    PMFloatBench() {}
+struct PMFloatGetSetBench : public Benchmark {
+    PMFloatGetSetBench() {}
 
     const char* onGetName() SK_OVERRIDE {
         switch (kClamp << 1 | kWide) {
@@ -92,7 +92,42 @@ struct PMFloatBench : public Benchmark {
 };
 
 // Extra () help DEF_BENCH not get confused by the comma inside the <>.
-DEF_BENCH(return (new PMFloatBench< true,  true>);)
-DEF_BENCH(return (new PMFloatBench<false,  true>);)
-DEF_BENCH(return (new PMFloatBench< true, false>);)
-DEF_BENCH(return (new PMFloatBench<false, false>);)
+DEF_BENCH(return (new PMFloatGetSetBench< true,  true>);)
+DEF_BENCH(return (new PMFloatGetSetBench<false,  true>);)
+DEF_BENCH(return (new PMFloatGetSetBench< true, false>);)
+DEF_BENCH(return (new PMFloatGetSetBench<false, false>);)
+
+struct PMFloatGradientBench : public Benchmark {
+    const char* onGetName() override { return "PMFloat_gradient"; }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    SkPMColor fDevice[100];
+    void onDraw(const int loops, SkCanvas*) override {
+        Sk4f c0 = SkPMFloat::FromARGB(255, 255, 0, 0),
+             c1 = SkPMFloat::FromARGB(255, 0, 0, 255),
+             dc = c1 - c0,
+             fx(0.1f),
+             dx(0.002f),
+             dcdx(dc*dx),
+             dcdx4(dcdx+dcdx+dcdx+dcdx);
+
+        for (int n = 0; n < loops; n++) {
+            Sk4f a = c0 + dc*fx,  // TODO: add 0.5f, here call trunc() instead of get().
+                 b = a + dcdx,
+                 c = b + dcdx,
+                 d = c + dcdx;
+            for (size_t i = 0; i < SK_ARRAY_COUNT(fDevice); i += 4) {
+                fDevice[i+0] = SkPMFloat(a).get();
+                fDevice[i+1] = SkPMFloat(b).get();
+                fDevice[i+2] = SkPMFloat(c).get();
+                fDevice[i+3] = SkPMFloat(d).get();
+                a += dcdx4;
+                b += dcdx4;
+                c += dcdx4;
+                d += dcdx4;
+            }
+        }
+    }
+};
+
+DEF_BENCH(return new PMFloatGradientBench;)
