@@ -19,7 +19,6 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]);
 
 SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t);
 SkPoint SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t);
-void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t);
 
 /** Set pt to the point on the src quadratic specified by t. t must be
     0 <= t <= 1.0
@@ -95,7 +94,6 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* locOrNull,
     dst[0..3] and dst[3..6]
 */
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t);
-void SkChopCubicAt2(const SkPoint src[4], SkPoint dst[7], SkScalar t);
 
 /** Given a src cubic bezier, chop it at the specified t values,
     where 0 < t < 1, and return the new cubics in dst:

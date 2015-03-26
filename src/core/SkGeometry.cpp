@@ -179,29 +179,11 @@ SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
     return to_vector(T + T);
 }
 
-static void interp_quad_coords(const SkScalar* src, SkScalar* dst, SkScalar t) {
-    SkScalar    ab = SkScalarInterp(src[0], src[2], t);
-    SkScalar    bc = SkScalarInterp(src[2], src[4], t);
-
-    dst[0] = src[0];
-    dst[2] = ab;
-    dst[4] = SkScalarInterp(ab, bc, t);
-    dst[6] = bc;
-    dst[8] = src[4];
-}
-
-void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
-    SkASSERT(t > 0 && t < SK_Scalar1);
-
-    interp_quad_coords(&src[0].fX, &dst[0].fX, t);
-    interp_quad_coords(&src[0].fY, &dst[0].fY, t);
-}
-
 static inline Sk2s interp(const Sk2s& v0, const Sk2s& v1, const Sk2s& t) {
     return v0 + (v1 - v0) * t;
 }
 
-void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
+void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     SkASSERT(t > 0 && t < SK_Scalar1);
 
     Sk2s p0 = from_point(src[0]);
@@ -220,16 +202,7 @@ void SkChopQuadAt2(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
 }
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
-    SkScalar x01 = SkScalarAve(src[0].fX, src[1].fX);
-    SkScalar y01 = SkScalarAve(src[0].fY, src[1].fY);
-    SkScalar x12 = SkScalarAve(src[1].fX, src[2].fX);
-    SkScalar y12 = SkScalarAve(src[1].fY, src[2].fY);
-
-    dst[0] = src[0];
-    dst[1].set(x01, y01);
-    dst[2].set(SkScalarAve(x01, x12), SkScalarAve(y01, y12));
-    dst[3].set(x12, y12);
-    dst[4] = src[2];
+    SkChopQuadAt(src, dst, 0.5f); return;
 }
 
 /** Quad'(t) = At + B, where
@@ -454,32 +427,7 @@ int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d,
     return SkFindUnitQuadRoots(A, B, C, tValues);
 }
 
-static void interp_cubic_coords(const SkScalar* src, SkScalar* dst,
-                                SkScalar t) {
-    SkScalar    ab = SkScalarInterp(src[0], src[2], t);
-    SkScalar    bc = SkScalarInterp(src[2], src[4], t);
-    SkScalar    cd = SkScalarInterp(src[4], src[6], t);
-    SkScalar    abc = SkScalarInterp(ab, bc, t);
-    SkScalar    bcd = SkScalarInterp(bc, cd, t);
-    SkScalar    abcd = SkScalarInterp(abc, bcd, t);
-
-    dst[0] = src[0];
-    dst[2] = ab;
-    dst[4] = abc;
-    dst[6] = abcd;
-    dst[8] = bcd;
-    dst[10] = cd;
-    dst[12] = src[6];
-}
-
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
-    SkASSERT(t > 0 && t < SK_Scalar1);
-
-    interp_cubic_coords(&src[0].fX, &dst[0].fX, t);
-    interp_cubic_coords(&src[0].fY, &dst[0].fY, t);
-}
-
-void SkChopCubicAt2(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     SkASSERT(t > 0 && t < SK_Scalar1);
 
     Sk2s    p0 = from_point(src[0]);
@@ -571,25 +519,7 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
 }
 
 void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]) {
-    SkScalar x01 = SkScalarAve(src[0].fX, src[1].fX);
-    SkScalar y01 = SkScalarAve(src[0].fY, src[1].fY);
-    SkScalar x12 = SkScalarAve(src[1].fX, src[2].fX);
-    SkScalar y12 = SkScalarAve(src[1].fY, src[2].fY);
-    SkScalar x23 = SkScalarAve(src[2].fX, src[3].fX);
-    SkScalar y23 = SkScalarAve(src[2].fY, src[3].fY);
-
-    SkScalar x012 = SkScalarAve(x01, x12);
-    SkScalar y012 = SkScalarAve(y01, y12);
-    SkScalar x123 = SkScalarAve(x12, x23);
-    SkScalar y123 = SkScalarAve(y12, y23);
-
-    dst[0] = src[0];
-    dst[1].set(x01, y01);
-    dst[2].set(x012, y012);
-    dst[3].set(SkScalarAve(x012, x123), SkScalarAve(y012, y123));
-    dst[4].set(x123, y123);
-    dst[5].set(x23, y23);
-    dst[6] = src[3];
+    SkChopCubicAt(src, dst, 0.5f);
 }
 
 static void flatten_double_cubic_extrema(SkScalar coords[14]) {

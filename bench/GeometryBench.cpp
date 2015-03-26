@@ -212,9 +212,9 @@ DEF_BENCH( return new EvalQuadTangentAt1; )
 
 ////////
 
-class ChopQuadAt0 : public QuadBenchBase {
+class ChopQuadAt : public QuadBenchBase {
 public:
-    ChopQuadAt0() : QuadBenchBase("chopquadat0") {}
+    ChopQuadAt() : QuadBenchBase("chopquadat") {}
 protected:
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkPoint dst[5];
@@ -226,27 +226,11 @@ protected:
         }
     }
 };
-DEF_BENCH( return new ChopQuadAt0; )
+DEF_BENCH( return new ChopQuadAt; )
 
-class ChopQuadAt1 : public QuadBenchBase {
+class ChopCubicAt : public QuadBenchBase {
 public:
-    ChopQuadAt1() : QuadBenchBase("chopquadat1") {}
-protected:
-    void onDraw(const int loops, SkCanvas* canvas) override {
-        SkPoint dst[5];
-        for (int outer = 0; outer < loops; ++outer) {
-            SkChopQuadAt2(fPts, dst, 0.5f);
-            SkChopQuadAt2(fPts, dst, 0.5f);
-            SkChopQuadAt2(fPts, dst, 0.5f);
-            SkChopQuadAt2(fPts, dst, 0.5f);
-        }
-    }
-};
-DEF_BENCH( return new ChopQuadAt1; )
-
-class ChopCubicAt0 : public QuadBenchBase {
-public:
-    ChopCubicAt0() : QuadBenchBase("chopcubicat0") {}
+    ChopCubicAt() : QuadBenchBase("chopcubicat0") {}
 protected:
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkPoint dst[7];
@@ -258,21 +242,5 @@ protected:
         }
     }
 };
-DEF_BENCH( return new ChopCubicAt0; )
-
-class ChopCubicAt1 : public QuadBenchBase {
-public:
-    ChopCubicAt1() : QuadBenchBase("chopcubicat1") {}
-protected:
-    void onDraw(const int loops, SkCanvas* canvas) override {
-        SkPoint dst[7];
-        for (int outer = 0; outer < loops; ++outer) {
-            SkChopCubicAt2(fPts, dst, 0.5f);
-            SkChopCubicAt2(fPts, dst, 0.5f);
-            SkChopCubicAt2(fPts, dst, 0.5f);
-            SkChopCubicAt2(fPts, dst, 0.5f);
-        }
-    }
-};
-DEF_BENCH( return new ChopCubicAt1; )
+DEF_BENCH( return new ChopCubicAt; )
 
