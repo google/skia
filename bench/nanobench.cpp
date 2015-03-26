@@ -894,6 +894,12 @@ int nanobench_main() {
     log->config("meta");
     log->metric("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
 
+#if SK_SUPPORT_GPU
+    // Make sure we clean up the global GrContextFactory here, otherwise we might race with the
+    // SkEventTracer destructor
+    gGrFactory.reset(NULL);
+#endif
+
     return 0;
 }
 
