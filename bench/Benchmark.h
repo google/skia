@@ -57,6 +57,7 @@ public:
         kRaster_Backend,
         kGPU_Backend,
         kPDF_Backend,
+        kHWUI_Backend,
     };
 
     // Call to determine whether the benchmark is intended for

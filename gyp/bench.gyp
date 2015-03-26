@@ -37,6 +37,20 @@
         ['skia_android_framework', {
           'libraries': [
             '-lskia',
+            '-landroid',
+            '-lgui',
+            '-lhwui',
+            '-lutils',
+          ],
+          'include_dirs': [
+            '../../../frameworks/base/libs/hwui/',
+            '../../../frameworks/native/include/',
+          ],
+          'sources': [
+            '../bench/nanobenchAndroid.cpp',
+          ],
+          'dependencies': [
+            'utils.gyp:android_utils',
           ],
         }],
       ],

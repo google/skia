@@ -7,6 +7,8 @@
 
 #include <ctype.h>
 
+#include "nanobench.h"
+
 #include "Benchmark.h"
 #include "CrashHandler.h"
 #include "DecodingBench.h"
@@ -31,6 +33,10 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    #include "nanobenchAndroid.h"
+#endif
 
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
@@ -86,24 +92,100 @@ static SkString humanize(double ms) {
 }
 #define HUMANIZE(ms) humanize(ms).c_str()
 
-static double time(int loops, Benchmark* bench, SkCanvas* canvas, SkGLContext* gl) {
+bool Target::init(SkImageInfo info, Benchmark* bench) {
+    if (Benchmark::kRaster_Backend == config.backend) {
+        this->surface.reset(SkSurface::NewRaster(info));
+        if (!this->surface.get()) {
+            return false;
+        }
+    }
+    return true;
+}
+bool Target::capturePixels(SkBitmap* bmp) {
+    if (!this->surface.get()) {
+        return false;
+    }
+    SkCanvas* canvas = this->surface->getCanvas();
+    if (!canvas) {
+        return false;
+    }
+    bmp->setInfo(canvas->imageInfo());
+    if (!canvas->readPixels(bmp, 0, 0)) {
+        SkDebugf("Can't read canvas pixels.\n");
+        return false;
+    }
+    return true;
+}
+
+#if SK_SUPPORT_GPU
+struct GPUTarget : public Target {
+    explicit GPUTarget(const Config& c) : Target(c), gl(NULL) { }
+    SkGLContext* gl;
+
+    void setup() override {
+        this->gl->makeCurrent();
+        // Make sure we're done with whatever came before.
+        SK_GL(*this->gl, Finish());
+    }
+    void endTiming() override {
+        if (this->gl) {
+            SK_GL(*this->gl, Flush());
+            this->gl->swapBuffers();
+        }
+    }
+    void fence() override {
+        SK_GL(*this->gl, Finish());
+    }
+ 
+    bool needsFrameTiming() const override { return true; }
+    bool init(SkImageInfo info, Benchmark* bench) override {
+        uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
+        SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+        this->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(this->config.ctxType),
+                                                         SkSurface::kNo_Budgeted, info,
+                                                         this->config.samples, &props));
+        this->gl = gGrFactory->getGLContext(this->config.ctxType);
+        if (!this->surface.get()) {
+            return false;
+        }
+        return true;
+    }
+    void fillOptions(ResultsWriter* log) override {
+        const GrGLubyte* version;
+        SK_GL_RET(*this->gl, version, GetString(GR_GL_VERSION));
+        log->configOption("GL_VERSION", (const char*)(version));
+
+        SK_GL_RET(*this->gl, version, GetString(GR_GL_RENDERER));
+        log->configOption("GL_RENDERER", (const char*) version);
+
+        SK_GL_RET(*this->gl, version, GetString(GR_GL_VENDOR));
+        log->configOption("GL_VENDOR", (const char*) version);
+
+        SK_GL_RET(*this->gl, version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+        log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
+    }
+};
+        
+#endif
+
+static double time(int loops, Benchmark* bench, SkCanvas* canvas, Target* target) {
     if (canvas) {
         canvas->clear(SK_ColorWHITE);
     }
     WallTimer timer;
     timer.start();
+    if (target) {
+        canvas = target->beginTiming(canvas);
+    }
     if (bench) {
         bench->draw(loops, canvas);
     }
     if (canvas) {
         canvas->flush();
     }
-#if SK_SUPPORT_GPU
-    if (gl) {
-        SK_GL(*gl, Flush());
-        gl->swapBuffers();
+    if (target) {
+        target->endTiming();
     }
-#endif
     timer.end();
     return timer.fWall;
 }
@@ -137,19 +219,22 @@ static int clamp_loops(int loops) {
     return loops;
 }
 
-static bool write_canvas_png(SkCanvas* canvas, const SkString& filename) {
+static bool write_canvas_png(Target* target, const SkString& filename) {
+
     if (filename.isEmpty()) {
         return false;
     }
-    if (kUnknown_SkColorType == canvas->imageInfo().colorType()) {
+    if (target->surface.get() && target->surface->getCanvas() &&
+        kUnknown_SkColorType == target->surface->getCanvas()->imageInfo().colorType()) {
         return false;
     }
+
     SkBitmap bmp;
-    bmp.setInfo(canvas->imageInfo());
-    if (!canvas->readPixels(&bmp, 0, 0)) {
-        SkDebugf("Can't read canvas pixels.\n");
+
+    if (!target->capturePixels(&bmp)) {
         return false;
     }
+
     SkString dir = SkOSPath::Dirname(filename.c_str());
     if (!sk_mkdir(dir.c_str())) {
         SkDebugf("Can't make dir %s.\n", dir.c_str());
@@ -215,14 +300,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
     return loops;
 }
 
-#if SK_SUPPORT_GPU
-static void setup_gl(SkGLContext* gl) {
-    gl->makeCurrent();
-    // Make sure we're done with whatever came before.
-    SK_GL(*gl, Finish());
-}
-
-static int gpu_bench(SkGLContext* gl,
+static int gpu_bench(Target* target,
                      Benchmark* bench,
                      SkCanvas* canvas,
                      double* samples) {
@@ -242,7 +320,7 @@ static int gpu_bench(SkGLContext* gl,
             // _this_ round, not still timing last round.  We force this by looping
             // more times than any reasonable GPU will allow frames to lag.
             for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
-                elapsed = time(loops, bench, canvas, gl);
+                elapsed = time(loops, bench, canvas, target);
             }
         } while (elapsed < FLAGS_gpuMs);
 
@@ -250,8 +328,8 @@ static int gpu_bench(SkGLContext* gl,
         loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
         loops = clamp_loops(loops);
 
-        // Might as well make sure we're not still timing our calibration.
-        SK_GL(*gl, Finish());
+        // Make sure we're not still timing our calibration.
+        target->fence();
     } else {
         loops = detect_forever_loops(loops);
     }
@@ -259,16 +337,16 @@ static int gpu_bench(SkGLContext* gl,
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
     for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
-        time(loops, bench, canvas, gl);
+        time(loops, bench, canvas, target);
     }
 
     // Now, actually do the timing!
     for (int i = 0; i < FLAGS_samples; i++) {
-        samples[i] = time(loops, bench, canvas, gl) / loops;
+        samples[i] = time(loops, bench, canvas, target) / loops;
     }
+
     return loops;
 }
-#endif
 
 static SkString to_lower(const char* str) {
     SkString lower(str);
@@ -277,30 +355,6 @@ static SkString to_lower(const char* str) {
     }
     return lower;
 }
-
-struct Config {
-    const char* name;
-    Benchmark::Backend backend;
-    SkColorType color;
-    SkAlphaType alpha;
-    int samples;
-#if SK_SUPPORT_GPU
-    GrContextFactory::GLContextType ctxType;
-    bool useDFText;
-#else
-    int bogusInt;
-    bool bogusBool;
-#endif
-};
-
-struct Target {
-    explicit Target(const Config& c) : config(c) {}
-    const Config config;
-    SkAutoTDelete<SkSurface> surface;
-#if SK_SUPPORT_GPU
-    SkGLContext* gl;
-#endif
-};
 
 static bool is_cpu_config_allowed(const char* name) {
     for (int i = 0; i < FLAGS_config.count(); i++) {
@@ -373,6 +427,14 @@ static void create_configs(SkTDArray<Config>* configs) {
 #endif
     }
 #endif
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if (is_cpu_config_allowed("hwui")) {
+        Config config = { "hwui", Benchmark::kHWUI_Backend, kRGBA_8888_SkColorType,
+                          kPremul_SkAlphaType, 0, kBogusGLContextType, false };
+        configs->push(config);
+    }
+#endif
 }
 
 // If bench is enabled for config, returns a Target* for it, otherwise NULL.
@@ -384,23 +446,25 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     SkImageInfo info = SkImageInfo::Make(bench->getSize().fX, bench->getSize().fY,
                                          config.color, config.alpha);
 
-    Target* target = new Target(config);
+    Target* target = NULL;
 
-    if (Benchmark::kRaster_Backend == config.backend) {
-        target->surface.reset(SkSurface::NewRaster(info));
-    }
+    switch (config.backend) {
 #if SK_SUPPORT_GPU
-    else if (Benchmark::kGPU_Backend == config.backend) {
-        uint32_t flags = config.useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
-        SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-        target->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(config.ctxType),
-                                                         SkSurface::kNo_Budgeted, info,
-                                                         config.samples, &props));
-        target->gl = gGrFactory->getGLContext(config.ctxType);
-    }
+    case Benchmark::kGPU_Backend:
+        target = new GPUTarget(config);
+        break;
 #endif
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    case Benchmark::kHWUI_Backend:
+        target = new HWUITarget(config, bench);
+        break;
+#endif
+    default:
+        target = new Target(config);
+        break;
+    }
 
-    if (Benchmark::kNonRendering_Backend != config.backend && !target->surface.get()) {
+    if (!target->init(info, bench)) {
         delete target;
         return NULL;
     }
@@ -418,22 +482,6 @@ static void create_targets(SkTDArray<Target*>* targets, Benchmark* b,
     }
 }
 
-#if SK_SUPPORT_GPU
-static void fill_gpu_options(ResultsWriter* log, SkGLContext* ctx) {
-    const GrGLubyte* version;
-    SK_GL_RET(*ctx, version, GetString(GR_GL_VERSION));
-    log->configOption("GL_VERSION", (const char*)(version));
-
-    SK_GL_RET(*ctx, version, GetString(GR_GL_RENDERER));
-    log->configOption("GL_RENDERER", (const char*) version);
-
-    SK_GL_RET(*ctx, version, GetString(GR_GL_VENDOR));
-    log->configOption("GL_VENDOR", (const char*) version);
-
-    SK_GL_RET(*ctx, version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
-    log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
-}
-#endif
 
 class BenchmarkStream {
 public:
@@ -790,32 +838,26 @@ int nanobench_main() {
             bench->preDraw();
         }
         for (int j = 0; j < targets.count(); j++) {
+            // During HWUI output this canvas may be NULL.
             SkCanvas* canvas = targets[j]->surface.get() ? targets[j]->surface->getCanvas() : NULL;
             const char* config = targets[j]->config.name;
 
-#if SK_SUPPORT_GPU
-            if (Benchmark::kGPU_Backend == targets[j]->config.backend) {
-                setup_gl(targets[j]->gl);
-            }
-#endif
-
+            targets[j]->setup();
             bench->perCanvasPreDraw(canvas);
 
             const int loops =
-#if SK_SUPPORT_GPU
-                Benchmark::kGPU_Backend == targets[j]->config.backend
-                ? gpu_bench(targets[j]->gl, bench.get(), canvas, samples.get())
-                :
-#endif
-                 cpu_bench(       overhead, bench.get(), canvas, samples.get());
+                targets[j]->needsFrameTiming()
+                ? gpu_bench(targets[j], bench.get(), canvas, samples.get())
+                : cpu_bench(overhead, bench.get(), canvas, samples.get());
 
             bench->perCanvasPostDraw(canvas);
 
-            if (canvas && !FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
+            if (Benchmark::kNonRendering_Backend != targets[j]->config.backend &&
+                !FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
                 SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], config);
                 pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getUniqueName());
                 pngFilename.append(".png");
-                write_canvas_png(canvas, pngFilename);
+                write_canvas_png(targets[j], pngFilename);
             }
 
             if (kFailedLoops == loops) {
@@ -827,11 +869,7 @@ int nanobench_main() {
             log->config(config);
             log->configOption("name", bench->getName());
             benchStream.fillCurrentOptions(log.get());
-#if SK_SUPPORT_GPU
-            if (Benchmark::kGPU_Backend == targets[j]->config.backend) {
-                fill_gpu_options(log.get(), targets[j]->gl);
-            }
-#endif
+            targets[j]->fillOptions(log.get());
             log->metric("min_ms",    stats.min);
             if (runs++ % FLAGS_flushEvery == 0) {
                 log->flush();
