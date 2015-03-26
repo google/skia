@@ -139,14 +139,14 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
                 SkNEW_ARRAY(uint8_t, kBmpHeaderBytesPlusFour));
         if (stream->read(hBuffer.get(), kBmpHeaderBytesPlusFour) !=
                 kBmpHeaderBytesPlusFour) {
-            SkDebugf("Error: unable to read first bitmap header.\n");
+            SkCodecPrintf("Error: unable to read first bitmap header.\n");
             return NULL;
         }
 
         totalBytes = get_int(hBuffer.get(), 2);
         offset = get_int(hBuffer.get(), 10);
         if (offset < kBmpHeaderBytes + kBmpOS2V1Bytes) {
-            SkDebugf("Error: invalid starting location for pixel data\n");
+            SkCodecPrintf("Error: invalid starting location for pixel data\n");
             return NULL;
         }
 
@@ -155,7 +155,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
         // read the first four infoBytes.
         infoBytes = get_int(hBuffer.get(), 14);
         if (infoBytes < kBmpOS2V1Bytes) {
-            SkDebugf("Error: invalid second header size.\n");
+            SkCodecPrintf("Error: invalid second header size.\n");
             return NULL;
         }
     } else {
@@ -173,12 +173,12 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
         SkAutoTDeleteArray<uint8_t> hBuffer(
                 SkNEW_ARRAY(uint8_t, 4));
         if (stream->read(hBuffer.get(), 4) != 4) {
-            SkDebugf("Error: unable to read size of second bitmap header.\n");
+            SkCodecPrintf("Error: unable to read size of second bitmap header.\n");
             return NULL;
         }
         infoBytes = get_int(hBuffer.get(), 0);
         if (infoBytes < kBmpOS2V1Bytes) {
-            SkDebugf("Error: invalid second header size.\n");
+            SkCodecPrintf("Error: invalid second header size.\n");
             return NULL;
         }
     }
@@ -190,7 +190,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
     SkAutoTDeleteArray<uint8_t> iBuffer(
             SkNEW_ARRAY(uint8_t, infoBytesRemaining));
     if (stream->read(iBuffer.get(), infoBytesRemaining) != infoBytesRemaining) {
-        SkDebugf("Error: unable to read second bitmap header.\n");
+        SkCodecPrintf("Error: unable to read second bitmap header.\n");
         return NULL;
     }
 
@@ -248,7 +248,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
                 // of the newer versions of bmp headers are similar to and
                 // build off of the older versions, so we may still be able to
                 // decode the bmp.
-                SkDebugf("Warning: unknown bmp header format.\n");
+                SkCodecPrintf("Warning: unknown bmp header format.\n");
                 headerType = kUnknown_BitmapHeaderType;
                 break;
         }
@@ -281,7 +281,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
         bytesPerColor = 3;
     } else {
         // There are no valid bmp headers
-        SkDebugf("Error: second bitmap header size is invalid.\n");
+        SkCodecPrintf("Error: second bitmap header size is invalid.\n");
         return NULL;
     }
 
@@ -299,7 +299,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
     static const int kBmpMaxDim = 1 << 16;
     if (width < 0 || width >= kBmpMaxDim || height >= kBmpMaxDim) {
         // TODO: Decide if we want to support really large bmps.
-        SkDebugf("Error: invalid bitmap dimensions.\n");
+        SkCodecPrintf("Error: invalid bitmap dimensions.\n");
         return NULL;
     }
 
@@ -316,14 +316,14 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
             break;
         case k8BitRLE_BitmapCompressionMethod:
             if (bitsPerPixel != 8) {
-                SkDebugf("Warning: correcting invalid bitmap format.\n");
+                SkCodecPrintf("Warning: correcting invalid bitmap format.\n");
                 bitsPerPixel = 8;
             }
             inputFormat = kRLE_BitmapInputFormat;
             break;
         case k4BitRLE_BitmapCompressionMethod:
             if (bitsPerPixel != 4) {
-                SkDebugf("Warning: correcting invalid bitmap format.\n");
+                SkCodecPrintf("Warning: correcting invalid bitmap format.\n");
                 bitsPerPixel = 4;
             }
             inputFormat = kRLE_BitmapInputFormat;
@@ -339,7 +339,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
                             SkNEW_ARRAY(uint8_t, kBmpMaskBytes));
                     if (stream->read(mBuffer.get(), kBmpMaskBytes) !=
                             kBmpMaskBytes) {
-                        SkDebugf("Error: unable to read bit inputMasks.\n");
+                        SkCodecPrintf("Error: unable to read bit inputMasks.\n");
                         return NULL;
                     }
                     maskBytes = kBmpMaskBytes;
@@ -365,10 +365,10 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
                     //       It is unsupported in the previous version and
                     //       in chromium.  I have not come across a test case
                     //       that uses this format.
-                    SkDebugf("Error: huffman format unsupported.\n");
+                    SkCodecPrintf("Error: huffman format unsupported.\n");
                     return NULL;
                 default:
-                   SkDebugf("Error: invalid bmp bit masks header.\n");
+                   SkCodecPrintf("Error: invalid bmp bit masks header.\n");
                    return NULL;
             }
             break;
@@ -382,16 +382,16 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
             // TODO: Decide if we intend to support this.
             //       It is unsupported in the previous version and
             //       in chromium.  I think it is used mostly for printers.
-            SkDebugf("Error: compression format not supported.\n");
+            SkCodecPrintf("Error: compression format not supported.\n");
             return NULL;
         case kCMYK_BitmapCompressionMethod:
         case kCMYK8BitRLE_BitmapCompressionMethod:
         case kCMYK4BitRLE_BitmapCompressionMethod:
             // TODO: Same as above.
-            SkDebugf("Error: CMYK not supported for bitmap decoding.\n");
+            SkCodecPrintf("Error: CMYK not supported for bitmap decoding.\n");
             return NULL;
         default:
-            SkDebugf("Error: invalid format for bitmap decoding.\n");
+            SkCodecPrintf("Error: invalid format for bitmap decoding.\n");
             return NULL;
     }
 
@@ -446,7 +446,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
         case 32:
             break;
         default:
-            SkDebugf("Error: invalid input value for bits per pixel.\n");
+            SkCodecPrintf("Error: invalid input value for bits per pixel.\n");
             return NULL;
     }
 
@@ -454,13 +454,13 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
     SkAutoTDelete<SkMasks>
             masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
     if (NULL == masks) {
-        SkDebugf("Error: invalid input masks.\n");
+        SkCodecPrintf("Error: invalid input masks.\n");
         return NULL;
     }
 
     // Check for a valid number of total bytes when in RLE mode
     if (totalBytes <= offset && kRLE_BitmapInputFormat == inputFormat) {
-        SkDebugf("Error: RLE requires valid input size.\n");
+        SkCodecPrintf("Error: RLE requires valid input size.\n");
         return NULL;
     }
     const size_t RLEBytes = totalBytes - offset;
@@ -468,7 +468,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool isIco) {
     // Calculate the number of bytes read so far
     const uint32_t bytesRead = kBmpHeaderBytes + infoBytes + maskBytes;
     if (!isIco && offset < bytesRead) {
-        SkDebugf("Error: pixel data offset less than header size.\n");
+        SkCodecPrintf("Error: pixel data offset less than header size.\n");
         return NULL;
     }
 
@@ -523,17 +523,17 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kCouldNotRewind;
     }
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        SkDebugf("Error: scaling not supported.\n");
+        SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;
     }
     if (!conversion_possible(dstInfo, this->getInfo())) {
-        SkDebugf("Error: cannot convert input type to output type.\n");
+        SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
     }
 
     // Create the color table if necessary and prepare the stream for decode
     if (!createColorTable(dstInfo.alphaType())) {
-        SkDebugf("Error: could not create color table.\n");
+        SkCodecPrintf("Error: could not create color table.\n");
         return kInvalidInput;
     }
 
@@ -573,7 +573,7 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
         colorBytes = fNumColors * fBytesPerColor;
         SkAutoTDeleteArray<uint8_t> cBuffer(SkNEW_ARRAY(uint8_t, colorBytes));
         if (stream()->read(cBuffer.get(), colorBytes) != colorBytes) {
-            SkDebugf("Error: unable to read color table.\n");
+            SkCodecPrintf("Error: unable to read color table.\n");
             return false;
         }
 
@@ -626,13 +626,13 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
             // color table.  This is invalid, and our decision is to indicate
             // an error, rather than try to guess the intended size of the
             // color table.
-            SkDebugf("Error: pixel data offset less than color table size.\n");
+            SkCodecPrintf("Error: pixel data offset less than color table size.\n");
             return false;
         }
 
         // After reading the color table, skip to the start of the pixel array
         if (stream()->skip(fOffset - colorBytes) != fOffset - colorBytes) {
-            SkDebugf("Error: unable to skip to image data.\n");
+            SkCodecPrintf("Error: unable to skip to image data.\n");
             return false;
         }
     }
@@ -669,7 +669,7 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
     for (int y = 0; y < height; y++) {
         // Read a row of the input
         if (stream()->read(srcRow, rowBytes) != rowBytes) {
-            SkDebugf("Warning: incomplete input stream.\n");
+            SkCodecPrintf("Warning: incomplete input stream.\n");
             return kIncompleteInput;
         }
 
@@ -807,9 +807,9 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
     SkAutoTDeleteArray<uint8_t> buffer(SkNEW_ARRAY(uint8_t, fRLEBytes));
     size_t totalBytes = stream()->read(buffer.get(), fRLEBytes);
     if (totalBytes < fRLEBytes) {
-        SkDebugf("Warning: incomplete RLE file.\n");
+        SkCodecPrintf("Warning: incomplete RLE file.\n");
     } else if (totalBytes <= 0) {
-        SkDebugf("Error: could not read RLE image data.\n");
+        SkCodecPrintf("Error: could not read RLE image data.\n");
         return kInvalidInput;
     }
 
@@ -824,7 +824,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
     while (true) {
         // Every entry takes at least two bytes
         if ((int) totalBytes - currByte < 2) {
-            SkDebugf("Warning: incomplete RLE input.\n");
+            SkCodecPrintf("Warning: incomplete RLE input.\n");
             return kIncompleteInput;
         }
 
@@ -838,7 +838,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
         // If we have reached a row that is beyond the image size, and the RLE
         // code does not indicate end of file, abort and signal a warning.
         if (y >= height && (flag != RLE_ESCAPE || (task != RLE_EOF))) {
-            SkDebugf("Warning: invalid RLE input.\n");
+            SkCodecPrintf("Warning: invalid RLE input.\n");
             return kIncompleteInput;
         }
 
@@ -854,7 +854,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                 case RLE_DELTA: {
                     // Two bytes are needed to specify delta
                     if ((int) totalBytes - currByte < 2) {
-                        SkDebugf("Warning: incomplete RLE input\n");
+                        SkCodecPrintf("Warning: incomplete RLE input\n");
                         return kIncompleteInput;
                     }
                     // Modify x and y
@@ -863,7 +863,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                     x += dx;
                     y += dy;
                     if (x > width || y > height) {
-                        SkDebugf("Warning: invalid RLE input.\n");
+                        SkCodecPrintf("Warning: invalid RLE input.\n");
                         return kIncompleteInput;
                     }
                     break;
@@ -881,7 +881,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                     // remaining in the stream to set numPixels.
                     if (x + numPixels > width ||
                             (int) totalBytes - currByte < SkAlign2(rowBytes)) {
-                        SkDebugf("Warning: invalid RLE input.\n");
+                        SkCodecPrintf("Warning: invalid RLE input.\n");
                         return kIncompleteInput;
                     }
                     // Set numPixels number of pixels
@@ -938,7 +938,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
                 // There are two more required bytes to finish encoding the
                 // color.
                 if ((int) totalBytes - currByte < 2) {
-                    SkDebugf("Warning: incomplete RLE input\n");
+                    SkCodecPrintf("Warning: incomplete RLE input\n");
                     return kIncompleteInput;
                 }
 
@@ -1028,7 +1028,7 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
     for (int y = 0; y < height; y++) {
         // Read a row of the input
         if (stream()->read(srcBuffer.get(), rowBytes) != rowBytes) {
-            SkDebugf("Warning: incomplete input stream.\n");
+            SkCodecPrintf("Warning: incomplete input stream.\n");
             return kIncompleteInput;
         }
 
@@ -1080,7 +1080,7 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
         for (int y = 0; y < height; y++) {
             // The srcBuffer will at least be large enough
             if (stream()->read(srcBuffer.get(), rowBytes) != rowBytes) {
-                SkDebugf("Warning: incomplete AND mask for bmp-in-ico.\n");
+                SkCodecPrintf("Warning: incomplete AND mask for bmp-in-ico.\n");
                 return kIncompleteInput;
             }
 

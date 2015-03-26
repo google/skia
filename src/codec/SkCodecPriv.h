@@ -105,4 +105,10 @@ static inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
 #endif
 }
 
+#ifdef SK_PRINT_CODEC_MESSAGES
+    #define SkCodecPrintf SkDebugf
+#else
+    #define SkCodecPrintf(...)
+#endif
+
 #endif // SkCodecPriv_DEFINED

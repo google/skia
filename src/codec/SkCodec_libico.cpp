@@ -45,14 +45,14 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
             SkNEW_ARRAY(uint8_t, kIcoDirectoryBytes));
     if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
-        SkDebugf("Error: unable to read ico directory header.\n");
+        SkCodecPrintf("Error: unable to read ico directory header.\n");
         return NULL;
     }
 
     // Process the directory header
     const uint16_t numImages = get_short(dirBuffer.get(), 4);
     if (0 == numImages) {
-        SkDebugf("Error: No images embedded in ico.\n");
+        SkCodecPrintf("Error: No images embedded in ico.\n");
         return NULL;
     }
 
@@ -61,7 +61,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
             SkNEW_ARRAY(uint8_t, numImages*kIcoDirEntryBytes));
     if (inputStream.get()->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
             numImages*kIcoDirEntryBytes) {
-        SkDebugf("Error: unable to read ico directory entries.\n");
+        SkCodecPrintf("Error: unable to read ico directory entries.\n");
         return NULL;
     }
 
@@ -118,14 +118,14 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         
         // Ensure that the offset is valid
         if (offset < bytesRead) {
-            SkDebugf("Warning: invalid ico offset.\n");
+            SkCodecPrintf("Warning: invalid ico offset.\n");
             continue;
         }
 
         // If we cannot skip, assume we have reached the end of the stream and
         // stop trying to make codecs
         if (inputStream.get()->skip(offset - bytesRead) != offset - bytesRead) {
-            SkDebugf("Warning: could not skip to ico offset.\n");
+            SkCodecPrintf("Warning: could not skip to ico offset.\n");
             break;
         }
         bytesRead = offset;
@@ -134,7 +134,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         SkAutoTUnref<SkData> data(
                 SkData::NewFromStream(inputStream.get(), size));
         if (NULL == data.get()) {
-            SkDebugf("Warning: could not create embedded stream.\n");
+            SkCodecPrintf("Warning: could not create embedded stream.\n");
             break;
         }
         SkAutoTDelete<SkMemoryStream>
@@ -159,7 +159,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
     // Recognize if there are no valid codecs
     if (0 == codecs->count()) {
-        SkDebugf("Error: could not find any valid embedded ico codecs.\n");
+        SkCodecPrintf("Error: could not find any valid embedded ico codecs.\n");
         return NULL;
     }
 
@@ -244,7 +244,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
             // On a fatal error, keep trying to find an image to decode
             if (kInvalidConversion == result || kInvalidInput == result ||
                     kInvalidScale == result) {
-                SkDebugf("Warning: Attempt to decode candidate ico failed.\n");
+                SkCodecPrintf("Warning: Attempt to decode candidate ico failed.\n");
                 continue;
             }
 
@@ -253,6 +253,6 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     }
 
-    SkDebugf("Error: No matching candidate image in ico.\n");
+    SkCodecPrintf("Error: No matching candidate image in ico.\n");
     return result;
 }

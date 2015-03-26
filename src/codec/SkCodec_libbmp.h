@@ -14,7 +14,6 @@
 #include "SkTypes.h"
 
 // TODO: rename SkCodec_libbmp files to SkBmpCodec
-// TODO: define a wrapper for SkDebugf that doesn't always print
 /*
  *
  * This class implements the decoding for bmp images

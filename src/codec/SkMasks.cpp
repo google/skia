@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCodecPriv.h"
 #include "SkMasks.h"
 #include "SkTypes.h"
 
@@ -106,7 +107,7 @@ const SkMasks::MaskInfo process_mask(uint32_t mask, uint32_t bpp) {
         }
         // Check that the mask is continuous
         if (tempMask != 0) {
-            SkDebugf("Warning: Bit masks is not continuous.\n");
+            SkCodecPrintf("Warning: Bit masks is not continuous.\n");
         }
         // Truncate masks greater than 8 bits
         if (size > 8) {

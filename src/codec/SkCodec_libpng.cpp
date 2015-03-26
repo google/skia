@@ -46,7 +46,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
-    SkDebugf("------ png error %s\n", msg);
+    SkCodecPrintf("------ png error %s\n", msg);
     longjmp(png_jmpbuf(png_ptr), 1);
 }
 
@@ -369,7 +369,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
     if (setjmp(png_jmpbuf(fPng_ptr))) {
-        SkDebugf("setjmp long jump!\n");
+        SkCodecPrintf("setjmp long jump!\n");
         return kInvalidInput;
     }
 
@@ -436,7 +436,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
     if (setjmp(png_jmpbuf(fPng_ptr))) {
-        SkDebugf("setjmp long jump!\n");
+        SkCodecPrintf("setjmp long jump!\n");
         return kInvalidInput;
     }
 
@@ -505,7 +505,7 @@ public:
 
     SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
-            SkDebugf("setjmp long jump!\n");
+            SkCodecPrintf("setjmp long jump!\n");
             return SkImageGenerator::kInvalidInput;
         }
 
@@ -522,7 +522,7 @@ public:
         // FIXME: Could we use the return value of setjmp to specify the type of
         // error?
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
-            SkDebugf("setjmp long jump!\n");
+            SkCodecPrintf("setjmp long jump!\n");
             return SkImageGenerator::kInvalidInput;
         }
 
@@ -552,7 +552,7 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) 
     }
 
     if (!conversion_possible(dstInfo, this->getInfo())) {
-        SkDebugf("no conversion possible\n");
+        SkCodecPrintf("no conversion possible\n");
         return NULL;
     }
 
@@ -563,7 +563,7 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) 
     // FIXME: Pass this in to getScanlineDecoder?
     opts.fZeroInitialized = kNo_ZeroInitialized;
     if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), opts) != kSuccess) {
-        SkDebugf("failed to initialize the swizzler.\n");
+        SkCodecPrintf("failed to initialize the swizzler.\n");
         return NULL;
     }
 
