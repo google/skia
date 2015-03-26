@@ -1285,38 +1285,21 @@ static SkScalar subdivide_w_value(SkScalar w) {
     return SkScalarSqrt(SK_ScalarHalf + w * SK_ScalarHalf);
 }
 
-void SkConic::chop(SkConic dst[2]) const {
-    SkScalar scale = SkScalarInvert(SK_Scalar1 + fW);
-    SkScalar p1x = fW * fPts[1].fX;
-    SkScalar p1y = fW * fPts[1].fY;
-    SkScalar mx = (fPts[0].fX + 2 * p1x + fPts[2].fX) * scale * SK_ScalarHalf;
-    SkScalar my = (fPts[0].fY + 2 * p1y + fPts[2].fY) * scale * SK_ScalarHalf;
-
-    dst[0].fPts[0] = fPts[0];
-    dst[0].fPts[1].set((fPts[0].fX + p1x) * scale,
-                       (fPts[0].fY + p1y) * scale);
-    dst[0].fPts[2].set(mx, my);
-
-    dst[1].fPts[0].set(mx, my);
-    dst[1].fPts[1].set((p1x + fPts[2].fX) * scale,
-                       (p1y + fPts[2].fY) * scale);
-    dst[1].fPts[2] = fPts[2];
-
-    dst[0].fW = dst[1].fW = subdivide_w_value(fW);
+static Sk2s twice(const Sk2s& value) {
+    return value + value;
 }
 
-void SkConic::chop2(SkConic * SK_RESTRICT dst) const {
-    Sk2s scale = Sk2s(SK_Scalar1 + fW).invert();    // approxInvert is wicked faster!!!
+void SkConic::chop(SkConic * SK_RESTRICT dst) const {
+    Sk2s scale = Sk2s(SkScalarInvert(SK_Scalar1 + fW));
     SkScalar newW = subdivide_w_value(fW);
 
     Sk2s p0 = from_point(fPts[0]);
     Sk2s p1 = from_point(fPts[1]);
     Sk2s p2 = from_point(fPts[2]);
     Sk2s ww(fW);
-    Sk2s half(0.5f);
 
     Sk2s wp1 = ww * p1;
-    Sk2s m = ((p0 + wp1 + wp1 + p2) * half) * scale;
+    Sk2s m = (p0 + twice(wp1) + p2) * scale * Sk2s(0.5f);
 
     dst[0].fPts[0] = fPts[0];
     dst[0].fPts[1] = to_point((p0 + wp1) * scale);

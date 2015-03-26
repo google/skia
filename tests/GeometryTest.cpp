@@ -83,21 +83,6 @@ static void test_conic_eval_tan(skiatest::Reporter* reporter, const SkConic& con
     check_pairs(reporter, 0, t, "conic-tan", v0.fX, v0.fY, v1.fX, v1.fY);
 }
 
-static void test_conic_chop_half(skiatest::Reporter* reporter, const SkConic& conic) {
-    SkConic dst0[2], dst1[2];
-    conic.chop(dst0);
-    conic.chop2(dst1);
-
-    for (int i = 0; i < 2; ++i) {
-        REPORTER_ASSERT(reporter, dst0[i].fW == dst1[i].fW);
-        for (int j = 0; j < 3; ++j) {
-            check_pairs(reporter, j, 0.5f, "conic-chop",
-                        dst0[i].fPts[j].fX, dst0[i].fPts[j].fY,
-                        dst0[i].fPts[j].fX, dst1[i].fPts[j].fY);
-        }
-    }
-}
-
 static void test_conic(skiatest::Reporter* reporter) {
     SkRandom rand;
     for (int i = 0; i < 1000; ++i) {
@@ -108,7 +93,6 @@ static void test_conic(skiatest::Reporter* reporter) {
         for (int k = 0; k < 10; ++k) {
             SkScalar w = rand.nextUScalar1() * 2;
             SkConic conic(pts, w);
-            test_conic_chop_half(reporter, conic);
 
             const SkScalar dt = SK_Scalar1 / 128;
             SkScalar t = dt;

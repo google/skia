@@ -806,44 +806,16 @@ private:
 
 #include "SkGeometry.h"
 
-class ConicBench_Chop5 : public Benchmark {
-    SkConic fRQ;
-public:
-    ConicBench_Chop5()  {
-        fRQ.fPts[0].set(0, 0);
-        fRQ.fPts[1].set(100, 0);
-        fRQ.fPts[2].set(100, 100);
-        fRQ.fW = SkScalarCos(SK_ScalarPI/4);
-    }
-
-private:
-    const char* onGetName() override {
-        return "ratquad-chop-0.5";
-    }
-
-    void onDraw(const int loops, SkCanvas*) override {
-        SkConic dst[2];
-        for (int i = 0; i < loops; ++i) {
-            fRQ.chopAt(0.5f, dst);
-        }
-    }
-
-    typedef Benchmark INHERITED;
-};
-
-class ConicBench_ChopHalf : public Benchmark {
+class ConicBench_Chop : public Benchmark {
 protected:
     SkConic fRQ, fDst[2];
     SkString fName;
-    const bool fUseV2;
 public:
-    ConicBench_ChopHalf(bool useV2) : fUseV2(useV2) {
+    ConicBench_Chop() : fName("conic-chop") {
         fRQ.fPts[0].set(0, 0);
         fRQ.fPts[1].set(100, 0);
         fRQ.fPts[2].set(100, 100);
         fRQ.fW = SkScalarCos(SK_ScalarPI/4);
-
-        fName.printf("conic-chop-half%d", useV2);
     }
 
     bool isSuitableFor(Backend backend) override {
@@ -854,25 +826,19 @@ private:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(const int loops, SkCanvas*) override {
-        if (fUseV2) {
-            for (int i = 0; i < loops; ++i) {
-                fRQ.chop2(fDst);
-            }
-        } else {
-            for (int i = 0; i < loops; ++i) {
-                fRQ.chop(fDst);
-            }
+        for (int i = 0; i < loops; ++i) {
+            fRQ.chop(fDst);
         }
     }
 
     typedef Benchmark INHERITED;
 };
-DEF_BENCH( return new ConicBench_ChopHalf(false); )
-DEF_BENCH( return new ConicBench_ChopHalf(true); )
+DEF_BENCH( return new ConicBench_Chop; )
 
-class ConicBench_EvalPos : public ConicBench_ChopHalf {
+class ConicBench_EvalPos : public ConicBench_Chop {
+    const bool fUseV2;
 public:
-    ConicBench_EvalPos(bool useV2) : ConicBench_ChopHalf(useV2) {
+    ConicBench_EvalPos(bool useV2) : fUseV2(useV2) {
         fName.printf("conic-eval-pos%d", useV2);
     }
     void onDraw(const int loops, SkCanvas*) override {
@@ -894,9 +860,10 @@ public:
 DEF_BENCH( return new ConicBench_EvalPos(false); )
 DEF_BENCH( return new ConicBench_EvalPos(true); )
 
-class ConicBench_EvalTan : public ConicBench_ChopHalf {
+class ConicBench_EvalTan : public ConicBench_Chop {
+    const bool fUseV2;
 public:
-    ConicBench_EvalTan(bool useV2) : ConicBench_ChopHalf(useV2) {
+    ConicBench_EvalTan(bool useV2) : fUseV2(useV2) {
         fName.printf("conic-eval-tan%d", useV2);
     }
     void onDraw(const int loops, SkCanvas*) override {
