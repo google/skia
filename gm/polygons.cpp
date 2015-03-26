@@ -23,18 +23,18 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("polygons");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         int width = kNumPolygons * kCellSize + 40;
         int height = (kNumJoins * kNumStrokeWidths + kNumExtraStyles) * kCellSize + 40;
         return SkISize::Make(width, height);
     }
 
     // Construct all polygons
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkPoint p0[] = {{0, 0}, {60, 0}, {90, 40}};  // triangle
         SkPoint p1[] = {{0, 0}, {0, 40}, {60, 40}, {40, 0}};  // trapezoid
         SkPoint p2[] = {{0, 0}, {40, 40}, {80, 40}, {40, 0}};  // diamond
@@ -94,7 +94,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40(>= geometry width/height, make the contour filled in fact)

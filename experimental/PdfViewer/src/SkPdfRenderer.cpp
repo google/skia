@@ -212,8 +212,8 @@ public:
     explicit PdfInlineImageLooper(SkPdfTokenLooper* parent)
         : INHERITED(parent) {}
 
-    SkPdfResult consumeToken(PdfToken& token) SK_OVERRIDE;
-    void loop() SK_OVERRIDE;
+    SkPdfResult consumeToken(PdfToken& token) override;
+    void loop() override;
 
 private:
     typedef SkPdfTokenLooper INHERITED;
@@ -224,8 +224,8 @@ public:
     explicit PdfCompatibilitySectionLooper(SkPdfTokenLooper* parent)
         : INHERITED (parent) {}
 
-    SkPdfResult consumeToken(PdfToken& token) SK_OVERRIDE;
-    void loop() SK_OVERRIDE;
+    SkPdfResult consumeToken(PdfToken& token) override;
+    void loop() override;
 
 private:
     typedef SkPdfTokenLooper INHERITED;

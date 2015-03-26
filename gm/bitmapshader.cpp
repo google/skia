@@ -43,7 +43,7 @@ static void adopt_shader(SkPaint* paint, SkShader* shader) {
 class BitmapShaderGM : public GM {
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorGRAY);
         draw_bm(&fBitmap);
         draw_mask(&fMask);

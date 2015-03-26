@@ -404,14 +404,14 @@ public:
         return SkNEW_ARGS(ColorMatrixEffect, (matrix));
     }
 
-    const char* name() const SK_OVERRIDE { return "Color Matrix"; }
+    const char* name() const override { return "Color Matrix"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
@@ -430,7 +430,7 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
-                              const TextureSamplerArray&) SK_OVERRIDE {
+                              const TextureSamplerArray&) override {
             fMatrixHandle = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                 kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                 "ColorMatrix");
@@ -456,7 +456,7 @@ public:
         }
 
         virtual void setData(const GrGLProgramDataManager& uniManager,
-                             const GrProcessor& proc) SK_OVERRIDE {
+                             const GrProcessor& proc) override {
             const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
@@ -486,12 +486,12 @@ private:
         this->initClassID<ColorMatrixEffect>();
     }
 
-    bool onIsEqual(const GrFragmentProcessor& s) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& s) const override {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return cme.fMatrix == fMatrix;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // We only bother to check whether the alpha channel will be constant. If SkColorMatrix had
         // type flags it might be worth checking the other components.
 

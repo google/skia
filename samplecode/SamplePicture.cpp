@@ -95,7 +95,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Picture");
             return true;
@@ -123,7 +123,7 @@ protected:
 
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         this->drawSomething(canvas);
 
         SkPictureRecorder recorder;
@@ -159,7 +159,7 @@ private:
         (new SkEvent(INVAL_ALL_TYPE, this->getSinkID()))->postDelay(delay);
     }
 
-    bool onEvent(const SkEvent& evt) SK_OVERRIDE {
+    bool onEvent(const SkEvent& evt) override {
         if (evt.isType(INVAL_ALL_TYPE)) {
             this->inval(NULL);
             return true;

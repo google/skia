@@ -72,7 +72,7 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString str("giantbitmap_");
         switch (fMode) {
             case SkShader::kClamp_TileMode:
@@ -92,9 +92,9 @@ protected:
         return str;
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
+    SkISize onISize() override { return SkISize::Make(640, 480); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
         SkMatrix m;

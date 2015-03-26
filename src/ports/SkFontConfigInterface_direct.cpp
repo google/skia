@@ -111,14 +111,14 @@ public:
                                  SkTypeface::Style requested,
                                  FontIdentity* outFontIdentifier,
                                  SkString* outFamilyName,
-                                 SkTypeface::Style* outStyle) SK_OVERRIDE;
-    SkStreamAsset* openStream(const FontIdentity&) SK_OVERRIDE;
+                                 SkTypeface::Style* outStyle) override;
+    SkStreamAsset* openStream(const FontIdentity&) override;
 
     // new APIs
-    SkDataTable* getFamilyNames() SK_OVERRIDE;
+    SkDataTable* getFamilyNames() override;
     virtual bool matchFamilySet(const char inFamilyName[],
                                 SkString* outFamilyName,
-                                SkTArray<FontIdentity>*) SK_OVERRIDE;
+                                SkTArray<FontIdentity>*) override;
 
 private:
     SkMutex mutex_;

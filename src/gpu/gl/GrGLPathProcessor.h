@@ -23,7 +23,7 @@ public:
                        const GrGLCaps&,
                        GrProcessorKeyBuilder* b);
 
-    void emitCode(EmitArgs&) SK_OVERRIDE;
+    void emitCode(EmitArgs&) override;
 
     virtual void emitTransforms(GrGLGPBuilder*, const TransformsIn&, TransformsOut*) = 0;
 
@@ -31,7 +31,7 @@ public:
 
     void setData(const GrGLProgramDataManager&,
                  const GrPrimitiveProcessor&,
-                 const GrBatchTracker&) SK_OVERRIDE;
+                 const GrBatchTracker&) override;
 
     virtual void setTransformData(const GrPrimitiveProcessor&,
                                   int index,
@@ -64,15 +64,15 @@ public:
         return firstFreeCoordSet;
     }
 
-    void emitTransforms(GrGLGPBuilder*, const TransformsIn& tin, TransformsOut* tout) SK_OVERRIDE;
+    void emitTransforms(GrGLGPBuilder*, const TransformsIn& tin, TransformsOut* tout) override;
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms,
                           GrGLPathRendering* glpr,
-                          GrGLuint) SK_OVERRIDE;
+                          GrGLuint) override;
 
-    void didSetData(GrGLPathRendering* glpr) SK_OVERRIDE;
+    void didSetData(GrGLPathRendering* glpr) override;
 
 private:
     SkDEBUGCODE(int fMaxTexCoords;)
@@ -86,7 +86,7 @@ public:
     GrGLNormalPathProcessor(const GrPathProcessor& pathProc, const GrBatchTracker& bt)
         : INHERITED(pathProc, bt) {}
 
-    void emitTransforms(GrGLGPBuilder* pb, const TransformsIn& tin,TransformsOut* tout) SK_OVERRIDE;
+    void emitTransforms(GrGLGPBuilder* pb, const TransformsIn& tin,TransformsOut* tout) override;
 
     void resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId);
 
@@ -94,7 +94,7 @@ public:
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& coordTransforms,
                           GrGLPathRendering* glpr,
-                          GrGLuint programID) SK_OVERRIDE;
+                          GrGLuint programID) override;
 
 private:
     struct SeparableVaryingInfo {

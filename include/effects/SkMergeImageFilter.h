@@ -36,10 +36,10 @@ protected:
     SkMergeImageFilter(SkImageFilter* filters[], int count,
                        const SkXfermode::Mode modes[],
                        const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const override;
 
 private:
     uint8_t*            fModes; // SkXfermode::Mode

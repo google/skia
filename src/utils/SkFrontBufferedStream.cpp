@@ -14,21 +14,21 @@ public:
     // Called by Create.
     FrontBufferedStream(SkStream*, size_t bufferSize);
 
-    size_t read(void* buffer, size_t size) SK_OVERRIDE;
+    size_t read(void* buffer, size_t size) override;
 
-    bool isAtEnd() const SK_OVERRIDE;
+    bool isAtEnd() const override;
 
-    bool rewind() SK_OVERRIDE;
+    bool rewind() override;
 
-    bool hasPosition() const SK_OVERRIDE { return true; }
+    bool hasPosition() const override { return true; }
 
-    size_t getPosition() const SK_OVERRIDE { return fOffset; }
+    size_t getPosition() const override { return fOffset; }
 
-    bool hasLength() const SK_OVERRIDE { return fHasLength; }
+    bool hasLength() const override { return fHasLength; }
 
-    size_t getLength() const SK_OVERRIDE { return fLength; }
+    size_t getLength() const override { return fLength; }
 
-    SkStreamRewindable* duplicate() const SK_OVERRIDE { return NULL; }
+    SkStreamRewindable* duplicate() const override { return NULL; }
 
 private:
     SkAutoTDelete<SkStream> fStream;

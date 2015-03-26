@@ -486,14 +486,14 @@ namespace skiagm {
         Layout           fLayout;
         const SkPicture* fPictures[kNumPictures];
 
-        void onOnceBeforeDraw() SK_OVERRIDE {
+        void onOnceBeforeDraw() override {
             fPictures[0] = make_hex_plane_picture(SK_ColorWHITE);
             fPictures[1] = make_hex_plane_picture(SK_ColorGRAY);
             fPictures[2] = make_sierpinski_picture();
             fPictures[3] = make_single_layer_hex_plane_picture();
         }
 
-        void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        void onDraw(SkCanvas* canvas) override {
             SkMultiPictureDraw mpd;
             SkTArray<ComposeStep> composeSteps;
 
@@ -514,9 +514,9 @@ namespace skiagm {
             }
         }
 
-        SkISize onISize() SK_OVERRIDE { return SkISize::Make(kPicWidth, kPicHeight); }
+        SkISize onISize() override { return SkISize::Make(kPicWidth, kPicHeight); }
 
-        SkString onShortName() SK_OVERRIDE {
+        SkString onShortName() override {
             static const char* gContentNames[] = {
                 "noclip", "rectclip", "rrectclip", "pathclip", 
                 "invpathclip", "sierpinski", "biglayer"
@@ -534,7 +534,7 @@ namespace skiagm {
             return name;
         }
 
-        bool runAsBench() const SK_OVERRIDE { return true; }
+        bool runAsBench() const override { return true; }
 
     private:
         typedef GM INHERITED;

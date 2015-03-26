@@ -32,7 +32,7 @@ static inline SkPMColor rgb2gray(SkPMColor c) {
 class SkGrayScaleColorFilter : public SkColorFilter {
 public:
     virtual void filterSpan(const SkPMColor src[], int count,
-                            SkPMColor result[]) const SK_OVERRIDE {
+                            SkPMColor result[]) const override {
         for (int i = 0; i < count; i++) {
             result[i] = rgb2gray(src[i]);
         }
@@ -46,7 +46,7 @@ public:
     }
 
     virtual void filterSpan(const SkPMColor src[], int count,
-                            SkPMColor result[]) const SK_OVERRIDE {
+                            SkPMColor result[]) const override {
         SkPMColor mask = fMask;
         for (int i = 0; i < count; i++) {
             result[i] = src[i] & mask;
@@ -74,7 +74,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
-    void begin(const SkIRect& uvBounds, SkPath* dst) const SK_OVERRIDE {
+    void begin(const SkIRect& uvBounds, SkPath* dst) const override {
         if (fPts) {
             fPts->reset();
         }
@@ -82,14 +82,14 @@ protected:
     }
 
     virtual void next(const SkPoint& loc, int u, int v,
-                      SkPath* dst) const SK_OVERRIDE {
+                      SkPath* dst) const override {
         if (fPts) {
             *fPts->append() = loc;
         }
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeMatrix(this->getMatrix());
         buffer.writeScalar(fRadius);
     }
@@ -111,14 +111,14 @@ class InverseFillPE : public SkPathEffect {
 public:
     InverseFillPE() {}
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE {
+                            SkStrokeRec*, const SkRect*) const override {
         *dst = src;
         dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;
     }
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const override {
         str->appendf("InverseFillPE: ()");
     }
 #endif

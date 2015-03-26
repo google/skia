@@ -30,18 +30,18 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("texture_domain_effect");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         const SkScalar canvasWidth = kDrawPad +
                 (kTargetWidth + 2 * kDrawPad) * GrTextureDomain::kModeCount +
                 kTestPad * GrTextureDomain::kModeCount;
         return SkISize::Make(SkScalarCeilToInt(canvasWidth), 800);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fBmp.allocN32Pixels(kTargetWidth, kTargetHeight);
         SkCanvas canvas(fBmp);
         canvas.clear(0x00000000);
@@ -68,7 +68,7 @@ protected:
                                          fBmp.width() + 10.f, fBmp.height() + 10.f), paint);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             return;

@@ -68,15 +68,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1536, 768);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -130,11 +130,11 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("fontmgr_match");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 1024);
     }
 
@@ -176,7 +176,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
@@ -237,15 +237,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1024, 850);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);

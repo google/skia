@@ -84,40 +84,40 @@ public:
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
+    void drawPaint(const SkDraw&, const SkPaint& paint) override;
     void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
                     size_t count, const SkPoint[],
-                    const SkPaint& paint) SK_OVERRIDE;
-    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) SK_OVERRIDE;
-    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) SK_OVERRIDE;
-    void drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) SK_OVERRIDE;
+                    const SkPaint& paint) override;
+    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) override;
+    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
+    void drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) override;
     void drawPath(const SkDraw&, const SkPath& origpath,
                   const SkPaint& paint, const SkMatrix* prePathMatrix,
-                  bool pathIsMutable) SK_OVERRIDE;
+                  bool pathIsMutable) override;
     void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                         const SkRect* src, const SkRect& dst,
                         const SkPaint& paint,
-                        SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE;
+                        SkCanvas::DrawBitmapRectFlags flags) override;
     void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                    const SkMatrix& matrix, const SkPaint&) SK_OVERRIDE;
+                    const SkMatrix& matrix, const SkPaint&) override;
     void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
-                    const SkPaint& paint) SK_OVERRIDE;
+                    const SkPaint& paint) override;
     void drawText(const SkDraw&, const void* text, size_t len,
-                  SkScalar x, SkScalar y, const SkPaint&) SK_OVERRIDE;
+                  SkScalar x, SkScalar y, const SkPaint&) override;
     void drawPosText(const SkDraw&, const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
-                     const SkPoint& offset, const SkPaint&) SK_OVERRIDE;
+                     const SkPoint& offset, const SkPaint&) override;
     void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                       int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[],
                       SkXfermode* xmode, const uint16_t indices[],
-                      int indexCount, const SkPaint& paint) SK_OVERRIDE;
+                      int indexCount, const SkPaint& paint) override;
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
-                    const SkPaint&) SK_OVERRIDE;
+                    const SkPaint&) override;
 
-    void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
-    void onDetachFromCanvas() SK_OVERRIDE;
-    SkImageInfo imageInfo() const SK_OVERRIDE;
+    void onAttachToCanvas(SkCanvas* canvas) override;
+    void onDetachFromCanvas() override;
+    SkImageInfo imageInfo() const override;
 
     enum DrawingArea {
         kContent_DrawingArea,  // Drawing area for the page content.
@@ -184,11 +184,11 @@ public:
 #endif  // SK_DEBUG
 
 protected:
-    const SkBitmap& onAccessBitmap() SK_OVERRIDE {
+    const SkBitmap& onAccessBitmap() override {
         return fLegacyBitmap;
     }
 
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
@@ -237,7 +237,7 @@ private:
     ContentEntry* getLastContentEntry();
     void setLastContentEntry(ContentEntry* contentEntry);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     void init();
     void cleanUp(bool clearFontUsage);

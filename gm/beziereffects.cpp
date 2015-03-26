@@ -36,7 +36,7 @@ public:
         SkRect fBounds;
     };
 
-    const char* name() const SK_OVERRIDE { return "BezierCubicOrConicTestBatch"; }
+    const char* name() const override { return "BezierCubicOrConicTestBatch"; }
 
     static GrBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
                            const SkScalar klmEqs[9], SkScalar sign) {
@@ -60,12 +60,12 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    Geometry* geoData(int index) SK_OVERRIDE {
+    Geometry* geoData(int index) override {
         SkASSERT(0 == index);
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
 
         const GrVertexBuffer* vertexBuffer;
@@ -124,15 +124,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("bezier_cubic_effects");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(800, 800);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             this->drawGpuOnlyMessage(canvas);
@@ -270,16 +270,16 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("bezier_conic_effects");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(800, 800);
     }
 
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             this->drawGpuOnlyMessage(canvas);
@@ -447,7 +447,7 @@ public:
         SkRect fBounds;
     };
 
-    const char* name() const SK_OVERRIDE { return "BezierQuadTestBatch"; }
+    const char* name() const override { return "BezierQuadTestBatch"; }
 
     static GrBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
                            const GrPathUtils::QuadUVMatrix& devToUV) {
@@ -467,12 +467,12 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    Geometry* geoData(int index) SK_OVERRIDE {
+    Geometry* geoData(int index) override {
         SkASSERT(0 == index);
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
 
         const GrVertexBuffer* vertexBuffer;
@@ -528,16 +528,16 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("bezier_quad_effects");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(800, 800);
     }
 
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             this->drawGpuOnlyMessage(canvas);

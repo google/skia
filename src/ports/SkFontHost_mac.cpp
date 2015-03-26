@@ -463,22 +463,22 @@ public:
     AutoCFRelease<CTFontRef> fFontRef;
 
 protected:
-    int onGetUPEM() const SK_OVERRIDE;
-    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
-    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
-    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    int onGetUPEM() const override;
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    void onGetFamilyName(SkString* familyName) const override;
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
+    int onGetTableTags(SkFontTableTag tags[]) const override;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const SK_OVERRIDE;
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
-    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
-    void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+                                  size_t length, void* data) const override;
+    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    void onFilterRec(SkScalerContextRec*) const override;
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
-                                const uint32_t*, uint32_t) const SK_OVERRIDE;
+                                const uint32_t*, uint32_t) const override;
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
-                                int glyphCount) const SK_OVERRIDE;
-    int onCountGlyphs() const SK_OVERRIDE;
+                                int glyphCount) const override;
+    int onCountGlyphs() const override;
 
 private:
     bool fIsLocalStream;
@@ -630,13 +630,13 @@ public:
     SkScalerContext_Mac(SkTypeface_Mac*, const SkDescriptor*);
 
 protected:
-    unsigned generateGlyphCount(void) SK_OVERRIDE;
-    uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
-    void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
-    void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
-    void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
-    void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
+    unsigned generateGlyphCount(void) override;
+    uint16_t generateCharToGlyph(SkUnichar uni) override;
+    void generateAdvance(SkGlyph* glyph) override;
+    void generateMetrics(SkGlyph* glyph) override;
+    void generateImage(const SkGlyph& glyph) override;
+    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
     static void CTPathElement(void *info, const CGPathElement *element);
@@ -2108,11 +2108,11 @@ public:
         CFRelease(fFamilyName);
     }
 
-    int count() SK_OVERRIDE {
+    int count() override {
         return fCount;
     }
 
-    void getStyle(int index, SkFontStyle* style, SkString* name) SK_OVERRIDE {
+    void getStyle(int index, SkFontStyle* style, SkString* name) override {
         SkASSERT((unsigned)index < (unsigned)fCount);
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, index);
         if (style) {
@@ -2125,14 +2125,14 @@ public:
         }
     }
 
-    SkTypeface* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface* createTypeface(int index) override {
         SkASSERT((unsigned)index < (unsigned)CFArrayGetCount(fArray));
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, index);
 
         return createFromDesc(fFamilyName, desc);
     }
 
-    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
+    SkTypeface* matchStyle(const SkFontStyle& pattern) override {
         if (0 == fCount) {
             return NULL;
         }
@@ -2196,11 +2196,11 @@ public:
     }
 
 protected:
-    int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const override {
         return fCount;
     }
 
-    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const override {
         if ((unsigned)index < (unsigned)fCount) {
             CFStringToSkString(this->stringAt(index), familyName);
         } else {
@@ -2208,35 +2208,35 @@ protected:
         }
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const override {
         if ((unsigned)index >= (unsigned)fCount) {
             return NULL;
         }
         return CreateSet(this->stringAt(index));
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
         AutoCFRelease<CFStringRef> cfName(make_CFString(familyName));
         return CreateSet(cfName);
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle&) const SK_OVERRIDE {
+                                           const SkFontStyle&) const override {
         return NULL;
     }
 
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                     const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const SK_OVERRIDE {
+                                                    SkUnichar character) const override {
         return NULL;
     }
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle&) const SK_OVERRIDE {
+                                         const SkFontStyle&) const override {
         return NULL;
     }
 
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
         if (NULL == pr) {
             return NULL;
@@ -2244,7 +2244,7 @@ protected:
         return create_from_dataProvider(pr);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override {
         AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream));
         if (NULL == pr) {
             return NULL;
@@ -2252,7 +2252,7 @@ protected:
         return create_from_dataProvider(pr);
     }
 
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         AutoCFRelease<CGDataProviderRef> pr(CGDataProviderCreateWithFilename(path));
         if (NULL == pr) {
             return NULL;
@@ -2261,7 +2261,7 @@ protected:
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const SK_OVERRIDE {
+                                               unsigned styleBits) const override {
 
         SkFontStyle style = SkFontStyle((SkTypeface::Style)styleBits);
         if (familyName) {

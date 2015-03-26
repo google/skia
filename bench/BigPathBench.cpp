@@ -38,19 +38,19 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    SkIPoint onGetSize() SK_OVERRIDE {
+    SkIPoint onGetSize() override {
         return SkIPoint::Make(640, 100);
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         make_path(fPath);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

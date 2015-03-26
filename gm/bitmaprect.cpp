@@ -35,17 +35,17 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString str;
         str.printf("bitmaprect_%s", fUseIRect ? "i" : "s");
         return str;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFCCCCCC);
 
         const SkIRect src[] = {
@@ -124,17 +124,17 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString str;
         str.printf("3x3bitmaprect");
         return str;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         SkBitmap bitmap;
         make_3x3_bitmap(&bitmap);
@@ -183,21 +183,21 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString str;
         str.printf("bigbitmaprect_%s", fUseIRect ? "i" : "s");
         return str;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         make_big_bitmap(&fBigBitmap);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kXor_Mode);
 
@@ -236,17 +236,17 @@ public:
     BitmapRectRounding() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString str;
         str.printf("bitmaprect_rounding");
         return str;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fBM.allocN32Pixels(10, 10);
         fBM.eraseColor(SK_ColorBLUE);
     }
@@ -256,7 +256,7 @@ protected:
     // If it does, we may see a red-line at the bottom, instead of the bitmap exactly matching
     // the clip (in which case we should see all blue).
     // The correct image should be all blue.
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorRED);
 

@@ -38,41 +38,41 @@ public:
     void appendActive(SkActive* );
     void applyValues(int animatorIndex, SkOperand* values, int count,
         SkDisplayTypes , SkMSec time);
-    bool contains(SkDisplayable*) SK_OVERRIDE;
+    bool contains(SkDisplayable*) override;
 //  void createActive(SkAnimateMaker& );
-    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) override;
     void disable();
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
-    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) override;
     void enableCreate(SkAnimateMaker& );
     void enableDynamic(SkAnimateMaker& );
     void endSave(int index);
     Mode getMode() { return mode; }
-    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const override;
     SkADrawable* getScope() { return scope; }
     void getStep(SkScriptValue* );
     SkADrawable* getTarget(SkAnimateBase* );
     bool hasDelayedAnimator() const;
-    bool hasEnable() const SK_OVERRIDE;
+    bool hasEnable() const override;
     bool inactivate(SkAnimateMaker& maker);
-    void initialize() SK_OVERRIDE;
+    void initialize() override;
     bool interpolate(SkAnimateMaker& , SkMSec time);
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
-    const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) override;
+    const SkMemberInfo* preferredChild(SkDisplayTypes type) override;
     void refresh(SkAnimateMaker& );
     void reset();
-    bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* ) SK_OVERRIDE;
+    bool resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* ) override;
     bool resolveField(SkAnimateMaker& , SkDisplayable* parent, SkString* str);
     void save(int index);
     void setEmbedded() { fEmbedded = true; }
-    bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
-    void setSteps(int _steps) SK_OVERRIDE;
+    bool setProperty(int index, SkScriptValue& ) override;
+    void setSteps(int _steps) override;
 //  virtual void setTime(SkMSec time);
 #ifdef SK_DEBUG
-    void validate() SK_OVERRIDE;
+    void validate() override;
 #endif
 private:
     SkMSec begin;

@@ -17,12 +17,12 @@
 
 class SkWBMPImageDecoder : public SkImageDecoder {
 public:
-    Format getFormat() const SK_OVERRIDE {
+    Format getFormat() const override {
         return kWBMP_Format;
     }
 
 protected:
-    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) override;
 
 private:
     typedef SkImageDecoder INHERITED;

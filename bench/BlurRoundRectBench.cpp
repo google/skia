@@ -30,16 +30,16 @@ public:
         fRRect.setRectXY(r, SkIntToScalar(cornerRadius), SkIntToScalar(cornerRadius));
     }
 
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    SkIPoint onGetSize() SK_OVERRIDE {
+    SkIPoint onGetSize() override {
         return SkIPoint::Make(SkScalarCeilToInt(fRRect.rect().width()),
                               SkScalarCeilToInt(fRRect.rect().height()));
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkLayerDrawLooper::Builder looperBuilder;
         {
             SkLayerDrawLooper::LayerInfo info;

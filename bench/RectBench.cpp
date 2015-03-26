@@ -92,14 +92,14 @@ public:
     }
 
 protected:
-    void setupPaint(SkPaint* paint) SK_OVERRIDE {
+    void setupPaint(SkPaint* paint) override {
         this->INHERITED::setupPaint(paint);
         // srcmode is most interesting when we're not opaque
         paint->setAlpha(0x80);
         paint->setXfermode(fMode);
     }
 
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         fName.set(this->INHERITED::onGetName());
         fName.prepend("srcmode_");
         return fName.c_str();

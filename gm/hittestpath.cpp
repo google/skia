@@ -35,13 +35,13 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("hittestpath");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 460); }
+    SkISize onISize() override { return SkISize::Make(700, 460); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
         SkRandom rand;
 

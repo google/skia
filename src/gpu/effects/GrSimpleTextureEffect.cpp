@@ -23,7 +23,7 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+                          const TextureSamplerArray& samplers) override {
         GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("\t%s = ", outputColor);
         fsBuilder->appendTextureLookupAndModulate(inputColor,

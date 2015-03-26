@@ -709,17 +709,17 @@ public:
         return SkNEW_ARGS(AAHairlineBatch, (geometry, linesIndexBuffer, quadsIndexBuffer));
     }
 
-    const char* name() const SK_OVERRIDE { return "AAHairlineBatch"; }
+    const char* name() const override { return "AAHairlineBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -736,7 +736,7 @@ public:
         SkDEBUGCODE(fBatch.fDevBounds = fGeoData[0].fDevBounds;)
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE;
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override;
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
@@ -754,7 +754,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         AAHairlineBatch* that = t->cast<AAHairlineBatch>();
 
         if (this->viewMatrix().hasPerspective() != that->viewMatrix().hasPerspective()) {

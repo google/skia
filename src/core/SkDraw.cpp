@@ -1900,7 +1900,7 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const override;
 
     class TriColorShaderContext : public SkShader::Context {
     public:
@@ -1909,7 +1909,7 @@ public:
 
         bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
 
-        void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
     private:
         SkMatrix    fDstToUnit;
@@ -1921,10 +1921,10 @@ public:
     SK_TO_STRING_OVERRIDE()
 
     // For serialization.  This will never be called.
-    Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
+    Factory getFactory() const override { sk_throw(); return NULL; }
 
 protected:
-    Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
+    Context* onCreateContext(const ContextRec& rec, void* storage) const override {
         return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
     }
 

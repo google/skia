@@ -548,17 +548,17 @@ public:
     }
 
     virtual SaveLayerStrategy willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                            SaveFlags flags) SK_OVERRIDE {
+                                            SaveFlags flags) override {
         ++fSaveLayerCount;
         return this->INHERITED::willSaveLayer(bounds, paint, flags);
     }
 
-    void willSave() SK_OVERRIDE {
+    void willSave() override {
         ++fSaveCount;
         this->INHERITED::willSave();
     }
 
-    void willRestore() SK_OVERRIDE {
+    void willRestore() override {
         ++fRestoreCount;
         this->INHERITED::willRestore();
     }
@@ -994,26 +994,26 @@ public:
 
     virtual void onClipRect(const SkRect& r,
                             SkRegion::Op op,
-                            ClipEdgeStyle edgeStyle) SK_OVERRIDE {
+                            ClipEdgeStyle edgeStyle) override {
         fClipCount += 1;
         this->INHERITED::onClipRect(r, op, edgeStyle);
     }
 
     virtual void onClipRRect(const SkRRect& rrect,
                              SkRegion::Op op,
-                             ClipEdgeStyle edgeStyle)SK_OVERRIDE {
+                             ClipEdgeStyle edgeStyle)override {
         fClipCount += 1;
         this->INHERITED::onClipRRect(rrect, op, edgeStyle);
     }
 
     virtual void onClipPath(const SkPath& path,
                             SkRegion::Op op,
-                            ClipEdgeStyle edgeStyle) SK_OVERRIDE {
+                            ClipEdgeStyle edgeStyle) override {
         fClipCount += 1;
         this->INHERITED::onClipPath(path, op, edgeStyle);
     }
 
-    void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) SK_OVERRIDE {
+    void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) override {
         fClipCount += 1;
         this->INHERITED::onClipRegion(deviceRgn, op);
     }
@@ -1241,19 +1241,19 @@ struct CountingBBH : public SkBBoxHierarchy {
 
     CountingBBH(const SkRect& bound) : searchCalls(0), rootBound(bound) {}
 
-    void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE {
+    void search(const SkRect& query, SkTDArray<unsigned>* results) const override {
         this->searchCalls++;
     }
 
-    void insert(const SkRect[], int) SK_OVERRIDE {}
-    virtual size_t bytesUsed() const SK_OVERRIDE { return 0; }
-    SkRect getRootBound() const SK_OVERRIDE { return rootBound; }
+    void insert(const SkRect[], int) override {}
+    virtual size_t bytesUsed() const override { return 0; }
+    SkRect getRootBound() const override { return rootBound; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {
 public:
     explicit SpoonFedBBHFactory(SkBBoxHierarchy* bbh) : fBBH(bbh) {}
-    SkBBoxHierarchy* operator()(const SkRect&) const SK_OVERRIDE {
+    SkBBoxHierarchy* operator()(const SkRect&) const override {
         return SkRef(fBBH);
     }
 private:

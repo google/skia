@@ -78,7 +78,7 @@ public:
     const Attribute* inCircleEdge() const { return fInCircleEdge; }
     virtual ~CircleEdgeEffect() {}
 
-    const char* name() const SK_OVERRIDE { return "CircleEdge"; }
+    const char* name() const override { return "CircleEdge"; }
 
     inline bool isStroked() const { return fStroke; }
 
@@ -88,7 +88,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -138,7 +138,7 @@ public:
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) SK_OVERRIDE {
+                             const GrBatchTracker& bt) override {
             this->setUniformViewMatrix(pdman, gp.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
@@ -158,16 +158,16 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE {
+                                                     const GrGLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE {
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
         BatchTracker* local = bt->cast<BatchTracker>();
         local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
         local->fUsesLocalCoords = init.fUsesLocalCoords;
@@ -175,7 +175,7 @@ public:
 
     bool onCanMakeEqual(const GrBatchTracker& m,
                         const GrGeometryProcessor& that,
-                        const GrBatchTracker& t) const SK_OVERRIDE {
+                        const GrBatchTracker& t) const override {
         const BatchTracker& mine = m.cast<BatchTracker>();
         const BatchTracker& theirs = t.cast<BatchTracker>();
         return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
@@ -194,12 +194,12 @@ private:
         fStroke = stroke;
     }
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
         const CircleEdgeEffect& cee = other.cast<CircleEdgeEffect>();
         return cee.fStroke == fStroke;
     }
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
@@ -247,7 +247,7 @@ public:
 
     virtual ~EllipseEdgeEffect() {}
 
-    const char* name() const SK_OVERRIDE { return "EllipseEdge"; }
+    const char* name() const override { return "EllipseEdge"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inEllipseOffset() const { return fInEllipseOffset; }
@@ -261,7 +261,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -332,7 +332,7 @@ public:
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) SK_OVERRIDE {
+                             const GrBatchTracker& bt) override {
             this->setUniformViewMatrix(pdman, gp.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
@@ -353,16 +353,16 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE {
+                                                     const GrGLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE {
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
         BatchTracker* local = bt->cast<BatchTracker>();
         local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
         local->fUsesLocalCoords = init.fUsesLocalCoords;
@@ -370,7 +370,7 @@ public:
 
     bool onCanMakeEqual(const GrBatchTracker& m,
                         const GrGeometryProcessor& that,
-                        const GrBatchTracker& t) const SK_OVERRIDE {
+                        const GrBatchTracker& t) const override {
         const BatchTracker& mine = m.cast<BatchTracker>();
         const BatchTracker& theirs = t.cast<BatchTracker>();
         return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
@@ -391,12 +391,12 @@ private:
         fStroke = stroke;
     }
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
         const EllipseEdgeEffect& eee = other.cast<EllipseEdgeEffect>();
         return eee.fStroke == fStroke;
     }
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
@@ -448,7 +448,7 @@ public:
 
     virtual ~DIEllipseEdgeEffect() {}
 
-    const char* name() const SK_OVERRIDE { return "DIEllipseEdge"; }
+    const char* name() const override { return "DIEllipseEdge"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
@@ -462,7 +462,7 @@ public:
                     const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
@@ -547,7 +547,7 @@ public:
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) SK_OVERRIDE {
+                             const GrBatchTracker& bt) override {
             this->setUniformViewMatrix(pdman, gp.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
@@ -568,16 +568,16 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE {
+                                                     const GrGLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE {
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
         BatchTracker* local = bt->cast<BatchTracker>();
         local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
         local->fUsesLocalCoords = init.fUsesLocalCoords;
@@ -585,7 +585,7 @@ public:
 
     bool onCanMakeEqual(const GrBatchTracker& m,
                         const GrGeometryProcessor& that,
-                        const GrBatchTracker& t) const SK_OVERRIDE {
+                        const GrBatchTracker& t) const override {
         const BatchTracker& mine = m.cast<BatchTracker>();
         const BatchTracker& theirs = t.cast<BatchTracker>();
         return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
@@ -606,12 +606,12 @@ private:
         fMode = mode;
     }
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
         const DIEllipseEdgeEffect& eee = other.cast<DIEllipseEdgeEffect>();
         return eee.fMode == fMode;
     }
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
@@ -699,18 +699,18 @@ public:
         return SkNEW_ARGS(CircleBatch, (geometry));
     }
 
-    const char* name() const SK_OVERRIDE { return "CircleBatch"; }
+    const char* name() const override { return "CircleBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -726,7 +726,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -836,7 +836,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         CircleBatch* that = t->cast<CircleBatch>();
 
         // TODO use vertex color to avoid breaking batches
@@ -955,17 +955,17 @@ public:
         return SkNEW_ARGS(EllipseBatch, (geometry));
     }
 
-    const char* name() const SK_OVERRIDE { return "EllipseBatch"; }
+    const char* name() const override { return "EllipseBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -981,7 +981,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -1096,7 +1096,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         EllipseBatch* that = t->cast<EllipseBatch>();
 
         // TODO use vertex color to avoid breaking batches
@@ -1256,17 +1256,17 @@ public:
         return SkNEW_ARGS(DIEllipseBatch, (geometry));
     }
 
-    const char* name() const SK_OVERRIDE { return "DIEllipseBatch"; }
+    const char* name() const override { return "DIEllipseBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -1282,7 +1282,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(this->color(),
                                                                          this->viewMatrix(),
@@ -1388,7 +1388,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         DIEllipseBatch* that = t->cast<DIEllipseBatch>();
 
         // TODO use vertex color to avoid breaking batches
@@ -1643,17 +1643,17 @@ public:
         return SkNEW_ARGS(RRectCircleRendererBatch, (geometry, indexBuffer));
     }
 
-    const char* name() const SK_OVERRIDE { return "RRectCircleBatch"; }
+    const char* name() const override { return "RRectCircleBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -1669,7 +1669,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1796,7 +1796,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
 
         // TODO use vertex color to avoid breaking batches
@@ -1852,17 +1852,17 @@ public:
         return SkNEW_ARGS(RRectEllipseRendererBatch, (geometry, indexBuffer));
     }
 
-    const char* name() const SK_OVERRIDE { return "RRectEllipseRendererBatch"; }
+    const char* name() const override { return "RRectEllipseRendererBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -1878,7 +1878,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -2015,7 +2015,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         RRectEllipseRendererBatch* that = t->cast<RRectEllipseRendererBatch>();
 
         // TODO use vertex color to avoid breaking batches

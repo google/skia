@@ -25,16 +25,16 @@ public:
     explicit SkDWriteFontFileStream(IDWriteFontFileStream* fontFileStream);
     virtual ~SkDWriteFontFileStream();
 
-    size_t read(void* buffer, size_t size) SK_OVERRIDE;
-    bool isAtEnd() const SK_OVERRIDE;
-    bool rewind() SK_OVERRIDE;
-    SkDWriteFontFileStream* duplicate() const SK_OVERRIDE;
-    size_t getPosition() const SK_OVERRIDE;
-    bool seek(size_t position) SK_OVERRIDE;
-    bool move(long offset) SK_OVERRIDE;
-    SkDWriteFontFileStream* fork() const SK_OVERRIDE;
-    size_t getLength() const SK_OVERRIDE;
-    const void* getMemoryBase() SK_OVERRIDE;
+    size_t read(void* buffer, size_t size) override;
+    bool isAtEnd() const override;
+    bool rewind() override;
+    SkDWriteFontFileStream* duplicate() const override;
+    size_t getPosition() const override;
+    bool seek(size_t position) override;
+    bool move(long offset) override;
+    SkDWriteFontFileStream* fork() const override;
+    size_t getLength() const override;
+    const void* getMemoryBase() override;
 
 private:
     SkTScopedComPtr<IDWriteFontFileStream> fFontFileStream;

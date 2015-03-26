@@ -580,7 +580,7 @@ public:
         SkSafeUnref(fProxy);
     }
 
-    size_t contextSize() const SK_OVERRIDE {
+    size_t contextSize() const override {
         size_t size = sizeof(Sk3DShaderContext);
         if (fProxy) {
             size += fProxy->contextSize();
@@ -588,7 +588,7 @@ public:
         return size;
     }
 
-    Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
+    Context* onCreateContext(const ContextRec& rec, void* storage) const override {
         SkShader::Context* proxyContext = NULL;
         if (fProxy) {
             char* proxyContextStorage = (char*) storage + sizeof(Sk3DShaderContext);
@@ -620,9 +620,9 @@ public:
             }
         }
 
-        void set3DMask(const SkMask* mask) SK_OVERRIDE { fMask = mask; }
+        void set3DMask(const SkMask* mask) override { fMask = mask; }
 
-        void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE {
+        void shadeSpan(int x, int y, SkPMColor span[], int count) override {
             if (fProxyContext) {
                 fProxyContext->shadeSpan(x, y, span, count);
             }
@@ -697,7 +697,7 @@ public:
     };
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const override {
         str->append("Sk3DShader: (");
 
         if (fProxy) {
@@ -714,7 +714,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 
 protected:
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fProxy);
     }
 
@@ -736,24 +736,24 @@ public:
         , fShaderContext(shaderContext)
     {}
 
-    void blitH(int x, int y, int width) SK_OVERRIDE {
+    void blitH(int x, int y, int width) override {
         fProxy->blitH(x, y, width);
     }
 
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]) SK_OVERRIDE {
+                           const int16_t runs[]) override {
         fProxy->blitAntiH(x, y, antialias, runs);
     }
 
-    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
+    void blitV(int x, int y, int height, SkAlpha alpha) override {
         fProxy->blitV(x, y, height, alpha);
     }
 
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) override {
         fProxy->blitRect(x, y, width, height);
     }
 
-    void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
+    void blitMask(const SkMask& mask, const SkIRect& clip) override {
         if (mask.fFormat == SkMask::k3D_Format) {
             fShaderContext->set3DMask(&mask);
 
@@ -991,7 +991,7 @@ public:
         // Override rec with the identity matrix, so it is guaranteed to be invertible.
         : INHERITED(shader, SkShader::ContextRec(*rec.fDevice, *rec.fPaint, SkMatrix::I())) {}
 
-    void shadeSpan(int x, int y, SkPMColor colors[], int count) SK_OVERRIDE {
+    void shadeSpan(int x, int y, SkPMColor colors[], int count) override {
         sk_bzero(colors, count * sizeof(SkPMColor));
     }
 

@@ -19,14 +19,14 @@ public:
         return SkNEW(GrDisableColorXPFactory);
     }
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE {
+    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override {
         return true;
     }
 
-    bool canTweakAlphaForCoverage() const SK_OVERRIDE { return true; }
+    bool canTweakAlphaForCoverage() const override { return true; }
 
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                            GrXPFactory::InvariantOutput* output) const SK_OVERRIDE {
+                            GrXPFactory::InvariantOutput* output) const override {
         output->fBlendedColorFlags = 0;
         output->fWillBlendWithDst = 0;
     }
@@ -37,15 +37,15 @@ private:
     GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
-                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
+                                           const GrDeviceCoordTexture* dstCopy) const override;
 
     bool willReadDstColor(const GrDrawTargetCaps& caps,
                           const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
+                          const GrProcOptInfo& coveragePOI) const override {
         return false;
     }
 
-    bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXPFactory& xpfBase) const override {
         return true;
     }
 

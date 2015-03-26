@@ -102,11 +102,11 @@ public:
     GradTextGM () {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("gradtext");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(500, 480); }
+    SkISize onISize() override { return SkISize::Make(500, 480); }
 
     static void draw_text(SkCanvas* canvas, const SkPaint& paint) {
         const char* text = "When in the course of human events";
@@ -127,7 +127,7 @@ protected:
         draw_text(canvas, p);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(26));

@@ -11,7 +11,7 @@ do a few things so that it will work on all platforms:
 
 <!--?prettify?-->
 ~~~~
-virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+virtual void flatten(SkFlattenableWriteBuffer& buffer) const override {
     this->INHERITED::flatten(buffer);
     // Write any private data that needs to be stored to recreate this object
 }

@@ -53,7 +53,7 @@ static inline SkPMColor rgb2gray(SkPMColor c) {
 class SkGrayScaleColorFilter : public SkColorFilter {
 public:
     virtual void filterSpan(const SkPMColor src[], int count,
-                            SkPMColor result[]) const SK_OVERRIDE {
+                            SkPMColor result[]) const override {
         for (int i = 0; i < count; i++)
             result[i] = rgb2gray(src[i]);
     }
@@ -66,7 +66,7 @@ public:
     }
 
     virtual void filterSpan(const SkPMColor src[], int count,
-                            SkPMColor result[]) const SK_OVERRIDE {
+                            SkPMColor result[]) const override {
         SkPMColor mask = fMask;
         for (int i = 0; i < count; i++) {
             result[i] = src[i] & mask;
@@ -167,11 +167,11 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
-    void next(const SkPoint& loc, int u, int v, SkPath* dst) const SK_OVERRIDE {
+    void next(const SkPoint& loc, int u, int v, SkPath* dst) const override {
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const override {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fRadius);
     }

@@ -20,11 +20,11 @@ public:
     MergeBench(bool small) : fIsSmall(small), fInitialized(false) { }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "merge_small" : "merge_large";
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         if (!fInitialized) {
             make_bitmap();
             make_checkerboard();
@@ -32,7 +32,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkRect r = fIsSmall ? SkRect::MakeWH(FILTER_WIDTH_SMALL, FILTER_HEIGHT_SMALL) :
                               SkRect::MakeWH(FILTER_WIDTH_LARGE, FILTER_HEIGHT_LARGE);
         SkPaint paint;

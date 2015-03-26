@@ -122,15 +122,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("image-surface");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(960, 1200);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         drawJpeg(canvas, this->getISize());
 
         canvas->scale(2, 2);
@@ -202,9 +202,9 @@ public:
     ImageResizeGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("image-resize"); }
+    SkString onShortName() override { return SkString("image-resize"); }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(510, 480); }
+    SkISize onISize() override { return SkISize::Make(510, 480); }
 
     void drawIntoImage(SkCanvas* canvas) {
         SkPaint paint;
@@ -260,7 +260,7 @@ protected:
         this->drawResized(canvas, image, W, H, &subset, fq);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
 
         SkAutoTUnref<SkImage> image(this->makeImage(canvas));

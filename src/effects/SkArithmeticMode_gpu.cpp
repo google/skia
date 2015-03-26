@@ -58,14 +58,14 @@ public:
         : fEnforcePMColor(true) {
     }
 
-    ~GLArithmeticFP() SK_OVERRIDE {}
+    ~GLArithmeticFP() override {}
 
     void emitCode(GrGLFPBuilder* builder,
                   const GrFragmentProcessor& fp,
                   const char* outputColor,
                   const char* inputColor,
                   const TransformedCoordsArray& coords,
-                  const TextureSamplerArray& samplers) SK_OVERRIDE {
+                  const TextureSamplerArray& samplers) override {
         GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppend("vec4 bgColor = ");
         fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
@@ -80,7 +80,7 @@ public:
         add_arithmetic_code(fsBuilder, inputColor, dstColor, outputColor, kUni, fEnforcePMColor);
     }
 
-    void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) SK_OVERRIDE {
+    void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
         const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
         pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
         fEnforcePMColor = arith.enforcePMColor();
@@ -167,21 +167,21 @@ public:
                                          willReadDstColor));
     }
 
-    ~ArithmeticXP() SK_OVERRIDE {};
+    ~ArithmeticXP() override {};
 
-    const char* name() const SK_OVERRIDE { return "Arithmetic"; }
+    const char* name() const override { return "Arithmetic"; }
 
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
+    bool hasSecondaryOutput() const override { return false; }
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
                                                bool doesStencilWrite,
                                                GrColor* overrideColor,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+                                               const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fSrcBlend = kOne_GrBlendCoeff;
         blendInfo->fDstBlend = kZero_GrBlendCoeff;
         blendInfo->fBlendConstant = 0;
@@ -197,9 +197,9 @@ private:
     ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
                    const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ArithmeticXP& xp = xpBase.cast<ArithmeticXP>();
         if (fK1 != xp.fK1 ||
             fK2 != xp.fK2 ||
@@ -225,7 +225,7 @@ public:
         : fEnforcePMColor(true) {
     }
 
-    ~GLArithmeticXP() SK_OVERRIDE {}
+    ~GLArithmeticXP() override {}
 
     static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
                        GrProcessorKeyBuilder* b) {
@@ -235,7 +235,7 @@ public:
     }
 
 private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(const EmitArgs& args) override {
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         const char* dstColor = fsBuilder->dstColor();
@@ -254,7 +254,7 @@ private:
     }
 
     void onSetData(const GrGLProgramDataManager& pdman,
-                   const GrXferProcessor& processor) SK_OVERRIDE {
+                   const GrXferProcessor& processor) override {
         const ArithmeticXP& arith = processor.cast<ArithmeticXP>();
         pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
         fEnforcePMColor = arith.enforcePMColor();

@@ -12,7 +12,7 @@
 
 class SkDrawTransparentShader : public SkDrawShader {
     DECLARE_EMPTY_MEMBER_INFO(TransparentShader);
-    SkShader* getShader() SK_OVERRIDE;
+    SkShader* getShader() override;
 };
 
 #endif // SkDrawTransparentShader_DEFINED

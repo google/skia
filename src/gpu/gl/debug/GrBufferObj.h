@@ -55,7 +55,7 @@ public:
     void setUsage(GrGLint usage) { fUsage = usage; }
     GrGLint getUsage() const     { return fUsage; }
 
-    void deleteAction() SK_OVERRIDE;
+    void deleteAction() override;
 
 protected:
 private:

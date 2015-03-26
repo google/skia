@@ -183,7 +183,7 @@ protected:
     }
 
 #ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    bool onGetInfo(SkImageInfo* info) override {
         REPORTER_ASSERT(fReporter, info);
         *info = GetMyInfo();
         return true;
@@ -192,7 +192,7 @@ protected:
 
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                const Options&,
-                               SkPMColor ctable[], int* ctableCount) SK_OVERRIDE {
+                               SkPMColor ctable[], int* ctableCount) override {
         REPORTER_ASSERT(fReporter, pixels != NULL);
         REPORTER_ASSERT(fReporter, rowBytes >= info.minRowBytes());
         if (fType != kSucceedGetPixels_TestType) {

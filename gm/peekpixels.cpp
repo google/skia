@@ -24,15 +24,15 @@ public:
     PeekPixelsGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("peekpixels");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(360, 120);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
         SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
         if (surface.get()) {

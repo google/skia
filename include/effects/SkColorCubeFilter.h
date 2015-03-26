@@ -21,11 +21,11 @@ public:
      */
     static SkColorFilter* Create(SkData* cubeData, int cubeDimension);
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
-    uint32_t getFlags() const SK_OVERRIDE;
+    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
+    uint32_t getFlags() const override;
 
 #if SK_SUPPORT_GPU
-   bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const SK_OVERRIDE;
+   bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -33,7 +33,7 @@ public:
 
 protected:
     SkColorCubeFilter(SkData* cubeData, int cubeDimension);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
 private:
     /** The cache is initialized on-demand when getProcessingLuts is called.

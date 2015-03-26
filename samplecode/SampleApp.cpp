@@ -48,7 +48,7 @@ class PictFileFactory : public SkViewFactory {
     SkString fFilename;
 public:
     PictFileFactory(const SkString& filename) : fFilename(filename) {}
-    SkView* operator() () const SK_OVERRIDE {
+    SkView* operator() () const override {
         return CreateSamplePictFileView(fFilename.c_str());
     }
 };
@@ -60,7 +60,7 @@ class PdfFileViewerFactory : public SkViewFactory {
     SkString fFilename;
 public:
     PdfFileViewerFactory(const SkString& filename) : fFilename(filename) {}
-    SkView* operator() () const SK_OVERRIDE {
+    SkView* operator() () const override {
         return CreateSamplePdfFileViewer(fFilename.c_str());
     }
 };
@@ -270,7 +270,7 @@ public:
     }
 
     virtual SkSurface* createSurface(SampleWindow::DeviceType dType,
-                                     SampleWindow* win) SK_OVERRIDE {
+                                     SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
@@ -324,7 +324,7 @@ public:
 #endif
     }
 
-    GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
+    GrRenderTarget* getGrRenderTarget() override {
 #if SK_SUPPORT_GPU
         return fCurRenderTarget;
 #else

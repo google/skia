@@ -21,30 +21,30 @@ public:
         return SkNEW_ARGS(CoverageSetOpXP, (regionOp, invertCoverage));
     }
 
-    ~CoverageSetOpXP() SK_OVERRIDE;
+    ~CoverageSetOpXP() override;
 
-    const char* name() const SK_OVERRIDE { return "Coverage Set Op"; }
+    const char* name() const override { return "Coverage Set Op"; }
 
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
+    bool hasSecondaryOutput() const override { return false; }
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
                                                bool doesStencilWrite,
                                                GrColor* color,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+                                               const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE;
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const CoverageSetOpXP& xp = xpBase.cast<CoverageSetOpXP>();
         return (fRegionOp == xp.fRegionOp &&
                 fInvertCoverage == xp.fInvertCoverage);
@@ -62,7 +62,7 @@ class GLCoverageSetOpXP : public GrGLXferProcessor {
 public:
     GLCoverageSetOpXP(const GrProcessor&) {}
 
-    ~GLCoverageSetOpXP() SK_OVERRIDE {}
+    ~GLCoverageSetOpXP() override {}
 
     static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
                        GrProcessorKeyBuilder* b) {
@@ -72,7 +72,7 @@ public:
     };
 
 private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(const EmitArgs& args) override {
         const CoverageSetOpXP& xp = args.fXP.cast<CoverageSetOpXP>();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -83,7 +83,7 @@ private:
         }
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {};
 
     typedef GrGLXferProcessor INHERITED;
 };

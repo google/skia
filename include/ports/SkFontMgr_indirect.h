@@ -30,30 +30,30 @@ public:
     { }
 
 protected:
-    int onCountFamilies() const SK_OVERRIDE;
-    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
-    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE;
+    int onCountFamilies() const override;
+    void onGetFamilyName(int index, SkString* familyName) const override;
+    SkFontStyleSet* onCreateStyleSet(int index) const override;
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const override;
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& fontStyle) const SK_OVERRIDE;
+                                           const SkFontStyle& fontStyle) const override;
 
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
                                                     const SkFontStyle&,
                                                     const char* bcp47[],
                                                     int bcp47Count,
-                                                    SkUnichar character) const SK_OVERRIDE;
+                                                    SkUnichar character) const override;
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle& fontStyle) const SK_OVERRIDE;
+                                         const SkFontStyle& fontStyle) const override;
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const SK_OVERRIDE;
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override;
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const SK_OVERRIDE;
+                                               unsigned styleBits) const override;
 
 private:
     SkTypeface* createTypefaceFromFontId(const SkFontIdentity& fontId) const;

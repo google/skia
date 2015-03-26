@@ -15,15 +15,15 @@ class SkTypeface;
 
 class SkEmptyFontStyleSet : public SkFontStyleSet {
 public:
-    int count() SK_OVERRIDE { return 0; }
-    void getStyle(int, SkFontStyle*, SkString*) SK_OVERRIDE {
+    int count() override { return 0; }
+    void getStyle(int, SkFontStyle*, SkString*) override {
         SkDEBUGFAIL("SkFontStyleSet::getStyle called on empty set");
     }
-    SkTypeface* createTypeface(int index) SK_OVERRIDE {
+    SkTypeface* createTypeface(int index) override {
         SkDEBUGFAIL("SkFontStyleSet::createTypeface called on empty set");
         return NULL;
     }
-    SkTypeface* matchStyle(const SkFontStyle&) SK_OVERRIDE {
+    SkTypeface* matchStyle(const SkFontStyle&) override {
         return NULL;
     }
 };
@@ -36,46 +36,46 @@ SkFontStyleSet* SkFontStyleSet::CreateEmpty() {
 
 class SkEmptyFontMgr : public SkFontMgr {
 protected:
-    int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const override {
         return 0;
     }
-    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const override {
         SkDEBUGFAIL("onGetFamilyName called with bad index");
     }
-    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const override {
         SkDEBUGFAIL("onCreateStyleSet called with bad index");
         return NULL;
     }
-    SkFontStyleSet* onMatchFamily(const char[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char[]) const override {
         return SkFontStyleSet::CreateEmpty();
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char[],
-                                           const SkFontStyle&) const SK_OVERRIDE {
+                                           const SkFontStyle&) const override {
         return NULL;
     }
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
                                                     const SkFontStyle& style,
                                                     const char* bcp47[],
                                                     int bcp47Count,
-                                                    SkUnichar character) const SK_OVERRIDE {
+                                                    SkUnichar character) const override {
         return NULL;
     }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                         const SkFontStyle&) const SK_OVERRIDE {
+                                         const SkFontStyle&) const override {
         return NULL;
     }
-    SkTypeface* onCreateFromData(SkData*, int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData*, int) const override {
         return NULL;
     }
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int) const override {
         SkDELETE(stream);
         return NULL;
     }
-    SkTypeface* onCreateFromFile(const char[], int) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char[], int) const override {
         return NULL;
     }
-    SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const SK_OVERRIDE {
+    SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const override {
         return NULL;
     }
 };

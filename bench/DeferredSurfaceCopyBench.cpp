@@ -26,12 +26,12 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fDiscardableContents ? "DeferredSurfaceCopy_discardable" :
             "DeferredSurfaceCopy_nonDiscardable";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         // The canvas is not actually used for this test except to provide
         // configuration information: gpu, multisampling, size, etc?
         SkImageInfo info = SkImageInfo::MakeN32Premul(kSurfaceWidth, kSurfaceHeight);

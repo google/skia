@@ -193,7 +193,7 @@ namespace skiagm {
          */
         explicit IndividualImageExpectationsSource(const char *rootDir) : fRootDir(rootDir) {}
 
-        Expectations get(const char *testName) const SK_OVERRIDE ;
+        Expectations get(const char *testName) const override ;
 
     private:
         const SkString fRootDir;
@@ -212,7 +212,7 @@ namespace skiagm {
          */
         explicit JsonExpectationsSource(const char *jsonPath);
 
-        Expectations get(const char *testName) const SK_OVERRIDE;
+        Expectations get(const char *testName) const override;
 
     private:
 

@@ -99,15 +99,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("lumafilter");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(600, 420);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkXfermode::Mode modes[] = { SkXfermode::kSrcOver_Mode,
                                      SkXfermode::kDstOver_Mode,
                                      SkXfermode::kSrcATop_Mode,

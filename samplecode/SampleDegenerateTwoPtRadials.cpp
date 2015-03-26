@@ -45,7 +45,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "DegenerateTwoPtRadials");
             return true;
@@ -53,7 +53,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkScalar delta = fTime / 15.f;
         int intPart = SkScalarFloorToInt(delta);
         delta = delta - SK_Scalar1 * intPart;
@@ -77,7 +77,7 @@ protected:
         canvas->drawText(txt.c_str(), txt.size(), l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fTime = SkDoubleToScalar(timer.secs() / 15);
         return true;
     }

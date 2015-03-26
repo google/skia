@@ -257,17 +257,17 @@ public:
         return SkNEW_ARGS(DashBatch, (geometry, cap, useAA, fullDash));
     }
 
-    const char* name() const SK_OVERRIDE { return "DashBatch"; }
+    const char* name() const override { return "DashBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -293,7 +293,7 @@ public:
         bool fHasEndRect;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
@@ -633,7 +633,7 @@ private:
         fBatch.fFullDash = fullDash;
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         DashBatch* that = t->cast<DashBatch>();
 
         if (this->useAA() != that->useAA()) {
@@ -775,7 +775,7 @@ public:
 
     virtual ~DashingCircleEffect();
 
-    const char* name() const SK_OVERRIDE { return "DashingCircleEffect"; }
+    const char* name() const override { return "DashingCircleEffect"; }
 
     const Attribute* inPosition() const { return fInPosition; }
 
@@ -787,23 +787,23 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker&,
                                    const GrGLCaps&,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker&,
-                                                     const GrGLCaps&) const SK_OVERRIDE;
+                                                     const GrGLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
-                        const GrBatchTracker&) const SK_OVERRIDE;
+                        const GrBatchTracker&) const override;
 
 private:
     DashingCircleEffect(GrColor, GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix);
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -821,7 +821,7 @@ class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
     GLDashingCircleEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -830,7 +830,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager&,
                          const GrPrimitiveProcessor&,
-                         const GrBatchTracker&) SK_OVERRIDE;
+                         const GrBatchTracker&) override;
 
 private:
     UniformHandle fParamUniform;
@@ -1024,7 +1024,7 @@ public:
 
     virtual ~DashingLineEffect();
 
-    const char* name() const SK_OVERRIDE { return "DashingEffect"; }
+    const char* name() const override { return "DashingEffect"; }
 
     const Attribute* inPosition() const { return fInPosition; }
 
@@ -1036,23 +1036,23 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE;
+                                                     const GrGLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
-                        const GrBatchTracker&) const SK_OVERRIDE;
+                        const GrBatchTracker&) const override;
 
 private:
     DashingLineEffect(GrColor, GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix);
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -1070,7 +1070,7 @@ class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
     GLDashingLineEffect(const GrGeometryProcessor&, const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -1079,7 +1079,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager&,
                          const GrPrimitiveProcessor&,
-                         const GrBatchTracker&) SK_OVERRIDE;
+                         const GrBatchTracker&) override;
 
 private:
     GrColor       fColor;

@@ -41,9 +41,9 @@ public:
     explicit SkRTree(SkScalar aspectRatio = 1);
     virtual ~SkRTree() {}
 
-    void insert(const SkRect[], int N) SK_OVERRIDE;
-    void search(const SkRect& query, SkTDArray<unsigned>* results) const SK_OVERRIDE;
-    size_t bytesUsed() const SK_OVERRIDE;
+    void insert(const SkRect[], int N) override;
+    void search(const SkRect& query, SkTDArray<unsigned>* results) const override;
+    size_t bytesUsed() const override;
 
     // Methods and constants below here are only public for tests.
 
@@ -53,7 +53,7 @@ public:
     int getCount() const { return fCount; }
 
     // Get the root bound.
-    SkRect getRootBound() const SK_OVERRIDE;
+    SkRect getRootBound() const override;
 
     // These values were empirically determined to produce reasonable performance in most cases.
     static const int kMinChildren = 6,

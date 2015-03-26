@@ -99,7 +99,7 @@ class StrokePathView : public SampleView {
     SkScalar    fWidth;
     SkPath      fPath;
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
 //        test_blur();
         fWidth = SkIntToScalar(120);
 
@@ -123,7 +123,7 @@ protected:
     }
 
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "StrokePath");
             return true;
@@ -145,7 +145,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         test_huge_stroke(canvas); return;
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
@@ -209,7 +209,7 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) SK_OVERRIDE {
+                                              unsigned modi) override {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }

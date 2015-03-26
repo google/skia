@@ -234,30 +234,30 @@ public:
                                   GrSLPrecision precision,
                                   const char* name,
                                   int arrayCount,
-                                  const char** outName) SK_OVERRIDE;
+                                  const char** outName) override;
 
-    const GrGLShaderVar& getUniformVariable(UniformHandle u) const SK_OVERRIDE {
+    const GrGLShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toShaderBuilderIndex()].fVariable;
     }
 
-    const char* getUniformCStr(UniformHandle u) const SK_OVERRIDE {
+    const char* getUniformCStr(UniformHandle u) const override {
         return this->getUniformVariable(u).c_str();
     }
 
-    const GrGLContextInfo& ctxInfo() const SK_OVERRIDE;
+    const GrGLContextInfo& ctxInfo() const override;
 
-    GrGLGpu* gpu() const SK_OVERRIDE { return fGpu; }
+    GrGLGpu* gpu() const override { return fGpu; }
 
-    GrGLFPFragmentBuilder* getFragmentShaderBuilder() SK_OVERRIDE { return &fFS; }
-    GrGLVertexBuilder* getVertexShaderBuilder() SK_OVERRIDE { return &fVS; }
+    GrGLFPFragmentBuilder* getFragmentShaderBuilder() override { return &fFS; }
+    GrGLVertexBuilder* getVertexShaderBuilder() override { return &fVS; }
 
     void addVarying(
             const char* name,
             GrGLVarying*,
-            GrSLPrecision fsPrecision = kDefault_GrSLPrecision) SK_OVERRIDE;
+            GrSLPrecision fsPrecision = kDefault_GrSLPrecision) override;
 
     void addPassThroughAttribute(const GrPrimitiveProcessor::Attribute*,
-                                 const char* output) SK_OVERRIDE;
+                                 const char* output) override;
 
 
     // Handles for program uniforms (other than per-effect uniforms)

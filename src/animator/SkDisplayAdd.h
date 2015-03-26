@@ -22,15 +22,15 @@ class SkAdd : public SkADrawable {
         kMode_immediate
     };
 
-    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) override;
+    bool draw(SkAnimateMaker& ) override;
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
-    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
-    bool hasEnable() const SK_OVERRIDE;
-    void initialize() SK_OVERRIDE;
-    bool isDrawable() const SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) override;
+    bool hasEnable() const override;
+    void initialize() override;
+    bool isDrawable() const override;
 protected:
 //  struct _A {
         Mode mode;

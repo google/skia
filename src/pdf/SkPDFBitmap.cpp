@@ -244,7 +244,7 @@ class PDFAlphaBitmap : public SkPDFObject {
 public:
     PDFAlphaBitmap(const SkBitmap& bm) : fBitmap(bm) {}
     ~PDFAlphaBitmap() {}
-    void emitObject(SkWStream*, SkPDFCatalog*) SK_OVERRIDE;
+    void emitObject(SkWStream*, SkPDFCatalog*) override;
 
 private:
     const SkBitmap fBitmap;

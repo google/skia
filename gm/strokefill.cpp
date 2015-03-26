@@ -20,11 +20,11 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("stroke-fill");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
@@ -36,7 +36,7 @@ protected:
         canvas->drawText(text, len, x, y + SkIntToScalar(120), p);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(88);
 

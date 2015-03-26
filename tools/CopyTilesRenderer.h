@@ -32,15 +32,15 @@ namespace sk_tools {
                           const SkString* mismatchPath,
                           const SkString* inputFilename,
                           bool useChecksumBasedFilenames,
-                          bool useMultiPictureDraw) SK_OVERRIDE;
+                          bool useMultiPictureDraw) override;
 
         /**
          *  Similar to TiledPictureRenderer, this will draw a PNG for each tile. However, the
          *  numbering (and actual tiles) will be different.
          */
-        bool render(SkBitmap** out) SK_OVERRIDE;
+        bool render(SkBitmap** out) override;
 
-        bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
+        bool supportsTimingIndividualTiles() override { return false; }
 
     private:
         int fXTilesPerLargeTile;
@@ -49,7 +49,7 @@ namespace sk_tools {
         int fLargeTileWidth;
         int fLargeTileHeight;
 
-        SkString getConfigNameInternal() SK_OVERRIDE;
+        SkString getConfigNameInternal() override;
 
         typedef TiledPictureRenderer INHERITED;
     };

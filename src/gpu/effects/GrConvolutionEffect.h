@@ -57,11 +57,11 @@ public:
     const float* bounds() const { return fBounds; }
     bool useBounds() const { return fUseBounds; }
 
-    const char* name() const SK_OVERRIDE { return "Convolution"; }
+    const char* name() const override { return "Convolution"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     enum {
         // This was decided based on the min allowed value for the max texture
@@ -94,9 +94,9 @@ private:
                         bool useBounds,
                         float bounds[2]);
 
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // If the texture was opaque we could know that the output color if we knew the sum of the
         // kernel values.
         inout->mulByUnknownFourComponents();

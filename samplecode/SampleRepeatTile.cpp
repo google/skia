@@ -49,7 +49,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "RepeatTile");
             return true;
@@ -57,7 +57,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         make_paint(&paint, SkShader::kRepeat_TileMode);
 
@@ -66,13 +66,13 @@ protected:
         canvas->drawPaint(paint);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         this->inval(NULL);
 
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         return this->INHERITED::onClick(click);
     }
 

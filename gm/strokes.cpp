@@ -40,15 +40,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("strokes_round");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(9)/2);
@@ -81,7 +81,7 @@ private:
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkRandom rand;
         fPath.moveTo(0, 0);
         for (int i = 0; i < 13; i++) {
@@ -92,11 +92,11 @@ protected:
     }
 
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("strokes_poly");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(W, H*2);
     }
 
@@ -106,7 +106,7 @@ protected:
         canvas->concat(matrix);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         SkPaint paint;
@@ -190,15 +190,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("strokes3");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1500, 1500);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint origPaint;
         origPaint.setAntiAlias(true);
         origPaint.setStyle(SkPaint::kStroke_Style);

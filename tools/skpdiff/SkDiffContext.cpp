@@ -219,7 +219,7 @@ public:
         fTestPath = testPath;
     }
 
-    void run() SK_OVERRIDE {
+    void run() override {
         fDiffContext->addDiff(fBaselinePath.c_str(), fTestPath.c_str());
     }
 

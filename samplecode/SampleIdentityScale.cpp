@@ -43,7 +43,7 @@ protected:
     SkBitmap fBM;
 
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "IdentityScale");
             return true;
@@ -51,7 +51,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
 
         SkPaint paint;
 

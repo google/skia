@@ -38,7 +38,7 @@ public:
     }
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         this->setBGColor(SkColorSetRGB(0xDD,0xA0,0xDD));
 
         // offset the rects a bit so we get antialiasing even in the rect case

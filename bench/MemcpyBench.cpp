@@ -18,15 +18,15 @@ public:
         , fMemcpy32(memcpy32)
         , fName(SkStringPrintf("%s_%d", name, count)) {}
 
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fDst.reset(fCount);
         fSrc.reset(fCount);
 
@@ -36,7 +36,7 @@ public:
         }
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             fMemcpy32(fDst, fSrc, fCount);
         }

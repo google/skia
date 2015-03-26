@@ -18,8 +18,8 @@ class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
 public:
-    GrTexture* asTexture() SK_OVERRIDE { return this; }
-    const GrTexture* asTexture() const SK_OVERRIDE { return this; }
+    GrTexture* asTexture() override { return this; }
+    const GrTexture* asTexture() const override { return this; }
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -50,7 +50,7 @@ protected:
     void validateDesc() const;
 
 private:
-    size_t onGpuMemorySize() const SK_OVERRIDE;
+    size_t onGpuMemorySize() const override;
     void dirtyMipMaps(bool mipMapsDirty);
 
     enum MipMapsStatus {

@@ -37,18 +37,18 @@ public:
                            bool ditherImage);
 
 protected:
-    SkData* onRefEncodedData() SK_OVERRIDE;
+    SkData* onRefEncodedData() override;
 #ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    bool onGetInfo(SkImageInfo* info) override {
         *info = fInfo;
         return true;
     }
 #endif
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
-                               SkPMColor ctable[], int* ctableCount) SK_OVERRIDE;
+                               SkPMColor ctable[], int* ctableCount) override;
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                 SkYUVColorSpace* colorSpace) SK_OVERRIDE;
+                                 SkYUVColorSpace* colorSpace) override;
 
 private:
     typedef SkImageGenerator INHERITED;

@@ -20,8 +20,8 @@ class SkDrawShapePathEffect : public SkDrawPathEffect {
     DECLARE_PRIVATE_MEMBER_INFO(DrawShapePathEffect);
     SkDrawShapePathEffect();
     virtual ~SkDrawShapePathEffect();
-    bool addChild(SkAnimateMaker& , SkDisplayable* ) SK_OVERRIDE;
-    SkPathEffect* getPathEffect() SK_OVERRIDE;
+    bool addChild(SkAnimateMaker& , SkDisplayable* ) override;
+    SkPathEffect* getPathEffect() override;
 protected:
     SkADrawable* addPath;
     SkADrawable* addMatrix;
@@ -35,7 +35,7 @@ class SkDrawShape1DPathEffect : public SkDrawShapePathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawShape1DPathEffect);
     SkDrawShape1DPathEffect(SkDisplayTypes );
     virtual ~SkDrawShape1DPathEffect();
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) override;
 private:
     SkString phase;
     SkString spacing;
@@ -47,7 +47,7 @@ class SkDrawShape2DPathEffect : public SkDrawShapePathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawShape2DPathEffect);
     SkDrawShape2DPathEffect(SkDisplayTypes );
     virtual ~SkDrawShape2DPathEffect();
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) override;
 private:
     SkDrawMatrix* matrix;
     friend class SkShape2DPathEffect;
@@ -58,9 +58,9 @@ class SkDrawComposePathEffect : public SkDrawPathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawComposePathEffect);
     SkDrawComposePathEffect(SkDisplayTypes );
     virtual ~SkDrawComposePathEffect();
-    bool addChild(SkAnimateMaker& , SkDisplayable* ) SK_OVERRIDE;
-    SkPathEffect* getPathEffect() SK_OVERRIDE;
-    bool isPaint() const SK_OVERRIDE;
+    bool addChild(SkAnimateMaker& , SkDisplayable* ) override;
+    SkPathEffect* getPathEffect() override;
+    bool isPaint() const override;
 private:
     SkDrawPathEffect* effect1;
     SkDrawPathEffect* effect2;
@@ -70,7 +70,7 @@ class SkDrawCornerPathEffect : public SkDrawPathEffect {
     DECLARE_EXTRAS_MEMBER_INFO(SkDrawCornerPathEffect);
     SkDrawCornerPathEffect(SkDisplayTypes );
     virtual ~SkDrawCornerPathEffect();
-    SkPathEffect* getPathEffect() SK_OVERRIDE;
+    SkPathEffect* getPathEffect() override;
 private:
     SkScalar radius;
 };
@@ -90,10 +90,10 @@ public:
     }
 
     // For serialization.  This will never be called.
-    Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
+    Factory getFactory() const override { sk_throw(); return NULL; }
 
 protected:
-    SkScalar begin(SkScalar contourLength) const SK_OVERRIDE {
+    SkScalar begin(SkScalar contourLength) const override {
         SkScriptValue value;
         SkAnimatorScript engine(*fMaker, NULL, SkType_Float);
         engine.propertyCallBack(GetContourLength, &contourLength);
@@ -102,7 +102,7 @@ protected:
         return value.fOperand.fScalar;
     }
 
-    SkScalar next(SkPath* dst, SkScalar distance, SkPathMeasure&) const SK_OVERRIDE {
+    SkScalar next(SkPath* dst, SkScalar distance, SkPathMeasure&) const override {
         fMaker->setExtraPropertyCallBack(fDraw->fType, GetDistance, &distance);
         SkDrawPath* drawPath = NULL;
         if (fDraw->addPath->isPath()) {
@@ -140,7 +140,7 @@ protected:
     }
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const override {
         str->appendf("SkShape1DPathEffect: (");
         // TODO: fill in
         str->appendf(")");
@@ -238,14 +238,14 @@ public:
     }
 
     // For serialization.  This will never be called.
-    Factory getFactory() const SK_OVERRIDE { sk_throw(); return NULL; }
+    Factory getFactory() const override { sk_throw(); return NULL; }
 
 protected:
-    void begin(const SkIRect& uvBounds, SkPath*) const SK_OVERRIDE {
+    void begin(const SkIRect& uvBounds, SkPath*) const override {
         const_cast<SkShape2DPathEffect*>(this)->setUVBounds(uvBounds);
     }
 
-    void next(const SkPoint& loc, int u, int v, SkPath* dst) const SK_OVERRIDE {
+    void next(const SkPoint& loc, int u, int v, SkPath* dst) const override {
         const_cast<SkShape2DPathEffect*>(this)->addPath(loc, u, v, dst);
     }
 

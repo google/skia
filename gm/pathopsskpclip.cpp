@@ -24,15 +24,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("pathopsskpclip");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1200, 900);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPictureRecorder recorder;
         SkCanvas* rec = recorder.beginRecording(1200, 900, NULL, 0);
         SkPath p;

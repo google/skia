@@ -39,7 +39,7 @@ namespace {
 class ContextFactory : public android::uirenderer::IContextFactory {
 public:
     android::uirenderer::AnimationContext* createAnimationContext
-        (android::uirenderer::renderthread::TimeLord& clock) SK_OVERRIDE {
+        (android::uirenderer::renderthread::TimeLord& clock) override {
         return new android::uirenderer::AnimationContext(clock);
     }
 };
@@ -181,7 +181,7 @@ Error ViaAndroidSDK::draw(const Src& src,
         ProxySrc(const Src& src)
             : fSrc(src) {}
 
-        Error draw(SkCanvas* canvas) const SK_OVERRIDE {
+        Error draw(SkCanvas* canvas) const override {
             // Pass through HWUI's upper layers to get operational transforms
             SkAutoTDelete<android::Canvas> ac (android::Canvas::create_canvas(canvas));
             SkAutoTUnref<android::uirenderer::SkiaCanvasProxy> scProxy
@@ -195,8 +195,8 @@ Error ViaAndroidSDK::draw(const Src& src,
 
             return "";
         }
-        SkISize size() const SK_OVERRIDE { return fSrc.size(); }
-        Name name() const SK_OVERRIDE { sk_throw(); return ""; }
+        SkISize size() const override { return fSrc.size(); }
+        Name name() const override { sk_throw(); return ""; }
     } proxy(src);
 
     return fSink->draw(proxy, bitmap, stream, log);

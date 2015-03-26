@@ -407,14 +407,14 @@ GrFragmentProcessor* GrCustomXfermode::CreateFP(SkXfermode::Mode mode, GrTexture
 class GLCustomXferFP : public GrGLFragmentProcessor {
 public:
     GLCustomXferFP(const GrFragmentProcessor&) {}
-    ~GLCustomXferFP() SK_OVERRIDE {};
+    ~GLCustomXferFP() override {};
 
     void emitCode(GrGLFPBuilder* builder,
                   const GrFragmentProcessor& fp,
                   const char* outputColor,
                   const char* inputColor,
                   const TransformedCoordsArray& coords,
-                  const TextureSamplerArray& samplers) SK_OVERRIDE {
+                  const TextureSamplerArray& samplers) override {
         SkXfermode::Mode mode = fp.cast<GrCustomXferFP>().mode();
         GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         const char* dstColor = "bgColor";
@@ -425,7 +425,7 @@ public:
         emit_custom_xfermode_code(mode, fsBuilder, outputColor, inputColor, dstColor); 
     }
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}
 
     static void GenKey(const GrFragmentProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
         // The background may come from the dst or from a texture.
@@ -495,21 +495,21 @@ public:
         }
     }
 
-    ~CustomXP() SK_OVERRIDE {};
+    ~CustomXP() override {};
 
-    const char* name() const SK_OVERRIDE { return "Custom Xfermode"; }
+    const char* name() const override { return "Custom Xfermode"; }
 
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
+    bool hasSecondaryOutput() const override { return false; }
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
                                                bool doesStencilWrite,
                                                GrColor* overrideColor,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+                                               const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fSrcBlend = kOne_GrBlendCoeff;
         blendInfo->fDstBlend = kZero_GrBlendCoeff;
         blendInfo->fBlendConstant = 0;
@@ -520,9 +520,9 @@ public:
 private:
     CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE;
+    bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
     SkXfermode::Mode fMode;
 
@@ -544,7 +544,7 @@ GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
 class GLCustomXP : public GrGLXferProcessor {
 public:
     GLCustomXP(const GrXferProcessor&) {}
-    ~GLCustomXP() SK_OVERRIDE {}
+    ~GLCustomXP() override {}
 
     static void GenKey(const GrXferProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
         uint32_t key = proc.numTextures();
@@ -554,7 +554,7 @@ public:
     }
 
 private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(const EmitArgs& args) override {
         SkXfermode::Mode mode = args.fXP.cast<CustomXP>().mode();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         const char* dstColor = fsBuilder->dstColor();
@@ -566,7 +566,7 @@ private:
                                args.fInputCoverage, dstColor);
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLFragmentProcessor INHERITED;
 };

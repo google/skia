@@ -81,9 +81,9 @@ class GMSrc : public Src {
 public:
     explicit GMSrc(skiagm::GMRegistry::Factory);
 
-    Error draw(SkCanvas*) const SK_OVERRIDE;
-    SkISize size() const SK_OVERRIDE;
-    Name name() const SK_OVERRIDE;
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
 private:
     skiagm::GMRegistry::Factory fFactory;
 };
@@ -96,9 +96,9 @@ public:
     };
     CodecSrc(Path, Mode);
 
-    Error draw(SkCanvas*) const SK_OVERRIDE;
-    SkISize size() const SK_OVERRIDE;
-    Name name() const SK_OVERRIDE;
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
 private:
     Path fPath;
     Mode fMode;
@@ -111,9 +111,9 @@ public:
     // divisor > 0 means decode in subsets, dividing into a divisor x divisor grid.
     explicit ImageSrc(Path path, int divisor = 0);
 
-    Error draw(SkCanvas*) const SK_OVERRIDE;
-    SkISize size() const SK_OVERRIDE;
-    Name name() const SK_OVERRIDE;
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
 private:
     Path fPath;
     const int  fDivisor;
@@ -123,9 +123,9 @@ class SKPSrc : public Src {
 public:
     explicit SKPSrc(Path path);
 
-    Error draw(SkCanvas*) const SK_OVERRIDE;
-    SkISize size() const SK_OVERRIDE;
-    Name name() const SK_OVERRIDE;
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
 private:
     Path fPath;
 };
@@ -136,9 +136,9 @@ class NullSink : public Sink {
 public:
     NullSink() {}
 
-    Error draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return ""; }
+    Error draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kAnyThread_Enclave; }
+    const char* fileExtension() const override { return ""; }
 };
 
 
@@ -146,9 +146,9 @@ class GPUSink : public Sink {
 public:
     GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples, bool dfText, bool threaded);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE;
-    const char* fileExtension() const SK_OVERRIDE { return "png"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override;
+    const char* fileExtension() const override { return "png"; }
 private:
     GrContextFactory::GLContextType fContextType;
     GrGLStandard                    fGpuAPI;
@@ -161,27 +161,27 @@ class PDFSink : public Sink {
 public:
     PDFSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return "pdf"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kAnyThread_Enclave; }
+    const char* fileExtension() const override { return "pdf"; }
 };
 
 class XPSSink : public Sink {
 public:
     XPSSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return "xps"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kAnyThread_Enclave; }
+    const char* fileExtension() const override { return "xps"; }
 };
 
 class RasterSink : public Sink {
 public:
     explicit RasterSink(SkColorType);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return "png"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kAnyThread_Enclave; }
+    const char* fileExtension() const override { return "png"; }
 private:
     SkColorType    fColorType;
 };
@@ -190,18 +190,18 @@ class SKPSink : public Sink {
 public:
     SKPSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return "skp"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kAnyThread_Enclave; }
+    const char* fileExtension() const override { return "skp"; }
 };
 
 class SVGSink : public Sink {
 public:
     SVGSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kAnyThread_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return "svg"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kAnyThread_Enclave; }
+    const char* fileExtension() const override { return "svg"; }
 };
 
 
@@ -211,9 +211,9 @@ class ViaMatrix : public Sink {
 public:
     ViaMatrix(SkMatrix, Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
-    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
     SkMatrix            fMatrix;
     SkAutoTDelete<Sink> fSink;
@@ -223,9 +223,9 @@ class ViaUpright : public Sink {
 public:
     ViaUpright(SkMatrix, Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
-    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
     SkMatrix            fMatrix;
     SkAutoTDelete<Sink> fSink;
@@ -235,9 +235,9 @@ class ViaPipe : public Sink {
 public:
     explicit ViaPipe(Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
-    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
     SkAutoTDelete<Sink>  fSink;
 };
@@ -246,9 +246,9 @@ class ViaSerialization : public Sink {
 public:
     explicit ViaSerialization(Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
-    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
     SkAutoTDelete<Sink> fSink;
 };
@@ -257,9 +257,9 @@ class ViaTiles : public Sink {
 public:
     ViaTiles(int w, int h, SkBBHFactory*, Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
-    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
     const int                   fW, fH;
     SkAutoTDelete<SkBBHFactory> fFactory;

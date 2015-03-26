@@ -52,7 +52,7 @@ class ArcsView : public SampleView {
             }
         }
 
-        void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        void onDraw(SkCanvas* canvas) override {
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setStrokeWidth(SkIntToScalar(2));
@@ -73,7 +73,7 @@ class ArcsView : public SampleView {
             canvas->drawArc(fR, 0, fSweep, false, paint);
         }
 
-        SkRect onGetBounds() SK_OVERRIDE {
+        SkRect onGetBounds() override {
             SkRect r(fR);
             r.outset(2, 2);
             return r;
@@ -99,14 +99,14 @@ public:
         fRootDrawable = recorder.endRecordingAsDrawable();
     }
 
-    ~ArcsView() SK_OVERRIDE {
+    ~ArcsView() override {
         fAnimatingDrawable->unref();
         fRootDrawable->unref();
     }
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Arcs");
             return true;
@@ -192,17 +192,17 @@ protected:
         DrawArcs(canvas);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fRootDrawable);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
      //   fSweep += SK_Scalar1;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);

@@ -40,7 +40,7 @@ public:
     virtual ~SkPDFStream();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
 
 protected:
     enum State {

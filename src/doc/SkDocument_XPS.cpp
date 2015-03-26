@@ -30,7 +30,7 @@ public:
 protected:
     virtual SkCanvas* onBeginPage(SkScalar width,
                                   SkScalar height,
-                                  const SkRect& trimBox) SK_OVERRIDE {
+                                  const SkRect& trimBox) override {
         fDevice.beginSheet(fUnitsPerMeter, fPixelsPerMeter,
                            SkSize::Make(width, height));
         fCanvas.reset(SkNEW_ARGS(SkCanvas, (&fDevice)));
@@ -39,19 +39,19 @@ protected:
         return fCanvas.get();
     }
 
-    void onEndPage() SK_OVERRIDE {
+    void onEndPage() override {
         SkASSERT(fCanvas.get());
         fCanvas->flush();
         fCanvas.reset(NULL);
         fDevice.endSheet();
     }
 
-    bool onClose(SkWStream*) SK_OVERRIDE {
+    bool onClose(SkWStream*) override {
         SkASSERT(!fCanvas.get());
         return fDevice.endPortfolio();
     }
 
-    void onAbort() SK_OVERRIDE {}
+    void onAbort() override {}
 
 private:
     SkXPSDevice fDevice;

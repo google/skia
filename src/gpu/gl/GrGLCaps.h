@@ -99,7 +99,7 @@ public:
     /**
      * Resets the caps such that nothing is supported.
      */
-    void reset() SK_OVERRIDE;
+    void reset() override;
 
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
@@ -271,7 +271,7 @@ public:
     /**
      * Returns a string containing the caps info.
      */
-    SkString dump() const SK_OVERRIDE;
+    SkString dump() const override;
 
     /**
      * LATC can appear under one of three possible names. In order to know

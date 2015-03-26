@@ -90,7 +90,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
 
 class OverdrawXfermode : public SkXfermode {
 public:
-    SkPMColor xferColor(SkPMColor src, SkPMColor dst) const SK_OVERRIDE {
+    SkPMColor xferColor(SkPMColor src, SkPMColor dst) const override {
         // This table encodes the color progression of the overdraw visualization
         static const SkPMColor gTable[] = {
             SkPackARGB32(0x00, 0x00, 0x00, 0x00),
@@ -123,9 +123,9 @@ public:
         return gTable[idx];
     }
 
-    Factory getFactory() const SK_OVERRIDE { return NULL; }
+    Factory getFactory() const override { return NULL; }
 #ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const SK_OVERRIDE { str->set("OverdrawXfermode"); }
+    virtual void toString(SkString* str) const override { str->set("OverdrawXfermode"); }
 #endif
 };
 
@@ -139,7 +139,7 @@ public:
         delete fXferMode;
     }
 
-    bool filter(SkPaint* p, Type) SK_OVERRIDE {
+    bool filter(SkPaint* p, Type) override {
         p->setXfermode(fXferMode);
         p->setAntiAlias(false);
         return true;
@@ -163,7 +163,7 @@ public:
         fFilterQuality = filterQuality;
     }
 
-    bool filter(SkPaint* p, Type) SK_OVERRIDE {
+    bool filter(SkPaint* p, Type) override {
         p->setFilterQuality(fFilterQuality);
         return true;
     }
@@ -179,21 +179,21 @@ class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
     SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
 
-    void clipRect(const SkRect& r, SkRegion::Op, bool doAA) SK_OVERRIDE {
+    void clipRect(const SkRect& r, SkRegion::Op, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
         fCanvas->drawRect(r, p);
     }
-    void clipRRect(const SkRRect& rr, SkRegion::Op, bool doAA) SK_OVERRIDE {
+    void clipRRect(const SkRRect& rr, SkRegion::Op, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorGREEN);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
         fCanvas->drawRRect(rr, p);
     }
-    void clipPath(const SkPath& path, SkRegion::Op, bool doAA) SK_OVERRIDE {
+    void clipPath(const SkPath& path, SkRegion::Op, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorBLUE);
         p.setStyle(SkPaint::kStroke_Style);

@@ -75,16 +75,16 @@ protected:
                                    bool convolveAlpha,
                                    SkImageFilter* input,
                                    const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
-    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const override;
+    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const override;
 
 
 #if SK_SUPPORT_GPU
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                                     const SkIRect& bounds) const SK_OVERRIDE;
+                                     const SkIRect& bounds) const override;
 #endif
 
 private:

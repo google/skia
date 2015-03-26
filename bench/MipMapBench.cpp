@@ -16,18 +16,18 @@ public:
     MipMapBench() {}
 
 protected:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return kNonRendering_Backend == backend;
     }
 
-    const char* onGetName() SK_OVERRIDE { return "mipmap_build"; }
+    const char* onGetName() override { return "mipmap_build"; }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fBitmap.allocN32Pixels(1000, 1000, true);
         fBitmap.eraseColor(SK_ColorWHITE);  // so we don't read uninitialized memory
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             SkMipMap::Build(fBitmap, NULL)->unref();
         }

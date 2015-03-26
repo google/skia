@@ -42,11 +42,11 @@ public:
 
     virtual ~GrMagnifierEffect() {};
 
-    const char* name() const SK_OVERRIDE { return "Magnifier"; }
+    const char* name() const override { return "Magnifier"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     float x_offset() const { return fXOffset; }
     float y_offset() const { return fYOffset; }
@@ -73,9 +73,9 @@ private:
         this->initClassID<GrMagnifierEffect>();
     }
 
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -101,9 +101,9 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     UniformHandle       fOffsetVar;

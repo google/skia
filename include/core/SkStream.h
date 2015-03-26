@@ -130,39 +130,39 @@ public:
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
 class SK_API SkStreamRewindable : public SkStream {
 public:
-    bool rewind() SK_OVERRIDE = 0;
-    SkStreamRewindable* duplicate() const SK_OVERRIDE = 0;
+    bool rewind() override = 0;
+    SkStreamRewindable* duplicate() const override = 0;
 };
 
 /** SkStreamSeekable is a SkStreamRewindable for which position, seek, move, and fork are required. */
 class SK_API SkStreamSeekable : public SkStreamRewindable {
 public:
-    SkStreamSeekable* duplicate() const SK_OVERRIDE = 0;
+    SkStreamSeekable* duplicate() const override = 0;
 
-    bool hasPosition() const SK_OVERRIDE { return true; }
-    size_t getPosition() const SK_OVERRIDE = 0;
-    bool seek(size_t position) SK_OVERRIDE = 0;
-    bool move(long offset) SK_OVERRIDE = 0;
-    SkStreamSeekable* fork() const SK_OVERRIDE = 0;
+    bool hasPosition() const override { return true; }
+    size_t getPosition() const override = 0;
+    bool seek(size_t position) override = 0;
+    bool move(long offset) override = 0;
+    SkStreamSeekable* fork() const override = 0;
 };
 
 /** SkStreamAsset is a SkStreamSeekable for which getLength is required. */
 class SK_API SkStreamAsset : public SkStreamSeekable {
 public:
-    SkStreamAsset* duplicate() const SK_OVERRIDE = 0;
-    SkStreamAsset* fork() const SK_OVERRIDE = 0;
+    SkStreamAsset* duplicate() const override = 0;
+    SkStreamAsset* fork() const override = 0;
 
-    bool hasLength() const SK_OVERRIDE { return true; }
-    size_t getLength() const SK_OVERRIDE = 0;
+    bool hasLength() const override { return true; }
+    size_t getLength() const override = 0;
 };
 
 /** SkStreamMemory is a SkStreamAsset for which getMemoryBase is required. */
 class SK_API SkStreamMemory : public SkStreamAsset {
 public:
-    SkStreamMemory* duplicate() const SK_OVERRIDE = 0;
-    SkStreamMemory* fork() const SK_OVERRIDE = 0;
+    SkStreamMemory* duplicate() const override = 0;
+    SkStreamMemory* fork() const override = 0;
 
-    const void* getMemoryBase() SK_OVERRIDE = 0;
+    const void* getMemoryBase() override = 0;
 };
 
 class SK_API SkWStream : SkNoncopyable {
@@ -245,20 +245,20 @@ public:
      */
     void setPath(const char path[]);
 
-    size_t read(void* buffer, size_t size) SK_OVERRIDE;
-    bool isAtEnd() const SK_OVERRIDE;
+    size_t read(void* buffer, size_t size) override;
+    bool isAtEnd() const override;
 
-    bool rewind() SK_OVERRIDE;
-    SkStreamAsset* duplicate() const SK_OVERRIDE;
+    bool rewind() override;
+    SkStreamAsset* duplicate() const override;
 
-    size_t getPosition() const SK_OVERRIDE;
-    bool seek(size_t position) SK_OVERRIDE;
-    bool move(long offset) SK_OVERRIDE;
-    SkStreamAsset* fork() const SK_OVERRIDE;
+    size_t getPosition() const override;
+    bool seek(size_t position) override;
+    bool move(long offset) override;
+    SkStreamAsset* fork() const override;
 
-    size_t getLength() const SK_OVERRIDE;
+    size_t getLength() const override;
 
-    const void* getMemoryBase() SK_OVERRIDE;
+    const void* getMemoryBase() override;
 
 private:
     SkFILE*     fFILE;
@@ -317,20 +317,20 @@ public:
     const void* getAtPos();
     size_t peek() const { return fOffset; }
 
-    size_t read(void* buffer, size_t size) SK_OVERRIDE;
-    bool isAtEnd() const SK_OVERRIDE;
+    size_t read(void* buffer, size_t size) override;
+    bool isAtEnd() const override;
 
-    bool rewind() SK_OVERRIDE;
-    SkMemoryStream* duplicate() const SK_OVERRIDE;
+    bool rewind() override;
+    SkMemoryStream* duplicate() const override;
 
-    size_t getPosition() const SK_OVERRIDE;
-    bool seek(size_t position) SK_OVERRIDE;
-    bool move(long offset) SK_OVERRIDE;
-    SkMemoryStream* fork() const SK_OVERRIDE;
+    size_t getPosition() const override;
+    bool seek(size_t position) override;
+    bool move(long offset) override;
+    SkMemoryStream* fork() const override;
 
-    size_t getLength() const SK_OVERRIDE;
+    size_t getLength() const override;
 
-    const void* getMemoryBase() SK_OVERRIDE;
+    const void* getMemoryBase() override;
 
 private:
     SkData* fData;
@@ -352,9 +352,9 @@ public:
     */
     bool isValid() const { return fFILE != NULL; }
 
-    bool write(const void* buffer, size_t size) SK_OVERRIDE;
-    void flush() SK_OVERRIDE;
-    size_t bytesWritten() const SK_OVERRIDE;
+    bool write(const void* buffer, size_t size) override;
+    void flush() override;
+    size_t bytesWritten() const override;
 
 private:
     SkFILE* fFILE;
@@ -367,8 +367,8 @@ public:
     SK_DECLARE_INST_COUNT(SkMemoryWStream)
 
     SkMemoryWStream(void* buffer, size_t size);
-    bool write(const void* buffer, size_t size) SK_OVERRIDE;
-    size_t bytesWritten() const SK_OVERRIDE { return fBytesWritten; }
+    bool write(const void* buffer, size_t size) override;
+    size_t bytesWritten() const override { return fBytesWritten; }
 
 private:
     char*   fBuffer;
@@ -385,8 +385,8 @@ public:
     SkDynamicMemoryWStream();
     virtual ~SkDynamicMemoryWStream();
 
-    bool write(const void* buffer, size_t size) SK_OVERRIDE;
-    size_t bytesWritten() const SK_OVERRIDE { return fBytesWritten; }
+    bool write(const void* buffer, size_t size) override;
+    size_t bytesWritten() const override { return fBytesWritten; }
     // random access write
     // modifies stream and returns true if offset + size is less than or equal to getOffset()
     bool write(const void* buffer, size_t offset, size_t size);
@@ -432,9 +432,9 @@ public:
     SK_DECLARE_INST_COUNT(SkDebugWStream)
 
     // overrides
-    bool write(const void* buffer, size_t size) SK_OVERRIDE;
-    void newline() SK_OVERRIDE;
-    size_t bytesWritten() const SK_OVERRIDE { return fBytesWritten; }
+    bool write(const void* buffer, size_t size) override;
+    void newline() override;
+    size_t bytesWritten() const override { return fBytesWritten; }
 
 private:
     size_t fBytesWritten;

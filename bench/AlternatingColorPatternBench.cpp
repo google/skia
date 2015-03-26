@@ -108,7 +108,7 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
@@ -146,7 +146,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(false);
         paint.setFilterQuality(kLow_SkFilterQuality);

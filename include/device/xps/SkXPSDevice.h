@@ -71,54 +71,54 @@ public:
     virtual bool endPortfolio();
 
 protected:
-    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
+    void drawPaint(const SkDraw&, const SkPaint& paint) override;
 
     virtual void drawPoints(
         const SkDraw&,
         SkCanvas::PointMode mode,
         size_t count, const SkPoint[],
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawRect(
         const SkDraw&,
         const SkRect& r,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawRRect(
         const SkDraw&,
         const SkRRect&,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawPath(
         const SkDraw&,
         const SkPath& platonicPath,
         const SkPaint& paint,
         const SkMatrix* prePathMatrix,
-        bool pathIsMutable) SK_OVERRIDE;
+        bool pathIsMutable) override;
 
     virtual void drawBitmap(
         const SkDraw&,
         const SkBitmap& bitmap,
         const SkMatrix& matrix,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawSprite(
         const SkDraw&,
         const SkBitmap& bitmap,
         int x, int y,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawText(
         const SkDraw&,
         const void* text, size_t len,
         SkScalar x, SkScalar y,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawPosText(
         const SkDraw&,
         const void* text, size_t len,
         const SkScalar pos[], int scalarsPerPos,
-        const SkPoint& offset, const SkPaint& paint) SK_OVERRIDE;
+        const SkPoint& offset, const SkPaint& paint) override;
 
     virtual void drawVertices(
         const SkDraw&,
@@ -127,13 +127,13 @@ protected:
         const SkPoint texs[], const SkColor colors[],
         SkXfermode* xmode,
         const uint16_t indices[], int indexCount,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
     virtual void drawDevice(
         const SkDraw&,
         SkBaseDevice* device,
         int x, int y,
-        const SkPaint& paint) SK_OVERRIDE;
+        const SkPaint& paint) override;
 
 private:
     class TypefaceUse : ::SkNoncopyable {
@@ -309,7 +309,7 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);

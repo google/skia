@@ -31,7 +31,7 @@ public:
     GrGLNvprProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
         : INHERITED(gpu, args) {}
 
-    GrGLProgram* createProgram(GrGLuint programID) SK_OVERRIDE {
+    GrGLProgram* createProgram(GrGLuint programID) override {
         // this is just for nvpr es, which has separable varyings that are plugged in after
         // building
         GrGLPathProcessor* pathProc =

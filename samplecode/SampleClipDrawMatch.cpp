@@ -131,7 +131,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "ClipDrawMatch");
             return true;
@@ -227,7 +227,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkScalar trans[2];
         fTrans.timeToValues(SkTime::GetMSecs(), trans);
 

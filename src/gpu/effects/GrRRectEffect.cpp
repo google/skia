@@ -48,11 +48,11 @@ public:
 
     virtual ~CircularRRectEffect() {};
 
-    const char* name() const SK_OVERRIDE { return "CircularRRect"; }
+    const char* name() const override { return "CircularRRect"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkRRect& getRRect() const { return fRRect; }
 
@@ -63,9 +63,9 @@ public:
 private:
     CircularRRectEffect(GrPrimitiveEdgeType, uint32_t circularCornerFlags, const SkRRect&);
 
-    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor& other) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkRRect                fRRect;
     GrPrimitiveEdgeType    fEdgeType;
@@ -137,11 +137,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fInnerRectUniform;
@@ -392,11 +392,11 @@ public:
 
     virtual ~EllipticalRRectEffect() {};
 
-    const char* name() const SK_OVERRIDE { return "EllipticalRRect"; }
+    const char* name() const override { return "EllipticalRRect"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkRRect& getRRect() const { return fRRect; }
 
@@ -405,9 +405,9 @@ public:
 private:
     EllipticalRRectEffect(GrPrimitiveEdgeType, const SkRRect&);
 
-    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor& other) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkRRect             fRRect;
     GrPrimitiveEdgeType    fEdgeType;
@@ -494,11 +494,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fInnerRectUniform;

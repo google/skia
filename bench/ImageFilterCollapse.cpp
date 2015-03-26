@@ -39,7 +39,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         makeBitmap();
 
         for(int i = 0; i < loops; i++) {
@@ -79,11 +79,11 @@ public:
     virtual ~TableCollapseBench() {}
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    virtual const char* onGetName() override {
         return "image_filter_collapse_table";
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    virtual void onPreDraw() override {
         for (int i = 0; i < 256; ++i) {
             int n = i >> 5;
             table1[i] = (n << 5) | (n << 2) | (n >> 1);
@@ -135,11 +135,11 @@ public:
     virtual ~MatrixCollapseBench() {}
 
 protected:
-    virtual const char* onGetName() SK_OVERRIDE {
+    virtual const char* onGetName() override {
         return "image_filter_collapse_matrix";
     }
 
-    virtual void onPreDraw() SK_OVERRIDE {
+    virtual void onPreDraw() override {
         SkColorFilter* colorFilters[] = {
             make_brightness(0.1f),
             make_grayscale(),

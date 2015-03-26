@@ -22,13 +22,13 @@ namespace skiagm {
 class GlyphPosAlignGM : public GM {
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("glyph_pos_align");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(kWidth, kHeight); }
+    SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         SkPaint paint;

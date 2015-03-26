@@ -23,7 +23,7 @@ public:
 
 class SK_API SkRTreeFactory : public SkBBHFactory {
 public:
-    SkBBoxHierarchy* operator()(const SkRect& bounds) const SK_OVERRIDE;
+    SkBBoxHierarchy* operator()(const SkRect& bounds) const override;
 private:
     typedef SkBBHFactory INHERITED;
 };

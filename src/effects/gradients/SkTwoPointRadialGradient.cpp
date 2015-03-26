@@ -405,8 +405,8 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
 
@@ -447,14 +447,14 @@ public:
 
     virtual ~GrRadial2Gradient() { }
 
-    const char* name() const SK_OVERRIDE { return "Two-Point Radial Gradient"; }
+    const char* name() const override { return "Two-Point Radial Gradient"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GrGLRadial2Gradient::GenKey(*this, caps, b);
     }
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLRadial2Gradient, (*this));
     }
 
@@ -465,7 +465,7 @@ public:
     bool isPosRoot() const { return SkToBool(fPosRoot); }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const GrRadial2Gradient& s = sBase.cast<GrRadial2Gradient>();
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&

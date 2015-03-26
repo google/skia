@@ -16,11 +16,11 @@ public:
     AddArcGM() : fRotate(0) {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("addarc"); }
+    SkString onShortName() override { return SkString("addarc"); }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1040, 1040); }
+    SkISize onISize() override { return SkISize::Make(1040, 1040); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(20, 20);
 
         SkRect r = SkRect::MakeWH(1000, 1000);
@@ -51,7 +51,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fRotate = timer.scaled(1, 360);
         return true;
     }
@@ -71,11 +71,11 @@ public:
     AddArcMeasGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("addarc_meas"); }
+    SkString onShortName() override { return SkString("addarc_meas"); }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(2*R + 40, 2*R + 40); }
+    SkISize onISize() override { return SkISize::Make(2*R + 40, 2*R + 40); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(R + 20, R + 20);
 
         SkPaint paint;
@@ -122,11 +122,11 @@ public:
     StrokeCircleGM() : fRotate(0) {}
     
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("strokecircle"); }
+    SkString onShortName() override { return SkString("strokecircle"); }
     
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(520, 520); }
+    SkISize onISize() override { return SkISize::Make(520, 520); }
     
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->scale(20, 20);
         canvas->translate(13, 13);
 
@@ -151,7 +151,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fRotate = timer.scaled(60, 360);
         return true;
     }
@@ -178,11 +178,11 @@ public:
     ManyArcsGM() {}
     
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("manyarcs"); }
+    SkString onShortName() override { return SkString("manyarcs"); }
     
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(620, 330); }
+    SkISize onISize() override { return SkISize::Make(620, 330); }
     
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

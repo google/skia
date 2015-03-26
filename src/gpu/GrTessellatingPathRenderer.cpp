@@ -1448,17 +1448,17 @@ public:
         return SkNEW_ARGS(TessellatingPathBatch, (color, path, viewMatrix, clipBounds));
     }
 
-    const char* name() const SK_OVERRIDE { return "TessellatingPathBatch"; }
+    const char* name() const override { return "TessellatingPathBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         out->setKnownFourComponents(fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fColor = GrColor_ILLEGAL;
@@ -1468,7 +1468,7 @@ public:
         fPipelineInfo = init;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(SK_Scalar1, fViewMatrix, fPath.getBounds());
         int contourCnt;
         int maxPts = GrPathUtils::worstCasePointCount(fPath, &contourCnt, tol);
@@ -1543,7 +1543,7 @@ public:
         return;
     }
 
-    bool onCombineIfPossible(GrBatch*) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch*) override {
         return false;
     }
 

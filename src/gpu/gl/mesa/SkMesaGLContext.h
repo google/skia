@@ -17,9 +17,9 @@ private:
     typedef intptr_t Context;
 
 public:
-    ~SkMesaGLContext() SK_OVERRIDE;
-    void makeCurrent() const SK_OVERRIDE;
-    void swapBuffers() const SK_OVERRIDE;
+    ~SkMesaGLContext() override;
+    void makeCurrent() const override;
+    void swapBuffers() const override;
 
     static SkMesaGLContext* Create(GrGLStandard forcedGpuAPI) {
         if (kGLES_GrGLStandard == forcedGpuAPI) {

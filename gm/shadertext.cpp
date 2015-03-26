@@ -92,13 +92,13 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("shadertext");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1450, 500); }
+    SkISize onISize() override { return SkISize::Make(1450, 500); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         const char text[] = "Shaded Text";
         const int textLen = SK_ARRAY_COUNT(text) - 1;
         const int pointSize = 36;

@@ -94,7 +94,7 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         if (fAA) {
             return "chart_aa";
         } else {
@@ -102,7 +102,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         bool sizeChanged = false;
         if (canvas->getDeviceSize() != fSize) {
             fSize = canvas->getDeviceSize();

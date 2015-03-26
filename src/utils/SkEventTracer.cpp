@@ -18,19 +18,19 @@ class SkDefaultEventTracer: public SkEventTracer {
                       const char** argNames,
                       const uint8_t* argTypes,
                       const uint64_t* argValues,
-                      uint8_t flags) SK_OVERRIDE { return 0; }
+                      uint8_t flags) override { return 0; }
 
     virtual void
         updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
                                  const char* name,
-                                 SkEventTracer::Handle handle) SK_OVERRIDE {};
+                                 SkEventTracer::Handle handle) override {};
 
-    const uint8_t* getCategoryGroupEnabled(const char* name) SK_OVERRIDE {
+    const uint8_t* getCategoryGroupEnabled(const char* name) override {
         static uint8_t no = 0;
         return &no;
     };
     virtual const char* getCategoryGroupName(
-      const uint8_t* categoryEnabledFlag) SK_OVERRIDE {
+      const uint8_t* categoryEnabledFlag) override {
         static const char* dummy = "dummy";
         return dummy;
     };

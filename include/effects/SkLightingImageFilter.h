@@ -74,7 +74,7 @@ protected:
                           SkScalar surfaceScale,
                           SkImageFilter* input,
                           const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
     const SkLight* light() const { return fLight.get(); }
     SkScalar surfaceScale() const { return fSurfaceScale; }
 

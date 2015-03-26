@@ -175,11 +175,11 @@ protected:
                     GrGLInstalledFragProcs* fragmentProcessors);
 
 private:
-    void didSetData() SK_OVERRIDE;
+    void didSetData() override;
     virtual void setTransformData(const GrPrimitiveProcessor&,
                                   const GrPendingFragmentStage&,
                                   int index,
-                                  GrGLInstalledFragProc*) SK_OVERRIDE;
+                                  GrGLInstalledFragProc*) override;
     virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
 
     friend class GrGLNvprProgramBuilder;

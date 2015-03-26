@@ -1020,8 +1020,8 @@ public:
         return SkNEW_ARGS(SkClearXfermode, (rec));
     }
 
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
-    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
+    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const override;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -1082,8 +1082,8 @@ public:
         return SkNEW_ARGS(SkSrcXfermode, (rec));
     }
 
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
-    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
+    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const override;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -1148,7 +1148,7 @@ public:
         return SkNEW_ARGS(SkDstInXfermode, (rec));
     }
 
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -1192,7 +1192,7 @@ public:
         return SkNEW_ARGS(SkDstOutXfermode, (rec));
     }
 
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
 
     SK_TO_STRING_OVERRIDE()
 

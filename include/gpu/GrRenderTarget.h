@@ -26,8 +26,8 @@ public:
     SK_DECLARE_INST_COUNT(GrRenderTarget)
 
     // GrSurface overrides
-    GrRenderTarget* asRenderTarget() SK_OVERRIDE { return this; }
-    const GrRenderTarget* asRenderTarget() const  SK_OVERRIDE { return this; }
+    GrRenderTarget* asRenderTarget() override { return this; }
+    const GrRenderTarget* asRenderTarget() const  override { return this; }
 
     // GrRenderTarget
     /**
@@ -101,8 +101,8 @@ protected:
     }
 
     // override of GrResource
-    void onAbandon() SK_OVERRIDE;
-    void onRelease() SK_OVERRIDE;
+    void onAbandon() override;
+    void onRelease() override;
 
 private:
     // Checked when this object is asked to attach a stencil buffer.

@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    size_t onGpuMemorySize() const SK_OVERRIDE { return 100; }
+    size_t onGpuMemorySize() const override { return 100; }
 
     typedef GrGpuResource INHERITED;
 };
@@ -53,16 +53,16 @@ static void populate_cache(GrGpu* gpu, int resourceCount) {
 
 class GrResourceCacheBenchAdd : public Benchmark {
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "grresourcecache_add";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
         if (NULL == context) {
             return;
@@ -90,16 +90,16 @@ private:
 
 class GrResourceCacheBenchFind : public Benchmark {
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "grresourcecache_find";
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fContext.reset(GrContext::CreateMockContext());
         if (!fContext) {
             return;
@@ -118,7 +118,7 @@ protected:
         populate_cache(gpu, CACHE_SIZE_COUNT);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         if (!fContext) {
             return;
         }

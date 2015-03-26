@@ -26,10 +26,10 @@ public:
     static bool IsPng(SkStream*);
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
-            SK_OVERRIDE;
-    SkEncodedFormat onGetEncodedFormat() const SK_OVERRIDE { return kPNG_SkEncodedFormat; }
-    SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo) SK_OVERRIDE;
-    bool onReallyHasAlpha() const SK_OVERRIDE { return fReallyHasAlpha; }
+            override;
+    SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
+    SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo) override;
+    bool onReallyHasAlpha() const override { return fReallyHasAlpha; }
 private:
     png_structp                 fPng_ptr;
     png_infop                   fInfo_ptr;

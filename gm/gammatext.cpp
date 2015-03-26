@@ -39,11 +39,11 @@ static bool setFont(SkPaint* paint, const char name[]) {
 
 class GammaTextGM : public skiagm::GM {
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("gammatext");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1024, HEIGHT);
     }
 
@@ -58,7 +58,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         drawGrad(canvas);
 
         const SkColor fg[] = {
@@ -137,28 +137,28 @@ public:
         }
     }
 
-    ~GammaShaderTextGM() SK_OVERRIDE {
+    ~GammaShaderTextGM() override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
             SkSafeUnref(fShaders[i]);
         }
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("gammagradienttext");
     }
     
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(300, 300);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
             fShaders[i] = make_gradient(fColors[i]);
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);

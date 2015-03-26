@@ -21,20 +21,20 @@ public:
 
     SkImage_Gpu(const SkBitmap&, int sampleCountForNewSurfaces, SkSurface::Budgeted);
 
-    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const SK_OVERRIDE;
+    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const override;
     void onDrawRect(SkCanvas*, const SkRect* src, const SkRect& dst,
-                    const SkPaint*) const SK_OVERRIDE;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const SK_OVERRIDE;
-    GrTexture* onGetTexture() const SK_OVERRIDE;
-    bool getROPixels(SkBitmap*) const SK_OVERRIDE;
+                    const SkPaint*) const override;
+    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
+    GrTexture* onGetTexture() const override;
+    bool getROPixels(SkBitmap*) const override;
 
     GrTexture* getTexture() const { return fBitmap.getTexture(); }
 
     SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const SK_OVERRIDE;
+                                  const SkMatrix* localMatrix) const override;
 
-    bool isOpaque() const SK_OVERRIDE;
+    bool isOpaque() const override;
 
     void applyBudgetDecision() const {
         if (fBudgeted) {

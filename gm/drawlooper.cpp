@@ -27,15 +27,15 @@ public:
     }
 
 protected:
-    virtual SkISize onISize() SK_OVERRIDE {
+    virtual SkISize onISize() override {
         return SkISize::Make(520, 160);
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("drawlooper");
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         this->init();
 
         SkPaint  paint;

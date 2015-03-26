@@ -25,7 +25,7 @@ public:
         kGPU_DeviceType,
     };
     HelloWorldWindow(void* hwnd);
-    virtual ~HelloWorldWindow() SK_OVERRIDE;
+    virtual ~HelloWorldWindow() override;
 
     // Changes the device type of the object.
     bool setUpBackend();
@@ -33,7 +33,7 @@ public:
     DeviceType getDeviceType() const { return fType; }
 
 protected:
-    SkSurface* createSurface() SK_OVERRIDE {
+    SkSurface* createSurface() override {
         if (kGPU_DeviceType == fType) {
             SkSurfaceProps props(INHERITED::getSurfaceProps());
             return SkSurface::NewRenderTargetDirect(fRenderTarget, &props);
@@ -43,16 +43,16 @@ protected:
         return fSurface = SkSurface::NewRaster(info);
    }
 
-    void draw(SkCanvas* canvas) SK_OVERRIDE;
+    void draw(SkCanvas* canvas) override;
     void drawContents(SkCanvas* canvas);
 
-    void onSizeChange() SK_OVERRIDE;
+    void onSizeChange() override;
 
 private:
     bool findNextMatch();  // Set example to the first one that matches FLAGS_match.
     void setTitle();
     void setUpRenderTarget();
-    bool onHandleChar(SkUnichar unichar) SK_OVERRIDE;
+    bool onHandleChar(SkUnichar unichar) override;
     void tearDownBackend();
 
     // draw contents

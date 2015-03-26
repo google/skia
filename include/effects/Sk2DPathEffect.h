@@ -14,7 +14,7 @@
 
 class SK_API Sk2DPathEffect : public SkPathEffect {
 public:
-    bool filterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
+    bool filterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
 
 protected:
     /** New virtual, to be overridden by subclasses.
@@ -37,7 +37,7 @@ protected:
 
     // protected so that subclasses can call this during unflattening
     explicit Sk2DPathEffect(const SkMatrix& mat);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -60,7 +60,7 @@ public:
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLine2DPathEffect)
@@ -68,9 +68,9 @@ public:
 protected:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
         : Sk2DPathEffect(matrix), fWidth(width) {}
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
-    void nextSpan(int u, int v, int ucount, SkPath*) const SK_OVERRIDE;
+    void nextSpan(int u, int v, int ucount, SkPath*) const override;
 
 private:
     SkScalar fWidth;
@@ -93,9 +93,9 @@ public:
 
 protected:
     SkPath2DPathEffect(const SkMatrix&, const SkPath&);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
-    void next(const SkPoint&, int u, int v, SkPath*) const SK_OVERRIDE;
+    void next(const SkPoint&, int u, int v, SkPath*) const override;
 
 private:
     SkPath  fPath;

@@ -26,7 +26,7 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
@@ -139,7 +139,7 @@ public:
         : INHERITED("playback", maxLevel, maxPictureLevel) {
     }
 protected:
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         this->INHERITED::onPreDraw();
 
         SkIPoint canvasSize = onGetSize();

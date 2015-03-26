@@ -109,15 +109,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("bitmap_premul");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(SLIDE_SIZE * 2, SLIDE_SIZE * 2);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar slideSize = SkIntToScalar(SLIDE_SIZE);
         canvas->drawBitmap(make_argb8888_gradient(), 0, 0);
         canvas->drawBitmap(make_argb4444_gradient(), slideSize, 0);

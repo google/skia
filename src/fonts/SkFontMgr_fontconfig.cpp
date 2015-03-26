@@ -142,10 +142,10 @@ public:
     SkFontStyleSet_FC(FcPattern** matches, int count);
     virtual ~SkFontStyleSet_FC();
 
-    int count() SK_OVERRIDE { return fRecCount; }
-    void getStyle(int index, SkFontStyle*, SkString* style) SK_OVERRIDE;
-    SkTypeface* createTypeface(int index) SK_OVERRIDE;
-    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
+    int count() override { return fRecCount; }
+    void getStyle(int index, SkFontStyle*, SkString* style) override;
+    SkTypeface* createTypeface(int index) override;
+    SkTypeface* matchStyle(const SkFontStyle& pattern) override;
 
 private:
     struct Rec {
@@ -226,19 +226,19 @@ public:
     }
 
 protected:
-    int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const override {
         return fFamilyNames->count();
     }
 
-    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const override {
         familyName->set(fFamilyNames->atStr(index));
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const override {
         return this->onMatchFamily(fFamilyNames->atStr(index));
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
         FCLocker lock;
 
         FcPattern* pattern = FcPatternCreate();
@@ -284,18 +284,18 @@ protected:
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle&) const SK_OVERRIDE { return NULL; }
+                                           const SkFontStyle&) const override { return NULL; }
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                     const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const SK_OVERRIDE {
+                                                    SkUnichar character) const override {
         return NULL;
     }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                         const SkFontStyle&) const SK_OVERRIDE { return NULL; }
+                                         const SkFontStyle&) const override { return NULL; }
 
-    SkTypeface* onCreateFromData(SkData*, int ttcIndex) const SK_OVERRIDE { return NULL; }
+    SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return NULL; }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (!length) {
@@ -316,13 +316,13 @@ protected:
         return face;
     }
 
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const SK_OVERRIDE {
+                                               unsigned styleBits) const override {
         FCLocker lock;
         return FontConfigTypeface::LegacyCreateTypeface(familyName, (SkTypeface::Style)styleBits);
     }

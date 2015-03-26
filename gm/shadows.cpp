@@ -29,7 +29,7 @@ public:
     SkRect fRect;
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFFDDDDDD);
         fCirclePath.addCircle(SkIntToScalar(20), SkIntToScalar(20), SkIntToScalar(10) );
         fRect.set(SkIntToScalar(10), SkIntToScalar(10),

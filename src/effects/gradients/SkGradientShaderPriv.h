@@ -166,7 +166,7 @@ public:
     public:
         GradientShaderBaseContext(const SkGradientShaderBase& shader, const ContextRec&);
 
-        uint32_t getFlags() const SK_OVERRIDE { return fFlags; }
+        uint32_t getFlags() const override { return fFlags; }
 
     protected:
         SkMatrix    fDstToIndex;
@@ -180,7 +180,7 @@ public:
         typedef SkShader::Context INHERITED;
     };
 
-    bool isOpaque() const SK_OVERRIDE;
+    bool isOpaque() const override;
 
     void getGradientTableBitmap(SkBitmap*) const;
 
@@ -220,7 +220,7 @@ public:
 
 protected:
     SkGradientShaderBase(SkReadBuffer& );
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
     SK_TO_STRING_OVERRIDE()
 
     const SkMatrix fPtsToUnit;
@@ -237,7 +237,7 @@ protected:
 
     void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
 
-    bool onAsLuminanceColor(SkColor*) const SK_OVERRIDE;
+    bool onAsLuminanceColor(SkColor*) const override;
 
     /*
      * Takes in pointers to gradient color and Rec info as colorSrc and recSrc respectively.
@@ -368,9 +368,9 @@ protected:
                                     SkScalar** stops,
                                     SkShader::TileMode* tm);
 
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 
@@ -399,7 +399,7 @@ public:
     GrGLGradientEffect();
     virtual ~GrGLGradientEffect();
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 protected:
     /**

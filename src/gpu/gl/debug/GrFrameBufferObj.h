@@ -46,7 +46,7 @@ public:
     void setStencil(GrFBBindableObj *buffer);
     GrFBBindableObj *getStencil()     { return fStencilBuffer; }
 
-    void deleteAction() SK_OVERRIDE {
+    void deleteAction() override {
 
         setColor(NULL);
         setDepth(NULL);

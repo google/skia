@@ -24,21 +24,21 @@ public:
     SkBug1719GM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("skbug1719");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(300, 100);
     }
 
-    void onDrawBackground(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawBackground(SkCanvas* canvas) override {
         SkPaint bgPaint;
         bgPaint.setColor(0xFF303030);
         canvas->drawPaint(bgPaint);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(-800), SkIntToScalar(-650));
 
         // The data is lifted from an SKP that exhibited the bug.

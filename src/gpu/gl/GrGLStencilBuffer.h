@@ -48,11 +48,11 @@ public:
 
 protected:
     // overrides of GrResource
-    void onRelease() SK_OVERRIDE;
-    void onAbandon() SK_OVERRIDE;
+    void onRelease() override;
+    void onAbandon() override;
 
 private:
-    size_t onGpuMemorySize() const SK_OVERRIDE;
+    size_t onGpuMemorySize() const override;
 
     Format fFormat;
     // may be zero for external SBs associated with external RTs

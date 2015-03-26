@@ -35,19 +35,19 @@ public:
     }
 
 protected:
-    void onAbandon() SK_OVERRIDE {
+    void onAbandon() override {
         GrGLRenderTarget::onAbandon();
         GrGLTexture::onAbandon();
     }
 
-    void onRelease() SK_OVERRIDE {
+    void onRelease() override {
         GrGLRenderTarget::onRelease();
         GrGLTexture::onRelease();
     }
 
 private:
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
-    size_t onGpuMemorySize() const SK_OVERRIDE {
+    size_t onGpuMemorySize() const override {
         return GrGLRenderTarget::onGpuMemorySize();
     }
 

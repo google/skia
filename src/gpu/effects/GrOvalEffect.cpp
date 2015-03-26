@@ -22,11 +22,11 @@ public:
 
     virtual ~CircleEffect() {};
 
-    const char* name() const SK_OVERRIDE { return "Circle"; }
+    const char* name() const override { return "Circle"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkPoint& getCenter() const { return fCenter; }
     SkScalar getRadius() const { return fRadius; }
@@ -36,9 +36,9 @@ public:
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
 
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkPoint             fCenter;
     SkScalar            fRadius;
@@ -102,11 +102,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fCircleUniform;
@@ -197,11 +197,11 @@ public:
 
     virtual ~EllipseEffect() {};
 
-    const char* name() const SK_OVERRIDE { return "Ellipse"; }
+    const char* name() const override { return "Ellipse"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkPoint& getCenter() const { return fCenter; }
     SkVector getRadii() const { return fRadii; }
@@ -211,9 +211,9 @@ public:
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
 
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkPoint             fCenter;
     SkVector            fRadii;
@@ -280,11 +280,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fEllipseUniform;

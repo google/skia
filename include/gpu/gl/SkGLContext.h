@@ -19,7 +19,7 @@ class SK_API SkGLContext : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkGLContext)
 
-    ~SkGLContext() SK_OVERRIDE;
+    ~SkGLContext() override;
 
     bool isValid() const { return NULL != gl(); }
 

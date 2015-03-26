@@ -52,17 +52,17 @@ private:
     GrDistanceFieldTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&, bool enable);
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
-                 const SkPaint&, const SkMatrix& viewMatrix) SK_OVERRIDE;
+                 const SkPaint&, const SkMatrix& viewMatrix) override;
 
     void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                     const SkMatrix& viewMatrix,
                     const char text[], size_t byteLength,
-                    SkScalar x, SkScalar y, const SkIRect& regionClipBounds) SK_OVERRIDE;
+                    SkScalar x, SkScalar y, const SkIRect& regionClipBounds) override;
     void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                        const SkMatrix& viewMatrix,
                        const char text[], size_t byteLength,
                        const SkScalar pos[], int scalarsPerPosition,
-                       const SkPoint& offset, const SkIRect& regionClipBounds) SK_OVERRIDE;
+                       const SkPoint& offset, const SkIRect& regionClipBounds) override;
 
     void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
               const SkIRect& regionClipBounds);

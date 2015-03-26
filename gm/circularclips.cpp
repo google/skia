@@ -14,7 +14,7 @@ class CircularClipsGM : public skiagm::GM {
     SkPath   fCircle1, fCircle2;
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fX1 = 80;
         fX2 = 120;
         fY = 50;
@@ -25,17 +25,17 @@ protected:
     }
 
 
-    bool runAsBench() const SK_OVERRIDE { return true; }
+    bool runAsBench() const override { return true; }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("circular-clips");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(800, 600);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkRegion::Op ops[] = {
             SkRegion::kDifference_Op,
             SkRegion::kIntersect_Op,

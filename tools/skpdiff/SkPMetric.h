@@ -18,9 +18,9 @@
  */
 class SkPMetric : public SkImageDiffer {
 public:
-    const char* getName() const SK_OVERRIDE { return "perceptual"; }
+    const char* getName() const override { return "perceptual"; }
     virtual bool diff(SkBitmap* baseline, SkBitmap* test, const BitmapsToCreate& bitmapsToCreate,
-                      Result* result) const SK_OVERRIDE;
+                      Result* result) const override;
 
 private:
     typedef SkImageDiffer INHERITED;

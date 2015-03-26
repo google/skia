@@ -15,13 +15,13 @@ class HairlinesGM : public GM {
 protected:
 
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("hairlines");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1250, 1250); }
+    SkISize onISize() override { return SkISize::Make(1250, 1250); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         {
             SkPath* lineAnglesPath = &fPaths.push_back();
             enum {
@@ -161,7 +161,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         static const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
         static const SkScalar kWidths[] = { 0, 0.5f, 1.5f };
 

@@ -65,8 +65,8 @@ public:
     virtual ~SkPDFObjRef();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual void addResources(SkPDFCatalog*) const SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
+    virtual void addResources(SkPDFCatalog*) const override;
 
 private:
     SkAutoTUnref<SkPDFObject> fObj;
@@ -89,7 +89,7 @@ public:
     virtual ~SkPDFInt();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
 
 private:
     int32_t fValue;
@@ -112,7 +112,7 @@ public:
     virtual ~SkPDFBool();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
 
 private:
     bool fValue;
@@ -137,7 +137,7 @@ public:
     static void Append(SkScalar value, SkWStream* stream);
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
 
 private:
     SkScalar fValue;
@@ -169,7 +169,7 @@ public:
     virtual ~SkPDFString();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
 
     static SkString FormatString(const char* input, size_t len);
     static SkString FormatString(const uint16_t* input, size_t len,
@@ -203,7 +203,7 @@ public:
     bool operator==(const SkPDFName& b) const;
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
 
 private:
     static const size_t kMaxLen = 127;
@@ -229,8 +229,8 @@ public:
     virtual ~SkPDFArray();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual void addResources(SkPDFCatalog*) const SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
+    virtual void addResources(SkPDFCatalog*) const override;
 
     /** The size of the array.
      */
@@ -301,8 +301,8 @@ public:
     virtual ~SkPDFDict();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) SK_OVERRIDE;
-    virtual void addResources(SkPDFCatalog*) const SK_OVERRIDE;
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
+    virtual void addResources(SkPDFCatalog*) const override;
 
     /** The size of the dictionary.
      */

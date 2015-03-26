@@ -18,7 +18,7 @@
 class SkSnapshot: public SkADrawable {
     DECLARE_MEMBER_INFO(Snapshot);
     SkSnapshot();
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
     private:
     SkString filename;
     SkScalar quality;

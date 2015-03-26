@@ -148,15 +148,15 @@ public:
     }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
 
-    const char* name() const SK_OVERRIDE { return "ModeColorFilterEffect"; }
+    const char* name() const override { return "ModeColorFilterEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     GrColor color() const { return fColor; }
@@ -171,7 +171,7 @@ public:
                               const char* outputColor,
                               const char* inputColor,
                               const TransformedCoordsArray&,
-                              const TextureSamplerArray&) SK_OVERRIDE {
+                              const TextureSamplerArray&) override {
             SkXfermode::Mode mode = fp.cast<ModeColorFilterEffect>().mode();
 
             SkASSERT(SkXfermode::kDst_Mode != mode);
@@ -200,7 +200,7 @@ public:
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrProcessor& fp) SK_OVERRIDE {
+                             const GrProcessor& fp) override {
             if (fFilterColorUni.isValid()) {
                 const ModeColorFilterEffect& colorModeFilter = fp.cast<ModeColorFilterEffect>();
                 GrGLfloat c[4];
@@ -224,12 +224,12 @@ private:
         this->initClassID<ModeColorFilterEffect>();
     }
 
-    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& other) const override {
         const ModeColorFilterEffect& s = other.cast<ModeColorFilterEffect>();
         return fMode == s.fMode && fColor == s.fColor;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkXfermode::Mode fMode;
     GrColor fColor;
@@ -384,7 +384,7 @@ class Src_SkModeColorFilter : public SkModeColorFilter {
 public:
     Src_SkModeColorFilter(SkColor color) : INHERITED(color, SkXfermode::kSrc_Mode) {}
 
-    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const SK_OVERRIDE {
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
         sk_memset32(result, this->getPMColor(), count);
     }
 
@@ -399,7 +399,7 @@ public:
         fColor32Proc = SkBlitRow::ColorProcFactory();
     }
 
-    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const SK_OVERRIDE {
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
         fColor32Proc(result, shader, count, this->getPMColor());
     }
 

@@ -48,8 +48,8 @@ public:
     virtual ~OverView();
 
 protected:
-    bool onEvent(const SkEvent&) SK_OVERRIDE;
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onEvent(const SkEvent&) override;
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Overview");
             return true;
@@ -66,13 +66,13 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE;
+    void onDraw(SkCanvas* canvas) override;
 
-    bool onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    bool onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) override {
         return false;
     }
 
-    Click* onFindClickHandler(SkScalar cx, SkScalar cy, unsigned modi) SK_OVERRIDE {
+    Click* onFindClickHandler(SkScalar cx, SkScalar cy, unsigned modi) override {
         const SkRect crect = SkRect::MakeXYWH(cx - 0.5f, cy - 0.5f, 1, 1);
         SkPoint loc = this->start();
         for (int i = 0; i < fCount; ++i) {

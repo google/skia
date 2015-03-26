@@ -131,7 +131,7 @@ public:
         : INHERITED(data, size, ownMemory)
         , fIsAtEnd(false) {}
 
-    size_t read(void* dst, size_t requested) SK_OVERRIDE {
+    size_t read(void* dst, size_t requested) override {
         size_t bytesRead = this->INHERITED::read(dst, requested);
         if (bytesRead < requested) {
             fIsAtEnd = true;
@@ -139,7 +139,7 @@ public:
         return bytesRead;
     }
 
-    bool isAtEnd() const SK_OVERRIDE {
+    bool isAtEnd() const override {
         return fIsAtEnd;
     }
 
@@ -175,19 +175,19 @@ public:
         , fHasPosition(hasPosition)
     {}
 
-    bool hasLength() const SK_OVERRIDE {
+    bool hasLength() const override {
         return fHasLength;
     }
 
-    bool hasPosition() const SK_OVERRIDE {
+    bool hasPosition() const override {
         return fHasPosition;
     }
 
-    size_t read(void*, size_t) SK_OVERRIDE {
+    size_t read(void*, size_t) override {
         return 0;
     }
 
-    bool isAtEnd() const SK_OVERRIDE {
+    bool isAtEnd() const override {
         return true;
     }
 
@@ -264,7 +264,7 @@ public:
     : fAtEnd(false)
     , fReadAfterEnd(false)
     {}
-    size_t read(void* buffer, size_t size) SK_OVERRIDE {
+    size_t read(void* buffer, size_t size) override {
         if (fAtEnd) {
             fReadAfterEnd = true;
         } else {
@@ -273,7 +273,7 @@ public:
         return 0;
     }
 
-    bool isAtEnd() const SK_OVERRIDE {
+    bool isAtEnd() const override {
         return fAtEnd;
     }
 

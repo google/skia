@@ -26,11 +26,11 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("rects");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1200, 900);
     }
 
@@ -251,7 +251,7 @@ protected:
                           SK_Scalar1 * 100 * (testCount / 10) + 3 * SK_Scalar1 / 4);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkAutoCommentBlock acb(canvas, "onDraw");
 
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);

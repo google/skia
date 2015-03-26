@@ -47,15 +47,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("strokerect");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1024, 740);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 

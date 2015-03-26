@@ -19,10 +19,10 @@ class SkDmuxWStream : public SkWStream {
 public:
     SkDmuxWStream(SkWStream* const streamArray[], size_t count);
     ~SkDmuxWStream();
-    virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
-    virtual void newline() SK_OVERRIDE;
-    virtual void flush() SK_OVERRIDE;
-    virtual size_t bytesWritten() const SK_OVERRIDE;
+    virtual bool write(const void* buffer, size_t size) override;
+    virtual void newline() override;
+    virtual void flush() override;
+    virtual size_t bytesWritten() const override;
 
 private:
     SkTDArray<SkWStream*> fWStreams;

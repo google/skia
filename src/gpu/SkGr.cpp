@@ -163,7 +163,7 @@ public:
 private:
     GrUniqueKeyInvalidatedMessage fMsg;
 
-    void onChange() SK_OVERRIDE {
+    void onChange() override {
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
     }
 };

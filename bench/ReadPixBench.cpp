@@ -20,11 +20,11 @@ public:
     ReadPixBench() {}
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "readpix";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         SkISize size = canvas->getDeviceSize();

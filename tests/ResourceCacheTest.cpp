@@ -248,7 +248,7 @@ private:
         this->registerWithCache();
     }
 
-    size_t onGpuMemorySize() const SK_OVERRIDE { return fSize; }
+    size_t onGpuMemorySize() const override { return fSize; }
 
     TestResource* fToDelete;
     size_t fSize;

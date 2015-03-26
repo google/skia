@@ -505,18 +505,18 @@ public:
         return SkNEW_ARGS(StrokeRectBatch, (geometry));
     }
 
-    const char* name() const SK_OVERRIDE { return "StrokeRectBatch"; }
+    const char* name() const override { return "StrokeRectBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setKnownSingleComponent(0xff);
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -531,7 +531,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                 this->color(),
@@ -646,7 +646,7 @@ private:
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool hairline() const { return fBatch.fHairline; }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         // StrokeRectBatch* that = t->cast<StrokeRectBatch>();
 
         // NonAA stroke rects cannot batch right now
@@ -844,9 +844,9 @@ public:
                                               localCoords));
     }
 
-    const char* name() const SK_OVERRIDE { return "DrawVerticesBatch"; }
+    const char* name() const override { return "DrawVerticesBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         if (this->hasColors()) {
             out->setUnknownFourComponents();
@@ -855,11 +855,11 @@ public:
         }
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setKnownSingleComponent(0xff);
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -874,7 +874,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         int colorOffset = -1, texOffset = -1;
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 set_vertex_attributes(this->hasLocalCoords(), this->hasColors(), &colorOffset,
@@ -1024,7 +1024,7 @@ private:
     int vertexCount() const { return fBatch.fVertexCount; }
     int indexCount() const { return fBatch.fIndexCount; }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         DrawVerticesBatch* that = t->cast<DrawVerticesBatch>();
 
         if (!this->batchablePrimitiveType() || this->primitiveType() != that->primitiveType()) {

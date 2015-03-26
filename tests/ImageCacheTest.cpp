@@ -24,8 +24,8 @@ struct TestingRec : public SkResourceCache::Rec {
     TestingKey  fKey;
     intptr_t    fValue;
 
-    const Key& getKey() const SK_OVERRIDE { return fKey; }
-    size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + sizeof(fValue); }
+    const Key& getKey() const override { return fKey; }
+    size_t bytesUsed() const override { return sizeof(fKey) + sizeof(fValue); }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* context) {
         const TestingRec& rec = static_cast<const TestingRec&>(baseRec);

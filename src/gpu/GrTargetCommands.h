@@ -146,7 +146,7 @@ private:
     struct Draw : public Cmd {
         Draw(const GrDrawTarget::DrawInfo& info) : Cmd(kDraw_CmdType), fInfo(info) {}
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         GrDrawTarget::DrawInfo     fInfo;
     };
@@ -159,7 +159,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         SkMatrix                                                fViewMatrix;
         bool                                                    fUseHWAA;
@@ -175,7 +175,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         GrStencilSettings       fStencilSettings;
 
@@ -188,7 +188,7 @@ private:
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         char*                           fIndices;
         GrDrawTarget::PathIndexType     fIndexType;
@@ -207,7 +207,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         SkIRect fRect;
         GrColor fColor;
@@ -223,7 +223,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -242,7 +242,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -269,7 +269,7 @@ private:
             return reinterpret_cast<const GrPipeline*>(fPipeline.get());
         }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
         ProgramPrimitiveProcessor               fPrimitiveProcessor;
@@ -286,7 +286,7 @@ private:
             SkASSERT(!batch->isUsed());
         }
 
-        void execute(GrGpu*, const SetState*) SK_OVERRIDE;
+        void execute(GrGpu*, const SetState*) override;
 
         // TODO it wouldn't be too hard to let batches allocate in the cmd buffer
         SkAutoTUnref<GrBatch>  fBatch;

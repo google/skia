@@ -18,11 +18,11 @@
 struct SimpleFlatController : public SkFlatController {
     SimpleFlatController() : SkFlatController() {}
     ~SimpleFlatController() { fAllocations.freeAll(); }
-    void* allocThrow(size_t bytes) SK_OVERRIDE {
+    void* allocThrow(size_t bytes) override {
         fAllocations.push(sk_malloc_throw(bytes));
         return fAllocations.top();
     }
-    void unalloc(void*) SK_OVERRIDE { }
+    void unalloc(void*) override { }
     void setBitmapStorage(SkBitmapHeap* h) { this->setBitmapHeap(h); }
 private:
     SkTDArray<void*> fAllocations;

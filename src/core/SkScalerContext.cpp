@@ -843,21 +843,21 @@ public:
         : SkScalerContext(face, desc) {}
 
 protected:
-    unsigned generateGlyphCount() SK_OVERRIDE {
+    unsigned generateGlyphCount() override {
         return 0;
     }
-    uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE {
+    uint16_t generateCharToGlyph(SkUnichar uni) override {
         return 0;
     }
-    void generateAdvance(SkGlyph* glyph) SK_OVERRIDE {
+    void generateAdvance(SkGlyph* glyph) override {
         glyph->zeroMetrics();
     }
-    void generateMetrics(SkGlyph* glyph) SK_OVERRIDE {
+    void generateMetrics(SkGlyph* glyph) override {
         glyph->zeroMetrics();
     }
-    void generateImage(const SkGlyph& glyph) SK_OVERRIDE {}
-    void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE {}
-    void generateFontMetrics(SkPaint::FontMetrics* metrics) SK_OVERRIDE {
+    void generateImage(const SkGlyph& glyph) override {}
+    void generatePath(const SkGlyph& glyph, SkPath* path) override {}
+    void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
         if (metrics) {
             sk_bzero(metrics, sizeof(*metrics));
         }

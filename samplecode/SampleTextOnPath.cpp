@@ -94,7 +94,7 @@ public:
     SkScalar    fHOffset;
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkRect r;
         r.set(SkIntToScalar(100), SkIntToScalar(100),
               SkIntToScalar(300), SkIntToScalar(300));
@@ -105,7 +105,7 @@ protected:
     }
 
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Text On Path");
             return true;
@@ -113,7 +113,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(48));
@@ -151,13 +151,13 @@ protected:
             this->inval(NULL);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fHints += 1;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         return this->INHERITED::onClick(click);
     }
 

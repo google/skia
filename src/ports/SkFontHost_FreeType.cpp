@@ -193,14 +193,14 @@ public:
     }
 
 protected:
-    unsigned generateGlyphCount() SK_OVERRIDE;
-    uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
-    void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
-    void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
-    void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
-    void generateFontMetrics(SkPaint::FontMetrics*) SK_OVERRIDE;
-    SkUnichar generateGlyphToChar(uint16_t glyph) SK_OVERRIDE;
+    unsigned generateGlyphCount() override;
+    uint16_t generateCharToGlyph(SkUnichar uni) override;
+    void generateAdvance(SkGlyph* glyph) override;
+    void generateMetrics(SkGlyph* glyph) override;
+    void generateImage(const SkGlyph& glyph) override;
+    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generateFontMetrics(SkPaint::FontMetrics*) override;
+    SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
 private:
     SkFaceRec*  fFaceRec;

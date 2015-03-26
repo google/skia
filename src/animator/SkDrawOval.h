@@ -14,7 +14,7 @@
 
 class SkOval : public SkDrawRect {
     DECLARE_MEMBER_INFO(Oval);
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
 private:
     typedef SkDrawRect INHERITED;
 };

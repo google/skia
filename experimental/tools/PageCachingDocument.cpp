@@ -25,10 +25,10 @@ public:
     virtual ~PageCachingDocument();
     virtual SkCanvas* onBeginPage(SkScalar width,
                                   SkScalar height,
-                                  const SkRect& content) SK_OVERRIDE;
-    void onEndPage() SK_OVERRIDE;
-    bool onClose(SkWStream*) SK_OVERRIDE;
-    void onAbort() SK_OVERRIDE;
+                                  const SkRect& content) override;
+    void onEndPage() override;
+    bool onClose(SkWStream*) override;
+    void onAbort() override;
 
 private:
     struct Page {

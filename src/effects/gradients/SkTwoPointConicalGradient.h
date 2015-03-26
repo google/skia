@@ -45,14 +45,14 @@ public:
                               bool flippedGrad, const Descriptor&);
 
 
-    size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const override;
 
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         TwoPointConicalGradientContext(const SkTwoPointConicalGradient&, const ContextRec&);
         ~TwoPointConicalGradientContext() {}
 
-        void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
     private:
         typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
@@ -60,11 +60,11 @@ public:
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
-                                 TileMode* xy) const SK_OVERRIDE;
-    SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE;
+                                 TileMode* xy) const override;
+    SkShader::GradientType asAGradient(GradientInfo* info) const  override;
     virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&, const SkMatrix*,
-                                     GrColor*, GrFragmentProcessor**) const SK_OVERRIDE;
-    bool isOpaque() const SK_OVERRIDE;
+                                     GrColor*, GrFragmentProcessor**) const override;
+    bool isOpaque() const override;
 
     SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }
     SkScalar getStartRadius() const { return fRadius1; }
@@ -79,8 +79,8 @@ public:
 
 protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
-    Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const override;
+    Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:
     SkPoint fCenter1;

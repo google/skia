@@ -37,7 +37,7 @@ protected:
     FailImageFilter() : INHERITED(0, NULL) {}
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
+                       SkBitmap* result, SkIPoint* offset) const override {
         return false;
     }
 
@@ -79,7 +79,7 @@ protected:
     IdentityImageFilter(SkImageFilter* input) : INHERITED(1, &input) {}
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                       SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
+                       SkBitmap* result, SkIPoint* offset) const override {
         *result = src;
         offset->set(0, 0);
         return true;
@@ -194,11 +194,11 @@ public:
     ImageFiltersBaseGM () {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("imagefiltersbase");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(700, 500); }
+    SkISize onISize() override { return SkISize::Make(700, 500); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -207,7 +207,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
@@ -268,13 +268,13 @@ public:
     ImageFiltersTextBaseGM(const char suffix[]) : fSuffix(suffix) {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString name;
         name.printf("%s_%s", "textfilter", fSuffix.c_str());
         return name;
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(512, 342); }
+    SkISize onISize() override { return SkISize::Make(512, 342); }
 
     void drawWaterfall(SkCanvas* canvas, const SkPaint& origPaint) {
         const uint32_t flags[] = {
@@ -295,7 +295,7 @@ protected:
 
     virtual void installFilter(SkPaint* paint) = 0;
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
         canvas->translate(20, 40);
@@ -331,7 +331,7 @@ class ImageFiltersText_IF : public ImageFiltersTextBaseGM {
 public:
     ImageFiltersText_IF() : ImageFiltersTextBaseGM("image") {}
 
-    void installFilter(SkPaint* paint) SK_OVERRIDE {
+    void installFilter(SkPaint* paint) override {
         paint->setImageFilter(SkBlurImageFilter::Create(1.5f, 1.5f))->unref();
     }
 };
@@ -341,7 +341,7 @@ class ImageFiltersText_CF : public ImageFiltersTextBaseGM {
 public:
     ImageFiltersText_CF() : ImageFiltersTextBaseGM("color") {}
 
-    void installFilter(SkPaint* paint) SK_OVERRIDE {
+    void installFilter(SkPaint* paint) override {
         paint->setColorFilter(SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode))->unref();
     }
 };

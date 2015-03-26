@@ -34,15 +34,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("yuv_to_rgb_effect");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(238, 84);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
         fBmp[0].allocPixels(yinfo);
         SkImageInfo uinfo = SkImageInfo::MakeA8(USIZE, USIZE);
@@ -66,7 +66,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             return;

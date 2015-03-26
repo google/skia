@@ -17,7 +17,7 @@ public:
     SkFilterShader(SkShader* shader, SkColorFilter* filter);
     virtual ~SkFilterShader();
 
-    size_t contextSize() const SK_OVERRIDE;
+    size_t contextSize() const override;
 
     class FilterShaderContext : public SkShader::Context {
     public:
@@ -25,11 +25,11 @@ public:
         FilterShaderContext(const SkFilterShader&, SkShader::Context*, const ContextRec&);
         virtual ~FilterShaderContext();
 
-        uint32_t getFlags() const SK_OVERRIDE;
+        uint32_t getFlags() const override;
 
-        void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
+        void shadeSpan(int x, int y, SkPMColor[], int count) override;
 
-        void set3DMask(const SkMask* mask) SK_OVERRIDE {
+        void set3DMask(const SkMask* mask) override {
             // forward to our proxy
             fShaderContext->set3DMask(mask);
         }
@@ -44,8 +44,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkFilterShader)
 
 protected:
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
+    Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 
 private:

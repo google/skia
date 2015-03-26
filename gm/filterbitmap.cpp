@@ -43,7 +43,7 @@ static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, 
 }
 
 class FilterBitmapGM : public skiagm::GM {
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
 
         this->makeBitmap();
 
@@ -71,18 +71,18 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1024, 768);
     }
 
     virtual void makeBitmap() = 0;
     virtual SkScalar getScale() = 0;
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         canvas->translate(10, 10);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrix); ++i) {
@@ -110,11 +110,11 @@ class FilterBitmapTextGM: public FilterBitmapGM {
   protected:
       float fTextSize;
 
-      SkScalar getScale() SK_OVERRIDE {
+      SkScalar getScale() override {
           return 32.f/fTextSize;
       }
 
-      void makeBitmap() SK_OVERRIDE {
+      void makeBitmap() override {
           fBM.allocN32Pixels(int(fTextSize * 8), int(fTextSize * 6));
           SkCanvas canvas(fBM);
           canvas.drawColor(SK_ColorWHITE);
@@ -150,11 +150,11 @@ public:
       int fSize;
       int fNumChecks;
 
-      SkScalar getScale() SK_OVERRIDE {
+      SkScalar getScale() override {
           return 192.f/fSize;
       }
 
-      void makeBitmap() SK_OVERRIDE {
+      void makeBitmap() override {
           fBM.allocN32Pixels(fSize, fSize);
           for (int y = 0; y < fSize; y ++) {
               for (int x = 0; x < fSize; x ++) {
@@ -191,11 +191,11 @@ protected:
       SkString fFilename;
       int fSize;
 
-      SkScalar getScale() SK_OVERRIDE {
+      SkScalar getScale() override {
           return 192.f/fSize;
       }
 
-      void makeBitmap() SK_OVERRIDE {
+      void makeBitmap() override {
           SkImageDecoder* codec = NULL;
           SkString resourcePath = GetResourcePath(fFilename.c_str());
           SkFILEStream stream(resourcePath.c_str());

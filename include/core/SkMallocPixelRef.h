@@ -84,7 +84,7 @@ public:
     public:
         virtual SkPixelRef* create(const SkImageInfo&,
                                    size_t rowBytes,
-                                   SkColorTable*) SK_OVERRIDE;
+                                   SkColorTable*) override;
     };
 
 protected:
@@ -93,9 +93,9 @@ protected:
                      bool ownPixels);
     virtual ~SkMallocPixelRef();
 
-    bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    void onUnlockPixels() SK_OVERRIDE;
-    size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
+    bool onNewLockPixels(LockRec*) override;
+    void onUnlockPixels() override;
+    size_t getAllocatedSizeInBytes() const override;
 
 private:
     void*           fStorage;

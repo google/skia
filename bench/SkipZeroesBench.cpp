@@ -36,16 +36,16 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         SkString resourcePath = GetResourcePath();
         if (resourcePath.isEmpty()) {
             fValid = false;
@@ -73,7 +73,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         if (!fValid) {
 #ifdef SK_DEBUG
             SkDebugf("stream was invalid: %s\n", fFilename.c_str());

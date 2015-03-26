@@ -19,7 +19,7 @@ public:
     }
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         const unsigned oneColor = 0xFF8080FF;
         const unsigned twoColor = 0x807F1f1f;
         SkColor blendColor = blend(oneColor, twoColor);
@@ -50,15 +50,15 @@ protected:
         paint->setColor(color);
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("pathopsinverse");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1200, 900);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPath one, two;
         int yPos = 0;
         for (int oneFill = 0; oneFill <= 1; ++oneFill) {

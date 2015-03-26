@@ -99,7 +99,7 @@ public:
         }
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkRandom    rand;
         int         steps = 20;
         SkScalar    dist = SkIntToScalar(400);
@@ -130,7 +130,7 @@ protected:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "PathEffects");
             return true;
@@ -138,7 +138,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
 
         canvas->translate(0, 50);
@@ -162,7 +162,7 @@ protected:
         canvas->drawPath(fPath, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fPhase = timer.scaled(40);
         return true;
     }

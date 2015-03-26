@@ -30,7 +30,7 @@ public:
     }
 
  protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
        // Build the picture.
         SkPictureRecorder recorder;
         SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, NULL, 0);
@@ -45,15 +45,15 @@ public:
     }
 
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("pictureshader");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1400, 1450);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         this->drawSceneColumn(canvas, SkPoint::Make(0, 0), 1, 1, 0);
         this->drawSceneColumn(canvas, SkPoint::Make(0, fSceneSize * 6.4f), 1, 2, 0);
         this->drawSceneColumn(canvas, SkPoint::Make(fSceneSize * 2.4f, 0), 1, 1, 1);

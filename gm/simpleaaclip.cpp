@@ -52,7 +52,7 @@ public:
     }
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         // offset the rects a bit so we get anti-aliasing in the rect case
         fBase.set(100.65f,
                   100.65f,

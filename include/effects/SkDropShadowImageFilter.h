@@ -29,17 +29,17 @@ public:
                                                     shadowMode, input, cropRect));
     }
 
-    void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect&, SkRect*) const override;
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
 protected:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
                             ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
+    bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const override;
     virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                SkIRect* dst) const SK_OVERRIDE;
+                                SkIRect* dst) const override;
 
 private:
     SkScalar fDx, fDy, fSigmaX, fSigmaY;

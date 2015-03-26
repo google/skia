@@ -66,9 +66,9 @@ protected:
      */
     virtual Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                size_t dstRowBytes, const Options&, SkPMColor*,
-                               int*) SK_OVERRIDE;
+                               int*) override;
 
-    SkEncodedFormat onGetEncodedFormat() const SK_OVERRIDE { return kBMP_SkEncodedFormat; }
+    SkEncodedFormat onGetEncodedFormat() const override { return kBMP_SkEncodedFormat; }
 
 private:
 

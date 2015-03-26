@@ -50,7 +50,7 @@ public:
     }
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context& ctx,
-                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
+                               SkBitmap* result, SkIPoint* offset) const override {
         REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
         return true;
     }
@@ -59,7 +59,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const override {
         this->INHERITED::flatten(buffer);
         buffer.writeFunctionPtr(fReporter);
         buffer.writeMatrix(fExpectedMatrix);

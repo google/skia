@@ -30,9 +30,9 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE { return SkString("imagefilterstransformed"); }
+    SkString onShortName() override { return SkString("imagefilterstransformed"); }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(420, 240); }
+    SkISize onISize() override { return SkISize::Make(420, 240); }
 
     void makeGradientCircle(int width, int height) {
         SkScalar x = SkIntToScalar(width / 2);
@@ -53,7 +53,7 @@ protected:
         canvas.drawCircle(x, y, radius, paint);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fCheckerboard.allocN32Pixels(64, 64);
         SkCanvas checkerboardCanvas(fCheckerboard);
         sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
@@ -61,7 +61,7 @@ protected:
         this->makeGradientCircle(64, 64);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkAutoTUnref<SkImageFilter> gradient(SkBitmapSource::Create(fGradientCircle));
         SkAutoTUnref<SkImageFilter> checkerboard(SkBitmapSource::Create(fCheckerboard));
         SkImageFilter* filters[] = {

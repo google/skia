@@ -224,17 +224,17 @@ public:
         return SkNEW_ARGS(DefaultPathBatch, (geometry, coverage, viewMatrix, isHairline));
     }
 
-    const char* name() const SK_OVERRIDE { return "DefaultPathBatch"; }
+    const char* name() const override { return "DefaultPathBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setKnownSingleComponent(this->coverage());
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -249,7 +249,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                 this->color(),
@@ -400,7 +400,7 @@ private:
         fGeoData.push_back(geometry);
     }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         DefaultPathBatch* that = t->cast<DefaultPathBatch>();
 
         if (this->color() != that->color()) {

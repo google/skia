@@ -42,16 +42,16 @@ public:
         fRRect.setRectRadii(r, radii);
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(SkScalarCeilToInt(fRRect.rect().width()),
                              SkScalarCeilToInt(fRRect.rect().height()));
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkLayerDrawLooper::Builder looperBuilder;
         {
             SkLayerDrawLooper::LayerInfo info;
@@ -127,15 +127,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1000, 500);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->scale(1.5f, 1.5f);
         canvas->translate(50,50);
 

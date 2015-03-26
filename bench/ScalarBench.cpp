@@ -18,7 +18,7 @@ public:
         fName.printf("scalar_%s", name);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -27,11 +27,11 @@ public:
 protected:
     virtual int mulLoopCount() const { return 1; }
 
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
             this->performTest();
         }
@@ -101,8 +101,8 @@ public:
         }
     }
 protected:
-    int mulLoopCount() const SK_OVERRIDE { return 1; }
-    void performTest() SK_OVERRIDE {
+    int mulLoopCount() const override { return 1; }
+    void performTest() override {
         int sum = 0;
         for (size_t i = 0; i < ARRAY_N; ++i) {
             // We pass -fArray[i], so the compiler can't cheat and treat the
@@ -140,16 +140,16 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "rect_bounds";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkRect r;
         for (int i = 0; i < loops; ++i) {
             for (int i = 0; i < 1000; ++i) {

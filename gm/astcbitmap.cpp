@@ -53,15 +53,15 @@ public:
     virtual ~ASTCBitmapGM() { }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("astcbitmap");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(kGMDimension, kGMDimension);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         for (int j = 0; j < 4; ++j) {
             for (int i = 0; i < 4; ++i) {
                 SkString filename = GetResourcePath(get_astc_filename(j*4+i));

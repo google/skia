@@ -32,7 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString name("rrect");
         switch (fType) {
             case kBW_Draw_Type:
@@ -54,9 +54,9 @@ protected:
         return name;
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(kImageWidth, kImageHeight); }
+    SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrContext* context = NULL;
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();

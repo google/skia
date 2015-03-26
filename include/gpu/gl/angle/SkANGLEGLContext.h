@@ -14,9 +14,9 @@
 
 class SkANGLEGLContext : public SkGLContext {
 public:
-    ~SkANGLEGLContext() SK_OVERRIDE;
-    void makeCurrent() const SK_OVERRIDE;
-    void swapBuffers() const SK_OVERRIDE;
+    ~SkANGLEGLContext() override;
+    void makeCurrent() const override;
+    void swapBuffers() const override;
 
     static SkANGLEGLContext* Create(GrGLStandard forcedGpuAPI) {
         if (kGL_GrGLStandard == forcedGpuAPI) {

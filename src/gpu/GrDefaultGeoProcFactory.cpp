@@ -34,7 +34,7 @@ public:
                                            coverage));
     }
 
-    const char* name() const SK_OVERRIDE { return "DefaultGeometryProcessor"; }
+    const char* name() const override { return "DefaultGeometryProcessor"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
@@ -42,7 +42,7 @@ public:
     const Attribute* inCoverage() const { return fInCoverage; }
     uint8_t coverage() const { return fCoverage; }
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE {
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
         BatchTracker* local = bt->cast<BatchTracker>();
         local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                    SkToBool(fInColor));
@@ -66,7 +66,7 @@ public:
 
     bool onCanMakeEqual(const GrBatchTracker& m,
                         const GrGeometryProcessor& that,
-                        const GrBatchTracker& t) const SK_OVERRIDE {
+                        const GrBatchTracker& t) const override {
         const BatchTracker& mine = m.cast<BatchTracker>();
         const BatchTracker& theirs = t.cast<BatchTracker>();
         return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
@@ -82,7 +82,7 @@ public:
         GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
             : fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
-        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE {
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
@@ -142,7 +142,7 @@ public:
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) SK_OVERRIDE {
+                             const GrBatchTracker& bt) override {
             this->setUniformViewMatrix(pdman, gp.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
@@ -169,12 +169,12 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE {
+                                                     const GrGLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -212,12 +212,12 @@ private:
         }
     }
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE {
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
         const DefaultGeoProc& gp = other.cast<DefaultGeoProc>();
         return gp.fFlags == this->fFlags;
     }
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         if (fInCoverage) {
             out->setUnknownSingleComponent();
         } else {

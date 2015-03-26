@@ -54,7 +54,7 @@ public:
         : SkSpriteBlitter(source) {}
 
     // overrides
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) override {
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
         const uint16_t* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                              y - fTop);
@@ -264,7 +264,7 @@ public:
     // overrides
 
     virtual void setup(const SkBitmap& device, int left, int top,
-                       const SkPaint& paint) SK_OVERRIDE {
+                       const SkPaint& paint) override {
         this->INHERITED::setup(device, left, top, paint);
 
         unsigned flags = 0;
@@ -281,7 +281,7 @@ public:
         fProc = SkBlitRow::Factory16(flags);
     }
 
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) override {
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
         const SkPMColor* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                               y - fTop);

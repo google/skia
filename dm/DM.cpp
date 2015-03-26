@@ -215,9 +215,9 @@ static void push_sink(const char* tag, Sink* s) {
     }
     // Try a noop Src as a canary.  If it fails, skip this sink.
     struct : public Src {
-        Error draw(SkCanvas*) const SK_OVERRIDE { return ""; }
-        SkISize size() const SK_OVERRIDE { return SkISize::Make(16, 16); }
-        Name name() const SK_OVERRIDE { return "noop"; }
+        Error draw(SkCanvas*) const override { return ""; }
+        SkISize size() const override { return SkISize::Make(16, 16); }
+        Name name() const override { return "noop"; }
     } noop;
 
     SkBitmap bitmap;
@@ -526,14 +526,14 @@ static void gather_tests() {
 
 static void run_test(skiatest::Test* test) {
     struct : public skiatest::Reporter {
-        void reportFailed(const skiatest::Failure& failure) SK_OVERRIDE {
+        void reportFailed(const skiatest::Failure& failure) override {
             fail(failure.toString());
             JsonWriter::AddTestFailure(failure);
         }
-        bool allowExtendedTest() const SK_OVERRIDE {
+        bool allowExtendedTest() const override {
             return FLAGS_pathOpsExtended;
         }
-        bool verbose() const SK_OVERRIDE { return FLAGS_veryVerbose; }
+        bool verbose() const override { return FLAGS_veryVerbose; }
     } reporter;
     WallTimer timer;
     timer.start();

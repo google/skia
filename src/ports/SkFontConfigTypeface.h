@@ -56,9 +56,9 @@ protected:
         // we default to empty fFamilyName and fIdentity
     }
 
-    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
-    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
+    void onGetFamilyName(SkString* familyName) const override;
+    void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
 
 private:
     typedef SkTypeface_FreeType INHERITED;

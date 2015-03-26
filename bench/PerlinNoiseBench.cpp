@@ -17,11 +17,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "perlinnoise";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         this->test(loops, canvas, 0, 0, SkPerlinNoiseShader::kFractalNoise_Type,
                    0.1f, 0.1f, 3, 0, false);
     }

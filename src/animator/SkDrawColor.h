@@ -14,18 +14,18 @@
 class SkDrawColor : public SkPaintPart {
     DECLARE_DRAW_MEMBER_INFO(Color);
     SkDrawColor();
-    bool add() SK_OVERRIDE;
-    void dirty() SK_OVERRIDE;
+    bool add() override;
+    void dirty() override;
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
     SkColor getColor();
-    SkDisplayable* deepCopy(SkAnimateMaker* ) SK_OVERRIDE;
-    SkDisplayable* getParent() const SK_OVERRIDE;
-    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
-    bool setParent(SkDisplayable* parent) SK_OVERRIDE;
-    bool setProperty(int index, SkScriptValue&) SK_OVERRIDE;
+    SkDisplayable* deepCopy(SkAnimateMaker* ) override;
+    SkDisplayable* getParent() const override;
+    bool getProperty(int index, SkScriptValue* value) const override;
+    void onEndElement(SkAnimateMaker& ) override;
+    bool setParent(SkDisplayable* parent) override;
+    bool setProperty(int index, SkScriptValue&) override;
 protected:
     SkColor color;
     SkScalar fHue;

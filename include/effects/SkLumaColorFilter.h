@@ -25,17 +25,17 @@ class SK_API SkLumaColorFilter : public SkColorFilter {
 public:
     static SkColorFilter* Create();
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
+    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const SK_OVERRIDE;
+    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLumaColorFilter)
 
 protected:
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
 private:
     SkLumaColorFilter();

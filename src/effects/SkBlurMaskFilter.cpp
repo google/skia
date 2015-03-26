@@ -38,39 +38,39 @@ public:
     SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, uint32_t flags);
 
     // overrides from SkMaskFilter
-    SkMask::Format getFormat() const SK_OVERRIDE;
+    SkMask::Format getFormat() const override;
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) const SK_OVERRIDE;
+                            SkIPoint* margin) const override;
 
 #if SK_SUPPORT_GPU
     virtual bool canFilterMaskGPU(const SkRect& devBounds,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
-                                  SkRect* maskRect) const SK_OVERRIDE;
+                                  SkRect* maskRect) const override;
     virtual bool directFilterMaskGPU(GrContext* context,
                                      GrRenderTarget* rt,
                                      GrPaint* grp,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
-                                     const SkPath& path) const SK_OVERRIDE;
+                                     const SkPath& path) const override;
     virtual bool directFilterRRectMaskGPU(GrContext* context,
                                           GrRenderTarget* rt,
                                           GrPaint* grp,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,
-                                          const SkRRect& rrect) const SK_OVERRIDE;
+                                          const SkRRect& rrect) const override;
 
     virtual bool filterMaskGPU(GrTexture* src,
                                const SkMatrix& ctm,
                                const SkRect& maskRect,
                                GrTexture** result,
-                               bool canOverwriteSrc) const SK_OVERRIDE;
+                               bool canOverwriteSrc) const override;
 #endif
 
-    void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
-    bool asABlur(BlurRec*) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect&, SkRect*) const override;
+    bool asABlur(BlurRec*) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
@@ -78,11 +78,11 @@ public:
 protected:
     virtual FilterReturn filterRectsToNine(const SkRect[], int count, const SkMatrix&,
                                            const SkIRect& clipBounds,
-                                           NinePatch*) const SK_OVERRIDE;
+                                           NinePatch*) const override;
 
     virtual FilterReturn filterRRectToNine(const SkRRect&, const SkMatrix&,
                                            const SkIRect& clipBounds,
-                                           NinePatch*) const SK_OVERRIDE;
+                                           NinePatch*) const override;
 
     bool filterRectMask(SkMask* dstM, const SkRect& r, const SkMatrix& matrix,
                         SkIPoint* margin, SkMask::CreateMode createMode) const;
@@ -105,7 +105,7 @@ private:
     }
 
     SkBlurMaskFilterImpl(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     SkScalar computeXformedSigma(const SkMatrix& ctm) const {
         bool ignoreTransform = SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
@@ -607,12 +607,12 @@ class GrRectBlurEffect : public GrFragmentProcessor {
 public:
     virtual ~GrRectBlurEffect();
 
-    const char* name() const SK_OVERRIDE { return "RectBlur"; }
+    const char* name() const override { return "RectBlur"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     /**
      * Create a simple filter effect with custom bicubic coefficients.
@@ -641,9 +641,9 @@ public:
 
 private:
     GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blur_profile);
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     static bool CreateBlurProfileTexture(GrContext *context, float sigma,
                                          GrTexture **blurProfileTexture);
@@ -665,9 +665,9 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -876,22 +876,22 @@ public:
     static GrFragmentProcessor* Create(GrContext* context, float sigma, const SkRRect&);
 
     virtual ~GrRRectBlurEffect() {};
-    const char* name() const SK_OVERRIDE { return "GrRRectBlur"; }
+    const char* name() const override { return "GrRRectBlur"; }
 
     const SkRRect& getRRect() const { return fRRect; }
     float getSigma() const { return fSigma; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
 private:
     GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
 
-    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor& other) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkRRect             fRRect;
     float               fSigma;
@@ -1020,9 +1020,9 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fProxyRectUniform;

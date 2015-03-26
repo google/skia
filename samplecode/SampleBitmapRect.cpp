@@ -103,7 +103,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "BitmapRect");
             return true;
@@ -111,7 +111,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkRect srcR;
         srcR.set(fSrcPts[0], fSrcPts[1]);
         srcR = SkRect::MakeXYWH(fSrcPts[0].fX, fSrcPts[0].fY, 32, 32);
@@ -136,7 +136,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         if (timer.isStopped()) {
             this->resetBounce();
         } else if (timer.isRunning()) {
@@ -210,7 +210,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "BigBitmapRect");
             return true;
@@ -218,7 +218,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorYELLOW);
@@ -230,7 +230,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         if (timer.isStopped()) {
             this->resetBounce();
         } else if (timer.isRunning()) {

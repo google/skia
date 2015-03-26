@@ -33,70 +33,70 @@ protected:
 
     // FILTERING
 
-    void onDrawPaint(const SkPaint& paint) SK_OVERRIDE;
+    void onDrawPaint(const SkPaint& paint) override;
     void onDrawPoints(PointMode pMode, size_t count, const SkPoint pts[],
-                      const SkPaint& paint) SK_OVERRIDE;
-    void onDrawOval(const SkRect& r, const SkPaint& paint) SK_OVERRIDE;
-    void onDrawRect(const SkRect& r, const SkPaint& paint) SK_OVERRIDE;
-    void onDrawRRect(const SkRRect& r, const SkPaint& paint) SK_OVERRIDE;
-    void onDrawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
+                      const SkPaint& paint) override;
+    void onDrawOval(const SkRect& r, const SkPaint& paint) override;
+    void onDrawRect(const SkRect& r, const SkPaint& paint) override;
+    void onDrawRRect(const SkRRect& r, const SkPaint& paint) override;
+    void onDrawPath(const SkPath& path, const SkPaint& paint) override;
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                      const SkPaint* paint) SK_OVERRIDE;
+                      const SkPaint* paint) override;
     void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                          const SkPaint* paint, DrawBitmapRectFlags flags) SK_OVERRIDE;
+                          const SkPaint* paint, DrawBitmapRectFlags flags) override;
     void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                          const SkRect& dst, const SkPaint* paint) SK_OVERRIDE;
+                          const SkRect& dst, const SkPaint* paint) override;
     void onDrawSprite(const SkBitmap& bitmap, int left, int top,
-                      const SkPaint* paint) SK_OVERRIDE;
+                      const SkPaint* paint) override;
     void onDrawVertices(VertexMode vMode, int vertexCount, const SkPoint vertices[],
                         const SkPoint texs[], const SkColor colors[], SkXfermode* xMode,
                         const uint16_t indices[], int indexCount,
-                        const SkPaint& paint) SK_OVERRIDE;
+                        const SkPaint& paint) override;
 
     void onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
-                      const SkPaint& paint) SK_OVERRIDE;
+                      const SkPaint& paint) override;
 
     void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                    const SkPaint& paint) SK_OVERRIDE;
+                    const SkPaint& paint) override;
     void onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                       const SkPaint& paint) SK_OVERRIDE;
+                       const SkPaint& paint) override;
     void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                        SkScalar constY, const SkPaint& paint) SK_OVERRIDE;
+                        SkScalar constY, const SkPaint& paint) override;
     void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                          const SkMatrix* matrix, const SkPaint& paint) SK_OVERRIDE;
+                          const SkMatrix* matrix, const SkPaint& paint) override;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                        const SkPaint& paint) SK_OVERRIDE;
+                        const SkPaint& paint) override;
 
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkXfermode* xmode,
-                     const SkPaint& paint) SK_OVERRIDE;
+                     const SkPaint& paint) override;
 
-    void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
+    void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*)
-        SK_OVERRIDE;
+        override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
 
     // PASS THROUGH
 
-    void onDrawDrawable(SkDrawable*) SK_OVERRIDE;
-    SkISize getBaseLayerSize() const SK_OVERRIDE;
-    bool getClipBounds(SkRect*) const SK_OVERRIDE;
-    bool getClipDeviceBounds(SkIRect*) const SK_OVERRIDE;
-    bool isClipEmpty() const SK_OVERRIDE;
-    bool isClipRect() const SK_OVERRIDE;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
-    const void* onPeekPixels(SkImageInfo*, size_t*) SK_OVERRIDE;
-    void* onAccessTopLayerPixels(SkImageInfo*, size_t*) SK_OVERRIDE;
-    void willSave() SK_OVERRIDE;
-    void willRestore() SK_OVERRIDE;
-    void didRestore() SK_OVERRIDE;
-    void didConcat(const SkMatrix&) SK_OVERRIDE;
-    void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
-    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
-    void onDiscard() SK_OVERRIDE;
+    void onDrawDrawable(SkDrawable*) override;
+    SkISize getBaseLayerSize() const override;
+    bool getClipBounds(SkRect*) const override;
+    bool getClipDeviceBounds(SkIRect*) const override;
+    bool isClipEmpty() const override;
+    bool isClipRect() const override;
+    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    const void* onPeekPixels(SkImageInfo*, size_t*) override;
+    void* onAccessTopLayerPixels(SkImageInfo*, size_t*) override;
+    void willSave() override;
+    void willRestore() override;
+    void didRestore() override;
+    void didConcat(const SkMatrix&) override;
+    void didSetMatrix(const SkMatrix&) override;
+    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, SkRegion::Op) override;
+    void onDiscard() override;
 
 protected:
     SkCanvas* fProxyTarget;

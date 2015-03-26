@@ -32,11 +32,11 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("imagefiltersclipped");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(860, 500);
     }
 
@@ -59,7 +59,7 @@ protected:
         canvas.drawCircle(x, y, radius, paint);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         if (!fInitialized) {
             fCheckerboard.allocN32Pixels(64, 64);
             SkCanvas checkerboardCanvas(fCheckerboard);

@@ -45,76 +45,76 @@ public:
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
 
-    void willSave() SK_OVERRIDE;
-    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) SK_OVERRIDE;
-    void willRestore() SK_OVERRIDE {}
-    void didRestore() SK_OVERRIDE;
+    void willSave() override;
+    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) override;
+    void willRestore() override {}
+    void didRestore() override;
 
-    void didConcat(const SkMatrix&) SK_OVERRIDE;
-    void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
+    void didConcat(const SkMatrix&) override;
+    void didSetMatrix(const SkMatrix&) override;
 
-    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawDrawable(SkDrawable*) SK_OVERRIDE;
+    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
+    void onDrawDrawable(SkDrawable*) override;
     void onDrawText(const void* text,
                     size_t byteLength,
                     SkScalar x,
                     SkScalar y,
-                    const SkPaint& paint) SK_OVERRIDE;
+                    const SkPaint& paint) override;
     void onDrawPosText(const void* text,
                        size_t byteLength,
                        const SkPoint pos[],
-                       const SkPaint& paint) SK_OVERRIDE;
+                       const SkPaint& paint) override;
     void onDrawPosTextH(const void* text,
                         size_t byteLength,
                         const SkScalar xpos[],
                         SkScalar constY,
-                        const SkPaint& paint) SK_OVERRIDE;
+                        const SkPaint& paint) override;
     void onDrawTextOnPath(const void* text,
                           size_t byteLength,
                           const SkPath& path,
                           const SkMatrix* matrix,
-                          const SkPaint& paint) SK_OVERRIDE;
+                          const SkPaint& paint) override;
     void onDrawTextBlob(const SkTextBlob* blob,
                         SkScalar x,
                         SkScalar y,
-                        const SkPaint& paint) SK_OVERRIDE;
+                        const SkPaint& paint) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkXfermode* xmode,
-                     const SkPaint& paint) SK_OVERRIDE;
+                     const SkPaint& paint) override;
 
-    void onDrawPaint(const SkPaint&) SK_OVERRIDE;
-    void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) SK_OVERRIDE;
-    void onDrawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawPath(const SkPath&, const SkPaint&) SK_OVERRIDE;
-    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) SK_OVERRIDE;
+    void onDrawPaint(const SkPaint&) override;
+    void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
+    void onDrawRect(const SkRect&, const SkPaint&) override;
+    void onDrawOval(const SkRect&, const SkPaint&) override;
+    void onDrawRRect(const SkRRect&, const SkPaint&) override;
+    void onDrawPath(const SkPath&, const SkPaint&) override;
+    void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          DrawBitmapRectFlags flags) SK_OVERRIDE;
-    void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) SK_OVERRIDE;
+                          DrawBitmapRectFlags flags) override;
+    void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
-                         const SkPaint*) SK_OVERRIDE;
+                         const SkPaint*) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) SK_OVERRIDE;
-    void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) SK_OVERRIDE;
+                          const SkPaint*) override;
+    void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
                         const SkColor colors[], SkXfermode* xmode,
                         const uint16_t indices[], int indexCount,
-                        const SkPaint&) SK_OVERRIDE;
+                        const SkPaint&) override;
 
-    void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
-    void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
-    void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
-    void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) SK_OVERRIDE;
+    void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
+    void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
+    void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
+    void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) override;
 
-    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) SK_OVERRIDE;
+    void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
-    void beginCommentGroup(const char*) SK_OVERRIDE;
-    void addComment(const char*, const char*) SK_OVERRIDE;
-    void endCommentGroup() SK_OVERRIDE;
+    void beginCommentGroup(const char*) override;
+    void addComment(const char*, const char*) override;
+    void endCommentGroup() override;
 
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE { return NULL; }
+    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override { return NULL; }
 
 private:
     template <typename T>

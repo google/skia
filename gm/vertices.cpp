@@ -39,7 +39,7 @@ public:
 
 protected:
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         const SkScalar X = 150;
         const SkScalar Y = 150;
 
@@ -62,7 +62,7 @@ protected:
         }
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString name("vertices");
         if (0xFF != fAlpha) {
             name.appendf("_%02X", fAlpha);
@@ -70,11 +70,11 @@ protected:
         return name;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(600, 600);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         // start with the center of a 3x3 grid
         static const uint16_t fan[] = {
             4,

@@ -494,9 +494,9 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
 
@@ -530,14 +530,14 @@ public:
         SkDELETE(fPaintingData);
     }
 
-    const char* name() const SK_OVERRIDE { return "PerlinNoise"; }
+    const char* name() const override { return "PerlinNoise"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GrGLPerlinNoise::GenKey(*this, caps, b);
     }
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLPerlinNoise, (*this));
     }
 
@@ -551,7 +551,7 @@ public:
     uint8_t alpha() const { return fAlpha; }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor& sBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const GrPerlinNoiseEffect& s = sBase.cast<GrPerlinNoiseEffect>();
         return fType == s.fType &&
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency &&
@@ -561,7 +561,7 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
     }
 

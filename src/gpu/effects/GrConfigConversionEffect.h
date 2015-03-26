@@ -37,11 +37,11 @@ public:
     static const GrFragmentProcessor* Create(GrTexture*, bool swapRedAndBlue, PMConversion,
                                              const SkMatrix&);
 
-    const char* name() const SK_OVERRIDE { return "Config Conversion"; }
+    const char* name() const override { return "Config Conversion"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     bool swapsRedAndBlue() const { return fSwapRedAndBlue; }
     PMConversion  pmConversion() const { return fPMConversion; }
@@ -61,9 +61,9 @@ private:
                             PMConversion pmConversion,
                             const SkMatrix& matrix);
 
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     bool            fSwapRedAndBlue;
     PMConversion    fPMConversion;

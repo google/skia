@@ -210,7 +210,7 @@ public:
         SkASSERT(plot);
     }
 
-    void upload(GrBatchTarget::TextureUploader uploader) SK_OVERRIDE {
+    void upload(GrBatchTarget::TextureUploader uploader) override {
         fPlot->uploadToTexture(uploader);
     }
 

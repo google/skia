@@ -20,9 +20,9 @@ public:
         GrColor fColor;
     };
 
-    virtual const char* name() const SK_OVERRIDE = 0;
+    virtual const char* name() const override = 0;
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         if (fGeometryProcessor->hasVertexColor()) {
             out->setUnknownFourComponents();
@@ -31,11 +31,11 @@ public:
         }
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             this->geoData(0)->fColor = GrColor_ILLEGAL;
@@ -50,7 +50,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         batchTarget->initDraw(fGeometryProcessor, pipeline);
 
         // TODO this is hacky, but the only way we have to initialize the GP is to use the
@@ -76,7 +76,7 @@ protected:
 private:
     virtual Geometry* geoData(int index) = 0;
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         return false;
     }
 

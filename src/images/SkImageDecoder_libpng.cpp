@@ -78,7 +78,7 @@ public:
     SkPNGImageDecoder() {
         fImageIndex = NULL;
     }
-    Format getFormat() const SK_OVERRIDE {
+    Format getFormat() const override {
         return kPNG_Format;
     }
 
@@ -88,10 +88,10 @@ public:
 
 protected:
 #ifdef SK_BUILD_FOR_ANDROID
-    bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) SK_OVERRIDE;
-    bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& region) SK_OVERRIDE;
+    bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) override;
+    bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& region) override;
 #endif
-    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) override;
 
 private:
     SkPNGImageIndex* fImageIndex;
@@ -1101,7 +1101,7 @@ static inline int pack_palette(SkColorTable* ctable,
 
 class SkPNGImageEncoder : public SkImageEncoder {
 protected:
-    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) SK_OVERRIDE;
+    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) override;
 private:
     bool doEncode(SkWStream* stream, const SkBitmap& bm,
                   const bool& hasAlpha, int colorType,

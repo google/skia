@@ -313,11 +313,11 @@ public:
     bool useRange() const { return fUseRange; }
     const float* range() const { return fRange; }
 
-    const char* name() const SK_OVERRIDE { return "Morphology"; }
+    const char* name() const override { return "Morphology"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
 protected:
 
@@ -326,9 +326,9 @@ protected:
     float fRange[2];
 
 private:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType, float bounds[2]);
@@ -349,11 +349,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }

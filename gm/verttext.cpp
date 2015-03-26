@@ -50,11 +50,11 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("verttext");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
+    SkISize onISize() override { return SkISize::Make(640, 480); }
 
     static void drawBaseline(SkCanvas* canvas, const SkPaint& paint,
                              SkScalar x, SkScalar y) {
@@ -82,7 +82,7 @@ protected:
         canvas->drawCircle(x, y, SK_Scalar1 * 3 / 2, p);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(50);
 

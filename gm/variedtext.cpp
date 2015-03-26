@@ -31,7 +31,7 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString name("varied_text");
         if (fEffectiveClip) {
             name.append("_clipped");
@@ -46,11 +46,11 @@ protected:
         return name;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fPaint.setAntiAlias(true);
         fPaint.setLCDRenderText(fLCD);
 
@@ -111,7 +111,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         for (int i = 0; i < kCnt; ++i) {
             fPaint.setColor(fColors[i]);
             fPaint.setTextSize(fPtSizes[i]);
@@ -136,7 +136,7 @@ protected:
         }
     }
 
-    bool runAsBench() const SK_OVERRIDE { return true; }
+    bool runAsBench() const override { return true; }
 
 private:
     static const int kCnt = 30;

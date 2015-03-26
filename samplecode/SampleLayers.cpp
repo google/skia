@@ -123,7 +123,7 @@ static void test_fade(SkCanvas* canvas) {
 
 class RedFilter : public SkDrawFilter {
 public:
-    bool filter(SkPaint* p, SkDrawFilter::Type) SK_OVERRIDE {
+    bool filter(SkPaint* p, SkDrawFilter::Type) override {
         fColor = p->getColor();
         if (fColor == SK_ColorRED) {
             p->setColor(SK_ColorGREEN);
@@ -215,7 +215,7 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) SK_OVERRIDE {
+                                              unsigned modi) override {
         this->inval(NULL);
 
         return this->INHERITED::onFindClickHandler(x, y, modi);

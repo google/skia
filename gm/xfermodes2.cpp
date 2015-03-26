@@ -18,15 +18,15 @@ public:
     Xfermodes2GM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("xfermodes2");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(455, 475);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkScalar w = SkIntToScalar(kSize);
@@ -86,7 +86,7 @@ protected:
     }
 
 private:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         static const uint32_t kCheckData[] = {
             SkPackARGB32(0xFF, 0x40, 0x40, 0x40),
             SkPackARGB32(0xFF, 0xD0, 0xD0, 0xD0),

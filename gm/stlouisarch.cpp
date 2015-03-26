@@ -14,13 +14,13 @@ namespace skiagm {
 // this GM tests hairlines which fill nearly the entire render target
 class StLouisArchGM : public GM {
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("stlouisarch");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make((int)kWidth, (int)kHeight); }
+    SkISize onISize() override { return SkISize::Make((int)kWidth, (int)kHeight); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         {
             SkPath* bigQuad = &fPaths.push_back();
             bigQuad->moveTo(0, 0);
@@ -66,7 +66,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->save();
         canvas->scale(1, -1);
         canvas->translate(0, -kHeight);

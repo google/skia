@@ -83,7 +83,7 @@ public:
 
     void setTime(SkMSec time) { fTime = time; }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkAutoCanvasRestore acr(canvas, false);
 
         SkPaint paint;
@@ -112,7 +112,7 @@ public:
         canvas->drawRect(fR, paint);
     }
 
-    SkRect onGetBounds() SK_OVERRIDE { return fR; }
+    SkRect onGetBounds() override { return fR; }
 };
 
 class HTView : public SampleView {
@@ -144,7 +144,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "HT");
             return true;
@@ -152,11 +152,11 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fRoot);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fTime = timer.msec();
         for (int i = 0; i < N; ++i) {
             fArray[i].fDrawable->setTime(fTime);
@@ -164,7 +164,7 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         // search backwards to find the top-most
         for (int i = N - 1; i >= 0; --i) {
             if (fArray[i].fDrawable->hitTest(x, y)) {

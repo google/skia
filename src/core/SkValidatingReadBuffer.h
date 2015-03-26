@@ -23,48 +23,48 @@ public:
     SkValidatingReadBuffer(const void* data, size_t size);
     virtual ~SkValidatingReadBuffer();
 
-    const void* skip(size_t size) SK_OVERRIDE;
+    const void* skip(size_t size) override;
 
     // primitives
-    bool readBool() SK_OVERRIDE;
-    SkColor readColor() SK_OVERRIDE;
-    SkFixed readFixed() SK_OVERRIDE;
-    int32_t readInt() SK_OVERRIDE;
-    SkScalar readScalar() SK_OVERRIDE;
-    uint32_t readUInt() SK_OVERRIDE;
-    int32_t read32() SK_OVERRIDE;
+    bool readBool() override;
+    SkColor readColor() override;
+    SkFixed readFixed() override;
+    int32_t readInt() override;
+    SkScalar readScalar() override;
+    uint32_t readUInt() override;
+    int32_t read32() override;
 
     // strings -- the caller is responsible for freeing the string contents
-    void readString(SkString* string) SK_OVERRIDE;
-    void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) SK_OVERRIDE;
+    void readString(SkString* string) override;
+    void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) override;
 
     // common data structures
-    SkFlattenable* readFlattenable(SkFlattenable::Type type) SK_OVERRIDE;
-    void skipFlattenable() SK_OVERRIDE;
-    void readPoint(SkPoint* point) SK_OVERRIDE;
-    void readMatrix(SkMatrix* matrix) SK_OVERRIDE;
-    void readIRect(SkIRect* rect) SK_OVERRIDE;
-    void readRect(SkRect* rect) SK_OVERRIDE;
-    void readRegion(SkRegion* region) SK_OVERRIDE;
-    void readPath(SkPath* path) SK_OVERRIDE;
+    SkFlattenable* readFlattenable(SkFlattenable::Type type) override;
+    void skipFlattenable() override;
+    void readPoint(SkPoint* point) override;
+    void readMatrix(SkMatrix* matrix) override;
+    void readIRect(SkIRect* rect) override;
+    void readRect(SkRect* rect) override;
+    void readRegion(SkRegion* region) override;
+    void readPath(SkPath* path) override;
 
     // binary data and arrays
-    bool readByteArray(void* value, size_t size) SK_OVERRIDE;
-    bool readColorArray(SkColor* colors, size_t size) SK_OVERRIDE;
-    bool readIntArray(int32_t* values, size_t size) SK_OVERRIDE;
-    bool readPointArray(SkPoint* points, size_t size) SK_OVERRIDE;
-    bool readScalarArray(SkScalar* values, size_t size) SK_OVERRIDE;
+    bool readByteArray(void* value, size_t size) override;
+    bool readColorArray(SkColor* colors, size_t size) override;
+    bool readIntArray(int32_t* values, size_t size) override;
+    bool readPointArray(SkPoint* points, size_t size) override;
+    bool readScalarArray(SkScalar* values, size_t size) override;
 
     // helpers to get info about arrays and binary data
-    uint32_t getArrayCount() SK_OVERRIDE;
+    uint32_t getArrayCount() override;
 
     // TODO: Implement this (securely) when needed
-    SkTypeface* readTypeface() SK_OVERRIDE;
+    SkTypeface* readTypeface() override;
 
-    bool validate(bool isValid) SK_OVERRIDE;
-    bool isValid() const SK_OVERRIDE;
+    bool validate(bool isValid) override;
+    bool isValid() const override;
 
-    bool validateAvailable(size_t size) SK_OVERRIDE;
+    bool validateAvailable(size_t size) override;
 
 private:
     bool readArray(void* value, size_t size, size_t elementSize);

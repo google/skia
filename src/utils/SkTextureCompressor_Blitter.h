@@ -85,7 +85,7 @@ public:
     virtual ~SkTCompressedAlphaBlitter() { this->flushRuns(); }
 
     // Blit a horizontal run of one or more pixels.
-    void blitH(int x, int y, int width) SK_OVERRIDE {
+    void blitH(int x, int y, int width) override {
         // This function is intended to be called from any standard RGB
         // buffer, so we should never encounter it. However, if some code
         // path does end up here, then this needs to be investigated.
@@ -96,7 +96,7 @@ public:
     // zero-terminated run-length encoding of spans of constant alpha values.
     virtual void blitAntiH(int x, int y,
                            const SkAlpha antialias[],
-                           const int16_t runs[]) SK_OVERRIDE {
+                           const int16_t runs[]) override {
         SkASSERT(0 == x);
 
         // Make sure that the new row to blit is either the first
@@ -141,7 +141,7 @@ public:
     }
     
     // Blit a vertical run of pixels with a constant alpha value.
-    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
+    void blitV(int x, int y, int height, SkAlpha alpha) override {
         // This function is currently not implemented. It is not explicitly
         // required by the contract, but if at some time a code path runs into
         // this function (which is entirely possible), it needs to be implemented.
@@ -163,7 +163,7 @@ public:
 #ifdef SK_DEBUG
     bool fCalledOnceWithNonzeroY;
 #endif
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+    void blitRect(int x, int y, int width, int height) override {
 
         // Assumptions:
         SkASSERT(0 == x);
@@ -279,7 +279,7 @@ public:
     // width (zero or more) opaque pixels, and one alpha-blended column
     // on the right. The result will always be at least two pixels wide.
     virtual void blitAntiRect(int x, int y, int width, int height,
-                              SkAlpha leftAlpha, SkAlpha rightAlpha) SK_OVERRIDE {
+                              SkAlpha leftAlpha, SkAlpha rightAlpha) override {
         // This function is currently not implemented. It is not explicitly
         // required by the contract, but if at some time a code path runs into
         // this function (which is entirely possible), it needs to be implemented.
@@ -306,7 +306,7 @@ public:
 #ifdef SK_DEBUG
     bool fBlitMaskCalled;
 #endif
-    void blitMask(const SkMask& mask, const SkIRect& clip) SK_OVERRIDE {
+    void blitMask(const SkMask& mask, const SkIRect& clip) override {
 
         // Assumptions:
         SkASSERT(!fBlitMaskCalled);
@@ -368,7 +368,7 @@ public:
     // If the blitter just sets a single value for each pixel, return the
     // bitmap it draws into, and assign value. If not, return NULL and ignore
     // the value parameter.
-    const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE {
+    const SkBitmap* justAnOpaqueColor(uint32_t* value) override {
         return NULL;
     }
 
@@ -378,7 +378,7 @@ public:
      * to preserve semantics if blitAntiH doesn't get called in too many
      * weird ways...
      */
-    int requestRowsPreserved() const SK_OVERRIDE { return BlockDim; }
+    int requestRowsPreserved() const override { return BlockDim; }
 
 private:
     static const int kPixelsPerBlock = BlockDim * BlockDim;

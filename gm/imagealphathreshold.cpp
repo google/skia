@@ -22,15 +22,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("imagealphathreshold");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkIRect rects[2];
         rects[0] = SkIRect::MakeXYWH(0, 150, WIDTH, HEIGHT - 300);
         rects[1] = SkIRect::MakeXYWH(150, 0, WIDTH - 300, HEIGHT);

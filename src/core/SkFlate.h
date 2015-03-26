@@ -66,8 +66,8 @@ public:
     void finalize();
 
     // The SkWStream interface:
-    bool write(const void*, size_t) SK_OVERRIDE;
-    size_t bytesWritten() const SK_OVERRIDE;
+    bool write(const void*, size_t) override;
+    size_t bytesWritten() const override;
 
 private:
     struct Impl;

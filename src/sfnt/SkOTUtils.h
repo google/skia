@@ -54,7 +54,7 @@ struct SkOTUtils {
          */
         static LocalizedStrings_NameTable* CreateForFamilyNames(const SkTypeface& typeface);
 
-        bool next(SkTypeface::LocalizedString* localizedString) SK_OVERRIDE;
+        bool next(SkTypeface::LocalizedString* localizedString) override;
     private:
         static SkOTTableName::Record::NameID::Predefined::Value familyNameTypes[3];
 
@@ -72,7 +72,7 @@ struct SkOTUtils {
             : fName(name), fLanguage(language), fHasNext(true)
         { }
 
-        bool next(SkTypeface::LocalizedString* localizedString) SK_OVERRIDE {
+        bool next(SkTypeface::LocalizedString* localizedString) override {
             localizedString->fString = fName;
             localizedString->fLanguage = fLanguage;
 

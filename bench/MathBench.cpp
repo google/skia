@@ -31,7 +31,7 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -68,7 +68,7 @@ protected:
 
     virtual void performTest(float* SK_RESTRICT dst,
                              const float* SK_RESTRICT src,
-                             int count) SK_OVERRIDE {
+                             int count) override {
         uint32_t* d = SkTCast<uint32_t*>(dst);
         const uint32_t* s = SkTCast<const uint32_t*>(src);
         this->performITest(d, s, count);
@@ -166,7 +166,7 @@ public:
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
                               const uint32_t* SK_RESTRICT src,
-                              int count) SK_OVERRIDE {
+                              int count) override {
         for (int i = 0; i < count; ++i) {
             dst[i] = QMul64(src[i], (uint8_t)i);
         }
@@ -181,7 +181,7 @@ public:
 protected:
     virtual void performITest(uint32_t* SK_RESTRICT dst,
                               const uint32_t* SK_RESTRICT src,
-                              int count) SK_OVERRIDE {
+                              int count) override {
         for (int i = 0; i < count; ++i) {
             dst[i] = SkAlphaMulQ(src[i], (uint8_t)i);
         }
@@ -285,7 +285,7 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -353,7 +353,7 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -414,7 +414,7 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -470,7 +470,7 @@ public:
         fName = "point_normalize";
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -517,7 +517,7 @@ public:
 
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -553,7 +553,7 @@ public:
         fName.printf("divmod_%s", name);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 

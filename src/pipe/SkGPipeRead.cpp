@@ -162,7 +162,7 @@ public:
      * these SkBitmaps for bitmap shaders. Used only in cross process mode
      * without a shared heap.
      */
-    SkBitmap* getBitmap(int32_t index) const SK_OVERRIDE {
+    SkBitmap* getBitmap(int32_t index) const override {
         SkASSERT(shouldFlattenBitmaps(fFlags));
         return fBitmaps[index];
     }
@@ -170,7 +170,7 @@ public:
     /**
      * Needed to be a non-abstract subclass of SkBitmapHeapReader.
      */
-    void releaseRef(int32_t) SK_OVERRIDE {}
+    void releaseRef(int32_t) override {}
 
     void setSharedHeap(SkBitmapHeap* heap) {
         SkASSERT(!shouldFlattenBitmaps(fFlags) || NULL == heap);

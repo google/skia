@@ -503,7 +503,7 @@ public:
         fSrcRow = static_cast<uint8_t*>(fStorage.get());
     }
 
-    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t rowBytes) SK_OVERRIDE {
+    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
             SkDebugf("setjmp long jump!\n");
             return SkImageGenerator::kInvalidInput;
@@ -518,7 +518,7 @@ public:
         return SkImageGenerator::kSuccess;
     }
 
-    SkImageGenerator::Result onSkipScanlines(int count) SK_OVERRIDE {
+    SkImageGenerator::Result onSkipScanlines(int count) override {
         // FIXME: Could we use the return value of setjmp to specify the type of
         // error?
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
@@ -530,11 +530,11 @@ public:
         return SkImageGenerator::kSuccess;
     }
 
-    void onFinish() SK_OVERRIDE {
+    void onFinish() override {
         fCodec->finish();
     }
 
-    bool onReallyHasAlpha() const SK_OVERRIDE { return fHasAlpha; }
+    bool onReallyHasAlpha() const override { return fHasAlpha; }
 
 private:
     SkPngCodec*         fCodec;     // Unowned.

@@ -195,7 +195,7 @@ protected:
         }
     }
     
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         SkScalar currSecs = timer.scaled(100);
         SkScalar delta = currSecs - fPrevSecs;
         fPrevSecs = currSecs;
@@ -207,7 +207,7 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fShowHairline = !fShowHairline;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);
@@ -272,7 +272,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "ArcTo");
             return true;
@@ -300,7 +300,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
 
         SkPath path;
@@ -316,7 +316,7 @@ protected:
         canvas->drawPath(path, fSkeletonPaint);
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         int32_t index;
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
@@ -327,7 +327,7 @@ protected:
         return false;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {

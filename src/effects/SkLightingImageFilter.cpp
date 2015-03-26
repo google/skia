@@ -289,12 +289,12 @@ public:
 protected:
     SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale,
                                  SkScalar kd, SkImageFilter* input, const CropRect* cropRect);
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const override;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                                     const SkIRect& bounds) const SK_OVERRIDE;
+                                     const SkIRect& bounds) const override;
 #endif
 
 private:
@@ -317,12 +317,12 @@ public:
 protected:
     SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks,
                                   SkScalar shininess, SkImageFilter* input, const CropRect*);
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer& buffer) const override;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                                     const SkIRect& bounds) const SK_OVERRIDE;
+                                     const SkIRect& bounds) const override;
 #endif
 
 private:
@@ -344,9 +344,9 @@ public:
     const SkMatrix& filterMatrix() const { return fFilterMatrix; }
 
 protected:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // lighting shaders are complicated. We just throw up our hands.
         inout->mulByUnknownFourComponents();
     }
@@ -372,16 +372,16 @@ public:
                                                     kd));
     }
 
-    const char* name() const SK_OVERRIDE { return "DiffuseLighting"; }
+    const char* name() const override { return "DiffuseLighting"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     SkScalar kd() const { return fKD; }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
     GrDiffuseLightingEffect(GrTexture* texture,
                             const SkLight* light,
@@ -410,17 +410,17 @@ public:
                                                      shininess));
     }
 
-    const char* name() const SK_OVERRIDE { return "SpecularLighting"; }
+    const char* name() const override { return "SpecularLighting"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const SK_OVERRIDE;
+    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
     GrSpecularLightingEffect(GrTexture* texture,
                              const SkLight* light,
@@ -482,8 +482,8 @@ class GrGLDistantLight : public GrGLLight {
 public:
     virtual ~GrGLDistantLight() {}
     virtual void setData(const GrGLProgramDataManager&,
-                         const SkLight* light) const SK_OVERRIDE;
-    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
+                         const SkLight* light) const override;
+    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
 
 private:
     typedef GrGLLight INHERITED;
@@ -496,8 +496,8 @@ class GrGLPointLight : public GrGLLight {
 public:
     virtual ~GrGLPointLight() {}
     virtual void setData(const GrGLProgramDataManager&,
-                         const SkLight* light) const SK_OVERRIDE;
-    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
+                         const SkLight* light) const override;
+    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
 
 private:
     typedef GrGLLight INHERITED;
@@ -510,9 +510,9 @@ class GrGLSpotLight : public GrGLLight {
 public:
     virtual ~GrGLSpotLight() {}
     virtual void setData(const GrGLProgramDataManager&,
-                         const SkLight* light) const SK_OVERRIDE;
-    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) SK_OVERRIDE;
-    void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight) SK_OVERRIDE;
+                         const SkLight* light) const override;
+    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
+    void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight) override;
 
 private:
     typedef GrGLLight INHERITED;
@@ -589,9 +589,9 @@ public:
         return fDirection;
     };
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
-    LightType type() const SK_OVERRIDE { return kDistant_LightType; }
+    LightType type() const override { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
-    GrGLLight* createGLLight() const SK_OVERRIDE {
+    GrGLLight* createGLLight() const override {
 #if SK_SUPPORT_GPU
         return SkNEW(GrGLDistantLight);
 #else
@@ -599,9 +599,9 @@ public:
         return NULL;
 #endif
     }
-    bool requiresFragmentPosition() const SK_OVERRIDE { return false; }
+    bool requiresFragmentPosition() const override { return false; }
 
-    bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    bool isEqual(const SkLight& other) const override {
         if (other.type() != kDistant_LightType) {
             return false;
         }
@@ -619,10 +619,10 @@ protected:
     SkDistantLight(const SkPoint3& direction, const SkPoint3& color)
       : INHERITED(color), fDirection(direction) {
     }
-    SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
+    SkLight* transform(const SkMatrix& matrix) const override {
         return new SkDistantLight(direction(), color());
     }
-    void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void onFlattenLight(SkWriteBuffer& buffer) const override {
         writePoint3(fDirection, buffer);
     }
 
@@ -646,9 +646,9 @@ public:
         return direction;
     };
     SkPoint3 lightColor(const SkPoint3&) const { return color(); }
-    LightType type() const SK_OVERRIDE { return kPoint_LightType; }
+    LightType type() const override { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
-    GrGLLight* createGLLight() const SK_OVERRIDE {
+    GrGLLight* createGLLight() const override {
 #if SK_SUPPORT_GPU
         return SkNEW(GrGLPointLight);
 #else
@@ -656,8 +656,8 @@ public:
         return NULL;
 #endif
     }
-    bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
-    bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    bool requiresFragmentPosition() const override { return true; }
+    bool isEqual(const SkLight& other) const override {
         if (other.type() != kPoint_LightType) {
             return false;
         }
@@ -665,7 +665,7 @@ public:
         return INHERITED::isEqual(other) &&
                fLocation == o.fLocation;
     }
-    SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
+    SkLight* transform(const SkMatrix& matrix) const override {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
         // Use X scale and Y scale on Z and average the result
@@ -682,7 +682,7 @@ public:
 protected:
     SkPointLight(const SkPoint3& location, const SkPoint3& color)
      : INHERITED(color), fLocation(location) {}
-    void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void onFlattenLight(SkWriteBuffer& buffer) const override {
         writePoint3(fLocation, buffer);
     }
 
@@ -709,7 +709,7 @@ public:
        fConeScale = SkScalarInvert(antiAliasThreshold);
     }
 
-    SkLight* transform(const SkMatrix& matrix) const SK_OVERRIDE {
+    SkLight* transform(const SkMatrix& matrix) const override {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
         // Use X scale and Y scale on Z and average the result
@@ -745,7 +745,7 @@ public:
         }
         return color() * scale;
     }
-    GrGLLight* createGLLight() const SK_OVERRIDE {
+    GrGLLight* createGLLight() const override {
 #if SK_SUPPORT_GPU
         return SkNEW(GrGLSpotLight);
 #else
@@ -753,8 +753,8 @@ public:
         return NULL;
 #endif
     }
-    bool requiresFragmentPosition() const SK_OVERRIDE { return true; }
-    LightType type() const SK_OVERRIDE { return kSpot_LightType; }
+    bool requiresFragmentPosition() const override { return true; }
+    LightType type() const override { return kSpot_LightType; }
     const SkPoint3& location() const { return fLocation; }
     const SkPoint3& target() const { return fTarget; }
     SkScalar specularExponent() const { return fSpecularExponent; }
@@ -788,7 +788,7 @@ protected:
        fS(s)
     {
     }
-    void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void onFlattenLight(SkWriteBuffer& buffer) const override {
         writePoint3(fLocation, buffer);
         writePoint3(fTarget, buffer);
         buffer.writeScalar(fSpecularExponent);
@@ -798,7 +798,7 @@ protected:
         writePoint3(fS, buffer);
     }
 
-    bool isEqual(const SkLight& other) const SK_OVERRIDE {
+    bool isEqual(const SkLight& other) const override {
         if (other.type() != kSpot_LightType) {
             return false;
         }
@@ -1214,14 +1214,14 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
 
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::setData();
      */
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 protected:
     virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) = 0;
@@ -1239,8 +1239,8 @@ private:
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLDiffuseLightingEffect(const GrProcessor&);
-    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1253,8 +1253,8 @@ private:
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLSpecularLightingEffect(const GrProcessor&);
-    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) SK_OVERRIDE;
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;

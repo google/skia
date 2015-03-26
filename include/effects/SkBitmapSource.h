@@ -20,7 +20,7 @@ public:
                                   const SkRect& dstRect) {
         return SkNEW_ARGS(SkBitmapSource, (bitmap, srcRect, dstRect));
     }
-    void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapSource)
@@ -28,10 +28,10 @@ public:
 protected:
     explicit SkBitmapSource(const SkBitmap& bitmap);
     SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, const SkRect& dstRect);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* offset) const override;
 
 private:
     SkBitmap fBitmap;

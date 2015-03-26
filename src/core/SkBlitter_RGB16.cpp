@@ -59,14 +59,14 @@ void sk_dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
 class SkRGB16_Blitter : public SkRasterBlitter {
 public:
     SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint);
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs) SK_OVERRIDE;
-    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+                           const int16_t* runs) override;
+    void blitV(int x, int y, int height, SkAlpha alpha) override;
+    void blitRect(int x, int y, int width, int height) override;
     virtual void blitMask(const SkMask&,
-                          const SkIRect&) SK_OVERRIDE;
-    const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE;
+                          const SkIRect&) override;
+    const SkBitmap* justAnOpaqueColor(uint32_t*) override;
 
 protected:
     SkPMColor   fSrcColor32;
@@ -88,13 +88,13 @@ protected:
 class SkRGB16_Opaque_Blitter : public SkRGB16_Blitter {
 public:
     SkRGB16_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint);
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs) SK_OVERRIDE;
-    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+                           const int16_t* runs) override;
+    void blitV(int x, int y, int height, SkAlpha alpha) override;
+    void blitRect(int x, int y, int width, int height) override;
     virtual void blitMask(const SkMask&,
-                          const SkIRect&) SK_OVERRIDE;
+                          const SkIRect&) override;
 
 private:
     typedef SkRGB16_Blitter INHERITED;
@@ -104,9 +104,9 @@ private:
 class SkRGB16_Black_Blitter : public SkRGB16_Opaque_Blitter {
 public:
     SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
-    void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
+    void blitMask(const SkMask&, const SkIRect&) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs) SK_OVERRIDE;
+                           const int16_t* runs) override;
 
 private:
     typedef SkRGB16_Opaque_Blitter INHERITED;
@@ -118,10 +118,10 @@ public:
     SkRGB16_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
                            SkShader::Context* shaderContext);
     virtual ~SkRGB16_Shader_Blitter();
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs) SK_OVERRIDE;
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+                           const int16_t* runs) override;
+    void blitRect(int x, int y, int width, int height) override;
 
 protected:
     SkPMColor*          fBuffer;
@@ -140,10 +140,10 @@ class SkRGB16_Shader16_Blitter : public SkRGB16_Shader_Blitter {
 public:
     SkRGB16_Shader16_Blitter(const SkBitmap& device, const SkPaint& paint,
                              SkShader::Context* shaderContext);
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs) SK_OVERRIDE;
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+                           const int16_t* runs) override;
+    void blitRect(int x, int y, int width, int height) override;
 
 private:
     typedef SkRGB16_Shader_Blitter INHERITED;
@@ -154,9 +154,9 @@ public:
     SkRGB16_Shader_Xfermode_Blitter(const SkBitmap& device, const SkPaint& paint,
                                     SkShader::Context* shaderContext);
     virtual ~SkRGB16_Shader_Xfermode_Blitter();
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
-                           const int16_t* runs) SK_OVERRIDE;
+                           const int16_t* runs) override;
 
 private:
     SkXfermode* fXfermode;

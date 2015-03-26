@@ -156,7 +156,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "FilterQuality");
             return true;
@@ -239,7 +239,7 @@ protected:
         canvas->drawLine(r.centerX(), r.top(), r.centerX(), r.bottom(), p);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         fCell.set(this->height() / 2, this->height() / 2);
 
         SkScalar trans[2];
@@ -276,7 +276,7 @@ protected:
         canvas->drawText(str.c_str(), str.size(), textX, 250, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fCurrTime = timer.msec();
         return true;
     }

@@ -99,7 +99,7 @@ public:
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
     virtual ~SampleWindow();
 
-    SkSurface* createSurface() SK_OVERRIDE {
+    SkSurface* createSurface() override {
         SkSurface* surface = NULL;
         if (fDevManager) {
             surface = fDevManager->createSurface(fDeviceType, this);
@@ -110,7 +110,7 @@ public:
         return surface;
     }
 
-    void draw(SkCanvas*) SK_OVERRIDE;
+    void draw(SkCanvas*) override;
 
     void setDeviceType(DeviceType type);
     void toggleRendering();
@@ -136,24 +136,24 @@ public:
     DeviceType getDeviceType() const { return fDeviceType; }
 
 protected:
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE;
-    bool onHandleKey(SkKey key) SK_OVERRIDE;
-    bool onHandleChar(SkUnichar) SK_OVERRIDE;
-    void onSizeChange() SK_OVERRIDE;
+    void onDraw(SkCanvas* canvas) override;
+    bool onHandleKey(SkKey key) override;
+    bool onHandleChar(SkUnichar) override;
+    void onSizeChange() override;
 
-    SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
-    void afterChildren(SkCanvas*) SK_OVERRIDE;
-    void beforeChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
-    void afterChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
+    SkCanvas* beforeChildren(SkCanvas*) override;
+    void afterChildren(SkCanvas*) override;
+    void beforeChild(SkView* child, SkCanvas* canvas) override;
+    void afterChild(SkView* child, SkCanvas* canvas) override;
 
-    bool onEvent(const SkEvent& evt) SK_OVERRIDE;
-    bool onQuery(SkEvent* evt) SK_OVERRIDE;
+    bool onEvent(const SkEvent& evt) override;
+    bool onQuery(SkEvent* evt) override;
 
     virtual bool onDispatchClick(int x, int y, Click::State, void* owner,
-                                 unsigned modi) SK_OVERRIDE;
-    bool onClick(Click* click) SK_OVERRIDE;
+                                 unsigned modi) override;
+    bool onClick(Click* click) override;
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                      unsigned modi) SK_OVERRIDE;
+                                      unsigned modi) override;
 
 private:
     class DefaultDeviceManager;

@@ -246,7 +246,7 @@ public:
     CanvasVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
     
     virtual void operator()(const char text[], size_t length, SkScalar x, SkScalar y,
-                            const SkPaint& paint) SK_OVERRIDE {
+                            const SkPaint& paint) override {
         fCanvas->drawText(text, length, x, y, paint);
     }
 };
@@ -284,7 +284,7 @@ public:
     SkTextBlobBuilder fBuilder;
     
     virtual void operator()(const char text[], size_t length, SkScalar x, SkScalar y,
-                            const SkPaint& paint) SK_OVERRIDE {
+                            const SkPaint& paint) override {
         SkPaint p(paint);
         p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         const int count = paint.countText(text, length);

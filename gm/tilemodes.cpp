@@ -61,7 +61,7 @@ protected:
         kNPOTSize = 21,
     };
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString name("tilemodes");
         if (!fPowerOfTwoSize) {
             name.append("_npot");
@@ -69,16 +69,16 @@ protected:
         return name;
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(880, 560); }
+    SkISize onISize() override { return SkISize::Make(880, 560); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
             makebm(&fTexture[i], gColorTypes[i], size, size);
         }
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
 
@@ -195,13 +195,13 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(880, 560); }
+    SkISize onISize() override { return SkISize::Make(880, 560); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
 
         const SkScalar w = SkIntToScalar(gWidth);

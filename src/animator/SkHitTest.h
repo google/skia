@@ -16,10 +16,10 @@
 class SkHitTest : public SkADrawable {
     DECLARE_MEMBER_INFO(HitTest);
     SkHitTest();
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
-    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
-    bool hasEnable() const SK_OVERRIDE;
-    const SkMemberInfo* preferredChild(SkDisplayTypes type) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
+    bool enable(SkAnimateMaker& ) override;
+    bool hasEnable() const override;
+    const SkMemberInfo* preferredChild(SkDisplayTypes type) override;
 private:
     SkTDDisplayableArray bullets;
     SkTDIntArray hits;

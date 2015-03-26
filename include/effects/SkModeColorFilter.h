@@ -25,12 +25,12 @@ public:
     SkXfermode::Mode getMode() const { return fMode; }
     SkPMColor getPMColor() const { return fPMColor; }
 
-    bool asColorMode(SkColor*, SkXfermode::Mode*) const SK_OVERRIDE;
-    uint32_t getFlags() const SK_OVERRIDE;
-    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const SK_OVERRIDE;
+    bool asColorMode(SkColor*, SkXfermode::Mode*) const override;
+    uint32_t getFlags() const override;
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override;
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const override {
         str->append("SkModeColorFilter: color: 0x");
         str->appendHex(fColor);
         str->append(" mode: ");
@@ -39,12 +39,12 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const SK_OVERRIDE;
+    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
 protected:
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
 private:
     SkColor             fColor;

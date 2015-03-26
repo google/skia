@@ -12,16 +12,16 @@
 
 class WriterBench : public Benchmark {
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "writer";
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         static const char gStr[] = "abcdefghimjklmnopqrstuvwxyz";
         static const size_t gLen = strlen(gStr);
         SkWriter32 writer;

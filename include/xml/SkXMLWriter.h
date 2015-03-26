@@ -69,10 +69,10 @@ public:
     SkDEBUGCODE(static void UnitTest();)
 
 protected:
-    void onStartElementLen(const char elem[], size_t length) SK_OVERRIDE;
-    void onEndElement() SK_OVERRIDE;
-    void onAddAttributeLen(const char name[], const char value[], size_t length) SK_OVERRIDE;
-    void onAddText(const char text[], size_t length) SK_OVERRIDE;
+    void onStartElementLen(const char elem[], size_t length) override;
+    void onEndElement() override;
+    void onAddAttributeLen(const char name[], const char value[], size_t length) override;
+    void onAddText(const char text[], size_t length) override;
 
 private:
     SkWStream&      fStream;
@@ -86,7 +86,7 @@ protected:
     virtual void onStartElementLen(const char elem[], size_t length);
     virtual void onEndElement();
     virtual void onAddAttributeLen(const char name[], const char value[], size_t length);
-    virtual void onAddText(const char text[], size_t length) SK_OVERRIDE;
+    virtual void onAddText(const char text[], size_t length) override;
 private:
     SkXMLParser&        fParser;
 };

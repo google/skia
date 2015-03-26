@@ -162,11 +162,11 @@ public:
     void invalidateCachedState();
 
 protected:
-    size_t onGpuMemorySize() const SK_OVERRIDE { return 0; }
+    size_t onGpuMemorySize() const override { return 0; }
 
-    void onAbandon() SK_OVERRIDE;
+    void onAbandon() override;
 
-    void onRelease() SK_OVERRIDE;
+    void onRelease() override;
 
 private:
     GrGLuint                fID;

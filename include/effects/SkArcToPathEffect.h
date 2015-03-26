@@ -22,14 +22,14 @@ public:
         return SkNEW_ARGS(SkArcToPathEffect, (radius));
     }
 
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
+    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArcToPathEffect)
 
 protected:
     explicit SkArcToPathEffect(SkScalar radius);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
 private:
     SkScalar fRadius;

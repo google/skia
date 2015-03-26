@@ -154,7 +154,7 @@ class XfermodesGM : public GM {
         }
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
                                             kOpaque_SkAlphaType),
                           gData, 4);
@@ -168,15 +168,15 @@ public:
     XfermodesGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("xfermodes");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1990, 640);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const struct {

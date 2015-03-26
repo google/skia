@@ -309,7 +309,7 @@ public:
 
 protected:
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
-                                  const SkRect& trimBox) SK_OVERRIDE {
+                                  const SkRect& trimBox) override {
         SkASSERT(!fCanvas.get());
 
         SkISize pageSize = SkISize::Make(
@@ -323,13 +323,13 @@ protected:
         return fCanvas.get();
     }
 
-    void onEndPage() SK_OVERRIDE {
+    void onEndPage() override {
         SkASSERT(fCanvas.get());
         fCanvas->flush();
         fCanvas.reset(NULL);
     }
 
-    bool onClose(SkWStream* stream) SK_OVERRIDE {
+    bool onClose(SkWStream* stream) override {
         SkASSERT(!fCanvas.get());
 
         bool success = emit_pdf_document(fPageDevices, stream);
@@ -338,7 +338,7 @@ protected:
         return success;
     }
 
-    void onAbort() SK_OVERRIDE {
+    void onAbort() override {
         fPageDevices.unrefAll();
         fCanon.reset();
     }

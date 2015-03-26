@@ -19,16 +19,16 @@ class SKPBench : public Benchmark {
 public:
     SKPBench(const char* name, const SkPicture*, const SkIRect& devClip, SkScalar scale,
              bool useMultiPictureDraw);
-    ~SKPBench() SK_OVERRIDE;
+    ~SKPBench() override;
 
 protected:
-    const char* onGetName() SK_OVERRIDE;
-    const char* onGetUniqueName() SK_OVERRIDE;
-    void onPerCanvasPreDraw(SkCanvas*) SK_OVERRIDE;
-    void onPerCanvasPostDraw(SkCanvas*) SK_OVERRIDE;
-    bool isSuitableFor(Backend backend) SK_OVERRIDE;
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE;
-    SkIPoint onGetSize() SK_OVERRIDE;
+    const char* onGetName() override;
+    const char* onGetUniqueName() override;
+    void onPerCanvasPreDraw(SkCanvas*) override;
+    void onPerCanvasPostDraw(SkCanvas*) override;
+    bool isSuitableFor(Backend backend) override;
+    void onDraw(const int loops, SkCanvas* canvas) override;
+    SkIPoint onGetSize() override;
 
 private:
     SkAutoTUnref<const SkPicture> fPic;

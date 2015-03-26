@@ -78,17 +78,17 @@ namespace skiagm {
         SkPaint fBGPaint;
 
     protected:
-        SkString onShortName() SK_OVERRIDE {
+        SkString onShortName() override {
             return SkString("hairmodes");
         }
 
-        virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
+        virtual SkISize onISize() override { return SkISize::Make(640, 480); }
 
-        void onOnceBeforeDraw() SK_OVERRIDE {
+        void onOnceBeforeDraw() override {
             fBGPaint.setShader(make_bg_shader())->unref();
         }
 
-        void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        void onDraw(SkCanvas* canvas) override {
             const SkRect bounds = SkRect::MakeWH(W, H);
             static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 

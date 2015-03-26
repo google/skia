@@ -26,7 +26,7 @@ public:
     GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL) {}
 
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
         const BitmapTextBatchTracker& local = args.fBT.cast<BitmapTextBatchTracker>();
 
@@ -78,7 +78,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& gp,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
         this->setUniformViewMatrix(pdman, gp.viewMatrix());
 
         const BitmapTextBatchTracker& local = bt.cast<BitmapTextBatchTracker>();

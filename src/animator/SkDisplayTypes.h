@@ -34,7 +34,7 @@ class SkDisplayBoolean : public SkDisplayDepend {
     DECLARE_DISPLAY_MEMBER_INFO(Boolean);
     SkDisplayBoolean();
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
     SkBool value;
     friend class SkAnimatorScript;
@@ -47,7 +47,7 @@ class SkDisplayInt : public SkDisplayDepend {
     DECLARE_DISPLAY_MEMBER_INFO(Int);
     SkDisplayInt();
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
 private:
     int32_t value;
@@ -61,7 +61,7 @@ class SkDisplayFloat : public SkDisplayDepend {
     DECLARE_DISPLAY_MEMBER_INFO(Float);
     SkDisplayFloat();
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
 private:
     SkScalar value;
@@ -77,9 +77,9 @@ class SkDisplayString : public SkDisplayDepend {
     SkDisplayString(SkString& );
     virtual void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
-        SkScriptValue* ) SK_OVERRIDE;
-    const SkFunctionParamType* getFunctionsParameters() SK_OVERRIDE;
-    bool getProperty(int index, SkScriptValue* ) const SK_OVERRIDE;
+        SkScriptValue* ) override;
+    const SkFunctionParamType* getFunctionsParameters() override;
+    bool getProperty(int index, SkScriptValue* ) const override;
     SkString value;
 private:
     static const SkFunctionParamType fFunctionParameters[];
@@ -91,7 +91,7 @@ class SkDisplayArray : public SkDisplayDepend {
     SkDisplayArray(SkTypedArray& );
     SkDisplayArray(SkOpArray& ); // compiled script experiment
     virtual ~SkDisplayArray();
-    bool getProperty(int index, SkScriptValue* ) const SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* ) const override;
 private:
     SkTypedArray values;
     friend class SkAnimator;

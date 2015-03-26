@@ -56,19 +56,19 @@ public:
         fBitmap.allocN32Pixels(width, height);
     }
 
-    SkCanvas* onNewCanvas() SK_OVERRIDE {
+    SkCanvas* onNewCanvas() override {
         return SkNEW_ARGS(SkCanvas, (fBitmap));
     }
 
-    SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE {
+    SkSurface* onNewSurface(const SkImageInfo&) override {
         return NULL;
     }
 
-    SkImage* onNewImageSnapshot(Budgeted) SK_OVERRIDE {
+    SkImage* onNewImageSnapshot(Budgeted) override {
         return SkNewImageFromBitmap(fBitmap, true, &this->props());
     }
 
-    void onCopyOnWrite(ContentChangeMode mode) SK_OVERRIDE {
+    void onCopyOnWrite(ContentChangeMode mode) override {
         if (mode == SkSurface::kDiscard_ContentChangeMode) {
             fCOWDiscardCount++;
         } else {
@@ -76,7 +76,7 @@ public:
         }
     }
 
-    void onDiscard() SK_OVERRIDE {
+    void onDiscard() override {
         fDiscardCount++;
     }
 
@@ -446,7 +446,7 @@ public:
         fDrawBitmapCallCount = 0;
     }
     virtual void drawBitmap(const SkDraw&, const SkBitmap&,
-                            const SkMatrix&, const SkPaint&) SK_OVERRIDE {
+                            const SkMatrix&, const SkPaint&) override {
         fDrawBitmapCallCount++;
     }
 
@@ -460,16 +460,16 @@ public:
             fFlushedDrawCommandsCount = fSkippedPendingDrawCommandsCount = 0;
     }
 
-    void prepareForDraw() SK_OVERRIDE {
+    void prepareForDraw() override {
         fPrepareForDrawCount++;
     }
-    void storageAllocatedForRecordingChanged(size_t) SK_OVERRIDE {
+    void storageAllocatedForRecordingChanged(size_t) override {
         fStorageAllocatedChangedCount++;
     }
-    void flushedDrawCommands() SK_OVERRIDE {
+    void flushedDrawCommands() override {
         fFlushedDrawCommandsCount++;
     }
-    void skippedPendingDrawCommands() SK_OVERRIDE {
+    void skippedPendingDrawCommands() override {
         fSkippedPendingDrawCommandsCount++;
     }
 

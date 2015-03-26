@@ -65,8 +65,8 @@ public:
     DeferredPipeController();
     void setPlaybackCanvas(SkCanvas*);
     virtual ~DeferredPipeController();
-    void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
-    void notifyWritten(size_t bytes) SK_OVERRIDE;
+    void* requestBlock(size_t minRequest, size_t* actual) override;
+    void notifyWritten(size_t bytes) override;
     void playback(bool silent);
     bool hasPendingCommands() const { return fAllocator.totalUsed() != 0; }
     size_t storageAllocatedForRecording() const { return fAllocator.totalCapacity(); }
@@ -158,90 +158,90 @@ public:
     void recordedDrawCommand();
     void setIsDrawingToLayer(bool value) {fIsDrawingToLayer = value;}
 
-    SkImageInfo imageInfo() const SK_OVERRIDE;
+    SkImageInfo imageInfo() const override;
 
-    GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
+    GrRenderTarget* accessRenderTarget() override;
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
 protected:
-    const SkBitmap& onAccessBitmap() SK_OVERRIDE;
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) SK_OVERRIDE;
-    bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y) SK_OVERRIDE;
+    const SkBitmap& onAccessBitmap() override;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
+    bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y) override;
 
     // None of the following drawing methods should ever get called on the
     // deferred device
-    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE
+    void drawPaint(const SkDraw&, const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
                             size_t count, const SkPoint[],
-                            const SkPaint& paint) SK_OVERRIDE
+                            const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawRect(const SkDraw&, const SkRect& r,
-                            const SkPaint& paint) SK_OVERRIDE
+                            const SkPaint& paint) override
         {SkASSERT(0);}
-    void drawOval(const SkDraw&, const SkRect&, const SkPaint&) SK_OVERRIDE
+    void drawOval(const SkDraw&, const SkRect&, const SkPaint&) override
         {SkASSERT(0);}
     virtual void drawRRect(const SkDraw&, const SkRRect& rr,
-                           const SkPaint& paint) SK_OVERRIDE
+                           const SkPaint& paint) override
     {SkASSERT(0);}
     virtual void drawPath(const SkDraw&, const SkPath& path,
                             const SkPaint& paint,
                             const SkMatrix* prePathMatrix = NULL,
-                            bool pathIsMutable = false) SK_OVERRIDE
+                            bool pathIsMutable = false) override
         {SkASSERT(0);}
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkMatrix& matrix, const SkPaint& paint) SK_OVERRIDE
+                            const SkMatrix& matrix, const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect*,
                                 const SkRect&, const SkPaint&,
-                                SkCanvas::DrawBitmapRectFlags) SK_OVERRIDE
+                                SkCanvas::DrawBitmapRectFlags) override
         {SkASSERT(0);}
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
-                            int x, int y, const SkPaint& paint) SK_OVERRIDE
+                            int x, int y, const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawText(const SkDraw&, const void* text, size_t len,
-                            SkScalar x, SkScalar y, const SkPaint& paint) SK_OVERRIDE
+                            SkScalar x, SkScalar y, const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawPosText(const SkDraw&, const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
-                             const SkPoint& offset, const SkPaint& paint) SK_OVERRIDE
+                             const SkPoint& offset, const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawTextOnPath(const SkDraw&, const void* text,
                                 size_t len, const SkPath& path,
                                 const SkMatrix* matrix,
-                                const SkPaint& paint) SK_OVERRIDE
+                                const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                                 int vertexCount, const SkPoint verts[],
                                 const SkPoint texs[], const SkColor colors[],
                                 SkXfermode* xmode, const uint16_t indices[],
-                                int indexCount, const SkPaint& paint) SK_OVERRIDE
+                                int indexCount, const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode,
-                           const SkPaint& paint) SK_OVERRIDE
+                           const SkPaint& paint) override
         {SkASSERT(0);}
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
-                            const SkPaint&) SK_OVERRIDE
+                            const SkPaint&) override
         {SkASSERT(0);}
 
-    void lockPixels() SK_OVERRIDE {}
-    void unlockPixels() SK_OVERRIDE {}
+    void lockPixels() override {}
+    void unlockPixels() override {}
 
-    bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE {
+    bool canHandleImageFilter(const SkImageFilter*) override {
         return false;
     }
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
-                             const SkImageFilter::Context&, SkBitmap*, SkIPoint*) SK_OVERRIDE {
+                             const SkImageFilter::Context&, SkBitmap*, SkIPoint*) override {
         return false;
     }
 
 private:
-    void flush() SK_OVERRIDE;
-    void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {}
+    void flush() override;
+    void replaceBitmapBackendForRasterSurface(const SkBitmap&) override {}
 
     void beginRecording();
     void init();

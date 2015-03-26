@@ -671,7 +671,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fIndex = 0;
         SkImageInfo info(SkImageInfo::MakeN32Premul(SkScalarRoundToInt(width()), 
                 SkScalarRoundToInt(height())));

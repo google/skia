@@ -20,26 +20,26 @@ public:
     const SkPaint& paint() const { return fPaint; }
 
 protected:
-    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
-    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
+    void onFilterRec(SkScalerContextRec*) const override;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                     SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                     const uint32_t* glyphIDs,
-                                    uint32_t glyphIDsCount) const SK_OVERRIDE;
-    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
-    void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const SK_OVERRIDE;
+                                    uint32_t glyphIDsCount) const override;
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const SK_OVERRIDE;
-    int onCountGlyphs() const SK_OVERRIDE;
-    int onGetUPEM() const SK_OVERRIDE;
+                                uint16_t glyphs[], int glyphCount) const override;
+    int onCountGlyphs() const override;
+    int onGetUPEM() const override;
 
-    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
+    void onGetFamilyName(SkString* familyName) const override;
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
-    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    int onGetTableTags(SkFontTableTag tags[]) const override;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const SK_OVERRIDE;
+                                  size_t length, void* data) const override;
 
 private:
     SkTypeface* fProxy;

@@ -321,12 +321,12 @@ private:
 };
 ~~~~
 
-Virtual functions that are overridden in derived classes should use SK_OVERRIDE
+Virtual functions that are overridden in derived classes should use override
 (and not the override keyword). The virtual keyword can be omitted.
 
 <!--?prettify?-->
 ~~~~
-void myVirtual() SK_OVERRIDE {
+void myVirtual() override {
 }
 ~~~~
 
@@ -335,7 +335,7 @@ base-class implementations of a virtual function should be explicitly qualified:
 
 <!--?prettify?-->
 ~~~~
-void myVirtual() SK_OVERRIDE {
+void myVirtual() override {
     ...
     this->INHERITED::myVirtual();
     ...
@@ -343,7 +343,7 @@ void myVirtual() SK_OVERRIDE {
 ~~~~
 
 As in the above example, derived classes that redefine virtual functions should
-use SK_OVERRIDE to note that explicitly.
+use override to note that explicitly.
 
 Constructor initializers should be one per line, indented, with punctuation
 placed before the initializer. This is a fairly new rule so much of the existing

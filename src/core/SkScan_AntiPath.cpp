@@ -44,11 +44,11 @@ public:
 
     /// Must be explicitly defined on subclasses.
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]) SK_OVERRIDE {
+                           const int16_t runs[]) override {
         SkDEBUGFAIL("How did I get here?");
     }
     /// May not be called on BaseSuperBlitter because it blits out of order.
-    void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
+    void blitV(int x, int y, int height, SkAlpha alpha) override {
         SkDEBUGFAIL("How did I get here?");
     }
 
@@ -115,10 +115,10 @@ public:
 
     /// Blits a row of pixels, with location and width specified
     /// in supersampled coordinates.
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
     /// Blits a rectangle of pixels, with location and size specified
     /// in supersampled coordinates.
-    void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
+    void blitRect(int x, int y, int width, int height) override;
 
 private:
     // The next three variables are used to track a circular buffer that
@@ -400,7 +400,7 @@ public:
         fRealBlitter->blitMask(fMask, fClipRect);
     }
 
-    void blitH(int x, int y, int width) SK_OVERRIDE;
+    void blitH(int x, int y, int width) override;
 
     static bool CanHandleRect(const SkIRect& bounds) {
 #ifdef FORCE_RLE

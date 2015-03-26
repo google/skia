@@ -71,8 +71,8 @@ struct BitmapRec : public SkResourceCache::Rec {
         , fBitmap(result)
     {}
 
-    const Key& getKey() const SK_OVERRIDE { return fKey; }
-    size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fBitmap.getSize(); }
+    const Key& getKey() const override { return fKey; }
+    size_t bytesUsed() const override { return sizeof(fKey) + fBitmap.getSize(); }
 
     static bool Finder(const SkResourceCache::Rec& baseRec, void* contextBitmap) {
         const BitmapRec& rec = static_cast<const BitmapRec&>(baseRec);
@@ -171,8 +171,8 @@ struct MipMapRec : public SkResourceCache::Rec {
         fMipMap->detachFromCacheAndUnref();
     }
 
-    const Key& getKey() const SK_OVERRIDE { return fKey; }
-    size_t bytesUsed() const SK_OVERRIDE { return sizeof(fKey) + fMipMap->size(); }
+    const Key& getKey() const override { return fKey; }
+    size_t bytesUsed() const override { return sizeof(fKey) + fMipMap->size(); }
 
     static bool Finder(const SkResourceCache::Rec& baseRec, void* contextMip) {
         const MipMapRec& rec = static_cast<const MipMapRec&>(baseRec);

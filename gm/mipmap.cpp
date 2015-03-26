@@ -53,11 +53,11 @@ public:
     MipMapGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("mipmap"); }
+    SkString onShortName() override { return SkString("mipmap"); }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(400, 200); }
+    SkISize onISize() override { return SkISize::Make(400, 200); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         test_mip(canvas);
     }
 

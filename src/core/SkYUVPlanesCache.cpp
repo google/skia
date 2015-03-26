@@ -46,8 +46,8 @@ struct YUVPlanesRec : public SkResourceCache::Rec {
     YUVPlanesKey  fKey;
     YUVValue      fValue;
 
-    const Key& getKey() const SK_OVERRIDE { return fKey; }
-    size_t bytesUsed() const SK_OVERRIDE { return sizeof(*this) + fValue.fData->size(); }
+    const Key& getKey() const override { return fKey; }
+    size_t bytesUsed() const override { return sizeof(*this) + fValue.fData->size(); }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextData) {
         const YUVPlanesRec& rec = static_cast<const YUVPlanesRec&>(baseRec);

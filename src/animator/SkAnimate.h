@@ -19,11 +19,11 @@ class SkAnimate : public SkAnimateBase {
     DECLARE_MEMBER_INFO(Animate);
     SkAnimate();
     virtual ~SkAnimate();
-    int components() SK_OVERRIDE;
+    int components() override;
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
-    void onEndElement(SkAnimateMaker& maker) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& maker) override;
 protected:
     bool resolveCommon(SkAnimateMaker& );
     int fComponents;

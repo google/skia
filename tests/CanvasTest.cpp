@@ -190,13 +190,13 @@ class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
 public:
     Canvas2CanvasClipVisitor(SkCanvas* target) : fTarget(target) {}
 
-    void clipRect(const SkRect& r, SkRegion::Op op, bool aa) SK_OVERRIDE {
+    void clipRect(const SkRect& r, SkRegion::Op op, bool aa) override {
         fTarget->clipRect(r, op, aa);
     }
-    void clipRRect(const SkRRect& r, SkRegion::Op op, bool aa) SK_OVERRIDE {
+    void clipRRect(const SkRRect& r, SkRegion::Op op, bool aa) override {
         fTarget->clipRRect(r, op, aa);
     }
-    void clipPath(const SkPath& p, SkRegion::Op op, bool aa) SK_OVERRIDE {
+    void clipPath(const SkPath& p, SkRegion::Op op, bool aa) override {
         fTarget->clipPath(p, op, aa);
     }
 

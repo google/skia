@@ -107,22 +107,22 @@ public:
         fName.printf("sort_%s_%s", gSorts[s].fName, gRec[t].fName);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
     // Delayed initialization only done if onDraw will be called.
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fUnsorted.reset(N);
         gRec[fType].fProc(fUnsorted.get());
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         SkAutoTMalloc<int> sorted(N);
         for (int i = 0; i < loops; i++) {
             memcpy(sorted.get(), fUnsorted.get(), N*sizeof(int));

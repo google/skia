@@ -20,7 +20,7 @@ class GrGLGPBuilder;
 class GrGLGeometryProcessor : public GrGLPrimitiveProcessor {
 public:
     /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
-    void emitCode(EmitArgs&) SK_OVERRIDE;
+    void emitCode(EmitArgs&) override;
 
     void setTransformData(const GrPrimitiveProcessor&,
                           const GrGLProgramDataManager&,

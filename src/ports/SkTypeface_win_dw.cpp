@@ -137,7 +137,7 @@ public:
         : fIndex(0), fStrings(strings)
     { }
 
-    bool next(SkTypeface::LocalizedString* localizedString) SK_OVERRIDE {
+    bool next(SkTypeface::LocalizedString* localizedString) override {
         if (fIndex >= fStrings->GetCount()) {
             return false;
         }

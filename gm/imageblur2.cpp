@@ -37,15 +37,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         const int sigmaCount = SK_ARRAY_COUNT(kBlurSigmas);
         const int testStringCount = SK_ARRAY_COUNT(kTestStrings);
         SkScalar dx = WIDTH / sigmaCount;

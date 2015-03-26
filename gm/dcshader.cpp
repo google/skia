@@ -29,16 +29,16 @@ public:
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DCShader);
 
-    void flatten(SkWriteBuffer& buf) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buf) const override {
         buf.writeMatrix(fDeviceMatrix);
     }
 
     bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
                              const SkMatrix* localMatrix, GrColor* color,
-                             GrFragmentProcessor** fp) const SK_OVERRIDE;
+                             GrFragmentProcessor** fp) const override;
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const override {
         str->appendf("DCShader: ()");
     }
 #endif
@@ -61,9 +61,9 @@ public:
     }
 
     void getGLProcessorKey(const GrGLCaps& caps,
-                            GrProcessorKeyBuilder* b) const SK_OVERRIDE {}
+                            GrProcessorKeyBuilder* b) const override {}
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         class DCGLFP : public GrGLFragmentProcessor {
             void emitCode(GrGLFPBuilder* builder,
                             const GrFragmentProcessor& fp,
@@ -82,19 +82,19 @@ public:
                                     "%s = color * %s;",
                                     outputColor, GrGLSLExpr4(inputColor).c_str());
             }
-            void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE {}
+            void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}
         };
         return SkNEW(DCGLFP);
     }
 
-    const char* name() const SK_OVERRIDE { return "DCFP"; }
+    const char* name() const override { return "DCFP"; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE {
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         inout->mulByUnknownFourComponents();
     }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE { return true; }
+    bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
     GrCoordTransform fDeviceTransform;
 };
@@ -113,7 +113,7 @@ public:
         this->setBGColor(0xFFAABBCC);
     }
 
-    ~DCShaderGM() SK_OVERRIDE {
+    ~DCShaderGM() override {
         for (int i = 0; i < fPrims.count(); ++i) {
             SkDELETE(fPrims[i]);
         }
@@ -121,15 +121,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("dcshader");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1000, 900); }
+    SkISize onISize() override { return SkISize::Make(1000, 900); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         struct Rect : public Prim {
-            SkRect draw(SkCanvas* canvas, const SkPaint& paint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
                 SkRect rect = SkRect::MakeXYWH(0, 0, 50, 50);
                 canvas->drawRect(rect, paint);
                 return rect;
@@ -137,7 +137,7 @@ protected:
         };
 
         struct Circle : public Prim {
-            SkRect draw(SkCanvas* canvas, const SkPaint& paint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
                 static const SkScalar radius = 25;
                 canvas->drawCircle(radius, radius, radius, paint);
                 return SkRect::MakeXYWH(0, 0, 2 * radius, 2 * radius);
@@ -145,7 +145,7 @@ protected:
         };
 
         struct RRect : public Prim {
-            SkRect draw(SkCanvas* canvas, const SkPaint& paint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
                 SkRRect rrect;
                 rrect.setRectXY(SkRect::MakeXYWH(0, 0, 50, 50), 10, 10);
                 canvas->drawRRect(rrect, paint);
@@ -154,7 +154,7 @@ protected:
         };
 
         struct DRRect : public Prim {
-            SkRect draw(SkCanvas* canvas, const SkPaint& paint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
                 SkRRect outerRRect;
                 outerRRect.setRectXY(SkRect::MakeXYWH(0, 0, 50, 50), 5, 5);
                 SkRRect innerRRect;
@@ -164,7 +164,7 @@ protected:
             }
         };
         struct Path : public Prim {
-            SkRect draw(SkCanvas* canvas, const SkPaint& paint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
                 SkPath path;
                 path.addCircle(15, 15, 10);
                 path.addOval(SkRect::MakeXYWH(2, 2, 22, 37));
@@ -177,7 +177,7 @@ protected:
         struct Points : public Prim {
             Points(SkCanvas::PointMode mode) : fMode(mode) {}
 
-            SkRect draw(SkCanvas* canvas, const SkPaint& paint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& paint) override {
                 SkRandom random;
                 SkPoint points[500];
                 SkRect bounds = SkRect::MakeWH(50, 50);
@@ -196,7 +196,7 @@ protected:
         };
 
         struct Text : public Prim {
-            SkRect draw(SkCanvas* canvas, const SkPaint& origPaint) SK_OVERRIDE {
+            SkRect draw(SkCanvas* canvas, const SkPaint& origPaint) override {
                 SkPaint paint = origPaint;
                 paint.setTextSize(30.f);
                 this->setFont(&paint);
@@ -217,7 +217,7 @@ protected:
         };
 
         struct BmpText : public Text {
-           void setFont(SkPaint* paint) SK_OVERRIDE {
+           void setFont(SkPaint* paint) override {
                if (!fTypeface) {
                     SkString filename = GetResourcePath("/Funkster.ttf");
                     SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
@@ -231,7 +231,7 @@ protected:
                paint->setTypeface(fTypeface);
             }
 
-            const char* text() const SK_OVERRIDE { return "Hi, Skia!"; }
+            const char* text() const override { return "Hi, Skia!"; }
 
             SkAutoTUnref<SkTypeface> fTypeface;
         };
@@ -247,7 +247,7 @@ protected:
         fPrims.push_back(SkNEW(BmpText));
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend. It does not work with the
         // sw rasterizer, tile modes, etc.
         if (NULL == canvas->getGrContext()) {

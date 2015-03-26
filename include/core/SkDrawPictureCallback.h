@@ -27,7 +27,7 @@ class SK_API SkDrawPictureCallback : public SkPicture::AbortCallback {
 public:
     virtual bool abortDrawing() = 0;
 
-    bool abort() SK_OVERRIDE { return this->abortDrawing(); }
+    bool abort() override { return this->abortDrawing(); }
 };
 #endif
 

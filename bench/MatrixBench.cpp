@@ -18,7 +18,7 @@ public:
         fName.printf("matrix_%s", name);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -290,7 +290,7 @@ public:
         }
     }
 
-    void performTest() SK_OVERRIDE {
+    void performTest() override {
         if (fNewWay) {
             for (int i = 0; i < 1000000; ++i) {
                 fM.mapPts(fDst, fSrc, N);

@@ -329,12 +329,12 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE { return SkString("radial_gradient"); }
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(1280, 1280); }
+    SkString onShortName() override { return SkString("radial_gradient"); }
+    SkISize onISize() override { return SkISize::Make(1280, 1280); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         const SkISize dim = this->getISize();
 
         this->drawBG(canvas);
@@ -369,14 +369,14 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE { return SkString("radial_gradient2"); }
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(800, 400); }
+    SkString onShortName() override { return SkString("radial_gradient2"); }
+    SkISize onISize() override { return SkISize::Make(800, 400); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
 
     // Reproduces the example given in bug 7671058.
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint1, paint2, paint3;
         paint1.setStyle(SkPaint::kFill_Style);
         paint2.setStyle(SkPaint::kFill_Style);

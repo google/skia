@@ -44,7 +44,7 @@ public:
      */
     bool canMakeEqual(const GrBatchTracker& mine,
                       const GrPrimitiveProcessor& that,
-                      const GrBatchTracker& theirs) const SK_OVERRIDE {
+                      const GrBatchTracker& theirs) const override {
         if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
             return false;
         }
@@ -76,8 +76,8 @@ public:
     // TODO this is a total hack until the gp can do deferred geometry
     bool hasVertexColor() const { return fHasVertexColor; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
 
 protected:
     /*
@@ -142,7 +142,7 @@ private:
     // TODO delete this when we have more advanced equality testing via bundles and the BT
     virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
 
-    bool hasExplicitLocalCoords() const SK_OVERRIDE { return fHasLocalCoords; }
+    bool hasExplicitLocalCoords() const override { return fHasLocalCoords; }
 
     GrColor fColor;
     bool fOpaqueVertexColors;

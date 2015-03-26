@@ -163,7 +163,7 @@ public:
 protected:
     SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1);
 
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;
@@ -191,13 +191,13 @@ public:
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const override;
 
     SK_TO_STRING_OVERRIDE()    
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const SK_OVERRIDE { return true; }
+    bool exposedInAndroidJavaAPI() const override { return true; }
 #endif
 
 protected:
@@ -228,13 +228,13 @@ public:
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const override;
 
     SK_TO_STRING_OVERRIDE()    
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const SK_OVERRIDE { return true; }
+    bool exposedInAndroidJavaAPI() const override { return true; }
 #endif
 
 protected:

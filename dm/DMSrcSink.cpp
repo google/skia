@@ -450,12 +450,12 @@ Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStr
             fSize = auto_compute_translate(&fMatrix, src.size().width(), src.size().height());
         }
 
-        Error draw(SkCanvas* canvas) const SK_OVERRIDE {
+        Error draw(SkCanvas* canvas) const override {
             canvas->concat(fMatrix);
             return fSrc.draw(canvas);
         }
-        SkISize size() const SK_OVERRIDE { return fSize; }
-        Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
+        SkISize size() const override { return fSize; }
+        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(src, fMatrix);
     return fSink->draw(proxy, bitmap, stream, log);
 }
@@ -505,15 +505,15 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         const Src& fSrc;
         ProxySrc(const Src& src) : fSrc(src) {}
 
-        Error draw(SkCanvas* canvas) const SK_OVERRIDE {
+        Error draw(SkCanvas* canvas) const override {
             SkISize size = this->size();
             PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
             SkGPipeWriter pipe;
             const uint32_t kFlags = 0; // We mirror SkDeferredCanvas, which doesn't use any flags.
             return fSrc.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
         }
-        SkISize size() const SK_OVERRIDE { return fSrc.size(); }
-        Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
+        SkISize size() const override { return fSrc.size(); }
+        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(src);
     return fSink->draw(proxy, bitmap, stream, log);
 }
@@ -546,12 +546,12 @@ Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream
         const SkISize fSize;
         ProxySrc(const SkPicture* pic, SkISize size) : fPic(pic), fSize(size) {}
 
-        Error draw(SkCanvas* canvas) const SK_OVERRIDE {
+        Error draw(SkCanvas* canvas) const override {
             canvas->drawPicture(fPic);
             return "";
         }
-        SkISize size() const SK_OVERRIDE { return fSize; }
-        Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
+        SkISize size() const override { return fSize; }
+        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(deserialized, src.size());
     return fSink->draw(proxy, bitmap, stream, log);
 }
@@ -583,7 +583,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         ProxySrc(int w, int h, const SkPicture* pic, SkISize size)
             : fW(w), fH(h), fPic(pic), fSize(size) {}
 
-        Error draw(SkCanvas* canvas) const SK_OVERRIDE {
+        Error draw(SkCanvas* canvas) const override {
             const int xTiles = (fSize.width()  + fW - 1) / fW,
                       yTiles = (fSize.height() + fH - 1) / fH;
             SkMultiPictureDraw mpd(xTiles*yTiles);
@@ -616,8 +616,8 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
             surfaces.unrefAll();
             return "";
         }
-        SkISize size() const SK_OVERRIDE { return fSize; }
-        Name name() const SK_OVERRIDE { sk_throw(); return ""; }  // No one should be calling this.
+        SkISize size() const override { return fSize; }
+        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(fW, fH, pic, src.size());
     return fSink->draw(proxy, bitmap, stream, log);
 }

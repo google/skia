@@ -284,32 +284,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#ifndef SK_OVERRIDE
-#  if defined(_MSC_VER)
-#    define SK_OVERRIDE override
-#  elif defined(__clang__)
-     // Using __attribute__((override)) on clang does not appear to always work.
-     // Clang defaults to C++03 and warns about using override. Squelch that. Intentionally no
-     // push/pop here so all users of SK_OVERRIDE ignore the warning too. This is like passing
-     // -Wno-c++11-extensions, except that GCC won't die (because it won't see this pragma).
-#    pragma clang diagnostic ignored "-Wc++11-extensions"
-#
-#    if __has_feature(cxx_override_control)
-#      define SK_OVERRIDE override
-#    elif defined(__has_extension) && __has_extension(cxx_override_control)
-#      define SK_OVERRIDE override
-#    endif
-   // if GCC >= 4.7
-#  elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
-#    define SK_OVERRIDE override
-#  endif
-#  ifndef SK_OVERRIDE
-#    define SK_OVERRIDE
-#  endif
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
 #if !defined(SK_UNUSED)
 #  define SK_UNUSED SK_ATTRIBUTE(unused)
 #endif

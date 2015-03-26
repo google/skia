@@ -22,7 +22,7 @@ public:
                              const SkMatrix& viewMatrix,
                              const SkPath&,
                              const SkStrokeRec&,
-                             bool antiAlias) const SK_OVERRIDE;
+                             bool antiAlias) const override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -35,7 +35,7 @@ protected:
                             const SkMatrix& viewMatrix,
                             const SkPath&,
                             const SkStrokeRec&,
-                            bool antiAlias) SK_OVERRIDE;
+                            bool antiAlias) override;
 
 private:
     GrAAHairLinePathRenderer(const GrContext* context,

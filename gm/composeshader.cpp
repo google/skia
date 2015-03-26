@@ -49,15 +49,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("composeshader");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(120, 120);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         SkPaint paint;
 
@@ -79,15 +79,15 @@ public:
     ComposeShaderAlphaGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("composeshader_alpha");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(220, 750);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkAutoTUnref<SkShader> shader0(make_shader(SkXfermode::kDstIn_Mode));
         SkAutoTUnref<SkShader> shader1(make_shader(SkXfermode::kSrcOver_Mode));
         SkShader* shaders[] = { shader0.get(), shader1.get() };

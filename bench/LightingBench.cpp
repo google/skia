@@ -101,11 +101,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "lightingpointlitdiffuse_small" : "lightingpointlitdiffuse_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         draw(loops, canvas, SkLightingImageFilter::CreatePointLitDiffuse(getPointLocation(),
                                                                          getWhite(),
                                                                          getSurfaceScale(),
@@ -122,11 +122,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "lightingdistantlitdiffuse_small" : "lightingdistantlitdiffuse_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         draw(loops, canvas, SkLightingImageFilter::CreateDistantLitDiffuse(getDistantDirection(),
                                                                            getWhite(),
                                                                            getSurfaceScale(),
@@ -143,11 +143,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "lightingspotlitdiffuse_small" : "lightingspotlitdiffuse_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         draw(loops, canvas, SkLightingImageFilter::CreateSpotLitDiffuse(getSpotLocation(),
                                                                         getSpotTarget(),
                                                                         getSpotExponent(),
@@ -167,11 +167,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "lightingpointlitspecular_small" : "lightingpointlitspecular_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         draw(loops, canvas, SkLightingImageFilter::CreatePointLitSpecular(getPointLocation(),
                                                                           getWhite(),
                                                                           getSurfaceScale(),
@@ -189,11 +189,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "lightingdistantlitspecular_small" : "lightingdistantlitspecular_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         draw(loops, canvas, SkLightingImageFilter::CreateDistantLitSpecular(getDistantDirection(),
                                                                             getWhite(),
                                                                             getSurfaceScale(),
@@ -211,11 +211,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fIsSmall ? "lightingspotlitspecular_small" : "lightingspotlitspecular_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         draw(loops, canvas, SkLightingImageFilter::CreateSpotLitSpecular(getSpotLocation(),
                                                                          getSpotTarget(),
                                                                          getSpotExponent(),

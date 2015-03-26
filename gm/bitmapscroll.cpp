@@ -59,15 +59,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("bitmapscroll");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
       return SkISize::Make(800, 600);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         this->init();
         SkIRect scrollCenterRegion = SkIRect::MakeXYWH(
             quarterWidth, quarterHeight, quarterWidth*2+1, quarterHeight*2+1);

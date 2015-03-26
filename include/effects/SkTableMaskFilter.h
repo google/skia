@@ -45,9 +45,9 @@ public:
         return SkNEW_ARGS(SkTableMaskFilter, (table));
     }
 
-    SkMask::Format getFormat() const SK_OVERRIDE;
+    SkMask::Format getFormat() const override;
     virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&,
-                            SkIPoint*) const SK_OVERRIDE;
+                            SkIPoint*) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
@@ -55,7 +55,7 @@ public:
 protected:
     SkTableMaskFilter();
     explicit SkTableMaskFilter(const uint8_t table[256]);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
 private:
     uint8_t fTable[256];

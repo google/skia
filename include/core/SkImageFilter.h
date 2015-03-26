@@ -266,7 +266,7 @@ protected:
      */
     explicit SkImageFilter(int inputCount, SkReadBuffer& rb);
 
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     /**
      *  This is the virtual which should be overridden by the derived class

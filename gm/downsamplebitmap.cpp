@@ -57,11 +57,11 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         make_bitmap_wrapper();
         return SkISize::Make(fBM.width(), 4 * fBM.height());
     }
@@ -75,7 +75,7 @@ protected:
 
     virtual void make_bitmap() = 0;
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         make_bitmap_wrapper();
 
         int curY = 0;
@@ -116,7 +116,7 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
   protected:
       float fTextSize;
 
-      void make_bitmap() SK_OVERRIDE {
+      void make_bitmap() override {
           fBM.allocN32Pixels(int(fTextSize * 8), int(fTextSize * 6));
           SkCanvas canvas(fBM);
           canvas.drawColor(SK_ColorWHITE);
@@ -151,7 +151,7 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
       int fSize;
       int fNumChecks;
 
-      void make_bitmap() SK_OVERRIDE {
+      void make_bitmap() override {
           make_checker(&fBM, fSize, fNumChecks);
       }
   private:
@@ -170,7 +170,7 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       SkString fFilename;
       int fSize;
 
-      void make_bitmap() SK_OVERRIDE {
+      void make_bitmap() override {
           SkImageDecoder* codec = NULL;
           SkString resourcePath = GetResourcePath(fFilename.c_str());
           SkFILEStream stream(resourcePath.c_str());
@@ -208,15 +208,15 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("showmiplevels");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(fBM.width() + 8, 2 * fBM.height() + 80);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar x = 4;
         SkScalar y = 4;
         canvas->drawBitmap(fBM, x, y, NULL);

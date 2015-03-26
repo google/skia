@@ -53,17 +53,17 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("shadertext3");
     }
 
-    SkISize onISize() SK_OVERRIDE{ return SkISize::Make(800, 1000); }
+    SkISize onISize() override{ return SkISize::Make(800, 1000); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);

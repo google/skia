@@ -31,11 +31,11 @@ class NullWStream : public SkWStream {
 public:
     NullWStream() : fBytesWritten(0) {
     }
-    bool write(const void*, size_t size) SK_OVERRIDE {
+    bool write(const void*, size_t size) override {
         fBytesWritten += size;
         return true;
     }
-    size_t bytesWritten() const SK_OVERRIDE {
+    size_t bytesWritten() const override {
         return fBytesWritten;
     }
     size_t fBytesWritten;

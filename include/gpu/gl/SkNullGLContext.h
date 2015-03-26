@@ -12,9 +12,9 @@
 
 class SK_API SkNullGLContext : public SkGLContext {
 public:
-    ~SkNullGLContext() SK_OVERRIDE;
-    void makeCurrent() const SK_OVERRIDE;
-    void swapBuffers() const SK_OVERRIDE {};
+    ~SkNullGLContext() override;
+    void makeCurrent() const override;
+    void swapBuffers() const override {};
 
     static SkNullGLContext* Create(GrGLStandard);
 

@@ -24,7 +24,7 @@ public:
         SkImageFilter* inputs[2] = { outer, inner };
         return SkNEW_ARGS(SkComposeImageFilter, (inputs));
     }
-    void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
+    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
@@ -35,8 +35,8 @@ protected:
         SkASSERT(inputs[1]);
     }
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
-    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const override;
+    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const override;
 
 private:
     typedef SkImageFilter INHERITED;

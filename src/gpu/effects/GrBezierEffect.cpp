@@ -24,7 +24,7 @@ public:
     GrGLConicEffect(const GrGeometryProcessor&,
                     const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -33,7 +33,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
         this->setUniformViewMatrix(pdman, primProc.viewMatrix());
 
         const ConicBatchTracker& local = bt.cast<ConicBatchTracker>();
@@ -259,7 +259,7 @@ public:
     GrGLQuadEffect(const GrGeometryProcessor&,
                    const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -268,7 +268,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
         this->setUniformViewMatrix(pdman, primProc.viewMatrix());
 
         const QuadBatchTracker& local = bt.cast<QuadBatchTracker>();
@@ -480,7 +480,7 @@ public:
     GrGLCubicEffect(const GrGeometryProcessor&,
                     const GrBatchTracker&);
 
-    void onEmitCode(EmitArgs&, GrGPArgs*) SK_OVERRIDE;
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
@@ -489,7 +489,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
         this->setUniformViewMatrix(pdman, primProc.viewMatrix());
 
         const CubicBatchTracker& local = bt.cast<CubicBatchTracker>();

@@ -42,7 +42,7 @@ public:
     virtual int complexity() { return 0; }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         fName.printf("path_%s_%s_",
                      fFlags & kStroke_Flag ? "stroke" : "fill",
                      fFlags & kBig_Flag ? "big" : "small");
@@ -50,7 +50,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 
@@ -81,10 +81,10 @@ class TrianglePathBench : public PathBench {
 public:
     TrianglePathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("triangle");
     }
-    void makePath(SkPath* path) SK_OVERRIDE {
+    void makePath(SkPath* path) override {
         static const int gCoord[] = {
             10, 10, 15, 5, 20, 20
         };
@@ -101,10 +101,10 @@ class RectPathBench : public PathBench {
 public:
     RectPathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("rect");
     }
-    void makePath(SkPath* path) SK_OVERRIDE {
+    void makePath(SkPath* path) override {
         SkRect r = { 10, 10, 20, 20 };
         path->addRect(r);
     }
@@ -116,10 +116,10 @@ class OvalPathBench : public PathBench {
 public:
     OvalPathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("oval");
     }
-    void makePath(SkPath* path) SK_OVERRIDE {
+    void makePath(SkPath* path) override {
         SkRect r = { 10, 10, 23, 20 };
         path->addOval(r);
     }
@@ -131,10 +131,10 @@ class CirclePathBench: public PathBench {
 public:
     CirclePathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("circle");
     }
-    void makePath(SkPath* path) SK_OVERRIDE {
+    void makePath(SkPath* path) override {
         path->addCircle(SkIntToScalar(20), SkIntToScalar(20),
                         SkIntToScalar(10));
     }
@@ -146,7 +146,7 @@ class SawToothPathBench : public PathBench {
 public:
     SawToothPathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("sawtooth");
     }
     virtual void makePath(SkPath* path) {
@@ -167,7 +167,7 @@ public:
         path->lineTo(x0, y + 2 * dy);
         path->close();
     }
-    int complexity() SK_OVERRIDE { return 1; }
+    int complexity() override { return 1; }
 private:
     typedef PathBench INHERITED;
 };
@@ -176,10 +176,10 @@ class LongCurvedPathBench : public PathBench {
 public:
     LongCurvedPathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("long_curved");
     }
-    void makePath(SkPath* path) SK_OVERRIDE {
+    void makePath(SkPath* path) override {
         SkRandom rand (12);
         int i;
         for (i = 0; i < 100; i++) {
@@ -190,7 +190,7 @@ public:
         }
         path->close();
     }
-    int complexity() SK_OVERRIDE { return 2; }
+    int complexity() override { return 2; }
 private:
     typedef PathBench INHERITED;
 };
@@ -199,24 +199,24 @@ class LongLinePathBench : public PathBench {
 public:
     LongLinePathBench(Flags flags) : INHERITED(flags) {}
 
-    void appendName(SkString* name) SK_OVERRIDE {
+    void appendName(SkString* name) override {
         name->append("long_line");
     }
-    void makePath(SkPath* path) SK_OVERRIDE {
+    void makePath(SkPath* path) override {
         SkRandom rand;
         path->moveTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         for (size_t i = 1; i < 100; i++) {
             path->lineTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         }
     }
-    int complexity() SK_OVERRIDE { return 2; }
+    int complexity() override { return 2; }
 private:
     typedef PathBench INHERITED;
 };
 
 class RandomPathBench : public Benchmark {
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -321,15 +321,15 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "path_create";
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         this->createData(10, 100);
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             if (i % 1000 == 0) {
                 fPath.reset();  // PathRef memory can grow without bound otherwise.
@@ -351,10 +351,10 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "path_copy";
     }
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         this->createData(10, 100);
         fPaths.reset(kPathCnt);
         fCopies.reset(kPathCnt);
@@ -363,7 +363,7 @@ protected:
         }
         this->finishedMakingPaths();
     }
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             int idx = i & (kPathCnt - 1);
             fCopies[idx] = fPaths[idx];
@@ -386,11 +386,11 @@ public:
     PathTransformBench(bool inPlace) : fInPlace(inPlace) {}
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fInPlace ? "path_transform_in_place" : "path_transform_copy";
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fMatrix.setScale(5 * SK_Scalar1, 6 * SK_Scalar1);
         this->createData(10, 100);
         fPaths.reset(kPathCnt);
@@ -403,7 +403,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         if (fInPlace) {
             for (int i = 0; i < loops; ++i) {
                 fPaths[i & (kPathCnt - 1)].transform(fMatrix);
@@ -434,11 +434,11 @@ public:
     PathEqualityBench() { }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "path_equality_50%";
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fParity = 0;
         this->createData(10, 100);
         fPaths.reset(kPathCnt);
@@ -450,7 +450,7 @@ protected:
         this->finishedMakingPaths();
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             int idx = i & (kPathCnt - 1);
             fParity ^= (fPaths[idx] == fCopies[idx & ~0x1]);
@@ -483,7 +483,7 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         switch (fType) {
             case kAdd_AddType:
                 return "path_add_path";
@@ -501,7 +501,7 @@ protected:
         }
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         // reversePathTo assumes a single contour path.
         bool allowMoves = kReversePathTo_AddType != fType;
         this->createData(10, 100, allowMoves);
@@ -514,7 +514,7 @@ protected:
         this->finishedMakingPaths();
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         switch (fType) {
             case kAdd_AddType:
                 for (int i = 0; i < loops; ++i) {
@@ -578,11 +578,11 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
 
         paint.setColor(SK_ColorBLACK);
@@ -642,7 +642,7 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
@@ -688,7 +688,7 @@ protected:
         SkASSERT(path->isConvex());
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkRandom rand;
         SkRect r;
 
@@ -753,23 +753,23 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 private:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             const SkRect& rect = fQueryRects[i % kQueryRectCnt];
             fParity = fParity != fPath.conservativelyContainsRect(rect);
         }
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fQueryRects.setCount(kQueryRectCnt);
 
         SkRandom rand;
@@ -817,11 +817,11 @@ public:
     }
 
 private:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "ratquad-chop-0.5";
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         SkConic dst[2];
         for (int i = 0; i < loops; ++i) {
             fRQ.chopAt(0.5f, dst);
@@ -846,14 +846,14 @@ public:
         fName.printf("conic-chop-half%d", useV2);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 private:
-    const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
+    const char* onGetName() override { return fName.c_str(); }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         if (fUseV2) {
             for (int i = 0; i < loops; ++i) {
                 fRQ.chop2(fDst);
@@ -875,7 +875,7 @@ public:
     ConicBench_EvalPos(bool useV2) : ConicBench_ChopHalf(useV2) {
         fName.printf("conic-eval-pos%d", useV2);
     }
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         if (fUseV2) {
             for (int i = 0; i < loops; ++i) {
                 for (int j = 0; j < 1000; ++j) {
@@ -899,7 +899,7 @@ public:
     ConicBench_EvalTan(bool useV2) : ConicBench_ChopHalf(useV2) {
         fName.printf("conic-eval-tan%d", useV2);
     }
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         if (fUseV2) {
             for (int i = 0; i < loops; ++i) {
                 for (int j = 0; j < 1000; ++j) {
@@ -940,7 +940,7 @@ public:
         }
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -959,11 +959,11 @@ public:
     ConicBench_ComputeError()  {}
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "conic-compute-error";
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         SkVector err;
         for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < CONICS; ++j) {
@@ -981,11 +981,11 @@ public:
     ConicBench_asQuadTol()  {}
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "conic-asQuadTol";
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < CONICS; ++j) {
                 fConics[j].asQuadTol(SK_ScalarHalf);
@@ -1002,11 +1002,11 @@ public:
     ConicBench_quadPow2()  {}
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return "conic-quadPow2";
     }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < CONICS; ++j) {
                 fConics[j].computeQuadPOW2(SK_ScalarHalf);

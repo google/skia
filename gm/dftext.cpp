@@ -23,7 +23,7 @@ public:
     }
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkString filename = GetResourcePath("/Funkster.ttf");
         SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
         if (!stream->isValid()) {
@@ -34,11 +34,11 @@ protected:
         fTypeface = SkTypeface::CreateFromStream(stream.detach());
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("dftext");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(1024, 768);
     }
 
@@ -50,7 +50,7 @@ protected:
         canvas->translate(-px, -py);
     }
 
-    virtual void onDraw(SkCanvas* inputCanvas) SK_OVERRIDE {
+    virtual void onDraw(SkCanvas* inputCanvas) override {
 #ifdef SK_BUILD_FOR_ANDROID
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
 #else

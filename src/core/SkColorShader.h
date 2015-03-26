@@ -23,9 +23,9 @@ public:
     */
     explicit SkColorShader(SkColor c);
 
-    bool isOpaque() const SK_OVERRIDE;
+    bool isOpaque() const override;
 
-    size_t contextSize() const SK_OVERRIDE {
+    size_t contextSize() const override {
         return sizeof(ColorShaderContext);
     }
 
@@ -33,11 +33,11 @@ public:
     public:
         ColorShaderContext(const SkColorShader& shader, const ContextRec&);
 
-        uint32_t getFlags() const SK_OVERRIDE;
-        uint8_t getSpan16Alpha() const SK_OVERRIDE;
-        void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE;
-        void shadeSpan16(int x, int y, uint16_t span[], int count) SK_OVERRIDE;
-        void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) SK_OVERRIDE;
+        uint32_t getFlags() const override;
+        uint8_t getSpan16Alpha() const override;
+        void shadeSpan(int x, int y, SkPMColor span[], int count) override;
+        void shadeSpan16(int x, int y, uint16_t span[], int count) override;
+        void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) override;
 
     private:
         SkPMColor   fPMColor;
@@ -50,22 +50,22 @@ public:
     // we return false for this, use asAGradient
     virtual BitmapType asABitmap(SkBitmap* outTexture,
                                  SkMatrix* outMatrix,
-                                 TileMode xy[2]) const SK_OVERRIDE;
+                                 TileMode xy[2]) const override;
 
-    GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
+    GradientType asAGradient(GradientInfo* info) const override;
 
     virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
                                      const SkMatrix*, GrColor*,
-                                     GrFragmentProcessor**) const SK_OVERRIDE;
+                                     GrFragmentProcessor**) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)
 
 protected:
     SkColorShader(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
-    bool onAsLuminanceColor(SkColor* lum) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer&) const override;
+    Context* onCreateContext(const ContextRec&, void* storage) const override;
+    bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fColor;
         return true;
     }

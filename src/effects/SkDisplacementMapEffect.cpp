@@ -309,11 +309,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) SK_OVERRIDE;
+    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
@@ -342,11 +342,11 @@ public:
     virtual ~GrDisplacementMapEffect();
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GrGLDisplacementMapEffect::GenKey(*this, caps, b);
     }
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLDisplacementMapEffect, (*this));
     }
 
@@ -356,12 +356,12 @@ public:
         { return fYChannelSelector; }
     const SkVector& scale() const { return fScale; }
 
-    const char* name() const SK_OVERRIDE { return "DisplacementMap"; }
+    const char* name() const override { return "DisplacementMap"; }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor&) const SK_OVERRIDE;
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,

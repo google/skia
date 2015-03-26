@@ -382,16 +382,16 @@ public:
         , fIndex(index)
     { };
 
-    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(SkString* familyName) const override {
         familyName->reset();
     }
 
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const SK_OVERRIDE {
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         desc->setFontIndex(fIndex);
         *serialize = true;
     }
 
-    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fIndex;
         return fStream->duplicate();
     }
@@ -411,11 +411,11 @@ public:
     }
     mutable SkAutoFcPattern fPattern;
 
-    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(SkString* familyName) const override {
         *familyName = get_string(fPattern, FC_FAMILY);
     }
 
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const SK_OVERRIDE {
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         FCLocker lock;
         desc->setFamilyName(get_string(fPattern, FC_FAMILY));
         desc->setFullName(get_string(fPattern, FC_FULLNAME));
@@ -425,7 +425,7 @@ public:
         *serialize = false;
     }
 
-    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         FCLocker lock;
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
         return SkStream::NewFromFile(get_string(fPattern, FC_FILE));
@@ -469,9 +469,9 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             fFontSet.reset();
         }
 
-        int count() SK_OVERRIDE { return fFontSet->nfont; }
+        int count() override { return fFontSet->nfont; }
 
-        void getStyle(int index, SkFontStyle* style, SkString* styleName) SK_OVERRIDE {
+        void getStyle(int index, SkFontStyle* style, SkString* styleName) override {
             if (index < 0 || fFontSet->nfont <= index) {
                 return;
             }
@@ -485,14 +485,14 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             }
         }
 
-        SkTypeface* createTypeface(int index) SK_OVERRIDE {
+        SkTypeface* createTypeface(int index) override {
             FCLocker lock;
 
             FcPattern* match = fFontSet->fonts[index];
             return fFontMgr->createTypefaceFromFcPattern(match);
         }
 
-        SkTypeface* matchStyle(const SkFontStyle& style) SK_OVERRIDE {
+        SkTypeface* matchStyle(const SkFontStyle& style) override {
             FCLocker lock;
 
             SkAutoFcPattern pattern;
@@ -607,15 +607,15 @@ public:
     }
 
 protected:
-    int onCountFamilies() const SK_OVERRIDE {
+    int onCountFamilies() const override {
         return fFamilyNames->count();
     }
 
-    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
+    void onGetFamilyName(int index, SkString* familyName) const override {
         familyName->set(fFamilyNames->atStr(index));
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
+    SkFontStyleSet* onCreateStyleSet(int index) const override {
         return this->onMatchFamily(fFamilyNames->atStr(index));
     }
 
@@ -684,7 +684,7 @@ protected:
         return false;
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
         FCLocker lock;
 
         SkAutoFcPattern pattern;
@@ -726,7 +726,7 @@ protected:
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& style) const SK_OVERRIDE
+                                           const SkFontStyle& style) const override
     {
         FCLocker lock;
 
@@ -767,7 +767,7 @@ protected:
                                                     const SkFontStyle& style,
                                                     const char* bcp47[],
                                                     int bcp47Count,
-                                                    SkUnichar character) const SK_OVERRIDE
+                                                    SkUnichar character) const override
     {
         FCLocker lock;
 
@@ -801,7 +801,7 @@ protected:
     }
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* typeface,
-                                         const SkFontStyle& style) const SK_OVERRIDE
+                                         const SkFontStyle& style) const override
     {
         //TODO: should the SkTypeface_fontconfig know its family?
         const SkTypeface_fontconfig* fcTypeface =
@@ -809,7 +809,7 @@ protected:
         return this->matchFamilyStyle(get_string(fcTypeface->fPattern, FC_FAMILY), style);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
@@ -826,16 +826,16 @@ protected:
                                               static_cast<SkStreamAsset*>(stream.detach())));
     }
 
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         return this->createFromStream(SkNEW_ARGS(SkMemoryStream, (data)), ttcIndex);
     }
 
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         return this->createFromStream(SkStream::NewFromFile(path), ttcIndex);
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const SK_OVERRIDE {
+                                               unsigned styleBits) const override {
         bool bold = styleBits & SkTypeface::kBold;
         bool italic = styleBits & SkTypeface::kItalic;
         SkFontStyle style = SkFontStyle(bold ? SkFontStyle::kBold_Weight

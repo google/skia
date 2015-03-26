@@ -61,15 +61,15 @@ public:
     SurfacePropsGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("surfaceprops");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(W * 4, H * 5);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrContext* ctx = canvas->getGrContext();
 
         // must be opaque to have a hope of testing LCD text
@@ -118,11 +118,11 @@ public:
     NewSurfaceGM() {}
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("surfacenew");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(300, 140);
     }
 
@@ -130,7 +130,7 @@ protected:
         canvas->drawColor(SK_ColorRED);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         SkAutoTUnref<SkSurface> surf(canvas->newSurface(info, NULL));

@@ -23,9 +23,9 @@ public:
             const int divisor);
 
 protected:
-    const char* onGetName() SK_OVERRIDE;
-    bool isSuitableFor(Backend backend) SK_OVERRIDE;
-    void onDraw(const int n, SkCanvas* canvas) SK_OVERRIDE;
+    const char* onGetName() override;
+    bool isSuitableFor(Backend backend) override;
+    void onDraw(const int n, SkCanvas* canvas) override;
     
 private:
     SkString fName;

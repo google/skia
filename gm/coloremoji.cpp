@@ -53,7 +53,7 @@ protected:
         SkTypeface* typeface;
         const char* text;
     } emojiFonts[2];
-    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+    virtual void onOnceBeforeDraw() override {
         SkString filename = GetResourcePath("/Funkster.ttf");
         SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
         if (stream->isValid()) {
@@ -74,15 +74,15 @@ protected:
                              "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("coloremoji");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(650, 900);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
 

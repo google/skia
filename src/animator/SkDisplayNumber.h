@@ -15,7 +15,7 @@
 
 class SkDisplayNumber : public SkDisplayable {
     DECLARE_DISPLAY_MEMBER_INFO(Number);
-    bool getProperty(int index, SkScriptValue* value) const SK_OVERRIDE;
+    bool getProperty(int index, SkScriptValue* value) const override;
 private:
 };
 

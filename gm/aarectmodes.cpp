@@ -134,13 +134,13 @@ namespace skiagm {
 
     protected:
 
-        SkString onShortName() SK_OVERRIDE {
+        SkString onShortName() override {
             return SkString("aarectmodes");
         }
 
-        SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
+        SkISize onISize() override { return SkISize::Make(640, 480); }
 
-        void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        void onDraw(SkCanvas* canvas) override {
             if (false) { // avoid bit rot, suppress warning
                 test4(canvas);
             }

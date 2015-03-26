@@ -93,7 +93,7 @@ public:
     }
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         for (int i = 0; i <= kLastEnum_SkBlurStyle; ++i) {
             fMaskFilters[i].reset(SkBlurMaskFilter::Create((SkBlurStyle)i,
                                   SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(STROKE_WIDTH/2)),
@@ -101,15 +101,15 @@ protected:
         }
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return fName;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(860, 820);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkRect  r = { 0, 0, 100, 50 };
@@ -329,7 +329,7 @@ public:
         }
 
 protected:
-    bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    bool makeMask(SkMask *m, const SkRect& r) override {
         return SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                     m, r, this->style());
     }
@@ -345,7 +345,7 @@ public:
         }
 
 protected:
-    bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    bool makeMask(SkMask *m, const SkRect& r) override {
         SkMask src;
         r.roundOut(&src.fBounds);
         src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin
@@ -376,7 +376,7 @@ public:
         }
 
 protected:
-    SkBlurQuality getQuality() SK_OVERRIDE {
+    SkBlurQuality getQuality() override {
         return kLow_SkBlurQuality;
     }
 private:
@@ -391,7 +391,7 @@ public:
         }
 
 protected:
-    bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    bool makeMask(SkMask *m, const SkRect& r) override {
         SkMask src;
         r.roundOut(&src.fBounds);
         src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin

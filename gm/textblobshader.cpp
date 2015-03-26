@@ -27,7 +27,7 @@ public:
 
 protected:
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkPaint p;
         p.setAntiAlias(true);
         p.setSubpixelText(true);
@@ -73,15 +73,15 @@ protected:
                                                      SkShader::kRepeat_TileMode));
     }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("textblobshader");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setStyle(SkPaint::kFill_Style);
         p.setShader(fShader);

@@ -66,18 +66,18 @@ public:
         return SkNEW_ARGS(AAFillRectBatch, (geometry, indexBuffer));
     }
 
-    const char* name() const SK_OVERRIDE { return "AAFillRectBatch"; }
+    const char* name() const override { return "AAFillRectBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -93,7 +93,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = init.fCanTweakAlphaForCoverage;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         SkMatrix localMatrix;
@@ -190,7 +190,7 @@ private:
     bool colorIgnored() const { return fBatch.fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();
 
         SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
@@ -558,18 +558,18 @@ public:
         return SkNEW_ARGS(AAStrokeRectBatch, (geometry, viewMatrix, indexBuffer));
     }
 
-    const char* name() const SK_OVERRIDE { return "AAStrokeRect"; }
+    const char* name() const override { return "AAStrokeRect"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -586,7 +586,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = init.fCanTweakAlphaForCoverage;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Local matrix is ignored if we don't have local coords.  If we have localcoords we only
@@ -695,7 +695,7 @@ private:
     const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
     bool miterStroke() const { return fBatch.fMiterStroke; }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         AAStrokeRectBatch* that = t->cast<AAStrokeRectBatch>();
 
         // TODO batch across miterstroke changes

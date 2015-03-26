@@ -70,18 +70,18 @@ public:
         return SkNEW_ARGS(RectBatch, (geometry));
     }
 
-    const char* name() const SK_OVERRIDE { return "RectBatch"; }
+    const char* name() const override { return "RectBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setKnownSingleComponent(0xff);
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -96,7 +96,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         // Go to device coords to allow batching across matrix changes
         SkMatrix invert = SkMatrix::I();
 
@@ -222,7 +222,7 @@ private:
     bool hasLocalRect() const { return fGeoData[0].fHasLocalRect; }
     bool hasLocalMatrix() const { return fGeoData[0].fHasLocalMatrix; }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         RectBatch* that = t->cast<RectBatch>();
 
         if (this->hasLocalRect() != that->hasLocalRect()) {

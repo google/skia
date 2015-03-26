@@ -19,12 +19,12 @@
 
 class SkGIFImageDecoder : public SkImageDecoder {
 public:
-    Format getFormat() const SK_OVERRIDE {
+    Format getFormat() const override {
         return kGIF_Format;
     }
 
 protected:
-    Result onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode mode) override;
 
 private:
     typedef SkImageDecoder INHERITED;

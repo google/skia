@@ -18,11 +18,11 @@ class SkDrawGradient : public SkDrawShader {
     DECLARE_PRIVATE_MEMBER_INFO(DrawGradient);
     SkDrawGradient();
     virtual ~SkDrawGradient();
-    bool addChild(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
+    bool addChild(SkAnimateMaker& , SkDisplayable* child) override;
 #ifdef SK_DUMP_ENABLED
     virtual void dumpRest(SkAnimateMaker*);
 #endif
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) override;
 protected:
     SkTDScalarArray offsets;
     SkString unitMapper;
@@ -36,11 +36,11 @@ private:
 class SkDrawLinearGradient : public SkDrawGradient {
     DECLARE_MEMBER_INFO(DrawLinearGradient);
     SkDrawLinearGradient();
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
+    void onEndElement(SkAnimateMaker& ) override;
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker*) SK_OVERRIDE;
+    void dump(SkAnimateMaker*) override;
 #endif
-    SkShader* getShader() SK_OVERRIDE;
+    SkShader* getShader() override;
 protected:
     SkTDScalarArray points;
 private:
@@ -51,9 +51,9 @@ class SkDrawRadialGradient : public SkDrawGradient {
     DECLARE_MEMBER_INFO(DrawRadialGradient);
     SkDrawRadialGradient();
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker*) SK_OVERRIDE;
+    void dump(SkAnimateMaker*) override;
 #endif
-    SkShader* getShader() SK_OVERRIDE;
+    SkShader* getShader() override;
 protected:
     SkPoint center;
     SkScalar radius;

@@ -27,7 +27,7 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+                          const TextureSamplerArray& samplers) override {
         // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
         GrGLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
         SkString tmpDecl;

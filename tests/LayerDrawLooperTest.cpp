@@ -30,7 +30,7 @@ public:
     FakeDevice() : SkBitmapDevice(make_bm(100, 100)) { }
 
     virtual void drawRect(const SkDraw& draw, const SkRect& r,
-                          const SkPaint& paint) SK_OVERRIDE {
+                          const SkPaint& paint) override {
         fLastMatrix = *draw.fMatrix;
         this->INHERITED::drawRect(draw, r, paint);
     }

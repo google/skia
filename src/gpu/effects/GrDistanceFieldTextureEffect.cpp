@@ -35,7 +35,7 @@ public:
 #endif
         {}
 
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldTextureEffect>();
         const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
@@ -139,7 +139,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& proc,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 proc.cast<GrDistanceFieldTextureEffect>();
@@ -319,7 +319,7 @@ public:
                                           const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
 
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
 
@@ -409,7 +409,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& proc,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
         SkASSERT(fTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
@@ -566,7 +566,7 @@ public:
     : fColor(GrColor_ILLEGAL)
     , fTextColor(GrColor_ILLEGAL) {}
 
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) SK_OVERRIDE{
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
         const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();
@@ -713,7 +713,7 @@ public:
 
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& processor,
-                         const GrBatchTracker& bt) SK_OVERRIDE {
+                         const GrBatchTracker& bt) override {
         SkASSERT(fTextColorUni.isValid());
 
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =

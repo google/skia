@@ -19,8 +19,8 @@ public:
                   SkCanvas* canvas)
         : INHERITED(tokenizer, pdfContext, canvas) {}
 
-    SkPdfResult consumeToken(PdfToken& token) SK_OVERRIDE;
-    void loop() SK_OVERRIDE;
+    SkPdfResult consumeToken(PdfToken& token) override;
+    void loop() override;
 
 private:
     typedef SkPdfTokenLooper INHERITED;

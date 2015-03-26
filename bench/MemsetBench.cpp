@@ -35,18 +35,18 @@ public:
         fName.printf("memset%d_%d_%d", type, minSize, maxSize);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
     virtual void performTest() = 0;
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; ++i) {
             this->performTest();
         }
@@ -63,7 +63,7 @@ public:
         : INHERITED(MEMSET32, minSize, maxSize) {}
 
 protected:
-    void performTest() SK_OVERRIDE {
+    void performTest() override {
         for(int j = fMinSize; j < fMaxSize; ++j){
             sk_memset32(kBuffer, VALUE32, j);
             sk_memset32(kBuffer + 1, VALUE32, j);
@@ -82,7 +82,7 @@ public:
         : INHERITED(MEMSET16, minSize, maxSize) {}
 
 protected:
-    void performTest() SK_OVERRIDE {
+    void performTest() override {
         for(int j = fMinSize; j < fMaxSize; ++j){
             sk_memset16(kBuffer, VALUE16, j);
             sk_memset16(kBuffer + 1, VALUE16, j);

@@ -89,7 +89,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         if (timer.isStopped()) {
             fRY = 0;
         } else {

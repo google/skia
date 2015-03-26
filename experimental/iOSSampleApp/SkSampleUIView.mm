@@ -40,7 +40,7 @@ public:
 #endif
     }
     
-    void setUpBackend(SampleWindow* win, int msaaSampleCount) SK_OVERRIDE {
+    void setUpBackend(SampleWindow* win, int msaaSampleCount) override {
         SkASSERT(SkOSWindow::kNone_BackEndType == fBackend);
         
         fBackend = SkOSWindow::kNone_BackEndType;
@@ -101,7 +101,7 @@ public:
         this->windowSizeChanged(win);
     }
     
-    void tearDownBackend(SampleWindow *win) SK_OVERRIDE {
+    void tearDownBackend(SampleWindow *win) override {
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         fCurContext = NULL;
@@ -116,7 +116,7 @@ public:
         fBackend = SampleWindow::kNone_BackEndType;
     }
 
-    SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) SK_OVERRIDE{
+    SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) override{
 #if SK_SUPPORT_GPU
         if (SampleWindow::IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
@@ -128,7 +128,7 @@ public:
 
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
-                               SampleWindow* win) SK_OVERRIDE {
+                               SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (NULL != fCurContext) {
             fCurContext->flush();
@@ -137,7 +137,7 @@ public:
         win->present();
     }
     
-    void windowSizeChanged(SampleWindow* win) SK_OVERRIDE {
+    void windowSizeChanged(SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (NULL != fCurContext) {
             SkOSWindow::AttachmentInfo info;
@@ -159,7 +159,7 @@ public:
 #endif
     }
     
-    GrContext* getGrContext() SK_OVERRIDE {
+    GrContext* getGrContext() override {
 #if SK_SUPPORT_GPU
         return fCurContext;
 #else
@@ -167,7 +167,7 @@ public:
 #endif
     }
     
-    GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
+    GrRenderTarget* getGrRenderTarget() override {
 #if SK_SUPPORT_GPU
         return fCurRenderTarget;
 #else

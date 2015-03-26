@@ -141,15 +141,15 @@ public:
     SkString              fName;
 
 protected:
-    SkString onShortName() SK_OVERRIDE { return fName; }
+    SkString onShortName() override { return fName; }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(gSize, gSize); }
+    SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         fImage.reset(makebm(&fLargeBitmap, gBmpSize, gBmpSize));
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
         static const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
 

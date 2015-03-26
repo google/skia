@@ -14,7 +14,7 @@
 class SkDrawBlur : public SkDrawMaskFilter {
     DECLARE_DRAW_MEMBER_INFO(Blur);
     SkDrawBlur();
-    SkMaskFilter* getMaskFilter() SK_OVERRIDE;
+    SkMaskFilter* getMaskFilter() override;
 protected:
     SkScalar fSigma;
     int /*SkBlurStyle*/ fBlurStyle;

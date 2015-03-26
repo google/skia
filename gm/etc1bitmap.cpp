@@ -81,19 +81,19 @@ public:
     virtual ~ETC1BitmapGM() { }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         SkString str = SkString("etc1bitmap_");
         str.append(this->fileExtension());
         return str;
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(128, 128);
     }
 
     virtual SkString fileExtension() const = 0;
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkBitmap bm;
         SkString filename = GetResourcePath("mandrill_128.");
         filename.append(this->fileExtension());
@@ -123,7 +123,7 @@ public:
 
 protected:
 
-    SkString fileExtension() const SK_OVERRIDE { return SkString("pkm"); }
+    SkString fileExtension() const override { return SkString("pkm"); }
 
 private:
     typedef ETC1BitmapGM INHERITED;
@@ -137,7 +137,7 @@ public:
 
 protected:
 
-    SkString fileExtension() const SK_OVERRIDE { return SkString("ktx"); }
+    SkString fileExtension() const override { return SkString("ktx"); }
 
 private:
     typedef ETC1BitmapGM INHERITED;
@@ -151,7 +151,7 @@ public:
 
 protected:
 
-    SkString fileExtension() const SK_OVERRIDE { return SkString("r11.ktx"); }
+    SkString fileExtension() const override { return SkString("r11.ktx"); }
 
 private:
     typedef ETC1BitmapGM INHERITED;
@@ -170,15 +170,15 @@ public:
     virtual ~ETC1Bitmap_NPOT_GM() { }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("etc1bitmap_npot");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(124, 124);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkBitmap bm;
         SkString pkmFilename = GetResourcePath("mandrill_128.pkm");
         SkAutoDataUnref fileData(SkData::NewFromFileName(pkmFilename.c_str()));

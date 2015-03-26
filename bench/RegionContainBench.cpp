@@ -45,14 +45,14 @@ public:
         fB.setRect(0, 0, H, W);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
+    const char* onGetName() override { return fName.c_str(); }
 
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas*) override {
         Proc proc = fProc;
 
         for (int i = 0; i < loops; ++i) {

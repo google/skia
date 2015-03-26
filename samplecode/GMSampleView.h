@@ -23,11 +23,11 @@ public:
     static SkEvent* NewShowSizeEvt(bool doShowSize);
 
 protected:
-    bool onQuery(SkEvent*) SK_OVERRIDE;
-    bool onEvent(const SkEvent&) SK_OVERRIDE;
-    void onDrawContent(SkCanvas*) SK_OVERRIDE;
-    void onDrawBackground(SkCanvas*) SK_OVERRIDE;
-    bool onAnimate(const SkAnimTimer&) SK_OVERRIDE;
+    bool onQuery(SkEvent*) override;
+    bool onEvent(const SkEvent&) override;
+    void onDrawContent(SkCanvas*) override;
+    void onDrawBackground(SkCanvas*) override;
+    bool onAnimate(const SkAnimTimer&) override;
 
 private:
     GM* fGM;

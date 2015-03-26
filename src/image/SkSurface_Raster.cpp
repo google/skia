@@ -22,12 +22,12 @@ public:
                      const SkSurfaceProps*);
     SkSurface_Raster(SkPixelRef*, const SkSurfaceProps*);
 
-    SkCanvas* onNewCanvas() SK_OVERRIDE;
-    SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
-    SkImage* onNewImageSnapshot(Budgeted) SK_OVERRIDE;
+    SkCanvas* onNewCanvas() override;
+    SkSurface* onNewSurface(const SkImageInfo&) override;
+    SkImage* onNewImageSnapshot(Budgeted) override;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
-                        const SkPaint*) SK_OVERRIDE;
-    void onCopyOnWrite(ContentChangeMode) SK_OVERRIDE;
+                        const SkPaint*) override;
+    void onCopyOnWrite(ContentChangeMode) override;
 
 private:
     SkBitmap    fBitmap;

@@ -29,19 +29,19 @@ class GrCustomXferFP : public GrFragmentProcessor {
 public:
     GrCustomXferFP(SkXfermode::Mode mode, GrTexture* background);
 
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE; 
+    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override; 
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLFragmentProcessor* createGLInstance() const override;
 
-    const char* name() const SK_OVERRIDE { return "Custom Xfermode"; }
+    const char* name() const override { return "Custom Xfermode"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     const GrTextureAccess&  backgroundAccess() const { return fBackgroundAccess; }
 
 private:
-    bool onIsEqual(const GrFragmentProcessor& other) const SK_OVERRIDE; 
+    bool onIsEqual(const GrFragmentProcessor& other) const override; 
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const SK_OVERRIDE;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -60,30 +60,30 @@ class GrCustomXPFactory : public GrXPFactory {
 public:
     GrCustomXPFactory(SkXfermode::Mode mode); 
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const SK_OVERRIDE {
+    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override {
         return true;
     }
 
-    bool canTweakAlphaForCoverage() const SK_OVERRIDE {
+    bool canTweakAlphaForCoverage() const override {
         return false;
     }
 
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                            GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
+                            GrXPFactory::InvariantOutput*) const override;
 
 private:
     GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
-                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE; 
+                                           const GrDeviceCoordTexture* dstCopy) const override; 
 
     bool willReadDstColor(const GrDrawTargetCaps& caps,
                           const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const SK_OVERRIDE {
+                          const GrProcOptInfo& coveragePOI) const override {
         return true;
     }
 
-    bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const GrCustomXPFactory& xpf = xpfBase.cast<GrCustomXPFactory>();
         return fMode == xpf.fMode;
     }

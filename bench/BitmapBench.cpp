@@ -247,7 +247,7 @@ protected:
         INHERITED::onDraw(loops, canvas);
     }
 
-    void setupPaint(SkPaint* paint) SK_OVERRIDE {
+    void setupPaint(SkPaint* paint) override {
         this->INHERITED::setupPaint(paint);
 
         int index = 0;
@@ -303,7 +303,7 @@ protected:
         return fFullName.c_str();
     }
 
-    void onDrawIntoBitmap(const SkBitmap& bm) SK_OVERRIDE {
+    void onDrawIntoBitmap(const SkBitmap& bm) override {
         const int w = bm.width();
         const int h = bm.height();
 

@@ -12,27 +12,27 @@
 #include "SkMaskGamma.h"
 
 class SkLinearColorSpaceLuminance : public SkColorSpaceLuminance {
-    SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const SK_OVERRIDE {
+    SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const override {
         SkASSERT(SK_Scalar1 == gamma);
         return luminance;
     }
-    SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const SK_OVERRIDE {
+    SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const override {
         SkASSERT(SK_Scalar1 == gamma);
         return luma;
     }
 };
 
 class SkGammaColorSpaceLuminance : public SkColorSpaceLuminance {
-    SkScalar toLuma(SkScalar gamma, SkScalar luminance) const SK_OVERRIDE {
+    SkScalar toLuma(SkScalar gamma, SkScalar luminance) const override {
         return SkScalarPow(luminance, gamma);
     }
-    SkScalar fromLuma(SkScalar gamma, SkScalar luma) const SK_OVERRIDE {
+    SkScalar fromLuma(SkScalar gamma, SkScalar luma) const override {
         return SkScalarPow(luma, SkScalarInvert(gamma));
     }
 };
 
 class SkSRGBColorSpaceLuminance : public SkColorSpaceLuminance {
-    SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const SK_OVERRIDE {
+    SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const override {
         SkASSERT(0 == gamma);
         //The magic numbers are derived from the sRGB specification.
         //See http://www.color.org/chardata/rgb/srgb.xalter .
@@ -42,7 +42,7 @@ class SkSRGBColorSpaceLuminance : public SkColorSpaceLuminance {
         return SkScalarPow((luminance + 0.055f) / 1.055f,
                         2.4f);
     }
-    SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const SK_OVERRIDE {
+    SkScalar fromLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luma) const override {
         SkASSERT(0 == gamma);
         //The magic numbers are derived from the sRGB specification.
         //See http://www.color.org/chardata/rgb/srgb.xalter .

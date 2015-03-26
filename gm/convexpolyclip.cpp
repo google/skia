@@ -79,11 +79,11 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("convex_poly_clip");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         // When benchmarking the saveLayer set of draws is skipped.
         int w = 435;
         if (kBench_Mode != this->getMode()) {
@@ -92,7 +92,7 @@ protected:
         return SkISize::Make(w, 540);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkPath tri;
         tri.moveTo(5.f, 5.f);
         tri.lineTo(100.f, 20.f);
@@ -135,7 +135,7 @@ protected:
         fBmp = make_bmp(100, 100);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkScalar y = 0;
         static const SkScalar kMargin = 10.f;
 
@@ -214,7 +214,7 @@ protected:
         }
     }
 
-    bool runAsBench() const SK_OVERRIDE { return true; }
+    bool runAsBench() const override { return true; }
 
 private:
     class Clip {

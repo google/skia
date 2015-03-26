@@ -394,7 +394,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "FatBits");
             return true;
@@ -474,7 +474,7 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) SK_OVERRIDE {
+                                              unsigned modi) override {
         SkPoint pt = { x, y };
         int index = -1;
         int count = fFB.getTriangle() ? 3 : 2;
@@ -489,7 +489,7 @@ protected:
         return new IndexClick(this, index);
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         int index = IndexClick::GetIndex(click);
         if (index >= 0 && index <= 2) {
             fPts[index] = click->fCurr;

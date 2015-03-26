@@ -18,8 +18,8 @@ class PipeController : public SkGPipeController {
 public:
     PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc = NULL);
     virtual ~PipeController();
-    void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
-    void notifyWritten(size_t bytes) SK_OVERRIDE;
+    void* requestBlock(size_t minRequest, size_t* actual) override;
+    void notifyWritten(size_t bytes) override;
 protected:
     const void* getData() { return (const char*) fBlock + fBytesWritten; }
     SkGPipeReader fReader;
@@ -37,8 +37,8 @@ public:
     TiledPipeController(const SkBitmap&, SkPicture::InstallPixelRefProc proc = NULL,
                         const SkMatrix* initialMatrix = NULL);
     virtual ~TiledPipeController() {};
-    void notifyWritten(size_t bytes) SK_OVERRIDE;
-    int numberOfReaders() const SK_OVERRIDE { return NumberOfTiles; }
+    void notifyWritten(size_t bytes) override;
+    int numberOfReaders() const override { return NumberOfTiles; }
 private:
     enum {
         NumberOfTiles = 10
@@ -57,9 +57,9 @@ private:
 class ThreadSafePipeController : public SkGPipeController {
 public:
     ThreadSafePipeController(int numberOfReaders);
-    void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
-    void notifyWritten(size_t bytes) SK_OVERRIDE;
-    int numberOfReaders() const SK_OVERRIDE { return fNumberOfReaders; }
+    void* requestBlock(size_t minRequest, size_t* actual) override;
+    void notifyWritten(size_t bytes) override;
+    int numberOfReaders() const override { return fNumberOfReaders; }
 
     /**
      * Play the stored drawing commands to the specified canvas. If SkGPipeWriter::startRecording

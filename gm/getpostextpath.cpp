@@ -17,11 +17,11 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("getpostextpath");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(480, 780); }
+    SkISize onISize() override { return SkISize::Make(480, 780); }
 
     static void strokePath(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;
@@ -31,7 +31,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         // explicitly add spaces, to test a prev. bug
         const char* text = "Ham bur ge fons";
         int len = SkToInt(strlen(text));

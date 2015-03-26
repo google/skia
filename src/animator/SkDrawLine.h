@@ -16,7 +16,7 @@
 class SkLine : public SkBoundable {
     DECLARE_MEMBER_INFO(Line);
     SkLine();
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
 private:
     SkScalar x1;
     SkScalar x2;

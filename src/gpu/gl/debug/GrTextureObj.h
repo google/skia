@@ -43,7 +43,7 @@ public:
         return 0 != fTextureUnitReferees.count();
     }
 
-    void deleteAction() SK_OVERRIDE;
+    void deleteAction() override;
 
 protected:
 

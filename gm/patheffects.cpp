@@ -108,13 +108,13 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("patheffect");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(800, 600); }
+    SkISize onISize() override { return SkISize::Make(800, 600); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

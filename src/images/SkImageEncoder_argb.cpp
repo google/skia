@@ -13,7 +13,7 @@
 
 class SkARGBImageEncoder : public SkImageEncoder {
 protected:
-    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) SK_OVERRIDE;
+    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) override;
 
 private:
     typedef SkImageEncoder INHERITED;

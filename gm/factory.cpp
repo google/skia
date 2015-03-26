@@ -27,7 +27,7 @@ public:
     FactoryGM() {}
 
 protected:
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
         SkString pngFilename = GetResourcePath("plane.png");
         SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));
@@ -41,15 +41,15 @@ protected:
         }
     }
 
-    virtual SkString onShortName() SK_OVERRIDE {
+    virtual SkString onShortName() override {
         return SkString("factory");
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    virtual SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(SkCanvas* canvas) override {
         canvas->drawBitmap(fBitmap, 0, 0);
     }
 

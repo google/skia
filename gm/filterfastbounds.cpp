@@ -159,9 +159,9 @@ protected:
     static const int kNumVertTiles = 6;
     static const int kNumXtraCols = 2;
 
-    SkString onShortName() SK_OVERRIDE{ return SkString("filterfastbounds"); }
+    SkString onShortName() override{ return SkString("filterfastbounds"); }
 
-    SkISize onISize() SK_OVERRIDE{
+    SkISize onISize() override{
         return SkISize::Make((SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols) * kTileWidth,
                              kNumVertTiles * kTileHeight);
     }
@@ -224,7 +224,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE{
+    void onDraw(SkCanvas* canvas) override{
 
         SkPaint blackFill;
 

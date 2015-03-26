@@ -27,17 +27,17 @@ class SkPost : public SkDisplayable {
     };
     SkPost();
     virtual ~SkPost();
-    bool addChild(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
-    bool childrenNeedDisposing() const SK_OVERRIDE;
-    void dirty() SK_OVERRIDE;
+    bool addChild(SkAnimateMaker& , SkDisplayable* child) override;
+    bool childrenNeedDisposing() const override;
+    void dirty() override;
 #ifdef SK_DUMP_ENABLED
-    void dump(SkAnimateMaker* ) SK_OVERRIDE;
+    void dump(SkAnimateMaker* ) override;
 #endif
-    bool enable(SkAnimateMaker& ) SK_OVERRIDE;
-    bool hasEnable() const SK_OVERRIDE;
-    void onEndElement(SkAnimateMaker& ) SK_OVERRIDE;
-    void setChildHasID() SK_OVERRIDE;
-    bool setProperty(int index, SkScriptValue& ) SK_OVERRIDE;
+    bool enable(SkAnimateMaker& ) override;
+    bool hasEnable() const override;
+    void onEndElement(SkAnimateMaker& ) override;
+    void setChildHasID() override;
+    bool setProperty(int index, SkScriptValue& ) override;
 protected:
     SkMSec delay;
     SkString sink;

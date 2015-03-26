@@ -38,7 +38,7 @@ public:
     }
 
     virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                               SkBitmap* dst, SkIPoint* offset) const SK_OVERRIDE {
+                               SkBitmap* dst, SkIPoint* offset) const override {
         SkBitmap source = src;
         SkImageFilter* input = getInput(0);
         SkIPoint srcOffset = SkIPoint::Make(0, 0);
@@ -66,7 +66,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
 
 protected:
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const override {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fDX);
         buffer.writeScalar(fDY);

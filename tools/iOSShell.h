@@ -20,10 +20,10 @@ public:
     virtual ~ShellWindow();
 
 protected:
-    void onSizeChange() SK_OVERRIDE;
+    void onSizeChange() override;
 
     virtual bool onDispatchClick(int x, int y, Click::State, void* owner,
-                                 unsigned modi) SK_OVERRIDE;
+                                 unsigned modi) override;
 
 private:
     typedef SkOSWindow INHERITED;

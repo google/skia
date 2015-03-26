@@ -24,7 +24,7 @@ template <bool kClamp, bool kWide>
 struct PMFloatGetSetBench : public Benchmark {
     PMFloatGetSetBench() {}
 
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         switch (kClamp << 1 | kWide) {
             case 0: return "SkPMFloat_get_1x";
             case 1: return "SkPMFloat_get_4x";
@@ -34,9 +34,9 @@ struct PMFloatGetSetBench : public Benchmark {
         SkFAIL("unreachable");
         return "oh bother";
     }
-    bool isSuitableFor(Backend backend) SK_OVERRIDE { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         // Unlike blackhole, junk can and probably will be a register.
         uint32_t junk = 0;
         uint32_t seed = 0;

@@ -59,23 +59,23 @@ protected:
     {}
 
     virtual SkScalerContext* onCreateScalerContext(
-                                        const SkDescriptor*) const SK_OVERRIDE;
-    void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+                                        const SkDescriptor*) const override;
+    void onFilterRec(SkScalerContextRec*) const override;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
-                                const uint32_t*, uint32_t) const SK_OVERRIDE;
-    int onGetUPEM() const SK_OVERRIDE;
+                                const uint32_t*, uint32_t) const override;
+    int onGetUPEM() const override;
     virtual bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
-                                       int32_t adjustments[]) const SK_OVERRIDE;
+                                       int32_t adjustments[]) const override;
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
-                                int glyphCount) const SK_OVERRIDE;
-    int onCountGlyphs() const SK_OVERRIDE;
+                                int glyphCount) const override;
+    int onCountGlyphs() const override;
 
-    LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
+    LocalizedStrings* onCreateFamilyNameIterator() const override;
 
-    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    int onGetTableTags(SkFontTableTag tags[]) const override;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const SK_OVERRIDE;
+                                  size_t length, void* data) const override;
 
 private:
     mutable int fGlyphCount;

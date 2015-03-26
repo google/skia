@@ -59,7 +59,7 @@ public:
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         fName.printf("bitmaprect_%02X_%sfilter_%s",
                      fAlpha,
                      kNone_SkFilterQuality == fFilterQuality ? "no" : "",
@@ -67,7 +67,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         fBitmap.allocPixels();
         fBitmap.setAlphaType(kOpaque_SkAlphaType);
         fBitmap.eraseColor(SK_ColorBLACK);
@@ -87,7 +87,7 @@ protected:
     }
 
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkRandom rand;
 
         SkPaint paint;

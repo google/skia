@@ -31,12 +31,12 @@ public:
     GrGLuint pathID() const { return fPathID; }
 
 protected:
-    void onRelease() SK_OVERRIDE;
-    void onAbandon() SK_OVERRIDE;
+    void onRelease() override;
+    void onAbandon() override;
 
 private:
     // TODO: Figure out how to get an approximate size of the path in Gpu memory.
-    size_t onGpuMemorySize() const SK_OVERRIDE { return 100; }
+    size_t onGpuMemorySize() const override { return 100; }
 
     GrGLuint fPathID;
 

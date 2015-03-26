@@ -23,9 +23,9 @@ public:
     ClipDrawDrawGM() { this->setBGColor(0xFFCCCCCC); }
 
 protected:
-    SkString onShortName() SK_OVERRIDE { return SkString("clipdrawdraw"); }
+    SkString onShortName() override { return SkString("clipdrawdraw"); }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(512, 512); }
+    SkISize onISize() override { return SkISize::Make(512, 512); }
 
     static void Draw(SkCanvas* canvas, const SkRect& rect) {
         SkPaint p;
@@ -46,7 +46,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         // Vertical remnant
         const SkRect rect1 = SkRect::MakeLTRB(136.5f, 137.5f, 338.5f, 293.5f);
 

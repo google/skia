@@ -219,7 +219,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Regions");
             return true;
@@ -321,7 +321,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         if (false) { // avoid bit rot, suppress warning
             test_strokerect(canvas);
             return;
@@ -394,12 +394,12 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) SK_OVERRIDE {
+                                              unsigned modi) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click(this) : NULL;
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         fRect.offset(click->fICurr.fX - click->fIPrev.fX,
                      click->fICurr.fY - click->fIPrev.fY);
         this->inval(NULL);

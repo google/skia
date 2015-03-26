@@ -36,7 +36,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "TextAlpha");
             return true;
@@ -44,7 +44,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         const char* str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         SkPaint paint;
         SkScalar    x = SkIntToScalar(10);
@@ -69,11 +69,11 @@ protected:
         }
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         return new Click(this);
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         int y = click->fICurr.fY;
         if (y < 0) {
             y = 0;

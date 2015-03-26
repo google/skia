@@ -53,12 +53,12 @@ public:
     SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, const SkSurfaceProps*);
     virtual ~SkImage_Raster();
 
-    void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const SK_OVERRIDE;
-    void onDrawRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) const SK_OVERRIDE;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const SK_OVERRIDE;
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const SK_OVERRIDE;
-    const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const SK_OVERRIDE;
-    bool getROPixels(SkBitmap*) const SK_OVERRIDE;
+    void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const override;
+    void onDrawRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) const override;
+    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
+    const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
+    bool getROPixels(SkBitmap*) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImageInfo&, SkPixelRef*, const SkIPoint& pixelRefOrigin, size_t rowBytes,
@@ -68,9 +68,9 @@ public:
 
     virtual SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const SK_OVERRIDE;
+                                  const SkMatrix* localMatrix) const override;
 
-    bool isOpaque() const SK_OVERRIDE;
+    bool isOpaque() const override;
 
     SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props)
         : INHERITED(bm.width(), bm.height(), props)

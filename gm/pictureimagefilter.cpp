@@ -18,7 +18,7 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("pictureimagefilter");
     }
 
@@ -36,9 +36,9 @@ protected:
         fPicture.reset(recorder.endRecording());
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(600, 300); }
+    SkISize onISize() override { return SkISize::Make(600, 300); }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         this->makePicture();
     }
 
@@ -51,7 +51,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(0x00000000);
         {
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);

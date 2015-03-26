@@ -21,7 +21,7 @@ public:
     {}
 
 protected:
-    bool allocPixelRef(SkBitmap* bm, SkColorTable* ctable) SK_OVERRIDE {
+    bool allocPixelRef(SkBitmap* bm, SkColorTable* ctable) override {
         const SkImageInfo bmi = bm->info();
         if (bmi.width() != fInfo.width() || bmi.height() != fInfo.height() ||
             bmi.colorType() != fInfo.colorType())
@@ -43,12 +43,12 @@ public:
     {}
 
 protected:
-    SkData* onRefEncodedData() SK_OVERRIDE {
+    SkData* onRefEncodedData() override {
         return SkRef(fData.get());
     }
 
 #ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    virtual bool onGetInfo(SkImageInfo* info) override {
         *info = fInfo;
         return true;
     }
@@ -56,7 +56,7 @@ protected:
 
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                const Options&,
-                               SkPMColor ctableEntries[], int* ctableCount) SK_OVERRIDE {
+                               SkPMColor ctableEntries[], int* ctableCount) override {
         SkMemoryStream stream(fData->data(), fData->size(), false);
         SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,
                                                                (info, pixels, rowBytes)));
@@ -90,7 +90,7 @@ protected:
     }
 
     bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                         SkYUVColorSpace* colorSpace) SK_OVERRIDE {
+                         SkYUVColorSpace* colorSpace) override {
         SkMemoryStream stream(fData->data(), fData->size(), false);
         return fDecoder->decodeYUV8Planes(&stream, sizes, planes, rowBytes, colorSpace);
     }

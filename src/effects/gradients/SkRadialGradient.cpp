@@ -473,7 +473,7 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) SK_OVERRIDE;
+                          const TextureSamplerArray&) override;
 
     static void GenKey(const GrProcessor& processor, const GrGLCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
@@ -498,14 +498,14 @@ public:
 
     virtual ~GrRadialGradient() { }
 
-    const char* name() const SK_OVERRIDE { return "Radial Gradient"; }
+    const char* name() const override { return "Radial Gradient"; }
 
     virtual void getGLProcessorKey(const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE {
+                                   GrProcessorKeyBuilder* b) const override {
         GrGLRadialGradient::GenKey(*this, caps, b);
     }
 
-    GrGLFragmentProcessor* createGLInstance() const SK_OVERRIDE {
+    GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLRadialGradient, (*this));
     }
 

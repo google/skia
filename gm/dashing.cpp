@@ -403,9 +403,9 @@ public:
 
 protected:
 
-    bool runAsBench() const SK_OVERRIDE { return true; }
+    bool runAsBench() const override { return true; }
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         if (fDoAA) {
             return SkString("dashing5_aa");
         } else {
@@ -413,9 +413,9 @@ protected:
         }
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(400, 200); }
+    SkISize onISize() override { return SkISize::Make(400, 200); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         static const int kOn = 4;
         static const int kOff = 4;
         static const int kIntervalLength = kOn + kOff;

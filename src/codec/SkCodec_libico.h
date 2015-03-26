@@ -33,16 +33,16 @@ protected:
     /*
      * Chooses the best dimensions given the desired scale
      */
-    SkISize onGetScaledDimensions(float desiredScale) const SK_OVERRIDE;
+    SkISize onGetScaledDimensions(float desiredScale) const override;
 
     /*
      * Initiates the Ico decode
      */
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
                        size_t dstRowBytes, const Options&, SkPMColor*, int*)
-                       SK_OVERRIDE;
+                       override;
 
-    SkEncodedFormat onGetEncodedFormat() const SK_OVERRIDE {
+    SkEncodedFormat onGetEncodedFormat() const override {
         return kICO_SkEncodedFormat;
     }
 

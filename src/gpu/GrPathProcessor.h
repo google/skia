@@ -29,33 +29,33 @@ public:
         return SkNEW_ARGS(GrPathProcessor, (color, viewMatrix, localMatrix));
     }
 
-    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
 
     bool canMakeEqual(const GrBatchTracker& mine,
                       const GrPrimitiveProcessor& that,
-                      const GrBatchTracker& theirs) const SK_OVERRIDE;
+                      const GrBatchTracker& theirs) const override;
 
-    const char* name() const SK_OVERRIDE { return "PathProcessor"; }
+    const char* name() const override { return "PathProcessor"; }
 
     GrColor color() const { return fColor; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE;
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE;
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
 
-    bool willUseGeoShader() const SK_OVERRIDE { return false; }
+    bool willUseGeoShader() const override { return false; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps& caps) const SK_OVERRIDE;
+                                                     const GrGLCaps& caps) const override;
 
 protected:
     GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
 private:
-    bool hasExplicitLocalCoords() const SK_OVERRIDE { return false; }
+    bool hasExplicitLocalCoords() const override { return false; }
 
     GrColor fColor;
 

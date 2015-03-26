@@ -838,7 +838,7 @@ public:
      * Release any resources that are cached but not currently in use. This
      * is intended to give an application some recourse when resources are low.
      */
-    void purgeResources() SK_OVERRIDE {
+    void purgeResources() override {
         // The clip mask manager can rebuild all its clip masks so just
         // get rid of them all.
         fClipMaskManager.purgeResources();
@@ -848,13 +848,13 @@ protected:
     GrClipMaskManager           fClipMaskManager;
 
 private:
-    GrClipMaskManager* clipMaskManager() SK_OVERRIDE { return &fClipMaskManager; }
+    GrClipMaskManager* clipMaskManager() override { return &fClipMaskManager; }
 
     virtual bool setupClip(GrPipelineBuilder*,
                            GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                            GrPipelineBuilder::AutoRestoreStencil*,
                            GrScissorState* scissorState,
-                           const SkRect* devBounds) SK_OVERRIDE;
+                           const SkRect* devBounds) override;
 
     typedef GrDrawTarget INHERITED;
 };

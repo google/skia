@@ -185,7 +185,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SkString str;
             str.printf("Hair-%s", gProcs[fProcIndex].fName);
@@ -201,7 +201,7 @@ protected:
         canvas->drawBitmap(b1, SkIntToScalar(b0.width()), 0, NULL);
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         gRand.setSeed(fNow);
 
         SkBitmap bm, bm2;
@@ -222,7 +222,7 @@ protected:
         canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), NULL);
     }
 
-    bool onAnimate(const SkAnimTimer&) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer&) override {
         if (fDoAA) {
             fProcIndex = cycle_hairproc_index(fProcIndex);
             // todo: signal that we want to rebuild our TITLE
@@ -231,7 +231,7 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fDoAA = !fDoAA;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);

@@ -26,15 +26,15 @@ public:
         fName.printf("rtree_%s_build", name);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkRandom rand;
         SkAutoTMalloc<SkRect> rects(NUM_BUILD_RECTS);
         for (int i = 0; i < NUM_BUILD_RECTS; ++i) {
@@ -60,14 +60,14 @@ public:
         fName.printf("rtree_%s_query", name);
     }
 
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 protected:
-    const char* onGetName() SK_OVERRIDE {
+    const char* onGetName() override {
         return fName.c_str();
     }
-    void onPreDraw() SK_OVERRIDE {
+    void onPreDraw() override {
         SkRandom rand;
         SkAutoTMalloc<SkRect> rects(NUM_QUERY_RECTS);
         for (int i = 0; i < NUM_QUERY_RECTS; ++i) {
@@ -76,7 +76,7 @@ protected:
         fTree.insert(rects.get(), NUM_QUERY_RECTS);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkRandom rand;
         for (int i = 0; i < loops; ++i) {
             SkTDArray<unsigned> hits;

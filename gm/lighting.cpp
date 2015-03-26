@@ -21,7 +21,7 @@ public:
 
 protected:
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("lighting");
     }
 
@@ -38,7 +38,7 @@ protected:
         canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
@@ -51,7 +51,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         if (!fInitialized) {
             make_bitmap();
             fInitialized = true;

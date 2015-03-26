@@ -64,75 +64,75 @@ public:
 
     void replaceRenderTarget(bool shouldRetainContent);
 
-    GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
+    GrRenderTarget* accessRenderTarget() override;
 
-    SkImageInfo imageInfo() const SK_OVERRIDE {
+    SkImageInfo imageInfo() const override {
         return fRenderTarget ? fRenderTarget->surfacePriv().info() : SkImageInfo::MakeUnknown();
     }
 
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
-    void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
+    void drawPaint(const SkDraw&, const SkPaint& paint) override;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
-                            const SkPoint[], const SkPaint& paint) SK_OVERRIDE;
+                            const SkPoint[], const SkPaint& paint) override;
     virtual void drawRect(const SkDraw&, const SkRect& r,
-                          const SkPaint& paint) SK_OVERRIDE;
+                          const SkPaint& paint) override;
     virtual void drawRRect(const SkDraw&, const SkRRect& r,
-                           const SkPaint& paint) SK_OVERRIDE;
+                           const SkPaint& paint) override;
     virtual void drawDRRect(const SkDraw& draw, const SkRRect& outer,
-                            const SkRRect& inner, const SkPaint& paint) SK_OVERRIDE;
+                            const SkRRect& inner, const SkPaint& paint) override;
     virtual void drawOval(const SkDraw&, const SkRect& oval,
-                          const SkPaint& paint) SK_OVERRIDE;
+                          const SkPaint& paint) override;
     virtual void drawPath(const SkDraw&, const SkPath& path,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
-                          bool pathIsMutable) SK_OVERRIDE;
+                          bool pathIsMutable) override;
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
-                            const SkMatrix&, const SkPaint&) SK_OVERRIDE;
+                            const SkMatrix&, const SkPaint&) override;
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
                                 const SkRect* srcOrNull, const SkRect& dst,
                                 const SkPaint& paint,
-                                SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE;
+                                SkCanvas::DrawBitmapRectFlags flags) override;
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
-                            int x, int y, const SkPaint& paint) SK_OVERRIDE;
+                            int x, int y, const SkPaint& paint) override;
     virtual void drawText(const SkDraw&, const void* text, size_t len,
-                          SkScalar x, SkScalar y, const SkPaint&) SK_OVERRIDE;
+                          SkScalar x, SkScalar y, const SkPaint&) override;
     virtual void drawPosText(const SkDraw&, const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
-                             const SkPoint& offset, const SkPaint&) SK_OVERRIDE;
+                             const SkPoint& offset, const SkPaint&) override;
     virtual void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
-                              const SkPaint& paint, SkDrawFilter* drawFilter) SK_OVERRIDE;
+                              const SkPaint& paint, SkDrawFilter* drawFilter) override;
     virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
-                              const SkPaint&) SK_OVERRIDE;
+                              const SkPaint&) override;
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
-                            const SkPaint&) SK_OVERRIDE;
+                            const SkPaint&) override;
 
-    void flush() SK_OVERRIDE;
+    void flush() override;
 
-    void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
-    void onDetachFromCanvas() SK_OVERRIDE;
+    void onAttachToCanvas(SkCanvas* canvas) override;
+    void onDetachFromCanvas() override;
 
-    const SkBitmap& onAccessBitmap() SK_OVERRIDE;
+    const SkBitmap& onAccessBitmap() override;
 
-    bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE;
+    bool canHandleImageFilter(const SkImageFilter*) override;
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
                              const SkImageFilter::Context&,
-                             SkBitmap*, SkIPoint*) SK_OVERRIDE;
+                             SkBitmap*, SkIPoint*) override;
 
     bool filterTexture(GrContext*, GrTexture*, const SkImageFilter*,
                        const SkImageFilter::Context&,
                        SkBitmap* result, SkIPoint* offset);
 
 protected:
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
-    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
-    bool onShouldDisableLCD(const SkPaint&) const SK_OVERRIDE;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
+    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
+    bool onShouldDisableLCD(const SkPaint&) const override;
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     virtual bool EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture,
-                                          const SkMatrix*, const SkPaint*) SK_OVERRIDE;
+                                          const SkMatrix*, const SkPaint*) override;
 
 private:
     GrContext*                      fContext;
@@ -149,13 +149,13 @@ private:
 
     SkGpuDevice(GrRenderTarget*, const SkSurfaceProps*, unsigned flags);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) SK_OVERRIDE;
+    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) SK_OVERRIDE;
+    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    SkImageFilter::Cache* getImageFilterCache() SK_OVERRIDE;
+    SkImageFilter::Cache* getImageFilterCache() override;
 
-    bool forceConservativeRasterClip() const SK_OVERRIDE { return true; }
+    bool forceConservativeRasterClip() const override { return true; }
 
     // sets the render target and clip on context
     void prepareDraw(const SkDraw&);

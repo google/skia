@@ -20,7 +20,7 @@ class SkDrawRect;
 class SkDrawClip : public SkADrawable {
     DECLARE_DRAW_MEMBER_INFO(Clip);
     SkDrawClip();
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
 private:
     SkDrawRect* rect;
     SkDrawPath* path;

@@ -24,10 +24,10 @@ public:
 protected:
     SkDownSampleImageFilter(SkScalar scale, SkImageFilter* input)
       : INHERITED(1, &input), fScale(scale) {}
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const override;
 
 private:
     SkScalar fScale;

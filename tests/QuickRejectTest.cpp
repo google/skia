@@ -16,14 +16,14 @@
 class TestLooper : public SkDrawLooper {
 public:
 
-    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE {
+    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override {
         return SkNEW_PLACEMENT(storage, TestDrawLooperContext);
     }
 
-    size_t contextSize() const SK_OVERRIDE { return sizeof(TestDrawLooperContext); }
+    size_t contextSize() const override { return sizeof(TestDrawLooperContext); }
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const SK_OVERRIDE {
+    void toString(SkString* str) const override {
         str->append("TestLooper:");
     }
 #endif
@@ -36,7 +36,7 @@ private:
         TestDrawLooperContext() : fOnce(true) {}
         virtual ~TestDrawLooperContext() {}
 
-        bool next(SkCanvas* canvas, SkPaint*) SK_OVERRIDE {
+        bool next(SkCanvas* canvas, SkPaint*) override {
             if (fOnce) {
                 fOnce = false;
                 canvas->translate(SkIntToScalar(10), 0);

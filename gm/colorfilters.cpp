@@ -41,15 +41,15 @@ public:
     }
 
 protected:
-    virtual SkString onShortName() SK_OVERRIDE {
+    virtual SkString onShortName() override {
         return fName;
     }
 
-    virtual SkISize onISize() SK_OVERRIDE {
+    virtual SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         SkRect r;
         r.setWH(600, 50);

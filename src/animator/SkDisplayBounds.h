@@ -15,7 +15,7 @@
 class SkDisplayBounds : public SkDrawRect {
     DECLARE_DISPLAY_MEMBER_INFO(Bounds);
     SkDisplayBounds();
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
 private:
     SkBool inval;
     typedef SkDrawRect INHERITED;

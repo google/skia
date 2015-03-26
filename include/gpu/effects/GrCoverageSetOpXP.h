@@ -24,14 +24,14 @@ public:
     static GrXPFactory* Create(SkRegion::Op regionOp, bool invertCoverage = false);
 
     bool supportsRGBCoverage(GrColor /*knownColor*/,
-                             uint32_t /*knownColorFlags*/) const SK_OVERRIDE {
+                             uint32_t /*knownColorFlags*/) const override {
         return true;
     }
 
-    bool canTweakAlphaForCoverage() const SK_OVERRIDE { return false; }
+    bool canTweakAlphaForCoverage() const override { return false; }
 
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                            GrXPFactory::InvariantOutput*) const SK_OVERRIDE;
+                            GrXPFactory::InvariantOutput*) const override;
 
 private:
     GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
@@ -39,15 +39,15 @@ private:
     GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
-                                           const GrDeviceCoordTexture* dstCopy) const SK_OVERRIDE;
+                                           const GrDeviceCoordTexture* dstCopy) const override;
 
     bool willReadDstColor(const GrDrawTargetCaps& /*caps*/,
                           const GrProcOptInfo& /*colorPOI*/,
-                          const GrProcOptInfo& /*coveragePOI*/) const SK_OVERRIDE {
+                          const GrProcOptInfo& /*coveragePOI*/) const override {
         return false;
     }
 
-    bool onIsEqual(const GrXPFactory& xpfBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const GrCoverageSetOpXPFactory& xpf = xpfBase.cast<GrCoverageSetOpXPFactory>();
         return fRegionOp == xpf.fRegionOp;
     }

@@ -32,7 +32,7 @@ GrMemoryPool A::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
  */
 class GrMemoryPoolBenchStack : public Benchmark {
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -94,7 +94,7 @@ GrMemoryPool B::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
  */
 class GrMemoryPoolBenchRandom : public Benchmark {
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
@@ -142,7 +142,7 @@ class GrMemoryPoolBenchQueue : public Benchmark {
         M = 4 * (1 << 10),
     };
 public:
-    bool isSuitableFor(Backend backend) SK_OVERRIDE {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 

@@ -175,7 +175,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) SK_OVERRIDE {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "QuadStroker");
             return true;
@@ -202,7 +202,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void onSizeChange() SK_OVERRIDE {
+    void onSizeChange() override {
         fWeightControl.setXYWH(this->width() - 150, 30, 30, 400);
         fErrorControl.setXYWH(this->width() - 100, 30, 30, 400);
         fWidthControl.setXYWH(this->width() -  50, 30, 30, 400);
@@ -445,7 +445,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPath path;
         SkScalar width = fWidth;
 
@@ -551,7 +551,7 @@ protected:
     };
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) SK_OVERRIDE {
+                                              unsigned modi) override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
                 return new MyClick(this, (int)i);
@@ -603,7 +603,7 @@ protected:
         return (SkIntToScalar(y) - control.fTop) / control.height() * (max - min) + min;
     }
 
-    bool onClick(Click* click) SK_OVERRIDE {
+    bool onClick(Click* click) override {
         int index = ((MyClick*)click)->fIndex;
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),

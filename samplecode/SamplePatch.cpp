@@ -319,7 +319,7 @@ protected:
         drawpatches(canvas, paint, nu, nv, &patch);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) SK_OVERRIDE {
+    bool onAnimate(const SkAnimTimer& timer) override {
         fAngle = timer.scaled(60, 360);
         return true;
     }
@@ -335,7 +335,7 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) SK_OVERRIDE {
+                                              unsigned modi) override {
         x -= DX;
         y -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {

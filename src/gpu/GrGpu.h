@@ -36,7 +36,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     GrGpu(GrContext* context);
-    ~GrGpu() SK_OVERRIDE;
+    ~GrGpu() override;
 
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }

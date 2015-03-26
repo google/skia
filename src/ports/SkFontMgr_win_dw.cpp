@@ -277,22 +277,22 @@ public:
     }
 
 protected:
-    int onCountFamilies() const SK_OVERRIDE;
-    void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE;
-    SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE;
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE;
+    int onCountFamilies() const override;
+    void onGetFamilyName(int index, SkString* familyName) const override;
+    SkFontStyleSet* onCreateStyleSet(int index) const override;
+    SkFontStyleSet* onMatchFamily(const char familyName[]) const override;
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& fontstyle) const SK_OVERRIDE;
+                                           const SkFontStyle& fontstyle) const override;
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                     const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const SK_OVERRIDE;
+                                                    SkUnichar character) const override;
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle& fontstyle) const SK_OVERRIDE;
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const SK_OVERRIDE;
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE;
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE;
+                                         const SkFontStyle& fontstyle) const override;
+    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override;
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const SK_OVERRIDE;
+                                               unsigned styleBits) const override;
 
 private:
     HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily) const;
@@ -324,10 +324,10 @@ public:
         , fFontFamily(SkRefComPtr(fontFamily))
     { }
 
-    int count() SK_OVERRIDE;
-    void getStyle(int index, SkFontStyle* fs, SkString* styleName) SK_OVERRIDE;
-    SkTypeface* createTypeface(int index) SK_OVERRIDE;
-    SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE;
+    int count() override;
+    void getStyle(int index, SkFontStyle* fs, SkString* styleName) override;
+    SkTypeface* createTypeface(int index) override;
+    SkTypeface* matchStyle(const SkFontStyle& pattern) override;
 
 private:
     SkAutoTUnref<const SkFontMgr_DirectWrite> fFontMgr;
@@ -519,7 +519,7 @@ public:
         DWRITE_MEASURING_MODE measuringMode,
         DWRITE_GLYPH_RUN const* glyphRun,
         DWRITE_GLYPH_RUN_DESCRIPTION const* glyphRunDescription,
-        IUnknown* clientDrawingEffect) SK_OVERRIDE
+        IUnknown* clientDrawingEffect) override
     {
         SkTScopedComPtr<IDWriteFont> font;
         HRM(fOuter->fFontCollection->GetFontFromFontFace(glyphRun->fontFace, &font),
@@ -547,7 +547,7 @@ public:
         FLOAT baselineOriginX,
         FLOAT baselineOriginY,
         DWRITE_UNDERLINE const* underline,
-        IUnknown* clientDrawingEffect) SK_OVERRIDE
+        IUnknown* clientDrawingEffect) override
     { return E_NOTIMPL; }
 
     virtual HRESULT STDMETHODCALLTYPE DrawStrikethrough(
@@ -555,7 +555,7 @@ public:
         FLOAT baselineOriginX,
         FLOAT baselineOriginY,
         DWRITE_STRIKETHROUGH const* strikethrough,
-        IUnknown* clientDrawingEffect) SK_OVERRIDE
+        IUnknown* clientDrawingEffect) override
     { return E_NOTIMPL; }
 
     virtual HRESULT STDMETHODCALLTYPE DrawInlineObject(
@@ -565,13 +565,13 @@ public:
         IDWriteInlineObject* inlineObject,
         BOOL isSideways,
         BOOL isRightToLeft,
-        IUnknown* clientDrawingEffect) SK_OVERRIDE
+        IUnknown* clientDrawingEffect) override
     { return E_NOTIMPL; }
 
     // IDWritePixelSnapping methods
     virtual HRESULT STDMETHODCALLTYPE IsPixelSnappingDisabled(
         void* clientDrawingContext,
-        BOOL* isDisabled) SK_OVERRIDE
+        BOOL* isDisabled) override
     {
         *isDisabled = FALSE;
         return S_OK;
@@ -579,7 +579,7 @@ public:
 
     virtual HRESULT STDMETHODCALLTYPE GetCurrentTransform(
         void* clientDrawingContext,
-        DWRITE_MATRIX* transform) SK_OVERRIDE
+        DWRITE_MATRIX* transform) override
     {
         const DWRITE_MATRIX ident = { 1.0, 0.0, 0.0, 1.0, 0.0, 0.0 };
         *transform = ident;
@@ -588,18 +588,18 @@ public:
 
     virtual HRESULT STDMETHODCALLTYPE GetPixelsPerDip(
         void* clientDrawingContext,
-        FLOAT* pixelsPerDip) SK_OVERRIDE
+        FLOAT* pixelsPerDip) override
     {
         *pixelsPerDip = 1.0f;
         return S_OK;
     }
 
     // IUnknown methods
-    ULONG STDMETHODCALLTYPE AddRef() SK_OVERRIDE {
+    ULONG STDMETHODCALLTYPE AddRef() override {
         return InterlockedIncrement(&fRefCount);
     }
 
-    ULONG STDMETHODCALLTYPE Release() SK_OVERRIDE {
+    ULONG STDMETHODCALLTYPE Release() override {
         ULONG newCount = InterlockedDecrement(&fRefCount);
         if (0 == newCount) {
             delete this;
@@ -607,7 +607,7 @@ public:
         return newCount;
     }
 
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(IID const& riid, void** ppvObject) SK_OVERRIDE{
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(IID const& riid, void** ppvObject) override{
         if (__uuidof(IUnknown) == riid ||
             __uuidof(IDWritePixelSnapping) == riid ||
             __uuidof(IDWriteTextRenderer) == riid)
@@ -660,7 +660,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE GetTextAtPosition(
         UINT32 textPosition,
         WCHAR const** textString,
-        UINT32* textLength) SK_OVERRIDE
+        UINT32* textLength) override
     {
         if (fLength <= textPosition) {
             *textString = NULL;
@@ -675,7 +675,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE GetTextBeforePosition(
         UINT32 textPosition,
         WCHAR const** textString,
-        UINT32* textLength) SK_OVERRIDE
+        UINT32* textLength) override
     {
         if (textPosition < 1 || fLength <= textPosition) {
             *textString = NULL;
@@ -687,7 +687,7 @@ public:
         return S_OK;
     }
 
-    virtual DWRITE_READING_DIRECTION STDMETHODCALLTYPE GetParagraphReadingDirection() SK_OVERRIDE {
+    virtual DWRITE_READING_DIRECTION STDMETHODCALLTYPE GetParagraphReadingDirection() override {
         // TODO: this is also interesting.
         return DWRITE_READING_DIRECTION_LEFT_TO_RIGHT;
     }
@@ -695,7 +695,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE GetLocaleName(
         UINT32 textPosition,
         UINT32* textLength,
-        WCHAR const** localeName) SK_OVERRIDE
+        WCHAR const** localeName) override
     {
         *localeName = fLocale;
         return S_OK;
@@ -704,18 +704,18 @@ public:
     virtual HRESULT STDMETHODCALLTYPE GetNumberSubstitution(
         UINT32 textPosition,
         UINT32* textLength,
-        IDWriteNumberSubstitution** numberSubstitution) SK_OVERRIDE
+        IDWriteNumberSubstitution** numberSubstitution) override
     {
         *numberSubstitution = fNumberSubstitution;
         return S_OK;
     }
 
     // IUnknown methods
-    ULONG STDMETHODCALLTYPE AddRef() SK_OVERRIDE {
+    ULONG STDMETHODCALLTYPE AddRef() override {
         return InterlockedIncrement(&fRefCount);
     }
 
-    ULONG STDMETHODCALLTYPE Release() SK_OVERRIDE {
+    ULONG STDMETHODCALLTYPE Release() override {
         ULONG newCount = InterlockedDecrement(&fRefCount);
         if (0 == newCount) {
             delete this;
@@ -723,7 +723,7 @@ public:
         return newCount;
     }
 
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(IID const& riid, void** ppvObject) SK_OVERRIDE{
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(IID const& riid, void** ppvObject) override{
         if (__uuidof(IUnknown) == riid ||
             __uuidof(IDWriteTextAnalysisSource) == riid)
         {

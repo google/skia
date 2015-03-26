@@ -56,22 +56,22 @@ public:
         fWriters.push_back(newWriter);
     }
     virtual ~PictureResultsMultiWriter() {}
-    void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+    void bench(const char name[], int32_t x, int32_t y) override {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->bench(name, x, y);
         }
     }
-    void logRenderer(sk_tools::PictureRenderer *pr) SK_OVERRIDE {
+    void logRenderer(sk_tools::PictureRenderer *pr) override {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->logRenderer(pr);
         }
     }
-    void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
+    void tileMeta(int x, int y, int tx, int ty) override {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->tileMeta(x, y, tx, ty);
         }
     }
-    void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
+    void addTileFlag(PictureResultsWriter::TileFlags flag) override {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->addTileFlag(flag);
         }
@@ -81,13 +81,13 @@ public:
             const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
-            int numInnerLoops = 1) SK_OVERRIDE {
+            int numInnerLoops = 1) override {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->tileData(data, format, result, timerTypes,
                                  numInnerLoops);
         }
     }
-   void end() SK_OVERRIDE {
+   void end() override {
         for(int i=0; i<fWriters.count(); ++i) {
             fWriters[i]->end();
         }
@@ -109,18 +109,18 @@ private:
 public:
     PictureResultsLoggerWriter(BenchLogger* log)
           : fLogger(log), fCurrentLine() {}
-    void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+    void bench(const char name[], int32_t x, int32_t y) override {
         SkString result;
         result.printf("running bench [%i %i] %s ", x, y, name);
         this->logProgress(result.c_str());
     }
-    void logRenderer(sk_tools::PictureRenderer* renderer) SK_OVERRIDE {
+    void logRenderer(sk_tools::PictureRenderer* renderer) override {
         fCurrentLine = renderer->getConfigName();
     }
-    void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {
+    void tileMeta(int x, int y, int tx, int ty) override {
         fCurrentLine.appendf(": tile [%i,%i] out of [%i,%i]", x, y, tx, ty);
     }
-    void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {
+    void addTileFlag(PictureResultsWriter::TileFlags flag) override {
         if(flag == PictureResultsWriter::kPurging) {
             fCurrentLine.append(" <withPurging>");
         } else if(flag == PictureResultsWriter::kAvg) {
@@ -132,13 +132,13 @@ public:
             const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
-            int numInnerLoops = 1) SK_OVERRIDE {
+            int numInnerLoops = 1) override {
         SkString results = data->getResult(format, result,
                 fCurrentLine.c_str(), timerTypes, numInnerLoops);
         results.append("\n");
         this->logProgress(results.c_str());
     }
-    void end() SK_OVERRIDE {}
+    void end() override {}
 private:
     BenchLogger* fLogger;
     SkString fCurrentLine;
@@ -189,23 +189,23 @@ public:
         fBuilderData = this->makeBuilderJson();
     }
 
-    void bench(const char name[], int32_t x, int32_t y) SK_OVERRIDE {
+    void bench(const char name[], int32_t x, int32_t y) override {
         fBenchName = SkString(name);
     }
-    void logRenderer(sk_tools::PictureRenderer* pr) SK_OVERRIDE {
+    void logRenderer(sk_tools::PictureRenderer* pr) override {
         fParams = pr->getJSONConfig();
         fConfigString = pr->getConfigName();
     }
     // Apparently tiles aren't used, so tileMeta is empty
-    void tileMeta(int x, int y, int tx, int ty) SK_OVERRIDE {}
+    void tileMeta(int x, int y, int tx, int ty) override {}
     // Flags aren't used, so addTileFlag is empty
-    void addTileFlag(PictureResultsWriter::TileFlags flag) SK_OVERRIDE {}
+    void addTileFlag(PictureResultsWriter::TileFlags flag) override {}
     virtual void tileData(
             TimerData* data,
             const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
-            int numInnerLoops = 1) SK_OVERRIDE {
+            int numInnerLoops = 1) override {
         Json::Value newData = data->getJSON(timerTypes, result, numInnerLoops);
         Json::Value combinedParams(fBuilderData);
         for(Json::ValueIterator iter = fParams.begin(); iter != fParams.end();
@@ -241,7 +241,7 @@ public:
             fStream.writeText(Json::FastWriter().write(data).c_str());
         }
     }
-    void end() SK_OVERRIDE {
+    void end() override {
        fStream.flush();
     }
 private:

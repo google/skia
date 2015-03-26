@@ -42,11 +42,11 @@ public:
 
 protected:
     virtual ~SkCachingPixelRef();
-    bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    void onUnlockPixels() SK_OVERRIDE;
-    bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
+    bool onNewLockPixels(LockRec*) override;
+    void onUnlockPixels() override;
+    bool onLockPixelsAreWritable() const override { return false; }
 
-    SkData* onRefEncodedData() SK_OVERRIDE {
+    SkData* onRefEncodedData() override {
         return fImageGenerator->refEncodedData();
     }
 

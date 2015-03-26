@@ -89,11 +89,11 @@ public:
     GrGLFragmentShaderBuilder(GrGLProgramBuilder* program, uint8_t fragPosKey);
 
     // true public interface, defined explicitly in the abstract interfaces above
-    bool enableFeature(GLSLFeature) SK_OVERRIDE;
+    bool enableFeature(GLSLFeature) override;
     virtual SkString ensureFSCoords2D(const GrGLProcessor::TransformedCoordsArray& coords,
-                                      int index) SK_OVERRIDE;
-    const char* fragmentPosition() SK_OVERRIDE;
-    const char* dstColor() SK_OVERRIDE;
+                                      int index) override;
+    const char* fragmentPosition() override;
+    const char* dstColor() override;
 
 private:
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader

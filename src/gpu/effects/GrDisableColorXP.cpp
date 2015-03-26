@@ -21,30 +21,30 @@ public:
         return SkNEW(DisableColorXP);
     }
 
-    ~DisableColorXP() SK_OVERRIDE {};
+    ~DisableColorXP() override {};
 
-    const char* name() const SK_OVERRIDE { return "Disable Color"; }
+    const char* name() const override { return "Disable Color"; }
 
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const SK_OVERRIDE { return false; }
+    bool hasSecondaryOutput() const override { return false; }
 
     GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
                                                bool doesStencilWrite,
                                                GrColor* color,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE {
+                                               const GrDrawTargetCaps& caps) override {
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE;
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
 private:
     DisableColorXP();
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXferProcessor& xpBase) const override {
         return true;
     }
 
@@ -57,12 +57,12 @@ class GLDisableColorXP : public GrGLXferProcessor {
 public:
     GLDisableColorXP(const GrProcessor&) {}
 
-    ~GLDisableColorXP() SK_OVERRIDE {}
+    ~GLDisableColorXP() override {}
 
     static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
 
 private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(const EmitArgs& args) override {
         // This emit code should be empty. However, on the nexus 6 there is a driver bug where if
         // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
         // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
@@ -70,7 +70,7 @@ private:
         fsBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {}
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLXferProcessor INHERITED;
 };

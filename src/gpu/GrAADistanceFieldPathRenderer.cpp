@@ -143,17 +143,17 @@ public:
                                                      atlas, pathCache, pathList));
     }
 
-    const char* name() const SK_OVERRIDE { return "AADistanceFieldPathBatch"; }
+    const char* name() const override { return "AADistanceFieldPathBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         out->setKnownFourComponents(fBatch.fColor);
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const SK_OVERRIDE {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) SK_OVERRIDE {
+    void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (init.fColorIgnored) {
             fBatch.fColor = GrColor_ILLEGAL;
@@ -167,7 +167,7 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
@@ -537,7 +537,7 @@ private:
     const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
 
-    bool onCombineIfPossible(GrBatch* t) SK_OVERRIDE {
+    bool onCombineIfPossible(GrBatch* t) override {
         AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
 
         // TODO we could actually probably do a bunch of this work on the CPU, ie map viewMatrix,

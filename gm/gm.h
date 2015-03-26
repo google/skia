@@ -126,9 +126,9 @@ namespace skiagm {
                  const SkISize& size)
             : fName(name), fDrawProc(drawProc), fSize(size) {}
     protected:
-        void onDraw(SkCanvas* canvas) SK_OVERRIDE;
-        SkISize onISize() SK_OVERRIDE;
-        SkString onShortName() SK_OVERRIDE;
+        void onDraw(SkCanvas* canvas) override;
+        SkISize onISize() override;
+        SkString onShortName() override;
     private:
         SkString fName;
         void (*fDrawProc)(SkCanvas*);

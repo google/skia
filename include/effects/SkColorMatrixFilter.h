@@ -20,13 +20,13 @@ public:
         return SkNEW_ARGS(SkColorMatrixFilter, (array));
     }
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
-    uint32_t getFlags() const SK_OVERRIDE;
-    bool asColorMatrix(SkScalar matrix[20]) const SK_OVERRIDE;
-    SkColorFilter* newComposed(const SkColorFilter*) const SK_OVERRIDE;
+    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
+    uint32_t getFlags() const override;
+    bool asColorMatrix(SkScalar matrix[20]) const override;
+    SkColorFilter* newComposed(const SkColorFilter*) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const SK_OVERRIDE;
+    bool asFragmentProcessors(GrContext*, SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
 
     struct State {
@@ -41,7 +41,7 @@ public:
 protected:
     explicit SkColorMatrixFilter(const SkColorMatrix&);
     explicit SkColorMatrixFilter(const SkScalar array[20]);
-    void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    void flatten(SkWriteBuffer&) const override;
 
 private:
     SkColorMatrix   fMatrix;

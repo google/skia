@@ -25,15 +25,15 @@ public:
     }
 
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const SK_OVERRIDE;
+                        const SkAlpha aa[]) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background) const SK_OVERRIDE;
+    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background) const override;
 
-    bool asXPFactory(GrXPFactory**) const SK_OVERRIDE;
+    bool asXPFactory(GrXPFactory**) const override;
 #endif
 
 private:
@@ -45,7 +45,7 @@ private:
         fEnforcePMColor = enforcePMColor;
     }
 
-    void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+    void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeScalar(fK[0]);
         buffer.writeScalar(fK[1]);
         buffer.writeScalar(fK[2]);

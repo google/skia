@@ -33,13 +33,13 @@ public:
 protected:
 
 
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("verttext2");
     }
 
-    SkISize onISize() SK_OVERRIDE { return SkISize::Make(640, 480); }
+    SkISize onISize() override { return SkISize::Make(640, 480); }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         for (int i = 0; i < 3; ++i) {
             SkPaint paint;
             paint.setColor(SK_ColorRED);

@@ -14,7 +14,7 @@
 
 class SkFull : public SkBoundable {
     DECLARE_EMPTY_MEMBER_INFO(Full);
-    bool draw(SkAnimateMaker& ) SK_OVERRIDE;
+    bool draw(SkAnimateMaker& ) override;
 private:
     typedef SkBoundable INHERITED;
 };

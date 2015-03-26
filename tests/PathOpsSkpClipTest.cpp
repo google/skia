@@ -253,7 +253,7 @@ struct TestRunner {
 
 class TestRunnable : public SkRunnable {
 public:
-    void run() SK_OVERRIDE {
+    void run() override {
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
@@ -819,10 +819,10 @@ typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
     public:                                                             \
         static Test* Factory(void*) { return SkNEW(name##Class); }      \
     protected:                                                          \
-        void onGetName(SkString* name) SK_OVERRIDE {            \
+        void onGetName(SkString* name) override {            \
             name->set(#name);                                           \
         }                                                               \
-        void onRun() SK_OVERRIDE { test_##name(); } \
+        void onRun() override { test_##name(); } \
     };                                                                  \
     static TestRegistry gReg_##name##Class(name##Class::Factory);       \
     static void test_##name()

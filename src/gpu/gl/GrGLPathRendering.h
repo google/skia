@@ -33,17 +33,17 @@ public:
     virtual ~GrGLPathRendering();
 
     // GrPathRendering implementations.
-    GrPath* createPath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
+    GrPath* createPath(const SkPath&, const SkStrokeRec&) override;
     virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*,
-                                         const SkStrokeRec&) SK_OVERRIDE;
+                                         const SkStrokeRec&) override;
     virtual GrPathRange* createGlyphs(const SkTypeface*,
                                       const SkDescriptor*,
-                                      const SkStrokeRec&) SK_OVERRIDE;
-    void stencilPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
-    void drawPath(const GrPath*, const GrStencilSettings&) SK_OVERRIDE;
+                                      const SkStrokeRec&) override;
+    void stencilPath(const GrPath*, const GrStencilSettings&) override;
+    void drawPath(const GrPath*, const GrStencilSettings&) override;
     virtual void drawPaths(const GrPathRange*, const void* indices, PathIndexType,
                            const float transformValues[], PathTransformType, int count,
-                           const GrStencilSettings&) SK_OVERRIDE;
+                           const GrStencilSettings&) override;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();

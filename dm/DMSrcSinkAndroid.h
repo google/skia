@@ -22,9 +22,9 @@ class HWUISink : public Sink {
 public:
     HWUISink() { }
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return kGPU_Enclave; }
-    const char* fileExtension() const SK_OVERRIDE { return "png"; }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return kGPU_Enclave; }
+    const char* fileExtension() const override { return "png"; }
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -35,9 +35,9 @@ class ViaAndroidSDK : public Sink {
 public:
     explicit ViaAndroidSDK(Sink*);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const SK_OVERRIDE;
-    int enclave() const SK_OVERRIDE { return fSink->enclave(); }
-    const char* fileExtension() const SK_OVERRIDE { return fSink->fileExtension(); }
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
 
 private:
     SkAutoTDelete<Sink> fSink;

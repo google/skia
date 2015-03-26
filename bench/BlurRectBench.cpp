@@ -88,7 +88,7 @@ class BlurRectDirectBench: public BlurRectBench {
         this->setName(name);
     }
 protected:
-    void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
+    void makeBlurryRect(const SkRect& r) override {
         SkMask mask;
         SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                              &mask, r, kNormal_SkBlurStyle);
@@ -110,7 +110,7 @@ public:
     }
 
 protected:
-    void preBenchSetup(const SkRect& r) SK_OVERRIDE {
+    void preBenchSetup(const SkRect& r) override {
         SkMask::FreeImage(fSrcMask.fImage);
 
         r.roundOut(&fSrcMask.fBounds);
@@ -142,7 +142,7 @@ public:
 
 protected:
 
-    void makeBlurryRect(const SkRect&) SK_OVERRIDE {
+    void makeBlurryRect(const SkRect&) override {
         SkMask mask;
         mask.fImage = NULL;
         SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
@@ -169,7 +169,7 @@ public:
 
 protected:
 
-    void makeBlurryRect(const SkRect&) SK_OVERRIDE {
+    void makeBlurryRect(const SkRect&) override {
         SkMask mask;
         mask.fImage = NULL;
         SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),

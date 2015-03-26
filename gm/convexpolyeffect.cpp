@@ -34,7 +34,7 @@ public:
         SkRect fBounds;
     };
 
-    const char* name() const SK_OVERRIDE { return "ConvexPolyTestBatch"; }
+    const char* name() const override { return "ConvexPolyTestBatch"; }
 
     static GrBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo) {
         return SkNEW_ARGS(ConvexPolyTestBatch, (gp, geo));
@@ -46,12 +46,12 @@ private:
         , fGeometry(geo) {
     }
 
-    Geometry* geoData(int index) SK_OVERRIDE {
+    Geometry* geoData(int index) override {
         SkASSERT(0 == index);
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) SK_OVERRIDE {
+    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
 
         const GrVertexBuffer* vertexBuffer;
@@ -104,15 +104,15 @@ public:
     }
 
 protected:
-    SkString onShortName() SK_OVERRIDE {
+    SkString onShortName() override {
         return SkString("convex_poly_effect");
     }
 
-    SkISize onISize() SK_OVERRIDE {
+    SkISize onISize() override {
         return SkISize::Make(720, 800);
     }
 
-    void onOnceBeforeDraw() SK_OVERRIDE {
+    void onOnceBeforeDraw() override {
         SkPath tri;
         tri.moveTo(5.f, 5.f);
         tri.lineTo(100.f, 20.f);
@@ -162,7 +162,7 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             this->drawGpuOnlyMessage(canvas);

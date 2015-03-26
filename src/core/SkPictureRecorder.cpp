@@ -115,9 +115,9 @@ public:
     {}
 
 protected:
-    SkRect onGetBounds() SK_OVERRIDE { return fBounds; }
+    SkRect onGetBounds() override { return fBounds; }
 
-    void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    void onDraw(SkCanvas* canvas) override {
         SkDrawable* const* drawables = NULL;
         int drawableCount = 0;
         if (fDrawableList) {
@@ -127,7 +127,7 @@ protected:
         SkRecordDraw(*fRecord, canvas, NULL, drawables, drawableCount, fBBH, NULL/*callback*/);
     }
 
-    SkPicture* onNewPictureSnapshot() SK_OVERRIDE {
+    SkPicture* onNewPictureSnapshot() override {
         SkPicture::SnapshotArray* pictList = NULL;
         if (fDrawableList) {
             // TODO: should we plumb-down the BBHFactory and recordFlags from our host

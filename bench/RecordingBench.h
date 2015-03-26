@@ -16,10 +16,10 @@ public:
     RecordingBench(const char* name, const SkPicture*, bool useBBH);
 
 protected:
-    const char* onGetName() SK_OVERRIDE;
-    bool isSuitableFor(Backend) SK_OVERRIDE;
-    void onDraw(const int loops, SkCanvas*) SK_OVERRIDE;
-    SkIPoint onGetSize() SK_OVERRIDE;
+    const char* onGetName() override;
+    bool isSuitableFor(Backend) override;
+    void onDraw(const int loops, SkCanvas*) override;
+    SkIPoint onGetSize() override;
 
 private:
     SkAutoTUnref<const SkPicture> fSrc;

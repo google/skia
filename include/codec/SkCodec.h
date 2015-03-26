@@ -101,7 +101,7 @@ protected:
      *  reveals that the image is actually opaque.
      */
 #ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    bool onGetInfo(SkImageInfo* info) override {
         *info = fInfo;
         return true;
     }

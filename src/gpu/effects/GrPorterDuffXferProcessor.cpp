@@ -41,13 +41,13 @@ public:
                                                     willReadDstColor));
     }
 
-    ~PorterDuffXferProcessor() SK_OVERRIDE;
+    ~PorterDuffXferProcessor() override;
 
-    const char* name() const SK_OVERRIDE { return "Porter Duff"; }
+    const char* name() const override { return "Porter Duff"; }
 
-    GrGLXferProcessor* createGLInstance() const SK_OVERRIDE;
+    GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const SK_OVERRIDE;
+    bool hasSecondaryOutput() const override;
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Stage Output Types
@@ -88,9 +88,9 @@ public:
                                                const GrProcOptInfo& coveragePOI,
                                                bool doesStencilWrite,
                                                GrColor* overrideColor,
-                                               const GrDrawTargetCaps& caps) SK_OVERRIDE;
+                                               const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const SK_OVERRIDE {
+    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         if (!this->willReadDstColor()) {
             blendInfo->fSrcBlend = fSrcBlend;
             blendInfo->fDstBlend = fDstBlend;
@@ -108,9 +108,9 @@ private:
     PorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
                             const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onIsEqual(const GrXferProcessor& xpBase) const SK_OVERRIDE {
+    bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const PorterDuffXferProcessor& xp = xpBase.cast<PorterDuffXferProcessor>();
         if (fSrcBlend != xp.fSrcBlend ||
             fDstBlend != xp.fDstBlend ||
@@ -202,7 +202,7 @@ public:
     };
 
 private:
-    void onEmitCode(const EmitArgs& args) SK_OVERRIDE {
+    void onEmitCode(const EmitArgs& args) override {
         const PorterDuffXferProcessor& xp = args.fXP.cast<PorterDuffXferProcessor>();
         GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         if (PorterDuffXferProcessor::kCustom_PrimaryOutputType != xp.primaryOutputType()) {
@@ -267,7 +267,7 @@ private:
         }
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) SK_OVERRIDE {};
+    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {};
 
     typedef GrGLXferProcessor INHERITED;
 };

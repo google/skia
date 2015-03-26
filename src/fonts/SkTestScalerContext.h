@@ -66,41 +66,41 @@ public:
     void getMetrics(SkGlyph* glyph);
     void getPath(const SkGlyph& glyph, SkPath* path);
 protected:
-    SkScalerContext* onCreateScalerContext(const SkDescriptor* desc) const SK_OVERRIDE;
-    void onFilterRec(SkScalerContextRec* rec) const SK_OVERRIDE;
+    SkScalerContext* onCreateScalerContext(const SkDescriptor* desc) const override;
+    void onFilterRec(SkScalerContextRec* rec) const override;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                     SkAdvancedTypefaceMetrics::PerGlyphInfo ,
                                     const uint32_t* glyphIDs,
-                                    uint32_t glyphIDsCount) const SK_OVERRIDE;
+                                    uint32_t glyphIDsCount) const override;
 
-    SkStreamAsset* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         SkASSERT(0);  // don't expect to get here
         return NULL;
     }
 
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const SK_OVERRIDE;
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
 
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const SK_OVERRIDE;
+                                uint16_t glyphs[], int glyphCount) const override;
 
-    int onCountGlyphs() const SK_OVERRIDE {
+    int onCountGlyphs() const override {
         return (int) fTestFont->fCharCodesCount;
     }
 
-    int onGetUPEM() const SK_OVERRIDE {
+    int onGetUPEM() const override {
         SkASSERT(0);  // don't expect to get here
         return 1;
     }
 
-    void onGetFamilyName(SkString* familyName) const SK_OVERRIDE;
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const SK_OVERRIDE;
+    void onGetFamilyName(SkString* familyName) const override;
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
-    int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE {
+    int onGetTableTags(SkFontTableTag tags[]) const override {
         return 0;
     }
 
     virtual size_t onGetTableData(SkFontTableTag tag, size_t offset,
-                                  size_t length, void* data) const SK_OVERRIDE {
+                                  size_t length, void* data) const override {
         return 0;
     }
 private:

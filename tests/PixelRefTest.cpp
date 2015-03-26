@@ -6,7 +6,7 @@
 class TestListener : public SkPixelRef::GenIDChangeListener {
 public:
     explicit TestListener(int* ptr) : fPtr(ptr) {}
-    void onChange() SK_OVERRIDE { (*fPtr)++; }
+    void onChange() override { (*fPtr)++; }
 private:
     int* fPtr;
 };

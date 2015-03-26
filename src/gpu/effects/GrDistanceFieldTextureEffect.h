@@ -66,7 +66,7 @@ public:
 
     virtual ~GrDistanceFieldTextureEffect() {}
 
-    const char* name() const SK_OVERRIDE { return "DistanceFieldTexture"; }
+    const char* name() const override { return "DistanceFieldTexture"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
@@ -78,16 +78,16 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE;
+                                                     const GrGLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
-                        const GrBatchTracker&) const SK_OVERRIDE;
+                        const GrBatchTracker&) const override;
 
 private:
     GrDistanceFieldTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
@@ -97,9 +97,9 @@ private:
 #endif
                                  uint32_t flags, bool opaqueVertexColors);
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrTextureAccess    fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -134,7 +134,7 @@ public:
 
     virtual ~GrDistanceFieldNoGammaTextureEffect() {}
 
-    const char* name() const SK_OVERRIDE { return "DistanceFieldTexture"; }
+    const char* name() const override { return "DistanceFieldTexture"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
@@ -143,25 +143,25 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE;
+                                                     const GrGLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
-                        const GrBatchTracker&) const SK_OVERRIDE;
+                        const GrBatchTracker&) const override;
 
 private:
     GrDistanceFieldNoGammaTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
                                         const GrTextureParams& params, uint32_t flags,
                                         bool opaqueVertexColors);
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrTextureAccess    fTextureAccess;
     uint32_t           fFlags;
@@ -192,7 +192,7 @@ public:
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}
 
-    const char* name() const SK_OVERRIDE { return "DistanceFieldLCDTexture"; }
+    const char* name() const override { return "DistanceFieldLCDTexture"; }
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
@@ -201,16 +201,16 @@ public:
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const SK_OVERRIDE;
+                                   GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const SK_OVERRIDE;
+                                                     const GrGLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const SK_OVERRIDE;
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
     bool onCanMakeEqual(const GrBatchTracker&,
                         const GrGeometryProcessor&,
-                        const GrBatchTracker&) const SK_OVERRIDE;
+                        const GrBatchTracker&) const override;
 
 private:
     GrDistanceFieldLCDTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
@@ -218,9 +218,9 @@ private:
                                     GrTexture* gamma, const GrTextureParams& gammaParams,
                                     SkColor textColor, uint32_t flags);
 
-    bool onIsEqual(const GrGeometryProcessor& other) const SK_OVERRIDE;
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
 
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const SK_OVERRIDE;
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrTextureAccess    fTextureAccess;
     GrTextureAccess    fGammaTextureAccess;
