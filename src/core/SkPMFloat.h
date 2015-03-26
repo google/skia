@@ -57,6 +57,10 @@ public:
     SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
     SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
 
+    // Like get(), but truncates instead of rounding.
+    // The domain of this function is (-1.0f, 256.0f).  Values in (-1.0f, 0.0f] trunc to a zero.
+    SkPMColor trunc() const;
+
     // 4-at-a-time versions of get() and clamped().  Like From4PMColors(), no alignment assumed.
     static void To4PMColors(
             const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, SkPMColor[4]);

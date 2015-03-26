@@ -18,6 +18,10 @@ inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkASSERT(this->isValid());
 }
 
+inline SkPMColor SkPMFloat::trunc() const {
+    return SkPackARGB32(this->a(), this->r(), this->g(), this->b());
+}
+
 inline SkPMColor SkPMFloat::get() const {
     SkASSERT(this->isValid());
     return SkPackARGB32(this->a()+0.5f, this->r()+0.5f, this->g()+0.5f, this->b()+0.5f);

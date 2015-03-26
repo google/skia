@@ -22,6 +22,9 @@ DEF_TEST(SkPMFloat, r) {
     pmf = SkPMFloat(254.5f, 203.5f, 153.1f, 50.8f);
     REPORTER_ASSERT(r, c == pmf.get());
 
+    pmf = SkPMFloat(255.9f, 204.01f, 153.0f, -0.9f);
+    REPORTER_ASSERT(r, SkPreMultiplyColor(0xFFCC9900) == pmf.trunc());
+
     // Test clamping.
     SkPMFloat clamped(SkPMFloat(510.0f, 153.0f, 1.0f, -0.2f).clamped());
     REPORTER_ASSERT(r, SkScalarNearlyEqual(255.0f, clamped.a()));

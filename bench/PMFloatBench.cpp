@@ -112,15 +112,15 @@ struct PMFloatGradientBench : public Benchmark {
              dcdx4(dcdx+dcdx+dcdx+dcdx);
 
         for (int n = 0; n < loops; n++) {
-            Sk4f a = c0 + dc*fx,  // TODO: add 0.5f, here call trunc() instead of get().
+            Sk4f a = c0 + dc*fx + Sk4f(0.5f),  // The +0.5f lets us call trunc() instead of get().
                  b = a + dcdx,
                  c = b + dcdx,
                  d = c + dcdx;
             for (size_t i = 0; i < SK_ARRAY_COUNT(fDevice); i += 4) {
-                fDevice[i+0] = SkPMFloat(a).get();
-                fDevice[i+1] = SkPMFloat(b).get();
-                fDevice[i+2] = SkPMFloat(c).get();
-                fDevice[i+3] = SkPMFloat(d).get();
+                fDevice[i+0] = SkPMFloat(a).trunc();
+                fDevice[i+1] = SkPMFloat(b).trunc();
+                fDevice[i+2] = SkPMFloat(c).trunc();
+                fDevice[i+3] = SkPMFloat(d).trunc();
                 a += dcdx4;
                 b += dcdx4;
                 c += dcdx4;

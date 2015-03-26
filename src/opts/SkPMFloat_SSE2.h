@@ -41,6 +41,16 @@ inline SkPMColor SkPMFloat::clamped() const {
     return c;
 }
 
+inline SkPMColor SkPMFloat::trunc() const {
+    // Basically, same as clamped(), but no rounding.
+    __m128i fix8_32 = _mm_cvttps_epi32(fColors),
+            fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
+            fix8    = _mm_packus_epi16(fix8_16, fix8_16);
+    SkPMColor c = _mm_cvtsi128_si32(fix8);
+    SkPMColorAssert(c);
+    return c;
+}
+
 inline void SkPMFloat::From4PMColors(const SkPMColor colors[4],
                                      SkPMFloat* a, SkPMFloat* b, SkPMFloat* c, SkPMFloat* d) {
     // Haven't beaten this yet.

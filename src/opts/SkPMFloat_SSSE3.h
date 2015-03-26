@@ -27,15 +27,18 @@ inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkASSERT(this->isValid());
 }
 
-inline SkPMColor SkPMFloat::get() const {
-    SkASSERT(this->isValid());
+inline SkPMColor SkPMFloat::trunc() const {
     const int _ = 255;  // _ means to zero that byte.
-    // We don't use _mm_cvtps_epi32, because we want precise control over how 0.5 rounds (up).
-    __m128i fix8_32 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), fColors)),
+    __m128i fix8_32 = _mm_cvttps_epi32(fColors),
             fix8    = _mm_shuffle_epi8(fix8_32, _mm_set_epi8(_,_,_,_, _,_,_,_, _,_,_,_, 12,8,4,0));
     SkPMColor c = _mm_cvtsi128_si32(fix8);
     SkPMColorAssert(c);
     return c;
+}
+
+inline SkPMColor SkPMFloat::get() const {
+    SkASSERT(this->isValid());
+    return SkPMFloat(Sk4f(0.5f) + *this).trunc();
 }
 
 inline SkPMColor SkPMFloat::clamped() const {
