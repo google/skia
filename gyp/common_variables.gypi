@@ -239,6 +239,14 @@
     'skia_moz2d%': 0,
     'skia_is_bot%': '<!(python -c "import os; print os.environ.get(\'CHROME_HEADLESS\', 0)")',
     'skia_egl%': '<(skia_egl)',
+    'skia_fast%': 0,
+    'skia_fast_flags': [
+        '-O3',                   # Even for Debug builds.
+        '-march=native',         # Use all features of and optimize for THIS machine.
+        '-fomit-frame-pointer',  # Sometimes an extra register is nice, and cuts a push/pop.
+        '-ffast-math',           # Optimize float math even when it breaks IEEE compliance.
+        #'-flto'                  # Enable link-time optimization.
+    ],
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #

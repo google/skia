@@ -2,6 +2,7 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 # conditions used in both common.gypi and skia.gyp in chromium
 #
 {
@@ -229,6 +230,7 @@
           '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
         ],
         'conditions': [
+          [ 'skia_fast', { 'cflags': [ '<@(skia_fast_flags)' ] }],
           [ 'skia_os != "chromeos"', {
             'conditions': [
               [ 'skia_arch_type == "x86_64" and not skia_android_framework', {
@@ -529,6 +531,7 @@
         },
         'xcode_settings': {
           'conditions': [
+            [ 'skia_fast', { 'WARNING_CFLAGS': [ '<@(skia_fast_flags)' ] } ],
             [ 'skia_warnings_as_errors', { 'GCC_TREAT_WARNINGS_AS_ERRORS': 'YES' }],
             [ 'skia_arch_width == 32', { 'ARCHS': ['i386']   }],
             [ 'skia_arch_width == 64', { 'ARCHS': ['x86_64'] }],
