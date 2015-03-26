@@ -442,6 +442,36 @@ SkScalar SkPathMeasure::getLength() {
     return fLength;
 }
 
+template <typename T, typename K>
+int SkTKSearch(const T base[], int count, const K& key) {
+    SkASSERT(count >= 0);
+    if (count <= 0) {
+        return ~0;
+    }
+    
+    SkASSERT(base != NULL); // base may be NULL if count is zero
+    
+    int lo = 0;
+    int hi = count - 1;
+    
+    while (lo < hi) {
+        int mid = (hi + lo) >> 1;
+        if (base[mid].fDistance < key) {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+    
+    if (base[hi].fDistance < key) {
+        hi += 1;
+        hi = ~hi;
+    } else if (key < base[hi].fDistance) {
+        hi = ~hi;
+    }
+    return hi;
+}
+
 const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
                                             SkScalar distance, SkScalar* t) {
     SkDEBUGCODE(SkScalar length = ) this->getLength();
@@ -450,7 +480,7 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
     const Segment*  seg = fSegments.begin();
     int             count = fSegments.count();
 
-    int index = SkTSearch<SkScalar>(&seg->fDistance, count, distance, sizeof(Segment));
+    int index = SkTKSearch<Segment, SkScalar>(seg, count, distance);
     // don't care if we hit an exact match or not, so we xor index if it is negative
     index ^= (index >> 31);
     seg = &seg[index];
