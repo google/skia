@@ -1052,7 +1052,6 @@ void GrDrawTargetCaps::reset() {
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
     fStencilWrapOpsSupport = false;
-    fHWAALineSupport = false;
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
     fDualSourceBlendingSupport = false;
@@ -1083,7 +1082,6 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
     fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
     fStencilWrapOpsSupport = other.fStencilWrapOpsSupport;
-    fHWAALineSupport = other.fHWAALineSupport;
     fShaderDerivativeSupport = other.fShaderDerivativeSupport;
     fGeometryShaderSupport = other.fGeometryShaderSupport;
     fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
@@ -1166,7 +1164,6 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
     r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
     r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
-    r.appendf("HW AA Lines Support                : %s\n", gNY[fHWAALineSupport]);
     r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
     r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
@@ -1254,15 +1251,6 @@ SkString GrDrawTargetCaps::dump() const {
     }
 
     return r;
-}
-
-uint32_t GrDrawTargetCaps::CreateUniqueID() {
-    static int32_t gUniqueID = SK_InvalidUniqueID;
-    uint32_t id;
-    do {
-        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
-    } while (id == SK_InvalidUniqueID);
-    return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

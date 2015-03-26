@@ -56,10 +56,10 @@ public:
     };
 
 
-    GrDrawTargetCaps() : fUniqueID(CreateUniqueID()) {
+    GrDrawTargetCaps() {
         this->reset();
     }
-    GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED(), fUniqueID(CreateUniqueID()) {
+    GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED() {
         *this = other;
     }
     GrDrawTargetCaps& operator= (const GrDrawTargetCaps&);
@@ -73,7 +73,6 @@ public:
     bool mipMapSupport() const { return fMipMapSupport; }
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
-    bool hwAALineSupport() const { return fHWAALineSupport; }
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
@@ -143,19 +142,11 @@ public:
      */
     bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
-    /**
-     * Gets an id that is unique for this GrDrawTargetCaps object. It is static in that it does
-     * not change when the content of the GrDrawTargetCaps object changes. This will never return
-     * 0.
-     */
-    uint32_t getUniqueID() const { return fUniqueID; }
-
 protected:
     bool fNPOTTextureTileSupport        : 1;
     bool fMipMapSupport                 : 1;
     bool fTwoSidedStencilSupport        : 1;
     bool fStencilWrapOpsSupport         : 1;
-    bool fHWAALineSupport               : 1;
     bool fShaderDerivativeSupport       : 1;
     bool fGeometryShaderSupport         : 1;
     bool fDualSourceBlendingSupport     : 1;
@@ -183,10 +174,6 @@ protected:
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
 
 private:
-    static uint32_t CreateUniqueID();
-
-    const uint32_t          fUniqueID;
-
     typedef SkRefCnt INHERITED;
 };
 
