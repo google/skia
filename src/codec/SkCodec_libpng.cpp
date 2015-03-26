@@ -50,6 +50,10 @@ static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
     longjmp(png_jmpbuf(png_ptr), 1);
 }
 
+void sk_warning_fn(png_structp, png_const_charp msg) {
+    SkCodecPrintf("----- png warning %s\n", msg);
+}
+
 static void sk_read_fn(png_structp png_ptr, png_bytep data,
                        png_size_t length) {
     SkStream* stream = static_cast<SkStream*>(png_get_io_ptr(png_ptr));
@@ -199,9 +203,8 @@ bool SkPngCodec::IsPng(SkStream* stream) {
 
 SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
-    // FIXME: Allow silencing warnings.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
-                                                 sk_error_fn, NULL);
+                                                 sk_error_fn, sk_warning_fn);
     if (!png_ptr) {
         return NULL;
     }
