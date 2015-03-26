@@ -61,40 +61,6 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     if (count <= 0) {
         sk_bzero(this, sizeof(SkRect));
     } else {
-#if 0
-        SkScalar    l, t, r, b;
-
-        l = r = pts[0].fX;
-        t = b = pts[0].fY;
-
-        // If all of the points are finite, accum should stay 0. If we encounter
-        // a NaN or infinity, then accum should become NaN.
-        float accum = 0;
-        accum *= l; accum *= t;
-
-        for (int i = 1; i < count; i++) {
-            SkScalar x = pts[i].fX;
-            SkScalar y = pts[i].fY;
-
-            accum *= x; accum *= y;
-
-            // we use if instead of if/else, so we can generate min/max
-            // float instructions (at least on SSE)
-            if (x < l) l = x;
-            if (x > r) r = x;
-
-            if (y < t) t = y;
-            if (y > b) b = y;
-        }
-
-        SkASSERT(!accum || !SkScalarIsFinite(accum));
-        accum = 0;
-        if (accum) {
-            l = t = r = b = 0;
-            isFinite = false;
-        }
-        this->set(l, t, r, b);
-#else
         Sk4f min, max, accum;
 
         if (count & 1) {
@@ -134,9 +100,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
             this->setEmpty();
             isFinite = false;
         }
-#endif
     }
-
     return isFinite;
 }
 
