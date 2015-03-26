@@ -355,9 +355,6 @@ struct Poly {
             Vertex* v = first->fNext;
             while (v != fTail) {
                 SkASSERT(v && v->fPrev && v->fNext);
-#ifdef SK_DEBUG
-                validate();
-#endif
                 Vertex* prev = v->fPrev;
                 Vertex* curr = v;
                 Vertex* next = v->fNext;
@@ -376,27 +373,10 @@ struct Poly {
                     }
                 } else {
                     v = v->fNext;
-                    SkASSERT(v != fTail);
                 }
             }
             return data;
         }
-
-#ifdef SK_DEBUG
-        void validate() {
-            int winding = sweep_lt(fHead->fPoint, fTail->fPoint) ? 1 : -1;
-            Vertex* top = winding < 0 ? fTail : fHead;
-            Vertex* bottom = winding < 0 ? fHead : fTail;
-            Edge e(top, bottom, winding);
-            for (Vertex* v = fHead->fNext; v != fTail; v = v->fNext) {
-                if (fSide == kRight_Side) {
-                    SkASSERT(!e.isRightOf(v));
-                } else if (fSide == Poly::kLeft_Side) {
-                    SkASSERT(!e.isLeftOf(v));
-                }
-            }
-        }
-#endif
     };
     Poly* addVertex(Vertex* v, Side side, SkChunkAlloc& alloc) {
         LOG("addVertex() to %d at %g (%g, %g), %s side\n", fID, v->fID, v->fPoint.fX, v->fPoint.fY,
@@ -410,9 +390,6 @@ struct Poly {
             fActive = ALLOC_NEW(MonotonePoly, (), alloc);
         }
         if (fActive->addVertex(v, side, alloc)) {
-#ifdef SK_DEBUG
-            fActive->validate();
-#endif
             if (fTail) {
                 fActive->fPrev = fTail;
                 fTail->fNext = fActive;
@@ -476,67 +453,6 @@ Poly* new_poly(Poly** head, Vertex* v, int winding, SkChunkAlloc& alloc) {
     *head = poly;
     return poly;
 }
-
-#ifdef SK_DEBUG
-void validate_edges(Edge* head) {
-    for (Edge* e = head; e != NULL; e = e->fRight) {
-        SkASSERT(e->fTop != e->fBottom);
-        if (e->fLeft) {
-            SkASSERT(e->fLeft->fRight == e);
-            if (sweep_gt(e->fTop->fPoint, e->fLeft->fTop->fPoint)) {
-                SkASSERT(e->fLeft->isLeftOf(e->fTop));
-            }
-            if (sweep_lt(e->fBottom->fPoint, e->fLeft->fBottom->fPoint)) {
-                SkASSERT(e->fLeft->isLeftOf(e->fBottom));
-            }
-        } else {
-            SkASSERT(e == head);
-        }
-        if (e->fRight) {
-            SkASSERT(e->fRight->fLeft == e);
-            if (sweep_gt(e->fTop->fPoint, e->fRight->fTop->fPoint)) {
-                SkASSERT(e->fRight->isRightOf(e->fTop));
-            }
-            if (sweep_lt(e->fBottom->fPoint, e->fRight->fBottom->fPoint)) {
-                SkASSERT(e->fRight->isRightOf(e->fBottom));
-            }
-        }
-    }
-}
-
-void validate_connectivity(Vertex* v) {
-    for (Edge* e = v->fFirstEdgeAbove; e != NULL; e = e->fNextEdgeAbove) {
-        SkASSERT(e->fBottom == v);
-        if (e->fPrevEdgeAbove) {
-            SkASSERT(e->fPrevEdgeAbove->fNextEdgeAbove == e);
-            SkASSERT(e->fPrevEdgeAbove->isLeftOf(e->fTop));
-        } else {
-            SkASSERT(e == v->fFirstEdgeAbove);
-        }
-        if (e->fNextEdgeAbove) {
-            SkASSERT(e->fNextEdgeAbove->fPrevEdgeAbove == e);
-            SkASSERT(e->fNextEdgeAbove->isRightOf(e->fTop));
-        } else {
-            SkASSERT(e == v->fLastEdgeAbove);
-        }
-    }
-    for (Edge* e = v->fFirstEdgeBelow; e != NULL; e = e->fNextEdgeBelow) {
-        SkASSERT(e->fTop == v);
-        if (e->fPrevEdgeBelow) {
-            SkASSERT(e->fPrevEdgeBelow->fNextEdgeBelow == e);
-            SkASSERT(e->fPrevEdgeBelow->isLeftOf(e->fBottom));
-        } else {
-            SkASSERT(e == v->fFirstEdgeBelow);
-        }
-        if (e->fNextEdgeBelow) {
-            SkASSERT(e->fNextEdgeBelow->fPrevEdgeBelow == e);
-            SkASSERT(e->fNextEdgeBelow->isRightOf(e->fBottom));
-        } else {
-            SkASSERT(e == v->fLastEdgeBelow);
-        }
-    }
-}
-#endif
 
 Vertex* append_point_to_contour(const SkPoint& p, Vertex* prev, Vertex** head,
                                 SkChunkAlloc& alloc) {
@@ -783,7 +699,6 @@ void fix_active_state(Edge* edge, Edge** activeEdges) {
 void insert_edge_above(Edge* edge, Vertex* v) {
     if (edge->fTop->fPoint == edge->fBottom->fPoint ||
         sweep_gt(edge->fTop->fPoint, edge->fBottom->fPoint)) {
-        SkASSERT(false);
         return;
     }
     LOG("insert edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID, v->fID);
@@ -802,7 +717,6 @@ void insert_edge_above(Edge* edge, Vertex* v) {
 void insert_edge_below(Edge* edge, Vertex* v) {
     if (edge->fTop->fPoint == edge->fBottom->fPoint ||
         sweep_gt(edge->fTop->fPoint, edge->fBottom->fPoint)) {
-        SkASSERT(false);
         return;
     }
     LOG("insert edge (%g -> %g) below vertex %g\n", edge->fTop->fID, edge->fBottom->fID, v->fID);
@@ -1040,9 +954,6 @@ Vertex* check_for_intersection(Edge* edge, Edge* other, Edge** activeEdges, SkCh
             split_edge(edge, v, activeEdges, alloc);
             split_edge(other, v, activeEdges, alloc);
         }
-#ifdef SK_DEBUG
-        validate_connectivity(v);
-#endif
         return v;
     }
     return NULL;
@@ -1193,9 +1104,6 @@ void simplify(Vertex* vertices, SkChunkAlloc& alloc) {
 #if LOGGING_ENABLED
         LOG("\nvertex %g: (%g,%g)\n", v->fID, v->fPoint.fX, v->fPoint.fY);
 #endif
-#ifdef SK_DEBUG
-        validate_connectivity(v);
-#endif
         Edge* leftEnclosingEdge = NULL;
         Edge* rightEnclosingEdge = NULL;
         bool restartChecks;
@@ -1224,11 +1132,6 @@ void simplify(Vertex* vertices, SkChunkAlloc& alloc) {
 
             }
         } while (restartChecks);
-        SkASSERT(!leftEnclosingEdge || leftEnclosingEdge->isLeftOf(v));
-        SkASSERT(!rightEnclosingEdge || rightEnclosingEdge->isRightOf(v));
-#ifdef SK_DEBUG
-        validate_edges(activeEdges);
-#endif
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
             remove_edge(e, &activeEdges);
         }
@@ -1254,17 +1157,9 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
 #if LOGGING_ENABLED
         LOG("\nvertex %g: (%g,%g)\n", v->fID, v->fPoint.fX, v->fPoint.fY);
 #endif
-#ifdef SK_DEBUG
-        validate_connectivity(v);
-#endif
         Edge* leftEnclosingEdge = NULL;
         Edge* rightEnclosingEdge = NULL;
         find_enclosing_edges(v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
-        SkASSERT(!leftEnclosingEdge || leftEnclosingEdge->isLeftOf(v));
-        SkASSERT(!rightEnclosingEdge || rightEnclosingEdge->isRightOf(v));
-#ifdef SK_DEBUG
-        validate_edges(activeEdges);
-#endif
         Poly* leftPoly = NULL;
         Poly* rightPoly = NULL;
         if (v->fFirstEdgeAbove) {
@@ -1356,9 +1251,6 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
             }
             v->fLastEdgeBelow->fRightPoly = rightPoly;
         }
-#ifdef SK_DEBUG
-        validate_edges(activeEdges);
-#endif
 #if LOGGING_ENABLED
         LOG("\nactive edges:\n");
         for (Edge* e = activeEdges; e != NULL; e = e->fRight) {
@@ -1506,6 +1398,9 @@ public:
             if (apply_fill_type(fillType, poly->fWinding) && poly->fCount >= 3) {
                 count += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
             }
+        }
+        if (0 == count) {
+            return;
         }
 
         size_t stride = gp->getVertexStride();
