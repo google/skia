@@ -795,6 +795,7 @@ void SkCanvas::restore() {
         if (fMCStack.count() > 1) {
             this->willRestore();
             SkASSERT(fSaveCount > 1);
+            fSaveCount -= 1;
             this->internalRestore();
             this->didRestore();
         }
@@ -878,6 +879,7 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
         bounds = NULL;
     }
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag);
+    fSaveCount += 1;
     this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, strategy);
     return this->getSaveCount() - 1;
 }
@@ -887,6 +889,7 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags fl
         bounds = NULL;
     }
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
+    fSaveCount += 1;
     this->internalSaveLayer(bounds, paint, flags, strategy);
     return this->getSaveCount() - 1;
 }
@@ -896,8 +899,6 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     flags |= kClipToLayer_SaveFlag;
 #endif
-
-    fSaveCount += 1;
 
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
@@ -976,8 +977,6 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
 
 void SkCanvas::internalRestore() {
     SkASSERT(fMCStack.count() != 0);
-
-    fSaveCount -= 1;
 
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
