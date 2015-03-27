@@ -191,9 +191,8 @@ protected:
                     SkDEBUGFAIL("Couldn't get Gr test target.");
                     return;
                 }
-                SkMatrix m;
+                const SkMatrix m = SkMatrix::MakeTrans(x, y);
                 SkPath p;
-                m.setTranslate(x, y);
                 path->transform(m, &p);
 
                 GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;

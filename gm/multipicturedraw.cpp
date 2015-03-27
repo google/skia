@@ -423,8 +423,8 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
 
             SkCanvas* subCanvas = step.fSurf->getCanvas();
 
-            SkMatrix trans;
-            trans.setTranslate(-SkIntToScalar(x*kTileWidth), -SkIntToScalar(y*kTileHeight));
+            const SkMatrix trans = SkMatrix::MakeTrans(-SkIntToScalar(x*kTileWidth), 
+                                                       -SkIntToScalar(y*kTileHeight));
 
             create_content(mpd, pfGen, pictures, subCanvas, trans);
         }

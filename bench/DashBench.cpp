@@ -153,8 +153,7 @@ static void make_unit_star(SkPath* path, int n) {
 
 static void make_poly(SkPath* path) {
     make_unit_star(path, 9);
-    SkMatrix matrix;
-    matrix.setScale(SkIntToScalar(100), SkIntToScalar(100));
+    const SkMatrix matrix = SkMatrix::MakeScale(SkIntToScalar(100), SkIntToScalar(100));
     path->transform(matrix);
 }
 

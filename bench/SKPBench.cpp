@@ -116,9 +116,8 @@ void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
     } else {
         for (int i = 0; i < loops; i++) {
             for (int j = 0; j < fTileRects.count(); ++j) {
-                SkMatrix trans;
-                trans.setTranslate(-fTileRects[j].fLeft / fScale,
-                                   -fTileRects[j].fTop / fScale);
+                const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
+                                                           -fTileRects[j].fTop / fScale);
                 fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, NULL);
             }
 

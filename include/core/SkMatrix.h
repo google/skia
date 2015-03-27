@@ -23,6 +23,18 @@ class SkString;
 */
 class SK_API SkMatrix {
 public:
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
+        SkMatrix m;
+        m.setScale(sx, sy);
+        return m;
+    }
+
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
+        SkMatrix m;
+        m.setTranslate(dx, dy);
+        return m;
+    }
+
     /** Enum of bit fields for the mask return by getType().
         Use this to identify the complexity of the matrix.
     */

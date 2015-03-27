@@ -124,8 +124,7 @@ protected:
                     if (!fp) {
                         continue;
                     }
-                    SkMatrix viewMatrix;
-                    viewMatrix.setTranslate(x, y);
+                    const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
