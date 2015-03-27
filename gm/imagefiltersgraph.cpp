@@ -110,11 +110,11 @@ protected:
     void make_bitmap() {
         fBitmap.allocN32Pixels(100, 100);
         SkCanvas canvas(fBitmap);
-        canvas.clear(0x00000000);
+        canvas.clear(SK_ColorTRANSPARENT);
         SkPaint paint;
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(0xFFFFFFFF);
+        paint.setColor(SK_ColorWHITE);
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "e";
         canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
@@ -135,7 +135,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         {
             SkAutoTUnref<SkImageFilter> bitmapSource(SkBitmapSource::Create(fBitmap));
             SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED,
@@ -216,7 +216,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(color2);
-            paint.setColor(0xFFFF0000);
+            paint.setColor(SK_ColorRED);
             canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
