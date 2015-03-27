@@ -267,8 +267,7 @@ DEF_BENCH( return new InvertMapRectMatrixBench(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkMatrix make_ident() { SkMatrix m; m.reset(); return m; }
-static SkMatrix make_trans() { SkMatrix m; m.setTranslate(2, 3); return m; }
+static SkMatrix make_trans() { return SkMatrix::MakeTrans(2, 3); }
 static SkMatrix make_scale() { SkMatrix m(make_trans()); m.postScale(1.5f, 0.5f); return m; }
 static SkMatrix make_afine() { SkMatrix m(make_trans()); m.postRotate(15); return m; }
 
@@ -302,8 +301,6 @@ public:
         }
     }
 };
-DEF_BENCH( return new MapPointsMatrixBench("mappts_ident0", make_ident(), false); )
-DEF_BENCH( return new MapPointsMatrixBench("mappts_ident1", make_ident(), true); )
 DEF_BENCH( return new MapPointsMatrixBench("mappts_trans0", make_trans(), false); )
 DEF_BENCH( return new MapPointsMatrixBench("mappts_trans1", make_trans(), true); )
 DEF_BENCH( return new MapPointsMatrixBench("mappts_scale0", make_scale(), false); )

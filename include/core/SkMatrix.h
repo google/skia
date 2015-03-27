@@ -426,7 +426,9 @@ public:
         this->mapPoints(pts, pts, count);
     }
 
-    void mapPts(SkPoint dst[], const SkPoint src[], int count) const;
+    void mapPts(SkPoint dst[], const SkPoint src[], int count) const {
+        gMapVPtsProcs[this->getType() & 0xF](*this, dst, src, count);
+    }
 
     /** Like mapPoints but with custom byte stride between the points. Stride
      *  should be a multiple of sizeof(SkScalar).
@@ -799,7 +801,12 @@ private:
                              int count);
     static void Persp_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
 
+    static void Trans_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
+    static void Scale_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
+    static void Affine_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
+
     static const MapPtsProc gMapPtsProcs[];
+    static const MapPtsProc gMapVPtsProcs[];
 
     friend class SkPerspIter;
 };
