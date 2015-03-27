@@ -11,7 +11,7 @@
     {
       'target_name': 'giflib',
       'conditions': [
-        [ 'skia_giflib_static',
+        [ 'skia_android_framework == 0',
           {
             'type': 'static_library',
             'defines': [
@@ -35,17 +35,18 @@
               '../third_party/externals/giflib/gifalloc.c',
               '../third_party/externals/giflib/gif_err.c',
             ],
-          }, {  # not skia_giflib_static
+          }, { # skia_android_framework
             'type': 'none',
             'direct_dependent_settings': {
-              'link_settings': {
-                'libraries': [
-                  '-lgif',
-                ],
-              },
-            },
+              'libraries' : [
+                'libgif.a',
+              ],
+              'include_dirs': [
+                'external/giflib',
+              ]
+            }
           }
-        ],
+        ]
       ]
     }
   ]
