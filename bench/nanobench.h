@@ -47,7 +47,8 @@ struct Target {
     virtual void setup() { }
 
     /** Called *after* the clock timer is started, before the benchmark
-        is drawn.  */
+        is drawn. Most back ends just return the canvas passed in,
+        but some may replace it. */
     virtual SkCanvas* beginTiming(SkCanvas* canvas) { return canvas; }
 
     /** Called *after* a benchmark is drawn, but before the clock timer
@@ -74,6 +75,13 @@ struct Target {
 
     /** Writes any config-specific data to the log. */
     virtual void fillOptions(ResultsWriter*) { }
+
+    SkCanvas* getCanvas() const {
+        if (!surface.get()) {
+            return NULL;
+        }
+        return surface->getCanvas();
+    }
 };
 
 #endif  // nanobench_DEFINED

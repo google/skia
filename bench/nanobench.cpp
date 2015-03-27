@@ -102,10 +102,7 @@ bool Target::init(SkImageInfo info, Benchmark* bench) {
     return true;
 }
 bool Target::capturePixels(SkBitmap* bmp) {
-    if (!this->surface.get()) {
-        return false;
-    }
-    SkCanvas* canvas = this->surface->getCanvas();
+    SkCanvas* canvas = this->getCanvas();
     if (!canvas) {
         return false;
     }
@@ -168,24 +165,19 @@ struct GPUTarget : public Target {
         
 #endif
 
-static double time(int loops, Benchmark* bench, SkCanvas* canvas, Target* target) {
+static double time(int loops, Benchmark* bench, Target* target) {
+    SkCanvas* canvas = target->getCanvas();
     if (canvas) {
         canvas->clear(SK_ColorWHITE);
     }
     WallTimer timer;
     timer.start();
-    if (target) {
-        canvas = target->beginTiming(canvas);
-    }
-    if (bench) {
-        bench->draw(loops, canvas);
-    }
+    canvas = target->beginTiming(canvas);
+    bench->draw(loops, canvas);
     if (canvas) {
         canvas->flush();
     }
-    if (target) {
-        target->endTiming();
-    }
+    target->endTiming();
     timer.end();
     return timer.fWall;
 }
@@ -193,7 +185,10 @@ static double time(int loops, Benchmark* bench, SkCanvas* canvas, Target* target
 static double estimate_timer_overhead() {
     double overhead = 0;
     for (int i = 0; i < FLAGS_overheadLoops; i++) {
-        overhead += time(1, NULL, NULL, NULL);
+        WallTimer timer;
+        timer.start();
+        timer.end();
+        overhead += timer.fWall;
     }
     return overhead / FLAGS_overheadLoops;
 }
@@ -224,8 +219,8 @@ static bool write_canvas_png(Target* target, const SkString& filename) {
     if (filename.isEmpty()) {
         return false;
     }
-    if (target->surface.get() && target->surface->getCanvas() &&
-        kUnknown_SkColorType == target->surface->getCanvas()->imageInfo().colorType()) {
+    if (target->getCanvas() &&
+        kUnknown_SkColorType == target->getCanvas()->imageInfo().colorType()) {
         return false;
     }
 
@@ -253,7 +248,7 @@ static bool write_canvas_png(Target* target, const SkString& filename) {
 }
 
 static int kFailedLoops = -2;
-static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, double* samples) {
+static int cpu_bench(const double overhead, Target* target, Benchmark* bench, double* samples) {
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
     double bench_plus_overhead = 0.0;
     int round = 0;
@@ -264,7 +259,7 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
                          bench->getUniqueName(), HUMANIZE(bench_plus_overhead), HUMANIZE(overhead));
                 return kFailedLoops;
             }
-            bench_plus_overhead = time(1, bench, canvas, NULL);
+            bench_plus_overhead = time(1, bench, target);
         }
     }
 
@@ -295,14 +290,13 @@ static int cpu_bench(const double overhead, Benchmark* bench, SkCanvas* canvas, 
     }
 
     for (int i = 0; i < FLAGS_samples; i++) {
-        samples[i] = time(loops, bench, canvas, NULL) / loops;
+        samples[i] = time(loops, bench, target) / loops;
     }
     return loops;
 }
 
 static int gpu_bench(Target* target,
                      Benchmark* bench,
-                     SkCanvas* canvas,
                      double* samples) {
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = FLAGS_loops;
@@ -320,7 +314,7 @@ static int gpu_bench(Target* target,
             // _this_ round, not still timing last round.  We force this by looping
             // more times than any reasonable GPU will allow frames to lag.
             for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
-                elapsed = time(loops, bench, canvas, target);
+                elapsed = time(loops, bench, target);
             }
         } while (elapsed < FLAGS_gpuMs);
 
@@ -337,12 +331,12 @@ static int gpu_bench(Target* target,
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
     for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
-        time(loops, bench, canvas, target);
+        time(loops, bench, target);
     }
 
     // Now, actually do the timing!
     for (int i = 0; i < FLAGS_samples; i++) {
-        samples[i] = time(loops, bench, canvas, target) / loops;
+        samples[i] = time(loops, bench, target) / loops;
     }
 
     return loops;
@@ -839,7 +833,7 @@ int nanobench_main() {
         }
         for (int j = 0; j < targets.count(); j++) {
             // During HWUI output this canvas may be NULL.
-            SkCanvas* canvas = targets[j]->surface.get() ? targets[j]->surface->getCanvas() : NULL;
+            SkCanvas* canvas = targets[j]->getCanvas();
             const char* config = targets[j]->config.name;
 
             targets[j]->setup();
@@ -847,8 +841,8 @@ int nanobench_main() {
 
             const int loops =
                 targets[j]->needsFrameTiming()
-                ? gpu_bench(targets[j], bench.get(), canvas, samples.get())
-                : cpu_bench(overhead, bench.get(), canvas, samples.get());
+                ? gpu_bench(targets[j], bench.get(), samples.get())
+                : cpu_bench(overhead, targets[j], bench.get(), samples.get());
 
             bench->perCanvasPostDraw(canvas);
 
