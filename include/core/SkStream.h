@@ -315,7 +315,6 @@ public:
 
     void skipToAlign4();
     const void* getAtPos();
-    size_t peek() const { return fOffset; }
 
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
