@@ -9,7 +9,7 @@
 
 usage = '''
 Write extra flags to outfile for DM based on the bot name:
-  $ python dm_flags.py outfile Test-Mac10.9-MacMini6.2-HD4000-x86_64-Release
+  $ python dm_flags.py outfile Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug
 Or run self-tests:
   $ python dm_flags.py test
 '''
@@ -103,20 +103,12 @@ def get_args(bot):
     blacklist.extend('pdf gm fontmgr_iter'.split(' '))
     blacklist.extend('pdf _ PANO_20121023_214540.jpg'.split(' '))
     blacklist.extend('pdf skp tabl_worldjournal.skp'.split(' '))
-    if 'Valgrind_GPU' in bot:
-      args.append('--nocpu')
-    elif 'Valgrind_CPU' in bot:
-      args.append('--nogpu')
 
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
 
   match = []
-  if 'Alex' in bot:  # skia:2793
-    # This machine looks to be running out of heap.
-    # Running with fewer threads may help.
-    args.extend(['--threads', '1'])
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
   if 'TSAN' in bot: # skia:3562
@@ -137,13 +129,6 @@ def get_args(bot):
     args.append('--match')
     args.extend(match)
 
-  # Though their GPUs are interesting, these don't test anything on
-  # the CPU that other ARMv7+NEON bots don't test faster (N5).
-  if ('Nexus10'  in bot or
-      'Nexus7'   in bot or
-      'GalaxyS3' in bot or
-      'GalaxyS4' in bot):
-    args.append('--nocpu')
   return args
 cov_end = lineno()   # Don't care about code coverage past here.
 
@@ -152,15 +137,14 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
-    'Test-Android-GalaxyS3-Mali400-Arm7-Debug',
-    'Test-Android-Nexus7-Tegra3-Arm7-Release',
-    'Test-Android-NexusPlayer-PowerVR-x86-Release',
-    'Test-Android-Xoom-Tegra2-Arm7-Release',
-    'Test-ChromeOS-Alex-GMA3150-x86-Debug',
-    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU',
-    'Test-Ubuntu13.10-GCE-NoGPU-x86_64-Release-TSAN',
-    'Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU',
-    'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
+    'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
+    'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
+    'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
+    'Test-Android-GCC-Xoom-GPU-Tegra2-Arm7-Release',
+    'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+    'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
+    'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
+    'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
   ]
 
   cov = coverage.coverage()

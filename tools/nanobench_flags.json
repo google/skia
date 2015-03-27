@@ -1,23 +1,4 @@
 {
-  "Perf-Android-GalaxyS3-Mali400-Arm7-Release": [
-    "--scales", 
-    "1.0", 
-    "1.1", 
-    "--config", 
-    "565", 
-    "8888", 
-    "gpu", 
-    "nonrendering", 
-    "angle", 
-    "hwui", 
-    "msaa4", 
-    "nvprmsaa4", 
-    "--match", 
-    "~blurroundrect", 
-    "~patch_grid", 
-    "~desk_carsvg", 
-    "--nocpu"
-  ], 
   "Perf-Android-Nexus7-Tegra3-Arm7-Release": [
     "--scales", 
     "1.0", 
@@ -34,7 +15,7 @@
     "--match", 
     "skp"
   ], 
-  "Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU": [
+  "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
     "--scales", 
     "1.0", 
     "1.1", 
@@ -50,29 +31,9 @@
     "--loops", 
     "1", 
     "--samples", 
-    "1", 
-    "--nocpu"
+    "1"
   ], 
-  "Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU": [
-    "--scales", 
-    "1.0", 
-    "1.1", 
-    "--config", 
-    "565", 
-    "8888", 
-    "gpu", 
-    "nonrendering", 
-    "angle", 
-    "hwui", 
-    "msaa16", 
-    "nvprmsaa16", 
-    "--loops", 
-    "1", 
-    "--samples", 
-    "1", 
-    "--nogpu"
-  ], 
-  "Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE": [
+  "Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE": [
     "--scales", 
     "1.0", 
     "1.1", 

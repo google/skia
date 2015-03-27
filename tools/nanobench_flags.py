@@ -1,8 +1,15 @@
+#
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+
 #!/usr/bin/env python
 
 usage = '''
 Write extra flags to outfile for nanobench based on the bot name:
-  $ python nanobench_flags.py outfile Perf-Android-GalaxyS3-Mali400-Arm7-Release
+  $ python nanobench_flags.py outfile Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release
 Or run self-tests:
   $ python nanobench_flags.py test
 '''
@@ -40,10 +47,6 @@ def get_args(bot):
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
     args.extend(['--samples', '1'])
-    if 'Valgrind_GPU' in bot:
-      args.append('--nocpu')
-    elif 'Valgrind_CPU' in bot:
-      args.append('--nogpu')
 
   if 'HD2000' in bot:
     args.extend(['--benchTileW', '256'])
@@ -63,10 +66,6 @@ def get_args(bot):
     args.append('--match')
     args.extend(match)
 
-
-  if ('GalaxyS3' in bot or
-      'GalaxyS4' in bot):
-    args.append('--nocpu')
   return args
 cov_end = lineno()   # Don't care about code coverage past here.
 
@@ -75,11 +74,9 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
-    'Perf-Android-GalaxyS3-Mali400-Arm7-Release',
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
-    'Test-Ubuntu14-GCE-NoGPU-x86_64-Release-Valgrind_CPU',
-    'Test-Ubuntu12-ShuttleA-GTX550Ti-x86_64-Release-Valgrind_GPU',
-    'Test-Win7-ShuttleA-HD2000-x86-Debug-ANGLE',
+    'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+    'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
   ]
 
   cov = coverage.coverage()
