@@ -36,6 +36,12 @@ public:
 
     struct Digest {
         uint8_t data[16];
+        bool operator ==(Digest const& other) const {
+            return 0 == memcmp(data, other.data, sizeof(data));
+        }
+        bool operator !=(Digest const& other) const {
+            return 0 != memcmp(data, other.data, sizeof(data));
+        }
     };
 
     /** Computes and returns the digest. */

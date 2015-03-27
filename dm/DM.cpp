@@ -155,7 +155,8 @@ static bool codec_supported(const char* ext) {
     // list (and eventually we can remove this check once they are all supported).
     return strcmp(ext, "png") == 0 || strcmp(ext, "PNG") == 0 || 
            strcmp(ext, "bmp") == 0 || strcmp(ext, "BMP") == 0 ||
-           strcmp(ext, "ico") == 0 || strcmp(ext, "ICO") == 0;
+           strcmp(ext, "ico") == 0 || strcmp(ext, "ICO") == 0 ||
+           strcmp(ext, "wbmp") == 0 || strcmp(ext, "WBMP") == 0;
 }
 
 static void gather_srcs() {

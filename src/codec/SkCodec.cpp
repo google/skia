@@ -10,6 +10,7 @@
 #include "SkCodec_libbmp.h"
 #include "SkCodec_libico.h"
 #include "SkCodec_libpng.h"
+#include "SkCodec_wbmp.h"
 #include "SkStream.h"
 
 struct DecoderProc {
@@ -20,7 +21,8 @@ struct DecoderProc {
 static const DecoderProc gDecoderProcs[] = {
     { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
-    { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream }
+    { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },
+    { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
 };
 
 SkCodec* SkCodec::NewFromStream(SkStream* stream) {
@@ -56,12 +58,16 @@ SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
     , fNeedsRewind(false)
 {}
 
-bool SkCodec::rewindIfNeeded() {
+SkCodec::RewindState SkCodec::rewindIfNeeded() {
     // Store the value of fNeedsRewind so we can update it. Next read will
     // require a rewind.
-    const bool neededRewind = fNeedsRewind;
+    const bool needsRewind = fNeedsRewind;
     fNeedsRewind = true;
-    return !neededRewind || fStream->rewind();
+    if (!needsRewind) {
+        return kNoRewindNecessary_RewindState;
+    }
+    return fStream->rewind() ? kRewound_RewindState
+                             : kCouldNotRewind_RewindState;
 }
 
 SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {

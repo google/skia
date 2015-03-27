@@ -519,8 +519,11 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         const Options&,
                                         SkPMColor*, int*) {
     // Check for proper input and output formats
-    if (!this->rewindIfNeeded()) {
+    SkCodec::RewindState rewindState = this->rewindIfNeeded();
+    if (rewindState == kCouldNotRewind_RewindState) {
         return kCouldNotRewind;
+    } else if (rewindState == kRewound_RewindState) {
+        return kCouldNotRewind;  // TODO(msarett):  handle rewinds
     }
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
         SkCodecPrintf("Error: scaling not supported.\n");

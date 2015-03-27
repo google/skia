@@ -420,7 +420,11 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount) {
-    if (!this->rewindIfNeeded()) {
+    SkCodec::RewindState rewindState = this->rewindIfNeeded();
+    if (rewindState == kCouldNotRewind_RewindState) {
+        return kCouldNotRewind;
+    } else if (rewindState == kRewound_RewindState) {
+        // TODO(scroggo):  handle rewinds
         return kCouldNotRewind;
     }
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {

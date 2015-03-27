@@ -75,6 +75,7 @@
     '../tests/ClipCubicTest.cpp',
     '../tests/ClipStackTest.cpp',
     '../tests/ClipperTest.cpp',
+    '../tests/CodexTest.cpp',
     '../tests/ColorFilterTest.cpp',
     '../tests/ColorPrivTest.cpp',
     '../tests/ColorTest.cpp',
