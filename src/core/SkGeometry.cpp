@@ -311,15 +311,15 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     }
 }
 
-#define SK_ScalarTwoThirds  (0.666666666f)
-
 void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
-    const SkScalar scale = SK_ScalarTwoThirds;
+    Sk2s scale(SkDoubleToScalar(2.0 / 3.0));
+    Sk2s s0 = from_point(src[0]);
+    Sk2s s1 = from_point(src[1]);
+    Sk2s s2 = from_point(src[2]);
+
     dst[0] = src[0];
-    dst[1].set(src[0].fX + SkScalarMul(src[1].fX - src[0].fX, scale),
-               src[0].fY + SkScalarMul(src[1].fY - src[0].fY, scale));
-    dst[2].set(src[2].fX + SkScalarMul(src[1].fX - src[2].fX, scale),
-               src[2].fY + SkScalarMul(src[1].fY - src[2].fY, scale));
+    dst[1] = to_point(s0 + (s1 - s0) * scale);
+    dst[2] = to_point(s2 + (s1 - s2) * scale);
     dst[3] = src[2];
 }
 
@@ -1261,24 +1261,6 @@ SkVector SkConic::evalTangentAt(SkScalar t) const {
     Sk2s B = p20 - C - C;
 
     return to_vector(quad_poly_eval(A, B, C, Sk2s(t)));
-#if 0
-    static void conic_deriv_coeff(const SkScalar src[],
-                                  SkScalar w,
-                                  SkScalar coeff[3]) {
-        const SkScalar P20 = src[4] - src[0];
-        const SkScalar P10 = src[2] - src[0];
-        const SkScalar wP10 = w * P10;
-        coeff[0] = w * P20 - P20;
-        coeff[1] = P20 - 2 * wP10;
-        coeff[2] = wP10;
-    }
-
-    static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
-        SkScalar coeff[3];
-        conic_deriv_coeff(coord, w, coeff);
-        return t * (t * coeff[0] + coeff[1]) + coeff[2];
-    }
-#endif
 }
 
 static SkScalar subdivide_w_value(SkScalar w) {

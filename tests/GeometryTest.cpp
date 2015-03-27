@@ -116,14 +116,11 @@ DEF_TEST(Geometry, reporter) {
     REPORTER_ASSERT(reporter, count == 1 || count == 2);
 
     pts[0].set(0, 0);
-    pts[1].set(SkIntToScalar(3), 0);
-    pts[2].set(SkIntToScalar(3), SkIntToScalar(3));
+    pts[1].set(3, 0);
+    pts[2].set(3, 3);
     SkConvertQuadToCubic(pts, dst);
     const SkPoint cubic[] = {
-        { 0, 0, },
-        { SkIntToScalar(2), 0, },
-        { SkIntToScalar(3), SkIntToScalar(1), },
-        { SkIntToScalar(3), SkIntToScalar(3) },
+        { 0, 0, }, { 2, 0, }, { 3, 1, }, { 3, 3 },
     };
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, nearly_equal(cubic[i], dst[i]));
