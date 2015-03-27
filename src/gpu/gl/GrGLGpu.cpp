@@ -2422,7 +2422,7 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             }
             break;
         case kETC1_GrPixelConfig:
-            *internalFormat = GR_GL_COMPRESSED_RGB8_ETC1;
+            *internalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
             break;
         case kLATC_GrPixelConfig:
             switch(this->glCaps().latcAlias()) {
@@ -2438,11 +2438,11 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             }
             break;
         case kR11_EAC_GrPixelConfig:
-            *internalFormat = GR_GL_COMPRESSED_R11;
+            *internalFormat = GR_GL_COMPRESSED_R11_EAC;
             break;
 
         case kASTC_12x12_GrPixelConfig:
-            *internalFormat = GR_GL_COMPRESSED_RGBA_ASTC_12x12;
+            *internalFormat = GR_GL_COMPRESSED_RGBA_ASTC_12x12_KHR;
             break;
 
         case kRGBA_float_GrPixelConfig:
