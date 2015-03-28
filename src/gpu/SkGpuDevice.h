@@ -41,6 +41,13 @@ public:
     static SkGpuDevice* Create(GrRenderTarget* target, const SkSurfaceProps*, unsigned flags = 0);
 
     /**
+     * Creates an SkGpuDevice from a GrRenderTarget whose texture width/height is 
+     * different than its actual width/height (e.g., approx-match scratch texture).
+     */
+    static SkGpuDevice* Create(GrRenderTarget* target, int width, int height,
+                               const SkSurfaceProps*, unsigned flags = 0);
+
+    /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
      * sampleCount. The Budgeted param controls whether the device's backing store counts against
      * the resource cache budget. On failure, returns NULL.
@@ -67,7 +74,7 @@ public:
     GrRenderTarget* accessRenderTarget() override;
 
     SkImageInfo imageInfo() const override {
-        return fRenderTarget ? fRenderTarget->surfacePriv().info() : SkImageInfo::MakeUnknown();
+        return fLegacyBitmap.info();
     }
 
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
@@ -121,7 +128,7 @@ public:
                              const SkImageFilter::Context&,
                              SkBitmap*, SkIPoint*) override;
 
-    bool filterTexture(GrContext*, GrTexture*, const SkImageFilter*,
+    bool filterTexture(GrContext*, GrTexture*, int width, int height, const SkImageFilter*,
                        const SkImageFilter::Context&,
                        SkBitmap* result, SkIPoint* offset);
 
@@ -147,7 +154,7 @@ private:
     SkBitmap                        fLegacyBitmap;
     bool                            fNeedClear;
 
-    SkGpuDevice(GrRenderTarget*, const SkSurfaceProps*, unsigned flags);
+    SkGpuDevice(GrRenderTarget*, int width, int height, const SkSurfaceProps*, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
