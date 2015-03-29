@@ -8,6 +8,7 @@
 #include "SkMatrix.h"
 #include "SkFloatBits.h"
 #include "SkString.h"
+#include "Sk4x.h"
 
 #include <stddef.h>
 
@@ -867,61 +868,72 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix::Identity_pts(const SkMatrix& m, SkPoint dst[],
-                            const SkPoint src[], int count) {
+void SkMatrix::Identity_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
     SkASSERT(m.getType() == 0);
 
-    if (dst != src && count > 0)
+    if (dst != src && count > 0) {
         memcpy(dst, src, count * sizeof(SkPoint));
+    }
 }
 
-void SkMatrix::Trans_pts(const SkMatrix& m, SkPoint dst[],
-                         const SkPoint src[], int count) {
-    SkASSERT(m.getType() == kTranslate_Mask);
-
+void SkMatrix::Trans_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
+    SkASSERT(m.getType() <= kTranslate_Mask);
+    
     if (count > 0) {
-        SkScalar tx = m.fMat[kMTransX];
-        SkScalar ty = m.fMat[kMTransY];
-        do {
-            dst->fY = src->fY + ty;
+        SkScalar tx = m.getTranslateX();
+        SkScalar ty = m.getTranslateY();
+        if (count & 1) {
             dst->fX = src->fX + tx;
+            dst->fY = src->fY + ty;
             src += 1;
             dst += 1;
-        } while (--count);
+        }
+        Sk4f trans4(tx, ty, tx, ty);
+        count >>= 1;
+        if (count & 1) {
+            (Sk4f::Load(&src->fX) + trans4).store(&dst->fX);
+            src += 2;
+            dst += 2;
+        }
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            (Sk4f::Load(&src[0].fX) + trans4).store(&dst[0].fX);
+            (Sk4f::Load(&src[2].fX) + trans4).store(&dst[2].fX);
+            src += 4;
+            dst += 4;
+        }
     }
 }
 
-void SkMatrix::Scale_pts(const SkMatrix& m, SkPoint dst[],
-                         const SkPoint src[], int count) {
-    SkASSERT(m.getType() == kScale_Mask);
-
+void SkMatrix::Scale_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
+    SkASSERT(m.getType() <= (kScale_Mask | kTranslate_Mask));
+    
     if (count > 0) {
-        SkScalar mx = m.fMat[kMScaleX];
-        SkScalar my = m.fMat[kMScaleY];
-        do {
-            dst->fY = src->fY * my;
-            dst->fX = src->fX * mx;
+        SkScalar tx = m.getTranslateX();
+        SkScalar ty = m.getTranslateY();
+        SkScalar sx = m.getScaleX();
+        SkScalar sy = m.getScaleY();
+        if (count & 1) {
+            dst->fX = src->fX * sx + tx;
+            dst->fY = src->fY * sy + ty;
             src += 1;
             dst += 1;
-        } while (--count);
-    }
-}
-
-void SkMatrix::ScaleTrans_pts(const SkMatrix& m, SkPoint dst[],
-                              const SkPoint src[], int count) {
-    SkASSERT(m.getType() == (kScale_Mask | kTranslate_Mask));
-
-    if (count > 0) {
-        SkScalar mx = m.fMat[kMScaleX];
-        SkScalar my = m.fMat[kMScaleY];
-        SkScalar tx = m.fMat[kMTransX];
-        SkScalar ty = m.fMat[kMTransY];
-        do {
-            dst->fY = src->fY * my + ty;
-            dst->fX = src->fX * mx + tx;
-            src += 1;
-            dst += 1;
-        } while (--count);
+        }
+        Sk4f trans4(tx, ty, tx, ty);
+        Sk4f scale4(sx, sy, sx, sy);
+        count >>= 1;
+        if (count & 1) {
+            (Sk4f::Load(&src->fX) * scale4 + trans4).store(&dst->fX);
+            src += 2;
+            dst += 2;
+        }
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            (Sk4f::Load(&src[0].fX) * scale4 + trans4).store(&dst[0].fX);
+            (Sk4f::Load(&src[2].fX) * scale4 + trans4).store(&dst[2].fX);
+            src += 4;
+            dst += 4;
+        }
     }
 }
 
@@ -1000,89 +1012,6 @@ void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
     }
 }
 
-const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
-    SkMatrix::Identity_pts, SkMatrix::Trans_pts,
-    SkMatrix::Scale_pts,    SkMatrix::ScaleTrans_pts,
-    SkMatrix::Rot_pts,      SkMatrix::RotTrans_pts,
-    SkMatrix::Rot_pts,      SkMatrix::RotTrans_pts,
-    // repeat the persp proc 8 times
-    SkMatrix::Persp_pts,    SkMatrix::Persp_pts,
-    SkMatrix::Persp_pts,    SkMatrix::Persp_pts,
-    SkMatrix::Persp_pts,    SkMatrix::Persp_pts,
-    SkMatrix::Persp_pts,    SkMatrix::Persp_pts
-};
-
-void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
-    SkASSERT((dst && src && count > 0) || 0 == count);
-    // no partial overlap
-    SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
-
-    this->getMapPtsProc()(*this, dst, src, count);
-}
-
-#include "Sk4x.h"
-
-void SkMatrix::Trans_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
-    SkASSERT(m.getType() <= kTranslate_Mask);
-
-    if (count > 0) {
-        SkScalar tx = m.getTranslateX();
-        SkScalar ty = m.getTranslateY();
-        if (count & 1) {
-            dst->fX = src->fX + tx;
-            dst->fY = src->fY + ty;
-            src += 1;
-            dst += 1;
-        }
-        Sk4f trans4(tx, ty, tx, ty);
-        count >>= 1;
-        if (count & 1) {
-            (Sk4f::Load(&src->fX) + trans4).store(&dst->fX);
-            src += 2;
-            dst += 2;
-        }
-        count >>= 1;
-        for (int i = 0; i < count; ++i) {
-            (Sk4f::Load(&src[0].fX) + trans4).store(&dst[0].fX);
-            (Sk4f::Load(&src[2].fX) + trans4).store(&dst[2].fX);
-            src += 4;
-            dst += 4;
-        }
-    }
-}
-
-void SkMatrix::Scale_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
-    SkASSERT(m.getType() <= (kScale_Mask | kTranslate_Mask));
-
-    if (count > 0) {
-        SkScalar tx = m.getTranslateX();
-        SkScalar ty = m.getTranslateY();
-        SkScalar sx = m.getScaleX();
-        SkScalar sy = m.getScaleY();
-        if (count & 1) {
-            dst->fX = src->fX * sx + tx;
-            dst->fY = src->fY * sy + ty;
-            src += 1;
-            dst += 1;
-        }
-        Sk4f trans4(tx, ty, tx, ty);
-        Sk4f scale4(sx, sy, sx, sy);
-        count >>= 1;
-        if (count & 1) {
-            (Sk4f::Load(&src->fX) * scale4 + trans4).store(&dst->fX);
-            src += 2;
-            dst += 2;
-        }
-        count >>= 1;
-        for (int i = 0; i < count; ++i) {
-            (Sk4f::Load(&src[0].fX) * scale4 + trans4).store(&dst[0].fX);
-            (Sk4f::Load(&src[2].fX) * scale4 + trans4).store(&dst[2].fX);
-            src += 4;
-            dst += 4;
-        }
-    }
-}
-
 void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
     SkASSERT(m.getType() != kPerspective_Mask);
 
@@ -1113,11 +1042,16 @@ void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[]
     }
 }
 
-const SkMatrix::MapPtsProc SkMatrix::gMapVPtsProcs[] = {
-    SkMatrix::Identity_pts, SkMatrix::Trans_vpts,
-    SkMatrix::Scale_vpts,   SkMatrix::Scale_vpts,
+const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
+    SkMatrix::Identity_pts, SkMatrix::Trans_pts,
+    SkMatrix::Scale_pts,   SkMatrix::Scale_pts,
+#ifdef SK_SUPPORT_LEGACY_SCALAR_MAPPOINTS
+    SkMatrix::Rot_pts,      SkMatrix::RotTrans_pts,
+    SkMatrix::Rot_pts,      SkMatrix::RotTrans_pts,
+#else
     SkMatrix::Affine_vpts,  SkMatrix::Affine_vpts,
     SkMatrix::Affine_vpts,  SkMatrix::Affine_vpts,
+#endif
     // repeat the persp proc 8 times
     SkMatrix::Persp_pts,    SkMatrix::Persp_pts,
     SkMatrix::Persp_pts,    SkMatrix::Persp_pts,

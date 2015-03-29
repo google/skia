@@ -413,7 +413,12 @@ public:
         @param count The number of points in src to read, and then transform
                      into dst.
     */
-    void mapPoints(SkPoint dst[], const SkPoint src[], int count) const;
+    void mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
+        SkASSERT((dst && src && count > 0) || 0 == count);
+        // no partial overlap
+        SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
+        this->getMapPtsProc()(*this, dst, src, count);
+    }
 
     /** Apply this matrix to the array of points, overwriting it with the
         transformed values.
@@ -424,10 +429,6 @@ public:
     */
     void mapPoints(SkPoint pts[], int count) const {
         this->mapPoints(pts, pts, count);
-    }
-
-    void mapPts(SkPoint dst[], const SkPoint src[], int count) const {
-        gMapVPtsProcs[this->getType() & 0xF](*this, dst, src, count);
     }
 
     /** Like mapPoints but with custom byte stride between the points. Stride
@@ -801,12 +802,9 @@ private:
                              int count);
     static void Persp_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
 
-    static void Trans_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
-    static void Scale_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
     static void Affine_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
 
     static const MapPtsProc gMapPtsProcs[];
-    static const MapPtsProc gMapVPtsProcs[];
 
     friend class SkPerspIter;
 };

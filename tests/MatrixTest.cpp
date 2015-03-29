@@ -799,48 +799,6 @@ static void test_decompScale(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !check_decompScale(m));
 }
 
-static void test_mappts(skiatest::Reporter* reporter, const SkMatrix& m, const char type[], int n) {
-    const int MAX = 100;
-    SkPoint src[MAX];
-    SkPoint dst0[MAX], dst1[MAX];
-    SkASSERT(n <= MAX);
-
-    SkRandom rand;
-    for (int i = 0; i < n; ++i) {
-        src[i].fX = rand.nextSScalar1() * 100;
-        src[i].fY = rand.nextSScalar1() * 100;
-    }
-
-    m.mapPoints(dst0, src, n);
-    m.mapPts(   dst1, src, n);
-    for (int i = 0; i < n; ++i) {
-        bool eq = SkScalarNearlyEqual(dst0[i].fX, dst1[i].fX) &&
-                  SkScalarNearlyEqual(dst0[i].fY, dst1[i].fY);
-        if (!eq) {
-            SkDebugf("%s [%d] points (%g %g) pts (%g %g)\n", type, i, dst0[i].fX, dst0[i].fY, dst1[i].fX, dst1[i].fY);
-            REPORTER_ASSERT(reporter, eq);
-        }
-    }
-}
-
-static void test_mappts(skiatest::Reporter* reporter) {
-    const int counts[] = { 0, 1, 2, 3, 4, 100 };
-    for (size_t i = 0; i < SK_ARRAY_COUNT(counts); ++i) {
-        const int n = counts[i];
-        SkMatrix m;
-        m.reset();
-        test_mappts(reporter, m, "ident", n);
-        m.setTranslate(2, 3);
-        test_mappts(reporter, m, "trans", n);
-        m.postScale(2, 0.5f);
-        test_mappts(reporter, m, "scale", n);
-        m.postRotate(35);
-        test_mappts(reporter, m, "affine", n);
-        m.setPerspX(0.1f);
-        test_mappts(reporter, m, "persp", n);
-    }
-}
-
 DEF_TEST(Matrix, reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
@@ -961,8 +919,6 @@ DEF_TEST(Matrix, reporter) {
     test_set9(reporter);
 
     test_decompScale(reporter);
-
-    test_mappts(reporter);
 }
 
 DEF_TEST(Matrix_Concat, r) {

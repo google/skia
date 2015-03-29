@@ -278,10 +278,9 @@ protected:
         N = 32
     };
     SkPoint fSrc[N], fDst[N];
-    const bool fNewWay;
 public:
-    MapPointsMatrixBench(const char name[], const SkMatrix& m, bool newWay)
-        : MatrixBench(name), fM(m), fNewWay(newWay)
+    MapPointsMatrixBench(const char name[], const SkMatrix& m)
+        : MatrixBench(name), fM(m)
     {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
@@ -290,21 +289,13 @@ public:
     }
 
     void performTest() override {
-        if (fNewWay) {
-            for (int i = 0; i < 1000000; ++i) {
-                fM.mapPts(fDst, fSrc, N);
-            }
-        } else {
-            for (int i = 0; i < 1000000; ++i) {
-                fM.mapPoints(fDst, fSrc, N);
-            }
+        for (int i = 0; i < 1000000; ++i) {
+            fM.mapPoints(fDst, fSrc, N);
         }
     }
 };
-DEF_BENCH( return new MapPointsMatrixBench("mappts_trans0", make_trans(), false); )
-DEF_BENCH( return new MapPointsMatrixBench("mappts_trans1", make_trans(), true); )
-DEF_BENCH( return new MapPointsMatrixBench("mappts_scale0", make_scale(), false); )
-DEF_BENCH( return new MapPointsMatrixBench("mappts_scale1", make_scale(), true); )
-DEF_BENCH( return new MapPointsMatrixBench("mappts_afine0", make_afine(), false); )
-DEF_BENCH( return new MapPointsMatrixBench("mappts_afine1", make_afine(), true); )
+DEF_BENCH( return new MapPointsMatrixBench("mappoints_identity", SkMatrix::I()); )
+DEF_BENCH( return new MapPointsMatrixBench("mappoints_trans", make_trans()); )
+DEF_BENCH( return new MapPointsMatrixBench("mappoints_scale", make_scale()); )
+DEF_BENCH( return new MapPointsMatrixBench("mappoints_affine", make_afine()); )
 
