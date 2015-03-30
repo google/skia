@@ -222,6 +222,17 @@ class SkPicturePlayback(object):
         for _ in range(RETRY_RECORD_WPR_COUNT):
           try:
             shell_utils.run(' '.join(record_wpr_cmd), shell=True)
+
+            # Move over the created archive into the local webpages archive
+            # directory.
+            shutil.move(
+              os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
+              self._local_record_webpages_archive_dir)
+            shutil.move(
+              os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
+                           page_set_json_name),
+              self._local_record_webpages_archive_dir)
+
             # Break out of the retry loop since there were no errors.
             break
           except Exception:
@@ -260,17 +271,6 @@ class SkPicturePlayback(object):
           # skpicture_printer sometimes fails with AssertionError but the
           # captured SKP is still valid. This is a known issue.
           pass
-
-        if self._record:
-          # Move over the created archive into the local webpages archive
-          # directory.
-          shutil.move(
-              os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
-              self._local_record_webpages_archive_dir)
-          shutil.move(
-              os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
-                           page_set_json_name),
-              self._local_record_webpages_archive_dir)
 
         # Rename generated SKP files into more descriptive names.
         try:
