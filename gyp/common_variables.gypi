@@ -122,6 +122,7 @@
       #     SkFontHost_fontconfig interface; use the SkFontHost_linux
       #     version instead.
       'skia_no_fontconfig%': '0',
+      'skia_embedded_fonts%': '0',
 
       'skia_sanitizer%': '',
       'skia_scalar%': 'float',
@@ -200,6 +201,7 @@
 
     'skia_freetype_static%': '<(skia_freetype_static)',
     'skia_no_fontconfig%': '<(skia_no_fontconfig)',
+    'skia_embedded_fonts%': '<(skia_embedded_fonts)',
     'skia_sanitizer%': '<(skia_sanitizer)',
     'skia_scalar%': '<(skia_scalar)',
     'skia_mesa%': '<(skia_mesa)',

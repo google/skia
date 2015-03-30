@@ -70,7 +70,43 @@
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'conditions': [
-            [ 'skia_no_fontconfig', {
+            [ 'skia_embedded_fonts', {
+              'link_settings': {
+                'libraries': [
+                  '-ldl',
+                ],
+              },
+              'variables': {
+                'embedded_font_data_identifier': 'sk_fonts',
+                'fonts_to_include': [
+                  '../resources/Funkster.ttf',
+                ],
+              },
+              'sources': [
+                '../src/ports/SkFontHost_linux.cpp',
+              ],
+              'actions': [{
+                'action_name': 'generate_embedded_font_data',
+                'inputs': [
+                  '../tools/embed_resources.py',
+                  '<@(fonts_to_include)',
+                ],
+                'outputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/ports/fonts/fonts.cpp',
+                ],
+                'action': ['python', '../tools/embed_resources.py',
+                                     '--align', '4',
+                                     '--name', '<(embedded_font_data_identifier)',
+                                     '--input', '<@(fonts_to_include)',
+                                     '--output', '<@(_outputs)',
+                ],
+                'message': 'Generating <@(_outputs)',
+                'process_outputs_as_sources': 1,
+              }],
+              'defines': [
+                'SK_EMBEDDED_FONTS=<(embedded_font_data_identifier)',
+              ],
+            }, 'skia_no_fontconfig', {
               'link_settings': {
                 'libraries': [
                   '-ldl',
