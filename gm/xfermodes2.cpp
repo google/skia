@@ -104,9 +104,9 @@ private:
                                                SkShader::kRepeat_TileMode,
                                                &lm));
 
-        SkBitmap dstBmp;
-        dstBmp.allocN32Pixels(kSize, kSize);
-        SkPMColor* pixels = reinterpret_cast<SkPMColor*>(dstBmp.getPixels());
+        SkBitmap srcBmp;
+        srcBmp.allocN32Pixels(kSize, kSize);
+        SkPMColor* pixels = reinterpret_cast<SkPMColor*>(srcBmp.getPixels());
 
         for (int y = 0; y < kSize; ++y) {
             int c = y * (1 << kShift);
@@ -115,12 +115,12 @@ private:
                 pixels[kSize * y + x] = rowColor;
             }
         }
-        fSrc.reset(SkShader::CreateBitmapShader(dstBmp,
+        fSrc.reset(SkShader::CreateBitmapShader(srcBmp,
                                                 SkShader::kClamp_TileMode,
                                                 SkShader::kClamp_TileMode));
-        SkBitmap srcBmp;
-        srcBmp.allocN32Pixels(kSize, kSize);
-        pixels = reinterpret_cast<SkPMColor*>(srcBmp.getPixels());
+        SkBitmap dstBmp;
+        dstBmp.allocN32Pixels(kSize, kSize);
+        pixels = reinterpret_cast<SkPMColor*>(dstBmp.getPixels());
 
         for (int x = 0; x < kSize; ++x) {
             int c = x * (1 << kShift);
@@ -129,7 +129,7 @@ private:
                 pixels[kSize * y + x] = colColor;
             }
         }
-        fDst.reset(SkShader::CreateBitmapShader(srcBmp,
+        fDst.reset(SkShader::CreateBitmapShader(dstBmp,
                                                 SkShader::kClamp_TileMode,
                                                 SkShader::kClamp_TileMode));
     }
