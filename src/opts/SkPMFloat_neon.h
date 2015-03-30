@@ -5,11 +5,6 @@
  * found in the LICENSE file.
  */
 
-inline SkPMFloat& SkPMFloat::operator=(const SkPMFloat& that) {
-    fColors = that.fColors;
-    return *this;
-}
-
 // For SkPMFloat(SkPMFColor), we widen our 8 bit components (fix8) to 8-bit components in 16 bits
 // (fix8_16), then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
 
@@ -27,7 +22,7 @@ inline SkPMFloat::SkPMFloat(SkPMColor c) {
 }
 
 inline SkPMColor SkPMFloat::trunc() const {
-    uint32x4_t  fix8_32  = vcvtq_u32_f32(fColors);  // vcvtq_u32_f32 truncates
+    uint32x4_t  fix8_32  = vcvtq_u32_f32(fColors.vec());  // vcvtq_u32_f32 truncates
     uint16x4_t  fix8_16  = vmovn_u32(fix8_32);
     uint8x8_t   fix8     = vmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
     SkPMColor c = vget_lane_u32((uint32x2_t)fix8, 0);
@@ -37,11 +32,11 @@ inline SkPMColor SkPMFloat::trunc() const {
 
 inline SkPMColor SkPMFloat::get() const {
     SkASSERT(this->isValid());
-    return SkPMFloat(Sk4f(0.5f) + *this).trunc();
+    return SkPMFloat(Sk4s(0.5f) + *this).trunc();
 }
 
 inline SkPMColor SkPMFloat::clamped() const {
-    float32x4_t add_half = vaddq_f32(fColors, vdupq_n_f32(0.5f));
+    float32x4_t add_half = vaddq_f32(fColors.vec(), vdupq_n_f32(0.5f));
     uint32x4_t  fix8_32  = vcvtq_u32_f32(add_half);  // vcvtq_u32_f32 truncates, so round manually
     uint16x4_t  fix8_16  = vqmovn_u32(fix8_32);
     uint8x8_t   fix8     = vqmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));

@@ -45,7 +45,7 @@ protected:
 
 private:
     SkColorMatrix   fMatrix;
-    float           fTranspose[SkColorMatrix::kCount]; // for Sk4f
+    float           fTranspose[SkColorMatrix::kCount]; // for Sk4s
 
     typedef void (*Proc)(const State&, unsigned r, unsigned g, unsigned b,
                          unsigned a, int32_t result[4]);

@@ -45,11 +45,10 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     quad[3].set(fLeft, fBottom);
 }
 
-//#include "Sk2x.h"
-#include "Sk4x.h"
+#include "SkNx.h"
 
-static inline bool is_finite(const Sk4f& value) {
-    Sk4i finite = value * Sk4f(0) == Sk4f(0);
+static inline bool is_finite(const Sk4s& value) {
+    Sk4i finite = value * Sk4s(0) == Sk4s(0);
     return finite.allTrue();
 }
 
@@ -61,26 +60,26 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     if (count <= 0) {
         sk_bzero(this, sizeof(SkRect));
     } else {
-        Sk4f min, max, accum;
+        Sk4s min, max, accum;
 
         if (count & 1) {
-            min = Sk4f(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
+            min = Sk4s(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
             pts += 1;
             count -= 1;
         } else {
-            min = Sk4f::Load(&pts[0].fX);
+            min = Sk4s::Load(&pts[0].fX);
             pts += 2;
             count -= 2;
         }
         accum = max = min;
-        accum *= Sk4f(0);
+        accum *= Sk4s(0);
 
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            Sk4f xy = Sk4f::Load(&pts->fX);
+            Sk4s xy = Sk4s::Load(&pts->fX);
             accum *= xy;
-            min = Sk4f::Min(min, xy);
-            max = Sk4f::Max(max, xy);
+            min = Sk4s::Min(min, xy);
+            max = Sk4s::Max(max, xy);
             pts += 2;
         }
 

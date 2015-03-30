@@ -103,7 +103,7 @@ struct PMFloatGradientBench : public Benchmark {
 
     SkPMColor fDevice[100];
     void onDraw(const int loops, SkCanvas*) override {
-        Sk4f c0 = SkPMFloat::FromARGB(255, 255, 0, 0),
+        Sk4s c0 = SkPMFloat::FromARGB(255, 255, 0, 0),
              c1 = SkPMFloat::FromARGB(255, 0, 0, 255),
              dc = c1 - c0,
              fx(0.1f),
@@ -112,7 +112,7 @@ struct PMFloatGradientBench : public Benchmark {
              dcdx4(dcdx+dcdx+dcdx+dcdx);
 
         for (int n = 0; n < loops; n++) {
-            Sk4f a = c0 + dc*fx + Sk4f(0.5f),  // The +0.5f lets us call trunc() instead of get().
+            Sk4s a = c0 + dc*fx + Sk4s(0.5f),  // The +0.5f lets us call trunc() instead of get().
                  b = a + dcdx,
                  c = b + dcdx,
                  d = c + dcdx;

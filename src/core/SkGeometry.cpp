@@ -7,7 +7,7 @@
 
 #include "SkGeometry.h"
 #include "SkMatrix.h"
-#include "Sk2x.h"
+#include "SkNx.h"
 
 static Sk2s from_point(const SkPoint& point) {
     return Sk2s::Load(&point.fX);
@@ -190,7 +190,7 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     Sk2s p1 = from_point(src[1]);
     Sk2s p2 = from_point(src[2]);
     Sk2s tt(t);
-    
+
     Sk2s p01 = interp(p0, p1, tt);
     Sk2s p12 = interp(p1, p2, tt);
 
@@ -442,7 +442,7 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     Sk2s    abc = interp(ab, bc, tt);
     Sk2s    bcd = interp(bc, cd, tt);
     Sk2s    abcd = interp(abc, bcd, tt);
-    
+
     dst[0] = src[0];
     dst[1] = to_point(ab);
     dst[2] = to_point(abc);

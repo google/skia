@@ -255,9 +255,9 @@ uint32_t SkColorMatrixFilter::getFlags() const {
  */
 static const float gInv255 = 0.0039215683f; //  (1.0f / 255) - ULP == SkBits2Float(0x3B808080)
 
-static Sk4f premul(const Sk4f& x) {
+static Sk4s premul(const Sk4s& x) {
     float scale = SkPMFloat(x).a() * gInv255;
-    Sk4f pm = x * Sk4f(scale, scale, scale, 1);
+    Sk4s pm = x * Sk4s(scale, scale, scale, 1);
 
 #ifdef SK_DEBUG
     SkPMFloat pmf(pm);
@@ -267,9 +267,9 @@ static Sk4f premul(const Sk4f& x) {
     return pm;
 }
 
-static Sk4f unpremul(const SkPMFloat& pm) {
+static Sk4s unpremul(const SkPMFloat& pm) {
     float scale = 255 / pm.a(); // candidate for fast/approx invert?
-    return Sk4f(pm) * Sk4f(scale, scale, scale, 1);
+    return Sk4s(pm) * Sk4s(scale, scale, scale, 1);
 }
 
 void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
@@ -288,11 +288,11 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
 #endif
 
     if (use_floats) {
-        const Sk4f c0 = Sk4f::Load(fTranspose + 0);
-        const Sk4f c1 = Sk4f::Load(fTranspose + 4);
-        const Sk4f c2 = Sk4f::Load(fTranspose + 8);
-        const Sk4f c3 = Sk4f::Load(fTranspose + 12);
-        const Sk4f c4 = Sk4f::Load(fTranspose + 16);  // translates
+        const Sk4s c0 = Sk4s::Load(fTranspose + 0);
+        const Sk4s c1 = Sk4s::Load(fTranspose + 4);
+        const Sk4s c2 = Sk4s::Load(fTranspose + 8);
+        const Sk4s c3 = Sk4s::Load(fTranspose + 12);
+        const Sk4s c4 = Sk4s::Load(fTranspose + 16);  // translates
 
         SkPMColor matrix_translate_pmcolor = SkPMFloat(premul(c4)).clamped();
 
@@ -309,16 +309,16 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
                 srcf = unpremul(srcf);
             }
 
-            Sk4f r4 = Sk4f(srcf.r());
-            Sk4f g4 = Sk4f(srcf.g());
-            Sk4f b4 = Sk4f(srcf.b());
-            Sk4f a4 = Sk4f(srcf.a());
+            Sk4s r4 = Sk4s(srcf.r());
+            Sk4s g4 = Sk4s(srcf.g());
+            Sk4s b4 = Sk4s(srcf.b());
+            Sk4s a4 = Sk4s(srcf.a());
 
             // apply matrix
-            Sk4f dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
+            Sk4s dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
 
             // pin before re-premul (convention for color-matrix???)
-            dst4 = Sk4f::Max(Sk4f(0), Sk4f::Min(Sk4f(255), dst4));
+            dst4 = Sk4s::Max(Sk4s(0), Sk4s::Min(Sk4s(255), dst4));
 
             // re-premul and write
             dst[i] = SkPMFloat(premul(dst4)).get();

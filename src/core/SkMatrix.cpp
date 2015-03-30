@@ -8,7 +8,7 @@
 #include "SkMatrix.h"
 #include "SkFloatBits.h"
 #include "SkString.h"
-#include "Sk4x.h"
+#include "SkNx.h"
 
 #include <stddef.h>
 
@@ -878,7 +878,7 @@ void SkMatrix::Identity_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[
 
 void SkMatrix::Trans_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
     SkASSERT(m.getType() <= kTranslate_Mask);
-    
+
     if (count > 0) {
         SkScalar tx = m.getTranslateX();
         SkScalar ty = m.getTranslateY();
@@ -888,17 +888,17 @@ void SkMatrix::Trans_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], 
             src += 1;
             dst += 1;
         }
-        Sk4f trans4(tx, ty, tx, ty);
+        Sk4s trans4(tx, ty, tx, ty);
         count >>= 1;
         if (count & 1) {
-            (Sk4f::Load(&src->fX) + trans4).store(&dst->fX);
+            (Sk4s::Load(&src->fX) + trans4).store(&dst->fX);
             src += 2;
             dst += 2;
         }
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            (Sk4f::Load(&src[0].fX) + trans4).store(&dst[0].fX);
-            (Sk4f::Load(&src[2].fX) + trans4).store(&dst[2].fX);
+            (Sk4s::Load(&src[0].fX) + trans4).store(&dst[0].fX);
+            (Sk4s::Load(&src[2].fX) + trans4).store(&dst[2].fX);
             src += 4;
             dst += 4;
         }
@@ -907,7 +907,7 @@ void SkMatrix::Trans_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], 
 
 void SkMatrix::Scale_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
     SkASSERT(m.getType() <= (kScale_Mask | kTranslate_Mask));
-    
+
     if (count > 0) {
         SkScalar tx = m.getTranslateX();
         SkScalar ty = m.getTranslateY();
@@ -919,18 +919,18 @@ void SkMatrix::Scale_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], 
             src += 1;
             dst += 1;
         }
-        Sk4f trans4(tx, ty, tx, ty);
-        Sk4f scale4(sx, sy, sx, sy);
+        Sk4s trans4(tx, ty, tx, ty);
+        Sk4s scale4(sx, sy, sx, sy);
         count >>= 1;
         if (count & 1) {
-            (Sk4f::Load(&src->fX) * scale4 + trans4).store(&dst->fX);
+            (Sk4s::Load(&src->fX) * scale4 + trans4).store(&dst->fX);
             src += 2;
             dst += 2;
         }
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            (Sk4f::Load(&src[0].fX) * scale4 + trans4).store(&dst[0].fX);
-            (Sk4f::Load(&src[2].fX) * scale4 + trans4).store(&dst[2].fX);
+            (Sk4s::Load(&src[0].fX) * scale4 + trans4).store(&dst[0].fX);
+            (Sk4s::Load(&src[2].fX) * scale4 + trans4).store(&dst[2].fX);
             src += 4;
             dst += 4;
         }
@@ -1028,13 +1028,13 @@ void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[]
             src += 1;
             dst += 1;
         }
-        Sk4f trans4(tx, ty, tx, ty);
-        Sk4f scale4(sx, sy, sx, sy);
-        Sk4f  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
+        Sk4s trans4(tx, ty, tx, ty);
+        Sk4s scale4(sx, sy, sx, sy);
+        Sk4s  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            Sk4f src4 = Sk4f::Load(&src->fX);
-            Sk4f swz4(src[0].fY, src[0].fX, src[1].fY, src[1].fX);  // need ABCD -> BADC
+            Sk4s src4 = Sk4s::Load(&src->fX);
+            Sk4s swz4(src[0].fY, src[0].fX, src[1].fY, src[1].fX);  // need ABCD -> BADC
             (src4 * scale4 + swz4 * skew4 + trans4).store(&dst->fX);
             src += 2;
             dst += 2;
