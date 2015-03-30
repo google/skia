@@ -2,7 +2,6 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 # GYP file for images project.
 {
   'targets': [
@@ -13,7 +12,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'giflib.gyp:giflib',
         'libjpeg.gyp:*',
         'etc1.gyp:libetc1',
         'ktx.gyp:libSkKTX',
@@ -89,9 +87,6 @@
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
-          'dependencies!': [
-            'giflib.gyp:giflib'
-          ],
           'link_settings': {
             'libraries': [
               '-lwindowscodecs.lib',
@@ -117,11 +112,13 @@
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'export_dependent_settings': [
             'libpng.gyp:libpng',
+            'giflib.gyp:giflib'
           ],
           'dependencies': [
             'libpng.gyp:libpng',
+            'giflib.gyp:giflib'
           ],
-          # end libpng stuff
+          # end libpng/libgif stuff
         }],
         # FIXME: NaCl should be just like linux, etc, above, but it currently is separated out
         # to remove gif. Once gif is supported by naclports, this can be merged into the above
@@ -131,15 +128,13 @@
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
-          'dependencies!': [
-            'giflib.gyp:giflib'
-          ],
         }],
         [ 'skia_os == "android"', {
           'include_dirs': [
              '../src/utils',
           ],
           'dependencies': [
+             'android_deps.gyp:gif',
              'android_deps.gyp:png',
           ],
           'conditions': [
@@ -161,7 +156,8 @@
         }],
         [ 'skia_os == "chromeos"', {
           'dependencies': [
-            'libpng.gyp:libpng',
+             'chromeos_deps.gyp:gif',
+             'libpng.gyp:libpng',
           ],
         }],
         [ 'skia_os == "ios"', {

@@ -1,8 +1,3 @@
-# Copyright 2015 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
 # This GYP file stores the dependencies necessary to build Skia on the Android
 # platform. The OS doesn't provide many stable libraries as part of the
 # distribution so we have to build a few of them ourselves.
@@ -60,11 +55,33 @@
       }
     },
     {
+      'target_name': 'gif',
+      'type': 'static_library',
+      'sources': [
+        '../third_party/externals/gif/dgif_lib.c',
+        '../third_party/externals/gif/gifalloc.c',
+        '../third_party/externals/gif/gif_err.c',
+      ],
+      'include_dirs': [
+        '../third_party/externals/gif',
+      ],
+      'cflags': [
+        '-w',
+        '-DHAVE_CONFIG_H',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/externals/gif',
+        ],
+      }
+    },
+    {
       'target_name': 'png',
       'type': 'static_library',
       'sources': [
         '../third_party/externals/png/png.c',
         '../third_party/externals/png/pngerror.c',
+        '../third_party/externals/png/pnggccrd.c',
         '../third_party/externals/png/pngget.c',
         '../third_party/externals/png/pngmem.c',
         '../third_party/externals/png/pngpread.c',
@@ -74,24 +91,11 @@
         '../third_party/externals/png/pngrutil.c',
         '../third_party/externals/png/pngset.c',
         '../third_party/externals/png/pngtrans.c',
+        '../third_party/externals/png/pngvcrd.c',
         '../third_party/externals/png/pngwio.c',
         '../third_party/externals/png/pngwrite.c',
         '../third_party/externals/png/pngwtran.c',
         '../third_party/externals/png/pngwutil.c',
-      ],
-      'conditions': [
-        [ 'arm_neon == 1',
-          {
-            'sources' : [
-              '../third_party/externals/png/arm/arm_init.c',
-              '../third_party/externals/png/arm/filter_neon.S',
-              '../third_party/externals/png/arm/filter_neon_intrinsics.c',
-            ],
-            'defines' : [
-              'PNG_ARM_NEON_OPT=2',
-            ],
-          },
-        ],
       ],
       'include_dirs': [
         '../third_party/externals/png',
@@ -156,46 +160,11 @@
         '../third_party/externals/jpeg/jidctfst.c',
         '../third_party/externals/jpeg/jidctint.c',
         '../third_party/externals/jpeg/jidctred.c',
-        '../third_party/externals/jpeg/jmem-android.c',
-        '../third_party/externals/jpeg/jmemmgr.c',
         '../third_party/externals/jpeg/jquant1.c',
         '../third_party/externals/jpeg/jquant2.c',
         '../third_party/externals/jpeg/jutils.c',
-      ],
-      'conditions': [
-        [ 'arm_neon == 1',
-          {
-            'sources' : [
-              '../third_party/externals/jpeg/armv6_idct.S',
-              '../third_party/externals/jpeg/jsimd_arm_neon.S',
-              '../third_party/externals/jpeg/jsimd_neon.c',
-            ],
-            'defines' : [
-              'NV_ARM_NEON',
-            ],
-          },
-        ],
-        [ 'skia_arch_type == "mips" and mips_dsp == 2',
-          {
-            'sources' : [
-              '../third_party/externals/jpeg/mips_jidctfst.c',
-              '../third_party/externals/jpeg/mips_idct_le.S',
-            ],
-            'defines' : [
-              'ANDROID_MIPS_IDCT',
-            ],
-          },
-        ],
-        [ '"x86" in skia_arch_type',
-          {
-            'sources' : [
-              '../third_party/externals/jpeg/jidctintelsse.c',
-            ],
-            'defines' : [
-              'ANDROID_INTELSSE2_IDCT',
-            ],
-          },
-        ],
+        '../third_party/externals/jpeg/jmemmgr.c',
+        '../third_party/externals/jpeg/jmem-android.c', # ashmem is also available
       ],
       'include_dirs': [
         '../third_party/externals/jpeg',
