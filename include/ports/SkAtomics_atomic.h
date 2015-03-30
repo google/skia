@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkAtomics_atomic_DEFINED
 #define SkAtomics_atomic_DEFINED
 
@@ -35,6 +42,12 @@ bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired,
              failure == sk_memory_order_consume);
     SkASSERT(failure <= success);
     return __atomic_compare_exchange_n(ptr, expected, desired, false/*weak?*/, success, failure);
+}
+
+template <typename T>
+T sk_atomic_exchange(T* ptr, T val, sk_memory_order mo) {
+    // All values of mo are valid.
+    return __atomic_exchange_n(ptr, val, mo);
 }
 
 #endif//SkAtomics_atomic_DEFINED

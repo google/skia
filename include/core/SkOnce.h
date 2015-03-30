@@ -28,6 +28,7 @@
 // OnceTest.cpp also should serve as a few other simple examples.
 
 #include "SkAtomics.h"
+#include "SkSpinlock.h"
 
 // This must be used in a global scope, not in fuction scope or as a class member.
 #define SK_DECLARE_STATIC_ONCE(name) namespace {} static SkOnceFlag name
@@ -53,24 +54,12 @@ class SkOnceFlag {
 public:
     bool* mutableDone() { return &fDone; }
 
-    void acquire() {
-        // To act as a mutex, this needs an acquire barrier on success.
-        // sk_atomic_cas doesn't guarantee this ...
-        while (!sk_atomic_cas(&fSpinlock, 0, 1)) {
-            // spin
-        }
-        // ... so make sure to issue one of our own.
-        SkAssertResult(sk_acquire_load(&fSpinlock));
-    }
-
-    void release() {
-        // To act as a mutex, this needs a release barrier.  sk_atomic_cas guarantees this.
-        SkAssertResult(sk_atomic_cas(&fSpinlock, 1, 0));
-    }
+    void acquire() { fSpinlock.acquire(); }
+    void release() { fSpinlock.release(); }
 
 private:
     bool fDone;
-    int32_t fSpinlock;
+    SkPODSpinlock fSpinlock;
 };
 
 // We've pulled a pretty standard double-checked locking implementation apart

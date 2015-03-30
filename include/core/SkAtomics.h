@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkAtomics_DEFINED
 #define SkAtomics_DEFINED
 
@@ -26,6 +33,9 @@ template <typename T>
 bool sk_atomic_compare_exchange(T*, T* expected, T desired,
                                 sk_memory_order success = sk_memory_order_seq_cst,
                                 sk_memory_order failure = sk_memory_order_seq_cst);
+
+template <typename T>
+T sk_atomic_exchange(T*, T, sk_memory_order = sk_memory_order_seq_cst);
 
 // A little wrapper class for small T (think, builtins: int, float, void*) to
 // ensure they're always used atomically.  This is our stand-in for std::atomic<T>.

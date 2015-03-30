@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkAtomics_sync_DEFINED
 #define SkAtomics_sync_DEFINED
 
@@ -46,6 +53,16 @@ bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired, sk_memory_order,
     }
     *expected = prev;
     return false;
+}
+
+template <typename T>
+T sk_atomic_exchange(T* ptr, T val, sk_memory_order) {
+    // There is no __sync exchange.  Emulate it with a CAS loop.
+    T prev;
+    do {
+        prev = sk_atomic_load(ptr);
+    } while(!sk_atomic_compare_exchange(ptr, &prev, val));
+    return prev;
 }
 
 #endif//SkAtomics_sync_DEFINED
