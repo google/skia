@@ -30,6 +30,11 @@
             'cflags': [
               '-w',
             ],
+            'xcode_settings': {
+              'WARNING_CFLAGS': [
+                '-w'
+              ],
+            },
             'sources': [
               '../third_party/externals/giflib/dgif_lib.c',
               '../third_party/externals/giflib/gifalloc.c',
