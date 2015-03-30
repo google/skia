@@ -19,3 +19,4 @@ n5,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus5-Adreno330-Arm7-Deb
 n7,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus7-Tegra3-Arm7-Debug-Trybot
 n9,CQ_INCLUDE_TRYBOTS=client.skia.android:Test-Android-Nexus9-TegraK1-Arm64-Release-Trybot
 
+crskps,BUG=skia:3574
