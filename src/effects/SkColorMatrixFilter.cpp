@@ -272,6 +272,10 @@ static Sk4s unpremul(const SkPMFloat& pm) {
     return Sk4s(pm) * Sk4s(scale, scale, scale, 1);
 }
 
+static Sk4f clamp_0_255(const Sk4f& value) {
+    return Sk4f::Max(Sk4f::Min(value, Sk4f(255)), Sk4f(0));
+}
+
 void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     Proc proc = fProc;
     if (NULL == proc) {
@@ -294,7 +298,8 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
         const Sk4s c3 = Sk4s::Load(fTranspose + 12);
         const Sk4s c4 = Sk4s::Load(fTranspose + 16);  // translates
 
-        SkPMColor matrix_translate_pmcolor = SkPMFloat(premul(c4)).clamped();
+        // todo: we could cache this in the constructor...
+        SkPMColor matrix_translate_pmcolor = SkPMFloat(premul(clamp_0_255(c4))).clamped();
 
         for (int i = 0; i < count; i++) {
             const SkPMColor src_c = src[i];
@@ -317,11 +322,8 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
             // apply matrix
             Sk4s dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
 
-            // pin before re-premul (convention for color-matrix???)
-            dst4 = Sk4s::Max(Sk4s(0), Sk4s::Min(Sk4s(255), dst4));
-
-            // re-premul and write
-            dst[i] = SkPMFloat(premul(dst4)).get();
+            // clamp, re-premul, and write
+            dst[i] = SkPMFloat(premul(clamp_0_255(dst4))).get();
         }
     } else {
         const State& state = fState;
