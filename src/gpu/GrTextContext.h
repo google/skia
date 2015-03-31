@@ -23,6 +23,9 @@ class SkDrawFilter;
 class SkGpuDevice;
 class SkTextBlob;
 
+// For testing textblobs on GPU.
+//#define USE_BITMAP_TEXTBLOBS
+
 /*
  * This class wraps the state for a single text render
  */
@@ -38,9 +41,9 @@ public:
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds);
-    void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
-                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
-                      SkDrawFilter*, const SkIRect& clipBounds);
+    virtual void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
+                              const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
+                              SkDrawFilter*, const SkIRect& clipBounds);
 
 protected:
     GrTextContext*                 fFallbackTextContext;
@@ -90,6 +93,8 @@ protected:
     // sets extent in stopVector and returns glyph count
     static int MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
                            const char text[], size_t byteLength, SkVector* stopVector);
+
+    friend class BitmapTextBatch;
 };
 
 #endif

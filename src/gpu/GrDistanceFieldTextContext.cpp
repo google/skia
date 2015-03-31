@@ -74,7 +74,11 @@ GrDistanceFieldTextContext* GrDistanceFieldTextContext::Create(GrContext* contex
                                                                bool enable) {
     GrDistanceFieldTextContext* textContext = SkNEW_ARGS(GrDistanceFieldTextContext, 
                                                          (context, gpuDevice, props, enable));
+#ifdef USE_BITMAP_TEXTBLOBS
+    textContext->fFallbackTextContext = GrBitmapTextContextB::Create(context, gpuDevice, props);
+#else
     textContext->fFallbackTextContext = GrBitmapTextContext::Create(context, gpuDevice, props);
+#endif
 
     return textContext;
 }

@@ -293,8 +293,7 @@ public:
             instancesToFlush++;
         }
 
-        this->flush(batchTarget, dfProcessor, pipeline, &drawInfo, instancesToFlush,
-                    maxInstancesPerDraw);
+        this->flush(batchTarget, &drawInfo, instancesToFlush, maxInstancesPerDraw);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -421,8 +420,7 @@ private:
         bool success = atlas->addToAtlas(&id, batchTarget, width, height, dfStorage.get(),
                                          &atlasLocation);
         if (!success) {
-            this->flush(batchTarget, dfProcessor, pipeline, drawInfo, *instancesToFlush,
-                        maxInstancesPerDraw);
+            this->flush(batchTarget, drawInfo, *instancesToFlush, maxInstancesPerDraw);
             this->initDraw(batchTarget, dfProcessor, pipeline);
             *instancesToFlush = 0;
 
@@ -516,8 +514,6 @@ private:
     }
 
     void flush(GrBatchTarget* batchTarget,
-               const GrGeometryProcessor* dfProcessor,
-               const GrPipeline* pipeline,
                GrDrawTarget::DrawInfo* drawInfo,
                int instanceCount,
                int maxInstancesPerDraw) {

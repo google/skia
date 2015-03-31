@@ -227,7 +227,8 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     , fNumPlotsX(numPlotsX)
     , fNumPlotsY(numPlotsY)
     , fPlotWidth(texture->width() / numPlotsX)
-    , fPlotHeight(texture->height() / numPlotsY) {
+    , fPlotHeight(texture->height() / numPlotsY)
+    , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
     SkASSERT(fPlotWidth * fNumPlotsX == texture->width());
     SkASSERT(fPlotHeight * fNumPlotsY == texture->height());
 
@@ -243,7 +244,7 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
         for (int x = fNumPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             int id = r * fNumPlotsX + c;
             currPlot->reset(SkNEW(BatchPlot));
-            (*currPlot)->init(this, texture, id, 0, x, y, fPlotWidth, fPlotHeight, fBPP);
+            (*currPlot)->init(this, texture, id, 1, x, y, fPlotWidth, fPlotHeight, fBPP);
 
             // build LRU list
             fPlotList.addToHead(currPlot->get());
@@ -318,6 +319,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
         SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc, fBPP * width);
         SkASSERT(verify);
         this->updatePlot(batchTarget, id, plot);
+        fAtlasGeneration++;
         return true;
     }
 
@@ -352,6 +354,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
     batchTarget->upload(uploader);
     *id = newPlot->id();
     plot->unref();
+    fAtlasGeneration++;
     return true;
 }
 

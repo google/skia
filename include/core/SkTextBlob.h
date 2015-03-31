@@ -91,6 +91,7 @@ private:
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
+    friend class GrBitmapTextContextB;
     friend class GrTextContext;
     friend class SkBaseDevice;
     friend class SkTextBlobBuilder;

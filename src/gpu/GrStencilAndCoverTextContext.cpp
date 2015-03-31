@@ -34,7 +34,11 @@ GrStencilAndCoverTextContext::Create(GrContext* context, SkGpuDevice* gpuDevice,
                                      const SkDeviceProperties& props) {
     GrStencilAndCoverTextContext* textContext = SkNEW_ARGS(GrStencilAndCoverTextContext,
                                                            (context, gpuDevice, props));
+#ifdef USE_BITMAP_TEXTBLOBS
+    textContext->fFallbackTextContext = GrBitmapTextContextB::Create(context, gpuDevice, props);
+#else
     textContext->fFallbackTextContext = GrBitmapTextContext::Create(context, gpuDevice, props);
+#endif
 
     return textContext;
 }
