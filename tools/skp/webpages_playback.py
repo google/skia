@@ -357,7 +357,7 @@ class SkPicturePlayback(object):
         dest_dir_name = self._alternate_upload_dir
 
       self.gs.upload_dir_contents(
-          LOCAL_PLAYBACK_ROOT_DIR, dest_dir_name,
+          LOCAL_PLAYBACK_ROOT_DIR, dest_dir=dest_dir_name,
           upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED,
           predefined_acl=GS_PREDEFINED_ACL,
           fine_grained_acl_list=GS_FINE_GRAINED_ACL_LIST)
