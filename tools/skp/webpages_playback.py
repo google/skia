@@ -388,7 +388,10 @@ class SkPicturePlayback(object):
     # /path/to/http___mobile_news_sandbox_pt0 -> http___mobile_news_sandbox_pt0
     _, webpage = os.path.split(site)
     # http___mobile_news_sandbox_pt0 -> mobile_news_sandbox_pt0
-    webpage = webpage.lstrip('http___').lstrip('https___')
+    if webpage.startswith('http___'):
+      webpage = webpage[7:]
+    elif webpage.startswith('https___'):
+      webpage = webpage[8:]
     # /path/to/skia_yahooanswers_desktop.py -> skia_yahooanswers_desktop.py
     ps_filename = os.path.basename(page_set)
     # http___mobile_news_sandbox -> pagesetprefix_http___mobile_news_sandbox
