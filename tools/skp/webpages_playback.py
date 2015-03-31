@@ -120,7 +120,7 @@ CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
 
 # Dictionary of supported Chromium page sets to their file prefixes.
 CHROMIUM_PAGE_SETS_TO_PREFIX = {
-    # 'key_mobile_sites_smooth.py': 'keymobi',
+    'key_mobile_sites_smooth.py': 'keymobi',
     # TODO(rmistry): Uncomment the below after it is verified that the above
     # works.
     # 'top_25_smooth.py': 'top25desk',
