@@ -114,7 +114,6 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                             "<</Length 12\n/Attribute 42\n>> stream\n"
                                 "Test\nFoo\tBar\nendstream");
 
-#ifndef SK_NO_FLATE
     {
         char streamBytes2[] = "This is a longer string, so that compression "
                               "can do something with it. With shorter strings, "
@@ -138,7 +137,6 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                           (const char*) expectedResultData2->data(),
                           expectedResultData2->size(), true);
     }
-#endif  // SK_NO_FLATE
 }
 
 static void TestCatalog(skiatest::Reporter* reporter) {

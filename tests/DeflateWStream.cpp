@@ -9,8 +9,6 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-#ifndef SK_NO_FLATE
-
 DEF_TEST(SkDeflateWStream, r) {
     SkRandom random(123456);
     for (int i = 0; i < 50; ++i) {
@@ -72,4 +70,3 @@ DEF_TEST(SkDeflateWStream, r) {
         }
     }
 }
-#endif  // SK_NO_FLATE

@@ -22,29 +22,10 @@ SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
     this->setData(data);
 }
 
-SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
-        : SkPDFDict(),
-          fState(kUnused_State) {
-    this->setData(pdfStream.fDataStream.get());
-    bool removeLength = true;
-    // Don't uncompress an already compressed stream, but we could.
-    if (pdfStream.fState == kCompressed_State) {
-        fState = kCompressed_State;
-        removeLength = false;
-    }
-    this->mergeFrom(pdfStream);
-    if (removeLength) {
-        this->remove("Length");
-    }
-}
-
 SkPDFStream::~SkPDFStream() {}
 
 void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
-    if (!this->populate(catalog)) {
-        return fSubstitute->emitObject(stream, catalog);
-    }
-
+    SkAssertResult(this->populate(catalog));
     this->INHERITED::emitObject(stream, catalog);
     stream->writeText(" stream\n");
     stream->writeStream(fDataStream.get(), fDataStream->getLength());
@@ -60,15 +41,11 @@ void SkPDFStream::setData(SkData* data) {
 }
 
 void SkPDFStream::setData(SkStream* stream) {
+    SkASSERT(stream);
     // Code assumes that the stream starts at the beginning and is rewindable.
-    if (stream) {
-        // SkStreamRewindableFromSkStream will try stream->duplicate().
-        fDataStream.reset(SkStreamRewindableFromSkStream(stream));
-        SkASSERT(fDataStream.get());
-    } else {
-        // Use an empty memory stream.
-        fDataStream.reset(SkNEW(SkMemoryStream));
-    }
+    // SkStreamRewindableFromSkStream will try stream->duplicate().
+    fDataStream.reset(SkStreamRewindableFromSkStream(stream));
+    SkASSERT(fDataStream.get());
 }
 
 size_t SkPDFStream::dataSize() const {
@@ -77,15 +54,6 @@ size_t SkPDFStream::dataSize() const {
 }
 
 bool SkPDFStream::populate(SkPDFCatalog* catalog) {
-#ifdef SK_NO_FLATE
-    if (fState == kUnused_State) {
-        fState = kNoCompression_State;
-        insertInt("Length", this->dataSize());
-    }
-    return true;
-
-#else  // !SK_NO_FLATE
-
     if (fState == kUnused_State) {
         fState = kNoCompression_State;
         SkDynamicMemoryWStream compressedData;
@@ -102,13 +70,5 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
         fState = kCompressed_State;
         insertInt("Length", this->dataSize());
     }
-    else if (fState == kNoCompression_State) {
-        if (!fSubstitute.get()) {
-            fSubstitute.reset(new SkPDFStream(*this));
-            catalog->setSubstitute(this, fSubstitute.get());
-        }
-        return false;
-    }
     return true;
-#endif  // SK_NO_FLATE
 }

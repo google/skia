@@ -107,11 +107,6 @@
  */
 //#define SK_DEFAULT_IMAGE_CACHE_LIMIT (1024 * 1024)
 
-/*  If zlib is not available or you don't want to support flate compression
-    in PDF generation, define SK_NO_FLATE.
- */
-//#define SK_NO_FLATE
-
 /*  Define this to allow PDF scalars above 32k.  The PDF/A spec doesn't allow
     them, but modern PDF interpreters should handle them just fine.
  */

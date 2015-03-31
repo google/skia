@@ -50,11 +50,6 @@ protected:
         kCompressed_State,     //!< The stream's already been compressed.
     };
 
-    /** Create a PDF stream with the same content and dictionary entries
-     *  as the passed one.
-     */
-    explicit SkPDFStream(const SkPDFStream& pdfStream);
-
     /* Create a PDF stream with no data.  The setData method must be called to
      * set the data.
      */
@@ -63,14 +58,6 @@ protected:
     // Populate the stream dictionary.  This method returns false if
     // fSubstitute should be used.
     virtual bool populate(SkPDFCatalog* catalog);
-
-    void setSubstitute(SkPDFStream* stream) {
-        fSubstitute.reset(stream);
-    }
-
-    SkPDFStream* getSubstitute() const {
-        return fSubstitute.get();
-    }
 
     void setData(SkData* data);
     void setData(SkStream* stream);
@@ -81,16 +68,11 @@ protected:
         fState = state;
     }
 
-    State getState() const {
-        return fState;
-    }
-
 private:
     // Indicates what form (or if) the stream has been requested.
     State fState;
 
     SkAutoTDelete<SkStreamRewindable> fDataStream;
-    SkAutoTUnref<SkPDFStream> fSubstitute;
 
     typedef SkPDFDict INHERITED;
 };

@@ -12,8 +12,6 @@
 
 #include "SkTypes.h"
 
-#ifndef Sk_NO_FLATE
-
 #include "SkStream.h"
 class SkData;
 
@@ -74,5 +72,4 @@ private:
     SkAutoTDelete<Impl> fImpl;
 };
 
-#endif  // SK_NO_FLATE
 #endif  // SkFlate_DEFINED

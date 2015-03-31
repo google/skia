@@ -11,8 +11,6 @@
 #include "SkFlate.h"
 #include "SkStream.h"
 
-#ifndef SK_NO_FLATE
-
 namespace {
 
 #ifdef ZLIB_INCLUDE
@@ -225,7 +223,3 @@ bool SkDeflateWStream::write(const void* void_buffer, size_t len) {
 size_t SkDeflateWStream::bytesWritten() const {
     return fImpl->fZStream.total_in + fImpl->fInBufferIndex;
 }
-
-
-#endif  // SK_NO_FLATE
-
