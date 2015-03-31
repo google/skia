@@ -105,6 +105,7 @@
     '../tests/FontNamesTest.cpp',
     '../tests/FontObjTest.cpp',
     '../tests/FrontBufferedStreamTest.cpp',
+    '../tests/FunctionTest.cpp',
     '../tests/GLInterfaceValidationTest.cpp',
     '../tests/GLProgramsTest.cpp',
     '../tests/GeometryTest.cpp',
