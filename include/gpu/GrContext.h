@@ -19,6 +19,7 @@
 #include "SkTypes.h"
 
 class GrAARectRenderer;
+class GrBatchFontCache;
 class GrDrawTarget;
 class GrFontCache;
 class GrFragmentProcessor;
@@ -654,6 +655,7 @@ public:
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
+    GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
     GrFontCache* getFontCache() { return fFontCache; }
     GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrDrawTarget* getTextTarget();
@@ -695,6 +697,7 @@ private:
     GrGpu*                          fGpu;
 
     GrResourceCache*                fResourceCache;
+    GrBatchFontCache*               fBatchFontCache;
     GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
 

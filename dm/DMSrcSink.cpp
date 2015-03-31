@@ -243,8 +243,21 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
     stream.reset((SkStream*)NULL);  // Might as well drop this when we're done with it.
+
     canvas->clipRect(kSKPViewport);
+    // Testing TextBlob batching requires that we see individual text blobs more than once
+    // TODO remove this and add a flag to DM so we can run skps multiple times
+//#define DOUBLE_LOOP
+#ifdef DOUBLE_LOOP
+    {
+        SkAutoCanvasRestore acr(canvas, true);
+#endif
+        canvas->drawPicture(pic);
+#ifdef DOUBLE_LOOP
+    }
+    canvas->clear(0);
     canvas->drawPicture(pic);
+#endif
     return "";
 }
 
