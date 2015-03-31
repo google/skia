@@ -121,10 +121,15 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, const SkSurfaceProps* props, unsigned flags) {
+    return SkGpuDevice::Create(rt, rt->width(), rt->height(), props, flags);
+}
+
+SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
+                                 const SkSurfaceProps* props, unsigned flags) {
     if (!rt || rt->wasDestroyed()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkGpuDevice, (rt, props, flags));
+    return SkNEW_ARGS(SkGpuDevice, (rt, width, height, props, flags));
 }
 
 static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps* props) {
@@ -143,7 +148,8 @@ static SkSurfaceProps copy_or_default_props(const SkSurfaceProps* props) {
     }
 }
 
-SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, const SkSurfaceProps* props, unsigned flags)
+SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
+                         const SkSurfaceProps* props, unsigned flags)
     : INHERITED(surfaceprops_to_deviceprops(props))
     , fSurfaceProps(copy_or_default_props(props))
 {
@@ -154,7 +160,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, const SkSurfaceProps* props, unsign
 
     fRenderTarget = SkRef(rt);
 
-    SkImageInfo info = rt->surfacePriv().info();
+    SkImageInfo info = rt->surfacePriv().info().makeWH(width, height);
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, rt));
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
@@ -211,7 +217,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgete
         return NULL;
     }
 
-    return SkNEW_ARGS(SkGpuDevice, (rt, props, flags));
+    return SkNEW_ARGS(SkGpuDevice, (rt, info.width(), info.height(), props, flags));
 }
 
 SkGpuDevice::~SkGpuDevice() {
@@ -736,9 +742,9 @@ GrTexture* create_mask_GPU(GrContext* context,
     return mask;
 }
 
-SkBitmap wrap_texture(GrTexture* texture) {
+SkBitmap wrap_texture(GrTexture* texture, int width, int height) {
     SkBitmap result;
-    result.setInfo(texture->surfacePriv().info());
+    result.setInfo(SkImageInfo::MakeN32Premul(width, height));
     result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (result.info(), texture)))->unref();
     return result;
 }
@@ -1474,6 +1480,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 }
 
 bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
+                                int width, int height,
                                 const SkImageFilter* filter,
                                 const SkImageFilter::Context& ctx,
                                 SkBitmap* result, SkIPoint* offset) {
@@ -1484,7 +1491,8 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
     SkDeviceImageFilterProxy proxy(this, SkSurfaceProps(0, getLeakyProperties().pixelGeometry()));
 
     if (filter->canFilterImageGPU()) {
-        return filter->filterImageGPU(&proxy, wrap_texture(texture), ctx, result, offset);
+        return filter->filterImageGPU(&proxy, wrap_texture(texture, width, height),
+                                      ctx, result, offset);
     } else {
         return false;
     }
@@ -1523,7 +1531,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
         SkImageFilter::Context ctx(matrix, clipBounds, cache);
-        if (this->filterTexture(fContext, texture, filter, ctx, &filteredBitmap,
+        if (this->filterTexture(fContext, texture, w, h, filter, ctx, &filteredBitmap,
                                 &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
             w = filteredBitmap.width();
@@ -1637,8 +1645,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         // textures) when it goes out of scope.
         SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache);
-        if (this->filterTexture(fContext, devTex, filter, ctx, &filteredBitmap,
-                                &offset)) {
+        if (this->filterTexture(fContext, devTex, device->width(), device->height(),
+                                filter, ctx, &filteredBitmap, &offset)) {
             devTex = filteredBitmap.getTexture();
             w = filteredBitmap.width();
             h = filteredBitmap.height();
@@ -1691,7 +1699,8 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     // must be pushed upstack.
     AutoBitmapTexture abt(fContext, src, NULL, &texture);
 
-    return this->filterTexture(fContext, texture, filter, ctx, result, offset);
+    return this->filterTexture(fContext, texture, src.width(), src.height(),
+                               filter, ctx, result, offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1901,7 +1910,8 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     if (texture) {
         SkSurfaceProps props(fSurfaceProps.flags(), cinfo.fPixelGeometry);
-        return SkGpuDevice::Create(texture->asRenderTarget(), &props, flags);
+        return SkGpuDevice::Create(
+            texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, flags);
     } else {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "---- failed to create compatible device texture [%d %d]\n",
