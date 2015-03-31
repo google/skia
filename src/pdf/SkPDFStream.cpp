@@ -37,10 +37,10 @@ void SkPDFStream::emitObject(SkWStream* stream,
             SkAutoTDelete<SkStream> compressed(
                     compressedData.detachAsStream());
             this->setData(compressed.get());
-            insertName("Filter", "FlateDecode");
+            this->insertName("Filter", "FlateDecode");
         }
         fState = kCompressed_State;
-        insertInt("Length", this->dataSize());
+        this->insertInt("Length", this->dataSize());
     }
     this->INHERITED::emitObject(stream, objNumMap, substitutes);
     stream->writeText(" stream\n");
