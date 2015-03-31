@@ -121,9 +121,7 @@ CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
 # Dictionary of supported Chromium page sets to their file prefixes.
 CHROMIUM_PAGE_SETS_TO_PREFIX = {
     'key_mobile_sites_smooth.py': 'keymobi',
-    # TODO(rmistry): Uncomment the below after it is verified that the above
-    # works.
-    # 'top_25_smooth.py': 'top25desk',
+    'top_25_smooth.py': 'top25desk',
 }
 
 
@@ -388,10 +386,9 @@ class SkPicturePlayback(object):
     # /path/to/http___mobile_news_sandbox_pt0 -> http___mobile_news_sandbox_pt0
     _, webpage = os.path.split(site)
     # http___mobile_news_sandbox_pt0 -> mobile_news_sandbox_pt0
-    if webpage.startswith('http___'):
-      webpage = webpage[7:]
-    elif webpage.startswith('https___'):
-      webpage = webpage[8:]
+    for prefix in ('http___', 'https___'):
+      if webpage.startswith(prefix):
+        webpage = webpage[len(prefix):]
     # /path/to/skia_yahooanswers_desktop.py -> skia_yahooanswers_desktop.py
     ps_filename = os.path.basename(page_set)
     # http___mobile_news_sandbox -> pagesetprefix_http___mobile_news_sandbox
