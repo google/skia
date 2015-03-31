@@ -8,16 +8,17 @@
 To archive webpages and store SKP files (archives should be rarely updated):
 
 cd skia
-python tools/skp/webpages_playback.py --dest_gsbase=gs://rmistry --record \
+python tools/skp/webpages_playback.py --data_store=gs://rmistry --record \
 --page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
 --browser_executable=/tmp/chromium/out/Release/chrome
 
+The above command uses Google Storage bucket 'rmistry' to download needed files.
 
 To replay archived webpages and re-generate SKP files (should be run whenever
 SkPicture.PICTURE_VERSION changes):
 
 cd skia
-python tools/skp/webpages_playback.py --dest_gsbase=gs://rmistry \
+python tools/skp/webpages_playback.py --data_store=gs://rmistry \
 --page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
 --browser_executable=/tmp/chromium/out/Release/chrome
 
@@ -32,8 +33,15 @@ The --browser_executable flag should point to the browser binary you want to use
 to capture archives and/or capture SKP files. Majority of the time it should be
 a newly built chrome binary.
 
-The --upload_to_gs flag controls whether generated artifacts will be uploaded
-to Google Storage (default value is False if not specified).
+The --data_store flag controls where the needed artifacts, such as
+credential files, are downloaded from. It also controls where the
+generated artifacts, such as recorded webpages and resulting skp renderings,
+are uploaded to. URLs with scheme 'gs://' use Google Storage. Otherwise
+use local filesystem.
+
+The --upload=True flag means generated artifacts will be
+uploaded or copied to the location specified by --data_store. (default value is
+False if not specified).
 
 The --non-interactive flag controls whether the script will prompt the user
 (default value is False if not specified).
@@ -123,13 +131,16 @@ class SkPicturePlayback(object):
     self._all_page_sets_specified = parse_options.page_sets == 'all'
     self._page_sets = self._ParsePageSets(parse_options.page_sets)
 
-    self._dest_gsbase = parse_options.dest_gsbase
     self._record = parse_options.record
     self._skia_tools = parse_options.skia_tools
     self._non_interactive = parse_options.non_interactive
-    self._upload_to_gs = parse_options.upload_to_gs
+    self._upload = parse_options.upload
+    data_store_location = parse_options.data_store
+    if data_store_location.startswith(gs_utils.GS_PREFIX):
+      self.gs = GoogleStorageDataStore(data_store_location)
+    else:
+      self.gs = LocalFileSystemDataStore(data_store_location)
     self._alternate_upload_dir = parse_options.alternate_upload_dir
-    self._skip_all_gs_access = parse_options.skip_all_gs_access
     self._telemetry_binaries_dir = os.path.join(parse_options.chrome_src_path,
                                                 'tools', 'perf')
 
@@ -164,8 +175,13 @@ class SkPicturePlayback(object):
     """Run the SkPicturePlayback BuildStep."""
 
     # Download the credentials file if it was not previously downloaded.
-    if self._skip_all_gs_access:
-      print """\n\nPlease create a %s file that contains:
+    if not os.path.isfile(CREDENTIALS_FILE_PATH):
+      # Download the credentials.json file from Google Storage.
+      self.gs.download_file(CREDENTIALS_GS_PATH, CREDENTIALS_FILE_PATH)
+
+    if not os.path.isfile(CREDENTIALS_FILE_PATH):
+      print """\n\nCould not locate credentials file in the storage.
+      Please create a %s file that contains:
       {
         "google": {
           "username": "google_testing_account_username",
@@ -177,11 +193,6 @@ class SkPicturePlayback(object):
         }
       }\n\n""" % CREDENTIALS_FILE_PATH
       raw_input("Please press a key when you are ready to proceed...")
-    elif not os.path.isfile(CREDENTIALS_FILE_PATH):
-      # Download the credentials.json file from Google Storage.
-      gs_bucket = remove_prefix(self._dest_gsbase.lstrip(), gs_utils.GS_PREFIX)
-      gs_utils.GSUtils().download_file(gs_bucket, CREDENTIALS_GS_PATH,
-                                       CREDENTIALS_FILE_PATH)
 
     # Delete any left over data files in the data directory.
     for archive_file in glob.glob(
@@ -244,9 +255,8 @@ class SkPicturePlayback(object):
           raise Exception('record_wpr failed for page_set: %s' % page_set)
 
       else:
-        if not self._skip_all_gs_access:
-          # Get the webpages archive so that it can be replayed.
-          self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
+        # Get the webpages archive so that it can be replayed.
+        self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
 
       run_benchmark_cmd = (
           'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
@@ -314,24 +324,24 @@ class SkPicturePlayback(object):
 
     print '\n\n'
 
-    if not self._skip_all_gs_access and self._upload_to_gs:
-      print '\n\n=======Uploading to Google Storage=======\n\n'
+    if self._upload:
+      print '\n\n=======Uploading to %s=======\n\n' % self.gs.target_type()
       # Copy the directory structure in the root directory into Google Storage.
       dest_dir_name = ROOT_PLAYBACK_DIR_NAME
       if self._alternate_upload_dir:
         dest_dir_name = self._alternate_upload_dir
 
-      gs_bucket = remove_prefix(self._dest_gsbase.lstrip(), gs_utils.GS_PREFIX)
-      gs_utils.GSUtils().upload_dir_contents(
-          LOCAL_PLAYBACK_ROOT_DIR, gs_bucket, dest_dir_name,
+      self.gs.upload_dir_contents(
+          LOCAL_PLAYBACK_ROOT_DIR, dest_dir_name,
           upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED,
           predefined_acl=GS_PREDEFINED_ACL,
           fine_grained_acl_list=GS_FINE_GRAINED_ACL_LIST)
 
       print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
-          posixpath.join(self._dest_gsbase, dest_dir_name, SKPICTURES_DIR_NAME))
+          posixpath.join(self.gs.target_name(), dest_dir_name,
+                         SKPICTURES_DIR_NAME))
     else:
-      print '\n\n=======Not Uploading to Google Storage=======\n\n'
+      print '\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type()
       print 'Generated resources are available in %s\n\n' % (
           LOCAL_PLAYBACK_ROOT_DIR)
 
@@ -383,20 +393,73 @@ class SkPicturePlayback(object):
     page_set_source = posixpath.join(ROOT_PLAYBACK_DIR_NAME,
                                      'webpages_archive',
                                      page_set_json_name)
-    gs = gs_utils.GSUtils()
-    gs_bucket = remove_prefix(self._dest_gsbase.lstrip(), gs_utils.GS_PREFIX)
-    if (gs.does_storage_object_exist(gs_bucket, wpr_source) and
-        gs.does_storage_object_exist(gs_bucket, page_set_source)):
-      gs.download_file(gs_bucket, wpr_source,
+    gs = self.gs
+    if (gs.does_storage_object_exist(wpr_source) and
+        gs.does_storage_object_exist(page_set_source)):
+      gs.download_file(wpr_source,
                        os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                                     wpr_data_file))
-      gs.download_file(gs_bucket, page_set_source,
+      gs.download_file(page_set_source,
                        os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                                     page_set_json_name))
     else:
-      raise Exception('%s and %s do not exist in Google Storage!' % (
-          wpr_source, page_set_source))
+      raise Exception('%s and %s do not exist in %s!' % (gs.target_type(),
+        wpr_source, page_set_source))
 
+class DataStore:
+  """An abstract base class for uploading recordings to a data storage.
+  The interface emulates the google storage api."""
+  def target_name(self):
+    raise NotImplementedError()
+  def target_type(self):
+    raise NotImplementedError()
+  def does_storage_object_exist(self, *args):
+    raise NotImplementedError()
+  def download_file(self, *args):
+    raise NotImplementedError()
+  def upload_dir_contents(self, source_dir, **kwargs):
+    raise NotImplementedError()
+
+class GoogleStorageDataStore(DataStore):
+  def __init__(self, data_store_url):
+    self._data_store_url = data_store_url
+    self._bucket = remove_prefix(self._data_store_url.lstrip(), 
+                                 gs_utils.GS_PREFIX)
+    self.gs = gs_utils.GSUtils()
+  def target_name(self):
+    return self._data_store_url
+  def target_type(self):
+    return 'Google Storage'
+  def does_storage_object_exist(self, *args):
+    return self.gs.does_storage_object_exist(self._bucket, *args)
+  def download_file(self, *args):
+    self.gs.download_file(self._bucket, *args)
+  def upload_dir_contents(self, source_dir, **kwargs):
+    self.gs.upload_dir_contents(source_dir, self._bucket, **kwargs)
+
+class LocalFileSystemDataStore(DataStore):
+  def __init__(self, data_store_location):
+    self._base_dir = data_store_location
+  def target_name(self):
+    return self._base_dir
+  def target_type(self):
+    return self._base_dir
+  def does_storage_object_exist(self, name, *args):
+    return os.path.isfile(os.path.join(self._base_dir, name))
+  def download_file(self, name, local_path, *args):
+    shutil.copyfile(os.path.join(self._base_dir, name), local_path)
+  def upload_dir_contents(self, source_dir, dest_dir, **kwargs):
+    def copytree(source_dir, dest_dir):
+      if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+      for item in os.listdir(source_dir):
+        source = os.path.join(source_dir, item)
+        dest = os.path.join(dest_dir, item)
+        if os.path.isdir(source):
+          copytree(source, dest)
+        else:
+          shutil.copy2(source, dest)
+    copytree(source_dir, os.path.join(self._base_dir, dest_dir))
 
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
@@ -405,20 +468,9 @@ if '__main__' == __name__:
       help='Specifies the page sets to use to archive. Supports globs.',
       default='all')
   option_parser.add_option(
-      '', '--skip_all_gs_access', action='store_true',
-      help='All Google Storage interactions will be skipped if this flag is '
-           'specified. This is useful for cases where the user does not have '
-           'the required .boto file but would like to generate webpage '
-           'archives and SKPs from the Skia page sets.',
-      default=False)
-  option_parser.add_option(
       '', '--record', action='store_true',
       help='Specifies whether a new website archive should be created.',
       default=False)
-  option_parser.add_option(
-      '', '--dest_gsbase',
-      help='gs:// bucket_name, the bucket to upload the file to.',
-      default='gs://chromium-skia-gm')
   option_parser.add_option(
       '', '--skia_tools',
       help=('Path to compiled Skia executable tools. '
@@ -429,17 +481,25 @@ if '__main__' == __name__:
             'than Release builds.'),
       default=None)
   option_parser.add_option(
-      '', '--upload_to_gs', action='store_true',
-      help='Does not upload to Google Storage if this is False.',
+      '', '--upload', action='store_true',
+      help=('Uploads to Google Storage or copies to local filesystem storage '
+            ' if this is True.'),
       default=False)
   option_parser.add_option(
+      '', '--data_store',
+    help=('The location of the file storage to use to download and upload '
+          'files. Can be \'gs://<bucket>\' for Google Storage, or '
+          'a directory for local filesystem storage'),
+      default='gs://chromium-skia-gm')
+  option_parser.add_option(
       '', '--alternate_upload_dir',
-      help='Uploads to a different directory in Google Storage if this flag is '
-           'specified',
+      help= ('Uploads to a different directory in Google Storage or local '
+             'storage if this flag is specified'),
       default=None)
   option_parser.add_option(
       '', '--output_dir',
-      help='Directory where SKPs and webpage archives will be outputted to.',
+      help=('Temporary directory where SKPs and webpage archives will be '
+            'outputted to.'),
       default=tempfile.gettempdir())
   option_parser.add_option(
       '', '--browser_executable',

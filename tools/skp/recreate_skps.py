@@ -57,7 +57,7 @@ def main(chrome_src_path, browser_executable):
     '--page_sets', 'all',
     '--browser_executable', browser_executable,
     '--non-interactive',
-    '--upload_to_gs',
+    '--upload',
     '--alternate_upload_dir', upload_dir,
     '--chrome_src_path', chrome_src_path,
   ]
