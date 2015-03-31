@@ -227,7 +227,6 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(fSkPaint.getTextAlign());
     SkTextMapStateProc tmsProc(viewMatrix, offset, scalarsPerPosition);
-    SkScalar halfSampleX = 0, halfSampleY = 0;
 
     if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set
@@ -235,6 +234,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
 
         SkFixed fxMask = ~0;
         SkFixed fyMask = ~0;
+        SkScalar halfSampleX = SkFixedToScalar(SkGlyph::kSubpixelRound);
+        SkScalar halfSampleY = SkFixedToScalar(SkGlyph::kSubpixelRound);
         if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
             halfSampleY = SK_ScalarHalf;
@@ -310,8 +311,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     SkPoint tmsLoc;
                     tmsProc(pos, &tmsLoc);
 
-                    Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + SK_ScalarHalf); //halfSampleX;
-                    Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + SK_ScalarHalf); //halfSampleY;
+                    Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + SK_ScalarHalf);
+                    Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + SK_ScalarHalf);
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed(),
@@ -334,8 +335,8 @@ void GrBitmapTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                     SkPoint alignLoc;
                     alignProc(tmsLoc, glyph, &alignLoc);
 
-                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + SK_ScalarHalf); //halfSampleX;
-                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + SK_ScalarHalf); //halfSampleY;
+                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + SK_ScalarHalf);
+                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + SK_ScalarHalf);
                     this->appendGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed(),
