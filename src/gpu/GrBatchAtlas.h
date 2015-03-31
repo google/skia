@@ -25,8 +25,6 @@ public:
     // An AtlasID is an opaque handle which callers can use to determine if the atlas contains
     // a specific piece of data
     typedef uint32_t AtlasID;
-    static const uint32_t kInvalidAtlasID = 0;
-    static const uint64_t kInvalidAtlasGeneration = 0;
 
     // A function pointer for use as a callback during eviction.  Whenever GrBatchAtlas evicts a
     // specific AtlasID, it will call all of the registered listeners so they can optionally process
@@ -45,7 +43,6 @@ public:
 
     GrTexture* getTexture() const { return fTexture; }
 
-    uint64_t atlasGeneration() const { return fAtlasGeneration; }
     bool hasID(AtlasID id);
     void setLastRefToken(AtlasID id, BatchToken batchToken);
     void registerEvictionCallback(EvictionFunc func, void* userData) {
@@ -75,7 +72,6 @@ private:
     int fPlotWidth;
     int fPlotHeight;
     size_t fBPP;
-    uint64_t fAtlasGeneration;
 
     struct EvictionData {
         EvictionFunc fFunc;

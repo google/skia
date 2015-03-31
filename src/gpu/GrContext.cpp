@@ -10,9 +10,7 @@
 
 #include "GrAARectRenderer.h"
 #include "GrBatch.h"
-#include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
-#include "GrBitmapTextContext.h"
 #include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrFontCache.h"
@@ -96,7 +94,6 @@ GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fPathRendererChain = NULL;
     fSoftwarePathRenderer = NULL;
     fResourceCache = NULL;
-    fBatchFontCache = NULL;
     fFontCache = NULL;
     fDrawBuffer = NULL;
     fDrawBufferVBAllocPool = NULL;
@@ -132,10 +129,6 @@ void GrContext::initCommon() {
     fDidTestPMConversions = false;
 
     this->setupDrawBuffer();
-
-    // GrBatchFontCache will eventually replace GrFontCache
-    fBatchFontCache = SkNEW(GrBatchFontCache);
-    fBatchFontCache->init(this);
 }
 
 GrContext::~GrContext() {
@@ -150,7 +143,6 @@ GrContext::~GrContext() {
     }
 
     SkDELETE(fResourceCache);
-    SkDELETE(fBatchFontCache);
     SkDELETE(fFontCache);
     SkDELETE(fDrawBuffer);
     SkDELETE(fDrawBufferVBAllocPool);
@@ -188,7 +180,6 @@ void GrContext::abandonContext() {
     fAARectRenderer->reset();
     fOvalRenderer->reset();
 
-    fBatchFontCache->freeAll();
     fFontCache->freeAll();
     fLayerCache->freeAll();
 }
@@ -207,7 +198,6 @@ void GrContext::freeGpuResources() {
     fAARectRenderer->reset();
     fOvalRenderer->reset();
 
-    fBatchFontCache->freeAll();
     fFontCache->freeAll();
     fLayerCache->freeAll();
     // a path renderer may be holding onto resources
@@ -236,12 +226,8 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
         }
     } 
 
-#ifdef USE_BITMAP_TEXTBLOBS
-    return GrBitmapTextContextB::Create(this, gpuDevice, leakyProperties);
-#else
     return GrDistanceFieldTextContext::Create(this, gpuDevice, leakyProperties,
                                               enableDistanceFieldFonts);
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

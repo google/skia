@@ -8,7 +8,6 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "GrBatchAtlas.h"
 #include "GrRect.h"
 #include "GrTypes.h"
 
@@ -31,17 +30,14 @@ struct GrGlyph {
     
     typedef uint32_t PackedID;
 
-    // TODO either plot or AtlasID will be valid, not both
-    GrBatchAtlas::AtlasID fID;
-    GrPlot*               fPlot;
-    SkPath*               fPath;
-    PackedID              fPackedID;
-    GrMaskFormat          fMaskFormat;
-    GrIRect16             fBounds;
-    SkIPoint16            fAtlasLocation;
+    GrPlot*      fPlot;
+    SkPath*      fPath;
+    PackedID     fPackedID;
+    GrMaskFormat fMaskFormat;
+    GrIRect16    fBounds;
+    SkIPoint16   fAtlasLocation;
 
     void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
-        fID = GrBatchAtlas::kInvalidAtlasID;
         fPlot = NULL;
         fPath = NULL;
         fPackedID = packed;

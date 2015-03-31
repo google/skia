@@ -65,8 +65,6 @@
       '<(skia_src_path)/gpu/GrBatch.h',
       '<(skia_src_path)/gpu/GrBatchAtlas.cpp',
       '<(skia_src_path)/gpu/GrBatchAtlas.h',
-      '<(skia_src_path)/gpu/GrBatchFontCache.cpp',
-      '<(skia_src_path)/gpu/GrBatchFontCache.h',
       '<(skia_src_path)/gpu/GrBatchTarget.cpp',
       '<(skia_src_path)/gpu/GrBatchTarget.h',
       '<(skia_src_path)/gpu/GrBitmapTextContext.cpp',
