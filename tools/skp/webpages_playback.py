@@ -115,10 +115,23 @@ GS_FINE_GRAINED_ACL_LIST = [
    gs_utils.GSUtils.Permission.READ),
 ]
 
+# Path to Chromium's page sets.
+CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
+
+# Dictionary of supported Chromium page sets to their file prefixes.
+CHROMIUM_PAGE_SETS_TO_PREFIX = {
+    # 'key_mobile_sites_smooth.py': 'keymobi',
+    # TODO(rmistry): Uncomment the below after it is verified that the above
+    # works.
+    # 'top_25_smooth.py': 'top25desk',
+}
+
+
 def remove_prefix(s, prefix):
   if s.startswith(prefix):
     return s[len(prefix):]
   return s
+
 
 class SkPicturePlayback(object):
   """Class that archives or replays webpages and creates SKPs."""
@@ -128,6 +141,8 @@ class SkPicturePlayback(object):
     assert parse_options.browser_executable, 'Must specify --browser_executable'
     self._browser_executable = parse_options.browser_executable
 
+    self._chrome_page_sets_path = os.path.join(parse_options.chrome_src_path,
+                                               CHROMIUM_PAGE_SETS_PATH)
     self._all_page_sets_specified = parse_options.page_sets == 'all'
     self._page_sets = self._ParsePageSets(parse_options.page_sets)
 
@@ -163,6 +178,10 @@ class SkPicturePlayback(object):
             for page_set in os.listdir(page_sets_dir)
             if not os.path.isdir(os.path.join(page_sets_dir, page_set)) and
                page_set.endswith('.py')]
+      chromium_ps = [
+          os.path.join(self._chrome_page_sets_path, cr_page_set)
+          for cr_page_set in CHROMIUM_PAGE_SETS_TO_PREFIX]
+      ps.extend(chromium_ps)
     elif '*' in page_sets:
       # Explode and return the glob.
       ps = glob.glob(page_sets)
@@ -170,6 +189,10 @@ class SkPicturePlayback(object):
       ps = page_sets.split(',')
     ps.sort()
     return ps
+
+  def _IsChromiumPageSet(self, page_set):
+    """Returns true if the specified page set is a Chromium page set."""
+    return page_set.startswith(self._chrome_page_sets_path)
 
   def Run(self):
     """Run the SkPicturePlayback BuildStep."""
@@ -217,7 +240,9 @@ class SkPicturePlayback(object):
       wpr_data_file = page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wpr'
       page_set_dir = os.path.dirname(page_set)
 
-      if self._record:
+      if self._IsChromiumPageSet(page_set):
+        print 'Using Chromium\'s captured archives for Chromium\'s page sets.'
+      elif self._record:
         # Create an archive of the specified webpages if '--record=True' is
         # specified.
         record_wpr_cmd = (
@@ -347,28 +372,42 @@ class SkPicturePlayback(object):
 
     return 0
 
+  def _GetSkiaSkpFileName(self, page_set):
+    """Returns the SKP file name for Skia page sets."""
+    # /path/to/skia_yahooanswers_desktop.py -> skia_yahooanswers_desktop.py
+    ps_filename = os.path.basename(page_set)
+    # skia_yahooanswers_desktop.py -> skia_yahooanswers_desktop
+    ps_basename, _ = os.path.splitext(ps_filename)
+    # skia_yahooanswers_desktop -> skia, yahooanswers, desktop
+    _, page_name, device = ps_basename.split('_')
+    basename = '%s_%s' % (DEVICE_TO_PLATFORM_PREFIX[device], page_name)
+    return basename[:MAX_SKP_BASE_NAME_LEN] + '.skp'
+
+  def _GetChromiumSkpFileName(self, page_set, site):
+    """Returns the SKP file name for Chromium page sets."""
+    # /path/to/http___mobile_news_sandbox_pt0 -> http___mobile_news_sandbox_pt0
+    _, webpage = os.path.split(site)
+    # http___mobile_news_sandbox_pt0 -> mobile_news_sandbox_pt0
+    webpage = webpage.lstrip('http___').lstrip('https___')
+    # /path/to/skia_yahooanswers_desktop.py -> skia_yahooanswers_desktop.py
+    ps_filename = os.path.basename(page_set)
+    # http___mobile_news_sandbox -> pagesetprefix_http___mobile_news_sandbox
+    basename = '%s_%s' % (CHROMIUM_PAGE_SETS_TO_PREFIX[ps_filename], webpage)
+    return basename[:MAX_SKP_BASE_NAME_LEN] + '.skp'
+
   def _RenameSkpFiles(self, page_set):
     """Rename generated SKP files into more descriptive names.
 
     Look into the subdirectory of TMP_SKP_DIR and find the most interesting
     .skp in there to be this page_set's representative .skp.
     """
-    # Here's where we're assuming there's one page per pageset.
-    # If there were more than one, we'd overwrite filename below.
-
-    # /path/to/skia_yahooanswers_desktop.json -> skia_yahooanswers_desktop.json
-    _, ps_filename = os.path.split(page_set)
-    # skia_yahooanswers_desktop.json -> skia_yahooanswers_desktop
-    ps_basename, _ = os.path.splitext(ps_filename)
-    # skia_yahooanswers_desktop -> skia, yahooanswers, desktop
-    _, page_name, device = ps_basename.split('_')
-
-    basename = '%s_%s' % (DEVICE_TO_PLATFORM_PREFIX[device], page_name)
-    filename = basename[:MAX_SKP_BASE_NAME_LEN] + '.skp'
-
     subdirs = glob.glob(os.path.join(TMP_SKP_DIR, '*'))
-    assert len(subdirs) == 1
     for site in subdirs:
+      if self._IsChromiumPageSet(page_set):
+        filename = self._GetChromiumSkpFileName(page_set, site)
+      else:
+        filename = self._GetSkiaSkpFileName(page_set)
+
       # We choose the largest .skp as the most likely to be interesting.
       largest_skp = max(glob.glob(os.path.join(site, '*.skp')),
                         key=lambda path: os.stat(path).st_size)
@@ -423,7 +462,7 @@ class DataStore:
 class GoogleStorageDataStore(DataStore):
   def __init__(self, data_store_url):
     self._data_store_url = data_store_url
-    self._bucket = remove_prefix(self._data_store_url.lstrip(), 
+    self._bucket = remove_prefix(self._data_store_url.lstrip(),
                                  gs_utils.GS_PREFIX)
     self.gs = gs_utils.GSUtils()
   def target_name(self):
