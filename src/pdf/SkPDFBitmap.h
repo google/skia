@@ -27,8 +27,11 @@ public:
     // Returns NULL on unsupported bitmap;
     static SkPDFBitmap* Create(SkPDFCanon*, const SkBitmap&);
     ~SkPDFBitmap();
-    void emitObject(SkWStream*, SkPDFCatalog*) override;
-    void addResources(SkPDFCatalog*) const override;
+    void emitObject(SkWStream*,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& substitutes) override;
+    void addResources(SkPDFObjNumMap*,
+                      const SkPDFSubstituteMap&) const override;
     bool equals(const SkBitmap& other) const {
         return fBitmap.getGenerationID() == other.getGenerationID() &&
                fBitmap.pixelRefOrigin() == other.pixelRefOrigin() &&
@@ -39,7 +42,6 @@ private:
     const SkBitmap fBitmap;
     const SkAutoTUnref<SkPDFObject> fSMask;
     SkPDFBitmap(const SkBitmap&, SkPDFObject*);
-    void emitDict(SkWStream*, SkPDFCatalog*, size_t) const;
 };
 
 #endif  // SkPDFBitmap_DEFINED

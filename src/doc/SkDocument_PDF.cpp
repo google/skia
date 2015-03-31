@@ -7,7 +7,6 @@
 
 #include "SkDocument.h"
 #include "SkPDFCanon.h"
-#include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
 #include "SkPDFResourceDict.h"
@@ -24,7 +23,8 @@ static void emit_pdf_header(SkWStream* stream) {
 }
 
 static void emit_pdf_footer(SkWStream* stream,
-                            SkPDFCatalog* catalog,
+                            const SkPDFObjNumMap& objNumMap,
+                            const SkPDFSubstituteMap& substitutes,
                             SkPDFObject* docCatalog,
                             int64_t objCount,
                             int32_t xRefFileOffset) {
@@ -35,7 +35,7 @@ static void emit_pdf_footer(SkWStream* stream,
     trailerDict.insert("Root", new SkPDFObjRef(docCatalog))->unref();
 
     stream->writeText("trailer\n");
-    trailerDict.emitObject(stream, catalog);
+    trailerDict.emitObject(stream, objNumMap, substitutes);
     stream->writeText("\nstartxref\n");
     stream->writeBigDecAsText(xRefFileOffset);
     stream->writeText("\n%%EOF");
@@ -43,8 +43,8 @@ static void emit_pdf_footer(SkWStream* stream,
 
 static void perform_font_subsetting(
         const SkTDArray<const SkPDFDevice*>& pageDevices,
-        SkPDFCatalog* catalog) {
-    SkASSERT(catalog);
+        SkPDFSubstituteMap* substituteMap) {
+    SkASSERT(substituteMap);
 
     SkPDFGlyphSetMap usage;
     for (int i = 0; i < pageDevices.count(); ++i) {
@@ -56,7 +56,7 @@ static void perform_font_subsetting(
         SkAutoTUnref<SkPDFFont> subsetFont(
                 entry->fFont->getFontSubset(entry->fGlyphSet));
         if (subsetFont) {
-            catalog->setSubstitute(entry->fFont, subsetFont.get());
+            substituteMap->setSubstitute(entry->fFont, subsetFont.get());
         }
         entry = iterator.next();
     }
@@ -183,7 +183,6 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
         pageDevices[i]->appendDestinations(dests, page.get());
         pages.push(page.detach());
     }
-    SkPDFCatalog catalog;
 
     SkTDArray<SkPDFDict*> pageTree;
     SkAutoTUnref<SkPDFDict> docCatalog(SkNEW_ARGS(SkPDFDict, ("Catalog")));
@@ -209,22 +208,24 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     // Build font subsetting info before proceeding.
-    perform_font_subsetting(pageDevices, &catalog);
+    SkPDFSubstituteMap substitutes;
+    perform_font_subsetting(pageDevices, &substitutes);
 
-    if (catalog.addObject(docCatalog.get())) {
-        docCatalog->addResources(&catalog);
+    SkPDFObjNumMap objNumMap;
+    if (objNumMap.addObject(docCatalog.get())) {
+        docCatalog->addResources(&objNumMap, substitutes);
     }
     size_t baseOffset = SkToOffT(stream->bytesWritten());
     emit_pdf_header(stream);
     SkTDArray<int32_t> offsets;
-    for (int i = 0; i < catalog.objects().count(); ++i) {
-        SkPDFObject* object = catalog.objects()[i];
+    for (int i = 0; i < objNumMap.objects().count(); ++i) {
+        SkPDFObject* object = objNumMap.objects()[i];
         offsets.push(SkToS32(stream->bytesWritten() - baseOffset));
-        SkASSERT(object == catalog.getSubstituteObject(object));
-        SkASSERT(catalog.getObjectNumber(object) == i + 1);
+        SkASSERT(object == substitutes.getSubstitute(object));
+        SkASSERT(objNumMap.getObjectNumber(object) == i + 1);
         stream->writeDecAsText(i + 1);
         stream->writeText(" 0 obj\n");  // Generation number is always 0.
-        object->emitObject(stream, &catalog);
+        object->emitObject(stream, objNumMap, substitutes);
         stream->writeText("\nendobj\n");
     }
     int32_t xRefFileOffset = SkToS32(stream->bytesWritten() - baseOffset);
@@ -240,7 +241,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
         stream->writeBigDecAsText(offsets[i], 10);
         stream->writeText(" 00000 n \n");
     }
-    emit_pdf_footer(stream, &catalog, docCatalog.get(), objCount,
+    emit_pdf_footer(stream, objNumMap, substitutes, docCatalog.get(), objCount,
                     xRefFileOffset);
 
     // The page tree has both child and parent pointers, so it creates a

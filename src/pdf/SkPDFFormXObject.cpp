@@ -10,7 +10,6 @@
 #include "SkPDFFormXObject.h"
 
 #include "SkMatrix.h"
-#include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"

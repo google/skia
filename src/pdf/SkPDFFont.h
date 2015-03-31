@@ -18,7 +18,7 @@
 
 class SkPaint;
 class SkPDFCanon;
-class SkPDFCatalog;
+class SkPDFObjNumMap;
 class SkPDFFont;
 
 class SkPDFGlyphSet : SkNoncopyable {

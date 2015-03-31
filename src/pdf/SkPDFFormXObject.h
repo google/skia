@@ -19,7 +19,7 @@
 
 class SkMatrix;
 class SkPDFDevice;
-class SkPDFCatalog;
+class SkPDFObjNumMap;
 
 /** \class SkPDFFormXObject
 

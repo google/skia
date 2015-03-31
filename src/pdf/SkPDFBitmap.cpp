@@ -9,7 +9,6 @@
 #include "SkFlate.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
-#include "SkPDFCatalog.h"
 #include "SkStream.h"
 #include "SkUnPreMultiply.h"
 
@@ -244,14 +243,17 @@ class PDFAlphaBitmap : public SkPDFObject {
 public:
     PDFAlphaBitmap(const SkBitmap& bm) : fBitmap(bm) {}
     ~PDFAlphaBitmap() {}
-    void emitObject(SkWStream*, SkPDFCatalog*) override;
+    void emitObject(SkWStream*,
+                    const SkPDFObjNumMap&,
+                    const SkPDFSubstituteMap&) override;
 
 private:
     const SkBitmap fBitmap;
-    void emitDict(SkWStream*, SkPDFCatalog*, size_t) const;
 };
 
-void PDFAlphaBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
+void PDFAlphaBitmap::emitObject(SkWStream* stream,
+                                const SkPDFObjNumMap& objNumMap,
+                                const SkPDFSubstituteMap& substitutes) {
     SkAutoLockPixels autoLockPixels(fBitmap);
     SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
              fBitmap.getColorTable());
@@ -263,15 +265,6 @@ void PDFAlphaBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
     deflateWStream.finalize();  // call before detachAsStream().
     SkAutoTDelete<SkStreamAsset> asset(buffer.detachAsStream());
 
-    this->emitDict(stream, catalog, asset->getLength());
-    pdf_stream_begin(stream);
-    stream->writeStream(asset.get(), asset->getLength());
-    pdf_stream_end(stream);
-}
-
-void PDFAlphaBitmap::emitDict(SkWStream* stream,
-                              SkPDFCatalog* catalog,
-                              size_t length) const {
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
     pdfDict.insertInt("Width", fBitmap.width());
@@ -279,37 +272,26 @@ void PDFAlphaBitmap::emitDict(SkWStream* stream,
     pdfDict.insertName("ColorSpace", "DeviceGray");
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
-    pdfDict.insertInt("Length", length);
-    pdfDict.emitObject(stream, catalog);
+    pdfDict.insertInt("Length", asset->getLength());
+    pdfDict.emitObject(stream, objNumMap, substitutes);
+
+    pdf_stream_begin(stream);
+    stream->writeStream(asset.get(), asset->getLength());
+    pdf_stream_end(stream);
 }
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SkPDFBitmap::addResources(SkPDFCatalog* catalog) const {
+void SkPDFBitmap::addResources(SkPDFObjNumMap* catalog,
+                               const SkPDFSubstituteMap& substitutes) const {
     if (fSMask.get()) {
-        if (catalog->addObject(fSMask.get())) {
-            fSMask->addResources(catalog);
+        SkPDFObject* obj = substitutes.getSubstitute(fSMask.get());
+        SkASSERT(obj);
+        if (catalog->addObject(obj)) {
+            obj->addResources(catalog, substitutes);
         }
     }
-}
-
-void SkPDFBitmap::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
-    SkAutoLockPixels autoLockPixels(fBitmap);
-    SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
-             fBitmap.getColorTable());
-
-    // Write to a temporary buffer to get the compressed length.
-    SkDynamicMemoryWStream buffer;
-    SkDeflateWStream deflateWStream(&buffer);
-    bitmap_to_pdf_pixels(fBitmap, &deflateWStream);
-    deflateWStream.finalize();  // call before detachAsStream().
-    SkAutoTDelete<SkStreamAsset> asset(buffer.detachAsStream());
-
-    this->emitDict(stream, catalog, asset->getLength());
-    pdf_stream_begin(stream);
-    stream->writeStream(asset.get(), asset->getLength());
-    pdf_stream_end(stream);
 }
 
 static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
@@ -342,9 +324,20 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
     return result;
 }
 
-void SkPDFBitmap::emitDict(SkWStream* stream,
-                           SkPDFCatalog* catalog,
-                           size_t length) const {
+void SkPDFBitmap::emitObject(SkWStream* stream,
+                             const SkPDFObjNumMap& objNumMap,
+                             const SkPDFSubstituteMap& substitutes) {
+    SkAutoLockPixels autoLockPixels(fBitmap);
+    SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
+             fBitmap.getColorTable());
+
+    // Write to a temporary buffer to get the compressed length.
+    SkDynamicMemoryWStream buffer;
+    SkDeflateWStream deflateWStream(&buffer);
+    bitmap_to_pdf_pixels(fBitmap, &deflateWStream);
+    deflateWStream.finalize();  // call before detachAsStream().
+    SkAutoTDelete<SkStreamAsset> asset(buffer.detachAsStream());
+
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
     pdfDict.insertInt("Width", fBitmap.width());
@@ -363,8 +356,12 @@ void SkPDFBitmap::emitDict(SkWStream* stream,
         pdfDict.insert("SMask", new SkPDFObjRef(fSMask))->unref();
     }
     pdfDict.insertName("Filter", "FlateDecode");
-    pdfDict.insertInt("Length", length);
-    pdfDict.emitObject(stream, catalog);
+    pdfDict.insertInt("Length", asset->getLength());
+    pdfDict.emitObject(stream, objNumMap,substitutes);
+
+    pdf_stream_begin(stream);
+    stream->writeStream(asset.get(), asset->getLength());
+    pdf_stream_end(stream);
 }
 
 SkPDFBitmap::SkPDFBitmap(const SkBitmap& bm,

@@ -9,7 +9,6 @@
 
 #include "SkData.h"
 #include "SkFlate.h"
-#include "SkPDFCatalog.h"
 #include "SkPDFStream.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
@@ -24,9 +23,26 @@ SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
 
 SkPDFStream::~SkPDFStream() {}
 
-void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
-    SkAssertResult(this->populate(catalog));
-    this->INHERITED::emitObject(stream, catalog);
+void SkPDFStream::emitObject(SkWStream* stream,
+                             const SkPDFObjNumMap& objNumMap,
+                             const SkPDFSubstituteMap& substitutes) {
+    if (fState == kUnused_State) {
+        fState = kNoCompression_State;
+        SkDynamicMemoryWStream compressedData;
+
+        SkAssertResult(
+                SkFlate::Deflate(fDataStream.get(), &compressedData));
+        SkAssertResult(fDataStream->rewind());
+        if (compressedData.getOffset() < this->dataSize()) {
+            SkAutoTDelete<SkStream> compressed(
+                    compressedData.detachAsStream());
+            this->setData(compressed.get());
+            insertName("Filter", "FlateDecode");
+        }
+        fState = kCompressed_State;
+        insertInt("Length", this->dataSize());
+    }
+    this->INHERITED::emitObject(stream, objNumMap, substitutes);
     stream->writeText(" stream\n");
     stream->writeStream(fDataStream.get(), fDataStream->getLength());
     SkAssertResult(fDataStream->rewind());
@@ -51,24 +67,4 @@ void SkPDFStream::setData(SkStream* stream) {
 size_t SkPDFStream::dataSize() const {
     SkASSERT(fDataStream->hasLength());
     return fDataStream->getLength();
-}
-
-bool SkPDFStream::populate(SkPDFCatalog* catalog) {
-    if (fState == kUnused_State) {
-        fState = kNoCompression_State;
-        SkDynamicMemoryWStream compressedData;
-
-        SkAssertResult(
-                SkFlate::Deflate(fDataStream.get(), &compressedData));
-        SkAssertResult(fDataStream->rewind());
-        if (compressedData.getOffset() < this->dataSize()) {
-            SkAutoTDelete<SkStream> compressed(
-                    compressedData.detachAsStream());
-            this->setData(compressed.get());
-            insertName("Filter", "FlateDecode");
-        }
-        fState = kCompressed_State;
-        insertInt("Length", this->dataSize());
-    }
-    return true;
 }

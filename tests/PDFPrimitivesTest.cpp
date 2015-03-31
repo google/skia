@@ -13,7 +13,6 @@
 #include "SkImageEncoder.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
-#include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
@@ -36,36 +35,39 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 
 static void emit_object(SkPDFObject* object,
                         SkWStream* stream,
-                        SkPDFCatalog* catalog,
+                        const SkPDFObjNumMap& objNumMap,
+                        const SkPDFSubstituteMap& substitutes,
                         bool indirect) {
-    SkPDFObject* realObject = catalog->getSubstituteObject(object);
+    SkPDFObject* realObject = substitutes.getSubstitute(object);
     if (indirect) {
-        stream->writeDecAsText(catalog->getObjectNumber(object));
+        stream->writeDecAsText(objNumMap.getObjectNumber(realObject));
         stream->writeText(" 0 obj\n");  // Generation number is always 0.
-        realObject->emitObject(stream, catalog);
+        realObject->emitObject(stream, objNumMap, substitutes);
         stream->writeText("\nendobj\n");
     } else {
-        realObject->emitObject(stream, catalog);
+        realObject->emitObject(stream, objNumMap, substitutes);
     }
 }
 
 static size_t get_output_size(SkPDFObject* object,
-                              SkPDFCatalog* catalog,
+                              const SkPDFObjNumMap& objNumMap,
+                              const SkPDFSubstituteMap& substitutes,
                               bool indirect) {
     SkDynamicMemoryWStream buffer;
-    emit_object(object, &buffer, catalog, indirect);
+    emit_object(object, &buffer, objNumMap, substitutes, indirect);
     return buffer.getOffset();
 }
 
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                               const char* expectedData, size_t expectedSize,
                               bool indirect) {
-    SkPDFCatalog catalog;
-    size_t directSize = get_output_size(obj, &catalog, false);
+    SkPDFSubstituteMap substituteMap;
+    SkPDFObjNumMap catalog;
+    size_t directSize = get_output_size(obj, catalog, substituteMap, false);
     REPORTER_ASSERT(reporter, directSize == expectedSize);
 
     SkDynamicMemoryWStream buffer;
-    emit_object(obj, &buffer, &catalog, false);
+    emit_object(obj, &buffer, catalog, substituteMap, false);
     REPORTER_ASSERT(reporter, directSize == buffer.getOffset());
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedData,
                                             directSize));
@@ -79,12 +81,13 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
 
         catalog.addObject(obj);
 
-        size_t indirectSize = get_output_size(obj, &catalog, true);
+        size_t indirectSize =
+                get_output_size(obj, catalog, substituteMap, true);
         REPORTER_ASSERT(reporter,
                         indirectSize == directSize + headerLen + footerLen);
 
         buffer.reset();
-        emit_object(obj, &buffer, &catalog, true);
+        emit_object(obj, &buffer, catalog, substituteMap, true);
         REPORTER_ASSERT(reporter, indirectSize == buffer.getOffset());
         REPORTER_ASSERT(reporter, stream_equals(buffer, 0, header, headerLen));
         REPORTER_ASSERT(reporter, stream_equals(buffer, headerLen, expectedData,
@@ -108,10 +111,10 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData.get()));
     SimpleCheckObjectOutput(
         reporter, stream.get(),
-        "<</Length 12\n>> stream\nTest\nFoo\tBar\nendstream");
+        "<</Length 12>> stream\nTest\nFoo\tBar\nendstream");
     stream->insert("Attribute", new SkPDFInt(42))->unref();
     SimpleCheckObjectOutput(reporter, stream.get(),
-                            "<</Length 12\n/Attribute 42\n>> stream\n"
+                            "<</Length 12\n/Attribute 42>> stream\n"
                                 "Test\nFoo\tBar\nendstream");
 
     {
@@ -128,8 +131,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         SkAutoDataUnref compressedData(compressedByteStream.copyToData());
 
         SkDynamicMemoryWStream expected;
-        expected.writeText("<</Filter /FlateDecode\n/Length 116\n"
-                                 ">> stream\n");
+        expected.writeText("<</Filter /FlateDecode\n/Length 116>> stream\n");
         expected.write(compressedData->data(), compressedData->size());
         expected.writeText("\nendstream");
         SkAutoDataUnref expectedResultData2(expected.copyToData());
@@ -140,7 +142,8 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
 }
 
 static void TestCatalog(skiatest::Reporter* reporter) {
-    SkPDFCatalog catalog;
+    SkPDFSubstituteMap substituteMap;
+    SkPDFObjNumMap catalog;
     SkAutoTUnref<SkPDFInt> int1(new SkPDFInt(1));
     SkAutoTUnref<SkPDFInt> int2(new SkPDFInt(2));
     SkAutoTUnref<SkPDFInt> int3(new SkPDFInt(3));
@@ -162,7 +165,8 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPDFInt> int2(new SkPDFInt(2));
     SkAutoTUnref<SkPDFObjRef> int2ref(new SkPDFObjRef(int2.get()));
 
-    SkPDFCatalog catalog;
+    SkPDFSubstituteMap substituteMap;
+    SkPDFObjNumMap catalog;
     catalog.addObject(int1.get());
     catalog.addObject(int2.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(int1.get()) == 1);
@@ -170,7 +174,7 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
 
     char expectedResult[] = "2 0 R";
     SkDynamicMemoryWStream buffer;
-    int2ref->emitObject(&buffer, &catalog);
+    int2ref->emitObject(&buffer, catalog, substituteMap);
     REPORTER_ASSERT(reporter, buffer.getOffset() == strlen(expectedResult));
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
                                             buffer.getOffset()));
@@ -183,12 +187,13 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     proxy->insert("Value", new SkPDFInt(33))->unref();
     stub->insert("Value", new SkPDFInt(44))->unref();
 
-    SkPDFCatalog catalog;
+    SkPDFSubstituteMap substituteMap;
+    substituteMap.setSubstitute(proxy.get(), stub.get());
+    SkPDFObjNumMap catalog;
     catalog.addObject(proxy.get());
-    catalog.setSubstitute(proxy.get(), stub.get());
 
-    REPORTER_ASSERT(reporter, stub.get() == catalog.getSubstituteObject(proxy));
-    REPORTER_ASSERT(reporter, proxy.get() != catalog.getSubstituteObject(stub));
+    REPORTER_ASSERT(reporter, stub.get() == substituteMap.getSubstitute(proxy));
+    REPORTER_ASSERT(reporter, proxy.get() != substituteMap.getSubstitute(stub));
 }
 
 // This test used to assert without the fix submitted for
@@ -272,13 +277,13 @@ DEF_TEST(PDFPrimitives, reporter) {
     SimpleCheckObjectOutput(reporter, dict.get(), "<<>>");
     SkAutoTUnref<SkPDFName> n1(new SkPDFName("n1"));
     dict->insert(n1.get(), int42.get());
-    SimpleCheckObjectOutput(reporter, dict.get(), "<</n1 42\n>>");
+    SimpleCheckObjectOutput(reporter, dict.get(), "<</n1 42>>");
     SkAutoTUnref<SkPDFName> n2(new SkPDFName("n2"));
     SkAutoTUnref<SkPDFName> n3(new SkPDFName("n3"));
     dict->insert(n2.get(), realHalf.get());
     dict->insert(n3.get(), array.get());
     SimpleCheckObjectOutput(reporter, dict.get(),
-                            "<</n1 42\n/n2 0.5\n/n3 [1 0.5 0]\n>>");
+                            "<</n1 42\n/n2 0.5\n/n3 [1 0.5 0]>>");
 
     TestPDFStream(reporter);
 

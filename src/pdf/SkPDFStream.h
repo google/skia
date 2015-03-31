@@ -15,7 +15,7 @@
 #include "SkStream.h"
 #include "SkTemplates.h"
 
-class SkPDFCatalog;
+class SkPDFObjNumMap;
 
 /** \class SkPDFStream
 
@@ -40,7 +40,9 @@ public:
     virtual ~SkPDFStream();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog) override;
+    virtual void emitObject(SkWStream* stream,
+                            const SkPDFObjNumMap& objNumMap,
+                            const SkPDFSubstituteMap& substitutes) override;
 
 protected:
     enum State {
@@ -54,10 +56,6 @@ protected:
      * set the data.
      */
     SkPDFStream();
-
-    // Populate the stream dictionary.  This method returns false if
-    // fSubstitute should be used.
-    virtual bool populate(SkPDFCatalog* catalog);
 
     void setData(SkData* data);
     void setData(SkStream* stream);

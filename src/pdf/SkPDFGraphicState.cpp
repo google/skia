@@ -114,9 +114,11 @@ bool SkPDFGraphicState::equals(const SkPaint& paint) const {
 
 SkPDFGraphicState::~SkPDFGraphicState() {}
 
-void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
+void SkPDFGraphicState::emitObject(SkWStream* stream,
+                                   const SkPDFObjNumMap& objNumMap,
+                                   const SkPDFSubstituteMap& substitutes) {
     populateDict();
-    SkPDFDict::emitObject(stream, catalog);
+    SkPDFDict::emitObject(stream, objNumMap, substitutes);
 }
 
 // static

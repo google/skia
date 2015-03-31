@@ -16,8 +16,6 @@
         '<(skia_src_path)/pdf/SkPDFBitmap.h',
         '<(skia_src_path)/pdf/SkPDFCanon.cpp',
         '<(skia_src_path)/pdf/SkPDFCanon.h',
-        '<(skia_src_path)/pdf/SkPDFCatalog.cpp',
-        '<(skia_src_path)/pdf/SkPDFCatalog.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',
         '<(skia_src_path)/pdf/SkPDFDevice.h',
         '<(skia_src_path)/pdf/SkPDFFont.cpp',

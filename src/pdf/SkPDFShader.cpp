@@ -11,7 +11,6 @@
 
 #include "SkData.h"
 #include "SkPDFCanon.h"
-#include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"

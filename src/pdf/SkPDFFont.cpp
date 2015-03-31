@@ -10,7 +10,6 @@
 #include "SkData.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
-#include "SkPDFCatalog.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
@@ -1016,9 +1015,11 @@ SkPDFFont* SkPDFType0Font::getFontSubset(const SkPDFGlyphSet* subset) {
 }
 
 #ifdef SK_DEBUG
-void SkPDFType0Font::emitObject(SkWStream* stream, SkPDFCatalog* catalog) {
+void SkPDFType0Font::emitObject(SkWStream* stream,
+                                const SkPDFObjNumMap& objNumMap,
+                                const SkPDFSubstituteMap& substitutes) {
     SkASSERT(fPopulated);
-    return INHERITED::emitObject(stream, catalog);
+    return INHERITED::emitObject(stream, objNumMap, substitutes);
 }
 #endif
 
