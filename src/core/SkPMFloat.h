@@ -34,9 +34,9 @@ public:
     #endif
 
 
-    // Freely autoconvert between SkPMFloat and Sk4s.
-    /*implicit*/ SkPMFloat(const Sk4s& fs) { fColors = fs; }
-    /*implicit*/ operator Sk4s() const { return fColors; }
+    // Freely autoconvert between SkPMFloat and Sk4f.
+    /*implicit*/ SkPMFloat(const Sk4f& fs) { fColors = fs; }
+    /*implicit*/ operator Sk4f() const { return fColors; }
 
     float a() const { return fColors[SK_A32_SHIFT / 8]; }
     float r() const { return fColors[SK_R32_SHIFT / 8]; }
@@ -65,11 +65,11 @@ public:
     }
 
 private:
-    Sk4s fColors;
+    Sk4f fColors;
 };
 
 #ifdef SKNX_NO_SIMD
-    // Platform implementations of SkPMFloat assume Sk4s uses SSE or NEON.  _none is generic.
+    // Platform implementations of SkPMFloat assume Sk4f uses SSE or NEON.  _none is generic.
     #include "../opts/SkPMFloat_none.h"
 #else
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3

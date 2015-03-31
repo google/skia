@@ -32,9 +32,9 @@ DEF_TEST(SkPMFloat, r) {
     REPORTER_ASSERT(r, SkScalarNearlyEqual(  1.0f, clamped.g()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(  0.0f, clamped.b()));
 
-    // Test SkPMFloat <-> Sk4s conversion.
-    Sk4s fs = clamped;
-    SkPMFloat scaled = fs * Sk4s(0.25f);
+    // Test SkPMFloat <-> Sk4f conversion.
+    Sk4f fs = clamped;
+    SkPMFloat scaled = fs * Sk4f(0.25f);
     REPORTER_ASSERT(r, SkScalarNearlyEqual(63.75f, scaled.a()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(38.25f, scaled.r()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual( 0.25f, scaled.g()));
