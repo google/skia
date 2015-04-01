@@ -88,7 +88,11 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.bmp", SkISize::Make(8, 8), false);
 
     // ICO
+    // These two tests examine interestingly different behavior:
+    // Decodes an embedded BMP image
     check(r, "color_wheel.ico", SkISize::Make(128, 128), false);
+    // Decodes an embedded PNG image
+    check(r, "google_chrome.ico", SkISize::Make(256, 256), false);
 
     // PNG
     check(r, "arrow.png", SkISize::Make(187, 312), true);
