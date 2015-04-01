@@ -1569,8 +1569,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
         return;
     }
 
-    SkAutoTUnref<SkPDFGraphicState> sMaskGS(
-        SkPDFGraphicState::GetSMaskGraphicState(
+    SkAutoTUnref<SkPDFObject> sMaskGS(SkPDFGraphicState::GetSMaskGraphicState(
             mask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode));
 
     SkMatrix identity;
@@ -1941,7 +1940,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     }
 }
 
-int SkPDFDevice::addGraphicStateResource(SkPDFGraphicState* gs) {
+int SkPDFDevice::addGraphicStateResource(SkPDFObject* gs) {
     // Assumes that gs has been canonicalized (so we can directly compare
     // pointers).
     int result = fGraphicStateResources.find(gs);

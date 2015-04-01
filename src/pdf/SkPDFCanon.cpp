@@ -8,7 +8,6 @@
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFont.h"
-#include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +23,7 @@ void SkPDFCanon::reset() {
     fAlphaShaderRecords.reset();
     fImageShaderRecords.unrefAll();
     fImageShaderRecords.reset();
-    fGraphicStateRecords.unrefAll();
+    fGraphicStateRecords.foreach ([](WrapGS w) { w.fPtr->unref(); });
     fGraphicStateRecords.reset();
     fBitmapRecords.unrefAll();
     fBitmapRecords.reset();
@@ -107,12 +106,17 @@ void SkPDFCanon::addImageShader(SkPDFImageShader* pdfShader) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFGraphicState* SkPDFCanon::findGraphicState(const SkPaint& paint) const {
-    return find_item(fGraphicStateRecords, paint);
+const SkPDFGraphicState* SkPDFCanon::findGraphicState(
+        const SkPDFGraphicState& key) const {
+    const WrapGS* ptr = fGraphicStateRecords.find(WrapGS(&key));
+    return ptr ? ptr->fPtr : NULL;
 }
 
-void SkPDFCanon::addGraphicState(SkPDFGraphicState* state) {
-    fGraphicStateRecords.push(SkRef(state));
+void SkPDFCanon::addGraphicState(const SkPDFGraphicState* state) {
+    SkASSERT(state);
+    WrapGS w(SkRef(state));
+    SkASSERT(!fGraphicStateRecords.contains(w));
+    fGraphicStateRecords.add(w);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -70,66 +70,58 @@ static const char* as_blend_mode(SkXfermode::Mode mode) {
     return NULL;
 }
 
-static bool equivalent(const SkPaint& a, const SkPaint& b) {
-    // We're only interested in some fields of the SkPaint, so we have
-    // a custom equality function.
-    if (SkColorGetA(a.getColor()) != SkColorGetA(b.getColor()) ||
-        a.getStrokeCap() != b.getStrokeCap() ||
-        a.getStrokeJoin() != b.getStrokeJoin() ||
-        a.getStrokeWidth() != b.getStrokeWidth() ||
-        a.getStrokeMiter() != b.getStrokeMiter()) {
-        return false;
+// If a SkXfermode is unsupported in PDF, this function returns
+// SrcOver, otherwise, it returns that Xfermode as a Mode.
+static SkXfermode::Mode mode_for_pdf(const SkXfermode* xfermode) {
+    SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode;
+    if (xfermode) {
+        xfermode->asMode(&mode);
     }
-
-    SkXfermode::Mode aXfermodeName = SkXfermode::kSrcOver_Mode;
-    SkXfermode* aXfermode = a.getXfermode();
-    if (aXfermode) {
-        aXfermode->asMode(&aXfermodeName);
+    switch (mode) {
+        case SkXfermode::kSrcOver_Mode:
+        case SkXfermode::kMultiply_Mode:
+        case SkXfermode::kScreen_Mode:
+        case SkXfermode::kOverlay_Mode:
+        case SkXfermode::kDarken_Mode:
+        case SkXfermode::kLighten_Mode:
+        case SkXfermode::kColorDodge_Mode:
+        case SkXfermode::kColorBurn_Mode:
+        case SkXfermode::kHardLight_Mode:
+        case SkXfermode::kSoftLight_Mode:
+        case SkXfermode::kDifference_Mode:
+        case SkXfermode::kExclusion_Mode:
+        case SkXfermode::kHue_Mode:
+        case SkXfermode::kSaturation_Mode:
+        case SkXfermode::kColor_Mode:
+        case SkXfermode::kLuminosity_Mode:
+            // Mode is suppported and handled by pdf graphics state.
+            return mode;
+        default:
+            return SkXfermode::kSrcOver_Mode;  // Default mode.
     }
-    if (aXfermodeName < 0 || aXfermodeName > SkXfermode::kLastMode ||
-        as_blend_mode(aXfermodeName) == NULL) {
-        aXfermodeName = SkXfermode::kSrcOver_Mode;
-    }
-    const char* aXfermodeString = as_blend_mode(aXfermodeName);
-    SkASSERT(aXfermodeString != NULL);
-
-    SkXfermode::Mode bXfermodeName = SkXfermode::kSrcOver_Mode;
-    SkXfermode* bXfermode = b.getXfermode();
-    if (bXfermode) {
-        bXfermode->asMode(&bXfermodeName);
-    }
-    if (bXfermodeName < 0 || bXfermodeName > SkXfermode::kLastMode ||
-        as_blend_mode(bXfermodeName) == NULL) {
-        bXfermodeName = SkXfermode::kSrcOver_Mode;
-    }
-    const char* bXfermodeString = as_blend_mode(bXfermodeName);
-    SkASSERT(bXfermodeString != NULL);
-
-    return strcmp(aXfermodeString, bXfermodeString) == 0;
 }
 
-bool SkPDFGraphicState::equals(const SkPaint& paint) const {
-    return equivalent(paint, fPaint);
-}
-
-SkPDFGraphicState::~SkPDFGraphicState() {}
-
-void SkPDFGraphicState::emitObject(SkWStream* stream,
-                                   const SkPDFObjNumMap& objNumMap,
-                                   const SkPDFSubstituteMap& substitutes) {
-    populateDict();
-    SkPDFDict::emitObject(stream, objNumMap, substitutes);
-}
+SkPDFGraphicState::SkPDFGraphicState(const SkPaint& p)
+    : fStrokeWidth(p.getStrokeWidth())
+    , fStrokeMiter(p.getStrokeMiter())
+    , fAlpha(p.getAlpha())
+    , fStrokeCap(SkToU8(p.getStrokeCap()))
+    , fStrokeJoin(SkToU8(p.getStrokeJoin()))
+    , fMode(SkToU8(mode_for_pdf(p.getXfermode()))) {}
 
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
         SkPDFCanon* canon, const SkPaint& paint) {
     SkASSERT(canon);
-    SkPDFGraphicState* pdfGraphicState = canon->findGraphicState(paint);
-    if (pdfGraphicState) {
-        return SkRef(pdfGraphicState);
+    SkPDFGraphicState key(paint);
+    if (const SkPDFGraphicState* canonGS = canon->findGraphicState(key)) {
+        // The returned SkPDFGraphicState must be made non-const,
+        // since the emitObject() interface is non-const.  But We
+        // promise that there is no way to mutate this object from
+        // here on out.
+        return SkRef(const_cast<SkPDFGraphicState*>(canonGS));
     }
-    pdfGraphicState = new SkPDFGraphicState(paint);
+    SkPDFGraphicState* pdfGraphicState = new SkPDFGraphicState(paint);
     canon->addGraphicState(pdfGraphicState);
     return pdfGraphicState;
 }
@@ -159,12 +151,15 @@ SkPDFObject* create_invert_function() {
 template <typename T> void unref(T* ptr) { ptr->unref(); }
 }  // namespace
 
-SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject, invertFunction,
-                           create_invert_function, unref<SkPDFObject>);
+SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject,
+                           invertFunction,
+                           create_invert_function,
+                           unref<SkPDFObject>);
 
 // static
-SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
-        SkPDFFormXObject* sMask, bool invert, SkPDFSMaskMode sMaskMode) {
+SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
+                                                   bool invert,
+                                                   SkPDFSMaskMode sMaskMode) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
     SkAutoTUnref<SkPDFDict> sMaskDict(new SkPDFDict("Mask"));
@@ -174,81 +169,64 @@ SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
         sMaskDict->insertName("S", "Luminosity");
     }
     sMaskDict->insert("G", new SkPDFObjRef(sMask))->unref();
-
-    SkPDFGraphicState* result = new SkPDFGraphicState;
-    result->fPopulated = true;
-    result->insertName("Type", "ExtGState");
-    result->insert("SMask", sMaskDict.get());
-
     if (invert) {
         sMaskDict->insert("TR", new SkPDFObjRef(invertFunction.get()))->unref();
     }
 
+    SkPDFDict* result = new SkPDFDict("ExtGState");
+    result->insert("SMask", sMaskDict.get());
     return result;
 }
 
-SkPDFGraphicState* SkPDFGraphicState::CreateNoSMaskGraphicState() {
-    SkPDFGraphicState* noSMaskGS = SkNEW(SkPDFGraphicState);
-    noSMaskGS->fPopulated = true;
-    noSMaskGS->insertName("Type", "ExtGState");
+namespace {
+SkPDFDict* create_no_smask_graphic_state() {
+    SkPDFDict* noSMaskGS = new SkPDFDict("ExtGState");
     noSMaskGS->insertName("SMask", "None");
     return noSMaskGS;
 }
-
-SK_DECLARE_STATIC_LAZY_PTR(
-        SkPDFGraphicState, noSMaskGraphicState,
-        SkPDFGraphicState::CreateNoSMaskGraphicState, unref<SkPDFGraphicState>);
+} // namespace
+SK_DECLARE_STATIC_LAZY_PTR(SkPDFDict,
+                           noSMaskGraphicState,
+                           create_no_smask_graphic_state,
+                           unref<SkPDFDict>);
 
 // static
-SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
+SkPDFDict* SkPDFGraphicState::GetNoSMaskGraphicState() {
     return SkRef(noSMaskGraphicState.get());
 }
 
-SkPDFGraphicState::SkPDFGraphicState()
-    : fPopulated(false) {}
+void SkPDFGraphicState::emitObject(SkWStream* stream,
+                                   const SkPDFObjNumMap& objNumMap,
+                                   const SkPDFSubstituteMap& substitutes) {
+    SkAutoTUnref<SkPDFDict> dict(SkNEW_ARGS(SkPDFDict, ("ExtGState")));
+    dict->insertName("Type", "ExtGState");
 
-SkPDFGraphicState::SkPDFGraphicState(const SkPaint& paint)
-    : fPaint(paint), fPopulated(false) {}
+    SkAutoTUnref<SkPDFScalar> alpha(new SkPDFScalar(SkScalarDiv(fAlpha, 0xFF)));
+    dict->insert("CA", alpha.get());
+    dict->insert("ca", alpha.get());
 
-// populateDict and operator== have to stay in sync with each other.
-void SkPDFGraphicState::populateDict() {
-    if (!fPopulated) {
-        fPopulated = true;
-        insertName("Type", "ExtGState");
+    SkPaint::Cap strokeCap = (SkPaint::Cap)fStrokeCap;
+    SkPaint::Join strokeJoin = (SkPaint::Join)fStrokeJoin;
+    SkXfermode::Mode xferMode = (SkXfermode::Mode)fMode;
 
-        SkAutoTUnref<SkPDFScalar> alpha(
-            new SkPDFScalar(SkScalarDiv(fPaint.getAlpha(), 0xFF)));
-        insert("CA", alpha.get());
-        insert("ca", alpha.get());
+    SK_COMPILE_ASSERT(SkPaint::kButt_Cap == 0, paint_cap_mismatch);
+    SK_COMPILE_ASSERT(SkPaint::kRound_Cap == 1, paint_cap_mismatch);
+    SK_COMPILE_ASSERT(SkPaint::kSquare_Cap == 2, paint_cap_mismatch);
+    SK_COMPILE_ASSERT(SkPaint::kCapCount == 3, paint_cap_mismatch);
+    SkASSERT(strokeCap >= 0 && strokeCap <= 2);
+    dict->insertInt("LC", strokeCap);
 
-        SK_COMPILE_ASSERT(SkPaint::kButt_Cap == 0, paint_cap_mismatch);
-        SK_COMPILE_ASSERT(SkPaint::kRound_Cap == 1, paint_cap_mismatch);
-        SK_COMPILE_ASSERT(SkPaint::kSquare_Cap == 2, paint_cap_mismatch);
-        SK_COMPILE_ASSERT(SkPaint::kCapCount == 3, paint_cap_mismatch);
-        SkASSERT(fPaint.getStrokeCap() >= 0 && fPaint.getStrokeCap() <= 2);
-        insertInt("LC", fPaint.getStrokeCap());
+    SK_COMPILE_ASSERT(SkPaint::kMiter_Join == 0, paint_join_mismatch);
+    SK_COMPILE_ASSERT(SkPaint::kRound_Join == 1, paint_join_mismatch);
+    SK_COMPILE_ASSERT(SkPaint::kBevel_Join == 2, paint_join_mismatch);
+    SK_COMPILE_ASSERT(SkPaint::kJoinCount == 3, paint_join_mismatch);
+    SkASSERT(strokeJoin >= 0 && strokeJoin <= 2);
+    dict->insertInt("LJ", strokeJoin);
 
-        SK_COMPILE_ASSERT(SkPaint::kMiter_Join == 0, paint_join_mismatch);
-        SK_COMPILE_ASSERT(SkPaint::kRound_Join == 1, paint_join_mismatch);
-        SK_COMPILE_ASSERT(SkPaint::kBevel_Join == 2, paint_join_mismatch);
-        SK_COMPILE_ASSERT(SkPaint::kJoinCount == 3, paint_join_mismatch);
-        SkASSERT(fPaint.getStrokeJoin() >= 0 && fPaint.getStrokeJoin() <= 2);
-        insertInt("LJ", fPaint.getStrokeJoin());
-
-        insertScalar("LW", fPaint.getStrokeWidth());
-        insertScalar("ML", fPaint.getStrokeMiter());
-        insert("SA", new SkPDFBool(true))->unref();  // Auto stroke adjustment.
-
-        SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
-        // If asMode fails, default to kSrcOver_Mode.
-        if (fPaint.getXfermode())
-            fPaint.getXfermode()->asMode(&xfermode);
-        // If we don't support the mode, just use kSrcOver_Mode.
-        if (xfermode < 0 || xfermode > SkXfermode::kLastMode ||
-            as_blend_mode(xfermode) == NULL) {
-            xfermode = SkXfermode::kSrcOver_Mode;
-            NOT_IMPLEMENTED("unsupported xfermode", false);
-        }
-        insertName("BM", as_blend_mode(xfermode));
-    }
+    dict->insertScalar("LW", fStrokeWidth);
+    dict->insertScalar("ML", fStrokeMiter);
+    // SA = Auto stroke adjustment.
+    dict->insert("SA", new SkPDFBool(true))->unref();
+    dict->insertName("BM", as_blend_mode(xferMode));
+    dict->emitObject(stream, objNumMap, substitutes);
 }

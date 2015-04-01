@@ -237,6 +237,12 @@ public:
     // This pointer remains valid until the next call to add().
     const T* find(const T& item) const { return fTable.find(item); }
 
+    // Call fn on every item in the set.  You may not mutate anything.
+    template <typename Fn>  // f(T), f(const T&)
+    void foreach (Fn&& fn) const {
+        fTable.foreach (fn);
+    }
+
 private:
     struct Traits {
         static const T& GetKey(const T& item) { return item; }

@@ -7,12 +7,13 @@
 #ifndef SkPDFCanon_DEFINED
 #define SkPDFCanon_DEFINED
 
+#include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
 #include "SkTDArray.h"
+#include "SkTHash.h"
 
 class SkBitmap;
 class SkPDFFont;
-class SkPDFGraphicState;
 class SkPDFBitmap;
 class SkPaint;
 
@@ -56,8 +57,8 @@ public:
     SkPDFImageShader* findImageShader(const SkPDFShader::State&) const;
     void addImageShader(SkPDFImageShader*);
 
-    SkPDFGraphicState* findGraphicState(const SkPaint&) const;
-    void addGraphicState(SkPDFGraphicState*);
+    const SkPDFGraphicState* findGraphicState(const SkPDFGraphicState&) const;
+    void addGraphicState(const SkPDFGraphicState*);
 
     SkPDFBitmap* findBitmap(const SkBitmap&) const;
     void addBitmap(SkPDFBitmap*);
@@ -76,7 +77,20 @@ private:
 
     SkTDArray<SkPDFImageShader*> fImageShaderRecords;
 
-    SkTDArray<SkPDFGraphicState*> fGraphicStateRecords;
+    struct WrapGS {
+        explicit WrapGS(const SkPDFGraphicState* ptr = NULL) : fPtr(ptr) {}
+        const SkPDFGraphicState* fPtr;
+        bool operator==(const WrapGS& rhs) const {
+            SkASSERT(fPtr);
+            SkASSERT(rhs.fPtr);
+            return *fPtr == *rhs.fPtr;
+        }
+        static uint32_t Hash(const WrapGS& w) {
+            SkASSERT(w.fPtr);
+            return w.fPtr->hash();
+        }
+    };
+    SkTHashSet<WrapGS, WrapGS::Hash> fGraphicStateRecords;
 
     SkTDArray<SkPDFBitmap*> fBitmapRecords;
 };

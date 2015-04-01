@@ -203,7 +203,7 @@ private:
     SkPDFArray* fAnnotations;
     SkTDArray<NamedDestination*> fNamedDestinations;
 
-    SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
+    SkTDArray<SkPDFObject*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFObject*> fShaderResources;
@@ -271,7 +271,7 @@ private:
                                             const SkPaint& paint,
                                             bool hasText,
                                             GraphicStateEntry* entry);
-    int addGraphicStateResource(SkPDFGraphicState* gs);
+    int addGraphicStateResource(SkPDFObject* gs);
     int addXObjectResource(SkPDFObject* xObject);
 
     void updateFont(const SkPaint& paint, uint16_t glyphID,
