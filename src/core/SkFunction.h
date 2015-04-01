@@ -18,20 +18,20 @@ template <typename> class SkFunction;
 template <typename R, typename... Args>
 class SkFunction<R(Args...)> : SkNoncopyable {
 public:
-    explicit SkFunction(R (*fn)(Args...)) : fVTable(GetFunctionPointerVTable()) {
+    SkFunction(R (*fn)(Args...)) : fVTable(GetFunctionPointerVTable()) {
         // We've been passed a function pointer.  We'll just store it.
         fFunction = reinterpret_cast<void*>(fn);
     }
 
     template <typename Fn>
-    explicit SkFunction(Fn fn, SK_WHEN_C((sizeof(Fn) > sizeof(void*)), void*) = nullptr)
+    SkFunction(Fn fn, SK_WHEN_C((sizeof(Fn) > sizeof(void*)), void*) = nullptr)
             : fVTable(GetOutlineVTable<Fn>()) {
         // We've got a functor larger than a pointer.  We've go to copy it onto the heap.
         fFunction = SkNEW_ARGS(Fn, (Forward(fn)));
     }
 
     template <typename Fn>
-    explicit SkFunction(Fn fn, SK_WHEN_C((sizeof(Fn) <= sizeof(void*)), void*) = nullptr)
+    SkFunction(Fn fn, SK_WHEN_C((sizeof(Fn) <= sizeof(void*)), void*) = nullptr)
             : fVTable(GetInlineVTable<Fn>()) {
         // We've got a functor that fits in a pointer.  We copy it right inline.
         fFunction = NULL;  // Quiets a (spurious) warning that fFunction might be uninitialized.
@@ -96,7 +96,6 @@ private:
 
 // TODO:
 //   - is it worth moving fCall out of the VTable into SkFunction itself to avoid the indirection?
-//   - should constructors be implicit?
 //   - make SkFunction copyable
 
 #endif//SkFunction_DEFINED
