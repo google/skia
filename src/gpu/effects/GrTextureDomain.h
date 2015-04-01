@@ -69,19 +69,6 @@ public:
         return result;
     }
 
-    static const SkRect MakeTexelDomainForMode(const GrTexture* texture, const SkIRect& texelRect, Mode mode) {
-        // For Clamp mode, inset by half a texel.
-        SkScalar wInv = SK_Scalar1 / texture->width();
-        SkScalar hInv = SK_Scalar1 / texture->height();
-        SkScalar inset = mode == kClamp_Mode ? SK_ScalarHalf : 0;
-        return SkRect::MakeLTRB(
-            (texelRect.fLeft + inset) * wInv,
-            (texelRect.fTop + inset) * hInv,
-            (texelRect.fRight - inset) * wInv,
-            (texelRect.fBottom - inset) * hInv
-        );
-    }
-
     bool operator== (const GrTextureDomain& that) const {
         return fMode == that.fMode && (kIgnore_Mode == fMode || fDomain == that.fDomain);
     }
