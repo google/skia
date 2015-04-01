@@ -82,6 +82,7 @@ template <class Condition, class T = void> struct SkTEnableIf
  *  SK_WHEN(!SkTrue, int) f(void* ptr) { return 2; }
  */
 #define SK_WHEN(cond_prefix, T) typename SkTEnableIf_c<cond_prefix::value, T>::type
+#define SK_WHEN_C(cond, T) typename SkTEnableIf_c<cond, T>::type
 
 // See http://en.wikibooks.org/wiki/More_C++_Idioms/Member_Detector
 #define SK_CREATE_MEMBER_DETECTOR(member)                                           \

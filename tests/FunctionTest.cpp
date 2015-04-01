@@ -9,6 +9,7 @@
 #include "Test.h"
 
 static void test_add_five(skiatest::Reporter* r, SkFunction<int(int)>&& f) {
+    REPORTER_ASSERT(r, f(3) == 8);
     REPORTER_ASSERT(r, f(4) == 9);
 }
 
@@ -24,4 +25,9 @@ DEF_TEST(Function, r) {
     test_add_five(r, SkFunction<int(int)>(&add_five));
     test_add_five(r, SkFunction<int(int)>(AddFive()));
     test_add_five(r, SkFunction<int(int)>([](int x) { return x + 5; }));
+
+    // AddFive and the lambda above are both small enough to test small-object optimization.
+    // Now test a lambda that's much too large for the small-object optimization.
+    int a = 1, b = 1, c = 1, d = 1, e = 1;
+    test_add_five(r, SkFunction<int(int)>([&](int x) { return x + a + b + c + d + e; }));
 }
