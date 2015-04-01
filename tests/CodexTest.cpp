@@ -74,8 +74,7 @@ DEF_TEST(Codec, r) {
     check(r, "mandrill.wbmp", SkISize::Make(512, 512), true);
 
     // BMP
-    // TODO (msarett): SkBmpCodec should be able to rewind.
-    check(r, "randPixels.bmp", SkISize::Make(8, 8), false);
+    check(r, "randPixels.bmp", SkISize::Make(8, 8), true);
 
     // ICO
     // TODO (msarett): SkIcoCodec should be able to rewind.
