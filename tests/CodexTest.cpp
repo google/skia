@@ -30,25 +30,24 @@ static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
 static void check(skiatest::Reporter* r,
                   const char path[],
                   SkISize size,
-                  bool canRewind) {
+                  bool supportsScanlineDecoding) {
     SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkImageGenerator> gen(
-            SkCodec::NewFromStream(stream.detach()));
-    if (!gen) {
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    if (!codec) {
         ERRORF(r, "Unable to decode '%s'", path);
         return;
     }
-    SkImageInfo info = gen->getInfo();
+    SkImageInfo info = codec->getInfo();
     REPORTER_ASSERT(r, info.dimensions() == size);
     SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
     SkImageGenerator::Result result =
-        gen->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
+        codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
     REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
 
     SkMD5::Digest digest1, digest2;
@@ -57,27 +56,39 @@ static void check(skiatest::Reporter* r,
     bm.eraseColor(SK_ColorYELLOW);
 
     result =
-        gen->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
+        codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
 
-    // All ImageGenerators should support re-decoding the pixels.
-    // It is a known bug that some can not.
-    if (canRewind) {
-        REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
-        // verify that re-decoding gives the same result.
-        md5(bm, &digest2);
-        REPORTER_ASSERT(r, digest1 == digest2);
+    REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
+    // verify that re-decoding gives the same result.
+    md5(bm, &digest2);
+    REPORTER_ASSERT(r, digest1 == digest2);
+
+    SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(info);
+    if (supportsScanlineDecoding) {
+        bm.eraseColor(SK_ColorYELLOW);
+        REPORTER_ASSERT(r, scanlineDecoder);
+        for (int y = 0; y < info.height(); y++) {
+            result = scanlineDecoder->getScanlines(bm.getAddr(0, y), 1, 0);
+            REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
+        }
+        // verify that scanline decoding gives the same result.
+        SkMD5::Digest digest3;
+        md5(bm, &digest3);
+        REPORTER_ASSERT(r, digest3 == digest1);
+    } else {
+        REPORTER_ASSERT(r, !scanlineDecoder);
     }
 }
 
 DEF_TEST(Codec, r) {
     // WBMP
-    check(r, "mandrill.wbmp", SkISize::Make(512, 512), true);
+    check(r, "mandrill.wbmp", SkISize::Make(512, 512), false);
 
     // BMP
-    check(r, "randPixels.bmp", SkISize::Make(8, 8), true);
+    check(r, "randPixels.bmp", SkISize::Make(8, 8), false);
 
     // ICO
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), true);
+    check(r, "color_wheel.ico", SkISize::Make(128, 128), false);
 
     // PNG
     check(r, "arrow.png", SkISize::Make(187, 312), true);

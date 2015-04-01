@@ -121,8 +121,8 @@ protected:
     /**
      *  Override if your codec supports scanline decoding.
      *
-     *  No need to call rewindIfNeeded(), which will have already been called
-     *  by the base class.
+     *  As in onGetPixels(), the implementation must call rewindIfNeeded() and
+     *  handle as appropriate.
      *
      *  @param dstInfo Info of the destination. If the dimensions do not match
      *      those of getInfo, this implies a scale.

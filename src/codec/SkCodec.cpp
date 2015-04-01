@@ -88,10 +88,6 @@ SkCodec::RewindState SkCodec::rewindIfNeeded() {
 }
 
 SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {
-    fScanlineDecoder.reset(NULL);
-    if (!rewindIfNeeded()) {
-        return NULL;
-    }
     fScanlineDecoder.reset(this->onGetScanlineDecoder(dstInfo));
     return fScanlineDecoder.get();
 }

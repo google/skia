@@ -450,27 +450,39 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     return kSuccess;
 }
 
+bool SkPngCodec::handleRewind() {
+    switch (this->rewindIfNeeded()) {
+        case kNoRewindNecessary_RewindState:
+            return true;
+        case kCouldNotRewind_RewindState:
+            return false;
+        case kRewound_RewindState: {
+            // This sets fPng_ptr and fInfo_ptr to NULL. If read_header
+            // succeeds, they will be repopulated, and if it fails, they will
+            // remain NULL. Any future accesses to fPng_ptr and fInfo_ptr will
+            // come through this function which will rewind and again attempt
+            // to reinitialize them.
+            this->destroyReadStruct();
+            png_structp png_ptr;
+            png_infop info_ptr;
+            if (read_header(this->stream(), &png_ptr, &info_ptr, NULL)) {
+                fPng_ptr = png_ptr;
+                fInfo_ptr = info_ptr;
+                return true;
+            }
+            return false;
+        }
+        default:
+            SkASSERT(false);
+            return false;
+    }
+}
+
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount) {
-    SkCodec::RewindState rewindState = this->rewindIfNeeded();
-    if (rewindState == kCouldNotRewind_RewindState) {
+    if (!this->handleRewind()) {
         return kCouldNotRewind;
-    } else if (rewindState == kRewound_RewindState) {
-        // This sets fPng_ptr and fInfo_ptr to NULL. If read_header succeeds,
-        // they will be repopulated, and if it fails, they will remain NULL.
-        // Any future accesses to fPng_ptr and fInfo_ptr will come through this
-        // function which will rewind and again attempt to reinitialize them.
-        this->destroyReadStruct();
-        png_structp png_ptr;
-        png_infop info_ptr;
-        if (read_header(this->stream(), &png_ptr, &info_ptr, NULL)) {
-            fPng_ptr = png_ptr;
-            fInfo_ptr = info_ptr;
-        } else {
-            return kCouldNotRewind;
-        }
-
     }
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;
@@ -598,6 +610,10 @@ private:
 };
 
 SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) {
+    if (!this->handleRewind()) {
+        return NULL;
+    }
+
     // Check to see if scaling was requested.
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
         return NULL;
