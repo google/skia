@@ -661,10 +661,6 @@ public:
                     case SkImageGenerator::kInvalidConversion:
                         // This is okay. Not all conversions are valid.
                         break;
-                    case SkImageGenerator::kCouldNotRewind:
-                        // FIXME: This is due to a bug in some implementations
-                        // of SkCodec. All should support rewinding.
-                        break;
                     default:
                         // This represents some sort of failure.
                         SkASSERT(false);
