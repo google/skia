@@ -31,3 +31,23 @@ DEF_TEST(Function, r) {
     int a = 1, b = 1, c = 1, d = 1, e = 1;
     test_add_five(r, SkFunction<int(int)>([&](int x) { return x + a + b + c + d + e; }));
 }
+
+DEF_TEST(Function_forwarding, r) {
+    class MoveOnlyAdd5 : SkNoncopyable {
+    public:
+        MoveOnlyAdd5() {}
+        MoveOnlyAdd5(MoveOnlyAdd5&&) {}
+        MoveOnlyAdd5& operator=(MoveOnlyAdd5&&) { return *this; }
+
+        int operator()(int x) { return x + 5; }
+    };
+
+    // Makes sure we forward the functor when constructing SkFunction.
+    test_add_five(r, SkFunction<int(int)>(MoveOnlyAdd5()));
+
+    // Makes sure we forward arguments when calling SkFunction.
+    SkFunction<int(int, MoveOnlyAdd5&&, int)> b([](int x, MoveOnlyAdd5&& f, int y) {
+        return x * f(y);
+    });
+    REPORTER_ASSERT(r, b(2, MoveOnlyAdd5(), 4) == 18);
+}
