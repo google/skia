@@ -9,14 +9,16 @@
 #include "GrFontAtlasSizes.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
+
 #include "SkDistanceFieldGen.h"
+
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-// Assuming a radius of the diagonal of the fragment, hence a factor of sqrt(2)/2
+// Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
 
 struct DistanceFieldBatchTracker {
@@ -31,7 +33,7 @@ public:
                                    const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL)
 #ifdef SK_GAMMA_APPLY_TO_A8
-        , fLuminance(-1.0f)
+        , fDistanceAdjust(-1.0f)
 #endif
         {}
 
@@ -59,6 +61,14 @@ public:
         vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_A8_RECIP_WIDTH ", "
                                GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", uv.vsOut(),
                                dfTexEffect.inTextureCoords()->fName);
+#ifdef SK_GAMMA_APPLY_TO_A8
+        // adjust based on gamma
+        const char* distanceAdjustUniName = NULL;
+        // width, height, 1/(3*width)
+        fDistanceAdjustUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            kFloat_GrSLType, kDefault_GrSLPrecision,
+            "DistanceAdjust", &distanceAdjustUniName);
+#endif
 
         // Setup pass through color
         this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
@@ -83,6 +93,10 @@ public:
         fsBuilder->codeAppend(".r;\n");
         fsBuilder->codeAppend("\tfloat distance = "
                        SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
+#ifdef SK_GAMMA_APPLY_TO_A8
+        // adjust width based on gamma
+        fsBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
+#endif
 
         fsBuilder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
                                                              pb->ctxInfo().standard()));
@@ -119,21 +133,6 @@ public:
         }
         fsBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
 
-#ifdef SK_GAMMA_APPLY_TO_A8
-        // adjust based on gamma
-        const char* luminanceUniName = NULL;
-        // width, height, 1/(3*width)
-        fLuminanceUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kFloat_GrSLType, kDefault_GrSLPrecision,
-                                             "Luminance", &luminanceUniName);
-
-        fsBuilder->codeAppendf("\tuv = vec2(val, %s);\n", luminanceUniName);
-        fsBuilder->codeAppend("\tvec4 gammaColor = ");
-        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(";\n");
-        fsBuilder->codeAppend("\tval = gammaColor.r;\n");
-#endif
-
         fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
@@ -143,10 +142,10 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldTextureEffect& dfTexEffect =
                 proc.cast<GrDistanceFieldTextureEffect>();
-        float luminance = dfTexEffect.getLuminance();
-        if (luminance != fLuminance) {
-            pdman.set1f(fLuminanceUni, luminance);
-            fLuminance = luminance;
+        float distanceAdjust = dfTexEffect.getDistanceAdjust();
+        if (distanceAdjust != fDistanceAdjust) {
+            pdman.set1f(fDistanceAdjustUni, distanceAdjust);
+            fDistanceAdjust = distanceAdjust;
         }
 #endif
 
@@ -178,8 +177,8 @@ private:
     GrColor       fColor;
     UniformHandle fColorUniform;
 #ifdef SK_GAMMA_APPLY_TO_A8
-    UniformHandle fLuminanceUni;
-    float         fLuminance;
+    float         fDistanceAdjust;
+    UniformHandle fDistanceAdjustUni;
 #endif
 
     typedef GrGLGeometryProcessor INHERITED;
@@ -192,16 +191,13 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
                                                            GrTexture* texture,
                                                            const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
-                                                           GrTexture* gamma,
-                                                           const GrTextureParams& gammaParams,
-                                                           float luminance,
+                                                           float distanceAdjust,
 #endif
                                                            uint32_t flags, bool opaqueVertexColors)
     : INHERITED(color, viewMatrix, SkMatrix::I(), opaqueVertexColors)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
-    , fGammaTextureAccess(gamma, gammaParams)
-    , fLuminance(luminance)
+    , fDistanceAdjust(distanceAdjust)
 #endif
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
@@ -215,16 +211,13 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                           kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
-#ifdef SK_GAMMA_APPLY_TO_A8
-    this->addTextureAccess(&fGammaTextureAccess);
-#endif
 }
 
 bool GrDistanceFieldTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrDistanceFieldTextureEffect& cte = other.cast<GrDistanceFieldTextureEffect>();
     return
 #ifdef SK_GAMMA_APPLY_TO_A8
-           fLuminance == cte.fLuminance &&
+           fDistanceAdjust == cte.fDistanceAdjust &&
 #endif
            fFlags == cte.fFlags;
 }
@@ -245,7 +238,8 @@ GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt,
     return SkNEW_ARGS(GrGLDistanceFieldTextureEffect, (*this, bt));
 }
 
-void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
+void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt,
+                                                    const GrPipelineInfo& init) const {
     DistanceFieldBatchTracker* local = bt->cast<DistanceFieldBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
@@ -273,10 +267,6 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
                                                               GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;
-#ifdef SK_GAMMA_APPLY_TO_A8
-    int texIdx2 = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                       GrProcessorUnitTest::kAlphaTextureIdx;
-#endif
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
@@ -288,16 +278,11 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
     };
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
-#ifdef SK_GAMMA_APPLY_TO_A8
-    GrTextureParams params2(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                                                            GrTextureParams::kNone_FilterMode);
-#endif
 
     return GrDistanceFieldTextureEffect::Create(GrRandomColor(random),
                                                 GrProcessorUnitTest::TestMatrix(random),
                                                 textures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
-                                                textures[texIdx2], params2,
                                                 random->nextF(),
 #endif
                                                 random->nextBool() ?
@@ -487,7 +472,8 @@ bool GrDistanceFieldNoGammaTextureEffect::onIsEqual(const GrGeometryProcessor& o
     return fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldNoGammaTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const{
+void GrDistanceFieldNoGammaTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out)
+                                                                                             const {
     out->setUnknownSingleComponent();
 }
 
@@ -563,8 +549,9 @@ class GrGLDistanceFieldLCDTextureEffect : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldLCDTextureEffect(const GrGeometryProcessor&,
                                       const GrBatchTracker&)
-    : fColor(GrColor_ILLEGAL)
-    , fTextColor(GrColor_ILLEGAL) {}
+        : fColor(GrColor_ILLEGAL) {
+        fDistanceAdjust = GrDistanceFieldLCDTextureEffect::DistanceAdjust::Make(1.0f, 1.0f, 1.0f);
+    }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
@@ -650,6 +637,13 @@ public:
         fsBuilder->codeAppend("\tdistance = "
            "vec3(" SK_DistanceFieldMultiplier ")*(distance - vec3(" SK_DistanceFieldThreshold"));");
 
+        // adjust width based on gamma
+        const char* distanceAdjustUniName = NULL;
+        fDistanceAdjustUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            kVec3f_GrSLType, kDefault_GrSLPrecision,
+            "DistanceAdjust", &distanceAdjustUniName);
+        fsBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
+
         // To be strictly correct, we should compute the anti-aliasing factor separately
         // for each color component. However, this is only important when using perspective
         // transformations, and even then using a single factor seems like a reasonable
@@ -682,31 +676,8 @@ public:
             fsBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
         }
 
-        fsBuilder->codeAppend("vec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);");
-
-        // adjust based on gamma
-        const char* textColorUniName = NULL;
-        fTextColorUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kVec3f_GrSLType, kDefault_GrSLPrecision,
-                                             "TextColor", &textColorUniName);
-
-        fsBuilder->codeAppendf("\tuv = vec2(val.x, %s.x);\n", textColorUniName);
-        fsBuilder->codeAppend("float gammaColor = ");
-        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(".r;\n");
-        fsBuilder->codeAppend("\tval.x = gammaColor;\n");
-
-        fsBuilder->codeAppendf("\tuv = vec2(val.y, %s.y);\n", textColorUniName);
-        fsBuilder->codeAppend("\tgammaColor = ");
-        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(".r;\n");
-        fsBuilder->codeAppend("\tval.y = gammaColor;\n");
-
-        fsBuilder->codeAppendf("\tuv = vec2(val.z, %s.z);\n", textColorUniName);
-        fsBuilder->codeAppend("\tgammaColor = ");
-        fsBuilder->appendTextureLookup(args.fSamplers[1], "uv", kVec2f_GrSLType);
-        fsBuilder->codeAppend(".r;\n");
-        fsBuilder->codeAppend("\tval.z = gammaColor;\n");
+        fsBuilder->codeAppend(
+                      "vec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);");
 
         fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
@@ -714,18 +685,17 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& processor,
                          const GrBatchTracker& bt) override {
-        SkASSERT(fTextColorUni.isValid());
+        SkASSERT(fDistanceAdjustUni.isValid());
 
         const GrDistanceFieldLCDTextureEffect& dfTexEffect =
                 processor.cast<GrDistanceFieldLCDTextureEffect>();
-        GrColor textColor = dfTexEffect.getTextColor();
-        if (textColor != fTextColor) {
-            static const float ONE_OVER_255 = 1.f / 255.f;
-            pdman.set3f(fTextColorUni,
-                        GrColorUnpackR(textColor) * ONE_OVER_255,
-                        GrColorUnpackG(textColor) * ONE_OVER_255,
-                        GrColorUnpackB(textColor) * ONE_OVER_255);
-            fTextColor = textColor;
+        GrDistanceFieldLCDTextureEffect::DistanceAdjust wa = dfTexEffect.getDistanceAdjust();
+        if (wa != fDistanceAdjust) {
+            pdman.set3f(fDistanceAdjustUni,
+                        wa.fR,
+                        wa.fG,
+                        wa.fB);
+            fDistanceAdjust = wa;
         }
 
         this->setUniformViewMatrix(pdman, processor.viewMatrix());
@@ -755,10 +725,10 @@ public:
     }
 
 private:
-    GrColor       fColor;
-    UniformHandle fColorUniform;
-    UniformHandle fTextColorUni;
-    SkColor       fTextColor;
+    GrColor                                      fColor;
+    UniformHandle                                fColorUniform;
+    GrDistanceFieldLCDTextureEffect::DistanceAdjust fDistanceAdjust;
+    UniformHandle                                fDistanceAdjustUni;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
@@ -768,13 +738,11 @@ private:
 GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
                                                   GrColor color, const SkMatrix& viewMatrix,
                                                   GrTexture* texture, const GrTextureParams& params,
-                                                  GrTexture* gamma, const GrTextureParams& gParams,
-                                                  SkColor textColor,
+                                                  DistanceAdjust distanceAdjust,
                                                   uint32_t flags)
     : INHERITED(color, viewMatrix, SkMatrix::I())
     , fTextureAccess(texture, params)
-    , fGammaTextureAccess(gamma, gParams)
-    , fTextColor(textColor)
+    , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
     this->initClassID<GrDistanceFieldLCDTextureEffect>();
@@ -782,16 +750,16 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                           kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
-    this->addTextureAccess(&fGammaTextureAccess);
 }
 
 bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const GrDistanceFieldLCDTextureEffect& cte = other.cast<GrDistanceFieldLCDTextureEffect>();
-    return (fTextColor == cte.fTextColor &&
+    return (fDistanceAdjust == cte.fDistanceAdjust &&
             fFlags == cte.fFlags);
 }
 
-void GrDistanceFieldLCDTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+void GrDistanceFieldLCDTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out)
+                                                                                             const {
     out->setUnknownFourComponents();
     out->setUsingLCDCoverage();
 }
@@ -836,8 +804,6 @@ GrGeometryProcessor* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* rando
                                                                  GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;
-    int texIdx2 = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                       GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
@@ -849,19 +815,13 @@ GrGeometryProcessor* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* rando
     };
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                            GrTextureParams::kNone_FilterMode);
-    GrTextureParams params2(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                           GrTextureParams::kNone_FilterMode);
-    GrColor textColor = GrColorPackRGBA(random->nextULessThan(256),
-                                        random->nextULessThan(256),
-                                        random->nextULessThan(256),
-                                        random->nextULessThan(256));
+    DistanceAdjust wa = { 0.0f, 0.1f, -0.1f };
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
     flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
     return GrDistanceFieldLCDTextureEffect::Create(GrRandomColor(random),
                                                    GrProcessorUnitTest::TestMatrix(random),
                                                    textures[texIdx], params,
-                                                   textures[texIdx2], params2,
-                                                   textColor,
+                                                   wa,
                                                    flags);
 }

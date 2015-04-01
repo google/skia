@@ -36,11 +36,11 @@ private:
     bool                               fUseLCDText;
     bool                               fEnableDFRendering;
     SkAutoTUnref<GrGeometryProcessor>  fCachedGeometryProcessor;
+    SkScalar*                          fDistanceAdjustTable;
     // Used to check whether fCachedEffect is still valid.
     uint32_t                           fEffectTextureUniqueID;
     SkColor                            fEffectColor;
     uint32_t                           fEffectFlags;
-    GrTexture*                         fGammaTexture;
     void*                              fVertices;
     int                                fCurrVertex;
     int                                fAllocVertexCount;
@@ -50,6 +50,7 @@ private:
     SkMatrix                           fViewMatrix;
 
     GrDistanceFieldTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&, bool enable);
+    void buildDistanceAdjustTable();
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;

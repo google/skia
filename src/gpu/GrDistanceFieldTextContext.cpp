@@ -43,6 +43,11 @@ static const int kLargeDFFontSize = 162;
 static const int kVerticesPerGlyph = 4;
 static const int kIndicesPerGlyph = 6;
 
+#ifdef SK_DEBUG
+static const int kExpectedDistanceAdjustTableSize = 8;
+#endif
+static const int kDistanceAdjustLumShift = 5;
+
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        SkGpuDevice* gpuDevice,
                                                        const SkDeviceProperties& properties,
@@ -54,7 +59,7 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
     fEnableDFRendering = enable;
 #endif
     fStrike = NULL;
-    fGammaTexture = NULL;
+    fDistanceAdjustTable = NULL;
 
     fEffectTextureUniqueID = SK_InvalidUniqueID;
     fEffectColor = GrColor_ILLEGAL;
@@ -75,6 +80,7 @@ GrDistanceFieldTextContext* GrDistanceFieldTextContext::Create(GrContext* contex
                                                                bool enable) {
     GrDistanceFieldTextContext* textContext = SkNEW_ARGS(GrDistanceFieldTextContext, 
                                                          (context, gpuDevice, props, enable));
+    textContext->buildDistanceAdjustTable();
 #ifdef USE_BITMAP_TEXTBLOBS
     textContext->fFallbackTextContext = GrBitmapTextContextB::Create(context, gpuDevice, props);
 #else
@@ -84,8 +90,92 @@ GrDistanceFieldTextContext* GrDistanceFieldTextContext::Create(GrContext* contex
     return textContext;
 }
 
+void GrDistanceFieldTextContext::buildDistanceAdjustTable() {
+
+    // This is used for an approximation of the mask gamma hack, used by raster and bitmap
+    // text. The mask gamma hack is based off of guessing what the blend color is going to
+    // be, and adjusting the mask so that when run through the linear blend will
+    // produce the value closest to the desired result. However, in practice this means
+    // that the 'adjusted' mask is just increasing or decreasing the coverage of
+    // the mask depending on what it is thought it will blit against. For black (on
+    // assumed white) this means that coverages are decreased (on a curve). For white (on
+    // assumed black) this means that coverages are increased (on a a curve). At
+    // middle (perceptual) gray (which could be blit against anything) the coverages
+    // remain the same.
+    //
+    // The idea here is that instead of determining the initial (real) coverage and
+    // then adjusting that coverage, we determine an adjusted coverage directly by
+    // essentially manipulating the geometry (in this case, the distance to the glyph
+    // edge). So for black (on assumed white) this thins a bit; for white (on
+    // assumed black) this fake bolds the geometry a bit.
+    //
+    // The distance adjustment is calculated by determining the actual coverage value which
+    // when fed into in the mask gamma table gives us an 'adjusted coverage' value of 0.5. This
+    // actual coverage value (assuming it's between 0 and 1) corresponds to a distance from the
+    // actual edge. So by subtracting this distance adjustment and computing without the
+    // the coverage adjustment we should get 0.5 coverage at the same point.
+    //
+    // This has several implications:
+    //     For non-gray lcd smoothed text, each subpixel essentially is using a
+    //     slightly different geometry.
+    //
+    //     For black (on assumed white) this may not cover some pixels which were
+    //     previously covered; however those pixels would have been only slightly
+    //     covered and that slight coverage would have been decreased anyway. Also, some pixels
+    //     which were previously fully covered may no longer be fully covered.
+    //
+    //     For white (on assumed black) this may cover some pixels which weren't
+    //     previously covered at all.
+
+    int width, height;
+    size_t size;
+
+#ifdef SK_GAMMA_CONTRAST
+    SkScalar contrast = SK_GAMMA_CONTRAST;
+#else
+    SkScalar contrast = 0.5f;
+#endif
+    SkScalar paintGamma = fDeviceProperties.gamma();
+    SkScalar deviceGamma = fDeviceProperties.gamma();
+
+    size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma,
+        &width, &height);
+   
+    SkASSERT(kExpectedDistanceAdjustTableSize == height);
+    fDistanceAdjustTable = SkNEW_ARRAY(SkScalar, height);
+
+    SkAutoTArray<uint8_t> data((int)size);
+    SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get());
+
+    // find the inverse points where we cross 0.5
+    // binsearch might be better, but we only need to do this once on creation
+    for (int row = 0; row < height; ++row) {
+        uint8_t* rowPtr = data.get() + row*width;
+        for (int col = 0; col < width - 1; ++col) {
+            if (rowPtr[col] <= 127 && rowPtr[col + 1] >= 128) {
+                // compute point where a mask value will give us a result of 0.5
+                float interp = (127.5f - rowPtr[col]) / (rowPtr[col + 1] - rowPtr[col]);
+                float borderAlpha = (col + interp) / 255.f;
+
+                // compute t value for that alpha
+                // this is an approximate inverse for smoothstep()
+                float t = borderAlpha*(borderAlpha*(4.0f*borderAlpha - 6.0f) + 5.0f) / 3.0f;
+
+                // compute distance which gives us that t value
+                const float kDistanceFieldAAFactor = 0.65f; // should match SK_DistanceFieldAAFactor
+                float d = 2.0f*kDistanceFieldAAFactor*t - kDistanceFieldAAFactor;
+
+                fDistanceAdjustTable[row] = d;
+                break;
+            }
+        }
+    }
+}
+
+
 GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
-    SkSafeSetNull(fGammaTexture);
+    SkDELETE_ARRAY(fDistanceAdjustTable);
+    fDistanceAdjustTable = NULL;
 }
 
 bool GrDistanceFieldTextContext::canDraw(const GrRenderTarget* rt,
@@ -183,45 +273,6 @@ inline void GrDistanceFieldTextContext::init(GrRenderTarget* rt, const GrClip& c
     fSkPaint.setSubpixelText(true);
 }
 
-static void setup_gamma_texture(GrContext* context, const SkGlyphCache* cache,
-                                const SkDeviceProperties& deviceProperties,
-                                GrTexture** gammaTexture) {
-    if (NULL == *gammaTexture) {
-        int width, height;
-        size_t size;
-
-#ifdef SK_GAMMA_CONTRAST
-        SkScalar contrast = SK_GAMMA_CONTRAST;
-#else
-        SkScalar contrast = 0.5f;
-#endif
-        SkScalar paintGamma = deviceProperties.gamma();
-        SkScalar deviceGamma = deviceProperties.gamma();
-
-        size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma,
-                                                &width, &height);
-
-        SkAutoTArray<uint8_t> data((int)size);
-        SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get());
-
-        // TODO: Update this to use the cache rather than directly creating a texture.
-        GrSurfaceDesc desc;
-        desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fConfig = kAlpha_8_GrPixelConfig;
-
-        *gammaTexture = context->getGpu()->createTexture(desc, true, NULL, 0);
-        if (NULL == *gammaTexture) {
-            return;
-        }
-
-        (*gammaTexture)->writePixels(0, 0, width, height,
-                                     (*gammaTexture)->config(), data.get(), 0,
-                                     GrContext::kDontFlush_PixelOpsFlag);
-    }
-}
-
 void GrDistanceFieldTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
                                             const GrPaint& paint,
                                             const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -313,8 +364,6 @@ void GrDistanceFieldTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip&
     SkAutoGlyphCacheNoGamma    autoCache(fSkPaint, &fDeviceProperties, NULL);
     SkGlyphCache*              cache = autoCache.getCache();
     GrFontScaler*              fontScaler = GetGrFontScaler(cache);
-
-    setup_gamma_texture(fContext, cache, fDeviceProperties, &fGammaTexture);
 
     int numGlyphs = fSkPaint.textToGlyphs(text, byteLength, NULL);
     fTotalVertexCount = kVerticesPerGlyph*numGlyphs;
@@ -443,13 +492,22 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
         GrColor color = fPaint.getColor();
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
+
+            float redCorrection = 
+                fDistanceAdjustTable[GrColorUnpackR(colorNoPreMul) >> kDistanceAdjustLumShift];
+            float greenCorrection = 
+                fDistanceAdjustTable[GrColorUnpackG(colorNoPreMul) >> kDistanceAdjustLumShift];
+            float blueCorrection = 
+                fDistanceAdjustTable[GrColorUnpackB(colorNoPreMul) >> kDistanceAdjustLumShift];
+            GrDistanceFieldLCDTextureEffect::DistanceAdjust widthAdjust =
+                GrDistanceFieldLCDTextureEffect::DistanceAdjust::Make(redCorrection,
+                                                                   greenCorrection,
+                                                                   blueCorrection);
             fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextureEffect::Create(color,
                                                                                    fViewMatrix,
                                                                                    fCurrTexture,
                                                                                    params,
-                                                                                   fGammaTexture,
-                                                                                   gammaParams,
-                                                                                   colorNoPreMul,
+                                                                                   widthAdjust,
                                                                                    flags));
         } else {
             flags |= kColorAttr_DistanceFieldEffectFlag;
@@ -457,13 +515,12 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
 #ifdef SK_GAMMA_APPLY_TO_A8
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.gamma(),
                                                                 filteredColor);
+            float correction = fDistanceAdjustTable[lum >> kDistanceAdjustLumShift];
             fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
                                                                                 fViewMatrix,
                                                                                 fCurrTexture,
                                                                                 params,
-                                                                                fGammaTexture,
-                                                                                gammaParams,
-                                                                                lum/255.f,
+                                                                                correction,
                                                                                 flags,
                                                                                 opaque));
 #else

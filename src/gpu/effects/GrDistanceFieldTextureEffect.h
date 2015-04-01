@@ -49,10 +49,8 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
                                        const GrTextureParams& params,
-                                       GrTexture* gamma, const GrTextureParams& gammaParams,
                                        float lum, uint32_t flags, bool opaqueVertexColors) {
-       return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, tex, params, gamma,
-                                                        gammaParams, lum,
+       return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, tex, params, lum,
                                                         flags, opaqueVertexColors));
     }
 #else
@@ -72,7 +70,7 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
 #ifdef SK_GAMMA_APPLY_TO_A8
-    float getLuminance() const { return fLuminance; }
+    float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
     uint32_t getFlags() const { return fFlags; }
 
@@ -93,7 +91,7 @@ private:
     GrDistanceFieldTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
                                  const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
-                                 GrTexture* gamma, const GrTextureParams& gammaParams, float lum,
+                                 float distanceAdjust,
 #endif
                                  uint32_t flags, bool opaqueVertexColors);
 
@@ -101,12 +99,11 @@ private:
 
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
-    GrTextureAccess    fTextureAccess;
+    GrTextureAccess  fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
-    GrTextureAccess    fGammaTextureAccess;
-    float              fLuminance;
+    float            fDistanceAdjust;
 #endif
-    uint32_t           fFlags;
+    uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
@@ -182,12 +179,26 @@ private:
  */
 class GrDistanceFieldLCDTextureEffect : public GrGeometryProcessor {
 public:
+    struct DistanceAdjust {
+        SkScalar fR, fG, fB;
+        static DistanceAdjust Make(SkScalar r, SkScalar g, SkScalar b) {
+            DistanceAdjust result;
+            result.fR = r; result.fG = g; result.fB = b;
+            return result;
+        }
+        bool operator==(const DistanceAdjust& wa) const {
+            return (fR == wa.fR && fG == wa.fG && fB == wa.fB);
+        }
+        bool operator!=(const DistanceAdjust& wa) const {
+            return !(*this == wa);
+        }
+    };
+
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
-                                       const GrTextureParams& params, GrTexture* gamma,
-                                       const GrTextureParams& gammaParams,
-                                       SkColor textColor, uint32_t flags) {
+                                       const GrTextureParams& params, 
+                                       DistanceAdjust distanceAdjust, uint32_t flags) {
         return SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
-                          (color, viewMatrix, tex, params, gamma, gammaParams, textColor, flags));
+                          (color, viewMatrix, tex, params, distanceAdjust, flags));
     }
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}
@@ -196,7 +207,7 @@ public:
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
-    GrColor getTextColor() const { return fTextColor; }
+    DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
@@ -215,17 +226,15 @@ public:
 private:
     GrDistanceFieldLCDTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
                                     const GrTextureParams& params,
-                                    GrTexture* gamma, const GrTextureParams& gammaParams,
-                                    SkColor textColor, uint32_t flags);
+                                    DistanceAdjust wa, uint32_t flags);
 
     bool onIsEqual(const GrGeometryProcessor& other) const override;
 
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
-    GrTextureAccess    fTextureAccess;
-    GrTextureAccess    fGammaTextureAccess;
-    GrColor            fTextColor;
-    uint32_t           fFlags;
+    GrTextureAccess  fTextureAccess;
+    DistanceAdjust   fDistanceAdjust;
+    uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInTextureCoords;
 
