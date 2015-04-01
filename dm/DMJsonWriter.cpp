@@ -7,6 +7,7 @@
 
 #include "DMJsonWriter.h"
 
+#include "ProcStats.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkJSONCPP.h"
@@ -72,6 +73,11 @@ void JsonWriter::DumpJson() {
 
             root["test_results"]["failures"].append(result);
         }
+    }
+
+    int maxResidentSetSizeMB = sk_tools::getMaxResidentSetSizeMB();
+    if (maxResidentSetSizeMB != -1) {
+        root["max_rss_MB"] = sk_tools::getMaxResidentSetSizeMB();
     }
 
     SkString path = SkOSPath::Join(FLAGS_writePath[0], "dm.json");
