@@ -77,8 +77,7 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.bmp", SkISize::Make(8, 8), true);
 
     // ICO
-    // TODO (msarett): SkIcoCodec should be able to rewind.
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), false);
+    check(r, "color_wheel.ico", SkISize::Make(128, 128), true);
 
     // PNG
     check(r, "arrow.png", SkISize::Make(187, 312), true);
