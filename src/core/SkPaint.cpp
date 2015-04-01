@@ -1705,9 +1705,9 @@ static void test_desc(const SkScalerContext::Rec& rec,
 #endif
 
 /* see the note on ignoreGamma on descriptorProc */
-const SkData* SkPaint::getScalerContextDescriptor(const SkDeviceProperties* deviceProperties,
-                                                  const SkMatrix* deviceMatrix,
-                                                  bool ignoreGamma) const {
+void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
+                                         const SkDeviceProperties* deviceProperties,
+                                         const SkMatrix* deviceMatrix, bool ignoreGamma) const {
     SkScalerContext::Rec    rec;
 
     SkPathEffect*   pe = this->getPathEffect();
@@ -1718,9 +1718,8 @@ const SkData* SkPaint::getScalerContextDescriptor(const SkDeviceProperties* devi
     size_t descSize = fill_out_rec(*this, &rec, deviceProperties, deviceMatrix, ignoreGamma,
                                    pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
-    SkASSERT(SkAlign4(descSize) == descSize);
-    SkData*             data = SkData::NewUninitialized(descSize);
-    SkDescriptor*       desc = reinterpret_cast<SkDescriptor*>(data->writable_data());
+    ad->reset(descSize);
+    SkDescriptor* desc = ad->getDesc();
 
     write_out_descriptor(desc, rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, descSize);
 
@@ -1729,8 +1728,6 @@ const SkData* SkPaint::getScalerContextDescriptor(const SkDeviceProperties* devi
 #ifdef TEST_DESC
     test_desc(rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, desc, descSize);
 #endif
-
-    return data;
 }
 
 /*

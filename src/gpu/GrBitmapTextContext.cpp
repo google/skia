@@ -101,31 +101,80 @@ bool GrBitmapTextContextB::MustRegenerateBlob(const BitmapTextBlob& blob, const 
             paint.getMaskFilter() || paint.getPathEffect() || paint.getStyle() != blob.fStyle;
 }
 
+
+inline SkGlyphCache* GrBitmapTextContextB::setupCache(BitmapTextBlob::Run* run,
+                                                      const SkPaint& skPaint,
+                                                      const SkMatrix& viewMatrix) {
+    skPaint.getScalerContextDescriptor(&run->fDescriptor, &fDeviceProperties, &viewMatrix, false);
+    run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
+    return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
+}
+
+inline void GrBitmapTextContextB::BlobGlyphCount(int* glyphCount, int* runCount,
+                                                 const SkTextBlob* blob) {
+    SkTextBlob::RunIterator itCounter(blob);
+    for (; !itCounter.done(); itCounter.next(), (*runCount)++) {
+        *glyphCount += itCounter.glyphCount();
+    }
+}
+
+GrBitmapTextContextB::BitmapTextBlob* GrBitmapTextContextB::CreateBlob(int glyphCount,
+                                                                       int runCount) {
+    // We allocate size for the BitmapTextBlob itself, plus size for the vertices array,
+    // and size for the glyphIds array.
+    SK_COMPILE_ASSERT(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
+                      vertex_attribute_changed);
+    size_t verticesCount = glyphCount * kVerticesPerGlyph * kGrayTextVASize;
+    size_t length = sizeof(BitmapTextBlob) +
+                    verticesCount +
+                    glyphCount * sizeof(GrGlyph::PackedID) +
+                    sizeof(BitmapTextBlob::Run) * runCount;
+
+    BitmapTextBlob* cacheBlob = SkNEW_PLACEMENT(sk_malloc_throw(length), BitmapTextBlob);
+
+    // setup offsets for vertices / glyphs
+    cacheBlob->fVertices = sizeof(BitmapTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);
+    cacheBlob->fGlyphIDs =
+            reinterpret_cast<GrGlyph::PackedID*>(cacheBlob->fVertices + verticesCount);
+    cacheBlob->fRuns = reinterpret_cast<BitmapTextBlob::Run*>(cacheBlob->fGlyphIDs + glyphCount);
+
+    // Initialize runs
+    for (int i = 0; i < runCount; i++) {
+        SkNEW_PLACEMENT(&cacheBlob->fRuns[i], BitmapTextBlob::Run);
+    }
+    cacheBlob->fRunCount = runCount;
+    return cacheBlob;
+}
+
 void GrBitmapTextContextB::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                                         const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                         const SkTextBlob* blob, SkScalar x, SkScalar y,
                                         SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     BitmapTextBlob* cacheBlob;
     BitmapTextBlob** foundBlob = fCache.find(blob->uniqueID());
-
     SkIRect clipRect;
     clip.getConservativeBounds(rt->width(), rt->height(), &clipRect);
 
     if (foundBlob) {
         cacheBlob = *foundBlob;
         if (MustRegenerateBlob(*cacheBlob, skPaint, viewMatrix, x, y)) {
-            // We can get away with reusing the blob if there are no outstanding refs on it.
-            // However, we still have to reset all of the runs.
-            if (!cacheBlob->unique()) {
-                cacheBlob->unref();
-                cacheBlob = SkNEW(BitmapTextBlob);
-                fCache.set(blob->uniqueID(), cacheBlob);
-            }
+            // We have to remake the blob because changes may invalidate our masks.
+            // TODO we could probably get away reuse most of the time if the pointer is unique,
+            // but we'd have to clear the subrun information
+            cacheBlob->unref();
+            int glyphCount = 0;
+            int runCount = 0;
+            BlobGlyphCount(&glyphCount, &runCount, blob);
+            cacheBlob = CreateBlob(glyphCount, runCount);
+            fCache.set(blob->uniqueID(), cacheBlob);
             this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter,
                                      clipRect);
         }
     } else {
-        cacheBlob = SkNEW(BitmapTextBlob);
+        int glyphCount = 0;
+        int runCount = 0;
+        BlobGlyphCount(&glyphCount, &runCount, blob);
+        cacheBlob = CreateBlob(glyphCount, runCount);
         fCache.set(blob->uniqueID(), cacheBlob);
         this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter, clipRect);
     }
@@ -147,13 +196,13 @@ void GrBitmapTextContextB::regenerateTextBlob(BitmapTextBlob* cacheBlob,
     cacheBlob->fX = x;
     cacheBlob->fY = y;
     cacheBlob->fStyle = skPaint.getStyle();
-    cacheBlob->fRuns.reset(blob->fRunCount);
 
     // Regenerate textblob
     SkPaint runPaint = skPaint;
     SkTextBlob::RunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
-        size_t textLen = it.glyphCount() * sizeof(uint16_t);
+        int glyphCount = it.glyphCount();
+        size_t textLen = glyphCount * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
@@ -167,19 +216,33 @@ void GrBitmapTextContextB::regenerateTextBlob(BitmapTextBlob* cacheBlob,
 
         runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
 
+        SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], runPaint, viewMatrix);
+
+        // setup vertex / glyphIndex for the new run
+        if (run > 0) {
+            PerSubRunInfo& newRun = cacheBlob->fRuns[run].fSubRunInfo.back();
+            PerSubRunInfo& lastRun = cacheBlob->fRuns[run - 1].fSubRunInfo.back();
+
+            newRun.fVertexStartIndex = lastRun.fVertexEndIndex;
+            newRun.fVertexEndIndex = lastRun.fVertexEndIndex;
+
+            newRun.fGlyphStartIndex = lastRun.fGlyphEndIndex;
+            newRun.fGlyphEndIndex = lastRun.fGlyphEndIndex;
+        }
+
         switch (it.positioning()) {
             case SkTextBlob::kDefault_Positioning:
-                this->internalDrawText(cacheBlob, run, runPaint, viewMatrix,
+                this->internalDrawText(cacheBlob, run, cache, runPaint, viewMatrix,
                                        (const char *)it.glyphs(), textLen,
                                        x + offset.x(), y + offset.y(), clipRect);
                 break;
             case SkTextBlob::kHorizontal_Positioning:
-                this->internalDrawPosText(cacheBlob, run, runPaint, viewMatrix,
+                this->internalDrawPosText(cacheBlob, run, cache, runPaint, viewMatrix,
                                           (const char*)it.glyphs(), textLen, it.pos(), 1,
                                           SkPoint::Make(x, y + offset.y()), clipRect);
                 break;
             case SkTextBlob::kFull_Positioning:
-                this->internalDrawPosText(cacheBlob, run, runPaint, viewMatrix,
+                this->internalDrawPosText(cacheBlob, run, cache, runPaint, viewMatrix,
                                           (const char*)it.glyphs(), textLen, it.pos(), 2,
                                           SkPoint::Make(x, y), clipRect);
                 break;
@@ -189,6 +252,8 @@ void GrBitmapTextContextB::regenerateTextBlob(BitmapTextBlob* cacheBlob,
             // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
             runPaint = skPaint;
         }
+
+        SkGlyphCache::AttachCache(cache);
     }
 }
 
@@ -197,21 +262,26 @@ void GrBitmapTextContextB::onDrawText(GrRenderTarget* rt, const GrClip& clip,
                                      const SkMatrix& viewMatrix,
                                      const char text[], size_t byteLength,
                                      SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
-    SkAutoTUnref<BitmapTextBlob> blob(SkNEW(BitmapTextBlob));
+    int glyphCount = skPaint.countText(text, byteLength);
+    SkAutoTUnref<BitmapTextBlob> blob(CreateBlob(glyphCount, 1));
     blob->fViewMatrix = viewMatrix;
     blob->fX = x;
     blob->fY = y;
     blob->fStyle = skPaint.getStyle();
-    blob->fRuns.push_back();
 
     SkIRect clipRect;
     clip.getConservativeBounds(rt->width(), rt->height(), &clipRect);
-    this->internalDrawText(blob, 0, skPaint, viewMatrix, text, byteLength, x, y, clipRect);
+
+    // setup cache
+    SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, viewMatrix);
+    this->internalDrawText(blob, 0, cache, skPaint, viewMatrix, text, byteLength, x, y, clipRect);
+    SkGlyphCache::AttachCache(cache);
+
     this->flush(fContext->getTextTarget(), blob, rt, paint, clip, viewMatrix, skPaint.getAlpha());
 }
 
 void GrBitmapTextContextB::internalDrawText(BitmapTextBlob* blob, int runIndex,
-                                            const SkPaint& skPaint,
+                                            SkGlyphCache* cache, const SkPaint& skPaint,
                                            const SkMatrix& viewMatrix,
                                            const char text[], size_t byteLength,
                                            SkScalar x, SkScalar y, const SkIRect& clipRect) {
@@ -226,12 +296,6 @@ void GrBitmapTextContextB::internalDrawText(BitmapTextBlob* blob, int runIndex,
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
 
     // Get GrFontScaler from cache
-    BitmapTextBlob::Run& run = blob->fRuns[runIndex];
-    run.fDescriptor.reset(skPaint.getScalerContextDescriptor(&fDeviceProperties, &viewMatrix,
-                                                              false));
-    run.fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
-    const SkDescriptor* desc = reinterpret_cast<const SkDescriptor*>(run.fDescriptor->data());
-    SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
 
     // transform our starting point
@@ -303,8 +367,6 @@ void GrBitmapTextContextB::internalDrawText(BitmapTextBlob* blob, int runIndex,
         fx += glyph.fAdvanceX;
         fy += glyph.fAdvanceY;
     }
-
-    SkGlyphCache::AttachCache(cache);
 }
 
 void GrBitmapTextContextB::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
@@ -313,20 +375,25 @@ void GrBitmapTextContextB::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                         const char text[], size_t byteLength,
                                         const SkScalar pos[], int scalarsPerPosition,
                                         const SkPoint& offset, const SkIRect& regionClipBounds) {
-    SkAutoTUnref<BitmapTextBlob> blob(SkNEW(BitmapTextBlob));
+    int glyphCount = skPaint.countText(text, byteLength);
+    SkAutoTUnref<BitmapTextBlob> blob(CreateBlob(glyphCount, 1));
     blob->fStyle = skPaint.getStyle();
-    blob->fRuns.push_back();
     blob->fViewMatrix = viewMatrix;
 
     SkIRect clipRect;
     clip.getConservativeBounds(rt->width(), rt->height(), &clipRect);
-    this->internalDrawPosText(blob, 0, skPaint, viewMatrix, text, byteLength, pos,
+
+    // setup cache
+    SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, viewMatrix);
+    this->internalDrawPosText(blob, 0, cache, skPaint, viewMatrix, text, byteLength, pos,
                               scalarsPerPosition, offset, clipRect);
+    SkGlyphCache::AttachCache(cache);
+
     this->flush(fContext->getTextTarget(), blob, rt, paint, clip, viewMatrix, fSkPaint.getAlpha());
 }
 
 void GrBitmapTextContextB::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
-                                               const SkPaint& skPaint,
+                                               SkGlyphCache* cache, const SkPaint& skPaint,
                                               const SkMatrix& viewMatrix,
                                               const char text[], size_t byteLength,
                                               const SkScalar pos[], int scalarsPerPosition,
@@ -343,12 +410,6 @@ void GrBitmapTextContextB::internalDrawPosText(BitmapTextBlob* blob, int runInde
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
 
     // Get GrFontScaler from cache
-    BitmapTextBlob::Run& run = blob->fRuns[runIndex];
-    run.fDescriptor.reset(skPaint.getScalerContextDescriptor(&fDeviceProperties, &viewMatrix,
-                                                              false));
-    run.fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
-    const SkDescriptor* desc = reinterpret_cast<const SkDescriptor*>(run.fDescriptor->data());
-    SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
 
     const char*        stop = text + byteLength;
@@ -487,7 +548,6 @@ void GrBitmapTextContextB::internalDrawPosText(BitmapTextBlob* blob, int runInde
             }
         }
     }
-    SkGlyphCache::AttachCache(cache);
 }
 
 static size_t get_vertex_stride(GrMaskFormat maskFormat) {
@@ -540,13 +600,28 @@ void GrBitmapTextContextB::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGly
         blob->fBigGlyphs.push_back(BitmapTextBlob::BigGlyph(*glyph->fPath, vx, vy));
         return;
     }
-    GrMaskFormat format = glyph->fMaskFormat;
-    size_t vertexStride = get_vertex_stride(format);
 
-    BitmapTextBlob::Run& run = blob->fRuns[runIndex];
-    int glyphIdx = run.fInfos[format].fGlyphIDs.count();
-    *run.fInfos[format].fGlyphIDs.append() = packed;
-    run.fInfos[format].fVertices.append(static_cast<int>(vertexStride * kVerticesPerGlyph));
+    Run& run = blob->fRuns[runIndex];
+
+    GrMaskFormat format = glyph->fMaskFormat;
+
+    PerSubRunInfo* subRun = &run.fSubRunInfo.back();
+    if (run.fInitialized && subRun->fMaskFormat != format) {
+        PerSubRunInfo* newSubRun = &run.fSubRunInfo.push_back();
+        newSubRun->fGlyphStartIndex = subRun->fGlyphEndIndex;
+        newSubRun->fGlyphEndIndex = subRun->fGlyphEndIndex;
+
+        newSubRun->fVertexStartIndex = subRun->fVertexEndIndex;
+        newSubRun->fVertexEndIndex = subRun->fVertexEndIndex;
+
+        subRun = newSubRun;
+    }
+
+    run.fInitialized = true;
+    subRun->fMaskFormat = format;
+    blob->fGlyphIDs[subRun->fGlyphEndIndex] = packed;
+
+    size_t vertexStride = get_vertex_stride(format);
 
     SkRect r;
     r.fLeft = SkIntToScalar(x);
@@ -558,8 +633,7 @@ void GrBitmapTextContextB::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGly
     GrColor color = fPaint.getColor();
     run.fColor = color;
 
-    intptr_t vertex = reinterpret_cast<intptr_t>(run.fInfos[format].fVertices.begin());
-    vertex += vertexStride * glyphIdx * kVerticesPerGlyph;
+    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->fVertexEndIndex);
 
     // V0
     SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
@@ -595,27 +669,32 @@ void GrBitmapTextContextB::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGly
         SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
     }
+
+    subRun->fGlyphEndIndex++;
+    subRun->fVertexEndIndex += vertexStride * kVerticesPerGlyph;
 }
 
 class BitmapTextBatch : public GrBatch {
 public:
     typedef GrBitmapTextContextB::BitmapTextBlob Blob;
     typedef Blob::Run Run;
-    typedef Run::PerFormatInfo TextInfo;
+    typedef Run::SubRunInfo TextInfo;
     struct Geometry {
         Geometry() {}
         Geometry(const Geometry& geometry)
             : fBlob(SkRef(geometry.fBlob.get()))
             , fRun(geometry.fRun)
+            , fSubRun(geometry.fSubRun)
             , fColor(geometry.fColor) {}
         SkAutoTUnref<Blob> fBlob;
         int fRun;
+        int fSubRun;
         GrColor fColor;
     };
 
     static GrBatch* Create(const Geometry& geometry, GrColor color, GrMaskFormat maskFormat,
-                           GrBatchFontCache* fontCache) {
-        return SkNEW_ARGS(BitmapTextBatch, (geometry, color, maskFormat, fontCache));
+                           int glyphCount, GrBatchFontCache* fontCache) {
+        return SkNEW_ARGS(BitmapTextBatch, (geometry, color, maskFormat, glyphCount, fontCache));
     }
 
     const char* name() const override { return "BitmapTextBatch"; }
@@ -718,12 +797,12 @@ public:
             Geometry& args = fGeoData[i];
             Blob* blob = args.fBlob;
             Run& run = blob->fRuns[args.fRun];
-            TextInfo& info = run.fInfos[fMaskFormat];
+            TextInfo& info = run.fSubRunInfo[args.fSubRun];
 
             uint64_t currentAtlasGen = fFontCache->atlasGeneration(fMaskFormat);
             bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen;
             bool regenerateColors = kA8_GrMaskFormat == fMaskFormat && run.fColor != args.fColor;
-            int glyphCount = info.fGlyphIDs.count();
+            int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
 
             // We regenerate both texture coords and colors in the blob itself, and update the
             // atlas generation.  If we don't end up purging any unused plots, we can avoid
@@ -741,13 +820,13 @@ public:
                 GrBatchTextStrike* strike = NULL;
                 bool brokenRun = false;
                 if (regenerateTextureCoords) {
-                    desc = reinterpret_cast<const SkDescriptor*>(run.fDescriptor->data());
+                    desc = run.fDescriptor.getDesc();
                     cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
                     scaler = GrTextContext::GetGrFontScaler(cache);
                     strike = fFontCache->getStrike(scaler);
                 }
                 for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
-                    GrGlyph::PackedID glyphID = info.fGlyphIDs[glyphIdx];
+                    GrGlyph::PackedID glyphID = blob->fGlyphIDs[glyphIdx + info.fGlyphStartIndex];
 
                     if (regenerateTextureCoords) {
                         // Upload the glyph only if needed
@@ -771,7 +850,8 @@ public:
 
                         // Texture coords are the last vertex attribute so we get a pointer to the
                         // first one and then map with stride in regenerateTextureCoords
-                        intptr_t vertex = reinterpret_cast<intptr_t>(info.fVertices.begin());
+                        intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
+                        vertex += info.fVertexStartIndex;
                         vertex += vertexStride * glyphIdx * kVerticesPerGlyph;
                         vertex += vertexStride - sizeof(SkIPoint16);
 
@@ -779,7 +859,8 @@ public:
                     }
 
                     if (regenerateColors) {
-                        intptr_t vertex = reinterpret_cast<intptr_t>(info.fVertices.begin());
+                        intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
+                        vertex += info.fVertexStartIndex;
                         vertex += vertexStride * glyphIdx * kVerticesPerGlyph + sizeof(SkPoint);
                         this->regenerateColors(vertex, vertexStride, args.fColor);
                     }
@@ -797,8 +878,8 @@ public:
             }
 
             // now copy all vertices
-            int byteCount = info.fVertices.count();
-            memcpy(currVertex, info.fVertices.begin(), byteCount);
+            size_t byteCount = info.fVertexEndIndex - info.fVertexStartIndex;
+            memcpy(currVertex, blob->fVertices + info.fVertexStartIndex, byteCount);
 
             currVertex += byteCount;
         }
@@ -810,7 +891,7 @@ public:
 
 private:
     BitmapTextBatch(const Geometry& geometry, GrColor color, GrMaskFormat maskFormat,
-                    GrBatchFontCache* fontCache)
+                    int glyphCount, GrBatchFontCache* fontCache)
             : fMaskFormat(maskFormat)
             , fPixelConfig(fontCache->getPixelConfig(maskFormat))
             , fFontCache(fontCache) {
@@ -818,8 +899,7 @@ private:
         fGeoData.push_back(geometry);
         fBatch.fColor = color;
         fBatch.fViewMatrix = geometry.fBlob->fViewMatrix;
-        int numGlyphs = geometry.fBlob->fRuns[geometry.fRun].fInfos[maskFormat].fGlyphIDs.count();
-        fBatch.fNumGlyphs = numGlyphs;
+        fBatch.fNumGlyphs = glyphCount;
     }
 
     void regenerateTextureCoords(GrGlyph* glyph, intptr_t vertex, size_t vertexStride) {
@@ -932,27 +1012,6 @@ private:
     GrBatchFontCache* fFontCache;
 };
 
-void GrBitmapTextContextB::flushSubRun(GrDrawTarget* target, BitmapTextBlob* blob, int i,
-                                       GrPipelineBuilder* pipelineBuilder, GrMaskFormat format,
-                                       GrColor color, int paintAlpha) {
-    if (0 == blob->fRuns[i].fInfos[format].fGlyphIDs.count()) {
-        return;
-    }
-
-    if (kARGB_GrMaskFormat == format) {
-        color = SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha);
-    }
-
-    BitmapTextBatch::Geometry geometry;
-    geometry.fBlob.reset(SkRef(blob));
-    geometry.fRun = i;
-    geometry.fColor = color;
-    SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, color, format,
-                                                        fContext->getBatchFontCache()));
-
-    target->drawBatch(pipelineBuilder, batch, &blob->fRuns[i].fVertexBounds);
-}
-
 void GrBitmapTextContextB::flush(GrDrawTarget* target, BitmapTextBlob* blob, GrRenderTarget* rt,
                                  const GrPaint& paint, const GrClip& clip,
                                  const SkMatrix& viewMatrix, int paintAlpha) {
@@ -960,10 +1019,29 @@ void GrBitmapTextContextB::flush(GrDrawTarget* target, BitmapTextBlob* blob, GrR
     pipelineBuilder.setFromPaint(paint, rt, clip);
 
     GrColor color = paint.getColor();
-    for (int i = 0; i < blob->fRuns.count(); i++) {
-        this->flushSubRun(target, blob, i, &pipelineBuilder, kA8_GrMaskFormat, color, paintAlpha);
-        this->flushSubRun(target, blob, i, &pipelineBuilder, kA565_GrMaskFormat, color, paintAlpha);
-        this->flushSubRun(target, blob, i, &pipelineBuilder, kARGB_GrMaskFormat, color, paintAlpha);
+    for (uint32_t run = 0; run < blob->fRunCount; run++) {
+        for (int subRun = 0; subRun < blob->fRuns[run].fSubRunInfo.count(); subRun++) {
+            PerSubRunInfo& info = blob->fRuns[run].fSubRunInfo[subRun];
+            int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
+            if (0 == glyphCount) {
+                continue;
+            }
+
+            GrMaskFormat format = info.fMaskFormat;
+            if (kARGB_GrMaskFormat == format) {
+                color = SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha);
+            }
+
+            BitmapTextBatch::Geometry geometry;
+            geometry.fBlob.reset(SkRef(blob));
+            geometry.fRun = run;
+            geometry.fSubRun = subRun;
+            geometry.fColor = color;
+            SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, color, format, glyphCount,
+                                                                fContext->getBatchFontCache()));
+
+            target->drawBatch(&pipelineBuilder, batch, &blob->fRuns[run].fVertexBounds);
+        }
     }
 
     // Now flush big glyphs

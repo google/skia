@@ -15,6 +15,7 @@
 #include "SkXfermode.h"
 
 class SkAnnotation;
+class SkAutoDescriptor;
 class SkAutoGlyphCache;
 class SkColorFilter;
 class SkData;
@@ -1065,8 +1066,8 @@ private:
      * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
      * SkData.  Caller is responsible for managing the lifetime of this object.
      */
-    const SkData* getScalerContextDescriptor(const SkDeviceProperties* deviceProperties,
-                                             const SkMatrix*, bool ignoreGamma) const;
+    void getScalerContextDescriptor(SkAutoDescriptor*, const SkDeviceProperties* deviceProperties,
+                                    const SkMatrix*, bool ignoreGamma) const;
 
     SkGlyphCache* detachCache(const SkDeviceProperties* deviceProperties, const SkMatrix*,
                               bool ignoreGamma) const;
