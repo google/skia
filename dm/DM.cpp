@@ -153,10 +153,17 @@ static void push_src(const char* tag, Src* s) {
 static bool codec_supported(const char* ext) {
     // FIXME: Once other versions of SkCodec are available, we can add them to this
     // list (and eventually we can remove this check once they are all supported).
-    return strcmp(ext, "png") == 0 || strcmp(ext, "PNG") == 0 || 
-           strcmp(ext, "bmp") == 0 || strcmp(ext, "BMP") == 0 ||
-           strcmp(ext, "ico") == 0 || strcmp(ext, "ICO") == 0 ||
-           strcmp(ext, "wbmp") == 0 || strcmp(ext, "WBMP") == 0;
+    static const char* const exts[] = {
+        "bmp", "gif", "png", "ico", "wbmp",
+        "BMP", "GIF", "PNG", "ICO", "WBMP"
+    };
+
+    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
+        if (0 == strcmp(exts[i], ext)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static void gather_srcs() {

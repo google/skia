@@ -17,6 +17,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
+        'giflib.gyp:giflib',
         'libpng.gyp:libpng',
       ],
       'cflags':[
@@ -32,9 +33,11 @@
       'sources': [
         '../src/codec/SkCodec.cpp',
         '../src/codec/SkCodec_libbmp.cpp',
+        '../src/codec/SkCodec_libgif.cpp',
         '../src/codec/SkCodec_libico.cpp',
         '../src/codec/SkCodec_libpng.cpp',
         '../src/codec/SkCodec_wbmp.cpp',
+        '../src/codec/SkGifInterlaceIter.cpp',
         '../src/codec/SkMaskSwizzler.cpp',
         '../src/codec/SkMasks.cpp',
         '../src/codec/SkSwizzler.cpp',
