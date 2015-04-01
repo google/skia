@@ -5,26 +5,23 @@
  * found in the LICENSE file.
  */
 
-#ifndef DecodingBench_DEFINED
-#define DecodingBench_DEFINED
+#ifndef CodecBench_DEFINED
+#define CodecBench_DEFINED
 
 #include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkData.h"
-#include "SkImageDecoder.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
-/*
- *
- * This benchmark is designed to test the performance of image decoding.
- * It is invoked from the nanobench.cpp file.
- *
+/**
+ *  Time SkCodec.
  */
-class DecodingBench : public Benchmark {
+class CodecBench : public Benchmark {
 public:
-    DecodingBench(SkString path, SkColorType colorType);
+    // Calls encoded->ref()
+    CodecBench(SkString basename, SkData* encoded, SkColorType colorType);
 
 protected:
     const char* onGetName() override;
@@ -34,9 +31,9 @@ protected:
 
 private:
     SkString                fName;
-    SkColorType             fColorType;
+    const SkColorType       fColorType;
     SkAutoTUnref<SkData>    fData;
     SkBitmap                fBitmap;
     typedef Benchmark INHERITED;
 };
-#endif // DecodingBench_DEFINED
+#endif // CodecBench_DEFINED

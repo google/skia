@@ -8,7 +8,9 @@
 #include "DecodingBench.h"
 #include "SkData.h"
 #include "SkImageDecoder.h"
+#include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
+#include "SkPixelRef.h"
 #include "SkStream.h"
 
 /*
@@ -19,6 +21,7 @@
  */
 DecodingBench::DecodingBench(SkString path, SkColorType colorType)
     : fColorType(colorType)
+    , fData(SkData::NewFromFileName(path.c_str()))
 {
     // Parse filename and the color type to give the benchmark a useful name
     SkString baseName = SkOSPath::Basename(path.c_str());
@@ -38,10 +41,12 @@ DecodingBench::DecodingBench(SkString path, SkColorType colorType)
     }
     fName.printf("Decode_%s_%s", baseName.c_str(), colorName);
     
-    // Perform setup for the decode
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
-    fStream.reset(new SkMemoryStream(encoded));
-    fDecoder.reset(SkImageDecoder::Factory(fStream.get()));
+#ifdef SK_DEBUG
+    // Ensure that we can create a decoder.
+    SkAutoTDelete<SkStreamRewindable> stream(new SkMemoryStream(fData));
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
+    SkASSERT(decoder != NULL);
+#endif
 }
 
 const char* DecodingBench::onGetName() {
@@ -52,11 +57,53 @@ bool DecodingBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend == backend;
 }
 
+void DecodingBench::onPreDraw() {
+    // Allocate the pixels now, to remove it from the loop.
+    SkAutoTDelete<SkStreamRewindable> stream(new SkMemoryStream(fData));
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
+#ifdef SK_DEBUG
+    SkImageDecoder::Result result =
+#endif
+    decoder->decode(stream, &fBitmap, fColorType,
+                    SkImageDecoder::kDecodeBounds_Mode);
+    SkASSERT(SkImageDecoder::kFailure != result);
+    fBitmap.allocPixels(fBitmap.info());
+}
+
+// Allocator which just reuses the pixels from an existing SkPixelRef.
+class UseExistingAllocator : public SkBitmap::Allocator {
+public:
+    explicit UseExistingAllocator(SkPixelRef* pr)
+        : fPixelRef(SkRef(pr)) {}
+
+    bool allocPixelRef(SkBitmap* bm, SkColorTable* ct) override {
+        // We depend on the fact that fPixelRef is an SkMallocPixelRef, which
+        // is always locked, and the fact that this will only ever be used to
+        // decode to a bitmap with the same settings used to create the
+        // original pixel ref.
+        bm->setPixelRef(SkMallocPixelRef::NewDirect(bm->info(),
+                fPixelRef->pixels(), bm->rowBytes(), ct))->unref();
+        return true;
+    }
+
+private:
+    SkAutoTUnref<SkPixelRef> fPixelRef;
+};
+
 void DecodingBench::onDraw(const int n, SkCanvas* canvas) {
     SkBitmap bitmap;
+    // Declare the allocator before the decoder, so it will outlive the
+    // decoder, which will unref it.
+    UseExistingAllocator allocator(fBitmap.pixelRef());
+    SkAutoTDelete<SkImageDecoder> decoder;
+    SkAutoTDelete<SkStreamRewindable> stream;
     for (int i = 0; i < n; i++) {
-        fStream->rewind();
-        fDecoder->decode(fStream, &bitmap, fColorType,
-                         SkImageDecoder::kDecodePixels_Mode);
+        // create a new stream and a new decoder to mimic the behavior of
+        // CodecBench.
+        stream.reset(new SkMemoryStream(fData));
+        decoder.reset(SkImageDecoder::Factory(stream));
+        decoder->setAllocator(&allocator);
+        decoder->decode(stream, &bitmap, fColorType,
+                        SkImageDecoder::kDecodePixels_Mode);
     }
 }

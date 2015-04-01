@@ -10,6 +10,7 @@
 #include "nanobench.h"
 
 #include "Benchmark.h"
+#include "CodecBench.h"
 #include "CrashHandler.h"
 #include "DecodingBench.h"
 #include "DecodingSubsetBench.h"
@@ -23,6 +24,7 @@
 
 #include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
+#include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
@@ -485,6 +487,7 @@ public:
                       , fCurrentScale(0)
                       , fCurrentSKP(0)
                       , fCurrentUseMPD(0)
+                      , fCurrentCodec(0)
                       , fCurrentImage(0)
                       , fCurrentSubsetImage(0)
                       , fCurrentColorType(0)
@@ -632,16 +635,57 @@ public:
             fCurrentScale++;
         }
 
+        for (; fCurrentCodec < fImages.count(); fCurrentCodec++) {
+            const SkString& path = fImages[fCurrentCodec];
+            SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+            SkASSERT(codec);
+            if (!codec) {
+                // Nothing to time.
+                continue;
+            }
+            while (fCurrentColorType < fColorTypes.count()) {
+                SkColorType colorType = fColorTypes[fCurrentColorType];
+                fCurrentColorType++;
+                // Make sure we can decode to this color type.
+                SkBitmap bitmap;
+                SkImageInfo info = codec->getInfo().makeColorType(colorType);
+                bitmap.allocPixels(info);
+                const SkImageGenerator::Result result = codec->getPixels(
+                        bitmap.info(), bitmap.getPixels(), bitmap.rowBytes());
+                switch (result) {
+                    case SkImageGenerator::kSuccess:
+                    case SkImageGenerator::kIncompleteInput:
+                        return new CodecBench(SkOSPath::Basename(path.c_str()),
+                                encoded, colorType);
+                    case SkImageGenerator::kInvalidConversion:
+                        // This is okay. Not all conversions are valid.
+                        break;
+                    case SkImageGenerator::kCouldNotRewind:
+                        // FIXME: This is due to a bug in some implementations
+                        // of SkCodec. All should support rewinding.
+                        break;
+                    default:
+                        // This represents some sort of failure.
+                        SkASSERT(false);
+                        break;
+                }
+            }
+            fCurrentColorType = 0;
+        }
+
         // Run the DecodingBenches
         while (fCurrentImage < fImages.count()) {
             while (fCurrentColorType < fColorTypes.count()) {
                 const SkString& path = fImages[fCurrentImage];
                 SkColorType colorType = fColorTypes[fCurrentColorType];
                 fCurrentColorType++;
-                // Check if the image decodes before creating the benchmark
+                // Check if the image decodes to the right color type
+                // before creating the benchmark
                 SkBitmap bitmap;
                 if (SkImageDecoder::DecodeFile(path.c_str(), &bitmap,
-                        colorType, SkImageDecoder::kDecodePixels_Mode)) {
+                        colorType, SkImageDecoder::kDecodePixels_Mode)
+                        && bitmap.colorType() == colorType) {
                     return new DecodingBench(path, colorType);
                 }
             }
@@ -741,6 +785,7 @@ private:
     int fCurrentScale;
     int fCurrentSKP;
     int fCurrentUseMPD;
+    int fCurrentCodec;
     int fCurrentImage;
     int fCurrentSubsetImage;
     int fCurrentColorType;
