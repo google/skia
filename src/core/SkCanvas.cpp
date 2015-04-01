@@ -936,6 +936,14 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     }
 
     SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
+#if 1
+    // this seems needed for current GMs, but makes us draw slower on the GPU
+    // Related to https://code.google.com/p/skia/issues/detail?id=3519 ?
+    //
+    if (paint && paint->getImageFilter()) {
+        usage = SkBaseDevice::kPossible_TileUsage;
+    }
+#endif
     device = device->onCreateDevice(SkBaseDevice::CreateInfo(info, usage, geo), paint);
     if (NULL == device) {
         SkErrorInternals::SetError( kInternalError_SkError,
