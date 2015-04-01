@@ -10,90 +10,84 @@
   'targets': [
     {
       'target_name': 'libpng',
+      'type': 'none',
       'conditions': [
-        [ 'skia_libpng_static',
+        [ 'skia_os == "android"',
           {
-            'type': 'static_library',
-            'include_dirs': [
-              '../third_party/externals/libpng',
-              # Needed for generated pnglibconf.h
-              '../third_party/libpng',
-            ],
             'dependencies': [
-              'zlib.gyp:zlib',
+              'android_deps.gyp:png',
             ],
             'export_dependent_settings': [
-              'zlib.gyp:zlib',
+              'android_deps.gyp:png',
             ],
-            'direct_dependent_settings': {
-              'include_dirs': [
-                '../third_party/externals/libpng',
-                # Needed for generated pnglibconf.h
-                '../third_party/libpng',
-              ],
-            },
-            'cflags': [
-              '-w',
-              '-fvisibility=hidden',
+          }, {  # skia_os != "android"
+            'dependencies': [
+              'libpng.gyp:libpng_static',
             ],
-            'conditions': [
-              ['not arm_neon', {
-                'defines': [
-                    # FIXME: Why is this needed? Without it, pngpriv.h sets it
-                    # to 2 if __ARM_NEON is defined, but shouldn't __ARM_NEON
-                    # not be defined since arm_neon is 0?
-                    'PNG_ARM_NEON_OPT=0',
-                ],
-              }],
+            'export_dependent_settings': [
+              'libpng.gyp:libpng_static',
             ],
-            'sources': [
-              '../third_party/externals/libpng/png.c',
-              '../third_party/externals/libpng/pngerror.c',
-              '../third_party/externals/libpng/pngget.c',
-              '../third_party/externals/libpng/pngmem.c',
-              '../third_party/externals/libpng/pngpread.c',
-              '../third_party/externals/libpng/pngread.c',
-              '../third_party/externals/libpng/pngrio.c',
-              '../third_party/externals/libpng/pngrtran.c',
-              '../third_party/externals/libpng/pngrutil.c',
-              '../third_party/externals/libpng/pngset.c',
-              '../third_party/externals/libpng/pngtrans.c',
-              '../third_party/externals/libpng/pngwio.c',
-              '../third_party/externals/libpng/pngwrite.c',
-              '../third_party/externals/libpng/pngwtran.c',
-              '../third_party/externals/libpng/pngwutil.c',
-            ],
-          }, {  # not skia_libpng_static
-            'type': 'none',
-            'conditions': [
-              [ 'skia_os == "android"',
-                {
-                  # TODO(halcanary): merge all png targets into this file.
-                  'dependencies': [
-                    'android_deps.gyp:png',
-                  ],
-                  'export_dependent_settings': [
-                    'android_deps.gyp:png',
-                  ],
-                }, {  # skia_os != "android"
-                  'dependencies': [
-                    'zlib.gyp:zlib',
-                    ],
-                  'export_dependent_settings': [
-                    'zlib.gyp:zlib',
-                    ],
-                  'direct_dependent_settings': {
-                    'link_settings': {
-                      'libraries': [
-                        '-lpng',
-                      ],
-                    },
-                  },
-                }
-              ]
-            ]
           }
         ]
+      ]
+    },
+    {
+      'target_name': 'libpng_static',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'include_dirs': [
+        # Needed for generated pnglibconf.h and pngprefix.h
+        '../third_party/libpng',
+        '../third_party/externals/libpng',
+      ],
+      'dependencies': [
+        'zlib.gyp:zlib',
+      ],
+      'export_dependent_settings': [
+        'zlib.gyp:zlib',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/externals/libpng',
+          # Needed for generated pnglibconf.h and pngprefix.h
+          '../third_party/libpng',
+        ],
+        'defines': [
+          'SKIA_PNG_PREFIXED',
+        ],
+      },
+      'cflags': [
+        '-w',
+        '-fvisibility=hidden',
+      ],
+      'defines': [
+        'SKIA_PNG_PREFIXED',
+      ],
+      'sources': [
+        '../third_party/externals/libpng/png.c',
+        '../third_party/externals/libpng/pngerror.c',
+        '../third_party/externals/libpng/pngget.c',
+        '../third_party/externals/libpng/pngmem.c',
+        '../third_party/externals/libpng/pngpread.c',
+        '../third_party/externals/libpng/pngread.c',
+        '../third_party/externals/libpng/pngrio.c',
+        '../third_party/externals/libpng/pngrtran.c',
+        '../third_party/externals/libpng/pngrutil.c',
+        '../third_party/externals/libpng/pngset.c',
+        '../third_party/externals/libpng/pngtrans.c',
+        '../third_party/externals/libpng/pngwio.c',
+        '../third_party/externals/libpng/pngwrite.c',
+        '../third_party/externals/libpng/pngwtran.c',
+        '../third_party/externals/libpng/pngwutil.c',
+      ],
+      'conditions': [
+        ['arm_neon or arm_neon_optional', {
+          'sources': [
+            '../third_party/externals/libpng/arm/arm_init.c',
+            '../third_party/externals/libpng/arm/filter_neon.S',
+            '../third_party/externals/libpng/arm/filter_neon_intrinsics.c',
+          ],
+        }],
       ],
     },
   ]
