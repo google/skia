@@ -9,10 +9,10 @@
 #include "GrContext.h"
 
 #include "GrAARectRenderer.h"
+#include "GrAtlasTextContext.h"
 #include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
-#include "GrBitmapTextContext.h"
 #include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrFontCache.h"

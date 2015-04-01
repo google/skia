@@ -6,6 +6,7 @@
  */
 
 #include "GrStencilAndCoverTextContext.h"
+#include "GrAtlasTextContext.h"
 #include "GrBitmapTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"

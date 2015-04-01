@@ -7,6 +7,7 @@
 
 #include "GrDistanceFieldTextContext.h"
 #include "GrAtlas.h"
+#include "GrAtlasTextContext.h"
 #include "GrBitmapTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrDrawTargetCaps.h"
