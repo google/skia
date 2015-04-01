@@ -259,6 +259,8 @@ extern "C" {
     // NV_path_rendering v1.3
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramPathFragmentInputGenProc)(GrGLuint program, GrGLint location, GrGLenum genMode, GrGLint components,const GrGLfloat *coeffs);
     typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLPathMemoryGlyphIndexArrayProc)(GrGLuint firstPathName, GrGLenum fontTarget, GrGLsizeiptr fontSize, const GrGLvoid *fontData, GrGLsizei faceIndex, GrGLuint firstGlyphIndex, GrGLsizei numGlyphs, GrGLuint pathParameterTemplate, GrGLfloat emScale);
+    // GL_NV_framebuffer_mixed_samples
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverageModulationProc)(GrGLenum components);
 }  // extern "C"
 
 #endif

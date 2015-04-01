@@ -178,6 +178,8 @@ public:
 
     const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
 
+    bool fbMixedSamplesSupport() const { return fFBMixedSamplesSupport; }
+
     InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
 
     /// What type of buffer mapping is supported?
@@ -389,6 +391,7 @@ private:
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
+    bool fFBMixedSamplesSupport : 1;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

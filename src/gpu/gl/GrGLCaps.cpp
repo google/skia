@@ -54,6 +54,7 @@ void GrGLCaps::reset() {
     fFBFetchNeedsCustomOutput = false;
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
+    fFBMixedSamplesSupport = false;
 
     fReadPixelsSupportedCache.reset();
 }
@@ -99,6 +100,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
     fFBFetchColorName = caps.fFBFetchColorName;
     fFBFetchExtensionString = caps.fFBFetchExtensionString;
+    fFBMixedSamplesSupport = caps.fFBMixedSamplesSupport;
 
     return *this;
 }
@@ -370,6 +372,8 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     } else {
         fNvprSupport = kNone_NvprSupport;
     }
+
+    fFBMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples");
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 

@@ -348,6 +348,8 @@ public:
         // NV_path_rendering v1.3
         GLPtr<GrGLProgramPathFragmentInputGenProc> fProgramPathFragmentInputGen;
         GLPtr<GrGLPathMemoryGlyphIndexArrayProc> fPathMemoryGlyphIndexArray;
+        // NV_framebuffer_mixed_samples
+        GLPtr<GrGLCoverageModulationProc> fCoverageModulation;
     } fFunctions;
 
     // Per-GL func callback

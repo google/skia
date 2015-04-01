@@ -278,6 +278,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(PathMemoryGlyphIndexArray, NV);
     }
 
+    if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
+        GET_PROC_SUFFIX(CoverageModulation, NV);
+    }
+
     if (extensions.has("GL_EXT_debug_marker")) {
         GET_PROC_SUFFIX(InsertEventMarker, EXT);
         GET_PROC_SUFFIX(PushGroupMarker, EXT);
@@ -517,6 +521,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
         GET_PROC_SUFFIX(PathMemoryGlyphIndexArray, NV);
+    }
+
+    if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
+        GET_PROC_SUFFIX(CoverageModulation, NV);
     }
 
     interface->fStandard = kGLES_GrGLStandard;

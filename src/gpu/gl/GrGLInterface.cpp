@@ -505,5 +505,11 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if (fExtensions.has("GL_NV_framebuffer_mixed_samples")) {
+        if (NULL == fFunctions.fCoverageModulation) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
     return true;
 }
