@@ -392,7 +392,8 @@ def PostUploadHook(cl, change, output_api):
                 'Automatically added \'NOTRY=true\' to the CL\'s description'))
 
     # Read and process the HASHTAGS file.
-    with open('HASHTAGS', 'rb') as hashtags_csv:
+    hashtags_fullpath = os.path.join(change._local_root, 'HASHTAGS')
+    with open(hashtags_fullpath, 'rb') as hashtags_csv:
       hashtags_reader = csv.reader(hashtags_csv, delimiter=',')
       for row in hashtags_reader:
         if not row or row[0].startswith('#'):
