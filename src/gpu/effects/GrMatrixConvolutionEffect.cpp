@@ -90,7 +90,7 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
             fDomain.sampleTexture(fsBuilder, domain, "c", coord, samplers[0]);
             if (!fConvolveAlpha) {
                 fsBuilder->codeAppend("c.rgb /= c.a;");
-                fsBuilder->codeAppend("c.rgb = clamp(c.rgb, 0.0, 1.0);");
+                fsBuilder->codeAppend("c.rgb = clamp(c.rgb, 0, 1);");
             }
             fsBuilder->codeAppend("sum += c * k;");
         }
