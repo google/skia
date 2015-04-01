@@ -44,7 +44,8 @@ DEF_TEST(Function, r) {
     test_add_five(r, MoveOnlyAdd5());
 
     // Makes sure we forward arguments when calling SkFunction.
-    REPORTER_ASSERT(r, [](int x, MoveOnlyAdd5&& f, int y) {
-        return x * f(y);
-    }(2, MoveOnlyAdd5(), 4) == 18);
+    SkFunction<int(int, MoveOnlyAdd5&&, int)> f([](int x, MoveOnlyAdd5&& addFive, int y) {
+            return x * addFive(y);
+    });
+    REPORTER_ASSERT(r, f(2, MoveOnlyAdd5(), 4) == 18);
 }
