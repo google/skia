@@ -50,6 +50,7 @@ private:
                               size_t rowBytes, const Options&);
     bool decodePalette(bool premultiply);
     void finish();
+    void destroyReadStruct();
 
     friend class SkPngScanlineDecoder;
 

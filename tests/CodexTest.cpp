@@ -81,18 +81,17 @@ DEF_TEST(Codec, r) {
     check(r, "color_wheel.ico", SkISize::Make(128, 128), false);
 
     // PNG
-    // TODO (scroggo): SkPngCodec should be able to rewind.
-    check(r, "arrow.png", SkISize::Make(187, 312), false);
-    check(r, "baby_tux.png", SkISize::Make(240, 246), false);
-    check(r, "color_wheel.png", SkISize::Make(128, 128), false);
-    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), false);
-    check(r, "mandrill_128.png", SkISize::Make(128, 128), false);
-    check(r, "mandrill_16.png", SkISize::Make(16, 16), false);
-    check(r, "mandrill_256.png", SkISize::Make(256, 256), false);
-    check(r, "mandrill_32.png", SkISize::Make(32, 32), false);
-    check(r, "mandrill_512.png", SkISize::Make(512, 512), false);
-    check(r, "mandrill_64.png", SkISize::Make(64, 64), false);
-    check(r, "plane.png", SkISize::Make(250, 126), false);
-    check(r, "randPixels.png", SkISize::Make(8, 8), false);
-    check(r, "yellow_rose.png", SkISize::Make(400, 301), false);
+    check(r, "arrow.png", SkISize::Make(187, 312), true);
+    check(r, "baby_tux.png", SkISize::Make(240, 246), true);
+    check(r, "color_wheel.png", SkISize::Make(128, 128), true);
+    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), true);
+    check(r, "mandrill_128.png", SkISize::Make(128, 128), true);
+    check(r, "mandrill_16.png", SkISize::Make(16, 16), true);
+    check(r, "mandrill_256.png", SkISize::Make(256, 256), true);
+    check(r, "mandrill_32.png", SkISize::Make(32, 32), true);
+    check(r, "mandrill_512.png", SkISize::Make(512, 512), true);
+    check(r, "mandrill_64.png", SkISize::Make(64, 64), true);
+    check(r, "plane.png", SkISize::Make(250, 126), true);
+    check(r, "randPixels.png", SkISize::Make(8, 8), true);
+    check(r, "yellow_rose.png", SkISize::Make(400, 301), true);
 }

@@ -201,19 +201,25 @@ bool SkPngCodec::IsPng(SkStream* stream) {
     return true;
 }
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
+// Reads the header, and initializes the passed in fields, if not NULL (except
+// stream, which is passed to the read function).
+// Returns true on success, in which case the caller is responsible for calling
+// png_destroy_read_struct. If it returns false, the passed in fields (except
+// stream) are unchanged.
+static bool read_header(SkStream* stream, png_structp* png_ptrp,
+                        png_infop* info_ptrp, SkImageInfo* imageInfo) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
                                                  sk_error_fn, sk_warning_fn);
     if (!png_ptr) {
-        return NULL;
+        return false;
     }
 
     AutoCleanPng autoClean(png_ptr);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == NULL) {
-        return NULL;
+        return false;
     }
 
     autoClean.setInfoPtr(info_ptr);
@@ -221,7 +227,7 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
     if (setjmp(png_jmpbuf(png_ptr))) {
-        return NULL;
+        return false;
     }
 
     png_set_read_fn(png_ptr, static_cast<void*>(stream), sk_read_fn);
@@ -244,7 +250,7 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
         int64_t size = sk_64_mul(origWidth, origHeight);
         // now check that if we are 4-bytes per pixel, we also don't overflow
         if (size < 0 || size > (0x7FFFFFFF >> 2)) {
-            return NULL;
+            return false;
         }
     }
 
@@ -325,11 +331,28 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
 
     // FIXME: Also need to check for sRGB (skbug.com/3471).
 
-    SkImageInfo info = SkImageInfo::Make(origWidth, origHeight, skColorType,
-                                         skAlphaType);
-    SkCodec* codec = SkNEW_ARGS(SkPngCodec, (info, stream, png_ptr, info_ptr));
+    if (imageInfo) {
+        *imageInfo = SkImageInfo::Make(origWidth, origHeight, skColorType,
+                                       skAlphaType);
+    }
     autoClean.detach();
-    return codec;
+    if (png_ptrp) {
+        *png_ptrp = png_ptr;
+    }
+    if (info_ptrp) {
+        *info_ptrp = info_ptr;
+    }
+    return true;
+}
+
+SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
+    png_structp png_ptr;
+    png_infop info_ptr;
+    SkImageInfo imageInfo;
+    if (read_header(stream, &png_ptr, &info_ptr, &imageInfo)) {
+        return SkNEW_ARGS(SkPngCodec, (imageInfo, stream, png_ptr, info_ptr));
+    }
+    return NULL;
 }
 
 #define INVALID_NUMBER_PASSES -1
@@ -344,7 +367,17 @@ SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream,
 {}
 
 SkPngCodec::~SkPngCodec() {
-    png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, png_infopp_NULL);
+    this->destroyReadStruct();
+}
+
+void SkPngCodec::destroyReadStruct() {
+    if (fPng_ptr) {
+        // We will never have a NULL fInfo_ptr with a non-NULL fPng_ptr
+        SkASSERT(fInfo_ptr);
+        png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, png_infopp_NULL);
+        fPng_ptr = NULL;
+        fInfo_ptr = NULL;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -424,8 +457,20 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (rewindState == kCouldNotRewind_RewindState) {
         return kCouldNotRewind;
     } else if (rewindState == kRewound_RewindState) {
-        // TODO(scroggo):  handle rewinds
-        return kCouldNotRewind;
+        // This sets fPng_ptr and fInfo_ptr to NULL. If read_header succeeds,
+        // they will be repopulated, and if it fails, they will remain NULL.
+        // Any future accesses to fPng_ptr and fInfo_ptr will come through this
+        // function which will rewind and again attempt to reinitialize them.
+        this->destroyReadStruct();
+        png_structp png_ptr;
+        png_infop info_ptr;
+        if (read_header(this->stream(), &png_ptr, &info_ptr, NULL)) {
+            fPng_ptr = png_ptr;
+            fInfo_ptr = info_ptr;
+        } else {
+            return kCouldNotRewind;
+        }
+
     }
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;
