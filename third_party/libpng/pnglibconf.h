@@ -207,11 +207,4 @@
 #define PNG_sCAL_PRECISION 5
 #define PNG_sRGB_PROFILE_CHECKS 2
 /* end of settings */
-
-/* custom settings */
-#define PNG_ARM_NEON_API_SUPPORTED
-#define PNG_ARM_NEON_CHECK_SUPPORTED
-#define PNG_PREFIX skia_
-/* end of custom settings */
-
 #endif /* PNGLCONF_H */

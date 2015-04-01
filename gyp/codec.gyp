@@ -18,6 +18,7 @@
       'dependencies': [
         'core.gyp:*',
         'giflib.gyp:giflib',
+        'libpng.gyp:libpng',
       ],
       'cflags':[
         # FIXME: This gets around a longjmp warning. See
@@ -46,21 +47,6 @@
           '../include/codec',
         ],
       },
-      'conditions': [
-        [ 'skia_android_framework == 1',
-          {
-            # TODO(djsollen): this is a temporary dependency until we can update
-            # the android framework to a more recent version of libpng.
-            'dependencies': [
-              'libpng.gyp:libpng',
-            ],
-          }, {  # !skia_android_framework
-            'dependencies': [
-              'libpng.gyp:libpng_static',
-            ],
-          }
-        ]
-      ]
     },
   ],
 }
