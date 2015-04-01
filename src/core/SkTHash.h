@@ -231,7 +231,11 @@ public:
     void add(const T& item) { fTable.set(item); }
 
     // Is this item in the set?
-    bool contains(const T& item) const { return SkToBool(fTable.find(item)); }
+    bool contains(const T& item) const { return SkToBool(this->find(item)); }
+
+    // If an item equal to this is in the set, return a pointer to it, otherwise null.
+    // This pointer remains valid until the next call to add().
+    const T* find(const T& item) const { return fTable.find(item); }
 
 private:
     struct Traits {

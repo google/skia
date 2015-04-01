@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkChecksum.h"
 #include "SkString.h"
 #include "SkTHash.h"
@@ -60,6 +67,9 @@ DEF_TEST(HashSet, r) {
     REPORTER_ASSERT(r, set.contains(SkString("Hello")));
     REPORTER_ASSERT(r, set.contains(SkString("World")));
     REPORTER_ASSERT(r, !set.contains(SkString("Goodbye")));
+
+    REPORTER_ASSERT(r, set.find(SkString("Hello")));
+    REPORTER_ASSERT(r, *set.find(SkString("Hello")) == SkString("Hello"));
 
     set.reset();
     REPORTER_ASSERT(r, set.count() == 0);
