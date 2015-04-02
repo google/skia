@@ -246,13 +246,19 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                       "vaddhn.u16 d6, q14, q8                 \n\t"
                       "vshr.u16   q8, q12, #5                 \n\t"
                       "vaddhn.u16 d5, q13, q9                 \n\t"
-                      "vqadd.u8   d6, d6, d0                  \n\t"  // moved up
                       "vaddhn.u16 d4, q12, q8                 \n\t"
                       // intentionally don't calculate alpha
                       // result in d4-d6
 
+            #ifdef SK_PMCOLOR_IS_RGBA
+                      "vqadd.u8   d6, d6, d0                  \n\t"
                       "vqadd.u8   d5, d5, d1                  \n\t"
                       "vqadd.u8   d4, d4, d2                  \n\t"
+            #else
+                      "vqadd.u8   d6, d6, d2                  \n\t"
+                      "vqadd.u8   d5, d5, d1                  \n\t"
+                      "vqadd.u8   d4, d4, d0                  \n\t"
+            #endif
 
                       // pack 8888 {d4-d6} to 0565 q10
                       "vshll.u8   q10, d6, #8                 \n\t"
@@ -326,13 +332,19 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                       "vaddhn.u16 d6, q14, q8                 \n\t"
                       "vshr.u16   q8, q12, #5                 \n\t"
                       "vaddhn.u16 d5, q13, q9                 \n\t"
-                      "vqadd.u8   d6, d6, d0                  \n\t"  // moved up
                       "vaddhn.u16 d4, q12, q8                 \n\t"
                       // intentionally don't calculate alpha
                       // result in d4-d6
 
+            #ifdef SK_PMCOLOR_IS_RGBA
+                      "vqadd.u8   d6, d6, d0                  \n\t"
                       "vqadd.u8   d5, d5, d1                  \n\t"
                       "vqadd.u8   d4, d4, d2                  \n\t"
+            #else
+                      "vqadd.u8   d6, d6, d2                  \n\t"
+                      "vqadd.u8   d5, d5, d1                  \n\t"
+                      "vqadd.u8   d4, d4, d0                  \n\t"
+            #endif
 
                       // pack 8888 {d4-d6} to 0565 q10
                       "vshll.u8   q10, d6, #8                 \n\t"
