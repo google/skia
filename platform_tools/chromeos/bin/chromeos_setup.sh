@@ -35,7 +35,7 @@ setup_device() {
         ;;
     daisy)
         # TODO(mtklein): make this arm_neon=1
-        DEFINES="${DEFINES} skia_arch_type=arm arm_version=7 arm_neon=0 arm_thumb=0"
+        DEFINES="${DEFINES} skia_arch_type=arm arm_version=7 arm_neon=0"
         # TODO(borenet): We have to define skia_warnings_as_errors=0 for the arm
         # build, which throws lots of "mangling of va_list has changed" warnings.
         DEFINES="${DEFINES} skia_warnings_as_errors=0"

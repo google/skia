@@ -63,8 +63,8 @@ def main(target_dir, target_file, skia_arch_type, have_neon,
   gyp_defines = ('skia_android_framework=1 OS=android skia_arch_type=%s '
                  % skia_arch_type)
   if skia_arch_type == 'arm':
-    # Always use thumb and version 7 for arm
-    gyp_defines += 'arm_thumb=1 arm_version=7 '
+    # Always version 7 (which implies thumb) for arm
+    gyp_defines += 'arm_version=7 '
     if have_neon:
       gyp_defines += 'arm_neon=1 '
     else:

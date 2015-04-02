@@ -104,15 +104,15 @@ setup_device() {
 
   case $TARGET_DEVICE in
     arm)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=0"
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0"
       ANDROID_ARCH="arm"
       ;;
     arm_v7 | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10 | xoom)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=1"
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7"
       ANDROID_ARCH="arm"
       ;;
     arm_v7_neon)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
+      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7"
       ANDROID_ARCH="arm"
       ;;
     arm64 | nexus_9)
