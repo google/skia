@@ -219,7 +219,7 @@ private:
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
                                               int sampleCount);
 
-    friend class GrBitmapTextContextB;
+    friend class GrAtlasTextContext;
     friend class GrTextContext;
     typedef SkBaseDevice INHERITED;
 };

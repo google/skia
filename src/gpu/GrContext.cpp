@@ -237,7 +237,7 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
     } 
 
 #ifdef USE_BITMAP_TEXTBLOBS
-    return GrBitmapTextContextB::Create(this, gpuDevice, leakyProperties);
+    return GrAtlasTextContext::Create(this, gpuDevice, leakyProperties);
 #else
     return GrDistanceFieldTextContext::Create(this, gpuDevice, leakyProperties,
                                               enableDistanceFieldFonts);

@@ -64,45 +64,45 @@ static size_t get_vertex_stride(GrMaskFormat maskFormat) {
 // handle textblobs where the whole run is larger than the cache size
 // TODO implement micro speedy hash map for fast refing of glyphs
 
-GrBitmapTextContextB::GrBitmapTextContextB(GrContext* context,
-                                         SkGpuDevice* gpuDevice,
-                                         const SkDeviceProperties& properties)
+GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
+                                       SkGpuDevice* gpuDevice,
+                                       const SkDeviceProperties& properties)
                                        : INHERITED(context, gpuDevice, properties) {
     fCurrStrike = NULL;
 }
 
-void GrBitmapTextContextB::ClearCacheEntry(uint32_t key, BitmapTextBlob** blob) {
+void GrAtlasTextContext::ClearCacheEntry(uint32_t key, BitmapTextBlob** blob) {
     (*blob)->unref();
 }
 
-GrBitmapTextContextB::~GrBitmapTextContextB() {
-    fCache.foreach(&GrBitmapTextContextB::ClearCacheEntry);
+GrAtlasTextContext::~GrAtlasTextContext() {
+    fCache.foreach(&GrAtlasTextContext::ClearCacheEntry);
 }
 
-GrBitmapTextContextB* GrBitmapTextContextB::Create(GrContext* context,
-                                                 SkGpuDevice* gpuDevice,
-                                                 const SkDeviceProperties& props) {
-    return SkNEW_ARGS(GrBitmapTextContextB, (context, gpuDevice, props));
+GrAtlasTextContext* GrAtlasTextContext::Create(GrContext* context,
+                                               SkGpuDevice* gpuDevice,
+                                               const SkDeviceProperties& props) {
+    return SkNEW_ARGS(GrAtlasTextContext, (context, gpuDevice, props));
 }
 
-bool GrBitmapTextContextB::canDraw(const GrRenderTarget*,
-                                  const GrClip&,
-                                  const GrPaint&,
-                                  const SkPaint& skPaint,
-                                  const SkMatrix& viewMatrix) {
+bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
+                                 const GrClip&,
+                                 const GrPaint&,
+                                 const SkPaint& skPaint,
+                                 const SkMatrix& viewMatrix) {
     return !SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix);
 }
 
-inline void GrBitmapTextContextB::init(GrRenderTarget* rt, const GrClip& clip,
-                                      const GrPaint& paint, const SkPaint& skPaint,
-                                      const SkIRect& regionClipBounds) {
+inline void GrAtlasTextContext::init(GrRenderTarget* rt, const GrClip& clip,
+                                     const GrPaint& paint, const SkPaint& skPaint,
+                                     const SkIRect& regionClipBounds) {
     INHERITED::init(rt, clip, paint, skPaint, regionClipBounds);
 
     fCurrStrike = NULL;
 }
 
-bool GrBitmapTextContextB::MustRegenerateBlob(const BitmapTextBlob& blob, const SkPaint& paint,
-                                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+bool GrAtlasTextContext::MustRegenerateBlob(const BitmapTextBlob& blob, const SkPaint& paint,
+                                            const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
     // We always regenerate blobs with patheffects or mask filters we could cache these
     // TODO find some way to cache the maskfilter / patheffects on the textblob
     return !blob.fViewMatrix.cheapEqualTo(viewMatrix) || blob.fX != x || blob.fY != y ||
@@ -110,24 +110,24 @@ bool GrBitmapTextContextB::MustRegenerateBlob(const BitmapTextBlob& blob, const 
 }
 
 
-inline SkGlyphCache* GrBitmapTextContextB::setupCache(BitmapTextBlob::Run* run,
-                                                      const SkPaint& skPaint,
-                                                      const SkMatrix& viewMatrix) {
+inline SkGlyphCache* GrAtlasTextContext::setupCache(BitmapTextBlob::Run* run,
+                                                    const SkPaint& skPaint,
+                                                    const SkMatrix& viewMatrix) {
     skPaint.getScalerContextDescriptor(&run->fDescriptor, &fDeviceProperties, &viewMatrix, false);
     run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
     return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
 }
 
-inline void GrBitmapTextContextB::BlobGlyphCount(int* glyphCount, int* runCount,
-                                                 const SkTextBlob* blob) {
+inline void GrAtlasTextContext::BlobGlyphCount(int* glyphCount, int* runCount,
+                                               const SkTextBlob* blob) {
     SkTextBlob::RunIterator itCounter(blob);
     for (; !itCounter.done(); itCounter.next(), (*runCount)++) {
         *glyphCount += itCounter.glyphCount();
     }
 }
 
-GrBitmapTextContextB::BitmapTextBlob* GrBitmapTextContextB::CreateBlob(int glyphCount,
-                                                                       int runCount) {
+GrAtlasTextContext::BitmapTextBlob* GrAtlasTextContext::CreateBlob(int glyphCount,
+                                                                   int runCount) {
     // We allocate size for the BitmapTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     SK_COMPILE_ASSERT(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
@@ -154,10 +154,10 @@ GrBitmapTextContextB::BitmapTextBlob* GrBitmapTextContextB::CreateBlob(int glyph
     return cacheBlob;
 }
 
-void GrBitmapTextContextB::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
-                                        const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                        const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                        SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
+void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
+                                      const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                      const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                      SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     BitmapTextBlob* cacheBlob;
     BitmapTextBlob** foundBlob = fCache.find(blob->uniqueID());
     SkIRect clipRect;
@@ -196,10 +196,10 @@ void GrBitmapTextContextB::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                 fSkPaint.getAlpha());
 }
 
-void GrBitmapTextContextB::regenerateTextBlob(BitmapTextBlob* cacheBlob,
-                                              const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                              const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                              SkDrawFilter* drawFilter, const SkIRect& clipRect) {
+void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
+                                            const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                            const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                            SkDrawFilter* drawFilter, const SkIRect& clipRect) {
     cacheBlob->fViewMatrix = viewMatrix;
     cacheBlob->fX = x;
     cacheBlob->fY = y;
@@ -265,11 +265,11 @@ void GrBitmapTextContextB::regenerateTextBlob(BitmapTextBlob* cacheBlob,
     }
 }
 
-void GrBitmapTextContextB::onDrawText(GrRenderTarget* rt, const GrClip& clip,
-                                     const GrPaint& paint, const SkPaint& skPaint,
-                                     const SkMatrix& viewMatrix,
-                                     const char text[], size_t byteLength,
-                                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
+void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
+                                    const GrPaint& paint, const SkPaint& skPaint,
+                                    const SkMatrix& viewMatrix,
+                                    const char text[], size_t byteLength,
+                                    SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
     int glyphCount = skPaint.countText(text, byteLength);
     SkAutoTUnref<BitmapTextBlob> blob(CreateBlob(glyphCount, 1));
     blob->fViewMatrix = viewMatrix;
@@ -288,11 +288,11 @@ void GrBitmapTextContextB::onDrawText(GrRenderTarget* rt, const GrClip& clip,
     this->flush(fContext->getTextTarget(), blob, rt, paint, clip, viewMatrix, skPaint.getAlpha());
 }
 
-void GrBitmapTextContextB::internalDrawText(BitmapTextBlob* blob, int runIndex,
-                                            SkGlyphCache* cache, const SkPaint& skPaint,
-                                           const SkMatrix& viewMatrix,
-                                           const char text[], size_t byteLength,
-                                           SkScalar x, SkScalar y, const SkIRect& clipRect) {
+void GrAtlasTextContext::internalDrawText(BitmapTextBlob* blob, int runIndex,
+                                          SkGlyphCache* cache, const SkPaint& skPaint,
+                                          const SkMatrix& viewMatrix,
+                                          const char text[], size_t byteLength,
+                                          SkScalar x, SkScalar y, const SkIRect& clipRect) {
     SkASSERT(byteLength == 0 || text != NULL);
 
     // nothing to draw
@@ -377,12 +377,12 @@ void GrBitmapTextContextB::internalDrawText(BitmapTextBlob* blob, int runIndex,
     }
 }
 
-void GrBitmapTextContextB::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
-                                        const GrPaint& paint, const SkPaint& skPaint,
-                                        const SkMatrix& viewMatrix,
-                                        const char text[], size_t byteLength,
-                                        const SkScalar pos[], int scalarsPerPosition,
-                                        const SkPoint& offset, const SkIRect& regionClipBounds) {
+void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
+                                       const GrPaint& paint, const SkPaint& skPaint,
+                                       const SkMatrix& viewMatrix,
+                                       const char text[], size_t byteLength,
+                                       const SkScalar pos[], int scalarsPerPosition,
+                                       const SkPoint& offset, const SkIRect& regionClipBounds) {
     int glyphCount = skPaint.countText(text, byteLength);
     SkAutoTUnref<BitmapTextBlob> blob(CreateBlob(glyphCount, 1));
     blob->fStyle = skPaint.getStyle();
@@ -400,12 +400,12 @@ void GrBitmapTextContextB::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
     this->flush(fContext->getTextTarget(), blob, rt, paint, clip, viewMatrix, fSkPaint.getAlpha());
 }
 
-void GrBitmapTextContextB::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
-                                               SkGlyphCache* cache, const SkPaint& skPaint,
-                                              const SkMatrix& viewMatrix,
-                                              const char text[], size_t byteLength,
-                                              const SkScalar pos[], int scalarsPerPosition,
-                                              const SkPoint& offset, const SkIRect& clipRect) {
+void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
+                                             SkGlyphCache* cache, const SkPaint& skPaint,
+                                             const SkMatrix& viewMatrix,
+                                             const char text[], size_t byteLength,
+                                             const SkScalar pos[], int scalarsPerPosition,
+                                             const SkPoint& offset, const SkIRect& clipRect) {
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -559,9 +559,9 @@ void GrBitmapTextContextB::internalDrawPosText(BitmapTextBlob* blob, int runInde
     }
 }
 
-void GrBitmapTextContextB::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGlyph::PackedID packed,
-                                      int vx, int vy, GrFontScaler* scaler,
-                                      const SkIRect& clipRect) {
+void GrAtlasTextContext::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGlyph::PackedID packed,
+                                     int vx, int vy, GrFontScaler* scaler,
+                                     const SkIRect& clipRect) {
     if (NULL == fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
     }
@@ -674,7 +674,7 @@ void GrBitmapTextContextB::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGly
 
 class BitmapTextBatch : public GrBatch {
 public:
-    typedef GrBitmapTextContextB::BitmapTextBlob Blob;
+    typedef GrAtlasTextContext::BitmapTextBlob Blob;
     typedef Blob::Run Run;
     typedef Run::SubRunInfo TextInfo;
     struct Geometry {
@@ -1010,9 +1010,9 @@ private:
     GrBatchFontCache* fFontCache;
 };
 
-void GrBitmapTextContextB::flush(GrDrawTarget* target, BitmapTextBlob* blob, GrRenderTarget* rt,
-                                 const GrPaint& paint, const GrClip& clip,
-                                 const SkMatrix& viewMatrix, int paintAlpha) {
+void GrAtlasTextContext::flush(GrDrawTarget* target, BitmapTextBlob* blob, GrRenderTarget* rt,
+                               const GrPaint& paint, const GrClip& clip,
+                               const SkMatrix& viewMatrix, int paintAlpha) {
     GrPipelineBuilder pipelineBuilder;
     pipelineBuilder.setFromPaint(paint, rt, clip);
 

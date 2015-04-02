@@ -21,14 +21,14 @@ class GrPipelineBuilder;
  * This class implements GrTextContext using standard bitmap fonts, and can also process textblobs.
  * TODO replace GrBitmapTextContext
  */
-class GrBitmapTextContextB : public GrTextContext {
+class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrBitmapTextContextB* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
+    static GrAtlasTextContext* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
 
-    virtual ~GrBitmapTextContextB();
+    virtual ~GrAtlasTextContext();
 
 private:
-    GrBitmapTextContextB(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
+    GrAtlasTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;
