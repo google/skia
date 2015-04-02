@@ -28,10 +28,10 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
         // handle rects that do not intersect the [0..1]x[0..1] rect.
         SkASSERT(domain.fLeft <= domain.fRight);
         SkASSERT(domain.fTop <= domain.fBottom);
-        fDomain.fLeft = SkMaxScalar(domain.fLeft, kFullRect.fLeft);
-        fDomain.fRight = SkMinScalar(domain.fRight, kFullRect.fRight);
-        fDomain.fTop = SkMaxScalar(domain.fTop, kFullRect.fTop);
-        fDomain.fBottom = SkMinScalar(domain.fBottom, kFullRect.fBottom);
+        fDomain.fLeft = SkScalarPin(domain.fLeft, kFullRect.fLeft, kFullRect.fRight);
+        fDomain.fRight = SkScalarPin(domain.fRight, kFullRect.fLeft, kFullRect.fRight);
+        fDomain.fTop = SkScalarPin(domain.fTop, kFullRect.fTop, kFullRect.fBottom);
+        fDomain.fBottom = SkScalarPin(domain.fBottom, kFullRect.fTop, kFullRect.fBottom);
         SkASSERT(fDomain.fLeft <= fDomain.fRight);
         SkASSERT(fDomain.fTop <= fDomain.fBottom);
     }
