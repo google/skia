@@ -78,8 +78,9 @@ GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTexture
 // Sets the color of GrPaint to the value of the parameter paintColor
 // Callers may subsequently modify the GrPaint. Setting constantColor indicates
 // that the final paint will draw the same color at every pixel. This allows
-// an optimization where the the color filter can be applied to the SkPaint's
-// color once while converting to GrPaint and then ignored.
+// an optimization where the color filter can be applied to the SkPaint's
+// color once while converting to GrPaint and then ignored. TODO: Remove this
+// bool and use the invariant info to automatically apply the color filter.
 void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget*, const SkPaint& skPaint,
                              GrColor paintColor, bool constantColor, GrPaint* grPaint);
 

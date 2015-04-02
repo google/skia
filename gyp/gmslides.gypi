@@ -65,6 +65,7 @@
         '../gm/complexclip3.cpp',
         '../gm/composeshader.cpp',
         '../gm/conicpaths.cpp',
+        '../gm/constcolorprocessor.cpp',
         '../gm/convexpaths.cpp',
         '../gm/convexpolyclip.cpp',
         '../gm/convexpolyeffect.cpp',
