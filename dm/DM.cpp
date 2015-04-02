@@ -657,7 +657,7 @@ int dm_main() {
     return 0;
 }
 
-#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
+#if !defined(SK_BUILD_FOR_IOS)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     return dm_main();

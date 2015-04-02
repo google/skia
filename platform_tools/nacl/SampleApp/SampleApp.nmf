@@ -1,6 +1,0 @@
-{
-  "program": {
-    "x86-64": {"url": "../../out/nacl64/Debug/SampleApp"},
-    "x86-32": {"url": "../../out/nacl32/Debug/SampleApp"}
-  }
-}

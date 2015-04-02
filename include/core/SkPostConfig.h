@@ -354,7 +354,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_EGL
-#  if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
+#  if defined(SK_BUILD_FOR_ANDROID)
 #    define SK_EGL 1
 #  else
 #    define SK_EGL 0

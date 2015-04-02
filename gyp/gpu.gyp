@@ -26,11 +26,7 @@
         'sources/': [ ['exclude', '_android.(h|cpp)$'],
         ],
       }],
-      ['skia_os != "nacl"', {
-        'sources/': [ ['exclude', '_nacl.(h|cpp)$'],
-        ],
-      }],
-      ['skia_os == "nacl" or skia_egl == 0', {
+      ['skia_egl == 0', {
         'sources/': [ ['exclude', '_egl.(h|cpp)$'],
         ],
       }],
@@ -167,13 +163,6 @@
               '-lGL',
               '-lGLU',
               '-lX11',
-            ],
-          },
-        }],
-        [ 'skia_os == "nacl"', {
-          'link_settings': {
-            'libraries': [
-              '-lppapi_gles2',
             ],
           },
         }],

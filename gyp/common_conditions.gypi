@@ -208,7 +208,7 @@
     ],
 
     # The following section is common to linux + derivatives and android
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]',
       {
         'cflags': [
           '-g',
@@ -329,13 +329,6 @@
       },
     ],
 
-    [ 'skia_os == "nacl"', {
-      # NaCl compiler is GCC 4.4, which is too old to understand 'c++11', so call it '0x'.
-      # NaCl's newlib needs gnu++ mode to see snprintf, vsnprintf, etc in C++11 mode.
-      'cflags_cc!': [ '-std=c++11' ],
-      'cflags_cc' : [ '-std=gnu++0x' ],
-    }],
-
     ['skia_android_framework', {
       'includes' : [
         'skia_for_android_framework_defines.gypi',
@@ -407,7 +400,7 @@
       ],
     }],
 
-    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]',
+    [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
       {
         'defines': [
           'SK_SAMPLES_FOR_X',
@@ -433,26 +426,6 @@
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',
             ],
-          }],
-          [ 'skia_os == "nacl"', {
-            'defines': [
-              'SK_BUILD_FOR_NACL',
-            ],
-            'variables': {
-              'nacl_sdk_root': '<!(echo ${NACL_SDK_ROOT})',
-            },
-            'link_settings': {
-              'libraries': [
-                '-lppapi',
-                '-lppapi_cpp',
-                '-lnosys',
-                '-pthread',
-              ],
-              'ldflags': [
-                '-L<(nacl_sdk_root)/lib/newlib_x86_<(skia_arch_width)/Release',
-                '-L<(nacl_sdk_root)/ports/lib/newlib_x86_<(skia_arch_width)/Release',
-              ],
-            },
           }],
           # Enable asan, tsan, etc.
           [ 'skia_sanitizer', {

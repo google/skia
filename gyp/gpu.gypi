@@ -354,7 +354,6 @@
 
       # Sk files
       '<(skia_src_path)/gpu/gl/mac/SkCreatePlatformGLContext_mac.cpp',
-      '<(skia_src_path)/gpu/gl/nacl/SkCreatePlatformGLContext_nacl.cpp',
       '<(skia_src_path)/gpu/gl/win/SkCreatePlatformGLContext_win.cpp',
       '<(skia_src_path)/gpu/gl/glx/SkCreatePlatformGLContext_glx.cpp',
       '<(skia_src_path)/gpu/gl/egl/SkCreatePlatformGLContext_egl.cpp',

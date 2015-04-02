@@ -102,10 +102,7 @@
           'arm_version%': 7,
           'arm_neon%': 0, # neon asm files known not to work with the ios build
         }],
-        [ 'skia_os == "nacl"', {
-          'skia_egl%': 1,
-        }],
-        [ 'skia_os in ["android", "nacl"] and not skia_android_framework',
+        [ 'skia_os == "android" and not skia_android_framework',
           # skia_freetype_static - on OS variants that normally would
           #     dynamically link the system FreeType library, don't do
           #     that; instead statically link to the version in

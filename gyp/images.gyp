@@ -123,18 +123,6 @@
           ],
           # end libpng stuff
         }],
-        # FIXME: NaCl should be just like linux, etc, above, but it currently is separated out
-        # to remove gif. Once gif is supported by naclports, this can be merged into the above
-        # condition.
-        [ 'skia_os == "nacl"', {
-          'sources!': [
-            '../src/images/SkImageDecoder_libgif.cpp',
-            '../src/images/SkMovie_gif.cpp',
-          ],
-          'dependencies!': [
-            'giflib.gyp:giflib'
-          ],
-        }],
         [ 'skia_os == "android"', {
           'include_dirs': [
              '../src/utils',

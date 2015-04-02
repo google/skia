@@ -26,7 +26,6 @@
         '../src/utils',
       ],
       'sources': [
-        '../src/ports/SkDebug_nacl.cpp',
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
 
@@ -59,7 +58,7 @@
         '../include/ports/SkRemotableFontMgr.h',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "nacl", "android"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]', {
           'sources': [
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
@@ -128,18 +127,6 @@
                 '../src/ports/SkFontConfigInterface_direct.cpp',
               ],
             }]
-          ],
-        }],
-        [ 'skia_os == "nacl"', {
-          'sources': [
-            '../src/ports/SkFontHost_linux.cpp',
-          ],
-          'sources!': [
-            '../src/ports/SkDebug_stdio.cpp',
-          ],
-        }, {
-          'sources!': [
-            '../src/ports/SkDebug_nacl.cpp',
           ],
         }],
         [ 'skia_os == "mac"', {

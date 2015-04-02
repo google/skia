@@ -25,7 +25,6 @@
     'variables': {
       'conditions': [
         [ 'skia_os != OS and not ((skia_os == "ios" and OS == "mac") or \
-                                  (skia_os == "nacl" and OS == "linux") or \
                                   (skia_os == "chromeos" and OS == "linux"))', {
           'error': '<!(Cannot build with skia_os=<(skia_os) on OS=<(OS))',
         }],
@@ -37,9 +36,6 @@
         }],
         [ 'skia_arch_width != 32 and skia_arch_width != 64', {
           'error': '<!(skia_arch_width can only be 32 or 64 bits not <(skia_arch_width) bits)',
-        }],
-        [ 'skia_os == "nacl" and OS != "linux"', {
-          'error': '<!(Skia NaCl build only currently supported on Linux.)',
         }],
         [ 'skia_os == "chromeos" and OS != "linux"', {
           'error': '<!(Skia ChromeOS build is only supported on Linux.)',

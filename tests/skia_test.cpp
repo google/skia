@@ -229,7 +229,7 @@ int test_main() {
     return (status.failCount() == 0) ? 0 : 1;
 }
 
-#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
+#if !defined(SK_BUILD_FOR_IOS)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     return test_main();

@@ -18,11 +18,11 @@
               'freetype_static'
             ],
             'conditions': [
-              [ 'skia_os in ["android", "nacl"]',
+              [ 'skia_os == "android"',
                 {
                   'direct_dependent_settings': {
                     'defines': [
-                      # Both Android and NaCl provide at least FreeType 2.4.0
+                      # Android provides at least FreeType 2.4.0
                       'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
                       'SK_CAN_USE_DLOPEN=0',
                     ],

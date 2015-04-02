@@ -10,6 +10,8 @@
 // the execution of an arbitrary set of difference algorithms.
 // See http://skbug.com/2711 ('rename skpdiff')
 
+#include "SkTypes.h"
+
 #if SK_SUPPORT_OPENCL
 
 #define __NO_STD_VECTOR // Uses cl::vectpr instead of std::vectpr
@@ -259,7 +261,7 @@ int tool_main(int argc, char * argv[]) {
     return 0;
 }
 
-#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
+#if !defined(SK_BUILD_FOR_IOS)
 int main(int argc, char * argv[]) {
     return tool_main(argc, (char**) argv);
 }

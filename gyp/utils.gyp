@@ -107,14 +107,6 @@
             '../src/utils/win/SkIStream.cpp',
           ],
         }],
-        [ 'skia_os == "nacl"', {
-          'sources': [
-            '../src/utils/SkThreadUtils_pthread_other.cpp',
-          ],
-          'sources!': [
-            '../src/utils/SkThreadUtils_pthread_linux.cpp',
-          ],
-        }],
         ['skia_run_pdfviewer_in_gm', {
           'defines': [
             'SK_BUILD_NATIVE_PDF_RENDERER',

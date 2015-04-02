@@ -1,3 +1,10 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "CrashHandler.h"
 
 #include "SkTypes.h"
@@ -47,7 +54,7 @@
             _Exit(sig);
         }
 
-    #elif defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)  // NACL doesn't have backtrace.
+    #elif defined(SK_BUILD_FOR_UNIX)
 
         // We'd use libunwind here too, but it's a pain to get installed for
         // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
@@ -67,7 +74,7 @@
 
     #endif
 
-    #if (defined(SK_BUILD_FOR_MAC) || (defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_NACL)))
+    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
         #include <signal.h>
 
         void SetupCrashHandler() {

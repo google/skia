@@ -25,7 +25,7 @@ Here are some real world examples:
 
     CQ_INCLUDE_TRYBOTS=tryserver.chromium:linux_layout_rel
 
-    CQ_INCLUDE_TRYBOTS=tryserver.skia:Build-Ubuntu13.10-GCC4.8-NaCl-Release-Trybot
+    CQ_INCLUDE_TRYBOTS=tryserver.skia:Build-Mac10.9-Clang-x86_64-Debug
 
     CQ_EXCLUDE_TRYBOTS
 

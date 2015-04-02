@@ -242,22 +242,12 @@
       'target_name': 'skhello',
       'type': 'executable',
       'dependencies': [
+        'flags.gyp:flags',
+        'pdf.gyp:pdf',
         'skia_lib.gyp:skia_lib',
       ],
-      'conditions': [
-        [ 'skia_os == "nacl"', {
-          'sources': [
-            '../platform_tools/nacl/src/nacl_hello.cpp',
-          ],
-        }, {
-          'sources': [
-            '../tools/skhello.cpp',
-          ],
-          'dependencies': [
-            'flags.gyp:flags',
-            'pdf.gyp:pdf',
-          ],
-        }],
+      'sources': [
+        '../tools/skhello.cpp',
       ],
     },
     {
@@ -653,7 +643,6 @@
           '<(skia_include_path)/views/SkOSWindow_Android.h',
           '<(skia_include_path)/views/SkOSWindow_iOS.h',
           '<(skia_include_path)/views/SkOSWindow_Mac.h',
-          '<(skia_include_path)/views/SkOSWindow_NaCl.h',
           '<(skia_include_path)/views/SkOSWindow_SDL.h',
           '<(skia_include_path)/views/SkOSWindow_Unix.h',
           '<(skia_include_path)/views/SkOSWindow_Win.h',

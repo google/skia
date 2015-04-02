@@ -89,6 +89,8 @@
         '../src/ports',     # To pull SkFontDescriptor.h
         '../bench',
         '../tools',
+        '../debugger/QT',   # For all the QT UI Goodies
+        '<@(qt_includes)',
       ],
       'sources': [
         '../debugger/SkDebugger.cpp',
@@ -98,100 +100,75 @@
         '../src/utils/debugger/SkDrawCommand.cpp',
         '../src/utils/debugger/SkObjectParser.h',
         '../src/utils/debugger/SkObjectParser.cpp',
+        '../debugger/debuggermain.cpp',
+        '../debugger/QT/SkDebuggerGUI.cpp',
+        '../debugger/QT/SkDebuggerGUI.h',
+        '../debugger/QT/SkDrawCommandGeometryWidget.h',
+        '../debugger/QT/SkDrawCommandGeometryWidget.cpp',
+        '../debugger/QT/SkCanvasWidget.cpp',
+        '../debugger/QT/SkCanvasWidget.h',
+        '../debugger/QT/SkInspectorWidget.h',
+        '../debugger/QT/SkInspectorWidget.cpp',
+        '../debugger/QT/SkListWidget.h',
+        '../debugger/QT/SkListWidget.cpp',
+        '../debugger/QT/SkSettingsWidget.h',
+        '../debugger/QT/SkSettingsWidget.cpp',
+        '../debugger/QT/SkGLWidget.h',
+        '../debugger/QT/SkGLWidget.cpp',
+        '../debugger/QT/SkRasterWidget.h',
+        '../debugger/QT/SkRasterWidget.cpp',
+
+        # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
+        '../debugger/QT/qrc_SkIcons.cpp',
+
+        # Generated MOC files
+        '<(moc_gen_dir)/moc_SkCanvasWidget.cpp',
+        '<(moc_gen_dir)/moc_SkDebuggerGUI.cpp',
+        '<(moc_gen_dir)/moc_SkDrawCommandGeometryWidget.cpp',
+        '<(moc_gen_dir)/moc_SkInspectorWidget.cpp',
+        '<(moc_gen_dir)/moc_SkSettingsWidget.cpp',
+        '<(moc_gen_dir)/moc_SkRasterWidget.cpp',
+        '<(moc_gen_dir)/moc_SkGLWidget.cpp',
       ],
       'dependencies': [
+        'debugger_qt_mocs',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_renderer',
         'tools.gyp:timer',
       ],
-      'conditions': [
-        [ 'skia_os == "nacl"', {
-          'include_dirs': [
-            '../src/utils',
-          ],
-          'sources': [
-            '../platform_tools/nacl/src/nacl_debugger.cpp',
-          ],
-        }, { # skia_os != "nacl"
-          'include_dirs': [
-            '../debugger/QT',   # For all the QT UI Goodies
-            '<@(qt_includes)',
-          ],
-          'sources': [
-            '../debugger/debuggermain.cpp',
-            '../debugger/QT/SkDebuggerGUI.cpp',
-            '../debugger/QT/SkDebuggerGUI.h',
-            '../debugger/QT/SkDrawCommandGeometryWidget.h',
-            '../debugger/QT/SkDrawCommandGeometryWidget.cpp',
-            '../debugger/QT/SkCanvasWidget.cpp',
-            '../debugger/QT/SkCanvasWidget.h',
-            '../debugger/QT/SkInspectorWidget.h',
-            '../debugger/QT/SkInspectorWidget.cpp',
-            '../debugger/QT/SkListWidget.h',
-            '../debugger/QT/SkListWidget.cpp',
-            '../debugger/QT/SkSettingsWidget.h',
-            '../debugger/QT/SkSettingsWidget.cpp',
-            '../debugger/QT/SkGLWidget.h',
-            '../debugger/QT/SkGLWidget.cpp',
-            '../debugger/QT/SkRasterWidget.h',
-            '../debugger/QT/SkRasterWidget.cpp',
-
-            # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
-            '../debugger/QT/qrc_SkIcons.cpp',
-
-            # Generated MOC files
-            '<(moc_gen_dir)/moc_SkCanvasWidget.cpp',
-            '<(moc_gen_dir)/moc_SkDebuggerGUI.cpp',
-            '<(moc_gen_dir)/moc_SkDrawCommandGeometryWidget.cpp',
-            '<(moc_gen_dir)/moc_SkInspectorWidget.cpp',
-            '<(moc_gen_dir)/moc_SkSettingsWidget.cpp',
-            '<(moc_gen_dir)/moc_SkRasterWidget.cpp',
-            '<(moc_gen_dir)/moc_SkGLWidget.cpp',
-          ],
-          'cflags': [
-            # Clang gets confused by QWeakPointer, see http://llvm.org/bugs/show_bug.cgi?id=13127
-            '-Wno-uninitialized',
-          ],
-          'dependencies': [
-            'debugger_qt_mocs',
-          ],
-          'link_settings': {
-            'libraries': [
-              '<@(qt_libs)',
-            ],
-          },
-        }],
+      'cflags': [
+        # Clang gets confused by QWeakPointer, see http://llvm.org/bugs/show_bug.cgi?id=13127
+        '-Wno-uninitialized',
       ],
+      'link_settings': {
+        'libraries': [
+          '<@(qt_libs)',
+        ],
+      },
     },
-  ],
-  'conditions': [
-    [ 'skia_os != "nacl"', {
-      'targets': [
+    {
+      'target_name': 'debugger_qt_mocs',
+      'type': 'none',
+      'sources': [
+        '<(moc_src_dir)/SkCanvasWidget.h',
+        '<(moc_src_dir)/SkDebuggerGUI.h',
+        '<(moc_src_dir)/SkDrawCommandGeometryWidget.h',
+        '<(moc_src_dir)/SkInspectorWidget.h',
+        '<(moc_src_dir)/SkSettingsWidget.h',
+        '<(moc_src_dir)/SkRasterWidget.h',
+        '<(moc_src_dir)/SkGLWidget.h',
+      ],
+      'rules': [
         {
-          'target_name': 'debugger_qt_mocs',
-          'type': 'none',
-          'sources': [
-            '<(moc_src_dir)/SkCanvasWidget.h',
-            '<(moc_src_dir)/SkDebuggerGUI.h',
-            '<(moc_src_dir)/SkDrawCommandGeometryWidget.h',
-            '<(moc_src_dir)/SkInspectorWidget.h',
-            '<(moc_src_dir)/SkSettingsWidget.h',
-            '<(moc_src_dir)/SkRasterWidget.h',
-            '<(moc_src_dir)/SkGLWidget.h',
-          ],
-          'rules': [
-            {
-              'rule_name': 'generate_moc',
-              'extension': 'h',
-              'outputs': [ '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
-              'action': [ '<(qt_moc)', '-DSK_SUPPORT_GPU=<(skia_gpu)',
-                          '<(RULE_INPUT_PATH)',
-                          '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
-              'message': 'Generating <(RULE_INPUT_ROOT).cpp.',
-            },
-          ],
+          'rule_name': 'generate_moc',
+          'extension': 'h',
+          'outputs': [ '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+          'action': [ '<(qt_moc)', '-DSK_SUPPORT_GPU=<(skia_gpu)',
+                      '<(RULE_INPUT_PATH)',
+                      '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+          'message': 'Generating <(RULE_INPUT_ROOT).cpp.',
         },
       ],
-    }],
+    },
   ],
 }

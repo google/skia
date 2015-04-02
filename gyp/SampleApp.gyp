@@ -297,11 +297,6 @@
             'gputest.gyp:skgputest',
           ],
         }],
-        [ 'skia_os == "nacl"', {
-          'sources': [
-            '../../nacl/src/nacl_sample.cpp',
-          ],
-        }],
       ],
       'msvs_settings': {
         'VCLinkerTool': {

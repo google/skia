@@ -29,11 +29,6 @@
           'android_output.gyp:android_output',
         ],
       }],
-      [ 'skia_os == "nacl"', {
-        'dependencies': [
-          'nacl.gyp:nacl_interface',
-        ],
-      }],
       ['skia_os == "ios"', {
         'target_conditions': [
           ['_type == "executable"', {
