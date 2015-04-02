@@ -1,4 +1,10 @@
 # Set up the environment to build Skia for ChromeOS.
+###############################################################################
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+###############################################################################
 
 function exportVar {
   NAME=$1
@@ -23,16 +29,13 @@ setup_device() {
   DEFINES="OS=linux host_os=linux skia_os=chromeos skia_gpu=0"
 
   case $TARGET_DEVICE in
-    x86-alex)
-        DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
-        GENERIC_BOARD_TYPE="x86-generic"
-        ;;
     link)
-        DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=64"
+        DEFINES="${DEFINES} skia_arch_type=x86_64"
         GENERIC_BOARD_TYPE="amd64-generic"
         ;;
     daisy)
-        DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 armv7=1 arm_thumb=0 skia_arch_width=32"
+        # TODO(mtklein): make this arm_version=7 and arm_neon=1
+        DEFINES="${DEFINES} skia_arch_type=arm arm_thumb=0"
         # TODO(borenet): We have to define skia_warnings_as_errors=0 for the arm
         # build, which throws lots of "mangling of va_list has changed" warnings.
         DEFINES="${DEFINES} skia_warnings_as_errors=0"
