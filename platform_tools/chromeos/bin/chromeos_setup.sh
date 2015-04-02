@@ -34,8 +34,8 @@ setup_device() {
         GENERIC_BOARD_TYPE="amd64-generic"
         ;;
     daisy)
-        # TODO(mtklein): make this arm_version=7 and arm_neon=1
-        DEFINES="${DEFINES} skia_arch_type=arm arm_thumb=0"
+        # TODO(mtklein): make this arm_neon=1
+        DEFINES="${DEFINES} skia_arch_type=arm arm_version=7 arm_neon=0 arm_thumb=0"
         # TODO(borenet): We have to define skia_warnings_as_errors=0 for the arm
         # build, which throws lots of "mangling of va_list has changed" warnings.
         DEFINES="${DEFINES} skia_warnings_as_errors=0"
