@@ -43,9 +43,11 @@ public:
     float g() const { return fColors[SK_G32_SHIFT / 8]; }
     float b() const { return fColors[SK_B32_SHIFT / 8]; }
 
+    // N.B. All methods returning an SkPMColor call SkPMColorAssert on that result before returning.
+
     // get() and clamped() round component values to the nearest integer.
-    SkPMColor     get() const;  // May SkASSERT(this->isValid()).  Some implementations may clamp.
-    SkPMColor clamped() const;  // Will clamp all values to [0, 255].  Then may assert isValid().
+    SkPMColor     get() const;  // Assumes all values in [0, 255].  Some implementations may clamp.
+    SkPMColor clamped() const;  // Will clamp all values to [0, 255].
 
     // Like get(), but truncates instead of rounding.
     // The domain of this function is (-1.0f, 256.0f).  Values in (-1.0f, 0.0f] trunc to a zero.

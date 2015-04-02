@@ -22,7 +22,6 @@ inline SkPMFloat::SkPMFloat(SkPMColor c) {
 }
 
 inline SkPMColor SkPMFloat::get() const {
-    SkASSERT(this->isValid());
     return this->clamped();  // Haven't beaten this yet.
 }
 

@@ -31,7 +31,6 @@ inline SkPMColor SkPMFloat::trunc() const {
 }
 
 inline SkPMColor SkPMFloat::get() const {
-    SkASSERT(this->isValid());
     return SkPMFloat(Sk4f(0.5f) + *this).trunc();
 }
 
