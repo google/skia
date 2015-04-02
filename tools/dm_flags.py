@@ -103,6 +103,7 @@ def get_args(bot):
     blacklist.extend('pdf gm fontmgr_iter'.split(' '))
     blacklist.extend('pdf _ PANO_20121023_214540.jpg'.split(' '))
     blacklist.extend('pdf skp tabl_worldjournal.skp'.split(' '))
+    blacklist.extend('pdf skp desk_baidu.skp'.split(' '))
 
   if blacklist:
     args.append('--blacklist')
