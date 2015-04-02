@@ -63,6 +63,20 @@ public:
         return this->read(NULL, size);
     }
 
+    /**
+     *  Attempt to peek at size bytes.
+     *  If this stream supports peeking, and it can peek size bytes, copy size
+     *  bytes into buffer, and return true.
+     *  If the stream does not support peeking, or cannot peek size bytes,
+     *  return false and leave buffer unchanged.
+     *  The stream is guaranteed to be in the same visible state after this
+     *  call, regardless of success or failure.
+     *  @param buffer Must not be NULL. Destination to copy bytes.
+     *  @param size Number of bytes to copy.
+     *  @return Whether the peek was performed.
+     */
+    virtual bool peek(void* /* buffer */, size_t /* size */) const { return false; }
+
     /** Returns true when all the bytes in the stream have been read.
      *  This may return true early (when there are no more bytes to be read)
      *  or late (after the first unsuccessful read).
@@ -318,6 +332,8 @@ public:
 
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
+
+    bool peek(void* buffer, size_t size) const override;
 
     bool rewind() override;
     SkMemoryStream* duplicate() const override;

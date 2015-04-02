@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkData.h"
+#include "SkFrontBufferedStream.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -189,4 +191,77 @@ DEF_TEST(Stream, reporter) {
     TestWStream(reporter);
     TestPackedUInt(reporter);
     TestNullData();
+}
+
+/**
+ *  Tests peeking and then reading the same amount. The two should provide the
+ *  same results.
+ *  Returns whether the stream could peek.
+ */
+static bool compare_peek_to_read(skiatest::Reporter* reporter,
+                                 SkStream* stream, size_t bytesToPeek) {
+    // The rest of our tests won't be very interesting if bytesToPeek is zero.
+    REPORTER_ASSERT(reporter, bytesToPeek > 0);
+    SkAutoMalloc peekStorage(bytesToPeek);
+    SkAutoMalloc readStorage(bytesToPeek);
+    void* peekPtr = peekStorage.get();
+    void* readPtr = peekStorage.get();
+
+    if (!stream->peek(peekPtr, bytesToPeek)) {
+        return false;
+    }
+    const size_t bytesRead = stream->read(readPtr, bytesToPeek);
+
+    // bytesRead should only be less than attempted if the stream is at the
+    // end.
+    REPORTER_ASSERT(reporter, bytesRead == bytesToPeek || stream->isAtEnd());
+
+    // peek and read should behave the same, except peek returned to the
+    // original position, so they read the same data.
+    REPORTER_ASSERT(reporter, !memcmp(peekPtr, readPtr, bytesRead));
+
+    return true;
+}
+
+static void test_peeking_stream(skiatest::Reporter* r, SkStream* stream, size_t limit) {
+    size_t peeked = 0;
+    for (size_t i = 1; !stream->isAtEnd(); i++) {
+        const bool couldPeek = compare_peek_to_read(r, stream, i);
+        if (!couldPeek) {
+            REPORTER_ASSERT(r, peeked + i > limit);
+            // No more peeking is supported.
+            break;
+        }
+        peeked += i;
+    }
+}
+
+static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
+                                               const SkStream& original,
+                                               size_t bufferSize) {
+    SkStream* dupe = original.duplicate();
+    REPORTER_ASSERT(r, dupe != NULL);
+    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
+    REPORTER_ASSERT(r, bufferedStream != NULL);
+    test_peeking_stream(r, bufferedStream, bufferSize);
+}
+
+DEF_TEST(StreamPeek, reporter) {
+    // Test a memory stream.
+    const char gAbcs[] = "abcdefghijklmnopqrstuvwxyz";
+    SkMemoryStream memStream(gAbcs, strlen(gAbcs), false);
+    test_peeking_stream(reporter, &memStream, memStream.getLength());
+
+    // Test an arbitrary file stream. file streams do not support peeking.
+    SkFILEStream fileStream(GetResourcePath("baby_tux.webp").c_str());
+    REPORTER_ASSERT(reporter, fileStream.isValid());
+    SkAutoMalloc storage(fileStream.getLength());
+    for (size_t i = 1; i < fileStream.getLength(); i++) {
+        REPORTER_ASSERT(reporter, !fileStream.peek(storage.get(), i));
+    }
+
+    // Now test some FrontBufferedStreams
+    for (size_t i = 1; i < memStream.getLength(); i++) {
+        test_peeking_front_buffered_stream(reporter, memStream, i);
+    }
 }

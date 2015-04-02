@@ -367,6 +367,20 @@ size_t SkMemoryStream::read(void* buffer, size_t size) {
     return size;
 }
 
+bool SkMemoryStream::peek(void* buffer, size_t size) const {
+    SkASSERT(buffer != NULL);
+    const size_t position = fOffset;
+    if (size > fData->size() - position) {
+        // The stream is not large enough to satisfy this request.
+        return false;
+    }
+    SkMemoryStream* nonConstThis = const_cast<SkMemoryStream*>(this);
+    SkDEBUGCODE(const size_t bytesRead =) nonConstThis->read(buffer, size);
+    SkASSERT(bytesRead == size);
+    nonConstThis->fOffset = position;
+    return true;
+}
+
 bool SkMemoryStream::isAtEnd() const {
     return fOffset == fData->size();
 }
