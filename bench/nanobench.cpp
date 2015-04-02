@@ -540,7 +540,7 @@ public:
 
         // Choose the candidate color types for image decoding
         const SkColorType colorTypes[] =
-            { kN32_SkColorType, kRGB_565_SkColorType, kAlpha_8_SkColorType };
+            { kN32_SkColorType, kRGB_565_SkColorType, kAlpha_8_SkColorType, kIndex_8_SkColorType };
         fColorTypes.push_back_n(SK_ARRAY_COUNT(colorTypes), colorTypes);
     }
 
@@ -644,15 +644,32 @@ public:
                 // Nothing to time.
                 continue;
             }
+
             while (fCurrentColorType < fColorTypes.count()) {
-                SkColorType colorType = fColorTypes[fCurrentColorType];
+                const SkColorType colorType = fColorTypes[fCurrentColorType];
                 fCurrentColorType++;
+
                 // Make sure we can decode to this color type.
-                SkBitmap bitmap;
                 SkImageInfo info = codec->getInfo().makeColorType(colorType);
-                bitmap.allocPixels(info);
+                SkAlphaType alphaType;
+                if (!SkColorTypeValidateAlphaType(colorType, info.alphaType(),
+                                                  &alphaType)) {
+                    continue;
+                }
+                if (alphaType != info.alphaType()) {
+                    info = info.makeAlphaType(alphaType);
+                }
+
+                const size_t rowBytes = info.minRowBytes();
+                SkAutoMalloc storage(info.getSafeSize(rowBytes));
+
+                // Used if fCurrentColorType is kIndex_8_SkColorType
+                int colorCount = 256;
+                SkPMColor colors[256];
+
                 const SkImageGenerator::Result result = codec->getPixels(
-                        bitmap.info(), bitmap.getPixels(), bitmap.rowBytes());
+                        info, storage.get(), rowBytes, NULL, colors,
+                        &colorCount);
                 switch (result) {
                     case SkImageGenerator::kSuccess:
                     case SkImageGenerator::kIncompleteInput:

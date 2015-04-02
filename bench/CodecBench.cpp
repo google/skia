@@ -48,18 +48,32 @@ bool CodecBench::isSuitableFor(Backend backend) {
 
 void CodecBench::onPreDraw() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
-    fBitmap.allocPixels(codec->getInfo().makeColorType(fColorType));
+
+    fInfo = codec->getInfo().makeColorType(fColorType);
+    SkAlphaType alphaType;
+    // Caller should not have created this CodecBench if the alpha type was
+    // invalid.
+    SkAssertResult(SkColorTypeValidateAlphaType(fColorType, fInfo.alphaType(),
+                                                &alphaType));
+    if (alphaType != fInfo.alphaType()) {
+        fInfo = fInfo.makeAlphaType(alphaType);
+    }
+
+    fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
 }
 
 void CodecBench::onDraw(const int n, SkCanvas* canvas) {
     SkAutoTDelete<SkCodec> codec;
+    SkPMColor colorTable[256];
+    int colorCount;
     for (int i = 0; i < n; i++) {
+        colorCount = 256;
         codec.reset(SkCodec::NewFromData(fData));
 #ifdef SK_DEBUG
         const SkImageGenerator::Result result =
 #endif
-        // fBitmap.info() was set to use fColorType in onPreDraw.
-        codec->getPixels(fBitmap.info(), fBitmap.getPixels(), fBitmap.rowBytes());
+        codec->getPixels(fInfo, fPixelStorage.get(), fInfo.minRowBytes(),
+                         NULL, colorTable, &colorCount);
         SkASSERT(result == SkImageGenerator::kSuccess
                  || result == SkImageGenerator::kIncompleteInput);
     }

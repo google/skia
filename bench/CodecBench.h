@@ -9,7 +9,6 @@
 #define CodecBench_DEFINED
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
@@ -33,7 +32,8 @@ private:
     SkString                fName;
     const SkColorType       fColorType;
     SkAutoTUnref<SkData>    fData;
-    SkBitmap                fBitmap;
+    SkImageInfo             fInfo;          // Set in onPreDraw.
+    SkAutoMalloc            fPixelStorage;
     typedef Benchmark INHERITED;
 };
 #endif // CodecBench_DEFINED

@@ -9,10 +9,8 @@
 #define DecodingBench_DEFINED
 
 #include "Benchmark.h"
-#include "SkBitmap.h"
 #include "SkData.h"
 #include "SkImageDecoder.h"
-#include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
@@ -36,7 +34,7 @@ private:
     SkString                fName;
     SkColorType             fColorType;
     SkAutoTUnref<SkData>    fData;
-    SkBitmap                fBitmap;
+    SkAutoMalloc            fPixelStorage;
     typedef Benchmark INHERITED;
 };
 #endif // DecodingBench_DEFINED
