@@ -46,7 +46,9 @@ protected:
                 w,
                 h
             );
-            canvas->drawRect(rect, paint);
+            for (int j = 0; j < 1000; ++j) {
+                canvas->drawRect(rect, paint);
+            }
         }
     }
 
