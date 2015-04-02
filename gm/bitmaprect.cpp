@@ -161,9 +161,9 @@ static void make_big_bitmap(SkBitmap* bitmap) {
         for (int x = 0; x < gXSize; ++x) {
             if (x <= gBorderWidth || x >= gXSize-gBorderWidth ||
                 y <= gBorderWidth || y >= gYSize-gBorderWidth) {
-                *bitmap->getAddr32(x, y) = 0x88FFFFFF;
+                *bitmap->getAddr32(x, y) = SkPreMultiplyColor(0x88FFFFFF);
             } else {
-                *bitmap->getAddr32(x, y) = 0x88FF0000;
+                *bitmap->getAddr32(x, y) = SkPreMultiplyColor(0x88FF0000);
             }
         }
     }
