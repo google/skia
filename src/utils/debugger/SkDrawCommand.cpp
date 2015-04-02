@@ -26,6 +26,7 @@ SkDrawCommand::~SkDrawCommand() {
 const char* SkDrawCommand::GetCommandString(OpType type) {
     switch (type) {
         case kBeginCommentGroup_OpType: return "BeginCommentGroup";
+        case kBeginDrawPicture_OpType: return "BeginDrawPicture";
         case kClipPath_OpType: return "ClipPath";
         case kClipRegion_OpType: return "ClipRegion";
         case kClipRect_OpType: return "ClipRect";
@@ -41,7 +42,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
         case kDrawPath_OpType: return "DrawPath";
-        case kDrawPicture_OpType: return "DrawPicture";
         case kDrawPoints_OpType: return "DrawPoints";
         case kDrawPosText_OpType: return "DrawPosText";
         case kDrawPosTextH_OpType: return "DrawPosTextH";
@@ -53,6 +53,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
         case kDrawVertices_OpType: return "DrawVertices";
         case kEndCommentGroup_OpType: return "EndCommentGroup";
+        case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
         case kSaveLayer_OpType: return "SaveLayer";
@@ -445,41 +446,48 @@ bool SkDrawPathCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawPictureCommand::SkDrawPictureCommand(const SkPicture* picture,
-                                           const SkMatrix* matrix,
-                                           const SkPaint* paint)
-    : INHERITED(kDrawPicture_OpType)
-    , fPicture(SkRef(picture))
-    , fMatrixPtr(NULL)
-    , fPaintPtr(NULL) {
+SkBeginDrawPictureCommand::SkBeginDrawPictureCommand(const SkPicture* picture,
+                                                     const SkMatrix* matrix,
+                                                     const SkPaint* paint)
+    : INHERITED(kBeginDrawPicture_OpType)
+    , fPicture(SkRef(picture)) {
+
+    SkString* str = new SkString;
+    str->appendf("SkPicture: L: %f T: %f R: %f B: %f",
+                 picture->cullRect().fLeft, picture->cullRect().fTop,
+                 picture->cullRect().fRight, picture->cullRect().fBottom);
+    fInfo.push(str);
 
     if (matrix) {
-        fMatrix = *matrix;
-        fMatrixPtr = &fMatrix;
-    }
-    if (paint) {
-        fPaint = *paint;
-        fPaintPtr = &fPaint;
-    }
-
-    SkString* temp = new SkString;
-    temp->appendf("SkPicture: L: %f T: %f R: %f B: %f",
-                  picture->cullRect().fLeft, picture->cullRect().fTop,
-                  picture->cullRect().fRight, picture->cullRect().fBottom);
-    fInfo.push(temp);
-    if (matrix) {
+        fMatrix.set(*matrix);
         fInfo.push(SkObjectParser::MatrixToString(*matrix));
     }
+
     if (paint) {
+        fPaint.set(*paint);
         fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
+
+}
+
+void SkBeginDrawPictureCommand::execute(SkCanvas* canvas) const {
+    if (fPaint.isValid()) {
+        SkRect bounds = fPicture->cullRect();
+        if (fMatrix.isValid()) {
+            fMatrix.get()->mapRect(&bounds);
+        }
+        canvas->saveLayer(&bounds, fPaint.get());
+    }
+
+    if (fMatrix.isValid()) {
+        if (!fPaint.isValid()) {
+            canvas->save();
+        }
+        canvas->concat(*fMatrix.get());
     }
 }
 
-void SkDrawPictureCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPicture(fPicture, fMatrixPtr, fPaintPtr);
-}
-
-bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
+bool SkBeginDrawPictureCommand::render(SkCanvas* canvas) const {
     canvas->clear(0xFFFFFFFF);
     canvas->save();
 
@@ -490,6 +498,15 @@ bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
     canvas->restore();
 
     return true;
+}
+
+SkEndDrawPictureCommand::SkEndDrawPictureCommand(bool restore)
+    : INHERITED(kEndDrawPicture_OpType) , fRestore(restore) { }
+
+void SkEndDrawPictureCommand::execute(SkCanvas* canvas) const {
+    if (fRestore) {
+        canvas->restore();
+    }
 }
 
 SkDrawPointsCommand::SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count,

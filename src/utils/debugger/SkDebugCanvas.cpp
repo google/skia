@@ -459,7 +459,9 @@ void SkDebugCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
 void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
                                   const SkMatrix* matrix,
                                   const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawPictureCommand(picture, matrix, paint));
+    this->addDrawCommand(new SkBeginDrawPictureCommand(picture, matrix, paint));
+    this->INHERITED::onDrawPicture(picture, matrix, paint);
+    this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
 void SkDebugCanvas::onDrawPoints(PointMode mode, size_t count,

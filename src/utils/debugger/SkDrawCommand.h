@@ -16,6 +16,7 @@ class SK_API SkDrawCommand {
 public:
     enum OpType {
         kBeginCommentGroup_OpType,
+        kBeginDrawPicture_OpType,
         kClipPath_OpType,
         kClipRegion_OpType,
         kClipRect_OpType,
@@ -31,7 +32,6 @@ public:
         kDrawPaint_OpType,
         kDrawPatch_OpType,
         kDrawPath_OpType,
-        kDrawPicture_OpType,
         kDrawPoints_OpType,
         kDrawPosText_OpType,
         kDrawPosTextH_OpType,
@@ -43,6 +43,7 @@ public:
         kDrawTextOnPath_OpType,
         kDrawVertices_OpType,
         kEndCommentGroup_OpType,
+        kEndDrawPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
         kSaveLayer_OpType,
@@ -337,18 +338,31 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkDrawPictureCommand : public SkDrawCommand {
+class SkBeginDrawPictureCommand : public SkDrawCommand {
 public:
-    SkDrawPictureCommand(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint);
+    SkBeginDrawPictureCommand(const SkPicture* picture,
+                              const SkMatrix* matrix,
+                              const SkPaint* paint);
+
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
 
 private:
     SkAutoTUnref<const SkPicture> fPicture;
-    SkMatrix                      fMatrix;
-    SkMatrix*                     fMatrixPtr;
-    SkPaint                       fPaint;
-    SkPaint*                      fPaintPtr;
+    SkTLazy<SkMatrix>             fMatrix;
+    SkTLazy<SkPaint>              fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkEndDrawPictureCommand : public SkDrawCommand {
+public:
+    SkEndDrawPictureCommand(bool restore);
+
+    void execute(SkCanvas* canvas) const override;
+
+private:
+    bool fRestore;
 
     typedef SkDrawCommand INHERITED;
 };

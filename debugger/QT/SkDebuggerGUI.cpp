@@ -783,7 +783,10 @@ void SkDebuggerGUI::setupListWidget() {
                      SkDrawCommand::GetCommandString(SkDrawCommand::kBeginCommentGroup_OpType)));
     SkASSERT(!strcmp("EndCommentGroup",
                      SkDrawCommand::GetCommandString(SkDrawCommand::kEndCommentGroup_OpType)));
-
+    SkASSERT(!strcmp("BeginDrawPicture",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kBeginDrawPicture_OpType)));
+    SkASSERT(!strcmp("EndDrawPicture",
+                     SkDrawCommand::GetCommandString(SkDrawCommand::kEndDrawPicture_OpType)));
 
     fListWidget.clear();
     int counter = 0;
@@ -796,7 +799,8 @@ void SkDebuggerGUI::setupListWidget() {
         item->setData(Qt::UserRole + 1, counter++);
 
         if (0 == strcmp("Restore", commandString.c_str()) ||
-            0 == strcmp("EndCommentGroup", commandString.c_str())) {
+            0 == strcmp("EndCommentGroup", commandString.c_str()) ||
+            0 == strcmp("EndDrawPicture", commandString.c_str())) {
             indent -= 10;
         }
 
@@ -804,7 +808,8 @@ void SkDebuggerGUI::setupListWidget() {
 
         if (0 == strcmp("Save", commandString.c_str()) ||
             0 == strcmp("SaveLayer", commandString.c_str()) ||
-            0 == strcmp("BeginCommentGroup", commandString.c_str())) {
+            0 == strcmp("BeginCommentGroup", commandString.c_str()) ||
+            0 == strcmp("BeginDrawPicture", commandString.c_str())) {
             indent += 10;
         }
 
