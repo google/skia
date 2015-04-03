@@ -69,19 +69,19 @@ struct PMFloatGetSetBench : public Benchmark {
             SkPMColor back[4];
             switch (kClamp << 1 | kWide) {
                 case 0: {
-                    back[0] = fa.get();
-                    back[1] = fb.get();
-                    back[2] = fc.get();
-                    back[3] = fd.get();
+                    back[0] = fa.round();
+                    back[1] = fb.round();
+                    back[2] = fc.round();
+                    back[3] = fd.round();
                 } break;
-                case 1: SkPMFloat::To4PMColors(fa, fb, fc, fd, back); break;
+                case 1: SkPMFloat::RoundTo4PMColors(fa, fb, fc, fd, back); break;
                 case 2: {
-                    back[0] = fa.clamped();
-                    back[1] = fb.clamped();
-                    back[2] = fc.clamped();
-                    back[3] = fd.clamped();
+                    back[0] = fa.roundClamp();
+                    back[1] = fb.roundClamp();
+                    back[2] = fc.roundClamp();
+                    back[3] = fd.roundClamp();
                 } break;
-                case 3: SkPMFloat::ClampTo4PMColors(fa, fb, fc, fd, back); break;
+                case 3: SkPMFloat::RoundClampTo4PMColors(fa, fb, fc, fd, back); break;
             }
             for (int i = 0; i < 4; i++) {
                 junk ^= back[i];

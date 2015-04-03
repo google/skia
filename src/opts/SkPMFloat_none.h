@@ -17,13 +17,13 @@ inline SkPMColor SkPMFloat::trunc() const {
     return SkPackARGB32(this->a(), this->r(), this->g(), this->b());
 }
 
-inline SkPMColor SkPMFloat::get() const {
+inline SkPMColor SkPMFloat::round() const {
     SkPMColor c = SkPackARGB32(this->a()+0.5f, this->r()+0.5f, this->g()+0.5f, this->b()+0.5f);
     SkPMColorAssert(c);
     return c;
 }
 
-inline SkPMColor SkPMFloat::clamped() const {
+inline SkPMColor SkPMFloat::roundClamp() const {
     float a = this->a(),
           r = this->r(),
           g = this->g(),
@@ -45,20 +45,20 @@ inline void SkPMFloat::From4PMColors(const SkPMColor colors[4],
     *d = FromPMColor(colors[3]);
 }
 
-inline void SkPMFloat::To4PMColors(
+inline void SkPMFloat::RoundTo4PMColors(
         const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
         SkPMColor colors[4]) {
-    colors[0] = a.get();
-    colors[1] = b.get();
-    colors[2] = c.get();
-    colors[3] = d.get();
+    colors[0] = a.round();
+    colors[1] = b.round();
+    colors[2] = c.round();
+    colors[3] = d.round();
 }
 
-inline void SkPMFloat::ClampTo4PMColors(
+inline void SkPMFloat::RoundClampTo4PMColors(
         const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
         SkPMColor colors[4]) {
-    colors[0] = a.clamped();
-    colors[1] = b.clamped();
-    colors[2] = c.clamped();
-    colors[3] = d.clamped();
+    colors[0] = a.roundClamp();
+    colors[1] = b.roundClamp();
+    colors[2] = c.roundClamp();
+    colors[3] = d.roundClamp();
 }

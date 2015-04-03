@@ -8,9 +8,9 @@
 // For SkPMFloat(SkPMFColor), we widen our 8 bit components (fix8) to 8-bit components in 16 bits
 // (fix8_16), then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
 
-// get() and clamped() do the opposite, working from floats to 8-bit-in-32-bit,
+// round() and roundClamp() do the opposite, working from floats to 8-bit-in-32-bit,
 // to 8-bit-in-16-bit, back down to 8-bit components.
-// clamped() uses vqmovn to clamp while narrowing instead of just narrowing with vmovn.
+// roundClamp() uses vqmovn to clamp while narrowing instead of just narrowing with vmovn.
 
 inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkPMColorAssert(c);
@@ -30,11 +30,11 @@ inline SkPMColor SkPMFloat::trunc() const {
     return c;
 }
 
-inline SkPMColor SkPMFloat::get() const {
+inline SkPMColor SkPMFloat::round() const {
     return SkPMFloat(Sk4f(0.5f) + *this).trunc();
 }
 
-inline SkPMColor SkPMFloat::clamped() const {
+inline SkPMColor SkPMFloat::roundClamp() const {
     float32x4_t add_half = vaddq_f32(fColors.vec(), vdupq_n_f32(0.5f));
     uint32x4_t  fix8_32  = vcvtq_u32_f32(add_half);  // vcvtq_u32_f32 truncates, so round manually
     uint16x4_t  fix8_16  = vqmovn_u32(fix8_32);
@@ -53,20 +53,20 @@ inline void SkPMFloat::From4PMColors(const SkPMColor colors[4],
     *d = FromPMColor(colors[3]);
 }
 
-inline void SkPMFloat::To4PMColors(
+inline void SkPMFloat::RoundTo4PMColors(
         const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
         SkPMColor colors[4]) {
-    colors[0] = a.get();
-    colors[1] = b.get();
-    colors[2] = c.get();
-    colors[3] = d.get();
+    colors[0] = a.round();
+    colors[1] = b.round();
+    colors[2] = c.round();
+    colors[3] = d.round();
 }
 
-inline void SkPMFloat::ClampTo4PMColors(
+inline void SkPMFloat::RoundClampTo4PMColors(
         const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
         SkPMColor colors[4]) {
-    colors[0] = a.clamped();
-    colors[1] = b.clamped();
-    colors[2] = c.clamped();
-    colors[3] = d.clamped();
+    colors[0] = a.roundClamp();
+    colors[1] = b.roundClamp();
+    colors[2] = c.roundClamp();
+    colors[3] = d.roundClamp();
 }

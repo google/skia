@@ -299,7 +299,7 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
         const Sk4f c4 = Sk4f::Load(fTranspose + 16);  // translates
 
         // todo: we could cache this in the constructor...
-        SkPMColor matrix_translate_pmcolor = SkPMFloat(premul(clamp_0_255(c4))).clamped();
+        SkPMColor matrix_translate_pmcolor = SkPMFloat(premul(clamp_0_255(c4))).roundClamp();
 
         for (int i = 0; i < count; i++) {
             const SkPMColor src_c = src[i];
@@ -323,7 +323,7 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
             Sk4f dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
 
             // clamp, re-premul, and write
-            dst[i] = SkPMFloat(premul(clamp_0_255(dst4))).get();
+            dst[i] = SkPMFloat(premul(clamp_0_255(dst4))).round();
         }
     } else {
         const State& state = fState;

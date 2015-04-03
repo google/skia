@@ -45,18 +45,18 @@ public:
 
     // N.B. All methods returning an SkPMColor call SkPMColorAssert on that result before returning.
 
-    // get() and clamped() round component values to the nearest integer.
-    SkPMColor     get() const;  // Assumes all values in [0, 255].  Some implementations may clamp.
-    SkPMColor clamped() const;  // Will clamp all values to [0, 255].
+    // round() and roundClamp() round component values to the nearest integer.
+    SkPMColor round() const;  // Assumes all values in [0, 255].  Some implementations may clamp.
+    SkPMColor roundClamp() const;  // Will clamp all values to [0, 255].
 
-    // Like get(), but truncates instead of rounding.
+    // Like round(), but truncates instead of rounding.
     // The domain of this function is (-1.0f, 256.0f).  Values in (-1.0f, 0.0f] trunc to a zero.
     SkPMColor trunc() const;
 
-    // 4-at-a-time versions of get() and clamped().  Like From4PMColors(), no alignment assumed.
-    static void To4PMColors(
+    // 4-at-a-time versions of round() and roundClamp(). Like From4PMColors(), no alignment assumed.
+    static void RoundTo4PMColors(
             const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, SkPMColor[4]);
-    static void ClampTo4PMColors(
+    static void RoundClampTo4PMColors(
             const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, const SkPMFloat&, SkPMColor[4]);
 
     bool isValid() const {

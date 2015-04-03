@@ -16,17 +16,17 @@ DEF_TEST(SkPMFloat, r) {
     REPORTER_ASSERT(r, SkScalarNearlyEqual(204.0f, pmf.r()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(153.0f, pmf.g()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual( 51.0f, pmf.b()));
-    REPORTER_ASSERT(r, c == pmf.get());
+    REPORTER_ASSERT(r, c == pmf.round());
 
     // Test rounding.
     pmf = SkPMFloat(254.5f, 203.5f, 153.1f, 50.8f);
-    REPORTER_ASSERT(r, c == pmf.get());
+    REPORTER_ASSERT(r, c == pmf.round());
 
     pmf = SkPMFloat(255.9f, 204.01f, 153.0f, -0.9f);
     REPORTER_ASSERT(r, SkPreMultiplyColor(0xFFCC9900) == pmf.trunc());
 
     // Test clamping.
-    SkPMFloat clamped(SkPMFloat(510.0f, 153.0f, 1.0f, -0.2f).clamped());
+    SkPMFloat clamped(SkPMFloat(510.0f, 153.0f, 1.0f, -0.2f).roundClamp());
     REPORTER_ASSERT(r, SkScalarNearlyEqual(255.0f, clamped.a()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(153.0f, clamped.r()));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(  1.0f, clamped.g()));
@@ -46,12 +46,12 @@ DEF_TEST(SkPMFloat, r) {
     SkPMFloat::From4PMColors(colors, floats+0, floats+1, floats+2, floats+3);
 
     SkPMColor back[4];
-    SkPMFloat::To4PMColors(floats[0], floats[1], floats[2], floats[3], back);
+    SkPMFloat::RoundTo4PMColors(floats[0], floats[1], floats[2], floats[3], back);
     for (int i = 0; i < 4; i++) {
         REPORTER_ASSERT(r, back[i] == colors[i]);
     }
 
-    SkPMFloat::ClampTo4PMColors(floats[0], floats[1], floats[2], floats[3], back);
+    SkPMFloat::RoundClampTo4PMColors(floats[0], floats[1], floats[2], floats[3], back);
     for (int i = 0; i < 4; i++) {
         REPORTER_ASSERT(r, back[i] == colors[i]);
     }

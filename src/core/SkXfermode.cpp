@@ -816,12 +816,12 @@ bool SkProcCoeffXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) cons
     if (CANNOT_USE_COEFF == fSrcCoeff) {
         return false;
     }
-   
+
     if (SkXfermode::kDA_Coeff == fSrcCoeff || SkXfermode::kDC_Coeff == fSrcCoeff ||
         SkXfermode::kIDA_Coeff == fSrcCoeff || SkXfermode::kIDC_Coeff == fSrcCoeff) {
         return false;
     }
-        
+
     switch (fDstCoeff) {
         case SkXfermode::kZero_Coeff:
             return true;
@@ -1227,7 +1227,7 @@ static Sk4f set_a_rgb(const Sk4f& a, const Sk4f& rgb) {
 static inline SkPMFloat check_as_pmfloat(const Sk4f& value) {
     SkPMFloat pm = value;
 #ifdef SK_DEBUG
-    (void)pm.get();
+    (void)pm.round();
 #endif
     return pm;
 }
@@ -1352,11 +1352,11 @@ public:
     static SkXfermode* Create(const ProcCoeff& rec) {
         return SkNEW_ARGS(SkT4fXfermode, (rec));
     }
-    
+
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         if (NULL == aa) {
             while (n & 3) {
-                *dst = ProcType::Xfer(SkPMFloat(*src++), SkPMFloat(*dst)).get();
+                *dst = ProcType::Xfer(SkPMFloat(*src++), SkPMFloat(*dst)).round();
                 dst++;
                 n -= 1;
             }
@@ -1366,8 +1366,8 @@ public:
                 SkPMFloat::From4PMColors(src, &s0, &s1, &s2, &s3);
                 SkPMFloat d0, d1, d2, d3;
                 SkPMFloat::From4PMColors(dst, &d0, &d1, &d2, &d3);
-                SkPMFloat::To4PMColors(ProcType::Xfer(s0, d0), ProcType::Xfer(s1, d1),
-                                       ProcType::Xfer(s2, d2), ProcType::Xfer(s3, d3), dst);
+                SkPMFloat::RoundTo4PMColors(ProcType::Xfer(s0, d0), ProcType::Xfer(s1, d1),
+                                            ProcType::Xfer(s2, d2), ProcType::Xfer(s3, d3), dst);
                 src += 4;
                 dst += 4;
             }
@@ -1383,14 +1383,14 @@ public:
                 } else {
                     res = ramp(dstF, ProcType::Xfer(srcF, dstF), aa4);
                 }
-                dst[i] = SkPMFloat(res).get();
+                dst[i] = SkPMFloat(res).round();
             }
         }
     }
-    
+
 private:
     SkT4fXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, ProcType::kMode) {}
-    
+
     typedef SkProcCoeffXfermode INHERITED;
 };
 #endif

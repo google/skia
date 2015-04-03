@@ -8,7 +8,7 @@
 // For SkPMFloat(SkPMColor), we widen our 8 bit components (fix8) to 8-bit components in 16 bits
 // (fix8_16), then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
 
-// get() and clamped() do the opposite, working from floats to 8-bit-in-32-bit,
+// round() and roundClamp() do the opposite, working from floats to 8-bit-in-32-bit,
 // to 8-bit-in-16-bit, back down to 8-bit components.
 // _mm_packus_epi16() gives us clamping for free while narrowing.
 
@@ -21,11 +21,11 @@ inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkASSERT(this->isValid());
 }
 
-inline SkPMColor SkPMFloat::get() const {
-    return this->clamped();  // Haven't beaten this yet.
+inline SkPMColor SkPMFloat::round() const {
+    return this->roundClamp();  // Haven't beaten this yet.
 }
 
-inline SkPMColor SkPMFloat::clamped() const {
+inline SkPMColor SkPMFloat::roundClamp() const {
     // We don't use _mm_cvtps_epi32, because we want precise control over how 0.5 rounds (up).
     __m128i fix8_32 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), fColors.vec())),
             fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
@@ -36,7 +36,7 @@ inline SkPMColor SkPMFloat::clamped() const {
 }
 
 inline SkPMColor SkPMFloat::trunc() const {
-    // Basically, same as clamped(), but no rounding.
+    // Basically, same as roundClamp(), but no rounding.
     __m128i fix8_32 = _mm_cvttps_epi32(fColors.vec()),
             fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
             fix8    = _mm_packus_epi16(fix8_16, fix8_16);
@@ -54,14 +54,14 @@ inline void SkPMFloat::From4PMColors(const SkPMColor colors[4],
     *d = FromPMColor(colors[3]);
 }
 
-inline void SkPMFloat::To4PMColors(
+inline void SkPMFloat::RoundTo4PMColors(
         const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
         SkPMColor colors[4]) {
     // Haven't beaten this yet.
-    ClampTo4PMColors(a,b,c,d, colors);
+    RoundClampTo4PMColors(a,b,c,d, colors);
 }
 
-inline void SkPMFloat::ClampTo4PMColors(
+inline void SkPMFloat::RoundClampTo4PMColors(
         const SkPMFloat& a, const SkPMFloat& b, const SkPMFloat&c, const SkPMFloat& d,
         SkPMColor colors[4]) {
     // Same as _SSSE3.h's.  We use 3 _mm_packus_epi16() where the naive loop uses 8.
