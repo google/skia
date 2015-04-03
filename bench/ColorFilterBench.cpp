@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkColorFilterImageFilter.h"
@@ -19,7 +20,7 @@
 class ColorFilterBaseBench : public Benchmark {
 
 public:
-    ColorFilterBaseBench(bool small) : fIsSmall(small) { }
+    ColorFilterBaseBench(bool small) : fIsSmall(small) {}
 
 protected:
     SkRect getFilterRect() const {
@@ -55,6 +56,7 @@ protected:
     }
 
     inline bool isSmall() const { return fIsSmall; }
+
 private:
     bool fIsSmall;
 
@@ -254,8 +256,7 @@ private:
 class ColorFilterGrayBench : public ColorFilterBaseBench {
 
 public:
-    ColorFilterGrayBench(bool small) : INHERITED(small) {
-    }
+    ColorFilterGrayBench(bool small) : INHERITED(small) {}
 
 protected:
     const char* onGetName() override {
@@ -277,71 +278,6 @@ private:
     typedef ColorFilterBaseBench INHERITED;
 };
 
-class TableColorFilterBench : public ColorFilterBaseBench {
-
-public:
-    TableColorFilterBench(bool small) : INHERITED(small) {
-    }
-
-protected:
-    const char* onGetName() override {
-        return isSmall() ? "table_colorfilter_small" : "table_colorfilter_large";
-    }
-
-    void onDraw(const int loops, SkCanvas* canvas) override {
-        SkRect r = getFilterRect();
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        for (int i = 0; i < loops; i++) {
-            SkAutoTUnref<SkColorFilter> table_filter(make_table_filter());
-            paint.setColorFilter(table_filter);
-            canvas->drawRect(r, paint);
-        }
-    }
-
-private:
-    static void fill_table_data(uint8_t table[]) {
-        for (int i = 0; i < 256; ++i) {
-            int n = i >> 5;
-            table[i] = (n << 5) | (n << 2) | (n >> 1);
-        }
-    }
-
-    static SkColorFilter* make_table_filter() {
-        uint8_t table[256]; fill_table_data(table);
-        return SkTableColorFilter::Create(table);
-    }
-
-    typedef ColorFilterBaseBench INHERITED;
-};
-
-class LumaColorFilterBench : public ColorFilterBaseBench {
-
-public:
-    LumaColorFilterBench(bool small) : INHERITED(small) {
-    }
-
-protected:
-    const char* onGetName() override {
-        return isSmall() ? "luma_colorfilter_small" : "luma_colorfilter_large";
-    }
-
-    void onDraw(const int loops, SkCanvas* canvas) override {
-        SkRect r = getFilterRect();
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-
-        for (int i = 0; i < loops; i++) {
-            SkAutoTUnref<SkColorFilter> luma_filter(SkLumaColorFilter::Create());
-            paint.setColorFilter(luma_filter);
-            canvas->drawRect(r, paint);
-        }
-    }
-
-private:
-    typedef ColorFilterBaseBench INHERITED;
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new ColorFilterDimBrightBench(true); )
@@ -352,8 +288,6 @@ DEF_BENCH( return new ColorFilterBrightBlueBench(true); )
 DEF_BENCH( return new ColorFilterBrightBench(true); )
 DEF_BENCH( return new ColorFilterBlueBench(true); )
 DEF_BENCH( return new ColorFilterGrayBench(true); )
-DEF_BENCH( return new TableColorFilterBench(true); )
-DEF_BENCH( return new LumaColorFilterBench(true); )
 
 DEF_BENCH( return new ColorFilterDimBrightBench(false); )
 DEF_BENCH( return new ColorFilterBrightGrayBench(false); )
@@ -363,5 +297,3 @@ DEF_BENCH( return new ColorFilterBrightBlueBench(false); )
 DEF_BENCH( return new ColorFilterBrightBench(false); )
 DEF_BENCH( return new ColorFilterBlueBench(false); )
 DEF_BENCH( return new ColorFilterGrayBench(false); )
-DEF_BENCH( return new TableColorFilterBench(false); )
-DEF_BENCH( return new LumaColorFilterBench(false); )
