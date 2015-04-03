@@ -361,6 +361,9 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
             int h = SkTMin(kLetterHeight, height - (y * kLetterHeight));
             SkCanvas* canvas =
                     doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
+            if (!canvas) {
+              return "SkDocument::beginPage(w,h) returned NULL";
+            }
             canvas->clipRect(letter);
             canvas->translate(-letter.width() * x, -letter.height() * y);
             Error err = src.draw(canvas);
