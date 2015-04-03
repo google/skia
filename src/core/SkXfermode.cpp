@@ -1201,6 +1201,13 @@ static Sk4f clamp_0_255(const Sk4f& value) {
     return Sk4f::Max(Sk4f(0), Sk4f::Min(Sk4f(255), value));
 }
 
+// return a swizzle of a | rgb
+static Sk4f set_a_rgb(const Sk4f& a, const Sk4f& rgb) {
+    SkPMFloat pma = a;
+    SkPMFloat pmc = rgb;
+    return SkPMFloat(pma.a(), pmc.r(), pmc.g(), pmc.b());
+}
+
 /**
  *  Some modes can, due to very slight numerical error, generate "invalid" pmcolors...
  *
@@ -1309,6 +1316,34 @@ struct Multiply4f {
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kMultiply_Mode;
+};
+
+struct Difference4f {
+    static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
+        const Sk4f inv255(gInv255);
+        Sk4f sa = Sk4f(src.a());
+        Sk4f da = Sk4f(dst.a());
+        Sk4f sc = src;
+        Sk4f dc = dst;
+        Sk4f min = Sk4f::Min(sc * da, dc * sa) * inv255;
+        Sk4f ra = sc + dc - min;
+        return check_as_pmfloat(set_a_rgb(ra, ra - min));
+    }
+    static const bool kFoldCoverageIntoSrcAlpha = false;
+    static const SkXfermode::Mode kMode = SkXfermode::kDifference_Mode;
+};
+
+struct Exclusion4f {
+    static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
+        const Sk4f inv255(gInv255);
+        Sk4f sc = src;
+        Sk4f dc = dst;
+        Sk4f prod = sc * dc * inv255;
+        Sk4f ra = sc + dc - prod;
+        return check_as_pmfloat(set_a_rgb(ra, ra - prod));
+    }
+    static const bool kFoldCoverageIntoSrcAlpha = false;
+    static const SkXfermode::Mode kMode = SkXfermode::kExclusion_Mode;
 };
 
 template <typename ProcType>
@@ -1444,6 +1479,12 @@ SkXfermode* create_mode(int iMode) {
             break;
         case SkXfermode::kMultiply_Mode:
             xfer = SkT4fXfermode<Multiply4f>::Create(rec);
+            break;
+        case SkXfermode::kDifference_Mode:
+            xfer = SkT4fXfermode<Difference4f>::Create(rec);
+            break;
+        case SkXfermode::kExclusion_Mode:
+            xfer = SkT4fXfermode<Exclusion4f>::Create(rec);
             break;
         default:
             break;
