@@ -1194,7 +1194,11 @@ static Sk4f ramp(const Sk4f& v0, const Sk4f& v1, const Sk4f& t) {
 }
 
 static Sk4f clamp_255(const Sk4f& value) {
-    return Sk4f::Min(value, Sk4f(255));
+    return Sk4f::Min(Sk4f(255), value);
+}
+
+static Sk4f clamp_0_255(const Sk4f& value) {
+    return Sk4f::Max(Sk4f(0), Sk4f::Min(Sk4f(255), value));
 }
 
 /**
@@ -1286,10 +1290,25 @@ struct Screen4f {
         const Sk4f inv255(gInv255);
         Sk4f s4 = src;
         Sk4f d4 = dst;
-        return check_as_pmfloat(check_as_pmfloat(s4 + d4 - s4 * d4 * inv255));
+        return check_as_pmfloat(s4 + d4 - s4 * d4 * inv255);
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kScreen_Mode;
+};
+
+struct Multiply4f {
+    static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
+        const Sk4f inv255(gInv255);
+        Sk4f sa = Sk4f(src.a());
+        Sk4f da = Sk4f(dst.a());
+        Sk4f sc = src;
+        Sk4f dc = dst;
+        Sk4f rc = sc + dc + (sc * (dc - da) - dc * sa) * inv255;
+        // ra = srcover(sa, da), but the calc for rc happens to accomplish this for us
+        return check_as_pmfloat(clamp_0_255(rc));
+    }
+    static const bool kFoldCoverageIntoSrcAlpha = false;
+    static const SkXfermode::Mode kMode = SkXfermode::kMultiply_Mode;
 };
 
 template <typename ProcType>
@@ -1422,6 +1441,9 @@ SkXfermode* create_mode(int iMode) {
             break;
         case SkXfermode::kScreen_Mode:
             xfer = SkT4fXfermode<Screen4f>::Create(rec);
+            break;
+        case SkXfermode::kMultiply_Mode:
+            xfer = SkT4fXfermode<Multiply4f>::Create(rec);
             break;
         default:
             break;
