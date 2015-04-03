@@ -42,6 +42,10 @@ DEFINE_string(blacklist, "",
 
 DEFINE_string2(readPath, r, "", "If set check for equality with golden results in this directory.");
 
+DEFINE_string(uninterestingHashesFile, "",
+        "File containing a list of uninteresting hashes. If a result hashes to something in "
+        "this list, no image is written for that result.");
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
 
@@ -131,6 +135,21 @@ static void gather_gold() {
         path.append("/dm.json");
         if (!JsonWriter::ReadJson(path.c_str(), add_gold)) {
             fail(SkStringPrintf("Couldn't read %s for golden results.", path.c_str()));
+        }
+    }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static SkTHashSet<SkString> gUninterestingHashes;
+
+static void gather_uninteresting_hashes() {
+    if (!FLAGS_uninterestingHashesFile.isEmpty()) {
+        SkAutoTUnref<SkData> data(SkData::NewFromFileName(FLAGS_uninterestingHashesFile[0]));
+        SkTArray<SkString> hashes;
+        SkStrSplit((const char*)data->data(), "\n", &hashes);
+        for (const SkString& hash : hashes) {
+            gUninterestingHashes.add(hash);
         }
     }
 }
@@ -435,7 +454,7 @@ struct Task {
                                     FLAGS_readPath[0]));
             }
 
-            if (!FLAGS_writePath.isEmpty()) {
+            if (!FLAGS_writePath.isEmpty() && !gUninterestingHashes.contains(md5)) {
                 const char* ext = task->sink->fileExtension();
                 if (data->getLength()) {
                     WriteToDisk(*task, md5, ext, data, data->getLength(), NULL);
@@ -625,6 +644,7 @@ int dm_main() {
     start_keepalive();
 
     gather_gold();
+    gather_uninteresting_hashes();
 
     gather_srcs();
     gather_sinks();
