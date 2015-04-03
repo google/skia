@@ -386,7 +386,7 @@ class SkPicturePlayback(object):
     # /path/to/http___mobile_news_sandbox_pt0 -> http___mobile_news_sandbox_pt0
     _, webpage = os.path.split(site)
     # http___mobile_news_sandbox_pt0 -> mobile_news_sandbox_pt0
-    for prefix in ('http___', 'https___'):
+    for prefix in ('http___', 'https___', 'www_'):
       if webpage.startswith(prefix):
         webpage = webpage[len(prefix):]
     # /path/to/skia_yahooanswers_desktop.py -> skia_yahooanswers_desktop.py
@@ -407,6 +407,7 @@ class SkPicturePlayback(object):
         filename = self._GetChromiumSkpFileName(page_set, site)
       else:
         filename = self._GetSkiaSkpFileName(page_set)
+      filename = filename.lower()
 
       # We choose the largest .skp as the most likely to be interesting.
       largest_skp = max(glob.glob(os.path.join(site, '*.skp')),

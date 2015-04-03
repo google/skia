@@ -1,4 +1,4 @@
-# Copyright 2014 The Chromium Authors. All rights reserved.
+# Copyright 2015 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
@@ -16,27 +16,21 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         page_set=page_set,
         credentials_path='data/credentials.json')
     self.user_agent_type = 'desktop'
-    self.archive_data_file = 'data/skia_ebay_desktop.json'
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
+    self.archive_data_file = 'data/skia_wikipedia_desktop.json'
 
 
-class SkiaEbayDesktopPageSet(page_set_module.PageSet):
+class SkiaWikipediaDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaEbayDesktopPageSet, self).__init__(
+    super(SkiaWikipediaDesktopPageSet, self).__init__(
       user_agent_type='desktop',
-      archive_data_file='data/skia_ebay_desktop.json')
+      archive_data_file='data/skia_wikipedia_desktop.json')
 
     urls_list = [
-      # Why: #1 commerce website by time spent by users in US.
-      ('http://www.ebay.com/ctg/Harry-Potter-and-Deathly-Hallows-Year-7-J-K-'
-       'Rowling-2007-Cassette-Unabridged-/123341182?_dmpt=US_Childrens_Books'
-       '&_pcategid=279&_pcatid=4&_refkw=harry+potter+and+the+deathly+hallows'),
+      # Why: stress tests for fonts (from skia:3574).
+      'http://www.wikipedia.org/',
     ]
 
     for url in urls_list:

@@ -1,4 +1,4 @@
-# Copyright 2014 The Chromium Authors. All rights reserved.
+# Copyright 2015 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
@@ -16,25 +16,26 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         page_set=page_set,
         credentials_path='data/credentials.json')
     self.user_agent_type = 'desktop'
-    self.archive_data_file = 'data/skia_linkedin_desktop.json'
+    self.archive_data_file = 'data/skia_unicodetable_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
     action_runner.NavigateToPage(self)
-    action_runner.Wait(5)
+    action_runner.ScrollPage(distance=100000)
+    action_runner.Wait(20)
 
 
-class SkiaLinkedinDesktopPageSet(page_set_module.PageSet):
+class SkiaUnicodetableDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaLinkedinDesktopPageSet, self).__init__(
+    super(SkiaUnicodetableDesktopPageSet, self).__init__(
       user_agent_type='desktop',
-      archive_data_file='data/skia_linkedin_desktop.json')
+      archive_data_file='data/skia_unicodetable_desktop.json')
 
     urls_list = [
-      # Why: #12 (Alexa global), public profile
-      'http://www.linkedin.com/in/linustorvalds',
+      # Why: stress tests for fonts (from skia:3574).
+      'http://unicode-table.com/en/',
     ]
 
     for url in urls_list:
