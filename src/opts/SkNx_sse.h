@@ -87,10 +87,10 @@ public:
     SkNf       invert() const { return SkNf(1) / *this; }
     SkNf approxInvert() const { return _mm_rcp_ps(fVec); }
 
-    float operator[] (int k) const {
+    template <int k> float kth() const {
         SkASSERT(0 <= k && k < 2);
         union { __m128 v; float fs[4]; } pun = {fVec};
-        return pun.fs[k];
+        return pun.fs[k&1];
     }
 
 private:
@@ -131,10 +131,10 @@ public:
     SkNf       invert() const { return SkNf(1) / *this; }
     SkNf approxInvert() const { return _mm_cvtps_pd(_mm_rcp_ps(_mm_cvtpd_ps(fVec))); }
 
-    double operator[] (int k) const {
+    template <int k> double kth() const {
         SkASSERT(0 <= k && k < 2);
         union { __m128d v; double ds[2]; } pun = {fVec};
-        return pun.ds[k];
+        return pun.ds[k&1];
     }
 
 private:
@@ -176,10 +176,10 @@ public:
     SkNf       invert() const { return SkNf(1) / *this; }
     SkNf approxInvert() const { return _mm_rcp_ps(fVec); }
 
-    float operator[] (int k) const {
+    template <int k> float kth() const {
         SkASSERT(0 <= k && k < 4);
         union { __m128 v; float fs[4]; } pun = {fVec};
-        return pun.fs[k];
+        return pun.fs[k&3];
     }
 
 private:

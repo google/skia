@@ -38,10 +38,10 @@ public:
     /*implicit*/ SkPMFloat(const Sk4f& fs) { fColors = fs; }
     /*implicit*/ operator Sk4f() const { return fColors; }
 
-    float a() const { return fColors[SK_A32_SHIFT / 8]; }
-    float r() const { return fColors[SK_R32_SHIFT / 8]; }
-    float g() const { return fColors[SK_G32_SHIFT / 8]; }
-    float b() const { return fColors[SK_B32_SHIFT / 8]; }
+    float a() const { return fColors.kth<SK_A32_SHIFT / 8>(); }
+    float r() const { return fColors.kth<SK_R32_SHIFT / 8>(); }
+    float g() const { return fColors.kth<SK_G32_SHIFT / 8>(); }
+    float b() const { return fColors.kth<SK_B32_SHIFT / 8>(); }
 
     // N.B. All methods returning an SkPMColor call SkPMColorAssert on that result before returning.
 

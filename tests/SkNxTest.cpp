@@ -15,12 +15,13 @@ static void test_Nf(skiatest::Reporter* r) {
         auto close = [=](T a, T b) { return fabs(a-b) <= eps; };
         T vals[4];
         v.store(vals);
-        REPORTER_ASSERT(r, close(vals[0], a) && close(vals[1], b));
-        REPORTER_ASSERT(r, close(   v[0], a) && close(   v[1], b));
-
+        bool ok = close(vals[0], a) && close(vals[1], b)
+               && close(v.template kth<0>(), a) && close(v.template kth<1>(), b);
+        REPORTER_ASSERT(r, ok);
         if (N == 4) {
-            REPORTER_ASSERT(r, close(vals[2], c) && close(vals[3], d));
-            REPORTER_ASSERT(r, close(   v[2], c) && close(   v[3], d));
+            ok = close(vals[2], c) && close(vals[3], d)
+              && close(v.template kth<2>(), c) && close(v.template kth<3>(), d);
+            REPORTER_ASSERT(r, ok);
         }
     };
     auto assert_eq = [&](const SkNf<N,T>& v, T a, T b, T c, T d) {

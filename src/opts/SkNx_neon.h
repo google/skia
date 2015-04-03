@@ -16,8 +16,8 @@ public:
     SkNi(int32x2_t vec) : fVec(vec) {}
 
     SkNi() {}
-    bool allTrue() const { return fVec[0] && fVec[1]; }
-    bool anyTrue() const { return fVec[0] || fVec[1]; }
+    bool allTrue() const { return vget_lane_s32(fVec, 0) && vget_lane_s32(fVec, 1); }
+    bool anyTrue() const { return vget_lane_s32(fVec, 0) || vget_lane_s32(fVec, 1); }
 private:
     int32x2_t fVec;
 };
@@ -28,8 +28,10 @@ public:
     SkNi(int32x4_t vec) : fVec(vec) {}
 
     SkNi() {}
-    bool allTrue() const { return fVec[0] && fVec[1] && fVec[2] && fVec[3]; }
-    bool anyTrue() const { return fVec[0] || fVec[1] || fVec[2] || fVec[3]; }
+    bool allTrue() const { return vgetq_lane_s32(fVec, 0) && vgetq_lane_s32(fVec, 1)
+                               && vgetq_lane_s32(fVec, 2) && vgetq_lane_s32(fVec, 3); }
+    bool anyTrue() const { return vgetq_lane_s32(fVec, 0) || vgetq_lane_s32(fVec, 1)
+                               || vgetq_lane_s32(fVec, 2) || vgetq_lane_s32(fVec, 3); }
 private:
     int32x4_t fVec;
 };
@@ -98,9 +100,9 @@ public:
     #endif
     }
 
-    float operator[] (int k) const {
+    template <int k> float kth() const {
         SkASSERT(0 <= k && k < 2);
-        return fVec[k];
+        return vget_lane_f32(fVec, k&1);
     }
 
 private:
@@ -114,8 +116,8 @@ public:
     SkNi(int64x2_t vec) : fVec(vec) {}
 
     SkNi() {}
-    bool allTrue() const { return fVec[0] && fVec[1]; }
-    bool anyTrue() const { return fVec[0] || fVec[1]; }
+    bool allTrue() const { return vgetq_lane_s64(fVec, 0) && vgetq_lane_s64(fVec, 1); }
+    bool anyTrue() const { return vgetq_lane_s64(fVec, 0) || vgetq_lane_s64(fVec, 1); }
 private:
     int64x2_t fVec;
 };
@@ -170,9 +172,9 @@ public:
         return est3;
     }
 
-    double operator[] (int k) const {
+    template <int k> double kth() const {
         SkASSERT(0 <= k && k < 2);
-        return fVec[k];
+        return vgetq_lane_f64(fVec, k&1);
     }
 
 private:
@@ -245,9 +247,9 @@ public:
     #endif
     }
 
-    float operator[] (int k) const {
+    template <int k> float kth() const {
         SkASSERT(0 <= k && k < 4);
-        return fVec[k];
+        return vgetq_lane_f32(fVec, k&3);
     }
 
 private:

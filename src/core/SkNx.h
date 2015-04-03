@@ -78,9 +78,9 @@ public:
     SkNf       invert() const { return SkNf(fLo.      invert(), fHi.      invert()); }
     SkNf approxInvert() const { return SkNf(fLo.approxInvert(), fHi.approxInvert()); }
 
-    T operator[] (int k) const {
+    template <int k> T kth() const {
         SkASSERT(0 <= k && k < N);
-        return k < N/2 ? fLo[k] : fHi[k-N/2];
+        return k < N/2 ? fLo.template kth<k>() : fHi.template kth<k-N/2>();
     }
 
 private:
@@ -137,7 +137,7 @@ public:
     SkNf       invert() const { return SkNf((T)1 / fVal); }
     SkNf approxInvert() const { return this->invert();    }
 
-    T operator[] (int SkDEBUGCODE(k)) const {
+    template <int k> T kth() const {
         SkASSERT(k == 0);
         return fVal;
     }
@@ -153,7 +153,7 @@ private:
 
 
 // Generic syntax sugar that should work equally well for all SkNi and SkNf implementations.
-template <typename SkNx> SkNx operator - (const SkNx& l) { return SkNx((decltype(l[0]))0) - l; }
+template <typename SkNx> SkNx operator - (const SkNx& l) { return SkNx(0) - l; }
 
 template <typename SkNx> SkNx& operator += (SkNx& l, const SkNx& r) { return (l = l + r); }
 template <typename SkNx> SkNx& operator -= (SkNx& l, const SkNx& r) { return (l = l - r); }
