@@ -353,7 +353,7 @@ static bool match(const char* needle, const char* haystack) {
 
 static ImplicitString is_blacklisted(const char* sink, const char* src,
                                      const char* srcOptions, const char* name) {
-    for (int i = 0; i < FLAGS_blacklist.count() - 2; i += 4) {
+    for (int i = 0; i < FLAGS_blacklist.count() - 3; i += 4) {
         if (match(FLAGS_blacklist[i+0], sink) &&
             match(FLAGS_blacklist[i+1], src) &&
             match(FLAGS_blacklist[i+2], srcOptions) &&
