@@ -146,7 +146,6 @@ class SkNf<4, float> {
     typedef SkNi<4, int32_t> Ni;
 public:
     SkNf(const __m128& vec) : fVec(vec) {}
-    __m128 vec() const { return fVec; }
 
     SkNf() {}
     explicit SkNf(float val)           : fVec( _mm_set1_ps(val) ) {}
@@ -182,7 +181,7 @@ public:
         return pun.fs[k&3];
     }
 
-private:
+protected:
     __m128 fVec;
 };
 

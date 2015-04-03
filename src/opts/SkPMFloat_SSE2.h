@@ -17,7 +17,7 @@ inline SkPMFloat::SkPMFloat(SkPMColor c) {
     __m128i fix8    = _mm_set_epi32(0,0,0,c),
             fix8_16 = _mm_unpacklo_epi8 (fix8,    _mm_setzero_si128()),
             fix8_32 = _mm_unpacklo_epi16(fix8_16, _mm_setzero_si128());
-    fColors = _mm_cvtepi32_ps(fix8_32);
+    fVec = _mm_cvtepi32_ps(fix8_32);
     SkASSERT(this->isValid());
 }
 
@@ -27,7 +27,7 @@ inline SkPMColor SkPMFloat::round() const {
 
 inline SkPMColor SkPMFloat::roundClamp() const {
     // We don't use _mm_cvtps_epi32, because we want precise control over how 0.5 rounds (up).
-    __m128i fix8_32 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), fColors.vec())),
+    __m128i fix8_32 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), fVec)),
             fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
             fix8    = _mm_packus_epi16(fix8_16, fix8_16);
     SkPMColor c = _mm_cvtsi128_si32(fix8);
@@ -37,7 +37,7 @@ inline SkPMColor SkPMFloat::roundClamp() const {
 
 inline SkPMColor SkPMFloat::trunc() const {
     // Basically, same as roundClamp(), but no rounding.
-    __m128i fix8_32 = _mm_cvttps_epi32(fColors.vec()),
+    __m128i fix8_32 = _mm_cvttps_epi32(fVec),
             fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
             fix8    = _mm_packus_epi16(fix8_16, fix8_16);
     SkPMColor c = _mm_cvtsi128_si32(fix8);
@@ -66,10 +66,10 @@ inline void SkPMFloat::RoundClampTo4PMColors(
         SkPMColor colors[4]) {
     // Same as _SSSE3.h's.  We use 3 _mm_packus_epi16() where the naive loop uses 8.
     // We don't use _mm_cvtps_epi32, because we want precise control over how 0.5 rounds (up).
-    __m128i c0 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), a.fColors.vec())),
-            c1 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), b.fColors.vec())),
-            c2 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), c.fColors.vec())),
-            c3 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), d.fColors.vec()));
+    __m128i c0 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), a.fVec)),
+            c1 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), b.fVec)),
+            c2 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), c.fVec)),
+            c3 = _mm_cvttps_epi32(_mm_add_ps(_mm_set1_ps(0.5f), d.fVec));
     __m128i c3210 = _mm_packus_epi16(_mm_packus_epi16(c0, c1),
                                      _mm_packus_epi16(c2, c3));
     _mm_storeu_si128((__m128i*)colors, c3210);

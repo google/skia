@@ -187,7 +187,6 @@ class SkNf<4, float> {
     typedef SkNi<4, int32_t> Ni;
 public:
     SkNf(float32x4_t vec) : fVec(vec) {}
-    float32x4_t vec() const { return fVec; }
 
     SkNf() {}
     explicit SkNf(float val)           : fVec(vdupq_n_f32(val)) {}
@@ -252,7 +251,7 @@ public:
         return vgetq_lane_f32(fVec, k&3);
     }
 
-private:
+protected:
     float32x4_t fVec;
 };
 
