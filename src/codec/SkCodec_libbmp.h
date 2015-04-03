@@ -103,6 +103,7 @@ private:
      * Read enough of the stream to initialize the SkBmpCodec. Returns a bool
      * representing success or failure. If it returned true, and codecOut was
      * not NULL, it will be set to a new SkBmpCodec.
+     * Does *not* take ownership of the passed in SkStream.
      *
      */
     static bool ReadHeader(SkStream*, bool isIco, SkCodec** codecOut);

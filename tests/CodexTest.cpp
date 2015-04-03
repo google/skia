@@ -109,3 +109,32 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.png", SkISize::Make(8, 8), true);
     check(r, "yellow_rose.png", SkISize::Make(400, 301), true);
 }
+
+static void test_invalid_stream(skiatest::Reporter* r, const void* stream, size_t len) {
+    SkCodec* codec = SkCodec::NewFromStream(new SkMemoryStream(stream, len, false));
+    // We should not have gotten a codec. Bots should catch us if we leaked anything.
+    REPORTER_ASSERT(r, !codec);
+}
+
+// Ensure that SkCodec::NewFromStream handles freeing the passed in SkStream,
+// even on failure. Test some bad streams.
+DEF_TEST(Codec_leaks, r) {
+    // No codec should claim this as their format, so this tests SkCodec::NewFromStream.
+    const char nonSupportedStream[] = "hello world";
+    // The other strings should look like the beginning of a file type, so we'll call some
+    // internal version of NewFromStream, which must also delete the stream on failure.
+    const unsigned char emptyPng[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
+    const unsigned char emptyJpeg[] = { 0xFF, 0xD8, 0xFF };
+    const char emptyWebp[] = "RIFF1234WEBPVP";
+    const char emptyBmp[] = { 'B', 'M' };
+    const char emptyIco[] = { '\x00', '\x00', '\x01', '\x00' };
+    const char emptyGif[] = "GIFVER";
+
+    test_invalid_stream(r, nonSupportedStream, sizeof(nonSupportedStream));
+    test_invalid_stream(r, emptyPng, sizeof(emptyPng));
+    test_invalid_stream(r, emptyJpeg, sizeof(emptyJpeg));
+    test_invalid_stream(r, emptyWebp, sizeof(emptyWebp));
+    test_invalid_stream(r, emptyBmp, sizeof(emptyBmp));
+    test_invalid_stream(r, emptyIco, sizeof(emptyIco));
+    test_invalid_stream(r, emptyGif, sizeof(emptyGif));
+}

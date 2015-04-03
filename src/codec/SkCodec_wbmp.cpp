@@ -154,6 +154,7 @@ bool SkWbmpCodec::IsWbmp(SkStream* stream) {
 }
 
 SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
+    SkAutoTDelete<SkStream> streamDeleter(stream);
     SkISize size;
     if (!read_header(stream, &size)) {
         return NULL;
@@ -161,5 +162,5 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     SkImageInfo info =
             SkImageInfo::Make(size.width(), size.height(), kGray_8_SkColorType,
                               kOpaque_SkAlphaType);
-    return SkNEW_ARGS(SkWbmpCodec, (info, stream));
+    return SkNEW_ARGS(SkWbmpCodec, (info, streamDeleter.detach()));
 }

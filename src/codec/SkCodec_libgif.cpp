@@ -136,6 +136,7 @@ static uint32_t find_trans_index(const SavedImage& image) {
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
+    SkAutoTDelete<SkStream> streamDeleter(stream);
     // Read gif header, logical screen descriptor, and global color table
     SkAutoTCallIProc<GifFileType, CloseGif> gif(open_gif(stream));
 
@@ -165,7 +166,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     // use kPremul directly even when kUnpremul is supported.
     const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
             kIndex_8_SkColorType, kPremul_SkAlphaType);
-    return SkNEW_ARGS(SkGifCodec, (imageInfo, stream, gif.detach()));
+    return SkNEW_ARGS(SkGifCodec, (imageInfo, streamDeleter.detach(), gif.detach()));
 }
 
 SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream,

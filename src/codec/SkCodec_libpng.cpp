@@ -346,11 +346,12 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
 }
 
 SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
+    SkAutoTDelete<SkStream> streamDeleter(stream);
     png_structp png_ptr;
     png_infop info_ptr;
     SkImageInfo imageInfo;
     if (read_header(stream, &png_ptr, &info_ptr, &imageInfo)) {
-        return SkNEW_ARGS(SkPngCodec, (imageInfo, stream, png_ptr, info_ptr));
+        return SkNEW_ARGS(SkPngCodec, (imageInfo, streamDeleter.detach(), png_ptr, info_ptr));
     }
     return NULL;
 }

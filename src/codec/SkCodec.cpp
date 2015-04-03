@@ -32,8 +32,10 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     if (!stream) {
         return NULL;
     }
+
+    SkAutoTDelete<SkStream> streamDeleter(stream);
     
-    SkCodec* codec = NULL;
+    SkAutoTDelete<SkCodec> codec(NULL);
     for (uint32_t i = 0; i < SK_ARRAY_COUNT(gDecoderProcs); i++) {
         DecoderProc proc = gDecoderProcs[i];
         const bool correctFormat = proc.IsFormat(stream);
@@ -41,7 +43,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream) {
             return NULL;
         }
         if (correctFormat) {
-            codec = proc.NewFromStream(stream);
+            codec.reset(proc.NewFromStream(streamDeleter.detach()));
             break;
         }
     }
@@ -50,12 +52,11 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     // This is about 4x smaller than a test image that takes a few minutes for
     // dm to decode and draw.
     const int32_t maxSize = 1 << 27;
-    if (codec != NULL &&
-            codec->getInfo().width() * codec->getInfo().height() > maxSize) {
+    if (codec && codec->getInfo().width() * codec->getInfo().height() > maxSize) {
         SkCodecPrintf("Error: Image size too large, cannot decode.\n");
         return NULL;
     } else {
-        return codec;
+        return codec.detach();
     }
 }
 
