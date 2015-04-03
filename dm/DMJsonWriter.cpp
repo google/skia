@@ -52,11 +52,12 @@ void JsonWriter::DumpJson() {
         SkAutoMutexAcquire lock(&gBitmapResultLock);
         for (int i = 0; i < gBitmapResults.count(); i++) {
             Json::Value result;
-            result["key"]["name"]        = gBitmapResults[i].name.c_str();
-            result["key"]["config"]      = gBitmapResults[i].config.c_str();
-            result["key"]["source_type"] = gBitmapResults[i].sourceType.c_str();
-            result["options"]["ext"]     = gBitmapResults[i].ext.c_str();
-            result["md5"]                = gBitmapResults[i].md5.c_str();
+            result["key"]["name"]           = gBitmapResults[i].name.c_str();
+            result["key"]["config"]         = gBitmapResults[i].config.c_str();
+            result["key"]["source_type"]    = gBitmapResults[i].sourceType.c_str();
+            result["key"]["source_options"] = gBitmapResults[i].sourceOptions.c_str();
+            result["options"]["ext"]        = gBitmapResults[i].ext.c_str();
+            result["md5"]                   = gBitmapResults[i].md5.c_str();
 
             root["results"].append(result);
         }
@@ -104,11 +105,12 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
     BitmapResult br;
     for (unsigned i = 0; i < results.size(); i++) {
         const Json::Value& r = results[i];
-        br.name       = r["key"]["name"].asCString();
-        br.config     = r["key"]["config"].asCString();
-        br.sourceType = r["key"]["source_type"].asCString();
-        br.ext        = r["options"]["ext"].asCString();
-        br.md5        = r["md5"].asCString();
+        br.name          = r["key"]["name"].asCString();
+        br.config        = r["key"]["config"].asCString();
+        br.sourceType    = r["key"]["source_type"].asCString();
+        br.sourceOptions = r["key"]["source_options"].asCString();
+        br.ext           = r["options"]["ext"].asCString();
+        br.md5           = r["md5"].asCString();
         callback(br);
     }
     return true;

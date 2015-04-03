@@ -55,55 +55,56 @@ def get_args(bot):
 
   blacklist = []
   # This image is too large to be a texture for many GPUs.
-  blacklist.extend('gpu _ PANO_20121023_214540.jpg'.split(' '))
-  blacklist.extend('msaa _ PANO_20121023_214540.jpg'.split(' '))
+  blacklist.extend('gpu _ _ PANO_20121023_214540.jpg'.split(' '))
+  blacklist.extend('msaa _ _ PANO_20121023_214540.jpg'.split(' '))
 
   # Several of the newest version bmps fail on SkImageDecoder
-  blacklist.extend('_ image pal8os2v2.bmp'.split(' '))
-  blacklist.extend('_ image pal8v4.bmp'.split(' '))
-  blacklist.extend('_ image pal8v5.bmp'.split(' '))
-  blacklist.extend('_ image rgb16-565.bmp'.split(' '))
-  blacklist.extend('_ image rgb16-565pal.bmp'.split(' '))
-  blacklist.extend('_ image rgb32-111110.bmp'.split(' '))
-  blacklist.extend('_ image rgb32bf.bmp'.split(' '))
-  blacklist.extend('_ image rgba32.bmp'.split(' '))
-  blacklist.extend('_ image rgba32abf.bmp'.split(' '))
-  blacklist.extend('_ image rgb24largepal.bmp'.split(' '))
-  blacklist.extend('_ image pal8os2v2-16.bmp'.split(' '))
-  blacklist.extend('_ image pal8oversizepal.bmp'.split(' '))
-  blacklist.extend('_ subset rgb24largepal.bmp'.split(' '))
-  blacklist.extend('_ subset pal8os2v2-16.bmp'.split(' '))
-  blacklist.extend('_ subset pal8oversizepal.bmp'.split(' '))
+  blacklist.extend('_ image decode pal8os2v2.bmp'.split(' '))
+  blacklist.extend('_ image decode pal8v4.bmp'.split(' '))
+  blacklist.extend('_ image decode pal8v5.bmp'.split(' '))
+  blacklist.extend('_ image decode rgb16-565.bmp'.split(' '))
+  blacklist.extend('_ image decode rgb16-565pal.bmp'.split(' '))
+  blacklist.extend('_ image decode rgb32-111110.bmp'.split(' '))
+  blacklist.extend('_ image decode rgb32bf.bmp'.split(' '))
+  blacklist.extend('_ image decode rgba32.bmp'.split(' '))
+  blacklist.extend('_ image decode rgba32abf.bmp'.split(' '))
+  blacklist.extend('_ image decode rgb24largepal.bmp'.split(' '))
+  blacklist.extend('_ image decode pal8os2v2-16.bmp'.split(' '))
+  blacklist.extend('_ image decode pal8oversizepal.bmp'.split(' '))
+  blacklist.extend('_ image subset rgb24largepal.bmp'.split(' '))
+  blacklist.extend('_ image subset pal8os2v2-16.bmp'.split(' '))
+  blacklist.extend('_ image subset pal8oversizepal.bmp'.split(' '))
 
   # New ico files that fail on SkImageDecoder
-  blacklist.extend('_ image Hopstarter-Mac-Folders-Apple.ico'.split(' '))
+  blacklist.extend('_ image decode Hopstarter-Mac-Folders-Apple.ico'.split(' '))
 
   # Leon doesn't care about this, so why run it?
   if 'Win' in bot:
-    blacklist.extend('_ image _'.split(' '))
-    blacklist.extend('_ subset _'.split(' '))
+    blacklist.extend('_ image decode _'.split(' '))
+    blacklist.extend('_ image subset _'.split(' '))
 
   # Certain gm's on win7 gpu and pdf are never finishing and keeping the test
   # running forever
   if 'Win7' in bot:
-    blacklist.extend('msaa16 gm colorwheelnative'.split(' '))
-    blacklist.extend('pdf gm fontmgr_iter_factory'.split(' '))
+    blacklist.extend('msaa16 gm _ colorwheelnative'.split(' '))
+    blacklist.extend('pdf gm _ fontmgr_iter_factory'.split(' '))
 
   # Drawing SKPs or images into GPU canvases is a New Thing.
   # It seems like we're running out of RAM on some Android bots, so start off
   # with a very wide blacklist disabling all these tests on all Android bots.
   if 'Android' in bot:  # skia:3255
-    blacklist.extend('gpu skp _ gpu image _ gpu subset _'.split(' '))
-    blacklist.extend('msaa skp _ msaa image _ gpu subset _'.split(' '))
+    blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
+    blacklist.extend('gpu image decode _ msaa image decode _'.split(' '))
+    blacklist.extend('gpu image subset _ msaa image subset _'.split(' '))
 
   if 'Valgrind' in bot:
     # PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
-    blacklist.extend('pdf _ .webp'.split(' '))
+    blacklist.extend('pdf _ _ .webp'.split(' '))
     # These take 18+ hours to run.
-    blacklist.extend('pdf gm fontmgr_iter'.split(' '))
-    blacklist.extend('pdf _ PANO_20121023_214540.jpg'.split(' '))
-    blacklist.extend('pdf skp tabl_worldjournal.skp'.split(' '))
-    blacklist.extend('pdf skp desk_baidu.skp'.split(' '))
+    blacklist.extend('pdf gm _ fontmgr_iter'.split(' '))
+    blacklist.extend('pdf _ _ PANO_20121023_214540.jpg'.split(' '))
+    blacklist.extend('pdf skp _ tabl_worldjournal.skp'.split(' '))
+    blacklist.extend('pdf skp _ desk_baidu.skp'.split(' '))
 
   if blacklist:
     args.append('--blacklist')
