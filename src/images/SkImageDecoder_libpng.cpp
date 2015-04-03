@@ -17,9 +17,12 @@
 #include "SkTemplates.h"
 #include "SkUtils.h"
 #include "transform_scanline.h"
-extern "C" {
+
+#ifdef SKIA_PNG_PREFIXED
+    // this must proceed png.h
+    #include "pngprefix.h"
+#endif
 #include "png.h"
-}
 
 /* These were dropped in libpng >= 1.4 */
 #ifndef png_infopp_NULL

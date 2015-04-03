@@ -162,15 +162,6 @@
       }, {
         'skia_release_optimization_level%': '<(skia_default_gcc_optimization_level)',
       }],
-      [ 'skia_os == "android"', {
-          # skia_libpng_static - instead of linking libpng with '-lpng' and
-          #     including the headers from '/usr/include/png.h', compile and
-          #     statically link the version of libpng in
-          #     third_party/externals/libpng.
-          'skia_libpng_static%': '0',
-      }, {
-          'skia_libpng_static%': '1',
-      }],
       [ 'skia_sanitizer', {
         'skia_clang_build': 1,
         'skia_keep_frame_pointer': 1,
