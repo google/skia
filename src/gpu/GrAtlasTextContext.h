@@ -142,7 +142,7 @@ private:
     BitmapTextBlob* CreateBlob(int glyphCount, int runCount);
 
     void appendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
-                     GrFontScaler*, const SkIRect& clipRect);
+                     GrColor color, GrFontScaler*, const SkIRect& clipRect);
     void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const GrPaint&, const GrClip&,
                const SkMatrix& viewMatrix, int paintAlpha);
 

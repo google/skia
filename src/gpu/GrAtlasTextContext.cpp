@@ -368,6 +368,7 @@ void GrAtlasTextContext::internalDrawText(BitmapTextBlob* blob, int runIndex,
                                             GrGlyph::kCoverage_MaskStyle),
                               Sk48Dot16FloorToInt(fx),
                               Sk48Dot16FloorToInt(fy),
+                              skPaint.getColor(),
                               fontScaler,
                               clipRect);
         }
@@ -459,6 +460,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
+                                      skPaint.getColor(),
                                       fontScaler,
                                       clipRect);
                 }
@@ -496,6 +498,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
+                                      skPaint.getColor(),
                                       fontScaler,
                                       clipRect);
                 }
@@ -523,6 +526,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
+                                      skPaint.getColor(),
                                       fontScaler,
                                       clipRect);
                 }
@@ -550,6 +554,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
+                                      skPaint.getColor(),
                                       fontScaler,
                                       clipRect);
                 }
@@ -560,7 +565,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
 }
 
 void GrAtlasTextContext::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGlyph::PackedID packed,
-                                     int vx, int vy, GrFontScaler* scaler,
+                                     int vx, int vy, GrColor color, GrFontScaler* scaler,
                                      const SkIRect& clipRect) {
     if (NULL == fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
@@ -628,7 +633,6 @@ void GrAtlasTextContext::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGlyph
     r.fBottom = r.fTop + SkIntToScalar(height);
 
     run.fVertexBounds.joinNonEmptyArg(r);
-    GrColor color = fPaint.getColor();
     run.fColor = color;
 
     intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->fVertexEndIndex);
@@ -745,6 +749,7 @@ public:
         }
 
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
+
         // This will be ignored in the non A8 case
         bool opaqueVertexColors = GrColorIsOpaque(this->color());
         SkAutoTUnref<const GrGeometryProcessor> gp(
@@ -1026,16 +1031,17 @@ void GrAtlasTextContext::flush(GrDrawTarget* target, BitmapTextBlob* blob, GrRen
             }
 
             GrMaskFormat format = info.fMaskFormat;
-            if (kARGB_GrMaskFormat == format) {
-                color = SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha);
-            }
+            GrColor subRunColor = kARGB_GrMaskFormat == format ?
+                                  SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha) :
+                                  color;
 
             BitmapTextBatch::Geometry geometry;
             geometry.fBlob.reset(SkRef(blob));
             geometry.fRun = run;
             geometry.fSubRun = subRun;
             geometry.fColor = color;
-            SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, color, format, glyphCount,
+            SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, subRunColor, format,
+                                                                glyphCount,
                                                                 fContext->getBatchFontCache()));
 
             target->drawBatch(&pipelineBuilder, batch, &blob->fRuns[run].fVertexBounds);

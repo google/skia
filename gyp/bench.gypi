@@ -105,6 +105,7 @@
     '../bench/StrokeBench.cpp',
     '../bench/TableBench.cpp',
     '../bench/TextBench.cpp',
+    '../bench/TextBlobBench.cpp',
     '../bench/TileBench.cpp',
     '../bench/VertBench.cpp',
     '../bench/WritePixelsBench.cpp',
