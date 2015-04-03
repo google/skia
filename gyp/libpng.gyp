@@ -36,15 +36,9 @@
               '-w',
               '-fvisibility=hidden',
             ],
-            'conditions': [
-              ['not arm_neon', {
-                'defines': [
-                    # FIXME: Why is this needed? Without it, pngpriv.h sets it
-                    # to 2 if __ARM_NEON is defined, but shouldn't __ARM_NEON
-                    # not be defined since arm_neon is 0?
-                    'PNG_ARM_NEON_OPT=0',
-                ],
-              }],
+            'defines': [
+                # TODO: it'd be nice to enable PNG's NEON when possible.
+                'PNG_ARM_NEON_OPT=0',
             ],
             'sources': [
               '../third_party/externals/libpng/png.c',
