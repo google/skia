@@ -18,7 +18,7 @@
 #include "SkUtilsArm.h"
 #include "SkWriteBuffer.h"
 
-#define SK_SUPPORT_LEGACY_SCALAR_XFERMODES
+//#define SK_SUPPORT_LEGACY_SCALAR_XFERMODES
 
 #if !SK_ARM_NEON_IS_NONE
 #include "SkXfermode_opts_arm_neon.h"
