@@ -1236,7 +1236,9 @@ static inline SkPMFloat check_as_pmfloat(const Sk4f& value) {
 struct SrcATop4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
-        return check_as_pmfloat(dst + (src * Sk4f(dst.a()) - dst * Sk4f(src.a())) * inv255);
+        Sk4f s4 = src;
+        Sk4f d4 = dst;
+        return check_as_pmfloat(d4 + (s4 * Sk4f(dst.a()) - d4 * Sk4f(src.a())) * inv255);
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kSrcATop_Mode;
@@ -1246,7 +1248,9 @@ struct SrcATop4f {
 struct DstATop4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
-        return check_as_pmfloat(src + (dst * Sk4f(src.a()) - src * Sk4f(dst.a())) * inv255);
+        Sk4f s4 = src;
+        Sk4f d4 = dst;
+        return check_as_pmfloat(s4 + (d4 * Sk4f(src.a()) - s4 * Sk4f(dst.a())) * inv255);
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kDstATop_Mode;
@@ -1256,7 +1260,9 @@ struct DstATop4f {
 struct Xor4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
-        return check_as_pmfloat(src + dst - (src * Sk4f(dst.a()) + dst * Sk4f(src.a())) * inv255);
+        Sk4f s4 = src;
+        Sk4f d4 = dst;
+        return check_as_pmfloat(s4 + d4 - (s4 * Sk4f(dst.a()) + d4 * Sk4f(src.a())) * inv255);
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kXor_Mode;
@@ -1265,7 +1271,9 @@ struct Xor4f {
 //  kPlus_Mode   [Sa + Da, Sc + Dc]
 struct Plus4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
-        return check_as_pmfloat(clamp_255(src + dst));
+        Sk4f s4 = src;
+        Sk4f d4 = dst;
+        return check_as_pmfloat(clamp_255(s4 + d4));
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kPlus_Mode;
@@ -1275,7 +1283,9 @@ struct Plus4f {
 struct Modulate4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
-        return check_as_pmfloat(src * dst * inv255);
+        Sk4f s4 = src;
+        Sk4f d4 = dst;
+        return check_as_pmfloat(s4 * d4 * inv255);
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kModulate_Mode;
@@ -1285,7 +1295,9 @@ struct Modulate4f {
 struct Screen4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
-        return check_as_pmfloat(src + dst - src * dst * inv255);
+        Sk4f s4 = src;
+        Sk4f d4 = dst;
+        return check_as_pmfloat(s4 + d4 - s4 * d4 * inv255);
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kScreen_Mode;

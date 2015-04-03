@@ -15,7 +15,7 @@
 
 // A pre-multiplied color storing each component in the same order as SkPMColor,
 // but as a float in the range [0, 255].
-class SkPMFloat : public Sk4f {
+class SK_STRUCT_ALIGN(16) SkPMFloat {
 public:
     static SkPMFloat FromPMColor(SkPMColor c) { return SkPMFloat(c); }
     static SkPMFloat FromARGB(float a, float r, float g, float b) { return SkPMFloat(a,r,g,b); }
@@ -28,17 +28,20 @@ public:
     explicit SkPMFloat(SkPMColor);
     SkPMFloat(float a, float r, float g, float b)
     #ifdef SK_PMCOLOR_IS_RGBA
-        : INHERITED(r,g,b,a) {}
+        : fColors(r,g,b,a) {}
     #else
-        : INHERITED(b,g,r,a) {}
+        : fColors(b,g,r,a) {}
     #endif
 
-    SkPMFloat(const Sk4f& fs) : INHERITED(fs) {}
 
-    float a() const { return this->kth<SK_A32_SHIFT / 8>(); }
-    float r() const { return this->kth<SK_R32_SHIFT / 8>(); }
-    float g() const { return this->kth<SK_G32_SHIFT / 8>(); }
-    float b() const { return this->kth<SK_B32_SHIFT / 8>(); }
+    // Freely autoconvert between SkPMFloat and Sk4f.
+    /*implicit*/ SkPMFloat(const Sk4f& fs) { fColors = fs; }
+    /*implicit*/ operator Sk4f() const { return fColors; }
+
+    float a() const { return fColors.kth<SK_A32_SHIFT / 8>(); }
+    float r() const { return fColors.kth<SK_R32_SHIFT / 8>(); }
+    float g() const { return fColors.kth<SK_G32_SHIFT / 8>(); }
+    float b() const { return fColors.kth<SK_B32_SHIFT / 8>(); }
 
     // N.B. All methods returning an SkPMColor call SkPMColorAssert on that result before returning.
 
@@ -64,7 +67,7 @@ public:
     }
 
 private:
-    typedef Sk4f INHERITED;
+    Sk4f fColors;
 };
 
 #ifdef SKNX_NO_SIMD

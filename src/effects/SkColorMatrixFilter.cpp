@@ -269,7 +269,7 @@ static Sk4f premul(const Sk4f& x) {
 
 static Sk4f unpremul(const SkPMFloat& pm) {
     float scale = 255 / pm.a(); // candidate for fast/approx invert?
-    return pm * Sk4f(scale, scale, scale, 1);
+    return Sk4f(pm) * Sk4f(scale, scale, scale, 1);
 }
 
 static Sk4f clamp_0_255(const Sk4f& value) {
