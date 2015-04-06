@@ -93,14 +93,6 @@ bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
     return !SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix);
 }
 
-inline void GrAtlasTextContext::init(GrRenderTarget* rt, const GrClip& clip,
-                                     const GrPaint& paint, const SkPaint& skPaint,
-                                     const SkIRect& regionClipBounds) {
-    INHERITED::init(rt, clip, paint, skPaint, regionClipBounds);
-
-    fCurrStrike = NULL;
-}
-
 bool GrAtlasTextContext::MustRegenerateBlob(const BitmapTextBlob& blob, const SkPaint& paint,
                                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
     // We always regenerate blobs with patheffects or mask filters we could cache these
@@ -192,8 +184,8 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
     GrPaint grPaint;
     SkPaint2GrPaintShader(fContext, rt, skPaint, viewMatrix, true, &grPaint);
 
-    this->flush(fContext->getTextTarget(), cacheBlob, rt, grPaint, clip, viewMatrix,
-                fSkPaint.getAlpha());
+    this->flush(fContext->getTextTarget(), blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
+                clip, viewMatrix, clipBounds, x, y);
 }
 
 void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
@@ -237,6 +229,12 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
             newRun.fGlyphStartIndex = lastRun.fGlyphEndIndex;
             newRun.fGlyphEndIndex = lastRun.fGlyphEndIndex;
         }
+
+        if (SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix)) {
+            cacheBlob->fRuns[run].fDrawAsPaths = true;
+            continue;
+        }
+        cacheBlob->fRuns[run].fDrawAsPaths = false;
 
         switch (it.positioning()) {
             case SkTextBlob::kDefault_Positioning:
@@ -285,7 +283,7 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
     this->internalDrawText(blob, 0, cache, skPaint, viewMatrix, text, byteLength, x, y, clipRect);
     SkGlyphCache::AttachCache(cache);
 
-    this->flush(fContext->getTextTarget(), blob, rt, paint, clip, viewMatrix, skPaint.getAlpha());
+    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip, viewMatrix);
 }
 
 void GrAtlasTextContext::internalDrawText(BitmapTextBlob* blob, int runIndex,
@@ -398,7 +396,7 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                               scalarsPerPosition, offset, clipRect);
     SkGlyphCache::AttachCache(cache);
 
-    this->flush(fContext->getTextTarget(), blob, rt, paint, clip, viewMatrix, fSkPaint.getAlpha());
+    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip, viewMatrix);
 }
 
 void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
@@ -694,9 +692,9 @@ public:
         GrColor fColor;
     };
 
-    static GrBatch* Create(const Geometry& geometry, GrColor color, GrMaskFormat maskFormat,
+    static GrBatch* Create(const Geometry& geometry, GrMaskFormat maskFormat,
                            int glyphCount, GrBatchFontCache* fontCache) {
-        return SkNEW_ARGS(BitmapTextBatch, (geometry, color, maskFormat, glyphCount, fontCache));
+        return SkNEW_ARGS(BitmapTextBatch, (geometry, maskFormat, glyphCount, fontCache));
     }
 
     const char* name() const override { return "BitmapTextBatch"; }
@@ -893,14 +891,14 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    BitmapTextBatch(const Geometry& geometry, GrColor color, GrMaskFormat maskFormat,
+    BitmapTextBatch(const Geometry& geometry, GrMaskFormat maskFormat,
                     int glyphCount, GrBatchFontCache* fontCache)
             : fMaskFormat(maskFormat)
             , fPixelConfig(fontCache->getPixelConfig(maskFormat))
             , fFontCache(fontCache) {
         this->initClassID<BitmapTextBatch>();
         fGeoData.push_back(geometry);
-        fBatch.fColor = color;
+        fBatch.fColor = geometry.fColor;
         fBatch.fViewMatrix = geometry.fBlob->fViewMatrix;
         fBatch.fNumGlyphs = glyphCount;
     }
@@ -1015,47 +1013,128 @@ private:
     GrBatchFontCache* fFontCache;
 };
 
-void GrAtlasTextContext::flush(GrDrawTarget* target, BitmapTextBlob* blob, GrRenderTarget* rt,
-                               const GrPaint& paint, const GrClip& clip,
-                               const SkMatrix& viewMatrix, int paintAlpha) {
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setFromPaint(paint, rt, clip);
+void GrAtlasTextContext::flushRunAsPaths(const SkTextBlob::RunIterator& it, const SkPaint& skPaint,
+                                         SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
+                                         const SkIRect& clipBounds, SkScalar x, SkScalar y) {
+    SkPaint runPaint = skPaint;
 
-    GrColor color = paint.getColor();
-    for (uint32_t run = 0; run < blob->fRunCount; run++) {
-        for (int subRun = 0; subRun < blob->fRuns[run].fSubRunInfo.count(); subRun++) {
-            PerSubRunInfo& info = blob->fRuns[run].fSubRunInfo[subRun];
-            int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
-            if (0 == glyphCount) {
-                continue;
-            }
+    size_t textLen = it.glyphCount() * sizeof(uint16_t);
+    const SkPoint& offset = it.offset();
 
-            GrMaskFormat format = info.fMaskFormat;
-            GrColor subRunColor = kARGB_GrMaskFormat == format ?
-                                  SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha) :
-                                  color;
+    it.applyFontToPaint(&runPaint);
 
-            BitmapTextBatch::Geometry geometry;
-            geometry.fBlob.reset(SkRef(blob));
-            geometry.fRun = run;
-            geometry.fSubRun = subRun;
-            geometry.fColor = color;
-            SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, subRunColor, format,
-                                                                glyphCount,
-                                                                fContext->getBatchFontCache()));
-
-            target->drawBatch(&pipelineBuilder, batch, &blob->fRuns[run].fVertexBounds);
-        }
+    if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
+        return;
     }
 
-    // Now flush big glyphs
-    for (int i = 0; i < blob->fBigGlyphs.count(); i++) {
-        BitmapTextBlob::BigGlyph& bigGlyph = blob->fBigGlyphs[i];
+    runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
+
+    switch (it.positioning()) {
+        case SkTextBlob::kDefault_Positioning:
+            this->drawTextAsPath(runPaint, viewMatrix, (const char *)it.glyphs(),
+                                 textLen, x + offset.x(), y + offset.y(), clipBounds);
+            break;
+        case SkTextBlob::kHorizontal_Positioning:
+            this->drawPosTextAsPath(runPaint, viewMatrix, (const char*)it.glyphs(),
+                                    textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()),
+                                    clipBounds);
+            break;
+        case SkTextBlob::kFull_Positioning:
+            this->drawPosTextAsPath(runPaint, viewMatrix, (const char*)it.glyphs(),
+                                    textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
+            break;
+    }
+}
+
+inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder* pipelineBuilder,
+                                         BitmapTextBlob* cacheBlob, int run, GrColor color,
+                                         uint8_t paintAlpha) {
+    for (int subRun = 0; subRun < cacheBlob->fRuns[run].fSubRunInfo.count(); subRun++) {
+        const PerSubRunInfo& info = cacheBlob->fRuns[run].fSubRunInfo[subRun];
+        int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
+        if (0 == glyphCount) {
+            continue;
+        }
+
+        GrMaskFormat format = info.fMaskFormat;
+        GrColor subRunColor = kARGB_GrMaskFormat == format ?
+                              SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha) :
+                              color;
+
+        BitmapTextBatch::Geometry geometry;
+        geometry.fBlob.reset(SkRef(cacheBlob));
+        geometry.fRun = run;
+        geometry.fSubRun = subRun;
+        geometry.fColor = subRunColor;
+        SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, format, glyphCount,
+                                                            fContext->getBatchFontCache()));
+
+        target->drawBatch(pipelineBuilder, batch, &cacheBlob->fRuns[run].fVertexBounds);
+    }
+}
+
+inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
+                                               const GrPaint& grPaint, const GrClip& clip) {
+    for (int i = 0; i < cacheBlob->fBigGlyphs.count(); i++) {
+        const BitmapTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
         SkMatrix translate;
         translate.setTranslate(SkIntToScalar(bigGlyph.fVx), SkIntToScalar(bigGlyph.fVy));
         SkPath tmpPath(bigGlyph.fPath);
         tmpPath.transform(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(rt, clip, paint, SkMatrix::I(), tmpPath, strokeInfo);
+        fContext->drawPath(rt, clip, grPaint, SkMatrix::I(), tmpPath, strokeInfo);
     }
+}
+
+void GrAtlasTextContext::flush(GrDrawTarget* target,
+                               const SkTextBlob* blob,
+                               BitmapTextBlob* cacheBlob,
+                               GrRenderTarget* rt,
+                               const SkPaint& skPaint,
+                               const GrPaint& grPaint,
+                               SkDrawFilter* drawFilter,
+                               const GrClip& clip,
+                               const SkMatrix& viewMatrix,
+                               const SkIRect& clipBounds,
+                               SkScalar x,
+                               SkScalar y) {
+    // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
+    // it as paths
+    GrPipelineBuilder pipelineBuilder;
+    pipelineBuilder.setFromPaint(grPaint, rt, clip);
+
+    GrColor color = grPaint.getColor();
+    uint8_t paintAlpha = skPaint.getAlpha();
+
+    SkTextBlob::RunIterator it(blob);
+    for (int run = 0; !it.done(); it.next(), run++) {
+        if (cacheBlob->fRuns[run].fDrawAsPaths) {
+            this->flushRunAsPaths(it, skPaint, drawFilter, viewMatrix, clipBounds, x, y);
+            continue;
+        }
+        this->flushRun(target, &pipelineBuilder, cacheBlob, run, color, paintAlpha);
+    }
+
+    // Now flush big glyphs
+    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip);
+}
+
+void GrAtlasTextContext::flush(GrDrawTarget* target,
+                               BitmapTextBlob* cacheBlob,
+                               GrRenderTarget* rt,
+                               const SkPaint& skPaint,
+                               const GrPaint& grPaint,
+                               const GrClip& clip,
+                               const SkMatrix& viewMatrix) {
+    GrPipelineBuilder pipelineBuilder;
+    pipelineBuilder.setFromPaint(grPaint, rt, clip);
+
+    GrColor color = grPaint.getColor();
+    uint8_t paintAlpha = skPaint.getAlpha();
+    for (int run = 0; run < cacheBlob->fRunCount; run++) {
+        this->flushRun(target, &pipelineBuilder, cacheBlob, run, color, paintAlpha);
+    }
+
+    // Now flush big glyphs
+    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip);
 }

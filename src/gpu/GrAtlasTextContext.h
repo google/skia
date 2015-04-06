@@ -12,6 +12,7 @@
 
 #include "GrGeometryProcessor.h"
 #include "SkDescriptor.h"
+#include "SkTextBlob.h"
 #include "SkTHash.h"
 
 class GrBatchTextStrike;
@@ -45,9 +46,6 @@ private:
                       const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 
-    void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
-              const SkIRect& regionClipBounds);
-
     /*
      * A BitmapTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
      * on the GPU.  These are initially created with valid positions and colors, but invalid
@@ -60,19 +58,32 @@ private:
      * TODO this is currently a bug
      */
     struct BitmapTextBlob : public SkRefCnt {
-        // Each Run inside of the blob can have its texture coordinates regenerated if required.
-        // To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
-        // any evictions inside of the atlas, then we will simply regenerate Runs.  We could track
-        // this at a more fine grained level, but its not clear if this is worth it, as evictions
-        // should be fairly rare.
-        // One additional point, each run can contain glyphs with any of the three mask formats.
-        // We call these SubRuns.  Because a subrun must be a contiguous range, we have to create
-        // a new subrun each time the mask format changes in a run.  In theory, a run can have as
-        // many SubRuns as it has glyphs, ie if a run alternates between color emoji and A8.  In
-        // practice, the vast majority of runs have only a single subrun.
+        /*
+         * Each Run inside of the blob can have its texture coordinates regenerated if required.
+         * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
+         * any evictions inside of the atlas, then we will simply regenerate Runs.  We could track
+         * this at a more fine grained level, but its not clear if this is worth it, as evictions
+         * should be fairly rare.
+         *
+         * One additional point, each run can contain glyphs with any of the three mask formats.
+         * We call these SubRuns.  Because a subrun must be a contiguous range, we have to create
+         * a new subrun each time the mask format changes in a run.  In theory, a run can have as
+         * many SubRuns as it has glyphs, ie if a run alternates between color emoji and A8.  In
+         * practice, the vast majority of runs have only a single subrun.
+         *
+         * Finally, for runs where the entire thing is too large for the GrAtlasTextContext to
+         * handle, we have a bit to mark the run as flusahable via rendering as paths.  It is worth
+         * pointing. It would be a bit expensive to figure out ahead of time whether or not a run
+         * can flush in this manner, so we always allocate vertices for the run, regardless of
+         * whether or not it is too large.  The benefit of this strategy is that we can always reuse
+         * a blob allocation regardless of viewmatrix changes.  We could store positions for these
+         * glyphs.  However, its not clear if this is a win because we'd still have to either go the
+         * glyph cache to get the path at flush time, or hold onto the path in the cache, which
+         * would greatly increase the memory of these cached items.
+         */
 
         struct Run {
-            Run() : fColor(GrColor_ILLEGAL), fInitialized(false) {
+            Run() : fColor(GrColor_ILLEGAL), fInitialized(false), fDrawAsPaths(false) {
                 fVertexBounds.setLargestInverted();
                 // We insert the first subrun to gurantee a run always has atleast one subrun.
                 // We do this to simplify things when we 'hand off' data from one subrun to the
@@ -99,6 +110,7 @@ private:
             SkRect fVertexBounds;
             GrColor fColor;
             bool fInitialized;
+            bool fDrawAsPaths;
         };
 
         struct BigGlyph {
@@ -113,7 +125,7 @@ private:
         SkScalar fX;
         SkScalar fY;
         SkPaint::Style fStyle;
-        uint32_t fRunCount;
+        int fRunCount;
 
         // all glyph / vertex offsets are into these pools.
         unsigned char* fVertices;
@@ -143,8 +155,21 @@ private:
 
     void appendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
                      GrColor color, GrFontScaler*, const SkIRect& clipRect);
-    void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const GrPaint&, const GrClip&,
-               const SkMatrix& viewMatrix, int paintAlpha);
+
+    inline void flushRunAsPaths(const SkTextBlob::RunIterator&, const SkPaint&, SkDrawFilter*,
+                                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                                SkScalar y);
+    inline void flushRun(GrDrawTarget*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
+                         uint8_t paintAlpha);
+    inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
+                               const GrPaint& grPaint, const GrClip& clip);
+
+    // We have to flush SkTextBlobs differently from drawText / drawPosText
+    void flush(GrDrawTarget*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
+               const GrPaint&, SkDrawFilter*, const GrClip&, const SkMatrix& viewMatrix,
+               const SkIRect& clipBounds, SkScalar x, SkScalar y);
+    void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
+               const GrPaint&, const GrClip&, const SkMatrix& viewMatrix);
 
     void internalDrawText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
                           const SkMatrix& viewMatrix, const char text[], size_t byteLength,
