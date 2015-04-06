@@ -810,6 +810,8 @@ SkTSpan<TCurve>* SkTSect<TCurve>::addOne() {
         ++fDebugAllocatedCount;
 #endif
     }
+    result->fHasPerp = false;
+    result->fDeleted = false;
     ++fActiveCount; 
     PATH_OPS_DEBUG_T_SECT_CODE(result->fID = fDebugCount++ * 2 + fID);
     PATH_OPS_DEBUG_CODE(result->fDebugSect = this);
