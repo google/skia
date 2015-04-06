@@ -208,30 +208,7 @@ public:
         return obj;
     }
 
-    /**
-     *  BlockRef<B> is a type which inherits from B, cannot be created,
-     *  cannot be deleted, and makes ref and unref private.
-     */
-    template<typename B> class BlockRef : public B {
-    private:
-        BlockRef();
-        ~BlockRef();
-        void ref() const;
-        void unref() const;
-    };
-
-    /** If T is const, the type returned from operator-> will also be const. */
-    typedef typename SkTConstType<BlockRef<T>, SkTIsConst<T>::value>::type BlockRefType;
-
-    /**
-     *  SkAutoTUnref assumes ownership of the ref. As a result, it is an error
-     *  for the user to ref or unref through SkAutoTUnref. Therefore
-     *  SkAutoTUnref::operator-> returns BlockRef<T>*. This prevents use of
-     *  skAutoTUnrefInstance->ref() and skAutoTUnrefInstance->unref().
-     */
-    BlockRefType *operator->() const {
-        return static_cast<BlockRefType*>(fObj);
-    }
+    T* operator->() const { return fObj; }
     operator T*() const { return fObj; }
 
 private:
