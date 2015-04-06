@@ -564,11 +564,11 @@ static const char* gFillTypeStrs[] = {
 };
 
 static const char* gOpStrs[] = {
-    "kDifference_PathOp",
-    "kIntersect_PathOp",
-    "kUnion_PathOp",
+    "kDifference_SkPathOp",
+    "kIntersect_SkPathOp",
+    "kUnion_SkPathOp",
     "kXor_PathOp",
-    "kReverseDifference_PathOp",
+    "kReverseDifference_SkPathOp",
 };
 
 static const char kHTML4SpaceIndent[] = "&nbsp;&nbsp;&nbsp;&nbsp;";
