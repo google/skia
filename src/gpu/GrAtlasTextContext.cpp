@@ -821,7 +821,6 @@ public:
                 GrBatchTextStrike* strike = NULL;
                 bool brokenRun = false;
                 if (regenerateTextureCoords) {
-                    info.fBulkUseToken.reset();
                     desc = run.fDescriptor.getDesc();
                     cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
                     scaler = GrTextContext::GetGrFontScaler(cache);
@@ -847,8 +846,8 @@ public:
                                                                                 scaler);
                             SkASSERT(success);
                         }
-                        fFontCache->addGlyphToBulkAndSetUseToken(&info.fBulkUseToken, glyph,
-                                                                 batchTarget->currentToken());
+
+                        fFontCache->setGlyphRefToken(glyph, batchTarget->currentToken());
 
                         // Texture coords are the last vertex attribute so we get a pointer to the
                         // first one and then map with stride in regenerateTextureCoords
@@ -877,12 +876,6 @@ public:
                 }
             } else {
                 instancesToFlush += glyphCount;
-
-                // set use tokens for all of the glyphs in our subrun.  This is only valid if we
-                // have a valid atlas generation
-                fFontCache->setUseTokenBulk(info.fBulkUseToken,
-                                            batchTarget->currentToken(),
-                                            fMaskFormat);
             }
 
             // now copy all vertices

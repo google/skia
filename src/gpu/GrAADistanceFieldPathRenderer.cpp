@@ -275,7 +275,7 @@ public:
                 }
             }
 
-            atlas->setLastUseToken(args.fPathData->fID, batchTarget->currentToken());
+            atlas->setLastRefToken(args.fPathData->fID, batchTarget->currentToken());
 
             // Now set vertices
             intptr_t offset = reinterpret_cast<intptr_t>(vertices);

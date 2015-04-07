@@ -10,7 +10,6 @@
 
 #include "GrTextContext.h"
 
-#include "GrBatchAtlas.h"
 #include "GrGeometryProcessor.h"
 #include "SkDescriptor.h"
 #include "SkTextBlob.h"
@@ -104,7 +103,6 @@ private:
                 uint32_t fGlyphEndIndex;
                 size_t fVertexStartIndex;
                 size_t fVertexEndIndex;
-                GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
             };
             SkSTArray<1, SubRunInfo, true> fSubRunInfo;
             SkAutoDescriptor fDescriptor;
