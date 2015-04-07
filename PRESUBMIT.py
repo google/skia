@@ -283,8 +283,11 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
       # It is a revert CL, ignore the public api owners check.
       return results
 
-    if re.search(r'^COMMIT=false$', issue_properties['description'], re.M):
-      # Ignore public api owners check for COMMIT=false CLs since they are not
+    # TODO(rmistry): Stop checking for COMMIT=false once crbug/470609 is
+    # resolved.
+    if issue_properties['cq_dry_run'] or re.search(
+        r'^COMMIT=false$', issue_properties['description'], re.M):
+      # Ignore public api owners check for dry run CLs since they are not
       # going to be committed.
       return results
 
