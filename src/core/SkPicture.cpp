@@ -12,6 +12,7 @@
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
 
+#include "SkAtomics.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
@@ -44,18 +45,6 @@ DECLARE_SKMESSAGEBUS_MESSAGE(SkPicture::DeletionMessage);
 
 template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
-}
-
-static int32_t gPictureGenerationID;
-
-// never returns a 0
-static int32_t next_picture_generation_id() {
-    // Loop in case our global wraps around.
-    int32_t genID;
-    do {
-        genID = sk_atomic_inc(&gPictureGenerationID) + 1;
-    } while (0 == genID);
-    return genID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -247,7 +236,7 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
         numSlowPathDashedPaths -= fNumFastPathDashEffects;
     }
 
-    int numSlowPaths = fNumAAConcavePaths - 
+    int numSlowPaths = fNumAAConcavePaths -
                        fNumAAHairlineConcavePaths -
                        fNumAADFEligibleConcavePaths;
 
@@ -270,9 +259,13 @@ SkPicture const* const* SkPicture::drawablePicts() const {
 }
 
 SkPicture::~SkPicture() {
-    SkPicture::DeletionMessage msg;
-    msg.fUniqueID = this->uniqueID();
-    SkMessageBus<SkPicture::DeletionMessage>::Post(msg);
+    // If the ID is still zero, no one has read it, so no need to send this message.
+    uint32_t id = sk_atomic_load(&fUniqueID, sk_memory_order_relaxed);
+    if (id != 0) {
+        SkPicture::DeletionMessage msg;
+        msg.fUniqueID = id;
+        SkMessageBus<SkPicture::DeletionMessage>::Post(msg);
+    }
 }
 
 void SkPicture::EXPERIMENTAL_addAccelData(const SkPicture::AccelData* data) const {
@@ -488,10 +481,27 @@ int  SkPicture::approximateOpCount()  const { return fRecord->count(); }
 
 SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* drawablePicts,
                      SkBBoxHierarchy* bbh)
-    : fUniqueID(next_picture_generation_id())
+    : fUniqueID(0)
     , fCullRect(cullRect)
     , fRecord(SkRef(record))
     , fBBH(SkSafeRef(bbh))
     , fDrawablePicts(drawablePicts)     // take ownership
     , fAnalysis(*fRecord)
 {}
+
+
+static uint32_t gNextID = 1;
+uint32_t SkPicture::uniqueID() const {
+    uint32_t id = sk_atomic_load(&fUniqueID, sk_memory_order_relaxed);
+    while (id == 0) {
+        uint32_t next = sk_atomic_fetch_add(&gNextID, 1u);
+        if (sk_atomic_compare_exchange(&fUniqueID, &id, next,
+                                       sk_memory_order_relaxed,
+                                       sk_memory_order_relaxed)) {
+            id = next;
+        } else {
+            // sk_atomic_compare_exchange replaced id with the current value of fUniqueID.
+        }
+    }
+    return id;
+}

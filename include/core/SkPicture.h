@@ -136,7 +136,7 @@ public:
 
     /** Return a non-zero, unique value representing the picture.
      */
-    uint32_t uniqueID() const { return fUniqueID; }
+    uint32_t uniqueID() const;
 
     /**
      *  Serialize to a stream. If non NULL, serializer will be used to serialize
@@ -263,7 +263,7 @@ private:
                                    SkPicture const* const drawablePics[], int drawableCount);
 
     // uint32_t fRefCnt; from SkNVRefCnt<SkPicture>
-    const uint32_t                        fUniqueID;
+    mutable uint32_t                      fUniqueID;
     const SkRect                          fCullRect;
     mutable SkAutoTUnref<const AccelData> fAccelData;
     SkAutoTUnref<const SkRecord>          fRecord;
