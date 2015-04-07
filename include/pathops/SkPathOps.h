@@ -15,6 +15,11 @@ class SkPath;
 struct SkRect;
 
 
+// FIXME: remove this once the define in src/skia/SkUserConfig.h lands
+#ifndef SK_SUPPORT_LEGACY_PATHOP_ENUMS
+#define SK_SUPPORT_LEGACY_PATHOP_ENUMS
+#endif
+
 // FIXME: move everything below into the SkPath class
 /**
   *  The logical operations that can be performed when combining two paths.
@@ -25,6 +30,14 @@ enum SkPathOp {
     kUnion_SkPathOp,              //!< union (inclusive-or) the two paths
     kXOR_SkPathOp,                //!< exclusive-or the two paths
     kReverseDifference_SkPathOp,  //!< subtract the first path from the op path
+
+#ifdef SK_SUPPORT_LEGACY_PATHOP_ENUMS
+    kDifference_PathOp = 0,     //!< subtract the op path from the first path
+    kIntersect_PathOp,          //!< intersect the two paths
+    kUnion_PathOp,              //!< union (inclusive-or) the two paths
+    kXOR_PathOp,                //!< exclusive-or the two paths
+    kReverseDifference_PathOp,  //!< subtract the first path from the op path
+#endif
 };
 
 /** Set this path to the result of applying the Op to this path and the
