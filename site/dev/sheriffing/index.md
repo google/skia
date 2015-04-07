@@ -16,6 +16,7 @@ Tree Sheriffs Documentation
     +   [Compile bot failures automatically close the tree](#tree_closers)
     +   [How to revert a CL](#how_to_revert)
     +   [What to do if DEPS roll fails to land](#deps_roll_failures)
+    +   [How to rebaseline](#how_to_rebaseline)
 
 
 <a name="what_is_a_sheriff"></a>
@@ -112,3 +113,31 @@ See the revert documentation [here](https://skia.org/dev/contrib/revert).
 ### What to do if DEPS roll fails to land
 
 A common cause of DEPS roll failures are layout tests. Find the offending Skia CL by examining the commit hash range in the DEPS roll and revert (or talk to the commit author if they are available). If you do revert then keep an eye on the next DEPS roll to make sure it succeeds.
+
+If a Skia CL changes layout tests, but the new images look good, the tests need to be rebaselined. See [Rebaseline Layout Tests](#how_to_rebaseline).
+
+<a name="how_to_rebaseline"</a>
+### Rebaseline Layout Tests (i.e., add suppressions)
+
+* First create a Chromium bug:
+  * goto [crbug.com](https://crbug.com)
+  * Make sure you’re logged in with your Chromium credentials
+  * Click “New Issue”
+  * Summary: “Skia image rebaseline”
+  * Description:
+    * DEPS roll #,
+    * Helpful message about what went wrong (e.g., “Changes to how lighting is scaled in Skia r#### changed the following images:”)
+    * Layout tests effected
+    * You should copy the list of affected from stdio of the failing bot
+  * Status: Assigned
+  * Owner: fmalita@
+  * cc: reed@, bsalomon@, robertphillips@ & developer responsible for changes
+  * Labels: OS-All & Cr-Blink-LayoutTests
+  * If it is filter related, cc senorblanco@
+
+* Edit [skia/skia_test_expectations.txt](https://chromium.googlesource.com/chromium/src/+/master/skia/skia_test_expectations.txt)
+  * Add # comment about what has changed (I usually paraphrase the crbug text)
+  * Add line(s) like after the comment:
+    * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ ImageOnlyFailure ]
+
+* Commit the changes and fire off new try bots (you usually only need to fire off the layout bots)
