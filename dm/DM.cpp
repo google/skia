@@ -455,7 +455,7 @@ struct Task {
                                     FLAGS_readPath[0]));
             }
 
-            if (!FLAGS_writePath.isEmpty() && !gUninterestingHashes.contains(md5)) {
+            if (!FLAGS_writePath.isEmpty()) {
                 const char* ext = task->sink->fileExtension();
                 if (data->getLength()) {
                     WriteToDisk(*task, md5, ext, data, data->getLength(), NULL);
@@ -482,6 +482,12 @@ struct Task {
         result.ext           = ext;
         result.md5           = md5;
         JsonWriter::AddBitmapResult(result);
+
+        // If an MD5 is uninteresting, we want it noted in the JSON file,
+        // but don't want to dump it out as a .png (or whatever ext is).
+        if (gUninterestingHashes.contains(md5)) {
+            return;
+        }
 
         const char* dir = FLAGS_writePath[0];
         if (0 == strcmp(dir, "@")) {  // Needed for iOS.
