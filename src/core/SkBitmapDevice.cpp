@@ -103,6 +103,11 @@ SkImageInfo SkBitmapDevice::imageInfo() const {
     return fBitmap.info();
 }
 
+void SkBitmapDevice::setNewSize(const SkISize& size) {
+    SkASSERT(!fBitmap.pixelRef());
+    fBitmap.setInfo(fBitmap.info().makeWH(size.fWidth, size.fHeight));
+}
+
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     SkASSERT(bm.width() == fBitmap.width());
     SkASSERT(bm.height() == fBitmap.height());

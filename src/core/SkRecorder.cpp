@@ -39,6 +39,12 @@ SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds)
     : SkCanvas(bounds.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
     , fRecord(record) {}
 
+void SkRecorder::reset(SkRecord* record, const SkRect& bounds) {
+    this->forgetRecord();
+    fRecord = record;
+    this->resetForNextPicture(bounds.roundOut());
+}
+
 void SkRecorder::forgetRecord() {
     fDrawableList.reset(NULL);
     fRecord = NULL;
