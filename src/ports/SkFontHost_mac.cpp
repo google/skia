@@ -453,14 +453,15 @@ public:
         : SkTypeface(fs, fontID, isFixedPitch)
         , fRequestedName(requestedName)
         , fFontRef(fontRef) // caller has already called CFRetain for us
+        , fHasColorGlyphs(SkToBool(CTFontGetSymbolicTraits(fFontRef) & SkCTFontColorGlyphsTrait))
         , fIsLocalStream(isLocalStream)
-        , fHasColorGlyphs(CTFontGetSymbolicTraits(fFontRef) & SkCTFontColorGlyphsTrait)
     {
         SkASSERT(fontRef);
     }
 
     SkString fRequestedName;
     AutoCFRelease<CTFontRef> fFontRef;
+    const bool fHasColorGlyphs;
 
 protected:
     int onGetUPEM() const override;
@@ -482,7 +483,6 @@ protected:
 
 private:
     bool fIsLocalStream;
-    bool fHasColorGlyphs;
 
     typedef SkTypeface INHERITED;
 };
@@ -907,6 +907,13 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // So always make the font transform identity and place the transform on the context.
     point = CGPointApplyAffineTransform(point, context.fInvTransform);
 
+    // Attempt to keep on the stack a hard reference to the font tables.
+    // This is an experiment to see if this affects crbug.com/413332 .
+    // When 10.6 headers are no longer supported, 'sbix' can be replaced with kCTFontTableSbix.
+    AutoCFRelease<CFDataRef> sbix;
+    if (static_cast<SkTypeface_Mac*>(context.getTypeface())->fHasColorGlyphs) {
+        sbix.reset(CGFontCopyTableForTag(context.fCGFont, 'sbix'));
+    }
     ctFontDrawGlyphs(context.fCTUnrotatedFont, &glyphID, &point, 1, fCG);
 
     SkASSERT(rowBytesPtr);
