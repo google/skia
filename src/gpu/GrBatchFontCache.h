@@ -97,8 +97,15 @@ public:
     bool hasGlyph(GrGlyph* glyph);
 
     // To ensure the GrBatchAtlas does not evict the Glyph Mask from its texture backing store,
-    // the client must pass in the currentToken from the GrBatchTarget along with the GrGlyph
-    void setGlyphRefToken(GrGlyph*, GrBatchAtlas::BatchToken);
+    // the client must pass in the currentToken from the GrBatchTarget along with the GrGlyph.
+    // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
+    // For convenience, this function will also set the use token for the current glyph if required
+    // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
+    void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater*, GrGlyph*,
+                                      GrBatchAtlas::BatchToken);
+
+    void setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater&, GrBatchAtlas::BatchToken,
+                         GrMaskFormat);
 
     // add to texture atlas that matches this format
     bool addToAtlas(GrBatchTextStrike*, GrBatchAtlas::AtlasID*, GrBatchTarget*,
