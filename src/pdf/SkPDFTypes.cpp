@@ -133,10 +133,6 @@ SkPDFString::SkPDFString(const SkString& value)
     : fValue(FormatString(value.c_str(), value.size())) {
 }
 
-SkPDFString::SkPDFString(const uint16_t* value, size_t len, bool wideChars)
-    : fValue(FormatString(value, len, wideChars)) {
-}
-
 SkPDFString::~SkPDFString() {}
 
 void SkPDFString::emitObject(SkWStream* stream,
@@ -146,67 +142,46 @@ void SkPDFString::emitObject(SkWStream* stream,
 }
 
 // static
-SkString SkPDFString::FormatString(const char* input, size_t len) {
-    return DoFormatString(input, len, false, false);
-}
-
-SkString SkPDFString::FormatString(const uint16_t* input, size_t len,
-                                   bool wideChars) {
-    return DoFormatString(input, len, true, wideChars);
-}
-
-// static
-SkString SkPDFString::DoFormatString(const void* input, size_t len,
-                                     bool wideInput, bool wideOutput) {
+SkString SkPDFString::FormatString(const char* cin, size_t len) {
     SkASSERT(len <= kMaxLen);
-    const uint16_t* win = (const uint16_t*) input;
-    const char* cin = (const char*) input;
-
-    if (wideOutput) {
-        SkASSERT(wideInput);
-        SkString result;
-        result.append("<");
-        for (size_t i = 0; i < len; i++) {
-            result.appendHex(win[i], 4);
-        }
-        result.append(">");
-        return result;
-    }
 
     // 7-bit clean is a heuristic to decide what string format to use;
     // a 7-bit clean string should require little escaping.
     bool sevenBitClean = true;
+    size_t characterCount = 2 + len;
     for (size_t i = 0; i < len; i++) {
-        SkASSERT(!wideInput || !(win[i] & ~0xFF));
-        char val = wideInput ? win[i] : cin[i];
-        if (val > '~' || val < ' ') {
+        if (cin[i] > '~' || cin[i] < ' ') {
             sevenBitClean = false;
             break;
         }
+        if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
+            ++characterCount;
+        }
     }
-
     SkString result;
     if (sevenBitClean) {
-        result.append("(");
+        result.resize(characterCount);
+        char* str = result.writable_str();
+        *str++ = '(';
         for (size_t i = 0; i < len; i++) {
-            SkASSERT(!wideInput || !(win[i] & ~0xFF));
-            char val = wideInput ? win[i] : cin[i];
-            if (val == '\\' || val == '(' || val == ')') {
-                result.append("\\");
+            if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
+                *str++ = '\\';
             }
-            result.append(&val, 1);
+            *str++ = cin[i];
         }
-        result.append(")");
+        *str++ = ')';
     } else {
-        result.append("<");
+        result.resize(2 * len + 2);
+        char* str = result.writable_str();
+        *str++ = '<';
         for (size_t i = 0; i < len; i++) {
-            SkASSERT(!wideInput || !(win[i] & ~0xFF));
-            unsigned char val = wideInput ? win[i] : cin[i];
-            result.appendHex(val, 2);
+            uint8_t c = static_cast<uint8_t>(cin[i]);
+            static const char gHex[] = "0123456789ABCDEF";
+            *str++ = gHex[(c >> 4) & 0xF];
+            *str++ = gHex[(c     ) & 0xF];
         }
-        result.append(">");
+        *str++ = '>';
     }
-
     return result;
 }
 

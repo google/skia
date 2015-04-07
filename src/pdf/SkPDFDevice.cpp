@@ -1051,6 +1051,41 @@ void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
                              paint);
 }
 
+//  Create a PDF string. Maximum length (in bytes) is 65,535.
+//  @param input     A string value.
+//  @param len       The length of the input array.
+//  @param wideChars True iff the upper byte in each uint16_t is
+//                   significant and should be encoded and not
+//                   discarded.  If true, the upper byte is encoded
+//                   first.  Otherwise, we assert the upper byte is
+//                   zero.
+static SkString format_wide_string(const uint16_t* input,
+                                   size_t len,
+                                   bool wideChars) {
+    if (wideChars) {
+        SkASSERT(2 * len < 65535);
+        static const char gHex[] = "0123456789ABCDEF";
+        SkString result(4 * len + 2);
+        result[0] = '<';
+        for (size_t i = 0; i < len; i++) {
+            result[4 * i + 1] = gHex[(input[i] >> 12) & 0xF];
+            result[4 * i + 2] = gHex[(input[i] >>  8) & 0xF];
+            result[4 * i + 3] = gHex[(input[i] >>  4) & 0xF];
+            result[4 * i + 4] = gHex[(input[i]      ) & 0xF];
+        }
+        result[4 * len + 1] = '>';
+        return result;
+    } else {
+        SkASSERT(len <= 65535);
+        SkString tmp(len);
+        for (size_t i = 0; i < len; i++) {
+            SkASSERT(0 == input[i] >> 8);
+            tmp[i] = static_cast<uint8_t>(input[i]);
+        }
+        return SkPDFString::FormatString(tmp.c_str(), tmp.size());
+    }
+}
+
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
     NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
@@ -1090,8 +1125,8 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                 font,  glyphIDsCopy.begin() + consumedGlyphCount,
                 availableGlyphs);
         SkString encodedString =
-            SkPDFString::FormatString(glyphIDsCopy.begin() + consumedGlyphCount,
-                                      availableGlyphs, font->multiByteGlyphs());
+                format_wide_string(glyphIDsCopy.begin() + consumedGlyphCount,
+                                   availableGlyphs, font->multiByteGlyphs());
         content.entry()->fContent.writeText(encodedString.c_str());
         consumedGlyphCount += availableGlyphs;
         content.entry()->fContent.writeText(" Tj\n");
@@ -1144,7 +1179,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
         align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y);
         set_text_transform(x, y, textPaint.getTextSkewX(), &content.entry()->fContent);
         SkString encodedString =
-            SkPDFString::FormatString(&encodedValue, 1, font->multiByteGlyphs());
+                format_wide_string(&encodedValue, 1, font->multiByteGlyphs());
         content.entry()->fContent.writeText(encodedString.c_str());
         content.entry()->fContent.writeText(" Tj\n");
     }

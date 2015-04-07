@@ -173,13 +173,6 @@ public:
     explicit SkPDFString(const char value[]);
     explicit SkPDFString(const SkString& value);
 
-    /** Create a PDF string. Maximum length (in bytes) is 65,535.
-     *  @param value     A string value.
-     *  @param len       The length of value.
-     *  @param wideChars Indicates if the top byte in value is significant and
-     *                   should be encoded (true) or not (false).
-     */
-    SkPDFString(const uint16_t* value, size_t len, bool wideChars);
     virtual ~SkPDFString();
 
     // The SkPDFObject interface.
@@ -188,15 +181,10 @@ public:
                             const SkPDFSubstituteMap& substitutes) override;
 
     static SkString FormatString(const char* input, size_t len);
-    static SkString FormatString(const uint16_t* input, size_t len,
-                                 bool wideChars);
 private:
     static const size_t kMaxLen = 65535;
 
     const SkString fValue;
-
-    static SkString DoFormatString(const void* input, size_t len,
-                                 bool wideInput, bool wideOutput);
 
     typedef SkPDFObject INHERITED;
 };
