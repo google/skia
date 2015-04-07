@@ -21,7 +21,7 @@ public:
 
     SkBaseDevice* createDevice(int w, int h) override {
         SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
-                                       SkBaseDevice::kPossible_TileUsage,
+                                       SkBaseDevice::kNever_TileUsage,
                                        kUnknown_SkPixelGeometry);
         return fDevice->onCreateDevice(cinfo, NULL);
     }

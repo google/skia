@@ -14,7 +14,7 @@
 #include "SkXfermode.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/GrTextureDomain.h"
 #include "SkGr.h"
 #endif
 
@@ -169,7 +169,14 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     src.getBounds(&srcRect);
 
     GrPaint paint;
-    paint.addColorTextureProcessor(foregroundTex, foregroundMatrix);
+    SkAutoTUnref<GrFragmentProcessor> foregroundDomain(GrTextureDomainEffect::Create(
+        foregroundTex, foregroundMatrix,
+        GrTextureDomain::MakeTexelDomain(foregroundTex, foreground.bounds()),
+        GrTextureDomain::kDecal_Mode,
+        GrTextureParams::kNone_FilterMode)
+    );
+
+    paint.addColorProcessor(foregroundDomain.get());
     paint.addColorProcessor(xferProcessor)->unref();
     context->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), srcRect);
 
