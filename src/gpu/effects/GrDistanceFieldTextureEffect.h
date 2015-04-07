@@ -47,18 +47,20 @@ enum GrDistanceFieldEffectFlags {
 class GrDistanceFieldTextureEffect : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
-    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
-                                       const GrTextureParams& params,
+    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
+                                       const SkMatrix& localMatrix,
+                                       GrTexture* tex, const GrTextureParams& params,
                                        float lum, uint32_t flags, bool opaqueVertexColors) {
-       return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, tex, params, lum,
-                                                        flags, opaqueVertexColors));
+        return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, localMatrix, tex,
+                                                         params, lum, flags, opaqueVertexColors));
     }
 #else
-    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
-                                       const GrTextureParams& params,
+    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
+                                       const SkMatrix& localMatrix,
+                                       GrTexture* tex, const GrTextureParams& params,
                                        uint32_t flags, bool opaqueVertexColors) {
-        return  SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, tex, params, flags,
-                                                          opaqueVertexColors));
+        return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, localMatrix, tex,
+                                                         params, flags, opaqueVertexColors));
     }
 #endif
 
@@ -88,8 +90,8 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    GrDistanceFieldTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
-                                 const GrTextureParams& params,
+    GrDistanceFieldTextureEffect(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                                 GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
 #endif
@@ -194,11 +196,12 @@ public:
         }
     };
 
-    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
-                                       const GrTextureParams& params, 
+    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
+                                       const SkMatrix& localMatrix,
+                                       GrTexture* tex, const GrTextureParams& params,
                                        DistanceAdjust distanceAdjust, uint32_t flags) {
         return SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
-                          (color, viewMatrix, tex, params, distanceAdjust, flags));
+                          (color, viewMatrix, localMatrix, tex, params, distanceAdjust, flags));
     }
 
     virtual ~GrDistanceFieldLCDTextureEffect() {}
@@ -224,8 +227,9 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    GrDistanceFieldLCDTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
-                                    const GrTextureParams& params,
+    GrDistanceFieldLCDTextureEffect(GrColor, const SkMatrix& viewMatrix,
+                                    const SkMatrix& localMatrix,
+                                    GrTexture* texture, const GrTextureParams& params,
                                     DistanceAdjust wa, uint32_t flags);
 
     bool onIsEqual(const GrGeometryProcessor& other) const override;

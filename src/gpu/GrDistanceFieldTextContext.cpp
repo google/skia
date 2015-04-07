@@ -271,6 +271,12 @@ inline void GrDistanceFieldTextContext::init(GrRenderTarget* rt, const GrClip& c
     fSkPaint.setAutohinted(false);
     fSkPaint.setHinting(SkPaint::kNormal_Hinting);
     fSkPaint.setSubpixelText(true);
+    
+    // fix for skia:3528
+    // if we're scaling up, include any scaling to match text size in the view matrix
+    if (fTextRatio > 1.0f) {
+        fViewMatrix.preScale(fTextRatio, fTextRatio);
+    }
 }
 
 void GrDistanceFieldTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
@@ -483,13 +489,24 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
     kRectToRect_DistanceFieldEffectFlag : 0;
     bool useBGR = SkPixelGeometryIsBGR(fDeviceProperties.pixelGeometry());
     flags |= fUseLCDText && useBGR ? kBGR_DistanceFieldEffectFlag : 0;
-    
+
+    // fix for skia:3528
+    // set the local matrix to correct any text size scaling for gradients et al.
+    SkMatrix localMatrix;
+    if (fTextRatio > 1.0f) {
+        localMatrix.setScale(fTextRatio, fTextRatio);
+    } else {
+        localMatrix.reset();
+    }
+
     // see if we need to create a new effect
     if (textureUniqueID != fEffectTextureUniqueID ||
         filteredColor != fEffectColor ||
         flags != fEffectFlags ||
-        !fCachedGeometryProcessor->viewMatrix().cheapEqualTo(fViewMatrix)) {
+        !fCachedGeometryProcessor->viewMatrix().cheapEqualTo(fViewMatrix) ||
+        !fCachedGeometryProcessor->localMatrix().cheapEqualTo(localMatrix)) {
         GrColor color = fPaint.getColor();
+
         if (fUseLCDText) {
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
 
@@ -505,6 +522,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                    blueCorrection);
             fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextureEffect::Create(color,
                                                                                    fViewMatrix,
+                                                                                   localMatrix,
                                                                                    fCurrTexture,
                                                                                    params,
                                                                                    widthAdjust,
@@ -518,6 +536,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
             float correction = fDistanceAdjustTable[lum >> kDistanceAdjustLumShift];
             fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
                                                                                 fViewMatrix,
+                                                                                localMatrix,
                                                                                 fCurrTexture,
                                                                                 params,
                                                                                 correction,
@@ -526,6 +545,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
 #else
             fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
                                                                                 fViewMatrix,
+                                                                                localMatrix,
                                                                                 fCurrTexture,
                                                                                 params,
                                                                                 flags,
@@ -604,12 +624,18 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
     SkScalar height = SkIntToScalar(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
     SkScalar scale = fTextRatio;
-    dx *= scale;
-    dy *= scale;
+    // if we're scaling up, using fix for skia:3528
+    if (scale > 1.0f) {
+        sx /= scale;
+        sy /= scale;
+    } else {
+        dx *= scale;
+        dy *= scale;
+        width *= scale;
+        height *= scale;
+    }
     sx += dx;
     sy += dy;
-    width *= scale;
-    height *= scale;
     SkRect glyphRect = SkRect::MakeXYWH(sx, sy, width, height);
 
     // check if we clipped out
@@ -643,7 +669,6 @@ bool GrDistanceFieldTextContext::appendGlyph(GrGlyph::PackedID packed,
             this->flush();
 
             SkMatrix ctm;
-            ctm.setScale(fTextRatio, fTextRatio);
             ctm.postTranslate(sx - dx, sy - dy);
 
             SkPath tmpPath(*glyph->fPath);
