@@ -320,6 +320,7 @@ static Sink* create_via(const char* tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (0 == strcmp(t, tag)) { return new via(__VA_ARGS__); }
     VIA("pipe",      ViaPipe,          wrapped);
     VIA("serialize", ViaSerialization, wrapped);
+    VIA("2ndpic",    ViaSecondPicture, wrapped);
     VIA("tiles",     ViaTiles, 256, 256,               NULL, wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 

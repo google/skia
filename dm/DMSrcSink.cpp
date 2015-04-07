@@ -589,7 +589,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
     if (!err.isEmpty()) {
         return err;
     }
-    SkAutoTUnref<SkPicture> pic(recorder.endRecording());
+    SkAutoTUnref<SkPicture> pic(recorder.endRecordingAsPicture());
 
     // Turn that picture into a Src that draws into our Sink via tiles + MPD.
     struct ProxySrc : public Src {
@@ -635,6 +635,39 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         SkISize size() const override { return fSize; }
         Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
     } proxy(fW, fH, pic, src.size());
+    return fSink->draw(proxy, bitmap, stream, log);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ViaSecondPicture::ViaSecondPicture(Sink* sink) : fSink(sink) {}
+
+// Draw the Src into two pictures, then draw the second picture into the wrapped Sink.
+// This tests that any shortcuts we may take while recording that second picture are legal.
+Error ViaSecondPicture::draw(
+        const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    struct ProxySrc : public Src {
+        const Src& fSrc;
+        ProxySrc(const Src& src) : fSrc(src) {}
+
+        Error draw(SkCanvas* canvas) const override {
+            SkSize size;
+            size = fSrc.size();
+            SkPictureRecorder recorder;
+            SkAutoTUnref<SkPicture> pic;
+            for (int i = 0; i < 2; i++) {
+                Error err = fSrc.draw(recorder.beginRecording(size.width(), size.height()));
+                if (!err.isEmpty()) {
+                    return err;
+                }
+                pic.reset(recorder.endRecordingAsPicture());
+            }
+            canvas->drawPicture(pic);
+            return "";
+        }
+        SkISize size() const override { return fSrc.size(); }
+        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
+    } proxy(src);
     return fSink->draw(proxy, bitmap, stream, log);
 }
 
