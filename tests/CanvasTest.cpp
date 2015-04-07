@@ -45,6 +45,7 @@
  */
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkClipStack.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkDocument.h"
@@ -215,6 +216,18 @@ static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
     canvas->replayClips(&visitor);
 
     REPORTER_ASSERT(reporter, equal_clips(c, *canvas));
+}
+
+static void test_clipstack(skiatest::Reporter* reporter) {
+    // The clipstack is refcounted, and needs to be able to out-live the canvas if a client has
+    // ref'd it.
+    const SkClipStack* cs = NULL;
+    {
+        SkCanvas canvas(10, 10);
+        cs = SkRef(canvas.getClipStack());
+    }
+    REPORTER_ASSERT(reporter, cs->unique());
+    cs->unref();
 }
 
 // Format strings that describe the test context.  The %s token is where
@@ -671,6 +684,7 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
     if (false) { // avoid bit rot, suppress warning
         test_clipVisitor(reporter, &referenceCanvas);
     }
+    test_clipstack(reporter);
 }
 
 static void test_newraster(skiatest::Reporter* reporter) {
