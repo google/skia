@@ -150,8 +150,6 @@ private:
 
     SkBitmap    fBitmap;
 
-    void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
-
     typedef SkBaseDevice INHERITED;
 };
 

@@ -135,13 +135,6 @@ struct DeviceCM {
         SkDELETE(fPaint);
     }
 
-    void reset(const SkIRect& bounds) {
-        SkASSERT(!fPaint);
-        SkASSERT(!fNext);
-        SkASSERT(fDevice);
-        fClip.setRect(bounds);
-    }
-
     void updateMC(const SkMatrix& totalMatrix, const SkRasterClip& totalClip,
                   const SkClipStack& clipStack, SkRasterClip* updateClip) {
         int x = fDevice->getOrigin().x();
@@ -230,15 +223,6 @@ public:
         SkSafeUnref(fFilter);
         SkDELETE(fLayer);
         dec_rec();
-    }
-
-    void reset(const SkIRect& bounds) {
-        SkASSERT(fLayer);
-        SkASSERT(fDeferredSaveCount == 0);
-
-        fMatrix.reset();
-        fRasterClip.setRect(bounds);
-        fLayer->reset(bounds);
     }
 };
 
@@ -440,18 +424,6 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 #define LOOPER_END    }
 
 ////////////////////////////////////////////////////////////////////////////
-
-void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
-    this->restoreToCount(1);
-    fCachedLocalClipBounds.setEmpty();
-    fCachedLocalClipBoundsDirty = true;
-    fClipStack->reset();
-    fMCRec->reset(bounds);
-
-    // We're peering through a lot of structs here.  Only at this scope do we
-    // know that the device is an SkBitmapDevice (really an SkNoPixelsBitmapDevice).
-    static_cast<SkBitmapDevice*>(fMCRec->fLayer->fDevice)->setNewSize(bounds.size());
-}
 
 SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fConservativeRasterClip = SkToBool(flags & kConservativeRasterClip_InitFlag);
