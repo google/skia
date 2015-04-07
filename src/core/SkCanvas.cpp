@@ -233,7 +233,7 @@ public:
         fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
-        fClipStack = canvas->fClipStack.get();
+        fClipStack = &canvas->fClipStack;
         fCurrLayer = canvas->fMCRec->fTopLayer;
         fSkipEmptyClips = skipEmptyClips;
     }
@@ -438,12 +438,13 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
 
-    fMCRec->fLayer = SkNEW_ARGS(DeviceCM, (NULL, NULL, NULL, fConservativeRasterClip));
+    SkASSERT(sizeof(DeviceCM) <= sizeof(fBaseLayerStorage));
+    fMCRec->fLayer = (DeviceCM*)fBaseLayerStorage;
+    new (fBaseLayerStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip);
+
     fMCRec->fTopLayer = fMCRec->fLayer;
 
     fSurfaceBase = NULL;
-
-    fClipStack.reset(SkNEW(SkClipStack));
 
     if (device) {
         device->initForRootLayer(fProps.pixelGeometry());
@@ -738,11 +739,11 @@ void SkCanvas::updateDeviceCMCache() {
         DeviceCM*       layer = fMCRec->fTopLayer;
 
         if (NULL == layer->fNext) {   // only one layer
-            layer->updateMC(totalMatrix, totalClip, *fClipStack, NULL);
+            layer->updateMC(totalMatrix, totalClip, fClipStack, NULL);
         } else {
             SkRasterClip clip(totalClip);
             do {
-                layer->updateMC(totalMatrix, clip, *fClipStack, &clip);
+                layer->updateMC(totalMatrix, clip, fClipStack, &clip);
             } while ((layer = layer->fNext) != NULL);
         }
         fDeviceCMDirty = false;
@@ -819,7 +820,7 @@ void SkCanvas::internalSave() {
     new (newTop) MCRec(*fMCRec);    // balanced in restore()
     fMCRec = newTop;
 
-    fClipStack->save();
+    fClipStack.save();
 }
 
 static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
@@ -864,7 +865,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     if (bounds_affects_clip(flags)) {
         // Simplify the current clips since they will be applied properly during restore()
         fCachedLocalClipBoundsDirty = true;
-        fClipStack->clipDevRect(ir, SkRegion::kReplace_Op);
+        fClipStack.clipDevRect(ir, SkRegion::kReplace_Op);
         fMCRec->fRasterClip.setRect(ir);
     }
 
@@ -973,7 +974,7 @@ void SkCanvas::internalRestore() {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
 
-    fClipStack->restore();
+    fClipStack.restore();
 
     // reserve our layer (if any)
     DeviceCM* layer = fMCRec->fLayer;   // may be null
@@ -996,8 +997,12 @@ void SkCanvas::internalRestore() {
                                      layer->fPaint);
             // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
+            SkDELETE(layer);
+        } else {
+            // we're at the root
+            SkASSERT(layer == (void*)fBaseLayerStorage);
+            layer->~DeviceCM();
         }
-        SkDELETE(layer);
     }
 }
 
@@ -1278,7 +1283,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
         SkRect      r;
 
         fMCRec->fMatrix.mapRect(&r, rect);
-        fClipStack->clipDevRect(r, op, kSoft_ClipEdgeStyle == edgeStyle);
+        fClipStack.clipDevRect(r, op, kSoft_ClipEdgeStyle == edgeStyle);
         fMCRec->fRasterClip.op(r, this->getBaseLayerSize(), op, kSoft_ClipEdgeStyle == edgeStyle);
     } else {
         // since we're rotated or some such thing, we convert the rect to a path
@@ -1318,7 +1323,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
             edgeStyle = kHard_ClipEdgeStyle;
         }
 
-        fClipStack->clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
+        fClipStack.clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
 
         SkPath devPath;
         devPath.addRRect(transformedRRect);
@@ -1383,7 +1388,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
     }
 
     // if we called path.swap() we could avoid a deep copy of this path
-    fClipStack->clipDevPath(devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
+    fClipStack.clipDevPath(devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
 
     if (fAllowSimplifyClip) {
         bool clipIsAA = getClipStack()->asPath(&devPath);
@@ -1410,7 +1415,7 @@ void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
 
     // todo: signal fClipStack that we have a region, and therefore (I guess)
     // we have to ignore it, and use the region directly?
-    fClipStack->clipDevRect(rgn.getBounds(), op);
+    fClipStack.clipDevRect(rgn.getBounds(), op);
 
     fMCRec->fRasterClip.op(rgn, op);
 }
@@ -1428,7 +1433,7 @@ void SkCanvas::validateClip() const {
     ir.set(0, 0, device->width(), device->height());
     SkRasterClip tmpClip(ir, fConservativeRasterClip);
 
-    SkClipStack::B2TIter                iter(*fClipStack);
+    SkClipStack::B2TIter                iter(fClipStack);
     const SkClipStack::Element* element;
     while ((element = iter.next()) != NULL) {
         switch (element->getType()) {
@@ -1451,7 +1456,7 @@ void SkCanvas::validateClip() const {
 #endif
 
 void SkCanvas::replayClips(ClipVisitor* visitor) const {
-    SkClipStack::B2TIter                iter(*fClipStack);
+    SkClipStack::B2TIter                iter(fClipStack);
     const SkClipStack::Element*         element;
 
     while ((element = iter.next()) != NULL) {

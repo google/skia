@@ -1089,7 +1089,7 @@ public:
      *  @return the current clip stack ("list" of individual clip elements)
      */
     const SkClipStack* getClipStack() const {
-        return fClipStack;
+        return &fClipStack;
     }
 
     typedef SkCanvasClipVisitor ClipVisitor;
@@ -1251,12 +1251,18 @@ protected:
 private:
     class MCRec;
 
-    SkAutoTUnref<SkClipStack> fClipStack;
+    SkClipStack fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
     // the first N recs that can fit here mean we won't call malloc
-    uint32_t    fMCRecStorage[32];
+    enum {
+        kMCRecSize  = 128,   // most recent measurement
+        kMCRecCount = 8,     // common depth for save/restores
+    };
+    intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
+    // for our base DeviceCM
+    intptr_t fBaseLayerStorage[kMCRecSize / sizeof(intptr_t)];
 
     const SkSurfaceProps fProps;
 
