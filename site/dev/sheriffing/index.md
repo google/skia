@@ -116,7 +116,7 @@ A common cause of DEPS roll failures are layout tests. Find the offending Skia C
 
 If a Skia CL changes layout tests, but the new images look good, the tests need to be rebaselined. See [Rebaseline Layout Tests](#how_to_rebaseline).
 
-<a name="how_to_rebaseline"</a>
+<a name="how_to_rebaseline"></a>
 ### Rebaseline Layout Tests (i.e., add suppressions)
 
 * First create a Chromium bug:
@@ -125,10 +125,10 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
   * Click “New Issue”
   * Summary: “Skia image rebaseline”
   * Description:
-    * DEPS roll #,
-    * Helpful message about what went wrong (e.g., “Changes to how lighting is scaled in Skia r#### changed the following images:”)
-    * Layout tests effected
-    * You should copy the list of affected from stdio of the failing bot
+      * DEPS roll #,
+      * Helpful message about what went wrong (e.g., “Changes to how lighting is scaled in Skia r#### changed the following images:”)
+      * Layout tests effected
+      * You should copy the list of affected from stdio of the failing bot
   * Status: Assigned
   * Owner: fmalita@
   * cc: reed@, bsalomon@, robertphillips@ & developer responsible for changes
@@ -138,6 +138,6 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
 * Edit [skia/skia_test_expectations.txt](https://chromium.googlesource.com/chromium/src/+/master/skia/skia_test_expectations.txt)
   * Add # comment about what has changed (I usually paraphrase the crbug text)
   * Add line(s) like after the comment:
-    * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ ImageOnlyFailure ]
+      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ ImageOnlyFailure ]
 
 * Commit the changes and fire off new try bots (you usually only need to fire off the layout bots)
