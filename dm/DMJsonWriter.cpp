@@ -110,12 +110,15 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
     BitmapResult br;
     for (unsigned i = 0; i < results.size(); i++) {
         const Json::Value& r = results[i];
-        br.name          = r["key"]["name"].asCString();
-        br.config        = r["key"]["config"].asCString();
-        br.sourceType    = r["key"]["source_type"].asCString();
-        br.sourceOptions = r["key"]["source_options"].asCString();
-        br.ext           = r["options"]["ext"].asCString();
-        br.md5           = r["md5"].asCString();
+        br.name       = r["key"]["name"].asCString();
+        br.config     = r["key"]["config"].asCString();
+        br.sourceType = r["key"]["source_type"].asCString();
+        br.ext        = r["options"]["ext"].asCString();
+        br.md5        = r["md5"].asCString();
+
+        if (!r["key"]["source_options"].isNull()) {
+            br.sourceOptions = r["key"]["source_options"].asCString();
+        }
         callback(br);
     }
     return true;
