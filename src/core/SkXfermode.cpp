@@ -18,7 +18,16 @@
 #include "SkUtilsArm.h"
 #include "SkWriteBuffer.h"
 
-//#define SK_SUPPORT_LEGACY_SCALAR_XFERMODES
+#ifndef SK_SUPPORT_LEGACY_SCALAR_XFERMODES
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    /*
+     * To be conservative, we only enable the new code path (using SkPMFloat) when we
+     * "know" we're faster, which at the moment is only when we have SSE2 or better.
+     */
+#else
+    #define SK_SUPPORT_LEGACY_SCALAR_XFERMODES
+#endif
+#endif
 
 #if !SK_ARM_NEON_IS_NONE
 #include "SkXfermode_opts_arm_neon.h"
