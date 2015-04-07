@@ -1201,13 +1201,6 @@ static Sk4f clamp_0_255(const Sk4f& value) {
     return Sk4f::Max(Sk4f(0), Sk4f::Min(Sk4f(255), value));
 }
 
-// return a swizzle of a | rgb
-static Sk4f set_a_rgb(const Sk4f& a, const Sk4f& rgb) {
-    SkPMFloat pma = a;
-    SkPMFloat pmc = rgb;
-    return SkPMFloat(pma.a(), pmc.r(), pmc.g(), pmc.b());
-}
-
 /**
  *  Some modes can, due to very slight numerical error, generate "invalid" pmcolors...
  *
@@ -1315,7 +1308,7 @@ struct Difference4f {
         Sk4f dc = dst;
         Sk4f min = Sk4f::Min(sc * da, dc * sa) * inv255;
         Sk4f ra = sc + dc - min;
-        return check_as_pmfloat(set_a_rgb(ra, ra - min));
+        return check_as_pmfloat(ra - min * SkPMFloat(0, 1, 1, 1));
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kDifference_Mode;
@@ -1328,7 +1321,7 @@ struct Exclusion4f {
         Sk4f dc = dst;
         Sk4f prod = sc * dc * inv255;
         Sk4f ra = sc + dc - prod;
-        return check_as_pmfloat(set_a_rgb(ra, ra - prod));
+        return check_as_pmfloat(ra - prod * SkPMFloat(0, 1, 1, 1));
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kExclusion_Mode;
@@ -1343,21 +1336,8 @@ public:
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         if (NULL == aa) {
-            while (n & 3) {
-                *dst = ProcType::Xfer(SkPMFloat(*src++), SkPMFloat(*dst)).round();
-                dst++;
-                n -= 1;
-            }
-            n >>= 2;
             for (int i = 0; i < n; ++i) {
-                SkPMFloat s0, s1, s2, s3;
-                SkPMFloat::From4PMColors(src, &s0, &s1, &s2, &s3);
-                SkPMFloat d0, d1, d2, d3;
-                SkPMFloat::From4PMColors(dst, &d0, &d1, &d2, &d3);
-                SkPMFloat::RoundTo4PMColors(ProcType::Xfer(s0, d0), ProcType::Xfer(s1, d1),
-                                            ProcType::Xfer(s2, d2), ProcType::Xfer(s3, d3), dst);
-                src += 4;
-                dst += 4;
+                dst[i] = ProcType::Xfer(SkPMFloat(src[i]), SkPMFloat(dst[i])).round();
             }
         } else {
             for (int i = 0; i < n; ++i) {
