@@ -18,6 +18,7 @@ GrXferProcessor::GrXferProcessor(const GrDeviceCoordTexture* dstCopy, bool willR
         fDstCopy.reset(dstCopy->texture());
         fDstCopyTextureOffset = dstCopy->offset();
         this->addTextureAccess(&fDstCopy);
+        this->setWillReadFragmentPosition();
     }
 }
 

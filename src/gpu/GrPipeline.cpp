@@ -112,13 +112,15 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 const GrProcOptInfo& coveragePOI,
                                                 int* firstColorStageIdx,
                                                 int* firstCoverageStageIdx) {
-    fReadsFragPosition = false;
+    fReadsFragPosition = fXferProcessor->willReadFragmentPosition();
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorStageIdx = pipelineBuilder.numColorFragmentStages();
     } else {
-        fReadsFragPosition = colorPOI.readsFragPosition();
+        if (coveragePOI.readsFragPosition()) {
+            fReadsFragPosition = true;
+        }
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
