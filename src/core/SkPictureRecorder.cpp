@@ -15,7 +15,10 @@
 #include "SkRecordOpts.h"
 #include "SkTypes.h"
 
-SkPictureRecorder::SkPictureRecorder() {}
+SkPictureRecorder::SkPictureRecorder() {
+    fActivelyRecording = false;
+    fRecorder.reset(SkNEW_ARGS(SkRecorder, (nullptr, SkRect::MakeWH(0,0))));
+}
 
 SkPictureRecorder::~SkPictureRecorder() {}
 
@@ -31,15 +34,18 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& cullRect,
     }
 
     fRecord.reset(SkNEW(SkRecord));
-    fRecorder.reset(SkNEW_ARGS(SkRecorder, (fRecord.get(), cullRect)));
+    fRecorder->reset(fRecord.get(), cullRect);
+    fActivelyRecording = true;
     return this->getRecordingCanvas();
 }
 
 SkCanvas* SkPictureRecorder::getRecordingCanvas() {
-    return fRecorder.get();
+    return fActivelyRecording ? fRecorder.get() : nullptr;
 }
 
 SkPicture* SkPictureRecorder::endRecordingAsPicture() {
+    fActivelyRecording = false;
+    fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord);
 
@@ -73,7 +79,6 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
     }
 
     // release our refs now, so only the picture will be the owner.
-    fRecorder.reset(NULL);
     fRecord.reset(NULL);
     fBBH.reset(NULL);
 
@@ -158,6 +163,8 @@ protected:
 };
 
 SkDrawable* SkPictureRecorder::endRecordingAsDrawable() {
+    fActivelyRecording = false;
+    fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord);
 
@@ -171,7 +178,6 @@ SkDrawable* SkPictureRecorder::endRecordingAsDrawable() {
                                          SkToBool(fFlags & kComputeSaveLayerInfo_RecordFlag)));
 
     // release our refs now, so only the drawable will be the owner.
-    fRecorder.reset(NULL);
     fRecord.reset(NULL);
     fBBH.reset(NULL);
 

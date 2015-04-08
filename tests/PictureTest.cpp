@@ -1311,3 +1311,15 @@ DEF_TEST(Picture_BitmapLeak, r) {
     REPORTER_ASSERT(r, mut.pixelRef()->unique());
     REPORTER_ASSERT(r, immut.pixelRef()->unique());
 }
+
+// getRecordingCanvas() should return a SkCanvas when recording, null when not recording.
+DEF_TEST(Picture_getRecordingCanvas, r) {
+    SkPictureRecorder rec;
+    REPORTER_ASSERT(r, !rec.getRecordingCanvas());
+    for (int i = 0; i < 3; i++) {
+        rec.beginRecording(100, 100);
+        REPORTER_ASSERT(r, rec.getRecordingCanvas());
+        rec.endRecording()->unref();
+        REPORTER_ASSERT(r, !rec.getRecordingCanvas());
+    }
+}

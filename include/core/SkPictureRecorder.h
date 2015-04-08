@@ -96,6 +96,7 @@ private:
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
+    bool                          fActivelyRecording;
     uint32_t                      fFlags;
     SkRect                        fCullRect;
     SkAutoTUnref<SkBBoxHierarchy> fBBH;

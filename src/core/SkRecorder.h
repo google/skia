@@ -39,6 +39,8 @@ public:
     SkRecorder(SkRecord*, int width, int height);   // legacy version
     SkRecorder(SkRecord*, const SkRect& bounds);
 
+    void reset(SkRecord*, const SkRect& bounds);
+
     SkDrawableList* getDrawableList() const { return fDrawableList.get(); }
     SkDrawableList* detachDrawableList() { return fDrawableList.detach(); }
 

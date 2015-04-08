@@ -1301,6 +1301,8 @@ private:
     SkCanvas(const SkIRect& bounds, InitFlags);
     SkCanvas(SkBaseDevice*, const SkSurfaceProps*, InitFlags);
 
+    void resetForNextPicture(const SkIRect& bounds);
+
     // needs gettotalclip()
     friend class SkCanvasStateUtils;
 
