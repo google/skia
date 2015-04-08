@@ -269,9 +269,6 @@ DEF_TEST(PDFPrimitives, reporter) {
     SkAutoTUnref<SkPDFInt> int0(new SkPDFInt(0));
     array->append(int0.get());
     SimpleCheckObjectOutput(reporter, array.get(), "[42 0.5 0]");
-    SkAutoTUnref<SkPDFInt> int1(new SkPDFInt(1));
-    array->setAt(0, int1.get());
-    SimpleCheckObjectOutput(reporter, array.get(), "[1 0.5 0]");
 
     SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
     SimpleCheckObjectOutput(reporter, dict.get(), "<<>>");
@@ -283,7 +280,7 @@ DEF_TEST(PDFPrimitives, reporter) {
     dict->insert(n2.get(), realHalf.get());
     dict->insert(n3.get(), array.get());
     SimpleCheckObjectOutput(reporter, dict.get(),
-                            "<</n1 42\n/n2 0.5\n/n3 [1 0.5 0]>>");
+                            "<</n1 42\n/n2 0.5\n/n3 [42 0.5 0]>>");
 
     TestPDFStream(reporter);
 

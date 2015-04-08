@@ -255,14 +255,6 @@ void SkPDFArray::reserve(int length) {
     fValue.setReserve(length);
 }
 
-SkPDFObject* SkPDFArray::setAt(int offset, SkPDFObject* value) {
-    SkASSERT(offset < fValue.count());
-    value->ref();
-    fValue[offset]->unref();
-    fValue[offset] = value;
-    return value;
-}
-
 SkPDFObject* SkPDFArray::append(SkPDFObject* value) {
     SkASSERT(fValue.count() < kMaxLen);
     value->ref();

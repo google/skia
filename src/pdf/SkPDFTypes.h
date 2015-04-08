@@ -250,18 +250,6 @@ public:
      */
     void reserve(int length);
 
-    /** Returns the object at the given offset in the array.
-     *  @param index The index into the array to retrieve.
-     */
-    SkPDFObject* getAt(int index) { return fValue[index]; }
-
-    /** Set the object at the given offset in the array. Ref's value.
-     *  @param index The index into the array to set.
-     *  @param value The value to add to the array.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* setAt(int index, SkPDFObject* value);
-
     /** Append the object to the end of the array and increments its ref count.
      *  @param value The value to add to the array.
      *  @return The value argument is returned.
