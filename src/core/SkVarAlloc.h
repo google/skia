@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkVarAlloc_DEFINED
 #define SkVarAlloc_DEFINED
 
@@ -7,6 +14,9 @@ class SkVarAlloc : SkNoncopyable {
 public:
     // Smallest block we'll allocate is 2**N bytes.
     explicit SkVarAlloc(size_t minLgSize);
+    // Same as above, but first uses up to len bytes from storage.
+    SkVarAlloc(size_t minLgSize, char* storage, size_t len);
+
     ~SkVarAlloc();
 
     // Returns contiguous bytes aligned at least for pointers.  You may pass SK_MALLOC_THROW, etc.

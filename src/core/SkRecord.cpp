@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkRecord.h"
 
 SkRecord::~SkRecord() {
@@ -9,13 +16,13 @@ SkRecord::~SkRecord() {
 
 void SkRecord::grow() {
     SkASSERT(fCount == fReserved);
-    fReserved = SkTMax<unsigned>(kFirstReserveCount, fReserved*2);
+    SkASSERT(fReserved > 0);
+    fReserved *= 2;
     fRecords.realloc(fReserved);
-    fTypes.realloc(fReserved);
 }
 
 size_t SkRecord::bytesUsed() const {
     return fAlloc.approxBytesAllocated() +
-           fReserved * (sizeof(Record) + sizeof(Type8)) +
+           (fReserved - kInlineRecords) * sizeof(Record) +
            sizeof(SkRecord);
 }
