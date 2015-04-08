@@ -313,8 +313,10 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                         i++;  // skip YES
                 } else
 #endif
-                if (!FLAGS_undefok) {
-                    SkDebugf("Got unknown flag \"%s\". Exiting.\n", argv[i]);
+                if (FLAGS_undefok) {
+                    SkDebugf("FYI: ignoring unknown flag '%s'.\n", argv[i]);
+                } else {
+                    SkDebugf("Got unknown flag '%s'. Exiting.\n", argv[i]);
                     exit(-1);
                 }
             }
