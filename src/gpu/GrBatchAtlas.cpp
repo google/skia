@@ -11,12 +11,6 @@
 #include "GrRectanizer.h"
 #include "GrTracing.h"
 
-// for testing
-#define ATLAS_STATS 0
-#if ATLAS_STATS
-static int g_UploadCount = 0;
-#endif
-
 static inline void adjust_for_offset(SkIPoint16* loc, const SkIPoint16& offset) {
     loc->fX += offset.fX;
     loc->fY += offset.fY;
@@ -73,10 +67,6 @@ public:
         adjust_for_offset(loc, fOffset);
         SkDEBUGCODE(fDirty = true;)
 
-#if ATLAS_STATS
-        ++g_UploadCount;
-#endif
-
         return true;
     }
 
@@ -86,9 +76,15 @@ public:
     // when we can evict a plot from the cache, ie if the last ref has already flushed through
     // the gpu then we can reuse the plot
     BatchToken lastUploadToken() const { return fLastUpload; }
-    BatchToken lastRefToken() const { return fLastRef; }
-    void setLastUploadToken(BatchToken batchToken) { fLastUpload = batchToken; }
-    void setLastRefToken(BatchToken batchToken) { fLastRef = batchToken; }
+    BatchToken lastUseToken() const { return fLastUse; }
+    void setLastUploadToken(BatchToken batchToken) {
+        SkASSERT(batchToken >= fLastUpload);
+        fLastUpload = batchToken;
+    }
+    void setLastUseToken(BatchToken batchToken) {
+        SkASSERT(batchToken >= fLastUse);
+        fLastUse = batchToken;
+    }
 
     void uploadToTexture(GrBatchTarget::TextureUploader uploader)  {
         // We should only be issuing uploads if we are in fact dirty
@@ -127,7 +123,7 @@ public:
 private:
     BatchPlot()
         : fLastUpload(0)
-        , fLastRef(0)
+        , fLastUse(0)
         , fIndex(-1)
         , fGenID(-1)
         , fID(0)
@@ -177,7 +173,7 @@ private:
     }
 
     BatchToken fLastUpload;
-    BatchToken fLastRef;
+    BatchToken fLastUse;
 
     uint32_t fIndex;
     uint32_t fGenID;
@@ -229,6 +225,7 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     , fPlotWidth(texture->width() / numPlotsX)
     , fPlotHeight(texture->height() / numPlotsY)
     , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
+    SkASSERT(fNumPlotsX * fNumPlotsY <= BulkUseTokenUpdater::kMaxPlots);
     SkASSERT(fPlotWidth * fNumPlotsX == texture->width());
     SkASSERT(fPlotHeight * fNumPlotsY == texture->height());
 
@@ -256,10 +253,6 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
 GrBatchAtlas::~GrBatchAtlas() {
     SkSafeUnref(fTexture);
     SkDELETE_ARRAY(fPlotArray);
-
-#if ATLAS_STATS
-      SkDebugf("Num uploads: %d\n", g_UploadCount);
-#endif
 }
 
 void GrBatchAtlas::processEviction(AtlasID id) {
@@ -313,7 +306,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
     plotIter.init(fPlotList, GrBatchPlotList::Iter::kTail_IterStart);
     plot = plotIter.get();
     SkASSERT(plot);
-    if (batchTarget->isIssued(plot->lastRefToken())) {
+    if (batchTarget->isIssued(plot->lastUseToken())) {
         this->processEviction(plot->id());
         plot->resetRects();
         SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc, fBPP * width);
@@ -329,7 +322,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
     // off the plot(ie let the batch target manage it) and create a new plot in its place in our
     // array.  If it is equal to the currentToken, then the caller has to flush draws to the batch
     // target so we can spin off the plot
-    if (plot->lastRefToken() == batchTarget->currentToken()) {
+    if (plot->lastUseToken() == batchTarget->currentToken()) {
         return false;
     }
 
@@ -359,14 +352,23 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
 }
 
 bool GrBatchAtlas::hasID(AtlasID id) {
-    int index = this->getIndexFromID(id);
+    int index = GetIndexFromID(id);
     SkASSERT(index < fNumPlotsX * fNumPlotsY);
-    return fPlotArray[index]->genID() == this->getGenerationFromID(id);
+    return fPlotArray[index]->genID() == GetGenerationFromID(id);
 }
 
-void GrBatchAtlas::setLastRefToken(AtlasID id, BatchToken batchToken) {
+void GrBatchAtlas::setLastUseToken(AtlasID id, BatchToken batchToken) {
     SkASSERT(this->hasID(id));
-    int index = this->getIndexFromID(id);
+    int index = GetIndexFromID(id);
+    SkASSERT(index < fNumPlotsX * fNumPlotsY);
     this->makeMRU(fPlotArray[index]);
-    fPlotArray[index]->setLastRefToken(batchToken);
+    fPlotArray[index]->setLastUseToken(batchToken);
+}
+
+void GrBatchAtlas::setLastUseTokenBulk(const BulkUseTokenUpdater& updater, BatchToken batchToken) {
+    for (int i = 0; i < updater.fCount; i++) {
+        BatchPlot* plot = fPlotArray[updater.fPlotsToUpdate[i]];
+        this->makeMRU(plot);
+        plot->setLastUseToken(batchToken);
+    }
 }

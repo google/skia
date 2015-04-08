@@ -128,10 +128,18 @@ bool GrBatchFontCache::hasGlyph(GrGlyph* glyph) {
     return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID);
 }
 
-void GrBatchFontCache::setGlyphRefToken(GrGlyph* glyph, GrBatchAtlas::BatchToken batchToken) {
+void GrBatchFontCache::addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
+                                                    GrGlyph* glyph,
+                                                    GrBatchAtlas::BatchToken token) {
     SkASSERT(glyph);
-    SkASSERT(this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID));
-    this->getAtlas(glyph->fMaskFormat)->setLastRefToken(glyph->fID, batchToken);
+    updater->add(glyph->fID);
+    this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
+}
+
+void GrBatchFontCache::setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
+                                       GrBatchAtlas::BatchToken token,
+                                       GrMaskFormat format) {
+    this->getAtlas(format)->setLastUseTokenBulk(updater, token);
 }
 
 bool GrBatchFontCache::addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id,

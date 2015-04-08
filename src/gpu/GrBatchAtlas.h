@@ -40,6 +40,9 @@ public:
     // the containing GrPlot and absolute location in the backing texture.
     // NULL is returned if the subimage cannot fit in the atlas.
     // If provided, the image data will be written to the CPU-side backing bitmap.
+    // NOTE: If the client intends to refer to the atlas, they should immediately call 'setUseToken'
+    // with the currentToken from the batch target, otherwise the next call to addToAtlas might
+    // cause an eviction
     bool addToAtlas(AtlasID*, GrBatchTarget*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
@@ -47,19 +50,74 @@ public:
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
     bool hasID(AtlasID id);
-    void setLastRefToken(AtlasID id, BatchToken batchToken);
+
+    // To ensure the atlas does not evict a given entry, the client must set the last use token
+    void setLastUseToken(AtlasID id, BatchToken batchToken);
     void registerEvictionCallback(EvictionFunc func, void* userData) {
         EvictionData* data = fEvictionCallbacks.append();
         data->fFunc = func;
         data->fData = userData;
     }
 
+    /*
+     * A class which can be handed back to GrBatchAtlas for updating in bulk last use tokens.  The
+     * current max number of plots the GrBatchAtlas can handle is 32, if in the future this is
+     * insufficient then we can move to a 64 bit int
+     */
+    class BulkUseTokenUpdater {
+    public:
+        BulkUseTokenUpdater() : fPlotAlreadyUpdated(0), fCount(0), fAllocated(kMinItems) {}
+        void add(AtlasID id) {
+            int index = GrBatchAtlas::GetIndexFromID(id);
+            if (!this->find(index)) {
+                this->set(index);
+            }
+        }
+
+        void reset() {
+            fPlotsToUpdate.reset(kMinItems);
+            fAllocated = kMinItems;
+            fCount = 0;
+            fPlotAlreadyUpdated = 0;
+        }
+
+    private:
+        bool find(int index) const {
+            SkASSERT(index < kMaxPlots);
+            return (fPlotAlreadyUpdated >> index) & 1;
+        }
+
+        void set(int index) {
+            SkASSERT(!this->find(index));
+            fPlotAlreadyUpdated = fPlotAlreadyUpdated | (1 << index);
+            if (fCount < fAllocated) {
+                fPlotsToUpdate[fCount++] = index;
+            } else {
+                // This case will almost never happen
+                fAllocated = fCount << 1;
+                fPlotsToUpdate.realloc(fAllocated);
+                fPlotsToUpdate[fCount++] = index;
+            }
+        }
+
+        static const int kMinItems = 4;
+        static const int kMaxPlots = 32;
+        uint32_t fPlotAlreadyUpdated;
+        SkAutoSTMalloc<kMinItems, int> fPlotsToUpdate;
+        int fCount;
+        int fAllocated;
+
+        friend class GrBatchAtlas;
+    };
+
+    void setLastUseTokenBulk(const BulkUseTokenUpdater& reffer, BatchToken);
+
 private:
-    int getIndexFromID(AtlasID id) {
+    static int GetIndexFromID(AtlasID id) {
         return id & 0xffff;
     }
 
-    int getGenerationFromID(AtlasID id) {
+    static int GetGenerationFromID(AtlasID id) {
         return (id >> 16) & 0xffff;
     }
 
