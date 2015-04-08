@@ -238,7 +238,6 @@ private:
     Rec* fRec;
 
 #ifdef SK_DEBUG
-    const char* fStr;
     void validate() const;
 #else
     void validate() const {}

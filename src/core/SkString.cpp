@@ -247,48 +247,32 @@ void SkString::validate() const {
         SkASSERT(fRec->fRefCnt > 0);
         SkASSERT(0 == fRec->data()[fRec->fLength]);
     }
-    SkASSERT(fStr == c_str());
 }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
 SkString::SkString() : fRec(const_cast<Rec*>(&gEmptyRec)) {
-#ifdef SK_DEBUG
-    fStr = fRec->data();
-#endif
 }
 
 SkString::SkString(size_t len) {
     fRec = AllocRec(NULL, len);
-#ifdef SK_DEBUG
-    fStr = fRec->data();
-#endif
 }
 
 SkString::SkString(const char text[]) {
     size_t  len = text ? strlen(text) : 0;
 
     fRec = AllocRec(text, len);
-#ifdef SK_DEBUG
-    fStr = fRec->data();
-#endif
 }
 
 SkString::SkString(const char text[], size_t len) {
     fRec = AllocRec(text, len);
-#ifdef SK_DEBUG
-    fStr = fRec->data();
-#endif
 }
 
 SkString::SkString(const SkString& src) {
     src.validate();
 
     fRec = RefRec(src.fRec);
-#ifdef SK_DEBUG
-    fStr = fRec->data();
-#endif
 }
 
 SkString::~SkString() {
@@ -346,9 +330,6 @@ void SkString::reset() {
     }
 
     fRec = const_cast<Rec*>(&gEmptyRec);
-#ifdef SK_DEBUG
-    fStr = fRec->data();
-#endif
 }
 
 char* SkString::writable_str() {
@@ -364,9 +345,6 @@ char* SkString::writable_str() {
                 sk_free(fRec);
             }
             fRec = rec;
-        #ifdef SK_DEBUG
-            fStr = fRec->data();
-        #endif
         }
     }
     return fRec->data();
@@ -633,9 +611,6 @@ void SkString::swap(SkString& other) {
     other.validate();
 
     SkTSwap<Rec*>(fRec, other.fRec);
-#ifdef SK_DEBUG
-    SkTSwap<const char*>(fStr, other.fStr);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
