@@ -99,4 +99,24 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const S
     return SkNEW_ARGS(SkSurface_Gpu, (device));
 }
 
+SkSurface* SkSurface::NewWrappedRenderTarget(GrContext* context, GrBackendTextureDesc desc,
+                                             const SkSurfaceProps* props) {
+    if (NULL == context) {
+        return NULL;
+    }
+    if (!SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
+        return NULL;
+    }
+    SkAutoTUnref<GrSurface> surface(context->wrapBackendTexture(desc));
+    if (!surface) {
+        return NULL;
+    }
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
+                                                         SkGpuDevice::kNeedClear_Flag));
+    if (!device) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkSurface_Gpu, (device));
+}
+
 #endif

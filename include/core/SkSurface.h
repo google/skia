@@ -93,6 +93,13 @@ public:
     static SkSurface* NewRenderTargetDirect(GrRenderTarget* target) {
         return NewRenderTargetDirect(target, NULL);
     }
+
+    /**
+     *  Used to wrap a pre-existing backend 3D API texture in a SkSurface. The kRenderTarget flag
+     *  must be set on GrBackendTextureDesc for this to succeed.
+     */
+    static SkSurface* NewWrappedRenderTarget(GrContext*, GrBackendTextureDesc,
+                                             const SkSurfaceProps*);
     
     /**
      *  Return a new surface whose contents will be drawn to an offscreen

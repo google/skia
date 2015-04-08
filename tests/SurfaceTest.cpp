@@ -90,6 +90,45 @@ static void test_empty_surface(skiatest::Reporter* reporter, GrContext* ctx) {
     }
 }
 
+#if SK_SUPPORT_GPU
+static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext* ctx) {
+    if (NULL == ctx) {
+        return;
+    }
+    // Test the wrapped factory for SkSurface by creating a texture using ctx and then treat it as
+    // an external texture and wrap it in a SkSurface.
+
+    GrSurfaceDesc texDesc;
+    texDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    texDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    texDesc.fWidth = texDesc.fHeight = 100;
+    texDesc.fSampleCnt = 0;
+    texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    SkAutoTUnref<GrSurface> dummySurface(ctx->createTexture(texDesc, false));
+
+    REPORTER_ASSERT(reporter, dummySurface && dummySurface->asTexture() &&
+                              dummySurface->asRenderTarget());
+    if (!dummySurface || !dummySurface->asTexture() || !dummySurface->asRenderTarget()) {
+        return;
+    }
+    
+    GrBackendObject textureHandle = dummySurface->asTexture()->getTextureHandle();
+
+    GrBackendTextureDesc wrappedDesc;
+    wrappedDesc.fConfig = dummySurface->config();
+    wrappedDesc.fWidth = dummySurface->width();
+    wrappedDesc.fHeight = dummySurface->height();
+    wrappedDesc.fOrigin = dummySurface->origin();
+    wrappedDesc.fSampleCnt = dummySurface->asRenderTarget()->numSamples();
+    wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    wrappedDesc.fTextureHandle = textureHandle;
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewWrappedRenderTarget(ctx, wrappedDesc, NULL));
+    REPORTER_ASSERT(reporter, surface);
+}
+#endif
+
+
 static void test_image(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     size_t rowBytes = info.minRowBytes();
@@ -569,6 +608,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
                 TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
                 test_empty_surface(reporter, context);
                 test_surface_budget(reporter, context);
+                test_wrapped_texture_surface(reporter, context);
             }
         }
     }
