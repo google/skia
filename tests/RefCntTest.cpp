@@ -11,21 +11,6 @@
 #include "SkWeakRefCnt.h"
 #include "Test.h"
 
-class InstCounterClass {
-public:
-    InstCounterClass() { fCount = gInstCounter++; }
-    InstCounterClass(const InstCounterClass& src) {
-        fCount = src.fCount;
-        gInstCounter += 1;
-    }
-    virtual ~InstCounterClass() { gInstCounter -= 1; }
-
-    static int gInstCounter;
-    int fCount;
-};
-
-int InstCounterClass::gInstCounter;
-
 static void bounce_ref(void* data) {
     SkRefCnt* ref = static_cast<SkRefCnt*>(data);
     for (int i = 0; i < 100000; ++i) {
