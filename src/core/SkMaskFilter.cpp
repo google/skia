@@ -208,7 +208,7 @@ static void draw_nine(const SkMask& mask, const SkIRect& outerR, const SkIPoint&
 }
 
 static int countNestedRects(const SkPath& path, SkRect rects[2]) {
-    if (path.isNestedRects(rects)) {
+    if (path.isNestedFillRects(rects)) {
         return 2;
     }
     return path.isRect(&rects[0]);

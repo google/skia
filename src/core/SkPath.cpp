@@ -396,13 +396,16 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     int nextDirection = 0;
     bool closedOrMoved = false;
     bool autoClose = false;
+    bool insertClose = false;
     int verbCnt = fPathRef->countVerbs();
     while (*currVerb < verbCnt && (!allowPartial || !autoClose)) {
-        switch (fPathRef->atVerb(*currVerb)) {
+        uint8_t verb = insertClose ? (uint8_t) kClose_Verb : fPathRef->atVerb(*currVerb);
+        switch (verb) {
             case kClose_Verb:
                 savePts = pts;
                 pts = *ptsPtr;
                 autoClose = true;
+                insertClose = false;
             case kLine_Verb: {
                 SkScalar left = last.fX;
                 SkScalar top = last.fY;
@@ -455,6 +458,11 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
             case kCubic_Verb:
                 return false; // quadratic, cubic not allowed
             case kMove_Verb:
+                if (allowPartial && !autoClose && firstDirection) {
+                    insertClose = true;
+                    *currVerb -= 1;  // try move again afterwards
+                    goto addMissingClose;
+                }
                 last = *pts++;
                 closedOrMoved = true;
                 break;
@@ -464,6 +472,8 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
         }
         *currVerb += 1;
         lastDirection = nextDirection;
+addMissingClose:
+        ;
     }
     // Success if 4 corners and first point equals last
     bool result = 4 == corners && (first == last || autoClose);
@@ -518,7 +528,7 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
     return true;
 }
 
-bool SkPath::isNestedRects(SkRect rects[2], Direction dirs[2]) const {
+bool SkPath::isNestedFillRects(SkRect rects[2], Direction dirs[2]) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
@@ -529,8 +539,12 @@ bool SkPath::isNestedRects(SkRect rects[2], Direction dirs[2]) const {
     }
     const SkPoint* last = pts;
     SkRect testRects[2];
-    if (isRectContour(false, &currVerb, &pts, NULL, &testDirs[1])) {
+    bool isClosed;
+    if (isRectContour(false, &currVerb, &pts, &isClosed, &testDirs[1])) {
         testRects[0].set(first, SkToS32(last - first));
+        if (!isClosed) {
+            pts = fPathRef->points() + fPathRef->countPoints();
+        }
         testRects[1].set(last, SkToS32(pts - last));
         if (testRects[0].contains(testRects[1])) {
             if (rects) {

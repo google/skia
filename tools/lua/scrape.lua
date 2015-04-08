@@ -59,7 +59,7 @@ function sk_scrape_accumulate(t)
     end
 
     if false and t.verb == "drawPath" then
-        local pred, r1, r2, d1, d2 = t.path:isNestedRects()
+        local pred, r1, r2, d1, d2 = t.path:isNestedFillRects()
         
         if pred then
             print("drawRect_Nested", tostr(r1), tostr(r2), d1, d2)

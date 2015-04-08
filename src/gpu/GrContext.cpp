@@ -1280,7 +1280,7 @@ static bool is_nested_rects(GrDrawTarget* target,
     }
 
     SkPath::Direction dirs[2];
-    if (!path.isNestedRects(rects, dirs)) {
+    if (!path.isNestedFillRects(rects, dirs)) {
         return false;
     }
 

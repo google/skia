@@ -1495,10 +1495,10 @@ static const char* dir2string(SkPath::Direction dir) {
     return gStr[dir];
 }
 
-static int lpath_isNestedRects(lua_State* L) {
+static int lpath_isNestedFillRects(lua_State* L) {
     SkRect rects[2];
     SkPath::Direction dirs[2];
-    bool pred = get_obj<SkPath>(L, 1)->isNestedRects(rects, dirs);
+    bool pred = get_obj<SkPath>(L, 1)->isNestedFillRects(rects, dirs);
     int ret_count = 1;
     lua_pushboolean(L, pred);
     if (pred) {
@@ -1562,7 +1562,7 @@ static const struct luaL_Reg gSkPath_Methods[] = {
     { "isConvex", lpath_isConvex },
     { "isEmpty", lpath_isEmpty },
     { "isRect", lpath_isRect },
-    { "isNestedRects", lpath_isNestedRects },
+    { "isNestedFillRects", lpath_isNestedFillRects },
     { "countPoints", lpath_countPoints },
     { "reset", lpath_reset },
     { "moveTo", lpath_moveTo },
