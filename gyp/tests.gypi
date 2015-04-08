@@ -216,6 +216,7 @@
     '../tests/SVGDeviceTest.cpp',
     '../tests/TessellatingPathRendererTests.cpp',
     '../tests/TArrayTest.cpp',
+    '../tests/TemplatesTest.cpp',
     '../tests/TDPQueueTest.cpp',
     '../tests/Time.cpp',
     '../tests/TLSTest.cpp',

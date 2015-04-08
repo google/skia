@@ -411,17 +411,13 @@ private:
 
 template <size_t N, typename T> class SkAutoSTMalloc : SkNoncopyable {
 public:
-    SkAutoSTMalloc() {
-        fPtr = NULL;
-    }
+    SkAutoSTMalloc() : fPtr(fTStorage) {}
 
     SkAutoSTMalloc(size_t count) {
         if (count > N) {
             fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
-        } else if (count) {
-            fPtr = fTStorage;
         } else {
-            fPtr = NULL;
+            fPtr = fTStorage;
         }
     }
 
@@ -437,11 +433,9 @@ public:
             sk_free(fPtr);
         }
         if (count > N) {
-            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
-        } else if (count) {
-            fPtr = fTStorage;
+            fPtr = (T*)sk_malloc_throw(count * sizeof(T));
         } else {
-            fPtr = NULL;
+            fPtr = fTStorage;
         }
         return fPtr;
     }
@@ -462,6 +456,20 @@ public:
 
     const T& operator[](int index) const {
         return fPtr[index];
+    }
+
+    // Reallocs the array, can be used to shrink the allocation.  Makes no attempt to be intelligent
+    void realloc(size_t count) {
+        if (count > N) {
+            if (fPtr == fTStorage) {
+                fPtr = (T*)sk_malloc_throw(count * sizeof(T));
+                memcpy(fPtr, fTStorage, N * sizeof(T));
+            } else {
+                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+            }
+        } else if (fPtr != fTStorage) {
+            fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+        }
     }
 
 private:
