@@ -36,6 +36,7 @@ class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
 class GrTestTarget;
+class GrTextBlobCache;
 class GrTextContext;
 class GrTextureParams;
 class GrVertexBuffer;
@@ -658,6 +659,7 @@ public:
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
     GrFontCache* getFontCache() { return fFontCache; }
     GrLayerCache* getLayerCache() { return fLayerCache.get(); }
+    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
     GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
@@ -700,6 +702,7 @@ private:
     GrBatchFontCache*               fBatchFontCache;
     GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
+    SkAutoTDelete<GrTextBlobCache>  fTextBlobCache;
 
     GrPathRendererChain*            fPathRendererChain;
     GrSoftwarePathRenderer*         fSoftwarePathRenderer;

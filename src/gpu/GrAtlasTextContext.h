@@ -13,11 +13,13 @@
 #include "GrBatchAtlas.h"
 #include "GrGeometryProcessor.h"
 #include "SkDescriptor.h"
+#include "GrMemoryPool.h"
 #include "SkTextBlob.h"
-#include "SkTHash.h"
+#include "SkTInternalLList.h"
 
 class GrBatchTextStrike;
 class GrPipelineBuilder;
+class GrTextBlobCache;
 
 /*
  * This class implements GrTextContext using standard bitmap fonts, and can also process textblobs.
@@ -26,8 +28,6 @@ class GrPipelineBuilder;
 class GrAtlasTextContext : public GrTextContext {
 public:
     static GrAtlasTextContext* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
-
-    virtual ~GrAtlasTextContext();
 
 private:
     GrAtlasTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
@@ -59,6 +59,8 @@ private:
      * TODO this is currently a bug
      */
     struct BitmapTextBlob : public SkRefCnt {
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(BitmapTextBlob);
+
         /*
          * Each Run inside of the blob can have its texture coordinates regenerated if required.
          * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
@@ -128,17 +130,26 @@ private:
         SkScalar fY;
         SkPaint::Style fStyle;
         int fRunCount;
+        uint32_t fUniqueID;
+        GrMemoryPool* fPool;
 
         // all glyph / vertex offsets are into these pools.
         unsigned char* fVertices;
         GrGlyph::PackedID* fGlyphIDs;
         Run* fRuns;
 
+        static const uint32_t& GetKey(const BitmapTextBlob& blob) {
+            return blob.fUniqueID;
+        }
+
         static uint32_t Hash(const uint32_t& key) {
             return SkChecksum::Mix(key);
         }
 
-        void operator delete(void* p) { sk_free(p); }
+        void operator delete(void* p) {
+            BitmapTextBlob* blob = reinterpret_cast<BitmapTextBlob*>(p);
+            blob->fPool->release(p);
+        }
         void* operator new(size_t) {
             SkFAIL("All blobs are created by placement new.");
             return sk_malloc_throw(0);
@@ -152,8 +163,6 @@ private:
 
     typedef BitmapTextBlob::Run Run;
     typedef Run::SubRunInfo PerSubRunInfo;
-
-    BitmapTextBlob* CreateBlob(int glyphCount, int runCount);
 
     void appendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
                      GrColor color, GrFontScaler*, const SkIRect& clipRect);
@@ -190,17 +199,10 @@ private:
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter, const SkIRect& clipRect);
 
-    // TODO this currently only uses the public interface of SkTextBlob, however, I may need to add
-    // functionality to it while looping over the runs so I'm putting this here for the time being.
-    // If this lands in Chrome without changes, move it to SkTextBlob.
-    static inline void BlobGlyphCount(int* glyphCount, int* runCount, const SkTextBlob*);
-
     GrBatchTextStrike* fCurrStrike;
+    GrTextBlobCache* fCache;
 
-    // TODO use real cache
-    static void ClearCacheEntry(uint32_t key, BitmapTextBlob**);
-    SkTHashMap<uint32_t, BitmapTextBlob*, BitmapTextBlob::Hash> fCache;
-
+    friend class GrTextBlobCache;
     friend class BitmapTextBatch;
 
     typedef GrTextContext INHERITED;

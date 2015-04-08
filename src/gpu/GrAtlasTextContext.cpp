@@ -15,6 +15,7 @@
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
 #include "GrStrokeInfo.h"
+#include "GrTextBlobCache.h"
 #include "GrTexturePriv.h"
 
 #include "SkAutoKern.h"
@@ -67,16 +68,13 @@ static size_t get_vertex_stride(GrMaskFormat maskFormat) {
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        SkGpuDevice* gpuDevice,
                                        const SkDeviceProperties& properties)
-                                       : INHERITED(context, gpuDevice, properties) {
+    : INHERITED(context, gpuDevice, properties) {
+    // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
+    // vertexStride
+    SK_COMPILE_ASSERT(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
+                      vertex_attribute_changed);
     fCurrStrike = NULL;
-}
-
-void GrAtlasTextContext::ClearCacheEntry(uint32_t key, BitmapTextBlob** blob) {
-    (*blob)->unref();
-}
-
-GrAtlasTextContext::~GrAtlasTextContext() {
-    fCache.foreach(&GrAtlasTextContext::ClearCacheEntry);
+    fCache = context->getTextBlobCache();
 }
 
 GrAtlasTextContext* GrAtlasTextContext::Create(GrContext* context,
@@ -110,72 +108,29 @@ inline SkGlyphCache* GrAtlasTextContext::setupCache(BitmapTextBlob::Run* run,
     return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
 }
 
-inline void GrAtlasTextContext::BlobGlyphCount(int* glyphCount, int* runCount,
-                                               const SkTextBlob* blob) {
-    SkTextBlob::RunIterator itCounter(blob);
-    for (; !itCounter.done(); itCounter.next(), (*runCount)++) {
-        *glyphCount += itCounter.glyphCount();
-    }
-}
-
-GrAtlasTextContext::BitmapTextBlob* GrAtlasTextContext::CreateBlob(int glyphCount,
-                                                                   int runCount) {
-    // We allocate size for the BitmapTextBlob itself, plus size for the vertices array,
-    // and size for the glyphIds array.
-    SK_COMPILE_ASSERT(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
-                      vertex_attribute_changed);
-    size_t verticesCount = glyphCount * kVerticesPerGlyph * kGrayTextVASize;
-    size_t length = sizeof(BitmapTextBlob) +
-                    verticesCount +
-                    glyphCount * sizeof(GrGlyph::PackedID) +
-                    sizeof(BitmapTextBlob::Run) * runCount;
-
-    BitmapTextBlob* cacheBlob = SkNEW_PLACEMENT(sk_malloc_throw(length), BitmapTextBlob);
-
-    // setup offsets for vertices / glyphs
-    cacheBlob->fVertices = sizeof(BitmapTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);
-    cacheBlob->fGlyphIDs =
-            reinterpret_cast<GrGlyph::PackedID*>(cacheBlob->fVertices + verticesCount);
-    cacheBlob->fRuns = reinterpret_cast<BitmapTextBlob::Run*>(cacheBlob->fGlyphIDs + glyphCount);
-
-    // Initialize runs
-    for (int i = 0; i < runCount; i++) {
-        SkNEW_PLACEMENT(&cacheBlob->fRuns[i], BitmapTextBlob::Run);
-    }
-    cacheBlob->fRunCount = runCount;
-    return cacheBlob;
-}
-
 void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                                       const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                       const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
-    BitmapTextBlob* cacheBlob;
-    BitmapTextBlob** foundBlob = fCache.find(blob->uniqueID());
+    uint32_t uniqueID = blob->uniqueID();
+    BitmapTextBlob* cacheBlob = fCache->find(uniqueID);
     SkIRect clipRect;
     clip.getConservativeBounds(rt->width(), rt->height(), &clipRect);
 
-    if (foundBlob) {
-        cacheBlob = *foundBlob;
+    if (cacheBlob) {
         if (MustRegenerateBlob(*cacheBlob, skPaint, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
-            cacheBlob->unref();
-            int glyphCount = 0;
-            int runCount = 0;
-            BlobGlyphCount(&glyphCount, &runCount, blob);
-            cacheBlob = CreateBlob(glyphCount, runCount);
-            fCache.set(blob->uniqueID(), cacheBlob);
+            fCache->remove(cacheBlob);
+            cacheBlob = fCache->createCachedBlob(blob, kGrayTextVASize);
             this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter,
                                      clipRect);
+        } else {
+            fCache->makeMRU(cacheBlob);
         }
     } else {
-        int glyphCount = 0;
-        int runCount = 0;
-        BlobGlyphCount(&glyphCount, &runCount, blob);
-        cacheBlob = CreateBlob(glyphCount, runCount);
-        fCache.set(blob->uniqueID(), cacheBlob);
+        cacheBlob = fCache->createCachedBlob(blob, kGrayTextVASize);
         this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter, clipRect);
     }
 
@@ -269,7 +224,7 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
                                     const char text[], size_t byteLength,
                                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
     int glyphCount = skPaint.countText(text, byteLength);
-    SkAutoTUnref<BitmapTextBlob> blob(CreateBlob(glyphCount, 1));
+    SkAutoTUnref<BitmapTextBlob> blob(fCache->createBlob(glyphCount, 1, kGrayTextVASize));
     blob->fViewMatrix = viewMatrix;
     blob->fX = x;
     blob->fY = y;
@@ -383,7 +338,7 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                        const SkScalar pos[], int scalarsPerPosition,
                                        const SkPoint& offset, const SkIRect& regionClipBounds) {
     int glyphCount = skPaint.countText(text, byteLength);
-    SkAutoTUnref<BitmapTextBlob> blob(CreateBlob(glyphCount, 1));
+    SkAutoTUnref<BitmapTextBlob> blob(fCache->createBlob(glyphCount, 1, kGrayTextVASize));
     blob->fStyle = skPaint.getStyle();
     blob->fViewMatrix = viewMatrix;
 

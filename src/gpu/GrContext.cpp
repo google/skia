@@ -33,6 +33,7 @@
 #include "GrStencilAndCoverTextContext.h"
 #include "GrStrokeInfo.h"
 #include "GrSurfacePriv.h"
+#include "GrTextBlobCache.h"
 #include "GrTexturePriv.h"
 #include "GrTraceMarker.h"
 #include "GrTracing.h"
@@ -136,6 +137,8 @@ void GrContext::initCommon() {
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = SkNEW(GrBatchFontCache);
     fBatchFontCache->init(this);
+
+    fTextBlobCache.reset(SkNEW(GrTextBlobCache));
 }
 
 GrContext::~GrContext() {

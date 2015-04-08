@@ -43,6 +43,11 @@ public:
      */
     bool isEmpty() const { return fTail == fHead && !fHead->fLiveCount; }
 
+    /**
+     * Returns the total allocated size of the GrMemoryPool
+     */
+    size_t size() const { return fSize; }
+
 private:
     struct BlockHeader;
 
@@ -60,6 +65,7 @@ private:
         intptr_t     fCurrPtr;   ///< ptr to the start of blocks free space.
         intptr_t     fPrevPtr;   ///< ptr to the last allocation made
         size_t       fFreeSize;  ///< amount of free space left in the block.
+        size_t       fSize;      ///< total allocated size of the block
     };
 
     enum {
@@ -68,12 +74,14 @@ private:
         kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
         kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(BlockHeader*), kAlignment),
     };
+    size_t                            fSize;
     size_t                            fPreallocSize;
     size_t                            fMinAllocSize;
     BlockHeader*                      fHead;
     BlockHeader*                      fTail;
 #ifdef SK_DEBUG
     int                               fAllocationCnt;
+    int                               fAllocBlockCnt;
 #endif
 };
 

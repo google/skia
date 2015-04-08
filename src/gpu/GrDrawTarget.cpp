@@ -13,6 +13,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
+#include "GrMemoryPool.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"

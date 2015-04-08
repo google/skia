@@ -191,6 +191,8 @@
       '<(skia_src_path)/gpu/GrSurfacePriv.h',
       '<(skia_src_path)/gpu/GrSurface.cpp',
       '<(skia_src_path)/gpu/GrTemplates.h',
+      '<(skia_src_path)/gpu/GrTextBlobCache.cpp',
+      '<(skia_src_path)/gpu/GrTextBlobCache.h',
       '<(skia_src_path)/gpu/GrTextContext.cpp',
       '<(skia_src_path)/gpu/GrTextContext.h',
       '<(skia_src_path)/gpu/GrFontCache.cpp',
