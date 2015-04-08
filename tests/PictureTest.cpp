@@ -1119,7 +1119,7 @@ static void test_bytes_used(skiatest::Reporter* reporter) {
 
     // Protect against any unintentional bloat.
     size_t approxUsed = SkPictureUtils::ApproximateBytesUsed(empty.get());
-    REPORTER_ASSERT(reporter, approxUsed <= 416);
+    REPORTER_ASSERT(reporter, approxUsed <= 136);
 
     // Sanity check of nested SkPictures.
     SkPictureRecorder r2;

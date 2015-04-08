@@ -1,10 +1,3 @@
-/*
- * Copyright 2015 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
 #include "SkVarAlloc.h"
 
 // We use non-standard malloc diagnostic methods to make sure our allocations are sized well.
@@ -29,12 +22,6 @@ struct SkVarAlloc::Block {
 SkVarAlloc::SkVarAlloc(size_t minLgSize)
     : fByte(NULL)
     , fRemaining(0)
-    , fLgSize(minLgSize)
-    , fBlock(NULL) {}
-
-SkVarAlloc::SkVarAlloc(size_t minLgSize, char* storage, size_t len)
-    : fByte(storage)
-    , fRemaining(len)
     , fLgSize(minLgSize)
     , fBlock(NULL) {}
 
