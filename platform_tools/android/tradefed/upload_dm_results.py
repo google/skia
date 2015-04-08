@@ -32,6 +32,9 @@ def main(dm_dir, build_number, builder_name):
     gs_utils.GSUtils.Permission.READ
   )]
 
+  if not os.path.isfile(os.path.join(dm_dir, 'dm.json')):
+    sys.exit("no dm.json file found in output directory.")
+
   # Move dm.json to its own directory to make uploading it easier.
   tmp = tempfile.mkdtemp()
   shutil.move(os.path.join(dm_dir, 'dm.json'),
