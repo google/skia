@@ -50,7 +50,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         {
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect dstRect = SkRect::MakeXYWH(0, 10, 60, 60);

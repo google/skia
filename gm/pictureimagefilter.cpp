@@ -25,7 +25,7 @@ protected:
     void makePicture() {
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         SkPaint paint;
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
@@ -52,7 +52,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         {
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
