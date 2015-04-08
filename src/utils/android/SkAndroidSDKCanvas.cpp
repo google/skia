@@ -281,13 +281,30 @@ void* SkAndroidSDKCanvas::onAccessTopLayerPixels(SkImageInfo* info, size_t* data
     return fProxyTarget->accessTopLayerPixels(info, data);
 }
 
-void SkAndroidSDKCanvas::willSave() { fProxyTarget->save(); }
-void SkAndroidSDKCanvas::willRestore() { fProxyTarget->restore(); }
+void SkAndroidSDKCanvas::willSave() {
+    fProxyTarget->save();
+}
+
+SkCanvas::SaveLayerStrategy SkAndroidSDKCanvas::willSaveLayer(const SkRect* rect,
+                                                              const SkPaint* paint,
+                                                              SaveFlags flags) {
+    fProxyTarget->saveLayer(rect, paint, flags);
+    return SkCanvas::kNoLayer_SaveLayerStrategy;
+}
+
+void SkAndroidSDKCanvas::willRestore() {
+    fProxyTarget->restore();
+}
+
 void SkAndroidSDKCanvas::didRestore() { }
+
 void SkAndroidSDKCanvas::didConcat(const SkMatrix& m) {
     fProxyTarget->concat(m);
 }
-void SkAndroidSDKCanvas::didSetMatrix(const SkMatrix& m) { fProxyTarget->setMatrix(m); }
+
+void SkAndroidSDKCanvas::didSetMatrix(const SkMatrix& m) {
+    fProxyTarget->setMatrix(m);
+}
 
 void SkAndroidSDKCanvas::onClipRect(const SkRect& rect,
                                              SkRegion::Op op,

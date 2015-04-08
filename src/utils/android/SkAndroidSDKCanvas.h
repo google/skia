@@ -88,6 +88,7 @@ protected:
     const void* onPeekPixels(SkImageInfo*, size_t*) override;
     void* onAccessTopLayerPixels(SkImageInfo*, size_t*) override;
     void willSave() override;
+    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) override;
     void willRestore() override;
     void didRestore() override;
     void didConcat(const SkMatrix&) override;
