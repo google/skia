@@ -516,17 +516,17 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                 fDistanceAdjustTable[GrColorUnpackG(colorNoPreMul) >> kDistanceAdjustLumShift];
             float blueCorrection = 
                 fDistanceAdjustTable[GrColorUnpackB(colorNoPreMul) >> kDistanceAdjustLumShift];
-            GrDistanceFieldLCDTextureEffect::DistanceAdjust widthAdjust =
-                GrDistanceFieldLCDTextureEffect::DistanceAdjust::Make(redCorrection,
-                                                                   greenCorrection,
-                                                                   blueCorrection);
-            fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextureEffect::Create(color,
-                                                                                   fViewMatrix,
-                                                                                   localMatrix,
-                                                                                   fCurrTexture,
-                                                                                   params,
-                                                                                   widthAdjust,
-                                                                                   flags));
+            GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
+                GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(redCorrection,
+                                                                    greenCorrection,
+                                                                    blueCorrection);
+            fCachedGeometryProcessor.reset(GrDistanceFieldLCDTextGeoProc::Create(color,
+                                                                                 fViewMatrix,
+                                                                                 localMatrix,
+                                                                                 fCurrTexture,
+                                                                                 params,
+                                                                                 widthAdjust,
+                                                                                 flags));
         } else {
             flags |= kColorAttr_DistanceFieldEffectFlag;
             bool opaque = GrColorIsOpaque(color);
@@ -534,7 +534,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fDeviceProperties.gamma(),
                                                                 filteredColor);
             float correction = fDistanceAdjustTable[lum >> kDistanceAdjustLumShift];
-            fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
+            fCachedGeometryProcessor.reset(GrDistanceFieldA8TextGeoProc::Create(color,
                                                                                 fViewMatrix,
                                                                                 localMatrix,
                                                                                 fCurrTexture,
@@ -543,7 +543,7 @@ void GrDistanceFieldTextContext::setupCoverageEffect(const SkColor& filteredColo
                                                                                 flags,
                                                                                 opaque));
 #else
-            fCachedGeometryProcessor.reset(GrDistanceFieldTextureEffect::Create(color,
+            fCachedGeometryProcessor.reset(GrDistanceFieldA8TextGeoProc::Create(color,
                                                                                 fViewMatrix,
                                                                                 localMatrix,
                                                                                 fCurrTexture,

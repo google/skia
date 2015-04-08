@@ -27,9 +27,9 @@ struct DistanceFieldBatchTracker {
     bool fUsesLocalCoords;
 };
 
-class GrGLDistanceFieldTextureEffect : public GrGLGeometryProcessor {
+class GrGLDistanceFieldA8TextGeoProc : public GrGLGeometryProcessor {
 public:
-    GrGLDistanceFieldTextureEffect(const GrGeometryProcessor&,
+    GrGLDistanceFieldA8TextGeoProc(const GrGeometryProcessor&,
                                    const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL)
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -38,8 +38,8 @@ public:
         {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
-        const GrDistanceFieldTextureEffect& dfTexEffect =
-                args.fGP.cast<GrDistanceFieldTextureEffect>();
+        const GrDistanceFieldA8TextGeoProc& dfTexEffect =
+                args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
         const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
@@ -160,8 +160,7 @@ public:
                          const GrPrimitiveProcessor& proc,
                          const GrBatchTracker& bt) override {
 #ifdef SK_GAMMA_APPLY_TO_A8
-        const GrDistanceFieldTextureEffect& dfTexEffect =
-                proc.cast<GrDistanceFieldTextureEffect>();
+        const GrDistanceFieldA8TextGeoProc& dfTexEffect = proc.cast<GrDistanceFieldA8TextGeoProc>();
         float distanceAdjust = dfTexEffect.getDistanceAdjust();
         if (distanceAdjust != fDistanceAdjust) {
             pdman.set1f(fDistanceAdjustUni, distanceAdjust);
@@ -184,7 +183,7 @@ public:
                               const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
-        const GrDistanceFieldTextureEffect& dfTexEffect = gp.cast<GrDistanceFieldTextureEffect>();
+        const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
@@ -207,7 +206,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
+GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            const SkMatrix& viewMatrix,
                                                            const SkMatrix& localMatrix,
                                                            GrTexture* texture,
@@ -224,7 +223,7 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldTextureEffect>();
+    this->initClassID<GrDistanceFieldA8TextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     if (flags & kColorAttr_DistanceFieldEffectFlag) {
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
@@ -235,8 +234,8 @@ GrDistanceFieldTextureEffect::GrDistanceFieldTextureEffect(GrColor color,
     this->addTextureAccess(&fTextureAccess);
 }
 
-bool GrDistanceFieldTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    const GrDistanceFieldTextureEffect& cte = other.cast<GrDistanceFieldTextureEffect>();
+bool GrDistanceFieldA8TextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrDistanceFieldA8TextGeoProc& cte = other.cast<GrDistanceFieldA8TextGeoProc>();
     return
 #ifdef SK_GAMMA_APPLY_TO_A8
            fDistanceAdjust == cte.fDistanceAdjust &&
@@ -244,23 +243,23 @@ bool GrDistanceFieldTextureEffect::onIsEqual(const GrGeometryProcessor& other) c
            fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+void GrDistanceFieldA8TextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     out->setUnknownSingleComponent();
 }
 
-void GrDistanceFieldTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
+void GrDistanceFieldA8TextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
                                                      const GrGLCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
-    GrGLDistanceFieldTextureEffect::GenKey(*this, bt, caps, b);
+    GrGLDistanceFieldA8TextGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
-GrDistanceFieldTextureEffect::createGLInstance(const GrBatchTracker& bt,
+GrDistanceFieldA8TextGeoProc::createGLInstance(const GrBatchTracker& bt,
                                                const GrGLCaps&) const {
-    return SkNEW_ARGS(GrGLDistanceFieldTextureEffect, (*this, bt));
+    return SkNEW_ARGS(GrGLDistanceFieldA8TextGeoProc, (*this, bt));
 }
 
-void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt,
+void GrDistanceFieldA8TextGeoProc::initBatchTracker(GrBatchTracker* bt,
                                                     const GrPipelineInfo& init) const {
     DistanceFieldBatchTracker* local = bt->cast<DistanceFieldBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
@@ -268,7 +267,7 @@ void GrDistanceFieldTextureEffect::initBatchTracker(GrBatchTracker* bt,
     local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrDistanceFieldTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
+bool GrDistanceFieldA8TextGeoProc::onCanMakeEqual(const GrBatchTracker& m,
                                                   const GrGeometryProcessor& that,
                                                   const GrBatchTracker& t) const {
     const DistanceFieldBatchTracker& mine = m.cast<DistanceFieldBatchTracker>();
@@ -281,9 +280,9 @@ bool GrDistanceFieldTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldTextureEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
-GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
+GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
                                                               GrContext*,
                                                               const GrDrawTargetCaps&,
                                                               GrTexture* textures[]) {
@@ -301,7 +300,7 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    return GrDistanceFieldTextureEffect::Create(GrRandomColor(random),
+    return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(random),
                                                 GrProcessorUnitTest::TestMatrix(random),
                                                 GrProcessorUnitTest::TestMatrix(random),
                                                 textures[texIdx], params,
@@ -315,24 +314,22 @@ GrGeometryProcessor* GrDistanceFieldTextureEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct DistanceFieldNoGammaBatchTracker {
+struct DistanceFieldPathBatchTracker {
     GrGPInput fInputColorType;
     GrColor fColor;
     bool fUsesLocalCoords;
 };
 
-class GrGLDistanceFieldNoGammaTextureEffect : public GrGLGeometryProcessor {
+class GrGLDistanceFieldPathGeoProc : public GrGLGeometryProcessor {
 public:
-    GrGLDistanceFieldNoGammaTextureEffect(const GrGeometryProcessor&,
+    GrGLDistanceFieldPathGeoProc(const GrGeometryProcessor&,
                                           const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
-        const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
-                args.fGP.cast<GrDistanceFieldNoGammaTextureEffect>();
+        const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
-        const DistanceFieldNoGammaBatchTracker& local =
-                args.fBT.cast<DistanceFieldNoGammaBatchTracker>();
+        const DistanceFieldPathBatchTracker& local = args.fBT.cast<DistanceFieldPathBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
         GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
@@ -431,7 +428,7 @@ public:
 
         this->setUniformViewMatrix(pdman, proc.viewMatrix());
 
-        const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
+        const DistanceFieldPathBatchTracker& local = bt.cast<DistanceFieldPathBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
             GrColorToRGBAFloat(local.fColor, c);
@@ -444,10 +441,9 @@ public:
                               const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
-        const GrDistanceFieldNoGammaTextureEffect& dfTexEffect =
-            gp.cast<GrDistanceFieldNoGammaTextureEffect>();
+        const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
-        const DistanceFieldNoGammaBatchTracker& local = bt.cast<DistanceFieldNoGammaBatchTracker>();
+        const DistanceFieldPathBatchTracker& local = bt.cast<DistanceFieldPathBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
         key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
@@ -466,7 +462,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
+GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrColor color,
         const SkMatrix& viewMatrix,
         GrTexture* texture,
@@ -478,7 +474,7 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldNoGammaTextureEffect>();
+    this->initClassID<GrDistanceFieldPathGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     if (flags & kColorAttr_DistanceFieldEffectFlag) {
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
@@ -489,42 +485,39 @@ GrDistanceFieldNoGammaTextureEffect::GrDistanceFieldNoGammaTextureEffect(
     this->addTextureAccess(&fTextureAccess);
 }
 
-bool GrDistanceFieldNoGammaTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    const GrDistanceFieldNoGammaTextureEffect& cte = 
-                                                 other.cast<GrDistanceFieldNoGammaTextureEffect>();
+bool GrDistanceFieldPathGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrDistanceFieldPathGeoProc& cte = other.cast<GrDistanceFieldPathGeoProc>();
     return fFlags == cte.fFlags;
 }
 
-void GrDistanceFieldNoGammaTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out)
-                                                                                             const {
+void GrDistanceFieldPathGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     out->setUnknownSingleComponent();
 }
 
-void GrDistanceFieldNoGammaTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                                            const GrGLCaps& caps,
-                                                            GrProcessorKeyBuilder* b) const {
-    GrGLDistanceFieldNoGammaTextureEffect::GenKey(*this, bt, caps, b);
+void GrDistanceFieldPathGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
+                                                   const GrGLCaps& caps,
+                                                   GrProcessorKeyBuilder* b) const {
+    GrGLDistanceFieldPathGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
-GrDistanceFieldNoGammaTextureEffect::createGLInstance(const GrBatchTracker& bt,
-                                                      const GrGLCaps&) const {
-    return SkNEW_ARGS(GrGLDistanceFieldNoGammaTextureEffect, (*this, bt));
+GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrGLCaps&) const {
+    return SkNEW_ARGS(GrGLDistanceFieldPathGeoProc, (*this, bt));
 }
 
-void GrDistanceFieldNoGammaTextureEffect::initBatchTracker(GrBatchTracker* bt,
-                                                           const GrPipelineInfo& init) const {
-    DistanceFieldNoGammaBatchTracker* local = bt->cast<DistanceFieldNoGammaBatchTracker>();
+void GrDistanceFieldPathGeoProc::initBatchTracker(GrBatchTracker* bt,
+                                                  const GrPipelineInfo& init) const {
+    DistanceFieldPathBatchTracker* local = bt->cast<DistanceFieldPathBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
     local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrDistanceFieldNoGammaTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
-                                                         const GrGeometryProcessor& that,
-                                                         const GrBatchTracker& t) const {
-    const DistanceFieldNoGammaBatchTracker& mine = m.cast<DistanceFieldNoGammaBatchTracker>();
-    const DistanceFieldNoGammaBatchTracker& theirs = t.cast<DistanceFieldNoGammaBatchTracker>();
+bool GrDistanceFieldPathGeoProc::onCanMakeEqual(const GrBatchTracker& m,
+                                                const GrGeometryProcessor& that,
+                                                const GrBatchTracker& t) const {
+    const DistanceFieldPathBatchTracker& mine = m.cast<DistanceFieldPathBatchTracker>();
+    const DistanceFieldPathBatchTracker& theirs = t.cast<DistanceFieldPathBatchTracker>();
     return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
                                    that, theirs.fUsesLocalCoords) &&
            CanCombineOutput(mine.fInputColorType, mine.fColor,
@@ -533,12 +526,12 @@ bool GrDistanceFieldNoGammaTextureEffect::onCanMakeEqual(const GrBatchTracker& m
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldNoGammaTextureEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
-GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* random,
-                                                                     GrContext*,
-                                                                     const GrDrawTargetCaps&,
-                                                                     GrTexture* textures[]) {
+GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
+                                                            GrContext*,
+                                                            const GrDrawTargetCaps&,
+                                                            GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx 
                                     : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -553,10 +546,10 @@ GrGeometryProcessor* GrDistanceFieldNoGammaTextureEffect::TestCreate(SkRandom* r
     GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode 
                                                          : GrTextureParams::kNone_FilterMode);
 
-    return GrDistanceFieldNoGammaTextureEffect::Create(GrRandomColor(random),
-                                                       GrProcessorUnitTest::TestMatrix(random),
-                                                       textures[texIdx],
-                                                       params,
+    return GrDistanceFieldPathGeoProc::Create(GrRandomColor(random),
+                                              GrProcessorUnitTest::TestMatrix(random),
+                                              textures[texIdx],
+                                              params,
         random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0, random->nextBool());
 }
 
@@ -568,17 +561,16 @@ struct DistanceFieldLCDBatchTracker {
     bool fUsesLocalCoords;
 };
 
-class GrGLDistanceFieldLCDTextureEffect : public GrGLGeometryProcessor {
+class GrGLDistanceFieldLCDTextGeoProc : public GrGLGeometryProcessor {
 public:
-    GrGLDistanceFieldLCDTextureEffect(const GrGeometryProcessor&,
-                                      const GrBatchTracker&)
+    GrGLDistanceFieldLCDTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
         : fColor(GrColor_ILLEGAL) {
-        fDistanceAdjust = GrDistanceFieldLCDTextureEffect::DistanceAdjust::Make(1.0f, 1.0f, 1.0f);
+        fDistanceAdjust = GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(1.0f, 1.0f, 1.0f);
     }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
-        const GrDistanceFieldLCDTextureEffect& dfTexEffect =
-                args.fGP.cast<GrDistanceFieldLCDTextureEffect>();
+        const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
+                args.fGP.cast<GrDistanceFieldLCDTextGeoProc>();
         const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
 
@@ -729,9 +721,9 @@ public:
                          const GrBatchTracker& bt) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
-        const GrDistanceFieldLCDTextureEffect& dfTexEffect =
-                processor.cast<GrDistanceFieldLCDTextureEffect>();
-        GrDistanceFieldLCDTextureEffect::DistanceAdjust wa = dfTexEffect.getDistanceAdjust();
+        const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
+                processor.cast<GrDistanceFieldLCDTextGeoProc>();
+        GrDistanceFieldLCDTextGeoProc::DistanceAdjust wa = dfTexEffect.getDistanceAdjust();
         if (wa != fDistanceAdjust) {
             pdman.set3f(fDistanceAdjustUni,
                         wa.fR,
@@ -755,8 +747,7 @@ public:
                               const GrBatchTracker& bt,
                               const GrGLCaps&,
                               GrProcessorKeyBuilder* b) {
-        const GrDistanceFieldLCDTextureEffect& dfTexEffect =
-                gp.cast<GrDistanceFieldLCDTextureEffect>();
+        const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
         const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
@@ -770,7 +761,7 @@ public:
 private:
     GrColor                                      fColor;
     UniformHandle                                fColorUniform;
-    GrDistanceFieldLCDTextureEffect::DistanceAdjust fDistanceAdjust;
+    GrDistanceFieldLCDTextGeoProc::DistanceAdjust fDistanceAdjust;
     UniformHandle                                fDistanceAdjustUni;
 
     typedef GrGLGeometryProcessor INHERITED;
@@ -778,7 +769,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
+GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrColor color, const SkMatrix& viewMatrix,
                                                   const SkMatrix& localMatrix,
                                                   GrTexture* texture, const GrTextureParams& params,
@@ -789,47 +780,46 @@ GrDistanceFieldLCDTextureEffect::GrDistanceFieldLCDTextureEffect(
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
-    this->initClassID<GrDistanceFieldLCDTextureEffect>();
+    this->initClassID<GrDistanceFieldLCDTextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                           kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 
-bool GrDistanceFieldLCDTextureEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    const GrDistanceFieldLCDTextureEffect& cte = other.cast<GrDistanceFieldLCDTextureEffect>();
+bool GrDistanceFieldLCDTextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrDistanceFieldLCDTextGeoProc& cte = other.cast<GrDistanceFieldLCDTextGeoProc>();
     return (fDistanceAdjust == cte.fDistanceAdjust &&
             fFlags == cte.fFlags);
 }
 
-void GrDistanceFieldLCDTextureEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out)
-                                                                                             const {
+void GrDistanceFieldLCDTextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     out->setUnknownFourComponents();
     out->setUsingLCDCoverage();
 }
 
-void GrDistanceFieldLCDTextureEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                                        const GrGLCaps& caps,
-                                                        GrProcessorKeyBuilder* b) const {
-    GrGLDistanceFieldLCDTextureEffect::GenKey(*this, bt, caps, b);
+void GrDistanceFieldLCDTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
+                                                      const GrGLCaps& caps,
+                                                      GrProcessorKeyBuilder* b) const {
+    GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
-GrDistanceFieldLCDTextureEffect::createGLInstance(const GrBatchTracker& bt,
-                                                  const GrGLCaps&) const {
-    return SkNEW_ARGS(GrGLDistanceFieldLCDTextureEffect, (*this, bt));
+GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrBatchTracker& bt,
+                                                const GrGLCaps&) const {
+    return SkNEW_ARGS(GrGLDistanceFieldLCDTextGeoProc, (*this, bt));
 }
 
-void GrDistanceFieldLCDTextureEffect::initBatchTracker(GrBatchTracker* bt,
-                                                       const GrPipelineInfo& init) const {
+void GrDistanceFieldLCDTextGeoProc::initBatchTracker(GrBatchTracker* bt,
+                                                     const GrPipelineInfo& init) const {
     DistanceFieldLCDBatchTracker* local = bt->cast<DistanceFieldLCDBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
-bool GrDistanceFieldLCDTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
-                                                     const GrGeometryProcessor& that,
-                                                     const GrBatchTracker& t) const {
+bool GrDistanceFieldLCDTextGeoProc::onCanMakeEqual(const GrBatchTracker& m,
+                                                   const GrGeometryProcessor& that,
+                                                   const GrBatchTracker& t) const {
     const DistanceFieldLCDBatchTracker& mine = m.cast<DistanceFieldLCDBatchTracker>();
     const DistanceFieldLCDBatchTracker& theirs = t.cast<DistanceFieldLCDBatchTracker>();
     return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
@@ -840,9 +830,9 @@ bool GrDistanceFieldLCDTextureEffect::onCanMakeEqual(const GrBatchTracker& m,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextureEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
-GrGeometryProcessor* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* random,
+GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(SkRandom* random,
                                                                  GrContext*,
                                                                  const GrDrawTargetCaps&,
                                                                  GrTexture* textures[]) {
@@ -863,10 +853,10 @@ GrGeometryProcessor* GrDistanceFieldLCDTextureEffect::TestCreate(SkRandom* rando
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
     flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    return GrDistanceFieldLCDTextureEffect::Create(GrRandomColor(random),
-                                                   GrProcessorUnitTest::TestMatrix(random),
-                                                   GrProcessorUnitTest::TestMatrix(random),
-                                                   textures[texIdx], params,
-                                                   wa,
-                                                   flags);
+    return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(random),
+                                                 GrProcessorUnitTest::TestMatrix(random),
+                                                 GrProcessorUnitTest::TestMatrix(random),
+                                                 textures[texIdx], params,
+                                                 wa,
+                                                 flags);
 }

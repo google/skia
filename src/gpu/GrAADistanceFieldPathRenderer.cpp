@@ -184,12 +184,12 @@ public:
         // Setup GrGeometryProcessor
         GrBatchAtlas* atlas = fAtlas;
         SkAutoTUnref<GrGeometryProcessor> dfProcessor(
-                GrDistanceFieldNoGammaTextureEffect::Create(this->color(),
-                                                            this->viewMatrix(),
-                                                            atlas->getTexture(),
-                                                            params,
-                                                            flags,
-                                                            false));
+                GrDistanceFieldPathGeoProc::Create(this->color(),
+                                                   this->viewMatrix(),
+                                                   atlas->getTexture(),
+                                                   params,
+                                                   flags,
+                                                   false));
 
         this->initDraw(batchTarget, dfProcessor, pipeline);
 

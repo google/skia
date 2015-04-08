@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDistanceFieldTextureEffect_DEFINED
-#define GrDistanceFieldTextureEffect_DEFINED
+#ifndef GrDistanceFieldGeoProc_DEFINED
+#define GrDistanceFieldGeoProc_DEFINED
 
 #include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
 
-class GrGLDistanceFieldTextureEffect;
-class GrGLDistanceFieldNoGammaTextureEffect;
-class GrGLDistanceFieldLCDTextureEffect;
+class GrGLDistanceFieldA8TextGeoProc;
+class GrGLDistanceFieldPathGeoProc;
+class GrGLDistanceFieldLCDTextGeoProc;
 class GrInvariantOutput;
 
 enum GrDistanceFieldEffectFlags {
@@ -28,10 +28,10 @@ enum GrDistanceFieldEffectFlags {
     
     kUniformScale_DistanceFieldEffectMask = kSimilarity_DistanceFieldEffectFlag |
                                             kRectToRect_DistanceFieldEffectFlag,
-    // The subset of the flags relevant to GrDistanceFieldTextureEffect
+    // The subset of the flags relevant to GrDistanceFieldA8TextGeoProc
     kNonLCD_DistanceFieldEffectMask       = kSimilarity_DistanceFieldEffectFlag |
                                             kColorAttr_DistanceFieldEffectFlag,
-    // The subset of the flags relevant to GrDistanceFieldLCDTextureEffect
+    // The subset of the flags relevant to GrDistanceFieldLCDTextGeoProc
     kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
                                             kRectToRect_DistanceFieldEffectFlag |
                                             kUseLCD_DistanceFieldEffectFlag |
@@ -44,14 +44,14 @@ enum GrDistanceFieldEffectFlags {
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute. Gamma correction is handled via a texture LUT.
  */
-class GrDistanceFieldTextureEffect : public GrGeometryProcessor {
+class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        const SkMatrix& localMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        float lum, uint32_t flags, bool opaqueVertexColors) {
-        return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, localMatrix, tex,
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, localMatrix, tex,
                                                          params, lum, flags, opaqueVertexColors));
     }
 #else
@@ -59,12 +59,12 @@ public:
                                        const SkMatrix& localMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        uint32_t flags, bool opaqueVertexColors) {
-        return SkNEW_ARGS(GrDistanceFieldTextureEffect, (color, viewMatrix, localMatrix, tex,
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, localMatrix, tex,
                                                          params, flags, opaqueVertexColors));
     }
 #endif
 
-    virtual ~GrDistanceFieldTextureEffect() {}
+    virtual ~GrDistanceFieldA8TextGeoProc() {}
 
     const char* name() const override { return "DistanceFieldTexture"; }
 
@@ -90,7 +90,7 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    GrDistanceFieldTextureEffect(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+    GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
                                  GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
@@ -120,18 +120,18 @@ private:
 * The output color of this effect is a modulation of the input color and a sample from a
 * distance field texture (using a smoothed step function near 0.5).
 * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
-* coords are a custom attribute. No gamma correct blending is applied.
+* coords are a custom attribute. No gamma correct blending is applied. Used for paths only.
 */
-class GrDistanceFieldNoGammaTextureEffect : public GrGeometryProcessor {
+class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
                                        const GrTextureParams& params,
                                        uint32_t flags, bool opaqueVertexColors) {
-        return SkNEW_ARGS(GrDistanceFieldNoGammaTextureEffect, (color, viewMatrix, tex, params,
-                                                                flags, opaqueVertexColors));
+        return SkNEW_ARGS(GrDistanceFieldPathGeoProc, (color, viewMatrix, tex, params,
+                                                       flags, opaqueVertexColors));
     }
 
-    virtual ~GrDistanceFieldNoGammaTextureEffect() {}
+    virtual ~GrDistanceFieldPathGeoProc() {}
 
     const char* name() const override { return "DistanceFieldTexture"; }
 
@@ -154,9 +154,9 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    GrDistanceFieldNoGammaTextureEffect(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
-                                        const GrTextureParams& params, uint32_t flags,
-                                        bool opaqueVertexColors);
+    GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
+                               const GrTextureParams& params, uint32_t flags,
+                               bool opaqueVertexColors);
 
     bool onIsEqual(const GrGeometryProcessor& other) const override;
 
@@ -179,7 +179,7 @@ private:
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute. Gamma correction is handled via a texture LUT.
  */
-class GrDistanceFieldLCDTextureEffect : public GrGeometryProcessor {
+class GrDistanceFieldLCDTextGeoProc : public GrGeometryProcessor {
 public:
     struct DistanceAdjust {
         SkScalar fR, fG, fB;
@@ -200,11 +200,11 @@ public:
                                        const SkMatrix& localMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        DistanceAdjust distanceAdjust, uint32_t flags) {
-        return SkNEW_ARGS(GrDistanceFieldLCDTextureEffect,
+        return SkNEW_ARGS(GrDistanceFieldLCDTextGeoProc,
                           (color, viewMatrix, localMatrix, tex, params, distanceAdjust, flags));
     }
 
-    virtual ~GrDistanceFieldLCDTextureEffect() {}
+    virtual ~GrDistanceFieldLCDTextGeoProc() {}
 
     const char* name() const override { return "DistanceFieldLCDTexture"; }
 
@@ -227,10 +227,10 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    GrDistanceFieldLCDTextureEffect(GrColor, const SkMatrix& viewMatrix,
-                                    const SkMatrix& localMatrix,
-                                    GrTexture* texture, const GrTextureParams& params,
-                                    DistanceAdjust wa, uint32_t flags);
+    GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,
+                                  const SkMatrix& localMatrix,
+                                  GrTexture* texture, const GrTextureParams& params,
+                                  DistanceAdjust wa, uint32_t flags);
 
     bool onIsEqual(const GrGeometryProcessor& other) const override;
 
