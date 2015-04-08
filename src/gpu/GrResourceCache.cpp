@@ -40,6 +40,7 @@ GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
 
     return static_cast<Domain>(domain);
 }
+
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size) {
     return SkChecksum::Compute(data, size);
 }
@@ -56,13 +57,12 @@ private:
 
  //////////////////////////////////////////////////////////////////////////////
 
-static const int kDefaultMaxCount = 2 * (1 << 12);
-static const size_t kDefaultMaxSize = 96 * (1 << 20);
 
 GrResourceCache::GrResourceCache()
     : fTimestamp(0)
     , fMaxCount(kDefaultMaxCount)
     , fMaxBytes(kDefaultMaxSize)
+    , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
 #if GR_CACHE_STATS
     , fHighWaterCount(0)
     , fHighWaterBytes(0)
@@ -73,18 +73,47 @@ GrResourceCache::GrResourceCache()
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
     , fOverBudgetCB(NULL)
-    , fOverBudgetData(NULL) {
+    , fOverBudgetData(NULL)
+    , fFlushTimestamps(NULL)
+    , fLastFlushTimestampIndex(0){
     SkDEBUGCODE(fCount = 0;)
+    SkDEBUGCODE(fNewlyPurgeableResourceForValidation = NULL;)
+    this->resetFlushTimestamps();
 }
 
 GrResourceCache::~GrResourceCache() {
     this->releaseAll();
+    SkDELETE(fFlushTimestamps);
 }
 
-void GrResourceCache::setLimits(int count, size_t bytes) {
+void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
     fMaxCount = count;
     fMaxBytes = bytes;
+    fMaxUnusedFlushes = maxUnusedFlushes;
+    this->resetFlushTimestamps();
     this->purgeAsNeeded();
+}
+
+void GrResourceCache::resetFlushTimestamps() {
+    SkDELETE(fFlushTimestamps);
+
+    // We assume this number is a power of two when wrapping indices into the timestamp array.
+    fMaxUnusedFlushes = SkNextPow2(fMaxUnusedFlushes);
+
+    // Since our implementation is to store the timestamps of the last fMaxUnusedFlushes flush calls
+    // we just turn the feature off if that array would be large.
+    static const int kMaxSupportedTimestampHistory = 128;
+
+    if (fMaxUnusedFlushes > kMaxSupportedTimestampHistory) {
+        fFlushTimestamps = NULL;
+        return;
+    }
+
+    fFlushTimestamps = SkNEW_ARRAY(uint32_t, fMaxUnusedFlushes);
+    fLastFlushTimestampIndex = 0;
+    // Set all the historical flush timestamps to initially be at the beginning of time (timestamp
+    // 0).
+    sk_bzero(fFlushTimestamps, fMaxUnusedFlushes * sizeof(uint32_t));
 }
 
 void GrResourceCache::insertResource(GrGpuResource* resource) {
@@ -247,8 +276,8 @@ void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
 }
 
 void GrResourceCache::removeUniqueKey(GrGpuResource* resource) {
-    // Someone has a ref to this resource in order to invalidate it. When the ref count reaches
-    // zero we will get a notifyPurgable() and figure out what to do with it.
+    // Someone has a ref to this resource in order to have removed the key. When the ref count
+    // reaches zero we will get a ref cnt notification and figure out what to do with it.
     if (resource->getUniqueKey().isValid()) {
         SkASSERT(resource == fUniqueHash.find(resource->getUniqueKey()));
         fUniqueHash.remove(resource->getUniqueKey());
@@ -307,11 +336,34 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
     this->validate();
 }
 
-void GrResourceCache::notifyPurgeable(GrGpuResource* resource) {
+void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
     SkASSERT(resource);
+    SkASSERT(!resource->wasDestroyed());
+    SkASSERT(flags);
     SkASSERT(this->isInCache(resource));
-    SkASSERT(resource->isPurgeable());
+    // This resource should always be in the nonpurgeable array when this function is called. It
+    // will be moved to the queue if it is newly purgeable.
+    SkASSERT(fNonpurgeableResources[*resource->cacheAccess().accessCacheIndex()] == resource);
 
+    if (SkToBool(ResourceAccess::kRefCntReachedZero_RefNotificationFlag & flags)) {
+#ifdef SK_DEBUG
+        // When the timestamp overflows validate() is called. validate() checks that resources in
+        // the nonpurgeable array are indeed not purgeable. However, the movement from the array to
+        // the purgeable queue happens just below in this function. So we mark it as an exception.
+        if (resource->isPurgeable()) {
+            fNewlyPurgeableResourceForValidation = resource;
+        }
+#endif
+        resource->cacheAccess().setTimestamp(this->getNextTimestamp());
+        SkDEBUGCODE(fNewlyPurgeableResourceForValidation = NULL);
+    }
+
+    if (!SkToBool(ResourceAccess::kAllCntsReachedZero_RefNotificationFlag & flags)) {
+        SkASSERT(!resource->isPurgeable());
+        return;
+    }
+
+    SkASSERT(resource->isPurgeable());
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
 
@@ -391,25 +443,43 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
     this->validate();
 }
 
-void GrResourceCache::internalPurgeAsNeeded() {
-    SkASSERT(this->overBudget());
+void GrResourceCache::purgeAsNeeded() {
+    SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
+    fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
+    if (invalidKeyMsgs.count()) {
+        this->processInvalidUniqueKeys(invalidKeyMsgs);
+    }
 
-    bool stillOverbudget = true;
-    while (fPurgeableQueue.count()) {
+    if (fFlushTimestamps) {
+        // Assuming kNumFlushesToDeleteUnusedResource is a power of 2.
+        SkASSERT(SkIsPow2(fMaxUnusedFlushes));
+        int oldestFlushIndex = (fLastFlushTimestampIndex + 1) & (fMaxUnusedFlushes - 1);
+
+        uint32_t oldestAllowedTimestamp = fFlushTimestamps[oldestFlushIndex];
+        while (fPurgeableQueue.count()) {
+            uint32_t oldestResourceTimestamp = fPurgeableQueue.peek()->cacheAccess().timestamp();
+            if (oldestAllowedTimestamp < oldestResourceTimestamp) {
+                break;
+            }
+            GrGpuResource* resource = fPurgeableQueue.peek();
+            SkASSERT(resource->isPurgeable());
+            resource->cacheAccess().release();
+        }
+    }
+
+    bool stillOverbudget = this->overBudget();
+    while (stillOverbudget && fPurgeableQueue.count()) {
         GrGpuResource* resource = fPurgeableQueue.peek();
         SkASSERT(resource->isPurgeable());
         resource->cacheAccess().release();
-        if (!this->overBudget()) {
-            stillOverbudget = false;
-            break;
-        }
+        stillOverbudget = this->overBudget();
     }
 
     this->validate();
 
     if (stillOverbudget) {
         // Despite the purge we're still over budget. Call our over budget callback. If this frees
-        // any resources then we'll get notifyPurgeable() calls and take appropriate action.
+        // any resources then we'll get notified and take appropriate action.
         (*fOverBudgetCB)(fOverBudgetData);
         this->validate();
     }
@@ -433,7 +503,7 @@ void GrResourceCache::processInvalidUniqueKeys(
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
             resource->resourcePriv().removeUniqueKey();
-            resource->unref(); // will call notifyPurgeable, if it is indeed now purgeable.
+            resource->unref(); // If this resource is now purgeable, the cache will be notified.
         }
     }
 }
@@ -518,9 +588,24 @@ uint32_t GrResourceCache::getNextTimestamp() {
 
             // count should be the next timestamp we return.
             SkASSERT(fTimestamp == SkToU32(count));
+            
+            // The historical timestamps of flushes are now invalid.
+            this->resetFlushTimestamps();
         }        
     }
     return fTimestamp++;
+}
+
+void GrResourceCache::notifyFlushOccurred() {
+    if (fFlushTimestamps) {
+        SkASSERT(SkIsPow2(fMaxUnusedFlushes));
+        fLastFlushTimestampIndex = (fLastFlushTimestampIndex + 1) & (fMaxUnusedFlushes - 1);
+        // get the timestamp before accessing fFlushTimestamps because getNextTimestamp will
+        // reallocate fFlushTimestamps on timestamp overflow.
+        uint32_t timestamp = this->getNextTimestamp();
+        fFlushTimestamps[fLastFlushTimestampIndex] = timestamp;
+        this->purgeAsNeeded();
+    }
 }
 
 #ifdef SK_DEBUG
@@ -586,7 +671,8 @@ void GrResourceCache::validate() const {
     Stats stats(this);
 
     for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
-        SkASSERT(!fNonpurgeableResources[i]->isPurgeable());
+        SkASSERT(!fNonpurgeableResources[i]->isPurgeable() ||
+                 fNewlyPurgeableResourceForValidation == fNonpurgeableResources[i]);
         SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
         SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
         stats.update(fNonpurgeableResources[i]);
@@ -615,7 +701,7 @@ void GrResourceCache::validate() const {
     SkASSERT(stats.fContent == fUniqueHash.count());
     SkASSERT(stats.fScratch + stats.fCouldBeScratch == fScratchMap.count());
 
-    // This assertion is not currently valid because we can be in recursive notifyIsPurgeable()
+    // This assertion is not currently valid because we can be in recursive notifyCntReachedZero()
     // calls. This will be fixed when subresource registration is explicit.
     // bool overBudget = budgetedBytes > fMaxBytes || budgetedCount > fMaxCount;
     // SkASSERT(!overBudget || locked == count || fPurging);

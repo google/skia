@@ -38,20 +38,39 @@ class SkString;
  * A unique key always takes precedence over a scratch key when a resource has both types of keys.
  * If a resource has neither key type then it will be deleted as soon as the last reference to it
  * is dropped.
+ *
+ * When proactive purging is enabled, on every flush, the timestamp of that flush is stored in a
+ * n-sized ring buffer. When purging occurs each purgeable resource's timestamp is compared to the
+ * timestamp of the n-th prior flush. If the resource's last use timestamp is older than the old
+ * flush then the resource is proactively purged even when the cache is under budget. By default
+ * this feature is disabled, though it can be enabled by calling GrResourceCache::setLimits.
  */
 class GrResourceCache {
 public:
     GrResourceCache();
     ~GrResourceCache();
 
+    // Default maximum number of budgeted resources in the cache.
+    static const int    kDefaultMaxCount            = 2 * (1 << 12);
+    // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
+    static const size_t kDefaultMaxSize             = 96 * (1 << 20);
+    // Default number of flushes a budgeted resources can go unused in the cache before it is
+    // purged. Large values disable the feature (as the ring buffer of flush timestamps would be
+    // large). This is currently the default until we decide to enable this feature
+    // of the cache by default.
+    static const int    kDefaultMaxUnusedFlushes    = 1024;
+
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
     ResourceAccess resourceAccess();
 
     /**
-     * Sets the cache limits in terms of number of resources and max gpu memory byte size.
+     * Sets the cache limits in terms of number of resources, max gpu memory byte size, and number
+     * of GrContext flushes that a resource can be unused before it is evicted. The latter value is
+     * a suggestion and there is no promise that a resource will be purged immediately after it
+     * hasn't been used in maxUnusedFlushes flushes.
      */
-    void setLimits(int count, size_t bytes);
+    void setLimits(int count, size_t bytes, int maxUnusedFlushes = kDefaultMaxUnusedFlushes);
 
     /**
      * Returns the number of resources.
@@ -136,17 +155,7 @@ public:
 
     /** Purges resources to become under budget and processes resources with invalidated unique
         keys. */
-    void purgeAsNeeded() {
-        SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
-        fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
-        if (invalidKeyMsgs.count()) {
-            this->processInvalidUniqueKeys(invalidKeyMsgs);
-        }
-        if (fBudgetedCount <= fMaxCount && fBudgetedBytes <= fMaxBytes) {
-            return;
-        }
-        this->internalPurgeAsNeeded();
-    }
+    void purgeAsNeeded();
 
     /** Purges all resources that don't have external owners. */
     void purgeAllUnlocked();
@@ -166,6 +175,8 @@ public:
         fOverBudgetCB = overBudgetCB;
         fOverBudgetData = data;
     }
+    
+    void notifyFlushOccurred();
 
 #if GR_GPU_STATS
     void dumpStats(SkString*) const;
@@ -180,7 +191,7 @@ private:
     ////
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
-    void notifyPurgeable(GrGpuResource*);
+    void notifyCntReachedZero(GrGpuResource*, uint32_t flags);
     void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     void changeUniqueKey(GrGpuResource*, const GrUniqueKey&);
     void removeUniqueKey(GrGpuResource*);
@@ -189,7 +200,7 @@ private:
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
-    void internalPurgeAsNeeded();
+    void resetFlushTimestamps();
     void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
@@ -251,6 +262,7 @@ private:
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;
     size_t                              fMaxBytes;
+    int                                 fMaxUnusedFlushes;
 
 #if GR_CACHE_STATS
     int                                 fHighWaterCount;
@@ -270,7 +282,16 @@ private:
     PFOverBudgetCB                      fOverBudgetCB;
     void*                               fOverBudgetData;
 
+    // We keep track of the "timestamps" of the last n flushes. If a resource hasn't been used in
+    // that time then we well preemptively purge it to reduce memory usage.
+    uint32_t*                           fFlushTimestamps;
+    int                                 fLastFlushTimestampIndex;
+
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
+
+    // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
+    // we're in the midst of converting it to purgeable status.
+    SkDEBUGCODE(GrGpuResource*          fNewlyPurgeableResourceForValidation;)
 };
 
 class GrResourceCache::ResourceAccess {
@@ -290,9 +311,26 @@ private:
     void removeResource(GrGpuResource* resource) { fCache->removeResource(resource); }
 
     /**
-     * Called by GrGpuResources when they detects that they are newly purgeable.
+     * Notifications that should be sent to the cache when the ref/io cnt status of resources
+     * changes.
      */
-    void notifyPurgeable(GrGpuResource* resource) { fCache->notifyPurgeable(resource); }
+    enum RefNotificationFlags {
+        /** All types of refs on the resource have reached zero. */
+        kAllCntsReachedZero_RefNotificationFlag = 0x1,
+        /** The normal (not pending IO type) ref cnt has reached zero. */
+        kRefCntReachedZero_RefNotificationFlag  = 0x2,
+    };
+    /**
+     * Called by GrGpuResources when they detect that their ref/io cnts have reached zero. When the
+     * normal ref cnt reaches zero the flags that are set should be:
+     *     a) kRefCntReachedZero if a pending IO cnt is still non-zero.
+     *     b) (kRefCntReachedZero | kAllCntsReachedZero) when all pending IO cnts are also zero.
+     * kAllCntsReachedZero is set by itself if a pending IO cnt is decremented to zero and all the
+     * the other cnts are already zero.
+     */
+    void notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
+        fCache->notifyCntReachedZero(resource, flags);
+    }
 
     /**
      * Called by GrGpuResources when their sizes change.

@@ -33,8 +33,15 @@ class GrResourceCache;
  *
  * The latter two ref types are private and intended only for Gr core code.
  *
- * When an item is purgeable DERIVED:notifyIsPurgeable() will be called (static poly morphism using
- * CRTP). GrIORef and GrGpuResource are separate classes for organizational reasons and to be
+ * When all the ref/io counts reach zero DERIVED::notifyAllCntsAreZero() will be called (static poly
+ * morphism using CRTP). Similarly when the ref (but not necessarily pending read/write) count
+ * reaches 0 DERIVED::notifyRefCountIsZero() will be called. In the case when an unref() causes both
+ * the ref cnt to reach zero and the other counts are zero, notifyRefCountIsZero() will be called
+ * before notifyIsPurgeable(). Moreover, if notifyRefCountIsZero() returns false then
+ * notifyAllRefCntsAreZero() won't be called at all. notifyRefCountIsZero() must return false if the
+ * object may be deleted after notifyRefCntIsZero() returns.
+ *
+ * GrIORef and GrGpuResource are separate classes for organizational reasons and to be
  * able to give access via friendship to only the functions related to pending IO operations.
  */
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
@@ -52,8 +59,14 @@ public:
 
     void unref() const {
         this->validate();
-        --fRefCnt;
-        this->didUnref();
+        
+        if (!(--fRefCnt)) {
+            if (!static_cast<const DERIVED*>(this)->notifyRefCountIsZero()) {
+                return;
+            }
+        }
+
+        this->didRemoveRefOrPendingIO(kRef_CntType);
     }
 
     void validate() const {
@@ -67,6 +80,12 @@ public:
 
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
+
+    enum CntType {
+        kRef_CntType,
+        kPendingRead_CntType,
+        kPendingWrite_CntType,
+    };
 
     bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
 
@@ -85,7 +104,7 @@ private:
     void completedRead() const {
         this->validate();
         --fPendingReads;
-        this->didUnref();
+        this->didRemoveRefOrPendingIO(kPendingRead_CntType);
     }
 
     void addPendingWrite() const {
@@ -96,13 +115,13 @@ private:
     void completedWrite() const {
         this->validate();
         --fPendingWrites;
-        this->didUnref();
+        this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
     }
 
 private:
-    void didUnref() const {
+    void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyIsPurgeable();
+            static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
         }
     }
 
@@ -271,7 +290,8 @@ private:
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
-    void notifyIsPurgeable() const;
+    void notifyAllCntsAreZero(CntType) const;
+    bool notifyRefCountIsZero() const;
     void removeScratchKey();
     void makeBudgeted();
     void makeUnbudgeted();
@@ -304,7 +324,7 @@ private:
     SkAutoTUnref<const SkData>  fData;
 
     typedef GrIORef<GrGpuResource> INHERITED;
-    friend class GrIORef<GrGpuResource>; // to access notifyIsPurgeable.
+    friend class GrIORef<GrGpuResource>; // to access notifyAllCntsAreZero and notifyRefCntIsZero.
 };
 
 #endif

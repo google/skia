@@ -1477,6 +1477,7 @@ void GrContext::flush(int flagsBitfield) {
     } else {
         fDrawBuffer->flush();
     }
+    fResourceCache->notifyFlushOccurred();
     fFlushToReduceCacheSize = false;
 }
 
