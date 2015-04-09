@@ -448,7 +448,7 @@ template <typename Dst> Dst SkTCast(const void* ptr) {
 
 /** \class SkNoncopyable
 
-SkNoncopyable is the base class for objects that may do not want to
+SkNoncopyable is the base class for objects that do not want to
 be copied. It hides its copy-constructor and its assignment-operator.
 */
 class SK_API SkNoncopyable {
