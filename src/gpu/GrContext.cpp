@@ -135,8 +135,7 @@ void GrContext::initCommon() {
     this->setupDrawBuffer();
 
     // GrBatchFontCache will eventually replace GrFontCache
-    fBatchFontCache = SkNEW(GrBatchFontCache);
-    fBatchFontCache->init(this);
+    fBatchFontCache = SkNEW_ARGS(GrBatchFontCache, (this));
 
     fTextBlobCache.reset(SkNEW(GrTextBlobCache));
 }

@@ -34,56 +34,40 @@ static GrBatchAtlas* make_atlas(GrContext* context, GrPixelConfig config,
     return SkNEW_ARGS(GrBatchAtlas, (texture, numPlotsX, numPlotsY));
 }
 
-int GrBatchFontCache::MaskFormatToAtlasIndex(GrMaskFormat format) {
-    static const int sAtlasIndices[] = {
-        kA8_GrMaskFormat,
-        kA565_GrMaskFormat,
-        kARGB_GrMaskFormat,
-    };
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, array_size_mismatch);
-
-    SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
-    return sAtlasIndices[format];
-}
-
-GrMaskFormat GrBatchFontCache::AtlasIndexToMaskFormat(int atlasIndex) {
-    static GrMaskFormat sMaskFormats[] = {
-        kA8_GrMaskFormat,
-        kA565_GrMaskFormat,
-        kARGB_GrMaskFormat,
-    };
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sMaskFormats) == kMaskFormatCount, array_size_mismatch);
-
-    SkASSERT(sMaskFormats[atlasIndex] < kMaskFormatCount);
-    return sMaskFormats[atlasIndex];
-}
-
-GrBatchFontCache::GrBatchFontCache()
-    : fPreserveStrike(NULL) {
-}
-
-void GrBatchFontCache::init(GrContext* context) {
-    for (int i = 0; i < kMaskFormatCount; i++) {
-        GrMaskFormat format = AtlasIndexToMaskFormat(i);
+bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
+    int index = MaskFormatToAtlasIndex(format);
+    if (!fAtlases[index]) {
         GrPixelConfig config = this->getPixelConfig(format);
-
         if (kA8_GrMaskFormat == format) {
-            fAtlases[i] = make_atlas(context, config,
-                                     GR_FONT_ATLAS_A8_TEXTURE_WIDTH,
-                                     GR_FONT_ATLAS_TEXTURE_HEIGHT,
-                                     GR_FONT_ATLAS_A8_NUM_PLOTS_X,
-                                     GR_FONT_ATLAS_NUM_PLOTS_Y);
+            fAtlases[index] = make_atlas(fContext, config,
+                                         GR_FONT_ATLAS_A8_TEXTURE_WIDTH,
+                                         GR_FONT_ATLAS_TEXTURE_HEIGHT,
+                                         GR_FONT_ATLAS_A8_NUM_PLOTS_X,
+                                         GR_FONT_ATLAS_NUM_PLOTS_Y);
         } else {
-            fAtlases[i] = make_atlas(context, config,
-                                     GR_FONT_ATLAS_TEXTURE_WIDTH,
-                                     GR_FONT_ATLAS_TEXTURE_HEIGHT,
-                                     GR_FONT_ATLAS_NUM_PLOTS_X,
-                                     GR_FONT_ATLAS_NUM_PLOTS_Y);
+            fAtlases[index] = make_atlas(fContext, config,
+                                         GR_FONT_ATLAS_TEXTURE_WIDTH,
+                                         GR_FONT_ATLAS_TEXTURE_HEIGHT,
+                                         GR_FONT_ATLAS_NUM_PLOTS_X,
+                                         GR_FONT_ATLAS_NUM_PLOTS_Y);
         }
 
-        if (fAtlases[i]) {
-            fAtlases[i]->registerEvictionCallback(&GrBatchFontCache::HandleEviction, (void*)this);
+        // Atlas creation can fail
+        if (fAtlases[index]) {
+            fAtlases[index]->registerEvictionCallback(&GrBatchFontCache::HandleEviction,
+                                                      (void*)this);
+        } else {
+            return false;
         }
+    }
+    return true;
+}
+
+GrBatchFontCache::GrBatchFontCache(GrContext* context)
+    : fContext(context)
+    , fPreserveStrike(NULL) {
+    for (int i = 0; i < kMaskFormatCount; ++i) {
+        fAtlases[i] = NULL;
     }
 }
 
@@ -98,12 +82,6 @@ GrBatchFontCache::~GrBatchFontCache() {
     }
 }
 
-GrBatchTextStrike* GrBatchFontCache::generateStrike(GrFontScaler* scaler) {
-    GrBatchTextStrike* strike = SkNEW_ARGS(GrBatchTextStrike, (this, scaler->getKey()));
-    fCache.add(strike);
-    return strike;
-}
-
 void GrBatchFontCache::freeAll() {
     SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
     while (!iter.done()) {
@@ -115,49 +93,6 @@ void GrBatchFontCache::freeAll() {
         SkDELETE(fAtlases[i]);
         fAtlases[i] = NULL;
     }
-}
-
-inline GrBatchAtlas* GrBatchFontCache::getAtlas(GrMaskFormat format) const {
-    int atlasIndex = MaskFormatToAtlasIndex(format);
-    SkASSERT(fAtlases[atlasIndex]);
-    return fAtlases[atlasIndex];
-}
-
-bool GrBatchFontCache::hasGlyph(GrGlyph* glyph) {
-    SkASSERT(glyph);
-    return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID);
-}
-
-void GrBatchFontCache::addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
-                                                    GrGlyph* glyph,
-                                                    GrBatchAtlas::BatchToken token) {
-    SkASSERT(glyph);
-    updater->add(glyph->fID);
-    this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
-}
-
-void GrBatchFontCache::setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
-                                       GrBatchAtlas::BatchToken token,
-                                       GrMaskFormat format) {
-    this->getAtlas(format)->setLastUseTokenBulk(updater, token);
-}
-
-bool GrBatchFontCache::addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id,
-                                  GrBatchTarget* batchTarget,
-                                  GrMaskFormat format, int width, int height, const void* image,
-                                  SkIPoint16* loc) {
-    fPreserveStrike = strike;
-    return this->getAtlas(format)->addToAtlas(id, batchTarget, width, height, image, loc);
-}
-
-uint64_t GrBatchFontCache::atlasGeneration(GrMaskFormat format) const {
-    return this->getAtlas(format)->atlasGeneration();
-}
-
-GrTexture* GrBatchFontCache::getTexture(GrMaskFormat format) {
-    int atlasIndex = MaskFormatToAtlasIndex(format);
-    SkASSERT(fAtlases[atlasIndex]);
-    return fAtlases[atlasIndex]->getTexture();
 }
 
 GrPixelConfig GrBatchFontCache::getPixelConfig(GrMaskFormat format) const {

@@ -701,13 +701,19 @@ public:
             return;
         }
 
+        GrTexture* texture = fFontCache->getTexture(fMaskFormat);
+        if (!texture) {
+            SkDebugf("Could not allocate backing texture for atlas\n");
+            return;
+        }
+
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
 
         // This will be ignored in the non A8 case
         bool opaqueVertexColors = GrColorIsOpaque(this->color());
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 GrBitmapTextGeoProc::Create(this->color(),
-                                            fFontCache->getTexture(fMaskFormat),
+                                            texture,
                                             params,
                                             fMaskFormat,
                                             opaqueVertexColors,
