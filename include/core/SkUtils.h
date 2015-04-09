@@ -12,12 +12,31 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Determined empirically using bench/MemsetBench.cpp on a Nexus 7, Nexus 9, and desktop.
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 || defined(SK_ARM_HAS_NEON)
+    // Platforms where we can assume an autovectorizer will give us a good inline memset.
+    #define SK_SMALL_MEMSET 1000
+#else
+    // Platforms like Chrome on ARMv7 that don't typically compile with NEON globally.
+    #define SK_SMALL_MEMSET 10
+#endif
+
+
 /** Similar to memset(), but it assigns a 16bit value into the buffer.
     @param buffer   The memory to have value copied into it
     @param value    The 16bit value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-void sk_memset16(uint16_t dst[], uint16_t value, int count);
+void sk_memset16_large(uint16_t dst[], uint16_t value, int count);
+inline void sk_memset16(uint16_t dst[], uint16_t value, int count) {
+    if (count <= SK_SMALL_MEMSET) {
+        for (int i = 0; i < count; i++) {
+            dst[i] = value;
+        }
+    } else {
+        sk_memset16_large(dst, value, count);
+    }
+}
 typedef void (*SkMemset16Proc)(uint16_t dst[], uint16_t value, int count);
 SkMemset16Proc SkMemset16GetPlatformProc();
 
@@ -26,9 +45,21 @@ SkMemset16Proc SkMemset16GetPlatformProc();
     @param value    The 32bit value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-void sk_memset32(uint32_t dst[], uint32_t value, int count);
+void sk_memset32_large(uint32_t dst[], uint32_t value, int count);
+inline void sk_memset32(uint32_t dst[], uint32_t value, int count) {
+    if (count <= SK_SMALL_MEMSET) {
+        for (int i = 0; i < count; i++) {
+            dst[i] = value;
+        }
+    } else {
+        sk_memset32_large(dst, value, count);
+    }
+}
+
 typedef void (*SkMemset32Proc)(uint32_t dst[], uint32_t value, int count);
 SkMemset32Proc SkMemset32GetPlatformProc();
+
+#undef SK_SMALL_MEMSET
 
 /** Similar to memcpy(), but it copies count 32bit values from src to dst.
     @param dst      The memory to have value copied into it

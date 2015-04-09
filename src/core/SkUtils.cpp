@@ -134,12 +134,12 @@ SkMemcpy32Proc choose_memcpy32() {
 
 }  // namespace
 
-void sk_memset16(uint16_t dst[], uint16_t value, int count) {
+void sk_memset16_large(uint16_t dst[], uint16_t value, int count) {
     SK_DECLARE_STATIC_LAZY_FN_PTR(SkMemset16Proc, proc, choose_memset16);
     proc.get()(dst, value, count);
 }
 
-void sk_memset32(uint32_t dst[], uint32_t value, int count) {
+void sk_memset32_large(uint32_t dst[], uint32_t value, int count) {
     SK_DECLARE_STATIC_LAZY_FN_PTR(SkMemset32Proc, proc, choose_memset32);
     proc.get()(dst, value, count);
 }
