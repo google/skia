@@ -105,7 +105,7 @@ def get_args(bot):
     # These take 18+ hours to run.
     blacklist.extend('pdf gm _ fontmgr_iter'.split(' '))
     blacklist.extend('pdf _ _ PANO_20121023_214540.jpg'.split(' '))
-    blacklist.extend('pdf skp _ tabl_worldjournal.skp'.split(' '))
+    blacklist.extend('pdf skp _ worldjournal'.split(' '))
     blacklist.extend('pdf skp _ desk_baidu.skp'.split(' '))
 
   if blacklist:
