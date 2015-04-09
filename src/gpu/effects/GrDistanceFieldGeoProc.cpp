@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDistanceFieldTextureEffect.h"
+#include "GrDistanceFieldGeoProc.h"
 #include "GrFontAtlasSizes.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"

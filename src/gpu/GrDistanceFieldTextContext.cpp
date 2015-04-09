@@ -28,7 +28,7 @@
 #include "SkPath.h"
 #include "SkRTConf.h"
 #include "SkStrokeRec.h"
-#include "effects/GrDistanceFieldTextureEffect.h"
+#include "effects/GrDistanceFieldGeoProc.h"
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
