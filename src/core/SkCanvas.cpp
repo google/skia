@@ -1669,20 +1669,32 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRe
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+    if (bitmap.empty()) {
+        return;
+    }
     this->onDrawBitmap(bitmap, dx, dy, paint);
 }
 
 void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint, DrawBitmapRectFlags flags) {
+    if (bitmap.empty()) {
+        return;
+    }
     this->onDrawBitmapRect(bitmap, src, dst, paint, flags);
 }
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                               const SkPaint* paint) {
+    if (bitmap.empty()) {
+        return;
+    }
     this->onDrawBitmapNine(bitmap, center, dst, paint);
 }
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
+    if (bitmap.empty()) {
+        return;
+    }
     this->onDrawSprite(bitmap, left, top, paint);
 }
 
