@@ -8,47 +8,26 @@
 #include "SkUtils.h"
 #include "SkUtilsArm.h"
 
-#if defined(SK_CPU_LENDIAN) && !SK_ARM_NEON_IS_NONE
 extern "C" void memset16_neon(uint16_t dst[], uint16_t value, int count);
 extern "C" void memset32_neon(uint32_t dst[], uint32_t value, int count);
-#endif
-
-#if defined(SK_CPU_LENDIAN)
-extern "C" void arm_memset16(uint16_t* dst, uint16_t value, int count);
-extern "C" void arm_memset32(uint32_t* dst, uint32_t value, int count);
-#endif
 
 SkMemset16Proc SkMemset16GetPlatformProc() {
-    // FIXME: memset.arm.S is using syntax incompatible with XCode
-#if !defined(SK_CPU_LENDIAN) || defined(SK_BUILD_FOR_IOS)
-    return NULL;
-#elif SK_ARM_NEON_IS_DYNAMIC
-    if (sk_cpu_arm_has_neon()) {
-        return memset16_neon;
-    } else {
-        return arm_memset16;
-    }
-#elif SK_ARM_NEON_IS_ALWAYS
+#if SK_ARM_NEON_IS_ALWAYS
     return memset16_neon;
+#elif SK_ARM_NEON_IS_DYNAMIC
+    return sk_cpu_arm_has_neon() ? memset16_neon : nullptr;
 #else
-    return arm_memset16;
+    return nullptr;
 #endif
 }
 
 SkMemset32Proc SkMemset32GetPlatformProc() {
-    // FIXME: memset.arm.S is using syntax incompatible with XCode
-#if !defined(SK_CPU_LENDIAN) || defined(SK_BUILD_FOR_IOS)
-    return NULL;
-#elif SK_ARM_NEON_IS_DYNAMIC
-    if (sk_cpu_arm_has_neon()) {
-        return memset32_neon;
-    } else {
-        return arm_memset32;
-    }
-#elif SK_ARM_NEON_IS_ALWAYS
+#if SK_ARM_NEON_IS_ALWAYS
     return memset32_neon;
+#elif SK_ARM_NEON_IS_DYNAMIC
+    return sk_cpu_arm_has_neon() ? memset32_neon : nullptr;
 #else
-    return arm_memset32;
+    return nullptr;
 #endif
 }
 

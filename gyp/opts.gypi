@@ -23,7 +23,6 @@
             '<(skia_src_path)/opts/SkTextureCompression_opts_arm.cpp',
             '<(skia_src_path)/opts/SkUtils_opts_arm.cpp',
             '<(skia_src_path)/opts/SkXfermode_opts_arm.cpp',
-            '<(skia_src_path)/opts/memset.arm.S',
         ],
         'neon_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_arm_neon.cpp',
