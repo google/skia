@@ -83,7 +83,7 @@ GrResourceCache::GrResourceCache()
 
 GrResourceCache::~GrResourceCache() {
     this->releaseAll();
-    SkDELETE(fFlushTimestamps);
+    SkDELETE_ARRAY(fFlushTimestamps);
 }
 
 void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
@@ -95,7 +95,7 @@ void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
 }
 
 void GrResourceCache::resetFlushTimestamps() {
-    SkDELETE(fFlushTimestamps);
+    SkDELETE_ARRAY(fFlushTimestamps);
 
     // We assume this number is a power of two when wrapping indices into the timestamp array.
     fMaxUnusedFlushes = SkNextPow2(fMaxUnusedFlushes);
