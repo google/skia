@@ -7,7 +7,7 @@
 
 #include "ProcStats.h"
 
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_ANDROID)
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_ANDROID)
     #include <sys/resource.h>
     int sk_tools::getMaxResidentSetSizeMB() {
         struct rusage ru;
@@ -30,7 +30,7 @@
     int sk_tools::getMaxResidentSetSizeMB() { return -1; }
 #endif
 
-#if defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     #include <mach/mach.h>
     int sk_tools::getCurrResidentSetSizeMB() {
         mach_task_basic_info info;

@@ -24,7 +24,11 @@
 #include "SkGr.h"
 #endif
 
-enum { kDefaultCacheSize = 128 * 1024 * 1024 };
+#ifdef SK_BUILD_FOR_IOS
+  enum { kDefaultCacheSize = 2 * 1024 * 1024 };
+#else 
+  enum { kDefaultCacheSize = 128 * 1024 * 1024 };
+#endif 
 
 static int32_t next_image_filter_unique_id() {
     static int32_t gImageFilterUniqueID;
