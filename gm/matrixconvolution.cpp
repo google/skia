@@ -84,7 +84,7 @@ protected:
             make_bitmap();
             fInitialized = true;
         }
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         SkIPoint kernelOffset = SkIPoint::Make(1, 0);
         for (int x = 10; x < 310; x += 100) {
             this->draw(canvas, x, 10, kernelOffset, MCIF::kClamp_TileMode, true);

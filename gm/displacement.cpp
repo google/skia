@@ -68,7 +68,7 @@ protected:
             make_bitmaps();
             fInitialized = true;
         }
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
         paint.setImageFilter(SkDisplacementMapEffect::Create(

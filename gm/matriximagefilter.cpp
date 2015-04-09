@@ -58,7 +58,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         SkMatrix matrix;
         SkScalar margin = SkIntToScalar(10);
         matrix.setSkew(SkDoubleToScalar(0.5), SkDoubleToScalar(0.2));

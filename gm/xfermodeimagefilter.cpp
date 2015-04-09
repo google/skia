@@ -74,7 +74,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         SkPaint paint;
 
         const struct {

@@ -56,7 +56,7 @@ protected:
 
             fInitialized = true;
         }
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
 
         int x = 0, y = 0;
         for (size_t i = 0; i < 4; i++) {

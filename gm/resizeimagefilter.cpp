@@ -59,7 +59,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
 
         SkRect srcRect = SkRect::MakeWH(96, 96);
 

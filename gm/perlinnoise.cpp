@@ -58,7 +58,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         test(canvas,   0,   0, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 0, 0, false);
         test(canvas, 100,   0, SkPerlinNoiseShader::kTurbulence_Type,

@@ -77,7 +77,7 @@ protected:
 
             fInitialized = true;
         }
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
         SkPaint paint;
 
         for (int i = 0; i < 4; i++) {

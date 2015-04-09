@@ -68,7 +68,7 @@ protected:
             this->make_gradient_circle(64, 64);
             fInitialized = true;
         }
-        canvas->clear(0x00000000);
+        canvas->clear(SK_ColorBLACK);
 
         SkAutoTUnref<SkImageFilter> gradient(SkBitmapSource::Create(fGradientCircle));
         SkAutoTUnref<SkImageFilter> checkerboard(SkBitmapSource::Create(fCheckerboard));
