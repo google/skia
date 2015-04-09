@@ -18,7 +18,7 @@ deps = {
   "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4ba7cdd0e7bf49d671645264f839838fc56e1492",
   # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h
-  "third_party/externals/libpng"  : "git://git.code.sf.net/p/libpng/code@070a616b8275277e18ef8ee91e2ca23f7bdc67d5",
+  "third_party/externals/libpng"  : "https://skia.googlesource.com/third_party/libpng.git@070a616b8275277e18ef8ee91e2ca23f7bdc67d5",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@android-5.1.0_r3",
 
   "platform_tools/android/third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-5.1.0_r3",
