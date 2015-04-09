@@ -18,13 +18,18 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap)
   , fSrcRect(SkRect::MakeWH(SkIntToScalar(bitmap.width()),
                             SkIntToScalar(bitmap.height())))
   , fDstRect(fSrcRect)
-{}
+  , fFilterQuality(kHigh_SkFilterQuality) {
+}
 
-SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, const SkRect& dstRect)
+SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, 
+                               const SkRect& srcRect, const SkRect& dstRect,
+                               SkFilterQuality filterQuality)
   : INHERITED(0, 0)
   , fBitmap(bitmap)
   , fSrcRect(srcRect)
-  , fDstRect(dstRect) {}
+  , fDstRect(dstRect)
+  , fFilterQuality(filterQuality) {
+}
 
 SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
     SkRect src, dst;
@@ -71,12 +76,13 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
     // None filtering when it's translate-only
     paint.setFilterQuality(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
-               kNone_SkFilterQuality : kHigh_SkFilterQuality);
+               kNone_SkFilterQuality : fFilterQuality);
     canvas.drawBitmapRectToRect(fBitmap, &fSrcRect, dstRect, &paint);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = dstIRect.fLeft;
     offset->fY = dstIRect.fTop;
+
     return true;
 }
 

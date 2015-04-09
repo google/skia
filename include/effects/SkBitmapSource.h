@@ -16,9 +16,10 @@ public:
     static SkBitmapSource* Create(const SkBitmap& bitmap) {
         return SkNEW_ARGS(SkBitmapSource, (bitmap));
     }
-    static SkBitmapSource* Create(const SkBitmap& bitmap, const SkRect& srcRect,
-                                  const SkRect& dstRect) {
-        return SkNEW_ARGS(SkBitmapSource, (bitmap, srcRect, dstRect));
+    static SkBitmapSource* Create(const SkBitmap& bitmap,
+                                  const SkRect& srcRect, const SkRect& dstRect,
+                                  SkFilterQuality filterQuality = kHigh_SkFilterQuality) {
+        return SkNEW_ARGS(SkBitmapSource, (bitmap, srcRect, dstRect, filterQuality));
     }
     void computeFastBounds(const SkRect& src, SkRect* dst) const override;
 
@@ -27,7 +28,9 @@ public:
 
 protected:
     explicit SkBitmapSource(const SkBitmap& bitmap);
-    SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, const SkRect& dstRect);
+    SkBitmapSource(const SkBitmap& bitmap,
+                   const SkRect& srcRect, const SkRect& dstRect,
+                   SkFilterQuality filterQuality);
     void flatten(SkWriteBuffer&) const override;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
@@ -36,6 +39,8 @@ protected:
 private:
     SkBitmap fBitmap;
     SkRect   fSrcRect, fDstRect;
+    SkFilterQuality fFilterQuality;
+
     typedef SkImageFilter INHERITED;
 };
 
