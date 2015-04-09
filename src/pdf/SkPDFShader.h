@@ -10,7 +10,6 @@
 #ifndef SkPDFShader_DEFINED
 #define SkPDFShader_DEFINED
 
-#include "SkPDFResourceDict.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 

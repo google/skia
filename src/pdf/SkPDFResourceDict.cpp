@@ -51,52 +51,58 @@ static const char* get_resource_type_name(
     return resource_type_names[type];
 }
 
-SkPDFResourceDict::SkPDFResourceDict() : SkPDFDict() {
-    const char procs[][7] = {"PDF", "Text", "ImageB", "ImageC", "ImageI"};
-    SkPDFArray* procSets = SkNEW(SkPDFArray());
-
-    procSets->reserve(SK_ARRAY_COUNT(procs));
-    for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++) {
-        procSets->appendName(procs[i]);
-    }
-    insert("ProcSets", procSets)->unref();
-
-    // Actual sub-dicts will be lazily added later
-    fTypes.setCount(kResourceTypeCount);
-    for (int i=0; i < kResourceTypeCount; i++) {
-        fTypes[i] = NULL;
-    }
-}
-
-SkPDFObject* SkPDFResourceDict::insertResourceAsReference(
-        SkPDFResourceType type, int key, SkPDFObject* value) {
-    SkAutoTUnref<SkPDFObjRef> ref(SkNEW_ARGS(SkPDFObjRef, (value)));
-    insertResource(type, key, ref);
-
-    return value;
-}
-
 SkString SkPDFResourceDict::getResourceName(
-        SkPDFResourceType type, int key) {
+        SkPDFResourceDict::SkPDFResourceType type, int key) {
     SkString keyString;
     keyString.printf("%c%d", get_resource_type_prefix(type), key);
     return keyString;
 }
 
-SkPDFObject* SkPDFResourceDict::insertResource(
-        SkPDFResourceType type, int key, SkPDFObject* value) {
-    SkPDFDict* typeDict = fTypes[type];
-    if (NULL == typeDict) {
-        SkAutoTUnref<SkPDFDict> newDict(SkNEW(SkPDFDict()));
-        SkAutoTUnref<SkPDFName> typeName(
-                SkNEW_ARGS(SkPDFName, (get_resource_type_name(type))));
-        insert(typeName, newDict);  // ref counting handled here
-        fTypes[type] = newDict;
-        typeDict = newDict.get();
+static void add_subdict(
+        const SkTDArray<SkPDFObject*>& resourceList,
+        SkPDFResourceDict::SkPDFResourceType type,
+        SkPDFDict* dst) {
+    if (0 == resourceList.count()) {
+        return;
     }
+    SkAutoTUnref<SkPDFDict> resources(SkNEW(SkPDFDict));
+    for (int i = 0; i < resourceList.count(); i++) {
+        SkString keyString = SkPDFResourceDict::getResourceName(type, i);
+        SkAutoTUnref<SkPDFName> keyName(SkNEW_ARGS(SkPDFName, (keyString)));
+        SkAutoTUnref<SkPDFObjRef> ref(
+                SkNEW_ARGS(SkPDFObjRef, (resourceList[i])));
+        resources->insert(keyName, ref);
+    }
+    dst->insert(get_resource_type_name(type), resources);
+}
 
-    SkAutoTUnref<SkPDFName> keyName(
-            SkNEW_ARGS(SkPDFName, (getResourceName(type, key))));
-    typeDict->insert(keyName, value);
-    return value;
+SkPDFDict* SkPDFResourceDict::Create(
+        const SkTDArray<SkPDFObject*>* gStateResources,
+        const SkTDArray<SkPDFObject*>* patternResources,
+        const SkTDArray<SkPDFObject*>* xObjectResources,
+        const SkTDArray<SkPDFObject*>* fontResources) {
+    SkAutoTUnref<SkPDFDict> dict(SkNEW(SkPDFDict));
+    static const char kProcs[][7] = {
+        "PDF", "Text", "ImageB", "ImageC", "ImageI"};
+    SkAutoTUnref<SkPDFArray> procSets(SkNEW(SkPDFArray));
+
+    procSets->reserve(SK_ARRAY_COUNT(kProcs));
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
+        procSets->appendName(kProcs[i]);
+    }
+    dict->insert("ProcSets", procSets);
+
+    if (gStateResources) {
+        add_subdict(*gStateResources, kExtGState_ResourceType, dict);
+    }
+    if (patternResources) {
+        add_subdict(*patternResources, kPattern_ResourceType, dict);
+    }
+    if (xObjectResources) {
+        add_subdict(*xObjectResources, kXObject_ResourceType, dict);
+    }
+    if (fontResources) {
+        add_subdict(*fontResources, kFont_ResourceType, dict);
+    }
+    return dict.detach();
 }

@@ -575,21 +575,18 @@ SkPDFObject* SkPDFShader::GetPDFShader(SkPDFCanon* canon,
     return get_pdf_shader_by_state(canon, dpi, &state);
 }
 
-static SkPDFResourceDict* get_gradient_resource_dict(
+static SkPDFDict* get_gradient_resource_dict(
         SkPDFObject* functionShader,
         SkPDFObject* gState) {
-    SkPDFResourceDict* dict = new SkPDFResourceDict();
-
-    if (functionShader != NULL) {
-        dict->insertResourceAsReference(
-                SkPDFResourceDict::kPattern_ResourceType, 0, functionShader);
+    SkTDArray<SkPDFObject*> patterns;
+    if (functionShader) {
+        patterns.push(functionShader);
     }
-    if (gState != NULL) {
-        dict->insertResourceAsReference(
-                SkPDFResourceDict::kExtGState_ResourceType, 0, gState);
+    SkTDArray<SkPDFObject*> graphicStates;
+    if (gState) {
+        graphicStates.push(gState);
     }
-
-    return dict;
+    return SkPDFResourceDict::Create(&graphicStates, &patterns, NULL, NULL);
 }
 
 static void populate_tiling_pattern_dict(SkPDFDict* pattern,
@@ -647,7 +644,7 @@ static SkPDFObject* create_smask_graphic_state(
 
     SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
-    SkAutoTUnref<SkPDFResourceDict>
+    SkAutoTUnref<SkPDFDict>
         resources(get_gradient_resource_dict(luminosityShader, NULL));
 
     SkAutoTUnref<SkPDFFormXObject> alphaMask(
@@ -682,7 +679,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     SkPDFAlphaFunctionShader* alphaFunctionShader =
             SkNEW_ARGS(SkPDFAlphaFunctionShader, (autoState->detach()));
 
-    SkAutoTUnref<SkPDFResourceDict> resourceDict(
+    SkAutoTUnref<SkPDFDict> resourceDict(
             get_gradient_resource_dict(colorShader.get(), alphaGs.get()));
 
     SkAutoTDelete<SkStream> colorStream(
@@ -1100,7 +1097,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
             SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
     imageShader->setData(content.get());
 
-    SkAutoTUnref<SkPDFResourceDict> resourceDict(
+    SkAutoTUnref<SkPDFDict> resourceDict(
             patternDevice->createResourceDict());
     populate_tiling_pattern_dict(imageShader, patternBBox,
                                  resourceDict.get(), finalMatrix);

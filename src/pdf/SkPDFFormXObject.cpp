@@ -11,7 +11,6 @@
 
 #include "SkMatrix.h"
 #include "SkPDFDevice.h"
-#include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -20,7 +19,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // We don't want to keep around device because we'd have two copies
     // of content, so reference or copy everything we need (content and
     // resources).
-    SkAutoTUnref<SkPDFResourceDict> resourceDict(device->createResourceDict());
+    SkAutoTUnref<SkPDFDict> resourceDict(device->createResourceDict());
 
     SkAutoTDelete<SkStreamAsset> content(device->content());
     this->setData(content.get());
@@ -46,7 +45,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
  * Creates a FormXObject from a content stream and associated resources.
  */
 SkPDFFormXObject::SkPDFFormXObject(SkStream* content, SkRect bbox,
-                                   SkPDFResourceDict* resourceDict) {
+                                   SkPDFDict* resourceDict) {
     setData(content);
 
     SkAutoTUnref<SkPDFArray> bboxArray(SkPDFUtils::RectToArray(bbox));

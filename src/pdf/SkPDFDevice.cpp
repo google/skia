@@ -1281,41 +1281,17 @@ void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
     fDrawingArea = drawingArea;
 }
 
-SkPDFResourceDict* SkPDFDevice::createResourceDict() const {
-    SkAutoTUnref<SkPDFResourceDict> resourceDict(SkNEW(SkPDFResourceDict));
-    if (fGraphicStateResources.count()) {
-        for (int i = 0; i < fGraphicStateResources.count(); i++) {
-            resourceDict->insertResourceAsReference(
-                    SkPDFResourceDict::kExtGState_ResourceType,
-                    i, fGraphicStateResources[i]);
-        }
+SkPDFDict* SkPDFDevice::createResourceDict() const {
+    SkTDArray<SkPDFObject*> fonts;
+    fonts.setReserve(fFontResources.count());
+    for (SkPDFFont* font : fFontResources) {
+        fonts.push(font);
     }
-
-    if (fXObjectResources.count()) {
-        for (int i = 0; i < fXObjectResources.count(); i++) {
-            resourceDict->insertResourceAsReference(
-                    SkPDFResourceDict::kXObject_ResourceType,
-                    i, fXObjectResources[i]);
-        }
-    }
-
-    if (fFontResources.count()) {
-        for (int i = 0; i < fFontResources.count(); i++) {
-            resourceDict->insertResourceAsReference(
-                    SkPDFResourceDict::kFont_ResourceType,
-                    i, fFontResources[i]);
-        }
-    }
-
-    if (fShaderResources.count()) {
-        SkAutoTUnref<SkPDFDict> patterns(new SkPDFDict());
-        for (int i = 0; i < fShaderResources.count(); i++) {
-            resourceDict->insertResourceAsReference(
-                    SkPDFResourceDict::kPattern_ResourceType,
-                    i, fShaderResources[i]);
-        }
-    }
-    return resourceDict.detach();
+    return SkPDFResourceDict::Create(
+            &fGraphicStateResources,
+            &fShaderResources,
+            &fXObjectResources,
+            &fonts);
 }
 
 const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {

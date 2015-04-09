@@ -9,7 +9,6 @@
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFont.h"
-#include "SkPDFResourceDict.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkStream.h"
@@ -64,7 +63,7 @@ static void perform_font_subsetting(
 
 static SkPDFDict* create_pdf_page(const SkPDFDevice* pageDevice) {
     SkAutoTUnref<SkPDFDict> page(SkNEW_ARGS(SkPDFDict, ("Page")));
-    SkAutoTUnref<SkPDFResourceDict> deviceResourceDict(
+    SkAutoTUnref<SkPDFDict> deviceResourceDict(
             pageDevice->createResourceDict());
     page->insert("Resources", deviceResourceDict.get());
 

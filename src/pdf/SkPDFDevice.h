@@ -31,7 +31,6 @@ class SkPDFFormXObject;
 class SkPDFGlyphSetMap;
 class SkPDFGraphicState;
 class SkPDFObject;
-class SkPDFResourceDict;
 class SkPDFShader;
 class SkPDFStream;
 class SkRRect;
@@ -139,7 +138,7 @@ public:
 
     /** Create the resource dictionary for this device.
      */
-    SkPDFResourceDict* createResourceDict() const;
+    SkPDFDict* createResourceDict() const;
 
     /** Get the fonts used on this device.
      */
