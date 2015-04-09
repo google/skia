@@ -797,9 +797,6 @@ private:
     static void Scale_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
     static void ScaleTrans_pts(const SkMatrix&, SkPoint dst[], const SkPoint[],
                                int count);
-    static void Rot_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
-    static void RotTrans_pts(const SkMatrix&, SkPoint dst[], const SkPoint[],
-                             int count);
     static void Persp_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
 
     static void Affine_vpts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);

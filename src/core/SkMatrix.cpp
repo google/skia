@@ -937,53 +937,6 @@ void SkMatrix::Scale_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], 
     }
 }
 
-void SkMatrix::Rot_pts(const SkMatrix& m, SkPoint dst[],
-                       const SkPoint src[], int count) {
-    SkASSERT((m.getType() & (kPerspective_Mask | kTranslate_Mask)) == 0);
-
-    if (count > 0) {
-        SkScalar mx = m.fMat[kMScaleX];
-        SkScalar my = m.fMat[kMScaleY];
-        SkScalar kx = m.fMat[kMSkewX];
-        SkScalar ky = m.fMat[kMSkewY];
-        do {
-            SkScalar sy = src->fY;
-            SkScalar sx = src->fX;
-            src += 1;
-            dst->fY = sdot(sx, ky, sy, my);
-            dst->fX = sdot(sx, mx, sy, kx);
-            dst += 1;
-        } while (--count);
-    }
-}
-
-void SkMatrix::RotTrans_pts(const SkMatrix& m, SkPoint dst[],
-                            const SkPoint src[], int count) {
-    SkASSERT(!m.hasPerspective());
-
-    if (count > 0) {
-        SkScalar mx = m.fMat[kMScaleX];
-        SkScalar my = m.fMat[kMScaleY];
-        SkScalar kx = m.fMat[kMSkewX];
-        SkScalar ky = m.fMat[kMSkewY];
-        SkScalar tx = m.fMat[kMTransX];
-        SkScalar ty = m.fMat[kMTransY];
-        do {
-            SkScalar sy = src->fY;
-            SkScalar sx = src->fX;
-            src += 1;
-#ifdef SK_LEGACY_MATRIX_MATH_ORDER
-            dst->fY = sx * ky + (sy * my + ty);
-            dst->fX = sx * mx + (sy * kx + tx);
-#else
-            dst->fY = sdot(sx, ky, sy, my) + ty;
-            dst->fX = sdot(sx, mx, sy, kx) + tx;
-#endif
-            dst += 1;
-        } while (--count);
-    }
-}
-
 void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
                          const SkPoint src[], int count) {
     SkASSERT(m.hasPerspective());
@@ -1045,13 +998,8 @@ void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[]
 const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
     SkMatrix::Identity_pts, SkMatrix::Trans_pts,
     SkMatrix::Scale_pts,   SkMatrix::Scale_pts,
-#ifdef SK_SUPPORT_LEGACY_SCALAR_MAPPOINTS
-    SkMatrix::Rot_pts,      SkMatrix::RotTrans_pts,
-    SkMatrix::Rot_pts,      SkMatrix::RotTrans_pts,
-#else
     SkMatrix::Affine_vpts,  SkMatrix::Affine_vpts,
     SkMatrix::Affine_vpts,  SkMatrix::Affine_vpts,
-#endif
     // repeat the persp proc 8 times
     SkMatrix::Persp_pts,    SkMatrix::Persp_pts,
     SkMatrix::Persp_pts,    SkMatrix::Persp_pts,
