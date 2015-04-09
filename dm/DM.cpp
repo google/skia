@@ -178,6 +178,46 @@ static void push_src(const char* tag, const char* options, Src* s) {
     }
 }
 
+static void push_codec_srcs(Path path) {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+    if (!encoded) {
+        SkDebugf("Couldn't read %s.", path.c_str());
+        return;
+    }
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    if (NULL == codec.get()) {
+        SkDebugf("Couldn't create codec for %s.", path.c_str());
+        return;
+    }
+
+    // Build additional test cases for images that decode natively to non-canvas types
+    switch(codec->getInfo().colorType()) {
+        case kGray_8_SkColorType:
+            push_src("image", "codec kGray8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+                    CodecSrc::kGrayscale_Always_DstColorType));
+            push_src("image", "scanline kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+                    CodecSrc::kGrayscale_Always_DstColorType));
+            // Intentional fall through
+            // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
+            // Further discussion on this topic is at skbug.com/3683
+      case kIndex_8_SkColorType:
+          push_src("image", "codec kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+                  CodecSrc::kIndex8_Always_DstColorType));
+          push_src("image", "scanline kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+                  CodecSrc::kIndex8_Always_DstColorType));
+        break;
+      default:
+        // Do nothing
+        break;
+    }
+
+    // Decode all images to the canvas color type
+    push_src("image", "codec", new CodecSrc(path, CodecSrc::kNormal_Mode,
+            CodecSrc::kGetFromCanvas_DstColorType));
+    push_src("image", "scanline", new CodecSrc(path, CodecSrc::kScanline_Mode,
+            CodecSrc::kGetFromCanvas_DstColorType));
+}
+
 static bool codec_supported(const char* ext) {
     // FIXME: Once other versions of SkCodec are available, we can add them to this
     // list (and eventually we can remove this check once they are all supported).
@@ -223,8 +263,7 @@ static void gather_srcs() {
                     push_src("image", "decode", new ImageSrc(path)); // Decode entire image
                     push_src("image", "subset", new ImageSrc(path, 2)); // Decode into 2x2 subsets
                     if (codec_supported(exts[j])) {
-                        push_src("image", "codec", new CodecSrc(path, CodecSrc::kNormal_Mode));
-                        push_src("image", "scanline", new CodecSrc(path, CodecSrc::kScanline_Mode));
+                        push_codec_srcs(path);
                     }
                 }
             }
@@ -232,8 +271,7 @@ static void gather_srcs() {
             // assume that FLAGS_images[i] is a valid image if it is a file.
             push_src("image", "decode", new ImageSrc(flag)); // Decode entire image.
             push_src("image", "subset", new ImageSrc(flag, 2)); // Decode into 2 x 2 subsets
-            push_src("image", "codec", new CodecSrc(flag, CodecSrc::kNormal_Mode));
-            push_src("image", "scanline", new CodecSrc(flag, CodecSrc::kScanline_Mode));
+            push_codec_srcs(flag);
         }
     }
 }

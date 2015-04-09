@@ -86,9 +86,9 @@ private:
     /*
      *
      * Creates the color table
-     *
+     * Sets colorCount to the new color count if it is non-NULL
      */
-     bool createColorTable(SkAlphaType alphaType);
+     bool createColorTable(SkAlphaType alphaType, int* colorCount);
 
     /*
      *
@@ -121,7 +121,7 @@ private:
      * Set an RLE pixel using the color table
      *
      */
-    void setRLEPixel(SkPMColor* dst, size_t dstRowBytes,
+    void setRLEPixel(void* dst, size_t dstRowBytes,
                      const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                      uint8_t index);
     /*
@@ -129,7 +129,7 @@ private:
      * Set an RLE24 pixel from R, G, B values
      *
      */
-    void setRLE24Pixel(SkPMColor* dst, size_t dstRowBytes,
+    void setRLE24Pixel(void* dst, size_t dstRowBytes,
                        const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                        uint8_t red, uint8_t green, uint8_t blue);
 
@@ -139,7 +139,7 @@ private:
      *
      */
     Result decodeRLE(const SkImageInfo& dstInfo, void* dst,
-                     size_t dstRowBytes);
+                     size_t dstRowBytes, const Options& opts);
 
     /*
      *
@@ -181,7 +181,7 @@ private:
     const uint16_t                      fBitsPerPixel;
     const BitmapInputFormat             fInputFormat;
     SkAutoTDelete<SkMasks>              fMasks;          // owned
-    SkAutoTDelete<SkColorTable>         fColorTable;     // owned
+    SkAutoTUnref<SkColorTable>          fColorTable;     // owned
     uint32_t                            fNumColors;
     const uint32_t                      fBytesPerColor;
     const uint32_t                      fOffset;

@@ -41,7 +41,12 @@ static void check(skiatest::Reporter* r,
         ERRORF(r, "Unable to decode '%s'", path);
         return;
     }
-    SkImageInfo info = codec->getInfo();
+
+    // This test is used primarily to verify rewinding works properly.  Using kN32 allows
+    // us to test this without the added overhead of creating different bitmaps depending
+    // on the color type (ex: building a color table for kIndex8).  DM is where we test
+    // decodes to all possible destination color types.
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     REPORTER_ASSERT(r, info.dimensions() == size);
     SkBitmap bm;
     bm.allocPixels(info);
@@ -93,6 +98,11 @@ DEF_TEST(Codec, r) {
     check(r, "color_wheel.ico", SkISize::Make(128, 128), false);
     // Decodes an embedded PNG image
     check(r, "google_chrome.ico", SkISize::Make(256, 256), false);
+
+    // GIF
+    check(r, "box.gif", SkISize::Make(200, 55), false);
+    check(r, "color_wheel.gif", SkISize::Make(128, 128), false);
+    check(r, "randPixels.gif", SkISize::Make(8, 8), false);
 
     // PNG
     check(r, "arrow.png", SkISize::Make(187, 312), true);

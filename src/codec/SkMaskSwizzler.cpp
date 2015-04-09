@@ -63,22 +63,6 @@ static SkSwizzler::ResultAlpha swizzle_mask16_to_n32_premul(
     return COMPUTE_RESULT_ALPHA;
 }
 
-static SkSwizzler::ResultAlpha swizzle_mask16_to_565(
-        void* dstRow, const uint8_t* srcRow, int width, SkMasks* masks) {
-
-    // Use the masks to decode to the destination
-    uint16_t* srcPtr = (uint16_t*) srcRow;
-    uint16_t* dstPtr = (uint16_t*) dstRow;
-    for (int i = 0; i < width; i++) {
-        uint16_t p = srcPtr[i];
-        uint8_t red = masks->getRed(p);
-        uint8_t green = masks->getGreen(p);
-        uint8_t blue = masks->getBlue(p);
-        dstPtr[i] = SkPack888ToRGB16(red, green, blue);
-    }
-    return SkSwizzler::kOpaque_ResultAlpha;
-}
-
 static SkSwizzler::ResultAlpha swizzle_mask24_to_n32_opaque(
         void* dstRow, const uint8_t* srcRow, int width, SkMasks* masks) {
 
@@ -128,21 +112,6 @@ static SkSwizzler::ResultAlpha swizzle_mask24_to_n32_premul(
         dstPtr[i/3] = SkPreMultiplyARGB(alpha, red, green, blue);
     }
     return COMPUTE_RESULT_ALPHA;
-}
-
-static SkSwizzler::ResultAlpha swizzle_mask24_to_565(
-        void* dstRow, const uint8_t* srcRow, int width, SkMasks* masks) {
-
-    // Use the masks to decode to the destination
-    uint16_t* dstPtr = (uint16_t*) dstRow;
-    for (int i = 0; i < 3*width; i += 3) {
-        uint32_t p = srcRow[i] | (srcRow[i + 1] << 8) | srcRow[i + 2] << 16;
-        uint8_t red = masks->getRed(p);
-        uint8_t green = masks->getGreen(p);
-        uint8_t blue = masks->getBlue(p);
-        dstPtr[i/3] = SkPack888ToRGB16(red, green, blue);
-    }
-    return SkSwizzler::kOpaque_ResultAlpha;
 }
 
 static SkSwizzler::ResultAlpha swizzle_mask32_to_n32_opaque(
@@ -199,22 +168,6 @@ static SkSwizzler::ResultAlpha swizzle_mask32_to_n32_premul(
     return COMPUTE_RESULT_ALPHA;
 }
 
-static SkSwizzler::ResultAlpha swizzle_mask32_to_565(
-        void* dstRow, const uint8_t* srcRow, int width, SkMasks* masks) {
-
-    // Use the masks to decode to the destination
-    uint32_t* srcPtr = (uint32_t*) srcRow;
-    uint16_t* dstPtr = (uint16_t*) dstRow;
-    for (int i = 0; i < width; i++) {
-        uint32_t p = srcPtr[i];
-        uint8_t red = masks->getRed(p);
-        uint8_t green = masks->getGreen(p);
-        uint8_t blue = masks->getBlue(p);
-        dstPtr[i] = SkPack888ToRGB16(red, green, blue);
-    }
-    return SkSwizzler::kOpaque_ResultAlpha;
-}
-
 /*
  *
  * Create a new mask swizzler
@@ -244,15 +197,6 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
                             break;
                     }
                     break;
-                case kRGB_565_SkColorType:
-                    switch (info.alphaType()) {
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask16_to_565;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
                 default:
                     break;
             }
@@ -274,15 +218,6 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
                             break;
                     }
                     break;
-                case kRGB_565_SkColorType:
-                    switch (info.alphaType()) {
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask24_to_565;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
                 default:
                     break;
             }
@@ -299,15 +234,6 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
                             break;
                         case kOpaque_SkAlphaType:
                             proc = &swizzle_mask32_to_n32_opaque;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case kRGB_565_SkColorType:
-                    switch (info.alphaType()) {
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask32_to_565;
                             break;
                         default:
                             break;

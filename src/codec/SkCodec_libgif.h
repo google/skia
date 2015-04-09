@@ -34,6 +34,27 @@ public:
 protected:
 
     /*
+     * Read enough of the stream to initialize the SkGifCodec.
+     * Returns a bool representing success or failure.
+     *
+     * @param codecOut
+     * If it returned true, and codecOut was not NULL,
+     * codecOut will be set to a new SkGifCodec.
+     *
+     * @param gifOut
+     * If it returned true, and codecOut was NULL,
+     * gifOut must be non-NULL and gifOut will be set to a new
+     * GifFileType pointer.
+     *
+     * @param stream
+     * Deleted on failure.
+     * codecOut will take ownership of it in the case where we created a codec.
+     * Ownership is unchanged when we returned a gifOut.
+     *
+     */
+    static bool ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** gifOut);
+
+    /*
      * Initiates the gif decode
      */
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&,
@@ -49,7 +70,7 @@ private:
      * This function cleans up the gif object after the decode completes
      * It is used in a SkAutoTCallIProc template
      */
-    static int32_t CloseGif(GifFileType* gif);
+    static void CloseGif(GifFileType* gif);
 
     /*
      * Frees any extension data used in the decode
@@ -68,7 +89,7 @@ private:
      */
     SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif);
 
-    SkAutoTCallIProc<GifFileType, CloseGif> fGif; // owned
+    SkAutoTCallVProc<GifFileType, CloseGif> fGif; // owned
 
     typedef SkCodec INHERITED;
 };

@@ -52,7 +52,11 @@ Name GMSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-CodecSrc::CodecSrc(Path path, Mode mode) : fPath(path), fMode(mode) {}
+CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType)
+    : fPath(path)
+    , fMode(mode)
+    , fDstColorType(dstColorType)
+{}
 
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo canvasInfo;
@@ -66,27 +70,53 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-    if (!codec) {
-        return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
+    if (NULL == codec.get()) {
+        return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeColorType(canvasInfo.colorType());
+    // Choose the color type to decode to
+    SkImageInfo decodeInfo = codec->getInfo();
+    SkColorType canvasColorType = canvasInfo.colorType();
+    switch (fDstColorType) {
+        case kIndex8_Always_DstColorType:
+        case kGrayscale_Always_DstColorType:
+            if (kRGB_565_SkColorType == canvasColorType) {
+                return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+            }
+            break;
+        default:
+            decodeInfo = decodeInfo.makeColorType(canvasColorType);
+            break;
+    }
+
+    // Construct a color table for the decode if necessary
+    SkAutoTUnref<SkColorTable> colorTable(NULL);
+    SkPMColor* colorPtr = NULL;
+    int* colorCountPtr = NULL;
+    int maxColors = 256;
+    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
+        SkPMColor colors[256];
+        colorTable.reset(SkNEW_ARGS(SkColorTable, (colors, maxColors)));
+        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
+        colorCountPtr = &maxColors;
+    }
+
+    // FIXME: Currently we cannot draw unpremultiplied sources.
     if (decodeInfo.alphaType() == kUnpremul_SkAlphaType) {
-        // FIXME: Currently we cannot draw unpremultiplied sources.
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
     }
 
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo)) {
+    if (!bitmap.tryAllocPixels(decodeInfo, NULL, colorTable.get())) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
     switch (fMode) {
         case kNormal_Mode:
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes())) {
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), NULL,
+                    colorPtr, colorCountPtr)) {
                 case SkImageGenerator::kSuccess:
                     // We consider incomplete to be valid, since we should still decode what is
                     // available.

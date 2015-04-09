@@ -5,6 +5,7 @@
 # Common gypi for unit tests.
 {
   'include_dirs': [
+    '../src/codec',
     '../src/core',
     '../src/effects',
     '../src/image',
@@ -214,6 +215,7 @@
     '../tests/StrokerTest.cpp',
     '../tests/SurfaceTest.cpp',
     '../tests/SVGDeviceTest.cpp',
+    '../tests/SwizzlerTest.cpp',
     '../tests/TessellatingPathRendererTests.cpp',
     '../tests/TArrayTest.cpp',
     '../tests/TemplatesTest.cpp',

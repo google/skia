@@ -15,6 +15,7 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
+#include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -119,7 +120,7 @@ typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily
 // the case here.
-bool SkPngCodec::decodePalette(bool premultiply) {
+bool SkPngCodec::decodePalette(bool premultiply, int bitDepth, int* ctableCount) {
     int numPalette;
     png_colorp palette;
     png_bytep trans;
@@ -128,14 +129,7 @@ bool SkPngCodec::decodePalette(bool premultiply) {
         return false;
     }
 
-    /*  BUGGY IMAGE WORKAROUND
-
-        We hit some images (e.g. fruit_.png) who contain bytes that are == colortable_count
-        which is a problem since we use the byte as an index. To work around this we grow
-        the colortable by 1 (if its < 256) and duplicate the last color into that slot.
-    */
-    const int colorCount = numPalette + (numPalette < 256);
-    // Note: These are not necessarily SkPMColors.
+    // Note: These are not necessarily SkPMColors
     SkPMColor colorStorage[256];    // worst-case storage
     SkPMColor* colorPtr = colorStorage;
 
@@ -175,9 +169,24 @@ bool SkPngCodec::decodePalette(bool premultiply) {
         palette++;
     }
 
-    // see BUGGY IMAGE WORKAROUND comment above
-    if (numPalette < 256) {
-        *colorPtr = colorPtr[-1];
+    /*  BUGGY IMAGE WORKAROUND
+        Invalid images could contain pixel values that are greater than the number of palette
+        entries. Since we use pixel values as indices into the palette this could result in reading
+        beyond the end of the palette which could leak the contents of uninitialized memory. To
+        ensure this doesn't happen, we grow the colortable to the maximum size that can be
+        addressed by the bitdepth of the image and fill it with the last palette color or black if
+        the palette is empty (really broken image).
+    */
+    int colorCount = SkTMax(numPalette, 1 << SkTMin(bitDepth, 8));
+    SkPMColor lastColor = index > 0 ? colorPtr[-1] : SkPackARGB32(0xFF, 0, 0, 0);
+    for (; index < colorCount; index++) {
+        *colorPtr++ = lastColor;
+    }
+
+    // Set the new color count
+    if (ctableCount != NULL) {
+        SkASSERT(256 == *ctableCount);
+        *ctableCount = colorCount;
     }
 
     fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorStorage, colorCount)));
@@ -276,10 +285,7 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
     SkAlphaType skAlphaType;
     switch (colorType) {
         case PNG_COLOR_TYPE_PALETTE:
-            // Technically, this is true of the data, but I don't think we want
-            // to support it.
-            // skColorType = kIndex8_SkColorType;
-            skColorType = kN32_SkColorType;
+            skColorType = kIndex_8_SkColorType;
             skAlphaType = has_transparency_in_palette(png_ptr, info_ptr) ?
                     kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
             break;
@@ -387,22 +393,43 @@ void SkPngCodec::destroyReadStruct() {
 
 static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
     // TODO: Support other conversions
-    if (dst.colorType() != src.colorType()) {
-        return false;
-    }
     if (dst.profileType() != src.profileType()) {
         return false;
     }
-    if (dst.alphaType() == src.alphaType()) {
-        return true;
+
+    // Check for supported alpha types
+    if (src.alphaType() != dst.alphaType()) {
+        if (kOpaque_SkAlphaType == src.alphaType()) {
+            // If the source is opaque, we must decode to opaque
+            return false;
+        }
+
+        // The source is not opaque
+        switch (dst.alphaType()) {
+            case kPremul_SkAlphaType:
+            case kUnpremul_SkAlphaType:
+                // The source is not opaque, so either of these is okay
+                break;
+            default:
+                // We cannot decode a non-opaque image to opaque (or unknown)
+                return false;
+        }
     }
-    return kPremul_SkAlphaType == dst.alphaType() &&
-            kUnpremul_SkAlphaType == src.alphaType();
+
+    // Check for supported color types
+    switch (dst.colorType()) {
+        // Allow output to kN32 from any type of input
+        case kN32_SkColorType:
+            return true;
+        default:
+            return dst.colorType() == src.colorType();
+    }
 }
 
 SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
                                                void* dst, size_t rowBytes,
-                                               const Options& options) {
+                                               const Options& options,
+                                               int* ctableCount) {
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
     if (setjmp(png_jmpbuf(fPng_ptr))) {
@@ -423,7 +450,8 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     fReallyHasAlpha = false;
     if (PNG_COLOR_TYPE_PALETTE == pngColorType) {
         fSrcConfig = SkSwizzler::kIndex;
-        if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType())) {
+        if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType(), bitDepth,
+                ctableCount)) {
             return kInvalidInput;
         }
     } else if (kAlpha_8_SkColorType == requestedInfo.colorType()) {
@@ -492,8 +520,18 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         return kInvalidConversion;
     }
 
+    // Note that ctableCount will be modified if there is a color table
     const Result result = this->initializeSwizzler(requestedInfo, dst, rowBytes,
-                                                   options);
+                                                   options, ctableCount);
+
+    // Copy the color table to the client if necessary
+    if (kIndex_8_SkColorType == requestedInfo.colorType()) {
+        SkASSERT(NULL != ctable);
+        SkASSERT(NULL != ctableCount);
+        SkASSERT(NULL != fColorTable.get());
+        sk_memcpy32(ctable, fColorTable->readColors(), *ctableCount);
+    }
+
     if (result != kSuccess) {
         return result;
     }
@@ -631,7 +669,9 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) 
     Options opts;
     // FIXME: Pass this in to getScanlineDecoder?
     opts.fZeroInitialized = kNo_ZeroInitialized;
-    if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), opts) != kSuccess) {
+    // FIXME: onGetScanlineDecoder does not currently have a way to get color table information
+    // for a kIndex8 decoder.
+    if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), opts, NULL) != kSuccess) {
         SkCodecPrintf("failed to initialize the swizzler.\n");
         return NULL;
     }

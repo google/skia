@@ -49,10 +49,10 @@ private:
 
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
     Result initializeSwizzler(const SkImageInfo& requestedInfo, void* dst,
-                              size_t rowBytes, const Options&);
+                              size_t rowBytes, const Options&, int* ctableCount);
     // Calls rewindIfNeeded, and returns true if the decoder can continue.
     bool handleRewind();
-    bool decodePalette(bool premultiply);
+    bool decodePalette(bool premultiply, int bitDepth, int* ctableCount);
     void finish();
     void destroyReadStruct();
 

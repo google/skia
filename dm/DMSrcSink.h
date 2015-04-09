@@ -13,6 +13,7 @@
 #include "SkBBoxHierarchy.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkCodec.h"
 #include "SkData.h"
 #include "SkGPipe.h"
 #include "SkPicture.h"
@@ -94,14 +95,20 @@ public:
         kNormal_Mode,
         kScanline_Mode,
     };
-    CodecSrc(Path, Mode);
+    enum DstColorType {
+        kGetFromCanvas_DstColorType,
+        kIndex8_Always_DstColorType,
+        kGrayscale_Always_DstColorType,
+    };
+    CodecSrc(Path, Mode, DstColorType);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
 private:
-    Path fPath;
-    Mode fMode;
+    Path                   fPath;
+    Mode                   fMode;
+    DstColorType           fDstColorType;
 };
 
 
