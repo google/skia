@@ -67,7 +67,7 @@ public:
      *  reflect their current state, but will not contain a live reference to the drawables
      *  themselves.
      */
-    SkPicture* endRecordingAsPicture();
+    SkPicture* SK_WARN_UNUSED_RESULT endRecordingAsPicture();
 
     /**
      *  Signal that the caller is done recording. This invalidates the canvas returned by
@@ -79,10 +79,10 @@ public:
      *  and therefore this drawable will reflect the current state of those nested drawables anytime
      *  it is drawn or a new picture is snapped from it (by calling drawable->newPictureSnapshot()).
      */
-    SkDrawable* endRecordingAsDrawable();
+    SkDrawable* SK_WARN_UNUSED_RESULT endRecordingAsDrawable();
 
     // Legacy API -- use endRecordingAsPicture instead.
-    SkPicture* endRecording() { return this->endRecordingAsPicture(); }
+    SkPicture* SK_WARN_UNUSED_RESULT endRecording() { return this->endRecordingAsPicture(); }
 
 private:
     void reset();
