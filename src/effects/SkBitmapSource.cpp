@@ -32,6 +32,12 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap,
 }
 
 SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
+    SkFilterQuality filterQuality;
+    if (buffer.isVersionLT(SkReadBuffer::kBitmapourceFilterQuality_Version)) {
+        filterQuality = kHigh_SkFilterQuality;
+    } else {
+        filterQuality = (SkFilterQuality)buffer.readInt();
+    }
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
@@ -39,10 +45,11 @@ SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
     if (!buffer.readBitmap(&bitmap)) {
         return NULL;
     }
-    return SkBitmapSource::Create(bitmap, src, dst);
+    return SkBitmapSource::Create(bitmap, src, dst, filterQuality);
 }
 
 void SkBitmapSource::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeInt(fFilterQuality);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
     buffer.writeBitmap(fBitmap);
