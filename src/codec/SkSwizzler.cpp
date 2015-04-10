@@ -422,17 +422,13 @@ SkSwizzler::ResultAlpha SkSwizzler::next(const uint8_t* SK_RESTRICT src,
             fColorTable);
 }
 
-void SkSwizzler::Fill(void* dst, const SkImageInfo& dstInfo, size_t dstRowBytes, uint32_t y,
-        uint32_t colorOrIndex, SkPMColor* colorTable) {
-    SkASSERT(dst != NULL);
-    SkASSERT(y < (uint32_t) dstInfo.height());
+void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
+        uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable) {
+    SkASSERT(dstStartRow != NULL);
+    SkASSERT(numRows <= (uint32_t) dstInfo.height());
 
-    // Get dst start row
-    void* dstRow = SkTAddOffset<void*>(dst, y * dstRowBytes);
-
-    // Calculate remaining bytes.  This is tricky since the final row may not be padded.
-    const size_t totalBytes = dstInfo.getSafeSize(dstRowBytes);
-    const size_t remainingBytes = totalBytes - y * dstRowBytes;
+    // Calculate bytes to fill.  We use getSafeSize since the last row may not be padded.
+    const size_t bytesToFill = dstInfo.makeWH(dstInfo.width(), numRows).getSafeSize(dstRowBytes);
 
     // Use the proper memset routine to fill the remaining bytes
     switch(dstInfo.colorType()) {
@@ -448,25 +444,25 @@ void SkSwizzler::Fill(void* dst, const SkImageInfo& dstInfo, size_t dstRowBytes,
             }
 
             // We must fill row by row in the case of unaligned row bytes
-            if (SkIsAlign4((size_t) dstRow) && SkIsAlign4(dstRowBytes)) {
-                sk_memset32((uint32_t*) dstRow, color,
-                        (uint32_t) remainingBytes / sizeof(SkPMColor));
+            if (SkIsAlign4((size_t) dstStartRow) && SkIsAlign4(dstRowBytes)) {
+                sk_memset32((uint32_t*) dstStartRow, color,
+                        (uint32_t) bytesToFill / sizeof(SkPMColor));
             } else {
                 // This is an unlikely, slow case
                 SkCodecPrintf("Warning: Strange number of row bytes, fill will be slow.\n");
-                for (int32_t row = y; row < dstInfo.height(); row++) {
-                    uint32_t* dstPtr = (uint32_t*) dstRow;
+                uint32_t* dstRow = (uint32_t*) dstStartRow;
+                for (uint32_t row = 0; row < numRows; row++) {
                     for (int32_t col = 0; col < dstInfo.width(); col++) {
-                        dstPtr[col] = color;
+                        dstRow[col] = color;
                     }
-                    dstRow = SkTAddOffset<void*>(dstRow, dstRowBytes);
+                    dstRow = SkTAddOffset<uint32_t>(dstRow, dstRowBytes);
                 }
             }
             break;
         // On an index destination color type, always assume the input is an index
         case kIndex_8_SkColorType:
             SkASSERT(colorOrIndex == (uint8_t) colorOrIndex);
-            memset(dstRow, colorOrIndex, remainingBytes);
+            memset(dstStartRow, colorOrIndex, bytesToFill);
             break;
         default:
             SkCodecPrintf("Error: Unsupported dst color type for fill().  Doing nothing.\n");

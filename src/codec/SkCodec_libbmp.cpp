@@ -614,11 +614,11 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Perform the decode
     switch (fInputFormat) {
         case kBitMask_BitmapInputFormat:
-            return decodeMask(dstInfo, dst, dstRowBytes);
+            return decodeMask(dstInfo, dst, dstRowBytes, opts);
         case kRLE_BitmapInputFormat:
             return decodeRLE(dstInfo, dst, dstRowBytes, opts);
         case kStandard_BitmapInputFormat:
-            return decode(dstInfo, dst, dstRowBytes);
+            return decode(dstInfo, dst, dstRowBytes, opts);
         default:
             SkASSERT(false);
             return kInvalidInput;
@@ -701,6 +701,9 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
         for (; i < maxColors; i++) {
             colorTable[i] = SkPackARGB32NoCheck(0xFF, 0, 0, 0);
         }
+
+        // Set the color table
+        fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
     }
 
     // Bmp-in-Ico files do not use an offset to indicate where the pixel data
@@ -724,9 +727,20 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     }
 
-    // Set the color table and return true on success
-    fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
+    // Return true on success
     return true;
+}
+
+/*
+ *
+ * Get the destination row to start filling from
+ * Used to fill the remainder of the image on incomplete input
+ *
+ */
+static inline void* get_dst_start_row(void* dst, size_t dstRowBytes, int32_t y,
+            SkBmpCodec::RowOrder rowOrder) {
+    return (SkBmpCodec::kTopDown_RowOrder == rowOrder) ?
+            SkTAddOffset<void*>(dst, y * dstRowBytes) : dst;
 }
 
 /*
@@ -735,7 +749,8 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
  *
  */
 SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
-                                       void* dst, size_t dstRowBytes) {
+                                       void* dst, size_t dstRowBytes,
+                                       const Options& opts) {
     // Set constant values
     const int width = dstInfo.width();
     const int height = dstInfo.height();
@@ -757,6 +772,14 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
         // Read a row of the input
         if (stream()->read(srcRow, rowBytes) != rowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
+            // Fill the destination image on failure
+            // By using zero as the fill value, we will fill with transparent
+            // pixels for non-opaque images and white for opaque images.
+            // These are arbitrary choices but allow for consistent behavior.
+            if (kNo_ZeroInitialized == opts.fZeroInitialized) {
+                void* dstStart = get_dst_start_row(dst, dstRowBytes, y, fRowOrder);
+                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, 0, NULL);
+            }
             return kIncompleteInput;
         }
 
@@ -899,7 +922,7 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
     // type that makes sense for the destination format.
     SkASSERT(kN32_SkColorType == dstInfo.colorType());
     if (kNo_ZeroInitialized == opts.fZeroInitialized) {
-        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, 0, SK_ColorTRANSPARENT, NULL);
+        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, SK_ColorTRANSPARENT, NULL);
     }
 
     while (true) {
@@ -1060,7 +1083,8 @@ SkCodec::Result SkBmpCodec::decodeRLE(const SkImageInfo& dstInfo,
  *
  */
 SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
-                                   void* dst, size_t dstRowBytes) {
+                                   void* dst, size_t dstRowBytes,
+                                   const Options& opts) {
     // Set constant values
     const int width = dstInfo.width();
     const int height = dstInfo.height();
@@ -1096,9 +1120,12 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
             return kInvalidInput;
     }
 
+    // Get a pointer to the color table if it exists
+    const SkPMColor* colorPtr = NULL != fColorTable.get() ? fColorTable->readColors() : NULL;
+
     // Create swizzler
     SkAutoTDelete<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(config,
-            fColorTable->readColors(), dstInfo, dst, dstRowBytes,
+            colorPtr, dstInfo, dst, dstRowBytes,
             SkImageGenerator::kNo_ZeroInitialized));
 
     // Allocate space for a row buffer and a source for the swizzler
@@ -1110,6 +1137,16 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
         // Read a row of the input
         if (stream()->read(srcBuffer.get(), rowBytes) != rowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
+            // Fill the destination image on failure
+            // By using zero as the fill value, we will fill with the first
+            // color in the color table for palette images, transparent
+            // pixels for non-opaque images, and white for opaque images.
+            // These are arbitrary choices but allow for consistent behavior.
+            if (kNo_ZeroInitialized == opts.fZeroInitialized) {
+                void* dstStart = get_dst_start_row(dst, dstRowBytes, y, fRowOrder);
+                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, 0,
+                        colorPtr);
+            }
             return kIncompleteInput;
         }
 

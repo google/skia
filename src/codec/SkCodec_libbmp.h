@@ -114,7 +114,7 @@ private:
      *
      */
     Result decodeMask(const SkImageInfo& dstInfo, void* dst,
-                      size_t dstRowBytes);
+                      size_t dstRowBytes, const Options& opts);
 
     /*
      *
@@ -146,7 +146,7 @@ private:
      * Performs the bitmap decoding for standard input format
      *
      */
-    Result decode(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
+    Result decode(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options& opts);
 
     /*
      *

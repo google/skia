@@ -73,9 +73,17 @@ def get_args(bot):
   blacklist.extend('_ image decode pal8oversizepal.bmp'.split(' '))
   blacklist.extend('_ image decode pal4rletrns.bmp'.split(' '))
   blacklist.extend('_ image decode pal8rletrns.bmp'.split(' '))
+  blacklist.extend('_ image decode 4bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image decode 8bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image decode 24bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image decode 32bpp-pixeldata-cropped.bmp'.split(' '))
   blacklist.extend('_ image subset rgb24largepal.bmp'.split(' '))
   blacklist.extend('_ image subset pal8os2v2-16.bmp'.split(' '))
   blacklist.extend('_ image subset pal8oversizepal.bmp'.split(' '))
+  blacklist.extend('_ image subset 4bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image subset 8bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image subset 24bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image subset 32bpp-pixeldata-cropped.bmp'.split(' '))
 
   # New ico files that fail on SkImageDecoder
   blacklist.extend('_ image decode Hopstarter-Mac-Folders-Apple.ico'.split(' '))

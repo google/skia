@@ -132,8 +132,11 @@ public:
     /**
      * Fill the remainder of the destination with a single color
      *
-     * @param y
-     * The starting row for the fill.
+     * @param dstStartRow
+     * The destination row to fill from.
+     *
+     * @param numRows
+     * The number of rows to fill.
      *
      * @param colorOrIndex
      * @param colorTable
@@ -155,8 +158,8 @@ public:
      * Other SkColorTypes are not supported.
      *
      */
-    static void Fill(void* dst, const SkImageInfo& dstInfo, size_t dstRowBytes, uint32_t y,
-            uint32_t colorOrIndex, SkPMColor* colorTable);
+    static void Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
+            uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable);
 
     /**
      *  Swizzle the next line. Call height times, once for each row of source.
@@ -186,6 +189,17 @@ public:
      *  destination?
      */
     void setDstRow(void* dst) { fDstRow = dst; }
+
+    /**
+     *  Get the next destination row to decode to
+     */
+    void* getDstRow() {
+        // kDesignateRow_NextMode does not update the fDstRow ptr.  This function is
+        // unnecessary in that case since fDstRow will always be equal to the pointer
+        // passed to CreateSwizzler().
+        SkASSERT(kDesignateRow_NextMode != fNextMode);
+        return fDstRow;
+    }
 
 private:
 

@@ -15,6 +15,7 @@ static const uint32_t kFillColor = 0x22334455;
 static void check_fill(skiatest::Reporter* r,
                        const SkImageInfo& imageInfo,
                        uint32_t startRow,
+                       uint32_t endRow,
                        size_t rowBytes,
                        uint32_t offset,
                        uint32_t colorOrIndex,
@@ -32,15 +33,17 @@ static void check_fill(skiatest::Reporter* r,
     memset(storage.get(), 0, totalBytes);
     // Adjust the pointer in order to test on different memory alignments
     uint8_t* imageData = storage.get() + offset;
+    uint8_t* imageStart = imageData + rowBytes * startRow;
 
     // Fill image with the fill value starting at the indicated row
-    SkSwizzler::Fill(imageData, imageInfo, rowBytes, startRow, colorOrIndex, colorTable);
+    SkSwizzler::Fill(imageStart, imageInfo, rowBytes, endRow - startRow + 1, colorOrIndex,
+            colorTable);
 
     // Ensure that the pixels are filled properly
     // The bots should catch any memory corruption
     uint8_t* indexPtr = imageData + startRow * rowBytes;
     uint32_t* colorPtr = (uint32_t*) indexPtr;
-    for (int32_t y = startRow; y < imageInfo.height(); y++) {
+    for (uint32_t y = startRow; y <= endRow; y++) {
         for (int32_t x = 0; x < imageInfo.width(); x++) {
             if (kIndex_8_SkColorType == imageInfo.colorType()) {
                 REPORTER_ASSERT(r, kFillIndex == indexPtr[x]);
@@ -90,20 +93,22 @@ DEF_TEST(SwizzlerFill, r) {
                 // If there is padding, we can invent an offset to change the memory alignment
                 for (uint32_t offset = 0; offset <= padding; offset++) {
 
-                    // Test all possible start rows
+                    // Test all possible start rows with all possible end rows
                     for (uint32_t startRow = 0; startRow < height; startRow++) {
+                        for (uint32_t endRow = startRow; endRow < height; endRow++) {
 
-                        // Fill with an index that we use to look up a color
-                        check_fill(r, colorInfo, startRow, colorRowBytes, offset, kFillIndex,
-                               colorTable);
+                            // Fill with an index that we use to look up a color
+                            check_fill(r, colorInfo, startRow, endRow, colorRowBytes, offset,
+                                    kFillIndex, colorTable);
 
-                        // Fill with a color
-                        check_fill(r, colorInfo, startRow, colorRowBytes, offset, kFillColor,
-                                NULL);
+                            // Fill with a color
+                            check_fill(r, colorInfo, startRow, endRow, colorRowBytes, offset,
+                                    kFillColor, NULL);
 
-                        // Fill with an index
-                        check_fill(r, indexInfo, startRow, indexRowBytes, offset, kFillIndex,
-                                NULL);
+                            // Fill with an index
+                            check_fill(r, indexInfo, startRow, endRow, indexRowBytes, offset,
+                                    kFillIndex, NULL);
+                        }
                     }
                 }
             }

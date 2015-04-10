@@ -425,7 +425,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     //        animated gifs where we draw on top of the
                     //        previous frame.
                     if (!skipBackground) {
-                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, 0, fillIndex, colorTable);
+                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, fillIndex, colorTable);
                     }
 
                     // Modify the dst pointer
@@ -478,8 +478,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                         if (GIF_ERROR == DGifGetLine(fGif, buffer.get(),
                                 innerWidth)) {
                             if (!skipBackground) {
-                                SkSwizzler::Fill(dst, dstInfo, dstRowBytes, y, fillIndex,
-                                        colorTable);
+                                SkSwizzler::Fill(swizzler->getDstRow(), dstInfo, dstRowBytes,
+                                        innerHeight - y, fillIndex, colorTable);
                             }
                             return gif_error(SkStringPrintf(
                                     "Could not decode line %d of %d.\n",
