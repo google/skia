@@ -16,7 +16,18 @@ class GrTextBlobCache {
 public:
     typedef GrAtlasTextContext::BitmapTextBlob BitmapTextBlob;
 
-    GrTextBlobCache() : fPool(kPreAllocSize, kMinGrowthSize) {}
+    /**
+     * The callback function used by the cache when it is still over budget after a purge. The
+     * passed in 'data' is the same 'data' handed to setOverbudgetCallback.
+     */
+    typedef void (*PFOverBudgetCB)(void* data);
+
+    GrTextBlobCache(PFOverBudgetCB cb, void* data)
+        : fPool(kPreAllocSize, kMinGrowthSize)
+        , fCallback(cb)
+        , fData(data) {
+        SkASSERT(cb && data);
+    }
     ~GrTextBlobCache();
 
     // creates an uncached blob
@@ -52,12 +63,25 @@ public:
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
             BitmapTextBlob* lruBlob = iter.get();
             SkASSERT(lruBlob);
-            do {
+            while (fPool.size() > kBudget && (lruBlob = iter.get()) && lruBlob != blob) {
                 fCache.remove(lruBlob->fUniqueID);
                 fBlobList.remove(lruBlob);
-                lruBlob->unref();
                 iter.prev();
-            } while (fPool.size() > kBudget && (lruBlob = iter.get()));
+                lruBlob->unref();
+            }
+
+            // If we break out of the loop with lruBlob == blob, then we haven't purged enough
+            // use the call back and try to free some more.  If we are still overbudget after this,
+            // then this single textblob is over our budget
+            if (lruBlob == blob) {
+                (*fCallback)(fData);
+            }
+
+#ifdef SK_DEBUG
+            if (fPool.size() > kBudget) {
+                SkDebugf("Single textblob is larger than our whole budget");
+            }
+#endif
         }
     }
 
@@ -85,10 +109,12 @@ private:
     // based off of the largest cached textblob I have seen in the skps(a couple of kilobytes).
     static const int kPreAllocSize = 1 << 17;
     static const int kMinGrowthSize = 1 << 17;
-    static const int kBudget = 1 << 20;
+    static const int kBudget = 1 << 22;
     BitmapBlobList fBlobList;
     SkTDynamicHash<BitmapTextBlob, uint32_t> fCache;
     GrMemoryPool fPool;
+    PFOverBudgetCB fCallback;
+    void* fData;
 };
 
 #endif

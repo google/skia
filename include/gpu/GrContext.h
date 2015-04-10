@@ -787,6 +787,12 @@ private:
      */
     static void OverBudgetCB(void* data);
 
+    /**
+     * A callback similar to the above for use by the TextBlobCache
+     * TODO move textblob draw calls below context so we can use the call above.
+     */
+    static void TextBlobCacheOverBudgetCB(void* data);
+
     // TODO see note on createTextContext
     friend class SkGpuDevice;
 

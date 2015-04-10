@@ -137,7 +137,7 @@ void GrContext::initCommon() {
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = SkNEW_ARGS(GrBatchFontCache, (this));
 
-    fTextBlobCache.reset(SkNEW(GrTextBlobCache));
+    fTextBlobCache.reset(SkNEW_ARGS(GrTextBlobCache, (TextBlobCacheOverBudgetCB, this)));
 }
 
 GrContext::~GrContext() {
@@ -352,6 +352,17 @@ void GrContext::OverBudgetCB(void* data) {
 
     // Flush the InOrderDrawBuffer to possibly free up some textures
     context->fFlushToReduceCacheSize = true;
+}
+
+void GrContext::TextBlobCacheOverBudgetCB(void* data) {
+    SkASSERT(data);
+
+    // Unlike the GrResourceCache, TextBlobs are drawn at the SkGpuDevice level, therefore they
+    // cannot use fFlushTorReduceCacheSize because it uses AutoCheckFlush.  The solution is to move
+    // drawText calls to below the GrContext level, but this is not trivial because they call
+    // drawPath on SkGpuDevice
+    GrContext* context = reinterpret_cast<GrContext*>(data);
+    context->flush();
 }
 
 int GrContext::getMaxTextureSize() const {
