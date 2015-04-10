@@ -208,6 +208,7 @@
         '../gm/variedtext.cpp',
         '../gm/tallstretchedbitmaps.cpp',
         '../gm/textblob.cpp',
+        '../gm/textbloblooper.cpp',
         '../gm/textblobshader.cpp',
         '../gm/texturedomaineffect.cpp',
         '../gm/thinrects.cpp',
