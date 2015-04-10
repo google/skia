@@ -65,8 +65,10 @@ public:
             SkASSERT(lruBlob);
             while (fPool.size() > kBudget && (lruBlob = iter.get()) && lruBlob != blob) {
                 fCache.remove(lruBlob->fUniqueID);
-                fBlobList.remove(lruBlob);
+
+                // Backup the iterator before removing and unrefing the blob
                 iter.prev();
+                fBlobList.remove(lruBlob);
                 lruBlob->unref();
             }
 
