@@ -913,6 +913,14 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     AutoCFRelease<CFDataRef> sbix;
     if (static_cast<SkTypeface_Mac*>(context.getTypeface())->fHasColorGlyphs) {
         sbix.reset(CGFontCopyTableForTag(context.fCGFont, 'sbix'));
+        // Attempt to read from the sbix table data to determine if the returned data is valid.
+        const UInt8* sbixData = CFDataGetBytePtr(sbix);
+        CFIndex sbixLength = CFDataGetLength(sbix);
+        if (sbixLength > 0 && *sbixData > 0x80) {
+            // We need to actually do something to avoid this being optimized away.
+            CFRetain(sbix);
+            CFRelease(sbix);
+        }
     }
     ctFontDrawGlyphs(context.fCTUnrotatedFont, &glyphID, &point, 1, fCG);
 
