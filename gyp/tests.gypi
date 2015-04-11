@@ -91,6 +91,7 @@
     '../tests/DiscardableMemoryTest.cpp',
     '../tests/DocumentTest.cpp',
     '../tests/DrawBitmapRectTest.cpp',
+    '../tests/DrawFilterTest.cpp',
     '../tests/DrawPathTest.cpp',
     '../tests/DrawTextTest.cpp',
     '../tests/DynamicHashTest.cpp',

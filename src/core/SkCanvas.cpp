@@ -589,6 +589,7 @@ SkDrawFilter* SkCanvas::getDrawFilter() const {
 }
 
 SkDrawFilter* SkCanvas::setDrawFilter(SkDrawFilter* filter) {
+    this->checkForDeferredSave();
     SkRefCnt_SafeAssign(fMCRec->fFilter, filter);
     return filter;
 }
