@@ -588,8 +588,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     }
 }
 
-void SkScan::AntiHairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
-                             const SkRegion* clip, SkBlitter* blitter) {
+void SkScan::AntiHairLineRgn(SkPoint pt0, SkPoint pt1, const SkRegion* clip, SkBlitter* blitter) {
     if (clip && clip->isEmpty()) {
         return;
     }

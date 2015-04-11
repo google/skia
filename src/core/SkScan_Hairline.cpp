@@ -40,8 +40,7 @@ static bool canConvertFDot6ToFixed(SkFDot6 x) {
 }
 #endif
 
-void SkScan::HairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
-                         const SkRegion* clip, SkBlitter* blitter) {
+void SkScan::HairLineRgn(SkPoint pt0, SkPoint pt1, const SkRegion* clip, SkBlitter* blitter) {
     SkBlitterClipper    clipper;
     SkRect  r;
     SkIRect clipR, ptsR;
@@ -210,8 +209,7 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
     }
 }
 
-typedef void (*LineProc)(const SkPoint&, const SkPoint&, const SkRegion*,
-                         SkBlitter*);
+typedef void (*LineProc)(SkPoint, SkPoint, const SkRegion*, SkBlitter*);
 
 static void hairquad(const SkPoint pts[3], const SkRegion* clip,
                      SkBlitter* blitter, int level, LineProc lineproc) {
@@ -257,8 +255,8 @@ static int compute_quad_level(const SkPoint pts[3]) {
     return level;
 }
 
-static void hair_path(const SkPath& path, const SkRasterClip& rclip,
-                      SkBlitter* blitter, LineProc lineproc) {
+static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter,
+                      LineProc lineproc) {
     if (path.isEmpty()) {
         return;
     }
@@ -321,13 +319,11 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip,
     }
 }
 
-void SkScan::HairPath(const SkPath& path, const SkRasterClip& clip,
-                      SkBlitter* blitter) {
+void SkScan::HairPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path(path, clip, blitter, SkScan::HairLineRgn);
 }
 
-void SkScan::AntiHairPath(const SkPath& path, const SkRasterClip& clip,
-                          SkBlitter* blitter) {
+void SkScan::AntiHairPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path(path, clip, blitter, SkScan::AntiHairLineRgn);
 }
 
@@ -368,8 +364,7 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
     SkScan::FillRect(tmp, clip, blitter);
 }
 
-void SkScan::HairLine(const SkPoint& p0, const SkPoint& p1,
-                      const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::HairLine(SkPoint p0, SkPoint p1, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isBW()) {
         HairLineRgn(p0, p1, &clip.bwRgn(), blitter);
     } else {
@@ -389,8 +384,7 @@ void SkScan::HairLine(const SkPoint& p0, const SkPoint& p1,
     }
 }
 
-void SkScan::AntiHairLine(const SkPoint& p0, const SkPoint& p1,
-                          const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::AntiHairLine(SkPoint p0, SkPoint p1, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isBW()) {
         AntiHairLineRgn(p0, p1, &clip.bwRgn(), blitter);
     } else {

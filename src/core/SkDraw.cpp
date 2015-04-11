@@ -1876,8 +1876,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef void (*HairProc)(const SkPoint&, const SkPoint&, const SkRasterClip&,
-                         SkBlitter*);
+typedef void (*HairProc)(SkPoint, SkPoint, const SkRasterClip&, SkBlitter*);
 
 static HairProc ChooseHairProc(bool doAntiAlias) {
     return doAntiAlias ? SkScan::AntiHairLine : SkScan::HairLine;
