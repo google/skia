@@ -19,6 +19,7 @@
  * the second red and sharp.
  */
 
+namespace {
 class TestFilter : public SkDrawFilter {
 public:
     bool filter(SkPaint* p, Type) override {
@@ -27,6 +28,7 @@ public:
         return true;
     }
 };
+}
 
 class DrawFilterGM : public skiagm::GM {
     SkAutoTUnref<SkMaskFilter> fBlur;

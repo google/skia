@@ -10,12 +10,14 @@
 #include "SkSurface.h"
 #include "Test.h"
 
+namespace {
 class TestFilter : public SkDrawFilter {
 public:
     bool filter(SkPaint* p, Type) override {
         return true;
     }
 };
+}
 
 /**
  *  canvas.setDrawFilter is defined to be local to the save/restore block, such that if you
