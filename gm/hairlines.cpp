@@ -168,7 +168,7 @@ protected:
         enum {
             kMargin = 5,
         };
-        int wrapX = canvas->getDeviceSize().fWidth - kMargin;
+        int wrapX = 1250 - kMargin;
 
         SkScalar maxH = 0;
         canvas->translate(SkIntToScalar(kMargin), SkIntToScalar(kMargin));
