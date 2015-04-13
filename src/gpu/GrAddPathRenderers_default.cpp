@@ -20,7 +20,7 @@
 #endif
 
 #ifndef GR_TESSELLATING_PATH_RENDERING
-#define GR_TESSELLATING_PATH_RENDERING 0
+#define GR_TESSELLATING_PATH_RENDERING 1
 #endif
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
