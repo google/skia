@@ -1072,24 +1072,36 @@ void merge_sort(Vertex** head) {
     *head = sorted_merge(a, b);
 }
 
+inline void append_vertex(Vertex* v, Vertex** head, Vertex** tail) {
+    insert<Vertex, &Vertex::fPrev, &Vertex::fNext>(v, *tail, NULL, head, tail);
+}
+
+inline void append_vertex_list(Vertex* v, Vertex** head, Vertex** tail) {
+    insert<Vertex, &Vertex::fPrev, &Vertex::fNext>(v, *tail, v->fNext, head, tail);
+}
+
 Vertex* sorted_merge(Vertex* a, Vertex* b) {
-    if (!a) {
-        return b;
-    } else if (!b) {
-        return a;
-    }
+    Vertex* head = NULL;
+    Vertex* tail = NULL;
 
-    Vertex* result = NULL;
-
-    if (sweep_lt(a->fPoint, b->fPoint)) {
-        result = a;
-        result->fNext = sorted_merge(a->fNext, b);
-    } else {
-        result = b;
-        result->fNext = sorted_merge(a, b->fNext);
+    while (a && b) {
+        if (sweep_lt(a->fPoint, b->fPoint)) {
+            Vertex* next = a->fNext;
+            append_vertex(a, &head, &tail);
+            a = next;
+        } else {
+            Vertex* next = b->fNext;
+            append_vertex(b, &head, &tail);
+            b = next;
+        }
     }
-    result->fNext->fPrev = result;
-    return result;
+    if (a) {
+        append_vertex_list(a, &head, &tail);
+    }
+    if (b) {
+        append_vertex_list(b, &head, &tail);
+    }
+    return head;
 }
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
