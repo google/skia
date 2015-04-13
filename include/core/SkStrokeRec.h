@@ -64,6 +64,11 @@ public:
         fMiterLimit = miterLimit;
     }
 
+    void setResScale(SkScalar rs) {
+        SkASSERT(rs > 0 && SkScalarIsFinite(rs));
+        fResScale = rs;
+    }
+
     /**
      *  Returns true if this specifes any thick stroking, i.e. applyToPath()
      *  will return true.

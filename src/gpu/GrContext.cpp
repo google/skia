@@ -1453,6 +1453,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
     if (NULL == pr) {
         if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, NULL)) {
             // It didn't work the 1st time, so try again with the stroked path
+            stroke.writable()->setResScale(SkScalarAbs(viewMatrix.getMaxScale()));
             if (stroke->applyToPath(tmpPath.init(), *pathPtr)) {
                 pathPtr = tmpPath.get();
                 stroke.writable()->setFillStyle();
