@@ -215,6 +215,8 @@ void GrContext::freeGpuResources() {
     // a path renderer may be holding onto resources
     SkSafeSetNull(fPathRendererChain);
     SkSafeSetNull(fSoftwarePathRenderer);
+
+    fResourceCache->purgeAllUnlocked();
 }
 
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
