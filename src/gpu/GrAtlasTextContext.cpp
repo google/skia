@@ -91,12 +91,62 @@ bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
     return !SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix);
 }
 
-bool GrAtlasTextContext::MustRegenerateBlob(const BitmapTextBlob& blob, const SkPaint& paint,
+bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
+                                            const BitmapTextBlob& blob, const SkPaint& paint,
                                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-    // We always regenerate blobs with patheffects or mask filters we could cache these
-    // TODO find some way to cache the maskfilter / patheffects on the textblob
-    return !blob.fViewMatrix.cheapEqualTo(viewMatrix) || blob.fX != x || blob.fY != y ||
-            paint.getMaskFilter() || paint.getPathEffect() || paint.getStyle() != blob.fStyle;
+    // Color can affect the mask
+    // TODO we can adjust the color within specific gamma slots
+    if (blob.fColor != paint.getColor()) {
+        return true;
+    }
+
+    if (blob.fViewMatrix.hasPerspective() != viewMatrix.hasPerspective()) {
+        return true;
+    }
+
+    if (blob.fViewMatrix.hasPerspective() && !blob.fViewMatrix.cheapEqualTo(viewMatrix)) {
+        return true;
+    }
+
+    if (blob.fViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
+        blob.fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
+        blob.fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
+        blob.fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
+        return true;
+    }
+
+    // We can update the positions in the cachedtextblobs without regenerating the whole blob, but
+    // only for integer translations.
+    // This cool bit of math will determine the necessary translation to apply to the already
+    // generated vertex coordinates to move them to the correct position
+    SkScalar transX = viewMatrix.getTranslateX() +
+                      viewMatrix.getScaleX() * (x - blob.fX) +
+                      viewMatrix.getSkewX() * (y - blob.fY) -
+                      blob.fViewMatrix.getTranslateX();
+    SkScalar transY = viewMatrix.getTranslateY() +
+                      viewMatrix.getSkewY() * (x - blob.fX) +
+                      viewMatrix.getScaleY() * (y - blob.fY) -
+                      blob.fViewMatrix.getTranslateY();
+    if (SkScalarFraction(transX) > SK_ScalarNearlyZero ||
+        SkScalarFraction(transY) > SK_ScalarNearlyZero) {
+        return true;
+    }
+
+#ifdef SK_DEBUG
+    static const SkScalar kMinDiscernableTranslation = 0.0625;
+    // As a safeguard when debugging, we store the total error across all translations and print if
+    // the error becomes discernable.  This is pretty unlikely to occur given the tight bounds above
+    // on translation
+    blob.fTotalXError += SkScalarAbs(SkScalarFraction(transX));
+    blob.fTotalYError += SkScalarAbs(SkScalarFraction(transY));
+    if (blob.fTotalXError > kMinDiscernableTranslation ||
+        blob.fTotalYError > kMinDiscernableTranslation) {
+        SkDebugf("Exceeding error threshold for bitmap text translation");
+    }
+#endif
+    (*outTransX) = transX;
+    (*outTransY) = transY;
+    return false;
 }
 
 
@@ -113,24 +163,47 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                                       const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     uint32_t uniqueID = blob->uniqueID();
-    BitmapTextBlob* cacheBlob = fCache->find(uniqueID);
+    SkAutoTUnref<BitmapTextBlob> cacheBlob;
+    // TODO start caching these, mix bits into the key
+    bool canCache = !(skPaint.getPathEffect() ||
+                      skPaint.getMaskFilter() ||
+                      skPaint.getColorFilter() ||
+                      skPaint.getStyle() != SkPaint::kFill_Style ||
+                      drawFilter);
+
+    if (canCache) {
+        cacheBlob.reset(SkSafeRef(fCache->find(uniqueID)));
+    }
+
     SkIRect clipRect;
     clip.getConservativeBounds(rt->width(), rt->height(), &clipRect);
 
+    SkScalar transX = 0.f;
+    SkScalar transY = 0.f;
+
     if (cacheBlob) {
-        if (MustRegenerateBlob(*cacheBlob, skPaint, viewMatrix, x, y)) {
+        if (MustRegenerateBlob(&transX, &transY, *cacheBlob, skPaint, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             fCache->remove(cacheBlob);
-            cacheBlob = fCache->createCachedBlob(blob, kGrayTextVASize);
+            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, kGrayTextVASize)));
             this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter,
                                      clipRect);
         } else {
+            // If we can reuse the blob, then make sure we update the blob's viewmatrix and x/y
+            // offsets to reflect the results of any translations we may apply in generateGeometry
+            cacheBlob->fViewMatrix = viewMatrix;
+            cacheBlob->fX = x;
+            cacheBlob->fY = y;
             fCache->makeMRU(cacheBlob);
         }
     } else {
-        cacheBlob = fCache->createCachedBlob(blob, kGrayTextVASize);
+        if (canCache) {
+            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, kGrayTextVASize)));
+        } else {
+            cacheBlob.reset(fCache->createBlob(blob, kGrayTextVASize));
+        }
         this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter, clipRect);
     }
 
@@ -140,7 +213,7 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
     SkPaint2GrPaintShader(fContext, rt, skPaint, viewMatrix, true, &grPaint);
 
     this->flush(fContext->getTextTarget(), blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
-                clip, viewMatrix, clipBounds, x, y);
+                clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
 
 void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
@@ -150,6 +223,7 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
     cacheBlob->fViewMatrix = viewMatrix;
     cacheBlob->fX = x;
     cacheBlob->fY = y;
+    cacheBlob->fColor = skPaint.getColor();
     cacheBlob->fStyle = skPaint.getStyle();
 
     // Regenerate textblob
@@ -185,7 +259,7 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
             newRun.fGlyphEndIndex = lastRun.fGlyphEndIndex;
         }
 
-        if (SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix)) {
+        if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
             cacheBlob->fRuns[run].fDrawAsPaths = true;
             continue;
         }
@@ -536,10 +610,17 @@ void GrAtlasTextContext::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGlyph
     int width = glyph->fBounds.width();
     int height = glyph->fBounds.height();
 
+#if 0
+    // Not checking the clip bounds might introduce a performance regression.  However, its not
+    // clear if this is still true today with the larger tiles we use in Chrome.  For repositionable
+    // blobs, we want to make sure we have all of the glyphs, so clipping them out is not ideal.
+    // We could store the cliprect in the key, but then we'd lose the ability to do integer scrolls
+    // TODO verify this
     // check if we clipped out
     if (clipRect.quickReject(x, y, x + width, y + height)) {
         return;
     }
+#endif
 
     // If the glyph is too large we fall back to paths
     if (fCurrStrike->glyphTooLargeForAtlas(glyph)) {
@@ -598,7 +679,6 @@ void GrAtlasTextContext::appendGlyph(BitmapTextBlob* blob, int runIndex, GrGlyph
         *colorPtr = color;
     }
     vertex += vertexStride;
-
     // V1
     position = reinterpret_cast<SkPoint*>(vertex);
     position->set(r.fLeft, r.fBottom);
@@ -640,11 +720,15 @@ public:
             : fBlob(SkRef(geometry.fBlob.get()))
             , fRun(geometry.fRun)
             , fSubRun(geometry.fSubRun)
-            , fColor(geometry.fColor) {}
+            , fColor(geometry.fColor)
+            , fTransX(geometry.fTransX)
+            , fTransY(geometry.fTransY) {}
         SkAutoTUnref<Blob> fBlob;
         int fRun;
         int fSubRun;
         GrColor fColor;
+        SkScalar fTransX;
+        SkScalar fTransY;
     };
 
     static GrBatch* Create(const Geometry& geometry, GrMaskFormat maskFormat,
@@ -764,6 +848,7 @@ public:
             uint64_t currentAtlasGen = fFontCache->atlasGeneration(fMaskFormat);
             bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen;
             bool regenerateColors = kA8_GrMaskFormat == fMaskFormat && run.fColor != args.fColor;
+            bool regeneratePositions = args.fTransX != 0.f || args.fTransY != 0.f;
             int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
 
             // We regenerate both texture coords and colors in the blob itself, and update the
@@ -774,7 +859,7 @@ public:
             // or coords as needed.  One final note, if we have to break a run for an atlas eviction
             // then we can't really trust the atlas has all of the correct data.  Atlas evictions
             // should be pretty rare, so we just always regenerate in those cases
-            if (regenerateTextureCoords || regenerateColors) {
+            if (regenerateTextureCoords || regenerateColors || regeneratePositions) {
                 // first regenerate texture coordinates / colors if need be
                 const SkDescriptor* desc = NULL;
                 SkGlyphCache* cache = NULL;
@@ -828,9 +913,19 @@ public:
                         this->regenerateColors(vertex, vertexStride, args.fColor);
                     }
 
+                    if (regeneratePositions) {
+                        intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
+                        vertex += info.fVertexStartIndex;
+                        vertex += vertexStride * glyphIdx * kVerticesPerGlyph;
+                        SkScalar transX = args.fTransX;
+                        SkScalar transY = args.fTransY;
+                        this->regeneratePositions(vertex, vertexStride, transX, transY);
+                    }
                     instancesToFlush++;
                 }
 
+                // We my have changed the color so update it here
+                run.fColor = args.fColor;
                 if (regenerateTextureCoords) {
                     SkGlyphCache::AttachCache(cache);
                     info.fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
@@ -906,6 +1001,16 @@ private:
         for (int i = 0; i < kVerticesPerGlyph; i++) {
             SkColor* vcolor = reinterpret_cast<SkColor*>(vertex);
             *vcolor = color;
+            vertex += vertexStride;
+        }
+    }
+
+    void regeneratePositions(intptr_t vertex, size_t vertexStride, SkScalar transX,
+                             SkScalar transY) {
+        for (int i = 0; i < kVerticesPerGlyph; i++) {
+            SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
+            point->fX += transX;
+            point->fY += transY;
             vertex += vertexStride;
         }
     }
@@ -1016,7 +1121,7 @@ void GrAtlasTextContext::flushRunAsPaths(const SkTextBlob::RunIterator& it, cons
 
 inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder* pipelineBuilder,
                                          BitmapTextBlob* cacheBlob, int run, GrColor color,
-                                         uint8_t paintAlpha) {
+                                         uint8_t paintAlpha, SkScalar transX, SkScalar transY) {
     for (int subRun = 0; subRun < cacheBlob->fRuns[run].fSubRunInfo.count(); subRun++) {
         const PerSubRunInfo& info = cacheBlob->fRuns[run].fSubRunInfo[subRun];
         int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
@@ -1034,6 +1139,8 @@ inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder
         geometry.fRun = run;
         geometry.fSubRun = subRun;
         geometry.fColor = subRunColor;
+        geometry.fTransX = transX;
+        geometry.fTransY = transY;
         SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, format, glyphCount,
                                                             fContext->getBatchFontCache()));
 
@@ -1042,11 +1149,15 @@ inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder
 }
 
 inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
-                                               const GrPaint& grPaint, const GrClip& clip) {
+                                               const GrPaint& grPaint, const GrClip& clip,
+                                               SkScalar transX, SkScalar transY) {
     for (int i = 0; i < cacheBlob->fBigGlyphs.count(); i++) {
-        const BitmapTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
+        BitmapTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
+        bigGlyph.fVx += SkScalarTruncToInt(transX);
+        bigGlyph.fVy += SkScalarTruncToInt(transY);
         SkMatrix translate;
-        translate.setTranslate(SkIntToScalar(bigGlyph.fVx), SkIntToScalar(bigGlyph.fVy));
+        translate.setTranslate(SkIntToScalar(bigGlyph.fVx),
+                               SkIntToScalar(bigGlyph.fVy));
         SkPath tmpPath(bigGlyph.fPath);
         tmpPath.transform(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
@@ -1064,8 +1175,8 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
                                const GrClip& clip,
                                const SkMatrix& viewMatrix,
                                const SkIRect& clipBounds,
-                               SkScalar x,
-                               SkScalar y) {
+                               SkScalar x, SkScalar y,
+                               SkScalar transX, SkScalar transY) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
     GrPipelineBuilder pipelineBuilder;
@@ -1080,11 +1191,12 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
             this->flushRunAsPaths(it, skPaint, drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
-        this->flushRun(target, &pipelineBuilder, cacheBlob, run, color, paintAlpha);
+        cacheBlob->fRuns[run].fVertexBounds.offset(transX, transY);
+        this->flushRun(target, &pipelineBuilder, cacheBlob, run, color, paintAlpha, transX, transY);
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip);
+    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip, transX, transY);
 }
 
 void GrAtlasTextContext::flush(GrDrawTarget* target,
@@ -1100,9 +1212,9 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
     GrColor color = grPaint.getColor();
     uint8_t paintAlpha = skPaint.getAlpha();
     for (int run = 0; run < cacheBlob->fRunCount; run++) {
-        this->flushRun(target, &pipelineBuilder, cacheBlob, run, color, paintAlpha);
+        this->flushRun(target, &pipelineBuilder, cacheBlob, run, color, paintAlpha, 0, 0);
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip);
+    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip, 0, 0);
 }

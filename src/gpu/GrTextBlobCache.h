@@ -32,6 +32,13 @@ public:
 
     // creates an uncached blob
     BitmapTextBlob* createBlob(int glyphCount, int runCount, size_t maxVASize);
+    BitmapTextBlob* createBlob(const SkTextBlob* blob, size_t maxVAStride) {
+        int glyphCount = 0;
+        int runCount = 0;
+        BlobGlyphCount(&glyphCount, &runCount, blob);
+        BitmapTextBlob* cacheBlob = this->createBlob(glyphCount, runCount, maxVAStride);
+        return cacheBlob;
+    }
 
     BitmapTextBlob* createCachedBlob(const SkTextBlob* blob, size_t maxVAStride) {
         int glyphCount = 0;

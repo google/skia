@@ -123,8 +123,12 @@ private:
             int fVx;
             int fVy;
         };
-
+#ifdef SK_DEBUG
+        mutable SkScalar fTotalXError;
+        mutable SkScalar fTotalYError;
+#endif
         SkTArray<BigGlyph> fBigGlyphs;
+        GrColor fColor; // the original color on the paint
         SkMatrix fViewMatrix;
         SkScalar fX;
         SkScalar fY;
@@ -171,14 +175,15 @@ private:
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);
     inline void flushRun(GrDrawTarget*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
-                         uint8_t paintAlpha);
+                         uint8_t paintAlpha, SkScalar transX, SkScalar transY);
     inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
-                               const GrPaint& grPaint, const GrClip& clip);
+                               const GrPaint& grPaint, const GrClip& clip,
+                               SkScalar transX, SkScalar transY);
 
     // We have to flush SkTextBlobs differently from drawText / drawPosText
     void flush(GrDrawTarget*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, SkDrawFilter*, const GrClip&, const SkMatrix& viewMatrix,
-               const SkIRect& clipBounds, SkScalar x, SkScalar y);
+               const SkIRect& clipBounds, SkScalar x, SkScalar y, SkScalar transX, SkScalar transY);
     void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, const GrClip&, const SkMatrix& viewMatrix);
 
@@ -193,7 +198,8 @@ private:
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix& viewMatrix);
-    static inline bool MustRegenerateBlob(const BitmapTextBlob&, const SkPaint&,
+    static inline bool MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
+                                          const BitmapTextBlob&, const SkPaint&,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
     void regenerateTextBlob(BitmapTextBlob* bmp, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
