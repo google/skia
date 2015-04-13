@@ -64,7 +64,9 @@ protected:
         }
 
         for (int i = 0; i < loops; i++) {
-            canvas->drawPath(path, paint);
+            for (int j = 0; j < 100; ++j) {
+                canvas->drawPath(path, paint);
+            }
         }
     }
 
