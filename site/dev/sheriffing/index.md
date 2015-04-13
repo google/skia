@@ -130,14 +130,32 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
       * Layout tests effected
       * You should copy the list of affected from stdio of the failing bot
   * Status: Assigned
-  * Owner: fmalita@
+  * Owner: yourself
   * cc: reed@, bsalomon@, robertphillips@ & developer responsible for changes
   * Labels: OS-All & Cr-Blink-LayoutTests
   * If it is filter related, cc senorblanco@
 
-* Edit [skia/skia_test_expectations.txt](https://chromium.googlesource.com/chromium/src/+/master/skia/skia_test_expectations.txt)
+* (Dispreferred but faster) Edit [skia/skia_test_expectations.txt](https://chromium.googlesource.com/chromium/src/+/master/skia/skia_test_expectations.txt)
   * Add # comment about what has changed (I usually paraphrase the crbug text)
-  * Add line(s) like after the comment:
+  * Add line(s) like the following after the comment:
       * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ ImageOnlyFailure ]
+  * Note: this change is usually done in the DEPS roll patch itself
 
-* Commit the changes and fire off new try bots (you usually only need to fire off the layout bots)
+* (Preferred but slower) Make a separate Blink patch by editing LayoutTests/TestExpectations
+  * Add # comment about what has changed (I usually paraphrase the crbug text)
+  * Add line(s) like the following after the comment:
+      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ NeedsManualRebaseline ]
+  * Commit the patch you created and wait until it lands and rolls into Chrome
+
+* Retry the DEPS roll (for the 1st/dispreferred option this usually means just retrying the layout bots)
+* Make a Blink patch by editing LayoutTests/TestExpectations
+  * Add # comment about what has changed 
+  * Add line(s) like the following after the comment:
+      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ NeedsRebaseline ]
+        * (if you took the second option above you can just edit the existing line(s))
+
+* If you took the first/dispreferred option above:
+  * Wait for the Blink patch to roll into Chrome
+  * Create a Chrome patch that removes your suppressions from skia/skia_test_expectations.txt
+
+
