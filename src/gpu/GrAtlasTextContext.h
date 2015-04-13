@@ -14,6 +14,7 @@
 #include "GrGeometryProcessor.h"
 #include "SkDescriptor.h"
 #include "GrMemoryPool.h"
+#include "SkMaskFilter.h"
 #include "SkTextBlob.h"
 #include "SkTInternalLList.h"
 
@@ -84,7 +85,6 @@ private:
          * glyph cache to get the path at flush time, or hold onto the path in the cache, which
          * would greatly increase the memory of these cached items.
          */
-
         struct Run {
             Run() : fColor(GrColor_ILLEGAL), fInitialized(false), fDrawAsPaths(false) {
                 fVertexBounds.setLargestInverted();
@@ -132,9 +132,14 @@ private:
         SkMatrix fViewMatrix;
         SkScalar fX;
         SkScalar fY;
-        SkPaint::Style fStyle;
         int fRunCount;
-        uint32_t fUniqueID;
+        SkMaskFilter::BlurRec fBlurRec;
+        struct StrokeInfo {
+            SkScalar fFrameWidth;
+            SkScalar fMiterLimit;
+            SkPaint::Join fJoin;
+        };
+        StrokeInfo fStrokeInfo;
         GrMemoryPool* fPool;
 
         // all glyph / vertex offsets are into these pools.
@@ -142,12 +147,26 @@ private:
         GrGlyph::PackedID* fGlyphIDs;
         Run* fRuns;
 
-        static const uint32_t& GetKey(const BitmapTextBlob& blob) {
-            return blob.fUniqueID;
+        struct Key {
+            Key() {
+                memset(this, 0, sizeof(Key));
+            }
+            uint32_t fUniqueID;
+            SkPaint::Style fStyle;
+            bool fHasBlur;
+
+            bool operator==(const Key& other) const {
+                return 0 == memcmp(this, &other, sizeof(Key));
+            }
+        };
+        Key fKey;
+
+        static const Key& GetKey(const BitmapTextBlob& blob) {
+            return blob.fKey;
         }
 
-        static uint32_t Hash(const uint32_t& key) {
-            return SkChecksum::Mix(key);
+        static uint32_t Hash(const Key& key) {
+            return SkChecksum::Murmur3(&key, sizeof(Key));
         }
 
         void operator delete(void* p) {
@@ -200,6 +219,7 @@ private:
     inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix& viewMatrix);
     static inline bool MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
                                           const BitmapTextBlob&, const SkPaint&,
+                                          const SkMaskFilter::BlurRec&,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
     void regenerateTextBlob(BitmapTextBlob* bmp, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,

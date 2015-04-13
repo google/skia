@@ -40,22 +40,34 @@ public:
         return cacheBlob;
     }
 
-    BitmapTextBlob* createCachedBlob(const SkTextBlob* blob, size_t maxVAStride) {
+    BitmapTextBlob* createCachedBlob(const SkTextBlob* blob,
+                                     const BitmapTextBlob::Key& key,
+                                     const SkMaskFilter::BlurRec& blurRec,
+                                     const SkPaint& paint,
+                                     size_t maxVAStride) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
         BitmapTextBlob* cacheBlob = this->createBlob(glyphCount, runCount, maxVAStride);
-        cacheBlob->fUniqueID = blob->uniqueID();
+        cacheBlob->fKey = key;
+        if (key.fHasBlur) {
+            cacheBlob->fBlurRec = blurRec;
+        }
+        if (key.fStyle != SkPaint::kFill_Style) {
+            cacheBlob->fStrokeInfo.fFrameWidth = paint.getStrokeWidth();
+            cacheBlob->fStrokeInfo.fMiterLimit = paint.getStrokeMiter();
+            cacheBlob->fStrokeInfo.fJoin = paint.getStrokeJoin();
+        }
         this->add(cacheBlob);
         return cacheBlob;
     }
 
-    BitmapTextBlob* find(uint32_t uniqueID) {
-        return fCache.find(uniqueID);
+    BitmapTextBlob* find(const BitmapTextBlob::Key& key) {
+        return fCache.find(key);
     }
 
     void remove(BitmapTextBlob* blob) {
-        fCache.remove(blob->fUniqueID);
+        fCache.remove(blob->fKey);
         fBlobList.remove(blob);
         blob->unref();
     }
@@ -71,7 +83,7 @@ public:
             BitmapTextBlob* lruBlob = iter.get();
             SkASSERT(lruBlob);
             while (fPool.size() > kBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                fCache.remove(lruBlob->fUniqueID);
+                fCache.remove(lruBlob->fKey);
 
                 // Backup the iterator before removing and unrefing the blob
                 iter.prev();
@@ -120,7 +132,7 @@ private:
     static const int kMinGrowthSize = 1 << 17;
     static const int kBudget = 1 << 22;
     BitmapBlobList fBlobList;
-    SkTDynamicHash<BitmapTextBlob, uint32_t> fCache;
+    SkTDynamicHash<BitmapTextBlob, BitmapTextBlob::Key> fCache;
     GrMemoryPool fPool;
     PFOverBudgetCB fCallback;
     void* fData;

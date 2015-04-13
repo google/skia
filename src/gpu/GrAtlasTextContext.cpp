@@ -60,10 +60,10 @@ static size_t get_vertex_stride(GrMaskFormat maskFormat) {
 };
 
 // TODO
-// More tests
-// move to SkCache
-// handle textblobs where the whole run is larger than the cache size
-// TODO implement micro speedy hash map for fast refing of glyphs
+// Gamma slotting to preserve color
+// Better reuse on regeneration
+// Telemetry tests
+// possibly consider having a regeneration ratio on the textblob itself for animated textblobs
 
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        SkGpuDevice* gpuDevice,
@@ -93,6 +93,7 @@ bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
 
 bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
                                             const BitmapTextBlob& blob, const SkPaint& paint,
+                                            const SkMaskFilter::BlurRec& blurRec,
                                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
     // Color can affect the mask
     // TODO we can adjust the color within specific gamma slots
@@ -112,6 +113,22 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
         blob.fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
         blob.fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
         blob.fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
+        return true;
+    }
+
+    // We only cache one masked version
+    if (blob.fKey.fHasBlur &&
+        (blob.fBlurRec.fSigma != blurRec.fSigma ||
+         blob.fBlurRec.fStyle != blurRec.fStyle ||
+         blob.fBlurRec.fQuality != blurRec.fQuality)) {
+        return true;
+    }
+
+    // Similarly, we only cache one version for each style
+    if (blob.fKey.fStyle != SkPaint::kFill_Style &&
+        (blob.fStrokeInfo.fFrameWidth != paint.getStrokeWidth() ||
+         blob.fStrokeInfo.fMiterLimit != paint.getStrokeMiter() ||
+         blob.fStrokeInfo.fJoin != paint.getStrokeJoin())) {
         return true;
     }
 
@@ -162,17 +179,22 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                                       const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                       const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
-    uint32_t uniqueID = blob->uniqueID();
     SkAutoTUnref<BitmapTextBlob> cacheBlob;
-    // TODO start caching these, mix bits into the key
+
+    SkMaskFilter::BlurRec blurRec;
+    BitmapTextBlob::Key key;
+    // It might be worth caching these things, but its not clear at this time
+    // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
+    const SkMaskFilter* mf = skPaint.getMaskFilter();
     bool canCache = !(skPaint.getPathEffect() ||
-                      skPaint.getMaskFilter() ||
-                      skPaint.getColorFilter() ||
-                      skPaint.getStyle() != SkPaint::kFill_Style ||
+                      (mf && !mf->asABlur(&blurRec)) ||
                       drawFilter);
 
     if (canCache) {
-        cacheBlob.reset(SkSafeRef(fCache->find(uniqueID)));
+        key.fUniqueID = blob->uniqueID();
+        key.fStyle = skPaint.getStyle();
+        key.fHasBlur = SkToBool(mf);
+        cacheBlob.reset(SkSafeRef(fCache->find(key)));
     }
 
     SkIRect clipRect;
@@ -182,12 +204,13 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
     SkScalar transY = 0.f;
 
     if (cacheBlob) {
-        if (MustRegenerateBlob(&transX, &transY, *cacheBlob, skPaint, viewMatrix, x, y)) {
+        if (MustRegenerateBlob(&transX, &transY, *cacheBlob, skPaint, blurRec, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             fCache->remove(cacheBlob);
-            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, kGrayTextVASize)));
+            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
+                                                           kGrayTextVASize)));
             this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter,
                                      clipRect);
         } else {
@@ -200,7 +223,8 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
         }
     } else {
         if (canCache) {
-            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, kGrayTextVASize)));
+            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
+                                                           kGrayTextVASize)));
         } else {
             cacheBlob.reset(fCache->createBlob(blob, kGrayTextVASize));
         }
@@ -224,7 +248,6 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
     cacheBlob->fX = x;
     cacheBlob->fY = y;
     cacheBlob->fColor = skPaint.getColor();
-    cacheBlob->fStyle = skPaint.getStyle();
 
     // Regenerate textblob
     SkPaint runPaint = skPaint;
@@ -302,7 +325,6 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
     blob->fViewMatrix = viewMatrix;
     blob->fX = x;
     blob->fY = y;
-    blob->fStyle = skPaint.getStyle();
 
     SkIRect clipRect;
     clip.getConservativeBounds(rt->width(), rt->height(), &clipRect);
@@ -413,7 +435,6 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                        const SkPoint& offset, const SkIRect& regionClipBounds) {
     int glyphCount = skPaint.countText(text, byteLength);
     SkAutoTUnref<BitmapTextBlob> blob(fCache->createBlob(glyphCount, 1, kGrayTextVASize));
-    blob->fStyle = skPaint.getStyle();
     blob->fViewMatrix = viewMatrix;
 
     SkIRect clipRect;

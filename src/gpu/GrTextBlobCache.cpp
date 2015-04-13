@@ -10,7 +10,7 @@
 static const int kVerticesPerGlyph = 4;
 
 GrTextBlobCache::~GrTextBlobCache() {
-    SkTDynamicHash<BitmapTextBlob, uint32_t>::Iter iter(&fCache);
+    SkTDynamicHash<BitmapTextBlob, BitmapTextBlob::Key>::Iter iter(&fCache);
     while (!iter.done()) {
         (&(*iter))->unref();
         ++iter;
