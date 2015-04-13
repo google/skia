@@ -22,7 +22,11 @@ void SkRecord::grow() {
 }
 
 size_t SkRecord::bytesUsed() const {
-    return fAlloc.approxBytesAllocated() +
-           (fReserved - kInlineRecords) * sizeof(Record) +
-           sizeof(SkRecord);
+    size_t bytes = fAlloc.approxBytesAllocated() + sizeof(SkRecord);
+    // If fReserved <= kInlineRecords, we've already accounted for fRecords with sizeof(SkRecord).
+    // When we go over that limit, they're allocated on the heap (and the inline space is wasted).
+    if (fReserved > kInlineRecords) {
+        bytes += fReserved * sizeof(Record);
+    }
+    return bytes;
 }
