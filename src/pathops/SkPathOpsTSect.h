@@ -16,8 +16,8 @@
 template<typename TCurve>
 class SkTCoincident {
 public:
-    SkTCoincident()
-        : fCoincident(false) {
+    SkTCoincident() {
+        clear();
     }
 
     void clear() {
@@ -30,9 +30,8 @@ public:
     }
 
     void init() {
-        fCoincident = false;
+        clear();
         SkDEBUGCODE(fPerpPt.fX = fPerpPt.fY = SK_ScalarNaN);
-        SkDEBUGCODE(fPerpT = SK_ScalarNaN);
     }
 
     void markCoincident() {
