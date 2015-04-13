@@ -115,6 +115,7 @@ def get_args(bot):
     blacklist.extend('pdf _ _ PANO_20121023_214540.jpg'.split(' '))
     blacklist.extend('pdf skp _ worldjournal'.split(' '))
     blacklist.extend('pdf skp _ desk_baidu.skp'.split(' '))
+    blacklist.extend('pdf skp _ desk_wikipedia.skp'.split(' '))
 
   if blacklist:
     args.append('--blacklist')
