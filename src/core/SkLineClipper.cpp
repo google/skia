@@ -78,7 +78,7 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
                                   SkPoint dst[2]) {
     SkRect bounds;
 
-    bounds.set(src, 2);
+    bounds.set(src[0], src[1]);
     if (containsNoEmptyCheck(clip, bounds)) {
         if (src != dst) {
             memcpy(dst, src, 2 * sizeof(SkPoint));
@@ -137,7 +137,7 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
         tmp[index1].set(clip.fRight, sect_with_vertical(src, clip.fRight));
     }
 #ifdef SK_DEBUG
-    bounds.set(tmp, 2);
+    bounds.set(tmp[0], tmp[1]);
     SkASSERT(containsNoEmptyCheck(clip, bounds));
 #endif
     memcpy(dst, tmp, sizeof(tmp));
