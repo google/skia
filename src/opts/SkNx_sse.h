@@ -185,5 +185,59 @@ protected:
     __m128 fVec;
 };
 
+template <>
+class SkNi<4, uint16_t> {
+public:
+    SkNi(const __m128i& vec) : fVec(vec) {}
+
+    SkNi() {}
+    explicit SkNi(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
+    static SkNi Load(const uint16_t vals[4]) { return _mm_loadl_epi64((const __m128i*)vals); }
+    SkNi(uint16_t a, uint16_t b, uint16_t c, uint16_t d) : fVec(_mm_setr_epi16(a,b,c,d,0,0,0,0)) {}
+
+    void store(uint16_t vals[4]) const { _mm_storel_epi64((__m128i*)vals, fVec); }
+
+    SkNi operator + (const SkNi& o) const { return _mm_add_epi16(fVec, o.fVec); }
+    SkNi operator - (const SkNi& o) const { return _mm_sub_epi16(fVec, o.fVec); }
+    SkNi operator * (const SkNi& o) const { return _mm_mullo_epi16(fVec, o.fVec); }
+
+    SkNi operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
+    SkNi operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
+
+    template <int k> uint16_t kth() const {
+        SkASSERT(0 <= k && k < 4);
+        return _mm_extract_epi16(fVec, k);
+    }
+protected:
+    __m128i fVec;
+};
+
+template <>
+class SkNi<8, uint16_t> {
+public:
+    SkNi(const __m128i& vec) : fVec(vec) {}
+
+    SkNi() {}
+    explicit SkNi(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
+    static SkNi Load(const uint16_t vals[8]) { return _mm_loadu_si128((const __m128i*)vals); }
+    SkNi(uint16_t a, uint16_t b, uint16_t c, uint16_t d,
+         uint16_t e, uint16_t f, uint16_t g, uint16_t h) : fVec(_mm_setr_epi16(a,b,c,d,e,f,g,h)) {}
+
+    void store(uint16_t vals[8]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
+
+    SkNi operator + (const SkNi& o) const { return _mm_add_epi16(fVec, o.fVec); }
+    SkNi operator - (const SkNi& o) const { return _mm_sub_epi16(fVec, o.fVec); }
+    SkNi operator * (const SkNi& o) const { return _mm_mullo_epi16(fVec, o.fVec); }
+
+    SkNi operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
+    SkNi operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
+
+    template <int k> uint16_t kth() const {
+        SkASSERT(0 <= k && k < 8);
+        return _mm_extract_epi16(fVec, k);
+    }
+protected:
+    __m128i fVec;
+};
 
 #endif//SkNx_sse_DEFINED

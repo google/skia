@@ -77,3 +77,44 @@ DEF_TEST(SkNf, r) {
     test_Nf<4, float>(r);
     test_Nf<4, double>(r);
 }
+
+template <int N, typename T>
+void test_Ni(skiatest::Reporter* r) {
+    auto assert_eq = [&](const SkNi<N,T>& v, T a, T b, T c, T d, T e, T f, T g, T h) {
+        T vals[8];
+        v.store(vals);
+
+        switch (N) {
+          case 8: REPORTER_ASSERT(r, vals[4] == e && vals[5] == f && vals[6] == g && vals[7] == h);
+          case 4: REPORTER_ASSERT(r, vals[2] == c && vals[3] == d);
+          case 2: REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
+        }
+    };
+
+    T vals[] = { 1,2,3,4,5,6,7,8 };
+    SkNi<N,T> a = SkNi<N,T>::Load(vals),
+              b(a),
+              c = a;
+    SkNi<N,T> d;
+    d = a;
+
+    assert_eq(a, 1,2,3,4,5,6,7,8);
+    assert_eq(b, 1,2,3,4,5,6,7,8);
+    assert_eq(c, 1,2,3,4,5,6,7,8);
+    assert_eq(d, 1,2,3,4,5,6,7,8);
+
+    assert_eq(a+a, 2,4,6,8,10,12,14,16);
+    assert_eq(a*a, 1,4,9,16,25,36,49,64);
+    assert_eq(a*a-a, 0,2,6,12,20,30,42,56);
+
+    assert_eq(a >> 2, 0,0,0,1,1,1,1,2);
+    assert_eq(a << 1, 2,4,6,8,10,12,14,16);
+
+    REPORTER_ASSERT(r, a.template kth<1>() == 2);
+}
+
+DEF_TEST(SkNi, r) {
+    test_Ni<2, uint16_t>(r);
+    test_Ni<4, uint16_t>(r);
+    test_Ni<8, uint16_t>(r);
+}

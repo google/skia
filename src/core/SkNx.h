@@ -36,6 +36,45 @@ private:
 };
 
 template <int N, typename T>
+class SkNi {
+public:
+    SkNi() {}
+    explicit SkNi(T val) : fLo(val), fHi(val) {}
+    static SkNi Load(const T vals[N]) {
+        return SkNi(SkNi<N/2,T>::Load(vals), SkNi<N/2,T>::Load(vals+N/2));
+    }
+
+    SkNi(T a, T b)                               : fLo(a),       fHi(b)       { REQUIRE(N==2); }
+    SkNi(T a, T b, T c, T d)                     : fLo(a,b),     fHi(c,d)     { REQUIRE(N==4); }
+    SkNi(T a, T b, T c, T d, T e, T f, T g, T h) : fLo(a,b,c,d), fHi(e,f,g,h) { REQUIRE(N==8); }
+
+    void store(T vals[N]) const {
+        fLo.store(vals);
+        fHi.store(vals+N/2);
+    }
+
+    SkNi operator + (const SkNi& o) const { return SkNi(fLo + o.fLo, fHi + o.fHi); }
+    SkNi operator - (const SkNi& o) const { return SkNi(fLo - o.fLo, fHi - o.fHi); }
+    SkNi operator * (const SkNi& o) const { return SkNi(fLo * o.fLo, fHi * o.fHi); }
+
+    SkNi operator << (int bits) const { return SkNi(fLo << bits, fHi << bits); }
+    SkNi operator >> (int bits) const { return SkNi(fLo >> bits, fHi >> bits); }
+
+    // TODO: comparisons, min, max?
+
+    template <int k> T kth() const {
+        SkASSERT(0 <= k && k < N);
+        return k < N/2 ? fLo.template kth<k>() : fHi.template kth<k-N/2>();
+    }
+
+private:
+    REQUIRE(0 == (N & (N-1)));
+    SkNi(const SkNi<N/2, T>& lo, const SkNi<N/2, T>& hi) : fLo(lo), fHi(hi) {}
+
+    SkNi<N/2, T> fLo, fHi;
+};
+
+template <int N, typename T>
 class SkNf {
     typedef SkNb<N, sizeof(T)> Nb;
 public:
@@ -106,6 +145,31 @@ private:
 };
 
 template <typename T>
+class SkNi<1,T> {
+public:
+    SkNi() {}
+    explicit SkNi(T val) : fVal(val) {}
+    static SkNi Load(const T vals[1]) { return SkNi(vals[0]); }
+
+    void store(T vals[1]) const { vals[0] = fVal; }
+
+    SkNi operator + (const SkNi& o) const { return SkNi(fVal + o.fVal); }
+    SkNi operator - (const SkNi& o) const { return SkNi(fVal - o.fVal); }
+    SkNi operator * (const SkNi& o) const { return SkNi(fVal * o.fVal); }
+
+    SkNi operator << (int bits) const { return SkNi(fVal << bits); }
+    SkNi operator >> (int bits) const { return SkNi(fVal >> bits); }
+
+    template <int k> T kth() const {
+        SkASSERT(0 == k);
+        return fVal;
+    }
+
+private:
+    T fVal;
+};
+
+template <typename T>
 class SkNf<1,T> {
     typedef SkNb<1, sizeof(T)> Nb;
 public:
@@ -159,6 +223,8 @@ template <typename L, typename R> L& operator -= (L& l, const R& r) { return (l 
 template <typename L, typename R> L& operator *= (L& l, const R& r) { return (l = l * r); }
 template <typename L, typename R> L& operator /= (L& l, const R& r) { return (l = l / r); }
 
+template <typename L> L& operator <<= (L& l, int bits) { return (l = l << bits); }
+template <typename L> L& operator >>= (L& l, int bits) { return (l = l >> bits); }
 
 // Include platform specific specializations if available.
 #ifndef SKNX_NO_SIMD
@@ -178,5 +244,8 @@ typedef SkNf<2, SkScalar> Sk2s;
 typedef SkNf<4,    float> Sk4f;
 typedef SkNf<4,   double> Sk4d;
 typedef SkNf<4, SkScalar> Sk4s;
+
+typedef SkNi<4, uint16_t> Sk4h;
+typedef SkNi<8, uint16_t> Sk8h;
 
 #endif//SkNx_DEFINED
