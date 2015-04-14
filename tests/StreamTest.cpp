@@ -259,6 +259,9 @@ DEF_TEST(StreamPeek, reporter) {
     // Test an arbitrary file stream. file streams do not support peeking.
     SkFILEStream fileStream(GetResourcePath("baby_tux.webp").c_str());
     REPORTER_ASSERT(reporter, fileStream.isValid());
+    if (!fileStream.isValid()) {
+        return;
+    }
     SkAutoMalloc storage(fileStream.getLength());
     for (size_t i = 1; i < fileStream.getLength(); i++) {
         REPORTER_ASSERT(reporter, !fileStream.peek(storage.get(), i));
