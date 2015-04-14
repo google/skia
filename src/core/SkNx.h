@@ -17,29 +17,30 @@
 #include <math.h>
 #define REQUIRE(x) static_assert(x, #x)
 
-// The default implementations of SkNi<N,T> and SkNf<N,T> just fall back on a pair of size N/2.
-template <int N, typename T>
-class SkNi {
+// The default implementations just fall back on a pair of size N/2.
+
+// SkNb is a _very_ minimal class representing a vector of bools returned by comparison operators.
+// We pass along the byte size of the compared types (Bytes) to help platform specializations.
+template <int N, int Bytes>
+class SkNb {
 public:
-    // For now SkNi is a _very_ minimal sketch just to support comparison operators on SkNf.
-    SkNi() {}
-    SkNi(const SkNi<N/2, T>& lo, const SkNi<N/2, T>& hi) : fLo(lo), fHi(hi) {}
+    SkNb() {}
+    SkNb(const SkNb<N/2, Bytes>& lo, const SkNb<N/2, Bytes>& hi) : fLo(lo), fHi(hi) {}
+
     bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
     bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
 
 private:
     REQUIRE(0 == (N & (N-1)));
-    SkNi<N/2, T> fLo, fHi;
+    SkNb<N/2, Bytes> fLo, fHi;
 };
 
 template <int N, typename T>
 class SkNf {
-    static SkNi<N,int32_t> ToNi(float);
-    static SkNi<N,int64_t> ToNi(double);
-    typedef decltype(ToNi(T())) Ni;
+    typedef SkNb<N, sizeof(T)> Nb;
 public:
     SkNf() {}
-    explicit SkNf(T val)           : fLo(val),  fHi(val)      {}
+    explicit SkNf(T val) : fLo(val),  fHi(val) {}
     static SkNf Load(const T vals[N]) {
         return SkNf(SkNf<N/2,T>::Load(vals), SkNf<N/2,T>::Load(vals+N/2));
     }
@@ -58,12 +59,12 @@ public:
     SkNf operator * (const SkNf& o) const { return SkNf(fLo * o.fLo, fHi * o.fHi); }
     SkNf operator / (const SkNf& o) const { return SkNf(fLo / o.fLo, fHi / o.fHi); }
 
-    Ni operator == (const SkNf& o) const { return Ni(fLo == o.fLo, fHi == o.fHi); }
-    Ni operator != (const SkNf& o) const { return Ni(fLo != o.fLo, fHi != o.fHi); }
-    Ni operator  < (const SkNf& o) const { return Ni(fLo  < o.fLo, fHi  < o.fHi); }
-    Ni operator  > (const SkNf& o) const { return Ni(fLo  > o.fLo, fHi  > o.fHi); }
-    Ni operator <= (const SkNf& o) const { return Ni(fLo <= o.fLo, fHi <= o.fHi); }
-    Ni operator >= (const SkNf& o) const { return Ni(fLo >= o.fLo, fHi >= o.fHi); }
+    Nb operator == (const SkNf& o) const { return Nb(fLo == o.fLo, fHi == o.fHi); }
+    Nb operator != (const SkNf& o) const { return Nb(fLo != o.fLo, fHi != o.fHi); }
+    Nb operator  < (const SkNf& o) const { return Nb(fLo  < o.fLo, fHi  < o.fHi); }
+    Nb operator  > (const SkNf& o) const { return Nb(fLo  > o.fLo, fHi  > o.fHi); }
+    Nb operator <= (const SkNf& o) const { return Nb(fLo <= o.fLo, fHi <= o.fHi); }
+    Nb operator >= (const SkNf& o) const { return Nb(fLo >= o.fLo, fHi >= o.fHi); }
 
     static SkNf Min(const SkNf& l, const SkNf& r) {
         return SkNf(SkNf<N/2,T>::Min(l.fLo, r.fLo), SkNf<N/2,T>::Min(l.fHi, r.fHi));
@@ -91,27 +92,25 @@ private:
 };
 
 
-// Bottom out the default implementation with scalars when nothing's been specialized.
-template <typename T>
-class SkNi<1,T> {
-public:
-    SkNi() {}
-    explicit SkNi(T val) : fVal(val) {}
-    bool allTrue() const { return (bool)fVal; }
-    bool anyTrue() const { return (bool)fVal; }
+// Bottom out the default implementations with scalars when nothing's been specialized.
 
+template <int Bytes>
+class SkNb<1, Bytes> {
+public:
+    SkNb() {}
+    explicit SkNb(bool val) : fVal(val) {}
+    bool allTrue() const { return fVal; }
+    bool anyTrue() const { return fVal; }
 private:
-    T fVal;
+    bool fVal;
 };
 
 template <typename T>
 class SkNf<1,T> {
-    static SkNi<1,int32_t> ToNi(float);
-    static SkNi<1,int64_t> ToNi(double);
-    typedef decltype(ToNi(T())) Ni;
+    typedef SkNb<1, sizeof(T)> Nb;
 public:
     SkNf() {}
-    explicit SkNf(T val)           : fVal(val)     {}
+    explicit SkNf(T val) : fVal(val) {}
     static SkNf Load(const T vals[1]) { return SkNf(vals[0]); }
 
     void store(T vals[1]) const { vals[0] = fVal; }
@@ -121,17 +120,17 @@ public:
     SkNf operator * (const SkNf& o) const { return SkNf(fVal * o.fVal); }
     SkNf operator / (const SkNf& o) const { return SkNf(fVal / o.fVal); }
 
-    Ni operator == (const SkNf& o) const { return Ni(fVal == o.fVal); }
-    Ni operator != (const SkNf& o) const { return Ni(fVal != o.fVal); }
-    Ni operator  < (const SkNf& o) const { return Ni(fVal  < o.fVal); }
-    Ni operator  > (const SkNf& o) const { return Ni(fVal  > o.fVal); }
-    Ni operator <= (const SkNf& o) const { return Ni(fVal <= o.fVal); }
-    Ni operator >= (const SkNf& o) const { return Ni(fVal >= o.fVal); }
+    Nb operator == (const SkNf& o) const { return Nb(fVal == o.fVal); }
+    Nb operator != (const SkNf& o) const { return Nb(fVal != o.fVal); }
+    Nb operator  < (const SkNf& o) const { return Nb(fVal  < o.fVal); }
+    Nb operator  > (const SkNf& o) const { return Nb(fVal  > o.fVal); }
+    Nb operator <= (const SkNf& o) const { return Nb(fVal <= o.fVal); }
+    Nb operator >= (const SkNf& o) const { return Nb(fVal >= o.fVal); }
 
     static SkNf Min(const SkNf& l, const SkNf& r) { return SkNf(SkTMin(l.fVal, r.fVal)); }
     static SkNf Max(const SkNf& l, const SkNf& r) { return SkNf(SkTMax(l.fVal, r.fVal)); }
 
-    SkNf  sqrt() const { return SkNf(Sqrt(fVal));          }
+    SkNf  sqrt() const { return SkNf(Sqrt(fVal));        }
     SkNf rsqrt() const { return SkNf((T)1 / Sqrt(fVal)); }
 
     SkNf       invert() const { return SkNf((T)1 / fVal); }
@@ -152,13 +151,13 @@ private:
 };
 
 
-// Generic syntax sugar that should work equally well for all SkNi and SkNf implementations.
-template <typename SkNx> SkNx operator - (const SkNx& l) { return SkNx(0) - l; }
+// Generic syntax sugar that should work equally well for all implementations.
+template <typename T> T operator - (const T& l) { return T(0) - l; }
 
-template <typename SkNx> SkNx& operator += (SkNx& l, const SkNx& r) { return (l = l + r); }
-template <typename SkNx> SkNx& operator -= (SkNx& l, const SkNx& r) { return (l = l - r); }
-template <typename SkNx> SkNx& operator *= (SkNx& l, const SkNx& r) { return (l = l * r); }
-template <typename SkNx> SkNx& operator /= (SkNx& l, const SkNx& r) { return (l = l / r); }
+template <typename L, typename R> L& operator += (L& l, const R& r) { return (l = l + r); }
+template <typename L, typename R> L& operator -= (L& l, const R& r) { return (l = l - r); }
+template <typename L, typename R> L& operator *= (L& l, const R& r) { return (l = l * r); }
+template <typename L, typename R> L& operator /= (L& l, const R& r) { return (l = l / r); }
 
 
 // Include platform specific specializations if available.
@@ -179,7 +178,5 @@ typedef SkNf<2, SkScalar> Sk2s;
 typedef SkNf<4,    float> Sk4f;
 typedef SkNf<4,   double> Sk4d;
 typedef SkNf<4, SkScalar> Sk4s;
-
-typedef SkNi<4, int32_t> Sk4i;
 
 #endif//SkNx_DEFINED

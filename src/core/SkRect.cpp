@@ -48,7 +48,7 @@ void SkRect::toQuad(SkPoint quad[4]) const {
 #include "SkNx.h"
 
 static inline bool is_finite(const Sk4s& value) {
-    Sk4i finite = value * Sk4s(0) == Sk4s(0);
+    auto finite = value * Sk4s(0) == Sk4s(0);
     return finite.allTrue();
 }
 
