@@ -12,6 +12,7 @@
 #include "SkCanvas.h"
 #include "SkShader.h"
 #include "SkTestScalerContext.h"
+#include "SkTextBlob.h"
 
 DEFINE_bool(portableFonts, false, "Use portable fonts");
 DEFINE_bool(resourceFonts, false, "Use resource fonts");
@@ -76,5 +77,21 @@ void draw_checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas->drawPaint(paint);
 }
+
+void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
+                      SkScalar x, SkScalar y) {
+    SkPaint paint(origPaint);
+    SkTDArray<uint16_t> glyphs;
+
+    size_t len = strlen(text);
+    glyphs.append(paint.textToGlyphs(text, len, NULL));
+    paint.textToGlyphs(text, len, glyphs.begin());
+
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(paint, glyphs.count(), x, y,
+                                                                NULL);
+    memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
+}
+
 
 }  // namespace sk_tool_utils

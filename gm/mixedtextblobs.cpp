@@ -16,21 +16,6 @@
 
 namespace skiagm {
 
-static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
-                             SkScalar x, SkScalar y) {
-    SkPaint paint(origPaint);
-    SkTDArray<uint16_t> glyphs;
-
-    size_t len = strlen(text);
-    glyphs.append(paint.textToGlyphs(text, len, NULL));
-    paint.textToGlyphs(text, len, glyphs.begin());
-
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(paint, glyphs.count(), x, y,
-                                                                NULL);
-    memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
-}
-
 static void draw_blob(SkCanvas* canvas, const SkTextBlob* blob, const SkPaint& skPaint,
                       const SkRect& clipRect) {
     SkPaint clipHairline;
@@ -91,7 +76,7 @@ protected:
         paint.measureText(text, strlen(text), &bounds);
 
         SkScalar yOffset = bounds.height();
-        add_to_text_blob(&builder, text, paint, 10, yOffset);
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 10, yOffset);
         SkScalar corruptedAx = bounds.width();
         SkScalar corruptedAy = yOffset;
 
@@ -107,8 +92,8 @@ protected:
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
         paint.measureText(text, strlen(text), &bounds);
-        add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.25f,
-                                                yOffset - bounds.height() * 0.5f);
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.25f,
+                                        yOffset - bounds.height() * 0.5f);
         yOffset += bounds.height();
 
         // color emoji
@@ -117,13 +102,14 @@ protected:
         paint.setTypeface(fEmojiTypeface);
         text = fEmojiText;
         paint.measureText(text, strlen(text), &bounds);
-        add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.3f, yOffset);
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.3f,
+                                        yOffset);
 
         // Corrupted font
         paint.setTextSize(12);
         text = "aA";
         paint.setTypeface(fReallyBigATypeface);
-        add_to_text_blob(&builder, text, paint, corruptedAx, corruptedAy);
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, corruptedAx, corruptedAy);
         fBlob.reset(builder.build());
     }
 

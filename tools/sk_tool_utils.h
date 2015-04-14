@@ -19,6 +19,7 @@ class SkCanvas;
 class SkPaint;
 class SkShader;
 class SkTestFont;
+class SkTextBlobBuilder;
 
 namespace sk_tool_utils {
 
@@ -68,6 +69,10 @@ namespace sk_tool_utils {
                                               SkImageEncoder::kPNG_Type, 100);
         }
     };
+
+    // A helper for inserting a drawtext call into a SkTextBlobBuilder
+    void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
+                          SkScalar x, SkScalar y);
 
 }  // namespace sk_tool_utils
 

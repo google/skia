@@ -91,13 +91,47 @@ bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
     return !SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix);
 }
 
+GrColor GrAtlasTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd) {
+    GrColor canonicalColor = paint.computeLuminanceColor();
+    if (lcd) {
+        // This is the correct computation, but there are tons of cases where LCD can be overridden.
+        // For now we just regenerate if any run in a textblob has LCD.
+        // TODO figure out where all of these overrides are and see if we can incorporate that logic
+        // at a higher level *OR* use sRGB
+        SkASSERT(false);
+        //canonicalColor = SkMaskGamma::CanonicalColor(canonicalColor);
+    } else {
+        // A8, though can have mixed BMP text but it shouldn't matter because BMP text won't have
+        // gamma corrected masks anyways, nor color
+        U8CPU lum = SkComputeLuminance(SkColorGetR(canonicalColor),
+                                       SkColorGetG(canonicalColor),
+                                       SkColorGetB(canonicalColor));
+        // reduce to our finite number of bits
+        canonicalColor = SkMaskGamma::CanonicalColor(SkColorSetRGB(lum, lum, lum));
+    }
+    return canonicalColor;
+}
+
+// TODO if this function ever shows up in profiling, then we can compute this value when the
+// textblob is being built and cache it.  However, for the time being textblobs mostly only have 1
+// run so this is not a big deal to compute here.
+bool GrAtlasTextContext::HasLCD(const SkTextBlob* blob) {
+    SkTextBlob::RunIterator it(blob);
+    for (; !it.done(); it.next()) {
+        if (it.isLCD()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
                                             const BitmapTextBlob& blob, const SkPaint& paint,
                                             const SkMaskFilter::BlurRec& blurRec,
                                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-    // Color can affect the mask
-    // TODO we can adjust the color within specific gamma slots
-    if (blob.fColor != paint.getColor()) {
+    // If we have LCD text then our canonical color will be set to transparent, in this case we have
+    // to regenerate the blob on any color change
+    if (blob.fKey.fCanonicalColor == SK_ColorTRANSPARENT && blob.fPaintColor != paint.getColor()) {
         return true;
     }
 
@@ -180,7 +214,6 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                                       const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     SkAutoTUnref<BitmapTextBlob> cacheBlob;
-
     SkMaskFilter::BlurRec blurRec;
     BitmapTextBlob::Key key;
     // It might be worth caching these things, but its not clear at this time
@@ -191,9 +224,17 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                       drawFilter);
 
     if (canCache) {
+        bool hasLCD = HasLCD(blob);
+        // TODO we want to figure out a way to be able to use the canonical color on LCD text,
+        // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to
+        // ensure we always match the same key
+        GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
+                                          ComputeCanonicalColor(skPaint, hasLCD);
+
         key.fUniqueID = blob->uniqueID();
         key.fStyle = skPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
+        key.fCanonicalColor = canonicalColor;
         cacheBlob.reset(SkSafeRef(fCache->find(key)));
     }
 
@@ -203,6 +244,11 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
     SkScalar transX = 0.f;
     SkScalar transY = 0.f;
 
+    // Though for the time being runs in the textblob can override the paint, they only touch font
+    // info.
+    GrPaint grPaint;
+    SkPaint2GrPaintShader(fContext, rt, skPaint, viewMatrix, true, &grPaint);
+
     if (cacheBlob) {
         if (MustRegenerateBlob(&transX, &transY, *cacheBlob, skPaint, blurRec, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
@@ -211,11 +257,11 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
             fCache->remove(cacheBlob);
             cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
                                                            kGrayTextVASize)));
-            this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter,
-                                     clipRect);
+            this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix, blob, x, y,
+                                     drawFilter, clipRect);
         } else {
-            // If we can reuse the blob, then make sure we update the blob's viewmatrix and x/y
-            // offsets to reflect the results of any translations we may apply in generateGeometry
+            // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
+            // offsets
             cacheBlob->fViewMatrix = viewMatrix;
             cacheBlob->fX = x;
             cacheBlob->fY = y;
@@ -228,26 +274,23 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
         } else {
             cacheBlob.reset(fCache->createBlob(blob, kGrayTextVASize));
         }
-        this->regenerateTextBlob(cacheBlob, skPaint, viewMatrix, blob, x, y, drawFilter, clipRect);
+        this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix, blob, x, y,
+                                 drawFilter, clipRect);
     }
 
-    // Though for the time being runs in the textblob can override the paint, they only touch font
-    // info.
-    GrPaint grPaint;
-    SkPaint2GrPaintShader(fContext, rt, skPaint, viewMatrix, true, &grPaint);
-
+    cacheBlob->fPaintColor = skPaint.getColor();
     this->flush(fContext->getTextTarget(), blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
                 clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
 
 void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
-                                            const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                            const SkPaint& skPaint, GrColor color,
+                                            const SkMatrix& viewMatrix,
                                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                                             SkDrawFilter* drawFilter, const SkIRect& clipRect) {
     cacheBlob->fViewMatrix = viewMatrix;
     cacheBlob->fX = x;
     cacheBlob->fY = y;
-    cacheBlob->fColor = skPaint.getColor();
 
     // Regenerate textblob
     SkPaint runPaint = skPaint;
@@ -290,17 +333,17 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
 
         switch (it.positioning()) {
             case SkTextBlob::kDefault_Positioning:
-                this->internalDrawText(cacheBlob, run, cache, runPaint, viewMatrix,
+                this->internalDrawText(cacheBlob, run, cache, runPaint, color, viewMatrix,
                                        (const char *)it.glyphs(), textLen,
                                        x + offset.x(), y + offset.y(), clipRect);
                 break;
             case SkTextBlob::kHorizontal_Positioning:
-                this->internalDrawPosText(cacheBlob, run, cache, runPaint, viewMatrix,
+                this->internalDrawPosText(cacheBlob, run, cache, runPaint, color, viewMatrix,
                                           (const char*)it.glyphs(), textLen, it.pos(), 1,
                                           SkPoint::Make(x, y + offset.y()), clipRect);
                 break;
             case SkTextBlob::kFull_Positioning:
-                this->internalDrawPosText(cacheBlob, run, cache, runPaint, viewMatrix,
+                this->internalDrawPosText(cacheBlob, run, cache, runPaint, color, viewMatrix,
                                           (const char*)it.glyphs(), textLen, it.pos(), 2,
                                           SkPoint::Make(x, y), clipRect);
                 break;
@@ -331,7 +374,8 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
 
     // setup cache
     SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, viewMatrix);
-    this->internalDrawText(blob, 0, cache, skPaint, viewMatrix, text, byteLength, x, y, clipRect);
+    this->internalDrawText(blob, 0, cache, skPaint, paint.getColor(), viewMatrix, text, byteLength,
+                           x, y, clipRect);
     SkGlyphCache::AttachCache(cache);
 
     this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip, viewMatrix);
@@ -339,6 +383,7 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
 
 void GrAtlasTextContext::internalDrawText(BitmapTextBlob* blob, int runIndex,
                                           SkGlyphCache* cache, const SkPaint& skPaint,
+                                          GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const char text[], size_t byteLength,
                                           SkScalar x, SkScalar y, const SkIRect& clipRect) {
@@ -417,7 +462,7 @@ void GrAtlasTextContext::internalDrawText(BitmapTextBlob* blob, int runIndex,
                                             GrGlyph::kCoverage_MaskStyle),
                               Sk48Dot16FloorToInt(fx),
                               Sk48Dot16FloorToInt(fy),
-                              skPaint.getColor(),
+                              color,
                               fontScaler,
                               clipRect);
         }
@@ -442,8 +487,8 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
 
     // setup cache
     SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, viewMatrix);
-    this->internalDrawPosText(blob, 0, cache, skPaint, viewMatrix, text, byteLength, pos,
-                              scalarsPerPosition, offset, clipRect);
+    this->internalDrawPosText(blob, 0, cache, skPaint, paint.getColor(), viewMatrix, text,
+                              byteLength, pos, scalarsPerPosition, offset, clipRect);
     SkGlyphCache::AttachCache(cache);
 
     this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip, viewMatrix);
@@ -451,6 +496,7 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
 
 void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                              SkGlyphCache* cache, const SkPaint& skPaint,
+                                             GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const char text[], size_t byteLength,
                                              const SkScalar pos[], int scalarsPerPosition,
@@ -508,7 +554,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
-                                      skPaint.getColor(),
+                                      color,
                                       fontScaler,
                                       clipRect);
                 }
@@ -546,7 +592,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
-                                      skPaint.getColor(),
+                                      color,
                                       fontScaler,
                                       clipRect);
                 }
@@ -574,7 +620,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
-                                      skPaint.getColor(),
+                                      color,
                                       fontScaler,
                                       clipRect);
                 }
@@ -602,7 +648,7 @@ void GrAtlasTextContext::internalDrawPosText(BitmapTextBlob* blob, int runIndex,
                                                     GrGlyph::kCoverage_MaskStyle),
                                       Sk48Dot16FloorToInt(fx),
                                       Sk48Dot16FloorToInt(fy),
-                                      skPaint.getColor(),
+                                      color,
                                       fontScaler,
                                       clipRect);
                 }

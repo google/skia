@@ -47,6 +47,9 @@ public:
     bool operator!=(const RunFont& other) const {
         return !(*this == other);
     }
+
+    uint32_t flags() const { return fFlags; }
+
 private:
     const static uint32_t kFlagsMask =
         SkPaint::kAntiAlias_Flag          |
@@ -341,6 +344,10 @@ void SkTextBlob::RunIterator::applyFontToPaint(SkPaint* paint) const {
     SkASSERT(!this->done());
 
     fCurrentRun->font().applyToPaint(paint);
+}
+
+bool SkTextBlob::RunIterator::isLCD() const {
+    return SkToBool(fCurrentRun->font().flags() & SkPaint::kLCDRenderText_Flag);
 }
 
 SkTextBlobBuilder::SkTextBlobBuilder()

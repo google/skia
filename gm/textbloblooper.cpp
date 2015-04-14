@@ -23,6 +23,7 @@ namespace skiagm {
 static const int kWidth = 1250;
 static const int kHeight = 700;
 
+// Unlike the variant in sk_tool_utils, this version positions the glyphs on a diagonal
 static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
                              SkScalar x, SkScalar y) {
     SkPaint paint(origPaint);

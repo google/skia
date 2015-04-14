@@ -57,8 +57,8 @@ private:
      *
      * The only thing(aside from a memcopy) required to flush a BitmapTextBlob is to ensure that
      * the GrAtlas will not evict anything the Blob needs.
-     * TODO this is currently a bug
      */
+    // TODO Pack these bytes
     struct BitmapTextBlob : public SkRefCnt {
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(BitmapTextBlob);
 
@@ -127,8 +127,8 @@ private:
         mutable SkScalar fTotalXError;
         mutable SkScalar fTotalYError;
 #endif
+        SkColor fPaintColor;
         SkTArray<BigGlyph> fBigGlyphs;
-        GrColor fColor; // the original color on the paint
         SkMatrix fViewMatrix;
         SkScalar fX;
         SkScalar fY;
@@ -149,10 +149,15 @@ private:
 
         struct Key {
             Key() {
-                memset(this, 0, sizeof(Key));
+                sk_bzero(this, sizeof(Key));
             }
             uint32_t fUniqueID;
             SkPaint::Style fStyle;
+            // Color may affect the gamma of the mask we generate, but in a fairly limited way.
+            // Each color is assigned to on of a fixed number of buckets based on its
+            // luminance. For each luminance bucket there is a "canonical color" that
+            // represents the bucket.  This functionality is currently only supported for A8
+            SkColor fCanonicalColor;
             bool fHasBlur;
 
             bool operator==(const Key& other) const {
@@ -207,23 +212,27 @@ private:
                const GrPaint&, const GrClip&, const SkMatrix& viewMatrix);
 
     void internalDrawText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
-                          const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                          GrColor color, const SkMatrix& viewMatrix,
+                          const char text[], size_t byteLength,
                           SkScalar x, SkScalar y, const SkIRect& clipRect);
     void internalDrawPosText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
-                             const SkMatrix& viewMatrix,
+                             GrColor color, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              const SkScalar pos[], int scalarsPerPosition,
                              const SkPoint& offset, const SkIRect& clipRect);
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
+    inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix& viewMatrix);
     static inline bool MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
                                           const BitmapTextBlob&, const SkPaint&,
                                           const SkMaskFilter::BlurRec&,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
-    void regenerateTextBlob(BitmapTextBlob* bmp, const SkPaint& skPaint, const SkMatrix& viewMatrix,
+    void regenerateTextBlob(BitmapTextBlob* bmp, const SkPaint& skPaint, GrColor,
+                            const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter, const SkIRect& clipRect);
+    inline static bool HasLCD(const SkTextBlob*);
 
     GrBatchTextStrike* fCurrStrike;
     GrTextBlobCache* fCache;

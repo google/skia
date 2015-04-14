@@ -68,6 +68,7 @@ private:
         const SkPoint& offset() const;
         void applyFontToPaint(SkPaint*) const;
         GlyphPositioning positioning() const;
+        bool isLCD() const;
 
     private:
         const RunRecord* fCurrentRun;

@@ -1291,9 +1291,9 @@ static bool justAColor(const SkPaint& paint, SkColor* color) {
     return true;
 }
 
-static SkColor computeLuminanceColor(const SkPaint& paint) {
+SkColor SkPaint::computeLuminanceColor() const {
     SkColor c;
-    if (!justAColor(paint, &c)) {
+    if (!justAColor(*this, &c)) {
         c = SkColorSetRGB(0x7F, 0x80, 0x7F);
     }
     return c;
@@ -1463,7 +1463,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     // these modify fFlags, so do them after assigning fFlags
     rec->setHinting(computeHinting(paint));
 
-    rec->setLuminanceColor(computeLuminanceColor(paint));
+    rec->setLuminanceColor(paint.computeLuminanceColor());
 
     if (NULL == deviceProperties) {
         rec->setDeviceGamma(SK_GAMMA_EXPONENT);
