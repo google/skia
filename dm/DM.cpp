@@ -203,8 +203,9 @@ static void push_codec_srcs(Path path) {
       case kIndex_8_SkColorType:
           push_src("image", "codec kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
                   CodecSrc::kIndex8_Always_DstColorType));
-          push_src("image", "scanline kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                  CodecSrc::kIndex8_Always_DstColorType));
+          // FIXME: Need to implement scanline decoding for kIndex8.
+          //push_src("image", "scanline kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+          //        CodecSrc::kIndex8_Always_DstColorType));
         break;
       default:
         // Do nothing
