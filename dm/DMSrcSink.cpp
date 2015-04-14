@@ -24,6 +24,9 @@
 #include "SkStream.h"
 #include "SkXMLWriter.h"
 
+DEFINE_bool(multiPage, false, "For document-type backends, render the source"
+            " into multiple pages");
+
 static bool lazy_decode_bitmap(const void* src, size_t size, SkBitmap* dst) {
     SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, size));
     return encoded && SkInstallDiscardablePixelRef(encoded, dst);
@@ -377,33 +380,48 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
     int width  = src.size().width(),
         height = src.size().height();
 
-    const int kLetterWidth  = 612,  // 8.5 * 72
-              kLetterHeight = 792;  // 11 * 72
-    const SkRect letter = SkRect::MakeWH(SkIntToScalar(kLetterWidth),
-                                         SkIntToScalar(kLetterHeight));
+    if (FLAGS_multiPage) {
+        const int kLetterWidth = 612,  // 8.5 * 72
+                kLetterHeight = 792;   // 11 * 72
+        const SkRect letter = SkRect::MakeWH(SkIntToScalar(kLetterWidth),
+                                             SkIntToScalar(kLetterHeight));
 
-    int xPages = ((width - 1) / kLetterWidth) + 1;
-    int yPages = ((height - 1) / kLetterHeight) + 1;
+        int xPages = ((width - 1) / kLetterWidth) + 1;
+        int yPages = ((height - 1) / kLetterHeight) + 1;
 
-    for (int y = 0; y < yPages; ++y) {
-        for (int x = 0; x < xPages; ++x) {
-            int w = SkTMin(kLetterWidth, width - (x * kLetterWidth));
-            int h = SkTMin(kLetterHeight, height - (y * kLetterHeight));
-            SkCanvas* canvas =
-                    doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
-            if (!canvas) {
-              return "SkDocument::beginPage(w,h) returned NULL";
+        for (int y = 0; y < yPages; ++y) {
+            for (int x = 0; x < xPages; ++x) {
+                int w = SkTMin(kLetterWidth, width - (x * kLetterWidth));
+                int h = SkTMin(kLetterHeight, height - (y * kLetterHeight));
+                SkCanvas* canvas =
+                        doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
+                if (!canvas) {
+                    return "SkDocument::beginPage(w,h) returned NULL";
+                }
+                canvas->clipRect(letter);
+                canvas->translate(-letter.width() * x, -letter.height() * y);
+                Error err = src.draw(canvas);
+                if (!err.isEmpty()) {
+                    return err;
+                }
+                doc->endPage();
             }
-            canvas->clipRect(letter);
-            canvas->translate(-letter.width() * x, -letter.height() * y);
-            Error err = src.draw(canvas);
-            if (!err.isEmpty()) {
-                return err;
-            }
-            doc->endPage();
         }
+    } else {
+        SkCanvas* canvas =
+                doc->beginPage(SkIntToScalar(width), SkIntToScalar(height));
+        if (!canvas) {
+            return "SkDocument::beginPage(w,h) returned NULL";
+        }
+        Error err = src.draw(canvas);
+        if (!err.isEmpty()) {
+            return err;
+        }
+        doc->endPage();
     }
-    doc->close();
+    if (!doc->close()) {
+        return "SkDocument::close() returned false";
+    }
     dst->flush();
     return "";
 }
