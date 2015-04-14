@@ -3,7 +3,7 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "common": "https://skia.googlesource.com/common.git@d7c2e2b9464e70e0f3847a330b930d008dc8c8db",
+  "common": "https://skia.googlesource.com/common.git@89823b3bbe978dec013d5a41e2ea096493e6f194",
 
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
