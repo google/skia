@@ -193,15 +193,15 @@ static void push_codec_srcs(Path path) {
     // Build additional test cases for images that decode natively to non-canvas types
     switch(codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
-            push_src("image", "codec kGray8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+            push_src("image", "codec_kGray8", new CodecSrc(path, CodecSrc::kNormal_Mode,
                     CodecSrc::kGrayscale_Always_DstColorType));
-            push_src("image", "scanline kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+            push_src("image", "scanline_kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
                     CodecSrc::kGrayscale_Always_DstColorType));
             // Intentional fall through
             // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
             // Further discussion on this topic is at skbug.com/3683
       case kIndex_8_SkColorType:
-          push_src("image", "codec kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+          push_src("image", "codec_kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
                   CodecSrc::kIndex8_Always_DstColorType));
           // FIXME: Need to implement scanline decoding for kIndex8.
           //push_src("image", "scanline kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
