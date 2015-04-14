@@ -40,102 +40,105 @@ static bool canConvertFDot6ToFixed(SkFDot6 x) {
 }
 #endif
 
-void SkScan::HairLineRgn(SkPoint pt0, SkPoint pt1, const SkRegion* clip, SkBlitter* blitter) {
+void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* clip,
+                         SkBlitter* origBlitter) {
     SkBlitterClipper    clipper;
-    SkRect  r;
     SkIRect clipR, ptsR;
-    SkPoint pts[2] = { pt0, pt1 };
 
-    // We have to pre-clip the line to fit in a SkFixed, so we just chop
-    // the line. TODO find a way to actually draw beyond that range.
-    {
-        SkRect fixedBounds;
-        const SkScalar max = SkIntToScalar(32767);
-        fixedBounds.set(-max, -max, max, max);
-        if (!SkLineClipper::IntersectLine(pts, fixedBounds, pts)) {
-            return;
-        }
+    const SkScalar max = SkIntToScalar(32767);
+    const SkRect fixedBounds = SkRect::MakeLTRB(-max, -max, max, max);
+
+    SkRect clipBounds;
+    if (clip) {
+        clipBounds.set(clip->getBounds());
     }
 
-    if (clip) {
+    for (int i = 0; i < arrayCount - 1; ++i) {
+        SkBlitter* blitter = origBlitter;
+
+        SkPoint pts[2];
+
+        // We have to pre-clip the line to fit in a SkFixed, so we just chop
+        // the line. TODO find a way to actually draw beyond that range.
+        if (!SkLineClipper::IntersectLine(&array[i], fixedBounds, pts)) {
+            continue;
+        }
+
         // Perform a clip in scalar space, so we catch huge values which might
         // be missed after we convert to SkFDot6 (overflow)
-        r.set(clip->getBounds());
-        if (!SkLineClipper::IntersectLine(pts, r, pts)) {
-            return;
-        }
-    }
-
-    SkFDot6 x0 = SkScalarToFDot6(pts[0].fX);
-    SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
-    SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
-    SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
-
-    SkASSERT(canConvertFDot6ToFixed(x0));
-    SkASSERT(canConvertFDot6ToFixed(y0));
-    SkASSERT(canConvertFDot6ToFixed(x1));
-    SkASSERT(canConvertFDot6ToFixed(y1));
-
-    if (clip) {
-        // now perform clipping again, as the rounding to dot6 can wiggle us
-        // our rects are really dot6 rects, but since we've already used
-        // lineclipper, we know they will fit in 32bits (26.6)
-        const SkIRect& bounds = clip->getBounds();
-
-        clipR.set(SkIntToFDot6(bounds.fLeft), SkIntToFDot6(bounds.fTop),
-                  SkIntToFDot6(bounds.fRight), SkIntToFDot6(bounds.fBottom));
-        ptsR.set(x0, y0, x1, y1);
-        ptsR.sort();
-
-        // outset the right and bottom, to account for how hairlines are
-        // actually drawn, which may hit the pixel to the right or below of
-        // the coordinate
-        ptsR.fRight += SK_FDot6One;
-        ptsR.fBottom += SK_FDot6One;
-
-        if (!SkIRect::Intersects(ptsR, clipR)) {
-            return;
-        }
-        if (clip->isRect() && clipR.contains(ptsR)) {
-            clip = NULL;
-        } else {
-            blitter = clipper.apply(blitter, clip);
-        }
-    }
-
-    SkFDot6 dx = x1 - x0;
-    SkFDot6 dy = y1 - y0;
-
-    if (SkAbs32(dx) > SkAbs32(dy)) { // mostly horizontal
-        if (x0 > x1) {   // we want to go left-to-right
-            SkTSwap<SkFDot6>(x0, x1);
-            SkTSwap<SkFDot6>(y0, y1);
-        }
-        int ix0 = SkFDot6Round(x0);
-        int ix1 = SkFDot6Round(x1);
-        if (ix0 == ix1) {// too short to draw
-            return;
+        if (clip && !SkLineClipper::IntersectLine(pts, clipBounds, pts)) {
+            continue;
         }
 
-        SkFixed slope = SkFixedDiv(dy, dx);
-        SkFixed startY = SkFDot6ToFixed(y0) + (slope * ((32 - x0) & 63) >> 6);
+        SkFDot6 x0 = SkScalarToFDot6(pts[0].fX);
+        SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
+        SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
+        SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
 
-        horiline(ix0, ix1, startY, slope, blitter);
-    } else {              // mostly vertical
-        if (y0 > y1) {   // we want to go top-to-bottom
-            SkTSwap<SkFDot6>(x0, x1);
-            SkTSwap<SkFDot6>(y0, y1);
+        SkASSERT(canConvertFDot6ToFixed(x0));
+        SkASSERT(canConvertFDot6ToFixed(y0));
+        SkASSERT(canConvertFDot6ToFixed(x1));
+        SkASSERT(canConvertFDot6ToFixed(y1));
+
+        if (clip) {
+            // now perform clipping again, as the rounding to dot6 can wiggle us
+            // our rects are really dot6 rects, but since we've already used
+            // lineclipper, we know they will fit in 32bits (26.6)
+            const SkIRect& bounds = clip->getBounds();
+
+            clipR.set(SkIntToFDot6(bounds.fLeft), SkIntToFDot6(bounds.fTop),
+                      SkIntToFDot6(bounds.fRight), SkIntToFDot6(bounds.fBottom));
+            ptsR.set(x0, y0, x1, y1);
+            ptsR.sort();
+
+            // outset the right and bottom, to account for how hairlines are
+            // actually drawn, which may hit the pixel to the right or below of
+            // the coordinate
+            ptsR.fRight += SK_FDot6One;
+            ptsR.fBottom += SK_FDot6One;
+
+            if (!SkIRect::Intersects(ptsR, clipR)) {
+                continue;
+            }
+            if (!clip->isRect() || !clipR.contains(ptsR)) {
+                blitter = clipper.apply(origBlitter, clip);
+            }
         }
-        int iy0 = SkFDot6Round(y0);
-        int iy1 = SkFDot6Round(y1);
-        if (iy0 == iy1) { // too short to draw
-            return;
+
+        SkFDot6 dx = x1 - x0;
+        SkFDot6 dy = y1 - y0;
+
+        if (SkAbs32(dx) > SkAbs32(dy)) { // mostly horizontal
+            if (x0 > x1) {   // we want to go left-to-right
+                SkTSwap<SkFDot6>(x0, x1);
+                SkTSwap<SkFDot6>(y0, y1);
+            }
+            int ix0 = SkFDot6Round(x0);
+            int ix1 = SkFDot6Round(x1);
+            if (ix0 == ix1) {// too short to draw
+                continue;
+            }
+
+            SkFixed slope = SkFixedDiv(dy, dx);
+            SkFixed startY = SkFDot6ToFixed(y0) + (slope * ((32 - x0) & 63) >> 6);
+
+            horiline(ix0, ix1, startY, slope, blitter);
+        } else {              // mostly vertical
+            if (y0 > y1) {   // we want to go top-to-bottom
+                SkTSwap<SkFDot6>(x0, x1);
+                SkTSwap<SkFDot6>(y0, y1);
+            }
+            int iy0 = SkFDot6Round(y0);
+            int iy1 = SkFDot6Round(y1);
+            if (iy0 == iy1) { // too short to draw
+                continue;
+            }
+
+            SkFixed slope = SkFixedDiv(dx, dy);
+            SkFixed startX = SkFDot6ToFixed(x0) + (slope * ((32 - y0) & 63) >> 6);
+
+            vertline(iy0, iy1, startX, slope, blitter);
         }
-
-        SkFixed slope = SkFixedDiv(dx, dy);
-        SkFixed startX = SkFDot6ToFixed(x0) + (slope * ((32 - y0) & 63) >> 6);
-
-        vertline(iy0, iy1, startX, slope, blitter);
     }
 }
 
@@ -209,10 +212,8 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
     }
 }
 
-typedef void (*LineProc)(SkPoint, SkPoint, const SkRegion*, SkBlitter*);
-
 static void hairquad(const SkPoint pts[3], const SkRegion* clip,
-                     SkBlitter* blitter, int level, LineProc lineproc) {
+                     SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     if (level > 0) {
         SkPoint tmp[5];
 
@@ -220,12 +221,13 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
         hairquad(tmp, clip, blitter, level - 1, lineproc);
         hairquad(&tmp[2], clip, blitter, level - 1, lineproc);
     } else {
-        lineproc(pts[0], pts[2], clip, blitter);
+        SkPoint tmp[] = { pts[0], pts[2] };
+        lineproc(tmp, 2, clip, blitter);
     }
 }
 
 static void haircubic(const SkPoint pts[4], const SkRegion* clip,
-                      SkBlitter* blitter, int level, LineProc lineproc) {
+                      SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     if (level > 0) {
         SkPoint tmp[7];
 
@@ -233,7 +235,8 @@ static void haircubic(const SkPoint pts[4], const SkRegion* clip,
         haircubic(tmp, clip, blitter, level - 1, lineproc);
         haircubic(&tmp[3], clip, blitter, level - 1, lineproc);
     } else {
-        lineproc(pts[0], pts[3], clip, blitter);
+        SkPoint tmp[] = { pts[0], pts[3] };
+        lineproc(tmp, 2, clip, blitter);
     }
 }
 
@@ -256,7 +259,7 @@ static int compute_quad_level(const SkPoint pts[3]) {
 }
 
 static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter,
-                      LineProc lineproc) {
+                      SkScan::HairRgnProc lineproc) {
     if (path.isEmpty()) {
         return;
     }
@@ -291,7 +294,7 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
             case SkPath::kMove_Verb:
                 break;
             case SkPath::kLine_Verb:
-                lineproc(pts[0], pts[1], clip, blitter);
+                lineproc(pts, 2, clip, blitter);
                 break;
             case SkPath::kQuad_Verb:
                 hairquad(pts, clip, blitter, compute_quad_level(pts), lineproc);
@@ -364,14 +367,15 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
     SkScan::FillRect(tmp, clip, blitter);
 }
 
-void SkScan::HairLine(SkPoint p0, SkPoint p1, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::HairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
+                      SkBlitter* blitter) {
     if (clip.isBW()) {
-        HairLineRgn(p0, p1, &clip.bwRgn(), blitter);
+        HairLineRgn(pts, count, &clip.bwRgn(), blitter);
     } else {
         const SkRegion* clipRgn = NULL;
+
         SkRect r;
-        r.set(p0.fX, p0.fY, p1.fX, p1.fY);
-        r.sort();
+        r.set(pts, count);
         r.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         SkAAClipBlitterWrapper wrap;
@@ -380,18 +384,19 @@ void SkScan::HairLine(SkPoint p0, SkPoint p1, const SkRasterClip& clip, SkBlitte
             blitter = wrap.getBlitter();
             clipRgn = &wrap.getRgn();
         }
-        HairLineRgn(p0, p1, clipRgn, blitter);
+        HairLineRgn(pts, count, clipRgn, blitter);
     }
 }
 
-void SkScan::AntiHairLine(SkPoint p0, SkPoint p1, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::AntiHairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
+                          SkBlitter* blitter) {
     if (clip.isBW()) {
-        AntiHairLineRgn(p0, p1, &clip.bwRgn(), blitter);
+        AntiHairLineRgn(pts, count, &clip.bwRgn(), blitter);
     } else {
         const SkRegion* clipRgn = NULL;
+
         SkRect r;
-        r.set(p0.fX, p0.fY, p1.fX, p1.fY);
-        r.sort();
+        r.set(pts, count);
 
         SkAAClipBlitterWrapper wrap;
         if (!clip.quickContains(r.roundOut().makeOutset(1, 1))) {
@@ -399,6 +404,6 @@ void SkScan::AntiHairLine(SkPoint p0, SkPoint p1, const SkRasterClip& clip, SkBl
             blitter = wrap.getBlitter();
             clipRgn = &wrap.getRgn();
         }
-        AntiHairLineRgn(p0, p1, clipRgn, blitter);
+        AntiHairLineRgn(pts, count, clipRgn, blitter);
     }
 }

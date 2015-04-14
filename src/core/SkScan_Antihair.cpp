@@ -588,7 +588,8 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     }
 }
 
-void SkScan::AntiHairLineRgn(SkPoint pt0, SkPoint pt1, const SkRegion* clip, SkBlitter* blitter) {
+void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* clip,
+                             SkBlitter* blitter) {
     if (clip && clip->isEmpty()) {
         return;
     }
@@ -599,86 +600,83 @@ void SkScan::AntiHairLineRgn(SkPoint pt0, SkPoint pt1, const SkRegion* clip, SkB
     build_gamma_table();
 #endif
 
-    SkPoint pts[2] = { pt0, pt1 };
+    const SkScalar max = SkIntToScalar(32767);
+    const SkRect fixedBounds = SkRect::MakeLTRB(-max, -max, max, max);
 
-    // We have to pre-clip the line to fit in a SkFixed, so we just chop
-    // the line. TODO find a way to actually draw beyond that range.
-    {
-        SkRect fixedBounds;
-        const SkScalar max = SkIntToScalar(32767);
-        fixedBounds.set(-max, -max, max, max);
-        if (!SkLineClipper::IntersectLine(pts, fixedBounds, pts)) {
-            return;
-        }
-    }
-
+    SkRect clipBounds;
     if (clip) {
-        SkRect clipBounds;
         clipBounds.set(clip->getBounds());
         /*  We perform integral clipping later on, but we do a scalar clip first
-            to ensure that our coordinates are expressible in fixed/integers.
-
-            antialiased hairlines can draw up to 1/2 of a pixel outside of
-            their bounds, so we need to outset the clip before calling the
-            clipper. To make the numerics safer, we outset by a whole pixel,
-            since the 1/2 pixel boundary is important to the antihair blitter,
-            we don't want to risk numerical fate by chopping on that edge.
+         to ensure that our coordinates are expressible in fixed/integers.
+         
+         antialiased hairlines can draw up to 1/2 of a pixel outside of
+         their bounds, so we need to outset the clip before calling the
+         clipper. To make the numerics safer, we outset by a whole pixel,
+         since the 1/2 pixel boundary is important to the antihair blitter,
+         we don't want to risk numerical fate by chopping on that edge.
          */
         clipBounds.outset(SK_Scalar1, SK_Scalar1);
-
-        if (!SkLineClipper::IntersectLine(pts, clipBounds, pts)) {
-            return;
-        }
     }
 
-    SkFDot6 x0 = SkScalarToFDot6(pts[0].fX);
-    SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
-    SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
-    SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
+    for (int i = 0; i < arrayCount - 1; ++i) {
+        SkPoint pts[2];
 
-    if (clip) {
-        SkFDot6 left = SkMin32(x0, x1);
-        SkFDot6 top = SkMin32(y0, y1);
-        SkFDot6 right = SkMax32(x0, x1);
-        SkFDot6 bottom = SkMax32(y0, y1);
-        SkIRect ir;
-
-        ir.set( SkFDot6Floor(left) - 1,
-                SkFDot6Floor(top) - 1,
-                SkFDot6Ceil(right) + 1,
-                SkFDot6Ceil(bottom) + 1);
-
-        if (clip->quickReject(ir)) {
-            return;
+        // We have to pre-clip the line to fit in a SkFixed, so we just chop
+        // the line. TODO find a way to actually draw beyond that range.
+        if (!SkLineClipper::IntersectLine(&array[i], fixedBounds, pts)) {
+            continue;
         }
-        if (!clip->quickContains(ir)) {
-            SkRegion::Cliperator iter(*clip, ir);
-            const SkIRect*       r = &iter.rect();
 
-            while (!iter.done()) {
-                do_anti_hairline(x0, y0, x1, y1, r, blitter);
-                iter.next();
+        if (clip && !SkLineClipper::IntersectLine(pts, clipBounds, pts)) {
+            continue;
+        }
+
+        SkFDot6 x0 = SkScalarToFDot6(pts[0].fX);
+        SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
+        SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
+        SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
+
+        if (clip) {
+            SkFDot6 left = SkMin32(x0, x1);
+            SkFDot6 top = SkMin32(y0, y1);
+            SkFDot6 right = SkMax32(x0, x1);
+            SkFDot6 bottom = SkMax32(y0, y1);
+            SkIRect ir;
+
+            ir.set( SkFDot6Floor(left) - 1,
+                    SkFDot6Floor(top) - 1,
+                    SkFDot6Ceil(right) + 1,
+                    SkFDot6Ceil(bottom) + 1);
+
+            if (clip->quickReject(ir)) {
+                continue;
             }
-            return;
+            if (!clip->quickContains(ir)) {
+                SkRegion::Cliperator iter(*clip, ir);
+                const SkIRect*       r = &iter.rect();
+
+                while (!iter.done()) {
+                    do_anti_hairline(x0, y0, x1, y1, r, blitter);
+                    iter.next();
+                }
+                continue;
+            }
+            // fall through to no-clip case
         }
-        // fall through to no-clip case
+        do_anti_hairline(x0, y0, x1, y1, NULL, blitter);
     }
-    do_anti_hairline(x0, y0, x1, y1, NULL, blitter);
 }
 
 void SkScan::AntiHairRect(const SkRect& rect, const SkRasterClip& clip,
                           SkBlitter* blitter) {
-    SkPoint p0, p1;
+    SkPoint pts[5];
 
-    p0.set(rect.fLeft, rect.fTop);
-    p1.set(rect.fRight, rect.fTop);
-    SkScan::AntiHairLine(p0, p1, clip, blitter);
-    p0.set(rect.fRight, rect.fBottom);
-    SkScan::AntiHairLine(p0, p1, clip, blitter);
-    p1.set(rect.fLeft, rect.fBottom);
-    SkScan::AntiHairLine(p0, p1, clip, blitter);
-    p0.set(rect.fLeft, rect.fTop);
-    SkScan::AntiHairLine(p0, p1, clip, blitter);
+    pts[0].set(rect.fLeft, rect.fTop);
+    pts[1].set(rect.fRight, rect.fTop);
+    pts[2].set(rect.fRight, rect.fBottom);
+    pts[3].set(rect.fLeft, rect.fBottom);
+    pts[4] = pts[0];
+    SkScan::AntiHairLine(pts, 5, clip, blitter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

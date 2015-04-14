@@ -24,6 +24,15 @@ typedef SkIRect SkXRect;
 
 class SkScan {
 public:
+    /*
+     *  Draws count-1 line segments, one at a time:
+     *      line(pts[0], pts[1])
+     *      line(pts[1], pts[2])
+     *      line(......, pts[count - 1])
+     */
+    typedef void (*HairRgnProc)(const SkPoint[], int count, const SkRegion*, SkBlitter*);
+    typedef void (*HairRCProc)(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
+
     static void FillPath(const SkPath&, const SkIRect&, SkBlitter*);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -41,8 +50,8 @@ public:
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRasterClip&, SkBlitter*);
     static void FillTriangle(const SkPoint pts[], const SkRasterClip&, SkBlitter*);
-    static void HairLine(SkPoint, SkPoint, const SkRasterClip&, SkBlitter*);
-    static void AntiHairLine(SkPoint, SkPoint, const SkRasterClip&, SkBlitter*);
+    static void HairLine(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
+    static void AntiHairLine(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
     static void HairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiHairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void HairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
@@ -64,8 +73,8 @@ private:
 
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRegion*, SkBlitter*);
-    static void HairLineRgn(SkPoint, SkPoint, const SkRegion*, SkBlitter*);
-    static void AntiHairLineRgn(SkPoint, SkPoint, const SkRegion*, SkBlitter*);
+    static void HairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
+    static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates

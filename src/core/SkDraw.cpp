@@ -381,15 +381,13 @@ static void bw_pt_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
 static void bw_line_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                               int count, SkBlitter* blitter) {
     for (int i = 0; i < count; i += 2) {
-        SkScan::HairLine(devPts[i], devPts[i+1], *rec.fRC, blitter);
+        SkScan::HairLine(&devPts[i], 2, *rec.fRC, blitter);
     }
 }
 
 static void bw_poly_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                               int count, SkBlitter* blitter) {
-    for (int i = 0; i < count - 1; i++) {
-        SkScan::HairLine(devPts[i], devPts[i+1], *rec.fRC, blitter);
-    }
+    SkScan::HairLine(devPts, count, *rec.fRC, blitter);
 }
 
 // aa versions
@@ -397,15 +395,13 @@ static void bw_poly_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
 static void aa_line_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                               int count, SkBlitter* blitter) {
     for (int i = 0; i < count; i += 2) {
-        SkScan::AntiHairLine(devPts[i], devPts[i+1], *rec.fRC, blitter);
+        SkScan::AntiHairLine(&devPts[i], 2, *rec.fRC, blitter);
     }
 }
 
 static void aa_poly_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                               int count, SkBlitter* blitter) {
-    for (int i = 0; i < count - 1; i++) {
-        SkScan::AntiHairLine(devPts[i], devPts[i+1], *rec.fRC, blitter);
-    }
+    SkScan::AntiHairLine(devPts, count, *rec.fRC, blitter);
 }
 
 // square procs (strokeWidth > 0 but matrix is square-scale (sx == sy)
@@ -1876,9 +1872,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef void (*HairProc)(SkPoint, SkPoint, const SkRasterClip&, SkBlitter*);
-
-static HairProc ChooseHairProc(bool doAntiAlias) {
+static SkScan::HairRCProc ChooseHairProc(bool doAntiAlias) {
     return doAntiAlias ? SkScan::AntiHairLine : SkScan::HairLine;
 }
 
@@ -2144,12 +2138,13 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         }
     } else {
         // no colors[] and no texture, stroke hairlines with paint's color.
-        HairProc hairProc = ChooseHairProc(paint.isAntiAlias());
+        SkScan::HairRCProc hairProc = ChooseHairProc(paint.isAntiAlias());
         const SkRasterClip& clip = *fRC;
         while (vertProc(&state)) {
-            hairProc(devVerts[state.f0], devVerts[state.f1], clip, blitter.get());
-            hairProc(devVerts[state.f1], devVerts[state.f2], clip, blitter.get());
-            hairProc(devVerts[state.f2], devVerts[state.f0], clip, blitter.get());
+            SkPoint array[] = {
+                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
+            };
+            hairProc(array, 4, clip, blitter.get());
         }
     }
 }
