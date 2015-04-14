@@ -86,12 +86,11 @@ private:
          * would greatly increase the memory of these cached items.
          */
         struct Run {
-            Run() : fColor(GrColor_ILLEGAL), fInitialized(false), fDrawAsPaths(false) {
+            Run()
+                : fColor(GrColor_ILLEGAL)
+                , fInitialized(false)
+                , fDrawAsPaths(false) {
                 fVertexBounds.setLargestInverted();
-                // We insert the first subrun to gurantee a run always has atleast one subrun.
-                // We do this to simplify things when we 'hand off' data from one subrun to the
-                // next
-                fSubRunInfo.push_back();
             }
             struct SubRunInfo {
                 SubRunInfo()
@@ -108,7 +107,43 @@ private:
                 size_t fVertexEndIndex;
                 GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
             };
-            SkSTArray<1, SubRunInfo, true> fSubRunInfo;
+
+            class SubRunInfoArray {
+            public:
+                SubRunInfoArray()
+                    : fSubRunCount(0)
+                    , fSubRunAllocation(kMinSubRuns) {
+                    fPtr = reinterpret_cast<SubRunInfo*>(fSubRunStorage.get());
+                    this->push_back();
+                }
+
+                int count() const { return fSubRunCount; }
+                SubRunInfo& back() { return fPtr[fSubRunCount - 1]; }
+                SubRunInfo& push_back() {
+                    if (fSubRunCount >= fSubRunAllocation) {
+                        fSubRunAllocation = fSubRunAllocation << 1;
+                        fSubRunStorage.realloc(fSubRunAllocation * sizeof(SubRunInfo));
+                        fPtr = reinterpret_cast<SubRunInfo*>(fSubRunStorage.get());
+                    }
+                    SkNEW_PLACEMENT(&fPtr[fSubRunCount], SubRunInfo);
+                    return fPtr[fSubRunCount++];
+                }
+                SubRunInfo& operator[](int index) {
+                    return fPtr[index];
+                }
+                const SubRunInfo& operator[](int index) const {
+                    return fPtr[index];
+                }
+
+            private:
+                static const int kMinSubRuns = 1;
+                static const int kMinSubRunStorage = kMinSubRuns * sizeof(SubRunInfo);
+                SkAutoSTMalloc<kMinSubRunStorage, unsigned char> fSubRunStorage;
+                int fSubRunCount;
+                int fSubRunAllocation;
+                SubRunInfo* fPtr;
+            };
+            SubRunInfoArray fSubRunInfo;
             SkAutoDescriptor fDescriptor;
             SkAutoTUnref<SkTypeface> fTypeface;
             SkRect fVertexBounds;
