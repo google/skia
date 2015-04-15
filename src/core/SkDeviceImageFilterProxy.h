@@ -22,7 +22,8 @@ public:
     SkBaseDevice* createDevice(int w, int h) override {
         SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
                                        SkBaseDevice::kNever_TileUsage,
-                                       kUnknown_SkPixelGeometry);
+                                       kUnknown_SkPixelGeometry,
+                                       true /*forImageFilter*/);
         return fDevice->onCreateDevice(cinfo, NULL);
     }
     bool canHandleImageFilter(const SkImageFilter* filter) override {

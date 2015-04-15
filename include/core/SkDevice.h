@@ -330,15 +330,19 @@ protected:
         static SkPixelGeometry AdjustGeometry(const SkImageInfo&, TileUsage, SkPixelGeometry);
 
         // The constructor may change the pixel geometry based on other parameters.
-        CreateInfo(const SkImageInfo& info, TileUsage tileUsage, SkPixelGeometry geo)
+        CreateInfo(const SkImageInfo& info,
+                   TileUsage tileUsage,
+                   SkPixelGeometry geo,
+                   bool forImageFilter = false)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo))
-        {}
+            , fForImageFilter(forImageFilter) {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        const bool              fForImageFilter;
     };
 
     /**

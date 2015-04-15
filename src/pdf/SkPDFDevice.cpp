@@ -577,7 +577,8 @@ static bool not_supported_for_layers(const SkPaint& layerPaint) {
 }
 
 SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
-    if (layerPaint && not_supported_for_layers(*layerPaint)) {
+    if (cinfo.fForImageFilter ||
+        (layerPaint && not_supported_for_layers(*layerPaint))) {
         return SkBitmapDevice::Create(cinfo.fInfo);
     }
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
