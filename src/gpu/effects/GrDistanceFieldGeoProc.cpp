@@ -365,7 +365,7 @@ public:
             // to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(st.x));");
+            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdy(st.y));");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
@@ -605,7 +605,7 @@ public:
             fsBuilder->codeAppend("float delta = " GR_FONT_ATLAS_LCD_DELTA ";\n");
         }
         if (isUniformScale) {
-            fsBuilder->codeAppendf("float dy = dFdy(%s.y);", st.fsIn());
+            fsBuilder->codeAppendf("float dy = abs(dFdy(%s.y));", st.fsIn());
             fsBuilder->codeAppend("vec2 offset = vec2(dy*delta, 0.0);");
         } else {
             fsBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
@@ -655,7 +655,7 @@ public:
             // to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dy);");
+            fsBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*dy;");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
