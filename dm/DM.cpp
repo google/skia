@@ -223,8 +223,8 @@ static bool codec_supported(const char* ext) {
     // FIXME: Once other versions of SkCodec are available, we can add them to this
     // list (and eventually we can remove this check once they are all supported).
     static const char* const exts[] = {
-        "bmp", "gif", "png", "ico", "wbmp",
-        "BMP", "GIF", "PNG", "ICO", "WBMP"
+        "bmp", "gif", "jpg", "jpeg", "png", "ico", "wbmp",
+        "BMP", "GIF", "JPG", "JPEG", "PNG", "ICO", "WBMP"
     };
 
     for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {

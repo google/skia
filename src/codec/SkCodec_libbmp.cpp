@@ -97,7 +97,6 @@ enum BitmapCompressionMethod {
  */
 bool SkBmpCodec::IsBmp(SkStream* stream) {
     // TODO: Support "IC", "PT", "CI", "CP", "BA"
-    // TODO: ICO files may contain a BMP and need to use this decoder
     const char bmpSig[] = { 'B', 'M' };
     char buffer[sizeof(bmpSig)];
     return stream->read(buffer, sizeof(bmpSig)) == sizeof(bmpSig) &&
@@ -773,12 +772,12 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
         if (stream()->read(srcRow, rowBytes) != rowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             // Fill the destination image on failure
-            // By using zero as the fill value, we will fill with transparent
-            // pixels for non-opaque images and white for opaque images.
-            // These are arbitrary choices but allow for consistent behavior.
-            if (kNo_ZeroInitialized == opts.fZeroInitialized) {
+            SkPMColor fillColor = dstInfo.alphaType() == kOpaque_SkAlphaType ?
+                    SK_ColorBLACK : SK_ColorTRANSPARENT;
+            if (kNo_ZeroInitialized == opts.fZeroInitialized || 0 != fillColor) {
                 void* dstStart = get_dst_start_row(dst, dstRowBytes, y, fRowOrder);
-                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, 0, NULL);
+                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, fillColor,
+                        NULL);
             }
             return kIncompleteInput;
         }
@@ -1090,29 +1089,42 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
     const int height = dstInfo.height();
     const size_t rowBytes = SkAlign4(compute_row_bytes(width, fBitsPerPixel));
 
-    // Get swizzler configuration
+    // Get swizzler configuration and choose the fill value for failures.  We will use
+    // zero as the default palette index, black for opaque images, and transparent for
+    // non-opaque images.
     SkSwizzler::SrcConfig config;
+    uint32_t fillColorOrIndex;
+    bool zeroFill = true;
     switch (fBitsPerPixel) {
         case 1:
             config = SkSwizzler::kIndex1;
+            fillColorOrIndex = 0;
             break;
         case 2:
             config = SkSwizzler::kIndex2;
+            fillColorOrIndex = 0;
             break;
         case 4:
             config = SkSwizzler::kIndex4;
+            fillColorOrIndex = 0;
             break;
         case 8:
             config = SkSwizzler::kIndex;
+            fillColorOrIndex = 0;
             break;
         case 24:
             config = SkSwizzler::kBGR;
+            fillColorOrIndex = SK_ColorBLACK;
+            zeroFill = false;
             break;
         case 32:
             if (kOpaque_SkAlphaType == dstInfo.alphaType()) {
                 config = SkSwizzler::kBGRX;
+                fillColorOrIndex = SK_ColorBLACK;
+                zeroFill = false;
             } else {
                 config = SkSwizzler::kBGRA;
+                fillColorOrIndex = SK_ColorTRANSPARENT;
             }
             break;
         default:
@@ -1138,14 +1150,10 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
         if (stream()->read(srcBuffer.get(), rowBytes) != rowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             // Fill the destination image on failure
-            // By using zero as the fill value, we will fill with the first
-            // color in the color table for palette images, transparent
-            // pixels for non-opaque images, and white for opaque images.
-            // These are arbitrary choices but allow for consistent behavior.
-            if (kNo_ZeroInitialized == opts.fZeroInitialized) {
+            if (kNo_ZeroInitialized == opts.fZeroInitialized || !zeroFill) {
                 void* dstStart = get_dst_start_row(dst, dstRowBytes, y, fRowOrder);
-                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, 0,
-                        colorPtr);
+                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y,
+                        fillColorOrIndex, colorPtr);
             }
             return kIncompleteInput;
         }

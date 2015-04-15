@@ -104,6 +104,13 @@ DEF_TEST(Codec, r) {
     check(r, "color_wheel.gif", SkISize::Make(128, 128), false);
     check(r, "randPixels.gif", SkISize::Make(8, 8), false);
 
+    // JPG
+    check(r, "CMYK.jpg", SkISize::Make(642, 516), false);
+    check(r, "color_wheel.jpg", SkISize::Make(128, 128), false);
+    check(r, "grayscale.jpg", SkISize::Make(128, 128), false);
+    check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), false);
+    check(r, "randPixels.jpg", SkISize::Make(8, 8), false);
+
     // PNG
     check(r, "arrow.png", SkISize::Make(187, 312), true);
     check(r, "baby_tux.png", SkISize::Make(240, 246), true);
@@ -148,3 +155,46 @@ DEF_TEST(Codec_leaks, r) {
     test_invalid_stream(r, emptyIco, sizeof(emptyIco));
     test_invalid_stream(r, emptyGif, sizeof(emptyGif));
 }
+
+static void test_dimensions(skiatest::Reporter* r, const char path[]) {
+    // Create the codec from the resource file
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    if (!codec) {
+        ERRORF(r, "Unable to create codec '%s'", path);
+        return;
+    }
+
+    // Check that the decode is successful for a variety of scales
+    for (float scale = -0.05f; scale < 2.0f; scale += 0.05f) {
+        // Scale the output dimensions
+        SkISize scaledDims = codec->getScaledDimensions(scale);
+        SkImageInfo scaledInfo = codec->getInfo().makeWH(scaledDims.width(), scaledDims.height());
+
+        // Set up for the decode
+        size_t rowBytes = scaledDims.width() * sizeof(SkPMColor);
+        size_t totalBytes = scaledInfo.getSafeSize(rowBytes);
+        SkAutoTMalloc<SkPMColor> pixels(totalBytes);
+
+        SkImageGenerator::Result result =
+                codec->getPixels(scaledInfo, pixels.get(), rowBytes, NULL, NULL, NULL);
+        REPORTER_ASSERT(r, SkImageGenerator::kSuccess == result);
+    }
+}
+
+// Ensure that onGetScaledDimensions returns valid image dimensions to use for decodes
+DEF_TEST(Codec_Dimensions, r) {
+    // JPG
+    test_dimensions(r, "CMYK.jpg");
+    test_dimensions(r, "color_wheel.jpg");
+    test_dimensions(r, "grayscale.jpg");
+    test_dimensions(r, "mandrill_512_q075.jpg");
+    test_dimensions(r, "randPixels.jpg");
+}
+
+
+

@@ -18,6 +18,7 @@
       'dependencies': [
         'core.gyp:*',
         'giflib.gyp:giflib',
+        'libjpeg.gyp:libjpeg',
       ],
       'cflags':[
         # FIXME: This gets around a longjmp warning. See
@@ -37,6 +38,9 @@
         '../src/codec/SkCodec_libpng.cpp',
         '../src/codec/SkCodec_wbmp.cpp',
         '../src/codec/SkGifInterlaceIter.cpp',
+        '../src/codec/SkJpegCodec.cpp',
+        '../src/codec/SkJpegDecoderMgr.cpp',
+        '../src/codec/SkJpegUtility.cpp',
         '../src/codec/SkMaskSwizzler.cpp',
         '../src/codec/SkMasks.cpp',
         '../src/codec/SkSwizzler.cpp',

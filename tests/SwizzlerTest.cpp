@@ -42,13 +42,24 @@ static void check_fill(skiatest::Reporter* r,
     // Ensure that the pixels are filled properly
     // The bots should catch any memory corruption
     uint8_t* indexPtr = imageData + startRow * rowBytes;
+    uint8_t* grayPtr = indexPtr;
     uint32_t* colorPtr = (uint32_t*) indexPtr;
     for (uint32_t y = startRow; y <= endRow; y++) {
         for (int32_t x = 0; x < imageInfo.width(); x++) {
-            if (kIndex_8_SkColorType == imageInfo.colorType()) {
-                REPORTER_ASSERT(r, kFillIndex == indexPtr[x]);
-            } else {
-                REPORTER_ASSERT(r, kFillColor == colorPtr[x]);
+            switch (imageInfo.colorType()) {
+                case kIndex_8_SkColorType:
+                    REPORTER_ASSERT(r, kFillIndex == indexPtr[x]);
+                    break;
+                case kN32_SkColorType:
+                    REPORTER_ASSERT(r, kFillColor == colorPtr[x]);
+                    break;
+                case kGray_8_SkColorType:
+                    // We always fill kGray with black
+                    REPORTER_ASSERT(r, (uint8_t) kFillColor == grayPtr[x]);
+                    break;
+                default:
+                    REPORTER_ASSERT(r, false);
+                    break;
             }
         }
         indexPtr += rowBytes;
@@ -82,6 +93,7 @@ DEF_TEST(SwizzlerFill, r) {
             const SkImageInfo colorInfo = SkImageInfo::MakeN32(width, height,
                 kUnknown_SkAlphaType);
             const SkImageInfo indexInfo = colorInfo.makeColorType(kIndex_8_SkColorType);
+            const SkImageInfo grayInfo = colorInfo.makeColorType(kGray_8_SkColorType);
 
             for (uint32_t padding : paddings) {
 
@@ -89,6 +101,7 @@ DEF_TEST(SwizzlerFill, r) {
                 size_t colorRowBytes = SkColorTypeBytesPerPixel(kN32_SkColorType) * width +
                         padding;
                 size_t indexRowBytes = width + padding;
+                size_t grayRowBytes = indexRowBytes;
 
                 // If there is padding, we can invent an offset to change the memory alignment
                 for (uint32_t offset = 0; offset <= padding; offset++) {
@@ -108,6 +121,10 @@ DEF_TEST(SwizzlerFill, r) {
                             // Fill with an index
                             check_fill(r, indexInfo, startRow, endRow, indexRowBytes, offset,
                                     kFillIndex, NULL);
+
+                            // Fill a grayscale image
+                            check_fill(r, grayInfo, startRow, endRow, grayRowBytes, offset,
+                                    kFillColor, NULL);
                         }
                     }
                 }

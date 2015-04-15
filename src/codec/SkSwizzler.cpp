@@ -68,6 +68,8 @@ static SkSwizzler::ResultAlpha swizzle_small_index_to_n32(
     return COMPUTE_RESULT_ALPHA;
 }
 
+// kIndex
+
 static SkSwizzler::ResultAlpha swizzle_index_to_index(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
         int bytesPerPixel, int y, const SkPMColor ctable[]) {
@@ -83,8 +85,6 @@ static SkSwizzler::ResultAlpha swizzle_index_to_index(
     }
     return COMPUTE_RESULT_ALPHA;
 }
-
-// kIndex
 
 static SkSwizzler::ResultAlpha swizzle_index_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
@@ -117,6 +117,28 @@ static SkSwizzler::ResultAlpha swizzle_index_to_n32_skipZ(
 }
 
 #undef A32_MASK_IN_PLACE
+
+// kGray
+
+static SkSwizzler::ResultAlpha swizzle_gray_to_n32(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+
+    SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPackARGB32NoCheck(0xFF, src[x], src[x], src[x]);
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+static SkSwizzler::ResultAlpha swizzle_gray_to_gray(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+    memcpy(dstRow, src, width);
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+// kBGRX
 
 static SkSwizzler::ResultAlpha swizzle_bgrx_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
@@ -299,6 +321,17 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                     break;
             }
             break;
+        case kGray:
+            switch (info.colorType()) {
+                case kN32_SkColorType:
+                    proc = &swizzle_gray_to_n32;
+                    break;
+                case kGray_8_SkColorType:
+                    proc = &swizzle_gray_to_gray;
+                default:
+                    break;
+            }
+            break;
         case kBGR:
         case kBGRX:
             switch (info.colorType()) {
@@ -463,6 +496,15 @@ void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstR
         case kIndex_8_SkColorType:
             SkASSERT(colorOrIndex == (uint8_t) colorOrIndex);
             memset(dstStartRow, colorOrIndex, bytesToFill);
+            break;
+        case kGray_8_SkColorType:
+            // If the destination is kGray, the caller passes in an 8-bit color.
+            // We will not assert that the high bits of colorOrIndex must be zeroed.
+            // This allows us to take advantage of the fact that the low 8 bits of an
+            // SKPMColor may be a valid a grayscale color.  For example, the low 8
+            // bits of SK_ColorBLACK are identical to the grayscale representation
+            // for black. 
+            memset(dstStartRow, (uint8_t) colorOrIndex, bytesToFill);
             break;
         default:
             SkCodecPrintf("Error: Unsupported dst color type for fill().  Doing nothing.\n");

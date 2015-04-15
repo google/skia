@@ -155,6 +155,8 @@ public:
      * the colorTable. i.e. each 4-byte pixel will be set to
      * colorTable[(uint8_t) colorOrIndex].
      *
+     * If dstInfo.colorType() is kGray, colorOrIndex is always treated as an 8-bit color.
+     *
      * Other SkColorTypes are not supported.
      *
      */

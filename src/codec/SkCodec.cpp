@@ -13,6 +13,7 @@
 #include "SkCodec_libpng.h"
 #include "SkCodec_wbmp.h"
 #include "SkCodecPriv.h"
+#include "SkJpegCodec.h"
 #include "SkStream.h"
 
 struct DecoderProc {
@@ -22,6 +23,7 @@ struct DecoderProc {
 
 static const DecoderProc gDecoderProcs[] = {
     { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
+    { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
     { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
     { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },

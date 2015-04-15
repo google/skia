@@ -83,7 +83,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     SkColorType canvasColorType = canvasInfo.colorType();
     switch (fDstColorType) {
         case kIndex8_Always_DstColorType:
+            decodeInfo = codec->getInfo().makeColorType(kIndex_8_SkColorType);
+            if (kRGB_565_SkColorType == canvasColorType) {
+                return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+            }
+            break;
         case kGrayscale_Always_DstColorType:
+            decodeInfo = codec->getInfo().makeColorType(kGray_8_SkColorType);
             if (kRGB_565_SkColorType == canvasColorType) {
                 return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
             }
