@@ -106,25 +106,6 @@ void SkARGB32_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
     }
 }
 
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
-void SkARGB32_Blitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
-    uint32_t* device = fDevice.getAddr32(x, y);
-    SkDEBUGCODE((void)fDevice.getAddr32(x + 1, y);)
-    
-    device[0] = SkBlendARGB32(fPMColor, device[0], a0);
-    device[1] = SkBlendARGB32(fPMColor, device[1], a1);
-}
-
-void SkARGB32_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
-    uint32_t* device = fDevice.getAddr32(x, y);
-    SkDEBUGCODE((void)fDevice.getAddr32(x, y + 1);)
-    
-    device[0] = SkBlendARGB32(fPMColor, device[0], a0);
-    device = (uint32_t*)((char*)device + fDevice.rowBytes());
-    device[0] = SkBlendARGB32(fPMColor, device[0], a1);
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 #define solid_8_pixels(mask, dst, color)    \
@@ -198,25 +179,6 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
         SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
     }
 }
-
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
-void SkARGB32_Opaque_Blitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
-    uint32_t* device = fDevice.getAddr32(x, y);
-    SkDEBUGCODE((void)fDevice.getAddr32(x + 1, y);)
-
-    device[0] = SkFastFourByteInterp(fPMColor, device[0], a0);
-    device[1] = SkFastFourByteInterp(fPMColor, device[1], a1);
-}
-
-void SkARGB32_Opaque_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
-    uint32_t* device = fDevice.getAddr32(x, y);
-    SkDEBUGCODE((void)fDevice.getAddr32(x, y + 1);)
-
-    device[0] = SkFastFourByteInterp(fPMColor, device[0], a0);
-    device = (uint32_t*)((char*)device + fDevice.rowBytes());
-    device[0] = SkFastFourByteInterp(fPMColor, device[0], a1);
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -293,25 +255,6 @@ void SkARGB32_Black_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
         device += count;
     }
 }
-
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
-void SkARGB32_Black_Blitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
-    uint32_t* device = fDevice.getAddr32(x, y);
-    SkDEBUGCODE((void)fDevice.getAddr32(x + 1, y);)
-
-    device[0] = (a0 << SK_A32_SHIFT) + SkAlphaMulQ(device[0], 256 - a0);
-    device[1] = (a1 << SK_A32_SHIFT) + SkAlphaMulQ(device[1], 256 - a1);
-}
-
-void SkARGB32_Black_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
-    uint32_t* device = fDevice.getAddr32(x, y);
-    SkDEBUGCODE((void)fDevice.getAddr32(x, y + 1);)
-    
-    device[0] = (a0 << SK_A32_SHIFT) + SkAlphaMulQ(device[0], 256 - a0);
-    device = (uint32_t*)((char*)device + fDevice.rowBytes());
-    device[0] = (a1 << SK_A32_SHIFT) + SkAlphaMulQ(device[0], 256 - a1);
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

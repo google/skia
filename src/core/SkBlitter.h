@@ -8,12 +8,6 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
-#ifdef SK_SUPPORT_LEGACY_BLITANTIH2V2
-    #define SK_BLITANTIH2V2_VIRTUAL
-#else
-    #define SK_BLITANTIH2V2_VIRTUAL virtual
-#endif
-
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkMask.h"
@@ -60,7 +54,7 @@ public:
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value);
 
     // (x, y), (x + 1, y)
-    SK_BLITANTIH2V2_VIRTUAL void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
+    void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
         int16_t runs[3];
         uint8_t aa[2];
         
@@ -73,7 +67,7 @@ public:
     }
 
     // (x, y), (x, y + 1)
-    SK_BLITANTIH2V2_VIRTUAL void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
+    void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
         int16_t runs[2];
         uint8_t aa[1];
         
