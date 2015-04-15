@@ -247,7 +247,9 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
     // Though for the time being runs in the textblob can override the paint, they only touch font
     // info.
     GrPaint grPaint;
-    SkPaint2GrPaintShader(fContext, rt, skPaint, viewMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(fContext, rt, skPaint, viewMatrix, true, &grPaint)) {
+        return;
+    }
 
     if (cacheBlob) {
         if (MustRegenerateBlob(&transX, &transY, *cacheBlob, skPaint, blurRec, viewMatrix, x, y)) {

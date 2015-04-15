@@ -642,7 +642,7 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
+bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
                              GrColor paintColor, bool constantColor, GrPaint* grPaint) {
 
     grPaint->setDither(skPaint.isDither());
@@ -652,6 +652,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
     GrXPFactory* xpFactory = NULL;
     if (!SkXfermode::AsXPFactory(mode, &xpFactory)) {
         // Fall back to src-over
+        // return false here?
         xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode);
     }
     SkASSERT(xpFactory);
@@ -669,6 +670,7 @@ void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
             SkTDArray<GrFragmentProcessor*> array;
+            // return false if failed?
             if (colorFilter->asFragmentProcessors(context, &array)) {
                 for (int i = 0; i < array.count(); ++i) {
                     grPaint->addColorProcessor(array[i]);
@@ -699,15 +701,15 @@ void SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
         }
     }
 #endif
+    return true;
 }
 
-void SkPaint2GrPaintShader(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
-                           const SkMatrix& viewM, bool constantColor, GrPaint* grPaint) {
+bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
+                     const SkMatrix& viewM, bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
-        SkPaint2GrPaintNoShader(context, rt, skPaint, SkColor2GrColor(skPaint.getColor()),
-                                constantColor, grPaint);
-        return;
+        return SkPaint2GrPaintNoShader(context, rt, skPaint, SkColor2GrColor(skPaint.getColor()),
+                                       constantColor, grPaint);
     }
 
     GrColor paintColor = SkColor2GrColor(skPaint.getColor());
@@ -719,7 +721,10 @@ void SkPaint2GrPaintShader(GrContext* context, GrRenderTarget* rt, const SkPaint
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
         GrFragmentProcessor* fp = NULL;
-        if (shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor, &fp) && fp) {
+        if (!shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor, &fp)) {
+            return false;
+        }
+        if (fp) {
             grPaint->addColorProcessor(fp)->unref();
             constantColor = false;
         }
@@ -727,5 +732,5 @@ void SkPaint2GrPaintShader(GrContext* context, GrRenderTarget* rt, const SkPaint
 
     // The grcolor is automatically set when calling asFragmentProcessor.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
-    SkPaint2GrPaintNoShader(context, rt, skPaint, paintColor, constantColor, grPaint);
+    return SkPaint2GrPaintNoShader(context, rt, skPaint, paintColor, constantColor, grPaint);
 }

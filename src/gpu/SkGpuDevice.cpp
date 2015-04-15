@@ -365,7 +365,9 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPaint", fContext);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     fContext->drawPaint(fRenderTarget, fClip, grPaint, *draw.fMatrix);
 }
@@ -390,7 +392,10 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
         GrStrokeInfo strokeInfo(paint, SkPaint::kStroke_Style);
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+        if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true,
+                             &grPaint)) {
+            return;
+        }
         SkPath path;
         path.setIsVolatile(true);
         path.moveTo(pts[0]);
@@ -407,7 +412,9 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     fContext->drawVertices(fRenderTarget,
                            fClip,
@@ -479,7 +486,9 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     fContext->drawRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, rect, &strokeInfo);
 }
@@ -493,7 +502,9 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
     CHECK_SHOULD_DRAW(draw);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     GrStrokeInfo strokeInfo(paint);
     if (paint.getMaskFilter()) {
@@ -561,7 +572,10 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
         CHECK_SHOULD_DRAW(draw);
 
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+        if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true,
+                             &grPaint)) {
+            return;
+        }
 
         if (NULL == paint.getMaskFilter() && NULL == paint.getPathEffect()) {
             fContext->drawDRRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, outer, inner);
@@ -609,7 +623,9 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     fContext->drawOval(fRenderTarget, fClip, grPaint, *draw.fMatrix, oval, strokeInfo);
 }
@@ -804,7 +820,9 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, viewMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, viewMatrix, true, &grPaint)) {
+        return;
+    }
 
     const SkRect* cullRect = NULL;  // TODO: what is our bounds?
     SkStrokeRec* strokePtr = strokeInfo.getStrokeRecPtr();
@@ -1478,7 +1496,10 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     bool alphaOnly = !(kAlpha_8_SkColorType == bitmap.colorType());
     GrColor paintColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
                                        SkColor2GrColor(paint.getColor());
-    SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint, paintColor, false, &grPaint);
+    if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint, paintColor, false,
+                                 &grPaint)) {
+        return;
+    }
 
     fContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, viewMatrix, dstRect,
                                   paintRect);
@@ -1551,8 +1572,10 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrPaint grPaint;
     grPaint.addColorTextureProcessor(texture, SkMatrix::I());
 
-    SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
-                            SkColor2GrColorJustAlpha(paint.getColor()), false, &grPaint);
+    if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
+                                 SkColor2GrColorJustAlpha(paint.getColor()), false, &grPaint)) {
+        return;
+    }
 
     fContext->drawNonAARectToRect(fRenderTarget,
                                   fClip,
@@ -1665,8 +1688,10 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     GrPaint grPaint;
     grPaint.addColorTextureProcessor(devTex, SkMatrix::I());
 
-    SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
-                            SkColor2GrColorJustAlpha(paint.getColor()), false, &grPaint);
+    if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
+                                 SkColor2GrColorJustAlpha(paint.getColor()), false, &grPaint)) {
+        return;
+    }
 
     SkRect dstRect = SkRect::MakeXYWH(SkIntToScalar(x),
                                       SkIntToScalar(y),
@@ -1741,8 +1766,10 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         copy.setStrokeWidth(0);
 
         // we ignore the shader if texs is null.
-        SkPaint2GrPaintNoShader(this->context(), fRenderTarget, copy,
-                                SkColor2GrColor(copy.getColor()), NULL == colors, &grPaint);
+        if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, copy,
+                                     SkColor2GrColor(copy.getColor()), NULL == colors, &grPaint)) {
+            return;
+        }
 
         primType = kLines_GrPrimitiveType;
         int triangleCount = 0;
@@ -1781,12 +1808,16 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         primType = gVertexMode2PrimitiveType[vmode];
 
         if (NULL == texs || NULL == paint.getShader()) {
-            SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
-                                    SkColor2GrColor(paint.getColor()),
-                                    NULL == colors, &grPaint);
+            if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
+                                         SkColor2GrColor(paint.getColor()),
+                                         NULL == colors, &grPaint)) {
+                return;
+            }
         } else {
-            SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix,
-                                  NULL == colors, &grPaint);
+            if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix,
+                                 NULL == colors, &grPaint)) {
+                return;
+            }
         }
     }
 
@@ -1835,7 +1866,9 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawText", fContext);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     SkDEBUGCODE(this->validate();)
 
@@ -1850,7 +1883,9 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
     CHECK_SHOULD_DRAW(draw);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint);
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix, true, &grPaint)) {
+        return;
+    }
 
     SkDEBUGCODE(this->validate();)
 

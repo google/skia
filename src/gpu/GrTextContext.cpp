@@ -116,7 +116,9 @@ void GrTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
         runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
 
         GrPaint grPaint;
-        SkPaint2GrPaintShader(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint);
+        if (!SkPaint2GrPaint(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint)) {
+            return;
+        }
 
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
