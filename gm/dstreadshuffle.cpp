@@ -94,24 +94,32 @@ protected:
         }
     }
 
-    static SkColor GetColor(SkRandom* random, int i) {
+    static SkColor GetColor(SkRandom* random, int i, int nextColor) {
+        static SkColor colors[] = { SK_ColorRED,
+                                    0xFFFF7F00, // Orange
+                                    SK_ColorYELLOW,
+                                    SK_ColorGREEN,
+                                    SK_ColorBLUE,
+                                    0xFF4B0082, // indigo
+                                    0xFF7F00FF }; // violet
         SkColor color;
+        int index = nextColor % SK_ARRAY_COUNT(colors);
         switch (i) {
             case 0:
                 color = SK_ColorTRANSPARENT;
                 break;
             case 1:
                 color = SkColorSetARGB(0xff,
-                                       random->nextULessThan(256),
-                                       random->nextULessThan(256),
-                                       random->nextULessThan(256));
+                                       SkColorGetR(colors[index]),
+                                       SkColorGetG(colors[index]),
+                                       SkColorGetB(colors[index]));
                 break;
             default:
-                uint8_t alpha = random->nextULessThan(256);
+                uint8_t alpha = 0x80;
                 color = SkColorSetARGB(alpha,
-                                       random->nextRangeU(0, alpha),
-                                       random->nextRangeU(0, alpha),
-                                       random->nextRangeU(0, alpha));
+                                       SkColorGetR(colors[index]),
+                                       SkColorGetG(colors[index]),
+                                       SkColorGetB(colors[index]));
                 break;
         }
         return color;
@@ -143,12 +151,14 @@ protected:
                 for (int width = 0; width <= 1; width++) {
                     for (int alpha = 0; alpha <= 2; alpha++) {
                         for (int r = 0; r <= 5; r++) {
-                            SkColor color = GetColor(&random, alpha);
+                            SkColor color = GetColor(&random, alpha, style + width + alpha + r);
 
                             SkPaint p;
                             p.setAntiAlias(true);
                             p.setColor(color);
-                            p.setXfermodeMode(r % 3 == 0 ? SkXfermode::kHardLight_Mode :
+                            // In order to get some batching on the GPU backend we do 2 src over for
+                            // each xfer mode which requires a dst read
+                            p.setXfermodeMode(r % 3 == 0 ? SkXfermode::kLighten_Mode :
                                                            SkXfermode::kSrcOver_Mode);
                             SetStyle(&p, style, width);
                             canvas->save();
