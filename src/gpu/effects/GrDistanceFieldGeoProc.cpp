@@ -76,19 +76,8 @@ public:
         GrGLVertToFrag recipScale(kFloat_GrSLType);
         GrGLVertToFrag st(kVec2f_GrSLType);
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
-        const char* viewMatrixName = this->uViewM();
-        // view matrix name is NULL if identity matrix
-        bool useInverseScale = !localMatrix.isIdentity() && viewMatrixName;
-        if (isSimilarity && useInverseScale) {
-            args.fPB->addVarying("RecipScale", &recipScale, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("vec2 tx = vec2(%s[0][0], %s[1][0]);",
-                                   viewMatrixName, viewMatrixName);
-            vsBuilder->codeAppend("float tx2 = dot(tx, tx);");
-            vsBuilder->codeAppendf("%s = inversesqrt(tx2);", recipScale.vsOut());
-        } else {
-            args.fPB->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
-        }
+        args.fPB->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
+        vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         GrGLVertToFrag uv(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
@@ -117,18 +106,13 @@ public:
         fsBuilder->codeAppend("float afwidth;");
         if (isSimilarity) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
-            // either by using the inverse scale in the view matrix, or (if there is no view matrix)
             // by using the length of the gradient of the texture coordinates. We use st coordinates
-            // with the latter to ensure we're mapping 1:1 from texel space to pixel space.
+            // to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            if (useInverseScale) {
-                fsBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor "*%s);",
-                                       recipScale.fsIn());
-            } else {
-                fsBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdx(%s.x));",
+            // we use y to work around a Mali400 bug in the x direction
+            fsBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor "*dFdy(%s.y));",
                                        st.fsIn());
-            }
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
@@ -189,7 +173,6 @@ public:
         key |= local.fInputColorType << 16;
         key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
         key |= ComputePosKey(gp.viewMatrix()) << 25;
-        key |= (!gp.viewMatrix().isIdentity() && !gp.localMatrix().isIdentity()) ? 0x1 << 27 : 0x0;
         b->add32(key);
     }
 
@@ -208,14 +191,13 @@ private:
 
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            const SkMatrix& viewMatrix,
-                                                           const SkMatrix& localMatrix,
                                                            GrTexture* texture,
                                                            const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
                                                            uint32_t flags, bool opaqueVertexColors)
-    : INHERITED(color, viewMatrix, localMatrix, opaqueVertexColors)
+    : INHERITED(color, viewMatrix, SkMatrix::I(), opaqueVertexColors)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
@@ -301,7 +283,6 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
                                                            GrTextureParams::kNone_FilterMode);
 
     return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(random),
-                                                GrProcessorUnitTest::TestMatrix(random),
                                                 GrProcessorUnitTest::TestMatrix(random),
                                                 textures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -595,19 +576,8 @@ public:
         bool isUniformScale = SkToBool(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
         GrGLVertToFrag recipScale(kFloat_GrSLType);
         GrGLVertToFrag st(kVec2f_GrSLType);
-        const char* viewMatrixName = this->uViewM();
-        // view matrix name is NULL if identity matrix
-        bool useInverseScale = !localMatrix.isIdentity() && viewMatrixName;
-        if (isUniformScale && useInverseScale) {
-            args.fPB->addVarying("RecipScale", &recipScale, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("vec2 tx = vec2(%s[0][0], %s[1][0]);",
-                                   viewMatrixName, viewMatrixName);
-            vsBuilder->codeAppend("float tx2 = dot(tx, tx);");
-            vsBuilder->codeAppendf("%s = inversesqrt(tx2);", recipScale.vsOut());
-        } else {
-            args.fPB->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
-        }
+        args.fPB->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
+        vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         GrGLVertToFrag uv(kVec2f_GrSLType);
         args.fPB->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
@@ -635,12 +605,8 @@ public:
             fsBuilder->codeAppend("float delta = " GR_FONT_ATLAS_LCD_DELTA ";\n");
         }
         if (isUniformScale) {
-            if (useInverseScale) {
-                fsBuilder->codeAppendf("float dx = %s;", recipScale.fsIn());
-            } else {
-                fsBuilder->codeAppendf("float dx = dFdx(%s.x);", st.fsIn());
-            }
-            fsBuilder->codeAppend("vec2 offset = vec2(dx*delta, 0.0);");
+            fsBuilder->codeAppendf("float dy = dFdy(%s.y);", st.fsIn());
+            fsBuilder->codeAppend("vec2 offset = vec2(dy*delta, 0.0);");
         } else {
             fsBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
 
@@ -689,7 +655,7 @@ public:
             // to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dx);");
+            fsBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*dy);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
@@ -754,7 +720,6 @@ public:
         key |= local.fInputColorType << 16;
         key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
         key |= ComputePosKey(gp.viewMatrix()) << 25;
-        key |= (!gp.viewMatrix().isIdentity() && !gp.localMatrix().isIdentity()) ? 0x1 << 27 : 0x0;
         b->add32(key);
     }
 
@@ -771,11 +736,10 @@ private:
 
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrColor color, const SkMatrix& viewMatrix,
-                                                  const SkMatrix& localMatrix,
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   DistanceAdjust distanceAdjust,
                                                   uint32_t flags)
-    : INHERITED(color, viewMatrix, localMatrix)
+    : INHERITED(color, viewMatrix, SkMatrix::I())
     , fTextureAccess(texture, params)
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){
@@ -854,7 +818,6 @@ GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(SkRandom* random,
     flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
     flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
     return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(random),
-                                                 GrProcessorUnitTest::TestMatrix(random),
                                                  GrProcessorUnitTest::TestMatrix(random),
                                                  textures[texIdx], params,
                                                  wa,

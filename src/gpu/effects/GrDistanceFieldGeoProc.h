@@ -48,18 +48,16 @@ class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
-                                       const SkMatrix& localMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        float lum, uint32_t flags, bool opaqueVertexColors) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, localMatrix, tex,
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,
                                                          params, lum, flags, opaqueVertexColors));
     }
 #else
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
-                                       const SkMatrix& localMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        uint32_t flags, bool opaqueVertexColors) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, localMatrix, tex,
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,
                                                          params, flags, opaqueVertexColors));
     }
 #endif
@@ -90,7 +88,7 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+    GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
                                  GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
@@ -197,11 +195,10 @@ public:
     };
 
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
-                                       const SkMatrix& localMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        DistanceAdjust distanceAdjust, uint32_t flags) {
         return SkNEW_ARGS(GrDistanceFieldLCDTextGeoProc,
-                          (color, viewMatrix, localMatrix, tex, params, distanceAdjust, flags));
+                          (color, viewMatrix, tex, params, distanceAdjust, flags));
     }
 
     virtual ~GrDistanceFieldLCDTextGeoProc() {}
@@ -228,7 +225,6 @@ public:
 
 private:
     GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,
-                                  const SkMatrix& localMatrix,
                                   GrTexture* texture, const GrTextureParams& params,
                                   DistanceAdjust wa, uint32_t flags);
 
