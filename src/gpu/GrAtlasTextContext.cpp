@@ -782,15 +782,7 @@ public:
     typedef Blob::Run Run;
     typedef Run::SubRunInfo TextInfo;
     struct Geometry {
-        Geometry() {}
-        Geometry(const Geometry& geometry)
-            : fBlob(SkRef(geometry.fBlob.get()))
-            , fRun(geometry.fRun)
-            , fSubRun(geometry.fSubRun)
-            , fColor(geometry.fColor)
-            , fTransX(geometry.fTransX)
-            , fTransY(geometry.fTransY) {}
-        SkAutoTUnref<Blob> fBlob;
+        Blob* fBlob;
         int fRun;
         int fSubRun;
         GrColor fColor;
@@ -798,9 +790,9 @@ public:
         SkScalar fTransY;
     };
 
-    static GrBatch* Create(const Geometry& geometry, GrMaskFormat maskFormat,
-                           int glyphCount, GrBatchFontCache* fontCache) {
-        return SkNEW_ARGS(BitmapTextBatch, (geometry, maskFormat, glyphCount, fontCache));
+    static BitmapTextBatch* Create(GrMaskFormat maskFormat, int glyphCount,
+                                   GrBatchFontCache* fontCache) {
+        return SkNEW_ARGS(BitmapTextBatch, (maskFormat, glyphCount, fontCache));
     }
 
     const char* name() const override { return "BitmapTextBatch"; }
@@ -876,7 +868,7 @@ public:
         this->initDraw(batchTarget, gp, pipeline);
 
         int glyphCount = this->numGlyphs();
-        int instanceCount = fGeoData.count();
+        int instanceCount = fInstanceCount;
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
@@ -1018,19 +1010,38 @@ public:
         this->flush(batchTarget, &drawInfo, instancesToFlush, maxInstancesPerDraw);
     }
 
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+    // The minimum number of Geometry we will try to allocate.
+    static const int kMinAllocated = 32;
+
+    // Total number of Geometry this Batch owns
+    int instanceCount() const { return fInstanceCount; }
+    SkAutoSTMalloc<kMinAllocated, Geometry>* geoData() { return &fGeoData; }
+
+    // to avoid even the initial copy of the struct, we have a getter for the first item which
+    // is used to seed the batch with its initial geometry.  After seeding, the client should call
+    // init() so the Batch can initialize itself
+    Geometry& geometry() { return fGeoData[0]; }
+    void init() {
+        fBatch.fColor = fGeoData[0].fColor;
+        fBatch.fViewMatrix = fGeoData[0].fBlob->fViewMatrix;
+    }
 
 private:
-    BitmapTextBatch(const Geometry& geometry, GrMaskFormat maskFormat,
+    BitmapTextBatch(GrMaskFormat maskFormat,
                     int glyphCount, GrBatchFontCache* fontCache)
             : fMaskFormat(maskFormat)
             , fPixelConfig(fontCache->getPixelConfig(maskFormat))
             , fFontCache(fontCache) {
         this->initClassID<BitmapTextBatch>();
-        fGeoData.push_back(geometry);
-        fBatch.fColor = geometry.fColor;
-        fBatch.fViewMatrix = geometry.fBlob->fViewMatrix;
         fBatch.fNumGlyphs = glyphCount;
+        fInstanceCount = 1;
+        fAllocatedCount = kMinAllocated;
+    }
+
+    ~BitmapTextBatch() {
+        for (int i = 0; i < fInstanceCount; i++) {
+            fGeoData[i].fBlob->unref();
+        }
     }
 
     void regenerateTextureCoords(GrGlyph* glyph, intptr_t vertex, size_t vertexStride) {
@@ -1133,7 +1144,25 @@ private:
         }
 
         fBatch.fNumGlyphs += that->numGlyphs();
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+
+        // copy that->geoData().  We do this manually for performance reasons
+        SkAutoSTMalloc<kMinAllocated, Geometry>* otherGeoData = that->geoData();
+        int otherInstanceCount = that->instanceCount();
+        int allocSize = otherInstanceCount + fInstanceCount;
+        if (allocSize > fAllocatedCount) {
+            while (allocSize > fAllocatedCount) {
+                fAllocatedCount = fAllocatedCount << 1;
+            }
+            fGeoData.realloc(fAllocatedCount);
+        }
+
+        memcpy(&fGeoData[fInstanceCount], otherGeoData->get(),
+               otherInstanceCount * sizeof(Geometry));
+        int total = fInstanceCount + otherInstanceCount;
+        for (int i = fInstanceCount; i < total; i++) {
+            fGeoData[i].fBlob->ref();
+        }
+        fInstanceCount = total;
         return true;
     }
 
@@ -1147,7 +1176,9 @@ private:
     };
 
     BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    SkAutoSTMalloc<kMinAllocated, Geometry> fGeoData;
+    int fInstanceCount;
+    int fAllocatedCount;
     GrMaskFormat fMaskFormat;
     GrPixelConfig fPixelConfig;
     GrBatchFontCache* fFontCache;
@@ -1201,15 +1232,16 @@ inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder
                               SkColorSetARGB(paintAlpha, paintAlpha, paintAlpha, paintAlpha) :
                               color;
 
-        BitmapTextBatch::Geometry geometry;
-        geometry.fBlob.reset(SkRef(cacheBlob));
+        SkAutoTUnref<BitmapTextBatch> batch(BitmapTextBatch::Create(format, glyphCount,
+                                                            fContext->getBatchFontCache()));
+        BitmapTextBatch::Geometry& geometry = batch->geometry();
+        geometry.fBlob = SkRef(cacheBlob);
         geometry.fRun = run;
         geometry.fSubRun = subRun;
         geometry.fColor = subRunColor;
         geometry.fTransX = transX;
         geometry.fTransY = transY;
-        SkAutoTUnref<GrBatch> batch(BitmapTextBatch::Create(geometry, format, glyphCount,
-                                                            fContext->getBatchFontCache()));
+        batch->init();
 
         target->drawBatch(pipelineBuilder, batch, &cacheBlob->fRuns[run].fVertexBounds);
     }
